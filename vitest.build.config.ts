@@ -9,6 +9,7 @@ export default defineConfig( {
 		include: [
 			'apps/extension/tests/build/**/*.{test,spec}.{ts,tsx}',
 			'apps/**/src/**/index.test.{ts,tsx}',
+			'packages/**/index.test.{ts,tsx}',
 		],
 		passWithNoTests: false,
 	},

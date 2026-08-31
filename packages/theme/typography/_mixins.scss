@@ -1,0 +1,14 @@
+@use 'sass:map';
+@use 'scale';
+
+@mixin apply( $role ) {
+	@if not map.has-key( scale.$roles, $role ) {
+		@error 'Unknown TOCus typography role "#{ $role }".';
+	}
+
+	font-family: var(--tocus-typography-#{ $role }-font-family);
+	font-size: var(--tocus-typography-#{ $role }-font-size);
+	font-weight: var(--tocus-typography-#{ $role }-font-weight);
+	line-height: var(--tocus-typography-#{ $role }-line-height);
+	letter-spacing: var(--tocus-typography-#{ $role }-letter-spacing);
+}

@@ -1,0 +1,9 @@
+@use 'scale';
+
+:root {
+	@each $role, $properties in scale.$roles {
+		@each $property, $value in $properties {
+			--tocus-typography-#{ $role }-#{ $property }: #{ $value };
+		}
+	}
+}

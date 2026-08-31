@@ -5,13 +5,15 @@
 	"type": "module",
 	"files": [
 		"assets",
-		"index.css",
-		"tokens.css"
+		"index.scss",
+		"tokens.scss",
+		"typography"
 	],
 	"exports": {
 		"./icon.svg": "./assets/icon.svg",
-		"./index.css": "./index.css",
-		"./tokens.css": "./tokens.css"
+		"./index.scss": "./index.scss",
+		"./tokens.scss": "./tokens.scss",
+		"./typography": "./typography/index.scss"
 	},
 	"dependencies": {
 		"@fontsource-variable/fredoka": "5.3.0"
