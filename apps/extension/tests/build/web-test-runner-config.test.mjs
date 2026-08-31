@@ -4,7 +4,14 @@ import config from '../../config/wtr/web-test-runner.config.js';
 const [ scssPlugin ] = config.plugins;
 const context = { path: '/src/features/popup/components/shell/index.ts' };
 
-describe( 'web test runner SCSS inline plugin', () => {
+describe( 'web test runner configuration', () => {
+	it( 'keeps local visual comparisons out of the default browser suite', () => {
+		expect( config.files ).to.deep.equal( [
+			'src/**/*.wtr.test.ts',
+			'!src/**/visual.wtr.test.ts',
+		] );
+	} );
+
 	it( 'accepts only relative SCSS inline imports', () => {
 		expect(
 			scssPlugin.resolveImport( {

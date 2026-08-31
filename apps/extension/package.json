@@ -12,7 +12,8 @@
 		"lint": "eslint . --max-warnings 0",
 		"typecheck": "tsc --noEmit && lit-analyzer \"src/**/*.ts\" --strict --maxWarnings 0",
 		"test:browser": "web-test-runner --config config/wtr/web-test-runner.config.js",
-		"test:browser:update-screenshots": "web-test-runner --config config/wtr/web-test-runner.config.js --update-snapshots",
+		"test:visual": "web-test-runner --config config/wtr/web-test-runner.config.js --files \"src/**/visual.wtr.test.ts\"",
+		"test:visual:update-screenshots": "web-test-runner --config config/wtr/web-test-runner.config.js --files \"src/**/visual.wtr.test.ts\" --update-snapshots",
 		"postinstall": "wxt prepare"
 	},
 	"dependencies": {

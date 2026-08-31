@@ -111,7 +111,7 @@ function snapshotPath( testFile, browser, directory, name ) {
 /** @type {import('@web/test-runner').TestRunnerConfig} */
 export default {
 	rootDir: extensionRoot,
-	files: 'src/**/*.wtr.test.ts',
+	files: [ 'src/**/*.wtr.test.ts', '!src/**/visual.wtr.test.ts' ],
 	coverage: true,
 	coverageConfig: {
 		exclude: [ 'src/**/*.wtr.test.ts' ],

@@ -71,10 +71,11 @@ pnpm dev
 | `pnpm lint`                            | Run script and stylesheet linting                           |
 | `pnpm lint:fix`                        | Fix autofixable script and stylesheet issues                |
 | `pnpm typecheck`                       | Type-check all workspaces                                   |
-| `pnpm test`                            | Run build-contract, accessibility, and visual browser tests |
+| `pnpm test`                            | Run build-contract, component, and accessibility tests      |
 | `pnpm test:build-contract`             | Build both browser targets and validate generated artifacts |
-| `pnpm test:browser`                    | Run covered component, accessibility, and visual tests      |
-| `pnpm test:browser:update-screenshots` | Review and update visual-regression baselines               |
+| `pnpm test:browser`                    | Run covered component and accessibility browser tests       |
+| `pnpm test:visual`                     | Run local visual-regression comparisons                     |
+| `pnpm test:visual:update-screenshots`  | Review and update local visual-regression baselines         |
 | `pnpm check`                           | Run linting, type checks, and tests                         |
 
 ## Repository structure

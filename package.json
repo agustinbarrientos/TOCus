@@ -26,7 +26,8 @@
 		"test": "pnpm test:build-contract && pnpm test:browser",
 		"test:build-contract": "pnpm build && pnpm build:firefox && vitest run --config vitest.build.config.ts",
 		"test:browser": "pnpm --filter @tocus/extension test:browser",
-		"test:browser:update-screenshots": "pnpm --filter @tocus/extension test:browser:update-screenshots",
+		"test:visual": "pnpm --filter @tocus/extension test:visual",
+		"test:visual:update-screenshots": "pnpm --filter @tocus/extension test:visual:update-screenshots",
 		"check": "pnpm lint && pnpm typecheck && pnpm test"
 	},
 	"devDependencies": {
