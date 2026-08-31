@@ -6,7 +6,7 @@
 
 TOCus is an extension that gives you a short breathing pause before loading the websites you choose as distracting, so you can notice the impulse and decide what to do next.
 
-<img src="./.github/assets/download-for-chrome.svg" alt="Download for Chrome" height="52" /> <img src="./.github/assets/download-for-firefox.svg" alt="Download for Firefox" height="52" /> <img src="./.github/assets/download-for-safari.svg" alt="Download for Safari" height="52" />
+<!-- <img src="./.github/assets/download-for-chrome.svg" alt="Download for Chrome" height="52" /> <img src="./.github/assets/download-for-firefox.svg" alt="Download for Firefox" height="52" /> <img src="./.github/assets/download-for-safari.svg" alt="Download for Safari" height="52" /> -->
 
 </div>
 
@@ -71,7 +71,8 @@ pnpm dev
 | `pnpm lint`                            | Run script and stylesheet linting                           |
 | `pnpm lint:fix`                        | Fix autofixable script and stylesheet issues                |
 | `pnpm typecheck`                       | Type-check all workspaces                                   |
-| `pnpm test`                            | Run build-contract, component, and accessibility tests      |
+| `pnpm test`                            | Run unit coverage, build-contract, and browser tests        |
+| `pnpm test:unit`                       | Run unit tests with protection coverage thresholds          |
 | `pnpm test:build-contract`             | Build both browser targets and validate generated artifacts |
 | `pnpm test:browser`                    | Run covered component and accessibility browser tests       |
 | `pnpm test:visual`                     | Run local visual-regression comparisons                     |
