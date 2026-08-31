@@ -1,6 +1,6 @@
 {
 	"name": "@tocus/extension",
-	"version": "0.0.0",
+	"version": "0.1.0",
 	"private": true,
 	"type": "module",
 	"description": "A gentle pause before distracting websites, designed to help you return to your intentions.",
