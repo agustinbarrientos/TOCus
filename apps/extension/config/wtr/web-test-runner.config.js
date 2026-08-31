@@ -5,12 +5,45 @@ import { esbuildPlugin } from '@web/dev-server-esbuild';
 import { emulateMediaPlugin } from '@web/test-runner-commands/plugins';
 import { playwrightLauncher } from '@web/test-runner-playwright';
 import { visualRegressionPlugin } from '@web/test-runner-visual-regression/plugin';
+import * as sass from 'sass';
 
 const extensionRoot = fileURLToPath( new URL( '../..', import.meta.url ) );
-const themeTokensPath = path.resolve( extensionRoot, '../../packages/theme/tokens.css' );
-const themeTokens = readFileSync( themeTokensPath, 'utf8' );
+const scssInlinePrefix = '/__scss_inline__';
+const themeTokensPath = path.resolve( extensionRoot, '../../packages/theme/tokens.scss' );
+const themeTokens = sass.compile( themeTokensPath ).css;
 const testThemes = readFileSync( path.join( extensionRoot, 'config/wtr/test-themes.css' ), 'utf8' );
 const updateScreenshots = process.argv.includes( '--update-snapshots' );
+const scssPlugin = {
+	name: 'scss-inline',
+	resolveImport( { source, context } ) {
+		if ( ! source.endsWith( '.scss?inline' ) ) {
+			return undefined;
+		}
+
+		const sourcePath = source.slice( 0, -'?inline'.length );
+		const resolvedPath = path.posix.join( path.posix.dirname( context.path ), sourcePath );
+
+		return `${ scssInlinePrefix }${ resolvedPath }`;
+	},
+	serve( context ) {
+		if ( ! context.path.startsWith( scssInlinePrefix ) ) {
+			return undefined;
+		}
+
+		const relativePath = context.path.slice( scssInlinePrefix.length );
+		const absolutePath = path.join( extensionRoot, relativePath );
+		const result = sass.compile( absolutePath, {
+			loadPaths: [ path.join( extensionRoot, 'node_modules' ) ],
+			style: 'expanded',
+		} );
+
+		return {
+			body: `export default ${ JSON.stringify( result.css ) };`,
+			headers: { 'cache-control': 'no-cache' },
+			type: 'js',
+		};
+	},
+};
 
 /**
  * Resolves a deterministic visual-regression artifact path beside its test file.
@@ -52,8 +85,9 @@ export default {
 		} ),
 	],
 	plugins: [
+		scssPlugin,
 		esbuildPlugin( {
-			loaders: { '.css': 'text' },
+			loaders: { '.css': 'text', '.scss': 'text' },
 			target: 'es2022',
 			ts: true,
 			tsconfig: path.join( extensionRoot, 'tsconfig.json' ),
