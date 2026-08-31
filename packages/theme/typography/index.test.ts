@@ -43,6 +43,6 @@ describe( 'typography', () => {
 }`,
 				{ loadPaths: [ themeRoot ] },
 			),
-		).toThrowError( 'Unknown TOCus typography role "unknown".' );
+		).toThrow( 'Unknown TOCus typography role "unknown".' );
 	} );
 } );

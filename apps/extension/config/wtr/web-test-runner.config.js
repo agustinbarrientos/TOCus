@@ -87,7 +87,7 @@ export default {
 	plugins: [
 		scssPlugin,
 		esbuildPlugin( {
-			loaders: { '.css': 'text', '.scss': 'text' },
+			loaders: { '.css': 'text' },
 			target: 'es2022',
 			ts: true,
 			tsconfig: path.join( extensionRoot, 'tsconfig.json' ),
