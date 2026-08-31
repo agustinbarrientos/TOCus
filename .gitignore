@@ -1,2 +1,27 @@
 /.superpowers
 /docs
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build and task output
+.turbo/
+.wxt/
+.astro/
+.output/
+dist/
+coverage/
+playwright-report/
+test-results/
+**/__snapshots__/**/__diff__/
+**/__snapshots__/**/__failed__/
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Editors and operating systems
+.DS_Store
+*.swp

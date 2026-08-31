@@ -1,0 +1,61 @@
+@use '@tocus/theme/typography' as typography;
+
+:host {
+	display: block;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+main {
+	padding: var(--tocus-space-6);
+}
+
+.status {
+	@include typography.apply( 'label-medium' );
+
+	display: inline-flex;
+	align-items: center;
+	gap: var(--tocus-space-2);
+	margin: 0 0 var(--tocus-space-4);
+	padding: var(--tocus-space-2) var(--tocus-space-3);
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-full);
+	background: var(--tocus-color-surface-container);
+	color: var(--tocus-color-on-surface-muted);
+	text-transform: uppercase;
+}
+
+.status::before {
+	width: 0.5rem;
+	height: 0.5rem;
+	border-radius: 50%;
+	background: var(--tocus-color-action);
+	content: '';
+}
+
+h1 {
+	@include typography.apply( 'headline-large' );
+
+	margin: 0;
+	color: var(--tocus-color-action);
+}
+
+.summary {
+	@include typography.apply( 'body-large' );
+
+	margin: var(--tocus-space-3) 0 0;
+	color: var(--tocus-color-on-surface);
+}
+
+.foundation-note {
+	@include typography.apply( 'body-small' );
+
+	margin: var(--tocus-space-5) 0 0;
+	padding-top: var(--tocus-space-4);
+	border-top: 1px solid var(--tocus-color-outline);
+	color: var(--tocus-color-on-surface-muted);
+}

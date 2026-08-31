@@ -1,0 +1,171 @@
+@use 'typography/tokens';
+
+:root {
+	color-scheme: light dark;
+
+	--tocus-font-family-brand: 'Fredoka Variable', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif;
+	--tocus-font-family-body: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+	--tocus-space-1: 0.25rem;
+	--tocus-space-2: 0.5rem;
+	--tocus-space-3: 0.75rem;
+	--tocus-space-4: 1rem;
+	--tocus-space-5: 1.5rem;
+	--tocus-space-6: 2rem;
+	--tocus-space-7: 3rem;
+
+	--tocus-radius-small: 0.75rem;
+	--tocus-radius-medium: 1.25rem;
+	--tocus-radius-large: 2rem;
+	--tocus-radius-full: 999px;
+
+	--tocus-transition-fast: 160ms ease;
+}
+
+:root[data-tocus-theme='system'] {
+	color-scheme: light dark;
+}
+
+:root[data-tocus-theme='light'] {
+	color-scheme: light;
+}
+
+:root[data-tocus-theme='dark'] {
+	color-scheme: dark;
+}
+
+:root,
+:root[data-tocus-palette='brown'] {
+	--tocus-color-stage-start: light-dark(#fff8f0, #39261e);
+	--tocus-color-stage-middle: light-dark(#f3e4d5, #251914);
+	--tocus-color-stage-end: light-dark(#d8ad8a, #120c09);
+	--tocus-color-breathing-sphere: light-dark(#b86f46, #c47a4d);
+	--tocus-color-breathing-sphere-highlight: light-dark(#e9b47f, #eab184);
+	--tocus-color-breathing-sphere-shadow: light-dark(#7a4634, #824a35);
+	--tocus-color-shadow-depth: light-dark(#3d241b, #120c09);
+	--tocus-color-on-stage: light-dark(#3c281f, #fff1df);
+	--tocus-color-on-stage-muted: light-dark(#584035, #d1bda8);
+	--tocus-color-surface: light-dark(#fffdf9, #1e1511);
+	--tocus-color-on-surface-muted: light-dark(#6a554a, #c9b29e);
+	--tocus-color-surface-container: light-dark(#f1e4d9, #35251e);
+	--tocus-color-primary: light-dark(#744331, #8f5038);
+	--tocus-color-on-primary: #fff8f0;
+}
+
+:root[data-tocus-palette='green'] {
+	--tocus-color-stage-start: light-dark(#f4f7ef, #283529);
+	--tocus-color-stage-middle: light-dark(#e4ebdd, #172018);
+	--tocus-color-stage-end: light-dark(#b8c8ae, #0b120c);
+	--tocus-color-breathing-sphere: light-dark(#78966c, #77946a);
+	--tocus-color-breathing-sphere-highlight: light-dark(#bdcfad, #b7cba6);
+	--tocus-color-breathing-sphere-shadow: light-dark(#4d6849, #435d41);
+	--tocus-color-shadow-depth: light-dark(#263829, #0b120c);
+	--tocus-color-on-stage: light-dark(#243126, #eff5e8);
+	--tocus-color-on-stage-muted: light-dark(#40513f, #b6c5ae);
+	--tocus-color-surface: light-dark(#fbfcf8, #111912);
+	--tocus-color-on-surface-muted: light-dark(#586b56, #afc1a9);
+	--tocus-color-surface-container: light-dark(#e2e9de, #263428);
+	--tocus-color-primary: light-dark(#4d6849, #4b6848);
+	--tocus-color-on-primary: #f4f7ef;
+}
+
+:root[data-tocus-palette='blue'] {
+	--tocus-color-stage-start: light-dark(#f4f8fa, #263943);
+	--tocus-color-stage-middle: light-dark(#e1eaf0, #15242c);
+	--tocus-color-stage-end: light-dark(#b2c6d2, #091318);
+	--tocus-color-breathing-sphere: light-dark(#6f91a5, #7197aa);
+	--tocus-color-breathing-sphere-highlight: light-dark(#b8ceda, #b5d0db);
+	--tocus-color-breathing-sphere-shadow: light-dark(#466778, #3f6678);
+	--tocus-color-shadow-depth: light-dark(#253945, #081116);
+	--tocus-color-on-stage: light-dark(#20313a, #edf6f9);
+	--tocus-color-on-stage-muted: light-dark(#3d515c, #b3c8d1);
+	--tocus-color-surface: light-dark(#fbfdfe, #101c22);
+	--tocus-color-on-surface-muted: light-dark(#576b76, #adc1c9);
+	--tocus-color-surface-container: light-dark(#dfe9ee, #22353f);
+	--tocus-color-primary: light-dark(#416475, #3f6576);
+	--tocus-color-on-primary: light-dark(#f7fbfd, #f4fafc);
+}
+
+:root[data-tocus-palette='purple'] {
+	--tocus-color-stage-start: light-dark(#faf7fc, #392f3f);
+	--tocus-color-stage-middle: light-dark(#ece4f0, #251d2a);
+	--tocus-color-stage-end: light-dark(#cab5d2, #120e15);
+	--tocus-color-breathing-sphere: light-dark(#9177a0, #967ba4);
+	--tocus-color-breathing-sphere-highlight: light-dark(#cfbada, #d2bcdb);
+	--tocus-color-breathing-sphere-shadow: light-dark(#65516f, #66506f);
+	--tocus-color-shadow-depth: light-dark(#392d3f, #100c12);
+	--tocus-color-on-stage: light-dark(#312737, #f8effa);
+	--tocus-color-on-stage-muted: light-dark(#4d3e54, #cdbccf);
+	--tocus-color-surface: light-dark(#fefcff, #1c1620);
+	--tocus-color-on-surface-muted: light-dark(#68586f, #c7b5ca);
+	--tocus-color-surface-container: light-dark(#eae2ee, #33283a);
+	--tocus-color-primary: light-dark(#604b69, #66516f);
+	--tocus-color-on-primary: light-dark(#fbf7fc, #fcf7fd);
+}
+
+:root[data-tocus-palette='pink'] {
+	--tocus-color-stage-start: light-dark(#fff7f8, #3d2a30);
+	--tocus-color-stage-middle: light-dark(#f3e3e6, #281a1f);
+	--tocus-color-stage-end: light-dark(#dab6bd, #140c0f);
+	--tocus-color-breathing-sphere: light-dark(#b77d89, #be8491);
+	--tocus-color-breathing-sphere-highlight: light-dark(#e6bcc4, #e8bcc6);
+	--tocus-color-breathing-sphere-shadow: light-dark(#80545e, #82525f);
+	--tocus-color-shadow-depth: light-dark(#472e34, #120a0d);
+	--tocus-color-on-stage: light-dark(#3b282d, #fceff2);
+	--tocus-color-on-stage-muted: light-dark(#564148, #d3b9bf);
+	--tocus-color-surface: light-dark(#fffcfc, #1f1418);
+	--tocus-color-on-surface-muted: light-dark(#70585f, #cdb2b9);
+	--tocus-color-surface-container: light-dark(#f0e0e4, #39252c);
+	--tocus-color-primary: light-dark(#79505a, #7a4e59);
+	--tocus-color-on-primary: light-dark(#fff8fa, #fff7f9);
+}
+
+:root[data-tocus-palette='orange'] {
+	--tocus-color-stage-start: light-dark(#fff9f0, #3b2d1e);
+	--tocus-color-stage-middle: light-dark(#f4e7d2, #261d13);
+	--tocus-color-stage-end: light-dark(#e2c08f, #130e08);
+	--tocus-color-breathing-sphere: light-dark(#c9914f, #cf9855);
+	--tocus-color-breathing-sphere-highlight: light-dark(#efc991, #f0cd98);
+	--tocus-color-breathing-sphere-shadow: light-dark(#8a6031, #8b6030);
+	--tocus-color-shadow-depth: light-dark(#4a321d, #110c07);
+	--tocus-color-on-stage: light-dark(#3b2d1f, #fff3e3);
+	--tocus-color-on-stage-muted: light-dark(#58442f, #d5c1a7);
+	--tocus-color-surface: light-dark(#fffdf8, #1e170f);
+	--tocus-color-on-surface-muted: light-dark(#705d48, #ccb89e);
+	--tocus-color-surface-container: light-dark(#f2e6d3, #372a1b);
+	--tocus-color-primary: light-dark(#795229, #7b552a);
+	--tocus-color-on-primary: #fff9f0;
+}
+
+:root {
+	--tocus-color-stage-glow: light-dark(
+		color-mix(in srgb, var(--tocus-color-breathing-sphere) 18%, transparent),
+		color-mix(in srgb, var(--tocus-color-breathing-sphere) 13%, transparent)
+	);
+	--tocus-color-breathing-sphere-contour: light-dark(
+		var(--tocus-color-breathing-sphere-shadow),
+		var(--tocus-color-breathing-sphere-highlight)
+	);
+	--tocus-color-glass-surface: light-dark(
+		color-mix(in srgb, var(--tocus-color-stage-start) 70%, transparent),
+		color-mix(in srgb, var(--tocus-color-stage-middle) 76%, transparent)
+	);
+	--tocus-color-glass-border: light-dark(
+		color-mix(in srgb, var(--tocus-color-primary) 18%, transparent),
+		color-mix(in srgb, var(--tocus-color-breathing-sphere-highlight) 16%, transparent)
+	);
+	--tocus-color-focus-ring: light-dark(var(--tocus-color-primary), var(--tocus-color-breathing-sphere-highlight));
+	--tocus-color-icon-accent: var(--tocus-color-primary);
+
+	--tocus-color-action: light-dark(var(--tocus-color-primary), var(--tocus-color-breathing-sphere-highlight));
+	--tocus-color-on-action: light-dark(var(--tocus-color-on-primary), var(--tocus-color-shadow-depth));
+	--tocus-color-surface-lowest: var(--tocus-color-stage-start);
+	--tocus-color-on-surface: var(--tocus-color-on-stage);
+	--tocus-color-outline: color-mix(in srgb, var(--tocus-color-primary) 28%, var(--tocus-color-surface));
+
+	--tocus-shadow-soft: 0 1.25rem 3.75rem
+		light-dark(
+			color-mix(in srgb, var(--tocus-color-shadow-depth) 12%, transparent),
+			color-mix(in srgb, var(--tocus-color-shadow-depth) 36%, transparent)
+		);
+}

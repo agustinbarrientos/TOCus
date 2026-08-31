@@ -1,0 +1,69 @@
+name: Feature request
+description: Suggest a focused improvement that fits TOCus's local-first purpose.
+title: '[Feature]: '
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Thanks for sharing an idea. TOCus aims to offer a gentle, user-controlled pause without medical or clinical claims.
+
+    - type: dropdown
+      id: area
+      attributes:
+          label: Area
+          options:
+              - Browser extension
+              - Project website
+              - Developer experience or tooling
+              - Documentation
+              - Not sure
+      validations:
+          required: true
+
+    - type: textarea
+      id: problem
+      attributes:
+          label: Problem or opportunity
+          description: What need would this address? Describe the outcome, not only a preferred implementation.
+      validations:
+          required: true
+
+    - type: textarea
+      id: proposal
+      attributes:
+          label: Proposed improvement
+          description: Explain the smallest useful version and how someone would use it.
+      validations:
+          required: true
+
+    - type: textarea
+      id: alternatives
+      attributes:
+          label: Alternatives considered
+          description: What other approaches or workarounds did you consider?
+
+    - type: textarea
+      id: implications
+      attributes:
+          label: Privacy, accessibility, and wellbeing implications
+          description: Note any permissions, storage, network access, accessibility, or user-facing language involved.
+      validations:
+          required: true
+
+    - type: textarea
+      id: context
+      attributes:
+          label: Additional context
+          description: Add mockups, examples, or related links if they help explain the request.
+
+    - type: checkboxes
+      id: preflight
+      attributes:
+          label: Preflight checks
+          options:
+              - label: I searched existing issues and requests for a duplicate.
+                required: true
+              - label: This request does not ask TOCus to diagnose a condition or make a treatment claim.
+                required: true
+              - label: I removed secrets and personal browsing data.
+                required: true

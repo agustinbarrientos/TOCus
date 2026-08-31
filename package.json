@@ -1,0 +1,49 @@
+{
+	"name": "tocus",
+	"private": true,
+	"description": "A gentle, local-first pause before distracting websites.",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/agustinbarrientos/TOCus.git"
+	},
+	"type": "module",
+	"packageManager": "pnpm@11.24.0",
+	"engines": {
+		"node": ">=24.16.0 <25",
+		"pnpm": ">=11.24.0 <12"
+	},
+	"scripts": {
+		"dev": "turbo run dev --parallel",
+		"setup:browsers": "pnpm --filter @tocus/extension exec playwright install chromium",
+		"build": "turbo run build",
+		"build:firefox": "pnpm --filter @tocus/extension build:firefox",
+		"lint": "pnpm lint:scripts && pnpm lint:styles",
+		"lint:scripts": "eslint . --max-warnings 0",
+		"lint:styles": "stylelint \"apps/*/src/**/*.{css,scss}\" \"apps/extension/config/**/*.css\" \"packages/theme/**/*.{css,scss}\"",
+		"lint:fix": "pnpm lint:scripts --fix && pnpm lint:styles --fix",
+		"typecheck": "tsc --project tsconfig.json --noEmit && turbo run typecheck",
+		"test": "pnpm test:build-contract && pnpm test:browser",
+		"test:build-contract": "pnpm build && pnpm build:firefox && vitest run --config vitest.build.config.ts",
+		"test:browser": "pnpm --filter @tocus/extension test:browser",
+		"test:visual": "pnpm --filter @tocus/extension test:visual",
+		"test:visual:update-screenshots": "pnpm --filter @tocus/extension test:visual:update-screenshots",
+		"check": "pnpm lint && pnpm typecheck && pnpm test"
+	},
+	"devDependencies": {
+		"@eslint/js": "10.0.1",
+		"@types/node": "24.13.3",
+		"eslint": "10.9.1",
+		"eslint-plugin-astro": "3.1.0",
+		"eslint-plugin-jsdoc": "64.2.1",
+		"eslint-plugin-lit": "2.3.1",
+		"globals": "17.11.0",
+		"sass": "1.103.1",
+		"stylelint": "17.14.1",
+		"stylelint-config-standard-scss": "17.0.0",
+		"turbo": "2.10.12",
+		"typescript": "6.0.3",
+		"typescript-eslint": "8.68.0",
+		"vitest": "4.1.11"
+	}
+}

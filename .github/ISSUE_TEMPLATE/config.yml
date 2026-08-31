@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+    - name: Report a security vulnerability
+      url: https://github.com/agustinbarrientos/TOCus/security/advisories/new
+      about: Share vulnerability details privately with the maintainers.
