@@ -1,0 +1,9 @@
+{
+	"extends": [
+		"./.wxt/tsconfig.json", 
+		"../../tsconfig.base.json"
+	],
+	"compilerOptions": {
+		"types": [ "mocha" ]
+	}
+}
