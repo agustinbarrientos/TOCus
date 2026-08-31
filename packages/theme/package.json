@@ -1,0 +1,14 @@
+{
+	"name": "@tocus/theme",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"files": [
+		"assets",
+		"tokens.css"
+	],
+	"exports": {
+		"./icon.svg": "./assets/icon.svg",
+		"./tokens.css": "./tokens.css"
+	}
+}
