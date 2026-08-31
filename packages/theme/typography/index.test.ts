@@ -93,7 +93,15 @@ $definitions: scale.definitions();`,
 		const result = compile( "@use 'typography/tokens';" );
 		const emittedTokens = Array.from(
 			result.css.matchAll( /^\s*(--tocus-typography-[\w-]+):\s*([^;]+);$/gm ),
-			( match ) => [ match[ 1 ], match[ 2 ].trim() ] as const,
+			( match ) => {
+				const [ , name, value ] = match;
+
+				if ( name === undefined || value === undefined ) {
+					throw new TypeError( 'A typography token could not be parsed.' );
+				}
+
+				return [ name, value.trim() ] as const;
+			},
 		);
 
 		expect( TYPOGRAPHY_ROLES ).toHaveLength( 15 );
