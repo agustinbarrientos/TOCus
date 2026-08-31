@@ -4,7 +4,7 @@
 
 ### A gentle pause before distracting websites
 
-TOCus is an extension that gives you a short breathing pause before loading the websites you choose, so you can notice the impulse and decide what to do next.
+TOCus is an extension that gives you a short breathing pause before loading the websites you choose as distracting, so you can notice the impulse and decide what to do next.
 
 <img src="./.github/assets/download-for-chrome.svg" alt="Download for Chrome" height="52" /> <img src="./.github/assets/download-for-firefox.svg" alt="Download for Firefox" height="52" /> <img src="./.github/assets/download-for-safari.svg" alt="Download for Safari" height="52" />
 

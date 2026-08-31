@@ -9,6 +9,18 @@ import * as sass from 'sass';
 
 const extensionRoot = fileURLToPath( new URL( '../..', import.meta.url ) );
 const scssInlinePrefix = '/__scss_inline__';
+const themeFontRoot = path.resolve(
+	extensionRoot,
+	'../../packages/theme/node_modules/@fontsource-variable/fredoka',
+);
+const themeFontStyles = readFileSync( path.join( themeFontRoot, 'wght.css' ), 'utf8' ).replaceAll(
+	/url\(\.\/files\/([^)]+)\)/gu,
+	( _match, fileName ) => {
+		const font = readFileSync( path.join( themeFontRoot, 'files', fileName ) ).toString( 'base64' );
+
+		return `url(data:font/woff2;base64,${ font })`;
+	},
+);
 const themeTokensPath = path.resolve( extensionRoot, '../../packages/theme/tokens.scss' );
 const themeTokens = sass.compile( themeTokensPath ).css;
 const testThemes = readFileSync( path.join( extensionRoot, 'config/wtr/test-themes.css' ), 'utf8' );
@@ -104,7 +116,7 @@ export default {
 		} ),
 	],
 	testRunnerHtml: ( testFramework ) =>
-		`<!doctype html><html><head><style>${ themeTokens }${ testThemes }</style></head><body><script type="module" src="${ testFramework }"></script></body></html>`,
+		`<!doctype html><html><head><style>${ themeFontStyles }${ themeTokens }${ testThemes }</style></head><body><script type="module" src="${ testFramework }"></script></body></html>`,
 	testFramework: { config: { timeout: 10_000, ui: 'bdd' } },
 	browserStartTimeout: 120_000,
 	testsStartTimeout: 60_000,

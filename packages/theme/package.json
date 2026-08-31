@@ -7,7 +7,7 @@
 		"assets",
 		"index.scss",
 		"tokens.scss",
-		"typography"
+		"typography/*.scss"
 	],
 	"exports": {
 		"./icon.svg": "./assets/icon.svg",
