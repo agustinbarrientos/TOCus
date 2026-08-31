@@ -51,7 +51,7 @@ footer {
 	color: var(--tocus-color-action);
 	font-family: var(--tocus-font-family-brand);
 	font-size: 1.25rem;
-	font-weight: 800;
+	font-weight: 700;
 	letter-spacing: -0.025em;
 }
 
@@ -107,7 +107,7 @@ h1 {
 	color: var(--tocus-color-on-surface);
 	font-family: var(--tocus-font-family-brand);
 	font-size: clamp(3.75rem, 14vw, 7rem);
-	font-weight: 800;
+	font-weight: 700;
 	letter-spacing: -0.065em;
 	line-height: 0.9;
 }

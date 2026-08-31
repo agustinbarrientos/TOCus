@@ -104,7 +104,11 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
 
-  packages/theme: {}
+  packages/theme:
+    dependencies:
+      '@fontsource-variable/fredoka':
+        specifier: 5.3.0
+        version: 5.3.0
 
 packages:
 
@@ -551,6 +555,9 @@ packages:
 
   '@esm-bundle/chai@4.3.4-fix.0':
     resolution: {integrity: sha512-26SKdM4uvDWlY8/OOOxSB1AqQWeBosCX3wRYUZO7enTAj03CtVxIiCimYVG2WpULcyV51qapK4qTovwkUr5Mlw==}
+
+  '@fontsource-variable/fredoka@5.3.0':
+    resolution: {integrity: sha512-13w98iw2RcmYfZQRZPLSu+0YJK3HHm5A2XrpU26moFIAePmfiKfvkmEJUgkc8r5GNR+pbDijOueS1KdGAMAWmQ==}
 
   '@hapi/bourne@3.0.0':
     resolution: {integrity: sha512-Waj1cwPXJDucOib4a3bAISsKJVb15MKi9IvmTI/7ssVEm6sywXGjVJDhl6/umt1pK1ZS7PacXU3A1PmFKHEZ2w==}
@@ -4444,6 +4451,8 @@ snapshots:
   '@esm-bundle/chai@4.3.4-fix.0':
     dependencies:
       '@types/chai': 4.3.20
+
+  '@fontsource-variable/fredoka@5.3.0': {}
 
   '@hapi/bourne@3.0.0': {}
 

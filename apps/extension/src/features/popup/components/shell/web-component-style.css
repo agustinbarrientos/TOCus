@@ -42,6 +42,7 @@ h1 {
 	color: var(--tocus-color-action);
 	font-family: var(--tocus-font-family-brand);
 	font-size: 2rem;
+	font-weight: 700;
 	line-height: 1.1;
 }
 
