@@ -14,8 +14,8 @@ dist/
 coverage/
 playwright-report/
 test-results/
-**/__snapshots__/__diff__/
-**/__snapshots__/__failed__/
+**/__snapshots__/**/__diff__/
+**/__snapshots__/**/__failed__/
 
 # Local environment
 .env
