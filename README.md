@@ -84,7 +84,6 @@ pnpm dev
 |-- apps/
 |   |-- extension/       # WXT + Lit browser extension and extension-owned tests
 |   `-- website/         # Astro project website
-|-- docs/                # Approved product design specification
 |-- packages/
 |   `-- theme/           # Shared icon and design tokens
 `-- eslint.config.js     # Repository lint configuration

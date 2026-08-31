@@ -1,7 +1,7 @@
 packages:
-  - apps/*
-  - packages/*
+    - apps/*
+    - packages/*
 
 allowBuilds:
-  '@parcel/watcher': true
-  esbuild@0.28.2: true
+    '@parcel/watcher': true
+    esbuild@0.28.2: true

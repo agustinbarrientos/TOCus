@@ -5,6 +5,20 @@
 export default {
 	extends: [ 'stylelint-config-standard-scss' ],
 	ignoreFiles: [ '**/node_modules/**', '**/dist/**', '**/.output/**', '**/coverage/**' ],
+	overrides: [
+		{
+			files: [ 'apps/*/src/**/*.{css,scss}' ],
+			rules: {
+				'property-disallowed-list': [
+					'font-family',
+					'font-size',
+					'font-weight',
+					'letter-spacing',
+					'line-height',
+				],
+			},
+		},
+	],
 	rules: {
 		'custom-property-pattern': [
 			'^tocus-',

@@ -1,8 +1,7 @@
-@use 'sass:map';
 @use 'scale';
 
 @mixin apply( $role ) {
-	@if not map.has-key( scale.$roles, $role ) {
+	@if not scale.has-role( $role ) {
 		@error 'Unknown TOCus typography role "#{ $role }".';
 	}
 

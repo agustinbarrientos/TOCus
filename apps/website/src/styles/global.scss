@@ -106,9 +106,6 @@ h1 {
 	@include typography.apply( 'display-large' );
 
 	color: var(--tocus-color-on-surface);
-	font-size: clamp(3.75rem, 14vw, 7rem);
-	letter-spacing: -0.065em;
-	line-height: 0.9;
 }
 
 .intro {

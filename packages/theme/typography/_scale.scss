@@ -1,4 +1,6 @@
-$roles: (
+@use 'sass:map';
+
+$-roles: (
 	'display-large': (
 		font-family: var(--tocus-font-family-brand),
 		font-size: 3.5625rem,
@@ -105,3 +107,17 @@ $roles: (
 		letter-spacing: 0.03125rem,
 	),
 );
+
+@function has-role( $role ) {
+	@return map.has-key( $-roles, $role );
+}
+
+@mixin emit-tokens() {
+	:root {
+		@each $role, $properties in $-roles {
+			@each $property, $value in $properties {
+				--tocus-typography-#{ $role }-#{ $property }: #{ $value };
+			}
+		}
+	}
+}

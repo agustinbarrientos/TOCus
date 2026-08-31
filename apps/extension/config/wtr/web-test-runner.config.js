@@ -21,21 +21,55 @@ const themeFontStyles = readFileSync( path.join( themeFontRoot, 'wght.css' ), 'u
 		return `url(data:font/woff2;base64,${ font })`;
 	},
 );
-const themeTokensPath = path.resolve( extensionRoot, '../../packages/theme/tokens.scss' );
-const themeTokens = sass.compile( themeTokensPath ).css;
+const themeStyles = sass
+	.compile( path.resolve( extensionRoot, '../../packages/theme/index.scss' ) )
+	.css.replace( /@import '@fontsource-variable\/fredoka\/wght\.css';/gu, themeFontStyles );
 const testThemes = readFileSync( path.join( extensionRoot, 'config/wtr/test-themes.css' ), 'utf8' );
 const updateScreenshots = process.argv.includes( '--update-snapshots' );
+
+/**
+ * Resolves a root-relative SCSS request without allowing it to leave the extension.
+ * @param {string} requestPath - Root-relative request path.
+ * @return {string|undefined} The absolute SCSS path when it is safe to serve.
+ */
+function resolveScssPath( requestPath ) {
+	if ( ! requestPath.startsWith( '/' ) ) {
+		return undefined;
+	}
+
+	const absolutePath = path.resolve( extensionRoot, `.${ requestPath }` );
+	const relativePath = path.relative( extensionRoot, absolutePath );
+	if (
+		path.extname( absolutePath ) !== '.scss' ||
+		relativePath === '..' ||
+		relativePath.startsWith( `..${ path.sep }` ) ||
+		path.isAbsolute( relativePath )
+	) {
+		return undefined;
+	}
+
+	return absolutePath;
+}
+
 const scssPlugin = {
 	name: 'scss-inline',
 	resolveImport( { source, context } ) {
-		if ( ! source.endsWith( '.scss?inline' ) ) {
+		if ( ! source.startsWith( './' ) && ! source.startsWith( '../' ) ) {
+			return undefined;
+		}
+
+		if ( ! source.endsWith( '.scss?inline' ) || ! context.path.startsWith( '/' ) ) {
 			return undefined;
 		}
 
 		const sourcePath = source.slice( 0, -'?inline'.length );
-		const resolvedPath = path.posix.join( path.posix.dirname( context.path ), sourcePath );
+		const resolvedPath = path.posix.resolve( path.posix.dirname( context.path ), sourcePath );
+		const absolutePath = resolveScssPath( resolvedPath );
+		if ( absolutePath === undefined ) {
+			return undefined;
+		}
 
-		return `${ scssInlinePrefix }${ resolvedPath }`;
+		return `${ scssInlinePrefix }/${ path.relative( extensionRoot, absolutePath ).split( path.sep ).join( '/' ) }`;
 	},
 	serve( context ) {
 		if ( ! context.path.startsWith( scssInlinePrefix ) ) {
@@ -43,7 +77,11 @@ const scssPlugin = {
 		}
 
 		const relativePath = context.path.slice( scssInlinePrefix.length );
-		const absolutePath = path.join( extensionRoot, relativePath );
+		const absolutePath = resolveScssPath( relativePath );
+		if ( absolutePath === undefined ) {
+			return undefined;
+		}
+
 		const result = sass.compile( absolutePath, {
 			loadPaths: [ path.join( extensionRoot, 'node_modules' ) ],
 			style: 'expanded',
@@ -99,7 +137,6 @@ export default {
 	plugins: [
 		scssPlugin,
 		esbuildPlugin( {
-			loaders: { '.css': 'text' },
 			target: 'es2022',
 			ts: true,
 			tsconfig: path.join( extensionRoot, 'tsconfig.json' ),
@@ -116,7 +153,7 @@ export default {
 		} ),
 	],
 	testRunnerHtml: ( testFramework ) =>
-		`<!doctype html><html><head><style>${ themeFontStyles }${ themeTokens }${ testThemes }</style></head><body><script type="module" src="${ testFramework }"></script></body></html>`,
+		`<!doctype html><html><head><style>${ themeStyles }${ testThemes }</style></head><body><script type="module" src="${ testFramework }"></script></body></html>`,
 	testFramework: { config: { timeout: 10_000, ui: 'bdd' } },
 	browserStartTimeout: 120_000,
 	testsStartTimeout: 60_000,
