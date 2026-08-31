@@ -1,6 +1,6 @@
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
-import styles from './web-component-style.css?inline';
+import styles from './web-component-style.scss?inline';
 
 const POPUP_SUMMARY = 'A gentle pause before distracting websites, designed to help you return to your intentions.';
 const FOUNDATION_NOTE =

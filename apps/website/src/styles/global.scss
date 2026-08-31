@@ -1,3 +1,5 @@
+@use '@tocus/theme/typography' as typography;
+
 *,
 *::before,
 *::after {
@@ -5,10 +7,11 @@
 }
 
 html {
+	@include typography.apply( 'body-medium' );
+
 	min-width: 20rem;
 	background: var(--tocus-color-surface);
 	color: var(--tocus-color-on-surface);
-	font-family: var(--tocus-font-family-body);
 	color-scheme: light dark;
 }
 
@@ -48,22 +51,19 @@ footer {
 }
 
 .wordmark {
+	@include typography.apply( 'headline-small' );
+
 	color: var(--tocus-color-action);
-	font-family: var(--tocus-font-family-brand);
-	font-size: 1.25rem;
-	font-weight: 700;
-	letter-spacing: -0.025em;
 }
 
 .status {
+	@include typography.apply( 'label-medium' );
+
 	padding: var(--tocus-space-2) var(--tocus-space-3);
 	border: 1px solid var(--tocus-color-outline);
 	border-radius: var(--tocus-radius-full);
 	background: var(--tocus-color-surface-lowest);
 	color: var(--tocus-color-on-surface-muted);
-	font-size: 0.75rem;
-	font-weight: 700;
-	letter-spacing: 0.06em;
 	text-transform: uppercase;
 }
 
@@ -95,42 +95,41 @@ main {
 }
 
 .eyebrow {
+	@include typography.apply( 'label-medium' );
+
 	margin-bottom: var(--tocus-space-4);
 	color: var(--tocus-color-on-surface-muted);
-	font-size: 0.75rem;
-	font-weight: 800;
-	letter-spacing: 0.12em;
 	text-transform: uppercase;
 }
 
 h1 {
+	@include typography.apply( 'display-large' );
+
 	color: var(--tocus-color-on-surface);
-	font-family: var(--tocus-font-family-brand);
 	font-size: clamp(3.75rem, 14vw, 7rem);
-	font-weight: 700;
 	letter-spacing: -0.065em;
 	line-height: 0.9;
 }
 
 .intro {
+	@include typography.apply( 'headline-small' );
+
 	max-width: 28rem;
 	margin-top: var(--tocus-space-5);
 	color: var(--tocus-color-on-surface);
-	font-family: var(--tocus-font-family-brand);
-	font-size: clamp(1.25rem, 3vw, 1.6rem);
-	font-weight: 700;
-	line-height: 1.3;
 }
 
 .description {
+	@include typography.apply( 'body-large' );
+
 	max-width: 35rem;
 	margin-top: var(--tocus-space-4);
 	color: var(--tocus-color-on-surface-muted);
-	font-size: 1rem;
-	line-height: 1.7;
 }
 
 .source-link {
+	@include typography.apply( 'label-large' );
+
 	display: inline-flex;
 	align-items: center;
 	gap: var(--tocus-space-2);
@@ -139,8 +138,6 @@ h1 {
 	border-radius: var(--tocus-radius-full);
 	background: var(--tocus-color-action);
 	color: var(--tocus-color-on-action);
-	font-weight: 800;
-	line-height: 1.4;
 	text-decoration: none;
 	transition: box-shadow var(--tocus-transition-fast);
 }
@@ -155,9 +152,10 @@ h1 {
 }
 
 footer {
+	@include typography.apply( 'body-medium' );
+
 	border-top: 1px solid var(--tocus-color-outline);
 	color: var(--tocus-color-on-surface-muted);
-	font-size: 0.875rem;
 }
 
 @media (max-width: 35rem) {

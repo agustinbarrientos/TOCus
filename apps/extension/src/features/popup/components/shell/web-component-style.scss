@@ -1,3 +1,5 @@
+@use '@tocus/theme/typography' as typography;
+
 :host {
 	display: block;
 }
@@ -13,6 +15,8 @@ main {
 }
 
 .status {
+	@include typography.apply( 'label-medium' );
+
 	display: inline-flex;
 	align-items: center;
 	gap: var(--tocus-space-2);
@@ -22,10 +26,6 @@ main {
 	border-radius: var(--tocus-radius-full);
 	background: var(--tocus-color-surface-container);
 	color: var(--tocus-color-on-surface-muted);
-	font-size: 0.75rem;
-	font-weight: 700;
-	letter-spacing: 0.04em;
-	line-height: 1;
 	text-transform: uppercase;
 }
 
@@ -38,26 +38,24 @@ main {
 }
 
 h1 {
+	@include typography.apply( 'headline-large' );
+
 	margin: 0;
 	color: var(--tocus-color-action);
-	font-family: var(--tocus-font-family-brand);
-	font-size: 2rem;
-	font-weight: 700;
-	line-height: 1.1;
 }
 
 .summary {
+	@include typography.apply( 'body-large' );
+
 	margin: var(--tocus-space-3) 0 0;
 	color: var(--tocus-color-on-surface);
-	font-size: 1rem;
-	line-height: 1.55;
 }
 
 .foundation-note {
+	@include typography.apply( 'body-small' );
+
 	margin: var(--tocus-space-5) 0 0;
 	padding-top: var(--tocus-space-4);
 	border-top: 1px solid var(--tocus-color-outline);
 	color: var(--tocus-color-on-surface-muted);
-	font-size: 0.8125rem;
-	line-height: 1.5;
 }

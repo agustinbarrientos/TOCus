@@ -1,3 +1,3 @@
-import '@tocus/theme/index.css';
+import '@tocus/theme/index.scss';
 import '@tocus/extension/features/popup/components/shell';
-import './styles.css';
+import './styles.scss';

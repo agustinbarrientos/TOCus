@@ -1,7 +1,10 @@
+@use '@tocus/theme/typography' as typography;
+
 :root {
+	@include typography.apply( 'body-medium' );
+
 	background: var(--tocus-color-surface);
 	color: var(--tocus-color-on-surface);
-	font-family: var(--tocus-font-family-body);
 	font-synthesis: none;
 }
 
