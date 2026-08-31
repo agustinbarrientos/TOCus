@@ -1,0 +1,5 @@
+.tocus-test-frame {
+	width: 22rem;
+	background: var(--tocus-color-surface-lowest);
+	color: var(--tocus-color-on-surface);
+}
