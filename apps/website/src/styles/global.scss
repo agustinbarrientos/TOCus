@@ -158,7 +158,7 @@ footer {
 	color: var(--tocus-color-on-surface-muted);
 }
 
-@media (max-width: 35rem) {
+@media (width <= 35rem) {
 	.page-shell {
 		width: min(calc(100% - (2 * var(--tocus-space-4))), 72rem);
 	}
