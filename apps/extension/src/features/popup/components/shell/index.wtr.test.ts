@@ -64,6 +64,49 @@ describe( 'tocus-f-popup-shell', () => {
 		);
 	} );
 
+	it( 'honors runtime typography roles inside the shadow root', async () => {
+		const element = await fixture<ComponentPopupShell>( html`<tocus-f-popup-shell></tocus-f-popup-shell>` );
+		const shadowRoot = element.shadowRoot;
+
+		expect( shadowRoot ).not.to.equal( null );
+		if ( shadowRoot === null ) {
+			throw new Error( 'Expected the popup shell to render a shadow root.' );
+		}
+
+		element.style.setProperty( '--tocus-typography-label-medium-font-family', 'monospace' );
+		element.style.setProperty( '--tocus-typography-label-medium-font-size', '1.125rem' );
+		element.style.setProperty( '--tocus-typography-label-medium-font-weight', '600' );
+		element.style.setProperty( '--tocus-typography-label-medium-line-height', '1.5rem' );
+		element.style.setProperty( '--tocus-typography-label-medium-letter-spacing', '0.125rem' );
+		element.style.setProperty( '--tocus-typography-headline-large-font-size', '2.5rem' );
+		element.style.setProperty( '--tocus-typography-body-large-font-size', '1.125rem' );
+		element.style.setProperty( '--tocus-typography-body-small-font-size', '0.875rem' );
+
+		const status = shadowRoot.querySelector<HTMLElement>( '.status' );
+		const heading = shadowRoot.querySelector<HTMLElement>( 'h1' );
+		const summary = shadowRoot.querySelector<HTMLElement>( '.summary' );
+		const foundationNote = shadowRoot.querySelector<HTMLElement>( '.foundation-note' );
+
+		expect( status ).not.to.equal( null );
+		expect( heading ).not.to.equal( null );
+		expect( summary ).not.to.equal( null );
+		expect( foundationNote ).not.to.equal( null );
+
+		if ( status === null || heading === null || summary === null || foundationNote === null ) {
+			throw new Error( 'Expected every typography-role target to render.' );
+		}
+
+		const statusStyles = getComputedStyle( status );
+		expect( statusStyles.fontFamily ).to.equal( 'monospace' );
+		expect( statusStyles.fontSize ).to.equal( '18px' );
+		expect( statusStyles.fontWeight ).to.equal( '600' );
+		expect( statusStyles.lineHeight ).to.equal( '24px' );
+		expect( statusStyles.letterSpacing ).to.equal( '2px' );
+		expect( getComputedStyle( heading ).fontSize ).to.equal( '40px' );
+		expect( getComputedStyle( summary ).fontSize ).to.equal( '18px' );
+		expect( getComputedStyle( foundationNote ).fontSize ).to.equal( '14px' );
+	} );
+
 	it( 'has no automatically detectable accessibility violations in the light theme', async () => {
 		await emulateMedia( { colorScheme: 'light' } );
 		const lightFrame = await fixture<HTMLElement>(
