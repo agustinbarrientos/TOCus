@@ -41,11 +41,17 @@ For example, a maintainer foundation branch is `agus/chore/project-foundation`.
 
 - Keep the change as small as practical and avoid unrelated refactors.
 - Develop behavioral changes test-first: write or update a failing test before implementation, then make it pass.
+- Keep business rules inside their domain and keep feature folders focused on user-interface composition.
+- Within a domain, place shared contracts in `types`, pure behavior in `utils`, browser or external I/O in `services`, and rendered elements in `components`.
+- Keep each domain contract in a focused direct file under `types`, use nested type groups only for genuinely related multi-file contracts, and place reusable test data under `types/__fixtures__`.
+- Give each utility or service leaf folder one cohesive responsibility and colocate its `index.ts`, required `index.test.ts`, and optional `types.ts`.
+- Give each component leaf folder one cohesive responsibility and colocate its `index.ts` and `index.wtr.test.ts`; add `visual.wtr.test.ts` when the component is styled, and add `index.test.ts` only for independently testable pure logic or types.
 - Preserve the categorical v1 privacy contract: local-only operation, no account or TOCus server, no telemetry or product analytics, no browsing-history permission or analysis, and no network requests for core operation. Explain and narrowly scope any browser permission or local storage change.
 - Use accessible, gentle, and non-judgmental language.
 - Do not describe TOCus as diagnosing, preventing, or treating OCD or another medical condition.
 - Do not commit disposable generated output such as `.output`, `dist`, coverage, reports, or caches. Reviewed visual-regression baselines are test fixtures and are the only current exception.
 - Do not hard-wrap prose, comments, or commit-message paragraphs in the middle of a sentence.
+- Document every declared type, schema, named function, assigned function, and method with TSDoc or JSDoc. Add an appropriate `@since` tag to every exported declaration.
 - Keep authored source and documentation files ASCII-only. Use HTML entities when an intentional rendered glyph or accent is required.
 
 ## Validate your work
