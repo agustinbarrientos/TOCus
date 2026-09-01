@@ -1,0 +1,459 @@
+import { assert, expect, fixture, html, oneEvent } from '@open-wc/testing';
+import { emulateMedia, sendKeys, setViewport } from '@web/test-runner-commands';
+import { ComponentInterruptionScreen } from './index';
+import {
+	DefaultInterruptionScreenCopy,
+	InterruptionContinueRequestEventName,
+	InterruptionScreenMode,
+	InterruptionScreenState,
+} from './types';
+
+/**
+ * Returns the open shadow root owned by a screen fixture.
+ * @param element - Rendered interruption screen.
+ * @return Open component shadow root.
+ */
+function getShadowRoot( element: ComponentInterruptionScreen ): ShadowRoot {
+	const shadowRoot = element.shadowRoot;
+
+	assert.notEqual( shadowRoot, null );
+	if ( shadowRoot === null ) {
+		throw new Error( 'Expected the interruption screen to render an open shadow root.' );
+	}
+
+	return shadowRoot;
+}
+
+/**
+ * Returns one required HTML element from the screen shadow tree.
+ * @param element - Rendered interruption screen.
+ * @param selector - Selector for the required element.
+ * @return Matching HTML element.
+ */
+function getRequiredElement( element: ComponentInterruptionScreen, selector: string ): HTMLElement {
+	const match = getShadowRoot( element ).querySelector( selector );
+
+	assert.instanceOf( match, HTMLElement );
+	if ( ! ( match instanceof HTMLElement ) ) {
+		throw new Error( `Expected the interruption screen to render ${ selector }.` );
+	}
+
+	return match;
+}
+
+/**
+ * Returns the rendered Continue button.
+ * @param element - Ready interruption screen.
+ * @return Continue button.
+ */
+function getContinueButton( element: ComponentInterruptionScreen ): HTMLButtonElement {
+	const button = getShadowRoot( element ).querySelector( 'button' );
+
+	assert.instanceOf( button, HTMLButtonElement );
+	if ( ! ( button instanceof HTMLButtonElement ) ) {
+		throw new Error( 'Expected the Ready screen to render a Continue button.' );
+	}
+
+	return button;
+}
+
+/**
+ * Waits for the next browser animation frame.
+ * @return Promise resolved after one frame.
+ */
+function nextFrame(): Promise<void> {
+	return new Promise( ( resolve ) => {
+		requestAnimationFrame( () => {
+			resolve();
+		} );
+	} );
+}
+
+/**
+ * Formats the German remaining-time fixture.
+ * @param remainingSeconds - Whole remaining seconds.
+ * @return Complete German remaining-time label.
+ */
+function formatGermanRemainingTime( remainingSeconds: number ): string {
+	return `Noch ${ String( remainingSeconds ) } Sekunden`;
+}
+
+/**
+ * Parses one resolved browser RGB color.
+ * @param color - Resolved CSS color.
+ * @return Red, green, and blue channels.
+ */
+function parseRgbColor( color: string ): readonly [ number, number, number ] {
+	const channels = color.match( /\d+(?:\.\d+)?/gu )?.slice( 0, 3 ).map( Number ) ?? [];
+
+	if ( channels.length !== 3 ) {
+		throw new Error( `Expected an RGB color, received ${ color }.` );
+	}
+
+	return [ channels.at( 0 ) ?? 0, channels.at( 1 ) ?? 0, channels.at( 2 ) ?? 0 ];
+}
+
+/**
+ * Calculates relative luminance for one resolved browser RGB color.
+ * @param color - Resolved CSS color.
+ * @return Relative luminance from zero to one.
+ */
+function getRelativeLuminance( color: string ): number {
+	const channels = parseRgbColor( color ).map( ( channel ) => {
+		const normalizedChannel = channel / 255;
+
+		return normalizedChannel <= 0.04045
+			? normalizedChannel / 12.92
+			: ( ( normalizedChannel + 0.055 ) / 1.055 ) ** 2.4;
+	} );
+
+	return ( channels.at( 0 ) ?? 0 ) * 0.2126 +
+		( channels.at( 1 ) ?? 0 ) * 0.7152 +
+		( channels.at( 2 ) ?? 0 ) * 0.0722;
+}
+
+/**
+ * Calculates the contrast ratio between two resolved browser colors.
+ * @param firstColor - First resolved CSS color.
+ * @param secondColor - Second resolved CSS color.
+ * @return WCAG contrast ratio.
+ */
+function getContrastRatio( firstColor: string, secondColor: string ): number {
+	const firstLuminance = getRelativeLuminance( firstColor );
+	const secondLuminance = getRelativeLuminance( secondColor );
+	const lighterLuminance = Math.max( firstLuminance, secondLuminance );
+	const darkerLuminance = Math.min( firstLuminance, secondLuminance );
+
+	return ( lighterLuminance + 0.05 ) / ( darkerLuminance + 0.05 );
+}
+
+describe( 'tocus-f-interruption-screen', () => {
+	beforeEach( async () => {
+		document.documentElement.setAttribute( 'data-tocus-palette', 'brown' );
+		document.documentElement.setAttribute( 'data-tocus-theme', 'light' );
+		await emulateMedia( { colorScheme: 'light', forcedColors: 'none', reducedMotion: 'no-preference' } );
+	} );
+
+	afterEach( () => {
+		document.documentElement.removeAttribute( 'data-tocus-palette' );
+		document.documentElement.removeAttribute( 'data-tocus-theme' );
+	} );
+
+	it( 'registers the exported component class', () => {
+		assert.equal( customElements.get( 'tocus-f-interruption-screen' ), ComponentInterruptionScreen );
+	} );
+
+	it( 'renders the complete default Waiting scene without a bypass', async () => {
+		const element = await fixture<ComponentInterruptionScreen>(
+			html`<tocus-f-interruption-screen></tocus-f-interruption-screen>`,
+		);
+		const shadowRoot = getShadowRoot( element );
+		const scene = getRequiredElement( element, '.scene' );
+		const directRegions = Array.from( scene.children ).map( ( child ) => child.tagName );
+		const sphere = shadowRoot.querySelector( 'tocus-f-breathing-sphere' );
+		const brandIcon = shadowRoot.querySelector( '.brand svg' );
+		const remaining = getRequiredElement( element, '.remaining' );
+		const bounds = element.getBoundingClientRect();
+
+		assert.deepEqual( directRegions, [ 'HEADER', 'MAIN', 'FOOTER' ] );
+		assert.equal( bounds.left, 0 );
+		assert.equal( bounds.top, 0 );
+		assert.equal( bounds.width, window.innerWidth );
+		assert.equal( bounds.height, window.innerHeight );
+		assert.equal( scene.getAttribute( 'tabindex' ), '0' );
+		assert.instanceOf( sphere, HTMLElement );
+		assert.instanceOf( brandIcon, SVGElement );
+		assert.equal( brandIcon.getAttribute( 'viewBox' ), '0 0 64 64' );
+		assert.equal( getRequiredElement( element, '.wordmark' ).textContent.trim(), 'TOCus' );
+		assert.equal( remaining.textContent.trim(), '10s remaining' );
+		assert.equal( remaining.getAttribute( 'aria-live' ), null );
+		assert.equal( getRequiredElement( element, '.cue' ).textContent.trim(), 'Breathe in' );
+		assert.include( getRequiredElement( element, '.sphere-alternative' ).textContent, 'soft clay sphere' );
+		assert.equal( getRequiredElement( element, 'footer' ).textContent.trim(), 'This is a moment just for you.' );
+		assert.equal( shadowRoot.querySelector( 'button' ), null );
+		assert.equal( shadowRoot.querySelector( '[data-design-control]' ), null );
+		assert.include( getComputedStyle( scene ).backgroundImage, 'gradient' );
+		await expect( element ).to.be.accessible();
+	} );
+
+	it( 'renders Quiet pause and complete localized strings without shortening the wait', async () => {
+		const copy = {
+			...DefaultInterruptionScreenCopy,
+			formatRemainingTime: formatGermanRemainingTime,
+			takeAMoment: 'Nimm dir einen ruhigen Moment, bevor du dich entscheidest',
+		};
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen
+				lang="de"
+				.mode=${ InterruptionScreenMode.QUIET }
+				.copy=${ copy }
+				.wellbeingSummary=${ 'Du hast dir heute mindestens drei Stunden geschenkt.' }
+				.focusedProgressMilliseconds=${ 4_000 }
+			></tocus-f-interruption-screen>
+		` );
+		const sphere = getRequiredElement( element, 'tocus-f-breathing-sphere' );
+
+		assert.equal( getRequiredElement( element, '.cue' ).textContent.trim(), copy.takeAMoment );
+		assert.equal( getRequiredElement( element, '.remaining' ).textContent.trim(), 'Noch 6 Sekunden' );
+		assert.equal( getRequiredElement( element, 'footer' ).textContent.trim(), 'Du hast dir heute mindestens drei Stunden geschenkt.' );
+		assert.equal( getRequiredElement( element, '.sphere-alternative' ).textContent.trim(), copy.stillSphereAlternative );
+		assert.equal( sphere.hasAttribute( 'still' ), true );
+		await expect( element ).to.be.accessible();
+	} );
+
+	it( 'keeps the sphere and scene transitions still for an explicit reduced-motion input', async () => {
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen reduced-motion></tocus-f-interruption-screen>
+		` );
+		const sphere = getRequiredElement( element, 'tocus-f-breathing-sphere' );
+		const sphereShell = getRequiredElement( element, '.sphere-shell' );
+
+		assert.equal( sphere.hasAttribute( 'still' ), true );
+		assert.equal( getRequiredElement( element, '.sphere-alternative' ).textContent.trim(), DefaultInterruptionScreenCopy.stillSphereAlternative );
+		assert.equal( getComputedStyle( sphereShell ).transitionDuration, '0s' );
+	} );
+
+	it( 'keeps authoritative Waiting at zero without revealing Continue', async () => {
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen
+				.focusedProgressMilliseconds=${ 10_000 }
+				.progressing=${ true }
+			></tocus-f-interruption-screen>
+		` );
+
+		assert.equal( element.state, InterruptionScreenState.WAITING );
+		assert.equal( getRequiredElement( element, '.remaining' ).textContent.trim(), '0s remaining' );
+		assert.equal( getShadowRoot( element ).querySelector( 'button' ), null );
+	} );
+
+	it( 'normalizes non-finite authoritative progress to the start of Waiting', async () => {
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen
+				.focusedProgressMilliseconds=${ Number.NaN }
+			></tocus-f-interruption-screen>
+		` );
+
+		assert.equal( getRequiredElement( element, '.remaining' ).textContent.trim(), '10s remaining' );
+		assert.equal( getRequiredElement( element, '.cue' ).textContent.trim(), 'Breathe in' );
+	} );
+
+	it( 'centers and focuses Continue only in the authoritative Ready state', async () => {
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen .state=${ InterruptionScreenState.READY }></tocus-f-interruption-screen>
+		` );
+		const shadowRoot = getShadowRoot( element );
+		const button = getContinueButton( element );
+		const action = getRequiredElement( element, '.ready-action' );
+
+		await element.updateComplete;
+		assert.equal( shadowRoot.activeElement, button );
+		assert.equal( button.textContent.trim(), 'Continue' );
+		assert.equal( getRequiredElement( element, 'kbd' ).textContent.trim(), 'Space' );
+		assert.include( getRequiredElement( element, '.shortcut' ).textContent, 'Or press' );
+		assert.equal( shadowRoot.querySelector( '.remaining' ), null );
+		assert.equal( shadowRoot.querySelector( '.cue' ), null );
+		assert.equal( getRequiredElement( element, '.scene' ).getAttribute( 'tabindex' ), null );
+		assert.approximately( action.getBoundingClientRect().left + action.offsetWidth / 2, window.innerWidth / 2, 1 );
+		await expect( element ).to.be.accessible();
+	} );
+
+	it( 'emits one plain bubbling Continue request from the button', async () => {
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen .state=${ InterruptionScreenState.READY }></tocus-f-interruption-screen>
+		` );
+		const eventPromise = oneEvent( element, InterruptionContinueRequestEventName );
+
+		getContinueButton( element ).click();
+		const event = await eventPromise;
+
+		assert.equal( event.bubbles, true );
+		assert.equal( event.composed, true );
+		assert.equal( event.constructor, Event );
+	} );
+
+	it( 'uses native Enter and Space button activation without duplicate requests', async () => {
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen .state=${ InterruptionScreenState.READY }></tocus-f-interruption-screen>
+		` );
+		let requestCount = 0;
+
+		element.addEventListener( InterruptionContinueRequestEventName, () => {
+			requestCount += 1;
+		} );
+		getContinueButton( element ).focus();
+		await sendKeys( { press: 'Enter' } );
+		await sendKeys( { press: 'Space' } );
+
+		assert.equal( requestCount, 2 );
+	} );
+
+	it( 'supports one guarded global Space shortcut in Ready', async () => {
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen .state=${ InterruptionScreenState.READY }></tocus-f-interruption-screen>
+		` );
+		let requestCount = 0;
+
+		element.addEventListener( InterruptionContinueRequestEventName, () => {
+			requestCount += 1;
+		} );
+		getContinueButton( element ).blur();
+
+		const validShortcut = new KeyboardEvent( 'keydown', { cancelable: true, code: 'Space' } );
+		window.dispatchEvent( validShortcut );
+		window.dispatchEvent( new KeyboardEvent( 'keydown', { code: 'Space', repeat: true } ) );
+		window.dispatchEvent( new KeyboardEvent( 'keydown', { code: 'Space', ctrlKey: true } ) );
+		window.dispatchEvent( new KeyboardEvent( 'keydown', { code: 'Enter' } ) );
+
+		const preventedShortcut = new KeyboardEvent( 'keydown', { cancelable: true, code: 'Space' } );
+		preventedShortcut.preventDefault();
+		window.dispatchEvent( preventedShortcut );
+
+		const input = document.createElement( 'input' );
+		document.body.append( input );
+		input.dispatchEvent( new KeyboardEvent( 'keydown', { bubbles: true, code: 'Space' } ) );
+		input.remove();
+
+		getContinueButton( element ).dispatchEvent(
+			new KeyboardEvent( 'keydown', { bubbles: true, code: 'Space' } ),
+		);
+
+		assert.equal( requestCount, 1 );
+		assert.isTrue( validShortcut.defaultPrevented );
+	} );
+
+	it( 'removes Continue and focuses stable status after authoritative expiry', async () => {
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen .state=${ InterruptionScreenState.READY }></tocus-f-interruption-screen>
+		` );
+		let requestCount = 0;
+
+		element.addEventListener( InterruptionContinueRequestEventName, () => {
+			requestCount += 1;
+		} );
+		const staleButton = getContinueButton( element );
+
+		element.state = InterruptionScreenState.READY_EXPIRED;
+		await element.updateComplete;
+
+		const status = getRequiredElement( element, '.expired-status' );
+
+		assert.equal( getShadowRoot( element ).querySelector( 'button' ), null );
+		assert.equal( getShadowRoot( element ).activeElement, status );
+		assert.equal( status.getAttribute( 'tabindex' ), '-1' );
+		assert.equal( status.textContent.trim(), DefaultInterruptionScreenCopy.readyExpiredMessage );
+		assert.equal( getRequiredElement( element, '[aria-live]' ).textContent.trim(), '' );
+		staleButton.click();
+		window.dispatchEvent( new KeyboardEvent( 'keydown', { code: 'Space' } ) );
+		assert.equal( requestCount, 0 );
+	} );
+
+	it( 'places the localized Space key inside a complete shortcut template', async () => {
+		const copy = {
+			...DefaultInterruptionScreenCopy,
+			continueShortcut: 'Oder druecke {key}, wenn du bereit bist',
+			spaceKeyLabel: 'Leertaste',
+		};
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen
+				.state=${ InterruptionScreenState.READY }
+				.copy=${ copy }
+			></tocus-f-interruption-screen>
+		` );
+
+		assert.equal( getRequiredElement( element, '.shortcut' ).textContent.trim(), 'Oder druecke Leertaste, wenn du bereit bist' );
+		assert.equal( getRequiredElement( element, 'kbd' ).textContent.trim(), 'Leertaste' );
+	} );
+
+	it( 'keeps a complete shortcut sentence when its key placeholder is omitted', async () => {
+		const copy = {
+			...DefaultInterruptionScreenCopy,
+			continueShortcut: 'Press the shortcut when you are ready',
+		};
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen
+				.state=${ InterruptionScreenState.READY }
+				.copy=${ copy }
+			></tocus-f-interruption-screen>
+		` );
+
+		assert.equal(
+			getRequiredElement( element, '.shortcut' ).textContent.trim(),
+			'Press the shortcut when you are ready Space',
+		);
+	} );
+
+	it( 'remains perceivable with the real dark palette', async () => {
+		document.documentElement.setAttribute( 'data-tocus-theme', 'dark' );
+		await emulateMedia( { colorScheme: 'dark', forcedColors: 'none' } );
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen></tocus-f-interruption-screen>
+		` );
+
+		const shadowRoot = getShadowRoot( element );
+		const scene = getRequiredElement( element, '.scene' );
+		const brand = getRequiredElement( element, '.brand' );
+		const stageColorProbe = document.createElement( 'span' );
+
+		stageColorProbe.style.backgroundColor = 'var(--tocus-color-stage-start)';
+		shadowRoot.append( stageColorProbe );
+		assert.include( getComputedStyle( scene ).backgroundImage, 'gradient' );
+		assert.isAtLeast(
+			getContrastRatio(
+				getComputedStyle( brand ).color,
+				getComputedStyle( stageColorProbe ).backgroundColor,
+			),
+			3,
+		);
+		stageColorProbe.remove();
+		await expect( element ).to.be.accessible();
+	} );
+
+	it( 'keeps long localized content reachable in a short viewport', async () => {
+		await setViewport( { height: 320, width: 568 } );
+
+		try {
+			const copy = {
+				...DefaultInterruptionScreenCopy,
+				breatheIn: 'Nimm dir einen langsamen und freundlichen Atemzug, bevor du dich entscheidest',
+			};
+			const element = await fixture<ComponentInterruptionScreen>( html`
+				<tocus-f-interruption-screen
+					.copy=${ copy }
+					.wellbeingSummary=${ 'Du hast dir heute mindestens drei Stunden und vierundzwanzig Minuten fuer dich selbst geschenkt.' }
+				></tocus-f-interruption-screen>
+			` );
+			const scene = getRequiredElement( element, '.scene' );
+			const footer = getRequiredElement( element, 'footer' );
+
+			assert.equal( getComputedStyle( scene ).overflowY, 'auto' );
+			assert.isAbove( scene.scrollHeight, scene.clientHeight );
+			scene.scrollTop = scene.scrollHeight;
+			await nextFrame();
+			assert.isAbove( scene.scrollTop, 0 );
+			assert.isAtMost( footer.getBoundingClientRect().bottom, scene.getBoundingClientRect().bottom + 1 );
+			await expect( element ).to.be.accessible();
+		} finally {
+			await setViewport( { height: 600, width: 800 } );
+		}
+	} );
+
+	it( 'retains Waiting meaning and focus visibility in forced colors', async () => {
+		await emulateMedia( { colorScheme: 'light', forcedColors: 'active' } );
+		const waitingElement = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen></tocus-f-interruption-screen>
+		` );
+		const sphereAlternative = getRequiredElement( waitingElement, '.sphere-alternative' );
+
+		assert.notEqual( getComputedStyle( getRequiredElement( waitingElement, '.sphere-shell' ) ).display, 'none' );
+		assert.equal( getComputedStyle( getRequiredElement( waitingElement, 'tocus-f-breathing-sphere' ) ).display, 'none' );
+		assert.equal( sphereAlternative.textContent.trim(), DefaultInterruptionScreenCopy.sphereAlternative );
+		await expect( waitingElement ).to.be.accessible();
+
+		waitingElement.state = InterruptionScreenState.READY;
+		await waitingElement.updateComplete;
+
+		await nextFrame();
+		assert.equal( getComputedStyle( getContinueButton( waitingElement ) ).borderStyle, 'solid' );
+		await expect( waitingElement ).to.be.accessible();
+	} );
+} );
