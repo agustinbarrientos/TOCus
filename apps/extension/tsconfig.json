@@ -4,6 +4,7 @@
 		"../../tsconfig.base.json"
 	],
 	"compilerOptions": {
+		"resolveJsonModule": true,
 		"types": [ "mocha" ]
 	}
 }
