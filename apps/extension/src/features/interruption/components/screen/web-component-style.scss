@@ -1,0 +1,328 @@
+@use '@tocus/theme/typography' as typography;
+
+:host {
+	position: fixed;
+	inset: 0;
+	display: block;
+	min-width: 0;
+	overflow: hidden;
+	color: var(--tocus-color-on-stage);
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+.scene {
+	position: relative;
+	isolation: isolate;
+	display: grid;
+	grid-template-rows: auto minmax(0, 1fr) auto;
+	width: 100%;
+	height: 100%;
+	min-height: 100dvh;
+	overflow: hidden auto;
+	background:
+		radial-gradient(ellipse at 50% 46%, var(--tocus-color-stage-glow) 0%, transparent 58%),
+		linear-gradient(
+			155deg,
+			var(--tocus-color-stage-start) 0%,
+			var(--tocus-color-stage-middle) 54%,
+			var(--tocus-color-stage-end) 100%
+		);
+}
+
+.scene::before {
+	position: absolute;
+	z-index: -1;
+	inset: 0;
+	background-image:
+		radial-gradient(circle at 20% 30%, var(--tocus-color-glass-border) 0 0.0625rem, transparent 0.078125rem),
+		radial-gradient(circle at 75% 65%, var(--tocus-color-glass-border) 0 0.046875rem, transparent 0.0625rem);
+	background-position: 0 0, 0.25rem 0.1875rem;
+	background-size: 0.4375rem 0.4375rem, 0.5625rem 0.5625rem;
+	opacity: 0.2;
+	content: '';
+	pointer-events: none;
+}
+
+.scene:focus-visible {
+	outline: 0.1875rem solid var(--tocus-color-focus-ring);
+	outline-offset: -0.3125rem;
+}
+
+header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--tocus-space-4);
+	padding: clamp(1rem, 2.8vw, 2rem) clamp(1rem, 4vw, 3rem);
+}
+
+.brand {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--tocus-space-3);
+	min-width: 0;
+	color: var(--tocus-color-icon-accent);
+}
+
+.brand-icon {
+	display: inline-flex;
+	width: 2rem;
+	height: 2rem;
+	flex: 0 0 auto;
+}
+
+.brand-icon svg {
+	width: 100%;
+	height: 100%;
+}
+
+.wordmark {
+	@include typography.apply( 'headline-small' );
+}
+
+.remaining {
+	@include typography.apply( 'body-large' );
+
+	max-width: min(50vw, 28rem);
+	margin: 0;
+	padding: var(--tocus-space-2) var(--tocus-space-4);
+	border: 1px solid var(--tocus-color-glass-border);
+	border-radius: var(--tocus-radius-full);
+	background: var(--tocus-color-glass-surface);
+	color: var(--tocus-color-on-stage-muted);
+	text-align: end;
+	overflow-wrap: anywhere;
+	backdrop-filter: blur(1rem);
+}
+
+main {
+	min-width: 0;
+	min-height: 0;
+	padding: 0 clamp(1rem, 4vw, 3rem);
+}
+
+.stage {
+	position: relative;
+	display: grid;
+	grid-template-rows: auto minmax(0, 1fr);
+	width: 100%;
+	height: 100%;
+	min-height: 20rem;
+	place-items: center;
+}
+
+.cue {
+	@include typography.apply( 'headline-large' );
+
+	z-index: 1;
+	max-width: min(90vw, 48rem);
+	margin: var(--tocus-space-3) 0 0;
+	color: var(--tocus-color-on-stage);
+	text-align: center;
+	overflow-wrap: anywhere;
+}
+
+.sphere-shell {
+	grid-row: 2;
+	width: min(74vw, 44rem);
+	height: min(58vh, 36rem);
+	min-height: 15rem;
+	transition:
+		opacity 450ms cubic-bezier(0.2, 0, 0, 1),
+		transform 450ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+tocus-f-breathing-sphere {
+	width: 100%;
+	height: 100%;
+}
+
+:host([state='ready']) .sphere-shell,
+:host([state='ready-expired']) .sphere-shell {
+	opacity: 0;
+	transform: scale(0.96);
+}
+
+.ready-action,
+.expired-status {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-content: center;
+	place-items: center;
+	max-width: min(90vw, 38rem);
+	margin: auto;
+	text-align: center;
+}
+
+.ready-action {
+	gap: var(--tocus-space-4);
+}
+
+.continue-button {
+	@include typography.apply( 'label-large' );
+
+	min-width: 10rem;
+	min-height: 3.5rem;
+	padding: var(--tocus-space-3) var(--tocus-space-6);
+	border: 0;
+	border-radius: var(--tocus-radius-full);
+	outline: 0.1875rem solid transparent;
+	outline-offset: 0.1875rem;
+	background: var(--tocus-color-action);
+	box-shadow: var(--tocus-shadow-soft);
+	color: var(--tocus-color-on-action);
+	cursor: pointer;
+	transition:
+		box-shadow var(--tocus-transition-fast),
+		transform var(--tocus-transition-fast);
+}
+
+.continue-button:hover {
+	box-shadow: 0 1.5rem 4.5rem var(--tocus-color-stage-glow);
+	transform: translateY(-0.0625rem);
+}
+
+.continue-button:focus-visible {
+	outline-color: var(--tocus-color-focus-ring);
+}
+
+.continue-button:active {
+	transform: translateY(0.0625rem);
+}
+
+.shortcut {
+	@include typography.apply( 'body-medium' );
+
+	margin: 0;
+	color: var(--tocus-color-on-stage-muted);
+	overflow-wrap: anywhere;
+}
+
+kbd {
+	@include typography.apply( 'label-medium' );
+
+	display: inline-flex;
+	min-width: 3.75rem;
+	min-height: 1.75rem;
+	align-items: center;
+	justify-content: center;
+	margin-inline: var(--tocus-space-1);
+	padding: var(--tocus-space-1) var(--tocus-space-2);
+	border: 1px solid var(--tocus-color-glass-border);
+	border-radius: var(--tocus-radius-small);
+	background: var(--tocus-color-glass-surface);
+	box-shadow: 0 0.125rem 0 var(--tocus-color-glass-border);
+	color: var(--tocus-color-on-stage);
+}
+
+.expired-status {
+	@include typography.apply( 'headline-small' );
+
+	padding: var(--tocus-space-5);
+	color: var(--tocus-color-on-stage);
+	overflow-wrap: anywhere;
+}
+
+.expired-status:focus-visible {
+	border-radius: var(--tocus-radius-medium);
+	outline: 0.1875rem solid var(--tocus-color-focus-ring);
+	outline-offset: var(--tocus-space-2);
+}
+
+footer {
+	@include typography.apply( 'body-small' );
+
+	max-width: min(92vw, 52rem);
+	margin-inline: auto;
+	padding: var(--tocus-space-4) clamp(1rem, 4vw, 3rem) clamp(1rem, 2.8vw, 2rem);
+	color: var(--tocus-color-on-stage-muted);
+	text-align: center;
+	overflow-wrap: anywhere;
+}
+
+.visually-hidden {
+	position: absolute;
+	width: 0.0625rem;
+	height: 0.0625rem;
+	margin: -0.0625rem;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	border: 0;
+	white-space: nowrap;
+}
+
+@media (width <= 40rem) {
+	header {
+		align-items: flex-start;
+	}
+
+	.remaining {
+		@include typography.apply( 'body-medium' );
+
+		max-width: 58vw;
+	}
+
+	.sphere-shell {
+		width: min(92vw, 32rem);
+		height: min(55vh, 28rem);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.sphere-shell,
+	.continue-button {
+		transition: none;
+	}
+}
+
+:host([reduced-motion]) .sphere-shell,
+:host([reduced-motion]) .continue-button {
+	transition: none;
+}
+
+@media (forced-colors: active) {
+	.scene {
+		background: Canvas;
+		color: CanvasText;
+	}
+
+	.scene::before,
+	tocus-f-breathing-sphere {
+		display: none;
+	}
+
+	.brand,
+	.remaining,
+	.cue,
+	.shortcut,
+	.expired-status,
+	footer {
+		color: CanvasText;
+	}
+
+	.remaining,
+	kbd {
+		border-color: CanvasText;
+		background: Canvas;
+		color: CanvasText;
+	}
+
+	.continue-button {
+		border: 0.125rem solid ButtonText;
+		outline-color: transparent;
+		background: ButtonFace;
+		box-shadow: none;
+		color: ButtonText;
+	}
+
+	.continue-button:focus-visible {
+		outline-color: Highlight;
+	}
+}
