@@ -13,7 +13,12 @@ export default defineConfig( {
 				'apps/extension/src/domains/protection/index.ts',
 				'apps/extension/src/domains/protection/utils/index.ts',
 			],
-			include: [ 'apps/extension/src/domains/protection/**/*.ts' ],
+			include: [
+				'apps/extension/src/domains/protection/**/*.ts',
+				'apps/extension/src/features/interruption/services/focused-progress-clock/**/*.ts',
+				'apps/extension/src/features/interruption/utils/breathing-motion/**/*.ts',
+				'apps/extension/src/features/interruption/utils/breathing-sphere-geometry/**/*.ts',
+			],
 			provider: 'v8',
 			reporter: [ [ 'text', { skipFull: false } ] ],
 			thresholds: {
