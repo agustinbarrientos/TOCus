@@ -2,13 +2,23 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { esbuildPlugin } from '@web/dev-server-esbuild';
-import { emulateMediaPlugin } from '@web/test-runner-commands/plugins';
+import {
+	emulateMediaPlugin,
+	sendKeysPlugin,
+	setViewportPlugin,
+} from '@web/test-runner-commands/plugins';
 import { playwrightLauncher } from '@web/test-runner-playwright';
 import { visualRegressionPlugin } from '@web/test-runner-visual-regression/plugin';
 import * as sass from 'sass';
 
 const extensionRoot = fileURLToPath( new URL( '../..', import.meta.url ) );
 const scssInlinePrefix = '/__scss_inline__';
+const themeIconModulePath = '/__theme_icon__.js';
+const themeIconSource = '@tocus/theme/icon.svg?raw';
+const themeIconMarkup = readFileSync(
+	path.resolve( extensionRoot, '../../packages/theme/assets/icon.svg' ),
+	'utf8',
+);
 const themeFontRoot = path.resolve(
 	extensionRoot,
 	'../../packages/theme/node_modules/@fontsource-variable/fredoka',
@@ -26,6 +36,7 @@ const themeStyles = sass
 	.css.replace( /@import '@fontsource-variable\/fredoka\/wght\.css';/gu, themeFontStyles );
 const testThemes = readFileSync( path.join( extensionRoot, 'config/wtr/test-themes.css' ), 'utf8' );
 const updateScreenshots = process.argv.includes( '--update-snapshots' );
+const visualTestsRequested = process.argv.some( ( argument ) => argument.includes( 'visual.wtr.test.ts' ) );
 
 /**
  * Resolves a root-relative SCSS request without allowing it to leave the extension.
@@ -107,6 +118,34 @@ const scssPlugin = {
 	},
 };
 
+const themeIconPlugin = {
+	name: 'theme-icon',
+	/**
+	 * Resolves the one shared raw theme-icon import used by component tests.
+	 * @param {{ source: string }} request - Import resolution request.
+	 * @return {string|undefined} Virtual module identifier for the shared icon.
+	 */
+	resolveImport( request ) {
+		return request.source === themeIconSource ? themeIconModulePath : undefined;
+	},
+	/**
+	 * Serves the shared icon as a JavaScript string module.
+	 * @param {{ path: string }} context - Development-server request context.
+	 * @return {{ body: string, headers: { 'cache-control': string }, type: string }|undefined} Raw icon module response.
+	 */
+	serve( context ) {
+		if ( context.path !== themeIconModulePath ) {
+			return undefined;
+		}
+
+		return {
+			body: `export default ${ JSON.stringify( themeIconMarkup ) };`,
+			headers: { 'cache-control': 'no-cache' },
+			type: 'js',
+		};
+	},
+};
+
 /**
  * Resolves a deterministic visual-regression artifact path beside its test file.
  * @param {string} testFile - Absolute path of the visual test file.
@@ -128,12 +167,15 @@ function snapshotPath( testFile, browser, directory, name ) {
 export default {
 	rootDir: extensionRoot,
 	files: [ 'src/**/*.wtr.test.ts', '!src/**/visual.wtr.test.ts' ],
-	coverage: true,
+	coverage: ! visualTestsRequested,
 	coverageConfig: {
 		exclude: [
 			'src/**/*.wtr.test.ts',
 			'src/domains/protection/types/**/*.ts',
 			'src/domains/protection/utils/**/*.ts',
+			'src/features/interruption/services/focused-progress-clock/**/*.ts',
+			'src/features/interruption/utils/breathing-motion/**/*.ts',
+			'src/features/interruption/utils/breathing-sphere-geometry/**/*.ts',
 		],
 		include: [ 'src/**/*.ts' ],
 		threshold: {
@@ -161,12 +203,15 @@ export default {
 	],
 	plugins: [
 		scssPlugin,
+		themeIconPlugin,
 		esbuildPlugin( {
 			target: 'es2022',
 			ts: true,
 			tsconfig: path.join( extensionRoot, 'tsconfig.json' ),
 		} ),
 		emulateMediaPlugin(),
+		sendKeysPlugin(),
+		setViewportPlugin(),
 		visualRegressionPlugin( {
 			update: updateScreenshots,
 			diffOptions: { includeAA: false, threshold: 0.1 },

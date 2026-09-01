@@ -155,7 +155,7 @@
 		color-mix(in srgb, var(--tocus-color-breathing-sphere-highlight) 16%, transparent)
 	);
 	--tocus-color-focus-ring: light-dark(var(--tocus-color-primary), var(--tocus-color-breathing-sphere-highlight));
-	--tocus-color-icon-accent: var(--tocus-color-primary);
+	--tocus-color-icon-accent: light-dark(var(--tocus-color-primary), var(--tocus-color-breathing-sphere-highlight));
 
 	--tocus-color-action: light-dark(var(--tocus-color-primary), var(--tocus-color-breathing-sphere-highlight));
 	--tocus-color-on-action: light-dark(var(--tocus-color-on-primary), var(--tocus-color-shadow-depth));
