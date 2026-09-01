@@ -5,15 +5,13 @@ import { defineConfig } from 'wxt';
  * @since 0.1.0 Initial implementation.
  */
 export default defineConfig( {
-	alias: {
-		'@tocus/extension': 'src',
-	},
 	srcDir: 'src',
 	imports: false,
 	/**
 	 * Creates browser-specific extension metadata.
 	 * @param context - WXT manifest context.
 	 * @return Extension metadata for the target browser.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	manifest: ( context ) => ( {
 		name: 'TOCus',
