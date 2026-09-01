@@ -1,4 +1,4 @@
-import { expect, fixture, html } from '@open-wc/testing';
+import { assert, expect, fixture, html } from '@open-wc/testing';
 import { emulateMedia } from '@web/test-runner-commands';
 import { ComponentPopupShell } from './index';
 
@@ -34,14 +34,14 @@ const FULL_SCENE_COLOR_TOKENS = [
 
 describe( 'tocus-f-popup-shell', () => {
 	it( 'registers the exported component class', () => {
-		expect( customElements.get( 'tocus-f-popup-shell' ) ).to.equal( ComponentPopupShell );
+		assert.equal( customElements.get( 'tocus-f-popup-shell' ), ComponentPopupShell );
 	} );
 
 	it( 'renders the product status with accessible label relationships', async () => {
 		const element = await fixture<ComponentPopupShell>( html`<tocus-f-popup-shell></tocus-f-popup-shell>` );
 		const shadowRoot = element.shadowRoot;
 
-		expect( shadowRoot ).not.to.equal( null );
+		assert.notEqual( shadowRoot, null );
 		if ( shadowRoot === null ) {
 			throw new Error( 'Expected the popup shell to render a shadow root.' );
 		}
@@ -52,14 +52,16 @@ describe( 'tocus-f-popup-shell', () => {
 		const summary = shadowRoot.querySelector( '#popup-summary' );
 		const foundationNote = shadowRoot.querySelector( '#foundation-note' );
 
-		expect( main?.getAttribute( 'aria-labelledby' ) ).to.equal( 'popup-title' );
-		expect( main?.getAttribute( 'aria-describedby' ) ).to.equal( 'popup-summary foundation-note' );
-		expect( heading?.textContent ).to.equal( 'TOCus' );
-		expect( status?.textContent.trim() ).to.equal( 'Early development' );
-		expect( summary?.textContent.trim() ).to.equal(
+		assert.equal( main?.getAttribute( 'aria-labelledby' ), 'popup-title' );
+		assert.equal( main?.getAttribute( 'aria-describedby' ), 'popup-summary foundation-note' );
+		assert.equal( heading?.textContent, 'TOCus' );
+		assert.equal( status?.textContent.trim(), 'Early development' );
+		assert.equal(
+			summary?.textContent.trim(),
 			'A gentle pause before distracting websites, designed to help you return to your intentions.',
 		);
-		expect( foundationNote?.textContent.trim() ).to.equal(
+		assert.equal(
+			foundationNote?.textContent.trim(),
 			'This source build includes only the extension foundation. Protection and pause features are still being developed.',
 		);
 	} );
@@ -68,7 +70,7 @@ describe( 'tocus-f-popup-shell', () => {
 		const element = await fixture<ComponentPopupShell>( html`<tocus-f-popup-shell></tocus-f-popup-shell>` );
 		const shadowRoot = element.shadowRoot;
 
-		expect( shadowRoot ).not.to.equal( null );
+		assert.notEqual( shadowRoot, null );
 		if ( shadowRoot === null ) {
 			throw new Error( 'Expected the popup shell to render a shadow root.' );
 		}
@@ -87,24 +89,24 @@ describe( 'tocus-f-popup-shell', () => {
 		const summary = shadowRoot.querySelector<HTMLElement>( '.summary' );
 		const foundationNote = shadowRoot.querySelector<HTMLElement>( '.foundation-note' );
 
-		expect( status ).not.to.equal( null );
-		expect( heading ).not.to.equal( null );
-		expect( summary ).not.to.equal( null );
-		expect( foundationNote ).not.to.equal( null );
+		assert.notEqual( status, null );
+		assert.notEqual( heading, null );
+		assert.notEqual( summary, null );
+		assert.notEqual( foundationNote, null );
 
 		if ( status === null || heading === null || summary === null || foundationNote === null ) {
 			throw new Error( 'Expected every typography-role target to render.' );
 		}
 
 		const statusStyles = getComputedStyle( status );
-		expect( statusStyles.fontFamily ).to.equal( 'monospace' );
-		expect( statusStyles.fontSize ).to.equal( '18px' );
-		expect( statusStyles.fontWeight ).to.equal( '600' );
-		expect( statusStyles.lineHeight ).to.equal( '24px' );
-		expect( statusStyles.letterSpacing ).to.equal( '2px' );
-		expect( getComputedStyle( heading ).fontSize ).to.equal( '40px' );
-		expect( getComputedStyle( summary ).fontSize ).to.equal( '18px' );
-		expect( getComputedStyle( foundationNote ).fontSize ).to.equal( '14px' );
+		assert.equal( statusStyles.fontFamily, 'monospace' );
+		assert.equal( statusStyles.fontSize, '18px' );
+		assert.equal( statusStyles.fontWeight, '600' );
+		assert.equal( statusStyles.lineHeight, '24px' );
+		assert.equal( statusStyles.letterSpacing, '2px' );
+		assert.equal( getComputedStyle( heading ).fontSize, '40px' );
+		assert.equal( getComputedStyle( summary ).fontSize, '18px' );
+		assert.equal( getComputedStyle( foundationNote ).fontSize, '14px' );
 	} );
 
 	it( 'has no automatically detectable accessibility violations in the light theme', async () => {
@@ -152,9 +154,9 @@ describe( 'tocus-f-popup-shell', () => {
 			root.setAttribute( 'data-tocus-theme', 'dark' );
 			const explicitDarkColor = getComputedStyle( colorProbe ).color;
 
-			expect( systemLightColor ).to.equal( explicitLightColor );
-			expect( systemDarkColor ).to.equal( explicitDarkColor );
-			expect( systemLightColor ).not.to.equal( systemDarkColor );
+			assert.equal( systemLightColor, explicitLightColor );
+			assert.equal( systemDarkColor, explicitDarkColor );
+			assert.notEqual( systemLightColor, systemDarkColor );
 		} finally {
 			if ( originalPalette === null ) {
 				root.removeAttribute( 'data-tocus-palette' );
@@ -204,13 +206,13 @@ describe( 'tocus-f-popup-shell', () => {
 						return getComputedStyle( secondColorProbe ).color;
 					} );
 
-					expect( definitions.every( ( definition ) => definition.length > 0 ) ).to.equal( true );
-					expect( firstColors ).to.deep.equal( secondColors );
+					assert.isTrue( definitions.every( ( definition ) => definition.length > 0 ) );
+					assert.deepEqual( firstColors, secondColors );
 					appearances.add( firstColors.join( '|' ) );
 				}
 			}
 
-			expect( appearances.size ).to.equal( APPEARANCE_PALETTES.length * APPEARANCE_THEMES.length );
+			assert.equal( appearances.size, APPEARANCE_PALETTES.length * APPEARANCE_THEMES.length );
 		} finally {
 			if ( originalPalette === null ) {
 				root.removeAttribute( 'data-tocus-palette' );
