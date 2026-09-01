@@ -28,6 +28,11 @@ const TYPOGRAPHY_ROLES = [
 	{ role: 'label-small', values: [ 'var(--tocus-font-family-body)', '0.6875rem', '500', '1rem', '0.03125rem' ] },
 ] as const;
 
+/**
+ * Creates the expected CSS declarations for one typography role.
+ * @param role - Typography role name.
+ * @return Expected CSS declarations in canonical property order.
+ */
 function mixinDeclarations( role: string ) {
 	return TYPOGRAPHY_PROPERTIES.map(
 		( property ) => `${ property }: var(--tocus-typography-${ role }-${ property });`,
@@ -42,6 +47,11 @@ const TYPOGRAPHY_TOKENS = TYPOGRAPHY_ROLES.flatMap( ( { role, values } ) =>
 
 const themeRoot = fileURLToPath( new URL( '..', import.meta.url ) );
 
+/**
+ * Compiles one Sass source string against the theme package.
+ * @param source - Sass source to compile.
+ * @return Sass compilation result.
+ */
 function compile( source: string ) {
 	return sass.compileString( source, { loadPaths: [ themeRoot ] } );
 }
