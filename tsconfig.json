@@ -8,5 +8,5 @@
 		"resolveJsonModule": true,
 		"types": [ "node" ]
 	},
-	"include": ["*.ts", "apps/**/tests/**/*.ts", "packages/**/*.ts"]
+	"include": ["config/**/*.ts", "apps/**/tests/**/*.ts", "packages/**/*.ts"]
 }
