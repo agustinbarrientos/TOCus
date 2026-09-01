@@ -25,17 +25,17 @@ See [README.md](README.md) for the available workspace scripts.
 Name branches with this pattern:
 
 ```text
-agus/(enhancement|chore|fix|feature)/*
+<username>/(enhancement|chore|fix|feature)/*
 ```
 
-Choose one category and replace `*` with a short kebab-case name. The parentheses and pipe characters describe the allowed choices and are not part of the branch name.
+Replace `<username>` with your GitHub username, choose one category, and replace `*` with a short kebab-case name. The angle brackets, parentheses, and pipe characters describe placeholders or allowed choices and are not part of the branch name.
 
 - `enhancement`: improve existing behavior
 - `chore`: maintenance, documentation, or tooling
 - `fix`: correct a defect
 - `feature`: add new user-facing behavior
 
-For example, a maintainer foundation branch is `agus/chore/project-foundation`.
+For example, a contributor named Sam could use `sam/feature/local-schedules`.
 
 ## Make a focused change
 
