@@ -53,11 +53,11 @@ async function expectPopupComposition( outputUrl: URL ): Promise<void> {
 }
 
 /**
- * Verifies that a generated manifest requests no broad browser permissions.
+ * Verifies that a generated manifest requests only local extension storage.
  * @param manifest - Parsed generated manifest.
  */
-function expectNoBroadPermissions( manifest: unknown ): void {
-	expect( manifest ).not.toHaveProperty( 'permissions' );
+function expectNarrowStoragePermission( manifest: unknown ): void {
+	expect( manifest ).toHaveProperty( 'permissions', [ 'storage' ] );
 	expect( manifest ).not.toHaveProperty( 'optional_permissions' );
 	expect( manifest ).not.toHaveProperty( 'host_permissions' );
 	expect( manifest ).not.toHaveProperty( 'optional_host_permissions' );
@@ -93,37 +93,39 @@ function expectValidExtensionVersion( manifest: unknown ): void {
 }
 
 describe( 'extension build manifest', () => {
-	test( 'produces a minimal Chrome popup manifest', async () => {
+	test( 'produces a minimal Chrome extension manifest', async () => {
 		const manifest = await readManifest( chromeManifestUrl );
 
 		expect( manifest ).toMatchObject( {
 			manifest_version: 3,
 			name: 'TOCus',
+			minimum_chrome_version: '102',
 			action: { default_popup: 'popup.html' },
+			background: { service_worker: 'background.js' },
 		} );
-		expect( manifest ).not.toHaveProperty( 'background' );
 		expect( manifest ).not.toHaveProperty( 'browser_specific_settings' );
-		expectNoBroadPermissions( manifest );
+		expectNarrowStoragePermission( manifest );
 		expectValidExtensionVersion( manifest );
 	} );
 
-	test( 'produces a minimal Firefox popup manifest with an explicit no-data declaration', async () => {
+	test( 'produces a minimal Firefox extension manifest with an explicit no-data declaration', async () => {
 		const manifest = await readManifest( firefoxManifestUrl );
 
 		expect( manifest ).toMatchObject( {
 			manifest_version: 2,
 			name: 'TOCus',
 			browser_action: { default_popup: 'popup.html' },
+			background: { scripts: [ 'background.js' ] },
 			browser_specific_settings: {
 				gecko: {
 					id: 'tocus@agustinbarrientos.github.io',
+					strict_min_version: '115.0',
 					data_collection_permissions: { required: [ 'none' ] },
 				},
 			},
 		} );
-		expect( manifest ).not.toHaveProperty( 'background' );
 		expect( manifest ).not.toHaveProperty( 'browser_specific_settings.gecko.data_collection_permissions.optional' );
-		expectNoBroadPermissions( manifest );
+		expectNarrowStoragePermission( manifest );
 		expectValidExtensionVersion( manifest );
 	} );
 

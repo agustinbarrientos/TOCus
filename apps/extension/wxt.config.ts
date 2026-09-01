@@ -18,11 +18,14 @@ export default defineConfig( {
 	manifest: ( context ) => ( {
 		name: 'TOCus',
 		description: 'A gentle pause before distracting websites, designed to help you return to your intentions.',
+		permissions: [ 'storage' ],
+		...( context.browser === 'chrome' ? { minimum_chrome_version: '102' } : {} ),
 		...( context.browser === 'firefox'
 			? {
 				browser_specific_settings: {
 					gecko: {
 						id: 'tocus@agustinbarrientos.github.io',
+						strict_min_version: '115.0',
 						data_collection_permissions: { required: [ 'none' ] },
 					},
 				},
