@@ -2,7 +2,7 @@ import { defineConfig } from 'wxt';
 
 /**
  * Configures extension metadata and browser build behavior.
- * @since <version> Initial implementation.
+ * @since 0.1.0 Initial implementation.
  */
 export default defineConfig( {
 	alias: {
@@ -10,10 +10,15 @@ export default defineConfig( {
 	},
 	srcDir: 'src',
 	imports: false,
-	manifest: ( { browser } ) => ( {
+	/**
+	 * Creates browser-specific extension metadata.
+	 * @param context - WXT manifest context.
+	 * @return Extension metadata for the target browser.
+	 */
+	manifest: ( context ) => ( {
 		name: 'TOCus',
 		description: 'A gentle pause before distracting websites, designed to help you return to your intentions.',
-		...( browser === 'firefox'
+		...( context.browser === 'firefox'
 			? {
 				browser_specific_settings: {
 					gecko: {
