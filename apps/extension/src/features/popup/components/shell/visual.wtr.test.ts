@@ -1,4 +1,4 @@
-import { expect, fixture, html } from '@open-wc/testing';
+import { assert, fixture, html } from '@open-wc/testing';
 import { emulateMedia } from '@web/test-runner-commands';
 import { visualDiff } from '@web/test-runner-visual-regression';
 import './index';
@@ -7,7 +7,7 @@ describe( 'tocus-f-popup-shell visual', () => {
 	before( async () => {
 		const loadedFonts = await document.fonts.load( '600 2rem "Fredoka Variable"', 'TOCus' );
 
-		expect( loadedFonts.length ).to.be.greaterThan( 0 );
+		assert.isAbove( loadedFonts.length, 0 );
 	} );
 
 	it( 'matches the light appearance', async () => {
@@ -18,7 +18,7 @@ describe( 'tocus-f-popup-shell visual', () => {
 			</div>`,
 		);
 
-		expect( frame.isConnected ).to.equal( true );
+		assert.isTrue( frame.isConnected );
 		await visualDiff( frame, 'popup-shell-light' );
 	} );
 
@@ -30,7 +30,7 @@ describe( 'tocus-f-popup-shell visual', () => {
 			</div>`,
 		);
 
-		expect( frame.isConnected ).to.equal( true );
+		assert.isTrue( frame.isConnected );
 		await visualDiff( frame, 'popup-shell-dark' );
 	} );
 } );
