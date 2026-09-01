@@ -12,6 +12,15 @@ describe( 'web test runner configuration', () => {
 		] );
 	} );
 
+	it( 'excludes pure domain modules without hiding future domain components', () => {
+		expect( config.coverageConfig.exclude ).to.include.members( [
+			'src/domains/protection/types/**/*.ts',
+			'src/domains/protection/utils/**/*.ts',
+		] );
+		expect( config.coverageConfig.exclude ).not.to.include( 'src/domains/protection/types.ts' );
+		expect( config.coverageConfig.exclude ).not.to.include( 'src/domains/protection/**/*.ts' );
+	} );
+
 	it( 'accepts only relative SCSS inline imports', () => {
 		expect(
 			scssPlugin.resolveImport( {

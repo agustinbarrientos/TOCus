@@ -18,7 +18,9 @@
 	},
 	"dependencies": {
 		"@tocus/theme": "workspace:*",
-		"lit": "3.3.3"
+		"lit": "3.3.3",
+		"tldts": "7.4.11",
+		"zod": "4.5.2"
 	},
 	"devDependencies": {
 		"@open-wc/testing": "5.0.0",

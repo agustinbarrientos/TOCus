@@ -1,6 +1,6 @@
 /**
  * Configures CSS and SCSS quality rules for authored styles.
- * @since <version> Initial implementation.
+ * @since 0.1.0 Initial implementation.
  */
 export default {
 	extends: [ 'stylelint-config-standard-scss' ],

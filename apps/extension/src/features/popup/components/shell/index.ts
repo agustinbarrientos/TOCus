@@ -10,7 +10,7 @@ const FOUNDATION_NOTE =
  * Displays TOCus product status and introductory guidance in the extension popup.
  * @element tocus-f-popup-shell
  * @summary Extension popup shell.
- * @since <version> Initial implementation.
+ * @since 0.1.0 Initial implementation.
  */
 @customElement( 'tocus-f-popup-shell' )
 export class ComponentPopupShell extends LitElement {
@@ -19,7 +19,7 @@ export class ComponentPopupShell extends LitElement {
 	/**
 	 * Renders the popup content and its accessible label relationships.
 	 * @return The popup shell template.
-	 * @since <version> Initial implementation.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	protected override render(): TemplateResult {
 		return html`
@@ -34,6 +34,10 @@ export class ComponentPopupShell extends LitElement {
 }
 
 declare global {
+	/**
+	 * Maps the popup-shell tag name to its element class.
+	 * @since 0.1.0 Initial implementation.
+	 */
 	interface HTMLElementTagNameMap {
 		'tocus-f-popup-shell': ComponentPopupShell;
 	}

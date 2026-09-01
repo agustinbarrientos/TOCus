@@ -7,6 +7,11 @@ const firefoxManifestUrl = new URL( '../../.output/firefox-mv2/manifest.json', i
 const chromeOutputUrl = new URL( '../../.output/chrome-mv3/', import.meta.url );
 const firefoxOutputUrl = new URL( '../../.output/firefox-mv2/', import.meta.url );
 
+/**
+ * Reads and parses one generated extension manifest.
+ * @param url - Generated manifest URL.
+ * @return Parsed manifest value.
+ */
 async function readManifest( url: URL ): Promise<unknown> {
 	const manifestPath = fileURLToPath( url );
 	const manifestText = await readFile( manifestPath, 'utf8' );
@@ -14,10 +19,21 @@ async function readManifest( url: URL ): Promise<unknown> {
 	return JSON.parse( manifestText );
 }
 
+/**
+ * Reads one generated extension output file.
+ * @param outputUrl - Browser output-directory URL.
+ * @param filePath - File path relative to the output directory.
+ * @return Generated file contents.
+ */
 async function readOutputFile( outputUrl: URL, filePath: string ): Promise<string> {
 	return readFile( fileURLToPath( new URL( filePath, outputUrl ) ), 'utf8' );
 }
 
+/**
+ * Verifies that the generated popup loads the expected shell component.
+ * @param outputUrl - Browser output-directory URL.
+ * @return Promise resolved after all popup-composition assertions pass.
+ */
 async function expectPopupComposition( outputUrl: URL ): Promise<void> {
 	const popupHtml = await readOutputFile( outputUrl, 'popup.html' );
 	const moduleScript = popupHtml.match( /<script\s[^>]*type="module"[^>]*src="([^"]+)"/u );
@@ -36,6 +52,10 @@ async function expectPopupComposition( outputUrl: URL ): Promise<void> {
 	expect( moduleCode ).toContain( 'tocus-f-popup-shell' );
 }
 
+/**
+ * Verifies that a generated manifest requests no broad browser permissions.
+ * @param manifest - Parsed generated manifest.
+ */
 function expectNoBroadPermissions( manifest: unknown ): void {
 	expect( manifest ).not.toHaveProperty( 'permissions' );
 	expect( manifest ).not.toHaveProperty( 'optional_permissions' );
@@ -44,6 +64,10 @@ function expectNoBroadPermissions( manifest: unknown ): void {
 	expect( manifest ).not.toHaveProperty( 'content_scripts' );
 }
 
+/**
+ * Verifies that a generated manifest contains a valid nonzero extension version.
+ * @param manifest - Parsed generated manifest.
+ */
 function expectValidExtensionVersion( manifest: unknown ): void {
 	if (
 		typeof manifest !== 'object' ||

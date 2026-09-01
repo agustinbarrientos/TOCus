@@ -13,6 +13,17 @@ const testFiles = [
 	'**/__fixtures__/**/*.{js,mjs,cjs,ts,tsx}',
 ];
 const exportedDeclarations = [ 'ExportDefaultDeclaration', 'ExportNamedDeclaration[declaration]' ];
+const documentedDeclarations = [
+	...exportedDeclarations,
+	'TSInterfaceDeclaration:not(ExportNamedDeclaration > TSInterfaceDeclaration)',
+	'TSTypeAliasDeclaration:not(ExportNamedDeclaration > TSTypeAliasDeclaration)',
+	'VariableDeclaration:not(ExportNamedDeclaration > VariableDeclaration):has(VariableDeclarator[id.type="Identifier"][id.name=/Schema$/])',
+	'VariableDeclaration:not(ExportNamedDeclaration > VariableDeclaration):has(VariableDeclarator[init.type="ArrowFunctionExpression"])',
+	'VariableDeclaration:not(ExportNamedDeclaration > VariableDeclaration):has(VariableDeclarator[init.type="FunctionExpression"])',
+	'FunctionExpression[id]',
+	'Property[value.type="ArrowFunctionExpression"]',
+	'Property[value.type="FunctionExpression"]',
+];
 const componentClass = 'ExportNamedDeclaration[declaration.type="ClassDeclaration"]';
 const typedConfigs = tseslint.configs.strictTypeChecked.map( ( config ) => ( {
 	...config,
@@ -27,6 +38,10 @@ const typedConfigs = tseslint.configs.strictTypeChecked.map( ( config ) => ( {
 	},
 } ) );
 
+/**
+ * Defines the repository's JavaScript, TypeScript, documentation, Lit, and Astro linting contract.
+ * @since 0.1.0 Initial implementation.
+ */
 export default tseslint.config(
 	{
 		ignores: [
@@ -130,14 +145,15 @@ export default tseslint.config(
 	...typedConfigs,
 	{
 		files: typescriptFiles,
+		ignores: testFiles,
 		rules: {
 			'@typescript-eslint/consistent-type-assertions': [ 'error', { assertionStyle: 'never' } ],
 			'@typescript-eslint/consistent-type-imports': [ 'error', { fixStyle: 'inline-type-imports' } ],
 			'no-restricted-syntax': [
 				'error',
 				{
-					message: 'Define structured runtime data with a schema in types.ts and infer its TypeScript type.',
-					selector: 'TSTypeAliasDeclaration > TSTypeLiteral',
+					message: 'Define structured contracts in a canonical domain type file or executable leaf types.ts.',
+					selector: 'TSTypeLiteral',
 				},
 			],
 		},
@@ -169,14 +185,24 @@ export default tseslint.config(
 	},
 	{
 		files: sourceFiles,
-		ignores: testFiles,
 		plugins: { jsdoc },
 		rules: {
-			'jsdoc/require-jsdoc': 'error',
+			'jsdoc/require-jsdoc': [
+				'error',
+				{
+					contexts: documentedDeclarations,
+					require: {
+						ClassDeclaration: true,
+						ClassExpression: true,
+						FunctionDeclaration: true,
+						MethodDefinition: true,
+					},
+				},
+			],
 		},
 	},
 	{
-		files: typescriptFiles,
+		files: sourceFiles,
 		ignores: testFiles,
 		plugins: { jsdoc },
 		rules: {
@@ -198,7 +224,6 @@ export default tseslint.config(
 	{
 		files: [ 'apps/extension/src/**/components/**/index.ts' ],
 		rules: {
-			'jsdoc/require-jsdoc': [ 'error', { contexts: [ ...exportedDeclarations, 'MethodDefinition' ] } ],
 			'jsdoc/require-tags': [
 				'error',
 				{
