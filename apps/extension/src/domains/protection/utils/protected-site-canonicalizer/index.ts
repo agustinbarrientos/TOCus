@@ -96,10 +96,10 @@ export function canonicalizeProtectedSiteRules( input: unknown ): ProtectedSiteR
 }
 
 /**
- * Converts a hostname or URL into one canonical protected-site rule.
+ * Converts a hostname or URL into one exact identity host and canonical protected-site rule.
  * @param input - Unknown protected-site input.
  * @param scopeId - Unknown protection scope identifier.
- * @return An accepted canonical rule or a stable rejection.
+ * @return An accepted identity and matching rule or a stable rejection.
  * @since 0.1.0 Initial implementation.
  */
 export function canonicalizeProtectedSite( input: unknown, scopeId: unknown ): ProtectedSiteCanonicalizationResult {
@@ -142,6 +142,7 @@ export function canonicalizeProtectedSite( input: unknown, scopeId: unknown ): P
 	) {
 		return {
 			status: ProtectedSiteCanonicalizationStatus.ACCEPTED,
+			identityHost: urlResult.host,
 			rule: {
 				host: urlResult.host,
 				includeSubdomains: false,
@@ -153,6 +154,7 @@ export function canonicalizeProtectedSite( input: unknown, scopeId: unknown ): P
 	if ( ( hostnameDetails.isIcann || hostnameDetails.isPrivate ) && hostnameDetails.domain !== null ) {
 		return {
 			status: ProtectedSiteCanonicalizationStatus.ACCEPTED,
+			identityHost: urlResult.host,
 			rule: {
 				host: CanonicalHostSchema.parse( hostnameDetails.domain ),
 				includeSubdomains: true,
@@ -170,6 +172,7 @@ export function canonicalizeProtectedSite( input: unknown, scopeId: unknown ): P
 
 	return {
 		status: ProtectedSiteCanonicalizationStatus.ACCEPTED,
+		identityHost: urlResult.host,
 		rule: {
 			host: urlResult.host,
 			includeSubdomains: false,
