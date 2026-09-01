@@ -53,7 +53,14 @@ function resolveScssPath( requestPath ) {
 
 const scssPlugin = {
 	name: 'scss-inline',
-	resolveImport( { source, context } ) {
+	/**
+	 * Resolves an inline SCSS import to the local virtual-module namespace.
+	 * @param {{ source: string, context: { path: string } }} request - Import resolution request.
+	 * @return {string|undefined} Virtual module identifier when the request is safe and supported.
+	 */
+	resolveImport( request ) {
+		const { source, context } = request;
+
 		if ( ! source.startsWith( './' ) && ! source.startsWith( '../' ) ) {
 			return undefined;
 		}
@@ -71,6 +78,11 @@ const scssPlugin = {
 
 		return `${ scssInlinePrefix }/${ path.relative( extensionRoot, absolutePath ).split( path.sep ).join( '/' ) }`;
 	},
+	/**
+	 * Compiles one resolved virtual SCSS module for the browser test server.
+	 * @param {{ path: string }} context - Development-server request context.
+	 * @return {{ body: string, headers: { 'cache-control': string }, type: string }|undefined} JavaScript module response when the path is valid.
+	 */
 	serve( context ) {
 		if ( ! context.path.startsWith( scssInlinePrefix ) ) {
 			return undefined;
@@ -108,13 +120,21 @@ function snapshotPath( testFile, browser, directory, name ) {
 	return path.join( path.dirname( testFile ), '__snapshots__', browserDirectory, directory, `${ name }.png` );
 }
 
-/** @type {import('@web/test-runner').TestRunnerConfig} */
+/**
+ * Configures deterministic local browser tests and the opt-in visual-regression suite.
+ * @type {import('@web/test-runner').TestRunnerConfig}
+ * @since 0.1.0 Initial implementation.
+ */
 export default {
 	rootDir: extensionRoot,
 	files: [ 'src/**/*.wtr.test.ts', '!src/**/visual.wtr.test.ts' ],
 	coverage: true,
 	coverageConfig: {
-		exclude: [ 'src/**/*.wtr.test.ts' ],
+		exclude: [
+			'src/**/*.wtr.test.ts',
+			'src/domains/protection/types/**/*.ts',
+			'src/domains/protection/utils/**/*.ts',
+		],
 		include: [ 'src/**/*.ts' ],
 		threshold: {
 			branches: 100,
@@ -127,8 +147,13 @@ export default {
 	browsers: [
 		playwrightLauncher( {
 			product: 'chromium',
-			createBrowserContext: async ( { browser } ) =>
-				browser.newContext( {
+			/**
+			 * Creates the deterministic Chromium context used by component tests.
+			 * @param {{ browser: import('playwright-core').Browser }} launchContext - Playwright launch context.
+			 * @return {Promise<import('playwright-core').BrowserContext>} Configured browser context.
+			 */
+			createBrowserContext: async ( launchContext ) =>
+				launchContext.browser.newContext( {
 					deviceScaleFactor: 1,
 					viewport: { height: 600, width: 800 },
 				} ),
@@ -147,11 +172,31 @@ export default {
 			diffOptions: { includeAA: false, threshold: 0.1 },
 			failureThreshold: 0,
 			failureThresholdType: 'pixel',
-			getBaselineName: ( { browser, name, testFile } ) => snapshotPath( testFile, browser, '', name ),
-			getDiffName: ( { browser, name, testFile } ) => snapshotPath( testFile, browser, '__diff__', name ),
-			getFailedName: ( { browser, name, testFile } ) => snapshotPath( testFile, browser, '__failed__', name ),
+			/**
+			 * Resolves the approved snapshot path for one visual assertion.
+			 * @param {{ browser: string, name: string, testFile: string }} artifact - Visual artifact identity.
+			 * @return {string} Absolute approved snapshot path.
+			 */
+			getBaselineName: ( artifact ) => snapshotPath( artifact.testFile, artifact.browser, '', artifact.name ),
+			/**
+			 * Resolves the diff artifact path for one failed visual assertion.
+			 * @param {{ browser: string, name: string, testFile: string }} artifact - Visual artifact identity.
+			 * @return {string} Absolute diff artifact path.
+			 */
+			getDiffName: ( artifact ) => snapshotPath( artifact.testFile, artifact.browser, '__diff__', artifact.name ),
+			/**
+			 * Resolves the received-image path for one failed visual assertion.
+			 * @param {{ browser: string, name: string, testFile: string }} artifact - Visual artifact identity.
+			 * @return {string} Absolute received-image path.
+			 */
+			getFailedName: ( artifact ) => snapshotPath( artifact.testFile, artifact.browser, '__failed__', artifact.name ),
 		} ),
 	],
+	/**
+	 * Creates the browser test document with the compiled theme styles.
+	 * @param {string} testFramework - Browser test framework module URL.
+	 * @return {string} Complete test-runner HTML document.
+	 */
 	testRunnerHtml: ( testFramework ) =>
 		`<!doctype html><html><head><style>${ themeStyles }${ testThemes }</style></head><body><script type="module" src="${ testFramework }"></script></body></html>`,
 	testFramework: { config: { timeout: 10_000, ui: 'bdd' } },
