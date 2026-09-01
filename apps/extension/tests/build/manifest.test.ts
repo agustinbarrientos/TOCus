@@ -53,15 +53,17 @@ async function expectPopupComposition( outputUrl: URL ): Promise<void> {
 }
 
 /**
- * Verifies that a generated manifest requests only local extension storage.
+ * Verifies that a generated manifest avoids broad browsing permissions.
  * @param manifest - Parsed generated manifest.
+ * @since 0.1.0 Initial implementation.
  */
-function expectNarrowStoragePermission( manifest: unknown ): void {
-	expect( manifest ).toHaveProperty( 'permissions', [ 'storage' ] );
+function expectNoBroadBrowsingPermissions( manifest: unknown ): void {
 	expect( manifest ).not.toHaveProperty( 'optional_permissions' );
 	expect( manifest ).not.toHaveProperty( 'host_permissions' );
 	expect( manifest ).not.toHaveProperty( 'optional_host_permissions' );
 	expect( manifest ).not.toHaveProperty( 'content_scripts' );
+	expect( manifest ).not.toHaveProperty( 'permissions', expect.arrayContaining( [ 'history' ] ) );
+	expect( manifest ).not.toHaveProperty( 'permissions', expect.arrayContaining( [ 'tabs' ] ) );
 }
 
 /**
@@ -104,7 +106,8 @@ describe( 'extension build manifest', () => {
 			background: { service_worker: 'background.js' },
 		} );
 		expect( manifest ).not.toHaveProperty( 'browser_specific_settings' );
-		expectNarrowStoragePermission( manifest );
+		expect( manifest ).toHaveProperty( 'permissions', [ 'storage' ] );
+		expectNoBroadBrowsingPermissions( manifest );
 		expectValidExtensionVersion( manifest );
 	} );
 
@@ -125,7 +128,8 @@ describe( 'extension build manifest', () => {
 			},
 		} );
 		expect( manifest ).not.toHaveProperty( 'browser_specific_settings.gecko.data_collection_permissions.optional' );
-		expectNarrowStoragePermission( manifest );
+		expect( manifest ).toHaveProperty( 'permissions', [ 'storage' ] );
+		expectNoBroadBrowsingPermissions( manifest );
 		expectValidExtensionVersion( manifest );
 	} );
 

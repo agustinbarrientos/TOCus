@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { canonicalizeProtectedSite, canonicalizeProtectedSiteRules } from './index';
+import {
+	ProtectedSiteCanonicalizationResultSchema,
+	canonicalizeProtectedSite,
+	canonicalizeProtectedSiteRules,
+} from './index';
 
 const DEFAULT_SCOPE_ID = 'scope_default';
 const INDEPENDENT_SCOPE_ID = 'scope_independent';
@@ -10,29 +14,126 @@ describe( 'canonicalizeProtectedSite', () => {
 			{
 				input: 'HTTPS://user:secret@WWW.Example.COM.:8443/path/to/page?query=1#fragment',
 				host: 'example.com',
+				identityHost: 'www.example.com',
 				includeSubdomains: true,
 			},
-			{ input: 'www.example.com:8443/path?query=1#fragment', host: 'example.com', includeSubdomains: true },
-			{ input: '//www.example.com/path', host: 'example.com', includeSubdomains: true },
-			{ input: 'https:example.com', host: 'example.com', includeSubdomains: true },
-			{ input: 'www.example.co.uk', host: 'example.co.uk', includeSubdomains: true },
-			{ input: 'https://b\u00fccher.de', host: 'xn--bcher-kva.de', includeSubdomains: true },
-			{ input: 'https://xn--bcher-kva.de', host: 'xn--bcher-kva.de', includeSubdomains: true },
-			{ input: 'https://www.alice.github.io', host: 'alice.github.io', includeSubdomains: true },
-			{ input: 'https://www.bob.github.io', host: 'bob.github.io', includeSubdomains: true },
-			{ input: 'http://0x7f000001', host: '127.0.0.1', includeSubdomains: false },
-			{ input: 'http://[0:0:0:0:0:0:0:1]', host: '[::1]', includeSubdomains: false },
-			{ input: 'localhost:3000/path', host: 'localhost', includeSubdomains: false },
-			{ input: 'foo.localhost', host: 'foo.localhost', includeSubdomains: false },
-			{ input: 'devbox', host: 'devbox', includeSubdomains: false },
-			{ input: 'a.dev.internal', host: 'a.dev.internal', includeSubdomains: false },
-			{ input: 'https://example.com\\@evil.com', host: 'example.com', includeSubdomains: true },
-			{ input: 'https://user@@www.example.com', host: 'example.com', includeSubdomains: true },
-			{ input: 'https://www%2eexample%2ecom', host: 'example.com', includeSubdomains: true },
-			{ input: 'https://example.com%2eevil.com', host: 'evil.com', includeSubdomains: true },
-		] )( 'stores $input as the canonical host $host', ( { input, host, includeSubdomains } ) => {
+			{
+				input: 'www.example.com:8443/path?query=1#fragment',
+				host: 'example.com',
+				identityHost: 'www.example.com',
+				includeSubdomains: true,
+			},
+			{
+				input: '//www.example.com/path',
+				host: 'example.com',
+				identityHost: 'www.example.com',
+				includeSubdomains: true,
+			},
+			{
+				input: 'https:example.com',
+				host: 'example.com',
+				identityHost: 'example.com',
+				includeSubdomains: true,
+			},
+			{
+				input: 'www.example.co.uk',
+				host: 'example.co.uk',
+				identityHost: 'www.example.co.uk',
+				includeSubdomains: true,
+			},
+			{
+				input: 'https://b\u00fccher.de',
+				host: 'xn--bcher-kva.de',
+				identityHost: 'xn--bcher-kva.de',
+				includeSubdomains: true,
+			},
+			{
+				input: 'https://xn--bcher-kva.de',
+				host: 'xn--bcher-kva.de',
+				identityHost: 'xn--bcher-kva.de',
+				includeSubdomains: true,
+			},
+			{
+				input: 'https://www.alice.github.io',
+				host: 'alice.github.io',
+				identityHost: 'www.alice.github.io',
+				includeSubdomains: true,
+			},
+			{
+				input: 'https://www.bob.github.io',
+				host: 'bob.github.io',
+				identityHost: 'www.bob.github.io',
+				includeSubdomains: true,
+			},
+			{
+				input: 'http://0x7f000001',
+				host: '127.0.0.1',
+				identityHost: '127.0.0.1',
+				includeSubdomains: false,
+			},
+			{
+				input: 'http://[0:0:0:0:0:0:0:1]',
+				host: '[::1]',
+				identityHost: '[::1]',
+				includeSubdomains: false,
+			},
+			{
+				input: 'localhost:3000/path',
+				host: 'localhost',
+				identityHost: 'localhost',
+				includeSubdomains: false,
+			},
+			{
+				input: 'foo.localhost',
+				host: 'foo.localhost',
+				identityHost: 'foo.localhost',
+				includeSubdomains: false,
+			},
+			{
+				input: 'devbox',
+				host: 'devbox',
+				identityHost: 'devbox',
+				includeSubdomains: false,
+			},
+			{
+				input: 'a.dev.internal',
+				host: 'a.dev.internal',
+				identityHost: 'a.dev.internal',
+				includeSubdomains: false,
+			},
+			{
+				input: 'https://example.com\\@evil.com',
+				host: 'example.com',
+				identityHost: 'example.com',
+				includeSubdomains: true,
+			},
+			{
+				input: 'https://user@@www.example.com',
+				host: 'example.com',
+				identityHost: 'www.example.com',
+				includeSubdomains: true,
+			},
+			{
+				input: 'https://www%2eexample%2ecom',
+				host: 'example.com',
+				identityHost: 'www.example.com',
+				includeSubdomains: true,
+			},
+			{
+				input: 'https://example.com%2eevil.com',
+				host: 'evil.com',
+				identityHost: 'example.com.evil.com',
+				includeSubdomains: true,
+			},
+		] )( 'canonicalizes $input into identity $identityHost and protection host $host', ( {
+			input,
+			host,
+			identityHost,
+			includeSubdomains,
+		} ) => {
 			expect( canonicalizeProtectedSite( input, DEFAULT_SCOPE_ID ) ).toEqual( {
 				status: 'accepted',
+				identityHost,
 				rule: {
 					host,
 					includeSubdomains,
@@ -44,6 +145,7 @@ describe( 'canonicalizeProtectedSite', () => {
 		it( 'keeps the supplied scope identifier authoritative', () => {
 			expect( canonicalizeProtectedSite( 'www.example.com', INDEPENDENT_SCOPE_ID ) ).toEqual( {
 				status: 'accepted',
+				identityHost: 'www.example.com',
 				rule: {
 					host: 'example.com',
 					includeSubdomains: true,
@@ -257,5 +359,40 @@ describe( 'canonicalizeProtectedSiteRules', () => {
 			},
 		] );
 		expect( rule.host ).toBe( 'EXAMPLE.COM.' );
+	} );
+} );
+
+describe( 'ProtectedSiteCanonicalizationResultSchema', () => {
+	it( 'accepts a descendant identity owned by a subdomain-inclusive rule', () => {
+		expect( ProtectedSiteCanonicalizationResultSchema.safeParse( {
+			status: 'accepted',
+			identityHost: 'mail.google.com',
+			rule: {
+				host: 'google.com',
+				includeSubdomains: true,
+				scopeId: DEFAULT_SCOPE_ID,
+			},
+		} ).success ).toBe( true );
+	} );
+
+	it( 'rejects an accepted identity host outside its matching rule', () => {
+		expect( ProtectedSiteCanonicalizationResultSchema.safeParse( {
+			status: 'accepted',
+			identityHost: 'mail.google.com',
+			rule: {
+				host: 'x.com',
+				includeSubdomains: true,
+				scopeId: DEFAULT_SCOPE_ID,
+			},
+		} ).success ).toBe( false );
+		expect( ProtectedSiteCanonicalizationResultSchema.safeParse( {
+			status: 'accepted',
+			identityHost: 'mail.google.com',
+			rule: {
+				host: 'google.com',
+				includeSubdomains: false,
+				scopeId: DEFAULT_SCOPE_ID,
+			},
+		} ).success ).toBe( false );
 	} );
 } );

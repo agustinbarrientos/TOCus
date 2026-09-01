@@ -1,5 +1,8 @@
 import { z } from 'zod';
-import { ProtectedSiteRuleSchema } from '../../types/protected-site-rule';
+import {
+	CanonicalHostSchema,
+	ProtectedSiteRuleSchema,
+} from '../../types/protected-site-rule';
 import { ProtectionScopeIdSchema } from '../../types/protection-value';
 import { UrlParsingFailureReason } from '../../types/url-parsing-failure';
 
@@ -87,8 +90,20 @@ export type ProtectedSiteCanonicalizationRejectionReason = z.infer<
  */
 const ProtectedSiteCanonicalizationAcceptedSchema = z.object( {
 	status: z.enum( [ ProtectedSiteCanonicalizationStatus.ACCEPTED ] ),
+	identityHost: CanonicalHostSchema,
 	rule: ProtectedSiteRuleSchema,
-} ).strict();
+} ).strict().superRefine( ( result, context ) => {
+	const isRuleHost = result.identityHost === result.rule.host;
+	const isRuleDescendant = result.rule.includeSubdomains && result.identityHost.endsWith( `.${ result.rule.host }` );
+
+	if ( ! isRuleHost && ! isRuleDescendant ) {
+		context.addIssue( {
+			code: 'custom',
+			message: 'Protected-site identity host must belong to its matching rule.',
+			path: [ 'identityHost' ],
+		} );
+	}
+} );
 
 /**
  * Validates a rejected protected-site canonicalization result.

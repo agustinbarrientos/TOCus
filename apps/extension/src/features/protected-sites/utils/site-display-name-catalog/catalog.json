@@ -1,0 +1,5292 @@
+[
+	{
+		"name": "Bluesky",
+		"domains": [
+			"bsky.app",
+			"*.bsky.app"
+		]
+	},
+	{
+		"name": "ChatGPT",
+		"domains": [
+			"chatgpt.com",
+			"*.chatgpt.com"
+		]
+	},
+	{
+		"name": "CrazyGames",
+		"domains": [
+			"crazygames.com",
+			"*.crazygames.com",
+			"www.crazygames.com"
+		]
+	},
+	{
+		"name": "GitHub",
+		"domains": [
+			"github.com",
+			"*.github.com"
+		]
+	},
+	{
+		"name": "Gmail",
+		"domains": [
+			"mail.google.com"
+		]
+	},
+	{
+		"name": "Google Docs",
+		"domains": [
+			"docs.google.com"
+		]
+	},
+	{
+		"name": "Google",
+		"domains": [
+			"google.com",
+			"*.google.com",
+			"www.google.com",
+			"www.google.com.hk"
+		]
+	},
+	{
+		"name": "Hacker News",
+		"domains": [
+			"news.ycombinator.com"
+		]
+	},
+	{
+		"name": "LinkedIn",
+		"domains": [
+			"linkedin.com",
+			"*.linkedin.com",
+			"www.linkedin.com"
+		]
+	},
+	{
+		"name": "OpenAI",
+		"domains": [
+			"openai.com",
+			"*.openai.com"
+		]
+	},
+	{
+		"name": "Reddit",
+		"domains": [
+			"reddit.com",
+			"*.reddit.com",
+			"old.reddit.com",
+			"www.reddit.com"
+		]
+	},
+	{
+		"name": "TikTok",
+		"domains": [
+			"tiktok.com",
+			"*.tiktok.com",
+			"www.tiktok.com"
+		]
+	},
+	{
+		"name": "WhatsApp",
+		"domains": [
+			"whatsapp.com",
+			"*.whatsapp.com",
+			"www.whatsapp.com"
+		]
+	},
+	{
+		"name": "X",
+		"domains": [
+			"x.com",
+			"*.x.com",
+			"twitter.com",
+			"*.twitter.com"
+		]
+	},
+	{
+		"name": "YouTube",
+		"domains": [
+			"youtube.com",
+			"*.youtube.com",
+			"youtu.be",
+			"m.youtube.com",
+			"www.youtube.com"
+		]
+	},
+	{
+		"name": "3B Meteo",
+		"domains": [
+			"www.3bmeteo.com"
+		]
+	},
+	{
+		"name": "5movierulz",
+		"domains": [
+			"www.5movierulz.limited",
+			"www.5movierulz.support",
+			"www.5movierulz.vote"
+		]
+	},
+	{
+		"name": "7Games",
+		"domains": [
+			"7games.bet.br"
+		]
+	},
+	{
+		"name": "9ffyu1g9c",
+		"domains": [
+			"m.9ffyu1g9c.com"
+		]
+	},
+	{
+		"name": "18comic",
+		"domains": [
+			"18comic.vip"
+		]
+	},
+	{
+		"name": "24h",
+		"domains": [
+			"www.24h.com.vn"
+		]
+	},
+	{
+		"name": "33apk",
+		"domains": [
+			"cdn.33apk.com"
+		]
+	},
+	{
+		"name": "255md",
+		"domains": [
+			"255md.com"
+		]
+	},
+	{
+		"name": "A Bola",
+		"domains": [
+			"www.abola.pt"
+		]
+	},
+	{
+		"name": "Aaj Tak",
+		"domains": [
+			"www.aajtak.in"
+		]
+	},
+	{
+		"name": "Absher",
+		"domains": [
+			"www.absher.sa"
+		]
+	},
+	{
+		"name": "AccuWeather",
+		"domains": [
+			"www.accuweather.com"
+		]
+	},
+	{
+		"name": "Acesso",
+		"domains": [
+			"sso.acesso.gov.br"
+		]
+	},
+	{
+		"name": "Action",
+		"domains": [
+			"www.action.com"
+		]
+	},
+	{
+		"name": "actu.fr",
+		"domains": [
+			"actu.fr"
+		]
+	},
+	{
+		"name": "AD",
+		"domains": [
+			"www.ad.nl"
+		]
+	},
+	{
+		"name": "Ad-contents",
+		"domains": [
+			"ad-contents.jp"
+		]
+	},
+	{
+		"name": "Cita Previa",
+		"domains": [
+			"icp.administracionelectronica.gob.es"
+		]
+	},
+	{
+		"name": "Admissions",
+		"domains": [
+			"admissions.nic.in"
+		]
+	},
+	{
+		"name": "Adobe",
+		"domains": [
+			"www.adobe.com"
+		]
+	},
+	{
+		"name": "Afip",
+		"domains": [
+			"fe.afip.gob.ar"
+		]
+	},
+	{
+		"name": "Afribaba",
+		"domains": [
+			"ma.afribaba.com"
+		]
+	},
+	{
+		"name": "Aftonbladet",
+		"domains": [
+			"www.aftonbladet.se"
+		]
+	},
+	{
+		"name": "Agoda",
+		"domains": [
+			"www.agoda.com"
+		]
+	},
+	{
+		"name": "Ak2yy",
+		"domains": [
+			"cdn.ak2yy.com"
+		]
+	},
+	{
+		"name": "Al-Masry Al-Youm",
+		"domains": [
+			"www.almasryalyoum.com"
+		]
+	},
+	{
+		"name": "Albumaty",
+		"domains": [
+			"www.albumaty.com"
+		]
+	},
+	{
+		"name": "Alexismilan",
+		"domains": [
+			"alexismilan.com"
+		]
+	},
+	{
+		"name": "Alibaba",
+		"domains": [
+			"www.alibaba.com"
+		]
+	},
+	{
+		"name": "AliExpress",
+		"domains": [
+			"www.aliexpress.com"
+		]
+	},
+	{
+		"name": "Allegro",
+		"domains": [
+			"allegro.pl"
+		]
+	},
+	{
+		"name": "Alphapolis",
+		"domains": [
+			"www.alphapolis.co.jp"
+		]
+	},
+	{
+		"name": "Amazon",
+		"domains": [
+			"www.amazon.ca",
+			"www.amazon.co.jp",
+			"www.amazon.co.uk",
+			"www.amazon.com",
+			"www.amazon.com.au",
+			"www.amazon.com.br",
+			"www.amazon.com.mx",
+			"www.amazon.de",
+			"www.amazon.es",
+			"www.amazon.fr",
+			"www.amazon.in",
+			"www.amazon.it"
+		]
+	},
+	{
+		"name": "Amazon Seller Central",
+		"domains": [
+			"sellercentral.amazon.com",
+			"sellercentral.amazon.in"
+		]
+	},
+	{
+		"name": "Ameba",
+		"domains": [
+			"s.mogg.ameba.jp"
+		]
+	},
+	{
+		"name": "Ameblo",
+		"domains": [
+			"ameblo.jp"
+		]
+	},
+	{
+		"name": "An1",
+		"domains": [
+			"an1.com"
+		]
+	},
+	{
+		"name": "Ancestry",
+		"domains": [
+			"www.ancestry.com"
+		]
+	},
+	{
+		"name": "Animanch",
+		"domains": [
+			"bbs.animanch.com"
+		]
+	},
+	{
+		"name": "Annunci69",
+		"domains": [
+			"www.annunci69.it"
+		]
+	},
+	{
+		"name": "Antarvasna3",
+		"domains": [
+			"www.antarvasna3.com"
+		]
+	},
+	{
+		"name": "Anybunny",
+		"domains": [
+			"anybunny.org"
+		]
+	},
+	{
+		"name": "Aparat",
+		"domains": [
+			"www.aparat.com"
+		]
+	},
+	{
+		"name": "App Store",
+		"domains": [
+			"apps.apple.com"
+		]
+	},
+	{
+		"name": "Apple",
+		"domains": [
+			"www.apple.com"
+		]
+	},
+	{
+		"name": "Apuesta Total",
+		"domains": [
+			"www.apuestatotal.com"
+		]
+	},
+	{
+		"name": "Arabtnt",
+		"domains": [
+			"www.arabtnt.com"
+		]
+	},
+	{
+		"name": "Arabx",
+		"domains": [
+			"www.arabx.cam"
+		]
+	},
+	{
+		"name": "Arabxn",
+		"domains": [
+			"arabxn.sex"
+		]
+	},
+	{
+		"name": "Arbada",
+		"domains": [
+			"www.arbada.com"
+		]
+	},
+	{
+		"name": "Arcalive",
+		"domains": [
+			"arca.live"
+		]
+	},
+	{
+		"name": "Archive of Our Own",
+		"domains": [
+			"archiveofourown.org"
+		]
+	},
+	{
+		"name": "Argos",
+		"domains": [
+			"www.argos.co.uk"
+		]
+	},
+	{
+		"name": "Arionplay",
+		"domains": [
+			"arionplay.com"
+		]
+	},
+	{
+		"name": "Art Fight",
+		"domains": [
+			"artfight.net"
+		]
+	},
+	{
+		"name": "AS",
+		"domains": [
+			"as.com"
+		]
+	},
+	{
+		"name": "Assamesesexvideos",
+		"domains": [
+			"assamesesexvideos.com"
+		]
+	},
+	{
+		"name": "Asurascans",
+		"domains": [
+			"asurascans.com"
+		]
+	},
+	{
+		"name": "Aternos",
+		"domains": [
+			"aternos.org"
+		]
+	},
+	{
+		"name": "Autoplius",
+		"domains": [
+			"m.autoplius.lt"
+		]
+	},
+	{
+		"name": "Avito",
+		"domains": [
+			"m.avito.ru",
+			"www.avito.ru"
+		]
+	},
+	{
+		"name": "Avto.net",
+		"domains": [
+			"www.avto.net"
+		]
+	},
+	{
+		"name": "Ay267",
+		"domains": [
+			"ay267.com"
+		]
+	},
+	{
+		"name": "Az24",
+		"domains": [
+			"az24.vn"
+		]
+	},
+	{
+		"name": "AZNude",
+		"domains": [
+			"www.aznude.com"
+		]
+	},
+	{
+		"name": "B.T.",
+		"domains": [
+			"www.bt.dk"
+		]
+	},
+	{
+		"name": "B7510",
+		"domains": [
+			"b7510.com"
+		]
+	},
+	{
+		"name": "Bakusai",
+		"domains": [
+			"bakusai.com"
+		]
+	},
+	{
+		"name": "Banco de Venezuela",
+		"domains": [
+			"www.bancodevenezuela.com"
+		]
+	},
+	{
+		"name": "Bank of America",
+		"domains": [
+			"secure.bankofamerica.com"
+		]
+	},
+	{
+		"name": "BBC",
+		"domains": [
+			"www.bbc.co.uk",
+			"www.bbc.com"
+		]
+	},
+	{
+		"name": "Bblaa",
+		"domains": [
+			"bblaa.com"
+		]
+	},
+	{
+		"name": "Beboo",
+		"domains": [
+			"m.beboo.ru"
+		]
+	},
+	{
+		"name": "Bef77",
+		"domains": [
+			"bef77.com"
+		]
+	},
+	{
+		"name": "Best Buy",
+		"domains": [
+			"www.bestbuy.com"
+		]
+	},
+	{
+		"name": "Bet365",
+		"domains": [
+			"www.bet365.bet.br"
+		]
+	},
+	{
+		"name": "Betano",
+		"domains": [
+			"www.betano.bet.ar",
+			"www.betano.bet.br",
+			"www.betano.pe"
+		]
+	},
+	{
+		"name": "Betão",
+		"domains": [
+			"betao.bet.br"
+		]
+	},
+	{
+		"name": "Betika",
+		"domains": [
+			"www.betika.com"
+		]
+	},
+	{
+		"name": "BetKing",
+		"domains": [
+			"m.betking.com"
+		]
+	},
+	{
+		"name": "betPawa",
+		"domains": [
+			"www.betpawa.ug"
+		]
+	},
+	{
+		"name": "Betway",
+		"domains": [
+			"www.betway.co.za"
+		]
+	},
+	{
+		"name": "BFMTV",
+		"domains": [
+			"www.bfmtv.com"
+		]
+	},
+	{
+		"name": "Bgtee",
+		"domains": [
+			"bgtee.com"
+		]
+	},
+	{
+		"name": "Bhojpurisex",
+		"domains": [
+			"www.bhojpurisex.site"
+		]
+	},
+	{
+		"name": "BibleGateway.com",
+		"domains": [
+			"www.biblegateway.com"
+		]
+	},
+	{
+		"name": "Bihar",
+		"domains": [
+			"serviceonline.bihar.gov.in"
+		]
+	},
+	{
+		"name": "BikeWale",
+		"domains": [
+			"www.bikewale.com"
+		]
+	},
+	{
+		"name": "BILD",
+		"domains": [
+			"m.bild.de"
+		]
+	},
+	{
+		"name": "Bilibili",
+		"domains": [
+			"www.bilibili.com"
+		]
+	},
+	{
+		"name": "bilibili",
+		"domains": [
+			"www.bilibili.tv"
+		]
+	},
+	{
+		"name": "BingoPlus",
+		"domains": [
+			"bingoplus.com"
+		]
+	},
+	{
+		"name": "BISP",
+		"domains": [
+			"8171.bisp.gov.pk"
+		]
+	},
+	{
+		"name": "Bitly",
+		"domains": [
+			"bit.ly"
+		]
+	},
+	{
+		"name": "Blacktoon415",
+		"domains": [
+			"blacktoon415.com"
+		]
+	},
+	{
+		"name": "Blacktoon416",
+		"domains": [
+			"blacktoon416.com"
+		]
+	},
+	{
+		"name": "Blacktoon417",
+		"domains": [
+			"blacktoon417.com"
+		]
+	},
+	{
+		"name": "Blic",
+		"domains": [
+			"www.blic.rs"
+		]
+	},
+	{
+		"name": "bol.",
+		"domains": [
+			"www.bol.com"
+		]
+	},
+	{
+		"name": "Bollyflix",
+		"domains": [
+			"bollyflix.at"
+		]
+	},
+	{
+		"name": "Booking.com",
+		"domains": [
+			"www.booking.com"
+		]
+	},
+	{
+		"name": "Bookmark",
+		"domains": [
+			"bookmark.xxx"
+		]
+	},
+	{
+		"name": "BookMyShow",
+		"domains": [
+			"in.bookmyshow.com"
+		]
+	},
+	{
+		"name": "Litnet",
+		"domains": [
+			"litnet.com"
+		]
+	},
+	{
+		"name": "BoyfriendTV",
+		"domains": [
+			"www.boyfriendtv.com"
+		]
+	},
+	{
+		"name": "BPCL eConnect",
+		"domains": [
+			"econnect.bpcl.in"
+		]
+	},
+	{
+		"name": "Bpexch",
+		"domains": [
+			"bpexch.live"
+		]
+	},
+	{
+		"name": "Brave Search",
+		"domains": [
+			"search.brave.com"
+		]
+	},
+	{
+		"name": "CAIXA",
+		"domains": [
+			"login.caixa.gov.br"
+		]
+	},
+	{
+		"name": "Calculator.net",
+		"domains": [
+			"www.calculator.net"
+		]
+	},
+	{
+		"name": "Canva",
+		"domains": [
+			"www.canva.com"
+		]
+	},
+	{
+		"name": "CapCut",
+		"domains": [
+			"www.capcut.com"
+		]
+	},
+	{
+		"name": "CardGames.io",
+		"domains": [
+			"cardgames.io"
+		]
+	},
+	{
+		"name": "Cardmarket",
+		"domains": [
+			"www.cardmarket.com"
+		]
+	},
+	{
+		"name": "Carsensor",
+		"domains": [
+			"www.carsensor.net"
+		]
+	},
+	{
+		"name": "Case-battle",
+		"domains": [
+			"case-battle.id"
+		]
+	},
+	{
+		"name": "Casinoplus",
+		"domains": [
+			"www.casinoplus.com.ph"
+		]
+	},
+	{
+		"name": "Cdiscount",
+		"domains": [
+			"www.cdiscount.com"
+		]
+	},
+	{
+		"name": "Character.ai",
+		"domains": [
+			"character.ai"
+		]
+	},
+	{
+		"name": "Chaturbate",
+		"domains": [
+			"chaturbate.com"
+		]
+	},
+	{
+		"name": "Chess.com",
+		"domains": [
+			"www.chess.com"
+		]
+	},
+	{
+		"name": "choiceADVANTAGE",
+		"domains": [
+			"www.choiceadvantage.com"
+		]
+	},
+	{
+		"name": "Chordtela",
+		"domains": [
+			"www.chordtela.com"
+		]
+	},
+	{
+		"name": "Chrome Remote Desktop",
+		"domains": [
+			"remotedesktop.google.com"
+		]
+	},
+	{
+		"name": "Cityheaven",
+		"domains": [
+			"www.cityheaven.net"
+		]
+	},
+	{
+		"name": "Clarín",
+		"domains": [
+			"www.clarin.com"
+		]
+	},
+	{
+		"name": "Claude",
+		"domains": [
+			"claude.ai"
+		]
+	},
+	{
+		"name": "CNN",
+		"domains": [
+			"www.cnn.com"
+		]
+	},
+	{
+		"name": "Colliderporn",
+		"domains": [
+			"colliderporn.com"
+		]
+	},
+	{
+		"name": "Comic C’Moa",
+		"domains": [
+			"www.cmoa.jp"
+		]
+	},
+	{
+		"name": "Comix",
+		"domains": [
+			"comix.to"
+		]
+	},
+	{
+		"name": "Conectate",
+		"domains": [
+			"loterias.conectate.com.do"
+		]
+	},
+	{
+		"name": "Cookpad",
+		"domains": [
+			"cookpad.com"
+		]
+	},
+	{
+		"name": "Corriere della Sera",
+		"domains": [
+			"www.corriere.it"
+		]
+	},
+	{
+		"name": "Costco",
+		"domains": [
+			"www.costco.com"
+		]
+	},
+	{
+		"name": "Coupang",
+		"domains": [
+			"www.coupang.com"
+		]
+	},
+	{
+		"name": "Craigslist",
+		"domains": [
+			"www.craigslist.org"
+		]
+	},
+	{
+		"name": "Cricbuzz",
+		"domains": [
+			"m.cricbuzz.com",
+			"www.cricbuzz.com"
+		]
+	},
+	{
+		"name": "ESPNcricinfo",
+		"domains": [
+			"www.cricinfo.com"
+		]
+	},
+	{
+		"name": "Crn77",
+		"domains": [
+			"crn77.com"
+		]
+	},
+	{
+		"name": "CroxyProxy",
+		"domains": [
+			"www.croxyproxy.com"
+		]
+	},
+	{
+		"name": "Digital Seva Portal",
+		"domains": [
+			"digitalseva.csc.gov.in"
+		]
+	},
+	{
+		"name": "CurseForge",
+		"domains": [
+			"www.curseforge.com"
+		]
+	},
+	{
+		"name": "Czbooks",
+		"domains": [
+			"czbooks.net"
+		]
+	},
+	{
+		"name": "d Market",
+		"domains": [
+			"dmarket.docomo.ne.jp"
+		]
+	},
+	{
+		"name": "Dafont",
+		"domains": [
+			"www.dafont.com"
+		]
+	},
+	{
+		"name": "Dagbladet",
+		"domains": [
+			"www.dagbladet.no"
+		]
+	},
+	{
+		"name": "Daily Mail",
+		"domains": [
+			"www.dailymail.com"
+		]
+	},
+	{
+		"name": "Dailymotion",
+		"domains": [
+			"www.dailymotion.com"
+		]
+	},
+	{
+		"name": "Dainik Jagran",
+		"domains": [
+			"www.jagran.com"
+		]
+	},
+	{
+		"name": "Danbooru",
+		"domains": [
+			"danbooru.donmai.us"
+		]
+	},
+	{
+		"name": "Darkero",
+		"domains": [
+			"darkero.com"
+		]
+	},
+	{
+		"name": "Darknessporn",
+		"domains": [
+			"darknessporn.com"
+		]
+	},
+	{
+		"name": "Daum News",
+		"domains": [
+			"v.daum.net"
+		]
+	},
+	{
+		"name": "dcinside",
+		"domains": [
+			"gall.dcinside.com",
+			"m.dcinside.com"
+		]
+	},
+	{
+		"name": "DepEd Learner Information System",
+		"domains": [
+			"lis.deped.gov.ph"
+		]
+	},
+	{
+		"name": "DER SPIEGEL",
+		"domains": [
+			"www.spiegel.de"
+		]
+	},
+	{
+		"name": "Desitales2",
+		"domains": [
+			"www.desitales2.com"
+		]
+	},
+	{
+		"name": "Desitelugusex",
+		"domains": [
+			"www.desitelugusex.com"
+		]
+	},
+	{
+		"name": "Desiviral",
+		"domains": [
+			"desiviral.net"
+		]
+	},
+	{
+		"name": "DeviantArt",
+		"domains": [
+			"www.deviantart.com"
+		]
+	},
+	{
+		"name": "WELT",
+		"domains": [
+			"www.welt.de"
+		]
+	},
+	{
+		"name": "Digikala",
+		"domains": [
+			"www.digikala.com"
+		]
+	},
+	{
+		"name": "DigiLocker",
+		"domains": [
+			"accounts.digitallocker.gov.in"
+		]
+	},
+	{
+		"name": "Discogs",
+		"domains": [
+			"www.discogs.com"
+		]
+	},
+	{
+		"name": "Discord",
+		"domains": [
+			"discord.com"
+		]
+	},
+	{
+		"name": "Disney+",
+		"domains": [
+			"www.disneyplus.com"
+		]
+	},
+	{
+		"name": "Divar",
+		"domains": [
+			"divar.ir"
+		]
+	},
+	{
+		"name": "DLsite",
+		"domains": [
+			"www.dlsite.com"
+		]
+	},
+	{
+		"name": "DMM",
+		"domains": [
+			"video.dmm.co.jp"
+		]
+	},
+	{
+		"name": "FANZA",
+		"domains": [
+			"www.dmm.co.jp"
+		]
+	},
+	{
+		"name": "Docomo",
+		"domains": [
+			"hiroba.dpoint.docomo.ne.jp",
+			"service.smt.docomo.ne.jp",
+			"smt.docomo.ne.jp",
+			"topics.smt.docomo.ne.jp"
+		]
+	},
+	{
+		"name": "dバリューパス",
+		"domains": [
+			"www.sugotoku.docomo.ne.jp"
+		]
+	},
+	{
+		"name": "DogDrip.Net",
+		"domains": [
+			"www.dogdrip.net"
+		]
+	},
+	{
+		"name": "MLBPARK",
+		"domains": [
+			"mlbpark.donga.com"
+		]
+	},
+	{
+		"name": "MGNREGA",
+		"domains": [
+			"mnregaweb2.dord.gov.in"
+		]
+	},
+	{
+		"name": "Dord",
+		"domains": [
+			"vbgramgrep.dord.gov.in"
+		]
+	},
+	{
+		"name": "Downloadpage",
+		"domains": [
+			"movies.downloadpage.xyz"
+		]
+	},
+	{
+		"name": "Dpbossss",
+		"domains": [
+			"dpbossss.boston"
+		]
+	},
+	{
+		"name": "Drom",
+		"domains": [
+			"auto.drom.ru"
+		]
+	},
+	{
+		"name": "Dto",
+		"domains": [
+			"s.dto.jp"
+		]
+	},
+	{
+		"name": "DuckDuckGo",
+		"domains": [
+			"duckduckgo.com"
+		]
+	},
+	{
+		"name": "Dzen",
+		"domains": [
+			"dzen.ru"
+		]
+	},
+	{
+		"name": "e-Devlet",
+		"domains": [
+			"www.turkiye.gov.tr"
+		]
+	},
+	{
+		"name": "E-Hentai",
+		"domains": [
+			"e-hentai.org"
+		]
+	},
+	{
+		"name": "e621",
+		"domains": [
+			"e621.net"
+		]
+	},
+	{
+		"name": "eBay",
+		"domains": [
+			"www.ebay.co.uk",
+			"www.ebay.com",
+			"www.ebay.de"
+		]
+	},
+	{
+		"name": "Voters' Service Portal",
+		"domains": [
+			"voters.eci.gov.in"
+		]
+	},
+	{
+		"name": "ECナビ",
+		"domains": [
+			"ecnavi.jp"
+		]
+	},
+	{
+		"name": "Ecosia",
+		"domains": [
+			"www.ecosia.org"
+		]
+	},
+	{
+		"name": "Education",
+		"domains": [
+			"ela.education.ne.jp"
+		]
+	},
+	{
+		"name": "Eenadu",
+		"domains": [
+			"www.eenadu.net"
+		]
+	},
+	{
+		"name": "Ekstra Bladet",
+		"domains": [
+			"ekstrabladet.dk"
+		]
+	},
+	{
+		"name": "El Confidencial",
+		"domains": [
+			"www.elconfidencial.com"
+		]
+	},
+	{
+		"name": "El Cronista",
+		"domains": [
+			"www.cronista.com"
+		]
+	},
+	{
+		"name": "El Mundo",
+		"domains": [
+			"www.elmundo.es"
+		]
+	},
+	{
+		"name": "El País",
+		"domains": [
+			"elpais.com"
+		]
+	},
+	{
+		"name": "ELSTER",
+		"domains": [
+			"www.elster.de"
+		]
+	},
+	{
+		"name": "eMAG",
+		"domains": [
+			"www.emag.ro"
+		]
+	},
+	{
+		"name": "EPFO Member Passbook",
+		"domains": [
+			"passbook.epfindia.gov.in"
+		]
+	},
+	{
+		"name": "EPFO Member Portal",
+		"domains": [
+			"unifiedportal-mem.epfindia.gov.in"
+		]
+	},
+	{
+		"name": "Employees' Provident Fund Organisation",
+		"domains": [
+			"www.epfindia.gov.in"
+		]
+	},
+	{
+		"name": "Eporner",
+		"domains": [
+			"es.eporner.com",
+			"www.eporner.com"
+		]
+	},
+	{
+		"name": "Erome",
+		"domains": [
+			"es.erome.com",
+			"pt.erome.com"
+		]
+	},
+	{
+		"name": "EroMe",
+		"domains": [
+			"www.erome.com"
+		]
+	},
+	{
+		"name": "Eroterest",
+		"domains": [
+			"movie.eroterest.net"
+		]
+	},
+	{
+		"name": "Escort",
+		"domains": [
+			"pl.escort.club"
+		]
+	},
+	{
+		"name": "Escort Babylon",
+		"domains": [
+			"escortbabylon.net"
+		]
+	},
+	{
+		"name": "ESPN",
+		"domains": [
+			"www.espn.com"
+		]
+	},
+	{
+		"name": "ESPN Venezuela",
+		"domains": [
+			"www.espn.com.ve"
+		]
+	},
+	{
+		"name": "Etsy",
+		"domains": [
+			"www.etsy.com"
+		]
+	},
+	{
+		"name": "Evo-games",
+		"domains": [
+			"ezugi.evo-games.com"
+		]
+	},
+	{
+		"name": "e-Way Bill System",
+		"domains": [
+			"ewaybillgst.gov.in"
+		]
+	},
+	{
+		"name": "Examinationservices",
+		"domains": [
+			"examinationservices.nic.in"
+		]
+	},
+	{
+		"name": "ExHentai",
+		"domains": [
+			"exhentai.org"
+		]
+	},
+	{
+		"name": "Expedia",
+		"domains": [
+			"www.expedia.com"
+		]
+	},
+	{
+		"name": "Ey43",
+		"domains": [
+			"ey43.com"
+		]
+	},
+	{
+		"name": "F95zone",
+		"domains": [
+			"f95zone.to"
+		]
+	},
+	{
+		"name": "Fabguys",
+		"domains": [
+			"m.fabguys.com"
+		]
+	},
+	{
+		"name": "Fabswingers",
+		"domains": [
+			"m.fabswingers.com"
+		]
+	},
+	{
+		"name": "Facebook",
+		"domains": [
+			"apps.facebook.com",
+			"m.facebook.com",
+			"web.facebook.com",
+			"www.facebook.com"
+		]
+	},
+	{
+		"name": "FanFiction",
+		"domains": [
+			"m.fanfiction.net"
+		]
+	},
+	{
+		"name": "Fapello",
+		"domains": [
+			"fapello.com"
+		]
+	},
+	{
+		"name": "Faphouse",
+		"domains": [
+			"faphouse.com"
+		]
+	},
+	{
+		"name": "Faphouse2",
+		"domains": [
+			"faphouse2.com",
+			"hi.faphouse2.com"
+		]
+	},
+	{
+		"name": "FAST.com",
+		"domains": [
+			"fast.com"
+		]
+	},
+	{
+		"name": "Fastdl",
+		"domains": [
+			"fastdl.app"
+		]
+	},
+	{
+		"name": "Fatalmodel",
+		"domains": [
+			"fatalmodel.com"
+		]
+	},
+	{
+		"name": "Fdown",
+		"domains": [
+			"fdown.net"
+		]
+	},
+	{
+		"name": "FetLife",
+		"domains": [
+			"fetlife.com"
+		]
+	},
+	{
+		"name": "Ficbook",
+		"domains": [
+			"ficbook.net"
+		]
+	},
+	{
+		"name": "Fidelity",
+		"domains": [
+			"digital.fidelity.com"
+		]
+	},
+	{
+		"name": "FIFA",
+		"domains": [
+			"www.fifa.com"
+		]
+	},
+	{
+		"name": "Filesdl",
+		"domains": [
+			"new6.filesdl.top"
+		]
+	},
+	{
+		"name": "Filmweb",
+		"domains": [
+			"www.filmweb.pl"
+		]
+	},
+	{
+		"name": "Filmyfly",
+		"domains": [
+			"filmyfly.cafe",
+			"filmyfly.faith",
+			"filmyfly.luxe",
+			"filmyfly.soy",
+			"ww2.filmyfly.faith"
+		]
+	},
+	{
+		"name": "Filmyzilla45",
+		"domains": [
+			"www.filmyzilla45.com"
+		]
+	},
+	{
+		"name": "Filmyzilla46",
+		"domains": [
+			"www.filmyzilla46.com"
+		]
+	},
+	{
+		"name": "Filmyzilla52",
+		"domains": [
+			"www.filmyzilla52.com"
+		]
+	},
+	{
+		"name": "FINN.no",
+		"domains": [
+			"www.finn.no"
+		]
+	},
+	{
+		"name": "Fiverr",
+		"domains": [
+			"www.fiverr.com"
+		]
+	},
+	{
+		"name": "Flashscore",
+		"domains": [
+			"m.flashscore.fr",
+			"www.flashscore.com",
+			"www.flashscore.mobi"
+		]
+	},
+	{
+		"name": "Flightradar24",
+		"domains": [
+			"www.flightradar24.com"
+		]
+	},
+	{
+		"name": "Flipkart",
+		"domains": [
+			"www.flipkart.com"
+		]
+	},
+	{
+		"name": "Fmkorea",
+		"domains": [
+			"m.fmkorea.com"
+		]
+	},
+	{
+		"name": "에펨코리아",
+		"domains": [
+			"www.fmkorea.com"
+		]
+	},
+	{
+		"name": "FOCUS online",
+		"domains": [
+			"www.focus.de"
+		]
+	},
+	{
+		"name": "Foot Mercato",
+		"domains": [
+			"www.footmercato.net"
+		]
+	},
+	{
+		"name": "Foreca",
+		"domains": [
+			"www.foreca.fi"
+		]
+	},
+	{
+		"name": "Foreign Currency Booking Platform",
+		"domains": [
+			"fcms.cbl.gov.ly"
+		]
+	},
+	{
+		"name": "Fox News",
+		"domains": [
+			"www.foxnews.com"
+		]
+	},
+	{
+		"name": "FPO.XXX",
+		"domains": [
+			"www.fpo.xxx"
+		]
+	},
+	{
+		"name": "franceinfo",
+		"domains": [
+			"www.franceinfo.fr"
+		]
+	},
+	{
+		"name": "Freepornvideo",
+		"domains": [
+			"www.freepornvideo.sex"
+		]
+	},
+	{
+		"name": "Freesexkahani",
+		"domains": [
+			"www.freesexkahani.com"
+		]
+	},
+	{
+		"name": "Freewebnovel",
+		"domains": [
+			"freewebnovel.com"
+		]
+	},
+	{
+		"name": "Funinexch",
+		"domains": [
+			"www.funinexch.com"
+		]
+	},
+	{
+		"name": "FunPay",
+		"domains": [
+			"funpay.com"
+		]
+	},
+	{
+		"name": "Fuq",
+		"domains": [
+			"www.fuq.com"
+		]
+	},
+	{
+		"name": "Fur Affinity",
+		"domains": [
+			"www.furaffinity.net"
+		]
+	},
+	{
+		"name": "Futbin",
+		"domains": [
+			"www.futbin.com"
+		]
+	},
+	{
+		"name": "Futbol-libres",
+		"domains": [
+			"futbol-libres.su"
+		]
+	},
+	{
+		"name": "G1",
+		"domains": [
+			"g1.globo.com"
+		]
+	},
+	{
+		"name": "GameWith",
+		"domains": [
+			"gamewith.jp"
+		]
+	},
+	{
+		"name": "GCash",
+		"domains": [
+			"payments.gcash.com"
+		]
+	},
+	{
+		"name": "Gemini",
+		"domains": [
+			"gemini.google.com"
+		]
+	},
+	{
+		"name": "Genius",
+		"domains": [
+			"genius.com"
+		]
+	},
+	{
+		"name": "Girls Channel",
+		"domains": [
+			"girlschannel.net"
+		]
+	},
+	{
+		"name": "Gismeteo",
+		"domains": [
+			"www.gismeteo.ru"
+		]
+	},
+	{
+		"name": "ge",
+		"domains": [
+			"ge.globo.com"
+		]
+	},
+	{
+		"name": "globo.com",
+		"domains": [
+			"www.globo.com"
+		]
+	},
+	{
+		"name": "Goal.com",
+		"domains": [
+			"www.goal.com"
+		]
+	},
+	{
+		"name": "Goal7",
+		"domains": [
+			"goal7.co"
+		]
+	},
+	{
+		"name": "Goodreads",
+		"domains": [
+			"www.goodreads.com"
+		]
+	},
+	{
+		"name": "Goodreturns",
+		"domains": [
+			"www.goodreturns.in"
+		]
+	},
+	{
+		"name": "Google Account",
+		"domains": [
+			"accounts.google.com",
+			"myaccount.google.com"
+		]
+	},
+	{
+		"name": "Google Ads",
+		"domains": [
+			"ads.google.com"
+		]
+	},
+	{
+		"name": "Google Apps Script",
+		"domains": [
+			"script.google.com"
+		]
+	},
+	{
+		"name": "Google Business Profile",
+		"domains": [
+			"business.google.com"
+		]
+	},
+	{
+		"name": "Google Calendar",
+		"domains": [
+			"calendar.google.com"
+		]
+	},
+	{
+		"name": "Google Classroom",
+		"domains": [
+			"classroom.google.com"
+		]
+	},
+	{
+		"name": "Google Drive",
+		"domains": [
+			"drive.google.com",
+			"drive.usercontent.google.com"
+		]
+	},
+	{
+		"name": "Google Help",
+		"domains": [
+			"support.google.com"
+		]
+	},
+	{
+		"name": "Google Labs",
+		"domains": [
+			"labs.google"
+		]
+	},
+	{
+		"name": "Google Meet",
+		"domains": [
+			"meet.google.com"
+		]
+	},
+	{
+		"name": "Google My Activity",
+		"domains": [
+			"myactivity.google.com"
+		]
+	},
+	{
+		"name": "Google News",
+		"domains": [
+			"news.google.com"
+		]
+	},
+	{
+		"name": "Google One",
+		"domains": [
+			"one.google.com"
+		]
+	},
+	{
+		"name": "Google Password Manager",
+		"domains": [
+			"passwords.google.com"
+		]
+	},
+	{
+		"name": "Google Photos",
+		"domains": [
+			"photos.google.com"
+		]
+	},
+	{
+		"name": "Google Play",
+		"domains": [
+			"play.google.com"
+		]
+	},
+	{
+		"name": "Google Policies",
+		"domains": [
+			"policies.google.com"
+		]
+	},
+	{
+		"name": "Google Scholar",
+		"domains": [
+			"scholar.google.com"
+		]
+	},
+	{
+		"name": "Google Sites",
+		"domains": [
+			"sites.google.com"
+		]
+	},
+	{
+		"name": "Google Translate",
+		"domains": [
+			"translate.google.com"
+		]
+	},
+	{
+		"name": "Google Workspace",
+		"domains": [
+			"workspace.google.com"
+		]
+	},
+	{
+		"name": "Googll",
+		"domains": [
+			"googll.store"
+		]
+	},
+	{
+		"name": "Goojara",
+		"domains": [
+			"ww1.goojara.to"
+		]
+	},
+	{
+		"name": "gov.br",
+		"domains": [
+			"www.gov.br"
+		]
+	},
+	{
+		"name": "GOV.UK",
+		"domains": [
+			"www.gov.uk"
+		]
+	},
+	{
+		"name": "Gree-apps",
+		"domains": [
+			"pet.gree-apps.net"
+		]
+	},
+	{
+		"name": "Gree-pf",
+		"domains": [
+			"a24.app.gree-pf.net"
+		]
+	},
+	{
+		"name": "Greenxh",
+		"domains": [
+			"greenxh.live"
+		]
+	},
+	{
+		"name": "Grow with Google",
+		"domains": [
+			"grow.google"
+		]
+	},
+	{
+		"name": "GSM Arena",
+		"domains": [
+			"m.gsmarena.com"
+		]
+	},
+	{
+		"name": "GST",
+		"domains": [
+			"return.gst.gov.in",
+			"services.gst.gov.in"
+		]
+	},
+	{
+		"name": "H&M",
+		"domains": [
+			"www2.hm.com"
+		]
+	},
+	{
+		"name": "Haberler.com",
+		"domains": [
+			"www.haberler.com"
+		]
+	},
+	{
+		"name": "Hai8g",
+		"domains": [
+			"hai8g.com"
+		]
+	},
+	{
+		"name": "Hameln",
+		"domains": [
+			"syosetu.org"
+		]
+	},
+	{
+		"name": "Hanime1",
+		"domains": [
+			"hanime1.me"
+		]
+	},
+	{
+		"name": "Happymh",
+		"domains": [
+			"m.happymh.com"
+		]
+	},
+	{
+		"name": "Hdhub4u",
+		"domains": [
+			"hdhub4u.med",
+			"new2.hdhub4u.cl",
+			"new3.hdhub4u.cl"
+		]
+	},
+	{
+		"name": "Hdporncomics",
+		"domains": [
+			"hdporncomics.com"
+		]
+	},
+	{
+		"name": "HDtube.porn",
+		"domains": [
+			"www.hdtube.porn"
+		]
+	},
+	{
+		"name": "Hentai",
+		"domains": [
+			"www.hentai.name"
+		]
+	},
+	{
+		"name": "Het Laatste Nieuws",
+		"domains": [
+			"www.hln.be"
+		]
+	},
+	{
+		"name": "Hitomi",
+		"domains": [
+			"hitomi.la"
+		]
+	},
+	{
+		"name": "HLTV",
+		"domains": [
+			"www.hltv.org"
+		]
+	},
+	{
+		"name": "Hollywoodbets",
+		"domains": [
+			"www.hollywoodbets.net"
+		]
+	},
+	{
+		"name": "HOT PEPPER Beauty",
+		"domains": [
+			"beauty.hotpepper.jp"
+		]
+	},
+	{
+		"name": "Hotpic",
+		"domains": [
+			"hotpic.cc"
+		]
+	},
+	{
+		"name": "Hotxv",
+		"domains": [
+			"hotxv.com"
+		]
+	},
+	{
+		"name": "HubSpot",
+		"domains": [
+			"app.hubspot.com"
+		]
+	},
+	{
+		"name": "Humoruniv",
+		"domains": [
+			"m.humoruniv.com"
+		]
+	},
+	{
+		"name": "Iau",
+		"domains": [
+			"stdn.iau.ir"
+		]
+	},
+	{
+		"name": "ICICI Bank",
+		"domains": [
+			"cibnext.icici.bank.in"
+		]
+	},
+	{
+		"name": "ID.me",
+		"domains": [
+			"api.id.me"
+		]
+	},
+	{
+		"name": "idealista",
+		"domains": [
+			"www.idealista.com",
+			"www.idealista.it"
+		]
+	},
+	{
+		"name": "iDNES.cz",
+		"domains": [
+			"www.idnes.cz"
+		]
+	},
+	{
+		"name": "Ijavhd",
+		"domains": [
+			"video.ijavhd.com",
+			"x.ijavhd.com"
+		]
+	},
+	{
+		"name": "IKEA",
+		"domains": [
+			"www.ikea.com"
+		]
+	},
+	{
+		"name": "Il Fatto Quotidiano",
+		"domains": [
+			"www.ilfattoquotidiano.it"
+		]
+	},
+	{
+		"name": "iLMeteo",
+		"domains": [
+			"www.ilmeteo.it"
+		]
+	},
+	{
+		"name": "iLovePDF",
+		"domains": [
+			"www.ilovepdf.com"
+		]
+	},
+	{
+		"name": "Iltalehti",
+		"domains": [
+			"www.iltalehti.fi"
+		]
+	},
+	{
+		"name": "ImageFap",
+		"domains": [
+			"www.imagefap.com"
+		]
+	},
+	{
+		"name": "IMDb",
+		"domains": [
+			"www.imdb.com"
+		]
+	},
+	{
+		"name": "imgsrc.ru",
+		"domains": [
+			"imgsrc.ru"
+		]
+	},
+	{
+		"name": "Immobiliare.it",
+		"domains": [
+			"www.immobiliare.it"
+		]
+	},
+	{
+		"name": "Income Tax e-Filing",
+		"domains": [
+			"eportal.incometax.gov.in"
+		]
+	},
+	{
+		"name": "Income Tax Department",
+		"domains": [
+			"www.incometax.gov.in"
+		]
+	},
+	{
+		"name": "Indeed",
+		"domains": [
+			"jp.indeed.com",
+			"www.indeed.com"
+		]
+	},
+	{
+		"name": "index.hr",
+		"domains": [
+			"www.index.hr"
+		]
+	},
+	{
+		"name": "IndiaMART",
+		"domains": [
+			"m.indiamart.com"
+		]
+	},
+	{
+		"name": "Indian Railway HRMS",
+		"domains": [
+			"hrms.indianrail.gov.in"
+		]
+	},
+	{
+		"name": "Indiansexstories3",
+		"domains": [
+			"www.indiansexstories3.com"
+		]
+	},
+	{
+		"name": "Indoav",
+		"domains": [
+			"www.indoav.com"
+		]
+	},
+	{
+		"name": "Indown",
+		"domains": [
+			"indown.io"
+		]
+	},
+	{
+		"name": "infobae",
+		"domains": [
+			"www.infobae.com"
+		]
+	},
+	{
+		"name": "INPS",
+		"domains": [
+			"serviziweb2.inps.it"
+		]
+	},
+	{
+		"name": "Instagram",
+		"domains": [
+			"www.instagram.com"
+		]
+	},
+	{
+		"name": "Interia",
+		"domains": [
+			"pogoda.interia.pl"
+		]
+	},
+	{
+		"name": "Internet Archive",
+		"domains": [
+			"archive.org"
+		]
+	},
+	{
+		"name": "Inven",
+		"domains": [
+			"m.inven.co.kr",
+			"www.inven.co.kr"
+		]
+	},
+	{
+		"name": "inXXX.com",
+		"domains": [
+			"www.inxxx.com"
+		]
+	},
+	{
+		"name": "myIM3",
+		"domains": [
+			"myim3.ioh.co.id"
+		]
+	},
+	{
+		"name": "Iporntv",
+		"domains": [
+			"iporntv.net"
+		]
+	},
+	{
+		"name": "Isaidub",
+		"domains": [
+			"isaidub.ceo"
+		]
+	},
+	{
+		"name": "itch.io",
+		"domains": [
+			"itch.io"
+		]
+	},
+	{
+		"name": "ねとらぼ",
+		"domains": [
+			"nlab.itmedia.co.jp"
+		]
+	},
+	{
+		"name": "iXXX.com",
+		"domains": [
+			"www.ixxx.com"
+		]
+	},
+	{
+		"name": "Jable",
+		"domains": [
+			"jable.tv"
+		]
+	},
+	{
+		"name": "じゃらんnet",
+		"domains": [
+			"www.jalan.net"
+		]
+	},
+	{
+		"name": "JanitorAI",
+		"domains": [
+			"janitorai.com"
+		]
+	},
+	{
+		"name": "Jav",
+		"domains": [
+			"jav.guru"
+		]
+	},
+	{
+		"name": "Javsub",
+		"domains": [
+			"javsub.blog"
+		]
+	},
+	{
+		"name": "Javwow",
+		"domains": [
+			"javwow.com"
+		]
+	},
+	{
+		"name": "Jcphi",
+		"domains": [
+			"jcphi.com"
+		]
+	},
+	{
+		"name": "JennyMovies",
+		"domains": [
+			"www.jennymovies.com"
+		]
+	},
+	{
+		"name": "Jockey Club of Turkey",
+		"domains": [
+			"www.tjk.org"
+		]
+	},
+	{
+		"name": "Join Indian Army",
+		"domains": [
+			"www.joinindianarmy.nic.in"
+		]
+	},
+	{
+		"name": "JOYclub",
+		"domains": [
+			"www.joyclub.de"
+		]
+	},
+	{
+		"name": "JRA",
+		"domains": [
+			"sp.jra.jp",
+			"www.jra.go.jp"
+		]
+	},
+	{
+		"name": "JRA ネット投票",
+		"domains": [
+			"www.ipat.jra.go.jp"
+		]
+	},
+	{
+		"name": "Jusbrasil",
+		"domains": [
+			"www.jusbrasil.com.br"
+		]
+	},
+	{
+		"name": "Justdial",
+		"domains": [
+			"www.justdial.com"
+		]
+	},
+	{
+		"name": "Jutarnji list",
+		"domains": [
+			"www.jutarnji.hr"
+		]
+	},
+	{
+		"name": "JW.ORG",
+		"domains": [
+			"www.jw.org"
+		]
+	},
+	{
+		"name": "Kakuyomu",
+		"domains": [
+			"kakuyomu.jp"
+		]
+	},
+	{
+		"name": "Karnataka",
+		"domains": [
+			"cetonline.karnataka.gov.in"
+		]
+	},
+	{
+		"name": "UUCMS",
+		"domains": [
+			"uucms.karnataka.gov.in"
+		]
+	},
+	{
+		"name": "KEIRIN.JP",
+		"domains": [
+			"keirin.jp"
+		]
+	},
+	{
+		"name": "Kemkes",
+		"domains": [
+			"form.kemkes.go.id"
+		]
+	},
+	{
+		"name": "SIGIZI KESGA",
+		"domains": [
+			"sigizikesga.kemkes.go.id"
+		]
+	},
+	{
+		"name": "Kick",
+		"domains": [
+			"kick.com"
+		]
+	},
+	{
+		"name": "Kingbokep",
+		"domains": [
+			"kingbokep.tv"
+		]
+	},
+	{
+		"name": "Kinnser",
+		"domains": [
+			"kinnser.net"
+		]
+	},
+	{
+		"name": "Kir2kos",
+		"domains": [
+			"kir2kos.net"
+		]
+	},
+	{
+		"name": "Kleinanzeigen",
+		"domains": [
+			"www.kleinanzeigen.de"
+		]
+	},
+	{
+		"name": "KlikBCA",
+		"domains": [
+			"m.klikbca.com"
+		]
+	},
+	{
+		"name": "Kohl's",
+		"domains": [
+			"www.kohls.com"
+		]
+	},
+	{
+		"name": "Kolkataff",
+		"domains": [
+			"kolkataff.tv"
+		]
+	},
+	{
+		"name": "Kompoz2",
+		"domains": [
+			"kompoz2.com"
+		]
+	},
+	{
+		"name": "Kooora",
+		"domains": [
+			"www.kooora.com"
+		]
+	},
+	{
+		"name": "Koselarab",
+		"domains": [
+			"koselarab.com"
+		]
+	},
+	{
+		"name": "Kqbd",
+		"domains": [
+			"kqbd.mobi"
+		]
+	},
+	{
+		"name": "L'Équipe",
+		"domains": [
+			"www.lequipe.fr"
+		]
+	},
+	{
+		"name": "La Dépêche du Midi",
+		"domains": [
+			"www.ladepeche.fr"
+		]
+	},
+	{
+		"name": "La Gazzetta dello Sport",
+		"domains": [
+			"www.gazzetta.it"
+		]
+	},
+	{
+		"name": "La Nación",
+		"domains": [
+			"www.lanacion.com.ar"
+		]
+	},
+	{
+		"name": "la Repubblica",
+		"domains": [
+			"www.repubblica.it"
+		]
+	},
+	{
+		"name": "Ladies",
+		"domains": [
+			"m.ladies.de"
+		]
+	},
+	{
+		"name": "Le Figaro",
+		"domains": [
+			"www.lefigaro.fr"
+		]
+	},
+	{
+		"name": "Le Monde",
+		"domains": [
+			"www.lemonde.fr"
+		]
+	},
+	{
+		"name": "Le Parisien",
+		"domains": [
+			"www.leparisien.fr"
+		]
+	},
+	{
+		"name": "leboncoin",
+		"domains": [
+			"www.leboncoin.fr"
+		]
+	},
+	{
+		"name": "Lectormangass",
+		"domains": [
+			"lectormangass.net"
+		]
+	},
+	{
+		"name": "Lecturas",
+		"domains": [
+			"www.lecturas.com"
+		]
+	},
+	{
+		"name": "Leroy Merlin",
+		"domains": [
+			"www.leroymerlin.es",
+			"www.leroymerlin.fr"
+		]
+	},
+	{
+		"name": "Letras.mus.br",
+		"domains": [
+			"www.letras.mus.br"
+		]
+	},
+	{
+		"name": "Letsporn",
+		"domains": [
+			"letsporn.com"
+		]
+	},
+	{
+		"name": "Letterboxd",
+		"domains": [
+			"letterboxd.com"
+		]
+	},
+	{
+		"name": "LG",
+		"domains": [
+			"www.lg.com"
+		]
+	},
+	{
+		"name": "Lichess",
+		"domains": [
+			"lichess.org"
+		]
+	},
+	{
+		"name": "Linkmake",
+		"domains": [
+			"linkmake.in"
+		]
+	},
+	{
+		"name": "Linktree",
+		"domains": [
+			"linktr.ee"
+		]
+	},
+	{
+		"name": "ListCrawler",
+		"domains": [
+			"escortalligator.com.listcrawler.eu"
+		]
+	},
+	{
+		"name": "Liteapks",
+		"domains": [
+			"liteapks.com"
+		]
+	},
+	{
+		"name": "livedoor News",
+		"domains": [
+			"news.livedoor.com"
+		]
+	},
+	{
+		"name": "LiveScore",
+		"domains": [
+			"www.livescore.com",
+			"www.livescore.cz"
+		]
+	},
+	{
+		"name": "Lk21official",
+		"domains": [
+			"tv11.lk21official.cc",
+			"tv12.lk21official.cc"
+		]
+	},
+	{
+		"name": "Loobygamesonline",
+		"domains": [
+			"wl1.loobygamesonline.com",
+			"wl2.loobygamesonline.com",
+			"wl4.loobygamesonline.com"
+		]
+	},
+	{
+		"name": "Lookmovie2",
+		"domains": [
+			"www.lookmovie2.to"
+		]
+	},
+	{
+		"name": "Loteriadehoy",
+		"domains": [
+			"loteriadehoy.com"
+		]
+	},
+	{
+		"name": "Lowe's",
+		"domains": [
+			"www.lowes.com"
+		]
+	},
+	{
+		"name": "Luticlip",
+		"domains": [
+			"luticlip.com"
+		]
+	},
+	{
+		"name": "Luugy",
+		"domains": [
+			"luugy.com"
+		]
+	},
+	{
+		"name": "Luxuretv",
+		"domains": [
+			"en.luxuretv.com",
+			"es.luxuretv.com"
+		]
+	},
+	{
+		"name": "Mail.ru",
+		"domains": [
+			"mail.ru"
+		]
+	},
+	{
+		"name": "MakeMyTrip",
+		"domains": [
+			"www.makemytrip.com"
+		]
+	},
+	{
+		"name": "Mamastar",
+		"domains": [
+			"select.mamastar.jp"
+		]
+	},
+	{
+		"name": "Mangabuff",
+		"domains": [
+			"mangabuff.ru"
+		]
+	},
+	{
+		"name": "Mangago",
+		"domains": [
+			"www.mangago.me"
+		]
+	},
+	{
+		"name": "Mangaraw",
+		"domains": [
+			"mangaraw.ac"
+		]
+	},
+	{
+		"name": "Manhwaweb",
+		"domains": [
+			"manhwaweb.com"
+		]
+	},
+	{
+		"name": "MARCA",
+		"domains": [
+			"www.marca.com"
+		]
+	},
+	{
+		"name": "markt.de",
+		"domains": [
+			"erotik.markt.de"
+		]
+	},
+	{
+		"name": "Marktplaats.nl",
+		"domains": [
+			"www.marktplaats.nl"
+		]
+	},
+	{
+		"name": "Mat6tube",
+		"domains": [
+			"mat6tube.com"
+		]
+	},
+	{
+		"name": "Maynoe",
+		"domains": [
+			"maynoe.com"
+		]
+	},
+	{
+		"name": "Mobage",
+		"domains": [
+			"gcc.sp.mbga.jp",
+			"rx.sp.mbga.jp",
+			"sp.mbga.jp",
+			"sp.pf.mbga.jp"
+		]
+	},
+	{
+		"name": "Mbga",
+		"domains": [
+			"nouen.sp.mbga.jp"
+		]
+	},
+	{
+		"name": "Mecha Comic",
+		"domains": [
+			"mechacomic.jp"
+		]
+	},
+	{
+		"name": "Media Expert",
+		"domains": [
+			"www.mediaexpert.pl"
+		]
+	},
+	{
+		"name": "MediaFire",
+		"domains": [
+			"www.mediafire.com"
+		]
+	},
+	{
+		"name": "Meesho Supplier",
+		"domains": [
+			"supplier.meesho.com"
+		]
+	},
+	{
+		"name": "Massar",
+		"domains": [
+			"massarservice.men.gov.ma"
+		]
+	},
+	{
+		"name": "Mercado Livre",
+		"domains": [
+			"www.mercadolivre.com.br"
+		]
+	},
+	{
+		"name": "MercadoLibre",
+		"domains": [
+			"www.mercadolibre.com.ar",
+			"www.mercadolibre.com.mx"
+		]
+	},
+	{
+		"name": "Meta Ads Manager",
+		"domains": [
+			"adsmanager.facebook.com"
+		]
+	},
+	{
+		"name": "Meta Business Suite",
+		"domains": [
+			"business.facebook.com"
+		]
+	},
+	{
+		"name": "Météo-France",
+		"domains": [
+			"meteofrance.com"
+		]
+	},
+	{
+		"name": "Meteociel",
+		"domains": [
+			"www.meteociel.fr"
+		]
+	},
+	{
+		"name": "Meteored",
+		"domains": [
+			"www.meteored.cl"
+		]
+	},
+	{
+		"name": "Microsoft",
+		"domains": [
+			"www.microsoft.com"
+		]
+	},
+	{
+		"name": "Microsoft Bing",
+		"domains": [
+			"www.bing.com"
+		]
+	},
+	{
+		"name": "Microsoft Forms",
+		"domains": [
+			"forms.cloud.microsoft"
+		]
+	},
+	{
+		"name": "Microsoft Support",
+		"domains": [
+			"support.microsoft.com"
+		]
+	},
+	{
+		"name": "Mileroticos",
+		"domains": [
+			"co.mileroticos.com"
+		]
+	},
+	{
+		"name": "Mingky05",
+		"domains": [
+			"mingky05.live"
+		]
+	},
+	{
+		"name": "Xổ Số Minh Ngọc",
+		"domains": [
+			"www.minhngoc.net.vn"
+		]
+	},
+	{
+		"name": "Missav",
+		"domains": [
+			"missav.ai",
+			"missav.live",
+			"missav.ws"
+		]
+	},
+	{
+		"name": "Missav123",
+		"domains": [
+			"missav123.com"
+		]
+	},
+	{
+		"name": "MLB",
+		"domains": [
+			"www.mlb.com"
+		]
+	},
+	{
+		"name": "MobCup",
+		"domains": [
+			"mobcup.fm"
+		]
+	},
+	{
+		"name": "MobileDokan",
+		"domains": [
+			"www.mobiledokan.com"
+		]
+	},
+	{
+		"name": "Momon-ga",
+		"domains": [
+			"momon-ga.com"
+		]
+	},
+	{
+		"name": "Moneycontrol",
+		"domains": [
+			"www.moneycontrol.com"
+		]
+	},
+	{
+		"name": "Movie-box",
+		"domains": [
+			"movie-box.co"
+		]
+	},
+	{
+		"name": "Moviesda33",
+		"domains": [
+			"moviesda33.com"
+		]
+	},
+	{
+		"name": "Moviesda34",
+		"domains": [
+			"moviesda34.com"
+		]
+	},
+	{
+		"name": "Movieswood",
+		"domains": [
+			"movieswood.cloud"
+		]
+	},
+	{
+		"name": "Moviezwap",
+		"domains": [
+			"www.moviezwap.land"
+		]
+	},
+	{
+		"name": "Mp",
+		"domains": [
+			"evikas.mpkrishi.mp.gov.in"
+		]
+	},
+	{
+		"name": "Mp4moviez",
+		"domains": [
+			"www.mp4moviez.dad",
+			"www.mp4moviez.soccer"
+		]
+	},
+	{
+		"name": "MSN",
+		"domains": [
+			"www.msn.com"
+		]
+	},
+	{
+		"name": "Mundo Deportivo",
+		"domains": [
+			"www.mundodeportivo.com"
+		]
+	},
+	{
+		"name": "musicdel",
+		"domains": [
+			"musicdel.ir"
+		]
+	},
+	{
+		"name": "MyDramaList",
+		"domains": [
+			"mydramalist.com"
+		]
+	},
+	{
+		"name": "Myinstants",
+		"domains": [
+			"www.myinstants.com"
+		]
+	},
+	{
+		"name": "Myntra",
+		"domains": [
+			"www.myntra.com"
+		]
+	},
+	{
+		"name": "MyReadingManga",
+		"domains": [
+			"myreadingmanga.info"
+		]
+	},
+	{
+		"name": "n-tv",
+		"domains": [
+			"www.n-tv.de"
+		]
+	},
+	{
+		"name": "نماشا",
+		"domains": [
+			"www.namasha.com"
+		]
+	},
+	{
+		"name": "Namuwiki",
+		"domains": [
+			"namu.wiki"
+		]
+	},
+	{
+		"name": "naukri.com",
+		"domains": [
+			"www.naukri.com"
+		]
+	},
+	{
+		"name": "Naver",
+		"domains": [
+			"m.naver.com"
+		]
+	},
+	{
+		"name": "NAVER",
+		"domains": [
+			"www.naver.com"
+		]
+	},
+	{
+		"name": "Naver Finance",
+		"domains": [
+			"finance.naver.com"
+		]
+	},
+	{
+		"name": "Naver News",
+		"domains": [
+			"n.news.naver.com"
+		]
+	},
+	{
+		"name": "Naver Search",
+		"domains": [
+			"m.search.naver.com",
+			"search.naver.com"
+		]
+	},
+	{
+		"name": "Naver Sports",
+		"domains": [
+			"m.sports.naver.com"
+		]
+	},
+	{
+		"name": "Naver Webtoon",
+		"domains": [
+			"m.comic.naver.com"
+		]
+	},
+	{
+		"name": "NAVITIME",
+		"domains": [
+			"www.navitime.co.jp"
+		]
+	},
+	{
+		"name": "nesine.com",
+		"domains": [
+			"www.nesine.com"
+		]
+	},
+	{
+		"name": "Netflix",
+		"domains": [
+			"www.netflix.com"
+		]
+	},
+	{
+		"name": "netkeiba.com",
+		"domains": [
+			"race.sp.netkeiba.com"
+		]
+	},
+	{
+		"name": "Newtoki1",
+		"domains": [
+			"newtoki1.org"
+		]
+	},
+	{
+		"name": "NexusMods",
+		"domains": [
+			"www.nexusmods.com"
+		]
+	},
+	{
+		"name": "Portal da Nota Fiscal de Serviço eletrônica",
+		"domains": [
+			"www.nfse.gov.br"
+		]
+	},
+	{
+		"name": "Nike",
+		"domains": [
+			"www.nike.com"
+		]
+	},
+	{
+		"name": "Nikkan Sports News",
+		"domains": [
+			"www.nikkansports.com"
+		]
+	},
+	{
+		"name": "Nikkei",
+		"domains": [
+			"www.nikkei.com"
+		]
+	},
+	{
+		"name": "نی نی سایت",
+		"domains": [
+			"www.ninisite.com"
+		]
+	},
+	{
+		"name": "Nintendo Account",
+		"domains": [
+			"accounts.nintendo.com"
+		]
+	},
+	{
+		"name": "Nirvam",
+		"domains": [
+			"m.nirvam.it"
+		]
+	},
+	{
+		"name": "Njavtv",
+		"domains": [
+			"njavtv.com"
+		]
+	},
+	{
+		"name": "Noodlemagazine",
+		"domains": [
+			"hot.noodlemagazine.com",
+			"noodlemagazine.com"
+		]
+	},
+	{
+		"name": "Nosv",
+		"domains": [
+			"uranai.nosv.org"
+		]
+	},
+	{
+		"name": "note",
+		"domains": [
+			"note.com"
+		]
+	},
+	{
+		"name": "novinky.cz",
+		"domains": [
+			"www.novinky.cz"
+		]
+	},
+	{
+		"name": "NRK.no",
+		"domains": [
+			"www.nrk.no"
+		]
+	},
+	{
+		"name": "NU.nl",
+		"domains": [
+			"www.nu.nl"
+		]
+	},
+	{
+		"name": "Nustargame",
+		"domains": [
+			"nustargame.com"
+		]
+	},
+	{
+		"name": "Nya2",
+		"domains": [
+			"nya2.com"
+		]
+	},
+	{
+		"name": "OddsPark",
+		"domains": [
+			"sp.oddspark.com"
+		]
+	},
+	{
+		"name": "Odnoklassniki",
+		"domains": [
+			"ok.ru"
+		]
+	},
+	{
+		"name": "Ojogodobicho",
+		"domains": [
+			"www.ojogodobicho.com"
+		]
+	},
+	{
+		"name": "OKDIARIO",
+		"domains": [
+			"okdiario.com"
+		]
+	},
+	{
+		"name": "Okxxx1",
+		"domains": [
+			"okxxx1.com"
+		]
+	},
+	{
+		"name": "OLX",
+		"domains": [
+			"m.olx.pl",
+			"www.olx.com.br"
+		]
+	},
+	{
+		"name": "Olxprc",
+		"domains": [
+			"olxprc.com"
+		]
+	},
+	{
+		"name": "Omg10",
+		"domains": [
+			"omg10.com"
+		]
+	},
+	{
+		"name": "onet.pl",
+		"domains": [
+			"www.onet.pl"
+		]
+	},
+	{
+		"name": "OnlyFans",
+		"domains": [
+			"onlyfans.com"
+		]
+	},
+	{
+		"name": "ORICON NEWS",
+		"domains": [
+			"www.oricon.co.jp"
+		]
+	},
+	{
+		"name": "ÖSYM AİS",
+		"domains": [
+			"ais.osym.gov.tr"
+		]
+	},
+	{
+		"name": "OTOMOTO",
+		"domains": [
+			"www.otomoto.pl"
+		]
+	},
+	{
+		"name": "OTTO",
+		"domains": [
+			"www.otto.de"
+		]
+	},
+	{
+		"name": "Ouest-France",
+		"domains": [
+			"www.ouest-france.fr"
+		]
+	},
+	{
+		"name": "Outlook",
+		"domains": [
+			"outlook.cloud.microsoft",
+			"outlook.live.com",
+			"outlook.office.com",
+			"outlook.office365.com"
+		]
+	},
+	{
+		"name": "Ozon",
+		"domains": [
+			"www.ozon.ru"
+		]
+	},
+	{
+		"name": "Packzy",
+		"domains": [
+			"rider.packzy.com"
+		]
+	},
+	{
+		"name": "Pag-IBIG Online Services",
+		"domains": [
+			"www.pagibigfundservices.com"
+		]
+	},
+	{
+		"name": "Paramount+",
+		"domains": [
+			"www.paramountplus.com"
+		]
+	},
+	{
+		"name": "VAHAN",
+		"domains": [
+			"vahan.parivahan.gov.in"
+		]
+	},
+	{
+		"name": "Patreon",
+		"domains": [
+			"www.patreon.com"
+		]
+	},
+	{
+		"name": "Patria",
+		"domains": [
+			"persona.patria.org.ve"
+		]
+	},
+	{
+		"name": "PayPal",
+		"domains": [
+			"www.paypal.com"
+		]
+	},
+	{
+		"name": "People",
+		"domains": [
+			"people.com"
+		]
+	},
+	{
+		"name": "Piccoma",
+		"domains": [
+			"piccoma.com"
+		]
+	},
+	{
+		"name": "Pikabu.ru",
+		"domains": [
+			"pikabu.ru"
+		]
+	},
+	{
+		"name": "Pimpbunny",
+		"domains": [
+			"pimpbunny.com"
+		]
+	},
+	{
+		"name": "Pinterest",
+		"domains": [
+			"in.pinterest.com",
+			"www.pinterest.com"
+		]
+	},
+	{
+		"name": "PITC",
+		"domains": [
+			"bill.pitc.com.pk"
+		]
+	},
+	{
+		"name": "Pixabay",
+		"domains": [
+			"pixabay.com"
+		]
+	},
+	{
+		"name": "Pixiv",
+		"domains": [
+			"www.pixiv.net"
+		]
+	},
+	{
+		"name": "Pla3",
+		"domains": [
+			"cdn.pla3.com"
+		]
+	},
+	{
+		"name": "Platorelay",
+		"domains": [
+			"auth.platorelay.com"
+		]
+	},
+	{
+		"name": "Playhop",
+		"domains": [
+			"playhop.com"
+		]
+	},
+	{
+		"name": "Playinboss",
+		"domains": [
+			"playinboss.com"
+		]
+	},
+	{
+		"name": "PM-KISAN",
+		"domains": [
+			"pmkisan.gov.in"
+		]
+	},
+	{
+		"name": "Poki",
+		"domains": [
+			"poki.com"
+		]
+	},
+	{
+		"name": "PolyBuzz",
+		"domains": [
+			"www.polybuzz.ai"
+		]
+	},
+	{
+		"name": "Porn300",
+		"domains": [
+			"www.porn300.com"
+		]
+	},
+	{
+		"name": "Pornhub",
+		"domains": [
+			"cn.pornhub.com",
+			"cz.pornhub.com",
+			"de.pornhub.com",
+			"de.pornhub.org",
+			"es.pornhub.com",
+			"fr.pornhub.com",
+			"it.pornhub.com",
+			"jp.pornhub.com",
+			"nl.pornhub.com",
+			"pl.pornhub.com",
+			"pt.pornhub.com",
+			"rt.pornhub.com",
+			"rt.pornhub.org",
+			"www.pornhub.com",
+			"www.pornhub.org"
+		]
+	},
+	{
+		"name": "Porno365",
+		"domains": [
+			"g.porno365.golf",
+			"k.porno365.golf"
+		]
+	},
+	{
+		"name": "Porno666",
+		"domains": [
+			"x.porno666.fo"
+		]
+	},
+	{
+		"name": "Pornoborshch",
+		"domains": [
+			"pornoborshch.com"
+		]
+	},
+	{
+		"name": "Pornobrasil",
+		"domains": [
+			"pornobrasil.com"
+		]
+	},
+	{
+		"name": "Pornone",
+		"domains": [
+			"pornone.com"
+		]
+	},
+	{
+		"name": "PornPics",
+		"domains": [
+			"www.pornpics.com"
+		]
+	},
+	{
+		"name": "PosteID",
+		"domains": [
+			"posteid.poste.it"
+		]
+	},
+	{
+		"name": "Ppomppu",
+		"domains": [
+			"m.ppomppu.co.kr"
+		]
+	},
+	{
+		"name": "Prime Video",
+		"domains": [
+			"www.primevideo.com"
+		]
+	},
+	{
+		"name": "Prokerala",
+		"domains": [
+			"www.prokerala.com"
+		]
+	},
+	{
+		"name": "PROMIEDOS",
+		"domains": [
+			"www.promiedos.com.ar"
+		]
+	},
+	{
+		"name": "Property24",
+		"domains": [
+			"www.property24.com"
+		]
+	},
+	{
+		"name": "Proto Thema",
+		"domains": [
+			"www.protothema.gr"
+		]
+	},
+	{
+		"name": "Ptgaming",
+		"domains": [
+			"static.ptgaming.ph"
+		]
+	},
+	{
+		"name": "PT Gaming",
+		"domains": [
+			"www.ptgaming.ph"
+		]
+	},
+	{
+		"name": "PTT",
+		"domains": [
+			"www.ptt.cc"
+		]
+	},
+	{
+		"name": "Publi24",
+		"domains": [
+			"www.publi24.ro"
+		]
+	},
+	{
+		"name": "Pussyboy",
+		"domains": [
+			"www.pussyboy.net"
+		]
+	},
+	{
+		"name": "Pussyspace",
+		"domains": [
+			"www.pussyspace.com"
+		]
+	},
+	{
+		"name": "Qorno",
+		"domains": [
+			"www.qorno.com"
+		]
+	},
+	{
+		"name": "Quora",
+		"domains": [
+			"www.quora.com"
+		]
+	},
+	{
+		"name": "Integrated Shala Darpan",
+		"domains": [
+			"rajshaladarpan.rajasthan.gov.in"
+		]
+	},
+	{
+		"name": "Rakuten",
+		"domains": [
+			"item.rakuten.co.jp",
+			"login.account.rakuten.com"
+		]
+	},
+	{
+		"name": "Rakuten Ichiba",
+		"domains": [
+			"search.rakuten.co.jp"
+		]
+	},
+	{
+		"name": "Rakuten Securities",
+		"domains": [
+			"member.rakuten-sec.co.jp"
+		]
+	},
+	{
+		"name": "Rat",
+		"domains": [
+			"www.rat.xxx"
+		]
+	},
+	{
+		"name": "Redfin",
+		"domains": [
+			"www.redfin.com"
+		]
+	},
+	{
+		"name": "RedTube",
+		"domains": [
+			"www.redtube.com"
+		]
+	},
+	{
+		"name": "Redwap",
+		"domains": [
+			"www.redwap.sex"
+		]
+	},
+	{
+		"name": "remove.bg",
+		"domains": [
+			"www.remove.bg"
+		]
+	},
+	{
+		"name": "ResearchGate",
+		"domains": [
+			"www.researchgate.net"
+		]
+	},
+	{
+		"name": "Rexify",
+		"domains": [
+			"rexify.com.ng"
+		]
+	},
+	{
+		"name": "Rexporn",
+		"domains": [
+			"www.rexporn.sex"
+		]
+	},
+	{
+		"name": "Rightmove",
+		"domains": [
+			"www.rightmove.co.uk"
+		]
+	},
+	{
+		"name": "Roblox",
+		"domains": [
+			"www.roblox.com"
+		]
+	},
+	{
+		"name": "Rsch",
+		"domains": [
+			"rsch.jp"
+		]
+	},
+	{
+		"name": "RTVE",
+		"domains": [
+			"www.rtve.es"
+		]
+	},
+	{
+		"name": "Rule34",
+		"domains": [
+			"rule34.xxx"
+		]
+	},
+	{
+		"name": "Rule34video",
+		"domains": [
+			"rule34video.com"
+		]
+	},
+	{
+		"name": "Ruliweb",
+		"domains": [
+			"bbs.ruliweb.com",
+			"m.ruliweb.com"
+		]
+	},
+	{
+		"name": "Ryanair",
+		"domains": [
+			"www.ryanair.com"
+		]
+	},
+	{
+		"name": "sahibinden.com",
+		"domains": [
+			"www.sahibinden.com"
+		]
+	},
+	{
+		"name": "SALON BOARD",
+		"domains": [
+			"salonboard.com"
+		]
+	},
+	{
+		"name": "Sambad",
+		"domains": [
+			"lottery.sambad.com"
+		]
+	},
+	{
+		"name": "Samsung",
+		"domains": [
+			"www.samsung.com"
+		]
+	},
+	{
+		"name": "Sarkariresult",
+		"domains": [
+			"sarkariresult.com.cm"
+		]
+	},
+	{
+		"name": "Satta-king-fast",
+		"domains": [
+			"satta-king-fast.com"
+		]
+	},
+	{
+		"name": "Sattamatkadpboss",
+		"domains": [
+			"sattamatkadpboss.mobi"
+		]
+	},
+	{
+		"name": "Sattamatkano1",
+		"domains": [
+			"sattamatkano1.me"
+		]
+	},
+	{
+		"name": "SaveFrom.net",
+		"domains": [
+			"en1.savefrom.net"
+		]
+	},
+	{
+		"name": "State Bank of India",
+		"domains": [
+			"corp.sbi.bank.in"
+		]
+	},
+	{
+		"name": "Scan-manga",
+		"domains": [
+			"m.scan-manga.com"
+		]
+	},
+	{
+		"name": "Scratch",
+		"domains": [
+			"scratch.mit.edu"
+		]
+	},
+	{
+		"name": "Screener",
+		"domains": [
+			"www.screener.in"
+		]
+	},
+	{
+		"name": "Scribd",
+		"domains": [
+			"www.scribd.com",
+			"es.scribd.com"
+		]
+	},
+	{
+		"name": "Search-start",
+		"domains": [
+			"go.search-start.org"
+		]
+	},
+	{
+		"name": "Serviporno",
+		"domains": [
+			"www.serviporno.com"
+		]
+	},
+	{
+		"name": "Sex-studentki",
+		"domains": [
+			"sex-studentki.cafe",
+			"x.sex-studentki.team"
+		]
+	},
+	{
+		"name": "Sexalarab",
+		"domains": [
+			"sexalarab.com"
+		]
+	},
+	{
+		"name": "Sexemodel",
+		"domains": [
+			"m.sexemodel.com"
+		]
+	},
+	{
+		"name": "Sexlog",
+		"domains": [
+			"www.sexlog.com"
+		]
+	},
+	{
+		"name": "Sexmupxinh",
+		"domains": [
+			"sexmupxinh.net"
+		]
+	},
+	{
+		"name": "Sexnyk",
+		"domains": [
+			"www.sexnyk.com"
+		]
+	},
+	{
+		"name": "Sexvid",
+		"domains": [
+			"www.sexvid.xxx"
+		]
+	},
+	{
+		"name": "Sexvid1",
+		"domains": [
+			"www.sexvid1.com"
+		]
+	},
+	{
+		"name": "Email.cz",
+		"domains": [
+			"email.seznam.cz"
+		]
+	},
+	{
+		"name": "Seznam.cz",
+		"domains": [
+			"www.seznam.cz"
+		]
+	},
+	{
+		"name": "Shaalaa",
+		"domains": [
+			"www.shaalaa.com"
+		]
+	},
+	{
+		"name": "Shahvani",
+		"domains": [
+			"shahvani.com"
+		]
+	},
+	{
+		"name": "SHEIN",
+		"domains": [
+			"m.shein.com"
+		]
+	},
+	{
+		"name": "Shop",
+		"domains": [
+			"shop.app"
+		]
+	},
+	{
+		"name": "Shopee",
+		"domains": [
+			"s.shopee.co.id",
+			"shopee.co.id",
+			"shopee.com.br",
+			"shopee.ph"
+		]
+	},
+	{
+		"name": "Shopify",
+		"domains": [
+			"admin.shopify.com",
+			"shopify.com"
+		]
+	},
+	{
+		"name": "Simontokx",
+		"domains": [
+			"mobile-x4.simontokx.asia",
+			"mobile-x5.simontokx.asia"
+		]
+	},
+	{
+		"name": "Simpcity",
+		"domains": [
+			"simpcity.cr"
+		]
+	},
+	{
+		"name": "Sinoptik",
+		"domains": [
+			"sinoptik.ua"
+		]
+	},
+	{
+		"name": "Site777",
+		"domains": [
+			"m.site777.jp"
+		]
+	},
+	{
+		"name": "Skelbiu.lt",
+		"domains": [
+			"m.skelbiu.lt"
+		]
+	},
+	{
+		"name": "Skipthegames",
+		"domains": [
+			"skipthegames.com"
+		]
+	},
+	{
+		"name": "Skokka",
+		"domains": [
+			"br.skokka.com"
+		]
+	},
+	{
+		"name": "Skroutz",
+		"domains": [
+			"www.skroutz.gr"
+		]
+	},
+	{
+		"name": "Sky Sports",
+		"domains": [
+			"www.skysports.com"
+		]
+	},
+	{
+		"name": "SnapTik",
+		"domains": [
+			"snaptik.app"
+		]
+	},
+	{
+		"name": "Sofascore",
+		"domains": [
+			"www.sofascore.com"
+		]
+	},
+	{
+		"name": "Son Dakika",
+		"domains": [
+			"www.sondakika.com"
+		]
+	},
+	{
+		"name": "Sotwe",
+		"domains": [
+			"www.sotwe.com"
+		]
+	},
+	{
+		"name": "Sözcü",
+		"domains": [
+			"www.sozcu.com.tr"
+		]
+	},
+	{
+		"name": "Spankbang",
+		"domains": [
+			"jp.spankbang.com",
+			"spankbang.com",
+			"spankbang.party"
+		]
+	},
+	{
+		"name": "Speedtest",
+		"domains": [
+			"www.speedtest.net"
+		]
+	},
+	{
+		"name": "SPORT",
+		"domains": [
+			"www.sport.es"
+		]
+	},
+	{
+		"name": "Sportfilm800",
+		"domains": [
+			"sportfilm800.com"
+		]
+	},
+	{
+		"name": "Sports Navi",
+		"domains": [
+			"sports.yahoo.co.jp"
+		]
+	},
+	{
+		"name": "SportyBet",
+		"domains": [
+			"www.sportybet.com"
+		]
+	},
+	{
+		"name": "Spotify",
+		"domains": [
+			"accounts.spotify.com",
+			"open.spotify.com"
+		]
+	},
+	{
+		"name": "SS.COM",
+		"domains": [
+			"m.ss.com"
+		]
+	},
+	{
+		"name": "Ssstik",
+		"domains": [
+			"ssstik.io"
+		]
+	},
+	{
+		"name": "Stasera in TV",
+		"domains": [
+			"www.staseraintv.com"
+		]
+	},
+	{
+		"name": "Steam",
+		"domains": [
+			"store.steampowered.com"
+		]
+	},
+	{
+		"name": "Steam Community",
+		"domains": [
+			"steamcommunity.com"
+		]
+	},
+	{
+		"name": "Stripchat",
+		"domains": [
+			"es.stripchat.com",
+			"stripchat.com"
+		]
+	},
+	{
+		"name": "Subito",
+		"domains": [
+			"www.subito.it"
+		]
+	},
+	{
+		"name": "Superbet",
+		"domains": [
+			"superbet.bet.br"
+		]
+	},
+	{
+		"name": "Supercell Store",
+		"domains": [
+			"store.supercell.com"
+		]
+	},
+	{
+		"name": "Superporn",
+		"domains": [
+			"www.superporn.com"
+		]
+	},
+	{
+		"name": "Supjav",
+		"domains": [
+			"supjav.com"
+		]
+	},
+	{
+		"name": "SUUMO",
+		"domains": [
+			"suumo.jp"
+		]
+	},
+	{
+		"name": "Sxyprn",
+		"domains": [
+			"sxyprn.com"
+		]
+	},
+	{
+		"name": "Shōsetsuka ni Narō",
+		"domains": [
+			"ncode.syosetu.com"
+		]
+	},
+	{
+		"name": "Syosetu",
+		"domains": [
+			"novel18.syosetu.com"
+		]
+	},
+	{
+		"name": "Telegram",
+		"domains": [
+			"t.me",
+			"telegram.me",
+			"telegram.org"
+		]
+	},
+	{
+		"name": "t-online",
+		"domains": [
+			"www.t-online.de"
+		]
+	},
+	{
+		"name": "Tabelog",
+		"domains": [
+			"s.tabelog.com"
+		]
+	},
+	{
+		"name": "Tabor.ru",
+		"domains": [
+			"m.tabor.ru"
+		]
+	},
+	{
+		"name": "Taktube",
+		"domains": [
+			"www.taktube.net"
+		]
+	},
+	{
+		"name": "TamilDhool",
+		"domains": [
+			"www.tamildhool.tech"
+		]
+	},
+	{
+		"name": "Tamilsexzone",
+		"domains": [
+			"www.tamilsexzone.com"
+		]
+	},
+	{
+		"name": "Target",
+		"domains": [
+			"www.target.com"
+		]
+	},
+	{
+		"name": "Tata 1mg",
+		"domains": [
+			"www.1mg.com"
+		]
+	},
+	{
+		"name": "HM Revenue & Customs",
+		"domains": [
+			"www.tax.service.gov.uk"
+		]
+	},
+	{
+		"name": "TBS News DIG",
+		"domains": [
+			"newsdig.tbs.co.jp"
+		]
+	},
+	{
+		"name": "Télé-Loisirs",
+		"domains": [
+			"www.programme-tv.net"
+		]
+	},
+	{
+		"name": "Temu",
+		"domains": [
+			"www.temu.com"
+		]
+	},
+	{
+		"name": "tenki.jp",
+		"domains": [
+			"tenki.jp"
+		]
+	},
+	{
+		"name": "Terra",
+		"domains": [
+			"www.terra.com.br"
+		]
+	},
+	{
+		"name": "Testbook",
+		"domains": [
+			"testbook.com"
+		]
+	},
+	{
+		"name": "TGJU",
+		"domains": [
+			"www.tgju.org"
+		]
+	},
+	{
+		"name": "The Blowers",
+		"domains": [
+			"www.theblowers.com"
+		]
+	},
+	{
+		"name": "The Guardian",
+		"domains": [
+			"www.theguardian.com"
+		]
+	},
+	{
+		"name": "The Home Depot",
+		"domains": [
+			"www.homedepot.com"
+		]
+	},
+	{
+		"name": "The New York Times",
+		"domains": [
+			"www.nytimes.com"
+		]
+	},
+	{
+		"name": "The Times of India",
+		"domains": [
+			"timesofindia.indiatimes.com"
+		]
+	},
+	{
+		"name": "The Weather Channel",
+		"domains": [
+			"weather.com"
+		]
+	},
+	{
+		"name": "Theqoo",
+		"domains": [
+			"theqoo.net"
+		]
+	},
+	{
+		"name": "Therapservices",
+		"domains": [
+			"secure.therapservices.net"
+		]
+	},
+	{
+		"name": "Thisvid",
+		"domains": [
+			"thisvid.com"
+		]
+	},
+	{
+		"name": "Threads",
+		"domains": [
+			"www.threads.com"
+		]
+	},
+	{
+		"name": "Thscore99",
+		"domains": [
+			"www.thscore99.com"
+		]
+	},
+	{
+		"name": "Tiktokio",
+		"domains": [
+			"tiktokio.com"
+		]
+	},
+	{
+		"name": "e-SAJ",
+		"domains": [
+			"esaj.tjsp.jus.br"
+		]
+	},
+	{
+		"name": "TNAFLIX.COM",
+		"domains": [
+			"www.tnaflix.com"
+		]
+	},
+	{
+		"name": "TOKYO Motion",
+		"domains": [
+			"www.tokyomotion.net"
+		]
+	},
+	{
+		"name": "Tori",
+		"domains": [
+			"www.tori.fi"
+		]
+	},
+	{
+		"name": "Torob",
+		"domains": [
+			"torob.com"
+		]
+	},
+	{
+		"name": "Tour de France",
+		"domains": [
+			"www.letour.fr"
+		]
+	},
+	{
+		"name": "Toyhouse",
+		"domains": [
+			"toyhou.se"
+		]
+	},
+	{
+		"name": "TradingView",
+		"domains": [
+			"www.tradingview.com"
+		]
+	},
+	{
+		"name": "Trendyol",
+		"domains": [
+			"www.trendyol.com"
+		]
+	},
+	{
+		"name": "TRILL",
+		"domains": [
+			"trilltrill.jp"
+		]
+	},
+	{
+		"name": "Triunfobet",
+		"domains": [
+			"triunfobet.com"
+		]
+	},
+	{
+		"name": "TPAD",
+		"domains": [
+			"tpad2.tsc.go.ke"
+		]
+	},
+	{
+		"name": "Super Rádio Tupi",
+		"domains": [
+			"www.tupi.fm"
+		]
+	},
+	{
+		"name": "Turbo",
+		"domains": [
+			"turbo.az"
+		]
+	},
+	{
+		"name": "e-Devlet Kapısı",
+		"domains": [
+			"giris.turkiye.gov.tr"
+		]
+	},
+	{
+		"name": "TV Azteca",
+		"domains": [
+			"www.tvazteca.com"
+		]
+	},
+	{
+		"name": "Twibbonize",
+		"domains": [
+			"www.twibbonize.com"
+		]
+	},
+	{
+		"name": "Twitch",
+		"domains": [
+			"www.twitch.tv"
+		]
+	},
+	{
+		"name": "Twkan",
+		"domains": [
+			"twkan.com"
+		]
+	},
+	{
+		"name": "Twpornstars",
+		"domains": [
+			"www.twpornstars.com"
+		]
+	},
+	{
+		"name": "Txnhh",
+		"domains": [
+			"www.txnhh.com"
+		]
+	},
+	{
+		"name": "myAadhaar",
+		"domains": [
+			"myaadhaar.uidai.gov.in"
+		]
+	},
+	{
+		"name": "Uidai",
+		"domains": [
+			"tathya.uidai.gov.in"
+		]
+	},
+	{
+		"name": "UIDAI",
+		"domains": [
+			"uidai.gov.in"
+		]
+	},
+	{
+		"name": "Ukdevilz",
+		"domains": [
+			"ukdevilz.com"
+		]
+	},
+	{
+		"name": "Ultimate Guitar",
+		"domains": [
+			"tabs.ultimate-guitar.com"
+		]
+	},
+	{
+		"name": "Universal Credit",
+		"domains": [
+			"www.universal-credit.service.gov.uk"
+		]
+	},
+	{
+		"name": "UOL",
+		"domains": [
+			"www.uol.com.br"
+		]
+	},
+	{
+		"name": "eDistrict UP",
+		"domains": [
+			"edistrict.up.gov.in"
+		]
+	},
+	{
+		"name": "UPS",
+		"domains": [
+			"www.ups.com"
+		]
+	},
+	{
+		"name": "Upskirt",
+		"domains": [
+			"upskirt.tv"
+		]
+	},
+	{
+		"name": "USPS",
+		"domains": [
+			"tools.usps.com"
+		]
+	},
+	{
+		"name": "Vanity Fair",
+		"domains": [
+			"www.vanityfair.it"
+		]
+	},
+	{
+		"name": "Varzesh3",
+		"domains": [
+			"www.varzesh3.com"
+		]
+	},
+	{
+		"name": "Vdy",
+		"domains": [
+			"vdy.to"
+		]
+	},
+	{
+		"name": "VG",
+		"domains": [
+			"www.vg.no"
+		]
+	},
+	{
+		"name": "Vidylee",
+		"domains": [
+			"vidylee.click"
+		]
+	},
+	{
+		"name": "Viet69z",
+		"domains": [
+			"viet69z.me"
+		]
+	},
+	{
+		"name": "Vietnam.vn",
+		"domains": [
+			"www.vietnam.vn"
+		]
+	},
+	{
+		"name": "Vivo",
+		"domains": [
+			"homepage.vivo.com"
+		]
+	},
+	{
+		"name": "VK",
+		"domains": [
+			"m.vk.com",
+			"m.vk.ru"
+		]
+	},
+	{
+		"name": "VnExpress",
+		"domains": [
+			"vnexpress.net"
+		]
+	},
+	{
+		"name": "Vnsextop1",
+		"domains": [
+			"vnsextop1.com"
+		]
+	},
+	{
+		"name": "Vymanga",
+		"domains": [
+			"vymanga.com"
+		]
+	},
+	{
+		"name": "Walmart",
+		"domains": [
+			"www.walmart.com"
+		]
+	},
+	{
+		"name": "Watchtower Online Library",
+		"domains": [
+			"wol.jw.org"
+		]
+	},
+	{
+		"name": "Wattpad",
+		"domains": [
+			"www.wattpad.com"
+		]
+	},
+	{
+		"name": "Department of Food & Supplies, West Bengal",
+		"domains": [
+			"food.wb.gov.in"
+		]
+	},
+	{
+		"name": "Social Registry System",
+		"domains": [
+			"socialregistry.wb.gov.in"
+		]
+	},
+	{
+		"name": "WBPDS",
+		"domains": [
+			"wbpds.wb.gov.in"
+		]
+	},
+	{
+		"name": "PMMVY",
+		"domains": [
+			"pmmvy.wcd.gov.in"
+		]
+	},
+	{
+		"name": "Weathernews",
+		"domains": [
+			"weathernews.jp"
+		]
+	},
+	{
+		"name": "WetterOnline",
+		"domains": [
+			"www.wetteronline.de"
+		]
+	},
+	{
+		"name": "wetter.com",
+		"domains": [
+			"www.wetter.com"
+		]
+	},
+	{
+		"name": "WhatsApp Help Center",
+		"domains": [
+			"faq.whatsapp.com"
+		]
+	},
+	{
+		"name": "WhatsApp Web",
+		"domains": [
+			"web.whatsapp.com"
+		]
+	},
+	{
+		"name": "Wikipedia",
+		"domains": [
+			"de.wikipedia.org",
+			"en.wikipedia.org",
+			"es.wikipedia.org",
+			"fa.wikipedia.org",
+			"fr.wikipedia.org",
+			"it.wikipedia.org",
+			"ja.wikipedia.org",
+			"pl.wikipedia.org",
+			"pt.wikipedia.org",
+			"ru.wikipedia.org",
+			"zh.wikipedia.org"
+		]
+	},
+	{
+		"name": "Wildberries",
+		"domains": [
+			"www.wildberries.ru"
+		]
+	},
+	{
+		"name": "Wirtualna Polska",
+		"domains": [
+			"www.wp.pl"
+		]
+	},
+	{
+		"name": "Wise",
+		"domains": [
+			"wise.com"
+		]
+	},
+	{
+		"name": "Wnacg",
+		"domains": [
+			"www.wnacg.com"
+		]
+	},
+	{
+		"name": "Wonporn",
+		"domains": [
+			"wonporn.com"
+		]
+	},
+	{
+		"name": "Poczta WP",
+		"domains": [
+			"poczta.wp.pl"
+		]
+	},
+	{
+		"name": "WP SportoweFakty",
+		"domains": [
+			"sportowefakty.wp.pl"
+		]
+	},
+	{
+		"name": "WP Wiadomości",
+		"domains": [
+			"wiadomosci.wp.pl"
+		]
+	},
+	{
+		"name": "X-arxx",
+		"domains": [
+			"x-arxx.com"
+		]
+	},
+	{
+		"name": "Xahani",
+		"domains": [
+			"www.xahani.com"
+		]
+	},
+	{
+		"name": "Xbanxia",
+		"domains": [
+			"www.xbanxia.cc"
+		]
+	},
+	{
+		"name": "Xbox",
+		"domains": [
+			"www.xbox.com"
+		]
+	},
+	{
+		"name": "Xhaccess",
+		"domains": [
+			"xhaccess.com"
+		]
+	},
+	{
+		"name": "Xham",
+		"domains": [
+			"xham.live"
+		]
+	},
+	{
+		"name": "xHamster",
+		"domains": [
+			"ar.xhamster.com",
+			"ara.xhamster.com",
+			"br.xhamster.com",
+			"es.xhamster.com",
+			"fra.xhamster.com",
+			"ge.xhamster.com",
+			"ge.xhamster.desi",
+			"hi.xhamster.desi",
+			"id.xhamster.com",
+			"ita.xhamster.com",
+			"jp.xhamster.com",
+			"nl.xhamster.com",
+			"pl.xhamster.com",
+			"pt.xhamster.com",
+			"ru.xhamster.com",
+			"xhamster.com",
+			"xhamster.desi"
+		]
+	},
+	{
+		"name": "Xhamster1",
+		"domains": [
+			"hi.xhamster1.desi",
+			"xhamster1.desi"
+		]
+	},
+	{
+		"name": "Xhamster2",
+		"domains": [
+			"xhamster2.com"
+		]
+	},
+	{
+		"name": "Xhamster19",
+		"domains": [
+			"xhamster19.com"
+		]
+	},
+	{
+		"name": "Xhamster46",
+		"domains": [
+			"bn.xhamster46.desi",
+			"ge.xhamster46.desi",
+			"hi.xhamster46.desi",
+			"hil.xhamster46.desi",
+			"xhamster46.desi"
+		]
+	},
+	{
+		"name": "Xhchannel",
+		"domains": [
+			"xhchannel.com"
+		]
+	},
+	{
+		"name": "Xhname",
+		"domains": [
+			"id.xhname.com",
+			"ko.xhname.com",
+			"xhname.com"
+		]
+	},
+	{
+		"name": "Xhopen",
+		"domains": [
+			"ara.xhopen.com",
+			"xhopen.com"
+		]
+	},
+	{
+		"name": "Xhpro",
+		"domains": [
+			"xhpro.live"
+		]
+	},
+	{
+		"name": "Xhsocial",
+		"domains": [
+			"my.xhsocial.com",
+			"th.xhsocial.com",
+			"xhsocial.com"
+		]
+	},
+	{
+		"name": "Xhspot",
+		"domains": [
+			"fra.xhspot.com"
+		]
+	},
+	{
+		"name": "Xhtotal",
+		"domains": [
+			"xhtotal.com"
+		]
+	},
+	{
+		"name": "Xhtv",
+		"domains": [
+			"xhtv.today"
+		]
+	},
+	{
+		"name": "Xhwide",
+		"domains": [
+			"vi.xhwide.com"
+		]
+	},
+	{
+		"name": "Xnhau",
+		"domains": [
+			"xnhau.bio",
+			"xnhau.xxx",
+			"xnhau.you"
+		]
+	},
+	{
+		"name": "XNXX",
+		"domains": [
+			"amp.xnxx.com",
+			"www.xnxx.com",
+			"www.xnxx.es",
+			"www.xnxx.tv",
+			"xnxx.health"
+		]
+	},
+	{
+		"name": "Xnxx-arabic",
+		"domains": [
+			"www.xnxx-arabic.com"
+		]
+	},
+	{
+		"name": "Xnxx2",
+		"domains": [
+			"www.xnxx2.com"
+		]
+	},
+	{
+		"name": "Xorgasmo",
+		"domains": [
+			"xorgasmo.com"
+		]
+	},
+	{
+		"name": "Xổ Số",
+		"domains": [
+			"xoso.com.vn"
+		]
+	},
+	{
+		"name": "Xổ Số Đại Phát",
+		"domains": [
+			"xosodaiphat.com"
+		]
+	},
+	{
+		"name": "Xpaja",
+		"domains": [
+			"www.xpaja.net"
+		]
+	},
+	{
+		"name": "Xpvid",
+		"domains": [
+			"xpvid.cc"
+		]
+	},
+	{
+		"name": "XSMN",
+		"domains": [
+			"xsmn.mobi"
+		]
+	},
+	{
+		"name": "Xvideo",
+		"domains": [
+			"xvideo.vlog.br"
+		]
+	},
+	{
+		"name": "XVideos",
+		"domains": [
+			"amp.xvideos.com",
+			"fr.xvideos.com",
+			"it.xvideos.com",
+			"www.xvideos.com",
+			"www.xvideos.es"
+		]
+	},
+	{
+		"name": "Xvideos-ar",
+		"domains": [
+			"www.xvideos-ar.com"
+		]
+	},
+	{
+		"name": "Xvideos2",
+		"domains": [
+			"www.xvideos2.com"
+		]
+	},
+	{
+		"name": "Xvv1deos",
+		"domains": [
+			"www.xvv1deos.com"
+		]
+	},
+	{
+		"name": "Xxx18hot",
+		"domains": [
+			"xxx18hot.com"
+		]
+	},
+	{
+		"name": "Xxxbp",
+		"domains": [
+			"xxxbp.tv"
+		]
+	},
+	{
+		"name": "Xxxbule",
+		"domains": [
+			"www.xxxbule.com"
+		]
+	},
+	{
+		"name": "Xxxhindi",
+		"domains": [
+			"www.xxxhindi.to"
+		]
+	},
+	{
+		"name": "Xxxpostpic",
+		"domains": [
+			"www2.xxxpostpic.org"
+		]
+	},
+	{
+		"name": "Xxxvideo",
+		"domains": [
+			"xxxvideo.link"
+		]
+	},
+	{
+		"name": "Xxxvideosind",
+		"domains": [
+			"xxxvideosind.com"
+		]
+	},
+	{
+		"name": "Yahoo",
+		"domains": [
+			"login.yahoo.com",
+			"www.yahoo.com"
+		]
+	},
+	{
+		"name": "Yahoo Finance",
+		"domains": [
+			"finance.yahoo.com"
+		]
+	},
+	{
+		"name": "Yahoo! JAPAN",
+		"domains": [
+			"www.yahoo.co.jp"
+		]
+	},
+	{
+		"name": "Yahoo Mail",
+		"domains": [
+			"mail.yahoo.com"
+		]
+	},
+	{
+		"name": "Yahoo Search",
+		"domains": [
+			"in.search.yahoo.com",
+			"search.yahoo.com"
+		]
+	},
+	{
+		"name": "Yahoo Taiwan",
+		"domains": [
+			"tw.yahoo.com"
+		]
+	},
+	{
+		"name": "Yahoo Taiwan Finance",
+		"domains": [
+			"tw.stock.yahoo.com"
+		]
+	},
+	{
+		"name": "Yahoo Taiwan News",
+		"domains": [
+			"tw.news.yahoo.com"
+		]
+	},
+	{
+		"name": "Yahoo! Auctions",
+		"domains": [
+			"auctions.yahoo.co.jp"
+		]
+	},
+	{
+		"name": "Yahoo! Chiebukuro",
+		"domains": [
+			"detail.chiebukuro.yahoo.co.jp"
+		]
+	},
+	{
+		"name": "Yahoo! Japan",
+		"domains": [
+			"m.yahoo.co.jp"
+		]
+	},
+	{
+		"name": "Yahoo! Japan Baseball",
+		"domains": [
+			"baseball.yahoo.co.jp"
+		]
+	},
+	{
+		"name": "Yahoo! Japan Finance",
+		"domains": [
+			"finance.yahoo.co.jp"
+		]
+	},
+	{
+		"name": "Yahoo! Japan News",
+		"domains": [
+			"news.yahoo.co.jp"
+		]
+	},
+	{
+		"name": "Yahoo! Japan Search",
+		"domains": [
+			"search.yahoo.co.jp"
+		]
+	},
+	{
+		"name": "Yahoo! Japan Transit",
+		"domains": [
+			"transit.yahoo.co.jp"
+		]
+	},
+	{
+		"name": "Yallakora",
+		"domains": [
+			"www.yallakora.com"
+		]
+	},
+	{
+		"name": "Yandex",
+		"domains": [
+			"ya.ru",
+			"yandex.com"
+		]
+	},
+	{
+		"name": "Yasyadong02",
+		"domains": [
+			"yasyadong02.tv"
+		]
+	},
+	{
+		"name": "Ydparty04",
+		"domains": [
+			"ydparty04.tv"
+		]
+	},
+	{
+		"name": "ynet",
+		"domains": [
+			"www.ynet.co.il"
+		]
+	},
+	{
+		"name": "YouJizz",
+		"domains": [
+			"www.youjizz.com"
+		]
+	},
+	{
+		"name": "Youm7",
+		"domains": [
+			"m.youm7.com"
+		]
+	},
+	{
+		"name": "YouPorn",
+		"domains": [
+			"www.youporn.com"
+		]
+	},
+	{
+		"name": "YouTube Studio",
+		"domains": [
+			"studio.youtube.com"
+		]
+	},
+	{
+		"name": "Yr",
+		"domains": [
+			"www.yr.no"
+		]
+	},
+	{
+		"name": "Zalando",
+		"domains": [
+			"www.zalando.de"
+		]
+	},
+	{
+		"name": "Zbporn",
+		"domains": [
+			"zbporn.tv"
+		]
+	},
+	{
+		"name": "Zebawy",
+		"domains": [
+			"zebawy.com"
+		]
+	},
+	{
+		"name": "Zedge",
+		"domains": [
+			"www.zedge.net"
+		]
+	},
+	{
+		"name": "ZEE5",
+		"domains": [
+			"www.zee5.com"
+		]
+	},
+	{
+		"name": "Zillow",
+		"domains": [
+			"www.zillow.com"
+		]
+	},
+	{
+		"name": "Zoom",
+		"domains": [
+			"zoom.us"
+		]
+	},
+	{
+		"name": "ZOZOTOWN",
+		"domains": [
+			"zozo.jp"
+		]
+	},
+	{
+		"name": "รักหี",
+		"domains": [
+			"xn--12c1ezaww.com"
+		]
+	},
+	{
+		"name": "หนังโป๊คับ",
+		"domains": [
+			"www.xn--42cf7cgd7gxbd4m7c.cc"
+		]
+	}
+]

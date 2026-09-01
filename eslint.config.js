@@ -95,6 +95,15 @@ export default tseslint.config(
 				{
 					patterns: [
 						{
+							group: [
+								'@tocus/extension',
+								'@tocus/extension/*',
+								'@tocus/website',
+								'@tocus/website/*',
+							],
+							message: 'Use relative imports within an application.',
+						},
+						{
 							group: [ '@', '@/*', '~', '~/*', '@@', '@@/*', '~~', '~~/*' ],
 							message: 'Use an explicit @tocus package namespace for non-relative imports.',
 						},

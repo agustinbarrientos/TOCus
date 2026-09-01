@@ -15,6 +15,9 @@ export default defineConfig( {
 			],
 			include: [
 				'apps/extension/src/domains/protection/**/*.ts',
+				'apps/extension/src/features/protected-sites/services/site-favicon-provider/**/*.ts',
+				'apps/extension/src/features/protected-sites/utils/site-display-name-catalog/**/*.ts',
+				'apps/extension/src/features/protected-sites/utils/site-display-name-resolver/**/*.ts',
 				'apps/extension/src/features/interruption/services/focused-progress-clock/**/*.ts',
 				'apps/extension/src/features/interruption/utils/breathing-motion/**/*.ts',
 				'apps/extension/src/features/interruption/utils/breathing-sphere-geometry/**/*.ts',
