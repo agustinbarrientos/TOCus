@@ -1,19 +1,24 @@
 import {
 	ProtectedSiteDisplayNameInputSchema,
+	ProtectedSiteConfigurationSetSchema,
 	ProtectionConfigurationDocumentSchema,
 	type ProtectedSiteConfiguration,
 	type ProtectionConfigurationDocument,
 } from '../../types/protected-site-configuration';
+import { ScheduleSchema } from '../../types/protection-schedule';
 import { CanonicalHostSchema } from '../../types/protected-site-rule';
 import {
 	DefaultProtectionScopeId,
 	ProtectionScopeIdSchema,
 	type ProtectionScopeId,
 } from '../../types/protection-value';
+import { TimingConfigurationSchema } from '../../types/timing-configuration';
 import {
 	canonicalizeProtectedSite,
 	ProtectedSiteCanonicalizationStatus,
 } from '../../utils/protected-site-canonicalizer';
+import { reconcileProtectionScopeSchedules } from '../../utils/reconcile-protection-scope-schedules';
+import { normalizeSchedule } from '../../utils/schedule-normalizer';
 import {
 	ProtectionConfigurationEditRejectionReason,
 	ProtectionConfigurationEditStatus,
@@ -86,11 +91,14 @@ function replaceSite(
 	configuration: ProtectionConfigurationDocument,
 	site: ProtectedSiteConfiguration,
 ): UpdatedProtectionConfigurationEditResult {
+	const sites = configuration.sites.map( ( currentSite ) =>
+		currentSite.identityHost === site.identityHost ? site : currentSite,
+	);
+
 	return createUpdatedResult( {
 		...configuration,
-		sites: configuration.sites.map( ( currentSite ) =>
-			currentSite.identityHost === site.identityHost ? site : currentSite,
-		),
+		sites,
+		schedulesByScope: reconcileProtectionScopeSchedules( sites, configuration.schedulesByScope ),
 	} );
 }
 
@@ -231,22 +239,26 @@ export function createProtectionConfigurationEditor(
 			return createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_SITE );
 		}
 
-		const updatedConfiguration = ProtectionConfigurationDocumentSchema.safeParse( {
-			...configuration,
-			sites: [
-				...configuration.sites,
-				{
-					identityHost: canonicalSite.identityHost,
-					rule: canonicalSite.rule,
-				},
-			],
-		} );
+		const updatedSites = ProtectedSiteConfigurationSetSchema.safeParse( [
+			...configuration.sites,
+			{
+				identityHost: canonicalSite.identityHost,
+				rule: canonicalSite.rule,
+			},
+		] );
 
-		if ( ! updatedConfiguration.success ) {
+		if ( ! updatedSites.success ) {
 			return createRejectedResult( ProtectionConfigurationEditRejectionReason.ALREADY_PROTECTED );
 		}
 
-		return saveUpdatedResult( createUpdatedResult( updatedConfiguration.data ) );
+		return saveUpdatedResult( createUpdatedResult( {
+			...configuration,
+			sites: updatedSites.data,
+			schedulesByScope: reconcileProtectionScopeSchedules(
+				updatedSites.data,
+				configuration.schedulesByScope,
+			),
+		} ) );
 	}
 
 	/**
@@ -364,9 +376,12 @@ export function createProtectionConfigurationEditor(
 			return createRejectedResult( ProtectionConfigurationEditRejectionReason.SITE_NOT_FOUND );
 		}
 
+		const sites = configuration.sites.filter( ( site ) => site.identityHost !== currentSite.identityHost );
+
 		return saveUpdatedResult( createUpdatedResult( {
 			...configuration,
-			sites: configuration.sites.filter( ( site ) => site.identityHost !== currentSite.identityHost ),
+			sites,
+			schedulesByScope: reconcileProtectionScopeSchedules( sites, configuration.schedulesByScope ),
 		} ) );
 	}
 
@@ -380,7 +395,100 @@ export function createProtectionConfigurationEditor(
 		return serializeMutation( () => performRemove( identityHostInput ) );
 	}
 
-	return { add, load, remove, update };
+	/**
+	 * Updates one active scope's schedule atomically.
+	 * @param scopeIdInput - Unknown protection scope identifier.
+	 * @param scheduleInput - Unknown editable schedule input.
+	 * @return Updated configuration or a stable rejection.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function performUpdateSchedule(
+		scopeIdInput: unknown,
+		scheduleInput: unknown,
+	): Promise<ProtectionConfigurationEditResult> {
+		const configuration = await options.storage.load();
+
+		if ( configuration === null ) {
+			return createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION );
+		}
+
+		const scopeId = ProtectionScopeIdSchema.safeParse( scopeIdInput );
+
+		if ( ! scopeId.success || ! Object.hasOwn( configuration.schedulesByScope, scopeId.data ) ) {
+			return createRejectedResult( ProtectionConfigurationEditRejectionReason.SCOPE_NOT_FOUND );
+		}
+
+		const schedule = ScheduleSchema.safeParse( scheduleInput );
+
+		if ( ! schedule.success ) {
+			return createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_SCHEDULE );
+		}
+
+		return saveUpdatedResult( createUpdatedResult( {
+			...configuration,
+			schedulesByScope: {
+				...configuration.schedulesByScope,
+				[ scopeId.data ]: normalizeSchedule( schedule.data ),
+			},
+		} ) );
+	}
+
+	/**
+	 * Queues one active scope's schedule update.
+	 * @param scopeIdInput - Unknown protection scope identifier.
+	 * @param scheduleInput - Unknown editable schedule input.
+	 * @return Serialized updated configuration or a stable rejection.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function updateSchedule(
+		scopeIdInput: unknown,
+		scheduleInput: unknown,
+	): Promise<ProtectionConfigurationEditResult> {
+		return serializeMutation( () => performUpdateSchedule( scopeIdInput, scheduleInput ) );
+	}
+
+	/**
+	 * Updates the global timing configuration atomically.
+	 * @param timingConfigurationInput - Unknown global timing configuration.
+	 * @return Updated configuration or a stable rejection.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function performUpdateTiming(
+		timingConfigurationInput: unknown,
+	): Promise<ProtectionConfigurationEditResult> {
+		const configuration = await options.storage.load();
+
+		if ( configuration === null ) {
+			return createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION );
+		}
+
+		const timingConfiguration = TimingConfigurationSchema.safeParse( timingConfigurationInput );
+
+		if ( ! timingConfiguration.success ) {
+			return createRejectedResult(
+				ProtectionConfigurationEditRejectionReason.INVALID_TIMING_CONFIGURATION,
+			);
+		}
+
+		return saveUpdatedResult( createUpdatedResult( {
+			...configuration,
+			timingConfiguration: timingConfiguration.data,
+		} ) );
+	}
+
+	/**
+	 * Queues one global timing configuration update.
+	 * @param timingConfigurationInput - Unknown global timing configuration.
+	 * @return Serialized updated configuration or a stable rejection.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function updateTiming(
+		timingConfigurationInput: unknown,
+	): Promise<ProtectionConfigurationEditResult> {
+		return serializeMutation( () => performUpdateTiming( timingConfigurationInput ) );
+	}
+
+	return { add, load, remove, update, updateSchedule, updateTiming };
 }
 
 export * from './types';
