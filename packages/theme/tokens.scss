@@ -1,4 +1,162 @@
+@use 'sass:list';
 @use 'typography/tokens';
+
+$-brown-palette: (
+	stage-start: (#fff8f0, #39261e),
+	stage-middle: (#f3e4d5, #251914),
+	stage-end: (#d8ad8a, #120c09),
+	breathing-sphere: (#b86f46, #c47a4d),
+	breathing-sphere-highlight: (#e9b47f, #eab184),
+	breathing-sphere-shadow: (#7a4634, #824a35),
+	shadow-depth: (#3d241b, #120c09),
+	on-stage: (#3c281f, #fff1df),
+	on-stage-muted: (#584035, #d1bda8),
+	surface: (#fffdf9, #1e1511),
+	on-surface-muted: (#6a554a, #c9b29e),
+	surface-container: (#f1e4d9, #35251e),
+	primary: (#744331, #8f5038),
+	on-primary: (#fff8f0, #fff8f0),
+);
+$-green-palette: (
+	stage-start: (#f4f7ef, #283529),
+	stage-middle: (#e4ebdd, #172018),
+	stage-end: (#b8c8ae, #0b120c),
+	breathing-sphere: (#78966c, #77946a),
+	breathing-sphere-highlight: (#bdcfad, #b7cba6),
+	breathing-sphere-shadow: (#4d6849, #435d41),
+	shadow-depth: (#263829, #0b120c),
+	on-stage: (#243126, #eff5e8),
+	on-stage-muted: (#40513f, #b6c5ae),
+	surface: (#fbfcf8, #111912),
+	on-surface-muted: (#586b56, #afc1a9),
+	surface-container: (#e2e9de, #263428),
+	primary: (#4d6849, #4b6848),
+	on-primary: (#f4f7ef, #f4f7ef),
+);
+$-blue-palette: (
+	stage-start: (#f4f8fa, #263943),
+	stage-middle: (#e1eaf0, #15242c),
+	stage-end: (#b2c6d2, #091318),
+	breathing-sphere: (#6f91a5, #7197aa),
+	breathing-sphere-highlight: (#b8ceda, #b5d0db),
+	breathing-sphere-shadow: (#466778, #3f6678),
+	shadow-depth: (#253945, #081116),
+	on-stage: (#20313a, #edf6f9),
+	on-stage-muted: (#3d515c, #b3c8d1),
+	surface: (#fbfdfe, #101c22),
+	on-surface-muted: (#576b76, #adc1c9),
+	surface-container: (#dfe9ee, #22353f),
+	primary: (#416475, #3f6576),
+	on-primary: (#f7fbfd, #f4fafc),
+);
+$-purple-palette: (
+	stage-start: (#faf7fc, #392f3f),
+	stage-middle: (#ece4f0, #251d2a),
+	stage-end: (#cab5d2, #120e15),
+	breathing-sphere: (#9177a0, #967ba4),
+	breathing-sphere-highlight: (#cfbada, #d2bcdb),
+	breathing-sphere-shadow: (#65516f, #66506f),
+	shadow-depth: (#392d3f, #100c12),
+	on-stage: (#312737, #f8effa),
+	on-stage-muted: (#4d3e54, #cdbccf),
+	surface: (#fefcff, #1c1620),
+	on-surface-muted: (#68586f, #c7b5ca),
+	surface-container: (#eae2ee, #33283a),
+	primary: (#604b69, #66516f),
+	on-primary: (#fbf7fc, #fcf7fd),
+);
+$-pink-palette: (
+	stage-start: (#fff7f8, #3d2a30),
+	stage-middle: (#f3e3e6, #281a1f),
+	stage-end: (#dab6bd, #140c0f),
+	breathing-sphere: (#b77d89, #be8491),
+	breathing-sphere-highlight: (#e6bcc4, #e8bcc6),
+	breathing-sphere-shadow: (#80545e, #82525f),
+	shadow-depth: (#472e34, #120a0d),
+	on-stage: (#3b282d, #fceff2),
+	on-stage-muted: (#564148, #d3b9bf),
+	surface: (#fffcfc, #1f1418),
+	on-surface-muted: (#70585f, #cdb2b9),
+	surface-container: (#f0e0e4, #39252c),
+	primary: (#79505a, #7a4e59),
+	on-primary: (#fff8fa, #fff7f9),
+);
+$-orange-palette: (
+	stage-start: (#fff9f0, #3b2d1e),
+	stage-middle: (#f4e7d2, #261d13),
+	stage-end: (#e2c08f, #130e08),
+	breathing-sphere: (#c9914f, #cf9855),
+	breathing-sphere-highlight: (#efc991, #f0cd98),
+	breathing-sphere-shadow: (#8a6031, #8b6030),
+	shadow-depth: (#4a321d, #110c07),
+	on-stage: (#3b2d1f, #fff3e3),
+	on-stage-muted: (#58442f, #d5c1a7),
+	surface: (#fffdf8, #1e170f),
+	on-surface-muted: (#705d48, #ccb89e),
+	surface-container: (#f2e6d3, #372a1b),
+	primary: (#795229, #7b552a),
+	on-primary: (#fff9f0, #fff9f0),
+);
+
+@mixin -apply-palette($palette, $mode) {
+	$-mode-index: 1;
+
+	@if $mode == dark {
+		$-mode-index: 2;
+	}
+
+	@each $role, $values in $palette {
+		--tocus-color-#{$role}: #{list.nth($values, $-mode-index)};
+	}
+}
+
+@mixin -apply-derived-fallbacks($mode) {
+	--tocus-color-stage-glow: transparent;
+	--tocus-color-glass-surface: var(--tocus-color-surface);
+	--tocus-color-surface-lowest: var(--tocus-color-stage-start);
+	--tocus-color-on-surface: var(--tocus-color-on-stage);
+
+	@if $mode == dark {
+		--tocus-color-breathing-sphere-contour: var(--tocus-color-breathing-sphere-highlight);
+		--tocus-color-glass-border: var(--tocus-color-breathing-sphere-highlight);
+		--tocus-color-focus-ring: var(--tocus-color-breathing-sphere-highlight);
+		--tocus-color-icon-accent: var(--tocus-color-breathing-sphere-highlight);
+		--tocus-color-action: var(--tocus-color-breathing-sphere-highlight);
+		--tocus-color-on-action: var(--tocus-color-shadow-depth);
+		--tocus-color-outline: var(--tocus-color-breathing-sphere-highlight);
+		--tocus-shadow-soft: 0 1.25rem 3.75rem rgb(0 0 0 / 36%);
+	} @else {
+		--tocus-color-breathing-sphere-contour: var(--tocus-color-breathing-sphere-shadow);
+		--tocus-color-glass-border: var(--tocus-color-primary);
+		--tocus-color-focus-ring: var(--tocus-color-primary);
+		--tocus-color-icon-accent: var(--tocus-color-primary);
+		--tocus-color-action: var(--tocus-color-primary);
+		--tocus-color-on-action: var(--tocus-color-on-primary);
+		--tocus-color-outline: var(--tocus-color-primary);
+		--tocus-shadow-soft: 0 1.25rem 3.75rem rgb(0 0 0 / 18%);
+	}
+}
+
+@mixin -apply-palette-with-fallbacks($palette, $mode) {
+	@include -apply-palette($palette, $mode);
+	@include -apply-derived-fallbacks($mode);
+}
+
+@mixin -apply-enhanced-colors($mode) {
+	--tocus-color-outline: color-mix(in srgb, var(--tocus-color-primary) 28%, var(--tocus-color-surface));
+
+	@if $mode == dark {
+		--tocus-color-stage-glow: color-mix(in srgb, var(--tocus-color-breathing-sphere) 13%, transparent);
+		--tocus-color-glass-surface: color-mix(in srgb, var(--tocus-color-stage-middle) 76%, transparent);
+		--tocus-color-glass-border: color-mix(in srgb, var(--tocus-color-breathing-sphere-highlight) 16%, transparent);
+		--tocus-shadow-soft: 0 1.25rem 3.75rem color-mix(in srgb, var(--tocus-color-shadow-depth) 36%, transparent);
+	} @else {
+		--tocus-color-stage-glow: color-mix(in srgb, var(--tocus-color-breathing-sphere) 18%, transparent);
+		--tocus-color-glass-surface: color-mix(in srgb, var(--tocus-color-stage-start) 70%, transparent);
+		--tocus-color-glass-border: color-mix(in srgb, var(--tocus-color-primary) 18%, transparent);
+		--tocus-shadow-soft: 0 1.25rem 3.75rem color-mix(in srgb, var(--tocus-color-shadow-depth) 12%, transparent);
+	}
+}
 
 :root {
 	color-scheme: light dark;
@@ -36,136 +194,119 @@
 
 :root,
 :root[data-tocus-palette='brown'] {
-	--tocus-color-stage-start: light-dark(#fff8f0, #39261e);
-	--tocus-color-stage-middle: light-dark(#f3e4d5, #251914);
-	--tocus-color-stage-end: light-dark(#d8ad8a, #120c09);
-	--tocus-color-breathing-sphere: light-dark(#b86f46, #c47a4d);
-	--tocus-color-breathing-sphere-highlight: light-dark(#e9b47f, #eab184);
-	--tocus-color-breathing-sphere-shadow: light-dark(#7a4634, #824a35);
-	--tocus-color-shadow-depth: light-dark(#3d241b, #120c09);
-	--tocus-color-on-stage: light-dark(#3c281f, #fff1df);
-	--tocus-color-on-stage-muted: light-dark(#584035, #d1bda8);
-	--tocus-color-surface: light-dark(#fffdf9, #1e1511);
-	--tocus-color-on-surface-muted: light-dark(#6a554a, #c9b29e);
-	--tocus-color-surface-container: light-dark(#f1e4d9, #35251e);
-	--tocus-color-primary: light-dark(#744331, #8f5038);
-	--tocus-color-on-primary: #fff8f0;
+	@include -apply-palette-with-fallbacks($-brown-palette, light);
 }
 
 :root[data-tocus-palette='green'] {
-	--tocus-color-stage-start: light-dark(#f4f7ef, #283529);
-	--tocus-color-stage-middle: light-dark(#e4ebdd, #172018);
-	--tocus-color-stage-end: light-dark(#b8c8ae, #0b120c);
-	--tocus-color-breathing-sphere: light-dark(#78966c, #77946a);
-	--tocus-color-breathing-sphere-highlight: light-dark(#bdcfad, #b7cba6);
-	--tocus-color-breathing-sphere-shadow: light-dark(#4d6849, #435d41);
-	--tocus-color-shadow-depth: light-dark(#263829, #0b120c);
-	--tocus-color-on-stage: light-dark(#243126, #eff5e8);
-	--tocus-color-on-stage-muted: light-dark(#40513f, #b6c5ae);
-	--tocus-color-surface: light-dark(#fbfcf8, #111912);
-	--tocus-color-on-surface-muted: light-dark(#586b56, #afc1a9);
-	--tocus-color-surface-container: light-dark(#e2e9de, #263428);
-	--tocus-color-primary: light-dark(#4d6849, #4b6848);
-	--tocus-color-on-primary: #f4f7ef;
+	@include -apply-palette-with-fallbacks($-green-palette, light);
 }
 
 :root[data-tocus-palette='blue'] {
-	--tocus-color-stage-start: light-dark(#f4f8fa, #263943);
-	--tocus-color-stage-middle: light-dark(#e1eaf0, #15242c);
-	--tocus-color-stage-end: light-dark(#b2c6d2, #091318);
-	--tocus-color-breathing-sphere: light-dark(#6f91a5, #7197aa);
-	--tocus-color-breathing-sphere-highlight: light-dark(#b8ceda, #b5d0db);
-	--tocus-color-breathing-sphere-shadow: light-dark(#466778, #3f6678);
-	--tocus-color-shadow-depth: light-dark(#253945, #081116);
-	--tocus-color-on-stage: light-dark(#20313a, #edf6f9);
-	--tocus-color-on-stage-muted: light-dark(#3d515c, #b3c8d1);
-	--tocus-color-surface: light-dark(#fbfdfe, #101c22);
-	--tocus-color-on-surface-muted: light-dark(#576b76, #adc1c9);
-	--tocus-color-surface-container: light-dark(#dfe9ee, #22353f);
-	--tocus-color-primary: light-dark(#416475, #3f6576);
-	--tocus-color-on-primary: light-dark(#f7fbfd, #f4fafc);
+	@include -apply-palette-with-fallbacks($-blue-palette, light);
 }
 
 :root[data-tocus-palette='purple'] {
-	--tocus-color-stage-start: light-dark(#faf7fc, #392f3f);
-	--tocus-color-stage-middle: light-dark(#ece4f0, #251d2a);
-	--tocus-color-stage-end: light-dark(#cab5d2, #120e15);
-	--tocus-color-breathing-sphere: light-dark(#9177a0, #967ba4);
-	--tocus-color-breathing-sphere-highlight: light-dark(#cfbada, #d2bcdb);
-	--tocus-color-breathing-sphere-shadow: light-dark(#65516f, #66506f);
-	--tocus-color-shadow-depth: light-dark(#392d3f, #100c12);
-	--tocus-color-on-stage: light-dark(#312737, #f8effa);
-	--tocus-color-on-stage-muted: light-dark(#4d3e54, #cdbccf);
-	--tocus-color-surface: light-dark(#fefcff, #1c1620);
-	--tocus-color-on-surface-muted: light-dark(#68586f, #c7b5ca);
-	--tocus-color-surface-container: light-dark(#eae2ee, #33283a);
-	--tocus-color-primary: light-dark(#604b69, #66516f);
-	--tocus-color-on-primary: light-dark(#fbf7fc, #fcf7fd);
+	@include -apply-palette-with-fallbacks($-purple-palette, light);
 }
 
 :root[data-tocus-palette='pink'] {
-	--tocus-color-stage-start: light-dark(#fff7f8, #3d2a30);
-	--tocus-color-stage-middle: light-dark(#f3e3e6, #281a1f);
-	--tocus-color-stage-end: light-dark(#dab6bd, #140c0f);
-	--tocus-color-breathing-sphere: light-dark(#b77d89, #be8491);
-	--tocus-color-breathing-sphere-highlight: light-dark(#e6bcc4, #e8bcc6);
-	--tocus-color-breathing-sphere-shadow: light-dark(#80545e, #82525f);
-	--tocus-color-shadow-depth: light-dark(#472e34, #120a0d);
-	--tocus-color-on-stage: light-dark(#3b282d, #fceff2);
-	--tocus-color-on-stage-muted: light-dark(#564148, #d3b9bf);
-	--tocus-color-surface: light-dark(#fffcfc, #1f1418);
-	--tocus-color-on-surface-muted: light-dark(#70585f, #cdb2b9);
-	--tocus-color-surface-container: light-dark(#f0e0e4, #39252c);
-	--tocus-color-primary: light-dark(#79505a, #7a4e59);
-	--tocus-color-on-primary: light-dark(#fff8fa, #fff7f9);
+	@include -apply-palette-with-fallbacks($-pink-palette, light);
 }
 
 :root[data-tocus-palette='orange'] {
-	--tocus-color-stage-start: light-dark(#fff9f0, #3b2d1e);
-	--tocus-color-stage-middle: light-dark(#f4e7d2, #261d13);
-	--tocus-color-stage-end: light-dark(#e2c08f, #130e08);
-	--tocus-color-breathing-sphere: light-dark(#c9914f, #cf9855);
-	--tocus-color-breathing-sphere-highlight: light-dark(#efc991, #f0cd98);
-	--tocus-color-breathing-sphere-shadow: light-dark(#8a6031, #8b6030);
-	--tocus-color-shadow-depth: light-dark(#4a321d, #110c07);
-	--tocus-color-on-stage: light-dark(#3b2d1f, #fff3e3);
-	--tocus-color-on-stage-muted: light-dark(#58442f, #d5c1a7);
-	--tocus-color-surface: light-dark(#fffdf8, #1e170f);
-	--tocus-color-on-surface-muted: light-dark(#705d48, #ccb89e);
-	--tocus-color-surface-container: light-dark(#f2e6d3, #372a1b);
-	--tocus-color-primary: light-dark(#795229, #7b552a);
-	--tocus-color-on-primary: #fff9f0;
+	@include -apply-palette-with-fallbacks($-orange-palette, light);
 }
 
-:root {
-	--tocus-color-stage-glow: light-dark(
-		color-mix(in srgb, var(--tocus-color-breathing-sphere) 18%, transparent),
-		color-mix(in srgb, var(--tocus-color-breathing-sphere) 13%, transparent)
-	);
-	--tocus-color-breathing-sphere-contour: light-dark(
-		var(--tocus-color-breathing-sphere-shadow),
-		var(--tocus-color-breathing-sphere-highlight)
-	);
-	--tocus-color-glass-surface: light-dark(
-		color-mix(in srgb, var(--tocus-color-stage-start) 70%, transparent),
-		color-mix(in srgb, var(--tocus-color-stage-middle) 76%, transparent)
-	);
-	--tocus-color-glass-border: light-dark(
-		color-mix(in srgb, var(--tocus-color-primary) 18%, transparent),
-		color-mix(in srgb, var(--tocus-color-breathing-sphere-highlight) 16%, transparent)
-	);
-	--tocus-color-focus-ring: light-dark(var(--tocus-color-primary), var(--tocus-color-breathing-sphere-highlight));
-	--tocus-color-icon-accent: light-dark(var(--tocus-color-primary), var(--tocus-color-breathing-sphere-highlight));
+@media (prefers-color-scheme: dark) {
+	:root:not([data-tocus-theme='light']) {
+		@include -apply-palette-with-fallbacks($-brown-palette, dark);
+	}
 
-	--tocus-color-action: light-dark(var(--tocus-color-primary), var(--tocus-color-breathing-sphere-highlight));
-	--tocus-color-on-action: light-dark(var(--tocus-color-on-primary), var(--tocus-color-shadow-depth));
-	--tocus-color-surface-lowest: var(--tocus-color-stage-start);
-	--tocus-color-on-surface: var(--tocus-color-on-stage);
-	--tocus-color-outline: color-mix(in srgb, var(--tocus-color-primary) 28%, var(--tocus-color-surface));
+	:root[data-tocus-palette='green']:not([data-tocus-theme='light']) {
+		@include -apply-palette-with-fallbacks($-green-palette, dark);
+	}
 
-	--tocus-shadow-soft: 0 1.25rem 3.75rem
-		light-dark(
-			color-mix(in srgb, var(--tocus-color-shadow-depth) 12%, transparent),
-			color-mix(in srgb, var(--tocus-color-shadow-depth) 36%, transparent)
-		);
+	:root[data-tocus-palette='blue']:not([data-tocus-theme='light']) {
+		@include -apply-palette-with-fallbacks($-blue-palette, dark);
+	}
+
+	:root[data-tocus-palette='purple']:not([data-tocus-theme='light']) {
+		@include -apply-palette-with-fallbacks($-purple-palette, dark);
+	}
+
+	:root[data-tocus-palette='pink']:not([data-tocus-theme='light']) {
+		@include -apply-palette-with-fallbacks($-pink-palette, dark);
+	}
+
+	:root[data-tocus-palette='orange']:not([data-tocus-theme='light']) {
+		@include -apply-palette-with-fallbacks($-orange-palette, dark);
+	}
+}
+
+:root[data-tocus-theme='light'] {
+	@include -apply-palette-with-fallbacks($-brown-palette, light);
+}
+
+:root[data-tocus-theme='light'][data-tocus-palette='green'] {
+	@include -apply-palette-with-fallbacks($-green-palette, light);
+}
+
+:root[data-tocus-theme='light'][data-tocus-palette='blue'] {
+	@include -apply-palette-with-fallbacks($-blue-palette, light);
+}
+
+:root[data-tocus-theme='light'][data-tocus-palette='purple'] {
+	@include -apply-palette-with-fallbacks($-purple-palette, light);
+}
+
+:root[data-tocus-theme='light'][data-tocus-palette='pink'] {
+	@include -apply-palette-with-fallbacks($-pink-palette, light);
+}
+
+:root[data-tocus-theme='light'][data-tocus-palette='orange'] {
+	@include -apply-palette-with-fallbacks($-orange-palette, light);
+}
+
+:root[data-tocus-theme='dark'] {
+	@include -apply-palette-with-fallbacks($-brown-palette, dark);
+}
+
+:root[data-tocus-theme='dark'][data-tocus-palette='green'] {
+	@include -apply-palette-with-fallbacks($-green-palette, dark);
+}
+
+:root[data-tocus-theme='dark'][data-tocus-palette='blue'] {
+	@include -apply-palette-with-fallbacks($-blue-palette, dark);
+}
+
+:root[data-tocus-theme='dark'][data-tocus-palette='purple'] {
+	@include -apply-palette-with-fallbacks($-purple-palette, dark);
+}
+
+:root[data-tocus-theme='dark'][data-tocus-palette='pink'] {
+	@include -apply-palette-with-fallbacks($-pink-palette, dark);
+}
+
+:root[data-tocus-theme='dark'][data-tocus-palette='orange'] {
+	@include -apply-palette-with-fallbacks($-orange-palette, dark);
+}
+
+@supports (color: color-mix(in srgb, black, white)) {
+	:root {
+		@include -apply-enhanced-colors(light);
+	}
+
+	@media (prefers-color-scheme: dark) {
+		:root:not([data-tocus-theme='light']) {
+			@include -apply-enhanced-colors(dark);
+		}
+	}
+
+	:root[data-tocus-theme='light'] {
+		@include -apply-enhanced-colors(light);
+	}
+
+	:root[data-tocus-theme='dark'] {
+		@include -apply-enhanced-colors(dark);
+	}
 }
