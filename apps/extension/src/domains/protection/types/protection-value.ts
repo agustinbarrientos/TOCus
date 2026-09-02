@@ -14,6 +14,12 @@ export const ProtectionScopeIdSchema = StableIdentifierSchema
 	.brand<'ProtectionScopeId'>();
 
 /**
+ * Stable identifier for the shared default protection scope.
+ * @since 0.1.0 Initial implementation.
+ */
+export const DefaultProtectionScopeId = ProtectionScopeIdSchema.parse( 'scope_default' );
+
+/**
  * Stable identifier for one protection scope.
  * @since 0.1.0 Initial implementation.
  */
