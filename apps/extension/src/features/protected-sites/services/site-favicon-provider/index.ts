@@ -34,7 +34,7 @@ export function createSiteFaviconProvider(
 		let faviconUrl: URL;
 
 		try {
-			faviconUrl = new URL( options.getExtensionUrl( CACHED_FAVICON_PATH ) );
+			faviconUrl = new URL( CACHED_FAVICON_PATH, options.extensionRootUrl );
 		} catch {
 			return null;
 		}
