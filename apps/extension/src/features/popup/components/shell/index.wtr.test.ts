@@ -4,6 +4,14 @@ import { ComponentPopupShell } from './index';
 
 const APPEARANCE_PALETTES = [ 'brown', 'green', 'blue', 'purple', 'pink', 'orange' ] as const;
 const APPEARANCE_THEMES = [ 'light', 'dark' ] as const;
+const EXPECTED_STAGE_START_COLORS = {
+	brown: { light: 'rgb(255, 248, 240)', dark: 'rgb(57, 38, 30)' },
+	green: { light: 'rgb(244, 247, 239)', dark: 'rgb(40, 53, 41)' },
+	blue: { light: 'rgb(244, 248, 250)', dark: 'rgb(38, 57, 67)' },
+	purple: { light: 'rgb(250, 247, 252)', dark: 'rgb(57, 47, 63)' },
+	pink: { light: 'rgb(255, 247, 248)', dark: 'rgb(61, 42, 48)' },
+	orange: { light: 'rgb(255, 249, 240)', dark: 'rgb(59, 45, 30)' },
+} as const;
 const FULL_SCENE_COLOR_TOKENS = [
 	'--tocus-color-stage-start',
 	'--tocus-color-stage-middle',
@@ -131,7 +139,7 @@ describe( 'tocus-f-popup-shell', () => {
 		await expect( darkFrame ).to.be.accessible();
 	} );
 
-	it( 'follows the operating-system appearance when the theme is system', async () => {
+	it( 'resolves every palette in default, system, and explicit appearance modes', async () => {
 		const root = document.documentElement;
 		const originalPalette = root.getAttribute( 'data-tocus-palette' );
 		const originalTheme = root.getAttribute( 'data-tocus-theme' );
@@ -141,22 +149,29 @@ describe( 'tocus-f-popup-shell', () => {
 		document.body.append( colorProbe );
 
 		try {
-			root.setAttribute( 'data-tocus-palette', 'brown' );
-			await emulateMedia( { colorScheme: 'light' } );
-			root.setAttribute( 'data-tocus-theme', 'system' );
-			const systemLightColor = getComputedStyle( colorProbe ).color;
-			root.setAttribute( 'data-tocus-theme', 'light' );
-			const explicitLightColor = getComputedStyle( colorProbe ).color;
+			for ( const palette of APPEARANCE_PALETTES ) {
+				root.setAttribute( 'data-tocus-palette', palette );
 
-			await emulateMedia( { colorScheme: 'dark' } );
-			root.setAttribute( 'data-tocus-theme', 'system' );
-			const systemDarkColor = getComputedStyle( colorProbe ).color;
-			root.setAttribute( 'data-tocus-theme', 'dark' );
-			const explicitDarkColor = getComputedStyle( colorProbe ).color;
+				for ( const systemTheme of APPEARANCE_THEMES ) {
+					await emulateMedia( { colorScheme: systemTheme } );
+					root.removeAttribute( 'data-tocus-theme' );
+					const defaultColor = getComputedStyle( colorProbe ).color;
+					root.setAttribute( 'data-tocus-theme', 'system' );
+					const systemColor = getComputedStyle( colorProbe ).color;
+					const expectedSystemColor = EXPECTED_STAGE_START_COLORS[ palette ][ systemTheme ];
 
-			assert.equal( systemLightColor, explicitLightColor );
-			assert.equal( systemDarkColor, explicitDarkColor );
-			assert.notEqual( systemLightColor, systemDarkColor );
+					assert.equal( defaultColor, expectedSystemColor );
+					assert.equal( systemColor, expectedSystemColor );
+
+					for ( const explicitTheme of APPEARANCE_THEMES ) {
+						root.setAttribute( 'data-tocus-theme', explicitTheme );
+						const explicitColor = getComputedStyle( colorProbe ).color;
+						const expectedExplicitColor = EXPECTED_STAGE_START_COLORS[ palette ][ explicitTheme ];
+
+						assert.equal( explicitColor, expectedExplicitColor );
+					}
+				}
+			}
 		} finally {
 			if ( originalPalette === null ) {
 				root.removeAttribute( 'data-tocus-palette' );
