@@ -11,6 +11,13 @@ import {
 	type ProtectedSiteConfiguration,
 	type ProtectionConfigurationDocument,
 } from '../../types/protected-site-configuration';
+import { TestEmptyProtectionConfiguration } from '../../types/__fixtures__';
+import {
+	DefaultProtectionSchedule,
+	ScheduleMode,
+	Weekday,
+} from '../../types/protection-schedule';
+import { CompletionAction } from '../../types/completion-action';
 import { ProtectionScopeIdSchema } from '../../types/protection-value';
 import { type ProtectionConfigurationStorageService } from '../protection-configuration-storage';
 
@@ -31,7 +38,7 @@ const CONFIGURED_SECOND_SITE: ProtectedSiteConfiguration = {
 	},
 };
 const CONFIGURATION_WITH_SITE: ProtectionConfigurationDocument = {
-	schemaVersion: 1,
+	...TestEmptyProtectionConfiguration,
 	sites: [ CONFIGURED_SITE ],
 };
 
@@ -77,7 +84,7 @@ class MemoryProtectionConfigurationEditorStorage implements ProtectionConfigurat
  * @since 0.1.0 Initial implementation.
  */
 class DeferredFirstWriteStorage implements ProtectionConfigurationStorageService {
-	configuration: ProtectionConfigurationDocument = { schemaVersion: 1, sites: [] };
+	configuration: ProtectionConfigurationDocument = { ...TestEmptyProtectionConfiguration };
 
 	loads = 0;
 
@@ -142,7 +149,7 @@ class DeferredFirstWriteStorage implements ProtectionConfigurationStorageService
  * @since 0.1.0 Initial implementation.
  */
 class RejectingFirstWriteStorage implements ProtectionConfigurationStorageService {
-	configuration: ProtectionConfigurationDocument = { schemaVersion: 1, sites: [] };
+	configuration: ProtectionConfigurationDocument = { ...TestEmptyProtectionConfiguration };
 
 	writes = 0;
 
@@ -315,7 +322,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 	} );
 
 	it( 'adds a URL as one whole-domain site in the default shared scope', async () => {
-		const { editor, storage } = createEditor( { schemaVersion: 1, sites: [] } );
+		const { editor, storage } = createEditor( { ...TestEmptyProtectionConfiguration } );
 
 		await expect( editor.add( 'https://www.instagram.com/reels', false ) ).resolves.toEqual( {
 			status: ProtectionConfigurationEditStatus.UPDATED,
@@ -325,7 +332,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 	} );
 
 	it( 'adds an explicitly independent site to its own supplied scope', async () => {
-		const { editor } = createEditor( { schemaVersion: 1, sites: [] } );
+		const { editor } = createEditor( { ...TestEmptyProtectionConfiguration } );
 
 		await expect( editor.add( 'instagram.com', true ) ).resolves.toMatchObject( {
 			status: ProtectionConfigurationEditStatus.UPDATED,
@@ -346,8 +353,12 @@ describe( 'createProtectionConfigurationEditor', () => {
 			},
 		};
 		const { editor, storage } = createEditor( {
-			schemaVersion: 1,
+			...TestEmptyProtectionConfiguration,
 			sites: [ existingIndependentSite ],
+			schedulesByScope: {
+				...TestEmptyProtectionConfiguration.schedulesByScope,
+				scope_independent_a: DefaultProtectionSchedule,
+			},
 		} );
 
 		await expect( editor.add( 'youtube.com', true ) ).resolves.toEqual( {
@@ -485,7 +496,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 
 	it( 'stores a trimmed editable display name and scope behavior in one write', async () => {
 		const { editor, storage } = createEditor( {
-			schemaVersion: 1,
+			...TestEmptyProtectionConfiguration,
 			sites: [ CONFIGURED_SITE, CONFIGURED_SECOND_SITE ],
 		} );
 
@@ -542,14 +553,14 @@ describe( 'createProtectionConfigurationEditor', () => {
 
 	it( 'removes only the requested exact site identity', async () => {
 		const { editor, storage } = createEditor( {
-			schemaVersion: 1,
+			...TestEmptyProtectionConfiguration,
 			sites: [ CONFIGURED_SITE, CONFIGURED_SECOND_SITE ],
 		} );
 
 		await expect( editor.remove( 'www.instagram.com' ) ).resolves.toEqual( {
 			status: ProtectionConfigurationEditStatus.UPDATED,
 			configuration: {
-				schemaVersion: 1,
+				...TestEmptyProtectionConfiguration,
 				sites: [ CONFIGURED_SECOND_SITE ],
 			},
 		} );
@@ -560,6 +571,10 @@ describe( 'createProtectionConfigurationEditor', () => {
 	it( 'moves one independent site back to the shared default scope', async () => {
 		const { editor } = createEditor( {
 			...CONFIGURATION_WITH_SITE,
+			schedulesByScope: {
+				...CONFIGURATION_WITH_SITE.schedulesByScope,
+				scope_independent_a: DefaultProtectionSchedule,
+			},
 			sites: [ {
 				...CONFIGURED_SITE,
 				rule: {
@@ -584,14 +599,22 @@ describe( 'createProtectionConfigurationEditor', () => {
 			},
 		};
 		const { editor } = createEditor( {
-			schemaVersion: 1,
+			...TestEmptyProtectionConfiguration,
 			sites: [ independentSite ],
+			schedulesByScope: {
+				...TestEmptyProtectionConfiguration.schedulesByScope,
+				scope_existing_independent: DefaultProtectionSchedule,
+			},
 		} );
 
 		await expect( editor.update( 'www.instagram.com', '', true ) ).resolves.toEqual( {
 			status: ProtectionConfigurationEditStatus.UPDATED,
 			configuration: {
-				schemaVersion: 1,
+				...TestEmptyProtectionConfiguration,
+				schedulesByScope: {
+					...TestEmptyProtectionConfiguration.schedulesByScope,
+					scope_existing_independent: DefaultProtectionSchedule,
+				},
 				sites: [ independentSite ],
 			},
 		} );
@@ -646,6 +669,118 @@ describe( 'createProtectionConfigurationEditor', () => {
 		await expect( edit( editor ) ).resolves.toEqual( {
 			status: ProtectionConfigurationEditStatus.REJECTED,
 			reason: ProtectionConfigurationEditRejectionReason.SITE_NOT_FOUND,
+		} );
+		expect( storage.writes ).toEqual( [] );
+	} );
+
+	it( 'updates the global timing configuration without changing sites or schedules', async () => {
+		const { editor, storage } = createEditor();
+		const timingConfiguration = {
+			initialWaitMilliseconds: 20_000,
+			ladderIncreaseMilliseconds: 10_000,
+			maximumWaitMilliseconds: 45_000,
+			allowanceMilliseconds: 12 * 60_000,
+			completionAction: CompletionAction.OPEN_AUTOMATICALLY,
+		};
+
+		await expect( editor.updateTiming( timingConfiguration ) ).resolves.toEqual( {
+			status: ProtectionConfigurationEditStatus.UPDATED,
+			configuration: {
+				...CONFIGURATION_WITH_SITE,
+				timingConfiguration,
+			},
+		} );
+		expect( storage.writes ).toHaveLength( 1 );
+	} );
+
+	it( 'rejects an invalid timing configuration without writing', async () => {
+		const { editor, storage } = createEditor();
+
+		await expect( editor.updateTiming( {
+			...CONFIGURATION_WITH_SITE.timingConfiguration,
+			maximumWaitMilliseconds: 5_000,
+		} ) ).resolves.toEqual( {
+			status: ProtectionConfigurationEditStatus.REJECTED,
+			reason: ProtectionConfigurationEditRejectionReason.INVALID_TIMING_CONFIGURATION,
+		} );
+		expect( storage.writes ).toEqual( [] );
+	} );
+
+	it( 'normalizes and updates the schedule for one active scope', async () => {
+		const { editor, storage } = createEditor();
+
+		await expect( editor.updateSchedule( DefaultProtectionScopeId, {
+			mode: ScheduleMode.CUSTOM,
+			windows: [
+				{ weekday: Weekday.MONDAY, startMinute: 540, endMinute: 720 },
+				{ weekday: Weekday.MONDAY, startMinute: 720, endMinute: 1_020 },
+			],
+		} ) ).resolves.toEqual( {
+			status: ProtectionConfigurationEditStatus.UPDATED,
+			configuration: {
+				...CONFIGURATION_WITH_SITE,
+				schedulesByScope: {
+					[ DefaultProtectionScopeId ]: {
+						mode: ScheduleMode.CUSTOM,
+						windows: [ {
+							weekday: Weekday.MONDAY,
+							startMinute: 540,
+							endMinute: 1_020,
+						} ],
+					},
+				},
+			},
+		} );
+		expect( storage.writes ).toHaveLength( 1 );
+	} );
+
+	it.each( [
+		{
+			label: 'invalid schedule',
+			scopeId: DefaultProtectionScopeId,
+			schedule: {
+				mode: ScheduleMode.CUSTOM,
+				windows: [ { weekday: Weekday.MONDAY, startMinute: 540, endMinute: 540 } ],
+			},
+			reason: ProtectionConfigurationEditRejectionReason.INVALID_SCHEDULE,
+		},
+		{
+			label: 'unknown scope',
+			scopeId: 'scope_missing',
+			schedule: { mode: ScheduleMode.ALWAYS },
+			reason: ProtectionConfigurationEditRejectionReason.SCOPE_NOT_FOUND,
+		},
+		{
+			label: 'invalid scope identifier',
+			scopeId: 'scope with spaces',
+			schedule: { mode: ScheduleMode.ALWAYS },
+			reason: ProtectionConfigurationEditRejectionReason.SCOPE_NOT_FOUND,
+		},
+	] )( 'rejects an $label without writing', async ( { scopeId, schedule, reason } ) => {
+		const { editor, storage } = createEditor();
+
+		await expect( editor.updateSchedule( scopeId, schedule ) ).resolves.toEqual( {
+			status: ProtectionConfigurationEditStatus.REJECTED,
+			reason,
+		} );
+		expect( storage.writes ).toEqual( [] );
+	} );
+
+	it( 'rejects schedule and timing edits when the stored configuration is malformed', async () => {
+		const { editor, storage } = createEditor( null );
+
+		await expect( editor.updateSchedule(
+			DefaultProtectionScopeId,
+			{ mode: ScheduleMode.ALWAYS },
+		) ).resolves.toEqual( {
+			status: ProtectionConfigurationEditStatus.REJECTED,
+			reason: ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION,
+		} );
+		await expect( editor.updateTiming(
+			CONFIGURATION_WITH_SITE.timingConfiguration,
+		) ).resolves.toEqual( {
+			status: ProtectionConfigurationEditStatus.REJECTED,
+			reason: ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION,
 		} );
 		expect( storage.writes ).toEqual( [] );
 	} );
