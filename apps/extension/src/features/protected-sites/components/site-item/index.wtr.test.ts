@@ -6,6 +6,7 @@ import {
 	type ProtectionConfigurationMutation,
 } from '../../../../domains/protection/services/protection-configuration-editor';
 import { type ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
+import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
 import { ComponentProtectedSiteItem } from './index';
@@ -29,7 +30,7 @@ const IDENTITY = {
 	colorIndex: 2,
 };
 const CONFIGURATION: ProtectionConfigurationDocument = {
-	schemaVersion: 1,
+	...TestEmptyProtectionConfiguration,
 	sites: [ SITE ],
 };
 
@@ -436,7 +437,7 @@ describe( 'tocus-f-protected-site-item', () => {
 
 		getRequiredElement( element, '.edit-action', HTMLButtonElement ).click();
 		await element.updateComplete;
-		storage.configuration = { schemaVersion: 1, sites: [] };
+		storage.configuration = { ...TestEmptyProtectionConfiguration };
 		getRequiredElement( element, 'form', HTMLFormElement ).requestSubmit();
 		await settleAsyncAction( element );
 
@@ -511,7 +512,7 @@ describe( 'tocus-f-protected-site-item', () => {
 		await element.updateComplete;
 		getRequiredElement( element, '.remove-action', HTMLButtonElement ).click();
 		await element.updateComplete;
-		storage.configuration = { schemaVersion: 1, sites: [] };
+		storage.configuration = { ...TestEmptyProtectionConfiguration };
 		getRequiredElement( element, '.confirm-remove-action', HTMLButtonElement ).click();
 		await settleAsyncAction( element );
 
