@@ -7,21 +7,34 @@ import {
 	type ProtectionConfigurationMutation,
 } from '../../../../domains/protection/services/protection-configuration-editor';
 import { type ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
+import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import {
 	ProtectionConfigurationDocumentSchema,
 	type ProtectionConfigurationDocument,
 } from '../../../../domains/protection/types/protected-site-configuration';
+import {
+	DefaultProtectionSchedule,
+	ScheduleMode,
+	Weekday,
+} from '../../../../domains/protection/types/protection-schedule';
 import { DefaultProtectionScopeId, ProtectionScopeIdSchema } from '../../../../domains/protection/types/protection-value';
 import { type SiteFaviconProvider } from '../../../protected-sites/services/site-favicon-provider';
 import { ComponentProtectedSitesScreen } from '../../../protected-sites/components/screen';
 import { ComponentProtectedSiteItem } from '../../../protected-sites/components/site-item';
+import { ComponentScheduleScreen } from '../schedule-screen';
+import { ComponentTimingScreen } from '../timing-screen';
 import './index';
 import { type ComponentSettingsShell } from './index';
-import { SettingsPlatform } from './types';
+import {
+	SettingsDestination,
+	SettingsPlatform,
+	type SettingsDestination as SettingsDestinationValue,
+} from './types';
 
-const EMPTY_CONFIGURATION: ProtectionConfigurationDocument = { schemaVersion: 1, sites: [] };
+const EMPTY_CONFIGURATION: ProtectionConfigurationDocument = { ...TestEmptyProtectionConfiguration };
+const VISUAL_CHATGPT_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope_visual_chatgpt' );
 const POPULATED_CONFIGURATION: ProtectionConfigurationDocument = {
-	schemaVersion: 1,
+	...TestEmptyProtectionConfiguration,
 	sites: [
 		{
 			identityHost: 'instagram.com',
@@ -38,16 +51,45 @@ const POPULATED_CONFIGURATION: ProtectionConfigurationDocument = {
 			rule: {
 				host: 'chatgpt.com',
 				includeSubdomains: true,
-				scopeId: ProtectionScopeIdSchema.parse( 'scope_visual_chatgpt' ),
+				scopeId: VISUAL_CHATGPT_SCOPE_ID,
 			},
 		},
 	],
+	schedulesByScope: {
+		...TestEmptyProtectionConfiguration.schedulesByScope,
+		[ VISUAL_CHATGPT_SCOPE_ID ]: DefaultProtectionSchedule,
+	},
+};
+const SCHEDULE_CONFIGURATION: ProtectionConfigurationDocument = {
+	...POPULATED_CONFIGURATION,
+	schedulesByScope: {
+		...POPULATED_CONFIGURATION.schedulesByScope,
+		[ DefaultProtectionScopeId ]: {
+			mode: ScheduleMode.CUSTOM,
+			windows: [
+				{
+					weekday: Weekday.MONDAY,
+					startMinute: 540,
+					endMinute: 1_020,
+				},
+				{
+					weekday: Weekday.FRIDAY,
+					startMinute: 1_080,
+					endMinute: 1_320,
+				},
+			],
+		},
+	},
 };
 const SETTINGS_VISUAL_STATES = [
 	'empty',
 	'populated',
 	'editing',
 	'removal-confirmation',
+] as const;
+const SETTINGS_VISUAL_DESTINATIONS = [
+	SettingsDestination.SCHEDULE,
+	SettingsDestination.TIMING,
 ] as const;
 const SETTINGS_VISUAL_THEMES = [ 'light', 'dark' ] as const;
 const ORIGINAL_BODY_MARGIN = document.body.style.margin;
@@ -203,6 +245,7 @@ async function clickSiteItemAction(
  * @since 0.1.0 Initial implementation.
  */
 async function renderSettingsState( state: SettingsVisualState ): Promise<ComponentSettingsShell> {
+	window.history.replaceState( null, '', window.location.pathname );
 	const configuration = state === 'empty' ? EMPTY_CONFIGURATION : POPULATED_CONFIGURATION;
 	const storage = new MemorySettingsVisualStorage( configuration );
 	const editor = createProtectionConfigurationEditor( {
@@ -228,6 +271,64 @@ async function renderSettingsState( state: SettingsVisualState ): Promise<Compon
 			await clickSiteItemAction( item, '.remove-action' );
 		}
 	}
+
+	return shell;
+}
+
+/**
+ * Waits for one settings destination to finish its asynchronous initial read.
+ * @param shell - Connected settings shell.
+ * @param destination - Schedule or Timing destination expected to be active.
+ * @return Promise resolved after the active screen is ready.
+ * @since 0.1.0 Initial implementation.
+ */
+async function settleSettingsDestination(
+	shell: ComponentSettingsShell,
+	destination: SettingsDestinationValue,
+): Promise<void> {
+	await new Promise<void>( ( resolve ) => {
+		setTimeout( resolve, 0 );
+	} );
+
+	const screen = destination === SettingsDestination.SCHEDULE
+		? shell.shadowRoot?.querySelector( 'tocus-f-schedule-screen' )
+		: shell.shadowRoot?.querySelector( 'tocus-f-timing-screen' );
+
+	assert.isTrue( screen instanceof ComponentScheduleScreen || screen instanceof ComponentTimingScreen );
+	if ( ! ( screen instanceof ComponentScheduleScreen || screen instanceof ComponentTimingScreen ) ) {
+		throw new TypeError( `Expected the visual settings shell to render ${ destination }.` );
+	}
+
+	await screen.updateComplete;
+}
+
+/**
+ * Renders one Schedule or Timing destination with representative local settings.
+ * @param destination - Settings destination to present.
+ * @return Connected settings shell with its active screen ready.
+ * @since 0.1.0 Initial implementation.
+ */
+async function renderSettingsDestination(
+	destination: SettingsDestinationValue,
+): Promise<ComponentSettingsShell> {
+	window.history.replaceState( null, '', `${ window.location.pathname }#${ destination }` );
+	const storage = new MemorySettingsVisualStorage(
+		destination === SettingsDestination.SCHEDULE ? SCHEDULE_CONFIGURATION : POPULATED_CONFIGURATION,
+	);
+	const editor = createProtectionConfigurationEditor( {
+		storage,
+		createIndependentScopeId,
+		coordinateMutation: coordinateMutationDirectly,
+	} );
+	const shell = await fixture<ComponentSettingsShell>( html`
+		<tocus-f-settings-shell
+			.editor=${ editor }
+			.faviconProvider=${ FAVICON_PROVIDER }
+			.platform=${ SettingsPlatform.CHROME }
+		></tocus-f-settings-shell>
+	` );
+
+	await settleSettingsDestination( shell, destination );
 
 	return shell;
 }
@@ -265,6 +366,7 @@ describe( 'tocus-f-settings-shell visual', () => {
 	afterEach( async () => {
 		document.documentElement.removeAttribute( 'data-tocus-palette' );
 		document.documentElement.removeAttribute( 'data-tocus-theme' );
+		window.history.replaceState( null, '', window.location.pathname );
 		window.scrollTo( 0, 0 );
 		await emulateMedia( {
 			colorScheme: 'light',
@@ -281,6 +383,18 @@ describe( 'tocus-f-settings-shell visual', () => {
 
 				assert.isTrue( shell.isConnected );
 				await visualDiff( shell, `settings-protected-sites-${ state }-${ theme }` );
+			} );
+		}
+	}
+
+	for ( const theme of SETTINGS_VISUAL_THEMES ) {
+		for ( const destination of SETTINGS_VISUAL_DESTINATIONS ) {
+			it( `matches the ${ destination } screen in the ${ theme } appearance`, async () => {
+				await configureAppearance( theme );
+				const shell = await renderSettingsDestination( destination );
+
+				assert.isTrue( shell.isConnected );
+				await visualDiff( shell, `settings-${ destination }-${ theme }` );
 			} );
 		}
 	}
