@@ -6,10 +6,12 @@ import {
 	type ProtectionConfigurationMutation,
 } from '../../../../domains/protection/services/protection-configuration-editor';
 import { type ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
+import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import {
 	type ProtectedSiteConfiguration,
 	type ProtectionConfigurationDocument,
 } from '../../../../domains/protection/types/protected-site-configuration';
+import { DefaultProtectionSchedule } from '../../../../domains/protection/types/protection-schedule';
 import { DefaultProtectionScopeId, ProtectionScopeIdSchema } from '../../../../domains/protection/types/protection-value';
 import { type SiteFaviconProvider } from '../../services/site-favicon-provider';
 import { ComponentProtectedSiteItem } from '../site-item';
@@ -19,7 +21,7 @@ import {
 } from '../site-item/types';
 import { ComponentProtectedSitesScreen } from './index';
 
-const EMPTY_CONFIGURATION: ProtectionConfigurationDocument = { schemaVersion: 1, sites: [] };
+const EMPTY_CONFIGURATION: ProtectionConfigurationDocument = { ...TestEmptyProtectionConfiguration };
 const YOUTUBE_SITE: ProtectedSiteConfiguration = {
 	identityHost: 'youtube.com',
 	rule: {
@@ -45,8 +47,12 @@ const INSTAGRAM_SITE: ProtectedSiteConfiguration = {
 	},
 };
 const POPULATED_CONFIGURATION: ProtectionConfigurationDocument = {
-	schemaVersion: 1,
+	...TestEmptyProtectionConfiguration,
 	sites: [ YOUTUBE_SITE, X_SITE ],
+	schedulesByScope: {
+		...TestEmptyProtectionConfiguration.schedulesByScope,
+		[ X_SITE.rule.scopeId ]: DefaultProtectionSchedule,
+	},
 };
 
 /**
@@ -468,14 +474,19 @@ describe( 'tocus-f-protected-sites-screen', () => {
 
 	it( 'moves a changed site between groups and announces the persisted update', async () => {
 		const element = await createScreen( new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ) );
+		const youtubeScopeId = ProtectionScopeIdSchema.parse( 'scope_youtube' );
 		const updatedConfiguration: ProtectionConfigurationDocument = {
 			...POPULATED_CONFIGURATION,
 			sites: POPULATED_CONFIGURATION.sites.map( ( site ) => site.identityHost === 'youtube.com'
 				? {
 					...site,
-					rule: { ...site.rule, scopeId: ProtectionScopeIdSchema.parse( 'scope_youtube' ) },
+					rule: { ...site.rule, scopeId: youtubeScopeId },
 				}
 				: site ),
+			schedulesByScope: {
+				...POPULATED_CONFIGURATION.schedulesByScope,
+				[ youtubeScopeId ]: DefaultProtectionSchedule,
+			},
 		};
 
 		getRequiredElement( element, 'tocus-f-protected-site-item', Element ).dispatchEvent( new CustomEvent(
@@ -552,7 +563,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 
 	it( 'focuses manual entry after the final site is removed', async () => {
 		const onlySiteConfiguration: ProtectionConfigurationDocument = {
-			schemaVersion: 1,
+			...TestEmptyProtectionConfiguration,
 			sites: [ YOUTUBE_SITE ],
 		};
 		const element = await createScreen( new MemoryProtectedSitesScreenStorage( onlySiteConfiguration ) );

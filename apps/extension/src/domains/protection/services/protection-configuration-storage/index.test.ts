@@ -4,8 +4,10 @@ import {
 	createProtectionConfigurationStorageService,
 	type ProtectionConfigurationStorageArea,
 } from './index';
+import { ScheduleMode } from '../../types/protection-schedule';
+import { DefaultTimingConfiguration } from '../../types/timing-configuration';
 
-const DEFAULT_CONFIGURATION = {
+const VERSION_ONE_CONFIGURATION = {
 	schemaVersion: 1,
 	sites: [
 		{
@@ -18,6 +20,14 @@ const DEFAULT_CONFIGURATION = {
 			displayNameOverride: 'X',
 		},
 	],
+};
+const CURRENT_CONFIGURATION = {
+	schemaVersion: 2,
+	sites: VERSION_ONE_CONFIGURATION.sites,
+	timingConfiguration: DefaultTimingConfiguration,
+	schedulesByScope: {
+		scope_default: { mode: ScheduleMode.ALWAYS },
+	},
 };
 
 /**
@@ -68,38 +78,97 @@ describe( 'createProtectionConfigurationStorageService', () => {
 		const storage = createProtectionConfigurationStorageService( { area } );
 
 		await expect( storage.load() ).resolves.toEqual( {
-			schemaVersion: 1,
+			schemaVersion: 2,
 			sites: [],
+			timingConfiguration: DefaultTimingConfiguration,
+			schedulesByScope: {
+				scope_default: { mode: ScheduleMode.ALWAYS },
+			},
 		} );
 		expect( area.readKeys ).toEqual( [ 'tocus.protection.configuration.v1' ] );
+		expect( area.writtenValues ).toEqual( [] );
+	} );
+
+	it( 'migrates one valid version-one document in memory without writing during load', async () => {
+		const area = new MemoryProtectionConfigurationStorageArea( {
+			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: VERSION_ONE_CONFIGURATION,
+		} );
+		const storage = createProtectionConfigurationStorageService( { area } );
+
+		await expect( storage.load() ).resolves.toEqual( CURRENT_CONFIGURATION );
+		expect( area.writtenValues ).toEqual( [] );
+	} );
+
+	it.each( [
+		{
+			label: 'future document version',
+			configuration: { ...CURRENT_CONFIGURATION, schemaVersion: 3 },
+		},
+		{
+			label: 'version-one document with an unknown field',
+			configuration: { ...VERSION_ONE_CONFIGURATION, remoteSync: true },
+		},
+	] )( 'preserves an unsupported $label during load', async ( { configuration } ) => {
+		const area = new MemoryProtectionConfigurationStorageArea( {
+			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: configuration,
+		} );
+		const storage = createProtectionConfigurationStorageService( { area } );
+
+		await expect( storage.load() ).resolves.toBeNull();
+		expect( area.writtenValues ).toEqual( [] );
+	} );
+
+	it( 'creates default schedules for shared and independent scopes during migration', async () => {
+		const versionOneConfiguration = {
+			...VERSION_ONE_CONFIGURATION,
+			sites: [ {
+				...VERSION_ONE_CONFIGURATION.sites[ 0 ],
+				rule: {
+					...VERSION_ONE_CONFIGURATION.sites[ 0 ]?.rule,
+					scopeId: 'scope_independent',
+				},
+			} ],
+		};
+		const area = new MemoryProtectionConfigurationStorageArea( {
+			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: versionOneConfiguration,
+		} );
+		const storage = createProtectionConfigurationStorageService( { area } );
+
+		await expect( storage.load() ).resolves.toMatchObject( {
+			schedulesByScope: {
+				scope_default: { mode: ScheduleMode.ALWAYS },
+				scope_independent: { mode: ScheduleMode.ALWAYS },
+			},
+		} );
+		expect( area.writtenValues ).toEqual( [] );
 	} );
 
 	it( 'saves and reloads editable names without changing matching rules', async () => {
 		const area = new MemoryProtectionConfigurationStorageArea();
 		const storage = createProtectionConfigurationStorageService( { area } );
 
-		await storage.save( DEFAULT_CONFIGURATION );
-		await expect( storage.load() ).resolves.toEqual( DEFAULT_CONFIGURATION );
+		await storage.save( CURRENT_CONFIGURATION );
+		await expect( storage.load() ).resolves.toEqual( CURRENT_CONFIGURATION );
 		expect( area.writtenValues ).toEqual( [ {
-			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: DEFAULT_CONFIGURATION,
+			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: CURRENT_CONFIGURATION,
 		} ] );
 
 		const renamedConfiguration = {
-			...DEFAULT_CONFIGURATION,
+			...CURRENT_CONFIGURATION,
 			sites: [ {
-				...DEFAULT_CONFIGURATION.sites[ 0 ],
+				...CURRENT_CONFIGURATION.sites[ 0 ],
 				displayNameOverride: 'Social pause',
 			} ],
 		};
 
 		await storage.save( renamedConfiguration );
 		await expect( storage.load() ).resolves.toEqual( renamedConfiguration );
-		expect( renamedConfiguration.sites[ 0 ]?.rule ).toEqual( DEFAULT_CONFIGURATION.sites[ 0 ]?.rule );
+		expect( renamedConfiguration.sites[ 0 ]?.rule ).toEqual( CURRENT_CONFIGURATION.sites[ 0 ]?.rule );
 	} );
 
 	it( 'stores the exact identity host separately from its broader protection rule', async () => {
 		const configuration = {
-			schemaVersion: 1,
+			schemaVersion: 2,
 			sites: [ {
 				identityHost: 'mail.google.com',
 				rule: {
@@ -108,6 +177,10 @@ describe( 'createProtectionConfigurationStorageService', () => {
 					scopeId: 'scope_default',
 				},
 			} ],
+			timingConfiguration: DefaultTimingConfiguration,
+			schedulesByScope: {
+				scope_default: { mode: ScheduleMode.ALWAYS },
+			},
 		};
 		const area = new MemoryProtectionConfigurationStorageArea();
 		const storage = createProtectionConfigurationStorageService( { area } );
@@ -122,18 +195,18 @@ describe( 'createProtectionConfigurationStorageService', () => {
 		const storage = createProtectionConfigurationStorageService( { area } );
 
 		await storage.save( {
-			...DEFAULT_CONFIGURATION,
+			...CURRENT_CONFIGURATION,
 			sites: [ {
-				...DEFAULT_CONFIGURATION.sites[ 0 ],
+				...CURRENT_CONFIGURATION.sites[ 0 ],
 				displayNameOverride: '  Social pause  ',
 			} ],
 		} );
 
 		expect( area.writtenValues ).toEqual( [ {
 			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: {
-				...DEFAULT_CONFIGURATION,
+				...CURRENT_CONFIGURATION,
 				sites: [ {
-					...DEFAULT_CONFIGURATION.sites[ 0 ],
+					...CURRENT_CONFIGURATION.sites[ 0 ],
 					displayNameOverride: 'Social pause',
 				} ],
 			},
@@ -141,25 +214,25 @@ describe( 'createProtectionConfigurationStorageService', () => {
 	} );
 
 	it.each( [
-		{ ...DEFAULT_CONFIGURATION, schemaVersion: 2 },
+		{ ...CURRENT_CONFIGURATION, schemaVersion: 3 },
 		{
-			...DEFAULT_CONFIGURATION,
+			...CURRENT_CONFIGURATION,
 			sites: [ {
-				...DEFAULT_CONFIGURATION.sites[ 0 ],
+				...CURRENT_CONFIGURATION.sites[ 0 ],
 				favicon: 'https://icons.duckduckgo.com/ip3/x.com.ico',
 			} ],
 		},
 		{
-			...DEFAULT_CONFIGURATION,
+			...CURRENT_CONFIGURATION,
 			sites: [ {
-				...DEFAULT_CONFIGURATION.sites[ 0 ],
+				...CURRENT_CONFIGURATION.sites[ 0 ],
 				identityHost: 'mail.google.com',
 			} ],
 		},
 		{
-			...DEFAULT_CONFIGURATION,
+			...CURRENT_CONFIGURATION,
 			sites: [ {
-				...DEFAULT_CONFIGURATION.sites[ 0 ],
+				...CURRENT_CONFIGURATION.sites[ 0 ],
 				identityHost: 'mail.x.com',
 				rule: {
 					host: 'x.com',
@@ -169,9 +242,9 @@ describe( 'createProtectionConfigurationStorageService', () => {
 			} ],
 		},
 		{
-			...DEFAULT_CONFIGURATION,
+			...CURRENT_CONFIGURATION,
 			sites: [
-				...DEFAULT_CONFIGURATION.sites,
+				...CURRENT_CONFIGURATION.sites,
 				{
 					identityHost: 'www.x.com',
 					rule: {
@@ -193,9 +266,9 @@ describe( 'createProtectionConfigurationStorageService', () => {
 	it( 'reports malformed stored configuration without replacing it', async () => {
 		const area = new MemoryProtectionConfigurationStorageArea( {
 			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: {
-				...DEFAULT_CONFIGURATION,
+				...CURRENT_CONFIGURATION,
 				sites: [ {
-					...DEFAULT_CONFIGURATION.sites[ 0 ],
+					...CURRENT_CONFIGURATION.sites[ 0 ],
 					pageTitle: 'X. It is what is happening',
 				} ],
 			},
@@ -206,12 +279,60 @@ describe( 'createProtectionConfigurationStorageService', () => {
 		expect( area.writtenValues ).toEqual( [] );
 	} );
 
+	it.each( [
+		{
+			label: 'missing active scope schedule',
+			configuration: {
+				...CURRENT_CONFIGURATION,
+				schedulesByScope: {},
+			},
+		},
+		{
+			label: 'orphan independent schedule',
+			configuration: {
+				...CURRENT_CONFIGURATION,
+				schedulesByScope: {
+					...CURRENT_CONFIGURATION.schedulesByScope,
+					scope_orphan: { mode: ScheduleMode.ALWAYS },
+				},
+			},
+		},
+		{
+			label: 'invalid global timing',
+			configuration: {
+				...CURRENT_CONFIGURATION,
+				timingConfiguration: {
+					...CURRENT_CONFIGURATION.timingConfiguration,
+					maximumWaitMilliseconds: 5_000,
+				},
+			},
+		},
+		{
+			label: 'invalid schedule scope identifier',
+			configuration: {
+				...CURRENT_CONFIGURATION,
+				schedulesByScope: {
+					...CURRENT_CONFIGURATION.schedulesByScope,
+					'scope with spaces': { mode: ScheduleMode.ALWAYS },
+				},
+			},
+		},
+	] )( 'preserves a current document with $label', async ( { configuration } ) => {
+		const area = new MemoryProtectionConfigurationStorageArea( {
+			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: configuration,
+		} );
+		const storage = createProtectionConfigurationStorageService( { area } );
+
+		await expect( storage.load() ).resolves.toBeNull();
+		expect( area.writtenValues ).toEqual( [] );
+	} );
+
 	it( 'rejects a stored identity host outside its matching rule', async () => {
 		const area = new MemoryProtectionConfigurationStorageArea( {
 			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: {
-				...DEFAULT_CONFIGURATION,
+				...CURRENT_CONFIGURATION,
 				sites: [ {
-					...DEFAULT_CONFIGURATION.sites[ 0 ],
+					...CURRENT_CONFIGURATION.sites[ 0 ],
 					identityHost: 'mail.google.com',
 				} ],
 			},

@@ -139,6 +139,11 @@ nav {
 		padding: var(--tocus-space-2) var(--tocus-space-3);
 	}
 
+	nav {
+		grid-auto-flow: column;
+		overflow-x: auto;
+	}
+
 	.content {
 		padding: var(--tocus-space-5) var(--tocus-space-4) var(--tocus-space-7);
 	}

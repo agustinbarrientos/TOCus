@@ -1,0 +1,358 @@
+@use '@tocus/theme/typography' as typography;
+
+:host {
+	display: block;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+main {
+	width: min(100%, 58rem);
+	margin: 0 auto;
+	color: var(--tocus-color-on-surface);
+}
+
+header {
+	margin-bottom: var(--tocus-space-6);
+}
+
+.eyebrow {
+	@include typography.apply( 'label-large' );
+
+	margin: 0 0 var(--tocus-space-2);
+	color: var(--tocus-color-action);
+}
+
+h1 {
+	@include typography.apply( 'headline-large' );
+
+	margin: 0;
+}
+
+.introduction {
+	@include typography.apply( 'body-large' );
+
+	max-width: 42rem;
+	margin: var(--tocus-space-3) 0 0;
+	color: var(--tocus-color-on-surface-muted);
+}
+
+.schedule-form {
+	padding: var(--tocus-space-5);
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-medium);
+	background: var(--tocus-color-surface);
+}
+
+label,
+legend,
+strong,
+.scope-summary span {
+	@include typography.apply( 'label-large' );
+}
+
+.scope-control {
+	display: grid;
+	grid-template-columns: minmax(8rem, 0.35fr) minmax(12rem, 1fr);
+	align-items: center;
+	gap: var(--tocus-space-4);
+}
+
+.scope-summary {
+	display: flex;
+	align-items: baseline;
+	gap: var(--tocus-space-3);
+	margin: 0;
+
+	strong {
+		color: var(--tocus-color-action);
+	}
+}
+
+select,
+input[type='time'] {
+	@include typography.apply( 'body-medium' );
+
+	min-height: 2.75rem;
+	padding: var(--tocus-space-2) var(--tocus-space-3);
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-small);
+	background: var(--tocus-color-surface-lowest);
+	color: var(--tocus-color-on-surface);
+
+	&:focus-visible {
+		border-color: var(--tocus-color-focus-ring);
+		outline: 2px solid var(--tocus-color-focus-ring);
+		outline-offset: 1px;
+	}
+
+	&[aria-invalid='true'] {
+		border-color: var(--tocus-color-action);
+	}
+}
+
+.scope-control select {
+	width: 100%;
+}
+
+fieldset {
+	margin: var(--tocus-space-6) 0 0;
+	padding: 0;
+	border: 0;
+}
+
+legend {
+	margin-bottom: var(--tocus-space-3);
+}
+
+.mode-options {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--tocus-space-3);
+}
+
+.mode-option {
+	position: relative;
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	align-items: start;
+	gap: var(--tocus-space-3);
+	isolation: isolate;
+	min-height: 4.5rem;
+	padding: var(--tocus-space-3);
+	border-radius: var(--tocus-radius-small);
+	cursor: pointer;
+
+	.mode-selection {
+		position: absolute;
+		z-index: 0;
+		inset: 0;
+		border: 1px solid var(--tocus-color-outline);
+		border-radius: inherit;
+		background: transparent;
+		pointer-events: none;
+	}
+
+	> input,
+	> span:not(.mode-selection) {
+		position: relative;
+		z-index: 1;
+	}
+
+	input:checked + .mode-selection {
+		background: var(--tocus-color-surface-container);
+	}
+
+	input {
+		width: 1.125rem;
+		height: 1.125rem;
+		margin: var(--tocus-space-1) 0 0;
+		accent-color: var(--tocus-color-action);
+
+		&:focus-visible {
+			outline: 3px solid var(--tocus-color-focus-ring);
+			outline-offset: 2px;
+		}
+	}
+
+	small {
+		display: block;
+		margin-top: var(--tocus-space-1);
+		color: var(--tocus-color-on-surface-muted);
+	}
+}
+
+.mode-option small,
+.windows-help,
+.field-error,
+.dirty-notice,
+.save-error,
+.loading-status,
+.load-error p {
+	@include typography.apply( 'body-small' );
+}
+
+.windows-help {
+	margin: calc(var(--tocus-space-2) * -1) 0 var(--tocus-space-4);
+	color: var(--tocus-color-on-surface-muted);
+}
+
+.window-list {
+	display: grid;
+	gap: var(--tocus-space-3);
+}
+
+.schedule-window {
+	display: grid;
+	grid-template-columns: minmax(8rem, 1fr) minmax(7rem, 0.75fr) minmax(7rem, 0.75fr) auto;
+	align-items: start;
+	gap: var(--tocus-space-3);
+	padding: var(--tocus-space-3);
+	border-radius: var(--tocus-radius-small);
+	background: var(--tocus-color-surface-container);
+
+	label {
+		display: grid;
+		gap: var(--tocus-space-1);
+	}
+
+	select,
+	input {
+		width: 100%;
+	}
+}
+
+.field-error {
+	min-height: 1rem;
+	color: var(--tocus-color-on-surface);
+}
+
+button {
+	@include typography.apply( 'label-large' );
+
+	min-height: 2.75rem;
+	padding: var(--tocus-space-2) var(--tocus-space-5);
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-full);
+	background: transparent;
+	color: var(--tocus-color-action);
+	cursor: pointer;
+	transition:
+		background-color var(--tocus-transition-fast),
+		border-color var(--tocus-transition-fast);
+
+	&:hover:not(:disabled, [aria-disabled='true']) {
+		background: var(--tocus-color-surface-container);
+	}
+
+	&:focus-visible {
+		outline: 3px solid var(--tocus-color-focus-ring);
+		outline-offset: 2px;
+	}
+
+	&:disabled,
+	&[aria-disabled='true'] {
+		cursor: default;
+		opacity: 0.6;
+	}
+
+	&.primary-action {
+		border-color: var(--tocus-color-action);
+		background: var(--tocus-color-action);
+		color: var(--tocus-color-on-action);
+	}
+}
+
+.remove-window-action {
+	align-self: center;
+	margin-top: 1.25rem;
+	white-space: nowrap;
+}
+
+.add-window-action {
+	margin-top: var(--tocus-space-3);
+}
+
+.dirty-notice,
+.save-error {
+	min-height: 1.25rem;
+	margin: var(--tocus-space-3) 0 0;
+}
+
+.dirty-notice {
+	color: var(--tocus-color-on-surface-muted);
+}
+
+.form-actions {
+	display: flex;
+	gap: var(--tocus-space-3);
+	margin-top: var(--tocus-space-4);
+}
+
+.loading-status,
+.load-error {
+	margin: 0;
+	padding: var(--tocus-space-6);
+	border: 1px dashed var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-medium);
+	background: var(--tocus-color-surface);
+}
+
+.loading-status {
+	text-align: center;
+}
+
+.load-error {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--tocus-space-5);
+
+	h2 {
+		@include typography.apply( 'title-medium' );
+
+		margin: 0;
+	}
+
+	p {
+		margin: var(--tocus-space-2) 0 0;
+		color: var(--tocus-color-on-surface-muted);
+	}
+}
+
+.announcement {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	border: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	button {
+		transition: none;
+	}
+}
+
+@media (width <= 64rem) {
+	.schedule-window {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.remove-window-action {
+		justify-self: start;
+		margin-top: 0;
+	}
+}
+
+@media (width <= 48rem) {
+	.scope-control,
+	.mode-options,
+	.schedule-window {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.remove-window-action {
+		justify-self: start;
+		margin-top: 0;
+	}
+
+	.load-error,
+	.form-actions {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.load-error .retry-action,
+	.form-actions button {
+		align-self: flex-start;
+	}
+}

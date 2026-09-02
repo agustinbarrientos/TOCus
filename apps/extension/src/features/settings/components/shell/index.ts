@@ -1,15 +1,42 @@
 import iconMarkup from '@tocus/theme/icon.svg?raw';
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import { type ProtectionConfigurationEditor } from '../../../../domains/protection/services/protection-configuration-editor';
 import { type SiteFaviconProvider } from '../../../protected-sites/services/site-favicon-provider';
 import '../../../protected-sites/components/screen';
+import '../schedule-screen';
+import '../timing-screen';
 import styles from './web-component-style.scss?inline';
-import { SettingsPlatform, type SettingsPlatform as SettingsPlatformValue } from './types';
+import {
+	DefaultSettingsShellCopy,
+	SettingsDestination,
+	SettingsPlatform,
+	type SettingsDestination as SettingsDestinationValue,
+	type SettingsPlatform as SettingsPlatformValue,
+	type SettingsShellCopy,
+} from './types';
 
 /**
- * Renders the browser-native settings frame and its active Protected sites destination.
+ * Resolves one settings URL hash to a supported destination.
+ * @param hash - Current window location hash.
+ * @return Matching settings destination or Protected sites as the safe default.
+ * @since 0.1.0 Initial implementation.
+ */
+function resolveSettingsDestination( hash: string ): SettingsDestinationValue {
+	switch ( hash ) {
+		case `#${ SettingsDestination.SCHEDULE }`:
+			return SettingsDestination.SCHEDULE;
+		case `#${ SettingsDestination.TIMING }`:
+			return SettingsDestination.TIMING;
+		default:
+			return SettingsDestination.PROTECTED_SITES;
+	}
+}
+
+/**
+ * Renders the browser-native settings frame and active local-settings destination.
  * @element tocus-f-settings-shell
  * @summary Extension settings shell.
  * @since 0.1.0 Initial implementation.
@@ -40,7 +67,65 @@ export class ComponentSettingsShell extends LitElement {
 	accessor platform: SettingsPlatformValue = SettingsPlatform.CHROME;
 
 	/**
-	 * Renders the single-destination settings layout and forwards local dependencies to its screen.
+	 * Complete localizable messages rendered by the settings shell.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor copy: Readonly<SettingsShellCopy> = DefaultSettingsShellCopy;
+
+	@state()
+	private accessor destination: SettingsDestinationValue = resolveSettingsDestination( window.location.hash );
+
+	/**
+	 * Begins observing hash navigation while the shell is connected.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	override connectedCallback(): void {
+		super.connectedCallback();
+		window.addEventListener( 'hashchange', this.handleHashChange );
+		this.destination = resolveSettingsDestination( window.location.hash );
+	}
+
+	/**
+	 * Stops observing hash navigation after the shell disconnects.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	override disconnectedCallback(): void {
+		window.removeEventListener( 'hashchange', this.handleHashChange );
+		super.disconnectedCallback();
+	}
+
+	/**
+	 * Adopts the destination represented by the current URL hash.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private readonly handleHashChange = (): void => {
+		this.destination = resolveSettingsDestination( window.location.hash );
+	};
+
+	/**
+	 * Renders the active destination with its local dependencies.
+	 * @return Active settings screen.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private renderDestination(): TemplateResult {
+		switch ( this.destination ) {
+			case SettingsDestination.SCHEDULE:
+				return html`<tocus-f-schedule-screen .editor=${ this.editor }></tocus-f-schedule-screen>`;
+			case SettingsDestination.TIMING:
+				return html`<tocus-f-timing-screen .editor=${ this.editor }></tocus-f-timing-screen>`;
+			default:
+				return html`
+					<tocus-f-protected-sites-screen
+						.editor=${ this.editor }
+						.faviconProvider=${ this.faviconProvider }
+					></tocus-f-protected-sites-screen>
+				`;
+		}
+	}
+
+	/**
+	 * Renders settings navigation and forwards local dependencies to the active screen.
 	 * @return Settings shell template.
 	 * @since 0.1.0 Initial implementation.
 	 */
@@ -52,15 +137,29 @@ export class ComponentSettingsShell extends LitElement {
 						<span class="brand__icon" aria-hidden="true">${ unsafeSVG( iconMarkup ) }</span>
 						<span class="wordmark">TOCus</span>
 					</div>
-					<nav aria-label="Settings">
-						<a href="#protected-sites" aria-current="page">Protected sites</a>
+					<nav aria-label=${ this.copy.navigationLabel }>
+						<a
+							href="#protected-sites"
+							aria-current=${ ifDefined(
+								this.destination === SettingsDestination.PROTECTED_SITES ? 'page' : undefined,
+							) }
+						>${ this.copy.protectedSites }</a>
+						<a
+							href="#schedule"
+							aria-current=${ ifDefined(
+								this.destination === SettingsDestination.SCHEDULE ? 'page' : undefined,
+							) }
+						>${ this.copy.schedule }</a>
+						<a
+							href="#timing"
+							aria-current=${ ifDefined(
+								this.destination === SettingsDestination.TIMING ? 'page' : undefined,
+							) }
+						>${ this.copy.timing }</a>
 					</nav>
 				</aside>
-				<div class="content" id="protected-sites">
-					<tocus-f-protected-sites-screen
-						.editor=${ this.editor }
-						.faviconProvider=${ this.faviconProvider }
-					></tocus-f-protected-sites-screen>
+				<div class="content" id=${ this.destination }>
+					${ this.renderDestination() }
 				</div>
 			</div>
 		`;

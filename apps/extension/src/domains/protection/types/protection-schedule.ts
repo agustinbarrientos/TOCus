@@ -258,3 +258,11 @@ export const NormalizedScheduleSchema = z.discriminatedUnion( 'mode', [
  * @since 0.1.0 Initial implementation.
  */
 export type NormalizedSchedule = z.infer<typeof NormalizedScheduleSchema>;
+
+/**
+ * Default schedule for every newly created protection scope.
+ * @since 0.1.0 Initial implementation.
+ */
+export const DefaultProtectionSchedule = Object.freeze(
+	NormalizedScheduleSchema.parse( { mode: ScheduleMode.ALWAYS } ),
+);

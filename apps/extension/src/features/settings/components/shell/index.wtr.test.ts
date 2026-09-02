@@ -7,13 +7,16 @@ import {
 	type ProtectionConfigurationMutation,
 } from '../../../../domains/protection/services/protection-configuration-editor';
 import { type ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
+import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { type SiteFaviconProvider } from '../../../protected-sites/services/site-favicon-provider';
 import { ComponentProtectedSitesScreen } from '../../../protected-sites/components/screen';
+import { ComponentScheduleScreen } from '../schedule-screen';
+import { ComponentTimingScreen } from '../timing-screen';
 import { ComponentSettingsShell } from './index';
 import { SettingsPlatform, type SettingsPlatform as SettingsPlatformValue } from './types';
 
-const EMPTY_CONFIGURATION: ProtectionConfigurationDocument = { schemaVersion: 1, sites: [] };
+const EMPTY_CONFIGURATION: ProtectionConfigurationDocument = { ...TestEmptyProtectionConfiguration };
 
 /**
  * In-memory configuration storage used by settings-shell fixtures.
@@ -85,6 +88,8 @@ const FAVICON_PROVIDER: SiteFaviconProvider = { getSource: getFaviconSource };
 async function renderShell(
 	platform: SettingsPlatformValue = SettingsPlatform.CHROME,
 ): Promise<ComponentSettingsShell> {
+	window.history.replaceState( null, '', window.location.pathname );
+
 	return fixture<ComponentSettingsShell>( html`
 		<tocus-f-settings-shell
 			.editor=${ EDITOR }
@@ -94,12 +99,25 @@ async function renderShell(
 	` );
 }
 
+/**
+ * Waits for hash navigation and Lit rendering.
+ * @param element - Settings shell expected to update.
+ * @return Promise resolved after the next task and component update.
+ * @since 0.1.0 Initial implementation.
+ */
+async function settleShell( element: ComponentSettingsShell ): Promise<void> {
+	await new Promise<void>( ( resolve ) => {
+		setTimeout( resolve, 0 );
+	} );
+	await element.updateComplete;
+}
+
 describe( 'tocus-f-settings-shell', () => {
 	it( 'registers the exported component class', () => {
 		assert.equal( customElements.get( 'tocus-f-settings-shell' ), ComponentSettingsShell );
 	} );
 
-	it( 'renders TOCus with exactly one active Protected sites destination', async () => {
+	it( 'renders TOCus with Protected sites, Schedule, and Timing navigation', async () => {
 		const element = await renderShell();
 		const shadowRoot = element.shadowRoot;
 
@@ -110,20 +128,42 @@ describe( 'tocus-f-settings-shell', () => {
 
 		const brand = shadowRoot.querySelector( '.brand' );
 		const destinations = shadowRoot.querySelectorAll<HTMLAnchorElement>( 'nav a' );
-		const destination = destinations.item( 0 );
 
 		assert.equal( brand?.getAttribute( 'aria-label' ), 'TOCus' );
 		assert.equal( brand?.querySelector( 'svg' )?.getAttribute( 'fill' ), 'currentColor' );
 		assert.equal( brand?.querySelector( '.wordmark' )?.textContent.trim(), 'TOCus' );
-		assert.equal( destinations.length, 1 );
-		assert.instanceOf( destination, HTMLAnchorElement );
-		if ( ! ( destination instanceof HTMLAnchorElement ) ) {
-			throw new Error( 'Expected one active settings destination.' );
-		}
+		assert.deepEqual(
+			Array.from( destinations ).map( ( destination ) => ( {
+				label: destination.textContent.trim(),
+				href: destination.getAttribute( 'href' ),
+				current: destination.getAttribute( 'aria-current' ),
+			} ) ),
+			[
+				{ label: 'Protected sites', href: '#protected-sites', current: 'page' },
+				{ label: 'Schedule', href: '#schedule', current: null },
+				{ label: 'Timing', href: '#timing', current: null },
+			],
+		);
+	} );
 
-		assert.equal( destination.textContent.trim(), 'Protected sites' );
-		assert.equal( destination.getAttribute( 'href' ), '#protected-sites' );
-		assert.equal( destination.getAttribute( 'aria-current' ), 'page' );
+	it( 'renders navigation through a complete localizable copy contract', async () => {
+		const element = await renderShell();
+		element.copy = {
+			navigationLabel: 'Localized settings',
+			protectedSites: 'Localized protected sites',
+			schedule: 'Localized schedule',
+			timing: 'Localized timing',
+		};
+		await element.updateComplete;
+		const navigation = element.shadowRoot?.querySelector( 'nav' );
+
+		assert.equal( navigation?.getAttribute( 'aria-label' ), 'Localized settings' );
+		assert.deepEqual(
+			Array.from( navigation?.querySelectorAll( 'a' ) ?? [] ).map( ( destination ) =>
+				destination.textContent.trim(),
+			),
+			[ 'Localized protected sites', 'Localized schedule', 'Localized timing' ],
+		);
 	} );
 
 	it( 'forwards local configuration dependencies to the Protected sites screen', async () => {
@@ -138,6 +178,32 @@ describe( 'tocus-f-settings-shell', () => {
 		assert.equal( screen.editor, EDITOR );
 		assert.equal( screen.faviconProvider, FAVICON_PROVIDER );
 		assert.equal( element.getAttribute( 'platform' ), SettingsPlatform.FIREFOX );
+	} );
+
+	it( 'navigates between Schedule and Timing while forwarding the local editor', async () => {
+		const element = await renderShell();
+		const destinations = element.shadowRoot?.querySelectorAll<HTMLAnchorElement>( 'nav a' );
+		assert.equal( destinations?.length, 3 );
+
+		destinations?.item( 1 ).click();
+		await settleShell( element );
+		const scheduleScreen = element.shadowRoot?.querySelector( 'tocus-f-schedule-screen' );
+		assert.instanceOf( scheduleScreen, ComponentScheduleScreen );
+		if ( ! ( scheduleScreen instanceof ComponentScheduleScreen ) ) {
+			throw new Error( 'Expected the Schedule screen to render.' );
+		}
+		assert.equal( scheduleScreen.editor, EDITOR );
+		assert.equal( destinations?.item( 1 ).getAttribute( 'aria-current' ), 'page' );
+
+		destinations?.item( 2 ).click();
+		await settleShell( element );
+		const timingScreen = element.shadowRoot?.querySelector( 'tocus-f-timing-screen' );
+		assert.instanceOf( timingScreen, ComponentTimingScreen );
+		if ( ! ( timingScreen instanceof ComponentTimingScreen ) ) {
+			throw new Error( 'Expected the Timing screen to render.' );
+		}
+		assert.equal( timingScreen.editor, EDITOR );
+		assert.equal( destinations?.item( 2 ).getAttribute( 'aria-current' ), 'page' );
 	} );
 
 	it( 'uses a sidebar at wide options-page widths', async () => {

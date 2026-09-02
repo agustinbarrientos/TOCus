@@ -1,0 +1,320 @@
+@use '@tocus/theme/typography' as typography;
+
+:host {
+	display: block;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+main {
+	width: min(100%, 44rem);
+	margin: 0 auto;
+	color: var(--tocus-color-on-surface);
+}
+
+header {
+	margin-bottom: var(--tocus-space-6);
+}
+
+.eyebrow {
+	@include typography.apply( 'label-large' );
+
+	margin: 0 0 var(--tocus-space-2);
+	color: var(--tocus-color-action);
+}
+
+h1 {
+	@include typography.apply( 'headline-large' );
+
+	margin: 0;
+}
+
+.introduction {
+	@include typography.apply( 'body-large' );
+
+	max-width: 38rem;
+	margin: var(--tocus-space-3) 0 0;
+	color: var(--tocus-color-on-surface-muted);
+}
+
+.timing-form {
+	padding: var(--tocus-space-5);
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-medium);
+	background: var(--tocus-color-surface);
+}
+
+.timing-fields {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--tocus-space-5);
+}
+
+.timing-field {
+	min-width: 0;
+}
+
+label,
+legend,
+strong {
+	@include typography.apply( 'label-large' );
+}
+
+select {
+	@include typography.apply( 'body-large' );
+
+	width: 100%;
+	min-height: 3.25rem;
+	margin-top: var(--tocus-space-2);
+	padding: var(--tocus-space-3) var(--tocus-space-4);
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-small);
+	background: var(--tocus-color-surface-lowest);
+	color: var(--tocus-color-on-surface);
+
+	&:focus-visible {
+		border-color: var(--tocus-color-focus-ring);
+		outline: 2px solid var(--tocus-color-focus-ring);
+		outline-offset: 1px;
+	}
+
+	&[aria-invalid='true'] {
+		border-color: var(--tocus-color-action);
+	}
+
+	&:disabled {
+		cursor: wait;
+		opacity: 0.6;
+	}
+}
+
+.field-help,
+.maximum-wait-error,
+.form-error,
+.completion-option small,
+.timing-summary p,
+.loading-status,
+.load-error p {
+	@include typography.apply( 'body-small' );
+}
+
+.field-help {
+	margin: var(--tocus-space-2) 0 0;
+	color: var(--tocus-color-on-surface-muted);
+}
+
+.maximum-wait-error {
+	min-height: 1rem;
+	margin: var(--tocus-space-1) 0 0;
+	color: var(--tocus-color-on-surface);
+}
+
+.completion-action {
+	margin: var(--tocus-space-6) 0 0;
+	padding: 0;
+	border: 0;
+}
+
+.completion-action legend {
+	margin-bottom: var(--tocus-space-2);
+	padding: 0;
+}
+
+.completion-options {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--tocus-space-2);
+}
+
+.completion-option {
+	position: relative;
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	align-items: start;
+	gap: var(--tocus-space-3);
+	isolation: isolate;
+	padding: var(--tocus-space-3);
+	border-radius: var(--tocus-radius-small);
+	cursor: pointer;
+
+	.completion-selection {
+		position: absolute;
+		z-index: 0;
+		inset: 0;
+		border: 1px solid transparent;
+		border-radius: inherit;
+		background: transparent;
+		pointer-events: none;
+	}
+
+	> input,
+	> span:not(.completion-selection) {
+		position: relative;
+		z-index: 1;
+	}
+
+	input {
+		width: 1.125rem;
+		height: 1.125rem;
+		margin: var(--tocus-space-1) 0 0;
+		accent-color: var(--tocus-color-action);
+
+		&:checked + .completion-selection {
+			border-color: var(--tocus-color-outline);
+			background: var(--tocus-color-surface-container);
+		}
+
+		&:focus-visible {
+			outline: 3px solid var(--tocus-color-focus-ring);
+			outline-offset: 2px;
+		}
+	}
+
+	small {
+		display: block;
+		margin-top: var(--tocus-space-1);
+		color: var(--tocus-color-on-surface-muted);
+	}
+}
+
+.timing-summary {
+	margin-top: var(--tocus-space-5);
+	padding: var(--tocus-space-4);
+	border-radius: var(--tocus-radius-small);
+	background: var(--tocus-color-surface-container);
+
+	h2 {
+		@include typography.apply( 'title-medium' );
+
+		margin: 0;
+	}
+
+	p {
+		margin: var(--tocus-space-2) 0 0;
+		color: var(--tocus-color-on-surface-muted);
+	}
+}
+
+.form-actions {
+	display: flex;
+	align-items: center;
+	gap: var(--tocus-space-4);
+	margin-top: var(--tocus-space-5);
+}
+
+button {
+	@include typography.apply( 'label-large' );
+
+	min-height: 2.75rem;
+	padding: var(--tocus-space-2) var(--tocus-space-5);
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-full);
+	background: transparent;
+	color: var(--tocus-color-action);
+	cursor: pointer;
+	transition:
+		background-color var(--tocus-transition-fast),
+		border-color var(--tocus-transition-fast);
+
+	&:hover:not(:disabled) {
+		background: var(--tocus-color-surface-container);
+	}
+
+	&:focus-visible {
+		outline: 3px solid var(--tocus-color-focus-ring);
+		outline-offset: 2px;
+	}
+
+	&:disabled {
+		cursor: wait;
+		opacity: 0.6;
+	}
+}
+
+.save-action {
+	flex: 0 0 auto;
+	border-color: var(--tocus-color-action);
+	background: var(--tocus-color-action);
+	color: var(--tocus-color-on-action);
+
+	&:hover:not(:disabled) {
+		background: color-mix(in srgb, var(--tocus-color-action) 88%, var(--tocus-color-on-surface));
+	}
+}
+
+.form-error {
+	min-height: 1rem;
+	margin: 0;
+	color: var(--tocus-color-on-surface);
+}
+
+.loading-status,
+.load-error {
+	margin: var(--tocus-space-5) 0 0;
+	padding: var(--tocus-space-5);
+	border: 1px dashed var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-medium);
+	background: color-mix(in srgb, var(--tocus-color-surface) 72%, transparent);
+}
+
+.loading-status {
+	text-align: center;
+}
+
+.load-error {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--tocus-space-5);
+
+	h2 {
+		@include typography.apply( 'title-medium' );
+
+		margin: 0;
+	}
+
+	p {
+		margin: var(--tocus-space-2) 0 0;
+		color: var(--tocus-color-on-surface-muted);
+	}
+}
+
+.announcement {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	border: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	button {
+		transition: none;
+	}
+}
+
+@media (width <= 42rem) {
+	.timing-fields,
+	.completion-options {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.form-actions,
+	.load-error {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.save-action,
+	.retry-action {
+		align-self: flex-start;
+	}
+}

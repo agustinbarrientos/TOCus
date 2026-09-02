@@ -31,8 +31,11 @@ export const ProtectionConfigurationEditRejectionReason = {
 	ALREADY_PROTECTED: 'already-protected',
 	INVALID_CONFIGURATION: 'invalid-configuration',
 	INVALID_DISPLAY_NAME: 'invalid-display-name',
+	INVALID_SCHEDULE: 'invalid-schedule',
 	INVALID_SCOPE_ID: 'invalid-scope-id',
 	INVALID_SITE: 'invalid-site',
+	INVALID_TIMING_CONFIGURATION: 'invalid-timing-configuration',
+	SCOPE_NOT_FOUND: 'scope-not-found',
 	SITE_NOT_FOUND: 'site-not-found',
 } as const;
 
@@ -150,4 +153,24 @@ export interface ProtectionConfigurationEditor {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	remove( identityHost: unknown ): Promise<ProtectionConfigurationEditResult>;
+
+	/**
+	 * Updates the normalized schedule for one active protection scope.
+	 * @param scopeIdInput - Unknown protection scope identifier.
+	 * @param scheduleInput - Unknown editable schedule input.
+	 * @return Updated configuration or a stable rejection.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	updateSchedule(
+		scopeIdInput: unknown,
+		scheduleInput: unknown,
+	): Promise<ProtectionConfigurationEditResult>;
+
+	/**
+	 * Updates the global timing configuration.
+	 * @param timingConfigurationInput - Unknown global timing configuration.
+	 * @return Updated configuration or a stable rejection.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	updateTiming( timingConfigurationInput: unknown ): Promise<ProtectionConfigurationEditResult>;
 }

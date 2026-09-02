@@ -1,13 +1,49 @@
+import { z } from 'zod';
 import {
+	ProtectedSiteConfigurationSetSchema,
 	ProtectionConfigurationDocumentSchema,
 	ProtectionConfigurationDocumentVersion,
 	type ProtectionConfigurationDocument,
 } from '../../types/protected-site-configuration';
+import { DefaultProtectionSchedule } from '../../types/protection-schedule';
+import { DefaultProtectionScopeId } from '../../types/protection-value';
+import { DefaultTimingConfiguration } from '../../types/timing-configuration';
 import {
 	ProtectionConfigurationStorageKey,
 	type ProtectionConfigurationStorageService,
 	type ProtectionConfigurationStorageServiceOptions,
 } from './types';
+
+/**
+ * Validates the complete configuration document used before schedules and timing were persisted.
+ * @since 0.1.0 Initial implementation.
+ */
+const VersionOneProtectionConfigurationDocumentSchema = z.object( {
+	schemaVersion: z.literal( 1 ),
+	sites: ProtectedSiteConfigurationSetSchema,
+} ).strict();
+
+/**
+ * Creates the current configuration defaults for one validated protected-site set.
+ * @param sites - Validated protected-site configurations to retain.
+ * @return Current configuration with global timing and one default schedule per active scope.
+ * @since 0.1.0 Initial implementation.
+ */
+function migrateVersionOneConfiguration(
+	sites: ProtectionConfigurationDocument[ 'sites' ],
+): ProtectionConfigurationDocument {
+	const scopeIds = new Set( [ DefaultProtectionScopeId, ...sites.map( ( site ) => site.rule.scopeId ) ] );
+	const schedulesByScope = Object.fromEntries(
+		[ ...scopeIds ].map( ( scopeId ) => [ scopeId, DefaultProtectionSchedule ] ),
+	);
+
+	return ProtectionConfigurationDocumentSchema.parse( {
+		schemaVersion: ProtectionConfigurationDocumentVersion,
+		sites,
+		timingConfiguration: DefaultTimingConfiguration,
+		schedulesByScope,
+	} );
+}
 
 /**
  * Creates local persistence for protected-site configuration and editable display names.
@@ -28,17 +64,23 @@ export function createProtectionConfigurationStorageService(
 		const values = await options.area.get( ProtectionConfigurationStorageKey.CONFIGURATION );
 
 		if ( ! Object.hasOwn( values, ProtectionConfigurationStorageKey.CONFIGURATION ) ) {
-			return ProtectionConfigurationDocumentSchema.parse( {
-				schemaVersion: ProtectionConfigurationDocumentVersion,
-				sites: [],
-			} );
+			return migrateVersionOneConfiguration( [] );
 		}
 
-		const configuration = ProtectionConfigurationDocumentSchema.safeParse(
-			values[ ProtectionConfigurationStorageKey.CONFIGURATION ],
+		const storedConfiguration = values[ ProtectionConfigurationStorageKey.CONFIGURATION ];
+		const configuration = ProtectionConfigurationDocumentSchema.safeParse( storedConfiguration );
+
+		if ( configuration.success ) {
+			return configuration.data;
+		}
+
+		const versionOneConfiguration = VersionOneProtectionConfigurationDocumentSchema.safeParse(
+			storedConfiguration,
 		);
 
-		return configuration.success ? configuration.data : null;
+		return versionOneConfiguration.success
+			? migrateVersionOneConfiguration( versionOneConfiguration.data.sites )
+			: null;
 	}
 
 	/**
