@@ -1,0 +1,145 @@
+@use '@tocus/theme/typography' as typography;
+
+:host {
+	--tocus-settings-navigation-width: 16.5rem;
+	--tocus-settings-selection-radius: var(--tocus-radius-full);
+
+	display: block;
+	min-height: 100vh;
+	min-height: 100dvh;
+	background: var(--tocus-color-surface-lowest);
+	color: var(--tocus-color-on-surface);
+}
+
+:host([platform='firefox']) {
+	--tocus-settings-selection-radius: var(--tocus-radius-small);
+}
+
+:host([platform='safari']) {
+	--tocus-settings-selection-radius: 0.625rem;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+.settings-layout {
+	display: grid;
+	grid-template-columns: var(--tocus-settings-navigation-width) minmax(0, 1fr);
+	min-height: 100vh;
+	min-height: 100dvh;
+}
+
+.navigation {
+	position: sticky;
+	top: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--tocus-space-6);
+	height: 100vh;
+	height: 100dvh;
+	padding: var(--tocus-space-5) var(--tocus-space-4);
+	border-right: 1px solid var(--tocus-color-outline);
+	border-bottom: 0 solid var(--tocus-color-outline);
+	background: var(--tocus-color-surface);
+}
+
+.brand {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--tocus-space-3);
+	width: fit-content;
+	padding-inline: var(--tocus-space-3);
+	color: var(--tocus-color-icon-accent);
+
+	&__icon {
+		display: inline-flex;
+		width: 2rem;
+		height: 2rem;
+		flex: 0 0 auto;
+
+		svg {
+			width: 100%;
+			height: 100%;
+		}
+	}
+}
+
+.wordmark {
+	@include typography.apply( 'headline-small' );
+}
+
+nav {
+	display: grid;
+	gap: var(--tocus-space-1);
+
+	a {
+		@include typography.apply( 'label-large' );
+
+		display: flex;
+		align-items: center;
+		min-height: 3rem;
+		padding: var(--tocus-space-3) var(--tocus-space-4);
+		border-radius: var(--tocus-settings-selection-radius);
+		color: var(--tocus-color-on-surface);
+		text-decoration: none;
+		transition: background-color var(--tocus-transition-fast);
+
+		&[aria-current='page'] {
+			background: var(--tocus-color-surface-container);
+			color: var(--tocus-color-action);
+		}
+
+		&:hover {
+			background: color-mix(in srgb, var(--tocus-color-surface-container) 72%, transparent);
+		}
+
+		&:focus-visible {
+			outline: 3px solid var(--tocus-color-focus-ring);
+			outline-offset: 2px;
+		}
+	}
+}
+
+.content {
+	min-width: 0;
+	padding: clamp(2rem, 5vw, 4.5rem);
+}
+
+@media (width <= 48rem) {
+	.settings-layout {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.navigation {
+		z-index: 1;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--tocus-space-4);
+		height: auto;
+		padding: var(--tocus-space-3) var(--tocus-space-4);
+		border-right-width: 0;
+		border-bottom-width: 1px;
+	}
+
+	.brand {
+		padding-inline: 0;
+
+		&__icon {
+			width: 1.75rem;
+			height: 1.75rem;
+		}
+	}
+
+	nav a {
+		min-height: 2.5rem;
+		padding: var(--tocus-space-2) var(--tocus-space-3);
+	}
+
+	.content {
+		padding: var(--tocus-space-5) var(--tocus-space-4) var(--tocus-space-7);
+	}
+}
