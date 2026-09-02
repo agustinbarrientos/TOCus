@@ -172,8 +172,14 @@ export class ComponentProtectedSitesScreen extends LitElement {
 						this.copy.invalidConfigurationError,
 					[ ProtectionConfigurationEditRejectionReason.INVALID_DISPLAY_NAME ]:
 						this.copy.invalidDisplayNameError,
+					[ ProtectionConfigurationEditRejectionReason.INVALID_SCHEDULE ]:
+						this.copy.invalidConfigurationError,
 					[ ProtectionConfigurationEditRejectionReason.INVALID_SCOPE_ID ]: this.copy.invalidScopeError,
 					[ ProtectionConfigurationEditRejectionReason.INVALID_SITE ]: this.copy.invalidSiteError,
+					[ ProtectionConfigurationEditRejectionReason.INVALID_TIMING_CONFIGURATION ]:
+						this.copy.invalidConfigurationError,
+					[ ProtectionConfigurationEditRejectionReason.SCOPE_NOT_FOUND ]:
+						this.copy.invalidConfigurationError,
 					[ ProtectionConfigurationEditRejectionReason.SITE_NOT_FOUND ]: this.copy.siteNotFoundError,
 				};
 
