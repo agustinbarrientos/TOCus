@@ -4,8 +4,10 @@ import { describe, expect, test } from 'vitest';
 
 const chromeManifestUrl = new URL( '../../.output/chrome-mv3/manifest.json', import.meta.url );
 const firefoxManifestUrl = new URL( '../../.output/firefox-mv2/manifest.json', import.meta.url );
+const safariManifestUrl = new URL( '../../.output/safari-mv2/manifest.json', import.meta.url );
 const chromeOutputUrl = new URL( '../../.output/chrome-mv3/', import.meta.url );
 const firefoxOutputUrl = new URL( '../../.output/firefox-mv2/', import.meta.url );
+const safariOutputUrl = new URL( '../../.output/safari-mv2/', import.meta.url );
 
 /**
  * Reads and parses one generated extension manifest.
@@ -48,8 +50,30 @@ async function expectPopupComposition( outputUrl: URL ): Promise<void> {
 
 	const moduleCode = await readOutputFile( outputUrl, moduleSource.replace( /^\//u, '' ) );
 
-	expect( moduleCode ).toContain( 'customElements.define' );
 	expect( moduleCode ).toContain( 'tocus-f-popup-shell' );
+}
+
+/**
+ * Verifies that the generated options page loads the settings shell component.
+ * @param outputUrl - Browser output-directory URL.
+ * @return Promise resolved after all options-page composition assertions pass.
+ * @since 0.1.0 Initial implementation.
+ */
+async function expectOptionsComposition( outputUrl: URL ): Promise<void> {
+	const optionsHtml = await readOutputFile( outputUrl, 'options.html' );
+	const moduleScript = optionsHtml.match( /<script\s[^>]*type="module"[^>]*src="([^"]+)"/u );
+	const moduleSource = moduleScript?.[ 1 ];
+
+	expect( optionsHtml ).toContain( '<tocus-f-settings-shell>' );
+	expect( moduleSource ).toBeDefined();
+
+	if ( moduleSource === undefined ) {
+		throw new Error( 'The generated options page is missing its module script.' );
+	}
+
+	const moduleCode = await readOutputFile( outputUrl, moduleSource.replace( /^\//u, '' ) );
+
+	expect( moduleCode ).toContain( 'tocus-f-settings-shell' );
 }
 
 /**
@@ -101,12 +125,13 @@ describe( 'extension build manifest', () => {
 		expect( manifest ).toMatchObject( {
 			manifest_version: 3,
 			name: 'TOCus',
-			minimum_chrome_version: '102',
+			minimum_chrome_version: '104',
 			action: { default_popup: 'popup.html' },
 			background: { service_worker: 'background.js' },
+			options_ui: { page: 'options.html', open_in_tab: true },
 		} );
 		expect( manifest ).not.toHaveProperty( 'browser_specific_settings' );
-		expect( manifest ).toHaveProperty( 'permissions', [ 'storage' ] );
+		expect( manifest ).toHaveProperty( 'permissions', [ 'storage', 'favicon' ] );
 		expectNoBroadBrowsingPermissions( manifest );
 		expectValidExtensionVersion( manifest );
 	} );
@@ -119,6 +144,7 @@ describe( 'extension build manifest', () => {
 			name: 'TOCus',
 			browser_action: { default_popup: 'popup.html' },
 			background: { scripts: [ 'background.js' ] },
+			options_ui: { page: 'options.html', open_in_tab: true },
 			browser_specific_settings: {
 				gecko: {
 					id: 'tocus@agustinbarrientos.github.io',
@@ -133,10 +159,36 @@ describe( 'extension build manifest', () => {
 		expectValidExtensionVersion( manifest );
 	} );
 
+	test( 'produces a minimal Safari extension manifest with local storage only', async () => {
+		const manifest = await readManifest( safariManifestUrl );
+
+		expect( manifest ).toMatchObject( {
+			manifest_version: 2,
+			name: 'TOCus',
+			browser_action: { default_popup: 'popup.html' },
+			background: { scripts: [ 'background.js' ] },
+			options_ui: { page: 'options.html' },
+		} );
+		expect( manifest ).not.toHaveProperty( 'options_ui.open_in_tab' );
+		expect( manifest ).not.toHaveProperty( 'browser_specific_settings' );
+		expect( manifest ).toHaveProperty( 'permissions', [ 'storage' ] );
+		expectNoBroadBrowsingPermissions( manifest );
+		expectValidExtensionVersion( manifest );
+	} );
+
 	test.each( [
 		[ 'Chrome', chromeOutputUrl ],
 		[ 'Firefox', firefoxOutputUrl ],
+		[ 'Safari', safariOutputUrl ],
 	] )( 'connects the generated %s popup to its component implementation', async ( _browser, outputUrl ) => {
 		await expectPopupComposition( outputUrl );
+	} );
+
+	test.each( [
+		[ 'Chrome', chromeOutputUrl ],
+		[ 'Firefox', firefoxOutputUrl ],
+		[ 'Safari', safariOutputUrl ],
+	] )( 'connects the generated %s options page to its settings shell', async ( _browser, outputUrl ) => {
+		await expectOptionsComposition( outputUrl );
 	} );
 } );

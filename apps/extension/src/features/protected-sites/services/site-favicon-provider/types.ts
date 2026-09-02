@@ -1,18 +1,12 @@
 import { z } from 'zod';
 
 /**
- * Creates an extension URL for one packaged or browser-provided path.
- * @since 0.1.0 Initial implementation.
- */
-export type ExtensionUrlFactory = ( path: string ) => string;
-
-/**
  * Cached-favicon provider dependencies.
  * @since 0.1.0 Initial implementation.
  */
 export interface SiteFaviconProviderOptions {
 	supportsCachedFavicons: boolean;
-	getExtensionUrl: ExtensionUrlFactory;
+	extensionRootUrl: string;
 }
 
 /**

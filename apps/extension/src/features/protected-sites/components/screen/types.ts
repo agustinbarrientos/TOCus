@@ -1,0 +1,171 @@
+import { type ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
+import { type SiteFaviconSource } from '../../services/site-favicon-provider';
+import { type SiteDisplayIdentity } from '../../utils/site-display-name-resolver';
+
+/**
+ * Stable loading states rendered by the Protected Sites screen.
+ * @since 0.1.0 Initial implementation.
+ */
+export const ProtectedSitesScreenLoadStatus = {
+	FAILED: 'failed',
+	LOADING: 'loading',
+	MALFORMED: 'malformed',
+	READY: 'ready',
+} as const;
+
+/**
+ * Current loading state rendered by the Protected Sites screen.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ProtectedSitesScreenLoadStatus =
+	typeof ProtectedSitesScreenLoadStatus[ keyof typeof ProtectedSitesScreenLoadStatus ];
+
+/**
+ * Protected site with its fully resolved local presentation.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface PresentedProtectedSite {
+	site: ProtectedSiteConfiguration;
+	identity: SiteDisplayIdentity;
+	faviconSource: SiteFaviconSource;
+}
+
+/**
+ * Add-site form submission whose current target is the rendered form.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface ProtectedSitesAddSubmitEvent extends SubmitEvent {
+	readonly currentTarget: HTMLFormElement;
+}
+
+/**
+ * Localizable messages rendered by the Protected Sites screen.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface ProtectedSitesScreenCopy {
+	eyebrow: string;
+	title: string;
+	introduction: string;
+	addressLabel: string;
+	addressPlaceholder: string;
+	addSite: string;
+	addingSite: string;
+	addressHelp: string;
+	behaviorLegend: string;
+	sharedBehavior: string;
+	sharedBehaviorDescription: string;
+	independentBehavior: string;
+	independentBehaviorDescription: string;
+	loading: string;
+	emptyTitle: string;
+	emptyDescription: string;
+	sharedGroupTitle: string;
+	sharedGroupDescription: string;
+	independentGroupTitle: string;
+	independentGroupDescription: string;
+	invalidSiteError: string;
+	alreadyProtectedError: string;
+	invalidConfigurationError: string;
+	invalidScopeError: string;
+	invalidDisplayNameError: string;
+	siteNotFoundError: string;
+	saveError: string;
+	malformedDataTitle: string;
+	malformedDataDescription: string;
+	loadErrorTitle: string;
+	loadErrorDescription: string;
+	retry: string;
+	/**
+	 * Formats the announcement emitted after one site is added.
+	 * @param name - Resolved local site name.
+	 * @return Human-readable addition announcement.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	formatAddedAnnouncement( name: string ): string;
+	/**
+	 * Formats the announcement emitted after one site is updated.
+	 * @param name - Resolved local site name.
+	 * @return Human-readable update announcement.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	formatUpdatedAnnouncement( name: string ): string;
+	/**
+	 * Formats the announcement emitted after one site is removed.
+	 * @param name - Resolved local site name.
+	 * @return Human-readable removal announcement.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	formatRemovedAnnouncement( name: string ): string;
+}
+
+/**
+ * Formats the default addition announcement.
+ * @param name - Resolved local site name.
+ * @return Human-readable addition announcement.
+ * @since 0.1.0 Initial implementation.
+ */
+function formatAddedAnnouncement( name: string ): string {
+	return `${ name } was added to protected sites.`;
+}
+
+/**
+ * Formats the default update announcement.
+ * @param name - Resolved local site name.
+ * @return Human-readable update announcement.
+ * @since 0.1.0 Initial implementation.
+ */
+function formatUpdatedAnnouncement( name: string ): string {
+	return `${ name } was updated.`;
+}
+
+/**
+ * Formats the default removal announcement.
+ * @param name - Resolved local site name.
+ * @return Human-readable removal announcement.
+ * @since 0.1.0 Initial implementation.
+ */
+function formatRemovedAnnouncement( name: string ): string {
+	return `${ name } was removed from protected sites.`;
+}
+
+/**
+ * Default English messages for the Protected Sites screen.
+ * @since 0.1.0 Initial implementation.
+ */
+export const DefaultProtectedSitesScreenCopy: Readonly<ProtectedSitesScreenCopy> = Object.freeze( {
+	eyebrow: 'Protection',
+	title: 'Protected sites',
+	introduction: 'Choose the websites where a calm pause can help you return to your intentions.',
+	addressLabel: 'Website address',
+	addressPlaceholder: 'example.com',
+	addSite: 'Add site',
+	addingSite: 'Adding...',
+	addressHelp: 'Enter a website address or domain. Whole-domain protection includes its subdomains.',
+	behaviorLegend: 'How should this site behave?',
+	sharedBehavior: 'Share protection',
+	sharedBehaviorDescription: 'Use the same wait and allowance as your other protected sites.',
+	independentBehavior: 'Protect independently',
+	independentBehaviorDescription: 'Give this site its own wait and allowance.',
+	loading: 'Loading protected sites...',
+	emptyTitle: 'No protected sites yet',
+	emptyDescription: 'Add the first site you want TOCus to gently interrupt.',
+	sharedGroupTitle: 'Shared protection',
+	sharedGroupDescription: 'These sites share one wait ladder and allowance.',
+	independentGroupTitle: 'Independent sites',
+	independentGroupDescription: 'Each of these sites keeps its own wait ladder and allowance.',
+	invalidSiteError: 'Enter a valid website address, such as example.com.',
+	alreadyProtectedError: 'This website is already protected by an existing rule.',
+	invalidConfigurationError: 'Your protected-site data changed. Retry before adding this site.',
+	invalidScopeError: 'TOCus could not create independent protection for this site.',
+	invalidDisplayNameError: 'The website name is not valid.',
+	siteNotFoundError: 'This protected site no longer exists.',
+	saveError: 'This website could not be saved. Your entry is still here.',
+	malformedDataTitle: 'Protected sites need your attention',
+	malformedDataDescription: 'Your local protected-site data is not valid, so it was not replaced.',
+	loadErrorTitle: 'Protected sites could not load',
+	loadErrorDescription: 'TOCus could not load local settings. Nothing was changed.',
+	retry: 'Try again',
+	formatAddedAnnouncement,
+	formatUpdatedAnnouncement,
+	formatRemovedAnnouncement,
+} );

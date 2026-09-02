@@ -1,0 +1,294 @@
+@use '@tocus/theme/typography' as typography;
+
+:host {
+	display: block;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+article {
+	padding: var(--tocus-space-5);
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-medium);
+	background: var(--tocus-color-surface);
+	color: var(--tocus-color-on-surface);
+}
+
+.summary {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr) auto auto;
+	align-items: center;
+	gap: var(--tocus-space-3);
+}
+
+.site-icon {
+	display: grid;
+	width: 2.75rem;
+	height: 2.75rem;
+	place-items: center;
+	border-radius: var(--tocus-radius-small);
+	background: var(--tocus-color-surface-container);
+	color: var(--tocus-color-on-surface);
+	overflow: hidden;
+
+	img {
+		display: block;
+		width: 2rem;
+		height: 2rem;
+		object-fit: contain;
+	}
+}
+
+.monogram {
+	@include typography.apply( 'title-medium' );
+}
+
+.identity {
+	min-width: 0;
+
+	h3 {
+		@include typography.apply( 'title-medium' );
+
+		margin: 0;
+	}
+}
+
+.domain,
+.boundary {
+	@include typography.apply( 'body-small' );
+
+	color: var(--tocus-color-on-surface-muted);
+}
+
+.domain {
+	margin: var(--tocus-space-1) 0 0;
+	overflow-wrap: anywhere;
+}
+
+.boundary {
+	margin: var(--tocus-space-3) 0 0 calc(2.75rem + var(--tocus-space-3));
+}
+
+.scope-label {
+	@include typography.apply( 'label-medium' );
+
+	padding: var(--tocus-space-1) var(--tocus-space-3);
+	border-radius: var(--tocus-radius-full);
+	background: var(--tocus-color-surface-container);
+	color: var(--tocus-color-on-surface-muted);
+}
+
+button {
+	@include typography.apply( 'label-large' );
+
+	min-height: 2.5rem;
+	padding: var(--tocus-space-2) var(--tocus-space-4);
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-full);
+	background: transparent;
+	color: var(--tocus-color-action);
+	cursor: pointer;
+	transition:
+		background-color var(--tocus-transition-fast),
+		border-color var(--tocus-transition-fast);
+
+	&:hover:not(:disabled) {
+		background: var(--tocus-color-surface-container);
+	}
+
+	&:focus-visible {
+		outline: 3px solid var(--tocus-color-focus-ring);
+		outline-offset: 2px;
+	}
+
+	&:disabled {
+		cursor: wait;
+		opacity: 0.6;
+	}
+}
+
+form,
+.remove-confirmation {
+	margin-top: var(--tocus-space-5);
+	padding-top: var(--tocus-space-5);
+	border-top: 1px solid var(--tocus-color-outline);
+}
+
+label,
+legend,
+strong {
+	@include typography.apply( 'label-large' );
+}
+
+.name-control {
+	display: flex;
+	align-items: center;
+	gap: var(--tocus-space-3);
+	margin-top: var(--tocus-space-2);
+}
+
+input[type='text'] {
+	@include typography.apply( 'body-large' );
+
+	min-width: 0;
+	min-height: 3rem;
+	flex: 1;
+	padding: var(--tocus-space-3) var(--tocus-space-4);
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-small);
+	background: var(--tocus-color-surface-lowest);
+	color: var(--tocus-color-on-surface);
+
+	&:focus-visible {
+		border-color: var(--tocus-color-focus-ring);
+		outline: 2px solid var(--tocus-color-focus-ring);
+		outline-offset: 1px;
+	}
+}
+
+fieldset {
+	display: grid;
+	gap: var(--tocus-space-2);
+	margin: var(--tocus-space-5) 0 0;
+	padding: 0;
+	border: 0;
+}
+
+legend {
+	margin-bottom: var(--tocus-space-2);
+}
+
+.behavior-option {
+	position: relative;
+	display: grid;
+	grid-template-columns: auto 1fr;
+	align-items: start;
+	gap: var(--tocus-space-3);
+	isolation: isolate;
+	padding: var(--tocus-space-3);
+	border-radius: var(--tocus-radius-small);
+	cursor: pointer;
+
+	.behavior-selection {
+		position: absolute;
+		z-index: 0;
+		inset: 0;
+		border-radius: inherit;
+		background: transparent;
+		pointer-events: none;
+	}
+
+	> input,
+	> span:not(.behavior-selection) {
+		position: relative;
+		z-index: 1;
+	}
+
+	input:checked + .behavior-selection {
+		background: var(--tocus-color-surface-container);
+	}
+
+	input {
+		width: 1.125rem;
+		height: 1.125rem;
+		margin: var(--tocus-space-1) 0 0;
+		accent-color: var(--tocus-color-action);
+	}
+
+	small {
+		@include typography.apply( 'body-small' );
+
+		display: block;
+		margin-top: var(--tocus-space-1);
+		color: var(--tocus-color-on-surface-muted);
+	}
+}
+
+.editor-footer,
+.editor-actions {
+	display: flex;
+	align-items: center;
+	gap: var(--tocus-space-2);
+}
+
+.editor-footer {
+	justify-content: space-between;
+	margin-top: var(--tocus-space-5);
+}
+
+.primary-action {
+	border-color: var(--tocus-color-action);
+	background: var(--tocus-color-action);
+	color: var(--tocus-color-on-action);
+
+	&:hover:not(:disabled) {
+		background: color-mix(in srgb, var(--tocus-color-action) 88%, var(--tocus-color-on-surface));
+	}
+}
+
+.dangerous-action {
+	color: var(--tocus-color-on-surface);
+}
+
+.operation-error,
+.remove-confirmation p {
+	@include typography.apply( 'body-medium' );
+}
+
+.operation-error {
+	margin: var(--tocus-space-4) 0 0;
+	padding: var(--tocus-space-3) var(--tocus-space-4);
+	border-left: 3px solid var(--tocus-color-action);
+	border-radius: var(--tocus-radius-small);
+	background: var(--tocus-color-surface-container);
+	color: var(--tocus-color-on-surface);
+}
+
+.remove-confirmation {
+	p {
+		margin: 0 0 var(--tocus-space-4);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	button {
+		transition: none;
+	}
+}
+
+@media (width <= 38rem) {
+	.summary {
+		grid-template-columns: auto minmax(0, 1fr) auto;
+	}
+
+	.scope-label {
+		grid-column: 2;
+	}
+
+	button {
+		grid-row: 1 / span 2;
+		grid-column: 3;
+	}
+
+	.boundary {
+		margin-left: 0;
+	}
+
+	.name-control,
+	.editor-footer {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.editor-actions {
+		justify-content: flex-end;
+	}
+
+	.remove-action {
+		align-self: flex-start;
+	}
+}

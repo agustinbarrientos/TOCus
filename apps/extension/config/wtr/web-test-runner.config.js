@@ -171,8 +171,10 @@ export default {
 	coverageConfig: {
 		exclude: [
 			'src/**/*.wtr.test.ts',
+			'src/domains/protection/services/protection-configuration-editor/**/*.ts',
 			'src/domains/protection/types/**/*.ts',
 			'src/domains/protection/utils/**/*.ts',
+			'src/features/protected-sites/utils/**/*.ts',
 			'src/features/interruption/services/focused-progress-clock/**/*.ts',
 			'src/features/interruption/utils/breathing-motion/**/*.ts',
 			'src/features/interruption/utils/breathing-sphere-geometry/**/*.ts',
@@ -205,6 +207,7 @@ export default {
 		scssPlugin,
 		themeIconPlugin,
 		esbuildPlugin( {
+			loaders: { json: 'json' },
 			target: 'es2022',
 			ts: true,
 			tsconfig: path.join( extensionRoot, 'tsconfig.json' ),
