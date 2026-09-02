@@ -16,8 +16,8 @@ export default defineConfig( {
 	manifest: ( context ) => ( {
 		name: 'TOCus',
 		description: 'A gentle pause before distracting websites, designed to help you return to your intentions.',
-		permissions: [ 'storage' ],
-		...( context.browser === 'chrome' ? { minimum_chrome_version: '102' } : {} ),
+		permissions: context.browser === 'chrome' ? [ 'storage', 'favicon' ] : [ 'storage' ],
+		...( context.browser === 'chrome' ? { minimum_chrome_version: '104' } : {} ),
 		...( context.browser === 'firefox'
 			? {
 				browser_specific_settings: {
