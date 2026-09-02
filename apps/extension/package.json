@@ -9,6 +9,7 @@
 		"dev:firefox": "wxt -b firefox",
 		"build": "wxt build -b chrome",
 		"build:firefox": "wxt build -b firefox",
+		"build:safari": "wxt build -b safari",
 		"lint": "eslint . --max-warnings 0",
 		"typecheck": "tsc --noEmit && lit-analyzer \"src/**/*.ts\" --strict --maxWarnings 0",
 		"test:browser": "web-test-runner --config config/wtr/web-test-runner.config.js",
