@@ -23,6 +23,8 @@ import {
 	ProtectionConfigurationEditRejectionReason,
 	ProtectionConfigurationEditStatus,
 	type ProtectionConfigurationEditRejectionReason as ProtectionConfigurationEditRejectionReasonValue,
+	type ProtectionConfigurationEditFinalizer,
+	type ProtectionConfigurationEditPrePersist,
 	type ProtectionConfigurationEditResult,
 	type ProtectionConfigurationEditor,
 	type ProtectionConfigurationEditorOptions,
@@ -211,32 +213,80 @@ export function createProtectionConfigurationEditor(
 	}
 
 	/**
+	 * Completes one optional effect before returning an authoritative edit result.
+	 * @param result - Successful or rejected edit result.
+	 * @param configuration - Latest configuration known by the coordinated mutation.
+	 * @param finalize - Optional settlement effect.
+	 * @return Original edit result after the effect completes.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function finalizeResult(
+		result: ProtectionConfigurationEditResult,
+		configuration: ProtectionConfigurationDocument | null,
+		finalize: ProtectionConfigurationEditFinalizer | undefined,
+	): Promise<ProtectionConfigurationEditResult> {
+		await finalize?.( { configuration, result } );
+
+		return result;
+	}
+
+	/**
+	 * Completes one optional effect after a coordinated pre-persist or persistence operation rejects.
+	 * @param configuration - Configuration loaded before the failed mutation operation.
+	 * @param finalize - Optional settlement effect.
+	 * @return Promise resolved after the effect completes.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function finalizeFailedMutation(
+		configuration: ProtectionConfigurationDocument,
+		finalize: ProtectionConfigurationEditFinalizer | undefined,
+	): Promise<void> {
+		await finalize?.( { configuration, result: null } );
+	}
+
+	/**
 	 * Adds one hostname or HTTP(S) URL with shared or independent behavior.
 	 * @param siteInput - Unknown user-entered hostname or URL.
 	 * @param independent - Whether the site receives its own scope.
+	 * @param beforePersist - Optional verification performed immediately before persistence.
+	 * @param finalize - Optional effect completed before mutation coordination is released.
 	 * @return Updated configuration or a stable rejection.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function performAdd(
 		siteInput: unknown,
 		independent: boolean,
+		beforePersist: ProtectionConfigurationEditPrePersist | undefined,
+		finalize: ProtectionConfigurationEditFinalizer | undefined,
 	): Promise<ProtectionConfigurationEditResult> {
 		const configuration = await options.storage.load();
 
 		if ( configuration === null ) {
-			return createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION );
+			return finalizeResult(
+				createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION ),
+				configuration,
+				finalize,
+			);
 		}
 
 		const scopeId = resolveRequestedScopeId( independent, configuration, options );
 
 		if ( scopeId === null ) {
-			return createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_SCOPE_ID );
+			return finalizeResult(
+				createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_SCOPE_ID ),
+				configuration,
+				finalize,
+			);
 		}
 
 		const canonicalSite = canonicalizeProtectedSite( siteInput, scopeId );
 
 		if ( canonicalSite.status === ProtectedSiteCanonicalizationStatus.REJECTED ) {
-			return createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_SITE );
+			return finalizeResult(
+				createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_SITE ),
+				configuration,
+				finalize,
+			);
 		}
 
 		const updatedSites = ProtectedSiteConfigurationSetSchema.safeParse( [
@@ -248,31 +298,50 @@ export function createProtectionConfigurationEditor(
 		] );
 
 		if ( ! updatedSites.success ) {
-			return createRejectedResult( ProtectionConfigurationEditRejectionReason.ALREADY_PROTECTED );
+			return finalizeResult(
+				createRejectedResult( ProtectionConfigurationEditRejectionReason.ALREADY_PROTECTED ),
+				configuration,
+				finalize,
+			);
 		}
 
-		return saveUpdatedResult( createUpdatedResult( {
+		const result = createUpdatedResult( {
 			...configuration,
 			sites: updatedSites.data,
 			schedulesByScope: reconcileProtectionScopeSchedules(
 				updatedSites.data,
 				configuration.schedulesByScope,
 			),
-		} ) );
+		} );
+
+		try {
+			await beforePersist?.( result.configuration );
+			await options.storage.save( result.configuration );
+		} catch ( error ) {
+			await finalizeFailedMutation( configuration, finalize );
+
+			throw error;
+		}
+
+		return finalizeResult( result, result.configuration, finalize );
 	}
 
 	/**
 	 * Queues one hostname or HTTP(S) URL addition.
 	 * @param siteInput - Unknown user-entered hostname or URL.
 	 * @param independent - Whether the site receives its own scope.
+	 * @param beforePersist - Optional verification performed immediately before persistence.
+	 * @param finalize - Optional effect completed before mutation coordination is released.
 	 * @return Serialized updated configuration or a stable rejection.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function add(
 		siteInput: unknown,
 		independent: boolean,
+		beforePersist?: ProtectionConfigurationEditPrePersist,
+		finalize?: ProtectionConfigurationEditFinalizer,
 	): Promise<ProtectionConfigurationEditResult> {
-		return serializeMutation( () => performAdd( siteInput, independent ) );
+		return serializeMutation( () => performAdd( siteInput, independent, beforePersist, finalize ) );
 	}
 
 	/**
@@ -360,39 +429,65 @@ export function createProtectionConfigurationEditor(
 	/**
 	 * Removes one exact protected-site identity.
 	 * @param identityHostInput - Unknown exact canonical identity.
+	 * @param finalize - Optional effect completed before mutation coordination is released.
 	 * @return Updated configuration or a stable rejection.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	async function performRemove( identityHostInput: unknown ): Promise<ProtectionConfigurationEditResult> {
+	async function performRemove(
+		identityHostInput: unknown,
+		finalize: ProtectionConfigurationEditFinalizer | undefined,
+	): Promise<ProtectionConfigurationEditResult> {
 		const configuration = await options.storage.load();
 
 		if ( configuration === null ) {
-			return createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION );
+			return finalizeResult(
+				createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION ),
+				configuration,
+				finalize,
+			);
 		}
 
 		const currentSite = findSite( configuration, identityHostInput );
 
 		if ( currentSite === undefined ) {
-			return createRejectedResult( ProtectionConfigurationEditRejectionReason.SITE_NOT_FOUND );
+			return finalizeResult(
+				createRejectedResult( ProtectionConfigurationEditRejectionReason.SITE_NOT_FOUND ),
+				configuration,
+				finalize,
+			);
 		}
 
 		const sites = configuration.sites.filter( ( site ) => site.identityHost !== currentSite.identityHost );
 
-		return saveUpdatedResult( createUpdatedResult( {
+		const result = createUpdatedResult( {
 			...configuration,
 			sites,
 			schedulesByScope: reconcileProtectionScopeSchedules( sites, configuration.schedulesByScope ),
-		} ) );
+		} );
+
+		try {
+			await options.storage.save( result.configuration );
+		} catch ( error ) {
+			await finalizeFailedMutation( configuration, finalize );
+
+			throw error;
+		}
+
+		return finalizeResult( result, result.configuration, finalize );
 	}
 
 	/**
 	 * Queues removal of one exact protected-site identity.
 	 * @param identityHostInput - Unknown exact canonical identity.
+	 * @param finalize - Optional effect completed before mutation coordination is released.
 	 * @return Serialized updated configuration or a stable rejection.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	function remove( identityHostInput: unknown ): Promise<ProtectionConfigurationEditResult> {
-		return serializeMutation( () => performRemove( identityHostInput ) );
+	function remove(
+		identityHostInput: unknown,
+		finalize?: ProtectionConfigurationEditFinalizer,
+	): Promise<ProtectionConfigurationEditResult> {
+		return serializeMutation( () => performRemove( identityHostInput, finalize ) );
 	}
 
 	/**
