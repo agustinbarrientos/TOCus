@@ -155,6 +155,19 @@ describe( 'tocus-f-protected-page-layer', () => {
 		field.remove();
 	} );
 
+	it( 'removes the layer entrance animation when the user requests reduced motion', async () => {
+		const element = await fixture<ComponentProtectedPageLayer>( html`
+			<tocus-f-protected-page-layer
+				data-tocus-reduced-motion="true"
+				.interruptionLayerPresented=${ true }
+			></tocus-f-protected-page-layer>
+		` );
+		const dialog = getShadowRoot( element ).querySelector( 'dialog' );
+
+		assert.instanceOf( dialog, HTMLDialogElement );
+		assert.equal( getComputedStyle( dialog ).animationName, 'none' );
+	} );
+
 	it( 'rejects presentation readiness while its modal is not requested', async () => {
 		const element = await fixture<ComponentProtectedPageLayer>( html`
 			<tocus-f-protected-page-layer></tocus-f-protected-page-layer>
