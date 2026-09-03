@@ -128,6 +128,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 		now: options.now,
 		reconcileExpiredAllowances: allowanceExpiryReconciler.reconcile,
 		reconcileUnavailableConfiguration,
+		releaseInterruptionPresentation: projector.releaseInterruptionPresentation,
 		refreshToolbarBadge: projector.refreshToolbarBadge,
 	} );
 	const focusReconciler = createProtectionFocusReconciler( {
