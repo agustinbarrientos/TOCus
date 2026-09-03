@@ -1,10 +1,21 @@
 import { browser } from 'wxt/browser';
 import { defineUnlistedScript } from 'wxt/utils/define-unlisted-script';
-import { ComponentProtectedPageLayer } from '../../features/interruption/components/protected-page-layer';
-import { createInterruptionPageController } from '../../features/interruption/services/interruption-page-controller';
-import { type InterruptionPageVisibility } from '../../features/interruption/services/interruption-page-controller/types';
-import { createProtectedPageLayerController } from '../../features/interruption/services/protected-page-layer-controller';
+import { createPreferencesStorageService } from '../../domains/preferences/services';
 import { type AllowanceId } from '../../domains/protection/types/protection-value';
+import { ComponentProtectedPageLayer } from '../../features/interruption/components/protected-page-layer';
+import {
+	createInterruptionPageController,
+	type InterruptionPageController,
+	type InterruptionPageVisibility,
+} from '../../features/interruption/services/interruption-page-controller';
+import {
+	createProtectedPageLayerController,
+	type ProtectedPageLayerController,
+} from '../../features/interruption/services/protected-page-layer-controller';
+import {
+	createPreferencesController,
+	type PreferencesController,
+} from '../../features/preferences/services/preferences-controller';
 import {
 	ProtectionClockRequestType,
 	type InterruptionPageRequest,
@@ -72,75 +83,105 @@ function getProtectedPageInitialization(): Promise<void> | null {
  */
 async function initializeProtectedPageLayer(): Promise<void> {
 	const layer = new ComponentProtectedPageLayer();
+	let interruptionController: InterruptionPageController | null = null;
+	let layerController: ProtectedPageLayerController | null = null;
+	let preferencesController: PreferencesController | null = null;
 
 	layer.connectionGuardEnabled = true;
+	layer.style.visibility = 'hidden';
 	document.documentElement.append( layer );
-	await layer.updateComplete;
-	const visibility: InterruptionPageVisibility = {
-		/**
-		 * Reports whether the live protected page and native interruption are both visible.
-		 * @return Current protected-page presentation visibility.
-		 * @since 0.1.0 Initial implementation.
-		 */
-		isDocumentVisible(): boolean {
-			return document.visibilityState === 'visible' && layer.isInterruptionPresentationVisible();
-		},
-		/**
-		 * Reports whether the protected document currently owns browser-window focus.
-		 * @return Whether focused progress may advance in the current browser window.
-		 * @since 0.1.0 Initial implementation.
-		 */
-		isWindowFocused(): boolean {
-			return document.hasFocus();
-		},
-	};
-	const interruptionController = createInterruptionPageController( {
-		clock: { now: getCurrentEpochMilliseconds },
-		documentTarget: document,
-		motionPreference: window.matchMedia( '(prefers-reduced-motion: reduce)' ),
-		runtime: { sendMessage: sendInterruptionPageRequest },
-		scheduler: window,
-		screen: layer.getInterruptionScreen(),
-		visibility,
-		windowTarget: window,
-	} );
-	const layerController = createProtectedPageLayerController( {
-		clock: { now: getCurrentEpochMilliseconds },
-		interruptionController,
-		reconcileAllowanceExpiry,
-		scheduler: window,
-		view: layer,
-	} );
 
-	/**
-	 * Routes one protected-page command through the local presentation controller.
-	 * @param input - Unknown extension message payload.
-	 * @param sender - Browser-provided sender details.
-	 * @param sendResponse - Browser response callback.
-	 * @return True while the asynchronous response remains pending.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	function handleProtectedPageMessage(
-		input: unknown,
-		sender: unknown,
-		sendResponse: ( response?: unknown ) => void,
-	): true {
-		void sender;
-		if ( ! layer.isConnected ) {
-			document.documentElement.append( layer );
+	try {
+		await layer.updateComplete;
+		const interruptionScreen = layer.getInterruptionScreen();
+		const preferencesStorage = createPreferencesStorageService( {
+			area: browser.storage.local,
+		} );
+
+		preferencesController = createPreferencesController( {
+			appearanceTarget: layer,
+			presentation: interruptionScreen,
+			storage: preferencesStorage,
+			storageChanges: browser.storage.onChanged,
+			systemMotionPreference: window.matchMedia( '(prefers-reduced-motion: reduce)' ),
+		} );
+		await preferencesController.start();
+		const visibility: InterruptionPageVisibility = {
+			/**
+			 * Reports whether the live protected page and native interruption are both visible.
+			 * @return Current protected-page presentation visibility.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			isDocumentVisible(): boolean {
+				return document.visibilityState === 'visible' && layer.isInterruptionPresentationVisible();
+			},
+			/**
+			 * Reports whether the protected document currently owns browser-window focus.
+			 * @return Whether focused progress may advance in the current browser window.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			isWindowFocused(): boolean {
+				return document.hasFocus();
+			},
+		};
+
+		interruptionController = createInterruptionPageController( {
+			clock: { now: getCurrentEpochMilliseconds },
+			documentTarget: document,
+			motionPreference: preferencesController,
+			runtime: { sendMessage: sendInterruptionPageRequest },
+			scheduler: window,
+			screen: interruptionScreen,
+			visibility,
+			windowTarget: window,
+		} );
+		layerController = createProtectedPageLayerController( {
+			clock: { now: getCurrentEpochMilliseconds },
+			interruptionController,
+			reconcileAllowanceExpiry,
+			scheduler: window,
+			view: layer,
+		} );
+		const activeLayerController = layerController;
+
+		/**
+		 * Routes one protected-page command through the local presentation controller.
+		 * @param input - Unknown extension message payload.
+		 * @param sender - Browser-provided sender details.
+		 * @param sendResponse - Browser response callback.
+		 * @return True while the asynchronous response remains pending.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		function handleProtectedPageMessage(
+			input: unknown,
+			sender: unknown,
+			sendResponse: ( response?: unknown ) => void,
+		): true {
+			void sender;
+			if ( ! layer.isConnected ) {
+				document.documentElement.append( layer );
+			}
+			void activeLayerController.handleMessage( input )
+				.then( ( response ) => {
+					sendResponse( response );
+				} )
+				.catch( () => {
+					sendResponse();
+				} );
+
+			return true;
 		}
-		void layerController.handleMessage( input )
-			.then( ( response ) => {
-				sendResponse( response );
-			} )
-			.catch( () => {
-				sendResponse();
-			} );
 
-		return true;
+		layer.style.removeProperty( 'visibility' );
+		browser.runtime.onMessage.addListener( handleProtectedPageMessage );
+	} catch ( error ) {
+		layerController?.stop();
+		interruptionController?.stop();
+		preferencesController?.stop();
+		layer.connectionGuardEnabled = false;
+		layer.remove();
+		throw error;
 	}
-
-	browser.runtime.onMessage.addListener( handleProtectedPageMessage );
 }
 
 /**
