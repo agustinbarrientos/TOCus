@@ -174,6 +174,8 @@ export default {
 			'src/domains/protection/services/protection-configuration-editor/**/*.ts',
 			'src/domains/protection/types/**/*.ts',
 			'src/domains/protection/utils/**/*.ts',
+			'src/features/protected-sites/services/protected-site-enrollment/**/*.ts',
+			'src/features/protected-sites/services/site-permission-manager/**/*.ts',
 			'src/features/protected-sites/utils/**/*.ts',
 			'src/features/interruption/services/focused-progress-clock/**/*.ts',
 			'src/features/interruption/utils/breathing-motion/**/*.ts',
