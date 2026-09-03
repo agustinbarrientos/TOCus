@@ -322,6 +322,7 @@ export function createBrowserProtectionProjector(
 		refreshFocusEffects,
 		refreshToolbarBadge,
 		releaseInjectedInterruption: pageProjector.releaseInjectedInterruption,
+		releaseInterruptionPresentation: pageProjector.releaseInterruptionPresentation,
 		releaseNavigationIfInterrupted: pageProjector.releaseNavigationIfInterrupted,
 		failOpen,
 	};
