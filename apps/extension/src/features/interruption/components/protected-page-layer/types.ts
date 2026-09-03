@@ -40,6 +40,6 @@ function formatDefaultAllowanceWarning( remainingSeconds: number ): string {
  */
 export const DefaultProtectedPageLayerCopy: Readonly<ProtectedPageLayerCopy> = {
 	allowanceWarningAnnouncement: 'Your visit window is ending soon.',
-	dialogLabel: 'TOCus breathing pause',
+	dialogLabel: 'TOCus pause',
 	formatAllowanceWarning: formatDefaultAllowanceWarning,
 };
