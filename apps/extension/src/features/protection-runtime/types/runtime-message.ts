@@ -13,6 +13,7 @@ export const InterruptionPageRequestType = {
 	CHECKPOINT: 'checkpoint',
 	CONNECT: 'connect',
 	CONTINUE: 'continue',
+	RECOVER: 'recover',
 	SYNCHRONIZE: 'synchronize',
 } as const;
 
@@ -42,6 +43,21 @@ export const ConnectInterruptionPageRequestSchema = z.object( {
  * @since 0.1.0 Initial implementation.
  */
 export type ConnectInterruptionPageRequest = z.infer<typeof ConnectInterruptionPageRequestSchema>;
+
+/**
+ * Validates an explicit interruption-page runtime recovery request.
+ * @since 0.1.0 Initial implementation.
+ */
+export const RecoverInterruptionPageRequestSchema = z.object( {
+	type: z.enum( [ InterruptionPageRequestType.RECOVER ] ),
+	documentVisible: z.boolean(),
+} ).strict();
+
+/**
+ * Explicit interruption-page runtime recovery request.
+ * @since 0.1.0 Initial implementation.
+ */
+export type RecoverInterruptionPageRequest = z.infer<typeof RecoverInterruptionPageRequestSchema>;
 
 /**
  * Validates an interruption-page synchronization request.
@@ -95,6 +111,7 @@ export type ContinueInterruptionPageRequest = z.infer<typeof ContinueInterruptio
  */
 export const InterruptionPageRequestSchema = z.discriminatedUnion( 'type', [
 	ConnectInterruptionPageRequestSchema,
+	RecoverInterruptionPageRequestSchema,
 	SynchronizeInterruptionPageRequestSchema,
 	CheckpointInterruptionPageRequestSchema,
 	ContinueInterruptionPageRequestSchema,
