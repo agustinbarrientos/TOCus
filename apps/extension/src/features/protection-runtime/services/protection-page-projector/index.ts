@@ -302,6 +302,30 @@ export function createProtectionPageProjector(
 	}
 
 	/**
+	 * Releases one interruption presentation that no longer has authoritative runtime state.
+	 * @param tabId - Browser tab containing the orphaned standalone page or injected layer.
+	 * @return Promise resolved after release or when the tab is no longer present.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function releaseInterruptionPresentation( tabId: number ): Promise<void> {
+		const tabs = await options.browser.listTabs();
+		const tab = tabs.find( ( candidate ) => candidate.id === tabId );
+
+		if ( tab === undefined ) {
+			return;
+		}
+
+		if ( isInterruptionTab( tab ) ) {
+			await releaseObservedInterruptionPage( tab, null );
+			return;
+		}
+
+		await options.browser.updateProtectedPagePresentation( tabId, {
+			type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER,
+		} );
+	}
+
+	/**
 	 * Removes an injected interruption only for one authoritative allowance-expiry participant.
 	 * @param participant - Known allowance-expiry participant retaining the injected page identity.
 	 * @return Promise resolved after removal or when the owned layer is no longer present.
@@ -388,6 +412,7 @@ export function createProtectionPageProjector(
 		applyDecisions,
 		releaseInjectedInterruption,
 		releaseInjectedInterruptions,
+		releaseInterruptionPresentation,
 		releaseInterruptionPages,
 		releaseNavigationIfInterrupted,
 	};
