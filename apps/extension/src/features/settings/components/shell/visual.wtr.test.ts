@@ -1,6 +1,8 @@
 import { assert, fixture, html } from '@open-wc/testing';
 import { emulateMedia, setViewport } from '@web/test-runner-commands';
 import { visualDiff } from '@web/test-runner-visual-regression';
+import { DefaultPreferencesDocument, type PreferencesDocument } from '../../../../domains/preferences/types';
+import { type PreferencesEditor } from '../../../../domains/preferences/services/preferences-editor';
 import {
 	createProtectionConfigurationEditor,
 	type ProtectionConfigurationEditResult,
@@ -27,6 +29,8 @@ import {
 } from '../../../protected-sites/services/site-permission-manager';
 import { ComponentProtectedSitesScreen } from '../../../protected-sites/components/screen';
 import { ComponentProtectedSiteItem } from '../../../protected-sites/components/site-item';
+import { ComponentAppearanceScreen } from '../appearance-screen';
+import { type PreferencesPreview } from '../appearance-screen/types';
 import { ComponentScheduleScreen } from '../schedule-screen';
 import { ComponentTimingScreen } from '../timing-screen';
 import './index';
@@ -94,6 +98,7 @@ const SETTINGS_VISUAL_STATES = [
 	'removal-confirmation',
 ] as const;
 const SETTINGS_VISUAL_DESTINATIONS = [
+	SettingsDestination.APPEARANCE,
 	SettingsDestination.SCHEDULE,
 	SettingsDestination.TIMING,
 ] as const;
@@ -147,6 +152,39 @@ class MemorySettingsVisualStorage implements ProtectionConfigurationStorageServi
 }
 
 /**
+ * In-memory preferences editor used by settings-shell visual fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
+class MemorySettingsVisualPreferencesEditor implements PreferencesEditor {
+	/**
+	 * Loads the safe default preferences.
+	 * @return Complete default preferences document.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	load(): Promise<PreferencesDocument> {
+		return Promise.resolve( DefaultPreferencesDocument );
+	}
+
+	/**
+	 * Returns default preferences for an unused fixture update.
+	 * @return Complete default preferences document.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	update(): Promise<PreferencesDocument> {
+		return Promise.resolve( DefaultPreferencesDocument );
+	}
+
+	/**
+	 * Returns default preferences for an unused fixture recovery action.
+	 * @return Complete default preferences document.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	restoreDefaults(): Promise<PreferencesDocument> {
+		return Promise.resolve( DefaultPreferencesDocument );
+	}
+}
+
+/**
  * Creates one deterministic independent scope for visual fixtures.
  * @return Stable independent protection scope identifier.
  * @since 0.1.0 Initial implementation.
@@ -177,6 +215,18 @@ function getFaviconSource(): null {
 }
 
 const FAVICON_PROVIDER: SiteFaviconProvider = { getSource: getFaviconSource };
+const PREFERENCES_EDITOR = new MemorySettingsVisualPreferencesEditor();
+
+/**
+ * Accepts one live preferences preview in settings-shell visual fixtures.
+ * @return Undefined fixture result.
+ * @since 0.1.0 Initial implementation.
+ */
+function applyPreferencesPreview(): undefined {
+	return undefined;
+}
+
+const PREFERENCES_PREVIEW: PreferencesPreview = { apply: applyPreferencesPreview };
 
 /**
  * Grants one configured site in visual fixtures.
@@ -315,6 +365,8 @@ async function renderSettingsState( state: SettingsVisualState ): Promise<Compon
 			.faviconProvider=${ FAVICON_PROVIDER }
 			.permissionManager=${ PERMISSION_MANAGER }
 			.platform=${ SettingsPlatform.CHROME }
+			.preferencesEditor=${ PREFERENCES_EDITOR }
+			.preferencesPreview=${ PREFERENCES_PREVIEW }
 		></tocus-f-settings-shell>
 	` );
 	const screen = await settleProtectedSitesScreen( shell );
@@ -335,7 +387,7 @@ async function renderSettingsState( state: SettingsVisualState ): Promise<Compon
 /**
  * Waits for one settings destination to finish its asynchronous initial read.
  * @param shell - Connected settings shell.
- * @param destination - Schedule or Timing destination expected to be active.
+ * @param destination - Appearance, Schedule, or Timing destination expected to be active.
  * @return Promise resolved after the active screen is ready.
  * @since 0.1.0 Initial implementation.
  */
@@ -347,12 +399,22 @@ async function settleSettingsDestination(
 		setTimeout( resolve, 0 );
 	} );
 
-	const screen = destination === SettingsDestination.SCHEDULE
-		? shell.shadowRoot?.querySelector( 'tocus-f-schedule-screen' )
-		: shell.shadowRoot?.querySelector( 'tocus-f-timing-screen' );
+	const screen = destination === SettingsDestination.APPEARANCE
+		? shell.shadowRoot?.querySelector( 'tocus-f-appearance-screen' )
+		: destination === SettingsDestination.SCHEDULE
+			? shell.shadowRoot?.querySelector( 'tocus-f-schedule-screen' )
+			: shell.shadowRoot?.querySelector( 'tocus-f-timing-screen' );
 
-	assert.isTrue( screen instanceof ComponentScheduleScreen || screen instanceof ComponentTimingScreen );
-	if ( ! ( screen instanceof ComponentScheduleScreen || screen instanceof ComponentTimingScreen ) ) {
+	assert.isTrue(
+		screen instanceof ComponentAppearanceScreen ||
+		screen instanceof ComponentScheduleScreen ||
+		screen instanceof ComponentTimingScreen,
+	);
+	if (
+		! ( screen instanceof ComponentAppearanceScreen ) &&
+		! ( screen instanceof ComponentScheduleScreen ) &&
+		! ( screen instanceof ComponentTimingScreen )
+	) {
 		throw new TypeError( `Expected the visual settings shell to render ${ destination }.` );
 	}
 
@@ -360,7 +422,7 @@ async function settleSettingsDestination(
 }
 
 /**
- * Renders one Schedule or Timing destination with representative local settings.
+ * Renders one Appearance, Schedule, or Timing destination with representative local settings.
  * @param destination - Settings destination to present.
  * @return Connected settings shell with its active screen ready.
  * @since 0.1.0 Initial implementation.
@@ -383,6 +445,8 @@ async function renderSettingsDestination(
 			.faviconProvider=${ FAVICON_PROVIDER }
 			.permissionManager=${ PERMISSION_MANAGER }
 			.platform=${ SettingsPlatform.CHROME }
+			.preferencesEditor=${ PREFERENCES_EDITOR }
+			.preferencesPreview=${ PREFERENCES_PREVIEW }
 		></tocus-f-settings-shell>
 	` );
 
