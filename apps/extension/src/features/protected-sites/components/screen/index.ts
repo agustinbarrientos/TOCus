@@ -4,7 +4,6 @@ import { keyed } from 'lit/directives/keyed.js';
 import { repeat } from 'lit/directives/repeat.js';
 import {
 	ProtectionConfigurationEditRejectionReason,
-	ProtectionConfigurationEditStatus,
 	type ProtectionConfigurationEditor,
 } from '../../../../domains/protection/services/protection-configuration-editor';
 import {
@@ -13,10 +12,21 @@ import {
 } from '../../../../domains/protection/types/protected-site-configuration';
 import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
 import { type SiteFaviconProvider } from '../../services/site-favicon-provider';
+import {
+	SitePermissionReleaseStatus,
+	type SitePermissionManager,
+} from '../../services/site-permission-manager';
+import {
+	ProtectedSiteEnrollmentStatus,
+	createProtectedSiteEnrollmentService,
+	type ProtectedSiteEnrollmentService,
+	type UnsuccessfulProtectedSiteEnrollmentResult,
+} from '../../services/protected-site-enrollment';
 import { resolveSiteDisplayIdentity } from '../../utils/site-display-name-resolver';
 import { ComponentProtectedSiteItem } from '../site-item';
 import {
 	ProtectedSiteConfigurationChangeKind,
+	type ProtectedSiteAccessRestoredEventDetail,
 	type ProtectedSiteConfigurationChangedEventDetail,
 } from '../site-item/types';
 import styles from './web-component-style.scss?inline';
@@ -53,6 +63,13 @@ export class ComponentProtectedSitesScreen extends LitElement {
 	accessor faviconProvider: SiteFaviconProvider | null = null;
 
 	/**
+	 * Browser permission manager used before persisting protection rules.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor permissionManager: SitePermissionManager | null = null;
+
+	/**
 	 * Complete localizable messages rendered by the screen.
 	 * @since 0.1.0 Initial implementation.
 	 */
@@ -76,6 +93,11 @@ export class ComponentProtectedSitesScreen extends LitElement {
 
 	@state()
 	private accessor saving = false;
+
+	@state()
+	private accessor accessByIdentityHost: ReadonlyMap<string, boolean> = new Map();
+
+	private accessRefreshGeneration = 0;
 
 	/**
 	 * Loads local protected-site configuration after all template properties are assigned.
@@ -110,11 +132,65 @@ export class ComponentProtectedSitesScreen extends LitElement {
 			}
 
 			this.configuration = configuration;
+			await this.refreshAccessState();
 			this.loadStatus = ProtectedSitesScreenLoadStatus.READY;
 		} catch {
 			this.configuration = null;
 			this.loadStatus = ProtectedSitesScreenLoadStatus.FAILED;
 		}
+	}
+
+	/**
+	 * Loads complete browser-access state for every configured site.
+	 * @param configuration - Validated local protection configuration.
+	 * @return Access state indexed by stable site identity.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private async loadSiteAccess(
+		configuration: ProtectionConfigurationDocument,
+	): Promise<ReadonlyMap<string, boolean>> {
+		if ( this.permissionManager === null ) {
+			return new Map( configuration.sites.map( ( site ) => [ site.identityHost, false ] ) );
+		}
+
+		const accessibleConfiguration = await this.permissionManager.filterConfiguration( configuration );
+		const accessibleIdentities = new Set(
+			accessibleConfiguration.sites.map( ( site ) => site.identityHost ),
+		);
+		const accessEntries = configuration.sites.map( ( site ) => [
+			site.identityHost,
+			accessibleIdentities.has( site.identityHost ),
+		] as const );
+
+		return new Map( accessEntries );
+	}
+
+	/**
+	 * Refreshes rendered browser-access state without reloading local configuration.
+	 * @return Committed access snapshot, or null when a newer state supersedes the request.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	public async refreshAccessState(): Promise<ReadonlyMap<string, boolean> | null> {
+		const generation = this.accessRefreshGeneration + 1;
+		const configuration = this.configuration;
+
+		this.accessRefreshGeneration = generation;
+		if ( configuration === null ) {
+			return null;
+		}
+
+		const accessByIdentityHost = await this.loadSiteAccess( configuration );
+
+		if (
+			generation !== this.accessRefreshGeneration ||
+			configuration !== this.configuration
+		) {
+			return null;
+		}
+
+		this.accessByIdentityHost = accessByIdentityHost;
+
+		return accessByIdentityHost;
 	}
 
 	/**
@@ -142,6 +218,59 @@ export class ComponentProtectedSitesScreen extends LitElement {
 	}
 
 	/**
+	 * Creates enrollment coordination from available screen dependencies.
+	 * @param editor - Domain editor used for protected-site persistence.
+	 * @param permissionManager - Browser permission manager used for site access.
+	 * @return Protected-site enrollment service.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private createEnrollmentService(
+		editor: ProtectionConfigurationEditor,
+		permissionManager: SitePermissionManager,
+	): ProtectedSiteEnrollmentService {
+		return createProtectedSiteEnrollmentService( { editor, permissionManager } );
+	}
+
+	/**
+	 * Resolves one presentation-neutral enrollment failure to localized copy.
+	 * @param result - Enrollment failure returned by the feature service.
+	 * @return Localized error message for manual entry.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private presentEnrollmentFailure( result: UnsuccessfulProtectedSiteEnrollmentResult ): string {
+		if ( result.status === ProtectedSiteEnrollmentStatus.REJECTED ) {
+			const messages = {
+				[ ProtectionConfigurationEditRejectionReason.ALREADY_PROTECTED ]:
+					this.copy.alreadyProtectedError,
+				[ ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION ]:
+					this.copy.invalidConfigurationError,
+				[ ProtectionConfigurationEditRejectionReason.INVALID_DISPLAY_NAME ]:
+					this.copy.invalidDisplayNameError,
+				[ ProtectionConfigurationEditRejectionReason.INVALID_SCHEDULE ]:
+					this.copy.invalidConfigurationError,
+				[ ProtectionConfigurationEditRejectionReason.INVALID_SCOPE_ID ]: this.copy.invalidScopeError,
+				[ ProtectionConfigurationEditRejectionReason.INVALID_SITE ]: this.copy.invalidSiteError,
+				[ ProtectionConfigurationEditRejectionReason.INVALID_TIMING_CONFIGURATION ]:
+					this.copy.invalidConfigurationError,
+				[ ProtectionConfigurationEditRejectionReason.SCOPE_NOT_FOUND ]:
+					this.copy.invalidConfigurationError,
+				[ ProtectionConfigurationEditRejectionReason.SITE_NOT_FOUND ]: this.copy.siteNotFoundError,
+			};
+
+			return messages[ result.reason ];
+		}
+
+		const messages = {
+			[ ProtectedSiteEnrollmentStatus.PERMISSION_DENIED ]: this.copy.permissionDeniedError,
+			[ ProtectedSiteEnrollmentStatus.PERMISSION_ERROR ]: this.copy.permissionRequestError,
+			[ ProtectedSiteEnrollmentStatus.PERMISSION_RETAINED ]: this.copy.permissionRetainedError,
+			[ ProtectedSiteEnrollmentStatus.SAVE_ERROR ]: this.copy.saveError,
+		};
+
+		return messages[ result.status ];
+	}
+
+	/**
 	 * Adds one manually entered website with the selected scope behavior.
 	 * @param event - Manual add-site form submission.
 	 * @since 0.1.0 Initial implementation.
@@ -149,56 +278,68 @@ export class ComponentProtectedSitesScreen extends LitElement {
 	private readonly handleAddSite = async ( event: ProtectedSitesAddSubmitEvent ): Promise<void> => {
 		event.preventDefault();
 
-		if ( this.saving || this.editor === null || this.configuration === null ) {
+		if (
+			this.saving ||
+			this.editor === null ||
+			this.permissionManager === null ||
+			this.configuration === null
+		) {
 			return;
 		}
 
+		const enrollmentService = this.createEnrollmentService( this.editor, this.permissionManager );
 		const form = event.currentTarget;
 		const formData = new FormData( form );
 		const siteInput = formData.get( 'site-address' );
 		const independent = formData.get( 'behavior' ) === 'independent';
-		const previousIdentityHosts = new Set( this.configuration.sites.map( ( site ) => site.identityHost ) );
 		this.saving = true;
 		this.siteInputError = '';
 
 		try {
-			const result = await this.editor.add( siteInput, independent );
+			const result = await enrollmentService.add( siteInput, independent );
 
-			if ( result.status === ProtectionConfigurationEditStatus.REJECTED ) {
-				const messages = {
-					[ ProtectionConfigurationEditRejectionReason.ALREADY_PROTECTED ]:
-						this.copy.alreadyProtectedError,
-					[ ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION ]:
-						this.copy.invalidConfigurationError,
-					[ ProtectionConfigurationEditRejectionReason.INVALID_DISPLAY_NAME ]:
-						this.copy.invalidDisplayNameError,
-					[ ProtectionConfigurationEditRejectionReason.INVALID_SCHEDULE ]:
-						this.copy.invalidConfigurationError,
-					[ ProtectionConfigurationEditRejectionReason.INVALID_SCOPE_ID ]: this.copy.invalidScopeError,
-					[ ProtectionConfigurationEditRejectionReason.INVALID_SITE ]: this.copy.invalidSiteError,
-					[ ProtectionConfigurationEditRejectionReason.INVALID_TIMING_CONFIGURATION ]:
-						this.copy.invalidConfigurationError,
-					[ ProtectionConfigurationEditRejectionReason.SCOPE_NOT_FOUND ]:
-						this.copy.invalidConfigurationError,
-					[ ProtectionConfigurationEditRejectionReason.SITE_NOT_FOUND ]: this.copy.siteNotFoundError,
-				};
-
-				this.siteInputError = messages[ result.reason ];
+			if ( result.status !== ProtectedSiteEnrollmentStatus.ADDED ) {
+				this.siteInputError = this.presentEnrollmentFailure( result );
 				return;
 			}
 
-			const addedSite = ProtectedSiteConfigurationSchema.parse(
-				result.configuration.sites.find( ( site ) => ! previousIdentityHosts.has( site.identityHost ) ),
-			);
-			const identity = resolveSiteDisplayIdentity( addedSite );
+			const identity = resolveSiteDisplayIdentity( result.site );
 			this.configuration = result.configuration;
+			this.accessByIdentityHost = new Map( this.accessByIdentityHost ).set(
+				result.site.identityHost,
+				true,
+			);
 			this.announce( this.copy.formatAddedAnnouncement( identity.name ) );
 			form.reset();
-		} catch {
-			this.siteInputError = this.copy.saveError;
 		} finally {
 			this.saving = false;
 		}
+	};
+
+	/**
+	 * Records restored browser access and announces the successful recovery.
+	 * @param event - Composed access-restoration event from one site item.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private readonly handleAccessRestored = async (
+		event: CustomEvent<ProtectedSiteAccessRestoredEventDetail>,
+	): Promise<void> => {
+		event.stopPropagation();
+		const site = this.configuration?.sites.find(
+			( candidate ) => candidate.identityHost === event.detail.identityHost,
+		);
+
+		if ( site === undefined ) {
+			return;
+		}
+
+		const accessByIdentityHost = await this.refreshAccessState();
+
+		if ( accessByIdentityHost?.get( site.identityHost ) !== true ) {
+			return;
+		}
+
+		this.announce( this.copy.formatAccessRestoredAnnouncement( resolveSiteDisplayIdentity( site ).name ) );
 	};
 
 	/**
@@ -219,9 +360,19 @@ export class ComponentProtectedSitesScreen extends LitElement {
 			identitySource?.sites.find( ( site ) => site.identityHost === detail.identityHost ),
 		);
 		const identity = resolveSiteDisplayIdentity( changedSite );
+		const permissionReleaseStatus = detail.kind === ProtectedSiteConfigurationChangeKind.REMOVED
+			? detail.permissionReleaseStatus
+			: SitePermissionReleaseStatus.RELEASED;
 		this.configuration = detail.configuration;
+		if ( detail.kind === ProtectedSiteConfigurationChangeKind.REMOVED ) {
+			const accessByIdentityHost = new Map( this.accessByIdentityHost );
+			accessByIdentityHost.delete( detail.identityHost );
+			this.accessByIdentityHost = accessByIdentityHost;
+		}
 		this.announce( detail.kind === ProtectedSiteConfigurationChangeKind.REMOVED
-			? this.copy.formatRemovedAnnouncement( identity.name )
+			? permissionReleaseStatus === SitePermissionReleaseStatus.RELEASED
+				? this.copy.formatRemovedAnnouncement( identity.name )
+				: this.copy.formatPermissionRetainedAnnouncement( identity.name )
 			: this.copy.formatUpdatedAnnouncement( identity.name ) );
 
 		await this.updateComplete;
@@ -254,6 +405,7 @@ export class ComponentProtectedSitesScreen extends LitElement {
 				site,
 				identity: resolveSiteDisplayIdentity( site ),
 				faviconSource: this.faviconProvider?.getSource( site.identityHost ) ?? null,
+				accessGranted: this.accessByIdentityHost.get( site.identityHost ) ?? false,
 			} ) )
 			.sort( ( first, second ) => first.identity.name.localeCompare( second.identity.name ) );
 	}
@@ -264,6 +416,7 @@ export class ComponentProtectedSitesScreen extends LitElement {
 	 * @param title - Localized group heading.
 	 * @param description - Localized group explanation.
 	 * @param sites - Presented sites belonging to the group.
+	 * @param enrollmentService - Coordinated site enrollment and removal operations.
 	 * @return Site-group template or an empty template.
 	 * @since 0.1.0 Initial implementation.
 	 */
@@ -272,6 +425,7 @@ export class ComponentProtectedSitesScreen extends LitElement {
 		title: string,
 		description: string,
 		sites: ReadonlyArray<PresentedProtectedSite>,
+		enrollmentService: ProtectedSiteEnrollmentService | null,
 	): TemplateResult {
 		if ( sites.length === 0 ) {
 			return html``;
@@ -290,7 +444,10 @@ export class ComponentProtectedSitesScreen extends LitElement {
 								.site=${ presentedSite.site }
 								.identity=${ presentedSite.identity }
 								.editor=${ this.editor }
+								.enrollmentService=${ enrollmentService }
 								.faviconSource=${ presentedSite.faviconSource }
+								.accessGranted=${ presentedSite.accessGranted }
+								.permissionManager=${ this.permissionManager }
 							></tocus-f-protected-site-item>
 						</li>
 					` ) }
@@ -302,10 +459,14 @@ export class ComponentProtectedSitesScreen extends LitElement {
 	/**
 	 * Renders loading, recovery, empty, or populated site content.
 	 * @param sites - Current sorted protected-site presentation.
+	 * @param enrollmentService - Coordinated site enrollment and removal operations.
 	 * @return Current screen-state template.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	private renderContent( sites: ReadonlyArray<PresentedProtectedSite> ): TemplateResult {
+	private renderContent(
+		sites: ReadonlyArray<PresentedProtectedSite>,
+		enrollmentService: ProtectedSiteEnrollmentService | null,
+	): TemplateResult {
 		if ( this.loadStatus === ProtectedSitesScreenLoadStatus.LOADING ) {
 			return html`<p class="loading-status" role="status">${ this.copy.loading }</p>`;
 		}
@@ -352,12 +513,14 @@ export class ComponentProtectedSitesScreen extends LitElement {
 					this.copy.sharedGroupTitle,
 					this.copy.sharedGroupDescription,
 					sharedSites,
+					enrollmentService,
 				) }
 				${ this.renderSiteGroup(
 					'independent-sites',
 					this.copy.independentGroupTitle,
 					this.copy.independentGroupDescription,
 					independentSites,
+					enrollmentService,
 				) }
 			</div>
 		`;
@@ -370,13 +533,20 @@ export class ComponentProtectedSitesScreen extends LitElement {
 	 */
 	protected override render(): TemplateResult {
 		const loading = this.loadStatus === ProtectedSitesScreenLoadStatus.LOADING;
-		const formDisabled = this.loadStatus !== ProtectedSitesScreenLoadStatus.READY || this.saving;
+		const formDisabled =
+			this.loadStatus !== ProtectedSitesScreenLoadStatus.READY ||
+			this.saving ||
+			this.permissionManager === null;
 		const sites = this.presentSites();
+		const enrollmentService = this.editor === null || this.permissionManager === null
+			? null
+			: this.createEnrollmentService( this.editor, this.permissionManager );
 
 		return html`
 			<main
 				aria-labelledby="protected-sites-title"
 				aria-busy=${ loading ? 'true' : 'false' }
+				@tocus-protected-site-access-restored=${ this.handleAccessRestored }
 				@tocus-protected-site-configuration-changed=${ this.handleConfigurationChanged }
 			>
 				<header>
@@ -427,7 +597,7 @@ export class ComponentProtectedSitesScreen extends LitElement {
 						</div>
 					</fieldset>
 				</form>
-				${ this.renderContent( sites ) }
+				${ this.renderContent( sites, enrollmentService ) }
 				<p class="announcement" role="status" aria-live="polite">
 					${ keyed(
 						this.announcementSequence,
