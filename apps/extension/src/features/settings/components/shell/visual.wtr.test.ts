@@ -19,6 +19,12 @@ import {
 } from '../../../../domains/protection/types/protection-schedule';
 import { DefaultProtectionScopeId, ProtectionScopeIdSchema } from '../../../../domains/protection/types/protection-value';
 import { type SiteFaviconProvider } from '../../../protected-sites/services/site-favicon-provider';
+import {
+	SitePermissionGrantProvenance,
+	SitePermissionReleaseStatus,
+	SitePermissionRequestStatus,
+	type SitePermissionManager,
+} from '../../../protected-sites/services/site-permission-manager';
 import { ComponentProtectedSitesScreen } from '../../../protected-sites/components/screen';
 import { ComponentProtectedSiteItem } from '../../../protected-sites/components/site-item';
 import { ComponentScheduleScreen } from '../schedule-screen';
@@ -173,6 +179,56 @@ function getFaviconSource(): null {
 const FAVICON_PROVIDER: SiteFaviconProvider = { getSource: getFaviconSource };
 
 /**
+ * Grants one configured site in visual fixtures.
+ * @return Successful existing-permission result.
+ * @since 0.1.0 Initial implementation.
+ */
+function requestSitePermission(): ReturnType<SitePermissionManager[ 'request' ]> {
+	return Promise.resolve( {
+		status: SitePermissionRequestStatus.GRANTED,
+		provenance: SitePermissionGrantProvenance.EXISTING,
+	} );
+}
+
+/**
+ * Releases one configured site in visual fixtures.
+ * @return Successful permission-release result.
+ * @since 0.1.0 Initial implementation.
+ */
+function releaseSitePermission(): ReturnType<SitePermissionManager[ 'release' ]> {
+	return Promise.resolve( SitePermissionReleaseStatus.RELEASED );
+}
+
+/**
+ * Returns the supplied configuration unchanged in visual settings fixtures.
+ * @param configuration - Validated persisted configuration.
+ * @return Unchanged configuration.
+ * @since 0.1.0 Initial implementation.
+ */
+function filterPermissionConfiguration(
+	configuration: ProtectionConfigurationDocument,
+): Promise<ProtectionConfigurationDocument> {
+	return Promise.resolve( configuration );
+}
+
+/**
+ * Reports complete browser access in default visual settings fixtures.
+ * @return True for the default granted-access fixture.
+ * @since 0.1.0 Initial implementation.
+ */
+function hasSiteAccess(): Promise<boolean> {
+	return Promise.resolve( true );
+}
+
+/** Permission manager used by settings-shell visual fixtures. */
+const PERMISSION_MANAGER: SitePermissionManager = {
+	filterConfiguration: filterPermissionConfiguration,
+	hasAccess: hasSiteAccess,
+	request: requestSitePermission,
+	release: releaseSitePermission,
+};
+
+/**
  * Waits for the Protected Sites screen to finish its asynchronous initial read.
  * @param shell - Connected settings shell.
  * @return Ready Protected Sites screen.
@@ -257,6 +313,7 @@ async function renderSettingsState( state: SettingsVisualState ): Promise<Compon
 		<tocus-f-settings-shell
 			.editor=${ editor }
 			.faviconProvider=${ FAVICON_PROVIDER }
+			.permissionManager=${ PERMISSION_MANAGER }
 			.platform=${ SettingsPlatform.CHROME }
 		></tocus-f-settings-shell>
 	` );
@@ -324,6 +381,7 @@ async function renderSettingsDestination(
 		<tocus-f-settings-shell
 			.editor=${ editor }
 			.faviconProvider=${ FAVICON_PROVIDER }
+			.permissionManager=${ PERMISSION_MANAGER }
 			.platform=${ SettingsPlatform.CHROME }
 		></tocus-f-settings-shell>
 	` );
