@@ -1,4 +1,8 @@
 import type { FocusedProgressClockTiming } from '../../services/focused-progress-clock/types';
+import {
+	PauseMode,
+	type PauseMode as PauseModeValue,
+} from '../../../../domains/preferences/types';
 
 /**
  * Presentation states supported by the interruption screen.
@@ -21,16 +25,13 @@ export type InterruptionScreenState = typeof InterruptionScreenState[ keyof type
  * Pause modes supported by the interruption screen.
  * @since 0.1.0 Initial implementation.
  */
-export const InterruptionScreenMode = {
-	BREATHING: 'breathing',
-	QUIET: 'quiet',
-} as const;
+export const InterruptionScreenMode = PauseMode;
 
 /**
  * Pause mode supported by the interruption screen.
  * @since 0.1.0 Initial implementation.
  */
-export type InterruptionScreenMode = typeof InterruptionScreenMode[ keyof typeof InterruptionScreenMode ];
+export type InterruptionScreenMode = PauseModeValue;
 
 /**
  * Polite announcement states retained across localized-copy changes.
@@ -40,6 +41,8 @@ export const InterruptionScreenAnnouncementKind = {
 	PAUSED: 'paused',
 	READY: 'ready',
 	READY_EXPIRED: 'ready-expired',
+	RECOVERY_FAILED: 'recovery-failed',
+	RECOVERY_STARTED: 'recovery-started',
 	RESUMED: 'resumed',
 	UNAVAILABLE: 'unavailable',
 	WAITING_STARTED: 'waiting-started',
@@ -72,12 +75,17 @@ export interface InterruptionScreenCopy {
 	pausedAnnouncement: string;
 	readyAnnouncement: string;
 	readyExpiredMessage: string;
+	recoveryFailedAnnouncement: string;
+	recoveryStartedAnnouncement: string;
+	retryLabel: string;
+	retryingLabel: string;
 	resumedAnnouncement: string;
 	spaceKeyLabel: string;
 	sphereAlternative: string;
 	stillSphereAlternative: string;
 	takeAMoment: string;
 	unavailableMessage: string;
+	unavailableTitle: string;
 	waitingStartedAnnouncement: string;
 }
 
@@ -120,16 +128,21 @@ export const DefaultInterruptionScreenCopy: Readonly<InterruptionScreenCopy> = {
 	continueLabel: 'Continue',
 	continueShortcut: 'Or press {key}',
 	formatRemainingTime: formatDefaultRemainingTime,
-	pausedAnnouncement: 'Your breathing pause is paused.',
+	pausedAnnouncement: 'Your pause is paused.',
 	readyAnnouncement: 'You can continue when you are ready.',
-	readyExpiredMessage: 'This visit window has ended. Start another breathing pause when you are ready.',
-	resumedAnnouncement: 'Your breathing pause has resumed.',
+	readyExpiredMessage: 'This visit window has ended. Start another pause when you are ready.',
+	recoveryFailedAnnouncement: 'TOCus still could not restore this pause.',
+	recoveryStartedAnnouncement: 'Trying to restore your pause.',
+	retryLabel: 'Try again',
+	retryingLabel: 'Trying again...',
+	resumedAnnouncement: 'Your pause has resumed.',
 	spaceKeyLabel: 'Space',
 	sphereAlternative: 'A soft clay sphere expands as you breathe in and settles as you breathe out.',
 	stillSphereAlternative: 'A soft clay sphere rests at the center of the screen.',
 	takeAMoment: 'Take a moment',
-	unavailableMessage: 'This pause could not be restored. You can go back and try again.',
-	waitingStartedAnnouncement: 'Your breathing pause has started.',
+	unavailableMessage: 'TOCus could not restore this pause.',
+	unavailableTitle: "Let's try that again",
+	waitingStartedAnnouncement: 'Your pause has started.',
 };
 
 /**
@@ -137,3 +150,9 @@ export const DefaultInterruptionScreenCopy: Readonly<InterruptionScreenCopy> = {
  * @since 0.1.0 Initial implementation.
  */
 export const InterruptionContinueRequestEventName = 'tocus-continue-request';
+
+/**
+ * Name of the plain retry-request event emitted by the unavailable recovery action.
+ * @since 0.1.0 Initial implementation.
+ */
+export const InterruptionRetryRequestEventName = 'tocus-retry-request';
