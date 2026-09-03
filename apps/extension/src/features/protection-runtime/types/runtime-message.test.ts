@@ -9,7 +9,7 @@ import {
 } from './runtime-message';
 
 describe( 'InterruptionPageRequestSchema', () => {
-	it( 'accepts connect and synchronization requests with current visibility', () => {
+	it( 'accepts connect, synchronization, and recovery requests with current visibility', () => {
 		expect( InterruptionPageRequestSchema.parse( {
 			type: InterruptionPageRequestType.CONNECT,
 			documentVisible: true,
@@ -23,6 +23,13 @@ describe( 'InterruptionPageRequestSchema', () => {
 		} ) ).toEqual( {
 			type: 'synchronize',
 			documentVisible: false,
+		} );
+		expect( InterruptionPageRequestSchema.parse( {
+			type: InterruptionPageRequestType.RECOVER,
+			documentVisible: true,
+		} ) ).toEqual( {
+			type: 'recover',
+			documentVisible: true,
 		} );
 	} );
 
