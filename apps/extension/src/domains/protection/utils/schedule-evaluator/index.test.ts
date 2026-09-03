@@ -1,6 +1,6 @@
 import { ZodError } from 'zod';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { evaluateSchedule } from './index';
+import { evaluateSchedule, getNextScheduleTransitionDeadline } from './index';
 
 const MONDAY_MIDNIGHT_NEW_YORK = 1_704_085_200_000;
 const MONDAY_UTC_0030 = 1_704_069_000_000;
@@ -22,6 +22,9 @@ const FALL_BACK_FIRST_0130 = 1_730_611_800_000;
 const FALL_BACK_SECOND_0130 = 1_730_615_400_000;
 const FALL_BACK_0200 = 1_730_617_200_000;
 const MAXIMUM_DATE_EPOCH_MILLISECONDS = 8_640_000_000_000_000;
+const SPRING_FORWARD_SECOND_SUNDAY_0210 = 1_710_655_800_000;
+const FALL_BACK_FIRST_0145 = 1_730_612_700_000;
+const FALL_BACK_SECOND_0100 = 1_730_613_600_000;
 
 afterEach( () => {
 	vi.restoreAllMocks();
@@ -352,5 +355,197 @@ describe( 'evaluateSchedule', () => {
 				windows: [ { weekday: 'Monday', startMinute: 0, endMinute: 60 } ],
 			} );
 		} );
+	} );
+} );
+
+describe( 'getNextScheduleTransitionDeadline', () => {
+	it( 'finds the exact next start from a sub-minute instant', () => {
+		expect( getNextScheduleTransitionDeadline( [ {
+			mode: 'custom',
+			windows: [ { weekday: 'Monday', startMinute: 600, endMinute: 660 } ],
+		} ], MONDAY_UTC_BEFORE_1000 - 29_999, 'UTC' ) ).toBe( MONDAY_UTC_1000 );
+	} );
+
+	it( 'finds the exclusive end when the schedule is already active', () => {
+		expect( getNextScheduleTransitionDeadline( [ {
+			mode: 'custom',
+			windows: [ { weekday: 'Monday', startMinute: 600, endMinute: 660 } ],
+		} ], MONDAY_UTC_1000, 'UTC' ) ).toBe( MONDAY_UTC_1100 );
+	} );
+
+	it( 'selects the earliest transition across independent schedules', () => {
+		expect( getNextScheduleTransitionDeadline( [
+			{
+				mode: 'custom',
+				windows: [ { weekday: 'Monday', startMinute: 660, endMinute: 720 } ],
+			},
+			{
+				mode: 'custom',
+				windows: [ { weekday: 'Monday', startMinute: 600, endMinute: 660 } ],
+			},
+		], MONDAY_UTC_BEFORE_1000, 'UTC' ) ).toBe( MONDAY_UTC_1000 );
+	} );
+
+	it( 'returns null when every schedule is permanently active', () => {
+		expect( getNextScheduleTransitionDeadline( [
+			{ mode: 'always' },
+			{
+				mode: 'custom',
+				windows: [
+					{ weekday: 'Monday', startMinute: 0, endMinute: 1_440 },
+					{ weekday: 'Tuesday', startMinute: 0, endMinute: 1_440 },
+					{ weekday: 'Wednesday', startMinute: 0, endMinute: 1_440 },
+					{ weekday: 'Thursday', startMinute: 0, endMinute: 1_440 },
+					{ weekday: 'Friday', startMinute: 0, endMinute: 1_440 },
+					{ weekday: 'Saturday', startMinute: 0, endMinute: 1_440 },
+					{ weekday: 'Sunday', startMinute: 0, endMinute: 1_440 },
+				],
+			},
+		], MONDAY_UTC_1000, 'UTC' ) ).toBeNull();
+	} );
+
+	it( 'returns null when the time zone is invalid', () => {
+		expect( getNextScheduleTransitionDeadline( [ {
+			mode: 'custom',
+			windows: [ { weekday: 'Monday', startMinute: 600, endMinute: 660 } ],
+		} ], MONDAY_UTC_1000, 'Not/A_Zone' ) ).toBeNull();
+	} );
+
+	it( 'returns null when the time-zone input is a fixed offset', () => {
+		expect( getNextScheduleTransitionDeadline( [ {
+			mode: 'custom',
+			windows: [ { weekday: 'Monday', startMinute: 600, endMinute: 660 } ],
+		} ], MONDAY_UTC_1000, '+01:00' ) ).toBeNull();
+	} );
+
+	it( 'finds the first real transition after a missing spring-forward start', () => {
+		expect( getNextScheduleTransitionDeadline( [ {
+			mode: 'custom',
+			windows: [ { weekday: 'Sunday', startMinute: 150, endMinute: 240 } ],
+		} ], SPRING_FORWARD_BEFORE_GAP, 'America/New_York' ) ).toBe( SPRING_FORWARD_AFTER_GAP );
+	} );
+
+	it( 'continues into the following week when a window is wholly skipped', () => {
+		expect( getNextScheduleTransitionDeadline( [ {
+			mode: 'custom',
+			windows: [ { weekday: 'Sunday', startMinute: 130, endMinute: 170 } ],
+		} ], SPRING_FORWARD_BEFORE_GAP, 'America/New_York' ) ).toBe( SPRING_FORWARD_SECOND_SUNDAY_0210 );
+	} );
+
+	it( 'finds the repeated fall-back activation caused by the clock rollback', () => {
+		expect( getNextScheduleTransitionDeadline( [ {
+			mode: 'custom',
+			windows: [ { weekday: 'Sunday', startMinute: 60, endMinute: 90 } ],
+		} ], FALL_BACK_FIRST_0145, 'America/New_York' ) ).toBe( FALL_BACK_SECOND_0100 );
+	} );
+
+	it( 'constructs one formatter for the complete multi-schedule scan', () => {
+		const NativeDateTimeFormat = Intl.DateTimeFormat;
+		const formatterSpy = vi.spyOn( Intl, 'DateTimeFormat' ).mockImplementation(
+			/**
+			 * Creates a native formatter while retaining a named constructor-compatible test double.
+			 * @param locales - Requested locales.
+			 * @param options - Requested date-time format options.
+			 * @return Native date-time formatter.
+			 */
+			function DateTimeFormat( locales, options ) {
+				return new NativeDateTimeFormat( locales, options );
+			},
+		);
+
+		expect( getNextScheduleTransitionDeadline( [
+			{
+				mode: 'custom',
+				windows: [ { weekday: 'Monday', startMinute: 600, endMinute: 660 } ],
+			},
+			{
+				mode: 'custom',
+				windows: [ { weekday: 'Tuesday', startMinute: 600, endMinute: 660 } ],
+			},
+		], MONDAY_UTC_BEFORE_1000, 'UTC' ) ).toBe( MONDAY_UTC_1000 );
+		expect( formatterSpy ).toHaveBeenCalledOnce();
+	} );
+
+	it( 'formats each candidate instant once regardless of the schedule count', () => {
+		const nativeFormatter = new Intl.DateTimeFormat( 'en-US-u-ca-iso8601-nu-latn', {
+			calendar: 'iso8601',
+			numberingSystem: 'latn',
+			weekday: 'long',
+			hour: '2-digit',
+			minute: '2-digit',
+			hourCycle: 'h23',
+			timeZone: 'UTC',
+		} );
+		const formatToParts = vi.spyOn( nativeFormatter, 'formatToParts' );
+
+		vi.spyOn( Intl, 'DateTimeFormat' ).mockImplementation(
+			/**
+			 * Returns one observable formatter for a bounded-work regression.
+			 * @return Observable date-time formatter.
+			 */
+			function DateTimeFormat() {
+				return nativeFormatter;
+			},
+		);
+		const schedules = Array.from( { length: 1_000 }, () => ( {
+			mode: 'custom' as const,
+			windows: [ { weekday: 'Monday' as const, startMinute: 600, endMinute: 660 } ],
+		} ) );
+
+		expect( getNextScheduleTransitionDeadline(
+			schedules,
+			MONDAY_UTC_BEFORE_1000,
+			'UTC',
+		) ).toBe( MONDAY_UTC_1000 );
+		expect( formatToParts.mock.calls.length ).toBeLessThan( 25 );
+	} );
+
+	it( 'locates a transition that occurs between absolute minute samples', () => {
+		const syntheticFormatter = new Intl.DateTimeFormat( 'en-US', { timeZone: 'UTC' } );
+		/**
+		 * Formats one instant around the synthetic local transition.
+		 * @param date - Candidate instant.
+		 * @return Synthetic local weekday and time parts.
+		 */
+		function formatSyntheticTransition(
+			date?: Parameters<Intl.DateTimeFormat[ 'formatToParts' ]>[ 0 ],
+		): Intl.DateTimeFormatPart[] {
+			const instant = Number( date );
+
+			return [
+				{ type: 'weekday', value: 'Monday' },
+				{ type: 'hour', value: instant < 30_000 ? '09' : '10' },
+				{ type: 'minute', value: instant < 30_000 ? '59' : '00' },
+			];
+		}
+		vi.spyOn( syntheticFormatter, 'formatToParts' ).mockImplementation( formatSyntheticTransition );
+		vi.spyOn( Intl, 'DateTimeFormat' ).mockImplementation(
+			/**
+			 * Returns a formatter with one synthetic sub-minute local transition.
+			 * @return Synthetic date-time formatter.
+			 */
+			function DateTimeFormat() {
+				return syntheticFormatter;
+			},
+		);
+
+		expect( getNextScheduleTransitionDeadline( [ {
+			mode: 'custom',
+			windows: [ { weekday: 'Monday', startMinute: 600, endMinute: 660 } ],
+		} ], 0, 'UTC' ) ).toBe( 30_000 );
+	} );
+
+	it( 'does not scan beyond the representable Date range', () => {
+		expect( getNextScheduleTransitionDeadline( [ {
+			mode: 'custom',
+			windows: [ { weekday: 'Monday', startMinute: 600, endMinute: 660 } ],
+		} ], MAXIMUM_DATE_EPOCH_MILLISECONDS, 'UTC' ) ).toBeNull();
+	} );
+
+	it( 'returns null when no transition exists before the Date range ends', () => {
+		expect( getNextScheduleTransitionDeadline( [ {
+			mode: 'custom',
+			windows: [ { weekday: 'Monday', startMinute: 600, endMinute: 660 } ],
+		} ], MAXIMUM_DATE_EPOCH_MILLISECONDS - 1, 'UTC' ) ).toBeNull();
 	} );
 } );
