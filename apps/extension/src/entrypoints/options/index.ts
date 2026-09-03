@@ -7,6 +7,13 @@ import {
 	type ProtectionConfigurationEditResult,
 	type ProtectionConfigurationMutation,
 } from '../../domains/protection/services';
+import {
+	PreferencesStorageKey,
+	createPreferencesEditor,
+	createPreferencesStorageService,
+	type PreferencesMutation,
+} from '../../domains/preferences/services';
+import { createPreferencesController } from '../../features/preferences/services/preferences-controller';
 import { ComponentSettingsShell } from '../../features/settings/components/shell';
 import { ComponentProtectedSitesScreen } from '../../features/protected-sites/components/screen';
 import { createSiteFaviconProvider } from '../../features/protected-sites/services/site-favicon-provider';
@@ -32,6 +39,19 @@ function coordinateProtectionConfigurationMutation(
 	mutation: ProtectionConfigurationMutation,
 ): Promise<ProtectionConfigurationEditResult> {
 	return navigator.locks.request( ProtectionConfigurationStorageKey.CONFIGURATION, mutation );
+}
+
+/**
+ * Runs one preferences mutation under the extension origin's shared storage lock.
+ * @template Result Mutation result returned after coordination.
+ * @param mutation - Deferred preferences mutation.
+ * @return Exact mutation result after exclusive cross-tab coordination.
+ * @since 0.1.0 Initial implementation.
+ */
+function coordinatePreferencesMutation<Result>(
+	mutation: PreferencesMutation<Result>,
+): Promise<Result> {
+	return navigator.locks.request( PreferencesStorageKey.PREFERENCES, mutation );
 }
 
 const settingsShellCandidate = document.querySelector( 'tocus-f-settings-shell' );
@@ -64,12 +84,25 @@ function handlePermissionChanged( change: Browser.permissions.Permissions ): voi
 	}
 }
 
-const storage = createProtectionConfigurationStorageService( {
+const protectionStorage = createProtectionConfigurationStorageService( {
 	area: browser.storage.local,
+} );
+const preferencesStorage = createPreferencesStorageService( {
+	area: browser.storage.local,
+} );
+const preferencesEditor = createPreferencesEditor( {
+	coordinateMutation: coordinatePreferencesMutation,
+	storage: preferencesStorage,
+} );
+const preferencesController = createPreferencesController( {
+	appearanceTarget: document.documentElement,
+	storage: preferencesStorage,
+	storageChanges: browser.storage.onChanged,
+	systemMotionPreference: window.matchMedia( '(prefers-reduced-motion: reduce)' ),
 } );
 
 settingsShell.editor = createProtectionConfigurationEditor( {
-	storage,
+	storage: protectionStorage,
 	createIndependentScopeId,
 	coordinateMutation: coordinateProtectionConfigurationMutation,
 } );
@@ -80,11 +113,28 @@ settingsShell.faviconProvider = createSiteFaviconProvider( {
 settingsShell.permissionManager = createSitePermissionManager( {
 	permissions: browser.permissions,
 } );
+settingsShell.preferencesEditor = preferencesEditor;
+settingsShell.preferencesPreview = preferencesController;
+settingsShell.preferencesSource = preferencesController;
 settingsShell.platform = import.meta.env.SAFARI
 	? 'safari'
 	: import.meta.env.FIREFOX
 		? 'firefox'
 		: 'chrome';
+
+/**
+ * Applies persisted preferences before revealing the settings document.
+ * @return Promise resolved after the initial preference projection.
+ * @since 0.1.0 Initial implementation.
+ */
+async function startPreferences(): Promise<void> {
+	await preferencesController.start();
+	document.documentElement.style.removeProperty( 'color-scheme' );
+	document.documentElement.style.removeProperty( 'background' );
+	document.documentElement.style.removeProperty( 'visibility' );
+}
+
+void startPreferences();
 
 browser.permissions.onAdded.addListener( handlePermissionChanged );
 browser.permissions.onRemoved.addListener( handlePermissionChanged );
