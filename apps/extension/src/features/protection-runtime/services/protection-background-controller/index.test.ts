@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { type BrowserProtectionRuntime } from '../browser-protection-runtime';
 import {
+	InterruptionPageRequestType,
 	ProtectionClockRequestType,
 	type InterruptionPageResponse,
 } from '../../types/runtime-message';
@@ -494,6 +495,77 @@ describe( 'createProtectionBackgroundController', () => {
 			type: 'connect',
 			documentVisible: true,
 		}, 7 );
+	} );
+
+	it( 'restarts the permitted runtime before routing explicit recovery', async () => {
+		const harness = createHarness();
+		const response: InterruptionPageResponse = { state: 'unavailable' };
+		const sendResponse = vi.fn();
+
+		harness.handlePageRequest.mockResolvedValue( response );
+		harness.controller.start();
+		await vi.waitFor( () => {
+			expect( harness.start ).toHaveBeenCalledOnce();
+		} );
+		harness.start.mockClear();
+		harness.containsPermission.mockClear();
+
+		expect( harness.message.emit( {
+			type: InterruptionPageRequestType.RECOVER,
+			documentVisible: true,
+		}, {
+			frameId: 0,
+			tab: { id: 7 },
+			url: INTERRUPTION_PAGE_URL,
+		}, sendResponse ) ).toBe( true );
+		await vi.waitFor( () => {
+			expect( sendResponse ).toHaveBeenCalledWith( response );
+		} );
+
+		expect( harness.containsPermission ).toHaveBeenCalledWith( {
+			permissions: [ 'webNavigation' ],
+		} );
+		expect( harness.start ).toHaveBeenCalledOnce();
+		expect( harness.start.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+			harness.handlePageRequest.mock.invocationCallOrder[ 0 ] ?? Number.POSITIVE_INFINITY,
+		);
+		expect( harness.handlePageRequest ).toHaveBeenCalledWith( {
+			type: InterruptionPageRequestType.RECOVER,
+			documentVisible: true,
+		}, 7 );
+	} );
+
+	it( 'applies a permission removal after an older recovery lookup', async () => {
+		const harness = createHarness();
+		const permissionResult = new DeferredPermissionResult();
+		const sendResponse = vi.fn();
+
+		harness.controller.start();
+		await vi.waitFor( () => {
+			expect( harness.start ).toHaveBeenCalledOnce();
+		} );
+		harness.start.mockClear();
+		harness.failOpen.mockClear();
+		harness.containsPermission.mockReturnValue( permissionResult.promise );
+
+		expect( harness.message.emit( {
+			type: InterruptionPageRequestType.RECOVER,
+			documentVisible: true,
+		}, {
+			frameId: 0,
+			tab: { id: 7 },
+			url: INTERRUPTION_PAGE_URL,
+		}, sendResponse ) ).toBe( true );
+		harness.permissionRemoval.emit( { permissions: [ 'webNavigation' ] } );
+		permissionResult.resolve( true );
+
+		await vi.waitFor( () => {
+			expect( harness.start ).toHaveBeenCalledOnce();
+			expect( harness.failOpen ).toHaveBeenCalledOnce();
+		} );
+		expect( harness.start.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+			harness.failOpen.mock.invocationCallOrder[ 0 ] ?? Number.POSITIVE_INFINITY,
+		);
 	} );
 
 	it( 'routes a protected page local expiry guard through authoritative clock reconciliation', async () => {
