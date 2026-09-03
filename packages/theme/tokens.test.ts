@@ -42,6 +42,18 @@ function compileTokens(): string {
 	return sass.compileString( "@use 'tokens';", { loadPaths: [ themeRoot ] } ).css;
 }
 
+/**
+ * Compiles theme tokens for one isolated Shadow DOM host.
+ * @return Compiled host-scoped theme-token CSS.
+ * @since 0.1.0 Initial implementation.
+ */
+function compileHostTokens(): string {
+	return sass.compileString(
+		"@use 'tokens' with ($selector: ':host');",
+		{ loadPaths: [ themeRoot ] },
+	).css;
+}
+
 describe( 'theme color tokens', () => {
 	it( 'provides complete static fallbacks before progressive color mixing', () => {
 		const css = compileTokens();
@@ -59,6 +71,19 @@ describe( 'theme color tokens', () => {
 
 		for ( const token of FALLBACK_COLOR_TOKENS ) {
 			expect( fallbackCss ).toContain( `${ token }:` );
+		}
+	} );
+
+	it( 'can scope the complete theme to an isolated component host', () => {
+		const css = compileHostTokens();
+
+		expect( css ).toContain( ':host {' );
+		expect( css ).toContain( ':host[data-tocus-theme=dark]' );
+		expect( css ).toContain( ':host[data-tocus-palette=green]' );
+		expect( css ).not.toContain( ':root' );
+
+		for ( const token of FALLBACK_COLOR_TOKENS ) {
+			expect( css ).toContain( `${ token }:` );
 		}
 	} );
 } );
