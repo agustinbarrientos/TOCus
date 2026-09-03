@@ -50,6 +50,13 @@ export interface InterruptionRequestHandlerOptions {
 	 */
 	reconcileExpiredAllowances( configuration: ProtectionConfigurationDocument ): Promise<void>;
 	/**
+	 * Releases one interruption presentation that no longer has authoritative runtime state.
+	 * @param tabId - Browser tab containing the orphaned presentation.
+	 * @return Promise resolved after local release or a verified stale-tab race.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	releaseInterruptionPresentation( tabId: number ): Promise<void>;
+	/**
 	 * Refreshes the global toolbar badge from authoritative state.
 	 * @param configuration - Current validated configuration.
 	 * @param statesByScope - Current authoritative state snapshot.

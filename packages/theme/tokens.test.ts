@@ -28,6 +28,12 @@ const FALLBACK_COLOR_TOKENS = [
 	'--tocus-color-surface-lowest',
 	'--tocus-color-on-surface',
 	'--tocus-color-outline',
+	'--tocus-color-palette-preview-blue',
+	'--tocus-color-palette-preview-brown',
+	'--tocus-color-palette-preview-green',
+	'--tocus-color-palette-preview-orange',
+	'--tocus-color-palette-preview-pink',
+	'--tocus-color-palette-preview-purple',
 	'--tocus-shadow-soft',
 ] as const;
 

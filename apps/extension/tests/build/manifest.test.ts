@@ -94,6 +94,17 @@ function expectSquarePng( icon: Buffer, expectedSize: number ): void {
 }
 
 /**
+ * Verifies that an extension document starts on a hidden, non-bright canvas until preferences load.
+ * @param html - Generated extension document markup.
+ * @since 0.1.0 Initial implementation.
+ */
+function expectPreferencesBootstrap( html: string ): void {
+	expect( html ).toContain( 'color-scheme: dark' );
+	expect( html ).toContain( 'background: Canvas' );
+	expect( html ).toContain( 'visibility: hidden' );
+}
+
+/**
  * Verifies that the generated popup loads the expected shell component.
  * @param outputUrl - Browser output-directory URL.
  * @return Promise resolved after all popup-composition assertions pass.
@@ -103,6 +114,7 @@ async function expectPopupComposition( outputUrl: URL ): Promise<void> {
 	const moduleScript = popupHtml.match( /<script\s[^>]*type="module"[^>]*src="([^"]+)"/u );
 	const moduleSource = moduleScript?.[ 1 ];
 
+	expectPreferencesBootstrap( popupHtml );
 	expect( popupHtml ).toContain( '<tocus-f-popup-shell>' );
 	expect( moduleSource ).toBeDefined();
 
@@ -126,6 +138,7 @@ async function expectOptionsComposition( outputUrl: URL ): Promise<void> {
 	const moduleScript = optionsHtml.match( /<script\s[^>]*type="module"[^>]*src="([^"]+)"/u );
 	const moduleSource = moduleScript?.[ 1 ];
 
+	expectPreferencesBootstrap( optionsHtml );
 	expect( optionsHtml ).toContain( '<tocus-f-settings-shell>' );
 	expect( moduleSource ).toBeDefined();
 
@@ -148,6 +161,7 @@ async function expectInterruptionComposition( outputUrl: URL ): Promise<void> {
 	const moduleScript = interruptionHtml.match( /<script\s[^>]*type="module"[^>]*src="([^"]+)"/u );
 	const moduleSource = moduleScript?.[ 1 ];
 
+	expectPreferencesBootstrap( interruptionHtml );
 	expect( interruptionHtml ).toContain( '<tocus-f-interruption-screen>' );
 	expect( moduleSource ).toBeDefined();
 

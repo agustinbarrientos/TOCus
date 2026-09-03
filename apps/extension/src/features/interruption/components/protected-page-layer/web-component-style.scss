@@ -27,6 +27,10 @@ dialog {
 	}
 }
 
+:host([data-tocus-reduced-motion='true']) dialog[open] {
+	animation: none;
+}
+
 @keyframes protected-page-layer-enter {
 	from {
 		opacity: 0;

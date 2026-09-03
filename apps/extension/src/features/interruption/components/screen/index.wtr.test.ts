@@ -1,9 +1,11 @@
 import { assert, expect, fixture, html, oneEvent } from '@open-wc/testing';
 import { emulateMedia, sendKeys, setViewport } from '@web/test-runner-commands';
+import { Palette, ThemeMode } from '../../../../domains/preferences/types';
 import { ComponentInterruptionScreen } from './index';
 import {
 	DefaultInterruptionScreenCopy,
 	InterruptionContinueRequestEventName,
+	InterruptionRetryRequestEventName,
 	InterruptionScreenMode,
 	InterruptionScreenState,
 } from './types';
@@ -52,6 +54,22 @@ function getContinueButton( element: ComponentInterruptionScreen ): HTMLButtonEl
 	assert.instanceOf( button, HTMLButtonElement );
 	if ( ! ( button instanceof HTMLButtonElement ) ) {
 		throw new Error( 'Expected the Ready screen to render a Continue button.' );
+	}
+
+	return button;
+}
+
+/**
+ * Returns the rendered recovery button.
+ * @param element - Unavailable interruption screen.
+ * @return Recovery button.
+ */
+function getRetryButton( element: ComponentInterruptionScreen ): HTMLButtonElement {
+	const button = getShadowRoot( element ).querySelector( '.retry-button' );
+
+	assert.instanceOf( button, HTMLButtonElement );
+	if ( ! ( button instanceof HTMLButtonElement ) ) {
+		throw new Error( 'Expected the Unavailable screen to render a retry button.' );
 	}
 
 	return button;
@@ -154,12 +172,23 @@ describe( 'tocus-f-interruption-screen', () => {
 		const brandIcon = shadowRoot.querySelector( '.brand svg' );
 		const remaining = getRequiredElement( element, '.remaining' );
 		const bounds = element.getBoundingClientRect();
+		const sceneBounds = scene.getBoundingClientRect();
+		const bloomStyle = getComputedStyle( scene, '::before' );
+		const radialGradientCount = ( bloomStyle.backgroundImage.match( /radial-gradient/gu ) ?? [] ).length;
 
 		assert.deepEqual( directRegions, [ 'HEADER', 'MAIN', 'FOOTER' ] );
+		for ( const region of scene.children ) {
+			assert.equal( getComputedStyle( region ).backgroundColor, 'rgba(0, 0, 0, 0)' );
+			assert.equal( getComputedStyle( region ).backgroundImage, 'none' );
+		}
 		assert.equal( bounds.left, 0 );
 		assert.equal( bounds.top, 0 );
 		assert.equal( bounds.width, window.innerWidth );
 		assert.equal( bounds.height, window.innerHeight );
+		assert.equal( sceneBounds.left, 0 );
+		assert.equal( sceneBounds.top, 0 );
+		assert.equal( sceneBounds.width, window.innerWidth );
+		assert.equal( sceneBounds.height, window.innerHeight );
 		assert.equal( scene.getAttribute( 'tabindex' ), '0' );
 		assert.instanceOf( sphere, HTMLElement );
 		assert.instanceOf( brandIcon, SVGElement );
@@ -173,7 +202,41 @@ describe( 'tocus-f-interruption-screen', () => {
 		assert.equal( shadowRoot.querySelector( 'button' ), null );
 		assert.equal( shadowRoot.querySelector( '[data-design-control]' ), null );
 		assert.include( getComputedStyle( scene ).backgroundImage, 'gradient' );
+		assert.equal( radialGradientCount, 1 );
+		assert.equal( bloomStyle.backgroundRepeat, 'no-repeat' );
 		await expect( element ).to.be.accessible();
+	} );
+
+	it( 'drives the full-screen bloom from the breathing progress', async () => {
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen></tocus-f-interruption-screen>
+		` );
+		const scene = getRequiredElement( element, '.scene' );
+		const sphere = getShadowRoot( element ).querySelector( 'tocus-f-breathing-sphere' );
+		const restingStyle = getComputedStyle( scene, '::before' );
+		const restingOpacity = restingStyle.opacity;
+		const restingTransform = restingStyle.transform;
+
+		assert.notEqual( sphere, null );
+		if ( sphere === null ) {
+			throw new Error( 'Expected the Waiting screen to render a Breathing Sphere.' );
+		}
+
+		assert.equal( Number( getComputedStyle( scene ).getPropertyValue( '--tocus-breath-progress' ) ), sphere.breathProgress );
+
+		element.focusedProgressMilliseconds = 2_000;
+		await element.updateComplete;
+
+		const breathingStyle = getComputedStyle( scene, '::before' );
+
+		assert.approximately( sphere.breathProgress, 0.5, 1e-12 );
+		assert.approximately(
+			Number( getComputedStyle( scene ).getPropertyValue( '--tocus-breath-progress' ) ),
+			sphere.breathProgress,
+			1e-12,
+		);
+		assert.notEqual( breathingStyle.opacity, restingOpacity );
+		assert.notEqual( breathingStyle.transform, restingTransform );
 	} );
 
 	it( 'renders Quiet pause and complete localized strings without shortening the wait', async () => {
@@ -191,13 +254,29 @@ describe( 'tocus-f-interruption-screen', () => {
 				.focusedProgressMilliseconds=${ 4_000 }
 			></tocus-f-interruption-screen>
 		` );
-		const sphere = getRequiredElement( element, 'tocus-f-breathing-sphere' );
+		const sphere = getShadowRoot( element ).querySelector( 'tocus-f-breathing-sphere' );
+		const scene = getRequiredElement( element, '.scene' );
+
+		assert.notEqual( sphere, null );
+		if ( sphere === null ) {
+			throw new Error( 'Expected the Quiet screen to render a Breathing Sphere.' );
+		}
 
 		assert.equal( getRequiredElement( element, '.cue' ).textContent.trim(), copy.takeAMoment );
 		assert.equal( getRequiredElement( element, '.remaining' ).textContent.trim(), 'Noch 6 Sekunden' );
 		assert.equal( getRequiredElement( element, 'footer' ).textContent.trim(), 'Du hast dir heute mindestens drei Stunden geschenkt.' );
 		assert.equal( getRequiredElement( element, '.sphere-alternative' ).textContent.trim(), copy.stillSphereAlternative );
+		assert.equal(
+			getRequiredElement( element, '[aria-live]' ).textContent.trim(),
+			DefaultInterruptionScreenCopy.waitingStartedAnnouncement,
+		);
+		assert.notInclude( getRequiredElement( element, '[aria-live]' ).textContent.toLowerCase(), 'breath' );
 		assert.equal( sphere.hasAttribute( 'still' ), true );
+		assert.equal( sphere.breathProgress, 0 );
+		assert.equal( Number( getComputedStyle( scene ).getPropertyValue( '--tocus-breath-progress' ) ), sphere.breathProgress );
+		element.state = InterruptionScreenState.READY_EXPIRED;
+		await element.updateComplete;
+		assert.notInclude( getRequiredElement( element, '.status-message' ).textContent.toLowerCase(), 'breath' );
 		await expect( element ).to.be.accessible();
 	} );
 
@@ -211,6 +290,11 @@ describe( 'tocus-f-interruption-screen', () => {
 		assert.equal( sphere.hasAttribute( 'still' ), true );
 		assert.equal( getRequiredElement( element, '.sphere-alternative' ).textContent.trim(), DefaultInterruptionScreenCopy.stillSphereAlternative );
 		assert.equal( getComputedStyle( sphereShell ).transitionDuration, '0s' );
+
+		element.state = InterruptionScreenState.UNAVAILABLE;
+		await element.updateComplete;
+
+		assert.equal( getComputedStyle( getRetryButton( element ) ).transitionDuration, '0s' );
 	} );
 
 	it( 'keeps authoritative Waiting at zero without revealing Continue', async () => {
@@ -347,25 +431,129 @@ describe( 'tocus-f-interruption-screen', () => {
 		assert.equal( requestCount, 0 );
 	} );
 
-	it( 'shows and focuses a distinct unavailable status without Continue', async () => {
+	it( 'shows a compact branded recovery action when automatic recovery is unavailable', async () => {
 		const element = await fixture<ComponentInterruptionScreen>( html`
 			<tocus-f-interruption-screen
 				.state=${ InterruptionScreenState.UNAVAILABLE }
 			></tocus-f-interruption-screen>
 		` );
-		const status = getRequiredElement( element, '.status-message' );
+		const shadowRoot = getShadowRoot( element );
+		const card = getRequiredElement( element, '.recovery-card' );
+		const stage = getRequiredElement( element, '.stage' );
+		const button = getRetryButton( element );
+		const brandIcon = card.querySelector( 'svg' );
 		const sphereShell = getRequiredElement( element, '.sphere-shell' );
+		const cardBounds = card.getBoundingClientRect();
+		const stageBounds = stage.getBoundingClientRect();
 
 		await element.updateComplete;
-		assert.equal( getShadowRoot( element ).querySelector( 'button' ), null );
-		assert.equal( getShadowRoot( element ).activeElement, status );
+		assert.equal( shadowRoot.activeElement, button );
+		assert.equal( shadowRoot.querySelector( '.continue-button' ), null );
+		assert.instanceOf( brandIcon, SVGElement );
+		assert.equal( brandIcon.getAttribute( 'viewBox' ), '0 0 64 64' );
+		assert.equal( getRequiredElement( element, '.recovery-title' ).textContent.trim(), "Let's try that again" );
+		assert.equal( getRequiredElement( element, '.recovery-message' ).textContent.trim(), 'TOCus could not restore this pause.' );
+		assert.equal( button.textContent.trim(), 'Try again' );
+		assert.isFalse( button.disabled );
+		assert.equal( card.getAttribute( 'aria-busy' ), null );
+		assert.isBelow( cardBounds.width, stageBounds.width );
+		assert.isBelow( cardBounds.height, stageBounds.height );
+		assert.notEqual( getComputedStyle( card ).backgroundColor, 'rgba(0, 0, 0, 0)' );
+		assert.notEqual( getComputedStyle( card ).borderTopStyle, 'none' );
 		assert.equal( getComputedStyle( sphereShell ).opacity, '0' );
-		assert.equal( status.textContent.trim(), DefaultInterruptionScreenCopy.unavailableMessage );
 		assert.equal(
 			getRequiredElement( element, '[aria-live]' ).textContent.trim(),
-			DefaultInterruptionScreenCopy.unavailableMessage,
+			'TOCus could not restore this pause.',
 		);
 		await expect( element ).to.be.accessible();
+	} );
+
+	it( 'emits one plain bubbling recovery request from the retry button', async () => {
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen
+				.state=${ InterruptionScreenState.UNAVAILABLE }
+			></tocus-f-interruption-screen>
+		` );
+		const eventPromise = oneEvent( element, InterruptionRetryRequestEventName );
+
+		getRetryButton( element ).click();
+		const event = await eventPromise;
+
+		assert.equal( event.bubbles, true );
+		assert.equal( event.composed, true );
+		assert.equal( event.constructor, Event );
+	} );
+
+	it( 'disables repeated recovery requests while recovery is pending', async () => {
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen
+				.state=${ InterruptionScreenState.UNAVAILABLE }
+			></tocus-f-interruption-screen>
+		` );
+		let requestCount = 0;
+
+		element.addEventListener( InterruptionRetryRequestEventName, () => {
+			requestCount += 1;
+			element.recovering = true;
+		} );
+		const button = getRetryButton( element );
+
+		button.click();
+		await element.updateComplete;
+		button.dispatchEvent( new MouseEvent( 'click', { bubbles: true } ) );
+
+		assert.equal( requestCount, 1 );
+		assert.equal( getShadowRoot( element ).activeElement?.className, 'scene' );
+		assert.isTrue( button.disabled );
+		assert.equal( button.textContent.trim(), 'Trying again...' );
+		assert.equal( getRequiredElement( element, '.recovery-card' ).getAttribute( 'aria-busy' ), 'true' );
+		assert.equal( getRequiredElement( element, '.scene' ).getAttribute( 'tabindex' ), '0' );
+		await expect( element ).to.be.accessible();
+	} );
+
+	it( 'restores retry focus after recovery remains unavailable', async () => {
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen
+				.state=${ InterruptionScreenState.UNAVAILABLE }
+				.recovering=${ true }
+			></tocus-f-interruption-screen>
+		` );
+
+		element.recovering = false;
+		await element.updateComplete;
+
+		assert.equal( getShadowRoot( element ).activeElement, getRetryButton( element ) );
+	} );
+
+	it( 'moves focus to the Waiting scene after recovery succeeds', async () => {
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen
+				.state=${ InterruptionScreenState.UNAVAILABLE }
+			></tocus-f-interruption-screen>
+		` );
+
+		await element.updateComplete;
+		element.state = InterruptionScreenState.WAITING;
+		await element.updateComplete;
+
+		assert.equal( getShadowRoot( element ).activeElement?.className, 'scene' );
+	} );
+
+	it( 'announces recovery progress and a recoverable failure', async () => {
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen
+				.state=${ InterruptionScreenState.UNAVAILABLE }
+			></tocus-f-interruption-screen>
+		` );
+		const liveRegion = getRequiredElement( element, '[aria-live]' );
+
+		element.recovering = true;
+		await element.updateComplete;
+		assert.equal( liveRegion.textContent.trim(), 'Trying to restore your pause.' );
+
+		element.recovering = false;
+		await element.updateComplete;
+		assert.equal( liveRegion.textContent.trim(), 'TOCus still could not restore this pause.' );
 	} );
 
 	it( 'places the localized Space key inside a complete shortcut template', async () => {
@@ -403,30 +591,37 @@ describe( 'tocus-f-interruption-screen', () => {
 		);
 	} );
 
-	it( 'remains perceivable with the real dark palette', async () => {
-		document.documentElement.setAttribute( 'data-tocus-theme', 'dark' );
-		await emulateMedia( { colorScheme: 'dark', forcedColors: 'none' } );
-		const element = await fixture<ComponentInterruptionScreen>( html`
-			<tocus-f-interruption-screen></tocus-f-interruption-screen>
-		` );
+	it( 'maintains brand contrast across every palette and appearance', async () => {
+		const themes = [ ThemeMode.LIGHT, ThemeMode.DARK ];
 
-		const shadowRoot = getShadowRoot( element );
-		const scene = getRequiredElement( element, '.scene' );
-		const brand = getRequiredElement( element, '.brand' );
-		const stageColorProbe = document.createElement( 'span' );
+		for ( const theme of themes ) {
+			for ( const palette of Object.values( Palette ) ) {
+				document.documentElement.setAttribute( 'data-tocus-palette', palette );
+				document.documentElement.setAttribute( 'data-tocus-theme', theme );
+				await emulateMedia( { colorScheme: theme, forcedColors: 'none' } );
+				const element = await fixture<ComponentInterruptionScreen>( html`
+					<tocus-f-interruption-screen></tocus-f-interruption-screen>
+				` );
+				const shadowRoot = getShadowRoot( element );
+				const scene = getRequiredElement( element, '.scene' );
+				const brand = getRequiredElement( element, '.brand' );
+				const stageColorProbe = document.createElement( 'span' );
 
-		stageColorProbe.style.backgroundColor = 'var(--tocus-color-stage-start)';
-		shadowRoot.append( stageColorProbe );
-		assert.include( getComputedStyle( scene ).backgroundImage, 'gradient' );
-		assert.isAtLeast(
-			getContrastRatio(
-				getComputedStyle( brand ).color,
-				getComputedStyle( stageColorProbe ).backgroundColor,
-			),
-			3,
-		);
-		stageColorProbe.remove();
-		await expect( element ).to.be.accessible();
+				stageColorProbe.style.backgroundColor = 'var(--tocus-color-stage-start)';
+				shadowRoot.append( stageColorProbe );
+				assert.include( getComputedStyle( scene ).backgroundImage, 'gradient' );
+				assert.isAtLeast(
+					getContrastRatio(
+						getComputedStyle( brand ).color,
+						getComputedStyle( stageColorProbe ).backgroundColor,
+					),
+					3,
+					`${ palette } ${ theme } brand contrast`,
+				);
+				stageColorProbe.remove();
+				element.remove();
+			}
+		}
 	} );
 
 	it( 'keeps long localized content reachable in a short viewport', async () => {
@@ -458,6 +653,37 @@ describe( 'tocus-f-interruption-screen', () => {
 		}
 	} );
 
+	it( 'keeps localized recovery controls reachable in a short viewport', async () => {
+		await setViewport( { height: 320, width: 320 } );
+
+		try {
+			const copy = {
+				...DefaultInterruptionScreenCopy,
+				retryLabel: 'Versuche es bitte noch einmal',
+				unavailableMessage: 'TOCus konnte diese ruhige Pause gerade nicht wiederherstellen.',
+				unavailableTitle: 'Lass es uns noch einmal ganz in Ruhe versuchen',
+			};
+			const element = await fixture<ComponentInterruptionScreen>( html`
+				<tocus-f-interruption-screen
+					.state=${ InterruptionScreenState.UNAVAILABLE }
+					.copy=${ copy }
+				></tocus-f-interruption-screen>
+			` );
+			const scene = getRequiredElement( element, '.scene' );
+			const card = getRequiredElement( element, '.recovery-card' );
+
+			assert.isAbove( scene.scrollHeight, scene.clientHeight );
+			assert.isAtMost( card.getBoundingClientRect().width, getRequiredElement( element, '.stage' ).getBoundingClientRect().width );
+			scene.scrollTop = scene.scrollHeight;
+			await nextFrame();
+			assert.isAtMost( card.getBoundingClientRect().bottom, scene.getBoundingClientRect().bottom + 1 );
+			assert.equal( getComputedStyle( getRequiredElement( element, '.recovery-title' ) ).overflowWrap, 'anywhere' );
+			await expect( element ).to.be.accessible();
+		} finally {
+			await setViewport( { height: 600, width: 800 } );
+		}
+	} );
+
 	it( 'retains Waiting meaning and focus visibility in forced colors', async () => {
 		await emulateMedia( { colorScheme: 'light', forcedColors: 'active' } );
 		const waitingElement = await fixture<ComponentInterruptionScreen>( html`
@@ -475,6 +701,13 @@ describe( 'tocus-f-interruption-screen', () => {
 
 		await nextFrame();
 		assert.equal( getComputedStyle( getContinueButton( waitingElement ) ).borderStyle, 'solid' );
+		await expect( waitingElement ).to.be.accessible();
+
+		waitingElement.state = InterruptionScreenState.UNAVAILABLE;
+		await waitingElement.updateComplete;
+
+		assert.equal( getComputedStyle( getRetryButton( waitingElement ) ).borderStyle, 'solid' );
+		assert.equal( getComputedStyle( getRequiredElement( waitingElement, '.recovery-icon' ) ).borderStyle, 'solid' );
 		await expect( waitingElement ).to.be.accessible();
 	} );
 } );

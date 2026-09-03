@@ -60,6 +60,14 @@ export interface ProtectionPageProjector {
 	releaseInjectedInterruptions: () => Promise<void>;
 
 	/**
+	 * Releases one interruption presentation that no longer has authoritative runtime state.
+	 * @param tabId - Browser tab containing the orphaned standalone page or injected layer.
+	 * @return Promise resolved after release or when the tab is no longer present.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	releaseInterruptionPresentation: ( tabId: number ) => Promise<void>;
+
+	/**
 	 * Releases every live interruption page after redirect rules have been removed.
 	 * @param statesByScope - Current authoritative state snapshot or unavailable marker.
 	 * @return Promise resolved after retained destinations and browser-native dismissals complete.

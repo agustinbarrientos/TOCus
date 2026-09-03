@@ -4,9 +4,12 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import { type ProtectionConfigurationEditor } from '../../../../domains/protection/services/protection-configuration-editor';
+import { type PreferencesEditor } from '../../../../domains/preferences/services/preferences-editor';
 import { type SiteFaviconProvider } from '../../../protected-sites/services/site-favicon-provider';
 import { type SitePermissionManager } from '../../../protected-sites/services/site-permission-manager';
 import '../../../protected-sites/components/screen';
+import '../appearance-screen';
+import { type PreferencesPreview, type PreferencesSource } from '../appearance-screen/types';
 import '../schedule-screen';
 import '../timing-screen';
 import styles from './web-component-style.scss?inline';
@@ -27,6 +30,8 @@ import {
  */
 function resolveSettingsDestination( hash: string ): SettingsDestinationValue {
 	switch ( hash ) {
+		case `#${ SettingsDestination.APPEARANCE }`:
+			return SettingsDestination.APPEARANCE;
 		case `#${ SettingsDestination.SCHEDULE }`:
 			return SettingsDestination.SCHEDULE;
 		case `#${ SettingsDestination.TIMING }`:
@@ -66,6 +71,27 @@ export class ComponentSettingsShell extends LitElement {
 	 */
 	@property( { attribute: false } )
 	accessor permissionManager: SitePermissionManager | null = null;
+
+	/**
+	 * Coordinated local preferences editor used by the active Appearance screen.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor preferencesEditor: PreferencesEditor | null = null;
+
+	/**
+	 * Live preference projection used by the active Appearance screen.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor preferencesPreview: PreferencesPreview | null = null;
+
+	/**
+	 * Validated local preference projections used by the active Appearance screen.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor preferencesSource: PreferencesSource | null = null;
 
 	/**
 	 * Browser family whose native settings conventions the shell follows.
@@ -118,6 +144,14 @@ export class ComponentSettingsShell extends LitElement {
 	 */
 	private renderDestination(): TemplateResult {
 		switch ( this.destination ) {
+			case SettingsDestination.APPEARANCE:
+				return html`
+					<tocus-f-appearance-screen
+						.editor=${ this.preferencesEditor }
+						.preview=${ this.preferencesPreview }
+						.source=${ this.preferencesSource }
+					></tocus-f-appearance-screen>
+				`;
 			case SettingsDestination.SCHEDULE:
 				return html`<tocus-f-schedule-screen .editor=${ this.editor }></tocus-f-schedule-screen>`;
 			case SettingsDestination.TIMING:
@@ -165,6 +199,12 @@ export class ComponentSettingsShell extends LitElement {
 								this.destination === SettingsDestination.TIMING ? 'page' : undefined,
 							) }
 						>${ this.copy.timing }</a>
+						<a
+							href="#appearance"
+							aria-current=${ ifDefined(
+								this.destination === SettingsDestination.APPEARANCE ? 'page' : undefined,
+							) }
+						>${ this.copy.appearance }</a>
 					</nav>
 				</aside>
 				<div class="content" id=${ this.destination }>

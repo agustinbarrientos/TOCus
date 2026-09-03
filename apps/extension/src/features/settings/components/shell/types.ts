@@ -19,6 +19,7 @@ export type SettingsPlatform = typeof SettingsPlatform[ keyof typeof SettingsPla
  * @since 0.1.0 Initial implementation.
  */
 export const SettingsDestination = {
+	APPEARANCE: 'appearance',
 	PROTECTED_SITES: 'protected-sites',
 	SCHEDULE: 'schedule',
 	TIMING: 'timing',
@@ -36,6 +37,7 @@ export type SettingsDestination = typeof SettingsDestination[ keyof typeof Setti
  */
 export interface SettingsShellCopy {
 	navigationLabel: string;
+	appearance: string;
 	protectedSites: string;
 	schedule: string;
 	timing: string;
@@ -47,6 +49,7 @@ export interface SettingsShellCopy {
  */
 export const DefaultSettingsShellCopy: Readonly<SettingsShellCopy> = Object.freeze( {
 	navigationLabel: 'Settings',
+	appearance: 'Appearance',
 	protectedSites: 'Protected sites',
 	schedule: 'Schedule',
 	timing: 'Timing',

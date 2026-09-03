@@ -9,6 +9,8 @@ import {
 import { type ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
 import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import { type PreferencesEditor } from '../../../../domains/preferences/services/preferences-editor';
+import { DefaultPreferencesDocument, type PreferencesDocument } from '../../../../domains/preferences/types';
 import { type SiteFaviconProvider } from '../../../protected-sites/services/site-favicon-provider';
 import {
 	SitePermissionGrantProvenance,
@@ -17,12 +19,51 @@ import {
 	type SitePermissionManager,
 } from '../../../protected-sites/services/site-permission-manager';
 import { ComponentProtectedSitesScreen } from '../../../protected-sites/components/screen';
+import { ComponentAppearanceScreen } from '../appearance-screen';
+import {
+	type AppearancePreferencesChangeListener,
+	type PreferencesPreview,
+	type PreferencesSource,
+} from '../appearance-screen/types';
 import { ComponentScheduleScreen } from '../schedule-screen';
 import { ComponentTimingScreen } from '../timing-screen';
 import { ComponentSettingsShell } from './index';
 import { SettingsPlatform, type SettingsPlatform as SettingsPlatformValue } from './types';
 
 const EMPTY_CONFIGURATION: ProtectionConfigurationDocument = { ...TestEmptyProtectionConfiguration };
+
+/**
+ * In-memory preferences storage used by settings-shell fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
+class MemorySettingsPreferencesEditor implements PreferencesEditor {
+	/**
+	 * Loads safe default preferences.
+	 * @return Default local preferences.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	load(): Promise<PreferencesDocument> {
+		return Promise.resolve( { ...DefaultPreferencesDocument } );
+	}
+
+	/**
+	 * Returns default preferences for an unused fixture update.
+	 * @return Default local preferences.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	update(): Promise<PreferencesDocument> {
+		return Promise.resolve( { ...DefaultPreferencesDocument } );
+	}
+
+	/**
+	 * Returns default preferences for an unused fixture recovery action.
+	 * @return Default local preferences.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	restoreDefaults(): Promise<PreferencesDocument> {
+		return Promise.resolve( { ...DefaultPreferencesDocument } );
+	}
+}
 
 /**
  * In-memory configuration storage used by settings-shell fixtures.
@@ -84,6 +125,41 @@ const EDITOR: ProtectionConfigurationEditor = createProtectionConfigurationEdito
 	coordinateMutation: coordinateMutationDirectly,
 } );
 const FAVICON_PROVIDER: SiteFaviconProvider = { getSource: getFaviconSource };
+const PREFERENCES_EDITOR = new MemorySettingsPreferencesEditor();
+
+/**
+ * Accepts one preferences preview in settings-shell fixtures.
+ * @return Undefined fixture result.
+ * @since 0.1.0 Initial implementation.
+ */
+function applyPreferencesPreview(): undefined {
+	return undefined;
+}
+
+const PREFERENCES_PREVIEW: PreferencesPreview = { apply: applyPreferencesPreview };
+
+/**
+ * Accepts an unused settings-shell preference listener.
+ * @param listener - Unused complete preferences listener.
+ * @since 0.1.0 Initial implementation.
+ */
+function addPreferencesChangeListener( listener: AppearancePreferencesChangeListener ): void {
+	void listener;
+}
+
+/**
+ * Releases an unused settings-shell preference listener.
+ * @param listener - Unused complete preferences listener.
+ * @since 0.1.0 Initial implementation.
+ */
+function removePreferencesChangeListener( listener: AppearancePreferencesChangeListener ): void {
+	void listener;
+}
+
+const PREFERENCES_SOURCE: PreferencesSource = {
+	addPreferencesChangeListener,
+	removePreferencesChangeListener,
+};
 
 /**
  * Grants a site permission in settings-shell fixtures.
@@ -151,6 +227,9 @@ async function renderShell(
 			.editor=${ EDITOR }
 			.faviconProvider=${ FAVICON_PROVIDER }
 			.permissionManager=${ PERMISSION_MANAGER }
+			.preferencesEditor=${ PREFERENCES_EDITOR }
+			.preferencesPreview=${ PREFERENCES_PREVIEW }
+			.preferencesSource=${ PREFERENCES_SOURCE }
 			.platform=${ platform }
 		></tocus-f-settings-shell>
 	` );
@@ -174,7 +253,7 @@ describe( 'tocus-f-settings-shell', () => {
 		assert.equal( customElements.get( 'tocus-f-settings-shell' ), ComponentSettingsShell );
 	} );
 
-	it( 'renders TOCus with Protected sites, Schedule, and Timing navigation', async () => {
+	it( 'renders TOCus with every implemented settings destination', async () => {
 		const element = await renderShell();
 		const shadowRoot = element.shadowRoot;
 
@@ -199,6 +278,7 @@ describe( 'tocus-f-settings-shell', () => {
 				{ label: 'Protected sites', href: '#protected-sites', current: 'page' },
 				{ label: 'Schedule', href: '#schedule', current: null },
 				{ label: 'Timing', href: '#timing', current: null },
+				{ label: 'Appearance', href: '#appearance', current: null },
 			],
 		);
 	} );
@@ -210,6 +290,7 @@ describe( 'tocus-f-settings-shell', () => {
 			protectedSites: 'Localized protected sites',
 			schedule: 'Localized schedule',
 			timing: 'Localized timing',
+			appearance: 'Localized appearance',
 		};
 		await element.updateComplete;
 		const navigation = element.shadowRoot?.querySelector( 'nav' );
@@ -219,7 +300,7 @@ describe( 'tocus-f-settings-shell', () => {
 			Array.from( navigation?.querySelectorAll( 'a' ) ?? [] ).map( ( destination ) =>
 				destination.textContent.trim(),
 			),
-			[ 'Localized protected sites', 'Localized schedule', 'Localized timing' ],
+			[ 'Localized protected sites', 'Localized schedule', 'Localized timing', 'Localized appearance' ],
 		);
 	} );
 
@@ -238,10 +319,10 @@ describe( 'tocus-f-settings-shell', () => {
 		assert.equal( element.getAttribute( 'platform' ), SettingsPlatform.FIREFOX );
 	} );
 
-	it( 'navigates between Schedule and Timing while forwarding the local editor', async () => {
+	it( 'navigates between Schedule, Timing, and Appearance with their dependencies', async () => {
 		const element = await renderShell();
 		const destinations = element.shadowRoot?.querySelectorAll<HTMLAnchorElement>( 'nav a' );
-		assert.equal( destinations?.length, 3 );
+		assert.equal( destinations?.length, 4 );
 
 		destinations?.item( 1 ).click();
 		await settleShell( element );
@@ -262,6 +343,18 @@ describe( 'tocus-f-settings-shell', () => {
 		}
 		assert.equal( timingScreen.editor, EDITOR );
 		assert.equal( destinations?.item( 2 ).getAttribute( 'aria-current' ), 'page' );
+
+		destinations?.item( 3 ).click();
+		await settleShell( element );
+		const appearanceScreen = element.shadowRoot?.querySelector( 'tocus-f-appearance-screen' );
+		assert.instanceOf( appearanceScreen, ComponentAppearanceScreen );
+		if ( ! ( appearanceScreen instanceof ComponentAppearanceScreen ) ) {
+			throw new Error( 'Expected the Appearance screen to render.' );
+		}
+		assert.equal( appearanceScreen.editor, PREFERENCES_EDITOR );
+		assert.equal( appearanceScreen.preview, PREFERENCES_PREVIEW );
+		assert.equal( appearanceScreen.source, PREFERENCES_SOURCE );
+		assert.equal( destinations?.item( 3 ).getAttribute( 'aria-current' ), 'page' );
 	} );
 
 	it( 'uses a sidebar at wide options-page widths', async () => {

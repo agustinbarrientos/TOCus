@@ -21,6 +21,9 @@ export interface InterruptionPageScreen extends EventTarget {
 	/** Whether continuous visual motion is disabled. */
 	reducedMotion: boolean;
 
+	/** Whether an explicit recovery request is currently pending. */
+	recovering: boolean;
+
 	/**
 	 * Returns the focused progress currently displayed by the local presentation clock.
 	 * @return Displayed focused progress in milliseconds.
@@ -46,9 +49,25 @@ export interface InterruptionPageClock {
  * Browser reduced-motion preference observed by the interruption page.
  * @since 0.1.0 Initial implementation.
  */
-export interface InterruptionPageMotionPreference extends EventTarget {
+export interface InterruptionPageMotionPreference {
 	/** Whether reduced motion is currently preferred. */
 	readonly matches: boolean;
+
+	/**
+	 * Begins observing effective reduced-motion changes.
+	 * @param type - Effective motion change event name.
+	 * @param listener - Effective motion change listener.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	addEventListener( type: 'change', listener: EventListenerOrEventListenerObject ): void;
+
+	/**
+	 * Stops observing effective reduced-motion changes.
+	 * @param type - Effective motion change event name.
+	 * @param listener - Effective motion change listener.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	removeEventListener( type: 'change', listener: EventListenerOrEventListenerObject ): void;
 }
 
 /**

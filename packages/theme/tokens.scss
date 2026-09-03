@@ -1,6 +1,7 @@
 $selector: ':root' !default;
 
 @use 'sass:list';
+@use 'sass:map';
 @use 'typography/tokens' with ( $selector: $selector );
 
 $-brown-palette: (
@@ -99,6 +100,20 @@ $-orange-palette: (
 	primary: (#795229, #7b552a),
 	on-primary: (#fff9f0, #fff9f0),
 );
+$-palettes: (
+	'brown': $-brown-palette,
+	'green': $-green-palette,
+	'blue': $-blue-palette,
+	'purple': $-purple-palette,
+	'pink': $-pink-palette,
+	'orange': $-orange-palette,
+);
+
+@mixin -apply-palette-previews {
+	@each $name, $palette in $-palettes {
+		--tocus-color-palette-preview-#{$name}: #{list.nth(map.get($palette, breathing-sphere), 1)};
+	}
+}
 
 @mixin -apply-palette($palette, $mode) {
 	$-mode-index: 1;
@@ -162,6 +177,8 @@ $-orange-palette: (
 
 #{ $selector } {
 	color-scheme: light dark;
+
+	@include -apply-palette-previews;
 
 	--tocus-font-family-brand: 'Fredoka Variable', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif;
 	--tocus-font-family-body: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;

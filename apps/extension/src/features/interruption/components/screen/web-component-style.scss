@@ -16,6 +16,10 @@
 }
 
 .scene {
+	--tocus-breath-bloom-opacity: 0.72;
+	--tocus-breath-bloom-scale: 0.82;
+	--tocus-breath-progress: 0;
+
 	position: relative;
 	isolation: isolate;
 	display: grid;
@@ -24,25 +28,26 @@
 	height: 100%;
 	min-height: 100dvh;
 	overflow: hidden auto;
-	background:
-		radial-gradient(ellipse at 50% 46%, var(--tocus-color-stage-glow) 0%, transparent 58%),
-		linear-gradient(
-			155deg,
-			var(--tocus-color-stage-start) 0%,
-			var(--tocus-color-stage-middle) 54%,
-			var(--tocus-color-stage-end) 100%
-		);
+	background: linear-gradient(
+		145deg,
+		var(--tocus-color-stage-start) 0%,
+		var(--tocus-color-stage-middle) 59%,
+		var(--tocus-color-stage-end) 100%
+	);
 
 	&::before {
 		position: absolute;
 		z-index: -1;
-		inset: 0;
-		background-image:
-			radial-gradient(circle at 20% 30%, var(--tocus-color-glass-border) 0 0.0625rem, transparent 0.078125rem),
-			radial-gradient(circle at 75% 65%, var(--tocus-color-glass-border) 0 0.046875rem, transparent 0.0625rem);
-		background-position: 0 0, 0.25rem 0.1875rem;
-		background-size: 0.4375rem 0.4375rem, 0.5625rem 0.5625rem;
-		opacity: 0.2;
+		inset: -20%;
+		background: radial-gradient(
+			circle at 49% 47%,
+			var(--tocus-color-stage-glow) 0%,
+			transparent 36%
+		);
+		background-repeat: no-repeat;
+		opacity: var(--tocus-breath-bloom-opacity);
+		transform: scale(var(--tocus-breath-bloom-scale));
+		transform-origin: 49% 47%;
 		content: '';
 		pointer-events: none;
 	}
@@ -110,6 +115,7 @@ main {
 .stage {
 	position: relative;
 	display: grid;
+	grid-template-columns: minmax(0, 1fr);
 	grid-template-rows: auto minmax(0, 1fr);
 	width: 100%;
 	height: 100%;
@@ -129,6 +135,7 @@ main {
 }
 
 .sphere-shell {
+	grid-column: 1;
 	grid-row: 2;
 	width: min(74vw, 44rem);
 	height: min(58vh, 36rem);
@@ -150,8 +157,7 @@ tocus-f-breathing-sphere {
 	height: 100%;
 }
 
-.ready-action,
-.status-message {
+.ready-action {
 	position: absolute;
 	inset: 0;
 	display: grid;
@@ -160,13 +166,11 @@ tocus-f-breathing-sphere {
 	max-width: min(90vw, 38rem);
 	margin: auto;
 	text-align: center;
-}
-
-.ready-action {
 	gap: var(--tocus-space-4);
 }
 
-.continue-button {
+.continue-button,
+.retry-button {
 	@include typography.apply( 'label-large' );
 
 	min-width: 10rem;
@@ -180,11 +184,13 @@ tocus-f-breathing-sphere {
 	box-shadow: var(--tocus-shadow-soft);
 	color: var(--tocus-color-on-action);
 	cursor: pointer;
+	overflow-wrap: anywhere;
+	white-space: normal;
 	transition:
 		box-shadow var(--tocus-transition-fast),
 		transform var(--tocus-transition-fast);
 
-	&:hover {
+	&:hover:not(:disabled) {
 		box-shadow: 0 1.5rem 4.5rem var(--tocus-color-stage-glow);
 		transform: translateY(-0.0625rem);
 	}
@@ -193,8 +199,13 @@ tocus-f-breathing-sphere {
 		outline-color: var(--tocus-color-focus-ring);
 	}
 
-	&:active {
+	&:active:not(:disabled) {
 		transform: translateY(0.0625rem);
+	}
+
+	&:disabled {
+		opacity: 0.72;
+		cursor: progress;
 	}
 }
 
@@ -224,17 +235,79 @@ kbd {
 }
 
 .status-message {
-	@include typography.apply( 'headline-small' );
+	@include typography.apply( 'body-large' );
 
-	padding: var(--tocus-space-5);
+	position: absolute;
+	inset: 0;
+	width: min(90vw, 32rem);
+	height: fit-content;
+	margin: auto;
+	padding: var(--tocus-space-6);
+	border: 1px solid var(--tocus-color-glass-border);
+	border-radius: var(--tocus-radius-large);
+	background: var(--tocus-color-glass-surface);
+	box-shadow: var(--tocus-shadow-soft);
 	color: var(--tocus-color-on-stage);
+	text-align: center;
 	overflow-wrap: anywhere;
+	backdrop-filter: blur(1rem);
 
 	&:focus-visible {
 		border-radius: var(--tocus-radius-medium);
 		outline: 0.1875rem solid var(--tocus-color-focus-ring);
 		outline-offset: var(--tocus-space-2);
 	}
+}
+
+.recovery-card {
+	z-index: 1;
+	display: grid;
+	grid-area: 1 / 1 / 3 / 2;
+	width: min(100%, 32rem);
+	height: fit-content;
+	margin-block: var(--tocus-space-4);
+	padding: var(--tocus-space-6);
+	border: 1px solid var(--tocus-color-glass-border);
+	border-radius: var(--tocus-radius-large);
+	background: var(--tocus-color-glass-surface);
+	box-shadow: var(--tocus-shadow-soft);
+	text-align: center;
+	place-items: center;
+	place-self: center;
+	backdrop-filter: blur(1rem);
+}
+
+.recovery-icon {
+	display: grid;
+	width: 3.5rem;
+	height: 3.5rem;
+	margin-block-end: var(--tocus-space-4);
+	border-radius: var(--tocus-radius-full);
+	background: var(--tocus-color-action);
+	color: var(--tocus-color-on-action);
+	place-items: center;
+
+	svg {
+		width: 2rem;
+		height: 2rem;
+		color: inherit;
+	}
+}
+
+.recovery-title {
+	@include typography.apply( 'headline-small' );
+
+	margin: 0;
+	color: var(--tocus-color-on-stage);
+	overflow-wrap: anywhere;
+}
+
+.recovery-message {
+	@include typography.apply( 'body-large' );
+
+	margin: var(--tocus-space-2) 0 var(--tocus-space-5);
+	color: var(--tocus-color-on-stage-muted);
+	overflow-wrap: anywhere;
 }
 
 footer {
@@ -279,13 +352,15 @@ footer {
 
 @media (prefers-reduced-motion: reduce) {
 	.sphere-shell,
-	.continue-button {
+	.continue-button,
+	.retry-button {
 		transition: none;
 	}
 }
 
 :host([reduced-motion]) .sphere-shell,
-:host([reduced-motion]) .continue-button {
+:host([reduced-motion]) .continue-button,
+:host([reduced-motion]) .retry-button {
 	transition: none;
 }
 
@@ -308,18 +383,22 @@ footer {
 	.cue,
 	.shortcut,
 	.status-message,
+	.recovery-title,
+	.recovery-message,
 	footer {
 		color: CanvasText;
 	}
 
 	.remaining,
+	.recovery-card,
 	kbd {
 		border-color: CanvasText;
 		background: Canvas;
 		color: CanvasText;
 	}
 
-	.continue-button {
+	.continue-button,
+	.retry-button {
 		border: 0.125rem solid ButtonText;
 		outline-color: transparent;
 		background: ButtonFace;
@@ -329,5 +408,11 @@ footer {
 		&:focus-visible {
 			outline-color: Highlight;
 		}
+	}
+
+	.recovery-icon {
+		border: 0.125rem solid CanvasText;
+		background: Canvas;
+		color: CanvasText;
 	}
 }

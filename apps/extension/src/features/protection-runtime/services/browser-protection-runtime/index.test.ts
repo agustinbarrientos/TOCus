@@ -456,6 +456,53 @@ async function presentAllowanceExpiryInterruption(
 }
 
 describe( 'createBrowserProtectionRuntime', () => {
+	it( 'dismisses an orphaned standalone interruption after synchronization', async () => {
+		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
+		const browser = new MemoryRuntimeBrowser();
+		const { runtime } = createRuntime(
+			now,
+			new MemoryConfigurationStorage( EXAMPLE_CONFIGURATION ),
+			browser,
+		);
+
+		await runtime.start();
+		browser.tabs = [ { id: 7, url: 'chrome-extension://extension-id/interruption.html' } ];
+
+		await expect( runtime.handlePageRequest( {
+			type: InterruptionPageRequestType.SYNCHRONIZE,
+			documentVisible: true,
+		}, 7 ) ).resolves.toEqual( { state: InterruptionPageResponseState.UNAVAILABLE } );
+
+		expect( browser.dismissedTabs ).toEqual( [ 7 ] );
+	} );
+
+	it( 'removes an orphaned interruption layer after synchronization', async () => {
+		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
+		const browser = new MemoryRuntimeBrowser();
+		const { runtime } = createRuntime(
+			now,
+			new MemoryConfigurationStorage( EXAMPLE_CONFIGURATION ),
+			browser,
+		);
+
+		await runtime.start();
+		browser.protectedPageUpdates = [];
+		browser.protectedPagePresentations.set( 7, {
+			allowanceWarningId: null,
+			interruptionLayerPresented: true,
+		} );
+
+		await expect( runtime.handlePageRequest( {
+			type: InterruptionPageRequestType.SYNCHRONIZE,
+			documentVisible: true,
+		}, 7 ) ).resolves.toEqual( { state: InterruptionPageResponseState.UNAVAILABLE } );
+
+		expect( browser.protectedPageUpdates ).toEqual( [ {
+			tabId: 7,
+			message: { type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER },
+		} ] );
+	} );
+
 	it( 'excludes sites without current host access from matching and redirects', async () => {
 		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
 		const browser = new MemoryRuntimeBrowser();

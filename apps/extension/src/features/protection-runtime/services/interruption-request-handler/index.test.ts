@@ -176,6 +176,9 @@ function createHandlerHarness(
 	const refreshToolbarBadge = vi
 		.fn<InterruptionRequestHandlerOptions[ 'refreshToolbarBadge' ]>()
 		.mockResolvedValue( undefined );
+	const releaseInterruptionPresentation = vi
+		.fn<InterruptionRequestHandlerOptions[ 'releaseInterruptionPresentation' ]>()
+		.mockResolvedValue( undefined );
 	const reconcileUnavailableConfiguration = vi
 		.fn<InterruptionRequestHandlerOptions[ 'reconcileUnavailableConfiguration' ]>()
 		.mockResolvedValue( undefined );
@@ -188,6 +191,7 @@ function createHandlerHarness(
 		loadConfiguration,
 		now,
 		reconcileExpiredAllowances,
+		releaseInterruptionPresentation,
 		refreshToolbarBadge,
 		reconcileUnavailableConfiguration,
 	} );
@@ -202,6 +206,7 @@ function createHandlerHarness(
 		loadConfiguration,
 		reconcileExpiredAllowances,
 		reconcileUnavailableConfiguration,
+		releaseInterruptionPresentation,
 		refreshToolbarBadge,
 	};
 }
@@ -248,7 +253,62 @@ describe( 'interruption request validation', () => {
 		} );
 
 		expect( harness.reconcileExpiredAllowances ).toHaveBeenCalledWith( CONFIGURATION );
+		expect( harness.releaseInterruptionPresentation ).not.toHaveBeenCalled();
 		expect( harness.refreshToolbarBadge ).not.toHaveBeenCalled();
+	} );
+
+	it( 'releases an orphaned presentation after synchronization confirms no participant', async () => {
+		const harness = createHandlerHarness( null );
+
+		await expect( harness.handler.handle( {
+			type: InterruptionPageRequestType.SYNCHRONIZE,
+			documentVisible: true,
+		}, 7 ) ).resolves.toEqual( {
+			state: InterruptionPageResponseState.UNAVAILABLE,
+		} );
+
+		expect( harness.releaseInterruptionPresentation ).toHaveBeenCalledOnce();
+		expect( harness.releaseInterruptionPresentation ).toHaveBeenCalledWith( 7 );
+		expect( harness.dispatch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'keeps a recovered participant when synchronization finds it on the authoritative recheck', async () => {
+		const waitingState = createTestWaitingState();
+		const states = { [ DefaultProtectionScopeId ]: waitingState };
+		const harness = createHandlerHarness( null );
+
+		harness.getStates.mockResolvedValueOnce( null ).mockResolvedValue( states );
+
+		await expect( harness.handler.handle( {
+			type: InterruptionPageRequestType.SYNCHRONIZE,
+			documentVisible: true,
+		}, 7 ) ).resolves.toMatchObject( {
+			state: InterruptionPageResponseState.WAITING,
+		} );
+
+		expect( harness.releaseInterruptionPresentation ).not.toHaveBeenCalled();
+		expect( harness.dispatch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'propagates a local release failure and permits a later recovery attempt', async () => {
+		const harness = createHandlerHarness( null );
+		const releaseFailure = new Error( 'Browser cleanup failed.' );
+
+		harness.releaseInterruptionPresentation.mockRejectedValueOnce( releaseFailure );
+
+		await expect( harness.handler.handle( {
+			type: InterruptionPageRequestType.RECOVER,
+			documentVisible: true,
+		}, 7 ) ).rejects.toBe( releaseFailure );
+		await expect( harness.handler.handle( {
+			type: InterruptionPageRequestType.RECOVER,
+			documentVisible: true,
+		}, 7 ) ).resolves.toEqual( {
+			state: InterruptionPageResponseState.UNAVAILABLE,
+		} );
+
+		expect( harness.releaseInterruptionPresentation ).toHaveBeenCalledTimes( 2 );
+		expect( harness.dispatch ).not.toHaveBeenCalled();
 	} );
 } );
 

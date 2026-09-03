@@ -39,6 +39,13 @@ const entrypointMocks = vi.hoisted( () => {
 
 		interruptionLayerPresented = false;
 
+		readonly interruptionScreen = new EventTarget();
+
+		readonly style = {
+			removeProperty: vi.fn<( property: string ) => void>(),
+			visibility: '',
+		};
+
 		/**
 		 * Reports whether the layer is attached to the test document.
 		 * @return Current attachment state.
@@ -58,7 +65,7 @@ const entrypointMocks = vi.hoisted( () => {
 		 * @since 0.1.0 Initial implementation.
 		 */
 		getInterruptionScreen(): EventTarget {
-			return new EventTarget();
+			return this.interruptionScreen;
 		}
 
 		/**
@@ -78,7 +85,24 @@ const entrypointMocks = vi.hoisted( () => {
 		waitForInterruptionPresentation(): Promise<void> {
 			return Promise.resolve();
 		}
+
+		/**
+		 * Detaches the layer from the test document.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		remove(): void {
+			this.connected = false;
+		}
 	}
+
+	const preferencesController = Object.assign( new EventTarget(), {
+		apply: vi.fn(),
+		matches: false,
+		start: vi.fn(),
+		stop: vi.fn(),
+	} );
+	const preferencesStorage = {};
+	const storageChanges = {};
 
 	return {
 		ComponentProtectedPageLayer: TestProtectedPageLayer,
@@ -90,10 +114,15 @@ const entrypointMocks = vi.hoisted( () => {
 		createProtectedPageLayerController: vi.fn<(
 			options: ProtectedPageLayerControllerOptions,
 		) => ProtectedPageLayerController>(),
+		createPreferencesController: vi.fn().mockReturnValue( preferencesController ),
+		createPreferencesStorage: vi.fn().mockReturnValue( preferencesStorage ),
 		handleMessage: vi.fn<ProtectedPageLayerController[ 'handleMessage' ]>(),
+		preferencesController,
+		preferencesStorage,
 		removeMessageListener: vi.fn(),
 		sendMessage: vi.fn(),
 		stopLayerController: vi.fn(),
+		storageChanges,
 	};
 } );
 
@@ -102,6 +131,15 @@ const entrypointMocks = vi.hoisted( () => {
  * @since 0.1.0 Initial implementation.
  */
 type TestProtectedPageLayer = InstanceType<typeof entrypointMocks.ComponentProtectedPageLayer>;
+
+/**
+ * Provides an inert callback before a pending preference start captures its resolver.
+ * @return Undefined inert result.
+ * @since 0.1.0 Initial implementation.
+ */
+function ignorePreferencesStartResolution(): undefined {
+	return undefined;
+}
 
 vi.mock( 'wxt/browser', () => ( {
 	browser: {
@@ -112,7 +150,14 @@ vi.mock( 'wxt/browser', () => ( {
 			},
 			sendMessage: entrypointMocks.sendMessage,
 		},
+		storage: { local: {}, onChanged: entrypointMocks.storageChanges },
 	},
+} ) );
+vi.mock( '../../domains/preferences/services', () => ( {
+	createPreferencesStorageService: entrypointMocks.createPreferencesStorage,
+} ) );
+vi.mock( '../../features/preferences/services/preferences-controller', () => ( {
+	createPreferencesController: entrypointMocks.createPreferencesController,
 } ) );
 vi.mock( '../../features/interruption/components/protected-page-layer', () => ( {
 	ComponentProtectedPageLayer: entrypointMocks.ComponentProtectedPageLayer,
@@ -130,6 +175,7 @@ describe( 'protected-page unlisted entrypoint', () => {
 		vi.resetModules();
 		vi.clearAllMocks();
 		vi.spyOn( Date, 'now' ).mockReturnValue( 120_000 );
+		entrypointMocks.preferencesController.start.mockResolvedValue( undefined );
 	} );
 
 	afterEach( () => {
@@ -172,10 +218,31 @@ describe( 'protected-page unlisted entrypoint', () => {
 		entrypointMocks.sendMessage.mockResolvedValue( { state: 'waiting' } );
 		entrypointMocks.createInterruptionPageController.mockReturnValue( interruptionController );
 		entrypointMocks.createProtectedPageLayerController.mockReturnValue( layerController );
+		let completePreferencesStart: ( value?: void | PromiseLike<void> ) => void =
+			ignorePreferencesStartResolution;
+
+		entrypointMocks.preferencesController.start.mockReturnValueOnce( new Promise<void>( ( resolve ) => {
+			completePreferencesStart = resolve;
+		} ) );
 
 		const entrypoint = await import( './index' );
+		const initialization: unknown = entrypoint.default.main();
 
-		await entrypoint.default.main();
+		expect( initialization ).toBeInstanceOf( Promise );
+		if ( ! ( initialization instanceof Promise ) ) {
+			throw new TypeError( 'Expected protected-page initialization to return a promise.' );
+		}
+
+		await vi.waitFor( () => {
+			expect( entrypointMocks.preferencesController.start ).toHaveBeenCalledOnce();
+		} );
+		const pendingLayer = entrypointMocks.append.mock.calls[ 0 ]?.[ 0 ];
+
+		expect( pendingLayer?.style.visibility ).toBe( 'hidden' );
+		expect( pendingLayer?.style.removeProperty ).not.toHaveBeenCalled();
+		completePreferencesStart();
+		await initialization;
+		expect( pendingLayer?.style.removeProperty ).toHaveBeenCalledWith( 'visibility' );
 
 		expect( entrypointMocks.append ).toHaveBeenCalledWith(
 			expect.any( entrypointMocks.ComponentProtectedPageLayer ),
@@ -218,7 +285,15 @@ describe( 'protected-page unlisted entrypoint', () => {
 		layer.connected = false;
 		expect( interruptionOptions.visibility.isDocumentVisible() ).toBe( false );
 		layer.connected = true;
-		expect( interruptionOptions.motionPreference ).toBe( motionPreference );
+		expect( entrypointMocks.createPreferencesController ).toHaveBeenCalledWith( {
+			appearanceTarget: layer,
+			presentation: layer.interruptionScreen,
+			storage: entrypointMocks.preferencesStorage,
+			storageChanges: entrypointMocks.storageChanges,
+			systemMotionPreference: motionPreference,
+		} );
+		expect( entrypointMocks.preferencesController.start ).toHaveBeenCalledOnce();
+		expect( interruptionOptions.motionPreference ).toBe( entrypointMocks.preferencesController );
 		const layerOptions = entrypointMocks.createProtectedPageLayerController.mock.calls[ 0 ]?.[ 0 ];
 
 		if ( layerOptions === undefined ) {
@@ -407,6 +482,9 @@ describe( 'protected-page unlisted entrypoint', () => {
 		const entrypoint = await import( './index' );
 
 		await expect( entrypoint.default.main() ).rejects.toThrow( 'First initialization failed.' );
+		expect( entrypointMocks.preferencesController.stop ).toHaveBeenCalledOnce();
+		expect( entrypointMocks.append.mock.calls[ 0 ]?.[ 0 ]?.connectionGuardEnabled ).toBe( false );
+		expect( entrypointMocks.append.mock.calls[ 0 ]?.[ 0 ]?.connected ).toBe( false );
 		await entrypoint.default.main();
 
 		expect( entrypointMocks.append ).toHaveBeenCalledTimes( 2 );

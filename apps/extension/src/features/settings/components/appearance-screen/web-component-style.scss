@@ -1,0 +1,359 @@
+@use '@tocus/theme/typography' as typography;
+
+:host {
+	display: block;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+main {
+	width: min(100%, 52rem);
+	margin: 0 auto;
+	color: var(--tocus-color-on-surface);
+}
+
+header {
+	margin-bottom: var(--tocus-space-6);
+}
+
+.eyebrow {
+	@include typography.apply( 'label-large' );
+
+	margin: 0 0 var(--tocus-space-2);
+	color: var(--tocus-color-action);
+}
+
+h1 {
+	@include typography.apply( 'headline-large' );
+
+	margin: 0;
+}
+
+.introduction {
+	@include typography.apply( 'body-large' );
+
+	max-width: 38rem;
+	margin: var(--tocus-space-3) 0 0;
+	color: var(--tocus-color-on-surface-muted);
+}
+
+.appearance-form {
+	padding: var(--tocus-space-5);
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-medium);
+	background: var(--tocus-color-surface);
+}
+
+fieldset {
+	margin: 0;
+	padding: 0 0 var(--tocus-space-5);
+	border: 0;
+
+	+ fieldset {
+		padding-top: var(--tocus-space-5);
+		border-top: 1px solid var(--tocus-color-outline);
+	}
+
+	&:last-of-type {
+		padding-bottom: 0;
+	}
+}
+
+legend,
+strong {
+	@include typography.apply( 'label-large' );
+}
+
+legend {
+	padding: 0;
+}
+
+.field-help,
+.option small,
+.motion-option small,
+.save-error,
+.save-status,
+.loading-status,
+.load-error p {
+	@include typography.apply( 'body-small' );
+}
+
+.field-help {
+	margin: var(--tocus-space-2) 0 0;
+	color: var(--tocus-color-on-surface-muted);
+}
+
+.options {
+	display: grid;
+	gap: var(--tocus-space-2);
+	margin-top: var(--tocus-space-3);
+
+	&--theme {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	&--palette {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	&--pause {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+.option {
+	position: relative;
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	align-items: start;
+	gap: var(--tocus-space-3);
+	min-height: 4.75rem;
+	padding: var(--tocus-space-3);
+	border-radius: var(--tocus-radius-small);
+	cursor: pointer;
+	isolation: isolate;
+
+	.selection {
+		position: absolute;
+		z-index: 0;
+		inset: 0;
+		border: 1px solid transparent;
+		border-radius: inherit;
+		background: transparent;
+		pointer-events: none;
+	}
+
+	input,
+	&__copy,
+	.swatch,
+	> strong {
+		position: relative;
+		z-index: 1;
+	}
+
+	input {
+		width: 1.125rem;
+		height: 1.125rem;
+		margin: var(--tocus-space-1) 0 0;
+		accent-color: var(--tocus-color-action);
+
+		&:checked + .selection {
+			border-color: var(--tocus-color-action);
+			background: var(--tocus-color-surface-container);
+		}
+
+		&:focus-visible {
+			outline: 3px solid var(--tocus-color-focus-ring);
+			outline-offset: 2px;
+		}
+
+		&:disabled {
+			cursor: wait;
+		}
+	}
+
+	&__copy small {
+		display: block;
+		margin-top: var(--tocus-space-1);
+		color: var(--tocus-color-on-surface-muted);
+	}
+
+	&--palette {
+		grid-template-columns: auto auto minmax(0, 1fr);
+		align-items: center;
+		min-height: 3.5rem;
+	}
+
+	&:has(input:disabled) {
+		cursor: wait;
+		opacity: 0.65;
+	}
+}
+
+.swatch {
+	width: 1.75rem;
+	height: 1.75rem;
+	border: 1px solid color-mix(in srgb, currentcolor 22%, transparent);
+	border-radius: 50%;
+	box-shadow: inset 0 0.25rem 0.45rem rgb(255 255 255 / 24%);
+
+	&[data-palette='brown'] {
+		background: var(--tocus-color-palette-preview-brown);
+	}
+
+	&[data-palette='green'] {
+		background: var(--tocus-color-palette-preview-green);
+	}
+
+	&[data-palette='blue'] {
+		background: var(--tocus-color-palette-preview-blue);
+	}
+
+	&[data-palette='purple'] {
+		background: var(--tocus-color-palette-preview-purple);
+	}
+
+	&[data-palette='pink'] {
+		background: var(--tocus-color-palette-preview-pink);
+	}
+
+	&[data-palette='orange'] {
+		background: var(--tocus-color-palette-preview-orange);
+	}
+}
+
+.motion-option {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	align-items: start;
+	gap: var(--tocus-space-3);
+	width: fit-content;
+	min-height: 2.75rem;
+	margin-top: var(--tocus-space-3);
+	cursor: pointer;
+
+	input {
+		width: 1.25rem;
+		height: 1.25rem;
+		margin: var(--tocus-space-1) 0 0;
+		accent-color: var(--tocus-color-action);
+
+		&:focus-visible {
+			outline: 3px solid var(--tocus-color-focus-ring);
+			outline-offset: 2px;
+		}
+
+		&:disabled {
+			cursor: wait;
+		}
+	}
+
+	small {
+		display: block;
+		margin-top: var(--tocus-space-1);
+		color: var(--tocus-color-on-surface-muted);
+	}
+
+	&:has(input:disabled) {
+		cursor: wait;
+		opacity: 0.65;
+	}
+}
+
+.save-error,
+.save-status {
+	min-height: 1rem;
+	margin: var(--tocus-space-4) 0 0;
+}
+
+.save-error {
+	color: var(--tocus-color-on-surface);
+}
+
+.save-status {
+	color: var(--tocus-color-on-surface-muted);
+}
+
+.loading-status,
+.load-error {
+	margin: var(--tocus-space-5) 0 0;
+	padding: var(--tocus-space-5);
+	border: 1px dashed var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-medium);
+	background: color-mix(in srgb, var(--tocus-color-surface) 72%, transparent);
+}
+
+.loading-status {
+	text-align: center;
+}
+
+.load-error {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--tocus-space-5);
+
+	h2 {
+		@include typography.apply( 'title-medium' );
+
+		margin: 0;
+	}
+
+	p {
+		margin: var(--tocus-space-2) 0 0;
+		color: var(--tocus-color-on-surface-muted);
+	}
+}
+
+button {
+	@include typography.apply( 'label-large' );
+
+	flex: 0 0 auto;
+	min-height: 2.75rem;
+	padding: var(--tocus-space-2) var(--tocus-space-5);
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-full);
+	background: transparent;
+	color: var(--tocus-color-action);
+	cursor: pointer;
+
+	&:hover {
+		background: var(--tocus-color-surface-container);
+	}
+
+	&:focus-visible {
+		outline: 3px solid var(--tocus-color-focus-ring);
+		outline-offset: 2px;
+	}
+}
+
+@media (width <= 42rem) {
+	.options {
+		&--theme,
+		&--pause {
+			grid-template-columns: minmax(0, 1fr);
+		}
+
+		&--palette {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+}
+
+@media (width <= 28rem) {
+	.appearance-form {
+		padding: var(--tocus-space-4);
+	}
+
+	.options {
+		&--palette {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+
+	.load-error {
+		align-items: stretch;
+		flex-direction: column;
+	}
+}
+
+@media (forced-colors: active) {
+	.swatch {
+		forced-color-adjust: none;
+	}
+
+	.option input:checked + .selection {
+		border-color: Highlight;
+		background: Canvas;
+	}
+
+	.swatch {
+		border-color: CanvasText;
+		background: Canvas;
+		box-shadow: none;
+	}
+}

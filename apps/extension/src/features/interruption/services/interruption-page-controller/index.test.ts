@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
 	InterruptionContinueRequestEventName,
+	InterruptionRetryRequestEventName,
 	InterruptionScreenState,
 	type InterruptionScreenState as InterruptionScreenStateValue,
 } from '../../components/screen/types';
@@ -35,6 +36,8 @@ class MemoryInterruptionPageScreen extends EventTarget implements InterruptionPa
 	progressing = false;
 
 	reducedMotion = false;
+
+	recovering = false;
 
 	displayedFocusedProgressMilliseconds = 0;
 
@@ -374,6 +377,161 @@ describe( 'createInterruptionPageController', () => {
 		} );
 	} );
 
+	it.each( [
+		{ label: 'unavailable response', response: { state: InterruptionPageResponseState.UNAVAILABLE } },
+		{ label: 'malformed response', response: { state: 'unknown' } },
+		{ label: 'runtime failure', response: new Error( 'Runtime unavailable' ) },
+	] )( 'silently recovers an initial $label with one runtime recovery', async ( { response } ) => {
+		const recoveryResponse = Promise.withResolvers<unknown>();
+		const fixture = createControllerFixture( [ response, recoveryResponse.promise ] );
+		const startPromise = fixture.controller.start();
+
+		await settleControllerRequests();
+
+		expect( fixture.runtime.requests ).toEqual( [
+			{
+				type: InterruptionPageRequestType.CONNECT,
+				documentVisible: true,
+			},
+			{
+				type: InterruptionPageRequestType.RECOVER,
+				documentVisible: true,
+			},
+		] );
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.WAITING );
+
+		recoveryResponse.resolve( {
+			state: InterruptionPageResponseState.WAITING,
+			capturedWaitDurationMilliseconds: 10_000,
+			focusedProgressMilliseconds: 2_000,
+			progressing: true,
+		} );
+		await startPromise;
+
+		expect( fixture.screen ).toMatchObject( {
+			state: InterruptionScreenState.WAITING,
+			focusedProgressMilliseconds: 2_000,
+			progressing: true,
+		} );
+	} );
+
+	it.each( [
+		{ label: 'unavailable responses', response: { state: InterruptionPageResponseState.UNAVAILABLE } },
+		{ label: 'malformed responses', response: { state: 'unknown' } },
+		{ label: 'runtime failures', response: new Error( 'Runtime unavailable' ) },
+	] )( 'shows recovery after two initial $label', async ( { response } ) => {
+		const fixture = createControllerFixture( [
+			response,
+			response,
+			{
+				state: InterruptionPageResponseState.WAITING,
+				capturedWaitDurationMilliseconds: 10_000,
+				focusedProgressMilliseconds: 0,
+				progressing: true,
+			},
+		] );
+
+		await fixture.controller.start();
+
+		expect( fixture.runtime.requests.map( ( request ) => request.type ) ).toEqual( [
+			InterruptionPageRequestType.CONNECT,
+			InterruptionPageRequestType.RECOVER,
+		] );
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.UNAVAILABLE );
+		expect( fixture.screen.recovering ).toBe( false );
+	} );
+
+	it( 'keeps explicit recovery single-flight and projects its successful response', async () => {
+		const recoveryResponse = Promise.withResolvers<unknown>();
+		const fixture = createControllerFixture( [
+			{
+				state: InterruptionPageResponseState.WAITING,
+				capturedWaitDurationMilliseconds: 10_000,
+				focusedProgressMilliseconds: 0,
+				progressing: true,
+			},
+			recoveryResponse.promise,
+		] );
+
+		await fixture.controller.start();
+		fixture.screen.state = InterruptionScreenState.UNAVAILABLE;
+		fixture.screen.dispatchEvent( new Event( InterruptionRetryRequestEventName ) );
+		fixture.screen.dispatchEvent( new Event( InterruptionRetryRequestEventName ) );
+
+		expect( fixture.screen.recovering ).toBe( true );
+		expect( fixture.runtime.requests.map( ( request ) => request.type ) ).toEqual( [
+			InterruptionPageRequestType.CONNECT,
+			InterruptionPageRequestType.RECOVER,
+		] );
+
+		recoveryResponse.resolve( {
+			state: InterruptionPageResponseState.WAITING,
+			capturedWaitDurationMilliseconds: 10_000,
+			focusedProgressMilliseconds: 3_000,
+			progressing: true,
+		} );
+		await settleControllerRequests();
+
+		expect( fixture.screen ).toMatchObject( {
+			state: InterruptionScreenState.WAITING,
+			focusedProgressMilliseconds: 3_000,
+			progressing: true,
+			recovering: false,
+		} );
+	} );
+
+	it( 'makes explicit recovery available again after a recovery request fails', async () => {
+		const fixture = createControllerFixture( [
+			{
+				state: InterruptionPageResponseState.WAITING,
+				capturedWaitDurationMilliseconds: 10_000,
+				focusedProgressMilliseconds: 0,
+				progressing: true,
+			},
+			new Error( 'Runtime unavailable.' ),
+		] );
+
+		await fixture.controller.start();
+		fixture.screen.state = InterruptionScreenState.UNAVAILABLE;
+		fixture.screen.dispatchEvent( new Event( InterruptionRetryRequestEventName ) );
+		await settleControllerRequests();
+
+		expect( fixture.runtime.requests.map( ( request ) => request.type ) ).toEqual( [
+			InterruptionPageRequestType.CONNECT,
+			InterruptionPageRequestType.RECOVER,
+		] );
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.UNAVAILABLE );
+		expect( fixture.screen.recovering ).toBe( false );
+	} );
+
+	it( 'clears explicit recovery and ignores its late response after stopping', async () => {
+		const recoveryResponse = Promise.withResolvers<unknown>();
+		const fixture = createControllerFixture( [
+			{
+				state: InterruptionPageResponseState.WAITING,
+				capturedWaitDurationMilliseconds: 10_000,
+				focusedProgressMilliseconds: 0,
+				progressing: true,
+			},
+			recoveryResponse.promise,
+		] );
+
+		await fixture.controller.start();
+		fixture.screen.state = InterruptionScreenState.UNAVAILABLE;
+		fixture.screen.dispatchEvent( new Event( InterruptionRetryRequestEventName ) );
+		expect( fixture.screen.recovering ).toBe( true );
+
+		fixture.controller.stop();
+		expect( fixture.screen.recovering ).toBe( false );
+		recoveryResponse.resolve( {
+			state: InterruptionPageResponseState.READY,
+			allowanceExpiresAtEpochMilliseconds: 300_000,
+		} );
+		await settleControllerRequests();
+
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.UNAVAILABLE );
+	} );
+
 	it( 'checkpoints displayed Waiting progress every second and adopts Ready', async () => {
 		const fixture = createControllerFixture( [
 			{
@@ -508,32 +666,65 @@ describe( 'createInterruptionPageController', () => {
 		expect( fixture.scheduler.getTimeoutDelaysMilliseconds() ).toEqual( [] );
 	} );
 
-	it( 'uses a fresh Connect response after restarting over an in-flight request', async () => {
+	it( 'ignores a recovered state received after stopping during automatic recovery', async () => {
+		const recoveryResponse = Promise.withResolvers<unknown>();
+		const fixture = createControllerFixture( [
+			{ state: InterruptionPageResponseState.UNAVAILABLE },
+			recoveryResponse.promise,
+		] );
+		const startPromise = fixture.controller.start();
+
+		await settleControllerRequests();
+		expect( fixture.runtime.requests.map( ( request ) => request.type ) ).toEqual( [
+			InterruptionPageRequestType.CONNECT,
+			InterruptionPageRequestType.RECOVER,
+		] );
+		fixture.controller.stop();
+		recoveryResponse.resolve( {
+			state: InterruptionPageResponseState.READY,
+			allowanceExpiresAtEpochMilliseconds: 120_000,
+		} );
+		await startPromise;
+
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.WAITING );
+		expect( fixture.screen.recovering ).toBe( false );
+		expect( fixture.scheduler.getTimeoutDelaysMilliseconds() ).toEqual( [] );
+	} );
+
+	it( 'preserves a fresh Connect request over attention changes after restarting', async () => {
 		const staleReadyResponse = Promise.withResolvers<unknown>();
+		const freshWaitingResponse = Promise.withResolvers<unknown>();
 		const fixture = createControllerFixture( [
 			staleReadyResponse.promise,
-			{
-				state: InterruptionPageResponseState.WAITING,
-				capturedWaitDurationMilliseconds: 15_000,
-				focusedProgressMilliseconds: 4_000,
-				progressing: true,
-			},
+			freshWaitingResponse.promise,
 		] );
 		const firstStart = fixture.controller.start();
+		let secondStartSettled = false;
 
 		fixture.controller.stop();
-		const secondStart = fixture.controller.start();
+		const secondStart = fixture.controller.start().then( () => {
+			secondStartSettled = true;
+		} );
+		fixture.windowTarget.dispatchEvent( new Event( 'focus' ) );
 		staleReadyResponse.resolve( {
 			state: InterruptionPageResponseState.READY,
 			allowanceExpiresAtEpochMilliseconds: 120_000,
 		} );
-		await Promise.all( [ firstStart, secondStart ] );
+		await firstStart;
 		await settleControllerRequests();
 
 		expect( fixture.runtime.requests.map( ( request ) => request.type ) ).toEqual( [
 			InterruptionPageRequestType.CONNECT,
 			InterruptionPageRequestType.CONNECT,
 		] );
+		expect( secondStartSettled ).toBe( false );
+		freshWaitingResponse.resolve( {
+			state: InterruptionPageResponseState.WAITING,
+			capturedWaitDurationMilliseconds: 15_000,
+			focusedProgressMilliseconds: 4_000,
+			progressing: true,
+		} );
+		await secondStart;
 		expect( fixture.screen ).toMatchObject( {
 			state: InterruptionScreenState.WAITING,
 			waitDurationMilliseconds: 15_000,
@@ -825,6 +1016,32 @@ describe( 'createInterruptionPageController', () => {
 		expect( fixture.screen.state ).toBe( InterruptionScreenState.READY_EXPIRED );
 	} );
 
+	it( 'does not repeat a later synchronization failure automatically', async () => {
+		const fixture = createControllerFixture( [
+			{
+				state: InterruptionPageResponseState.READY,
+				allowanceExpiresAtEpochMilliseconds: 300_000,
+			},
+			new Error( 'Runtime unavailable.' ),
+			{
+				state: InterruptionPageResponseState.WAITING,
+				capturedWaitDurationMilliseconds: 10_000,
+				focusedProgressMilliseconds: 0,
+				progressing: true,
+			},
+		] );
+
+		await fixture.controller.start();
+		fixture.windowTarget.dispatchEvent( new Event( 'focus' ) );
+		await settleControllerRequests();
+
+		expect( fixture.runtime.requests.map( ( request ) => request.type ) ).toEqual( [
+			InterruptionPageRequestType.CONNECT,
+			InterruptionPageRequestType.SYNCHRONIZE,
+		] );
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.UNAVAILABLE );
+	} );
+
 	it( 'projects the browser reduced-motion preference and observes later changes', async () => {
 		const fixture = createControllerFixture( [ {
 			state: InterruptionPageResponseState.WAITING,
@@ -897,6 +1114,7 @@ describe( 'createInterruptionPageController', () => {
 		fixture.windowTarget.dispatchEvent( new Event( 'blur' ) );
 		fixture.windowTarget.dispatchEvent( new Event( 'focus' ) );
 		fixture.screen.dispatchEvent( new Event( InterruptionContinueRequestEventName ) );
+		fixture.screen.dispatchEvent( new Event( InterruptionRetryRequestEventName ) );
 		await settleControllerRequests();
 
 		expect( fixture.scheduler.getDelaysMilliseconds() ).toEqual( [] );

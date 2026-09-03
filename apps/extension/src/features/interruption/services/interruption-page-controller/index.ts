@@ -7,6 +7,7 @@ import {
 } from '../../../protection-runtime/types/runtime-message';
 import {
 	InterruptionContinueRequestEventName,
+	InterruptionRetryRequestEventName,
 	InterruptionScreenState,
 } from '../../components/screen/types';
 import {
@@ -27,6 +28,7 @@ export function createInterruptionPageController(
 ): InterruptionPageController {
 	let checkpointIntervalHandle: number | null = null;
 	let pendingRequest: InterruptionPageRequest | null = null;
+	let pendingRequestRecoversInitialFailure = false;
 	let requestOperation: Promise<void> | null = null;
 	let readyExpiryTimeoutHandle: number | null = null;
 	let observing = false;
@@ -84,12 +86,13 @@ export function createInterruptionPageController(
 	}
 
 	/**
-	 * Shows a distinct non-actionable presentation when runtime state is unavailable.
+	 * Shows the recoverable presentation when runtime state remains unavailable.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function showUnavailable(): void {
 		stopReadyExpiryTimeout();
 		options.screen.progressing = false;
+		options.screen.recovering = false;
 		options.screen.state = InterruptionScreenState.UNAVAILABLE;
 		synchronizeCheckpointInterval();
 	}
@@ -100,6 +103,8 @@ export function createInterruptionPageController(
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function applyResponse( response: InterruptionPageResponse ): void {
+		options.screen.recovering = false;
+
 		if ( response.state === InterruptionPageResponseState.WAITING ) {
 			stopReadyExpiryTimeout();
 			options.screen.waitDurationMilliseconds = response.capturedWaitDurationMilliseconds;
@@ -127,31 +132,59 @@ export function createInterruptionPageController(
 	}
 
 	/**
+	 * Requests and validates one authoritative runtime projection.
+	 * @param request - Validated request to send.
+	 * @return Validated response, or null when transport or validation fails.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function requestResponse(
+		request: InterruptionPageRequest,
+	): Promise<InterruptionPageResponse | null> {
+		try {
+			return InterruptionPageResponseSchema.parse(
+				await options.runtime.sendMessage( request ),
+			);
+		} catch {
+			return null;
+		}
+	}
+
+	/**
 	 * Sends and safely projects one interruption-page request.
 	 * @param request - Validated request to send.
 	 * @param generation - Controller lifecycle that owns the response.
+	 * @param recoverInitialFailure - Whether to request one silent recovery after an unavailable initial result.
 	 * @return Promise resolved after one response or safe fallback is applied.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function sendRequest(
 		request: InterruptionPageRequest,
 		generation: number,
+		recoverInitialFailure = false,
 	): Promise<void> {
-		try {
-			const response = InterruptionPageResponseSchema.parse(
-				await options.runtime.sendMessage( request ),
-			);
+		let response = await requestResponse( request );
 
-			if ( ! observing || generation !== lifecycleGeneration ) {
+		if ( ! observing || generation !== lifecycleGeneration ) {
+			return;
+		}
+
+		if (
+			recoverInitialFailure &&
+			( response === null || response.state === InterruptionPageResponseState.UNAVAILABLE )
+		) {
+			response = await requestResponse( createRecoveryRequest() );
+
+			if ( generation !== lifecycleGeneration ) {
 				return;
 			}
-
-			applyResponse( response );
-		} catch {
-			if ( observing && generation === lifecycleGeneration ) {
-				showUnavailable();
-			}
 		}
+
+		if ( response === null ) {
+			showUnavailable();
+			return;
+		}
+
+		applyResponse( response );
 	}
 
 	/**
@@ -160,22 +193,28 @@ export function createInterruptionPageController(
 	 */
 	function handleRequestCompletion(): void {
 		const nextRequest = pendingRequest;
+		const nextRequestRecoversInitialFailure = pendingRequestRecoversInitialFailure;
 
 		pendingRequest = null;
+		pendingRequestRecoversInitialFailure = false;
 		requestOperation = null;
 		if ( nextRequest !== null ) {
-			void startRequest( nextRequest );
+			void startRequest( nextRequest, nextRequestRecoversInitialFailure );
 		}
 	}
 
 	/**
 	 * Sends one request as the sole active runtime operation.
 	 * @param request - Validated request to send.
+	 * @param recoverInitialFailure - Whether this initial request owns one silent recovery attempt.
 	 * @return Promise resolved after the request is projected.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	function startRequest( request: InterruptionPageRequest ): Promise<void> {
-		const operation = sendRequest( request, lifecycleGeneration );
+	function startRequest(
+		request: InterruptionPageRequest,
+		recoverInitialFailure = false,
+	): Promise<void> {
+		const operation = sendRequest( request, lifecycleGeneration, recoverInitialFailure );
 
 		requestOperation = operation;
 		void operation.then( handleRequestCompletion );
@@ -184,14 +223,34 @@ export function createInterruptionPageController(
 	}
 
 	/**
+	 * Creates an explicit runtime recovery request for automatic or user-requested recovery.
+	 * @return Recovery request carrying current document visibility.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function createRecoveryRequest(): InterruptionPageRequest {
+		return {
+			type: InterruptionPageRequestType.RECOVER,
+			documentVisible: options.visibility.isDocumentVisible(),
+		};
+	}
+
+	/**
 	 * Sends immediately or retains one request behind active messaging.
 	 * @param request - Validated request to enqueue.
+	 * @param recoverInitialFailure - Whether this initial request owns one silent recovery attempt.
 	 * @return Promise resolved after the operation active at submission time settles.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	function enqueueRequest( request: InterruptionPageRequest ): Promise<void> {
+	function enqueueRequest(
+		request: InterruptionPageRequest,
+		recoverInitialFailure = false,
+	): Promise<void> {
 		if ( requestOperation === null ) {
-			return startRequest( request );
+			return startRequest( request, recoverInitialFailure );
+		}
+
+		if ( pendingRequest?.type === InterruptionPageRequestType.CONNECT ) {
+			return requestOperation;
 		}
 
 		if (
@@ -202,6 +261,7 @@ export function createInterruptionPageController(
 		}
 
 		pendingRequest = request;
+		pendingRequestRecoversInitialFailure = recoverInitialFailure;
 
 		return requestOperation;
 	}
@@ -308,15 +368,35 @@ export function createInterruptionPageController(
 	}
 
 	/**
+	 * Requests one explicit recovery after automatic recovery remains unavailable.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function handleRetryRequest(): void {
+		if (
+			! observing ||
+			options.screen.state !== InterruptionScreenState.UNAVAILABLE ||
+			options.screen.recovering ||
+			requestOperation !== null
+		) {
+			return;
+		}
+
+		options.screen.recovering = true;
+		void enqueueRequest( createRecoveryRequest() );
+	}
+
+	/**
 	 * Connects the page and begins observing timing, attention, and motion preferences.
 	 * @return Promise resolved after the initial authoritative projection.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function start(): Promise<void> {
 		lifecycleGeneration += 1;
+		const generation = lifecycleGeneration;
 		observing = true;
 		windowFocused = options.visibility.isWindowFocused();
 		options.screen.progressing = false;
+		options.screen.recovering = false;
 		options.screen.state = InterruptionScreenState.WAITING;
 		options.motionPreference.addEventListener( 'change', handleMotionPreferenceChange );
 		handleMotionPreferenceChange();
@@ -324,10 +404,20 @@ export function createInterruptionPageController(
 		options.windowTarget.addEventListener( 'blur', handleWindowBlur );
 		options.windowTarget.addEventListener( 'focus', handleWindowFocus );
 		options.screen.addEventListener( InterruptionContinueRequestEventName, handleContinueRequest );
-		await enqueueRequest( {
+		options.screen.addEventListener( InterruptionRetryRequestEventName, handleRetryRequest );
+		const submittedOperation = enqueueRequest( {
 			type: InterruptionPageRequestType.CONNECT,
 			documentVisible: options.visibility.isDocumentVisible(),
-		} );
+		}, true );
+
+		await submittedOperation;
+		if ( generation !== lifecycleGeneration ) {
+			return;
+		}
+
+		if ( requestOperation !== null && requestOperation !== submittedOperation ) {
+			await requestOperation;
+		}
 	}
 
 	/**
@@ -338,6 +428,8 @@ export function createInterruptionPageController(
 		lifecycleGeneration += 1;
 		observing = false;
 		pendingRequest = null;
+		pendingRequestRecoversInitialFailure = false;
+		options.screen.recovering = false;
 		stopCheckpointInterval();
 		stopReadyExpiryTimeout();
 		options.motionPreference.removeEventListener( 'change', handleMotionPreferenceChange );
@@ -345,6 +437,7 @@ export function createInterruptionPageController(
 		options.windowTarget.removeEventListener( 'blur', handleWindowBlur );
 		options.windowTarget.removeEventListener( 'focus', handleWindowFocus );
 		options.screen.removeEventListener( InterruptionContinueRequestEventName, handleContinueRequest );
+		options.screen.removeEventListener( InterruptionRetryRequestEventName, handleRetryRequest );
 	}
 
 	return { start, stop };
