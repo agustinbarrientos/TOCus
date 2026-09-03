@@ -20,4 +20,5 @@ _In development._
 - Added the accessible full-screen breathing pause and Ready presentation with natural motion, focus-aware timing, and local light and dark visual baselines.
 - Added live Chrome, Firefox, and Safari navigation protection with shared waits, wall-clock allowances, restart recovery, and non-destructive gentle re-interruption.
 - Added generated browser icons and global toolbar badges for active wait, allowance, and multiple-scope status.
+- Added local appearance and accessibility preferences for system, light, and dark themes, six full-scene palettes, Breathing and Quiet pause presentation, and user or operating-system reduced motion across extension surfaces.
 - Added the initial project website, contribution guidance, and public project documentation.
