@@ -127,10 +127,18 @@ export class ComponentBreathingSphere extends LitElement {
 		}
 
 		this.appearanceObserver = new MutationObserver( this.handleAppearanceChange );
-		this.appearanceObserver.observe( document.documentElement, {
+		const observerOptions: MutationObserverInit = {
 			attributeFilter: [ 'data-tocus-palette', 'data-tocus-theme' ],
 			attributes: true,
-		} );
+		};
+
+		this.appearanceObserver.observe( document.documentElement, observerOptions );
+		let root = this.getRootNode();
+
+		while ( root instanceof ShadowRoot ) {
+			this.appearanceObserver.observe( root.host, observerOptions );
+			root = root.host.getRootNode();
+		}
 
 		this.resizeObserver = new ResizeObserver( () => {
 			this.draw();
