@@ -221,6 +221,17 @@ async function createTimedScreen(
 }
 
 describe( 'tocus-f-interruption-screen presentation timing', () => {
+	it( 'reports locally displayed focused progress for persistence checkpoints', async () => {
+		const timing = new ManualInterruptionScreenTiming();
+		const element = new ComponentInterruptionScreen( timing );
+
+		element.progressing = true;
+		await fixture( element );
+		timing.advance( 2_500 );
+
+		assert.equal( element.getFocusedProgressMilliseconds(), 2_500 );
+	} );
+
 	it( 'advances normal breathing with animation frames and freezes in Waiting at completion', async () => {
 		const timing = new ManualInterruptionScreenTiming();
 		const element = new ComponentInterruptionScreen( timing );
