@@ -28,6 +28,7 @@ export interface PresentedProtectedSite {
 	site: ProtectedSiteConfiguration;
 	identity: SiteDisplayIdentity;
 	faviconSource: SiteFaviconSource;
+	accessGranted: boolean;
 }
 
 /**
@@ -70,6 +71,9 @@ export interface ProtectedSitesScreenCopy {
 	invalidDisplayNameError: string;
 	siteNotFoundError: string;
 	saveError: string;
+	permissionDeniedError: string;
+	permissionRequestError: string;
+	permissionRetainedError: string;
 	malformedDataTitle: string;
 	malformedDataDescription: string;
 	loadErrorTitle: string;
@@ -96,6 +100,20 @@ export interface ProtectedSitesScreenCopy {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	formatRemovedAnnouncement( name: string ): string;
+	/**
+	 * Formats the announcement emitted when a site is removed but browser access remains.
+	 * @param name - Resolved local site name.
+	 * @return Human-readable permission-retention announcement.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	formatPermissionRetainedAnnouncement( name: string ): string;
+	/**
+	 * Formats the announcement emitted after browser access is restored.
+	 * @param name - Resolved local site name.
+	 * @return Human-readable access-restoration announcement.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	formatAccessRestoredAnnouncement( name: string ): string;
 }
 
 /**
@@ -126,6 +144,26 @@ function formatUpdatedAnnouncement( name: string ): string {
  */
 function formatRemovedAnnouncement( name: string ): string {
 	return `${ name } was removed from protected sites.`;
+}
+
+/**
+ * Formats the default permission-retention announcement.
+ * @param name - Resolved local site name.
+ * @return Human-readable permission-retention announcement.
+ * @since 0.1.0 Initial implementation.
+ */
+function formatPermissionRetainedAnnouncement( name: string ): string {
+	return `${ name } was removed, but its browser access could not be removed automatically.`;
+}
+
+/**
+ * Formats the default browser-access restoration announcement.
+ * @param name - Resolved local site name.
+ * @return Human-readable access-restoration announcement.
+ * @since 0.1.0 Initial implementation.
+ */
+function formatAccessRestoredAnnouncement( name: string ): string {
+	return `${ name } access was restored.`;
 }
 
 /**
@@ -160,6 +198,9 @@ export const DefaultProtectedSitesScreenCopy: Readonly<ProtectedSitesScreenCopy>
 	invalidDisplayNameError: 'The website name is not valid.',
 	siteNotFoundError: 'This protected site no longer exists.',
 	saveError: 'This website could not be saved. Your entry is still here.',
+	permissionDeniedError: 'Browser access is required to protect this website. Nothing was saved.',
+	permissionRequestError: 'Browser access could not be requested. Nothing was saved.',
+	permissionRetainedError: 'This website could not be saved. Its browser access may still be active.',
 	malformedDataTitle: 'Protected sites need your attention',
 	malformedDataDescription: 'Your local protected-site data is not valid, so it was not replaced.',
 	loadErrorTitle: 'Protected sites could not load',
@@ -168,4 +209,6 @@ export const DefaultProtectedSitesScreenCopy: Readonly<ProtectedSitesScreenCopy>
 	formatAddedAnnouncement,
 	formatUpdatedAnnouncement,
 	formatRemovedAnnouncement,
+	formatPermissionRetainedAnnouncement,
+	formatAccessRestoredAnnouncement,
 } );
