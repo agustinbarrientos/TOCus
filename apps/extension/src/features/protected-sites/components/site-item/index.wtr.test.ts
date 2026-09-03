@@ -9,8 +9,19 @@ import { type ProtectionConfigurationStorageService } from '../../../../domains/
 import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
+import {
+	createProtectedSiteEnrollmentService,
+	type ProtectedSiteEnrollmentService,
+} from '../../services/protected-site-enrollment';
+import {
+	SitePermissionGrantProvenance,
+	SitePermissionReleaseStatus,
+	SitePermissionRequestStatus,
+	type SitePermissionManager,
+} from '../../services/site-permission-manager';
 import { ComponentProtectedSiteItem } from './index';
 import {
+	ProtectedSiteAccessRestoredEventName,
 	ProtectedSiteConfigurationChangedEventName,
 	ProtectedSiteConfigurationChangeKind,
 	type ProtectedSiteConfigurationChangedEventDetail,
@@ -177,6 +188,78 @@ function createEditor( storage: MemorySiteItemStorage ): ProtectionConfiguration
 }
 
 /**
+ * Grants one configured site in site-item fixtures.
+ * @return Successful existing-permission result.
+ * @since 0.1.0 Initial implementation.
+ */
+function requestSitePermission(): ReturnType<SitePermissionManager[ 'request' ]> {
+	return Promise.resolve( {
+		status: SitePermissionRequestStatus.GRANTED,
+		provenance: SitePermissionGrantProvenance.EXISTING,
+	} );
+}
+
+/**
+ * Releases one configured site in site-item fixtures.
+ * @return Successful permission-release result.
+ * @since 0.1.0 Initial implementation.
+ */
+function releaseSitePermission(): ReturnType<SitePermissionManager[ 'release' ]> {
+	return Promise.resolve( SitePermissionReleaseStatus.RELEASED );
+}
+
+/**
+ * Returns the supplied configuration unchanged in site-item fixtures.
+ * @param configuration - Validated persisted configuration.
+ * @return Unchanged configuration.
+ * @since 0.1.0 Initial implementation.
+ */
+function filterPermissionConfiguration(
+	configuration: ProtectionConfigurationDocument,
+): Promise<ProtectionConfigurationDocument> {
+	return Promise.resolve( configuration );
+}
+
+/**
+ * Reports complete browser access in default site-item fixtures.
+ * @return True for the default granted-access fixture.
+ * @since 0.1.0 Initial implementation.
+ */
+function hasSiteAccess(): Promise<boolean> {
+	return Promise.resolve( true );
+}
+
+/**
+ * Creates a site-item permission manager with one configurable request operation.
+ * @param request - Browser permission request behavior.
+ * @return Complete permission manager fixture.
+ * @since 0.1.0 Initial implementation.
+ */
+function createPermissionManager(
+	request: SitePermissionManager[ 'request' ] = requestSitePermission,
+): SitePermissionManager {
+	return {
+		filterConfiguration: filterPermissionConfiguration,
+		hasAccess: hasSiteAccess,
+		request,
+		release: releaseSitePermission,
+	};
+}
+
+/**
+ * Creates protected-site enrollment backed by the supplied storage.
+ * @param storage - In-memory persistence dependency.
+ * @return Coordinated enrollment and removal service.
+ * @since 0.1.0 Initial implementation.
+ */
+function createEnrollmentService( storage: MemorySiteItemStorage ): ProtectedSiteEnrollmentService {
+	return createProtectedSiteEnrollmentService( {
+		editor: createEditor( storage ),
+		permissionManager: createPermissionManager(),
+	} );
+}
+
+/**
  * Creates one deterministic independent scope for site-item fixtures.
  * @return Stable independent protection scope.
  * @since 0.1.0 Initial implementation.
@@ -217,6 +300,103 @@ describe( 'tocus-f-protected-site-item', () => {
 		` );
 
 		assert.equal( element.shadowRoot?.textContent.trim(), '' );
+	} );
+
+	it( 'keeps the access-required state when browser access is denied', async () => {
+		const permissionManager = createPermissionManager(
+			() => Promise.resolve( { status: SitePermissionRequestStatus.DENIED } ),
+		);
+		const element = await fixture<ComponentProtectedSiteItem>( html`
+			<tocus-f-protected-site-item
+				.site=${ SITE }
+				.identity=${ IDENTITY }
+				.accessGranted=${ false }
+				.permissionManager=${ permissionManager }
+			></tocus-f-protected-site-item>
+		` );
+
+		getRequiredElement( element, '.restore-access-action', HTMLButtonElement ).click();
+		await settleAsyncAction( element );
+
+		assert.instanceOf( element.shadowRoot?.querySelector( '.access-required' ), HTMLElement );
+		assert.include( getRequiredElement( element, '.operation-error' ).textContent, 'still required' );
+	} );
+
+	it( 'keeps the access-required state when the browser permission request rejects', async () => {
+		const permissionManager = createPermissionManager(
+			() => Promise.reject( new Error( 'Unavailable.' ) ),
+		);
+		const element = await fixture<ComponentProtectedSiteItem>( html`
+			<tocus-f-protected-site-item
+				.site=${ SITE }
+				.identity=${ IDENTITY }
+				.accessGranted=${ false }
+				.permissionManager=${ permissionManager }
+			></tocus-f-protected-site-item>
+		` );
+
+		getRequiredElement( element, '.restore-access-action', HTMLButtonElement ).click();
+		await settleAsyncAction( element );
+
+		assert.instanceOf( element.shadowRoot?.querySelector( '.access-required' ), HTMLElement );
+		assert.include( getRequiredElement( element, '.operation-error' ).textContent, 'still required' );
+	} );
+
+	it( 'emits one recovery request without asserting access before the owner refreshes it', async () => {
+		let completeRequest: ( () => void ) | null = null;
+		let requestCount = 0;
+		let restoredEventCount = 0;
+
+		/**
+		 * Returns the request completion captured inside the permission callback.
+		 * @return Current request completion or null before capture.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		function getCompleteRequest(): ( () => void ) | null {
+			return completeRequest;
+		}
+
+		const permissionManager = createPermissionManager( () => {
+			requestCount += 1;
+			return new Promise( ( resolve ) => {
+				completeRequest = () => {
+					resolve( {
+						status: SitePermissionRequestStatus.GRANTED,
+						provenance: SitePermissionGrantProvenance.NEW,
+					} );
+				};
+			} );
+		} );
+		const element = await fixture<ComponentProtectedSiteItem>( html`
+			<tocus-f-protected-site-item
+				.site=${ SITE }
+				.identity=${ IDENTITY }
+				.accessGranted=${ false }
+				.permissionManager=${ permissionManager }
+			></tocus-f-protected-site-item>
+		` );
+		const restoreAction = getRequiredElement(
+			element,
+			'.restore-access-action',
+			HTMLButtonElement,
+		);
+		element.addEventListener( ProtectedSiteAccessRestoredEventName, () => {
+			restoredEventCount += 1;
+		} );
+
+		restoreAction.click();
+		restoreAction.click();
+		assert.equal( requestCount, 1 );
+		const finishRequest = getCompleteRequest();
+		if ( finishRequest === null ) {
+			throw new Error( 'Expected one pending access request.' );
+		}
+		finishRequest();
+		await settleAsyncAction( element );
+
+		assert.isFalse( element.accessGranted );
+		assert.instanceOf( element.shadowRoot?.querySelector( '.access-required' ), HTMLElement );
+		assert.equal( restoredEventCount, 1 );
 	} );
 
 	it( 'renders a readable local identity and whole-domain shared behavior', async () => {
@@ -468,6 +648,7 @@ describe( 'tocus-f-protected-site-item', () => {
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 				.editor=${ createEditor( storage ) }
+				.enrollmentService=${ createEnrollmentService( storage ) }
 			></tocus-f-protected-site-item>
 		` );
 
@@ -505,6 +686,7 @@ describe( 'tocus-f-protected-site-item', () => {
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 				.editor=${ createEditor( storage ) }
+				.enrollmentService=${ createEnrollmentService( storage ) }
 			></tocus-f-protected-site-item>
 		` );
 
@@ -527,6 +709,7 @@ describe( 'tocus-f-protected-site-item', () => {
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 				.editor=${ createEditor( storage ) }
+				.enrollmentService=${ createEnrollmentService( storage ) }
 			></tocus-f-protected-site-item>
 		` );
 
@@ -548,6 +731,7 @@ describe( 'tocus-f-protected-site-item', () => {
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 				.editor=${ createEditor( storage ) }
+				.enrollmentService=${ createEnrollmentService( storage ) }
 			></tocus-f-protected-site-item>
 		` );
 
