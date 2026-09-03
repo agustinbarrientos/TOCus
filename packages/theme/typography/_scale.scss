@@ -112,8 +112,8 @@ $-roles: (
 	@return map.has-key( $-roles, $role );
 }
 
-@mixin emit-tokens() {
-	:root {
+@mixin emit-tokens( $selector: ':root' ) {
+	#{ $selector } {
 		@each $role, $properties in $-roles {
 			@each $property, $value in $properties {
 				--tocus-typography-#{ $role }-#{ $property }: #{ $value };
