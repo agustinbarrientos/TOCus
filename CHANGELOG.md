@@ -9,7 +9,7 @@ _In development._
 ### Added
 
 - Established the initial Chrome, Firefox, and Safari extension foundation with WXT and Lit.
-- Kept the extension local-first with no broad browser permissions and an explicit no-data declaration for Firefox.
+- Kept the extension local-first with no saved-history access or telemetry, exact site access requested only when protection is enabled, and an explicit no-data declaration for Firefox.
 - Added the first popup shell with light and dark appearances.
 - Added the shared theme, six color palettes, bundled Fredoka brand typography, and semantic typography roles.
 - Added build-contract, accessibility, local visual-regression, and cross-browser build checks.
@@ -18,4 +18,6 @@ _In development._
 - Added the local protected-site identity and configuration foundation with editable names, a top-site display-name catalog, deterministic monogram fallbacks, and a cache-only favicon provider for supported browsers.
 - Added local protected-site settings for adding, editing, grouping, and removing sites, with cached Chrome favicons and monogram fallbacks for Firefox and Safari.
 - Added the accessible full-screen breathing pause and Ready presentation with natural motion, focus-aware timing, and local light and dark visual baselines.
+- Added live Chrome, Firefox, and Safari navigation protection with shared waits, wall-clock allowances, restart recovery, and non-destructive gentle re-interruption.
+- Added generated browser icons and global toolbar badges for active wait, allowance, and multiple-scope status.
 - Added the initial project website, contribution guidance, and public project documentation.
