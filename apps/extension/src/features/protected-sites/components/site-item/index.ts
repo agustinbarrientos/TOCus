@@ -14,10 +14,20 @@ import {
 import { type ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
 import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
 import { type SiteFaviconSource } from '../../services/site-favicon-provider';
+import {
+	SitePermissionRequestStatus,
+	type SitePermissionManager,
+} from '../../services/site-permission-manager';
+import {
+	ProtectedSiteEnrollmentStatus,
+	type ProtectedSiteEnrollmentService,
+} from '../../services/protected-site-enrollment';
 import { type SiteDisplayIdentity } from '../../utils/site-display-name-resolver';
 import styles from './web-component-style.scss?inline';
 import {
 	DefaultProtectedSiteItemCopy,
+	ProtectedSiteAccessRestoredEventName,
+	type ProtectedSiteAccessRestoredEventDetail,
 	ProtectedSiteConfigurationChangedEventName,
 	ProtectedSiteConfigurationChangeKind,
 	type ProtectedSiteConfigurationChangedEventDetail,
@@ -57,11 +67,32 @@ export class ComponentProtectedSiteItem extends LitElement {
 	accessor editor: ProtectionConfigurationEditor | null = null;
 
 	/**
+	 * Feature service coordinating protected-site removal and browser access.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor enrollmentService: ProtectedSiteEnrollmentService | null = null;
+
+	/**
 	 * Browser-cached local favicon source, or null for the monogram fallback.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@property( { attribute: false } )
 	accessor faviconSource: SiteFaviconSource = null;
+
+	/**
+	 * Whether the browser currently grants every capability required by this site.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor accessGranted = true;
+
+	/**
+	 * Browser permission manager used to restore access after revocation.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor permissionManager: SitePermissionManager | null = null;
 
 	/**
 	 * Complete localizable messages rendered by the item.
@@ -84,6 +115,9 @@ export class ComponentProtectedSiteItem extends LitElement {
 
 	@state()
 	private accessor saving = false;
+
+	@state()
+	private accessor restoringAccess = false;
 
 	/**
 	 * Restores favicon eligibility when the owning screen supplies a new source.
@@ -157,6 +191,41 @@ export class ComponentProtectedSiteItem extends LitElement {
 	 */
 	private readonly handleFaviconError = (): void => {
 		this.faviconUnavailable = true;
+	};
+
+	/**
+	 * Restores the complete browser grant required by the current protected site.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private readonly handleRestoreAccess = async (): Promise<void> => {
+		if ( this.restoringAccess || this.site === null || this.permissionManager === null ) {
+			return;
+		}
+
+		this.restoringAccess = true;
+		this.operationError = '';
+
+		try {
+			const result = await this.permissionManager.request( this.site.rule );
+
+			if ( result.status !== SitePermissionRequestStatus.GRANTED ) {
+				this.operationError = this.copy.accessRequestError;
+				return;
+			}
+
+			this.dispatchEvent( new CustomEvent<ProtectedSiteAccessRestoredEventDetail>(
+				ProtectedSiteAccessRestoredEventName,
+				{
+					bubbles: true,
+					composed: true,
+					detail: { identityHost: this.site.identityHost },
+				},
+			) );
+		} catch {
+			this.operationError = this.copy.accessRequestError;
+		} finally {
+			this.restoringAccess = false;
+		}
 	};
 
 	/**
@@ -255,7 +324,7 @@ export class ComponentProtectedSiteItem extends LitElement {
 			return;
 		}
 
-		if ( this.site === null || this.editor === null ) {
+		if ( this.site === null || this.enrollmentService === null ) {
 			this.operationError = this.copy.operationError;
 			return;
 		}
@@ -264,9 +333,9 @@ export class ComponentProtectedSiteItem extends LitElement {
 		this.operationError = '';
 
 		try {
-			const result = await this.editor.remove( this.site.identityHost );
+			const result = await this.enrollmentService.remove( this.site );
 
-			if ( result.status === ProtectionConfigurationEditStatus.REJECTED ) {
+			if ( result.status !== ProtectedSiteEnrollmentStatus.REMOVED ) {
 				this.operationError = this.copy.configurationChangedError;
 				return;
 			}
@@ -275,6 +344,7 @@ export class ComponentProtectedSiteItem extends LitElement {
 				kind: ProtectedSiteConfigurationChangeKind.REMOVED,
 				identityHost: this.site.identityHost,
 				configuration: result.configuration,
+				permissionReleaseStatus: result.permissionReleaseStatus,
 			} );
 		} catch {
 			this.operationError = this.copy.operationError;
@@ -334,6 +404,18 @@ export class ComponentProtectedSiteItem extends LitElement {
 					>${ this.copy.edit }</button>
 				</div>
 				<p class="boundary">${ boundary }</p>
+				${ this.accessGranted ? html`` : html`
+					<div class="access-required" role="status">
+						<span>${ this.copy.accessRequired }</span>
+						<button
+							class="restore-access-action"
+							type="button"
+							?disabled=${ this.restoringAccess || this.permissionManager === null }
+							@click=${ this.handleRestoreAccess }
+						>${ this.restoringAccess ? this.copy.allowingAccess : this.copy.allowAccess }</button>
+					</div>
+					${ this.renderOperationError() }
+				` }
 				${ this.editing ? this.renderEditor( this.site, this.identity, independent ) : html`` }
 			</article>
 		`;
