@@ -439,6 +439,17 @@ function createProjector(
 }
 
 describe( 'createBrowserProtectionProjector', () => {
+	it( 'forwards orphaned interruption recovery to page projection', async () => {
+		const browser = new ProjectorBrowserFixture();
+		const projector = createProjector( browser, new ProjectorCoordinatorFixture( null ) );
+
+		browser.tabs = [ { id: 31, url: INTERRUPTION_PAGE_URL } ];
+
+		await projector.releaseInterruptionPresentation( 31 );
+
+		expect( browser.dismissedTabIds ).toEqual( [ 31 ] );
+	} );
+
 	it( 'projects redirects, independent protection-clock deadlines, and one global badge', async () => {
 		const browser = new ProjectorBrowserFixture();
 		const nearerExpiry = NOW_EPOCH_MILLISECONDS + 59_000;
