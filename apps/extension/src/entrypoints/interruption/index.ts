@@ -1,5 +1,6 @@
 import '@tocus/theme/index.scss';
 import { browser } from 'wxt/browser';
+import { createPreferencesStorageService } from '../../domains/preferences/services';
 import { ComponentInterruptionScreen } from '../../features/interruption/components/screen';
 import {
 	createInterruptionPageController,
@@ -8,6 +9,7 @@ import {
 	type InterruptionPageVisibility,
 } from '../../features/interruption/services/interruption-page-controller';
 import { type InterruptionPageRequest } from '../../features/protection-runtime/types/runtime-message';
+import { createPreferencesController } from '../../features/preferences/services/preferences-controller';
 import './styles.scss';
 
 /**
@@ -47,11 +49,13 @@ function getCurrentEpochMilliseconds(): number {
 	return Date.now();
 }
 
-const interruptionScreen = document.querySelector( 'tocus-f-interruption-screen' );
+const interruptionScreenCandidate = document.querySelector( 'tocus-f-interruption-screen' );
 
-if ( ! ( interruptionScreen instanceof ComponentInterruptionScreen ) ) {
+if ( ! ( interruptionScreenCandidate instanceof ComponentInterruptionScreen ) ) {
 	throw new TypeError( 'Expected the interruption page to contain the interruption screen.' );
 }
+
+const interruptionScreen = interruptionScreenCandidate;
 
 const runtime: InterruptionPageRuntime = {
 	sendMessage: sendInterruptionPageRequest,
@@ -64,15 +68,39 @@ const visibility: InterruptionPageVisibility = {
 	isDocumentVisible,
 	isWindowFocused,
 };
-const controller = createInterruptionPageController( {
-	clock,
-	documentTarget: document,
-	motionPreference,
-	runtime,
-	scheduler: window,
-	screen: interruptionScreen,
-	visibility,
-	windowTarget: window,
+const preferencesStorage = createPreferencesStorageService( {
+	area: browser.storage.local,
+} );
+const preferencesController = createPreferencesController( {
+	appearanceTarget: document.documentElement,
+	presentation: interruptionScreen,
+	storage: preferencesStorage,
+	storageChanges: browser.storage.onChanged,
+	systemMotionPreference: motionPreference,
 } );
 
-void controller.start();
+/**
+ * Applies local preferences before connecting interruption behavior.
+ * @return Promise resolved after preference and interruption startup.
+ * @since 0.1.0 Initial implementation.
+ */
+async function startInterruptionPage(): Promise<void> {
+	await preferencesController.start();
+	const controller = createInterruptionPageController( {
+		clock,
+		documentTarget: document,
+		motionPreference: preferencesController,
+		runtime,
+		scheduler: window,
+		screen: interruptionScreen,
+		visibility,
+		windowTarget: window,
+	} );
+
+	await controller.start();
+	document.documentElement.style.removeProperty( 'color-scheme' );
+	document.documentElement.style.removeProperty( 'background' );
+	document.documentElement.style.removeProperty( 'visibility' );
+}
+
+void startInterruptionPage();
