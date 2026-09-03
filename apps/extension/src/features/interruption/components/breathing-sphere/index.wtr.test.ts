@@ -245,6 +245,37 @@ describe( 'tocus-f-breathing-sphere', () => {
 		assert.notEqual( greenDarkImage, greenLightImage );
 	} );
 
+	it( 'redraws when an outer shadow host changes its inherited appearance', async () => {
+		const outerHost = document.createElement( 'div' );
+		const outerShadow = outerHost.attachShadow( { mode: 'open' } );
+		const innerHost = document.createElement( 'div' );
+		const innerShadow = innerHost.attachShadow( { mode: 'open' } );
+		const element = document.createElement( 'tocus-f-breathing-sphere' );
+
+		element.style.width = '260px';
+		element.style.height = '220px';
+		innerShadow.append( element );
+		outerShadow.append( innerHost );
+		document.body.append( outerHost );
+		await element.updateComplete;
+		await nextFrame();
+		const canvas = getCanvas( element );
+		const brownImage = canvas.toDataURL();
+
+		outerHost.style.setProperty( '--tocus-color-breathing-sphere', '#78966c' );
+		outerHost.style.setProperty( '--tocus-color-breathing-sphere-highlight', '#bdcfad' );
+		outerHost.style.setProperty( '--tocus-color-breathing-sphere-shadow', '#4d6849' );
+		outerHost.style.setProperty( '--tocus-color-breathing-sphere-contour', '#4d6849' );
+		outerHost.style.setProperty( '--tocus-color-shadow-depth', '#263829' );
+		outerHost.style.setProperty( '--tocus-color-stage-start', '#f4f7ef' );
+		outerHost.setAttribute( 'data-tocus-palette', 'green' );
+		await Promise.resolve();
+		await element.updateComplete;
+
+		assert.notEqual( canvas.toDataURL(), brownImage );
+		outerHost.remove();
+	} );
+
 	it( 'redraws when the system color scheme changes', async () => {
 		document.documentElement.setAttribute( 'data-tocus-theme', 'system' );
 		const element = await fixture<ComponentBreathingSphere>(
