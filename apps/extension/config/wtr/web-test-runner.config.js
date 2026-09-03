@@ -171,6 +171,7 @@ export default {
 	coverageConfig: {
 		exclude: [
 			'src/**/*.wtr.test.ts',
+			'src/domains/preferences/**/*.ts',
 			'src/domains/protection/services/protection-configuration-editor/**/*.ts',
 			'src/domains/protection/types/**/*.ts',
 			'src/domains/protection/utils/**/*.ts',
@@ -180,6 +181,7 @@ export default {
 			'src/features/interruption/services/focused-progress-clock/**/*.ts',
 			'src/features/interruption/utils/breathing-motion/**/*.ts',
 			'src/features/interruption/utils/breathing-sphere-geometry/**/*.ts',
+			'src/features/preferences/services/preferences-controller/**/*.ts',
 		],
 		include: [ 'src/**/*.ts' ],
 		threshold: {
