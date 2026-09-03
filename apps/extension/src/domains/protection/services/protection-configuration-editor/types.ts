@@ -82,6 +82,33 @@ export type ProtectionConfigurationEditResult =
 	RejectedProtectionConfigurationEditResult;
 
 /**
+ * Authoritative settlement observed before one coordinated configuration mutation releases its lock.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface ProtectionConfigurationEditSettlement {
+	/** Latest configuration known inside the coordinated mutation, or null when stored data is malformed. */
+	configuration: ProtectionConfigurationDocument | null;
+	/** Edit result, or null when pre-persist verification or persistence failed before a result could be returned. */
+	result: ProtectionConfigurationEditResult | null;
+}
+
+/**
+ * Runs one side effect against an authoritative edit settlement before coordination is released.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ProtectionConfigurationEditFinalizer = (
+	settlement: ProtectionConfigurationEditSettlement,
+) => Promise<void>;
+
+/**
+ * Verifies one validated candidate immediately before persistence while mutation coordination is held.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ProtectionConfigurationEditPrePersist = (
+	configuration: ProtectionConfigurationDocument,
+) => Promise<void>;
+
+/**
  * One deferred protected-site configuration mutation.
  * @since 0.1.0 Initial implementation.
  */
@@ -127,10 +154,17 @@ export interface ProtectionConfigurationEditor {
 	 * Adds one hostname or HTTP(S) URL with shared or independent scope behavior.
 	 * @param siteInput - Unknown user-entered hostname or URL.
 	 * @param independent - Whether the site receives its own protection scope.
+	 * @param beforePersist - Optional verification performed immediately before persistence.
+	 * @param finalize - Optional side effect completed before mutation coordination is released.
 	 * @return Updated configuration or a stable rejection.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	add( siteInput: unknown, independent: boolean ): Promise<ProtectionConfigurationEditResult>;
+	add(
+		siteInput: unknown,
+		independent: boolean,
+		beforePersist?: ProtectionConfigurationEditPrePersist,
+		finalize?: ProtectionConfigurationEditFinalizer,
+	): Promise<ProtectionConfigurationEditResult>;
 
 	/**
 	 * Updates one exact site's editable display name and scope behavior atomically.
@@ -149,10 +183,14 @@ export interface ProtectionConfigurationEditor {
 	/**
 	 * Removes one exact protected-site identity.
 	 * @param identityHost - Exact canonical site identity.
+	 * @param finalize - Optional side effect completed before mutation coordination is released.
 	 * @return Updated configuration or a stable rejection.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	remove( identityHost: unknown ): Promise<ProtectionConfigurationEditResult>;
+	remove(
+		identityHost: unknown,
+		finalize?: ProtectionConfigurationEditFinalizer,
+	): Promise<ProtectionConfigurationEditResult>;
 
 	/**
 	 * Updates the normalized schedule for one active protection scope.
