@@ -1,11 +1,26 @@
 import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { type CanonicalHost } from '../../../../domains/protection/types/protected-site-rule';
+import { type SitePermissionReleaseStatus } from '../../services/site-permission-manager';
 
 /**
  * Stable event name emitted after one protected-site configuration change is persisted.
  * @since 0.1.0 Initial implementation.
  */
 export const ProtectedSiteConfigurationChangedEventName = 'tocus-protected-site-configuration-changed';
+
+/**
+ * Stable event name emitted after browser access is restored for one protected site.
+ * @since 0.1.0 Initial implementation.
+ */
+export const ProtectedSiteAccessRestoredEventName = 'tocus-protected-site-access-restored';
+
+/**
+ * Details emitted after browser access is restored for one protected site.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface ProtectedSiteAccessRestoredEventDetail {
+	identityHost: CanonicalHost;
+}
 
 /**
  * Stable protected-site change kinds announced to the owning screen.
@@ -27,11 +42,30 @@ export type ProtectedSiteConfigurationChangeKind =
  * Details emitted after one protected-site configuration change is persisted.
  * @since 0.1.0 Initial implementation.
  */
-export interface ProtectedSiteConfigurationChangedEventDetail {
-	kind: ProtectedSiteConfigurationChangeKind;
+export interface UpdatedProtectedSiteConfigurationChangedEventDetail {
+	kind: typeof ProtectedSiteConfigurationChangeKind.UPDATED;
 	identityHost: CanonicalHost;
 	configuration: ProtectionConfigurationDocument;
 }
+
+/**
+ * Details emitted after one protected-site removal and its permission cleanup complete.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface RemovedProtectedSiteConfigurationChangedEventDetail {
+	kind: typeof ProtectedSiteConfigurationChangeKind.REMOVED;
+	identityHost: CanonicalHost;
+	configuration: ProtectionConfigurationDocument;
+	permissionReleaseStatus: SitePermissionReleaseStatus;
+}
+
+/**
+ * Details emitted after one protected-site configuration change is persisted.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ProtectedSiteConfigurationChangedEventDetail =
+	UpdatedProtectedSiteConfigurationChangedEventDetail |
+	RemovedProtectedSiteConfigurationChangedEventDetail;
 
 /**
  * Form submission event whose current target is the protected-site edit form.
@@ -46,6 +80,10 @@ export interface ProtectedSiteEditSubmitEvent extends SubmitEvent {
  * @since 0.1.0 Initial implementation.
  */
 export interface ProtectedSiteItemCopy {
+	accessRequired: string;
+	allowAccess: string;
+	allowingAccess: string;
+	accessRequestError: string;
 	edit: string;
 	displayNameLabel: string;
 	useAutomaticName: string;
@@ -107,6 +145,10 @@ function formatRemoveQuestion( name: string ): string {
  * @since 0.1.0 Initial implementation.
  */
 export const DefaultProtectedSiteItemCopy: Readonly<ProtectedSiteItemCopy> = Object.freeze( {
+	accessRequired: 'Access required',
+	allowAccess: 'Allow access',
+	allowingAccess: 'Allowing...',
+	accessRequestError: 'Browser access is still required to protect this site.',
 	edit: 'Edit',
 	displayNameLabel: 'Display name',
 	useAutomaticName: 'Use automatic name',
