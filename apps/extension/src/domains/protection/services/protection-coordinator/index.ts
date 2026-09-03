@@ -31,8 +31,26 @@ import {
 	type ProtectionCoordinatorFailureReason as ProtectionCoordinatorFailureReasonValue,
 	type ProtectionCoordinatorInitializationResult,
 	type ProtectionCoordinatorOptions,
+	type ProtectionCoordinatorStateSnapshot,
 	type PrepareProtectionEvent,
 } from './types';
+
+/**
+ * Clones current runtime state without exposing the coordinator's mutable authority.
+ * @param statesByScope - Validated states owned by the coordinator.
+ * @return Detached states indexed by protection scope.
+ * @since 0.1.0 Initial implementation.
+ */
+function cloneProtectionStates(
+	statesByScope: Readonly<Record<string, ProtectionState>>,
+): ProtectionCoordinatorStateSnapshot {
+	return Object.fromEntries(
+		Object.entries( statesByScope ).map( ( [ scopeId, state ] ) => [
+			scopeId,
+			ProtectionStateSchema.parse( state ),
+		] ),
+	);
+}
 
 /**
  * Creates a validated failed initialization result without exposing an error object.
@@ -181,7 +199,9 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 			return createDispatchRejection( ProtectionCoordinatorFailureReason.NOT_INITIALIZED );
 		}
 
-		const eventResult = ProtectionEventSchema.safeParse( await prepareEvent() );
+		const eventResult = ProtectionEventSchema.safeParse(
+			await prepareEvent( cloneProtectionStates( currentStatesByScope ) ),
+		);
 
 		if ( ! eventResult.success ) {
 			return createDispatchRejection( ProtectionCoordinatorFailureReason.INVALID_EVENT );
@@ -254,7 +274,18 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 		return enqueue( () => dispatchOperation( prepareEvent ) );
 	}
 
-	return { initialize, dispatch };
+	/**
+	 * Returns a detached state snapshot after earlier queued operations settle.
+	 * @return Current runtime states, or null before successful initialization.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function getStates(): Promise<ProtectionCoordinatorStateSnapshot | null> {
+		return enqueue( () => Promise.resolve(
+			statesByScope === null ? null : cloneProtectionStates( statesByScope ),
+		) );
+	}
+
+	return { dispatch, getStates, initialize };
 }
 
 export * from './types';
