@@ -1,6 +1,7 @@
 import { ProtectionConfigurationStorageKey } from '../../../../domains/protection/services/protection-configuration-storage';
 import {
 	InterruptionPageRequestSchema,
+	InterruptionPageRequestType,
 	InterruptionPageResponseSchema,
 	InterruptionPageResponseState,
 	ProtectionClockRequestSchema,
@@ -246,14 +247,22 @@ export function createProtectionBackgroundController(
 			return undefined;
 		}
 
+		const pageRequest = InterruptionPageRequestSchema.safeParse( input );
+
 		if (
-			! InterruptionPageRequestSchema.safeParse( input ).success ||
+			! pageRequest.success ||
 			! isAuthenticatedPageRequestSender( sender, options.interruptionPageUrl )
 		) {
 			return undefined;
 		}
 
-		void runAfterCapability( () => options.runtime.handlePageRequest( input, sender.tab?.id ?? null ) )
+		if ( pageRequest.data.type === InterruptionPageRequestType.RECOVER ) {
+			enqueueCapabilityOperation( initializeRuntime );
+		}
+
+		void runAfterCapability(
+			() => options.runtime.handlePageRequest( pageRequest.data, sender.tab?.id ?? null ),
+		)
 			.then( sendResponse )
 			.catch( () => {
 				sendResponse( InterruptionPageResponseSchema.parse( {
