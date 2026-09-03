@@ -48,6 +48,14 @@ export interface BrowserProtectionProjectorOptions {
  */
 export interface BrowserProtectionProjector {
 	/**
+	 * Releases one interruption presentation that no longer has authoritative runtime state.
+	 * @param tabId - Browser tab containing the orphaned standalone page or injected layer.
+	 * @return Promise resolved after release or when the tab is no longer present.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	releaseInterruptionPresentation: ( tabId: number ) => Promise<void>;
+
+	/**
 	 * Removes an injected interruption only for one authoritative allowance-expiry participant.
 	 * @param participant - Known allowance-expiry participant retaining the injected page identity.
 	 * @return Promise resolved after removal or when the owned layer is no longer present.
