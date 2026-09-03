@@ -9,6 +9,7 @@ import {
 } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
+import { styleMap } from 'lit/directives/style-map.js';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import {
 	createFocusedProgressClock,
@@ -23,6 +24,7 @@ import styles from './web-component-style.scss?inline';
 import {
 	DefaultInterruptionScreenCopy,
 	InterruptionContinueRequestEventName,
+	InterruptionRetryRequestEventName,
 	InterruptionScreenAnnouncementKind,
 	InterruptionScreenMode,
 	InterruptionScreenState,
@@ -115,8 +117,10 @@ function hasInteractiveShortcutTarget( event: KeyboardEvent ): boolean {
  * @attr focused-progress-milliseconds - Latest authoritative focused progress.
  * @attr progressing - Whether the presentation owner currently permits progress.
  * @attr reduced-motion - Whether the sphere must remain still.
+ * @attr recovering - Whether an unavailable pause is currently being recovered.
  * @attr wellbeing-summary - Complete localized all-time wellbeing sentence.
  * @fires ComponentInterruptionScreen#event:continueRequest - Emits the plain bubbling `tocus-continue-request` event from Ready.
+ * @fires ComponentInterruptionScreen#event:retryRequest - Emits the plain bubbling `tocus-retry-request` event from Unavailable.
  * @summary Accessible full-viewport interruption presentation.
  * @since 0.1.0 Initial implementation.
  */
@@ -165,6 +169,13 @@ export class ComponentInterruptionScreen extends LitElement {
 	 */
 	@property( { attribute: 'reduced-motion', reflect: true, type: Boolean } )
 	accessor reducedMotion = false;
+
+	/**
+	 * Whether the owning controller is currently attempting recovery.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { reflect: true, type: Boolean } )
+	accessor recovering = false;
 
 	/**
 	 * Whether Ready may react to the page-level Space shortcut.
@@ -327,27 +338,58 @@ export class ComponentInterruptionScreen extends LitElement {
 
 		if ( changedProperties.has( 'state' ) ) {
 			this.announcementKind = this.getStateAnnouncementKind();
+		} else if (
+			changedProperties.has( 'recovering' ) &&
+			this.state === InterruptionScreenState.UNAVAILABLE
+		) {
+			if ( this.recovering ) {
+				this.announcementKind = InterruptionScreenAnnouncementKind.RECOVERY_STARTED;
+			} else if ( changedProperties.get( 'recovering' ) === true ) {
+				this.announcementKind = InterruptionScreenAnnouncementKind.RECOVERY_FAILED;
+			}
 		}
 
-		if ( changedProperties.has( 'state' ) || changedProperties.has( 'copy' ) ) {
+		if (
+			changedProperties.has( 'state' ) ||
+			changedProperties.has( 'copy' ) ||
+			changedProperties.has( 'recovering' )
+		) {
 			this.announcement = this.resolveAnnouncement();
 		}
 	}
 
 	/**
-	 * Moves focus after an authoritative Ready-state transition.
+	 * Moves focus after authoritative state and recovery transitions.
+	 * @param changedProperties - Reactive properties changed for this update.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	protected override updated(): void {
+	protected override updated( changedProperties: PropertyValues<this> ): void {
 		if ( this.focusedState !== this.state ) {
+			const previousFocusedState = this.focusedState;
+
 			this.focusedState = this.state;
-			if ( this.state === InterruptionScreenState.READY ) {
+			if (
+				this.state === InterruptionScreenState.WAITING &&
+				previousFocusedState === InterruptionScreenState.UNAVAILABLE
+			) {
+				this.focusElement( '.scene' );
+			} else if ( this.state === InterruptionScreenState.READY ) {
 				this.focusElement( '.continue-button' );
 			} else if (
-				this.state === InterruptionScreenState.READY_EXPIRED ||
-				this.state === InterruptionScreenState.UNAVAILABLE
+				this.state === InterruptionScreenState.READY_EXPIRED
 			) {
 				this.focusElement( '.status-message' );
+			} else if ( this.state === InterruptionScreenState.UNAVAILABLE ) {
+				this.focusElement( '.retry-button' );
+			}
+		} else if (
+			this.state === InterruptionScreenState.UNAVAILABLE &&
+			changedProperties.has( 'recovering' )
+		) {
+			if ( this.recovering ) {
+				this.focusElement( '.scene' );
+			} else if ( changedProperties.get( 'recovering' ) === true ) {
+				this.focusElement( '.retry-button' );
 			}
 		}
 	}
@@ -375,12 +417,21 @@ export class ComponentInterruptionScreen extends LitElement {
 				? this.copy.breatheIn
 				: this.copy.breatheOut;
 		const sphereStill = this.mode === InterruptionScreenMode.QUIET || this.reducedMotion || ! waiting;
+		const breathProgress = sphereStill ? 0 : motionFrame.breathProgress;
 		const sphereAlternative = sphereStill
 			? this.copy.stillSphereAlternative
 			: this.copy.sphereAlternative;
 
 		return html`
-			<div class="scene" tabindex=${ ifDefined( waiting ? 0 : undefined ) }>
+			<div
+				class="scene"
+				style=${ styleMap( {
+					'--tocus-breath-bloom-opacity': String( 0.72 + breathProgress * 0.28 ),
+					'--tocus-breath-bloom-scale': String( 0.82 + breathProgress * 0.18 ),
+					'--tocus-breath-progress': String( breathProgress ),
+				} ) }
+				tabindex=${ ifDefined( waiting || ( unavailable && this.recovering ) ? 0 : undefined ) }
+			>
 				<header>
 					<div class="brand" aria-label="TOCus">
 						<span class="brand-icon" aria-hidden="true">${ unsafeSVG( iconMarkup ) }</span>
@@ -395,7 +446,7 @@ export class ComponentInterruptionScreen extends LitElement {
 						${ waiting ? html`<h1 class="cue" id="breathing-cue">${ cue }</h1>` : null }
 						<div class="sphere-shell">
 							<tocus-f-breathing-sphere
-								.breathProgress=${ motionFrame.breathProgress }
+								.breathProgress=${ breathProgress }
 								.still=${ sphereStill }
 							></tocus-f-breathing-sphere>
 							${ waiting
@@ -407,7 +458,7 @@ export class ComponentInterruptionScreen extends LitElement {
 							? html`<p class="status-message" tabindex="-1">${ this.copy.readyExpiredMessage }</p>`
 							: null }
 						${ unavailable
-							? html`<p class="status-message" tabindex="-1">${ this.copy.unavailableMessage }</p>`
+							? this.renderRecoveryAction()
 							: null }
 					</section>
 				</main>
@@ -446,6 +497,14 @@ export class ComponentInterruptionScreen extends LitElement {
 	private resolveAnnouncement(): string {
 		if ( this.announcementKind === InterruptionScreenAnnouncementKind.PAUSED ) {
 			return this.copy.pausedAnnouncement;
+		}
+
+		if ( this.announcementKind === InterruptionScreenAnnouncementKind.RECOVERY_FAILED ) {
+			return this.copy.recoveryFailedAnnouncement;
+		}
+
+		if ( this.announcementKind === InterruptionScreenAnnouncementKind.RECOVERY_STARTED ) {
+			return this.copy.recoveryStartedAnnouncement;
 		}
 
 		if ( this.announcementKind === InterruptionScreenAnnouncementKind.READY ) {
@@ -526,6 +585,34 @@ export class ComponentInterruptionScreen extends LitElement {
 	}
 
 	/**
+	 * Renders the branded recovery action shown after automatic recovery fails.
+	 * @return Unavailable recovery template.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private renderRecoveryAction(): TemplateResult {
+		return html`
+			<section
+				class="recovery-card"
+				aria-busy=${ ifDefined( this.recovering ? 'true' : undefined ) }
+				aria-describedby="recovery-message"
+				aria-labelledby="recovery-title"
+			>
+				<span class="recovery-icon" aria-hidden="true">${ unsafeSVG( iconMarkup ) }</span>
+				<h1 class="recovery-title" id="recovery-title">${ this.copy.unavailableTitle }</h1>
+				<p class="recovery-message" id="recovery-message">${ this.copy.unavailableMessage }</p>
+				<button
+					class="retry-button"
+					type="button"
+					?disabled=${ this.recovering }
+					@click=${ this.requestRetry }
+				>
+					${ this.recovering ? this.copy.retryingLabel : this.copy.retryLabel }
+				</button>
+			</section>
+		`;
+	}
+
+	/**
 	 * Focuses one stable control or status without moving the viewport.
 	 * @param selector - Selector of the focus target in the shadow tree.
 	 * @since 0.1.0 Initial implementation.
@@ -552,11 +639,27 @@ export class ComponentInterruptionScreen extends LitElement {
 			composed: true,
 		} ) );
 	};
+
+	/**
+	 * Emits one plain retry request while recovery is available.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private readonly requestRetry = (): void => {
+		if ( this.state !== InterruptionScreenState.UNAVAILABLE || this.recovering ) {
+			return;
+		}
+
+		this.dispatchEvent( new Event( InterruptionRetryRequestEventName, {
+			bubbles: true,
+			composed: true,
+		} ) );
+	};
 }
 
 export {
 	DefaultInterruptionScreenCopy,
 	InterruptionContinueRequestEventName,
+	InterruptionRetryRequestEventName,
 	InterruptionScreenMode,
 	InterruptionScreenState,
 	type InterruptionScreenCopy,
