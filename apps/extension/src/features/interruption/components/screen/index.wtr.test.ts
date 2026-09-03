@@ -335,7 +335,7 @@ describe( 'tocus-f-interruption-screen', () => {
 		element.state = InterruptionScreenState.READY_EXPIRED;
 		await element.updateComplete;
 
-		const status = getRequiredElement( element, '.expired-status' );
+		const status = getRequiredElement( element, '.status-message' );
 
 		assert.equal( getShadowRoot( element ).querySelector( 'button' ), null );
 		assert.equal( getShadowRoot( element ).activeElement, status );
@@ -345,6 +345,27 @@ describe( 'tocus-f-interruption-screen', () => {
 		staleButton.click();
 		window.dispatchEvent( new KeyboardEvent( 'keydown', { code: 'Space' } ) );
 		assert.equal( requestCount, 0 );
+	} );
+
+	it( 'shows and focuses a distinct unavailable status without Continue', async () => {
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen
+				.state=${ InterruptionScreenState.UNAVAILABLE }
+			></tocus-f-interruption-screen>
+		` );
+		const status = getRequiredElement( element, '.status-message' );
+		const sphereShell = getRequiredElement( element, '.sphere-shell' );
+
+		await element.updateComplete;
+		assert.equal( getShadowRoot( element ).querySelector( 'button' ), null );
+		assert.equal( getShadowRoot( element ).activeElement, status );
+		assert.equal( getComputedStyle( sphereShell ).opacity, '0' );
+		assert.equal( status.textContent.trim(), DefaultInterruptionScreenCopy.unavailableMessage );
+		assert.equal(
+			getRequiredElement( element, '[aria-live]' ).textContent.trim(),
+			DefaultInterruptionScreenCopy.unavailableMessage,
+		);
+		await expect( element ).to.be.accessible();
 	} );
 
 	it( 'places the localized Space key inside a complete shortcut template', async () => {
