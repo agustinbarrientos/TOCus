@@ -236,7 +236,19 @@ export function createInterruptionRequestHandler(
 		let browserProjectionApplied = false;
 
 		if ( context === null ) {
-			return createPageResponse( senderTabId );
+			const response = await createPageResponse( senderTabId );
+
+			if (
+				(
+					request.data.type === InterruptionPageRequestType.RECOVER ||
+					request.data.type === InterruptionPageRequestType.SYNCHRONIZE
+				) &&
+				response.state === InterruptionPageResponseState.UNAVAILABLE
+			) {
+				await options.releaseInterruptionPresentation( senderTabId );
+			}
+
+			return response;
 		}
 
 		if ( request.data.type === InterruptionPageRequestType.CHECKPOINT ) {
