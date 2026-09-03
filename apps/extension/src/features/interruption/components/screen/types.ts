@@ -7,6 +7,7 @@ import type { FocusedProgressClockTiming } from '../../services/focused-progress
 export const InterruptionScreenState = {
 	READY: 'ready',
 	READY_EXPIRED: 'ready-expired',
+	UNAVAILABLE: 'unavailable',
 	WAITING: 'waiting',
 } as const;
 
@@ -14,7 +15,7 @@ export const InterruptionScreenState = {
  * Presentation state supported by the interruption screen.
  * @since 0.1.0 Initial implementation.
  */
-export type InterruptionScreenState = typeof InterruptionScreenState[keyof typeof InterruptionScreenState];
+export type InterruptionScreenState = typeof InterruptionScreenState[ keyof typeof InterruptionScreenState ];
 
 /**
  * Pause modes supported by the interruption screen.
@@ -29,7 +30,7 @@ export const InterruptionScreenMode = {
  * Pause mode supported by the interruption screen.
  * @since 0.1.0 Initial implementation.
  */
-export type InterruptionScreenMode = typeof InterruptionScreenMode[keyof typeof InterruptionScreenMode];
+export type InterruptionScreenMode = typeof InterruptionScreenMode[ keyof typeof InterruptionScreenMode ];
 
 /**
  * Polite announcement states retained across localized-copy changes.
@@ -40,6 +41,7 @@ export const InterruptionScreenAnnouncementKind = {
 	READY: 'ready',
 	READY_EXPIRED: 'ready-expired',
 	RESUMED: 'resumed',
+	UNAVAILABLE: 'unavailable',
 	WAITING_STARTED: 'waiting-started',
 } as const;
 
@@ -60,6 +62,12 @@ export interface InterruptionScreenCopy {
 	breatheOut: string;
 	continueLabel: string;
 	continueShortcut: string;
+	/**
+	 * Formats the remaining wait for visible presentation.
+	 * @param remainingSeconds - Nonnegative whole seconds remaining.
+	 * @return Localized remaining-time label.
+	 * @since 0.1.0 Initial implementation.
+	 */
 	formatRemainingTime: ( remainingSeconds: number ) => string;
 	pausedAnnouncement: string;
 	readyAnnouncement: string;
@@ -69,6 +77,7 @@ export interface InterruptionScreenCopy {
 	sphereAlternative: string;
 	stillSphereAlternative: string;
 	takeAMoment: string;
+	unavailableMessage: string;
 	waitingStartedAnnouncement: string;
 }
 
@@ -119,6 +128,7 @@ export const DefaultInterruptionScreenCopy: Readonly<InterruptionScreenCopy> = {
 	sphereAlternative: 'A soft clay sphere expands as you breathe in and settles as you breathe out.',
 	stillSphereAlternative: 'A soft clay sphere rests at the center of the screen.',
 	takeAMoment: 'Take a moment',
+	unavailableMessage: 'This pause could not be restored. You can go back and try again.',
 	waitingStartedAnnouncement: 'Your breathing pause has started.',
 };
 
