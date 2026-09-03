@@ -1,5 +1,7 @@
+$selector: ':root' !default;
+
 @use 'sass:list';
-@use 'typography/tokens';
+@use 'typography/tokens' with ( $selector: $selector );
 
 $-brown-palette: (
 	stage-start: (#fff8f0, #39261e),
@@ -158,7 +160,7 @@ $-orange-palette: (
 	}
 }
 
-:root {
+#{ $selector } {
 	color-scheme: light dark;
 
 	--tocus-font-family-brand: 'Fredoka Variable', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif;
@@ -180,133 +182,133 @@ $-orange-palette: (
 	--tocus-transition-fast: 160ms ease;
 }
 
-:root[data-tocus-theme='system'] {
+#{ $selector }[data-tocus-theme='system'] {
 	color-scheme: light dark;
 }
 
-:root[data-tocus-theme='light'] {
+#{ $selector }[data-tocus-theme='light'] {
 	color-scheme: light;
 }
 
-:root[data-tocus-theme='dark'] {
+#{ $selector }[data-tocus-theme='dark'] {
 	color-scheme: dark;
 }
 
-:root,
-:root[data-tocus-palette='brown'] {
+#{ $selector },
+#{ $selector }[data-tocus-palette='brown'] {
 	@include -apply-palette-with-fallbacks($-brown-palette, light);
 }
 
-:root[data-tocus-palette='green'] {
+#{ $selector }[data-tocus-palette='green'] {
 	@include -apply-palette-with-fallbacks($-green-palette, light);
 }
 
-:root[data-tocus-palette='blue'] {
+#{ $selector }[data-tocus-palette='blue'] {
 	@include -apply-palette-with-fallbacks($-blue-palette, light);
 }
 
-:root[data-tocus-palette='purple'] {
+#{ $selector }[data-tocus-palette='purple'] {
 	@include -apply-palette-with-fallbacks($-purple-palette, light);
 }
 
-:root[data-tocus-palette='pink'] {
+#{ $selector }[data-tocus-palette='pink'] {
 	@include -apply-palette-with-fallbacks($-pink-palette, light);
 }
 
-:root[data-tocus-palette='orange'] {
+#{ $selector }[data-tocus-palette='orange'] {
 	@include -apply-palette-with-fallbacks($-orange-palette, light);
 }
 
 @media (prefers-color-scheme: dark) {
-	:root:not([data-tocus-theme='light']) {
+	#{ $selector }:not([data-tocus-theme='light']) {
 		@include -apply-palette-with-fallbacks($-brown-palette, dark);
 	}
 
-	:root[data-tocus-palette='green']:not([data-tocus-theme='light']) {
+	#{ $selector }[data-tocus-palette='green']:not([data-tocus-theme='light']) {
 		@include -apply-palette-with-fallbacks($-green-palette, dark);
 	}
 
-	:root[data-tocus-palette='blue']:not([data-tocus-theme='light']) {
+	#{ $selector }[data-tocus-palette='blue']:not([data-tocus-theme='light']) {
 		@include -apply-palette-with-fallbacks($-blue-palette, dark);
 	}
 
-	:root[data-tocus-palette='purple']:not([data-tocus-theme='light']) {
+	#{ $selector }[data-tocus-palette='purple']:not([data-tocus-theme='light']) {
 		@include -apply-palette-with-fallbacks($-purple-palette, dark);
 	}
 
-	:root[data-tocus-palette='pink']:not([data-tocus-theme='light']) {
+	#{ $selector }[data-tocus-palette='pink']:not([data-tocus-theme='light']) {
 		@include -apply-palette-with-fallbacks($-pink-palette, dark);
 	}
 
-	:root[data-tocus-palette='orange']:not([data-tocus-theme='light']) {
+	#{ $selector }[data-tocus-palette='orange']:not([data-tocus-theme='light']) {
 		@include -apply-palette-with-fallbacks($-orange-palette, dark);
 	}
 }
 
-:root[data-tocus-theme='light'] {
+#{ $selector }[data-tocus-theme='light'] {
 	@include -apply-palette-with-fallbacks($-brown-palette, light);
 }
 
-:root[data-tocus-theme='light'][data-tocus-palette='green'] {
+#{ $selector }[data-tocus-theme='light'][data-tocus-palette='green'] {
 	@include -apply-palette-with-fallbacks($-green-palette, light);
 }
 
-:root[data-tocus-theme='light'][data-tocus-palette='blue'] {
+#{ $selector }[data-tocus-theme='light'][data-tocus-palette='blue'] {
 	@include -apply-palette-with-fallbacks($-blue-palette, light);
 }
 
-:root[data-tocus-theme='light'][data-tocus-palette='purple'] {
+#{ $selector }[data-tocus-theme='light'][data-tocus-palette='purple'] {
 	@include -apply-palette-with-fallbacks($-purple-palette, light);
 }
 
-:root[data-tocus-theme='light'][data-tocus-palette='pink'] {
+#{ $selector }[data-tocus-theme='light'][data-tocus-palette='pink'] {
 	@include -apply-palette-with-fallbacks($-pink-palette, light);
 }
 
-:root[data-tocus-theme='light'][data-tocus-palette='orange'] {
+#{ $selector }[data-tocus-theme='light'][data-tocus-palette='orange'] {
 	@include -apply-palette-with-fallbacks($-orange-palette, light);
 }
 
-:root[data-tocus-theme='dark'] {
+#{ $selector }[data-tocus-theme='dark'] {
 	@include -apply-palette-with-fallbacks($-brown-palette, dark);
 }
 
-:root[data-tocus-theme='dark'][data-tocus-palette='green'] {
+#{ $selector }[data-tocus-theme='dark'][data-tocus-palette='green'] {
 	@include -apply-palette-with-fallbacks($-green-palette, dark);
 }
 
-:root[data-tocus-theme='dark'][data-tocus-palette='blue'] {
+#{ $selector }[data-tocus-theme='dark'][data-tocus-palette='blue'] {
 	@include -apply-palette-with-fallbacks($-blue-palette, dark);
 }
 
-:root[data-tocus-theme='dark'][data-tocus-palette='purple'] {
+#{ $selector }[data-tocus-theme='dark'][data-tocus-palette='purple'] {
 	@include -apply-palette-with-fallbacks($-purple-palette, dark);
 }
 
-:root[data-tocus-theme='dark'][data-tocus-palette='pink'] {
+#{ $selector }[data-tocus-theme='dark'][data-tocus-palette='pink'] {
 	@include -apply-palette-with-fallbacks($-pink-palette, dark);
 }
 
-:root[data-tocus-theme='dark'][data-tocus-palette='orange'] {
+#{ $selector }[data-tocus-theme='dark'][data-tocus-palette='orange'] {
 	@include -apply-palette-with-fallbacks($-orange-palette, dark);
 }
 
 @supports (color: color-mix(in srgb, black, white)) {
-	:root {
+	#{ $selector } {
 		@include -apply-enhanced-colors(light);
 	}
 
 	@media (prefers-color-scheme: dark) {
-		:root:not([data-tocus-theme='light']) {
+		#{ $selector }:not([data-tocus-theme='light']) {
 			@include -apply-enhanced-colors(dark);
 		}
 	}
 
-	:root[data-tocus-theme='light'] {
+	#{ $selector }[data-tocus-theme='light'] {
 		@include -apply-enhanced-colors(light);
 	}
 
-	:root[data-tocus-theme='dark'] {
+	#{ $selector }[data-tocus-theme='dark'] {
 		@include -apply-enhanced-colors(dark);
 	}
 }

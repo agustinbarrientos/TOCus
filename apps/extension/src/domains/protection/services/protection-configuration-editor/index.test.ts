@@ -331,6 +331,24 @@ describe( 'createProtectionConfigurationEditor', () => {
 		expect( storage.writes ).toEqual( [ CONFIGURATION_WITH_SITE ] );
 	} );
 
+	it( 'runs an add pre-persist check after validation and before storage', async () => {
+		const { editor, storage } = createEditor( { ...TestEmptyProtectionConfiguration } );
+		const beforePersist = vi.fn().mockImplementation(
+			( configuration: ProtectionConfigurationDocument ): Promise<void> => {
+				expect( configuration ).toEqual( CONFIGURATION_WITH_SITE );
+				expect( storage.writes ).toEqual( [] );
+
+				return Promise.resolve();
+			},
+		);
+
+		await expect(
+			editor.add( 'https://www.instagram.com/reels', false, beforePersist ),
+		).resolves.toMatchObject( { status: ProtectionConfigurationEditStatus.UPDATED } );
+		expect( beforePersist ).toHaveBeenCalledOnce();
+		expect( storage.writes ).toEqual( [ CONFIGURATION_WITH_SITE ] );
+	} );
+
 	it( 'adds an explicitly independent site to its own supplied scope', async () => {
 		const { editor } = createEditor( { ...TestEmptyProtectionConfiguration } );
 

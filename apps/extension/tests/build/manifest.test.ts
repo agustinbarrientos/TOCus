@@ -8,6 +8,42 @@ const safariManifestUrl = new URL( '../../.output/safari-mv2/manifest.json', imp
 const chromeOutputUrl = new URL( '../../.output/chrome-mv3/', import.meta.url );
 const firefoxOutputUrl = new URL( '../../.output/firefox-mv2/', import.meta.url );
 const safariOutputUrl = new URL( '../../.output/safari-mv2/', import.meta.url );
+const themeIconUrl = new URL( '../../../../packages/theme/assets/icon.svg', import.meta.url );
+const expectedExtensionIcons = {
+	16: 'icons/16.png',
+	19: 'icons/19.png',
+	24: 'icons/24.png',
+	32: 'icons/32.png',
+	38: 'icons/38.png',
+	48: 'icons/48.png',
+	64: 'icons/64.png',
+	96: 'icons/96.png',
+	128: 'icons/128.png',
+	256: 'icons/256.png',
+	512: 'icons/512.png',
+} as const;
+const expectedToolbarIcons = {
+	16: 'icons/16.png',
+	19: 'icons/19.png',
+	24: 'icons/24.png',
+	32: 'icons/32.png',
+	38: 'icons/38.png',
+	64: 'icons/64.png',
+} as const;
+const expectedProtectedPageFontResources = [
+	'assets/protected-page-font.woff2',
+	'assets/protected-page-font2.woff2',
+	'assets/protected-page-font3.woff2',
+] as const;
+const expectedProtectedPageResources = [
+	...expectedProtectedPageFontResources,
+	'interruption.html',
+] as const;
+const expectedProtectedPageMatches = [
+	'http://*/*',
+	'https://*/*',
+] as const;
+const pngSignature = Buffer.from( [ 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a ] );
 
 /**
  * Reads and parses one generated extension manifest.
@@ -29,6 +65,32 @@ async function readManifest( url: URL ): Promise<unknown> {
  */
 async function readOutputFile( outputUrl: URL, filePath: string ): Promise<string> {
 	return readFile( fileURLToPath( new URL( filePath, outputUrl ) ), 'utf8' );
+}
+
+/**
+ * Reads one generated binary extension output file.
+ * @param outputUrl - Browser output-directory URL.
+ * @param filePath - File path relative to the output directory.
+ * @return Generated file contents.
+ */
+async function readOutputBuffer( outputUrl: URL, filePath: string ): Promise<Buffer> {
+	return readFile( fileURLToPath( new URL( filePath, outputUrl ) ) );
+}
+
+/**
+ * Verifies that one generated icon is a square PNG with the expected dimensions.
+ * @param icon - Generated icon contents.
+ * @param expectedSize - Expected width and height in pixels.
+ */
+function expectSquarePng( icon: Buffer, expectedSize: number ): void {
+	if ( icon.byteLength < 24 ) {
+		throw new Error( 'The generated icon is too small to contain a PNG header.' );
+	}
+
+	expect( icon.subarray( 0, 8 ) ).toEqual( pngSignature );
+	expect( icon.subarray( 12, 16 ).toString( 'ascii' ) ).toBe( 'IHDR' );
+	expect( icon.readUInt32BE( 16 ) ).toBe( expectedSize );
+	expect( icon.readUInt32BE( 20 ) ).toBe( expectedSize );
 }
 
 /**
@@ -77,17 +139,65 @@ async function expectOptionsComposition( outputUrl: URL ): Promise<void> {
 }
 
 /**
- * Verifies that a generated manifest avoids broad browsing permissions.
+ * Verifies that the generated interruption page loads its approved screen component.
+ * @param outputUrl - Browser output-directory URL.
+ * @return Promise resolved after all interruption-page composition assertions pass.
+ */
+async function expectInterruptionComposition( outputUrl: URL ): Promise<void> {
+	const interruptionHtml = await readOutputFile( outputUrl, 'interruption.html' );
+	const moduleScript = interruptionHtml.match( /<script\s[^>]*type="module"[^>]*src="([^"]+)"/u );
+	const moduleSource = moduleScript?.[ 1 ];
+
+	expect( interruptionHtml ).toContain( '<tocus-f-interruption-screen>' );
+	expect( moduleSource ).toBeDefined();
+
+	if ( moduleSource === undefined ) {
+		throw new Error( 'The generated interruption page is missing its module script.' );
+	}
+
+	const moduleCode = await readOutputFile( outputUrl, moduleSource.replace( /^\//u, '' ) );
+
+	expect( moduleCode ).toContain( 'tocus-f-interruption-screen' );
+}
+
+/**
+ * Verifies that on-demand protected-page resources contain the isolated layer and bundled brand font.
+ * @param outputUrl - Browser output-directory URL.
+ * @return Promise resolved after protected-page resource assertions pass.
+ * @since 0.1.0 Initial implementation.
+ */
+async function expectProtectedPageComposition( outputUrl: URL ): Promise<void> {
+	const moduleCode = await readOutputFile( outputUrl, 'protected-page.js' );
+	const fontStyles = await readOutputFile( outputUrl, 'assets/protected-page-font.css' );
+	const fontResourceUrls = fontStyles.match( /\/assets\/protected-page-font\d*\.woff2/gu ) ?? [];
+
+	expect( moduleCode ).toContain( 'tocus-f-protected-page-layer' );
+	expect( moduleCode ).toContain( 'get-protected-page-presentation-status' );
+	expect( fontStyles ).toContain( '@font-face' );
+	expect( fontStyles ).toContain( 'Fredoka Variable' );
+	expect( fontStyles ).not.toMatch( /url\((?:["'])?https?:/u );
+	expect( [ ...fontResourceUrls ].sort() ).toEqual(
+		expectedProtectedPageFontResources.map( ( resource ) => `/${ resource }` ).sort(),
+	);
+
+	for ( const resource of expectedProtectedPageFontResources ) {
+		const font = await readOutputBuffer( outputUrl, resource );
+
+		expect( font.byteLength ).toBeGreaterThan( 0 );
+	}
+}
+
+/**
+ * Verifies that a generated manifest avoids unnecessary browsing permissions.
  * @param manifest - Parsed generated manifest.
  * @since 0.1.0 Initial implementation.
  */
-function expectNoBroadBrowsingPermissions( manifest: unknown ): void {
-	expect( manifest ).not.toHaveProperty( 'optional_permissions' );
+function expectNoUnnecessaryBrowsingPermissions( manifest: unknown ): void {
 	expect( manifest ).not.toHaveProperty( 'host_permissions' );
-	expect( manifest ).not.toHaveProperty( 'optional_host_permissions' );
 	expect( manifest ).not.toHaveProperty( 'content_scripts' );
 	expect( manifest ).not.toHaveProperty( 'permissions', expect.arrayContaining( [ 'history' ] ) );
 	expect( manifest ).not.toHaveProperty( 'permissions', expect.arrayContaining( [ 'tabs' ] ) );
+	expect( manifest ).not.toHaveProperty( 'permissions', expect.arrayContaining( [ 'webRequest' ] ) );
 }
 
 /**
@@ -123,16 +233,32 @@ describe( 'extension build manifest', () => {
 		const manifest = await readManifest( chromeManifestUrl );
 
 		expect( manifest ).toMatchObject( {
+			incognito: 'not_allowed',
 			manifest_version: 3,
 			name: 'TOCus',
-			minimum_chrome_version: '104',
+			minimum_chrome_version: '120',
 			action: { default_popup: 'popup.html' },
 			background: { service_worker: 'background.js' },
 			options_ui: { page: 'options.html', open_in_tab: true },
 		} );
 		expect( manifest ).not.toHaveProperty( 'browser_specific_settings' );
-		expect( manifest ).toHaveProperty( 'permissions', [ 'storage', 'favicon' ] );
-		expectNoBroadBrowsingPermissions( manifest );
+		expect( manifest ).toHaveProperty( 'icons', expectedExtensionIcons );
+		expect( manifest ).toHaveProperty( 'action.default_icon', expectedToolbarIcons );
+		expect( manifest ).toHaveProperty( 'permissions', [
+			'storage',
+			'favicon',
+			'alarms',
+			'declarativeNetRequestWithHostAccess',
+			'scripting',
+		] );
+		expect( manifest ).toHaveProperty( 'optional_permissions', [ 'webNavigation' ] );
+		expect( manifest ).toHaveProperty( 'optional_host_permissions', [ '*://*/*' ] );
+		expect( manifest ).toHaveProperty( 'web_accessible_resources', [ {
+			matches: expectedProtectedPageMatches,
+			resources: expectedProtectedPageResources,
+			use_dynamic_url: false,
+		} ] );
+		expectNoUnnecessaryBrowsingPermissions( manifest );
 		expectValidExtensionVersion( manifest );
 	} );
 
@@ -140,22 +266,35 @@ describe( 'extension build manifest', () => {
 		const manifest = await readManifest( firefoxManifestUrl );
 
 		expect( manifest ).toMatchObject( {
+			incognito: 'not_allowed',
 			manifest_version: 2,
 			name: 'TOCus',
 			browser_action: { default_popup: 'popup.html' },
-			background: { scripts: [ 'background.js' ] },
+			background: { scripts: [ 'background.js' ], persistent: false },
 			options_ui: { page: 'options.html', open_in_tab: true },
 			browser_specific_settings: {
 				gecko: {
 					id: 'tocus@agustinbarrientos.github.io',
-					strict_min_version: '115.0',
+					strict_min_version: '140.0',
 					data_collection_permissions: { required: [ 'none' ] },
 				},
 			},
 		} );
 		expect( manifest ).not.toHaveProperty( 'browser_specific_settings.gecko.data_collection_permissions.optional' );
-		expect( manifest ).toHaveProperty( 'permissions', [ 'storage' ] );
-		expectNoBroadBrowsingPermissions( manifest );
+		expect( manifest ).toHaveProperty( 'icons', expectedExtensionIcons );
+		expect( manifest ).toHaveProperty( 'browser_action.default_icon', expectedToolbarIcons );
+		expect( manifest ).toHaveProperty( 'permissions', [
+			'storage',
+			'alarms',
+			'declarativeNetRequestWithHostAccess',
+			'scripting',
+		] );
+		expect( manifest ).toHaveProperty( 'optional_permissions', [
+			'webNavigation',
+			'*://*/*',
+		] );
+		expect( manifest ).toHaveProperty( 'web_accessible_resources', expectedProtectedPageResources );
+		expectNoUnnecessaryBrowsingPermissions( manifest );
 		expectValidExtensionVersion( manifest );
 	} );
 
@@ -166,13 +305,28 @@ describe( 'extension build manifest', () => {
 			manifest_version: 2,
 			name: 'TOCus',
 			browser_action: { default_popup: 'popup.html' },
-			background: { scripts: [ 'background.js' ] },
+			background: { scripts: [ 'background.js' ], persistent: false },
 			options_ui: { page: 'options.html' },
+			browser_specific_settings: {
+				safari: { strict_min_version: '16.4' },
+			},
 		} );
+		expect( manifest ).not.toHaveProperty( 'incognito' );
 		expect( manifest ).not.toHaveProperty( 'options_ui.open_in_tab' );
-		expect( manifest ).not.toHaveProperty( 'browser_specific_settings' );
-		expect( manifest ).toHaveProperty( 'permissions', [ 'storage' ] );
-		expectNoBroadBrowsingPermissions( manifest );
+		expect( manifest ).toHaveProperty( 'icons', expectedExtensionIcons );
+		expect( manifest ).toHaveProperty( 'browser_action.default_icon', expectedToolbarIcons );
+		expect( manifest ).toHaveProperty( 'permissions', [
+			'storage',
+			'alarms',
+			'declarativeNetRequestWithHostAccess',
+			'scripting',
+		] );
+		expect( manifest ).toHaveProperty( 'optional_permissions', [
+			'webNavigation',
+			'*://*/*',
+		] );
+		expect( manifest ).toHaveProperty( 'web_accessible_resources', expectedProtectedPageResources );
+		expectNoUnnecessaryBrowsingPermissions( manifest );
 		expectValidExtensionVersion( manifest );
 	} );
 
@@ -190,5 +344,40 @@ describe( 'extension build manifest', () => {
 		[ 'Safari', safariOutputUrl ],
 	] )( 'connects the generated %s options page to its settings shell', async ( _browser, outputUrl ) => {
 		await expectOptionsComposition( outputUrl );
+	} );
+
+	test.each( [
+		[ 'Chrome', chromeOutputUrl ],
+		[ 'Firefox', firefoxOutputUrl ],
+		[ 'Safari', safariOutputUrl ],
+	] )( 'connects the generated %s interruption page to its screen', async ( _browser, outputUrl ) => {
+		await expectInterruptionComposition( outputUrl );
+	} );
+
+	test.each( [
+		[ 'Chrome', chromeOutputUrl ],
+		[ 'Firefox', firefoxOutputUrl ],
+		[ 'Safari', safariOutputUrl ],
+	] )( 'packages the isolated %s protected-page layer and brand font', async ( _browser, outputUrl ) => {
+		await expectProtectedPageComposition( outputUrl );
+	} );
+
+	test.each( [
+		[ 'Chrome', chromeOutputUrl ],
+		[ 'Firefox', firefoxOutputUrl ],
+		[ 'Safari', safariOutputUrl ],
+	] )( 'generates every declared %s icon at its declared dimensions', async ( _browser, outputUrl ) => {
+		for ( const [ size, iconPath ] of Object.entries( expectedExtensionIcons ) ) {
+			const icon = await readOutputBuffer( outputUrl, iconPath );
+
+			expectSquarePng( icon, Number( size ) );
+		}
+	} );
+
+	test( 'keeps the theme icon recolorable with a brown standalone fallback', async () => {
+		const iconSource = await readFile( fileURLToPath( themeIconUrl ), 'utf8' );
+
+		expect( iconSource ).toContain( 'fill="currentColor"' );
+		expect( iconSource ).toContain( 'color="#744331"' );
 	} );
 } );

@@ -4,13 +4,17 @@
 	"type": "module",
 	"files": [
 		"assets",
+		"font.scss",
 		"index.scss",
+		"runtime-colors.ts",
 		"tokens.scss",
 		"typography/*.scss"
 	],
 	"exports": {
 		"./icon.svg": "./assets/icon.svg",
+		"./font": "./font.scss",
 		"./index.scss": "./index.scss",
+		"./runtime-colors": "./runtime-colors.ts",
 		"./tokens.scss": "./tokens.scss",
 		"./typography": "./typography/index.scss"
 	},

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { ProtectionDecisionSchema } from '../../types/protection-decision';
 import { ProtectionFactSchema } from '../../types/protection-fact';
+import { type ProtectionState } from '../../types/protection-state';
 import { EpochMillisecondsSchema } from '../../types/protection-value';
 import {
 	ProtectionStateReconciliationRequirementSchema,
@@ -201,11 +202,20 @@ export const ProtectionCoordinatorDispatchResultSchema = z.discriminatedUnion( '
 export type ProtectionCoordinatorDispatchResult = z.infer<typeof ProtectionCoordinatorDispatchResultSchema>;
 
 /**
+ * Detached runtime states indexed by protection scope.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ProtectionCoordinatorStateSnapshot = Readonly<Record<string, ProtectionState>>;
+
+/**
  * Collects current browser observations and creates one event while coordinator serialization is held.
+ * @param statesByScope - Detached current states available to atomic event preparation.
  * @return Unknown event value, which may be asynchronous.
  * @since 0.1.0 Initial implementation.
  */
-export type PrepareProtectionEvent = () => unknown;
+export type PrepareProtectionEvent = (
+	statesByScope: ProtectionCoordinatorStateSnapshot,
+) => unknown;
 
 /**
  * Dependencies used by one protection coordinator instance.
@@ -227,6 +237,13 @@ export interface ProtectionCoordinatorOptions {
  * @since 0.1.0 Initial implementation.
  */
 export interface ProtectionCoordinator {
+	/**
+	 * Returns a detached snapshot after every earlier queued operation has settled.
+	 * @return Current runtime states, or null before successful initialization.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	getStates(): Promise<ProtectionCoordinatorStateSnapshot | null>;
+
 	/**
 	 * Restores and normalizes persisted protection state.
 	 * @param input - Unknown initialization observations.

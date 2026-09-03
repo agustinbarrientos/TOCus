@@ -14,6 +14,7 @@ import {
 import { ProtectionDecisionType } from '../../types/protection-decision';
 import { DepartureCause } from '../../types/protection-event';
 import { ProtectionFactType } from '../../types/protection-fact';
+import { ProtectionStateType } from '../../types/protection-state';
 import {
 	DurableStoredProtectionStateVersion,
 	SessionStoredProtectionStateVersion,
@@ -253,6 +254,12 @@ function getLatestSavedState( storage: MemoryProtectionStorage ): StoredProtecti
 }
 
 describe( 'protection coordinator initialization', () => {
+	it( 'returns no state snapshot before successful initialization', async () => {
+		const coordinator = createTestCoordinator( new MemoryProtectionStorage() );
+
+		await expect( coordinator.getStates() ).resolves.toBeNull();
+	} );
+
 	it( 'creates and persists a continuity identifier for empty storage', async () => {
 		const storage = new MemoryProtectionStorage();
 		const coordinator = createTestCoordinator( storage );
@@ -502,6 +509,33 @@ describe( 'protection coordinator initialization', () => {
 } );
 
 describe( 'protection coordinator dispatch', () => {
+	it( 'returns a detached snapshot of the latest persisted runtime states', async () => {
+		const storage = new MemoryProtectionStorage();
+		const coordinator = createTestCoordinator( storage );
+
+		await coordinator.initialize( { nowEpochMilliseconds: TestInstant, readyObservations: [] } );
+		await coordinator.dispatch( () => createVisitAttempt() );
+
+		const snapshot = await coordinator.getStates();
+
+		expect( snapshot ).toMatchObject( {
+			'scope-default': {
+				type: 'waiting',
+				waitId: 'wait-a',
+				participants: [ { participantId: 'participant-a', pageId: 'page-a' } ],
+			},
+		} );
+
+		if ( snapshot === null ) {
+			throw new Error( 'Expected an initialized coordinator snapshot.' );
+		}
+
+		const secondSnapshot = await coordinator.getStates();
+
+		expect( secondSnapshot ).not.toBe( snapshot );
+		expect( secondSnapshot?.[ 'scope-default' ] ).not.toBe( snapshot[ 'scope-default' ] );
+	} );
+
 	it( 'rejects dispatch before successful initialization', async () => {
 		const result = await createTestCoordinator( new MemoryProtectionStorage() ).dispatch(
 			() => createVisitAttempt(),
@@ -793,11 +827,13 @@ describe( 'protection coordinator dispatch', () => {
 		const preparationStarted = new DeferredPromise();
 		const preparationBarrier = new DeferredPromise();
 		const preparationOrder: string[] = [];
+		let preparedStateType = '';
 
 		await coordinator.initialize( { nowEpochMilliseconds: TestInstant, readyObservations: [] } );
 
-		const expiry = coordinator.dispatch( async () => {
+		const expiry = coordinator.dispatch( async ( statesByScope ) => {
 			preparationOrder.push( 'expiry-started' );
+			preparedStateType = statesByScope[ 'scope-a' ]?.type ?? '';
 			preparationStarted.resolve();
 			await preparationBarrier.promise;
 			preparationOrder.push( 'expiry-completed' );
@@ -819,6 +855,7 @@ describe( 'protection coordinator dispatch', () => {
 		} );
 
 		expect( preparationOrder ).toEqual( [ 'expiry-started' ] );
+		expect( preparedStateType ).toBe( ProtectionStateType.ALLOWANCE );
 
 		preparationBarrier.resolve();
 

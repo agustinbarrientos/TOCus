@@ -1,0 +1,20 @@
+@use '@tocus/theme/typography' as typography;
+
+:root {
+	@include typography.apply( 'body-medium' );
+
+	background: var(--tocus-color-surface-lowest);
+	color: var(--tocus-color-on-surface);
+	font-synthesis: none;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	min-width: 20rem;
+	min-height: 100vh;
+	margin: 0;
+	background: var(--tocus-color-surface-lowest);
+}

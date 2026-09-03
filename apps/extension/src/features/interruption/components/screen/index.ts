@@ -107,7 +107,7 @@ function hasInteractiveShortcutTarget( event: KeyboardEvent ): boolean {
 }
 
 /**
- * Renders the approved full-screen Waiting, Ready, and Ready-expired presentation.
+ * Renders the approved full-screen Waiting, Ready, Ready-expired, and unavailable presentation.
  * @element tocus-f-interruption-screen
  * @attr state - Authoritative presentation state.
  * @attr mode - Breathing or Quiet pause presentation.
@@ -115,7 +115,8 @@ function hasInteractiveShortcutTarget( event: KeyboardEvent ): boolean {
  * @attr focused-progress-milliseconds - Latest authoritative focused progress.
  * @attr progressing - Whether the presentation owner currently permits progress.
  * @attr reduced-motion - Whether the sphere must remain still.
- * Emits a plain bubbling Continue request from Ready.
+ * @attr wellbeing-summary - Complete localized all-time wellbeing sentence.
+ * @fires ComponentInterruptionScreen#event:continueRequest - Emits the plain bubbling `tocus-continue-request` event from Ready.
  * @summary Accessible full-viewport interruption presentation.
  * @since 0.1.0 Initial implementation.
  */
@@ -166,6 +167,13 @@ export class ComponentInterruptionScreen extends LitElement {
 	accessor reducedMotion = false;
 
 	/**
+	 * Whether Ready may react to the page-level Space shortcut.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor continueShortcutEnabled = true;
+
+	/**
 	 * Complete localized messages rendered by the screen.
 	 * @since 0.1.0 Initial implementation.
 	 */
@@ -213,6 +221,7 @@ export class ComponentInterruptionScreen extends LitElement {
 	 */
 	private readonly handleGlobalKeydown = ( event: KeyboardEvent ): void => {
 		if (
+			! this.continueShortcutEnabled ||
 			this.state !== InterruptionScreenState.READY ||
 			event.code !== 'Space' ||
 			event.repeat ||
@@ -281,6 +290,15 @@ export class ComponentInterruptionScreen extends LitElement {
 	}
 
 	/**
+	 * Returns the focused progress currently displayed by the local presentation clock.
+	 * @return Displayed focused progress in milliseconds.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	getFocusedProgressMilliseconds(): number {
+		return this.progressClock.getProgressMilliseconds();
+	}
+
+	/**
 	 * Updates the major-state announcement before rendering.
 	 * @param changedProperties - Reactive properties changed for this update.
 	 * @since 0.1.0 Initial implementation.
@@ -325,8 +343,11 @@ export class ComponentInterruptionScreen extends LitElement {
 			this.focusedState = this.state;
 			if ( this.state === InterruptionScreenState.READY ) {
 				this.focusElement( '.continue-button' );
-			} else if ( this.state === InterruptionScreenState.READY_EXPIRED ) {
-				this.focusElement( '.expired-status' );
+			} else if (
+				this.state === InterruptionScreenState.READY_EXPIRED ||
+				this.state === InterruptionScreenState.UNAVAILABLE
+			) {
+				this.focusElement( '.status-message' );
 			}
 		}
 	}
@@ -340,6 +361,7 @@ export class ComponentInterruptionScreen extends LitElement {
 		const waiting = this.state === InterruptionScreenState.WAITING;
 		const ready = this.state === InterruptionScreenState.READY;
 		const expired = this.state === InterruptionScreenState.READY_EXPIRED;
+		const unavailable = this.state === InterruptionScreenState.UNAVAILABLE;
 		const progressMilliseconds = this.progressClock.getProgressMilliseconds();
 		const motionFrame = getBreathingMotionFrame(
 			progressMilliseconds,
@@ -382,7 +404,10 @@ export class ComponentInterruptionScreen extends LitElement {
 						</div>
 						${ ready ? this.renderReadyAction() : null }
 						${ expired
-							? html`<p class="expired-status" tabindex="-1">${ this.copy.readyExpiredMessage }</p>`
+							? html`<p class="status-message" tabindex="-1">${ this.copy.readyExpiredMessage }</p>`
+							: null }
+						${ unavailable
+							? html`<p class="status-message" tabindex="-1">${ this.copy.unavailableMessage }</p>`
 							: null }
 					</section>
 				</main>
@@ -406,6 +431,10 @@ export class ComponentInterruptionScreen extends LitElement {
 			return InterruptionScreenAnnouncementKind.READY_EXPIRED;
 		}
 
+		if ( this.state === InterruptionScreenState.UNAVAILABLE ) {
+			return InterruptionScreenAnnouncementKind.UNAVAILABLE;
+		}
+
 		return InterruptionScreenAnnouncementKind.WAITING_STARTED;
 	}
 
@@ -425,6 +454,10 @@ export class ComponentInterruptionScreen extends LitElement {
 
 		if ( this.announcementKind === InterruptionScreenAnnouncementKind.READY_EXPIRED ) {
 			return '';
+		}
+
+		if ( this.announcementKind === InterruptionScreenAnnouncementKind.UNAVAILABLE ) {
+			return this.copy.unavailableMessage;
 		}
 
 		if ( this.announcementKind === InterruptionScreenAnnouncementKind.RESUMED ) {

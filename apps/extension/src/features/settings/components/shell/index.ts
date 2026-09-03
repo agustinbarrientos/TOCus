@@ -5,6 +5,7 @@ import { ifDefined } from 'lit/directives/if-defined.js';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import { type ProtectionConfigurationEditor } from '../../../../domains/protection/services/protection-configuration-editor';
 import { type SiteFaviconProvider } from '../../../protected-sites/services/site-favicon-provider';
+import { type SitePermissionManager } from '../../../protected-sites/services/site-permission-manager';
 import '../../../protected-sites/components/screen';
 import '../schedule-screen';
 import '../timing-screen';
@@ -58,6 +59,13 @@ export class ComponentSettingsShell extends LitElement {
 	 */
 	@property( { attribute: false } )
 	accessor faviconProvider: SiteFaviconProvider | null = null;
+
+	/**
+	 * Browser permission manager used by the active Protected sites screen.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor permissionManager: SitePermissionManager | null = null;
 
 	/**
 	 * Browser family whose native settings conventions the shell follows.
@@ -119,6 +127,7 @@ export class ComponentSettingsShell extends LitElement {
 					<tocus-f-protected-sites-screen
 						.editor=${ this.editor }
 						.faviconProvider=${ this.faviconProvider }
+						.permissionManager=${ this.permissionManager }
 					></tocus-f-protected-sites-screen>
 				`;
 		}

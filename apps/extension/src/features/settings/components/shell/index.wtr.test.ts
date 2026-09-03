@@ -10,6 +10,12 @@ import { type ProtectionConfigurationStorageService } from '../../../../domains/
 import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { type SiteFaviconProvider } from '../../../protected-sites/services/site-favicon-provider';
+import {
+	SitePermissionGrantProvenance,
+	SitePermissionReleaseStatus,
+	SitePermissionRequestStatus,
+	type SitePermissionManager,
+} from '../../../protected-sites/services/site-permission-manager';
 import { ComponentProtectedSitesScreen } from '../../../protected-sites/components/screen';
 import { ComponentScheduleScreen } from '../schedule-screen';
 import { ComponentTimingScreen } from '../timing-screen';
@@ -80,6 +86,56 @@ const EDITOR: ProtectionConfigurationEditor = createProtectionConfigurationEdito
 const FAVICON_PROVIDER: SiteFaviconProvider = { getSource: getFaviconSource };
 
 /**
+ * Grants a site permission in settings-shell fixtures.
+ * @return Existing permission grant.
+ * @since 0.1.0 Initial implementation.
+ */
+function requestSitePermission(): ReturnType<SitePermissionManager[ 'request' ]> {
+	return Promise.resolve( {
+		status: SitePermissionRequestStatus.GRANTED,
+		provenance: SitePermissionGrantProvenance.EXISTING,
+	} );
+}
+
+/**
+ * Releases a site permission in settings-shell fixtures.
+ * @return Successful release result.
+ * @since 0.1.0 Initial implementation.
+ */
+function releaseSitePermission(): ReturnType<SitePermissionManager[ 'release' ]> {
+	return Promise.resolve( SitePermissionReleaseStatus.RELEASED );
+}
+
+/**
+ * Returns the supplied configuration unchanged in settings-shell fixtures.
+ * @param configuration - Validated persisted configuration.
+ * @return Unchanged configuration.
+ * @since 0.1.0 Initial implementation.
+ */
+function filterPermissionConfiguration(
+	configuration: ProtectionConfigurationDocument,
+): Promise<ProtectionConfigurationDocument> {
+	return Promise.resolve( configuration );
+}
+
+/**
+ * Reports complete browser access in default settings-shell fixtures.
+ * @return True for the default granted-access fixture.
+ * @since 0.1.0 Initial implementation.
+ */
+function hasSiteAccess(): Promise<boolean> {
+	return Promise.resolve( true );
+}
+
+/** Permission manager used by settings-shell behavior fixtures. */
+const PERMISSION_MANAGER: SitePermissionManager = {
+	filterConfiguration: filterPermissionConfiguration,
+	hasAccess: hasSiteAccess,
+	request: requestSitePermission,
+	release: releaseSitePermission,
+};
+
+/**
  * Renders one settings shell with complete screen dependencies.
  * @param platform - Browser family whose native conventions should be reflected.
  * @return Rendered settings shell.
@@ -94,6 +150,7 @@ async function renderShell(
 		<tocus-f-settings-shell
 			.editor=${ EDITOR }
 			.faviconProvider=${ FAVICON_PROVIDER }
+			.permissionManager=${ PERMISSION_MANAGER }
 			.platform=${ platform }
 		></tocus-f-settings-shell>
 	` );
@@ -177,6 +234,7 @@ describe( 'tocus-f-settings-shell', () => {
 
 		assert.equal( screen.editor, EDITOR );
 		assert.equal( screen.faviconProvider, FAVICON_PROVIDER );
+		assert.equal( screen.permissionManager, PERMISSION_MANAGER );
 		assert.equal( element.getAttribute( 'platform' ), SettingsPlatform.FIREFOX );
 	} );
 

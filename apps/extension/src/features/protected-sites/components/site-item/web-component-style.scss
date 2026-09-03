@@ -73,6 +73,22 @@ article {
 	margin: var(--tocus-space-3) 0 0 calc(2.75rem + var(--tocus-space-3));
 }
 
+.access-required {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--tocus-space-3);
+	margin-top: var(--tocus-space-4);
+	padding: var(--tocus-space-3) var(--tocus-space-4);
+	border-radius: var(--tocus-radius-small);
+	background: var(--tocus-color-surface-container);
+	color: var(--tocus-color-on-surface);
+
+	span {
+		@include typography.apply( 'label-large' );
+	}
+}
+
 .scope-label {
 	@include typography.apply( 'label-medium' );
 

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { NormalizedScheduleSchema } from '../../types/protection-schedule';
 import { EpochMillisecondsSchema } from '../../types/protection-value';
 
 const FixedOffsetTimeZonePattern = /^[+-]/;
@@ -15,6 +16,18 @@ export const ScheduleInstantSchema = EpochMillisecondsSchema.max( MaximumDateEpo
  * @since 0.1.0 Initial implementation.
  */
 export type ScheduleInstant = z.infer<typeof ScheduleInstantSchema>;
+
+/**
+ * Validates the normalized schedules considered by one transition search.
+ * @since 0.1.0 Initial implementation.
+ */
+export const NormalizedScheduleListSchema = z.array( NormalizedScheduleSchema );
+
+/**
+ * Normalized schedules considered by one transition search.
+ * @since 0.1.0 Initial implementation.
+ */
+export type NormalizedScheduleList = z.infer<typeof NormalizedScheduleListSchema>;
 
 /**
  * Validates a nonempty named time-zone input rather than a numeric offset.

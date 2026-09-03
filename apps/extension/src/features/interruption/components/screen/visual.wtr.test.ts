@@ -5,6 +5,7 @@ import './index';
 import { type ComponentInterruptionScreen } from './index';
 import { InterruptionScreenState } from './types';
 
+/** Deterministic all-time wellbeing sentence used by interruption screenshots. */
 const VISUAL_WELLBEING_SUMMARY = 'You have saved yourself at least 3h 24m and spent 18m taking care of yourself.';
 
 describe( 'tocus-f-interruption-screen visual', () => {
@@ -63,5 +64,21 @@ describe( 'tocus-f-interruption-screen visual', () => {
 
 		assert.isTrue( element.isConnected );
 		await visualDiff( element, 'interruption-screen-ready' );
+	} );
+
+	it( 'matches the unavailable recovery state', async () => {
+		document.documentElement.setAttribute( 'data-tocus-palette', 'brown' );
+		document.documentElement.setAttribute( 'data-tocus-theme', 'light' );
+		await emulateMedia( { colorScheme: 'light', forcedColors: 'none', reducedMotion: 'reduce' } );
+		const element = await fixture<ComponentInterruptionScreen>( html`
+			<tocus-f-interruption-screen
+				reduced-motion
+				.state=${ InterruptionScreenState.UNAVAILABLE }
+				.wellbeingSummary=${ VISUAL_WELLBEING_SUMMARY }
+			></tocus-f-interruption-screen>
+		` );
+
+		assert.isTrue( element.isConnected );
+		await visualDiff( element, 'interruption-screen-unavailable' );
 	} );
 } );

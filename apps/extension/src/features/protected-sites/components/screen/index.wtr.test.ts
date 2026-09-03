@@ -14,8 +14,15 @@ import {
 import { DefaultProtectionSchedule } from '../../../../domains/protection/types/protection-schedule';
 import { DefaultProtectionScopeId, ProtectionScopeIdSchema } from '../../../../domains/protection/types/protection-value';
 import { type SiteFaviconProvider } from '../../services/site-favicon-provider';
+import {
+	SitePermissionGrantProvenance,
+	SitePermissionReleaseStatus,
+	SitePermissionRequestStatus,
+	type SitePermissionManager,
+} from '../../services/site-permission-manager';
 import { ComponentProtectedSiteItem } from '../site-item';
 import {
+	ProtectedSiteAccessRestoredEventName,
 	ProtectedSiteConfigurationChangedEventName,
 	ProtectedSiteConfigurationChangeKind,
 } from '../site-item/types';
@@ -68,6 +75,62 @@ function getFaviconSource( identityHost: unknown ): ReturnType<SiteFaviconProvid
 }
 
 const FAVICON_PROVIDER: SiteFaviconProvider = { getSource: getFaviconSource };
+
+/**
+ * Grants one configured site in component fixtures.
+ * @return Successful existing-permission result.
+ * @since 0.1.0 Initial implementation.
+ */
+function requestSitePermission(): ReturnType<SitePermissionManager[ 'request' ]> {
+	return Promise.resolve( {
+		status: SitePermissionRequestStatus.GRANTED,
+		provenance: SitePermissionGrantProvenance.EXISTING,
+	} );
+}
+
+/**
+ * Releases one configured site in component fixtures.
+ * @return Successful permission-release result.
+ * @since 0.1.0 Initial implementation.
+ */
+function releaseSitePermission(): ReturnType<SitePermissionManager[ 'release' ]> {
+	return Promise.resolve( SitePermissionReleaseStatus.RELEASED );
+}
+
+/**
+ * Returns the supplied configuration unchanged in screen fixtures.
+ * @param configuration - Validated persisted configuration.
+ * @return Unchanged configuration.
+ * @since 0.1.0 Initial implementation.
+ */
+function filterPermissionConfiguration(
+	configuration: ProtectionConfigurationDocument,
+): Promise<ProtectionConfigurationDocument> {
+	return Promise.resolve( configuration );
+}
+
+/**
+ * Reports complete browser access in default screen fixtures.
+ * @return True for the default granted-access fixture.
+ * @since 0.1.0 Initial implementation.
+ */
+function hasSiteAccess(): Promise<boolean> {
+	return Promise.resolve( true );
+}
+
+/**
+ * Creates a permission manager that grants configured test sites.
+ * @return Controllable permission manager test double.
+ * @since 0.1.0 Initial implementation.
+ */
+function createPermissionManager(): SitePermissionManager {
+	return {
+		filterConfiguration: filterPermissionConfiguration,
+		hasAccess: hasSiteAccess,
+		request: requestSitePermission,
+		release: releaseSitePermission,
+	};
+}
 
 /**
  * In-memory protected-site storage used by the settings-screen fixtures.
@@ -223,16 +286,19 @@ function getRequiredElement<T extends Element>(
 /**
  * Creates one connected Protected Sites screen with local dependencies.
  * @param storage - In-memory local configuration storage.
+ * @param permissionManager - Browser-permission test double.
  * @return Connected screen fixture.
  * @since 0.1.0 Initial implementation.
  */
 async function createScreen(
 	storage: MemoryProtectedSitesScreenStorage,
+	permissionManager: SitePermissionManager | null = createPermissionManager(),
 ): Promise<ComponentProtectedSitesScreen> {
 	const element = await fixture<ComponentProtectedSitesScreen>( html`
 		<tocus-f-protected-sites-screen
 			.editor=${ createEditor( storage ) }
 			.faviconProvider=${ FAVICON_PROVIDER }
+			.permissionManager=${ permissionManager }
 		></tocus-f-protected-sites-screen>
 	` );
 	await settleScreen( element );
@@ -259,6 +325,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 			<tocus-f-protected-sites-screen></tocus-f-protected-sites-screen>
 		` );
 		await settleScreen( element );
+		await element.refreshAccessState();
 
 		assert.include( getRequiredElement( element, '.load-error', Element ).textContent, 'could not load' );
 		assert.equal( element.shadowRoot?.querySelector( '[aria-busy="true"]' ), null );
@@ -277,6 +344,27 @@ describe( 'tocus-f-protected-sites-screen', () => {
 		assert.equal( shadowRoot.querySelector( '.empty-state h2' )?.textContent.trim(), 'No protected sites yet' );
 		assert.equal( shadowRoot.querySelector( '[aria-busy="true"]' ), null );
 		await expect( element ).to.be.accessible();
+	} );
+
+	it( 'marks configured sites as requiring access when no permission manager is available', async () => {
+		const element = await createScreen(
+			new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
+			null,
+		);
+		const item = getRequiredElement(
+			element,
+			'.shared-sites tocus-f-protected-site-item',
+			ComponentProtectedSiteItem,
+		);
+		const restoreAction = item.shadowRoot?.querySelector( '.restore-access-action' );
+
+		assert.isFalse( item.accessGranted );
+		assert.isTrue( getRequiredElement( element, '#site-address', HTMLInputElement ).disabled );
+		assert.instanceOf( restoreAction, HTMLButtonElement );
+		if ( ! ( restoreAction instanceof HTMLButtonElement ) ) {
+			throw new TypeError( 'Expected an unavailable restore-access action.' );
+		}
+		assert.isTrue( restoreAction.disabled );
 	} );
 
 	it( 'renders the selected add behavior without relational-selector support', async () => {
@@ -313,6 +401,311 @@ describe( 'tocus-f-protected-sites-screen', () => {
 		assert.equal( input.value, '' );
 		assert.include( getRequiredElement( element, '.announcement', Element ).textContent, 'Instagram' );
 		assert.equal( storage.writes, 1 );
+	} );
+
+	it( 'shows and restores browser access for a configured site whose grant was revoked', async () => {
+		let accessGranted = false;
+		const permissionManager = createPermissionManager();
+		permissionManager.filterConfiguration = ( configuration ) => Promise.resolve(
+			accessGranted ? configuration : EMPTY_CONFIGURATION,
+		);
+		permissionManager.request = () => {
+			accessGranted = true;
+
+			return Promise.resolve( {
+				status: SitePermissionRequestStatus.GRANTED,
+				provenance: SitePermissionGrantProvenance.NEW,
+			} );
+		};
+		const element = await createScreen(
+			new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
+			permissionManager,
+		);
+		const item = getRequiredElement(
+			element,
+			'.shared-sites tocus-f-protected-site-item',
+			ComponentProtectedSiteItem,
+		);
+
+		assert.include( item.shadowRoot?.querySelector( '.access-required' )?.textContent, 'Access required' );
+		const restoreAction = item.shadowRoot?.querySelector( '.restore-access-action' );
+		assert.instanceOf( restoreAction, HTMLButtonElement );
+		if ( ! ( restoreAction instanceof HTMLButtonElement ) ) {
+			throw new TypeError( 'Expected the protected-site item to render its restore-access action.' );
+		}
+		restoreAction.click();
+		await settleScreen( element );
+		await item.updateComplete;
+
+		assert.equal( item.shadowRoot?.querySelector( '.access-required' ), null );
+		assert.include( getRequiredElement( element, '.announcement', Element ).textContent, 'access was restored' );
+	} );
+
+	it( 'refreshes every site after shared navigation access is restored', async () => {
+		let accessGranted = false;
+		const permissionManager = createPermissionManager();
+		permissionManager.filterConfiguration = ( configuration ) => Promise.resolve(
+			accessGranted ? configuration : EMPTY_CONFIGURATION,
+		);
+		permissionManager.request = () => {
+			accessGranted = true;
+
+			return Promise.resolve( {
+				status: SitePermissionRequestStatus.GRANTED,
+				provenance: SitePermissionGrantProvenance.EXISTING,
+			} );
+		};
+		const element = await createScreen(
+			new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
+			permissionManager,
+		);
+		const items = Array.from(
+			element.shadowRoot?.querySelectorAll<ComponentProtectedSiteItem>( 'tocus-f-protected-site-item' ) ?? [],
+		);
+		const youtubeItem = items.find( ( item ) => item.site?.identityHost === YOUTUBE_SITE.identityHost );
+
+		assert.instanceOf( youtubeItem, ComponentProtectedSiteItem );
+		if ( ! ( youtubeItem instanceof ComponentProtectedSiteItem ) ) {
+			throw new TypeError( 'Expected the YouTube protected-site item.' );
+		}
+
+		const restoreAction = youtubeItem.shadowRoot?.querySelector( '.restore-access-action' );
+		assert.instanceOf( restoreAction, HTMLButtonElement );
+		if ( ! ( restoreAction instanceof HTMLButtonElement ) ) {
+			throw new TypeError( 'Expected the YouTube restore-access action.' );
+		}
+
+		restoreAction.click();
+		await settleScreen( element );
+
+		assert.isTrue( items.every( ( item ) => item.accessGranted ) );
+		assert.include( getRequiredElement( element, '.announcement', Element ).textContent, 'YouTube access was restored' );
+	} );
+
+	it( 'keeps a revocation authoritative when an older restoration snapshot resolves later', async () => {
+		const restorationSnapshot = Promise.withResolvers<ProtectionConfigurationDocument>();
+		const revocationSnapshot = Promise.withResolvers<ProtectionConfigurationDocument>();
+		let snapshotRead = 0;
+		const permissionManager = createPermissionManager();
+		permissionManager.filterConfiguration = () => {
+			snapshotRead += 1;
+
+			if ( snapshotRead === 1 ) {
+				return Promise.resolve( EMPTY_CONFIGURATION );
+			}
+
+			return snapshotRead === 2
+				? restorationSnapshot.promise
+				: revocationSnapshot.promise;
+		};
+		const element = await createScreen(
+			new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
+			permissionManager,
+		);
+		const item = getRequiredElement(
+			element,
+			'.shared-sites tocus-f-protected-site-item',
+			ComponentProtectedSiteItem,
+		);
+		const restoreAction = item.shadowRoot?.querySelector( '.restore-access-action' );
+
+		assert.instanceOf( restoreAction, HTMLButtonElement );
+		if ( ! ( restoreAction instanceof HTMLButtonElement ) ) {
+			throw new TypeError( 'Expected the protected-site item restore-access action.' );
+		}
+
+		restoreAction.click();
+		await Promise.resolve();
+		assert.equal( snapshotRead, 2 );
+		const refreshAfterRevocation = element.refreshAccessState();
+
+		revocationSnapshot.resolve( EMPTY_CONFIGURATION );
+		await refreshAfterRevocation;
+		restorationSnapshot.resolve( POPULATED_CONFIGURATION );
+		await settleScreen( element );
+
+		assert.isFalse( item.accessGranted );
+		assert.equal( getRequiredElement( element, '.announcement', Element ).textContent.trim(), '' );
+	} );
+
+	it( 'queues a permission refresh requested during the initial access snapshot', async () => {
+		const initialSnapshot = Promise.withResolvers<ProtectionConfigurationDocument>();
+		const removalSnapshot = Promise.withResolvers<ProtectionConfigurationDocument>();
+		let snapshotRead = 0;
+		const permissionManager = createPermissionManager();
+		permissionManager.filterConfiguration = () => {
+			snapshotRead += 1;
+
+			return snapshotRead === 1 ? initialSnapshot.promise : removalSnapshot.promise;
+		};
+		const element = await createScreen(
+			new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
+			permissionManager,
+		);
+		const refreshAfterRemoval = element.refreshAccessState();
+
+		assert.equal( snapshotRead, 2 );
+		removalSnapshot.resolve( EMPTY_CONFIGURATION );
+		await refreshAfterRemoval;
+		initialSnapshot.resolve( POPULATED_CONFIGURATION );
+		await settleScreen( element );
+
+		const items = Array.from(
+			element.shadowRoot?.querySelectorAll<ComponentProtectedSiteItem>( 'tocus-f-protected-site-item' ) ?? [],
+		);
+
+		assert.isNotEmpty( items );
+		assert.isTrue( items.every( ( item ) => ! item.accessGranted ) );
+	} );
+
+	it( 'refreshes every rendered access state from one current permission snapshot', async () => {
+		let accessRevoked = false;
+		let snapshotReads = 0;
+		const permissionManager = createPermissionManager();
+		permissionManager.filterConfiguration = ( configuration ) => {
+			snapshotReads += 1;
+
+			return Promise.resolve( accessRevoked ? EMPTY_CONFIGURATION : configuration );
+		};
+		const element = await createScreen(
+			new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
+			permissionManager,
+		);
+		const item = getRequiredElement(
+			element,
+			'.shared-sites tocus-f-protected-site-item',
+			ComponentProtectedSiteItem,
+		);
+
+		assert.isTrue( item.accessGranted );
+		accessRevoked = true;
+		await element.refreshAccessState();
+		await element.updateComplete;
+
+		assert.equal( snapshotReads, 2 );
+		assert.isFalse( item.accessGranted );
+		assert.include( item.shadowRoot?.querySelector( '.access-required' )?.textContent, 'Access required' );
+	} );
+
+	it( 'ignores a restored-access event for a site that is no longer configured', async () => {
+		const element = await createScreen(
+			new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
+		);
+		const main = getRequiredElement( element, 'main', HTMLElement );
+
+		main.dispatchEvent( new CustomEvent( ProtectedSiteAccessRestoredEventName, {
+			bubbles: true,
+			composed: true,
+			detail: { identityHost: 'removed.test' },
+		} ) );
+		await element.updateComplete;
+
+		assert.equal( getRequiredElement( element, '.announcement', Element ).textContent.trim(), '' );
+	} );
+
+	it( 'keeps a site unsaved when browser access is denied', async () => {
+		const storage = new MemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
+		const permissionManager = createPermissionManager();
+		permissionManager.request = () => Promise.resolve( { status: SitePermissionRequestStatus.DENIED } );
+		const element = await createScreen( storage, permissionManager );
+		const input = getRequiredElement( element, '#site-address', HTMLInputElement );
+		input.value = 'instagram.com';
+
+		getRequiredElement( element, '.add-site-form', HTMLFormElement ).requestSubmit();
+		await settleScreen( element );
+
+		assert.equal( input.value, 'instagram.com' );
+		assert.include( getRequiredElement( element, '.site-input-error', Element ).textContent, 'Browser access' );
+		assert.equal( storage.writes, 0 );
+	} );
+
+	it( 'keeps a site unsaved when browser access cannot be requested', async () => {
+		const storage = new MemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
+		const permissionManager = createPermissionManager();
+		permissionManager.request = () => Promise.resolve( { status: SitePermissionRequestStatus.ERROR } );
+		const element = await createScreen( storage, permissionManager );
+		const input = getRequiredElement( element, '#site-address', HTMLInputElement );
+		input.value = 'instagram.com';
+
+		getRequiredElement( element, '.add-site-form', HTMLFormElement ).requestSubmit();
+		await settleScreen( element );
+
+		assert.equal( input.value, 'instagram.com' );
+		assert.include( getRequiredElement( element, '.site-input-error', Element ).textContent, 'could not be requested' );
+		assert.equal( storage.writes, 0 );
+	} );
+
+	it( 'keeps a new host grant when the authoritative configuration still requires it', async () => {
+		const storage = new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION );
+		const permissionManager = createPermissionManager();
+		permissionManager.request = () => Promise.resolve( {
+			status: SitePermissionRequestStatus.GRANTED,
+			provenance: SitePermissionGrantProvenance.NEW,
+		} );
+		let releasedRuleHost = '';
+		let hadRemainingSites = false;
+		permissionManager.release = ( rule, remainingSites ) => {
+			releasedRuleHost = rule.host;
+			hadRemainingSites = remainingSites;
+			return Promise.resolve( SitePermissionReleaseStatus.RELEASED );
+		};
+		const element = await createScreen( storage, permissionManager );
+		const input = getRequiredElement( element, '#site-address', HTMLInputElement );
+		input.value = 'music.youtube.com';
+
+		getRequiredElement( element, '.add-site-form', HTMLFormElement ).requestSubmit();
+		await settleScreen( element );
+
+		assert.equal( releasedRuleHost, '' );
+		assert.isFalse( hadRemainingSites );
+		assert.include( getRequiredElement( element, '.site-input-error', Element ).textContent, 'already protected' );
+		assert.equal( storage.writes, 0 );
+	} );
+
+	it( 'releases a new host grant when the configuration write fails', async () => {
+		const storage = new MemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
+		storage.rejectSaves = true;
+		const permissionManager = createPermissionManager();
+		permissionManager.request = () => Promise.resolve( {
+			status: SitePermissionRequestStatus.GRANTED,
+			provenance: SitePermissionGrantProvenance.NEW,
+		} );
+		let releasedRuleHost = '';
+		let hadRemainingSites = true;
+		permissionManager.release = ( rule, remainingSites ) => {
+			releasedRuleHost = rule.host;
+			hadRemainingSites = remainingSites;
+			return Promise.resolve( SitePermissionReleaseStatus.RELEASED );
+		};
+		const element = await createScreen( storage, permissionManager );
+
+		getRequiredElement( element, '#site-address', HTMLInputElement ).value = 'www.instagram.com';
+		getRequiredElement( element, '.add-site-form', HTMLFormElement ).requestSubmit();
+		await settleScreen( element );
+
+		assert.equal( releasedRuleHost, 'instagram.com' );
+		assert.isFalse( hadRemainingSites );
+		assert.include( getRequiredElement( element, '.site-input-error', Element ).textContent, 'could not be saved' );
+	} );
+
+	it( 'reports retained browser access when rollback fails after persistence', async () => {
+		const storage = new MemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
+		storage.rejectSaves = true;
+		const permissionManager = createPermissionManager();
+		permissionManager.request = () => Promise.resolve( {
+			status: SitePermissionRequestStatus.GRANTED,
+			provenance: SitePermissionGrantProvenance.NEW,
+		} );
+		permissionManager.release = () => Promise.resolve( SitePermissionReleaseStatus.ERROR );
+		const element = await createScreen( storage, permissionManager );
+		const input = getRequiredElement( element, '#site-address', HTMLInputElement );
+		input.value = 'instagram.com';
+
+		getRequiredElement( element, '.add-site-form', HTMLFormElement ).requestSubmit();
+		await settleScreen( element );
+
+		assert.equal( input.value, 'instagram.com' );
+		assert.include( getRequiredElement( element, '.site-input-error', Element ).textContent, 'may still be active' );
 	} );
 
 	it( 'adds an independent exception from the manual behavior choice', async () => {
@@ -576,15 +969,83 @@ describe( 'tocus-f-protected-sites-screen', () => {
 					kind: ProtectedSiteConfigurationChangeKind.REMOVED,
 					identityHost: onlySiteConfiguration.sites[ 0 ]?.identityHost,
 					configuration: EMPTY_CONFIGURATION,
+					permissionReleaseStatus: SitePermissionReleaseStatus.RELEASED,
 				},
 			},
 		) );
-		await element.updateComplete;
+		await settleScreen( element );
 
 		assert.equal(
 			element.shadowRoot?.activeElement,
 			getRequiredElement( element, '#site-address', HTMLInputElement ),
 		);
 		assert.include( getRequiredElement( element, '.announcement', Element ).textContent, 'removed' );
+	} );
+
+	it( 'does not repeat browser access cleanup after a protected site is removed', async () => {
+		const permissionManager = createPermissionManager();
+		let releasedRuleHost = '';
+		let hadRemainingSites = true;
+		permissionManager.release = ( rule, remainingSites ) => {
+			releasedRuleHost = rule.host;
+			hadRemainingSites = remainingSites;
+			return Promise.resolve( SitePermissionReleaseStatus.RELEASED );
+		};
+		const onlySiteConfiguration: ProtectionConfigurationDocument = {
+			...TestEmptyProtectionConfiguration,
+			sites: [ YOUTUBE_SITE ],
+		};
+		const element = await createScreen(
+			new MemoryProtectedSitesScreenStorage( onlySiteConfiguration ),
+			permissionManager,
+		);
+
+		getRequiredElement( element, 'tocus-f-protected-site-item', Element ).dispatchEvent( new CustomEvent(
+			ProtectedSiteConfigurationChangedEventName,
+			{
+				bubbles: true,
+				composed: true,
+				detail: {
+					kind: ProtectedSiteConfigurationChangeKind.REMOVED,
+					identityHost: YOUTUBE_SITE.identityHost,
+					configuration: EMPTY_CONFIGURATION,
+					permissionReleaseStatus: SitePermissionReleaseStatus.RELEASED,
+				},
+			},
+		) );
+		await settleScreen( element );
+
+		assert.equal( releasedRuleHost, '' );
+		assert.isTrue( hadRemainingSites );
+	} );
+
+	it( 'announces retained browser access after a protected site is removed', async () => {
+		const permissionManager = createPermissionManager();
+		permissionManager.release = () => Promise.resolve( SitePermissionReleaseStatus.RETAINED );
+		const onlySiteConfiguration: ProtectionConfigurationDocument = {
+			...TestEmptyProtectionConfiguration,
+			sites: [ YOUTUBE_SITE ],
+		};
+		const element = await createScreen(
+			new MemoryProtectedSitesScreenStorage( onlySiteConfiguration ),
+			permissionManager,
+		);
+
+		getRequiredElement( element, 'tocus-f-protected-site-item', Element ).dispatchEvent( new CustomEvent(
+			ProtectedSiteConfigurationChangedEventName,
+			{
+				bubbles: true,
+				composed: true,
+				detail: {
+					kind: ProtectedSiteConfigurationChangeKind.REMOVED,
+					identityHost: YOUTUBE_SITE.identityHost,
+					configuration: EMPTY_CONFIGURATION,
+					permissionReleaseStatus: SitePermissionReleaseStatus.RETAINED,
+				},
+			},
+		) );
+		await settleScreen( element );
+
+		assert.include( getRequiredElement( element, '.announcement', Element ).textContent, 'could not be removed' );
 	} );
 } );

@@ -31,6 +31,7 @@
 		"@web/test-runner-commands": "1.0.1",
 		"@web/test-runner-playwright": "1.0.0",
 		"@web/test-runner-visual-regression": "1.0.1",
+		"@wxt-dev/auto-icons": "1.1.2",
 		"lit-analyzer": "2.0.3",
 		"playwright": "1.62.1",
 		"typescript": "6.0.3",
