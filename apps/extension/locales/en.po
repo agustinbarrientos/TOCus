@@ -1,0 +1,1085 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-09-04 11:22-0500\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. Standalone duration displayed as a whole number of hours.
+#: apps/extension/src/localization/utils/create-localization-bundle/formatters.ts
+msgid "{count, plural, one {# hour} other {# hours}}"
+msgstr "{count, plural, one {# hour} other {# hours}}"
+
+#. Standalone duration displayed as a whole number of minutes.
+#: apps/extension/src/localization/utils/create-localization-bundle/formatters.ts
+msgid "{count, plural, one {# minute} other {# minutes}}"
+msgstr "{count, plural, one {# minute} other {# minutes}}"
+
+#. Browser toolbar tooltip when several protection scopes have active timers.
+#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+msgid "{count, plural, one {# protected-site timer active} other {# protected-site timers active}}"
+msgstr "{count, plural, one {# protected-site timer active} other {# protected-site timers active}}"
+
+#. Standalone duration displayed as a whole number of seconds.
+#: apps/extension/src/localization/utils/create-localization-bundle/formatters.ts
+msgid "{count, plural, one {# second} other {# seconds}}"
+msgstr "{count, plural, one {# second} other {# seconds}}"
+
+#. Compact countdown shown during a focused pause. The letter s means seconds.
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "{count, plural, one {#s remaining} other {#s remaining}}"
+msgstr "{count, plural, one {#s remaining} other {#s remaining}}"
+
+#. Browser toolbar tooltip while a focused pause has whole minutes remaining.
+#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+msgid "{count, plural, one {Pause: # minute remaining} other {Pause: # minutes remaining}}"
+msgstr "{count, plural, one {Pause: # minute remaining} other {Pause: # minutes remaining}}"
+
+#. Browser toolbar tooltip while a focused pause has seconds remaining.
+#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+msgid "{count, plural, one {Pause: # second remaining} other {Pause: # seconds remaining}}"
+msgstr "{count, plural, one {Pause: # second remaining} other {Pause: # seconds remaining}}"
+
+#. Browser toolbar tooltip while a protected-site visit window has whole minutes remaining.
+#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+msgid "{count, plural, one {Visit window: # minute remaining} other {Visit window: # minutes remaining}}"
+msgstr "{count, plural, one {Visit window: # minute remaining} other {Visit window: # minutes remaining}}"
+
+#. Warning shown shortly before an active protected-site visit window ends.
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "{count, plural, one {Your visit window ends in # second.} other {Your visit window ends in # seconds.}}"
+msgstr "{count, plural, one {Your visit window ends in # second.} other {Your visit window ends in # seconds.}}"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+msgid "{count}+"
+msgstr "{count}+"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+msgid "{count}×"
+msgstr "{count}×"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "{name} ({domain})"
+msgstr "{name} ({domain})"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "{name} access was restored."
+msgstr "{name} access was restored."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "{name} was added to protected sites."
+msgstr "{name} was added to protected sites."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "{name} was removed from protected sites."
+msgstr "{name} was removed from protected sites."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "{name} was removed, but its browser access could not be removed automatically."
+msgstr "{name} was removed, but its browser access could not be removed automatically."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "{name} was updated."
+msgstr "{name} was updated."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+msgid "{visibleScopeCount}"
+msgstr "{visibleScopeCount}"
+
+#. Short extension description shown by the browser and extension store.
+#: apps/extension/src/localization/catalogs/create-browser-locale-messages.ts
+msgctxt "Extension description"
+msgid "A gentle pause before distracting websites, designed to help you return to your intentions."
+msgstr "A gentle pause before distracting websites, designed to help you return to your intentions."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
+msgctxt "Popup summary"
+msgid "A gentle pause before distracting websites, designed to help you return to your intentions."
+msgstr "A gentle pause before distracting websites, designed to help you return to your intentions."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "A private, all-time view of the pauses and choices TOCus has supported on this device."
+msgstr "A private, all-time view of the pauses and choices TOCus has supported on this device."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "A soft clay sphere expands as you breathe in and settles as you breathe out."
+msgstr "A soft clay sphere expands as you breathe in and settles as you breathe out."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "A soft clay sphere rests at the center of the screen."
+msgstr "A soft clay sphere rests at the center of the screen."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "A soft sphere guides your breathing."
+msgstr "A soft sphere guides your breathing."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "A still pause with no breathing cue."
+msgstr "A still pause with no breathing cue."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "About {duration}"
+msgstr "About {duration}"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Access required"
+msgstr "Access required"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Accessibility"
+msgstr "Accessibility"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Active time windows"
+msgstr "Active time windows"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Add site"
+msgstr "Add site"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Add the first site you want TOCus to gently interrupt."
+msgstr "Add the first site you want TOCus to gently interrupt."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Add time window"
+msgstr "Add time window"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Adding..."
+msgstr "Adding..."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "All the time"
+msgstr "All the time"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "All time"
+msgstr "All time"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Allow access"
+msgstr "Allow access"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Allowance"
+msgstr "Allowance"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Allowances granted"
+msgstr "Allowances granted"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Allowing..."
+msgstr "Allowing..."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "An end time earlier than its start continues into the next day."
+msgstr "An end time earlier than its start continues into the next day."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Appearance"
+msgstr "Appearance"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Appearance and accessibility preferences"
+msgstr "Appearance and accessibility preferences"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Appearance saved."
+msgstr "Appearance saved."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Appearance settings could not load"
+msgstr "Appearance settings could not load"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Applies to"
+msgstr "Applies to"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Blue"
+msgstr "Blue"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "Breathe in"
+msgstr "Breathe in"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "Breathe out"
+msgstr "Breathe out"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Breathing"
+msgstr "Breathing"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Brown"
+msgstr "Brown"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Browser access could not be requested. Nothing was saved."
+msgstr "Browser access could not be requested. Nothing was saved."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Browser access is required to protect this website. Nothing was saved."
+msgstr "Browser access is required to protect this website. Nothing was saved."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Browser access is still required to protect this site."
+msgstr "Browser access is still required to protect this site."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Cancel"
+msgstr "Cancel"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Check the schedule and try again."
+msgstr "Check the schedule and try again."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Choose a maximum that is at least as long as the initial wait."
+msgstr "Choose a maximum that is at least as long as the initial wait."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Choose a start time."
+msgstr "Choose a start time."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Choose an end time."
+msgstr "Choose an end time."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Choose the colors and pause style that feel right for you."
+msgstr "Choose the colors and pause style that feel right for you."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Choose the days and times when protection should be active."
+msgstr "Choose the days and times when protection should be active."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Choose the language TOCus uses across the extension."
+msgstr "Choose the language TOCus uses across the extension."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Choose the websites where a calm pause can help you return to your intentions."
+msgstr "Choose the websites where a calm pause can help you return to your intentions."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Choose when protection is active. Times use this device’s current time zone."
+msgstr "Choose when protection is active. Times use this device’s current time zone."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Color palette"
+msgstr "Color palette"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Completed waits"
+msgstr "Completed waits"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Completing a wait pauses protection for this long."
+msgstr "Completing a wait pauses protection for this long."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "Continue"
+msgstr "Continue"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Dark"
+msgstr "Dark"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Day"
+msgstr "Day"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Discard changes"
+msgstr "Discard changes"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Display name"
+msgstr "Display name"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Each completed wait adds this amount to the next wait that day."
+msgstr "Each completed wait adds this amount to the next wait that day."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Each of these sites keeps its own wait ladder and allowance."
+msgstr "Each of these sites keeps its own wait ladder and allowance."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
+msgid "Early development"
+msgstr "Early development"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Edit"
+msgstr "Edit"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "End"
+msgstr "End"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Enter a valid website address, such as example.com."
+msgstr "Enter a valid website address, such as example.com."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Enter a website address or domain. Whole-domain protection includes its subdomains."
+msgstr "Enter a website address or domain. Whole-domain protection includes its subdomains."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Estimated protected-site time avoided, based on your prior focused use."
+msgstr "Estimated protected-site time avoided, based on your prior focused use."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Estimated time reclaimed"
+msgstr "Estimated time reclaimed"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "example.com"
+msgstr "example.com"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Follow your device appearance."
+msgstr "Follow your device appearance."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Friday"
+msgstr "Friday"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Give this site its own wait and allowance."
+msgstr "Give this site its own wait and allowance."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Global timing"
+msgstr "Global timing"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Green"
+msgstr "Green"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "How should this site behave?"
+msgstr "How should this site behave?"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Independent"
+msgstr "Independent"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Independent sites"
+msgstr "Independent sites"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Initial wait"
+msgstr "Initial wait"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Keep protection active every day and at every time."
+msgstr "Keep protection active every day and at every time."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Keep site"
+msgstr "Keep site"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Keep the pause still and remove movement."
+msgstr "Keep the pause still and remove movement."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Language"
+msgstr "Language"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Language preference"
+msgstr "Language preference"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Language saved."
+msgstr "Language saved."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Language settings could not load"
+msgstr "Language settings could not load"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Less than 1 minute"
+msgstr "Less than 1 minute"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "Let's try that again"
+msgstr "Let's try that again"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Light"
+msgstr "Light"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Loading appearance settings..."
+msgstr "Loading appearance settings..."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Loading language settings..."
+msgstr "Loading language settings..."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Loading protected sites..."
+msgstr "Loading protected sites..."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Loading schedule..."
+msgstr "Loading schedule..."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Loading statistics..."
+msgstr "Loading statistics..."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Loading timing settings..."
+msgstr "Loading timing settings..."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Local data"
+msgstr "Local data"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Maximum wait"
+msgstr "Maximum wait"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Maximum wait must be at least as long as the initial wait."
+msgstr "Maximum wait must be at least as long as the initial wait."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Monday"
+msgstr "Monday"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "No protected sites yet"
+msgstr "No protected sites yet"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Not enough history yet"
+msgstr "Not enough history yet"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "On a weekly schedule"
+msgstr "On a weekly schedule"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Open the requested site as soon as the wait ends."
+msgstr "Open the requested site as soon as the wait ends."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Open the site automatically"
+msgstr "Open the site automatically"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "Or press {key}"
+msgstr "Or press {key}"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Orange"
+msgstr "Orange"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+msgid "P{count}m"
+msgstr "P{count}m"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+msgid "P{count}s"
+msgstr "P{count}s"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Pause style"
+msgstr "Pause style"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+msgid "Pause: complete"
+msgstr "Pause: complete"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Personalization"
+msgstr "Personalization"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Personalization defaults restored."
+msgstr "Personalization defaults restored."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Personalization settings need your attention"
+msgstr "Personalization settings need your attention"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Pink"
+msgstr "Pink"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Protect independently"
+msgstr "Protect independently"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Protected sites"
+msgstr "Protected sites"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Protected sites could not load"
+msgstr "Protected sites could not load"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Protected sites need your attention"
+msgstr "Protected sites need your attention"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Protection"
+msgstr "Protection"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Protection behavior"
+msgstr "Protection behavior"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Protects {host} and its subdomains"
+msgstr "Protects {host} and its subdomains"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Protects only {host}"
+msgstr "Protects only {host}"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Purple"
+msgstr "Purple"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Quiet pause"
+msgstr "Quiet pause"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Reconsidered visits"
+msgstr "Reconsidered visits"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Reduce motion"
+msgstr "Reduce motion"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Remove"
+msgstr "Remove"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Remove {name}?"
+msgstr "Remove {name}?"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Remove site"
+msgstr "Remove site"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Remove time window {position}"
+msgstr "Remove time window {position}"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Remove window"
+msgstr "Remove window"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Reset statistics"
+msgstr "Reset statistics"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Reset statistics?"
+msgstr "Reset statistics?"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Resetting..."
+msgstr "Resetting..."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Restore personalization defaults"
+msgstr "Restore personalization defaults"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Saturday"
+msgstr "Saturday"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Save changes"
+msgstr "Save changes"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Save or discard these changes before choosing another scope."
+msgstr "Save or discard these changes before choosing another scope."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Save schedule"
+msgstr "Save schedule"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Save timing"
+msgstr "Save timing"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Saving..."
+msgstr "Saving..."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Schedule"
+msgstr "Schedule"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Schedule could not load"
+msgstr "Schedule could not load"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Schedule saved."
+msgstr "Schedule saved."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Set one calm timing pattern for every protected site."
+msgstr "Set one calm timing pattern for every protected site."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
+msgid "Settings"
+msgstr "Settings"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Share protection"
+msgstr "Share protection"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Share with other protected sites"
+msgstr "Share with other protected sites"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Shared"
+msgstr "Shared"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Shared protection"
+msgstr "Shared protection"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Show a Continue button"
+msgstr "Show a Continue button"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "Since you started, you've given yourself about {estimatedReclaimedTime} back and taken {focusedPauseTime} for yourself."
+msgstr "Since you started, you've given yourself about {estimatedReclaimedTime} back and taken {focusedPauseTime} for yourself."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "Since you started, you've given yourself about {estimatedReclaimedTime} back."
+msgstr "Since you started, you've given yourself about {estimatedReclaimedTime} back."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "Since you started, you've taken {focusedPauseTime} for yourself."
+msgstr "Since you started, you've taken {focusedPauseTime} for yourself."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "Space"
+msgstr "Space"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Start"
+msgstr "Start"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Start and end time must be different."
+msgstr "Start and end time must be different."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Statistics"
+msgstr "Statistics"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Statistics are unavailable"
+msgstr "Statistics are unavailable"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Statistics could not be reset"
+msgstr "Statistics could not be reset"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Statistics were reset. Your totals now start from zero."
+msgstr "Statistics were reset. Your totals now start from zero."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Sunday"
+msgstr "Sunday"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "System"
+msgstr "System"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "Take a moment"
+msgstr "Take a moment"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "The first interruption of the day starts with this wait."
+msgstr "The first interruption of the day starts with this wait."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "The local configuration could not be updated safely."
+msgstr "The local configuration could not be updated safely."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "The schedule could not be saved. Your settings were not changed."
+msgstr "The schedule could not be saved. Your settings were not changed."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "The selected palette colors the complete pause experience."
+msgstr "The selected palette colors the complete pause experience."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "The website name is not valid."
+msgstr "The website name is not valid."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Theme"
+msgstr "Theme"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "These sites share one wait ladder and allowance."
+msgstr "These sites share one wait ladder and allowance."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "These timing choices are not valid. Review them before saving."
+msgstr "These timing choices are not valid. Review them before saving."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "This is a moment just for you."
+msgstr "This is a moment just for you."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "This protected site no longer exists."
+msgstr "This protected site no longer exists."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "This protection scope is no longer available. Reload the page and try again."
+msgstr "This protection scope is no longer available. Reload the page and try again."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "This site changed elsewhere. Reload settings and try again."
+msgstr "This site changed elsewhere. Reload settings and try again."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
+msgid "This source build includes only the extension foundation. Protection and pause features are still being developed."
+msgstr "This source build includes only the extension foundation. Protection and pause features are still being developed."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "This visit window has ended. Start another pause when you are ready."
+msgstr "This visit window has ended. Start another pause when you are ready."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "This website could not be saved. Its browser access may still be active."
+msgstr "This website could not be saved. Its browser access may still be active."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "This website could not be saved. Your entry is still here."
+msgstr "This website could not be saved. Your entry is still here."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "This website is already protected by an existing rule."
+msgstr "This website is already protected by an existing rule."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Thursday"
+msgstr "Thursday"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Time window {position}"
+msgstr "Time window {position}"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Time you took to pause"
+msgstr "Time you took to pause"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Timing"
+msgstr "Timing"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Timing settings could not be saved. Your choices are still here."
+msgstr "Timing settings could not be saved. Your choices are still here."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Timing settings could not load"
+msgstr "Timing settings could not load"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Timing settings need your attention"
+msgstr "Timing settings need your attention"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Timing settings were saved."
+msgstr "Timing settings were saved."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Timing summary"
+msgstr "Timing summary"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
+#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+msgid "TOCus"
+msgstr "TOCus"
+
+#. Extension name.
+#: apps/extension/src/localization/catalogs/create-browser-locale-messages.ts
+msgctxt "Extension name"
+msgid "TOCus"
+msgstr "TOCus"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "TOCus could not confirm the reset. No totals are shown until your local statistics can be read again."
+msgstr "TOCus could not confirm the reset. No totals are shown until your local statistics can be read again."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "TOCus could not create independent protection for this site."
+msgstr "TOCus could not create independent protection for this site."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "TOCus could not load local appearance settings. Nothing was changed."
+msgstr "TOCus could not load local appearance settings. Nothing was changed."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "TOCus could not load local settings. Nothing was changed."
+msgstr "TOCus could not load local settings. Nothing was changed."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "TOCus could not load local timing settings. Nothing was changed."
+msgstr "TOCus could not load local timing settings. Nothing was changed."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "TOCus could not load your local language setting. Nothing was changed."
+msgstr "TOCus could not load your local language setting. Nothing was changed."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "TOCus could not read your local statistics. No estimates or totals are shown."
+msgstr "TOCus could not read your local statistics. No estimates or totals are shown."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "TOCus could not restore this pause."
+msgstr "TOCus could not restore this pause."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "TOCus could not restore your personalization defaults. Nothing was changed."
+msgstr "TOCus could not restore your personalization defaults. Nothing was changed."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "TOCus found local settings it could not read. They were not replaced."
+msgstr "TOCus found local settings it could not read. They were not replaced."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "TOCus language"
+msgstr "TOCus language"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "TOCus pause"
+msgstr "TOCus pause"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
+msgid "TOCus settings"
+msgstr "TOCus settings"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "TOCus still could not restore this pause."
+msgstr "TOCus still could not restore this pause."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "TOCus will keep using this language until you change it."
+msgstr "TOCus will keep using this language until you change it."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+msgid "TOCus: {title}"
+msgstr "TOCus: {title}"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Try again"
+msgstr "Try again"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "Trying again..."
+msgstr "Trying again..."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "Trying to restore your pause."
+msgstr "Trying to restore your pause."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Tuesday"
+msgstr "Tuesday"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Use a dark appearance."
+msgstr "Use a dark appearance."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Use a light appearance."
+msgstr "Use a light appearance."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Use automatic name"
+msgstr "Use automatic name"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Use browser language"
+msgstr "Use browser language"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Use the same wait and allowance as your other protected sites."
+msgstr "Use the same wait and allowance as your other protected sites."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Uses its own wait, allowance, and schedule."
+msgstr "Uses its own wait, allowance, and schedule."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Uses the shared wait, allowance, and schedule."
+msgstr "Uses the shared wait, allowance, and schedule."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+msgid "V{count}m"
+msgstr "V{count}m"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+msgid "V<1m"
+msgstr "V<1m"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+msgid "V0m"
+msgstr "V0m"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+msgid "Visit window: complete"
+msgstr "Visit window: complete"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+msgid "Visit window: less than 1 minute remaining"
+msgstr "Visit window: less than 1 minute remaining"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Wait for an explicit choice before opening the site."
+msgstr "Wait for an explicit choice before opening the site."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Wait increase"
+msgstr "Wait increase"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Waits start at {initialWait}. Each completed wait adds {waitIncrease} to the next wait, up to {maximumWait}. Completing a wait starts an allowance for {allowance} and opens the site automatically."
+msgstr "Waits start at {initialWait}. Each completed wait adds {waitIncrease} to the next wait, up to {maximumWait}. Completing a wait starts an allowance for {allowance} and opens the site automatically."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Waits start at {initialWait}. Each completed wait adds {waitIncrease} to the next wait, up to {maximumWait}. Completing a wait starts an allowance for {allowance} and shows a Continue button."
+msgstr "Waits start at {initialWait}. Each completed wait adds {waitIncrease} to the next wait, up to {maximumWait}. Completing a wait starts an allowance for {allowance} and shows a Continue button."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Website address"
+msgstr "Website address"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Wednesday"
+msgstr "Wednesday"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Wellbeing"
+msgstr "Wellbeing"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "When should protection be active?"
+msgstr "When should protection be active?"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "When the wait finishes"
+msgstr "When the wait finishes"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "You can continue when you are ready."
+msgstr "You can continue when you are ready."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Your appearance could not be saved. Your choice is still shown here."
+msgstr "Your appearance could not be saved. Your choice is still shown here."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Your browser currently selects {name}."
+msgstr "Your browser currently selects {name}."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Your changes could not be saved. Nothing was replaced."
+msgstr "Your changes could not be saved. Nothing was replaced."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Your language could not be saved. TOCus returned to your previous language."
+msgstr "Your language could not be saved. TOCus returned to your previous language."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Your local personalization data is not valid. Restoring defaults will reset appearance, pause, motion, and language preferences."
+msgstr "Your local personalization data is not valid. Restoring defaults will reset appearance, pause, motion, and language preferences."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Your local protected-site data is not valid, so it was not replaced."
+msgstr "Your local protected-site data is not valid, so it was not replaced."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Your local settings need attention"
+msgstr "Your local settings need attention"
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Your local settings were not changed. Try loading them again."
+msgstr "Your local settings were not changed. Try loading them again."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Your local timing data is not valid, so it was not replaced."
+msgstr "Your local timing data is not valid, so it was not replaced."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "Your pause has resumed."
+msgstr "Your pause has resumed."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "Your pause has started."
+msgstr "Your pause has started."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "Your pause is paused."
+msgstr "Your pause is paused."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Your protected-site data changed. Retry before adding this site."
+msgstr "Your protected-site data changed. Retry before adding this site."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Your statistics stay on this device."
+msgstr "Your statistics stay on this device."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Your statistics will start over from zero. Protected sites, schedules, timing, and appearance remain unchanged."
+msgstr "Your statistics will start over from zero. Protected sites, schedules, timing, and appearance remain unchanged."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+msgid "Your timing data changed. Retry before saving these choices."
+msgstr "Your timing data changed. Retry before saving these choices."
+
+#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+msgid "Your visit window is ending soon."
+msgstr "Your visit window is ending soon."
