@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
 	DefaultPreferencesDocument,
+	Language,
 	Palette,
 	PauseMode,
 	PreferencesDocumentSchema,
@@ -11,13 +12,23 @@ import {
 describe( 'PreferencesDocumentSchema', () => {
 	it( 'accepts the frozen default preferences document', () => {
 		expect( PreferencesDocumentSchema.parse( DefaultPreferencesDocument ) ).toEqual( {
-			schemaVersion: 1,
+			schemaVersion: 2,
 			theme: 'system',
 			palette: 'brown',
 			pauseMode: 'breathing',
 			reducedMotion: false,
+			language: null,
 		} );
 		expect( Object.isFrozen( DefaultPreferencesDocument ) ).toBe( true );
+	} );
+
+	it( 'accepts automatic language selection and every explicit supported language', () => {
+		for ( const language of [ null, ...Object.values( Language ) ] ) {
+			expect( PreferencesDocumentSchema.safeParse( {
+				...DefaultPreferencesDocument,
+				language,
+			} ).success ).toBe( true );
+		}
 	} );
 
 	it( 'accepts every approved appearance preference', () => {
@@ -42,6 +53,7 @@ describe( 'PreferencesDocumentSchema', () => {
 		{ ...DefaultPreferencesDocument, palette: 'teal' },
 		{ ...DefaultPreferencesDocument, pauseMode: 'skip' },
 		{ ...DefaultPreferencesDocument, reducedMotion: 'yes' },
+		{ ...DefaultPreferencesDocument, language: 'es-MX' },
 		{ ...DefaultPreferencesDocument, telemetry: true },
 	] )( 'rejects unsupported or malformed preferences', ( preferences ) => {
 		expect( PreferencesDocumentSchema.safeParse( preferences ).success ).toBe( false );
