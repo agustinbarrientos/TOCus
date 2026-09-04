@@ -26,8 +26,8 @@ export interface BrowserProtectionRuntimeOptions {
 	interruptionPageUrl: string;
 	/** Statistics observer serialized by this browser runtime. */
 	statisticsRuntime: StatisticsRuntime;
-	/** Localized toolbar copy, or undefined to use the default English copy. */
-	toolbarBadgeCopy?: ToolbarBadgeCopy;
+	/** Localized toolbar copy required for global toolbar projection. */
+	toolbarBadgeCopy: ToolbarBadgeCopy;
 
 	/**
 	 * Filters persisted sites to those with complete current browser access.
@@ -103,6 +103,13 @@ export interface BrowserProtectionRuntime {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	resetStatistics(): Promise<StatisticsProjection>;
+
+	/**
+	 * Reprojects the current toolbar state after presentation-only copy changes.
+	 * @return Promise resolved after the serialized toolbar update settles.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	refreshToolbarBadge(): Promise<void>;
 
 	/**
 	 * Restores navigation rules and toolbar state from local configuration and runtime state.
