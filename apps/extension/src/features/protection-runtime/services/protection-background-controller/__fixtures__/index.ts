@@ -180,6 +180,8 @@ interface RuntimeHarness {
 	handleClockTick: ReturnType<typeof vi.fn>;
 	/** Configuration-change spy. */
 	handleConfigurationChanged: ReturnType<typeof vi.fn>;
+	/** Toolbar refresh spy. */
+	refreshToolbarBadge: ReturnType<typeof vi.fn>;
 	/** Fail-open cleanup spy. */
 	failOpen: ReturnType<typeof vi.fn>;
 	/**
@@ -218,6 +220,7 @@ function createRuntime(): RuntimeHarness {
 	const handleFocusChanged = vi.fn().mockResolvedValue( undefined );
 	const handleClockTick = vi.fn().mockResolvedValue( undefined );
 	const handleConfigurationChanged = vi.fn().mockResolvedValue( undefined );
+	const refreshToolbarBadge = vi.fn().mockResolvedValue( undefined );
 	const failOpen = vi.fn().mockResolvedValue( undefined );
 	const readStatistics = vi.fn().mockResolvedValue( {
 		status: StatisticsProjectionStatus.UNAVAILABLE,
@@ -234,6 +237,7 @@ function createRuntime(): RuntimeHarness {
 		handleFocusChanged,
 		handleClockTick,
 		handleConfigurationChanged,
+		refreshToolbarBadge,
 		failOpen,
 		readStatistics,
 		resetStatistics,
@@ -250,6 +254,7 @@ function createRuntime(): RuntimeHarness {
 		handleFocusChanged,
 		handleClockTick,
 		handleConfigurationChanged,
+		refreshToolbarBadge,
 		failOpen,
 		readStatistics,
 		resetStatistics,
