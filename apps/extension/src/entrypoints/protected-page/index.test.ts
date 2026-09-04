@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AllowanceIdSchema } from '../../domains/protection/types/protection-value';
+import { Language } from '../../domains/preferences/types';
 import {
 	type InterruptionPageController,
 	type InterruptionPageControllerOptions,
@@ -9,7 +10,10 @@ import {
 	type ProtectedPageLayerControllerOptions,
 } from '../../features/interruption/services/protected-page-layer-controller/types';
 import { InterruptionScreenState } from '../../features/interruption/components/screen/types';
-import { type PreferencesChangeListener } from '../../features/preferences/services/preferences-controller/types';
+import {
+	type PreferencesChangeListener,
+	type PreferencesLanguageChangeListener,
+} from '../../features/preferences/services/preferences-controller/types';
 import { type ProtectedPageMessage } from '../../features/protection-runtime/types/protected-page-message';
 
 /**
@@ -35,6 +39,14 @@ type ProtectedPageMessageListener = (
  */
 const entrypointMocks = vi.hoisted( () => {
 	/**
+	 * Minimal nested interruption screen used to observe localized footer copy.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	class TestInterruptionScreen extends EventTarget {
+		wellbeingSummary = 'Default footer';
+	}
+
+	/**
 	 * Minimal protected-page layer used to verify entrypoint composition.
 	 * @since 0.1.0 Initial implementation.
 	 */
@@ -43,9 +55,15 @@ const entrypointMocks = vi.hoisted( () => {
 
 		connectionGuardEnabled = false;
 
+		copy: unknown;
+
 		interruptionLayerPresented = false;
 
-		readonly interruptionScreen = new EventTarget();
+		interruptionCopy: unknown;
+
+		lang = '';
+
+		readonly interruptionScreen = new TestInterruptionScreen();
 
 		readonly style = {
 			removeProperty: vi.fn<( property: string ) => void>(),
@@ -70,7 +88,11 @@ const entrypointMocks = vi.hoisted( () => {
 		 * @return Test screen object.
 		 * @since 0.1.0 Initial implementation.
 		 */
-		getInterruptionScreen(): EventTarget {
+		getInterruptionScreen(): TestInterruptionScreen {
+			if ( this.interruptionCopy === undefined ) {
+				throw new Error( 'The test interruption screen has not rendered.' );
+			}
+
 			return this.interruptionScreen;
 		}
 
@@ -101,10 +123,33 @@ const entrypointMocks = vi.hoisted( () => {
 		}
 	}
 
+	const initialLocalization = {
+		interruption: { value: 'Localized interruption copy' },
+		languageTag: 'fr',
+		protectedPageLayer: { value: 'Localized protected-page copy' },
+		wellbeing: { neutral: 'Localized neutral footer' },
+	};
+	const liveLocalization = {
+		interruption: { value: 'Live interruption copy' },
+		languageTag: 'ja',
+		protectedPageLayer: { value: 'Live protected-page copy' },
+		wellbeing: { neutral: 'Live neutral footer' },
+	};
+	const languageChangeListener: { value: PreferencesLanguageChangeListener | null } = {
+		value: null,
+	};
+
 	const preferencesController = Object.assign( new EventTarget(), {
+		addLanguageChangeListener: vi.fn<( listener: PreferencesLanguageChangeListener ) => void>(
+			( listener ) => {
+				languageChangeListener.value = listener;
+			},
+		),
 		addPreferencesChangeListener: vi.fn<( listener: PreferencesChangeListener ) => void>(),
 		apply: vi.fn(),
+		language: 'fr',
 		matches: false,
+		removeLanguageChangeListener: vi.fn<( listener: PreferencesLanguageChangeListener ) => void>(),
 		removePreferencesChangeListener: vi.fn<( listener: PreferencesChangeListener ) => void>(),
 		start: vi.fn(),
 		stop: vi.fn(),
@@ -114,6 +159,7 @@ const entrypointMocks = vi.hoisted( () => {
 	const storageChanges = {};
 	const wellbeingSummaryController = {
 		refresh: vi.fn(),
+		setCopy: vi.fn(),
 		start: vi.fn(),
 		stop: vi.fn(),
 	};
@@ -125,6 +171,9 @@ const entrypointMocks = vi.hoisted( () => {
 		createInterruptionPageController: vi.fn<(
 			options: InterruptionPageControllerOptions,
 		) => InterruptionPageController>(),
+		createLocalizedProtectedPageCopy: vi.fn<( language: string ) => unknown>( ( language ) =>
+			language === 'ja' ? liveLocalization : initialLocalization,
+		),
 		createProtectedPageLayerController: vi.fn<(
 			options: ProtectedPageLayerControllerOptions,
 		) => ProtectedPageLayerController>(),
@@ -132,10 +181,15 @@ const entrypointMocks = vi.hoisted( () => {
 		createPreferencesStorage: vi.fn().mockReturnValue( preferencesStorage ),
 		createStatisticsClient: vi.fn().mockReturnValue( statisticsClient ),
 		createWellbeingSummaryController: vi.fn().mockReturnValue( wellbeingSummaryController ),
+		getUILanguage: vi.fn().mockReturnValue( 'es-AR' ),
 		handleMessage: vi.fn<ProtectedPageLayerController[ 'handleMessage' ]>(),
+		initialLocalization,
+		languageChangeListener,
+		liveLocalization,
 		preferencesController,
 		preferencesStorage,
 		removeMessageListener: vi.fn(),
+		resolveLanguage: vi.fn().mockReturnValue( 'es-vos' ),
 		sendMessage: vi.fn(),
 		stopLayerController: vi.fn(),
 		storageChanges,
@@ -161,6 +215,7 @@ function ignorePreferencesStartResolution(): undefined {
 
 vi.mock( 'wxt/browser', () => ( {
 	browser: {
+		i18n: { getUILanguage: entrypointMocks.getUILanguage },
 		runtime: {
 			onMessage: {
 				addListener: entrypointMocks.addMessageListener,
@@ -173,6 +228,12 @@ vi.mock( 'wxt/browser', () => ( {
 } ) );
 vi.mock( '../../domains/preferences/services', () => ( {
 	createPreferencesStorageService: entrypointMocks.createPreferencesStorage,
+} ) );
+vi.mock( '../../domains/preferences/utils', () => ( {
+	resolveLanguage: entrypointMocks.resolveLanguage,
+} ) );
+vi.mock( '../../localization/utils/create-localized-protected-page-copy', () => ( {
+	createLocalizedProtectedPageCopy: entrypointMocks.createLocalizedProtectedPageCopy,
 } ) );
 vi.mock( '../../features/preferences/services/preferences-controller', () => ( {
 	createPreferencesController: entrypointMocks.createPreferencesController,
@@ -198,6 +259,13 @@ describe( 'protected-page unlisted entrypoint', () => {
 		Reflect.deleteProperty( globalThis, PROTECTED_PAGE_INITIALIZATION_KEY );
 		vi.resetModules();
 		vi.clearAllMocks();
+		entrypointMocks.languageChangeListener.value = null;
+		entrypointMocks.createLocalizedProtectedPageCopy.mockImplementation( ( language ) =>
+			language === 'ja'
+				? entrypointMocks.liveLocalization
+				: entrypointMocks.initialLocalization,
+		);
+		entrypointMocks.preferencesController.language = 'fr';
 		vi.spyOn( Date, 'now' ).mockReturnValue( 120_000 );
 		entrypointMocks.preferencesController.start.mockResolvedValue( undefined );
 	} );
@@ -211,9 +279,10 @@ describe( 'protected-page unlisted entrypoint', () => {
 	it( 'mounts one isolated layer and connects it to extension messaging', async () => {
 		const documentTarget = Object.assign( new EventTarget(), {
 			activeElement: null,
-			documentElement: { append: entrypointMocks.append },
+			documentElement: { append: entrypointMocks.append, lang: 'es' },
 			hasFocus: vi.fn().mockReturnValue( true ),
 			querySelector: vi.fn().mockReturnValue( null ),
+			title: 'Visited page title',
 			visibilityState: 'visible',
 		} );
 		const motionPreference = Object.assign( new EventTarget(), { matches: false } );
@@ -267,6 +336,10 @@ describe( 'protected-page unlisted entrypoint', () => {
 
 		expect( pendingLayer?.style.visibility ).toBe( 'hidden' );
 		expect( pendingLayer?.style.removeProperty ).not.toHaveBeenCalled();
+		expect( entrypointMocks.createLocalizedProtectedPageCopy ).toHaveBeenCalledOnce();
+		expect( entrypointMocks.createLocalizedProtectedPageCopy ).toHaveBeenCalledWith( Language.SPANISH_VOS );
+		expect( pendingLayer?.copy ).toBe( entrypointMocks.initialLocalization.protectedPageLayer );
+		expect( pendingLayer?.interruptionCopy ).toBe( entrypointMocks.initialLocalization.interruption );
 		completePreferencesStart();
 		await initialization;
 		expect( pendingLayer?.style.removeProperty ).toHaveBeenCalledWith( 'visibility' );
@@ -314,6 +387,7 @@ describe( 'protected-page unlisted entrypoint', () => {
 		layer.connected = true;
 		expect( entrypointMocks.createPreferencesController ).toHaveBeenCalledWith( {
 			appearanceTarget: layer,
+			browserLanguage: Language.SPANISH_VOS,
 			presentation: layer.interruptionScreen,
 			storage: entrypointMocks.preferencesStorage,
 			storageChanges: entrypointMocks.storageChanges,
@@ -335,6 +409,21 @@ describe( 'protected-page unlisted entrypoint', () => {
 		} );
 		expect( entrypointMocks.preferencesController.addPreferencesChangeListener )
 			.not.toHaveBeenCalled();
+		expect( entrypointMocks.getUILanguage ).toHaveBeenCalledOnce();
+		expect( entrypointMocks.resolveLanguage ).toHaveBeenCalledWith( 'es-AR' );
+		expect( entrypointMocks.preferencesController.addLanguageChangeListener ).toHaveBeenCalledOnce();
+		expect( entrypointMocks.createLocalizedProtectedPageCopy ).toHaveBeenCalledWith( Language.FRENCH );
+		expect( layer.lang ).toBe( 'fr' );
+		expect( layer.copy ).toBe( entrypointMocks.initialLocalization.protectedPageLayer );
+		expect( layer.interruptionCopy ).toBe( entrypointMocks.initialLocalization.interruption );
+		expect( layer.interruptionScreen.wellbeingSummary )
+			.toBe( entrypointMocks.initialLocalization.wellbeing.neutral );
+		expect( entrypointMocks.wellbeingSummaryController.setCopy )
+			.toHaveBeenCalledWith( entrypointMocks.initialLocalization.wellbeing );
+		expect( entrypointMocks.wellbeingSummaryController.setCopy.mock.invocationCallOrder[ 0 ] )
+			.toBeLessThan( pendingLayer?.style.removeProperty.mock.invocationCallOrder[ 0 ] ?? 0 );
+		expect( documentTarget.title ).toBe( 'Visited page title' );
+		expect( documentTarget.documentElement.lang ).toBe( 'es' );
 		expect( entrypointMocks.preferencesController.start ).toHaveBeenCalledOnce();
 		expect( interruptionOptions.motionPreference ).toBe( entrypointMocks.preferencesController );
 		interruptionOptions.onPresentationStateChange?.( InterruptionScreenState.WAITING );
@@ -369,6 +458,55 @@ describe( 'protected-page unlisted entrypoint', () => {
 		await vi.waitFor( () => {
 			expect( rejectedResponse ).toHaveBeenCalledWith();
 		} );
+	} );
+
+	it( 'applies live language changes only to the owned protected-page layer', async () => {
+		const documentTarget = Object.assign( new EventTarget(), {
+			documentElement: { append: entrypointMocks.append, lang: 'pt-BR' },
+			hasFocus: vi.fn().mockReturnValue( true ),
+			title: 'Visited page title',
+			visibilityState: 'visible',
+		} );
+		const windowTarget = Object.assign( new EventTarget(), {
+			matchMedia: vi.fn().mockReturnValue( Object.assign( new EventTarget(), { matches: false } ) ),
+		} );
+
+		vi.stubGlobal( 'document', documentTarget );
+		vi.stubGlobal( 'window', windowTarget );
+		entrypointMocks.append.mockImplementation( ( layer: TestProtectedPageLayer ) => {
+			layer.connected = true;
+		} );
+		entrypointMocks.createInterruptionPageController.mockReturnValue( {
+			start: vi.fn(),
+			stop: vi.fn(),
+		} );
+		entrypointMocks.createProtectedPageLayerController.mockReturnValue( {
+			handleMessage: entrypointMocks.handleMessage,
+			stop: vi.fn(),
+		} );
+		const entrypoint = await import( './index' );
+
+		await entrypoint.default.main();
+		const layer = entrypointMocks.append.mock.calls[ 0 ]?.[ 0 ];
+
+		if ( layer === undefined ) {
+			throw new TypeError( 'Expected the localized protected-page layer.' );
+		}
+
+		entrypointMocks.languageChangeListener.value?.( Language.JAPANESE );
+		await vi.waitFor( () => {
+			expect( layer.copy ).toBe( entrypointMocks.liveLocalization.protectedPageLayer );
+		} );
+
+		expect( entrypointMocks.createLocalizedProtectedPageCopy ).toHaveBeenLastCalledWith( Language.JAPANESE );
+		expect( layer.lang ).toBe( 'ja' );
+		expect( layer.interruptionCopy ).toBe( entrypointMocks.liveLocalization.interruption );
+		expect( layer.interruptionScreen.wellbeingSummary )
+			.toBe( entrypointMocks.liveLocalization.wellbeing.neutral );
+		expect( entrypointMocks.wellbeingSummaryController.setCopy )
+			.toHaveBeenLastCalledWith( entrypointMocks.liveLocalization.wellbeing );
+		expect( documentTarget.title ).toBe( 'Visited page title' );
+		expect( documentTarget.documentElement.lang ).toBe( 'pt-BR' );
 	} );
 
 	it( 'does not trust an arbitrary pre-existing protected-page element', async () => {
@@ -531,6 +669,8 @@ describe( 'protected-page unlisted entrypoint', () => {
 			.not.toHaveBeenCalled();
 		expect( entrypointMocks.preferencesController.removePreferencesChangeListener )
 			.not.toHaveBeenCalled();
+		expect( entrypointMocks.preferencesController.removeLanguageChangeListener )
+			.not.toHaveBeenCalled();
 		expect( entrypointMocks.preferencesController.stop ).toHaveBeenCalledOnce();
 	} );
 
@@ -570,6 +710,7 @@ describe( 'protected-page unlisted entrypoint', () => {
 		expect( entrypointMocks.wellbeingSummaryController.stop ).toHaveBeenCalledOnce();
 		expect( entrypointMocks.preferencesController.removePreferencesChangeListener )
 			.not.toHaveBeenCalled();
+		expect( entrypointMocks.preferencesController.removeLanguageChangeListener ).toHaveBeenCalledOnce();
 		expect( entrypointMocks.append.mock.calls[ 0 ]?.[ 0 ]?.connectionGuardEnabled ).toBe( false );
 		expect( entrypointMocks.append.mock.calls[ 0 ]?.[ 0 ]?.connected ).toBe( false );
 		await entrypoint.default.main();
