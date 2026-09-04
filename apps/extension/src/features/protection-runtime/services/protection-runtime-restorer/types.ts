@@ -11,7 +11,7 @@ import { type ProtectionRuntimeTab } from '../../types/browser-runtime';
  * @since 0.1.0 Initial implementation.
  */
 export interface ProtectionRuntimeRestorerOptions {
-	coordinator: ProtectionCoordinator;
+	coordinator: Pick<ProtectionCoordinator, 'dispatch' | 'initialize'>;
 	interruptionPageUrl: string;
 
 	/**
@@ -74,8 +74,9 @@ export interface ProtectionRuntimeRestorerOptions {
 export interface ProtectionRuntimeRestorer {
 	/**
 	 * Restores authoritative state before queued browser events are processed.
+	 * @param preloadedConfiguration - Configuration loaded before coordinator restoration when available.
 	 * @return True after successful restoration, or false after failed initialization.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	restore(): Promise<boolean>;
+	restore( preloadedConfiguration?: ProtectionConfigurationDocument | null ): Promise<boolean>;
 }
