@@ -2,7 +2,11 @@ import { z } from 'zod';
 import { ProtectionDecisionSchema } from '../../types/protection-decision';
 import { ProtectionFactSchema } from '../../types/protection-fact';
 import { type ProtectionState } from '../../types/protection-state';
-import { EpochMillisecondsSchema } from '../../types/protection-value';
+import { type StoredProtectionStatisticsDelivery } from '../../types/stored-protection-statistics-delivery';
+import {
+	EpochMillisecondsSchema,
+	type SessionContinuityId,
+} from '../../types/protection-value';
 import {
 	ProtectionStateReconciliationRequirementSchema,
 	ReadyProtectionStateRestoreObservationSchema,
@@ -208,6 +212,20 @@ export type ProtectionCoordinatorDispatchResult = z.infer<typeof ProtectionCoord
 export type ProtectionCoordinatorStateSnapshot = Readonly<Record<string, ProtectionState>>;
 
 /**
+ * Detached durable statistics delivery returned by the protection coordinator.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ProtectionCoordinatorStatisticsDeliverySnapshot = StoredProtectionStatisticsDelivery;
+
+/**
+ * Immutable FIFO boundary captured after one authoritative protection operation.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface ProtectionCoordinatorStatisticsDeliveryBoundary {
+	lastBatchId: StoredProtectionStatisticsDelivery[ 'outbox' ][ number ][ 'batchId' ] | null;
+}
+
+/**
  * Collects current browser observations and creates one event while coordinator serialization is held.
  * @param statesByScope - Detached current states available to atomic event preparation.
  * @return Unknown event value, which may be asynchronous.
@@ -230,6 +248,13 @@ export interface ProtectionCoordinatorOptions {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	createSessionContinuityId(): string;
+
+	/**
+	 * Creates a fresh protection-fact batch identifier.
+	 * @return Unknown identifier value for validation at the coordinator boundary.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	createProtectionFactBatchId(): unknown;
 }
 
 /**
@@ -237,6 +262,52 @@ export interface ProtectionCoordinatorOptions {
  * @since 0.1.0 Initial implementation.
  */
 export interface ProtectionCoordinator {
+	/**
+	 * Acknowledges and durably removes one exact head statistics-delivery batch.
+	 * @param batchId - Unknown candidate head batch identifier.
+	 * @return True only after the matching head is durably removed.
+	 * @throws {Error} When durable-only persistence rejects unexpectedly.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	acknowledgeStatisticsDeliveryBatch( batchId: unknown ): Promise<boolean>;
+
+	/**
+	 * Completes one empty incomplete statistics-delivery reset.
+	 * @return True only after the completion is durably stored.
+	 * @throws {Error} When durable-only persistence rejects unexpectedly.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	completeStatisticsDeliveryReset(): Promise<boolean>;
+
+	/**
+	 * Returns detached statistics delivery after every earlier queued operation has settled.
+	 * @return Current durable delivery, or null before successful initialization.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	getStatisticsDelivery(): Promise<ProtectionCoordinatorStatisticsDeliverySnapshot | null>;
+
+	/**
+	 * Captures the current durable-delivery tail without waiting for observational statistics work.
+	 * @return Current FIFO boundary, or null before successful initialization.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	getStatisticsDeliveryBoundary(): ProtectionCoordinatorStatisticsDeliveryBoundary | null;
+
+	/**
+	 * Returns the current browser-session continuity identifier without entering the queue.
+	 * @return Current continuity identifier, or null before successful initialization.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	getSessionContinuityId(): SessionContinuityId | null;
+
+	/**
+	 * Clears queued statistics facts under an incomplete durable reset marker.
+	 * @return True only after the incomplete empty delivery is durably stored.
+	 * @throws {Error} When durable-only persistence rejects unexpectedly.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	resetStatisticsDelivery(): Promise<boolean>;
+
 	/**
 	 * Returns a detached snapshot after every earlier queued operation has settled.
 	 * @return Current runtime states, or null before successful initialization.
@@ -256,9 +327,13 @@ export interface ProtectionCoordinator {
 	/**
 	 * Prepares, applies, and persists one protection event inside the serialized queue.
 	 * @param prepareEvent - Deferred event preparation with current browser observations.
+	 * @param measurementRevision - Optional measurement revision used only when the transition emits facts.
 	 * @return Validated dispatch result after persistence.
 	 * @throws {Error} When event preparation rejects or a domain invariant fails unexpectedly.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	dispatch( prepareEvent: PrepareProtectionEvent ): Promise<ProtectionCoordinatorDispatchResult>;
+	dispatch(
+		prepareEvent: PrepareProtectionEvent,
+		measurementRevision?: unknown,
+	): Promise<ProtectionCoordinatorDispatchResult>;
 }
