@@ -170,6 +170,7 @@ describe( 'visit-attempt transition', () => {
 					pageId: 'page-a',
 					retainedDestination: 'https://example.com/page-a',
 					focusEligible: true,
+					statisticsEligible: true,
 					joinSequence: 0,
 				} ],
 				ladder: { completedWaits: 0, greatestObservedLocalDate: '2026-08-31' },
@@ -204,6 +205,7 @@ describe( 'visit-attempt transition', () => {
 				ownerParticipantId: 'participant-a',
 				ownerEpoch: 1,
 				checkpointHighWaterMilliseconds: 0,
+				completionStatisticsEligible: true,
 				ladder: { completedWaits: 0, greatestObservedLocalDate: '2026-09-01' },
 			},
 			decisions: [ {
@@ -362,6 +364,7 @@ describe( 'visit-attempt transition', () => {
 						pageId: 'page-a',
 						retainedDestination: 'https://example.com/page-a',
 						focusEligible: false,
+						statisticsEligible: true,
 						joinSequence: 0,
 					},
 					{
@@ -370,12 +373,14 @@ describe( 'visit-attempt transition', () => {
 						pageId: 'page-b',
 						retainedDestination: 'https://example.com/page-b',
 						focusEligible: true,
+						statisticsEligible: true,
 						joinSequence: 1,
 					},
 				],
 				ownerParticipantId: 'participant-b',
 				ownerEpoch: 1,
 				checkpointHighWaterMilliseconds: 0,
+				completionStatisticsEligible: true,
 				ladder: { completedWaits: 0, greatestObservedLocalDate: '2026-08-31' },
 			},
 			decisions: [ {
