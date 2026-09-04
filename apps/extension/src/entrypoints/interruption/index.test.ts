@@ -8,7 +8,11 @@ import {
 	type InterruptionPageController,
 	type InterruptionPageControllerOptions,
 } from '../../features/interruption/services/interruption-page-controller/types';
-import { type PreferencesChangeListener } from '../../features/preferences/services/preferences-controller/types';
+import { Language } from '../../domains/preferences/types';
+import {
+	type PreferencesChangeListener,
+	type PreferencesLanguageChangeListener,
+} from '../../features/preferences/services/preferences-controller/types';
 
 /**
  * Hoisted entrypoint dependencies used by interruption composition tests.
@@ -19,12 +23,39 @@ const entrypointMocks = vi.hoisted( () => {
 	 * Minimal interruption screen used to verify entrypoint composition.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	class TestInterruptionScreen extends EventTarget {}
+	class TestInterruptionScreen extends EventTarget {
+		copy: unknown;
+
+		wellbeingSummary = 'Default footer';
+	}
+
+	const initialLocalization = {
+		document: { interruptionTitle: 'Localized interruption title' },
+		interruption: { value: 'Localized interruption copy' },
+		languageTag: 'fr',
+		wellbeing: { neutral: 'Localized neutral footer' },
+	};
+	const liveLocalization = {
+		document: { interruptionTitle: 'Live interruption title' },
+		interruption: { value: 'Live interruption copy' },
+		languageTag: 'ja',
+		wellbeing: { neutral: 'Live neutral footer' },
+	};
+	const languageChangeListener: { value: PreferencesLanguageChangeListener | null } = {
+		value: null,
+	};
 
 	const preferencesController = Object.assign( new EventTarget(), {
+		addLanguageChangeListener: vi.fn<( listener: PreferencesLanguageChangeListener ) => void>(
+			( listener ) => {
+				languageChangeListener.value = listener;
+			},
+		),
 		addPreferencesChangeListener: vi.fn<( listener: PreferencesChangeListener ) => void>(),
 		apply: vi.fn(),
+		language: 'fr',
 		matches: false,
+		removeLanguageChangeListener: vi.fn(),
 		removePreferencesChangeListener: vi.fn(),
 		start: vi.fn(),
 		stop: vi.fn(),
@@ -35,6 +66,7 @@ const entrypointMocks = vi.hoisted( () => {
 	const statisticsClient = {};
 	const wellbeingSummaryController = {
 		refresh: vi.fn(),
+		setCopy: vi.fn(),
 		start: vi.fn(),
 		stop: vi.fn(),
 	};
@@ -44,13 +76,21 @@ const entrypointMocks = vi.hoisted( () => {
 		createInterruptionPageController: vi.fn<(
 			options: InterruptionPageControllerOptions,
 		) => InterruptionPageController>(),
+		loadLocalizationBundle: vi.fn<( language: string ) => Promise<unknown>>( ( language ) =>
+			Promise.resolve( language === 'ja' ? liveLocalization : initialLocalization ),
+		),
 		createPreferencesController: vi.fn().mockReturnValue( preferencesController ),
 		createPreferencesStorage: vi.fn().mockReturnValue( preferencesStorage ),
 		createStatisticsClient: vi.fn().mockReturnValue( statisticsClient ),
 		createWellbeingSummaryController: vi.fn().mockReturnValue( wellbeingSummaryController ),
+		getUILanguage: vi.fn().mockReturnValue( 'es-AR' ),
+		initialLocalization,
+		languageChangeListener,
+		liveLocalization,
 		preferencesController,
 		preferencesStorage,
 		removeDocumentVisibility,
+		resolveLanguage: vi.fn().mockReturnValue( 'es-vos' ),
 		sendMessage: vi.fn<( request: InterruptionPageRequest ) => Promise<unknown>>(),
 		start: vi.fn(),
 		storageChanges,
@@ -63,12 +103,19 @@ vi.mock( '@tocus/theme/index.scss', () => ( {} ) );
 vi.mock( './styles.scss', () => ( {} ) );
 vi.mock( 'wxt/browser', () => ( {
 	browser: {
+		i18n: { getUILanguage: entrypointMocks.getUILanguage },
 		runtime: { sendMessage: entrypointMocks.sendMessage },
 		storage: { local: {}, onChanged: entrypointMocks.storageChanges },
 	},
 } ) );
 vi.mock( '../../domains/preferences/services', () => ( {
 	createPreferencesStorageService: entrypointMocks.createPreferencesStorage,
+} ) );
+vi.mock( '../../domains/preferences/utils', () => ( {
+	resolveLanguage: entrypointMocks.resolveLanguage,
+} ) );
+vi.mock( '../../localization', () => ( {
+	loadLocalizationBundle: entrypointMocks.loadLocalizationBundle,
 } ) );
 vi.mock( '../../features/preferences/services/preferences-controller', () => ( {
 	createPreferencesController: entrypointMocks.createPreferencesController,
@@ -116,6 +163,13 @@ describe( 'interruption page entrypoint', () => {
 	beforeEach( () => {
 		vi.resetModules();
 		vi.clearAllMocks();
+		entrypointMocks.languageChangeListener.value = null;
+		entrypointMocks.loadLocalizationBundle.mockImplementation( ( language ) =>
+			Promise.resolve( language === 'ja'
+				? entrypointMocks.liveLocalization
+				: entrypointMocks.initialLocalization ),
+		);
+		entrypointMocks.preferencesController.language = 'fr';
 		vi.spyOn( Date, 'now' ).mockReturnValue( 100_000 );
 	} );
 
@@ -142,6 +196,7 @@ describe( 'interruption page entrypoint', () => {
 			documentElement: appearanceTarget,
 			hasFocus: vi.fn().mockReturnValue( true ),
 			querySelector: vi.fn().mockReturnValue( interruptionScreen ),
+			title: 'Original interruption title',
 			visibilityState: 'visible',
 		} );
 
@@ -165,8 +220,11 @@ describe( 'interruption page entrypoint', () => {
 		await import( './index' );
 
 		expect( matchMedia ).toHaveBeenCalledWith( '(prefers-reduced-motion: reduce)' );
+		expect( entrypointMocks.getUILanguage ).toHaveBeenCalledOnce();
+		expect( entrypointMocks.resolveLanguage ).toHaveBeenCalledWith( 'es-AR' );
 		expect( entrypointMocks.createPreferencesController ).toHaveBeenCalledWith( {
 			appearanceTarget,
+			browserLanguage: Language.SPANISH_VOS,
 			presentation: interruptionScreen,
 			storage: entrypointMocks.preferencesStorage,
 			storageChanges: entrypointMocks.storageChanges,
@@ -181,6 +239,8 @@ describe( 'interruption page entrypoint', () => {
 			target: interruptionScreen,
 		} );
 		expect( entrypointMocks.createInterruptionPageController ).not.toHaveBeenCalled();
+		expect( entrypointMocks.loadLocalizationBundle ).not.toHaveBeenCalled();
+		expect( entrypointMocks.wellbeingSummaryController.setCopy ).not.toHaveBeenCalled();
 		expect( entrypointMocks.removeDocumentVisibility ).not.toHaveBeenCalled();
 		completePreferencesStart();
 		await vi.waitFor( () => {
@@ -188,6 +248,16 @@ describe( 'interruption page entrypoint', () => {
 		} );
 		expect( entrypointMocks.preferencesController.addPreferencesChangeListener )
 			.not.toHaveBeenCalled();
+		expect( entrypointMocks.preferencesController.addLanguageChangeListener ).toHaveBeenCalledOnce();
+		expect( entrypointMocks.loadLocalizationBundle ).toHaveBeenCalledWith( Language.FRENCH );
+		expect( documentTarget.title ).toBe( 'Localized interruption title' );
+		expect( interruptionScreen.copy ).toBe( entrypointMocks.initialLocalization.interruption );
+		expect( interruptionScreen.wellbeingSummary )
+			.toBe( entrypointMocks.initialLocalization.wellbeing.neutral );
+		expect( entrypointMocks.wellbeingSummaryController.setCopy )
+			.toHaveBeenCalledWith( entrypointMocks.initialLocalization.wellbeing );
+		expect( entrypointMocks.wellbeingSummaryController.setCopy.mock.invocationCallOrder[ 0 ] )
+			.toBeLessThan( entrypointMocks.removeDocumentVisibility.mock.invocationCallOrder[ 2 ] ?? 0 );
 		expect( entrypointMocks.removeDocumentVisibility ).toHaveBeenNthCalledWith(
 			1,
 			'color-scheme',
@@ -226,6 +296,95 @@ describe( 'interruption page entrypoint', () => {
 			documentVisible: true,
 		} );
 		expect( entrypointMocks.start ).toHaveBeenCalledOnce();
+	} );
+
+	it( 'applies live language changes to interruption copy and wellbeing grammar', async () => {
+		const interruptionScreen = new entrypointMocks.ComponentInterruptionScreen();
+		const documentTarget = Object.assign( new EventTarget(), {
+			documentElement: {
+				style: { removeProperty: entrypointMocks.removeDocumentVisibility },
+			},
+			hasFocus: vi.fn().mockReturnValue( true ),
+			querySelector: vi.fn().mockReturnValue( interruptionScreen ),
+			title: 'Original interruption title',
+			visibilityState: 'visible',
+		} );
+		const windowTarget = Object.assign( new EventTarget(), {
+			matchMedia: vi.fn().mockReturnValue( Object.assign( new EventTarget(), { matches: false } ) ),
+		} );
+
+		vi.stubGlobal( 'document', documentTarget );
+		vi.stubGlobal( 'window', windowTarget );
+		entrypointMocks.createInterruptionPageController.mockReturnValue( {
+			start: vi.fn().mockResolvedValue( undefined ),
+			stop: vi.fn(),
+		} );
+		entrypointMocks.preferencesController.start.mockResolvedValue( undefined );
+		await import( './index' );
+		await vi.waitFor( () => {
+			expect( interruptionScreen.copy ).toBe( entrypointMocks.initialLocalization.interruption );
+		} );
+
+		entrypointMocks.languageChangeListener.value?.( Language.JAPANESE );
+		await vi.waitFor( () => {
+			expect( interruptionScreen.copy ).toBe( entrypointMocks.liveLocalization.interruption );
+		} );
+
+		expect( entrypointMocks.loadLocalizationBundle ).toHaveBeenLastCalledWith( Language.JAPANESE );
+		expect( documentTarget.title ).toBe( 'Live interruption title' );
+		expect( interruptionScreen.wellbeingSummary )
+			.toBe( entrypointMocks.liveLocalization.wellbeing.neutral );
+		expect( entrypointMocks.wellbeingSummaryController.setCopy )
+			.toHaveBeenLastCalledWith( entrypointMocks.liveLocalization.wellbeing );
+	} );
+
+	it( 'waits for the latest language before revealing and connecting interruption timing', async () => {
+		const interruptionScreen = new entrypointMocks.ComponentInterruptionScreen();
+		const frenchLocalization = Promise.withResolvers<unknown>();
+		const documentTarget = Object.assign( new EventTarget(), {
+			documentElement: {
+				style: { removeProperty: entrypointMocks.removeDocumentVisibility },
+			},
+			hasFocus: vi.fn().mockReturnValue( true ),
+			querySelector: vi.fn().mockReturnValue( interruptionScreen ),
+			title: 'Original interruption title',
+			visibilityState: 'visible',
+		} );
+		const windowTarget = Object.assign( new EventTarget(), {
+			matchMedia: vi.fn().mockReturnValue( Object.assign( new EventTarget(), { matches: false } ) ),
+		} );
+
+		entrypointMocks.loadLocalizationBundle.mockImplementation( ( language ) =>
+			language === Language.FRENCH
+				? frenchLocalization.promise
+				: Promise.resolve( entrypointMocks.liveLocalization ),
+		);
+		entrypointMocks.createInterruptionPageController.mockReturnValue( {
+			start: vi.fn().mockResolvedValue( undefined ),
+			stop: vi.fn(),
+		} );
+		entrypointMocks.preferencesController.start.mockResolvedValue( undefined );
+		vi.stubGlobal( 'document', documentTarget );
+		vi.stubGlobal( 'window', windowTarget );
+		await import( './index' );
+		await vi.waitFor( () => {
+			expect( entrypointMocks.loadLocalizationBundle ).toHaveBeenCalledWith( Language.FRENCH );
+		} );
+
+		entrypointMocks.preferencesController.language = Language.JAPANESE;
+		entrypointMocks.languageChangeListener.value?.( Language.JAPANESE );
+		await vi.waitFor( () => {
+			expect( interruptionScreen.copy ).toBe( entrypointMocks.liveLocalization.interruption );
+		} );
+		expect( entrypointMocks.createInterruptionPageController ).not.toHaveBeenCalled();
+		expect( entrypointMocks.removeDocumentVisibility ).not.toHaveBeenCalled();
+
+		frenchLocalization.resolve( entrypointMocks.initialLocalization );
+		await vi.waitFor( () => {
+			expect( entrypointMocks.createInterruptionPageController ).toHaveBeenCalledOnce();
+		} );
+		expect( interruptionScreen.copy ).toBe( entrypointMocks.liveLocalization.interruption );
+		expect( entrypointMocks.removeDocumentVisibility ).toHaveBeenCalledWith( 'visibility' );
 	} );
 
 	it( 'fails clearly when the interruption screen is missing', async () => {
