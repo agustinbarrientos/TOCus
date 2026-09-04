@@ -8,7 +8,16 @@ import {
 import { DefaultProtectionScopeId, ProtectionScopeIdSchema } from '../../types/protection-value';
 import { type ProtectedSiteConfigurationSet } from '../../types/protected-site-configuration';
 
+/**
+ * Independent protection scope used by schedule reconciliation fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const INDEPENDENT_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope_independent' );
+
+/**
+ * Site assigned to the shared default protection scope.
+ * @since 0.1.0 Initial implementation.
+ */
 const SHARED_SITE: ProtectedSiteConfigurationSet[ number ] = {
 	identityHost: 'x.com',
 	rule: {
@@ -17,6 +26,10 @@ const SHARED_SITE: ProtectedSiteConfigurationSet[ number ] = {
 		scopeId: DefaultProtectionScopeId,
 	},
 };
+/**
+ * Site assigned to the independent protection scope.
+ * @since 0.1.0 Initial implementation.
+ */
 const INDEPENDENT_SITE: ProtectedSiteConfigurationSet[ number ] = {
 	identityHost: 'youtube.com',
 	rule: {
@@ -25,6 +38,10 @@ const INDEPENDENT_SITE: ProtectedSiteConfigurationSet[ number ] = {
 		scopeId: INDEPENDENT_SCOPE_ID,
 	},
 };
+/**
+ * Second site assigned to the same independent protection scope.
+ * @since 0.1.0 Initial implementation.
+ */
 const SECOND_INDEPENDENT_SITE: ProtectedSiteConfigurationSet[ number ] = {
 	identityHost: 'youtu.be',
 	rule: {
@@ -33,6 +50,10 @@ const SECOND_INDEPENDENT_SITE: ProtectedSiteConfigurationSet[ number ] = {
 		scopeId: INDEPENDENT_SCOPE_ID,
 	},
 };
+/**
+ * Custom schedule retained by reconciliation fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const CUSTOM_SCHEDULE: NormalizedSchedule = {
 	mode: ScheduleMode.CUSTOM,
 	windows: [ {
@@ -65,6 +86,30 @@ describe( 'reconcileProtectionScopeSchedules', () => {
 			[ INDEPENDENT_SCOPE_ID ]: { mode: ScheduleMode.ALWAYS },
 		} );
 	} );
+
+	it.each( [ '__proto__', 'constructor', 'toString', 'hasOwnProperty' ] )(
+		'creates an Always schedule for a newly referenced prototype-named scope %s',
+		( rawScopeId ) => {
+			const scopeId = ProtectionScopeIdSchema.parse( rawScopeId );
+			const schedulesByScope = reconcileProtectionScopeSchedules(
+				[ {
+					identityHost: 'youtube.com',
+					rule: {
+						host: 'youtube.com',
+						includeSubdomains: true,
+						scopeId,
+					},
+				} ],
+				{ [ DefaultProtectionScopeId ]: CUSTOM_SCHEDULE },
+			);
+
+			expect( schedulesByScope ).toEqual( {
+				[ DefaultProtectionScopeId ]: CUSTOM_SCHEDULE,
+				[ scopeId ]: { mode: ScheduleMode.ALWAYS },
+			} );
+			expect( Object.hasOwn( schedulesByScope, scopeId ) ).toBe( true );
+		},
+	);
 
 	it( 'removes schedules whose independent scope is no longer referenced', () => {
 		expect( reconcileProtectionScopeSchedules(
