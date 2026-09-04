@@ -15,6 +15,10 @@ import {
 	type InterruptionPageControllerOptions,
 } from './types';
 
+/**
+ * Interval between focused waiting-progress checkpoints.
+ * @since 0.1.0 Initial implementation.
+ */
 const CHECKPOINT_INTERVAL_MILLISECONDS = 1_000;
 
 /**
@@ -31,9 +35,23 @@ export function createInterruptionPageController(
 	let pendingRequestRecoversInitialFailure = false;
 	let requestOperation: Promise<void> | null = null;
 	let readyExpiryTimeoutHandle: number | null = null;
+	let reportedPresentationState: InterruptionScreenState | null = null;
 	let observing = false;
 	let windowFocused = false;
 	let lifecycleGeneration = 0;
+
+	/**
+	 * Reports a newly applied authoritative major state without repeating timer checkpoints.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function reportPresentationStateChange(): void {
+		if ( reportedPresentationState === options.screen.state ) {
+			return;
+		}
+
+		reportedPresentationState = options.screen.state;
+		options.onPresentationStateChange?.( options.screen.state );
+	}
 
 	/**
 	 * Stops the recurring checkpoint when one is active.
@@ -95,6 +113,7 @@ export function createInterruptionPageController(
 		options.screen.recovering = false;
 		options.screen.state = InterruptionScreenState.UNAVAILABLE;
 		synchronizeCheckpointInterval();
+		reportPresentationStateChange();
 	}
 
 	/**
@@ -112,6 +131,7 @@ export function createInterruptionPageController(
 			options.screen.progressing = response.progressing;
 			options.screen.state = InterruptionScreenState.WAITING;
 			synchronizeCheckpointInterval();
+			reportPresentationStateChange();
 
 			return;
 		}
@@ -121,6 +141,7 @@ export function createInterruptionPageController(
 			options.screen.state = InterruptionScreenState.READY;
 			synchronizeCheckpointInterval();
 			synchronizeReadyExpiryTimeout( response.allowanceExpiresAtEpochMilliseconds );
+			reportPresentationStateChange();
 			return;
 		}
 
@@ -129,6 +150,7 @@ export function createInterruptionPageController(
 			? InterruptionScreenState.READY_EXPIRED
 			: InterruptionScreenState.UNAVAILABLE;
 		synchronizeCheckpointInterval();
+		reportPresentationStateChange();
 	}
 
 	/**
@@ -393,6 +415,7 @@ export function createInterruptionPageController(
 	async function start(): Promise<void> {
 		lifecycleGeneration += 1;
 		const generation = lifecycleGeneration;
+		reportedPresentationState = null;
 		observing = true;
 		windowFocused = options.visibility.isWindowFocused();
 		options.screen.progressing = false;
