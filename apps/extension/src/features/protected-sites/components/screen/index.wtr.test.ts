@@ -1,3 +1,4 @@
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import { assert, expect, fixture, html } from '@open-wc/testing';
 import { type ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
 import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
@@ -24,6 +25,7 @@ import {
 	ProtectedSiteConfigurationChangedEventName,
 	ProtectedSiteConfigurationChangeKind,
 } from '../site-item/types';
+import { ComponentProtectedSiteList } from '../site-list';
 import { ComponentProtectedSitesScreen } from './index';
 import {
 	EMPTY_CONFIGURATION,
@@ -68,6 +70,16 @@ function getFaviconSource( identityHost: unknown ): ReturnType<SiteFaviconProvid
  * @since 0.1.0 Initial implementation.
  */
 const FAVICON_PROVIDER: SiteFaviconProvider = { getSource: getFaviconSource };
+
+/**
+ * Formats one localized protected-site addition status for live-copy tests.
+ * @param name - Resolved site name.
+ * @return Localized addition status.
+ * @since 0.1.0 Initial implementation.
+ */
+function formatLocalizedAddedAnnouncement( name: string ): string {
+	return `Localized addition: ${ name }.`;
+}
 
 /**
  * In-memory storage that keeps one screen write pending until the test releases it.
@@ -156,7 +168,9 @@ async function createScreen(
 describe( 'tocus-f-protected-sites-screen', () => {
 	it( 'reports an unavailable editor dependency without leaving the screen busy', async () => {
 		const element = await fixture<ComponentProtectedSitesScreen>( html`
-			<tocus-f-protected-sites-screen></tocus-f-protected-sites-screen>
+			<tocus-f-protected-sites-screen
+			.copy=${ TestEnglishLocalizationBundle.protectedSites }
+			.siteItemCopy=${ TestEnglishLocalizationBundle.protectedSiteItem }></tocus-f-protected-sites-screen>
 		` );
 		await settleScreen( element );
 		await element.refreshAccessState();
@@ -181,6 +195,23 @@ describe( 'tocus-f-protected-sites-screen', () => {
 		);
 		assert.equal( shadowRoot.querySelector( '[aria-busy="true"]' ), null );
 		await expect( element ).to.be.accessible();
+	} );
+
+	it( 'forwards localized item messages to the grouped site list', async () => {
+		const itemCopy = { ...TestEnglishLocalizationBundle.protectedSiteItem, edit: 'Localized edit' };
+		const element = await createScreen(
+			createMemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
+		);
+
+		element.siteItemCopy = itemCopy;
+		await element.updateComplete;
+		const list = element.shadowRoot?.querySelector( 'tocus-f-protected-site-list' );
+
+		assert.instanceOf( list, ComponentProtectedSiteList );
+		if ( ! ( list instanceof ComponentProtectedSiteList ) ) {
+			throw new TypeError( 'Expected the grouped protected-site list.' );
+		}
+		assert.equal( list.itemCopy, itemCopy );
 	} );
 
 	it( 'marks configured sites as requiring access when no permission manager is available', async () => {
@@ -238,6 +269,27 @@ describe( 'tocus-f-protected-sites-screen', () => {
 		assert.equal( input.value, '' );
 		assert.include( getRequiredElement( element, '.announcement', Element ).textContent, 'Instagram' );
 		assert.equal( storage.writes, 1 );
+	} );
+
+	it( 'renders a retained addition status from the latest localized copy', async () => {
+		const element = await createScreen(
+			createMemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION ),
+		);
+		const input = getRequiredElement( element, '#site-address', HTMLInputElement );
+		input.value = 'instagram.com';
+
+		getRequiredElement( element, '.add-site-form', HTMLFormElement ).requestSubmit();
+		await settleScreen( element );
+		element.copy = {
+			...TestEnglishLocalizationBundle.protectedSites,
+			formatAddedAnnouncement: formatLocalizedAddedAnnouncement,
+		};
+		await element.updateComplete;
+
+		assert.equal(
+			getRequiredElement( element, '.announcement', Element ).textContent.trim(),
+			'Localized addition: Instagram.',
+		);
 	} );
 
 	it( 'shows and restores browser access for a configured site whose grant was revoked', async () => {
@@ -458,6 +510,28 @@ describe( 'tocus-f-protected-sites-screen', () => {
 		assert.equal( input.value, 'instagram.com' );
 		assert.include( getRequiredElement( element, '.site-input-error', Element ).textContent, 'Browser access' );
 		assert.equal( storage.writes, 0 );
+	} );
+
+	it( 'renders an active enrollment error from the latest localized copy', async () => {
+		const storage = createMemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
+		const permissionManager = createPermissionManager();
+		permissionManager.request = () => Promise.resolve( { status: SitePermissionRequestStatus.DENIED } );
+		const element = await createScreen( storage, permissionManager );
+		const input = getRequiredElement( element, '#site-address', HTMLInputElement );
+		input.value = 'instagram.com';
+
+		getRequiredElement( element, '.add-site-form', HTMLFormElement ).requestSubmit();
+		await settleScreen( element );
+		element.copy = {
+			...TestEnglishLocalizationBundle.protectedSites,
+			permissionDeniedError: 'Localized enrollment error.',
+		};
+		await element.updateComplete;
+
+		assert.equal(
+			getRequiredElement( element, '.site-input-error', Element ).textContent.trim(),
+			'Localized enrollment error.',
+		);
 	} );
 
 	it( 'keeps a site unsaved when browser access cannot be requested', async () => {
@@ -906,6 +980,12 @@ describe( 'tocus-f-protected-sites-screen', () => {
 		await settleScreen( element );
 
 		assert.include( getRequiredElement( element, '.announcement', Element ).textContent, 'could not be removed' );
+	} );
+
+	it( 'renders nothing before localized copy is injected', async () => {
+		const element = await fixture<ComponentProtectedSitesScreen>( html`<tocus-f-protected-sites-screen></tocus-f-protected-sites-screen>` );
+
+		assert.equal( element.shadowRoot?.childElementCount, 0 );
 	} );
 
 } );
