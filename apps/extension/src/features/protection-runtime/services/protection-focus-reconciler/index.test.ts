@@ -8,17 +8,29 @@ import {
 import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { type ProtectionParticipant } from '../../../../domains/protection/types/protection-participant';
 import { type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
-import { ProtectionScopeIdSchema } from '../../../../domains/protection/types/protection-value';
+import {
+	ProtectionMeasurementRevisionSchema,
+	ProtectionScopeIdSchema,
+} from '../../../../domains/protection/types/protection-value';
 import { createProtectionFocusReconciler } from './index';
 import { type ProtectionFocusReconcilerOptions } from './types';
 
-/** Extension-owned interruption page used by focus tests. */
+/**
+ * Extension-owned interruption page used by focus tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/interruption.html';
 
-/** Protection scope used by focus tests. */
+/**
+ * Protection scope used by focus tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const TEST_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope-default' );
 
-/** Protected-site configuration used by focus tests. */
+/**
+ * Protected-site configuration used by focus tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
 	sites: [ {
@@ -29,7 +41,14 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
 			scopeId: TEST_SCOPE_ID,
 		},
 	} ],
-	schedulesByScope: { [ TEST_SCOPE_ID ]: { mode: 'always' } },
+	schedulesByScope: {
+		...TestEmptyProtectionConfiguration.schedulesByScope,
+		[ TEST_SCOPE_ID ]: { mode: 'always' },
+	},
+	measurementRevisionsByScope: {
+		...TestEmptyProtectionConfiguration.measurementRevisionsByScope,
+		[ TEST_SCOPE_ID ]: ProtectionMeasurementRevisionSchema.parse( 'revision_test_scope' ),
+	},
 };
 
 /**

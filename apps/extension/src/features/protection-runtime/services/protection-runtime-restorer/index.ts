@@ -85,7 +85,7 @@ function createRecoveryDeparture(
  * @param interruptionPageUrl - Extension-owned navigation interruption URL.
  * @param nowEpochMilliseconds - Current wall-clock instant.
  * @param timeZone - Current IANA time-zone identifier.
- * @return Fresh participant observation or null when its expected page is absent.
+ * @return Fresh participant observation or null when its ordinary expected page is absent.
  * @since 0.1.0 Initial implementation.
  */
 function createRestoredReadyObservation(
@@ -96,13 +96,17 @@ function createRestoredReadyObservation(
 	nowEpochMilliseconds: number,
 	timeZone: string,
 ): FreshParticipantObservation | null {
+	if ( tab?.incognito !== false ) {
+		return null;
+	}
+
 	if ( participant.origin === ProtectionParticipantOrigin.NAVIGATION ) {
-		return tab?.url === interruptionPageUrl
+		return tab.url === interruptionPageUrl
 			? createFreshRuntimeObservation( participant, configuration, nowEpochMilliseconds, timeZone )
 			: null;
 	}
 
-	if ( tab?.url === undefined ) {
+	if ( tab.url === undefined ) {
 		return null;
 	}
 
@@ -183,10 +187,13 @@ export function createProtectionRuntimeRestorer(
 
 	/**
 	 * Restores authoritative state and resolves incomplete Ready observations.
+	 * @param preloadedConfiguration - Configuration loaded before coordinator restoration when available.
 	 * @return True after successful restoration, or false after failed initialization.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	async function restore(): Promise<boolean> {
+	async function restore(
+		preloadedConfiguration?: Parameters<ProtectionRuntimeRestorer[ 'restore' ]>[ 0 ],
+	): Promise<boolean> {
 		const initialization = await options.coordinator.initialize( {
 			nowEpochMilliseconds: options.now(),
 			readyObservations: [],
@@ -196,7 +203,9 @@ export function createProtectionRuntimeRestorer(
 			return false;
 		}
 
-		const configuration = await options.loadConfiguration();
+		const configuration = preloadedConfiguration === undefined
+			? await options.loadConfiguration()
+			: preloadedConfiguration;
 
 		await options.applyDecisions( initialization.decisions, configuration );
 

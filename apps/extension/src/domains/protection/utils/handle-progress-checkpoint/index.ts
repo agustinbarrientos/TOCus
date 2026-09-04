@@ -4,7 +4,7 @@ import {
 	type ProtectionDecision,
 } from '../../types/protection-decision';
 import { type ProgressCheckpointEvent } from '../../types/protection-event';
-import { type PauseTimeFact } from '../../types/protection-fact';
+import { type PauseTimeFact, type ProtectionFact } from '../../types/protection-fact';
 import { type ProtectionParticipant } from '../../types/protection-participant';
 import {
 	ProtectionStateType,
@@ -28,14 +28,16 @@ import { protectionMatchProtectsScope } from '../match-protection-scope';
  * Atomically completes one accepted wait and creates its allowance transaction.
  * @param state - Current validated Waiting state whose accepted progress reached its duration.
  * @param event - Validated checkpoint carrying completion observations and allowance identity.
- * @param pauseTimeFact - Accepted final progress fact created by the checkpoint handler.
+ * @param pauseTimeFact - Accepted public progress fact, or null when the checkpoint is private.
+ * @param completionStatisticsEligible - Whether every accepted progress segment may enter ordinary statistics.
  * @return The new Allowance state with Ready or automatic-action decisions and completion facts.
  * @since 0.1.0 Initial implementation.
  */
 function completeWait(
 	state: WaitingProtectionState,
 	event: ProgressCheckpointEvent,
-	pauseTimeFact: PauseTimeFact,
+	pauseTimeFact: PauseTimeFact | null,
+	completionStatisticsEligible: boolean,
 ): ProtectionTransitionResult {
 	const startedAtEpochMilliseconds = event.observedAtEpochMilliseconds;
 	const expiresAtEpochMilliseconds = EpochMillisecondsSchema.parse(
@@ -76,6 +78,27 @@ function completeWait(
 		} );
 	}
 
+	const facts: ProtectionFact[] = pauseTimeFact === null ? [] : [ pauseTimeFact ];
+
+	if ( completionStatisticsEligible ) {
+		facts.push(
+			createCompletedWaitFact( {
+				scopeId: state.scopeId,
+				waitId: state.waitId,
+				capturedWaitDurationMilliseconds: state.capturedWaitDurationMilliseconds,
+				completedAtEpochMilliseconds: startedAtEpochMilliseconds,
+				completionLocalDate: event.completionLocalDate,
+			} ),
+			createAllowanceGrantedFact( {
+				scopeId: state.scopeId,
+				allowanceId: event.allowanceId,
+				startedAtEpochMilliseconds,
+				expiresAtEpochMilliseconds,
+				allowanceDurationMilliseconds: event.timingConfiguration.allowanceMilliseconds,
+			} ),
+		);
+	}
+
 	return createTransitionResult( {
 		type: ProtectionStateType.ALLOWANCE,
 		scopeId: state.scopeId,
@@ -85,23 +108,7 @@ function completeWait(
 		expiresAtEpochMilliseconds,
 		readyParticipants,
 		ladder,
-	}, decisions, [
-		pauseTimeFact,
-		createCompletedWaitFact( {
-			scopeId: state.scopeId,
-			waitId: state.waitId,
-			capturedWaitDurationMilliseconds: state.capturedWaitDurationMilliseconds,
-			completedAtEpochMilliseconds: startedAtEpochMilliseconds,
-			completionLocalDate: event.completionLocalDate,
-		} ),
-		createAllowanceGrantedFact( {
-			scopeId: state.scopeId,
-			allowanceId: event.allowanceId,
-			startedAtEpochMilliseconds,
-			expiresAtEpochMilliseconds,
-			allowanceDurationMilliseconds: event.timingConfiguration.allowanceMilliseconds,
-		} ),
-	] );
+	}, decisions, facts );
 }
 
 /**
@@ -136,23 +143,33 @@ export function handleProgressCheckpoint(
 	);
 	const confirmedFocusedDurationMilliseconds =
 		state.confirmedFocusedDurationMilliseconds + acceptedDurationMilliseconds;
-	const pauseTimeFact = createPauseTimeFact( {
-		scopeId: state.scopeId,
-		waitId: state.waitId,
-		ownerParticipantId: state.ownerParticipantId,
-		ownerEpoch: state.ownerEpoch,
-		checkpointHighWaterMilliseconds: event.cumulativeCheckpointMilliseconds,
-		acceptedDurationMilliseconds,
-		observedAtEpochMilliseconds: event.observedAtEpochMilliseconds,
-	} );
+	const ownerParticipant = state.participants.find(
+		( participant ) => participant.participantId === state.ownerParticipantId,
+	);
+	const checkpointStatisticsEligible = ownerParticipant?.statisticsEligible === true &&
+		event.statisticsEligible;
+	const completionStatisticsEligible = state.completionStatisticsEligible &&
+		checkpointStatisticsEligible;
+	const pauseTimeFact = checkpointStatisticsEligible
+		? createPauseTimeFact( {
+			scopeId: state.scopeId,
+			waitId: state.waitId,
+			ownerParticipantId: state.ownerParticipantId,
+			ownerEpoch: state.ownerEpoch,
+			checkpointHighWaterMilliseconds: event.cumulativeCheckpointMilliseconds,
+			acceptedDurationMilliseconds,
+			observedAtEpochMilliseconds: event.observedAtEpochMilliseconds,
+		} )
+		: null;
 
 	if ( confirmedFocusedDurationMilliseconds < state.capturedWaitDurationMilliseconds ) {
 		return createTransitionResult( {
 			...state,
 			confirmedFocusedDurationMilliseconds,
 			checkpointHighWaterMilliseconds: event.cumulativeCheckpointMilliseconds,
-		}, [], [ pauseTimeFact ] );
+			completionStatisticsEligible,
+		}, [], pauseTimeFact === null ? [] : [ pauseTimeFact ] );
 	}
 
-	return completeWait( state, event, pauseTimeFact );
+	return completeWait( state, event, pauseTimeFact, completionStatisticsEligible );
 }

@@ -68,6 +68,22 @@ function matchesParticipantScope(
 }
 
 /**
+ * Reports whether one participant still belongs to its configured protection scope.
+ * @param context - Current participant and scope state.
+ * @param configuration - Current validated protection configuration.
+ * @return Whether the participant remains owned by its original scope.
+ * @since 0.1.0 Initial implementation.
+ */
+function participantRemainsConfigured(
+	context: ProtectionRuntimeParticipantContext,
+	configuration: Parameters<ProtectionParticipantReconciler[ 'reconcile' ]>[ 0 ],
+): boolean {
+	return context.participant.origin === ProtectionParticipantOrigin.NAVIGATION
+		? matchesParticipantScope( context.participant.retainedDestination, context, configuration )
+		: configuration.sites.some( ( site ) => site.rule.scopeId === context.state.scopeId );
+}
+
+/**
  * Classifies whether one persisted participant no longer owns its browser presentation.
  * @param context - Current participant and scope state.
  * @param tab - Current browser tab or undefined when the tab no longer exists.
@@ -82,28 +98,24 @@ function getParticipantInvalidationCause(
 	configuration: Parameters<ProtectionParticipantReconciler[ 'reconcile' ]>[ 0 ],
 	interruptionPageUrl: string,
 ): DepartureCause | null {
+	if ( ! participantRemainsConfigured( context, configuration ) ) {
+		return DepartureCause.CONFIGURATION_CHANGE;
+	}
+
 	if ( tab === undefined ) {
+		return DepartureCause.BROWSER_ERROR_OR_RECOVERY;
+	}
+
+	if ( tab.incognito !== false ) {
 		return DepartureCause.BROWSER_ERROR_OR_RECOVERY;
 	}
 
 	const observedUrl = getObservedTabUrl( tab );
 
 	if ( context.participant.origin === ProtectionParticipantOrigin.NAVIGATION ) {
-		if ( ! matchesParticipantScope( context.participant.retainedDestination, context, configuration ) ) {
-			return DepartureCause.CONFIGURATION_CHANGE;
-		}
-
 		return observedUrl === interruptionPageUrl
 			? null
 			: DepartureCause.BROWSER_ERROR_OR_RECOVERY;
-	}
-
-	const scopeRemainsConfigured = configuration.sites.some(
-		( site ) => site.rule.scopeId === context.state.scopeId,
-	);
-
-	if ( ! scopeRemainsConfigured ) {
-		return DepartureCause.CONFIGURATION_CHANGE;
 	}
 
 	return observedUrl === interruptionPageUrl ||
@@ -138,6 +150,12 @@ export function createProtectionParticipantReconciler(
 			await options.releaseInjectedInterruption( context.participant );
 		}
 
+		const measurementRevision = configuration !== null && Object.hasOwn(
+			configuration.measurementRevisionsByScope,
+			context.state.scopeId,
+		)
+			? configuration.measurementRevisionsByScope[ context.state.scopeId ]
+			: undefined;
 		const result = await options.coordinator.dispatch( () => ( {
 			type: ProtectionEventType.PARTICIPANT_DEPARTURE,
 			scopeId: context.state.scopeId,
@@ -146,7 +164,7 @@ export function createProtectionParticipantReconciler(
 			pageId: context.participant.pageId,
 			cause,
 			observedAtEpochMilliseconds: options.now(),
-		} ) );
+		} ), measurementRevision );
 
 		await options.applyDispatchResult( result, configuration );
 	}
@@ -168,7 +186,14 @@ export function createProtectionParticipantReconciler(
 		const context = statesByScope === null ? null : findRuntimeParticipantContext( statesByScope, tabId );
 
 		if ( context !== null ) {
-			await departParticipant( context, cause, configuration );
+			const observedCause = configuration !== null && ! participantRemainsConfigured(
+				context,
+				configuration,
+			)
+				? DepartureCause.CONFIGURATION_CHANGE
+				: cause;
+
+			await departParticipant( context, observedCause, configuration );
 		}
 	}
 

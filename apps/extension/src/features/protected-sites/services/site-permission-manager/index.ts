@@ -1,4 +1,5 @@
 import { reconcileProtectionScopeSchedules } from '../../../../domains/protection/utils/reconcile-protection-scope-schedules';
+import { retainActiveProtectionScopeMeasurementRevisions } from '../../../../domains/protection/utils/reconcile-protection-scope-measurement-revisions';
 import {
 	createSitePermissionOrigins,
 	isSitePermissionOriginCovered,
@@ -12,6 +13,10 @@ import {
 	type SitePermissionManagerOptions,
 } from './types';
 
+/**
+ * Browser permission required to observe protected-site navigations.
+ * @since 0.1.0 Initial implementation.
+ */
 const NAVIGATION_PERMISSION = 'webNavigation';
 
 /**
@@ -81,6 +86,10 @@ export function createSitePermissionManager( options: SitePermissionManagerOptio
 			...configuration,
 			sites,
 			schedulesByScope: reconcileProtectionScopeSchedules( sites, configuration.schedulesByScope ),
+			measurementRevisionsByScope: retainActiveProtectionScopeMeasurementRevisions(
+				sites,
+				configuration.measurementRevisionsByScope,
+			),
 		};
 	}
 

@@ -8,14 +8,35 @@ import {
 	StoredProtectionParticipantOrigin,
 } from '../../types/stored-protection-participant';
 import {
+	StoredProtectionStatisticsDeliveryStatus,
+} from '../../types/stored-protection-statistics-delivery';
+import {
 	DurableStoredProtectionStateVersion,
 	SessionStoredProtectionStateVersion,
 	StoredProtectionScopeStateType,
 } from '../../types/stored-protection-state';
 import { prepareStoredProtectionState } from './index';
 
+/**
+ * Fixed initial instant used by stored-state fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const FIRST_INSTANT = 1_800_000_000_000;
+
+/**
+ * Fixed allowance expiry used by stored-state fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const ALLOWANCE_EXPIRY = FIRST_INSTANT + 300_000;
+
+/**
+ * Complete empty statistics delivery used by stored-state preparation tests.
+ * @since 0.1.0 Initial implementation.
+ */
+const COMPLETE_STATISTICS_DELIVERY = {
+	status: StoredProtectionStatisticsDeliveryStatus.COMPLETE,
+	outbox: [],
+};
 
 /**
  * Recursively freezes a test value so mutation attempts fail.
@@ -69,6 +90,7 @@ function createRuntimeNavigationParticipant(
 		pageId,
 		retainedDestination,
 		focusEligible,
+		statisticsEligible: true,
 		joinSequence,
 	};
 }
@@ -94,6 +116,7 @@ function createRuntimeExpiryParticipant(
 		pageId,
 		retainedDestination: null,
 		focusEligible,
+		statisticsEligible: true,
 		joinSequence,
 	};
 }
@@ -132,6 +155,7 @@ function createWaitingState( scopeId = 'scope-waiting' ) {
 		ownerParticipantId: 'participant-a',
 		ownerEpoch: 3,
 		checkpointHighWaterMilliseconds: 4_000,
+		completionStatisticsEligible: true,
 		ladder: createLadder(),
 	};
 }
@@ -179,6 +203,7 @@ function createStoredNavigationParticipant(
 		participantId,
 		pageId,
 		retainedDestination,
+		statisticsEligible: true,
 		joinSequence,
 	};
 }
@@ -201,6 +226,7 @@ function createStoredExpiryParticipant(
 		participantId,
 		pageId,
 		retainedDestination: null,
+		statisticsEligible: true,
 		joinSequence,
 	};
 }
@@ -214,6 +240,7 @@ function createStoredExpiryParticipant(
 function createStoredDurableState<Scopes extends object>( scopes: Scopes ) {
 	return {
 		schemaVersion: DurableStoredProtectionStateVersion,
+		statisticsDelivery: COMPLETE_STATISTICS_DELIVERY,
 		scopes,
 	};
 }
@@ -254,6 +281,7 @@ function createStoredWaitingScope() {
 		ownerParticipantId: 'participant-a',
 		ownerEpoch: 3,
 		checkpointHighWaterMilliseconds: 4_000,
+		completionStatisticsEligible: true,
 	};
 }
 
@@ -300,6 +328,7 @@ describe( 'prepareStoredProtectionState', () => {
 		expect( prepareStoredProtectionState( {
 			statesByScope: {},
 			sessionContinuityId: 'session-empty',
+			statisticsDelivery: COMPLETE_STATISTICS_DELIVERY,
 		} ) ).toEqual( {
 			durable: createStoredDurableState( {} ),
 			session: createStoredSessionState( {}, 'session-empty' ),
@@ -315,6 +344,7 @@ describe( 'prepareStoredProtectionState', () => {
 				'scope-allowance': createAllowanceState(),
 			},
 			sessionContinuityId: 'session-current',
+			statisticsDelivery: COMPLETE_STATISTICS_DELIVERY,
 		};
 
 		const result = prepareStoredProtectionState( input );
@@ -346,11 +376,23 @@ describe( 'prepareStoredProtectionState', () => {
 		const result = prepareStoredProtectionState( {
 			statesByScope: { 'scope-allowance': allowance },
 			sessionContinuityId: 'session-current',
+			statisticsDelivery: COMPLETE_STATISTICS_DELIVERY,
 		} );
+
+		const incompleteDelivery = {
+			status: StoredProtectionStatisticsDeliveryStatus.INCOMPLETE,
+			outbox: [],
+		};
+		const preservedDelivery = prepareStoredProtectionState( {
+			statesByScope: { 'scope-allowance': allowance },
+			sessionContinuityId: 'session-current',
+			statisticsDelivery: incompleteDelivery,
+		} ).durable.statisticsDelivery;
 
 		expect( result.durable.scopes[ 'scope-allowance' ] ).toEqual(
 			createStoredDurableScope( 'allowance-a' ),
 		);
+		expect( preservedDelivery ).toEqual( incompleteDelivery );
 		expect( result.session.scopes[ 'scope-allowance' ] ).toEqual( {
 			...createStoredReadyScope(),
 			completedWaitId: 'wait-completed',
@@ -368,6 +410,7 @@ describe( 'prepareStoredProtectionState', () => {
 		expect( () => prepareStoredProtectionState( {
 			statesByScope: { 'scope-allowance': state },
 			sessionContinuityId: 'session-current',
+			statisticsDelivery: COMPLETE_STATISTICS_DELIVERY,
 		} ) ).toThrow( ZodError );
 	} );
 
@@ -383,6 +426,7 @@ describe( 'prepareStoredProtectionState', () => {
 		const result = prepareStoredProtectionState( {
 			statesByScope: { 'scope-waiting': waiting },
 			sessionContinuityId: 'session-current',
+			statisticsDelivery: COMPLETE_STATISTICS_DELIVERY,
 		} );
 
 		expect( result.session.scopes[ 'scope-waiting' ]?.participants.map(
@@ -394,6 +438,7 @@ describe( 'prepareStoredProtectionState', () => {
 		expect( () => prepareStoredProtectionState( {
 			statesByScope: { 'scope-wrong': createIdleState() },
 			sessionContinuityId: 'session-current',
+			statisticsDelivery: COMPLETE_STATISTICS_DELIVERY,
 		} ) ).toThrow( ZodError );
 	} );
 
@@ -412,6 +457,7 @@ describe( 'prepareStoredProtectionState', () => {
 		expect( () => prepareStoredProtectionState( {
 			statesByScope,
 			sessionContinuityId: 'session-current',
+			statisticsDelivery: COMPLETE_STATISTICS_DELIVERY,
 		} ) ).toThrow( ZodError );
 	} );
 
@@ -424,6 +470,7 @@ describe( 'prepareStoredProtectionState', () => {
 		expect( prepareStoredProtectionState( {
 			statesByScope,
 			sessionContinuityId: 'session-current',
+			statisticsDelivery: COMPLETE_STATISTICS_DELIVERY,
 		} ).durable.scopes ).toEqual( {
 			'scope-idle': createStoredDurableScope(),
 		} );
@@ -436,6 +483,7 @@ describe( 'prepareStoredProtectionState', () => {
 				'scope-allowance': createAllowanceState(),
 			},
 			sessionContinuityId: 'session-current',
+			statisticsDelivery: COMPLETE_STATISTICS_DELIVERY,
 		} );
 		const durableText = JSON.stringify( storedState.durable );
 		const forbiddenKeys = [
@@ -465,6 +513,7 @@ describe( 'prepareStoredProtectionState', () => {
 				'scope-allowance': createAllowanceState(),
 			},
 			sessionContinuityId: 'session-current',
+			statisticsDelivery: COMPLETE_STATISTICS_DELIVERY,
 		} );
 
 		expect( () => prepareStoredProtectionState( input ) ).not.toThrow();

@@ -56,6 +56,7 @@ export function createFreshRuntimeObservation(
  * @param state - Expiring Allowance state.
  * @param configuration - Current validated protection configuration.
  * @param focusedTabId - Active tab in the focused browser window.
+ * @param protectionEligibleTabIds - Tabs explicitly observed outside private browsing.
  * @param liveDestinationsByTab - Committed live-page destinations indexed by browser tab.
  * @return Ready-source expiry candidates.
  * @since 0.1.0 Initial implementation.
@@ -64,22 +65,26 @@ export function createReadyRuntimeExpiryCandidates(
 	state: AllowanceProtectionState,
 	configuration: ProtectionConfigurationDocument,
 	focusedTabId: number | null,
+	protectionEligibleTabIds: ReadonlySet<number>,
 	liveDestinationsByTab: ReadonlyMap<number, string>,
 ): AllowanceExpiryCandidate[] {
 	const rules = configuration.sites.map( ( site ) => site.rule );
 
 	return state.readyParticipants.map( ( participant ) => {
 		const tabId = getRuntimeTabId( participant.pageId );
-		const matchDestination = participant.origin === ProtectionParticipantOrigin.ALLOWANCE_EXPIRY && tabId !== null
-			? liveDestinationsByTab.get( tabId )
-			: participant.retainedDestination;
+		const protectionEligible = tabId !== null && protectionEligibleTabIds.has( tabId );
+		const matchDestination = protectionEligible
+			? participant.origin === ProtectionParticipantOrigin.ALLOWANCE_EXPIRY
+				? liveDestinationsByTab.get( tabId )
+				: participant.retainedDestination
+			: null;
 
 		return {
 			source: AllowanceExpiryCandidateSource.READY_PARTICIPANT,
 			participantId: participant.participantId,
 			pageId: participant.pageId,
 			observedDestination: participant.retainedDestination,
-			focusEligible: tabId === focusedTabId,
+			focusEligible: protectionEligible && tabId === focusedTabId,
 			match: matchDestination === null || matchDestination === undefined
 				? { status: ProtectedUrlMatchStatus.UNPROTECTED }
 				: matchProtectedUrl( matchDestination, rules ),

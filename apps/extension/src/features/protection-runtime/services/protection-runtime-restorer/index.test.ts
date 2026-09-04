@@ -33,13 +33,22 @@ import { ProtectionStateReconciliationRequirementReason } from '../../../../doma
 import { createProtectionRuntimeRestorer } from './index';
 import { type ProtectionRuntimeRestorerOptions } from './types';
 
-/** Fixed wall-clock instant used by restoration fixtures. */
+/**
+ * Fixed wall-clock instant used by restoration fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const NOW_EPOCH_MILLISECONDS = 1_800_000_100_000;
 
-/** Extension-owned interruption URL used by restoration fixtures. */
+/**
+ * Extension-owned interruption URL used by restoration fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/interruption.html';
 
-/** Ready participant retained by allowance restoration fixtures. */
+/**
+ * Ready participant retained by allowance restoration fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const READY_PARTICIPANT = createNavigationParticipant(
 	'participant_ready',
 	'page_tab_7_ready',
@@ -48,14 +57,20 @@ const READY_PARTICIPANT = createNavigationParticipant(
 	'https://example.com/ready',
 );
 
-/** Allowance state retained by restoration fixtures. */
+/**
+ * Allowance state retained by restoration fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const ALLOWANCE_STATE = {
 	...createAllowanceState(),
 	scopeId: DefaultProtectionScopeId,
 	readyParticipants: [ READY_PARTICIPANT ],
 };
 
-/** Reconciliation requirement returned by interrupted allowance fixtures. */
+/**
+ * Reconciliation requirement returned by interrupted allowance fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const REQUIREMENT = {
 	scopeId: DefaultProtectionScopeId,
 	allowanceId: ALLOWANCE_STATE.allowanceId,
@@ -64,7 +79,10 @@ const REQUIREMENT = {
 	reason: ProtectionStateReconciliationRequirementReason.OBSERVATION_UNAVAILABLE,
 };
 
-/** Expiry-origin Ready participant whose interruption layer preserves its live page. */
+/**
+ * Expiry-origin Ready participant whose interruption layer preserves its live page.
+ * @since 0.1.0 Initial implementation.
+ */
 const EXPIRY_READY_PARTICIPANT = createAllowanceExpiryParticipant(
 	'participant_expiry_ready',
 	'page_tab_8_expiry_ready',
@@ -72,14 +90,20 @@ const EXPIRY_READY_PARTICIPANT = createAllowanceExpiryParticipant(
 	0,
 );
 
-/** Reconciliation requirement for the preserved expiry-origin participant. */
+/**
+ * Reconciliation requirement for the preserved expiry-origin participant.
+ * @since 0.1.0 Initial implementation.
+ */
 const EXPIRY_REQUIREMENT = {
 	...REQUIREMENT,
 	participantId: EXPIRY_READY_PARTICIPANT.participantId,
 	pageId: EXPIRY_READY_PARTICIPANT.pageId,
 };
 
-/** Protected-site configuration used by restoration fixtures. */
+/**
+ * Protected-site configuration used by restoration fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
 	sites: [ {
@@ -92,7 +116,10 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
 	} ],
 };
 
-/** Applied coordinator result returned by successful restoration dispatches. */
+/**
+ * Applied coordinator result returned by successful restoration dispatches.
+ * @since 0.1.0 Initial implementation.
+ */
 const APPLIED_RESULT: ProtectionCoordinatorDispatchResult = {
 	status: ProtectionCoordinatorDispatchStatus.APPLIED,
 	decisions: [],
@@ -104,6 +131,7 @@ const APPLIED_RESULT: ProtectionCoordinatorDispatchResult = {
  * @param status - Successful initialization status.
  * @param requirement - Ready reconciliation requirement used when requested.
  * @return Successful initialization result with one observable decision.
+ * @since 0.1.0 Initial implementation.
  */
 function createSuccessfulInitialization(
 	status: typeof ProtectionCoordinatorInitializationStatus.READY |
@@ -137,12 +165,13 @@ function createSuccessfulInitialization(
  * @param configuration - Current validated local configuration or unavailable marker.
  * @param tabs - Current browser tab observations.
  * @return Restorer and observable dependency doubles.
+ * @since 0.1.0 Initial implementation.
  */
 function createRestorerHarness(
 	initialization: ProtectionCoordinatorInitializationResult,
 	dispatchStatesByScope: ProtectionCoordinatorStateSnapshot = {},
 	configuration: ProtectionConfigurationDocument | null = CONFIGURATION,
-	tabs: ReadonlyArray<{ id: number; url?: string }> = [],
+	tabs: ReadonlyArray<{ id: number; incognito?: boolean; url?: string }> = [],
 ) {
 	const events: ProtectionEvent[] = [];
 	const initialize = vi.fn<ProtectionCoordinator[ 'initialize' ]>().mockResolvedValue( initialization );
@@ -153,7 +182,6 @@ function createRestorerHarness(
 
 		return APPLIED_RESULT;
 	} );
-	const getStates = vi.fn<ProtectionCoordinator[ 'getStates' ]>().mockResolvedValue( dispatchStatesByScope );
 	const loadConfiguration = vi
 		.fn<ProtectionRuntimeRestorerOptions[ 'loadConfiguration' ]>()
 		.mockResolvedValue( configuration );
@@ -173,7 +201,7 @@ function createRestorerHarness(
 		.fn<ProtectionRuntimeRestorerOptions[ 'getTimeZone' ]>()
 		.mockReturnValue( 'UTC' );
 	const restorer = createProtectionRuntimeRestorer( {
-		coordinator: { dispatch, getStates, initialize },
+		coordinator: { dispatch, initialize },
 		interruptionPageUrl: INTERRUPTION_PAGE_URL,
 		applyDecisions,
 		applyDispatchResult,
@@ -225,6 +253,15 @@ describe( 'createProtectionRuntimeRestorer', () => {
 		expect( harness.dispatch ).not.toHaveBeenCalled();
 	} );
 
+	it( 'uses configuration loaded before coordinator restoration when supplied', async () => {
+		const initialization = createSuccessfulInitialization( ProtectionCoordinatorInitializationStatus.READY );
+		const harness = createRestorerHarness( initialization );
+
+		await expect( harness.restorer.restore( null ) ).resolves.toBe( true );
+		expect( harness.loadConfiguration ).not.toHaveBeenCalled();
+		expect( harness.applyDecisions ).toHaveBeenCalledWith( initialization.decisions, null );
+	} );
+
 	it( 'reconciles the exact Ready participant that remains on the interruption page', async () => {
 		const initialization = createSuccessfulInitialization(
 			ProtectionCoordinatorInitializationStatus.RECONCILIATION_REQUIRED,
@@ -233,7 +270,7 @@ describe( 'createProtectionRuntimeRestorer', () => {
 			initialization,
 			{ [ DefaultProtectionScopeId ]: ALLOWANCE_STATE },
 			CONFIGURATION,
-			[ { id: 7, url: INTERRUPTION_PAGE_URL } ],
+			[ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ],
 		);
 
 		await expect( harness.restorer.restore() ).resolves.toBe( true );
@@ -266,7 +303,7 @@ describe( 'createProtectionRuntimeRestorer', () => {
 			initialization,
 			{ [ DefaultProtectionScopeId ]: expiryAllowance },
 			CONFIGURATION,
-			[ { id: 8, url: 'https://example.com/preserved-draft' } ],
+			[ { id: 8, incognito: false, url: 'https://example.com/preserved-draft' } ],
 		);
 
 		await expect( harness.restorer.restore() ).resolves.toBe( true );
@@ -286,6 +323,35 @@ describe( 'createProtectionRuntimeRestorer', () => {
 		expect( harness.applyDispatchResult ).toHaveBeenCalledWith( APPLIED_RESULT, CONFIGURATION );
 	} );
 
+	it.each( [
+		[ 'private tab', true ],
+		[ 'tab with unknown privacy', undefined ],
+	] )( 'departs a stored Ready participant recovered from a %s', async (
+		_label,
+		incognito,
+	) => {
+		const initialization = createSuccessfulInitialization(
+			ProtectionCoordinatorInitializationStatus.RECONCILIATION_REQUIRED,
+		);
+		const harness = createRestorerHarness(
+			initialization,
+			{ [ DefaultProtectionScopeId ]: ALLOWANCE_STATE },
+			CONFIGURATION,
+			[ {
+				id: 7,
+				url: INTERRUPTION_PAGE_URL,
+				...( incognito === undefined ? {} : { incognito } ),
+			} ],
+		);
+
+		await expect( harness.restorer.restore() ).resolves.toBe( true );
+		expect( harness.events ).toMatchObject( [ {
+			type: ProtectionEventType.PARTICIPANT_DEPARTURE,
+			participantId: READY_PARTICIPANT.participantId,
+			cause: DepartureCause.BROWSER_ERROR_OR_RECOVERY,
+		} ] );
+	} );
+
 	it( 'departs an expiry-origin Ready participant whose preserved page is unavailable', async () => {
 		const expiryAllowance = {
 			...ALLOWANCE_STATE,
@@ -300,6 +366,30 @@ describe( 'createProtectionRuntimeRestorer', () => {
 			{ [ DefaultProtectionScopeId ]: expiryAllowance },
 			CONFIGURATION,
 			[],
+		);
+
+		await expect( harness.restorer.restore() ).resolves.toBe( true );
+		expect( harness.events[ 0 ] ).toMatchObject( {
+			type: ProtectionEventType.PARTICIPANT_DEPARTURE,
+			participantId: EXPIRY_READY_PARTICIPANT.participantId,
+			pageId: EXPIRY_READY_PARTICIPANT.pageId,
+		} );
+	} );
+
+	it( 'departs an expiry-origin Ready participant whose page URL is unavailable', async () => {
+		const expiryAllowance = {
+			...ALLOWANCE_STATE,
+			readyParticipants: [ EXPIRY_READY_PARTICIPANT ],
+		};
+		const initialization = createSuccessfulInitialization(
+			ProtectionCoordinatorInitializationStatus.RECONCILIATION_REQUIRED,
+			EXPIRY_REQUIREMENT,
+		);
+		const harness = createRestorerHarness(
+			initialization,
+			{ [ DefaultProtectionScopeId ]: expiryAllowance },
+			CONFIGURATION,
+			[ { id: 8, incognito: false } ],
 		);
 
 		await expect( harness.restorer.restore() ).resolves.toBe( true );
@@ -334,7 +424,7 @@ describe( 'createProtectionRuntimeRestorer', () => {
 			initialization,
 			{ [ DefaultProtectionScopeId ]: expiryAllowance },
 			testCase.configuration,
-			[ { id: 8, url: testCase.url } ],
+			[ { id: 8, incognito: false, url: testCase.url } ],
 		);
 
 		await expect( harness.restorer.restore() ).resolves.toBe( true );
@@ -394,7 +484,7 @@ describe( 'createProtectionRuntimeRestorer', () => {
 			label: 'participant tab left the interruption page',
 			states: { [ DefaultProtectionScopeId ]: ALLOWANCE_STATE },
 			configuration: CONFIGURATION,
-			tabs: [ { id: 7, url: 'https://example.com/left' } ],
+			tabs: [ { id: 7, incognito: false, url: 'https://example.com/left' } ],
 		},
 	] )( 'departs the stored Ready participant when $label', async ( testCase ) => {
 		const initialization = createSuccessfulInitialization(

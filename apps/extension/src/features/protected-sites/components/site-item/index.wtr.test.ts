@@ -6,9 +6,19 @@ import {
 	type ProtectionConfigurationMutation,
 } from '../../../../domains/protection/services/protection-configuration-editor';
 import { type ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
-import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
+import {
+	TestEmptyProtectionConfiguration,
+} from '../../../../domains/protection/types/__fixtures__';
+import {
+	type ProtectedSiteConfiguration,
+	type ProtectionConfigurationDocument,
+} from '../../../../domains/protection/types/protected-site-configuration';
+import { DefaultProtectionSchedule } from '../../../../domains/protection/types/protection-schedule';
+import {
+	DefaultProtectionScopeId,
+	ProtectionMeasurementRevisionSchema,
+	ProtectionScopeIdSchema,
+} from '../../../../domains/protection/types/protection-value';
 import {
 	createProtectedSiteEnrollmentService,
 	type ProtectedSiteEnrollmentService,
@@ -27,6 +37,10 @@ import {
 	type ProtectedSiteConfigurationChangedEventDetail,
 } from './types';
 
+/**
+ * Shared Instagram site used by protected-site item fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const SITE = {
 	identityHost: 'www.instagram.com',
 	rule: {
@@ -35,14 +49,50 @@ const SITE = {
 		scopeId: DefaultProtectionScopeId,
 	},
 };
+/**
+ * Display identity shown by the protected-site item fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const IDENTITY = {
 	name: 'Instagram',
 	monogram: 'I',
 	colorIndex: 2,
 };
+/**
+ * Complete configuration containing the shared Instagram fixture.
+ * @since 0.1.0 Initial implementation.
+ */
 const CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
 	sites: [ SITE ],
+};
+/**
+ * Independent Instagram configuration used by deletion-choice fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
+const INDEPENDENT_SITE: ProtectedSiteConfiguration = {
+	...SITE,
+	rule: {
+		...SITE.rule,
+		scopeId: ProtectionScopeIdSchema.parse( 'scope_instagram' ),
+	},
+};
+
+/**
+ * Complete configuration containing the independent deletion-choice fixture.
+ * @since 0.1.0 Initial implementation.
+ */
+const INDEPENDENT_CONFIGURATION: ProtectionConfigurationDocument = {
+	...TestEmptyProtectionConfiguration,
+	sites: [ INDEPENDENT_SITE ],
+	schedulesByScope: {
+		...TestEmptyProtectionConfiguration.schedulesByScope,
+		scope_instagram: DefaultProtectionSchedule,
+	},
+	measurementRevisionsByScope: {
+		...TestEmptyProtectionConfiguration.measurementRevisionsByScope,
+		scope_instagram: ProtectionMeasurementRevisionSchema.parse( 'revision_instagram' ),
+	},
 };
 
 /**
@@ -158,6 +208,14 @@ function getRequiredElement<T extends Element>(
 	expectedType: ElementConstructor<T>,
 ): T;
 
+/**
+ * Returns one required element after validating its runtime constructor.
+ * @param element - Rendered protected-site item.
+ * @param selector - Required selector.
+ * @param expectedType - Runtime element constructor.
+ * @return Matching element.
+ * @since 0.1.0 Initial implementation.
+ */
 function getRequiredElement(
 	element: ComponentProtectedSiteItem,
 	selector: string,
@@ -180,9 +238,23 @@ function getRequiredElement(
  * @since 0.1.0 Initial implementation.
  */
 function createEditor( storage: MemorySiteItemStorage ): ProtectionConfigurationEditor {
+	let measurementRevisionSequence = 0;
+
+	/**
+	 * Creates one deterministic revision that remains unique within this editor.
+	 * @return Fresh measurement revision.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function createMeasurementRevision(): string {
+		measurementRevisionSequence += 1;
+
+		return `revision_site_item_${ String( measurementRevisionSequence ) }`;
+	}
+
 	return createProtectionConfigurationEditor( {
 		storage,
 		createIndependentScopeId,
+		createMeasurementRevision,
 		coordinateMutation: coordinateMutationDirectly,
 	} );
 }
@@ -658,6 +730,7 @@ describe( 'tocus-f-protected-site-item', () => {
 		await element.updateComplete;
 
 		assert.include( getRequiredElement( element, '.remove-confirmation' ).textContent, 'Remove Instagram?' );
+		assert.equal( element.shadowRoot?.querySelector( 'input[name="delete-statistics"]' ), null );
 		assert.equal( storage.configuration.sites.length, 1 );
 		await expect( element ).to.be.accessible();
 		getRequiredElement( element, '.remove-confirmation button', HTMLButtonElement ).click();
@@ -675,7 +748,46 @@ describe( 'tocus-f-protected-site-item', () => {
 		getRequiredElement( element, '.confirm-remove-action', HTMLButtonElement ).click();
 		await settleAsyncAction( element );
 
-		assert.equal( changedDetails.at( 0 )?.kind, ProtectedSiteConfigurationChangeKind.REMOVED );
+		const removal = changedDetails.at( 0 );
+
+		assert.equal( removal?.kind, ProtectedSiteConfigurationChangeKind.REMOVED );
+		assert.equal( storage.configuration.sites.length, 0 );
+	} );
+
+	it( 'removes an independent site without offering to delete its statistics', async () => {
+		const storage = new MemorySiteItemStorage();
+		storage.configuration = INDEPENDENT_CONFIGURATION;
+		const element = await fixture<ComponentProtectedSiteItem>( html`
+			<tocus-f-protected-site-item
+				.site=${ INDEPENDENT_SITE }
+				.identity=${ IDENTITY }
+				.editor=${ createEditor( storage ) }
+				.enrollmentService=${ createEnrollmentService( storage ) }
+			></tocus-f-protected-site-item>
+		` );
+
+		getRequiredElement( element, '.edit-action', HTMLButtonElement ).click();
+		await element.updateComplete;
+		getRequiredElement( element, '.remove-action', HTMLButtonElement ).click();
+		await element.updateComplete;
+
+		const changedDetails: ProtectedSiteConfigurationChangedEventDetail[] = [];
+		element.addEventListener( ProtectedSiteConfigurationChangedEventName, ( event ) => {
+			changedDetails.push( ( event as CustomEvent<ProtectedSiteConfigurationChangedEventDetail> ).detail );
+		} );
+
+		assert.equal( element.shadowRoot?.querySelector( 'input[name="delete-statistics"]' ), null );
+		assert.notInclude( element.shadowRoot?.textContent ?? '', 'Delete this site\'s statistics too' );
+		await expect( element ).to.be.accessible();
+		getRequiredElement( element, '.confirm-remove-action', HTMLButtonElement ).click();
+		await settleAsyncAction( element );
+
+		const removal = changedDetails.at( 0 );
+		assert.equal( removal?.kind, ProtectedSiteConfigurationChangeKind.REMOVED );
+		if ( removal?.kind !== ProtectedSiteConfigurationChangeKind.REMOVED ) {
+			throw new TypeError( 'Expected one independent-site removal detail.' );
+		}
+		assert.deepEqual( removal.site, INDEPENDENT_SITE );
 		assert.equal( storage.configuration.sites.length, 0 );
 	} );
 

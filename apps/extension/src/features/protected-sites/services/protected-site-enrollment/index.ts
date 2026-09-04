@@ -3,9 +3,11 @@ import {
 	ProtectionConfigurationEditStatus,
 	type ProtectionConfigurationEditFinalizer,
 	type ProtectionConfigurationEditResult,
+	type ProtectionConfigurationRemovalFinalizer,
 } from '../../../../domains/protection/services/protection-configuration-editor';
 import {
 	ProtectedSiteConfigurationSchema,
+	type ProtectedSiteConfiguration,
 	type ProtectionConfigurationDocument,
 } from '../../../../domains/protection/types/protected-site-configuration';
 import { type ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
@@ -244,6 +246,7 @@ export function createProtectedSiteEnrollmentService(
 		site: Parameters<ProtectedSiteEnrollmentService[ 'remove' ]>[ 0 ],
 	): Promise<ProtectedSiteRemovalResult> {
 		let permissionReleaseStatus: SitePermissionReleaseStatus = SitePermissionReleaseStatus.RELEASED;
+		let removedSite: ProtectedSiteConfiguration | null = null;
 
 		/**
 		 * Releases obsolete browser access before the coordinated removal lock is released.
@@ -251,13 +254,21 @@ export function createProtectedSiteEnrollmentService(
 		 * @return Promise resolved after any required permission release.
 		 * @since 0.1.0 Initial implementation.
 		 */
-		const finalizeEdit: ProtectionConfigurationEditFinalizer = async ( settlement ): Promise<void> => {
+		const finalizeEdit: ProtectionConfigurationRemovalFinalizer = async (
+			settlement,
+		): Promise<void> => {
+			removedSite = settlement.removedSite;
+
 			if ( settlement.result?.status !== ProtectionConfigurationEditStatus.UPDATED ) {
 				return;
 			}
 
+			const authoritativeRemovedSite = ProtectedSiteConfigurationSchema.parse(
+				settlement.removedSite,
+			);
+
 			permissionReleaseStatus = await options.permissionManager.release(
-				site.rule,
+				authoritativeRemovedSite.rule,
 				settlement.result.configuration.sites.length > 0,
 			);
 		};
@@ -269,6 +280,7 @@ export function createProtectedSiteEnrollmentService(
 				status: ProtectedSiteEnrollmentStatus.REMOVED,
 				configuration: editResult.configuration,
 				permissionReleaseStatus,
+				site: ProtectedSiteConfigurationSchema.parse( removedSite ),
 			};
 	}
 

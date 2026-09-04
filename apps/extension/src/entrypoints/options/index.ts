@@ -18,6 +18,7 @@ import { ComponentSettingsShell } from '../../features/settings/components/shell
 import { ComponentProtectedSitesScreen } from '../../features/protected-sites/components/screen';
 import { createSiteFaviconProvider } from '../../features/protected-sites/services/site-favicon-provider';
 import { createSitePermissionManager } from '../../features/protected-sites/services/site-permission-manager';
+import { createStatisticsClient } from '../../features/statistics/services/statistics-client';
 import './styles.scss';
 
 /**
@@ -27,6 +28,15 @@ import './styles.scss';
  */
 function createIndependentScopeId(): string {
 	return `scope_${ crypto.randomUUID() }`;
+}
+
+/**
+ * Creates one collision-resistant local measurement revision.
+ * @return Stable measurement revision.
+ * @since 0.1.0 Initial implementation.
+ */
+function createMeasurementRevision(): string {
+	return `revision_${ crypto.randomUUID() }`;
 }
 
 /**
@@ -54,12 +64,20 @@ function coordinatePreferencesMutation<Result>(
 	return navigator.locks.request( PreferencesStorageKey.PREFERENCES, mutation );
 }
 
+/**
+ * Settings-shell candidate mounted by the options document.
+ * @since 0.1.0 Initial implementation.
+ */
 const settingsShellCandidate = document.querySelector( 'tocus-f-settings-shell' );
 
 if ( ! ( settingsShellCandidate instanceof ComponentSettingsShell ) ) {
 	throw new TypeError( 'Expected the options page to contain the settings shell.' );
 }
 
+/**
+ * Validated settings shell receiving every options-page dependency.
+ * @since 0.1.0 Initial implementation.
+ */
 const settingsShell = settingsShellCandidate;
 
 /**
@@ -84,16 +102,35 @@ function handlePermissionChanged( change: Browser.permissions.Permissions ): voi
 	}
 }
 
+/**
+ * Local protection-configuration persistence used by options controls.
+ * @since 0.1.0 Initial implementation.
+ */
 const protectionStorage = createProtectionConfigurationStorageService( {
 	area: browser.storage.local,
 } );
+
+/**
+ * Local preference persistence used by options controls.
+ * @since 0.1.0 Initial implementation.
+ */
 const preferencesStorage = createPreferencesStorageService( {
 	area: browser.storage.local,
 } );
+
+/**
+ * Coordinated preference editor exposed to settings components.
+ * @since 0.1.0 Initial implementation.
+ */
 const preferencesEditor = createPreferencesEditor( {
 	coordinateMutation: coordinatePreferencesMutation,
 	storage: preferencesStorage,
 } );
+
+/**
+ * Live preference projection applied to the options document.
+ * @since 0.1.0 Initial implementation.
+ */
 const preferencesController = createPreferencesController( {
 	appearanceTarget: document.documentElement,
 	storage: preferencesStorage,
@@ -104,6 +141,7 @@ const preferencesController = createPreferencesController( {
 settingsShell.editor = createProtectionConfigurationEditor( {
 	storage: protectionStorage,
 	createIndependentScopeId,
+	createMeasurementRevision,
 	coordinateMutation: coordinateProtectionConfigurationMutation,
 } );
 settingsShell.faviconProvider = createSiteFaviconProvider( {
@@ -116,6 +154,16 @@ settingsShell.permissionManager = createSitePermissionManager( {
 settingsShell.preferencesEditor = preferencesEditor;
 settingsShell.preferencesPreview = preferencesController;
 settingsShell.preferencesSource = preferencesController;
+
+/**
+ * Local statistics client used by the settings statistics screen.
+ * @since 0.1.0 Initial implementation.
+ */
+const statisticsClient = createStatisticsClient( {
+	runtime: browser.runtime,
+	storageChanges: browser.storage.onChanged,
+} );
+settingsShell.statisticsSource = statisticsClient;
 settingsShell.platform = import.meta.env.SAFARI
 	? 'safari'
 	: import.meta.env.FIREFOX

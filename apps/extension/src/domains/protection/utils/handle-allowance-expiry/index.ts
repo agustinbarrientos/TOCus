@@ -94,6 +94,7 @@ function projectLiveCandidates(
 			pageId: candidate.pageId,
 			retainedDestination: null,
 			focusEligible: candidate.focusEligible,
+			statisticsEligible: candidate.statisticsEligible,
 			joinSequence: 0,
 		} );
 	}
@@ -170,6 +171,7 @@ export function handleAllowanceExpiry(
 		ownerParticipantId: owner?.participantId ?? null,
 		ownerEpoch: owner === null ? 0 : 1,
 		checkpointHighWaterMilliseconds: 0,
+		completionStatisticsEligible: true,
 		ladder,
 	}, decisions );
 }

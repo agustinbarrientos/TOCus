@@ -10,7 +10,6 @@ import {
 	type ProtectionState,
 } from '../../types/protection-state';
 import { type ProtectionTransitionResult } from '../../types/protection-transition-result';
-import { WaitIdSchema } from '../../types/protection-value';
 import { abandonWaitingState } from '../abandon-waiting-state';
 import { createReconsideredVisitFact } from '../create-protection-fact';
 import { createTransitionResult } from '../create-protection-transition-result';
@@ -51,6 +50,7 @@ export function handleParticipantDeparture(
 
 		if (
 			departingParticipant.origin === ProtectionParticipantOrigin.NAVIGATION &&
+			departingParticipant.statisticsEligible &&
 			qualifyingCause.success
 		) {
 			facts.push( createReconsideredVisitFact( {
@@ -108,28 +108,10 @@ export function handleParticipantDeparture(
 		return createTransitionResult( state );
 	}
 
-	const facts: ProtectionFact[] = [];
-	const qualifyingCause = QualifyingDepartureCauseSchema.safeParse( event.cause );
-
-	if (
-		departingParticipant.origin === ProtectionParticipantOrigin.NAVIGATION &&
-		qualifyingCause.success
-	) {
-		const completedWaitId = WaitIdSchema.parse( state.completedWaitId );
-
-		facts.push( createReconsideredVisitFact( {
-			scopeId: state.scopeId,
-			waitId: completedWaitId,
-			participantId: departingParticipant.participantId,
-			departureCause: qualifyingCause.data,
-			observedAtEpochMilliseconds: event.observedAtEpochMilliseconds,
-		} ) );
-	}
-
 	return createTransitionResult( {
 		...state,
 		readyParticipants: state.readyParticipants.filter(
 			( participant ) => participant.participantId !== event.participantId,
 		),
-	}, [], facts );
+	} );
 }

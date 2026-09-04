@@ -18,6 +18,10 @@ import {
 } from '../../types/__fixtures__/protection-state';
 import { handleParticipantDeparture } from './index';
 
+/**
+ * Departure causes that must not count as a reconsidered visit.
+ * @since 0.1.0 Initial implementation.
+ */
 const ExcludedDepartureCauses = [
 	DepartureCause.REDIRECT,
 	DepartureCause.AUTHENTICATION_HANDOFF,
@@ -31,6 +35,10 @@ const ExcludedDepartureCauses = [
 	DepartureCause.STORAGE_FAILURE,
 	DepartureCause.UNKNOWN,
 ];
+/**
+ * Complete set of supported departure causes.
+ * @since 0.1.0 Initial implementation.
+ */
 const AllDepartureCauses = Object.values( DepartureCause );
 
 describe( 'participant-departure transition', () => {
@@ -62,6 +70,27 @@ describe( 'participant-departure transition', () => {
 					departureCause: cause,
 					observedAtEpochMilliseconds: 1_800_000_000_000,
 				} ],
+			} );
+		},
+	);
+
+	it.each( Object.values( QualifyingDepartureCause ) )(
+		'never records a private Waiting navigation departure for %s',
+		( cause ) => {
+			const state = createWaitingState();
+
+			state.participants = [ createNavigationParticipant(
+				'participant-a',
+				'page-a',
+				true,
+				0,
+				'https://example.com/page-a',
+				false,
+			) ];
+
+			expect( handleParticipantDeparture( state, createDeparture( cause ) ) ).toMatchObject( {
+				state: { type: ProtectionStateType.IDLE },
+				facts: [],
 			} );
 		},
 	);
@@ -245,7 +274,7 @@ describe( 'participant-departure transition', () => {
 	} );
 
 	it.each( Object.values( QualifyingDepartureCause ) )(
-		'emits one reconsidered fact when a Ready navigation participant departs for %s',
+		'removes a Ready navigation participant without a reconsidered fact for %s',
 		( cause ) => {
 			const state = createAllowanceState();
 			const event = createDeparture( cause, 'participant-a', 'page-a', {
@@ -255,27 +284,19 @@ describe( 'participant-departure transition', () => {
 			expect( handleParticipantDeparture( state, event ) ).toEqual( {
 				state: { ...state, readyParticipants: [] },
 				decisions: [],
-				facts: [ {
-					type: ProtectionFactType.RECONSIDERED_VISIT,
-					factId: 'reconsidered-visit_13-scope-default_6-wait-a_13-participant-a',
-					scopeId: 'scope-default',
-					waitId: 'wait-a',
-					participantId: 'participant-a',
-					departureCause: cause,
-					observedAtEpochMilliseconds: 1_800_000_000_000,
-				} ],
+				facts: [],
 			} );
 		},
 	);
 
-	it( 'deduplicates a replayed qualifying Ready departure after participant removal', () => {
+	it( 'ignores a replayed qualifying Ready departure after participant removal', () => {
 		const state = createAllowanceState();
 		const event = createDeparture( DepartureCause.BACK, 'participant-a', 'page-a', {
 			target: { stateType: ProtectionStateType.ALLOWANCE, allowanceId: state.allowanceId },
 		} );
 		const firstResult = handleParticipantDeparture( state, event );
 
-		expect( firstResult.facts ).toHaveLength( 1 );
+		expect( firstResult.facts ).toEqual( [] );
 		expect( handleParticipantDeparture( firstResult.state, event ) ).toEqual( {
 			state: firstResult.state,
 			decisions: [],

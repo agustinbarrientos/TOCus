@@ -8,8 +8,14 @@ import {
 	type ProtectedPageLayerController,
 	type ProtectedPageLayerControllerOptions,
 } from '../../features/interruption/services/protected-page-layer-controller/types';
+import { InterruptionScreenState } from '../../features/interruption/components/screen/types';
+import { type PreferencesChangeListener } from '../../features/preferences/services/preferences-controller/types';
 import { type ProtectedPageMessage } from '../../features/protection-runtime/types/protected-page-message';
 
+/**
+ * Isolated-world initialization key shared with the protected-page entrypoint.
+ * @since 0.1.0 Initial implementation.
+ */
 const PROTECTED_PAGE_INITIALIZATION_KEY = Symbol.for( 'tocus.protected-page.initialization' );
 
 /**
@@ -96,13 +102,21 @@ const entrypointMocks = vi.hoisted( () => {
 	}
 
 	const preferencesController = Object.assign( new EventTarget(), {
+		addPreferencesChangeListener: vi.fn<( listener: PreferencesChangeListener ) => void>(),
 		apply: vi.fn(),
 		matches: false,
+		removePreferencesChangeListener: vi.fn<( listener: PreferencesChangeListener ) => void>(),
 		start: vi.fn(),
 		stop: vi.fn(),
 	} );
 	const preferencesStorage = {};
+	const statisticsClient = {};
 	const storageChanges = {};
+	const wellbeingSummaryController = {
+		refresh: vi.fn(),
+		start: vi.fn(),
+		stop: vi.fn(),
+	};
 
 	return {
 		ComponentProtectedPageLayer: TestProtectedPageLayer,
@@ -116,6 +130,8 @@ const entrypointMocks = vi.hoisted( () => {
 		) => ProtectedPageLayerController>(),
 		createPreferencesController: vi.fn().mockReturnValue( preferencesController ),
 		createPreferencesStorage: vi.fn().mockReturnValue( preferencesStorage ),
+		createStatisticsClient: vi.fn().mockReturnValue( statisticsClient ),
+		createWellbeingSummaryController: vi.fn().mockReturnValue( wellbeingSummaryController ),
 		handleMessage: vi.fn<ProtectedPageLayerController[ 'handleMessage' ]>(),
 		preferencesController,
 		preferencesStorage,
@@ -123,6 +139,8 @@ const entrypointMocks = vi.hoisted( () => {
 		sendMessage: vi.fn(),
 		stopLayerController: vi.fn(),
 		storageChanges,
+		statisticsClient,
+		wellbeingSummaryController,
 	};
 } );
 
@@ -167,6 +185,12 @@ vi.mock( '../../features/interruption/services/interruption-page-controller', ()
 } ) );
 vi.mock( '../../features/interruption/services/protected-page-layer-controller', () => ( {
 	createProtectedPageLayerController: entrypointMocks.createProtectedPageLayerController,
+} ) );
+vi.mock( '../../features/statistics/services/statistics-client', () => ( {
+	createStatisticsClient: entrypointMocks.createStatisticsClient,
+} ) );
+vi.mock( '../../features/statistics/services/wellbeing-summary-controller', () => ( {
+	createWellbeingSummaryController: entrypointMocks.createWellbeingSummaryController,
 } ) );
 
 describe( 'protected-page unlisted entrypoint', () => {
@@ -218,6 +242,9 @@ describe( 'protected-page unlisted entrypoint', () => {
 		entrypointMocks.sendMessage.mockResolvedValue( { state: 'waiting' } );
 		entrypointMocks.createInterruptionPageController.mockReturnValue( interruptionController );
 		entrypointMocks.createProtectedPageLayerController.mockReturnValue( layerController );
+		entrypointMocks.wellbeingSummaryController.refresh.mockReturnValue(
+			new Promise<void>( ignorePreferencesStartResolution ),
+		);
 		let completePreferencesStart: ( value?: void | PromiseLike<void> ) => void =
 			ignorePreferencesStartResolution;
 
@@ -292,8 +319,28 @@ describe( 'protected-page unlisted entrypoint', () => {
 			storageChanges: entrypointMocks.storageChanges,
 			systemMotionPreference: motionPreference,
 		} );
+		expect( entrypointMocks.createStatisticsClient ).toHaveBeenCalledWith( {
+			runtime: {
+				onMessage: {
+					addListener: entrypointMocks.addMessageListener,
+					removeListener: entrypointMocks.removeMessageListener,
+				},
+				sendMessage: entrypointMocks.sendMessage,
+			},
+			storageChanges: entrypointMocks.storageChanges,
+		} );
+		expect( entrypointMocks.createWellbeingSummaryController ).toHaveBeenCalledWith( {
+			source: entrypointMocks.statisticsClient,
+			target: layer.interruptionScreen,
+		} );
+		expect( entrypointMocks.preferencesController.addPreferencesChangeListener )
+			.not.toHaveBeenCalled();
 		expect( entrypointMocks.preferencesController.start ).toHaveBeenCalledOnce();
 		expect( interruptionOptions.motionPreference ).toBe( entrypointMocks.preferencesController );
+		interruptionOptions.onPresentationStateChange?.( InterruptionScreenState.WAITING );
+		interruptionOptions.onPresentationStateChange?.( InterruptionScreenState.READY );
+		expect( entrypointMocks.wellbeingSummaryController.refresh ).toHaveBeenCalledTimes( 2 );
+		expect( entrypointMocks.wellbeingSummaryController.start ).toHaveBeenCalledOnce();
 		const layerOptions = entrypointMocks.createProtectedPageLayerController.mock.calls[ 0 ]?.[ 0 ];
 
 		if ( layerOptions === undefined ) {
@@ -451,6 +498,42 @@ describe( 'protected-page unlisted entrypoint', () => {
 		expect( entrypointMocks.addMessageListener ).toHaveBeenCalledOnce();
 	} );
 
+	it( 'removes its layer when startup fails before preferences listeners exist', async () => {
+		const documentTarget = Object.assign( new EventTarget(), {
+			documentElement: { append: entrypointMocks.append },
+			visibilityState: 'visible',
+		} );
+		const windowTarget = Object.assign( new EventTarget(), {
+			clearInterval: vi.fn(),
+			clearTimeout: vi.fn(),
+			matchMedia: vi.fn().mockReturnValue( Object.assign( new EventTarget(), { matches: false } ) ),
+			setInterval: vi.fn(),
+			setTimeout: vi.fn(),
+		} );
+		const startupError = new Error( 'Interruption screen unavailable.' );
+
+		vi.stubGlobal( 'document', documentTarget );
+		vi.stubGlobal( 'window', windowTarget );
+		entrypointMocks.append.mockImplementation( ( layer: TestProtectedPageLayer ) => {
+			layer.connected = true;
+		} );
+		entrypointMocks.createWellbeingSummaryController.mockImplementationOnce( () => {
+			throw startupError;
+		} );
+		const entrypoint = await import( './index' );
+
+		await expect( entrypoint.default.main() ).rejects.toBe( startupError );
+		const layer = entrypointMocks.append.mock.calls[ 0 ]?.[ 0 ];
+
+		expect( layer?.connectionGuardEnabled ).toBe( false );
+		expect( layer?.connected ).toBe( false );
+		expect( entrypointMocks.preferencesController.addPreferencesChangeListener )
+			.not.toHaveBeenCalled();
+		expect( entrypointMocks.preferencesController.removePreferencesChangeListener )
+			.not.toHaveBeenCalled();
+		expect( entrypointMocks.preferencesController.stop ).toHaveBeenCalledOnce();
+	} );
+
 	it( 'clears a failed initialization so a later injection can retry', async () => {
 		const documentTarget = Object.assign( new EventTarget(), {
 			documentElement: { append: entrypointMocks.append },
@@ -483,6 +566,10 @@ describe( 'protected-page unlisted entrypoint', () => {
 
 		await expect( entrypoint.default.main() ).rejects.toThrow( 'First initialization failed.' );
 		expect( entrypointMocks.preferencesController.stop ).toHaveBeenCalledOnce();
+		expect( entrypointMocks.wellbeingSummaryController.start ).toHaveBeenCalledOnce();
+		expect( entrypointMocks.wellbeingSummaryController.stop ).toHaveBeenCalledOnce();
+		expect( entrypointMocks.preferencesController.removePreferencesChangeListener )
+			.not.toHaveBeenCalled();
 		expect( entrypointMocks.append.mock.calls[ 0 ]?.[ 0 ]?.connectionGuardEnabled ).toBe( false );
 		expect( entrypointMocks.append.mock.calls[ 0 ]?.[ 0 ]?.connected ).toBe( false );
 		await entrypoint.default.main();

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
 	ProtectionConfigurationEditRejectionReason,
 	createProtectionConfigurationEditor,
@@ -7,13 +7,23 @@ import {
 	type ProtectionConfigurationMutationCoordinator,
 } from '../../../../domains/protection/services/protection-configuration-editor';
 import { type ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
-import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import {
+	TestEmptyProtectionConfiguration,
+	createTestProtectionMeasurementRevision,
+} from '../../../../domains/protection/types/__fixtures__';
+import {
+	ProtectionConfigurationDocumentSchema,
 	type ProtectedSiteConfiguration,
 	type ProtectionConfigurationDocument,
 } from '../../../../domains/protection/types/protected-site-configuration';
 import { type ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
-import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
+import { DefaultProtectionSchedule } from '../../../../domains/protection/types/protection-schedule';
+import {
+	DefaultProtectionScopeId,
+	ProtectionMeasurementRevisionSchema,
+	ProtectionScopeIdSchema,
+	type ProtectionMeasurementRevisionFactory,
+} from '../../../../domains/protection/types/protection-value';
 import {
 	createSitePermissionManager,
 	SitePermissionGrantProvenance,
@@ -30,7 +40,26 @@ import {
 	type ProtectedSiteEnrollmentService,
 } from './types';
 
+/**
+ * Empty protection configuration used by enrollment service tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const EMPTY_CONFIGURATION: ProtectionConfigurationDocument = { ...TestEmptyProtectionConfiguration };
+
+/**
+ * Empty configuration after one measurement-affecting membership edit.
+ * @since 0.1.0 Initial implementation.
+ */
+const UPDATED_EMPTY_CONFIGURATION = ProtectionConfigurationDocumentSchema.parse( {
+	...TestEmptyProtectionConfiguration,
+	measurementRevisionsByScope: {
+		[ DefaultProtectionScopeId ]: createTestProtectionMeasurementRevision(),
+	},
+} );
+/**
+ * Example shared site used by enrollment service tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const EXAMPLE_SITE: ProtectedSiteConfiguration = {
 	identityHost: 'example.com',
 	rule: {
@@ -39,10 +68,51 @@ const EXAMPLE_SITE: ProtectedSiteConfiguration = {
 		scopeId: DefaultProtectionScopeId,
 	},
 };
+/**
+ * Complete configuration containing the example shared site.
+ * @since 0.1.0 Initial implementation.
+ */
 const POPULATED_CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
 	sites: [ EXAMPLE_SITE ],
 };
+
+/**
+ * Scope returned by authoritative configuration removal.
+ * @since 0.1.0 Initial implementation.
+ */
+const AUTHORITATIVE_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope_authoritative' );
+
+/**
+ * Site returned by authoritative configuration removal.
+ * @since 0.1.0 Initial implementation.
+ */
+const AUTHORITATIVE_SITE: ProtectedSiteConfiguration = {
+	...EXAMPLE_SITE,
+	rule: {
+		...EXAMPLE_SITE.rule,
+		scopeId: AUTHORITATIVE_SCOPE_ID,
+	},
+};
+
+/**
+ * Configuration containing the authoritative independent site.
+ * @since 0.1.0 Initial implementation.
+ */
+const AUTHORITATIVE_CONFIGURATION = ProtectionConfigurationDocumentSchema.parse( {
+	...TestEmptyProtectionConfiguration,
+	sites: [ AUTHORITATIVE_SITE ],
+	schedulesByScope: {
+		...TestEmptyProtectionConfiguration.schedulesByScope,
+		[ AUTHORITATIVE_SCOPE_ID ]: DefaultProtectionSchedule,
+	},
+	measurementRevisionsByScope: {
+		...TestEmptyProtectionConfiguration.measurementRevisionsByScope,
+		[ AUTHORITATIVE_SCOPE_ID ]: ProtectionMeasurementRevisionSchema.parse(
+			'revision_authoritative',
+		),
+	},
+} );
 
 /**
  * In-memory configuration storage used by enrollment service tests.
@@ -385,6 +455,7 @@ function createIndependentScopeId(): string {
  * @param storage - In-memory configuration storage.
  * @param permissionManager - Controllable browser permission manager.
  * @param coordinateMutation - Shared cross-editor mutation coordinator.
+ * @param createMeasurementRevision - Measurement revision factory shared by coordinated editors.
  * @return Protected-site enrollment service.
  * @since 0.1.0 Initial implementation.
  */
@@ -392,11 +463,13 @@ function createService(
 	storage: MemoryEnrollmentStorage,
 	permissionManager: SitePermissionManager,
 	coordinateMutation: ProtectionConfigurationMutationCoordinator = coordinateMutationDirectly,
+	createMeasurementRevision: ProtectionMeasurementRevisionFactory = createTestProtectionMeasurementRevision,
 ): ProtectedSiteEnrollmentService {
 	return createProtectedSiteEnrollmentService( {
 		editor: createProtectionConfigurationEditor( {
 			storage,
 			createIndependentScopeId,
+			createMeasurementRevision,
 			coordinateMutation,
 		} ),
 		permissionManager,
@@ -460,6 +533,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 						scopeId: DefaultProtectionScopeId,
 					},
 				} ],
+				measurementRevisionsByScope: UPDATED_EMPTY_CONFIGURATION.measurementRevisionsByScope,
 			},
 			site: {
 				identityHost: 'www.example.com',
@@ -659,11 +733,27 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 
 		await expect( service.remove( EXAMPLE_SITE ) ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.REMOVED,
-			configuration: EMPTY_CONFIGURATION,
+			configuration: UPDATED_EMPTY_CONFIGURATION,
 			permissionReleaseStatus: SitePermissionReleaseStatus.RETAINED,
+			site: EXAMPLE_SITE,
 		} );
 		expect( permissionManager.releasedRules ).toEqual( [ EXAMPLE_SITE.rule ] );
 		expect( permissionManager.releaseRemainingSites ).toEqual( [ false ] );
+	} );
+
+	it( 'uses the authoritative removed site for permission cleanup and its result', async () => {
+		const storage = new MemoryEnrollmentStorage( AUTHORITATIVE_CONFIGURATION );
+		const permissionManager = new MemoryEnrollmentPermissionManager();
+		const service = createService( storage, permissionManager );
+
+		await expect( service.remove( EXAMPLE_SITE ) ).resolves.toEqual( {
+			status: ProtectedSiteEnrollmentStatus.REMOVED,
+			configuration: EMPTY_CONFIGURATION,
+			permissionReleaseStatus: SitePermissionReleaseStatus.RELEASED,
+			site: AUTHORITATIVE_SITE,
+		} );
+		expect( permissionManager.releasedRules ).toEqual( [ AUTHORITATIVE_SITE.rule ] );
+		expect( storage.writes ).toBe( 1 );
 	} );
 
 	it( 'does not release browser access when removal persistence fails', async () => {
@@ -691,6 +781,9 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 	it( 'keeps removal cleanup ahead of an interleaving enrollment mutation', async () => {
 		const storage = new MemoryEnrollmentStorage( POPULATED_CONFIGURATION );
 		const coordinateMutation = createSharedMutationCoordinator();
+		const createMeasurementRevision = vi.fn()
+			.mockReturnValueOnce( createTestProtectionMeasurementRevision() )
+			.mockReturnValueOnce( 'revision_after_removal_cleanup' );
 		const removalPermissionManager = new MemoryEnrollmentPermissionManager();
 		removalPermissionManager.deferNextRelease();
 		const enrollmentPermissionManager = new MemoryEnrollmentPermissionManager();
@@ -698,11 +791,13 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 			storage,
 			removalPermissionManager,
 			coordinateMutation,
+			createMeasurementRevision,
 		);
 		const enrollmentService = createService(
 			storage,
 			enrollmentPermissionManager,
 			coordinateMutation,
+			createMeasurementRevision,
 		);
 		const removal = removalService.remove( EXAMPLE_SITE );
 
@@ -722,8 +817,9 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 
 		await expect( removal ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.REMOVED,
-			configuration: EMPTY_CONFIGURATION,
+			configuration: UPDATED_EMPTY_CONFIGURATION,
 			permissionReleaseStatus: SitePermissionReleaseStatus.RELEASED,
+			site: EXAMPLE_SITE,
 		} );
 		await expect( enrollment ).resolves.toMatchObject( {
 			status: ProtectedSiteEnrollmentStatus.ADDED,
@@ -734,11 +830,24 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 	it( 'does not persist an enrollment whose complete grant is revoked while it waits for coordination', async () => {
 		const storage = new MemoryEnrollmentStorage( POPULATED_CONFIGURATION );
 		const coordinateMutation = createSharedMutationCoordinator();
+		const createMeasurementRevision = vi.fn()
+			.mockReturnValueOnce( createTestProtectionMeasurementRevision() )
+			.mockReturnValueOnce( 'revision_after_permission_cleanup' );
 		const permissions = new SharedPermissionStateApi();
 		permissions.deferNextRemoval();
 		const permissionManager = createSitePermissionManager( { permissions } );
-		const removalService = createService( storage, permissionManager, coordinateMutation );
-		const enrollmentService = createService( storage, permissionManager, coordinateMutation );
+		const removalService = createService(
+			storage,
+			permissionManager,
+			coordinateMutation,
+			createMeasurementRevision,
+		);
+		const enrollmentService = createService(
+			storage,
+			permissionManager,
+			coordinateMutation,
+			createMeasurementRevision,
+		);
 		const removal = removalService.remove( EXAMPLE_SITE );
 
 		await permissions.removalStarted;
@@ -752,7 +861,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		await expect( enrollment ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.PERMISSION_ERROR,
 		} );
-		expect( storage.configuration ).toEqual( EMPTY_CONFIGURATION );
+		expect( storage.configuration ).toEqual( UPDATED_EMPTY_CONFIGURATION );
 		expect( storage.writes ).toBe( 1 );
 	} );
 } );

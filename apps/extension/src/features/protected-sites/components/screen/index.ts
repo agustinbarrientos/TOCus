@@ -1,16 +1,15 @@
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { keyed } from 'lit/directives/keyed.js';
-import { repeat } from 'lit/directives/repeat.js';
 import {
 	ProtectionConfigurationEditRejectionReason,
 	type ProtectionConfigurationEditor,
 } from '../../../../domains/protection/services/protection-configuration-editor';
 import {
 	ProtectedSiteConfigurationSchema,
+	type ProtectedSiteConfiguration,
 	type ProtectionConfigurationDocument,
 } from '../../../../domains/protection/types/protected-site-configuration';
-import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
 import { type SiteFaviconProvider } from '../../services/site-favicon-provider';
 import {
 	SitePermissionReleaseStatus,
@@ -19,21 +18,19 @@ import {
 import {
 	ProtectedSiteEnrollmentStatus,
 	createProtectedSiteEnrollmentService,
-	type ProtectedSiteEnrollmentService,
 	type UnsuccessfulProtectedSiteEnrollmentResult,
 } from '../../services/protected-site-enrollment';
 import { resolveSiteDisplayIdentity } from '../../utils/site-display-name-resolver';
-import { ComponentProtectedSiteItem } from '../site-item';
 import {
 	ProtectedSiteConfigurationChangeKind,
 	type ProtectedSiteAccessRestoredEventDetail,
 	type ProtectedSiteConfigurationChangedEventDetail,
 } from '../site-item/types';
+import { ComponentProtectedSiteList } from '../site-list';
 import styles from './web-component-style.scss?inline';
 import {
 	DefaultProtectedSitesScreenCopy,
 	ProtectedSitesScreenLoadStatus,
-	type PresentedProtectedSite,
 	type ProtectedSitesAddSubmitEvent,
 	type ProtectedSitesScreenCopy,
 } from './types';
@@ -218,20 +215,6 @@ export class ComponentProtectedSitesScreen extends LitElement {
 	}
 
 	/**
-	 * Creates enrollment coordination from available screen dependencies.
-	 * @param editor - Domain editor used for protected-site persistence.
-	 * @param permissionManager - Browser permission manager used for site access.
-	 * @return Protected-site enrollment service.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	private createEnrollmentService(
-		editor: ProtectionConfigurationEditor,
-		permissionManager: SitePermissionManager,
-	): ProtectedSiteEnrollmentService {
-		return createProtectedSiteEnrollmentService( { editor, permissionManager } );
-	}
-
-	/**
 	 * Resolves one presentation-neutral enrollment failure to localized copy.
 	 * @param result - Enrollment failure returned by the feature service.
 	 * @return Localized error message for manual entry.
@@ -287,7 +270,10 @@ export class ComponentProtectedSitesScreen extends LitElement {
 			return;
 		}
 
-		const enrollmentService = this.createEnrollmentService( this.editor, this.permissionManager );
+		const enrollmentService = createProtectedSiteEnrollmentService( {
+			editor: this.editor,
+			permissionManager: this.permissionManager,
+		} );
 		const form = event.currentTarget;
 		const formData = new FormData( form );
 		const siteInput = formData.get( 'site-address' );
@@ -353,16 +339,20 @@ export class ComponentProtectedSitesScreen extends LitElement {
 	): Promise<void> => {
 		event.stopPropagation();
 		const { detail } = event;
-		const identitySource = detail.kind === ProtectedSiteConfigurationChangeKind.REMOVED
-			? this.configuration
-			: detail.configuration;
-		const changedSite = ProtectedSiteConfigurationSchema.parse(
-			identitySource?.sites.find( ( site ) => site.identityHost === detail.identityHost ),
-		);
+		const changedSite = detail.kind === ProtectedSiteConfigurationChangeKind.REMOVED
+			? detail.site
+			: ProtectedSiteConfigurationSchema.parse(
+				detail.configuration.sites.find(
+					( site ) => site.identityHost === detail.identityHost,
+				),
+			);
 		const identity = resolveSiteDisplayIdentity( changedSite );
 		const permissionReleaseStatus = detail.kind === ProtectedSiteConfigurationChangeKind.REMOVED
 			? detail.permissionReleaseStatus
 			: SitePermissionReleaseStatus.RELEASED;
+		const removalAnnouncement = permissionReleaseStatus === SitePermissionReleaseStatus.RELEASED
+			? this.copy.formatRemovedAnnouncement( identity.name )
+			: this.copy.formatPermissionRetainedAnnouncement( identity.name );
 		this.configuration = detail.configuration;
 		if ( detail.kind === ProtectedSiteConfigurationChangeKind.REMOVED ) {
 			const accessByIdentityHost = new Map( this.accessByIdentityHost );
@@ -370,9 +360,7 @@ export class ComponentProtectedSitesScreen extends LitElement {
 			this.accessByIdentityHost = accessByIdentityHost;
 		}
 		this.announce( detail.kind === ProtectedSiteConfigurationChangeKind.REMOVED
-			? permissionReleaseStatus === SitePermissionReleaseStatus.RELEASED
-				? this.copy.formatRemovedAnnouncement( identity.name )
-				: this.copy.formatPermissionRetainedAnnouncement( identity.name )
+			? removalAnnouncement
 			: this.copy.formatUpdatedAnnouncement( identity.name ) );
 
 		await this.updateComplete;
@@ -382,91 +370,26 @@ export class ComponentProtectedSitesScreen extends LitElement {
 			return;
 		}
 
-		const changedItem = Array.from(
-			this.renderRoot.querySelectorAll<ComponentProtectedSiteItem>( 'tocus-f-protected-site-item' ),
-		).find( ( item ) => item.site?.identityHost === detail.identityHost );
+		const siteList = this.renderRoot.querySelector<ComponentProtectedSiteList>(
+			'tocus-f-protected-site-list',
+		);
+		const focused = siteList instanceof ComponentProtectedSiteList &&
+			await siteList.focusEditAction( detail.identityHost );
 
-		if ( ! ( changedItem instanceof ComponentProtectedSiteItem ) ) {
-			this.shadowRoot?.querySelector<HTMLInputElement>( '#site-address' )?.focus();
-			return;
+		if ( ! focused ) {
+			this.shadowRoot?.querySelector<HTMLElement>(
+				'#site-address:not(:disabled), .retry-action',
+			)?.focus();
 		}
-
-		await changedItem.focusEditAction();
 	};
 
 	/**
-	 * Creates sorted local presentation for each currently configured site.
-	 * @return Alphabetically sorted protected-site presentation.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	private presentSites(): ReadonlyArray<PresentedProtectedSite> {
-		return ( this.configuration?.sites ?? [] )
-			.map( ( site ) => ( {
-				site,
-				identity: resolveSiteDisplayIdentity( site ),
-				faviconSource: this.faviconProvider?.getSource( site.identityHost ) ?? null,
-				accessGranted: this.accessByIdentityHost.get( site.identityHost ) ?? false,
-			} ) )
-			.sort( ( first, second ) => first.identity.name.localeCompare( second.identity.name ) );
-	}
-
-	/**
-	 * Renders one nonempty shared or independent site group.
-	 * @param className - Stable group class name.
-	 * @param title - Localized group heading.
-	 * @param description - Localized group explanation.
-	 * @param sites - Presented sites belonging to the group.
-	 * @param enrollmentService - Coordinated site enrollment and removal operations.
-	 * @return Site-group template or an empty template.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	private renderSiteGroup(
-		className: string,
-		title: string,
-		description: string,
-		sites: ReadonlyArray<PresentedProtectedSite>,
-		enrollmentService: ProtectedSiteEnrollmentService | null,
-	): TemplateResult {
-		if ( sites.length === 0 ) {
-			return html``;
-		}
-
-		return html`
-			<section class="site-group ${ className }" aria-labelledby="${ className }-title">
-				<div class="group-heading">
-					<h2 id="${ className }-title">${ title }</h2>
-					<p>${ description }</p>
-				</div>
-				<ul>
-					${ repeat( sites, ( presentedSite ) => presentedSite.site.identityHost, ( presentedSite ) => html`
-						<li>
-							<tocus-f-protected-site-item
-								.site=${ presentedSite.site }
-								.identity=${ presentedSite.identity }
-								.editor=${ this.editor }
-								.enrollmentService=${ enrollmentService }
-								.faviconSource=${ presentedSite.faviconSource }
-								.accessGranted=${ presentedSite.accessGranted }
-								.permissionManager=${ this.permissionManager }
-							></tocus-f-protected-site-item>
-						</li>
-					` ) }
-				</ul>
-			</section>
-		`;
-	}
-
-	/**
-	 * Renders loading, recovery, empty, or populated site content.
-	 * @param sites - Current sorted protected-site presentation.
-	 * @param enrollmentService - Coordinated site enrollment and removal operations.
+	 * Renders loading, recovery, or the grouped protected-site list.
+	 * @param sites - Current protected sites or an empty list before configuration is available.
 	 * @return Current screen-state template.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	private renderContent(
-		sites: ReadonlyArray<PresentedProtectedSite>,
-		enrollmentService: ProtectedSiteEnrollmentService | null,
-	): TemplateResult {
+	private renderContent( sites: ReadonlyArray<ProtectedSiteConfiguration> ): TemplateResult {
 		if ( this.loadStatus === ProtectedSitesScreenLoadStatus.LOADING ) {
 			return html`<p class="loading-status" role="status">${ this.copy.loading }</p>`;
 		}
@@ -490,39 +413,15 @@ export class ComponentProtectedSitesScreen extends LitElement {
 			`;
 		}
 
-		if ( sites.length === 0 ) {
-			return html`
-				<div class="empty-state">
-					<h2>${ this.copy.emptyTitle }</h2>
-					<p>${ this.copy.emptyDescription }</p>
-				</div>
-			`;
-		}
-
-		const sharedSites = sites.filter( ( presentedSite ) =>
-			presentedSite.site.rule.scopeId === DefaultProtectionScopeId,
-		);
-		const independentSites = sites.filter( ( presentedSite ) =>
-			presentedSite.site.rule.scopeId !== DefaultProtectionScopeId,
-		);
-
 		return html`
-			<div class="site-groups">
-				${ this.renderSiteGroup(
-					'shared-sites',
-					this.copy.sharedGroupTitle,
-					this.copy.sharedGroupDescription,
-					sharedSites,
-					enrollmentService,
-				) }
-				${ this.renderSiteGroup(
-					'independent-sites',
-					this.copy.independentGroupTitle,
-					this.copy.independentGroupDescription,
-					independentSites,
-					enrollmentService,
-				) }
-			</div>
+			<tocus-f-protected-site-list
+				.sites=${ sites }
+				.editor=${ this.editor }
+				.faviconProvider=${ this.faviconProvider }
+				.accessByIdentityHost=${ this.accessByIdentityHost }
+				.permissionManager=${ this.permissionManager }
+				.copy=${ this.copy }
+			></tocus-f-protected-site-list>
 		`;
 	}
 
@@ -533,15 +432,11 @@ export class ComponentProtectedSitesScreen extends LitElement {
 	 */
 	protected override render(): TemplateResult {
 		const loading = this.loadStatus === ProtectedSitesScreenLoadStatus.LOADING;
+		const sites = this.configuration?.sites ?? [];
 		const formDisabled =
 			this.loadStatus !== ProtectedSitesScreenLoadStatus.READY ||
 			this.saving ||
 			this.permissionManager === null;
-		const sites = this.presentSites();
-		const enrollmentService = this.editor === null || this.permissionManager === null
-			? null
-			: this.createEnrollmentService( this.editor, this.permissionManager );
-
 		return html`
 			<main
 				aria-labelledby="protected-sites-title"
@@ -597,7 +492,7 @@ export class ComponentProtectedSitesScreen extends LitElement {
 						</div>
 					</fieldset>
 				</form>
-				${ this.renderContent( sites, enrollmentService ) }
+				${ this.renderContent( sites ) }
 				<p class="announcement" role="status" aria-live="polite">
 					${ keyed(
 						this.announcementSequence,

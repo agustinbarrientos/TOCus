@@ -5,8 +5,11 @@ import './index';
 import { type ComponentInterruptionScreen } from './index';
 import { InterruptionScreenMode, InterruptionScreenState } from './types';
 
-/** Deterministic all-time wellbeing sentence used by interruption screenshots. */
-const VISUAL_WELLBEING_SUMMARY = 'You have saved yourself at least 3h 24m and spent 18m taking care of yourself.';
+/**
+ * Deterministic neutral all-time wellbeing sentence used by interruption screenshots.
+ * @since 0.1.0 Initial implementation.
+ */
+const VISUAL_WELLBEING_SUMMARY = "Since you started, you've given yourself about 3 hours 24 minutes back and taken 18 minutes for yourself.";
 
 describe( 'tocus-f-interruption-screen visual', () => {
 	before( async () => {

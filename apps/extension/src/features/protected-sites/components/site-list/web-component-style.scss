@@ -1,0 +1,65 @@
+@use '@tocus/theme/typography' as typography;
+
+:host {
+	display: block;
+	color: var(--tocus-color-on-surface);
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+.empty-state {
+	margin: var(--tocus-space-5) 0 0;
+	padding: var(--tocus-space-6);
+	border: 1px dashed var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-medium);
+	background: color-mix(in srgb, var(--tocus-color-surface) 72%, transparent);
+	text-align: center;
+
+	h2 {
+		@include typography.apply( 'title-medium' );
+
+		margin: 0;
+	}
+
+	p {
+		@include typography.apply( 'body-small' );
+
+		margin: var(--tocus-space-2) 0 0;
+		color: var(--tocus-color-on-surface-muted);
+	}
+}
+
+.site-groups {
+	display: grid;
+	gap: var(--tocus-space-7);
+	margin-top: var(--tocus-space-7);
+}
+
+.group-heading {
+	margin-bottom: var(--tocus-space-3);
+
+	h2 {
+		@include typography.apply( 'title-large' );
+
+		margin: 0;
+	}
+
+	p {
+		@include typography.apply( 'body-small' );
+
+		margin: var(--tocus-space-1) 0 0;
+		color: var(--tocus-color-on-surface-muted);
+	}
+}
+
+ul {
+	display: grid;
+	gap: var(--tocus-space-3);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}

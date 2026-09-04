@@ -63,6 +63,7 @@ export function createVisitAttempt(
 			pageId,
 			retainedDestination: `https://example.com/${ pageId }`,
 			focusEligible,
+			statisticsEligible: true,
 		},
 		schedule: { status: ScheduleEvaluationStatus.ACTIVE },
 		observedLocalDate: '2026-08-31',
@@ -133,6 +134,7 @@ export function createProgressCheckpoint(
 		completionLocalDate: '2026-08-31',
 		allowanceId: 'allowance-a',
 		timingConfiguration: { ...TestTimingConfiguration },
+		statisticsEligible: true,
 		automaticCompletionObservation: null,
 		...overrides,
 	} );
@@ -260,6 +262,7 @@ export function createLiveExpiryCandidate(
 		pageId,
 		observedDestination,
 		focusEligible,
+		statisticsEligible: true,
 		match,
 	} );
 }

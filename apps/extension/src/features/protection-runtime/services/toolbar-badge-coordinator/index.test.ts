@@ -8,6 +8,7 @@ import {
 } from '../../../../domains/protection/types/protection-state';
 import {
 	DefaultProtectionScopeId,
+	ProtectionMeasurementRevisionSchema,
 	ProtectionScopeIdSchema,
 } from '../../../../domains/protection/types/protection-value';
 import {
@@ -21,10 +22,16 @@ import {
 	type ToolbarBadgeTab,
 } from './index';
 
-/** Extension-owned interruption page used by toolbar-badge fixtures. */
+/**
+ * Extension-owned interruption page used by toolbar-badge fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/interruption.html';
 
-/** Default-scope configuration used by toolbar-badge fixtures. */
+/**
+ * Default-scope configuration used by toolbar-badge fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
 	sites: [ {
@@ -33,7 +40,10 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
 	} ],
 };
 
-/** Waiting state used by toolbar-badge fixtures. */
+/**
+ * Waiting state used by toolbar-badge fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const WAITING_STATE = WaitingProtectionStateSchema.parse( {
 	type: ProtectionStateType.WAITING,
 	scopeId: 'scope_default',
@@ -54,10 +64,16 @@ const WAITING_STATE = WaitingProtectionStateSchema.parse( {
 	ladder: { completedWaits: 0, greatestObservedLocalDate: '2026-09-02' },
 } );
 
-/** Independent scope used by multi-scope toolbar fixtures. */
+/**
+ * Independent scope used by multi-scope toolbar fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const SECOND_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope_secondary' );
 
-/** Waiting state retained by the independent toolbar-fixture scope. */
+/**
+ * Waiting state retained by the independent toolbar-fixture scope.
+ * @since 0.1.0 Initial implementation.
+ */
 const SECOND_WAITING_STATE = WaitingProtectionStateSchema.parse( {
 	...WAITING_STATE,
 	scopeId: SECOND_SCOPE_ID,
@@ -71,7 +87,10 @@ const SECOND_WAITING_STATE = WaitingProtectionStateSchema.parse( {
 	ownerParticipantId: 'participant_b',
 } );
 
-/** Shared and independent site configuration used by toolbar fixtures. */
+/**
+ * Shared and independent site configuration used by toolbar fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const MULTI_SCOPE_CONFIGURATION: ProtectionConfigurationDocument = {
 	...CONFIGURATION,
 	sites: [
@@ -85,9 +104,20 @@ const MULTI_SCOPE_CONFIGURATION: ProtectionConfigurationDocument = {
 			},
 		},
 	],
+	schedulesByScope: {
+		...CONFIGURATION.schedulesByScope,
+		[ SECOND_SCOPE_ID ]: { mode: 'always' },
+	},
+	measurementRevisionsByScope: {
+		...CONFIGURATION.measurementRevisionsByScope,
+		[ SECOND_SCOPE_ID ]: ProtectionMeasurementRevisionSchema.parse( 'revision_secondary' ),
+	},
 };
 
-/** Active visit allowance used by toolbar-badge fixtures. */
+/**
+ * Active visit allowance used by toolbar-badge fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const ALLOWANCE_STATE = AllowanceProtectionStateSchema.parse( {
 	type: ProtectionStateType.ALLOWANCE,
 	scopeId: DefaultProtectionScopeId,
@@ -101,6 +131,7 @@ const ALLOWANCE_STATE = AllowanceProtectionStateSchema.parse( {
 
 /**
  * In-memory browser boundary used by focused toolbar coordinator tests.
+ * @since 0.1.0 Initial implementation.
  */
 class ToolbarBadgeBrowserFixture {
 	/** Active tab in the focused browser window. */
@@ -118,18 +149,21 @@ class ToolbarBadgeBrowserFixture {
 	/**
 	 * Returns the focused test tab.
 	 * @return Focused tab identifier or null.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	getFocusedTabId = (): Promise<number | null> => Promise.resolve( this.focusedTabId );
 
 	/**
 	 * Lists the current test tabs.
 	 * @return Current open test tabs.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	listTabs = (): Promise<ReadonlyArray<ToolbarBadgeTab>> => Promise.resolve( this.tabs );
 
 	/**
 	 * Returns the current test time.
 	 * @return Current test epoch milliseconds.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	now = (): number => this.nowEpochMilliseconds;
 
@@ -137,6 +171,7 @@ class ToolbarBadgeBrowserFixture {
 	 * Captures one global toolbar projection.
 	 * @param projection - Projected toolbar badge.
 	 * @return Resolved capture operation.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	updateToolbarBadge = ( projection: ToolbarBadgeProjection ): Promise<void> => {
 		this.projection = projection;
@@ -149,6 +184,7 @@ class ToolbarBadgeBrowserFixture {
  * @param browser - In-memory browser boundary.
  * @param copy - Optional localized toolbar copy.
  * @return Toolbar coordinator under test.
+ * @since 0.1.0 Initial implementation.
  */
 function createFixtureCoordinator(
 	browser: ToolbarBadgeBrowserFixture,
@@ -306,6 +342,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			/**
 			 * Makes focused-tab discovery fail for one coordinator refresh.
 			 * @param browser - In-memory browser fixture to configure.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			configure: ( browser: ToolbarBadgeBrowserFixture ) => {
 				browser.getFocusedTabId = () => Promise.reject( new Error( 'Window unavailable.' ) );
@@ -316,6 +353,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			/**
 			 * Makes tab discovery fail for one coordinator refresh.
 			 * @param browser - In-memory browser fixture to configure.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			configure: ( browser: ToolbarBadgeBrowserFixture ) => {
 				browser.focusedTabId = 7;
@@ -369,6 +407,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 		/**
 		 * Formats one localized waiting badge fixture.
 		 * @return Localized waiting badge copy.
+		 * @since 0.1.0 Initial implementation.
 		 */
 		function formatLocalizedWaiting(): { text: string; title: string } {
 			return {
@@ -386,6 +425,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			/**
 			 * Returns the focused protected tab fixture.
 			 * @return Focused tab identifier.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			getFocusedTabId: () => Promise.resolve( 7 ),
 			interruptionPageUrl: INTERRUPTION_PAGE_URL,
@@ -393,6 +433,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			/**
 			 * Lists one protected tab fixture.
 			 * @return Protected tab fixture.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			listTabs: () => Promise.resolve( [ {
 				id: 7,
@@ -402,6 +443,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			/**
 			 * Returns the fixed current time fixture.
 			 * @return Zero epoch milliseconds.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			now: () => 0,
 
@@ -409,6 +451,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			 * Captures one projected global badge.
 			 * @param nextProjection - Projected toolbar badge.
 			 * @return Resolved capture operation.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			updateToolbarBadge: ( nextProjection ) => {
 				projection = nextProjection;
@@ -431,6 +474,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			/**
 			 * Returns the focused protected tab fixture.
 			 * @return Focused tab identifier.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			getFocusedTabId: () => Promise.resolve( 7 ),
 			interruptionPageUrl: INTERRUPTION_PAGE_URL,
@@ -438,6 +482,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			/**
 			 * Lists the open tab fixtures.
 			 * @return Protected and unrelated tab fixtures.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			listTabs: () => Promise.resolve( [
 				{ id: 7, url: INTERRUPTION_PAGE_URL },
@@ -447,6 +492,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			/**
 			 * Returns the fixed current time fixture.
 			 * @return Zero epoch milliseconds.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			now: () => 0,
 
@@ -454,6 +500,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			 * Captures one projected global badge.
 			 * @param nextProjection - Projected toolbar badge.
 			 * @return Resolved capture operation.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			updateToolbarBadge: ( nextProjection ) => {
 				updateCount += 1;
@@ -474,6 +521,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			/**
 			 * Reports that no browser window is focused.
 			 * @return Null focused-tab fixture.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			getFocusedTabId: () => Promise.resolve( null ),
 			interruptionPageUrl: INTERRUPTION_PAGE_URL,
@@ -481,12 +529,14 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			/**
 			 * Lists one open tab fixture.
 			 * @return Current tab fixture.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			listTabs: () => Promise.resolve( [ { id: 7 } ] ),
 
 			/**
 			 * Returns the fixed current time fixture.
 			 * @return Zero epoch milliseconds.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			now: () => 0,
 
@@ -494,6 +544,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			 * Captures the projected toolbar badge.
 			 * @param nextProjection - Projected toolbar badge.
 			 * @return Resolved capture operation.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			updateToolbarBadge: ( nextProjection ) => {
 				projection = nextProjection;
@@ -512,6 +563,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			/**
 			 * Reports that no browser window is focused.
 			 * @return Null focused-tab fixture.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			getFocusedTabId: () => Promise.resolve( null ),
 			interruptionPageUrl: INTERRUPTION_PAGE_URL,
@@ -519,12 +571,14 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			/**
 			 * Lists one open tab fixture.
 			 * @return Current tab fixture.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			listTabs: () => Promise.resolve( [ { id: 7 } ] ),
 
 			/**
 			 * Returns the fixed current time fixture.
 			 * @return Zero epoch milliseconds.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			now: () => 0,
 
@@ -532,6 +586,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			 * Captures the projected toolbar badge.
 			 * @param nextProjection - Projected toolbar badge.
 			 * @return Resolved capture operation.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			updateToolbarBadge: ( nextProjection ) => {
 				projection = nextProjection;
@@ -550,23 +605,27 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			/**
 			 * Returns the focused tab fixture.
 			 * @return Null because no browser window is focused.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			getFocusedTabId: () => Promise.resolve( null ),
 			interruptionPageUrl: INTERRUPTION_PAGE_URL,
 			/**
 			 * Lists the current tab fixtures.
 			 * @return Current open tab fixtures.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			listTabs: () => Promise.resolve( [ { id: 7 } ] ),
 			/**
 			 * Returns the fixed current time fixture.
 			 * @return Zero epoch milliseconds.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			now: () => 0,
 			/**
 			 * Captures one projected badge.
 			 * @param nextProjection - Projected toolbar badge.
 			 * @return Resolved capture operation.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			updateToolbarBadge: ( nextProjection ) => {
 				projection = nextProjection;
@@ -585,23 +644,27 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			/**
 			 * Returns the focused tab fixture.
 			 * @return Null because no browser window is focused.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			getFocusedTabId: () => Promise.resolve( null ),
 			interruptionPageUrl: INTERRUPTION_PAGE_URL,
 			/**
 			 * Lists the current tab fixtures.
 			 * @return Current open tab fixtures.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			listTabs: () => Promise.resolve( [ { id: 7 }, { id: 8 } ] ),
 			/**
 			 * Returns the fixed current time fixture.
 			 * @return Zero epoch milliseconds.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			now: () => 0,
 			/**
 			 * Captures one projected badge.
 			 * @param nextProjection - Projected toolbar badge.
 			 * @return Resolved capture operation.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			updateToolbarBadge: ( nextProjection ) => {
 				projection = nextProjection;

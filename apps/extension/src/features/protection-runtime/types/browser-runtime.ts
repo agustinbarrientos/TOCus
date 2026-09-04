@@ -6,7 +6,27 @@ import {
 import { type ToolbarBadgeProjection } from '../utils/toolbar-badge-projection';
 
 /**
- * One top-level browser navigation observed before commit.
+ * Observable phases of one top-level browser navigation.
+ * @since 0.1.0 Initial implementation.
+ */
+export const ProtectionRuntimeNavigationPhase = {
+	BEFORE_NAVIGATE: 'before-navigate',
+	COMMITTED: 'committed',
+	HISTORY_STATE_UPDATED: 'history-state-updated',
+	REFERENCE_FRAGMENT_UPDATED: 'reference-fragment-updated',
+	ERROR_OCCURRED: 'error-occurred',
+} as const;
+
+/**
+ * Observable phase of one top-level browser navigation.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ProtectionRuntimeNavigationPhase = typeof ProtectionRuntimeNavigationPhase[
+	keyof typeof ProtectionRuntimeNavigationPhase
+];
+
+/**
+ * One top-level browser navigation observation.
  * @since 0.1.0 Initial implementation.
  */
 export interface ProtectionRuntimeNavigation {
@@ -16,6 +36,12 @@ export interface ProtectionRuntimeNavigation {
 	frameId: number;
 	/** Absolute navigation URL. */
 	url: string;
+	/** Browser lifecycle phase, or undefined when the source cannot distinguish it. */
+	phase?: ProtectionRuntimeNavigationPhase;
+	/** Browser-reported transition type when available after commit. */
+	transitionType?: string;
+	/** Browser-reported transition qualifiers when available after commit. */
+	transitionQualifiers?: ReadonlyArray<string>;
 }
 
 /**
@@ -25,10 +51,14 @@ export interface ProtectionRuntimeNavigation {
 export interface ProtectionRuntimeTab {
 	/** Browser-assigned live tab identifier. */
 	id: number;
+	/** Whether the tab belongs to a private browser context, or undefined when privacy is unknown. */
+	incognito?: boolean;
 	/** Accessible committed URL when granted host access permits it. */
 	url?: string;
 	/** Accessible pending URL when granted host access permits it. */
 	pendingUrl?: string;
+	/** Browser window containing the tab when identity is available. */
+	windowId?: number;
 }
 
 /**

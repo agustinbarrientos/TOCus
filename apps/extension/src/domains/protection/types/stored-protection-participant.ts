@@ -58,6 +58,7 @@ const StoredNavigationProtectionParticipantSchema = z.object( {
 	participantId: ParticipantIdSchema,
 	pageId: PageIdSchema,
 	retainedDestination: RetainedNavigationDestinationSchema,
+	statisticsEligible: z.boolean().default( false ),
 	joinSequence: JoinSequenceSchema,
 } ).strict();
 
@@ -70,6 +71,7 @@ const StoredAllowanceExpiryProtectionParticipantSchema = z.object( {
 	participantId: ParticipantIdSchema,
 	pageId: PageIdSchema,
 	retainedDestination: z.null(),
+	statisticsEligible: z.boolean().default( false ),
 	joinSequence: JoinSequenceSchema,
 } ).strict();
 

@@ -1,6 +1,7 @@
-import { type ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
-import { type SiteFaviconSource } from '../../services/site-favicon-provider';
-import { type SiteDisplayIdentity } from '../../utils/site-display-name-resolver';
+import {
+	DefaultProtectedSiteListCopy,
+	type ProtectedSiteListCopy,
+} from '../site-list/types';
 
 /**
  * Stable loading states rendered by the Protected Sites screen.
@@ -21,17 +22,6 @@ export type ProtectedSitesScreenLoadStatus =
 	typeof ProtectedSitesScreenLoadStatus[ keyof typeof ProtectedSitesScreenLoadStatus ];
 
 /**
- * Protected site with its fully resolved local presentation.
- * @since 0.1.0 Initial implementation.
- */
-export interface PresentedProtectedSite {
-	site: ProtectedSiteConfiguration;
-	identity: SiteDisplayIdentity;
-	faviconSource: SiteFaviconSource;
-	accessGranted: boolean;
-}
-
-/**
  * Add-site form submission whose current target is the rendered form.
  * @since 0.1.0 Initial implementation.
  */
@@ -43,7 +33,7 @@ export interface ProtectedSitesAddSubmitEvent extends SubmitEvent {
  * Localizable messages rendered by the Protected Sites screen.
  * @since 0.1.0 Initial implementation.
  */
-export interface ProtectedSitesScreenCopy {
+export interface ProtectedSitesScreenCopy extends ProtectedSiteListCopy {
 	eyebrow: string;
 	title: string;
 	introduction: string;
@@ -58,12 +48,6 @@ export interface ProtectedSitesScreenCopy {
 	independentBehavior: string;
 	independentBehaviorDescription: string;
 	loading: string;
-	emptyTitle: string;
-	emptyDescription: string;
-	sharedGroupTitle: string;
-	sharedGroupDescription: string;
-	independentGroupTitle: string;
-	independentGroupDescription: string;
 	invalidSiteError: string;
 	alreadyProtectedError: string;
 	invalidConfigurationError: string;
@@ -171,6 +155,7 @@ function formatAccessRestoredAnnouncement( name: string ): string {
  * @since 0.1.0 Initial implementation.
  */
 export const DefaultProtectedSitesScreenCopy: Readonly<ProtectedSitesScreenCopy> = Object.freeze( {
+	...DefaultProtectedSiteListCopy,
 	eyebrow: 'Protection',
 	title: 'Protected sites',
 	introduction: 'Choose the websites where a calm pause can help you return to your intentions.',
@@ -185,12 +170,6 @@ export const DefaultProtectedSitesScreenCopy: Readonly<ProtectedSitesScreenCopy>
 	independentBehavior: 'Protect independently',
 	independentBehaviorDescription: 'Give this site its own wait and allowance.',
 	loading: 'Loading protected sites...',
-	emptyTitle: 'No protected sites yet',
-	emptyDescription: 'Add the first site you want TOCus to gently interrupt.',
-	sharedGroupTitle: 'Shared protection',
-	sharedGroupDescription: 'These sites share one wait ladder and allowance.',
-	independentGroupTitle: 'Independent sites',
-	independentGroupDescription: 'Each of these sites keeps its own wait ladder and allowance.',
 	invalidSiteError: 'Enter a valid website address, such as example.com.',
 	alreadyProtectedError: 'This website is already protected by an existing rule.',
 	invalidConfigurationError: 'Your protected-site data changed. Retry before adding this site.',

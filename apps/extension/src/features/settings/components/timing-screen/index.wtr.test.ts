@@ -9,11 +9,22 @@ import {
 	type ProtectionConfigurationMutationCoordinator,
 } from '../../../../domains/protection/services/protection-configuration-editor';
 import { type ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
-import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
+import {
+	TestEmptyProtectionConfiguration,
+	createTestProtectionMeasurementRevision,
+} from '../../../../domains/protection/types/__fixtures__';
 import { CompletionAction } from '../../../../domains/protection/types/completion-action';
 import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import {
+	DefaultProtectionScopeId,
+	ProtectionMeasurementRevisionSchema,
+} from '../../../../domains/protection/types/protection-value';
 import { ComponentTimingScreen } from './index';
 
+/**
+ * Persisted timing configuration loaded by component fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const LOADED_CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
 	timingConfiguration: {
@@ -30,10 +41,22 @@ const LOADED_CONFIGURATION: ProtectionConfigurationDocument = {
  * @since 0.1.0 Initial implementation.
  */
 class MemoryTimingScreenStorage implements ProtectionConfigurationStorageService {
+	/**
+	 * Whether local configuration reads should fail.
+	 * @since 0.1.0 Initial implementation.
+	 */
 	rejectLoads = false;
 
+	/**
+	 * Whether local configuration writes should fail.
+	 * @since 0.1.0 Initial implementation.
+	 */
 	rejectSaves = false;
 
+	/**
+	 * Number of local configuration writes accepted by the fixture.
+	 * @since 0.1.0 Initial implementation.
+	 */
 	writes = 0;
 
 	/**
@@ -79,6 +102,10 @@ class MemoryTimingScreenStorage implements ProtectionConfigurationStorageService
  * @since 0.1.0 Initial implementation.
  */
 class DeferredTimingScreenStorage extends MemoryTimingScreenStorage {
+	/**
+	 * Resolver for the pending local configuration read.
+	 * @since 0.1.0 Initial implementation.
+	 */
 	private resolvePendingLoad: ( ( configuration: ProtectionConfigurationDocument | null ) => void ) | null = null;
 
 	/**
@@ -111,6 +138,10 @@ class DeferredTimingScreenStorage extends MemoryTimingScreenStorage {
  * @since 0.1.0 Initial implementation.
  */
 class DeferredTimingScreenSaveStorage extends MemoryTimingScreenStorage {
+	/**
+	 * Resolver for the pending local configuration write.
+	 * @since 0.1.0 Initial implementation.
+	 */
 	private resolvePendingSave: ( () => void ) | null = null;
 
 	/**
@@ -177,6 +208,7 @@ function createEditor(
 	return createProtectionConfigurationEditor( {
 		storage,
 		createIndependentScopeId,
+		createMeasurementRevision: createTestProtectionMeasurementRevision,
 		coordinateMutation,
 	} );
 }
@@ -439,6 +471,11 @@ describe( 'tocus-f-timing-screen', () => {
 				allowanceMilliseconds: 60_000,
 				completionAction: CompletionAction.SHOW_CONTINUE,
 			},
+			measurementRevisionsByScope: {
+				[ DefaultProtectionScopeId ]: ProtectionMeasurementRevisionSchema.parse(
+					'revision_test_next',
+				),
+			},
 		} );
 		assert.equal( getRequiredElement( element, '.save-action', HTMLButtonElement ).textContent.trim(), 'Save timing' );
 	} );
@@ -453,6 +490,11 @@ describe( 'tocus-f-timing-screen', () => {
 				maximumWaitMilliseconds: 50_000,
 				allowanceMilliseconds: 9 * 60_000,
 				completionAction: CompletionAction.SHOW_CONTINUE,
+			},
+			measurementRevisionsByScope: {
+				[ DefaultProtectionScopeId ]: ProtectionMeasurementRevisionSchema.parse(
+					'revision_authoritative',
+				),
 			},
 		};
 		const editor = createEditor(

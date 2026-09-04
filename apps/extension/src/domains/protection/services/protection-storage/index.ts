@@ -1,4 +1,7 @@
-import { StoredProtectionStateSchema } from '../../types/stored-protection-state';
+import {
+	StoredDurableProtectionStateSchema,
+	StoredProtectionStateSchema,
+} from '../../types/stored-protection-state';
 import {
 	LoadedProtectionStateSchema,
 	ProtectionStorageEnvelopeSchema,
@@ -7,6 +10,7 @@ import {
 	type LoadedProtectionState,
 	type ProtectionStorageService,
 	type ProtectionStorageServiceOptions,
+	type ProtectionStorageSnapshotId,
 } from './types';
 
 /**
@@ -18,6 +22,8 @@ import {
 export function createProtectionStorageService(
 	options: ProtectionStorageServiceOptions,
 ): ProtectionStorageService {
+	let currentSnapshotId: ProtectionStorageSnapshotId | null = null;
+
 	/**
 	 * Loads one complete durable and session snapshot for domain parsing.
 	 * @return Compatible domain documents from the latest complete snapshot.
@@ -25,6 +31,7 @@ export function createProtectionStorageService(
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function load(): Promise<LoadedProtectionState> {
+		currentSnapshotId = null;
 		const [ durableValues, sessionValues ] = await Promise.all( [
 			options.durableArea.get( ProtectionStorageKey.DURABLE ),
 			options.sessionArea.get( ProtectionStorageKey.SESSION ),
@@ -42,6 +49,8 @@ export function createProtectionStorageService(
 		if ( ! durableEnvelope.success ) {
 			return LoadedProtectionStateSchema.parse( { durable: null } );
 		}
+
+		currentSnapshotId = durableEnvelope.data.snapshotId;
 
 		const sessionEnvelope = Object.hasOwn( sessionValues, ProtectionStorageKey.SESSION )
 			? ProtectionStorageEnvelopeSchema.safeParse( sessionValues[ ProtectionStorageKey.SESSION ] )
@@ -81,9 +90,35 @@ export function createProtectionStorageService(
 		await options.durableArea.set( {
 			[ ProtectionStorageKey.DURABLE ]: durableEnvelope,
 		} );
+
+		currentSnapshotId = snapshotId;
 	}
 
-	return { load, save };
+	/**
+	 * Validates and stores only the durable document for one statistics-delivery update.
+	 * @param input - Unknown current durable-state input.
+	 * @return Promise resolved after the durable write completes.
+	 * @throws {Error} When validation fails, no current snapshot is established, or storage rejects.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function saveDurableStatisticsDelivery( input: unknown ): Promise<void> {
+		const durableState = StoredDurableProtectionStateSchema.parse( input );
+
+		if ( currentSnapshotId === null ) {
+			throw new Error( 'Cannot acknowledge statistics without a current protection snapshot.' );
+		}
+
+		const durableEnvelope = ProtectionStorageEnvelopeSchema.parse( {
+			snapshotId: currentSnapshotId,
+			document: durableState,
+		} );
+
+		await options.durableArea.set( {
+			[ ProtectionStorageKey.DURABLE ]: durableEnvelope,
+		} );
+	}
+
+	return { load, save, saveDurableStatisticsDelivery };
 }
 
 export * from './types';

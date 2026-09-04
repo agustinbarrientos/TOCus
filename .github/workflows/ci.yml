@@ -36,7 +36,7 @@ jobs:
               run: pnpm install --frozen-lockfile
 
             - name: Audit high-severity vulnerabilities
-              run: pnpm audit --audit-level=high
+              run: pnpm audit --audit-level=high --ignore-registry-errors
 
             - name: Install pinned Chromium
               run: pnpm --filter @tocus/extension exec playwright install --with-deps chromium

@@ -15,7 +15,10 @@ import {
 	createReadyRuntimeExpiryCandidates,
 } from './index';
 
-/** Protected-site configuration used by runtime-observation fixtures. */
+/**
+ * Protected-site configuration used by runtime-observation fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const CONFIGURATION = {
 	...TestEmptyProtectionConfiguration,
 	sites: [ {
@@ -28,13 +31,17 @@ const CONFIGURATION = {
 	} ],
 };
 
-/** Navigation participant used by runtime-observation fixtures. */
+/**
+ * Navigation participant used by runtime-observation fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const PARTICIPANT = {
 	origin: 'navigation' as const,
 	participantId: ParticipantIdSchema.parse( 'participant_1' ),
 	pageId: PageIdSchema.parse( 'page_tab_7_one' ),
 	retainedDestination: 'https://example.com/watch',
 	focusEligible: true,
+	statisticsEligible: true,
 	joinSequence: 0,
 };
 
@@ -99,6 +106,7 @@ describe( 'createReadyRuntimeExpiryCandidates', () => {
 			allowanceState,
 			CONFIGURATION,
 			8,
+			new Set( [ 7, 8 ] ),
 			new Map(),
 		) ).toEqual( [
 			{
@@ -143,6 +151,7 @@ describe( 'createReadyRuntimeExpiryCandidates', () => {
 			allowanceState,
 			CONFIGURATION,
 			7,
+			new Set( [ 7 ] ),
 			new Map( [ [ 7, 'https://example.com/preserved-draft' ] ] ),
 		) ).toEqual( [
 			expect.objectContaining( {
@@ -176,6 +185,7 @@ describe( 'createReadyRuntimeExpiryCandidates', () => {
 			allowanceState,
 			CONFIGURATION,
 			null,
+			new Set(),
 			new Map(),
 		) ).toEqual( [
 			expect.objectContaining( {

@@ -1,10 +1,4 @@
 import { assert, expect, fixture, html } from '@open-wc/testing';
-import {
-	createProtectionConfigurationEditor,
-	type ProtectionConfigurationEditResult,
-	type ProtectionConfigurationEditor,
-	type ProtectionConfigurationMutation,
-} from '../../../../domains/protection/services/protection-configuration-editor';
 import { type ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
 import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import {
@@ -12,7 +6,11 @@ import {
 	type ProtectionConfigurationDocument,
 } from '../../../../domains/protection/types/protected-site-configuration';
 import { DefaultProtectionSchedule } from '../../../../domains/protection/types/protection-schedule';
-import { DefaultProtectionScopeId, ProtectionScopeIdSchema } from '../../../../domains/protection/types/protection-value';
+import {
+	DefaultProtectionScopeId,
+	ProtectionMeasurementRevisionSchema,
+	ProtectionScopeIdSchema,
+} from '../../../../domains/protection/types/protection-value';
 import { type SiteFaviconProvider } from '../../services/site-favicon-provider';
 import {
 	SitePermissionGrantProvenance,
@@ -27,38 +25,29 @@ import {
 	ProtectedSiteConfigurationChangeKind,
 } from '../site-item/types';
 import { ComponentProtectedSitesScreen } from './index';
+import {
+	EMPTY_CONFIGURATION,
+	POPULATED_CONFIGURATION,
+	X_SITE,
+	YOUTUBE_SITE,
+	createPermissionManager,
+	createMemoryProtectedSitesScreenStorage,
+	createProtectedSitesScreenFixture,
+	getRequiredElement,
+	getSiteListRoot,
+	settleScreen,
+} from './__fixtures__';
 
-const EMPTY_CONFIGURATION: ProtectionConfigurationDocument = { ...TestEmptyProtectionConfiguration };
-const YOUTUBE_SITE: ProtectedSiteConfiguration = {
-	identityHost: 'youtube.com',
-	rule: {
-		host: 'youtube.com',
-		includeSubdomains: true,
-		scopeId: DefaultProtectionScopeId,
-	},
-};
-const X_SITE: ProtectedSiteConfiguration = {
-	identityHost: 'x.com',
-	rule: {
-		host: 'x.com',
-		includeSubdomains: true,
-		scopeId: ProtectionScopeIdSchema.parse( 'scope_x' ),
-	},
-};
+/**
+ * Additional shared site rendered by sorting and access-management scenarios.
+ * @since 0.1.0 Initial implementation.
+ */
 const INSTAGRAM_SITE: ProtectedSiteConfiguration = {
 	identityHost: 'instagram.com',
 	rule: {
 		host: 'instagram.com',
 		includeSubdomains: true,
 		scopeId: DefaultProtectionScopeId,
-	},
-};
-const POPULATED_CONFIGURATION: ProtectionConfigurationDocument = {
-	...TestEmptyProtectionConfiguration,
-	sites: [ YOUTUBE_SITE, X_SITE ],
-	schedulesByScope: {
-		...TestEmptyProtectionConfiguration.schedulesByScope,
-		[ X_SITE.rule.scopeId ]: DefaultProtectionSchedule,
 	},
 };
 
@@ -74,119 +63,48 @@ function getFaviconSource( identityHost: unknown ): ReturnType<SiteFaviconProvid
 		: null;
 }
 
+/**
+ * Deterministic local favicon provider used by the core screen suite.
+ * @since 0.1.0 Initial implementation.
+ */
 const FAVICON_PROVIDER: SiteFaviconProvider = { getSource: getFaviconSource };
-
-/**
- * Grants one configured site in component fixtures.
- * @return Successful existing-permission result.
- * @since 0.1.0 Initial implementation.
- */
-function requestSitePermission(): ReturnType<SitePermissionManager[ 'request' ]> {
-	return Promise.resolve( {
-		status: SitePermissionRequestStatus.GRANTED,
-		provenance: SitePermissionGrantProvenance.EXISTING,
-	} );
-}
-
-/**
- * Releases one configured site in component fixtures.
- * @return Successful permission-release result.
- * @since 0.1.0 Initial implementation.
- */
-function releaseSitePermission(): ReturnType<SitePermissionManager[ 'release' ]> {
-	return Promise.resolve( SitePermissionReleaseStatus.RELEASED );
-}
-
-/**
- * Returns the supplied configuration unchanged in screen fixtures.
- * @param configuration - Validated persisted configuration.
- * @return Unchanged configuration.
- * @since 0.1.0 Initial implementation.
- */
-function filterPermissionConfiguration(
-	configuration: ProtectionConfigurationDocument,
-): Promise<ProtectionConfigurationDocument> {
-	return Promise.resolve( configuration );
-}
-
-/**
- * Reports complete browser access in default screen fixtures.
- * @return True for the default granted-access fixture.
- * @since 0.1.0 Initial implementation.
- */
-function hasSiteAccess(): Promise<boolean> {
-	return Promise.resolve( true );
-}
-
-/**
- * Creates a permission manager that grants configured test sites.
- * @return Controllable permission manager test double.
- * @since 0.1.0 Initial implementation.
- */
-function createPermissionManager(): SitePermissionManager {
-	return {
-		filterConfiguration: filterPermissionConfiguration,
-		hasAccess: hasSiteAccess,
-		request: requestSitePermission,
-		release: releaseSitePermission,
-	};
-}
-
-/**
- * In-memory protected-site storage used by the settings-screen fixtures.
- * @since 0.1.0 Initial implementation.
- */
-class MemoryProtectedSitesScreenStorage implements ProtectionConfigurationStorageService {
-	rejectLoads = false;
-
-	rejectSaves = false;
-
-	writes = 0;
-
-	/**
-	 * Creates storage with one initial configuration result.
-	 * @param configuration - Configuration returned by the next load.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	constructor( public configuration: ProtectionConfigurationDocument | null ) {}
-
-	/**
-	 * Loads the current in-memory configuration.
-	 * @return Current configuration or malformed-data marker.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	load(): Promise<ProtectionConfigurationDocument | null> {
-		if ( this.rejectLoads ) {
-			return Promise.reject( new Error( 'Local read unavailable.' ) );
-		}
-
-		return Promise.resolve( this.configuration );
-	}
-
-	/**
-	 * Stores one complete configuration.
-	 * @param input - Configuration to persist.
-	 * @return Promise resolved after the write.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	save( input: unknown ): Promise<void> {
-		if ( this.rejectSaves ) {
-			return Promise.reject( new Error( 'Local write unavailable.' ) );
-		}
-
-		this.writes += 1;
-		this.configuration = input as ProtectionConfigurationDocument;
-
-		return Promise.resolve();
-	}
-}
 
 /**
  * In-memory storage that keeps one screen write pending until the test releases it.
  * @since 0.1.0 Initial implementation.
  */
-class DeferredProtectedSitesScreenStorage extends MemoryProtectedSitesScreenStorage {
+class DeferredProtectedSitesScreenStorage implements ProtectionConfigurationStorageService {
+	/**
+	 * Number of pending writes started by this fixture.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	writes = 0;
+
+	/**
+	 * Latest configuration supplied to this fixture.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	configuration: ProtectionConfigurationDocument | null;
+
 	private resolvePendingSave: ( () => void ) | null = null;
+
+	/**
+	 * Creates deferred storage with one initial configuration.
+	 * @param configuration - Configuration returned by the next load.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	constructor( configuration: ProtectionConfigurationDocument | null ) {
+		this.configuration = configuration;
+	}
+
+	/**
+	 * Loads the current in-memory configuration.
+	 * @return Current configuration.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	load(): Promise<ProtectionConfigurationDocument | null> {
+		return Promise.resolve( this.configuration );
+	}
 
 	/**
 	 * Keeps one complete configuration write pending.
@@ -194,7 +112,7 @@ class DeferredProtectedSitesScreenStorage extends MemoryProtectedSitesScreenStor
 	 * @return Promise resolved after the fixture releases the write.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	override save( input: unknown ): Promise<void> {
+	save( input: unknown ): Promise<void> {
 		this.writes += 1;
 		this.configuration = input as ProtectionConfigurationDocument;
 
@@ -218,72 +136,6 @@ class DeferredProtectedSitesScreenStorage extends MemoryProtectedSitesScreenStor
 }
 
 /**
- * Runs one component-test mutation immediately inside the current browser context.
- * @param mutation - Deferred protected-site configuration mutation.
- * @return Exact mutation result.
- * @since 0.1.0 Initial implementation.
- */
-function coordinateMutationDirectly(
-	mutation: ProtectionConfigurationMutation,
-): Promise<ProtectionConfigurationEditResult> {
-	return mutation();
-}
-
-/**
- * Creates one real editor backed by the supplied screen storage.
- * @param storage - In-memory local configuration storage.
- * @return Protected-site configuration editor.
- * @since 0.1.0 Initial implementation.
- */
-function createEditor( storage: MemoryProtectedSitesScreenStorage ): ProtectionConfigurationEditor {
-	return createProtectionConfigurationEditor( {
-		storage,
-		createIndependentScopeId,
-		coordinateMutation: coordinateMutationDirectly,
-	} );
-}
-
-/**
- * Creates one deterministic independent scope for screen fixtures.
- * @return Stable independent protection scope.
- * @since 0.1.0 Initial implementation.
- */
-function createIndependentScopeId(): string {
-	return 'scope_independent_a';
-}
-
-/**
- * Runtime constructor used to validate one queried test element.
- * @since 0.1.0 Initial implementation.
- */
-interface ElementConstructor<T extends Element> {
-	new(): T;
-}
-
-/**
- * Returns one required element from the Protected Sites shadow tree.
- * @param element - Rendered Protected Sites screen.
- * @param selector - Required selector.
- * @param expectedType - Runtime element constructor.
- * @return Matching element.
- * @since 0.1.0 Initial implementation.
- */
-function getRequiredElement<T extends Element>(
-	element: ComponentProtectedSitesScreen,
-	selector: string,
-	expectedType: ElementConstructor<T>,
-): T {
-	const match = element.shadowRoot?.querySelector( selector );
-
-	assert.instanceOf( match, expectedType );
-	if ( ! ( match instanceof expectedType ) ) {
-		throw new TypeError( `Expected the Protected Sites screen to render ${ selector }.` );
-	}
-
-	return match;
-}
-
-/**
  * Creates one connected Protected Sites screen with local dependencies.
  * @param storage - In-memory local configuration storage.
  * @param permissionManager - Browser-permission test double.
@@ -291,32 +143,14 @@ function getRequiredElement<T extends Element>(
  * @since 0.1.0 Initial implementation.
  */
 async function createScreen(
-	storage: MemoryProtectedSitesScreenStorage,
+	storage: ProtectionConfigurationStorageService,
 	permissionManager: SitePermissionManager | null = createPermissionManager(),
 ): Promise<ComponentProtectedSitesScreen> {
-	const element = await fixture<ComponentProtectedSitesScreen>( html`
-		<tocus-f-protected-sites-screen
-			.editor=${ createEditor( storage ) }
-			.faviconProvider=${ FAVICON_PROVIDER }
-			.permissionManager=${ permissionManager }
-		></tocus-f-protected-sites-screen>
-	` );
-	await settleScreen( element );
-
-	return element;
-}
-
-/**
- * Waits for queued loading and Lit rendering.
- * @param element - Protected Sites screen expected to update.
- * @return Promise resolved after the next task and component update.
- * @since 0.1.0 Initial implementation.
- */
-async function settleScreen( element: ComponentProtectedSitesScreen ): Promise<void> {
-	await new Promise<void>( ( resolve ) => {
-		setTimeout( resolve, 0 );
+	return createProtectedSitesScreenFixture( {
+		storage,
+		faviconProvider: FAVICON_PROVIDER,
+		permissionManager,
 	} );
-	await element.updateComplete;
 }
 
 describe( 'tocus-f-protected-sites-screen', () => {
@@ -334,21 +168,24 @@ describe( 'tocus-f-protected-sites-screen', () => {
 	it( 'loads an empty local configuration into the manual add experience', async () => {
 		assert.equal( customElements.get( 'tocus-f-protected-sites-screen' ), ComponentProtectedSitesScreen );
 
-		const element = await createScreen( new MemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION ) );
+		const element = await createScreen( createMemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION ) );
 
 		const shadowRoot = element.shadowRoot;
 		assert.instanceOf( shadowRoot, ShadowRoot );
 		assert.equal( shadowRoot.querySelector( 'h1' )?.textContent.trim(), 'Protected sites' );
 		assert.equal( shadowRoot.querySelector( 'label[for="site-address"]' )?.textContent.trim(), 'Website address' );
 		assert.instanceOf( shadowRoot.querySelector( '#site-address' ), HTMLInputElement );
-		assert.equal( shadowRoot.querySelector( '.empty-state h2' )?.textContent.trim(), 'No protected sites yet' );
+		assert.equal(
+			getRequiredElement( element, '.empty-state h2', Element ).textContent.trim(),
+			'No protected sites yet',
+		);
 		assert.equal( shadowRoot.querySelector( '[aria-busy="true"]' ), null );
 		await expect( element ).to.be.accessible();
 	} );
 
 	it( 'marks configured sites as requiring access when no permission manager is available', async () => {
 		const element = await createScreen(
-			new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
+			createMemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
 			null,
 		);
 		const item = getRequiredElement(
@@ -368,7 +205,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 	} );
 
 	it( 'renders the selected add behavior without relational-selector support', async () => {
-		const element = await createScreen( new MemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION ) );
+		const element = await createScreen( createMemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION ) );
 		const independentInput = getRequiredElement(
 			element,
 			'input[value="independent"]',
@@ -385,7 +222,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 	} );
 
 	it( 'adds a manual website to shared whole-domain protection', async () => {
-		const storage = new MemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
+		const storage = createMemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
 		const element = await createScreen( storage );
 		const input = getRequiredElement( element, '#site-address', HTMLInputElement );
 
@@ -418,7 +255,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 			} );
 		};
 		const element = await createScreen(
-			new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
+			createMemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
 			permissionManager,
 		);
 		const item = getRequiredElement(
@@ -456,11 +293,13 @@ describe( 'tocus-f-protected-sites-screen', () => {
 			} );
 		};
 		const element = await createScreen(
-			new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
+			createMemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
 			permissionManager,
 		);
 		const items = Array.from(
-			element.shadowRoot?.querySelectorAll<ComponentProtectedSiteItem>( 'tocus-f-protected-site-item' ) ?? [],
+			getSiteListRoot( element ).querySelectorAll<ComponentProtectedSiteItem>(
+				'tocus-f-protected-site-item',
+			),
 		);
 		const youtubeItem = items.find( ( item ) => item.site?.identityHost === YOUTUBE_SITE.identityHost );
 
@@ -499,7 +338,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 				: revocationSnapshot.promise;
 		};
 		const element = await createScreen(
-			new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
+			createMemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
 			permissionManager,
 		);
 		const item = getRequiredElement(
@@ -539,7 +378,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 			return snapshotRead === 1 ? initialSnapshot.promise : removalSnapshot.promise;
 		};
 		const element = await createScreen(
-			new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
+			createMemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
 			permissionManager,
 		);
 		const refreshAfterRemoval = element.refreshAccessState();
@@ -551,7 +390,9 @@ describe( 'tocus-f-protected-sites-screen', () => {
 		await settleScreen( element );
 
 		const items = Array.from(
-			element.shadowRoot?.querySelectorAll<ComponentProtectedSiteItem>( 'tocus-f-protected-site-item' ) ?? [],
+			getSiteListRoot( element ).querySelectorAll<ComponentProtectedSiteItem>(
+				'tocus-f-protected-site-item',
+			),
 		);
 
 		assert.isNotEmpty( items );
@@ -568,7 +409,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 			return Promise.resolve( accessRevoked ? EMPTY_CONFIGURATION : configuration );
 		};
 		const element = await createScreen(
-			new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
+			createMemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
 			permissionManager,
 		);
 		const item = getRequiredElement(
@@ -580,7 +421,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 		assert.isTrue( item.accessGranted );
 		accessRevoked = true;
 		await element.refreshAccessState();
-		await element.updateComplete;
+		await settleScreen( element );
 
 		assert.equal( snapshotReads, 2 );
 		assert.isFalse( item.accessGranted );
@@ -589,7 +430,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 
 	it( 'ignores a restored-access event for a site that is no longer configured', async () => {
 		const element = await createScreen(
-			new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
+			createMemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ),
 		);
 		const main = getRequiredElement( element, 'main', HTMLElement );
 
@@ -604,7 +445,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 	} );
 
 	it( 'keeps a site unsaved when browser access is denied', async () => {
-		const storage = new MemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
+		const storage = createMemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
 		const permissionManager = createPermissionManager();
 		permissionManager.request = () => Promise.resolve( { status: SitePermissionRequestStatus.DENIED } );
 		const element = await createScreen( storage, permissionManager );
@@ -620,7 +461,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 	} );
 
 	it( 'keeps a site unsaved when browser access cannot be requested', async () => {
-		const storage = new MemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
+		const storage = createMemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
 		const permissionManager = createPermissionManager();
 		permissionManager.request = () => Promise.resolve( { status: SitePermissionRequestStatus.ERROR } );
 		const element = await createScreen( storage, permissionManager );
@@ -636,7 +477,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 	} );
 
 	it( 'keeps a new host grant when the authoritative configuration still requires it', async () => {
-		const storage = new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION );
+		const storage = createMemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION );
 		const permissionManager = createPermissionManager();
 		permissionManager.request = () => Promise.resolve( {
 			status: SitePermissionRequestStatus.GRANTED,
@@ -663,7 +504,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 	} );
 
 	it( 'releases a new host grant when the configuration write fails', async () => {
-		const storage = new MemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
+		const storage = createMemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
 		storage.rejectSaves = true;
 		const permissionManager = createPermissionManager();
 		permissionManager.request = () => Promise.resolve( {
@@ -689,7 +530,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 	} );
 
 	it( 'reports retained browser access when rollback fails after persistence', async () => {
-		const storage = new MemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
+		const storage = createMemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
 		storage.rejectSaves = true;
 		const permissionManager = createPermissionManager();
 		permissionManager.request = () => Promise.resolve( {
@@ -709,7 +550,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 	} );
 
 	it( 'adds an independent exception from the manual behavior choice', async () => {
-		const storage = new MemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
+		const storage = createMemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
 		const element = await createScreen( storage );
 
 		getRequiredElement( element, '#site-address', HTMLInputElement ).value = 'reddit.com';
@@ -747,7 +588,10 @@ describe( 'tocus-f-protected-sites-screen', () => {
 
 		storage.completeSave();
 		await settleScreen( element );
-		assert.equal( element.shadowRoot?.querySelectorAll( 'tocus-f-protected-site-item' ).length, 1 );
+		assert.equal(
+			getSiteListRoot( element ).querySelectorAll( 'tocus-f-protected-site-item' ).length,
+			1,
+		);
 	} );
 
 	for ( const scenario of [
@@ -765,7 +609,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 		},
 	] ) {
 		it( `keeps ${ scenario.label } in the form with a specific explanation`, async () => {
-			const storage = new MemoryProtectedSitesScreenStorage( scenario.configuration );
+			const storage = createMemoryProtectedSitesScreenStorage( scenario.configuration );
 			const element = await createScreen( storage );
 			const input = getRequiredElement( element, '#site-address', HTMLInputElement );
 			input.value = scenario.input;
@@ -789,10 +633,11 @@ describe( 'tocus-f-protected-sites-screen', () => {
 			...POPULATED_CONFIGURATION,
 			sites: [ YOUTUBE_SITE, X_SITE, INSTAGRAM_SITE ],
 		};
-		const element = await createScreen( new MemoryProtectedSitesScreenStorage( sortedConfiguration ) );
-		const sections = Array.from( element.shadowRoot?.querySelectorAll( '.site-group' ) ?? [] );
+		const element = await createScreen( createMemoryProtectedSitesScreenStorage( sortedConfiguration ) );
+		const siteListRoot = getSiteListRoot( element );
+		const sections = Array.from( siteListRoot.querySelectorAll( '.site-group' ) );
 		const items = Array.from(
-			element.shadowRoot?.querySelectorAll<ComponentProtectedSiteItem>( 'tocus-f-protected-site-item' ) ?? [],
+			siteListRoot.querySelectorAll<ComponentProtectedSiteItem>( 'tocus-f-protected-site-item' ),
 		);
 
 		assert.deepEqual( sections.map( ( section ) => section.querySelector( 'h2' )?.textContent.trim() ), [
@@ -807,7 +652,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 	} );
 
 	it( 'preserves malformed local data and allows a successful retry', async () => {
-		const storage = new MemoryProtectedSitesScreenStorage( null );
+		const storage = createMemoryProtectedSitesScreenStorage( null );
 		const element = await createScreen( storage );
 
 		assert.include( getRequiredElement( element, '.load-error', Element ).textContent, 'not replaced' );
@@ -819,16 +664,16 @@ describe( 'tocus-f-protected-sites-screen', () => {
 		getRequiredElement( element, '.retry-action', HTMLButtonElement ).click();
 		await settleScreen( element );
 
-		assert.instanceOf( element.shadowRoot?.querySelector( '.empty-state' ), HTMLElement );
+		assert.instanceOf( getSiteListRoot( element ).querySelector( '.empty-state' ), HTMLElement );
 		assert.equal( getRequiredElement( element, '#site-address', HTMLInputElement ).disabled, false );
 		assert.isTrue(
-			element.shadowRoot.activeElement ===
+			element.shadowRoot?.activeElement ===
 				getRequiredElement( element, '#site-address', HTMLInputElement ),
 		);
 	} );
 
 	it( 'reports a local read failure and retries without rebuilding the screen', async () => {
-		const storage = new MemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
+		const storage = createMemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
 		storage.rejectLoads = true;
 		const element = await createScreen( storage );
 
@@ -844,11 +689,11 @@ describe( 'tocus-f-protected-sites-screen', () => {
 		getRequiredElement( element, '.retry-action', HTMLButtonElement ).click();
 		await settleScreen( element );
 
-		assert.instanceOf( element.shadowRoot?.querySelector( '.empty-state' ), HTMLElement );
+		assert.instanceOf( getSiteListRoot( element ).querySelector( '.empty-state' ), HTMLElement );
 	} );
 
 	it( 'keeps the entered website when local persistence rejects the add', async () => {
-		const storage = new MemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
+		const storage = createMemoryProtectedSitesScreenStorage( EMPTY_CONFIGURATION );
 		storage.rejectSaves = true;
 		const element = await createScreen( storage );
 		const input = getRequiredElement( element, '#site-address', HTMLInputElement );
@@ -866,7 +711,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 	} );
 
 	it( 'moves a changed site between groups and announces the persisted update', async () => {
-		const element = await createScreen( new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ) );
+		const element = await createScreen( createMemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ) );
 		const youtubeScopeId = ProtectionScopeIdSchema.parse( 'scope_youtube' );
 		const updatedConfiguration: ProtectionConfigurationDocument = {
 			...POPULATED_CONFIGURATION,
@@ -879,6 +724,13 @@ describe( 'tocus-f-protected-sites-screen', () => {
 			schedulesByScope: {
 				...POPULATED_CONFIGURATION.schedulesByScope,
 				[ youtubeScopeId ]: DefaultProtectionSchedule,
+			},
+			measurementRevisionsByScope: {
+				...POPULATED_CONFIGURATION.measurementRevisionsByScope,
+				[ DefaultProtectionScopeId ]: ProtectionMeasurementRevisionSchema.parse(
+					'revision_default_without_youtube',
+				),
+				[ youtubeScopeId ]: ProtectionMeasurementRevisionSchema.parse( 'revision_youtube' ),
 			},
 		};
 
@@ -896,13 +748,13 @@ describe( 'tocus-f-protected-sites-screen', () => {
 		) );
 		await element.updateComplete;
 
-		assert.equal( element.shadowRoot?.querySelector( '.shared-sites' ), null );
-		assert.equal( element.shadowRoot?.querySelectorAll( '.independent-sites li' ).length, 2 );
+		assert.equal( getSiteListRoot( element ).querySelector( '.shared-sites' ), null );
+		assert.equal( getSiteListRoot( element ).querySelectorAll( '.independent-sites li' ).length, 2 );
 		assert.include( getRequiredElement( element, '.announcement', Element ).textContent, 'YouTube' );
 	} );
 
 	it( 'replaces live-region content when the same update announcement repeats', async () => {
-		const element = await createScreen( new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ) );
+		const element = await createScreen( createMemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION ) );
 		const announcement = getRequiredElement( element, '.announcement', Element );
 		const eventDetail = {
 			kind: ProtectedSiteConfigurationChangeKind.UPDATED,
@@ -932,7 +784,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 	} );
 
 	it( 'recovers focus when a stale item update arrives during a load failure', async () => {
-		const storage = new MemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION );
+		const storage = createMemoryProtectedSitesScreenStorage( POPULATED_CONFIGURATION );
 		storage.rejectLoads = true;
 		const element = await createScreen( storage );
 
@@ -952,6 +804,10 @@ describe( 'tocus-f-protected-sites-screen', () => {
 
 		assert.equal( element.shadowRoot?.querySelector( 'tocus-f-protected-site-item' ), null );
 		assert.include( getRequiredElement( element, '.announcement', Element ).textContent, 'YouTube' );
+		assert.isTrue(
+			element.shadowRoot?.activeElement ===
+				getRequiredElement( element, '.retry-action', HTMLButtonElement ),
+		);
 	} );
 
 	it( 'focuses manual entry after the final site is removed', async () => {
@@ -959,7 +815,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 			...TestEmptyProtectionConfiguration,
 			sites: [ YOUTUBE_SITE ],
 		};
-		const element = await createScreen( new MemoryProtectedSitesScreenStorage( onlySiteConfiguration ) );
+		const element = await createScreen( createMemoryProtectedSitesScreenStorage( onlySiteConfiguration ) );
 		getRequiredElement( element, 'tocus-f-protected-site-item', Element ).dispatchEvent( new CustomEvent(
 			ProtectedSiteConfigurationChangedEventName,
 			{
@@ -970,6 +826,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 					identityHost: onlySiteConfiguration.sites[ 0 ]?.identityHost,
 					configuration: EMPTY_CONFIGURATION,
 					permissionReleaseStatus: SitePermissionReleaseStatus.RELEASED,
+					site: YOUTUBE_SITE,
 				},
 			},
 		) );
@@ -996,7 +853,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 			sites: [ YOUTUBE_SITE ],
 		};
 		const element = await createScreen(
-			new MemoryProtectedSitesScreenStorage( onlySiteConfiguration ),
+			createMemoryProtectedSitesScreenStorage( onlySiteConfiguration ),
 			permissionManager,
 		);
 
@@ -1010,6 +867,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 					identityHost: YOUTUBE_SITE.identityHost,
 					configuration: EMPTY_CONFIGURATION,
 					permissionReleaseStatus: SitePermissionReleaseStatus.RELEASED,
+					site: YOUTUBE_SITE,
 				},
 			},
 		) );
@@ -1027,7 +885,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 			sites: [ YOUTUBE_SITE ],
 		};
 		const element = await createScreen(
-			new MemoryProtectedSitesScreenStorage( onlySiteConfiguration ),
+			createMemoryProtectedSitesScreenStorage( onlySiteConfiguration ),
 			permissionManager,
 		);
 
@@ -1041,6 +899,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 					identityHost: YOUTUBE_SITE.identityHost,
 					configuration: EMPTY_CONFIGURATION,
 					permissionReleaseStatus: SitePermissionReleaseStatus.RETAINED,
+					site: YOUTUBE_SITE,
 				},
 			},
 		) );
@@ -1048,4 +907,5 @@ describe( 'tocus-f-protected-sites-screen', () => {
 
 		assert.include( getRequiredElement( element, '.announcement', Element ).textContent, 'could not be removed' );
 	} );
+
 } );

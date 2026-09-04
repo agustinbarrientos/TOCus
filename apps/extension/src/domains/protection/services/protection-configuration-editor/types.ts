@@ -1,5 +1,9 @@
 import { z } from 'zod';
-import { type ProtectionConfigurationDocument } from '../../types/protected-site-configuration';
+import {
+	type ProtectedSiteConfiguration,
+	type ProtectionConfigurationDocument,
+} from '../../types/protected-site-configuration';
+import { type ProtectionMeasurementRevisionFactory } from '../../types/protection-value';
 import { type ProtectionConfigurationStorageService } from '../protection-configuration-storage';
 
 /**
@@ -101,6 +105,23 @@ export type ProtectionConfigurationEditFinalizer = (
 ) => Promise<void>;
 
 /**
+ * Authoritative settlement for one coordinated protected-site removal.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface ProtectionConfigurationRemovalSettlement extends ProtectionConfigurationEditSettlement {
+	/** Site resolved from authoritative storage, or null when no matching site was found. */
+	removedSite: ProtectedSiteConfiguration | null;
+}
+
+/**
+ * Runs one side effect against an authoritative removal settlement before coordination is released.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ProtectionConfigurationRemovalFinalizer = (
+	settlement: ProtectionConfigurationRemovalSettlement,
+) => Promise<void>;
+
+/**
  * Verifies one validated candidate immediately before persistence while mutation coordination is held.
  * @since 0.1.0 Initial implementation.
  */
@@ -135,6 +156,7 @@ export type IndependentProtectionScopeIdFactory = () => unknown;
 export interface ProtectionConfigurationEditorOptions {
 	storage: ProtectionConfigurationStorageService;
 	createIndependentScopeId: IndependentProtectionScopeIdFactory;
+	createMeasurementRevision: ProtectionMeasurementRevisionFactory;
 	coordinateMutation: ProtectionConfigurationMutationCoordinator;
 }
 
@@ -189,7 +211,7 @@ export interface ProtectionConfigurationEditor {
 	 */
 	remove(
 		identityHost: unknown,
-		finalize?: ProtectionConfigurationEditFinalizer,
+		finalize?: ProtectionConfigurationRemovalFinalizer,
 	): Promise<ProtectionConfigurationEditResult>;
 
 	/**

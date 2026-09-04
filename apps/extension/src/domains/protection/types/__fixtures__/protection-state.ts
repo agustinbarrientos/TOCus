@@ -36,6 +36,7 @@ export function createDailyLadder(
  * @param focusEligible - Whether the participant may own progress.
  * @param joinSequence - Domain-assigned join order.
  * @param retainedDestination - Retained absolute navigation destination.
+ * @param statisticsEligible - Whether participant events may enter ordinary statistics.
  * @return A navigation-origin runtime participant.
  * @since 0.1.0 Initial implementation.
  */
@@ -45,6 +46,7 @@ export function createNavigationParticipant(
 	focusEligible = true,
 	joinSequence = 0,
 	retainedDestination = `https://example.com/${ pageId }`,
+	statisticsEligible = true,
 ): ProtectionParticipant {
 	return ProtectionParticipantSchema.parse( {
 		origin: ProtectionParticipantOrigin.NAVIGATION,
@@ -52,6 +54,7 @@ export function createNavigationParticipant(
 		pageId,
 		retainedDestination,
 		focusEligible,
+		statisticsEligible,
 		joinSequence,
 	} );
 }
@@ -62,6 +65,7 @@ export function createNavigationParticipant(
  * @param pageId - Stable page identifier.
  * @param focusEligible - Whether the participant may own progress.
  * @param joinSequence - Domain-assigned join order.
+ * @param statisticsEligible - Whether participant events may enter ordinary statistics.
  * @return An allowance-expiry runtime participant.
  * @since 0.1.0 Initial implementation.
  */
@@ -70,6 +74,7 @@ export function createAllowanceExpiryParticipant(
 	pageId = 'page-a',
 	focusEligible = true,
 	joinSequence = 0,
+	statisticsEligible = true,
 ): ProtectionParticipant {
 	return ProtectionParticipantSchema.parse( {
 		origin: ProtectionParticipantOrigin.ALLOWANCE_EXPIRY,
@@ -77,6 +82,7 @@ export function createAllowanceExpiryParticipant(
 		pageId,
 		retainedDestination: null,
 		focusEligible,
+		statisticsEligible,
 		joinSequence,
 	} );
 }
@@ -116,6 +122,7 @@ export function createWaitingState(): WaitingProtectionState {
 		ownerParticipantId: 'participant-a',
 		ownerEpoch: 1,
 		checkpointHighWaterMilliseconds: 0,
+		completionStatisticsEligible: true,
 		ladder: createDailyLadder(),
 	} );
 

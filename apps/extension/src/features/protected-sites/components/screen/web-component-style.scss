@@ -127,8 +127,6 @@ button {
 .field-help,
 .site-input-error,
 .loading-status,
-.group-heading p,
-.empty-state p,
 .load-error p,
 .behavior-option small {
 	@include typography.apply( 'body-small' );
@@ -209,7 +207,6 @@ legend {
 }
 
 .loading-status,
-.empty-state,
 .load-error {
 	margin: var(--tocus-space-5) 0 0;
 	padding: var(--tocus-space-6);
@@ -218,12 +215,10 @@ legend {
 	background: color-mix(in srgb, var(--tocus-color-surface) 72%, transparent);
 }
 
-.loading-status,
-.empty-state {
+.loading-status {
 	text-align: center;
 }
 
-.empty-state,
 .load-error {
 	h2 {
 		@include typography.apply( 'title-medium' );
@@ -242,35 +237,6 @@ legend {
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--tocus-space-5);
-}
-
-.site-groups {
-	display: grid;
-	gap: var(--tocus-space-7);
-	margin-top: var(--tocus-space-7);
-}
-
-.group-heading {
-	margin-bottom: var(--tocus-space-3);
-
-	h2 {
-		@include typography.apply( 'title-large' );
-
-		margin: 0;
-	}
-
-	p {
-		margin: var(--tocus-space-1) 0 0;
-		color: var(--tocus-color-on-surface-muted);
-	}
-}
-
-ul {
-	display: grid;
-	gap: var(--tocus-space-3);
-	margin: 0;
-	padding: 0;
-	list-style: none;
 }
 
 .announcement {

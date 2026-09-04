@@ -26,7 +26,16 @@ import {
 	StoredProtectionScopeStateType,
 } from '../../types/stored-protection-state';
 
+/**
+ * Fixed initial instant used by restoration fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const FIRST_INSTANT = 1_800_000_000_000;
+
+/**
+ * Fixed allowance expiry used by restoration fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const ALLOWANCE_EXPIRY = FIRST_INSTANT + 300_000;
 
 describe( 'RestoreProtectionStateResultSchema', () => {
@@ -166,6 +175,7 @@ function createRuntimeNavigationParticipant(
 		pageId,
 		retainedDestination,
 		focusEligible,
+		statisticsEligible: true,
 		joinSequence,
 	};
 }
@@ -191,6 +201,7 @@ function createRuntimeExpiryParticipant(
 		pageId,
 		retainedDestination: null,
 		focusEligible,
+		statisticsEligible: true,
 		joinSequence,
 	};
 }
@@ -215,6 +226,7 @@ function createStoredNavigationParticipant(
 		participantId,
 		pageId,
 		retainedDestination,
+		statisticsEligible: true,
 		joinSequence,
 	};
 }
@@ -237,6 +249,7 @@ function createStoredExpiryParticipant(
 		participantId,
 		pageId,
 		retainedDestination: null,
+		statisticsEligible: true,
 		joinSequence,
 	};
 }
@@ -287,6 +300,10 @@ function createAllowanceState(
 function createStoredDurableState<Scopes extends object>( scopes: Scopes ) {
 	return {
 		schemaVersion: DurableStoredProtectionStateVersion,
+		statisticsDelivery: {
+			status: 'complete',
+			outbox: [],
+		},
 		scopes,
 	};
 }
@@ -327,6 +344,7 @@ function createStoredWaitingScope() {
 		ownerParticipantId: 'participant-a',
 		ownerEpoch: 3,
 		checkpointHighWaterMilliseconds: 4_000,
+		completionStatisticsEligible: true,
 	};
 }
 
@@ -721,6 +739,7 @@ describe( 'restoreProtectionState', () => {
 					ownerParticipantId: null,
 					ownerEpoch: 4,
 					checkpointHighWaterMilliseconds: 0,
+					completionStatisticsEligible: true,
 					ladder: createLadder( 7, '2026-08-30' ),
 				},
 			},
@@ -797,6 +816,7 @@ describe( 'restoreProtectionState', () => {
 			ownerParticipantId: null,
 			ownerEpoch: 1,
 			checkpointHighWaterMilliseconds: 0,
+			completionStatisticsEligible: true,
 			ladder: createLadder(),
 		} );
 	} );
@@ -831,6 +851,7 @@ describe( 'restoreProtectionState', () => {
 			ownerParticipantId: null,
 			ownerEpoch: 3,
 			checkpointHighWaterMilliseconds: 0,
+			completionStatisticsEligible: true,
 			ladder: createLadder(),
 		} );
 	} );
@@ -917,6 +938,10 @@ describe( 'restoreProtectionState', () => {
 		const preparedState = prepareStoredProtectionState( {
 			statesByScope,
 			sessionContinuityId: 'session-current',
+			statisticsDelivery: {
+				status: 'complete',
+				outbox: [],
+			},
 		} );
 		const parsedState = parseStoredProtectionState( preparedState );
 		const restoredState = restoreProtectionState( createNewSessionRestoreInput( parsedState ) );

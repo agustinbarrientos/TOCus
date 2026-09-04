@@ -29,7 +29,16 @@ import {
 	StoredProtectionScopeStateType,
 } from '../../types/stored-protection-state';
 
+/**
+ * Fixed initial instant used by Ready-state restoration fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const FIRST_INSTANT = 1_800_000_000_000;
+
+/**
+ * Fixed allowance expiry used by Ready-state restoration fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const ALLOWANCE_EXPIRY = FIRST_INSTANT + 300_000;
 
 /**
@@ -84,6 +93,7 @@ function createRuntimeNavigationParticipant(
 		pageId,
 		retainedDestination,
 		focusEligible,
+		statisticsEligible: false,
 		joinSequence,
 	};
 }
@@ -109,6 +119,7 @@ function createRuntimeExpiryParticipant(
 		pageId,
 		retainedDestination: null,
 		focusEligible,
+		statisticsEligible: false,
 		joinSequence,
 	};
 }
@@ -191,6 +202,10 @@ function createAllowanceState(
 function createStoredDurableState<Scopes extends object>( scopes: Scopes ) {
 	return {
 		schemaVersion: DurableStoredProtectionStateVersion,
+		statisticsDelivery: {
+			status: 'complete',
+			outbox: [],
+		},
 		scopes,
 	};
 }
@@ -611,6 +626,7 @@ describe( 'restoreProtectionState Ready reconciliation', () => {
 					...participant,
 					origin: ProtectionParticipantOrigin.NAVIGATION,
 					focusEligible: false,
+					statisticsEligible: false,
 				} ] ),
 			},
 			decisions: [],

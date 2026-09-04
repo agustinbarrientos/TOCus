@@ -4,6 +4,9 @@ import {
 	SessionContinuityIdSchema,
 } from '../../types/protection-value';
 import { ProtectionStateSchema } from '../../types/protection-state';
+import {
+	StoredProtectionStatisticsDeliverySchema,
+} from '../../types/stored-protection-statistics-delivery';
 
 /**
  * Validates runtime protection states indexed by their scope identifiers.
@@ -33,6 +36,7 @@ const RuntimeProtectionStatesByScopeSchema = z.preprocess(
 export const PrepareStoredProtectionStateInputSchema = z.object( {
 	statesByScope: RuntimeProtectionStatesByScopeSchema,
 	sessionContinuityId: SessionContinuityIdSchema,
+	statisticsDelivery: StoredProtectionStatisticsDeliverySchema,
 } ).strict().superRefine( ( input, context ) => {
 	Object.entries( input.statesByScope ).forEach( ( [ scopeId, state ] ) => {
 		if ( scopeId !== state.scopeId ) {

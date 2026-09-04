@@ -14,6 +14,7 @@ import {
  * Returns the open shadow root owned by a screen fixture.
  * @param element - Rendered interruption screen.
  * @return Open component shadow root.
+ * @since 0.1.0 Initial implementation.
  */
 function getShadowRoot( element: ComponentInterruptionScreen ): ShadowRoot {
 	const shadowRoot = element.shadowRoot;
@@ -31,6 +32,7 @@ function getShadowRoot( element: ComponentInterruptionScreen ): ShadowRoot {
  * @param element - Rendered interruption screen.
  * @param selector - Selector for the required element.
  * @return Matching HTML element.
+ * @since 0.1.0 Initial implementation.
  */
 function getRequiredElement( element: ComponentInterruptionScreen, selector: string ): HTMLElement {
 	const match = getShadowRoot( element ).querySelector( selector );
@@ -47,6 +49,7 @@ function getRequiredElement( element: ComponentInterruptionScreen, selector: str
  * Returns the rendered Continue button.
  * @param element - Ready interruption screen.
  * @return Continue button.
+ * @since 0.1.0 Initial implementation.
  */
 function getContinueButton( element: ComponentInterruptionScreen ): HTMLButtonElement {
 	const button = getShadowRoot( element ).querySelector( 'button' );
@@ -63,6 +66,7 @@ function getContinueButton( element: ComponentInterruptionScreen ): HTMLButtonEl
  * Returns the rendered recovery button.
  * @param element - Unavailable interruption screen.
  * @return Recovery button.
+ * @since 0.1.0 Initial implementation.
  */
 function getRetryButton( element: ComponentInterruptionScreen ): HTMLButtonElement {
 	const button = getShadowRoot( element ).querySelector( '.retry-button' );
@@ -78,6 +82,7 @@ function getRetryButton( element: ComponentInterruptionScreen ): HTMLButtonEleme
 /**
  * Waits for the next browser animation frame.
  * @return Promise resolved after one frame.
+ * @since 0.1.0 Initial implementation.
  */
 function nextFrame(): Promise<void> {
 	return new Promise( ( resolve ) => {
@@ -91,6 +96,7 @@ function nextFrame(): Promise<void> {
  * Formats the German remaining-time fixture.
  * @param remainingSeconds - Whole remaining seconds.
  * @return Complete German remaining-time label.
+ * @since 0.1.0 Initial implementation.
  */
 function formatGermanRemainingTime( remainingSeconds: number ): string {
 	return `Noch ${ String( remainingSeconds ) } Sekunden`;
@@ -100,6 +106,7 @@ function formatGermanRemainingTime( remainingSeconds: number ): string {
  * Parses one resolved browser RGB color.
  * @param color - Resolved CSS color.
  * @return Red, green, and blue channels.
+ * @since 0.1.0 Initial implementation.
  */
 function parseRgbColor( color: string ): readonly [ number, number, number ] {
 	const channels = color.match( /\d+(?:\.\d+)?/gu )?.slice( 0, 3 ).map( Number ) ?? [];
@@ -115,6 +122,7 @@ function parseRgbColor( color: string ): readonly [ number, number, number ] {
  * Calculates relative luminance for one resolved browser RGB color.
  * @param color - Resolved CSS color.
  * @return Relative luminance from zero to one.
+ * @since 0.1.0 Initial implementation.
  */
 function getRelativeLuminance( color: string ): number {
 	const channels = parseRgbColor( color ).map( ( channel ) => {
@@ -135,6 +143,7 @@ function getRelativeLuminance( color: string ): number {
  * @param firstColor - First resolved CSS color.
  * @param secondColor - Second resolved CSS color.
  * @return WCAG contrast ratio.
+ * @since 0.1.0 Initial implementation.
  */
 function getContrastRatio( firstColor: string, secondColor: string ): number {
 	const firstLuminance = getRelativeLuminance( firstColor );
@@ -250,7 +259,7 @@ describe( 'tocus-f-interruption-screen', () => {
 				lang="de"
 				.mode=${ InterruptionScreenMode.QUIET }
 				.copy=${ copy }
-				.wellbeingSummary=${ 'Du hast dir heute mindestens drei Stunden geschenkt.' }
+				.wellbeingSummary=${ 'Seit du begonnen hast, hast du dir drei Stunden fuer dich genommen.' }
 				.focusedProgressMilliseconds=${ 4_000 }
 			></tocus-f-interruption-screen>
 		` );
@@ -264,7 +273,7 @@ describe( 'tocus-f-interruption-screen', () => {
 
 		assert.equal( getRequiredElement( element, '.cue' ).textContent.trim(), copy.takeAMoment );
 		assert.equal( getRequiredElement( element, '.remaining' ).textContent.trim(), 'Noch 6 Sekunden' );
-		assert.equal( getRequiredElement( element, 'footer' ).textContent.trim(), 'Du hast dir heute mindestens drei Stunden geschenkt.' );
+		assert.equal( getRequiredElement( element, 'footer' ).textContent.trim(), 'Seit du begonnen hast, hast du dir drei Stunden fuer dich genommen.' );
 		assert.equal( getRequiredElement( element, '.sphere-alternative' ).textContent.trim(), copy.stillSphereAlternative );
 		assert.equal(
 			getRequiredElement( element, '[aria-live]' ).textContent.trim(),
@@ -635,7 +644,7 @@ describe( 'tocus-f-interruption-screen', () => {
 			const element = await fixture<ComponentInterruptionScreen>( html`
 				<tocus-f-interruption-screen
 					.copy=${ copy }
-					.wellbeingSummary=${ 'Du hast dir heute mindestens drei Stunden und vierundzwanzig Minuten fuer dich selbst geschenkt.' }
+					.wellbeingSummary=${ 'Seit du begonnen hast, hast du dir drei Stunden und vierundzwanzig Minuten fuer dich genommen.' }
 				></tocus-f-interruption-screen>
 			` );
 			const scene = getRequiredElement( element, '.scene' );

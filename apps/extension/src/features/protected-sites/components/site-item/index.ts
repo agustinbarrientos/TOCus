@@ -342,9 +342,10 @@ export class ComponentProtectedSiteItem extends LitElement {
 
 			this.announceConfigurationChange( {
 				kind: ProtectedSiteConfigurationChangeKind.REMOVED,
-				identityHost: this.site.identityHost,
+				identityHost: result.site.identityHost,
 				configuration: result.configuration,
 				permissionReleaseStatus: result.permissionReleaseStatus,
+				site: result.site,
 			} );
 		} catch {
 			this.operationError = this.copy.operationError;

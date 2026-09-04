@@ -3,6 +3,10 @@ import {
 	StoredProtectionParticipantSchema,
 } from '../stored-protection-participant';
 import {
+	StoredProtectionStatisticsDeliverySchema,
+	StoredProtectionStatisticsDeliveryStatus,
+} from '../stored-protection-statistics-delivery';
+import {
 	DurableStoredProtectionStateVersion,
 	SessionStoredProtectionStateVersion,
 	StoredDurableProtectionStateSchema,
@@ -16,6 +20,10 @@ import {
  */
 export const Mock_StoredProtectionState_Durable = StoredDurableProtectionStateSchema.parse( {
 	schemaVersion: DurableStoredProtectionStateVersion,
+	statisticsDelivery: StoredProtectionStatisticsDeliverySchema.parse( {
+		status: StoredProtectionStatisticsDeliveryStatus.COMPLETE,
+		outbox: [],
+	} ),
 	scopes: {
 		'scope-a': {
 			ladder: {
@@ -35,6 +43,7 @@ export const Mock_StoredProtectionParticipant_Navigation = StoredProtectionParti
 	participantId: 'participant-a',
 	pageId: 'page-a',
 	retainedDestination: 'https://example.com/a',
+	statisticsEligible: true,
 	joinSequence: 0,
 } );
 

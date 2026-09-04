@@ -152,6 +152,7 @@ export const WaitingProtectionStateSchema = z.object( {
 	ownerParticipantId: z.union( [ ParticipantIdSchema, z.null() ] ),
 	ownerEpoch: OwnerEpochSchema,
 	checkpointHighWaterMilliseconds: DurationMillisecondsSchema,
+	completionStatisticsEligible: z.boolean().default( false ),
 	ladder: DailyLadderSchema,
 } ).strict().superRefine( ( state, context ) => {
 	if ( state.confirmedFocusedDurationMilliseconds >= state.capturedWaitDurationMilliseconds ) {

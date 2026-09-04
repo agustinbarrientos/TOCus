@@ -16,6 +16,7 @@ import {
  * Creates one complete redirect rule for adapter boundary tests.
  * @param id - Rule identifier.
  * @return Complete dynamic redirect rule.
+ * @since 0.1.0 Initial implementation.
  */
 function createRule( id: number ): Browser.declarativeNetRequest.Rule {
 	return {
@@ -35,6 +36,7 @@ function createRule( id: number ): Browser.declarativeNetRequest.Rule {
 /**
  * Creates an observable toolbar API for adapter boundary tests.
  * @return Toolbar action with mocked browser operations.
+ * @since 0.1.0 Initial implementation.
  */
 function createToolbarAction(): BrowserProtectionToolbarAction {
 	return {
@@ -47,6 +49,7 @@ function createToolbarAction(): BrowserProtectionToolbarAction {
 /**
  * Creates an observable browser API with safe default results.
  * @return Narrow browser boundary used by the adapter.
+ * @since 0.1.0 Initial implementation.
  */
 function createBrowserApi(): BrowserProtectionAdapterApi {
 	return {
@@ -226,21 +229,27 @@ describe( 'createBrowserProtectionAdapter', () => {
 		vi.mocked( browserApi.tabs.query ).mockResolvedValue( [
 			{
 				id: 7,
+				incognito: false,
 				pendingUrl: 'https://example.com/pending',
 				url: 'https://example.com/watch',
+				windowId: 3,
 			},
 			{ url: 'https://unidentified.example/' },
-			{ id: 9 },
+			{ id: 9, incognito: true },
+			{ id: 10 },
 		] );
 		const adapter = createBrowserProtectionAdapter( browserApi );
 
 		await expect( adapter.listTabs() ).resolves.toEqual( [
 			{
 				id: 7,
+				incognito: false,
 				pendingUrl: 'https://example.com/pending',
 				url: 'https://example.com/watch',
+				windowId: 3,
 			},
-			{ id: 9 },
+			{ id: 9, incognito: true },
+			{ id: 10 },
 		] );
 		expect( browserApi.tabs.query ).toHaveBeenCalledWith( {} );
 	} );
@@ -474,12 +483,14 @@ describe( 'createBrowserProtectionAdapter', () => {
 			/**
 			 * Simulates one rejected browser operation.
 			 * @return Rejected browser operation.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			setBadgeText: () => Promise.reject( new Error( 'Badge text unavailable.' ) ),
 
 			/**
 			 * Simulates one synchronously rejected browser operation.
 			 * @throws {Error} Always, to verify synchronous failure isolation.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			setBadgeBackgroundColor: () => {
 				throw new Error( 'Badge color unavailable.' );
@@ -488,6 +499,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 			/**
 			 * Records that an independent toolbar operation still runs.
 			 * @return Resolved browser operation.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			setTitle: () => {
 				completedOperations.push( 'title' );

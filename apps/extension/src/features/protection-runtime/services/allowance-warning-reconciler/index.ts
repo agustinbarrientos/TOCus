@@ -149,6 +149,16 @@ export function createAllowanceWarningReconciler(
 			return;
 		}
 
+		if ( tab.incognito !== false ) {
+			const presentation = await options.browser.getProtectedPagePresentation( tab.id );
+
+			await clearAllowancePresentation( tab.id, presentation );
+			await updatePresentation( tab.id, {
+				type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER,
+			} );
+			return;
+		}
+
 		const observedUrl = getObservedTabUrl( tab );
 
 		if ( observedUrl === undefined ) {

@@ -12,6 +12,7 @@ import {
 	TestEmptyProtectionConfiguration,
 } from '../../../../domains/protection/types/__fixtures__';
 import {
+	DepartureCause,
 	ProtectionEventSchema,
 	ProtectionEventType,
 	type ProtectionEvent,
@@ -30,17 +31,26 @@ import { type ProtectionRuntimeBrowser } from '../../types/browser-runtime';
 import { createInterruptionRequestHandler } from './index';
 import { type InterruptionRequestHandlerOptions } from './types';
 
-/** Fixed wall-clock instant used by interruption-request fixtures. */
+/**
+ * Fixed wall-clock instant used by interruption-request fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const NOW_EPOCH_MILLISECONDS = Date.UTC( 2026, 8, 2, 12 );
 
-/** Applied coordinator result returned by successful dispatch fixtures. */
+/**
+ * Applied coordinator result returned by successful dispatch fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const APPLIED_RESULT: ProtectionCoordinatorDispatchResult = {
 	status: ProtectionCoordinatorDispatchStatus.APPLIED,
 	decisions: [],
 	facts: [],
 };
 
-/** Protected-site configuration used by interruption-request fixtures. */
+/**
+ * Protected-site configuration used by interruption-request fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
 	sites: [ {
@@ -59,6 +69,7 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
  * @param pageId - Runtime participant page identifier.
  * @param confirmedFocusedDurationMilliseconds - Authoritative focused progress.
  * @return Waiting state owned by the default scope.
+ * @since 0.1.0 Initial implementation.
  */
 function createTestWaitingState(
 	focusEligible = true,
@@ -87,6 +98,7 @@ function createTestWaitingState(
 /**
  * Creates one Waiting state in which the requested tab is not the progress owner.
  * @return Waiting state retaining owner and non-owner participants.
+ * @since 0.1.0 Initial implementation.
  */
 function createNonOwnerWaitingState(): WaitingProtectionState {
 	const owner = createNavigationParticipant(
@@ -116,6 +128,7 @@ function createNonOwnerWaitingState(): WaitingProtectionState {
  * Creates one Allowance state whose Ready participant belongs to tab 7.
  * @param expiresAtEpochMilliseconds - Allowance expiry instant.
  * @return Allowance state owned by the default scope.
+ * @since 0.1.0 Initial implementation.
  */
 function createTestAllowanceState(
 	expiresAtEpochMilliseconds = NOW_EPOCH_MILLISECONDS + 300_000,
@@ -140,6 +153,7 @@ function createTestAllowanceState(
  * @param statesByScope - Coordinator snapshot returned by default.
  * @param configuration - Configuration returned by local storage.
  * @return Handler and observable dependency doubles.
+ * @since 0.1.0 Initial implementation.
  */
 function createHandlerHarness(
 	statesByScope: ProtectionCoordinatorStateSnapshot | null,
@@ -161,6 +175,9 @@ function createHandlerHarness(
 	const createStableId = vi
 		.fn<InterruptionRequestHandlerOptions[ 'createStableId' ]>()
 		.mockReturnValue( 'request_one' );
+	const departTab = vi
+		.fn<InterruptionRequestHandlerOptions[ 'departTab' ]>()
+		.mockResolvedValue( undefined );
 	const getTimeZone = vi
 		.fn<InterruptionRequestHandlerOptions[ 'getTimeZone' ]>()
 		.mockReturnValue( 'UTC' );
@@ -187,6 +204,7 @@ function createHandlerHarness(
 		coordinator: { dispatch, getStates },
 		applyDispatchResult,
 		createStableId,
+		departTab,
 		getTimeZone,
 		loadConfiguration,
 		now,
@@ -198,6 +216,7 @@ function createHandlerHarness(
 
 	return {
 		applyDispatchResult,
+		departTab,
 		dispatch,
 		events,
 		getFocusedTabId,
@@ -212,6 +231,28 @@ function createHandlerHarness(
 }
 
 describe( 'interruption request validation', () => {
+	it( 'fails open a privacy-ineligible sender before it can advance protection', async () => {
+		const waitingState = createTestWaitingState();
+		const harness = createHandlerHarness( { [ DefaultProtectionScopeId ]: waitingState } );
+
+		await expect( harness.handler.handle( {
+			type: InterruptionPageRequestType.CHECKPOINT,
+			documentVisible: true,
+			displayedFocusedDurationMilliseconds: 10_000,
+		}, 7, false ) ).resolves.toEqual( {
+			state: InterruptionPageResponseState.UNAVAILABLE,
+		} );
+
+		expect( harness.dispatch ).not.toHaveBeenCalled();
+		expect( harness.departTab ).toHaveBeenCalledWith(
+			7,
+			DepartureCause.BROWSER_ERROR_OR_RECOVERY,
+			null,
+		);
+		expect( harness.loadConfiguration ).not.toHaveBeenCalled();
+		expect( harness.releaseInterruptionPresentation ).toHaveBeenCalledWith( 7 );
+	} );
+
 	it( 'rejects malformed messages and requests without a sender tab', async () => {
 		const harness = createHandlerHarness( null );
 
@@ -234,7 +275,7 @@ describe( 'interruption request validation', () => {
 		await expect( harness.handler.handle( {
 			type: InterruptionPageRequestType.CONNECT,
 			documentVisible: true,
-		}, 7 ) ).resolves.toEqual( {
+		}, 7, true ) ).resolves.toEqual( {
 			state: InterruptionPageResponseState.UNAVAILABLE,
 		} );
 
@@ -248,7 +289,7 @@ describe( 'interruption request validation', () => {
 		await expect( harness.handler.handle( {
 			type: InterruptionPageRequestType.CONNECT,
 			documentVisible: true,
-		}, 7 ) ).resolves.toEqual( {
+		}, 7, true ) ).resolves.toEqual( {
 			state: InterruptionPageResponseState.UNAVAILABLE,
 		} );
 
@@ -263,7 +304,7 @@ describe( 'interruption request validation', () => {
 		await expect( harness.handler.handle( {
 			type: InterruptionPageRequestType.SYNCHRONIZE,
 			documentVisible: true,
-		}, 7 ) ).resolves.toEqual( {
+		}, 7, true ) ).resolves.toEqual( {
 			state: InterruptionPageResponseState.UNAVAILABLE,
 		} );
 
@@ -282,7 +323,7 @@ describe( 'interruption request validation', () => {
 		await expect( harness.handler.handle( {
 			type: InterruptionPageRequestType.SYNCHRONIZE,
 			documentVisible: true,
-		}, 7 ) ).resolves.toMatchObject( {
+		}, 7, true ) ).resolves.toMatchObject( {
 			state: InterruptionPageResponseState.WAITING,
 		} );
 
@@ -299,11 +340,11 @@ describe( 'interruption request validation', () => {
 		await expect( harness.handler.handle( {
 			type: InterruptionPageRequestType.RECOVER,
 			documentVisible: true,
-		}, 7 ) ).rejects.toBe( releaseFailure );
+		}, 7, true ) ).rejects.toBe( releaseFailure );
 		await expect( harness.handler.handle( {
 			type: InterruptionPageRequestType.RECOVER,
 			documentVisible: true,
-		}, 7 ) ).resolves.toEqual( {
+		}, 7, true ) ).resolves.toEqual( {
 			state: InterruptionPageResponseState.UNAVAILABLE,
 		} );
 
@@ -321,7 +362,7 @@ describe( 'interruption page projections', () => {
 		await expect( harness.handler.handle( {
 			type: InterruptionPageRequestType.CONNECT,
 			documentVisible: true,
-		}, 7 ) ).resolves.toEqual( {
+		}, 7, true ) ).resolves.toEqual( {
 			state: InterruptionPageResponseState.WAITING,
 			capturedWaitDurationMilliseconds: waitingState.capturedWaitDurationMilliseconds,
 			focusedProgressMilliseconds: waitingState.confirmedFocusedDurationMilliseconds,
@@ -339,7 +380,7 @@ describe( 'interruption page projections', () => {
 		await expect( harness.handler.handle( {
 			type: InterruptionPageRequestType.SYNCHRONIZE,
 			documentVisible: true,
-		}, 8 ) ).resolves.toMatchObject( {
+		}, 8, true ) ).resolves.toMatchObject( {
 			state: InterruptionPageResponseState.WAITING,
 			progressing: false,
 		} );
@@ -357,7 +398,7 @@ describe( 'interruption page projections', () => {
 		await expect( harness.handler.handle( {
 			type: InterruptionPageRequestType.SYNCHRONIZE,
 			documentVisible: true,
-		}, 7 ) ).resolves.toMatchObject( {
+		}, 7, true ) ).resolves.toMatchObject( {
 			state: InterruptionPageResponseState.WAITING,
 			progressing: false,
 		} );
@@ -371,7 +412,7 @@ describe( 'interruption page projections', () => {
 			type: InterruptionPageRequestType.CHECKPOINT,
 			documentVisible: true,
 			displayedFocusedDurationMilliseconds: 1_000,
-		}, 7 ) ).resolves.toEqual( {
+		}, 7, true ) ).resolves.toEqual( {
 			state: InterruptionPageResponseState.READY,
 			allowanceExpiresAtEpochMilliseconds: allowanceState.expiresAtEpochMilliseconds,
 		} );
@@ -386,7 +427,7 @@ describe( 'interruption page projections', () => {
 		await expect( harness.handler.handle( {
 			type: InterruptionPageRequestType.CONNECT,
 			documentVisible: true,
-		}, 7 ) ).resolves.toEqual( {
+		}, 7, true ) ).resolves.toEqual( {
 			state: InterruptionPageResponseState.READY_EXPIRED,
 		} );
 	} );
@@ -506,7 +547,7 @@ describe( 'interruption page actions', () => {
 			type: InterruptionPageRequestType.CHECKPOINT,
 			documentVisible: true,
 			displayedFocusedDurationMilliseconds: 5_000,
-		}, 8 );
+		}, 8, true );
 
 		expect( harness.dispatch ).not.toHaveBeenCalled();
 	} );
@@ -519,7 +560,7 @@ describe( 'interruption page actions', () => {
 			type: InterruptionPageRequestType.CHECKPOINT,
 			documentVisible: true,
 			displayedFocusedDurationMilliseconds: 4_000,
-		}, 7 );
+		}, 7, true );
 
 		expect( harness.events[ 0 ] ).toMatchObject( {
 			type: ProtectionEventType.PROGRESS_CHECKPOINT,
@@ -528,8 +569,29 @@ describe( 'interruption page actions', () => {
 			completionLocalDate: '2026-09-02',
 			allowanceId: 'allowance_request_one',
 		} );
+		expect( harness.dispatch.mock.calls[ 0 ]?.[ 1 ] ).toBe( 'revision_initial_scope_default' );
 		expect( harness.applyDispatchResult ).toHaveBeenCalledWith( APPLIED_RESULT, CONFIGURATION );
 		expect( harness.refreshToolbarBadge ).not.toHaveBeenCalled();
+	} );
+
+	it( 'omits a measurement revision when an unsafe configuration lacks the scope entry', async () => {
+		const waitingState = createTestWaitingState();
+		const unsafeConfiguration: ProtectionConfigurationDocument = {
+			...CONFIGURATION,
+			measurementRevisionsByScope: {},
+		};
+		const harness = createHandlerHarness(
+			{ [ DefaultProtectionScopeId ]: waitingState },
+			unsafeConfiguration,
+		);
+
+		await harness.handler.handle( {
+			type: InterruptionPageRequestType.CHECKPOINT,
+			documentVisible: true,
+			displayedFocusedDurationMilliseconds: 1_000,
+		}, 7, true );
+
+		expect( harness.dispatch.mock.calls[ 0 ]?.[ 1 ] ).toBeUndefined();
 	} );
 
 	it( 'never subtracts already confirmed progress and tolerates participant departure', async () => {
@@ -544,7 +606,7 @@ describe( 'interruption page actions', () => {
 			type: InterruptionPageRequestType.CHECKPOINT,
 			documentVisible: true,
 			displayedFocusedDurationMilliseconds: 500,
-		}, 7 ) ).resolves.toEqual( {
+		}, 7, true ) ).resolves.toEqual( {
 			state: InterruptionPageResponseState.UNAVAILABLE,
 		} );
 
@@ -562,7 +624,7 @@ describe( 'interruption page actions', () => {
 		await harness.handler.handle( {
 			type: InterruptionPageRequestType.CONTINUE,
 			documentVisible: true,
-		}, 7 );
+		}, 7, true );
 
 		expect( harness.dispatch ).not.toHaveBeenCalled();
 	} );
@@ -574,7 +636,7 @@ describe( 'interruption page actions', () => {
 		await harness.handler.handle( {
 			type: InterruptionPageRequestType.CONTINUE,
 			documentVisible: true,
-		}, 7 );
+		}, 7, true );
 
 		expect( harness.events[ 0 ] ).toMatchObject( {
 			type: ProtectionEventType.READY_CONTINUATION,
@@ -602,7 +664,7 @@ describe( 'interruption page actions', () => {
 		await expect( harness.handler.handle( {
 			type: InterruptionPageRequestType.CONTINUE,
 			documentVisible: true,
-		}, 7 ) ).resolves.toEqual( {
+		}, 7, true ) ).resolves.toEqual( {
 			state: InterruptionPageResponseState.UNAVAILABLE,
 		} );
 

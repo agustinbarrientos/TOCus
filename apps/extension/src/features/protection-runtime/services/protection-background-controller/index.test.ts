@@ -1,263 +1,17 @@
 import { describe, expect, it, vi } from 'vitest';
-import { type BrowserProtectionRuntime } from '../browser-protection-runtime';
 import {
 	InterruptionPageRequestType,
 	ProtectionClockRequestType,
 	type InterruptionPageResponse,
 } from '../../types/runtime-message';
+import { ProtectionBackgroundAlarmName, createProtectionBackgroundController } from './index';
+import { StatisticsFocusObservationMode } from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
+import { ProtectionConfigurationStorageKey } from '../../../../domains/protection/services/protection-configuration-storage';
 import {
-	createProtectionBackgroundController,
-	ProtectionBackgroundAlarmName,
-} from './index';
-import {
-	type ProtectionBackgroundBrowser,
-	type ProtectionBackgroundSendResponse,
-} from './types';
-import { type ProtectionRuntimeNavigation } from '../../types/browser-runtime';
-
-const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/interruption.html';
-
-/**
- * Synchronous browser-event fixture that captures one registered listener.
- */
-class TestEvent<TArguments extends unknown[], TResult> {
-	/** Registered browser-event listener. */
-	private listener: ( ( ...arguments_: TArguments ) => TResult ) | null = null;
-
-	/**
-	 * Registers one event listener.
-	 * @param listener - Listener under test.
-	 */
-	addListener( listener: ( ...arguments_: TArguments ) => TResult ): void {
-		this.listener = listener;
-	}
-
-	/**
-	 * Removes the matching registered listener.
-	 * @param listener - Listener that should no longer receive events.
-	 */
-	removeListener( listener: ( ...arguments_: TArguments ) => TResult ): void {
-		if ( this.listener === listener ) {
-			this.listener = null;
-		}
-	}
-
-	/**
-	 * Reports whether one listener was registered.
-	 * @return Whether the event has a listener.
-	 */
-	hasListener(): boolean {
-		return this.listener !== null;
-	}
-
-	/**
-	 * Emits one event through the registered listener.
-	 * @param arguments_ - Browser-event arguments.
-	 * @return Listener result.
-	 */
-	emit( ...arguments_: TArguments ): TResult {
-		if ( this.listener === null ) {
-			throw new Error( 'Expected one registered browser-event listener.' );
-		}
-
-		return this.listener( ...arguments_ );
-	}
-}
-
-/**
- * Controllable optional-permission result used to verify startup ordering.
- */
-class DeferredPermissionResult {
-	/** Permission lookup that remains pending until explicitly resolved. */
-	readonly promise: Promise<boolean>;
-
-	/** Captured Promise settlement operation. */
-	private resolvePromise: ( ( granted: boolean ) => void ) | null = null;
-
-	/**
-	 * Creates one pending permission lookup.
-	 */
-	constructor() {
-		this.promise = new Promise<boolean>(
-			/**
-			 * Captures the lookup settlement operation.
-			 * @param resolve - Promise settlement operation.
-			 */
-			( resolve ) => {
-				this.resolvePromise = resolve;
-			},
-		);
-	}
-
-	/**
-	 * Resolves the pending permission lookup.
-	 * @param granted - Whether navigation observation is granted.
-	 */
-	resolve( granted: boolean ): void {
-		if ( this.resolvePromise === null ) {
-			throw new Error( 'Expected a pending permission result.' );
-		}
-
-		this.resolvePromise( granted );
-	}
-}
-
-/**
- * Browser message sender fixture.
- */
-interface TestMessageSender {
-	/** Sending frame identifier when the message came from a tab. */
-	frameId?: number | undefined;
-	/** Sending tab fixture. */
-	tab?: { id?: number | undefined } | undefined;
-	/** URL of the page or frame hosting the sending script. */
-	url?: string | undefined;
-}
-
-/**
- * Browser permission-change fixture.
- */
-interface TestPermissionChange {
-	/** Changed named permissions. */
-	permissions?: ReadonlyArray<string> | undefined;
-	/** Changed origin permissions. */
-	origins?: ReadonlyArray<string> | undefined;
-}
-
-/**
- * Fully spied runtime returned to controller tests.
- */
-interface RuntimeHarness {
-	/** Runtime contract supplied to the controller. */
-	runtime: BrowserProtectionRuntime;
-	/** Runtime startup spy. */
-	start: ReturnType<typeof vi.fn>;
-	/** Navigation spy. */
-	handleNavigation: ReturnType<typeof vi.fn>;
-	/** Page-request spy. */
-	handlePageRequest: ReturnType<typeof vi.fn>;
-	/** Tab-removal spy. */
-	handleTabRemoved: ReturnType<typeof vi.fn>;
-	/** Focus-change spy. */
-	handleFocusChanged: ReturnType<typeof vi.fn>;
-	/** Clock-tick spy. */
-	handleClockTick: ReturnType<typeof vi.fn>;
-	/** Configuration-change spy. */
-	handleConfigurationChanged: ReturnType<typeof vi.fn>;
-	/** Fail-open cleanup spy. */
-	failOpen: ReturnType<typeof vi.fn>;
-}
-
-/**
- * Creates a fully spied protection runtime.
- * @return Browser protection runtime test double and operation spies.
- */
-function createRuntime(): RuntimeHarness {
-	const start = vi.fn().mockResolvedValue( undefined );
-	const handleNavigation = vi.fn().mockResolvedValue( undefined );
-	const handlePageRequest = vi.fn().mockResolvedValue( { state: 'unavailable' } );
-	const handleTabRemoved = vi.fn().mockResolvedValue( undefined );
-	const handleFocusChanged = vi.fn().mockResolvedValue( undefined );
-	const handleClockTick = vi.fn().mockResolvedValue( undefined );
-	const handleConfigurationChanged = vi.fn().mockResolvedValue( undefined );
-	const failOpen = vi.fn().mockResolvedValue( undefined );
-	const runtime: BrowserProtectionRuntime = {
-		start,
-		handleNavigation,
-		handlePageRequest,
-		handleTabRemoved,
-		handleFocusChanged,
-		handleClockTick,
-		handleConfigurationChanged,
-		failOpen,
-	};
-
-	return {
-		runtime,
-		start,
-		handleNavigation,
-		handlePageRequest,
-		handleTabRemoved,
-		handleFocusChanged,
-		handleClockTick,
-		handleConfigurationChanged,
-		failOpen,
-	};
-}
-
-/**
- * Creates one controller with independently observable browser-event surfaces.
- * @param includeWebNavigation - Whether optional navigation observation is initially available.
- * @param hasNavigationPermission - Whether startup permission inspection succeeds.
- * @return Controller, runtime, events, and alarm creation spy.
- */
-function createHarness( includeWebNavigation = true, hasNavigationPermission = includeWebNavigation ) {
-	const runtimeHarness = createRuntime();
-	const alarm = new TestEvent<[ { name: string } ], void>();
-	const message = new TestEvent<
-		[ unknown, TestMessageSender, ProtectionBackgroundSendResponse ],
-		true | undefined
-	>();
-	const navigation = new TestEvent<[ ProtectionRuntimeNavigation ], unknown>();
-	const committedNavigation = new TestEvent<[ ProtectionRuntimeNavigation ], unknown>();
-	const historyNavigation = new TestEvent<[ ProtectionRuntimeNavigation ], unknown>();
-	const referenceNavigation = new TestEvent<[ ProtectionRuntimeNavigation ], unknown>();
-	const permissionAddition = new TestEvent<[ TestPermissionChange ], void>();
-	const permissionRemoval = new TestEvent<[ TestPermissionChange ], void>();
-	const storageChange = new TestEvent<[ Readonly<Record<string, unknown>>, string ], void>();
-	const tabActivation = new TestEvent<[ unknown ], unknown>();
-	const tabRemoval = new TestEvent<[ number, unknown ], unknown>();
-	const windowFocus = new TestEvent<[ number ], unknown>();
-	const createAlarm = vi.fn().mockResolvedValue( undefined );
-	const containsPermission = vi.fn().mockResolvedValue( hasNavigationPermission );
-	const browser: ProtectionBackgroundBrowser = {
-		alarms: { create: createAlarm, onAlarm: alarm },
-		permissions: {
-			contains: containsPermission,
-			onAdded: permissionAddition,
-			onRemoved: permissionRemoval,
-		},
-		runtime: { onMessage: message },
-		storage: { onChanged: storageChange },
-		tabs: { onActivated: tabActivation, onRemoved: tabRemoval },
-		windows: { onFocusChanged: windowFocus },
-		...( includeWebNavigation
-			? {
-				webNavigation: {
-					onBeforeNavigate: navigation,
-					onCommitted: committedNavigation,
-					onHistoryStateUpdated: historyNavigation,
-					onReferenceFragmentUpdated: referenceNavigation,
-				},
-			}
-			: {} ),
-	};
-	const controller = createProtectionBackgroundController( {
-		browser,
-		interruptionPageUrl: INTERRUPTION_PAGE_URL,
-		runtime: runtimeHarness.runtime,
-	} );
-
-	return {
-		alarm,
-		browser,
-		controller,
-		containsPermission,
-		committedNavigation,
-		createAlarm,
-		message,
-		navigation,
-		historyNavigation,
-		referenceNavigation,
-		permissionAddition,
-		permissionRemoval,
-		...runtimeHarness,
-		storageChange,
-		tabActivation,
-		tabRemoval,
-		windowFocus,
-	};
-}
+	DeferredPermissionResult,
+	INTERRUPTION_PAGE_URL,
+	createHarness,
+} from './__fixtures__';
 
 describe( 'createProtectionBackgroundController', () => {
 	it( 'registers listeners synchronously before starting restoration', async () => {
@@ -269,6 +23,7 @@ describe( 'createProtectionBackgroundController', () => {
 		expect( harness.message.hasListener() ).toBe( true );
 		expect( harness.navigation.hasListener() ).toBe( true );
 		expect( harness.committedNavigation.hasListener() ).toBe( true );
+		expect( harness.errorNavigation.hasListener() ).toBe( true );
 		expect( harness.historyNavigation.hasListener() ).toBe( true );
 		expect( harness.referenceNavigation.hasListener() ).toBe( true );
 		expect( harness.permissionAddition.hasListener() ).toBe( true );
@@ -283,6 +38,62 @@ describe( 'createProtectionBackgroundController', () => {
 		expect( harness.createAlarm ).toHaveBeenCalledWith( ProtectionBackgroundAlarmName.RECONCILIATION, {
 			periodInMinutes: 1,
 		} );
+		expect( harness.captureStatisticsObservation ).toHaveBeenCalledWith(
+			StatisticsFocusObservationMode.STARTUP,
+		);
+	} );
+
+	it( 'captures every potentially state-changing browser event as a statistics boundary', async () => {
+		const harness = createHarness();
+		const navigation = { frameId: 0, tabId: 7, url: 'https://example.com/' };
+
+		harness.controller.start();
+		await vi.waitFor( () => {
+			expect( harness.start ).toHaveBeenCalledOnce();
+		} );
+		harness.captureStatisticsObservation.mockClear();
+		harness.navigation.emit( navigation );
+		harness.message.emit( {
+			type: ProtectionClockRequestType.RECONCILE_ALLOWANCE_EXPIRY,
+			allowanceId: 'allowance_a',
+		}, {
+			frameId: 0,
+			tab: { id: 7, incognito: false },
+			url: 'https://example.com/',
+		}, vi.fn() );
+		harness.message.emit( {
+			type: InterruptionPageRequestType.CONNECT,
+			documentVisible: true,
+		}, {
+			frameId: 0,
+			tab: { id: 7, incognito: false },
+			url: INTERRUPTION_PAGE_URL,
+		}, vi.fn() );
+		harness.tabRemoval.emit( 7, {} );
+		harness.tabActivation.emit( {} );
+		harness.windowFocus.emit( 1 );
+		harness.storageChange.emit( {
+			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: { newValue: {} },
+		}, 'local' );
+		harness.permissionRemoval.emit( { origins: [ '*://example.com/*' ] } );
+		harness.permissionAddition.emit( { origins: [ '*://example.com/*' ] } );
+		harness.alarm.emit( { name: ProtectionBackgroundAlarmName.RECONCILIATION } );
+
+		expect( harness.captureStatisticsObservation.mock.calls ).toEqual( [
+			[ StatisticsFocusObservationMode.BOUNDARY, {
+				...navigation,
+				phase: 'before-navigate',
+			} ],
+			[ StatisticsFocusObservationMode.BOUNDARY ],
+			[ StatisticsFocusObservationMode.BOUNDARY ],
+			[ StatisticsFocusObservationMode.BOUNDARY ],
+			[ StatisticsFocusObservationMode.BOUNDARY, undefined, null ],
+			[ StatisticsFocusObservationMode.BOUNDARY, undefined, { windowId: 1 } ],
+			[ StatisticsFocusObservationMode.BOUNDARY ],
+			[ StatisticsFocusObservationMode.BOUNDARY ],
+			[ StatisticsFocusObservationMode.BOUNDARY ],
+			[ StatisticsFocusObservationMode.BOUNDARY ],
+		] );
 	} );
 
 	it( 'registers optional navigation observation after permission is granted', async () => {
@@ -351,6 +162,7 @@ describe( 'createProtectionBackgroundController', () => {
 		harness.controller.start();
 		harness.navigation.emit( { frameId: 0, tabId: 7, url: 'https://example.com/' } );
 		expect( harness.handleNavigation ).not.toHaveBeenCalled();
+		expect( harness.captureStatisticsObservation ).toHaveBeenCalledTimes( 2 );
 
 		permissionResult.resolve( true );
 		await vi.waitFor( () => {
@@ -358,6 +170,18 @@ describe( 'createProtectionBackgroundController', () => {
 		} );
 		expect( harness.start.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
 			harness.handleNavigation.mock.invocationCallOrder[ 0 ] ?? Number.POSITIVE_INFINITY,
+		);
+		expect( harness.start ).toHaveBeenCalledWith(
+			harness.capturedStatisticsObservations[ 0 ],
+		);
+		expect( harness.handleNavigation ).toHaveBeenCalledWith(
+			{
+				frameId: 0,
+				phase: 'before-navigate',
+				tabId: 7,
+				url: 'https://example.com/',
+			},
+			harness.capturedStatisticsObservations[ 1 ],
 		);
 	} );
 
@@ -428,12 +252,21 @@ describe( 'createProtectionBackgroundController', () => {
 		await vi.waitFor( () => {
 			expect( harness.handleNavigation ).toHaveBeenCalledOnce();
 		} );
-		expect( harness.handleNavigation ).toHaveBeenCalledWith( navigation );
+		expect( harness.handleNavigation ).toHaveBeenCalledWith( {
+			...navigation,
+			phase: 'before-navigate',
+		}, expect.any( Promise ) );
 	} );
 
 	it( 'routes a committed top-level document so page-local allowance effects can be synchronized', async () => {
 		const harness = createHarness();
-		const navigation = { frameId: 0, tabId: 7, url: 'https://example.com/committed' };
+		const navigation = {
+			frameId: 0,
+			tabId: 7,
+			transitionQualifiers: [ 'server_redirect' ],
+			transitionType: 'link',
+			url: 'https://example.com/committed',
+		};
 
 		harness.controller.start();
 		harness.committedNavigation.emit( navigation );
@@ -442,7 +275,31 @@ describe( 'createProtectionBackgroundController', () => {
 		await vi.waitFor( () => {
 			expect( harness.handleNavigation ).toHaveBeenCalledOnce();
 		} );
-		expect( harness.handleNavigation ).toHaveBeenCalledWith( navigation );
+		expect( harness.handleNavigation ).toHaveBeenCalledWith( {
+			...navigation,
+			phase: 'committed',
+		}, expect.any( Promise ) );
+	} );
+
+	it( 'routes a top-level browser error as a terminal navigation outcome', async () => {
+		const harness = createHarness();
+		const navigation = {
+			frameId: 0,
+			tabId: 7,
+			url: 'https://example.com/unavailable',
+		};
+
+		harness.controller.start();
+		harness.errorNavigation.emit( navigation );
+		harness.errorNavigation.emit( { ...navigation, frameId: 2 } );
+
+		await vi.waitFor( () => {
+			expect( harness.handleNavigation ).toHaveBeenCalledOnce();
+		} );
+		expect( harness.handleNavigation ).toHaveBeenCalledWith( {
+			...navigation,
+			phase: 'error-occurred',
+		}, expect.any( Promise ) );
 	} );
 
 	it( 'routes supported top-level same-document navigation without observing subframes', async () => {
@@ -459,8 +316,22 @@ describe( 'createProtectionBackgroundController', () => {
 		await vi.waitFor( () => {
 			expect( harness.handleNavigation ).toHaveBeenCalledTimes( 2 );
 		} );
-		expect( harness.handleNavigation ).toHaveBeenNthCalledWith( 1, historyNavigation );
-		expect( harness.handleNavigation ).toHaveBeenNthCalledWith( 2, referenceNavigation );
+		expect( harness.handleNavigation ).toHaveBeenNthCalledWith(
+			1,
+			{
+				...historyNavigation,
+				phase: 'history-state-updated',
+			},
+			expect.any( Promise ),
+		);
+		expect( harness.handleNavigation ).toHaveBeenNthCalledWith(
+			2,
+			{
+				...referenceNavigation,
+				phase: 'reference-fragment-updated',
+			},
+			expect.any( Promise ),
+		);
 	} );
 
 	it.each( [
@@ -474,6 +345,7 @@ describe( 'createProtectionBackgroundController', () => {
 		const controller = createProtectionBackgroundController( {
 			browser: harness.browser,
 			interruptionPageUrl,
+			optionsPageUrl: interruptionPageUrl.replace( 'interruption.html', 'options.html' ),
 			runtime: harness.runtime,
 		} );
 
@@ -485,7 +357,7 @@ describe( 'createProtectionBackgroundController', () => {
 			documentVisible: true,
 		}, {
 			frameId: 0,
-			tab: { id: 7 },
+			tab: { id: 7, incognito: false },
 			url: interruptionPageUrl,
 		}, sendResponse ) ).toBe( true );
 		await vi.waitFor( () => {
@@ -494,7 +366,41 @@ describe( 'createProtectionBackgroundController', () => {
 		expect( harness.handlePageRequest ).toHaveBeenCalledWith( {
 			type: 'connect',
 			documentVisible: true,
-		}, 7 );
+		}, 7, true, expect.any( Promise ) );
+	} );
+
+	it.each( [
+		[ 'private', true ],
+		[ 'unknown-privacy', undefined ],
+	] )( 'marks an authenticated %s page ineligible for protection', async (
+		_label,
+		incognito,
+	) => {
+		const harness = createHarness();
+		const response: InterruptionPageResponse = { state: 'unavailable' };
+		const sendResponse = vi.fn();
+
+		harness.handlePageRequest.mockResolvedValue( response );
+		harness.controller.start();
+
+		expect( harness.message.emit( {
+			type: 'connect',
+			documentVisible: true,
+		}, {
+			frameId: 0,
+			tab: {
+				id: 7,
+				...( incognito === undefined ? {} : { incognito } ),
+			},
+			url: INTERRUPTION_PAGE_URL,
+		}, sendResponse ) ).toBe( true );
+		await vi.waitFor( () => {
+			expect( sendResponse ).toHaveBeenCalledWith( response );
+		} );
+		expect( harness.handlePageRequest ).toHaveBeenCalledWith( {
+			type: 'connect',
+			documentVisible: true,
+		}, 7, false, expect.any( Promise ) );
 	} );
 
 	it( 'restarts the permitted runtime before routing explicit recovery', async () => {
@@ -515,7 +421,7 @@ describe( 'createProtectionBackgroundController', () => {
 			documentVisible: true,
 		}, {
 			frameId: 0,
-			tab: { id: 7 },
+			tab: { id: 7, incognito: false },
 			url: INTERRUPTION_PAGE_URL,
 		}, sendResponse ) ).toBe( true );
 		await vi.waitFor( () => {
@@ -532,7 +438,7 @@ describe( 'createProtectionBackgroundController', () => {
 		expect( harness.handlePageRequest ).toHaveBeenCalledWith( {
 			type: InterruptionPageRequestType.RECOVER,
 			documentVisible: true,
-		}, 7 );
+		}, 7, true, expect.any( Promise ) );
 	} );
 
 	it( 'applies a permission removal after an older recovery lookup', async () => {
@@ -553,7 +459,7 @@ describe( 'createProtectionBackgroundController', () => {
 			documentVisible: true,
 		}, {
 			frameId: 0,
-			tab: { id: 7 },
+			tab: { id: 7, incognito: false },
 			url: INTERRUPTION_PAGE_URL,
 		}, sendResponse ) ).toBe( true );
 		harness.permissionRemoval.emit( { permissions: [ 'webNavigation' ] } );
@@ -573,6 +479,7 @@ describe( 'createProtectionBackgroundController', () => {
 		const sendResponse = vi.fn();
 
 		harness.controller.start();
+		harness.captureStatisticsObservation.mockClear();
 
 		expect( harness.message.emit( {
 			type: ProtectionClockRequestType.RECONCILE_ALLOWANCE_EXPIRY,
@@ -586,6 +493,9 @@ describe( 'createProtectionBackgroundController', () => {
 		await vi.waitFor( () => {
 			expect( harness.handleClockTick ).toHaveBeenCalledOnce();
 		} );
+		expect( harness.captureStatisticsObservation ).toHaveBeenCalledWith(
+			StatisticsFocusObservationMode.BOUNDARY,
+		);
 		expect( harness.handlePageRequest ).not.toHaveBeenCalled();
 	} );
 
@@ -634,7 +544,7 @@ describe( 'createProtectionBackgroundController', () => {
 			documentVisible: true,
 		}, {
 			frameId: 0,
-			tab: { id: 7 },
+			tab: { id: 7, incognito: false },
 			url: senderUrl,
 		}, sendResponse ) ).toBe( true );
 		await vi.waitFor( () => {
@@ -644,7 +554,7 @@ describe( 'createProtectionBackgroundController', () => {
 		expect( harness.handlePageRequest ).toHaveBeenCalledWith( {
 			type: 'connect',
 			documentVisible: true,
-		}, 7 );
+		}, 7, true, expect.any( Promise ) );
 	} );
 
 	it.each( [
@@ -747,7 +657,7 @@ describe( 'createProtectionBackgroundController', () => {
 			expect( harness.handlePageRequest ).toHaveBeenCalledWith( {
 				type: 'synchronize',
 				documentVisible: true,
-			}, null );
+			}, null, false, expect.any( Promise ) );
 			expect( sendResponse ).toHaveBeenCalledWith( { state: 'unavailable' } );
 			expect( harness.failOpen ).toHaveBeenCalledOnce();
 		} );
@@ -766,8 +676,53 @@ describe( 'createProtectionBackgroundController', () => {
 		expect( activationResult ).toBeUndefined();
 		expect( focusResult ).toBeUndefined();
 		await vi.waitFor( () => {
-			expect( harness.handleTabRemoved ).toHaveBeenCalledWith( 9 );
+			expect( harness.handleTabRemoved ).toHaveBeenCalledWith( 9, expect.any( Promise ) );
 			expect( harness.handleFocusChanged ).toHaveBeenCalledTimes( 2 );
+		} );
+	} );
+
+	it( 'carries exact tab and window identity into focus observations', () => {
+		const harness = createHarness();
+
+		harness.controller.start();
+		harness.captureStatisticsObservation.mockClear();
+		harness.tabActivation.emit( { tabId: 7, windowId: 3 } );
+		harness.windowFocus.emit( 4 );
+
+		expect( harness.captureStatisticsObservation.mock.calls ).toEqual( [
+			[
+				StatisticsFocusObservationMode.BOUNDARY,
+				undefined,
+				{ tabId: 7, windowId: 3 },
+			],
+			[
+				StatisticsFocusObservationMode.BOUNDARY,
+				undefined,
+				{ windowId: 4 },
+			],
+		] );
+	} );
+
+	it( 'marks malformed tab and window focus identities as unavailable', () => {
+		const harness = createHarness();
+
+		harness.controller.start();
+		harness.captureStatisticsObservation.mockClear();
+		[
+			null,
+			7,
+			{},
+			{ tabId: '7', windowId: 3 },
+			{ tabId: -1, windowId: 3 },
+			{ tabId: 7 },
+			{ tabId: 7, windowId: '3' },
+			{ tabId: 7, windowId: -1 },
+		].forEach( ( activation ) => harness.tabActivation.emit( activation ) );
+		[ Number.NaN, -2 ].forEach( ( windowId ) => harness.windowFocus.emit( windowId ) );
+
+		expect( harness.captureStatisticsObservation ).toHaveBeenCalledTimes( 10 );
+		harness.captureStatisticsObservation.mock.calls.forEach( ( call ) => {
+			expect( call ).toEqual( [ StatisticsFocusObservationMode.BOUNDARY, undefined, null ] );
 		} );
 	} );
 
@@ -816,6 +771,7 @@ describe( 'createProtectionBackgroundController', () => {
 		const harness = createHarness();
 
 		harness.controller.start();
+		harness.captureStatisticsObservation.mockClear();
 
 		harness.alarm.emit( { name: ProtectionBackgroundAlarmName.RECONCILIATION } );
 		harness.alarm.emit( { name: 'tocus.protection.clock.1788368400000' } );
@@ -825,6 +781,10 @@ describe( 'createProtectionBackgroundController', () => {
 		await vi.waitFor( () => {
 			expect( harness.handleClockTick ).toHaveBeenCalledTimes( 2 );
 		} );
+		expect( harness.captureStatisticsObservation.mock.calls ).toEqual( [
+			[ StatisticsFocusObservationMode.BOUNDARY ],
+			[ StatisticsFocusObservationMode.BOUNDARY ],
+		] );
 	} );
 
 	it( 'attempts fail-open cleanup after an event operation rejects', async () => {
