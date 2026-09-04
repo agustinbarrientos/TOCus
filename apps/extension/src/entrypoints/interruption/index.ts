@@ -1,6 +1,8 @@
 import '@tocus/theme/index.scss';
 import { browser } from 'wxt/browser';
 import { createPreferencesStorageService } from '../../domains/preferences/services';
+import { type Language } from '../../domains/preferences/types';
+import { resolveLanguage } from '../../domains/preferences/utils';
 import { ComponentInterruptionScreen } from '../../features/interruption/components/screen';
 import {
 	createInterruptionPageController,
@@ -9,6 +11,7 @@ import {
 	type InterruptionPageVisibility,
 } from '../../features/interruption/services/interruption-page-controller';
 import { type InterruptionPageRequest } from '../../features/protection-runtime/types/runtime-message';
+import { loadLocalizationBundle } from '../../localization';
 import { createPreferencesController } from '../../features/preferences/services/preferences-controller';
 import { createStatisticsClient } from '../../features/statistics/services/statistics-client';
 import { createWellbeingSummaryController } from '../../features/statistics/services/wellbeing-summary-controller';
@@ -68,6 +71,12 @@ if ( ! ( interruptionScreenCandidate instanceof ComponentInterruptionScreen ) ) 
 const interruptionScreen = interruptionScreenCandidate;
 
 /**
+ * Supported language derived from the browser UI locale.
+ * @since 0.1.0 Initial implementation.
+ */
+const browserLanguage = resolveLanguage( browser.i18n.getUILanguage() );
+
+/**
  * Extension runtime boundary used by the interruption controller.
  * @since 0.1.0 Initial implementation.
  */
@@ -112,6 +121,7 @@ const preferencesStorage = createPreferencesStorageService( {
  */
 const preferencesController = createPreferencesController( {
 	appearanceTarget: document.documentElement,
+	browserLanguage,
 	presentation: interruptionScreen,
 	storage: preferencesStorage,
 	storageChanges: browser.storage.onChanged,
@@ -137,6 +147,59 @@ const wellbeingSummaryController = createWellbeingSummaryController( {
 } );
 
 /**
+ * Latest requested localization projection revision.
+ * @since 0.1.0 Initial implementation.
+ */
+let localizationRevision = 0;
+
+/**
+ * Applies one complete localization snapshot to the interruption document.
+ * @param language - Effective browser-derived or explicitly selected language.
+ * @return Promise resolved after the latest requested language is projected.
+ * @since 0.1.0 Initial implementation.
+ */
+async function applyLocalization( language: Language ): Promise<void> {
+	localizationRevision += 1;
+	const requestedRevision = localizationRevision;
+	const localization = await loadLocalizationBundle( language );
+
+	if ( requestedRevision !== localizationRevision ) {
+		return;
+	}
+
+	document.documentElement.lang = localization.languageTag;
+	document.title = localization.document.interruptionTitle;
+	interruptionScreen.copy = localization.interruption;
+	interruptionScreen.wellbeingSummary = localization.wellbeing.neutral;
+	wellbeingSummaryController.setCopy( localization.wellbeing );
+}
+
+/**
+ * Starts one non-blocking live localization projection.
+ * @param language - Newly effective preference language.
+ * @since 0.1.0 Initial implementation.
+ */
+function handleLanguageChange( language: Language ): void {
+	void applyLocalization( language );
+}
+
+preferencesController.addLanguageChangeListener( handleLanguageChange );
+
+/**
+ * Waits until the most recently requested localization is projected.
+ * @return Promise resolved when no newer language request is pending.
+ * @since 0.1.0 Initial implementation.
+ */
+async function synchronizeLocalization(): Promise<void> {
+	let requestedRevision: number;
+
+	do {
+		requestedRevision = localizationRevision + 1;
+		await applyLocalization( preferencesController.language );
+	} while ( requestedRevision !== localizationRevision );
+}
+
+/**
  * Starts a non-blocking footer refresh after an authoritative major-state change.
  * @since 0.1.0 Initial implementation.
  */
@@ -151,6 +214,7 @@ function refreshWellbeingSummary(): void {
  */
 async function startInterruptionPage(): Promise<void> {
 	await preferencesController.start();
+	await synchronizeLocalization();
 	wellbeingSummaryController.start();
 	const controller = createInterruptionPageController( {
 		clock,
