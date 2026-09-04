@@ -1,4 +1,7 @@
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import {
+	type ProtectedSiteConfiguration,
+	type ProtectionConfigurationDocument,
+} from '../../../../domains/protection/types/protected-site-configuration';
 import { type CanonicalHost } from '../../../../domains/protection/types/protected-site-rule';
 import { type SitePermissionReleaseStatus } from '../../services/site-permission-manager';
 
@@ -57,6 +60,7 @@ export interface RemovedProtectedSiteConfigurationChangedEventDetail {
 	identityHost: CanonicalHost;
 	configuration: ProtectionConfigurationDocument;
 	permissionReleaseStatus: SitePermissionReleaseStatus;
+	site: ProtectedSiteConfiguration;
 }
 
 /**
