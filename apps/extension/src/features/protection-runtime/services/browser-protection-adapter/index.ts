@@ -25,7 +25,16 @@ import {
  */
 export const ProtectionClockAlarmNamePrefix = 'tocus.protection.clock.';
 
+/**
+ * Extension script injected into protected pages.
+ * @since 0.1.0 Initial implementation.
+ */
 const PROTECTED_PAGE_SCRIPT_PATH = '/protected-page.js';
+
+/**
+ * Extension font stylesheet injected into protected pages.
+ * @since 0.1.0 Initial implementation.
+ */
 const PROTECTED_PAGE_FONT_PATH = 'assets/protected-page-font.css';
 
 /**
@@ -169,8 +178,10 @@ export function createBrowserProtectionAdapter(
 
 			return [ {
 				id: tab.id,
+				...( tab.incognito === undefined ? {} : { incognito: tab.incognito } ),
 				...( tab.pendingUrl === undefined ? {} : { pendingUrl: tab.pendingUrl } ),
 				...( tab.url === undefined ? {} : { url: tab.url } ),
+				...( tab.windowId === undefined ? {} : { windowId: tab.windowId } ),
 			} ];
 		} );
 	}
