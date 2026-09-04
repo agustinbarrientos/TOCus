@@ -17,6 +17,7 @@ import {
 	canonicalizeProtectedSite,
 	ProtectedSiteCanonicalizationStatus,
 } from '../../utils/protected-site-canonicalizer';
+import { reconcileProtectionScopeMeasurementRevisions } from '../../utils/reconcile-protection-scope-measurement-revisions';
 import { reconcileProtectionScopeSchedules } from '../../utils/reconcile-protection-scope-schedules';
 import { normalizeSchedule } from '../../utils/schedule-normalizer';
 import {
@@ -29,6 +30,7 @@ import {
 	type ProtectionConfigurationEditor,
 	type ProtectionConfigurationEditorOptions,
 	type ProtectionConfigurationMutation,
+	type ProtectionConfigurationRemovalFinalizer,
 	type UpdatedProtectionConfigurationEditResult,
 } from './types';
 
@@ -86,22 +88,48 @@ function findSite(
  * Replaces one site without mutating the current configuration.
  * @param configuration - Current validated configuration.
  * @param site - Complete replacement site.
- * @return Validated updated configuration result.
+ * @return Protected-site configurations with the exact site replaced.
  * @since 0.1.0 Initial implementation.
  */
 function replaceSite(
 	configuration: ProtectionConfigurationDocument,
 	site: ProtectedSiteConfiguration,
-): UpdatedProtectionConfigurationEditResult {
-	const sites = configuration.sites.map( ( currentSite ) =>
+): ProtectionConfigurationDocument[ 'sites' ] {
+	return configuration.sites.map( ( currentSite ) =>
 		currentSite.identityHost === site.identityHost ? site : currentSite,
 	);
+}
 
-	return createUpdatedResult( {
-		...configuration,
+/**
+ * Creates one updated configuration after reconciling scope-owned values.
+ * @param configuration - Current validated configuration.
+ * @param sites - Candidate protected-site configurations.
+ * @param rotatedScopeIds - Active scopes whose measurement contract changed.
+ * @param options - Editor dependencies containing the revision factory.
+ * @return Updated configuration result or null when revision creation fails.
+ * @since 0.1.0 Initial implementation.
+ */
+function createMembershipUpdatedResult(
+	configuration: ProtectionConfigurationDocument,
+	sites: ProtectionConfigurationDocument[ 'sites' ],
+	rotatedScopeIds: ReadonlySet<ProtectionScopeId>,
+	options: ProtectionConfigurationEditorOptions,
+): UpdatedProtectionConfigurationEditResult | null {
+	const measurementRevisionsByScope = reconcileProtectionScopeMeasurementRevisions( {
 		sites,
-		schedulesByScope: reconcileProtectionScopeSchedules( sites, configuration.schedulesByScope ),
+		currentRevisionsByScope: configuration.measurementRevisionsByScope,
+		rotatedScopeIds,
+		createMeasurementRevision: options.createMeasurementRevision,
 	} );
+
+	return measurementRevisionsByScope === null
+		? null
+		: createUpdatedResult( {
+			...configuration,
+			sites,
+			schedulesByScope: reconcileProtectionScopeSchedules( sites, configuration.schedulesByScope ),
+			measurementRevisionsByScope,
+		} );
 }
 
 /**
@@ -245,6 +273,42 @@ export function createProtectionConfigurationEditor(
 	}
 
 	/**
+	 * Completes one optional effect before returning an authoritative removal result.
+	 * @param result - Successful or rejected edit result.
+	 * @param configuration - Latest configuration known by the coordinated mutation.
+	 * @param removedSite - Site resolved from authoritative storage, or null when none matched.
+	 * @param finalize - Optional removal settlement effect.
+	 * @return Original edit result after the effect completes.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function finalizeRemovalResult(
+		result: ProtectionConfigurationEditResult,
+		configuration: ProtectionConfigurationDocument | null,
+		removedSite: ProtectedSiteConfiguration | null,
+		finalize: ProtectionConfigurationRemovalFinalizer | undefined,
+	): Promise<ProtectionConfigurationEditResult> {
+		await finalize?.( { configuration, result, removedSite } );
+
+		return result;
+	}
+
+	/**
+	 * Completes one optional effect after coordinated removal persistence rejects.
+	 * @param configuration - Configuration loaded before the failed removal operation.
+	 * @param removedSite - Site resolved from authoritative storage.
+	 * @param finalize - Optional removal settlement effect.
+	 * @return Promise resolved after the effect completes.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function finalizeFailedRemoval(
+		configuration: ProtectionConfigurationDocument,
+		removedSite: ProtectedSiteConfiguration,
+		finalize: ProtectionConfigurationRemovalFinalizer | undefined,
+	): Promise<void> {
+		await finalize?.( { configuration, result: null, removedSite } );
+	}
+
+	/**
 	 * Adds one hostname or HTTP(S) URL with shared or independent behavior.
 	 * @param siteInput - Unknown user-entered hostname or URL.
 	 * @param independent - Whether the site receives its own scope.
@@ -305,14 +369,22 @@ export function createProtectionConfigurationEditor(
 			);
 		}
 
-		const result = createUpdatedResult( {
-			...configuration,
-			sites: updatedSites.data,
-			schedulesByScope: reconcileProtectionScopeSchedules(
-				updatedSites.data,
-				configuration.schedulesByScope,
-			),
-		} );
+		const result = createMembershipUpdatedResult(
+			configuration,
+			updatedSites.data,
+			new Set( [ scopeId ] ),
+			options,
+		);
+
+		if ( result === null ) {
+			return finalizeResult(
+				createRejectedResult(
+					ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION,
+				),
+				configuration,
+				finalize,
+			);
+		}
 
 		try {
 			await beforePersist?.( result.configuration );
@@ -403,7 +475,22 @@ export function createProtectionConfigurationEditor(
 				displayNameOverride: displayNameResult.data,
 			};
 
-		return saveUpdatedResult( replaceSite( configuration, replacementSite ) );
+		const sites = replaceSite( configuration, replacementSite );
+		const rotatedScopeIds = currentSite.rule.scopeId === scopeId
+			? new Set<ProtectionScopeId>()
+			: new Set( [ currentSite.rule.scopeId, scopeId ] );
+		const result = createMembershipUpdatedResult(
+			configuration,
+			sites,
+			rotatedScopeIds,
+			options,
+		);
+
+		return result === null
+			? createRejectedResult(
+				ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION,
+			)
+			: saveUpdatedResult( result );
 	}
 
 	/**
@@ -435,14 +522,15 @@ export function createProtectionConfigurationEditor(
 	 */
 	async function performRemove(
 		identityHostInput: unknown,
-		finalize: ProtectionConfigurationEditFinalizer | undefined,
+		finalize: ProtectionConfigurationRemovalFinalizer | undefined,
 	): Promise<ProtectionConfigurationEditResult> {
 		const configuration = await options.storage.load();
 
 		if ( configuration === null ) {
-			return finalizeResult(
+			return finalizeRemovalResult(
 				createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION ),
 				configuration,
+				null,
 				finalize,
 			);
 		}
@@ -450,30 +538,43 @@ export function createProtectionConfigurationEditor(
 		const currentSite = findSite( configuration, identityHostInput );
 
 		if ( currentSite === undefined ) {
-			return finalizeResult(
+			return finalizeRemovalResult(
 				createRejectedResult( ProtectionConfigurationEditRejectionReason.SITE_NOT_FOUND ),
 				configuration,
+				null,
 				finalize,
 			);
 		}
 
 		const sites = configuration.sites.filter( ( site ) => site.identityHost !== currentSite.identityHost );
 
-		const result = createUpdatedResult( {
-			...configuration,
+		const result = createMembershipUpdatedResult(
+			configuration,
 			sites,
-			schedulesByScope: reconcileProtectionScopeSchedules( sites, configuration.schedulesByScope ),
-		} );
+			new Set( [ currentSite.rule.scopeId ] ),
+			options,
+		);
+
+		if ( result === null ) {
+			return finalizeRemovalResult(
+				createRejectedResult(
+					ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION,
+				),
+				configuration,
+				currentSite,
+				finalize,
+			);
+		}
 
 		try {
 			await options.storage.save( result.configuration );
 		} catch ( error ) {
-			await finalizeFailedMutation( configuration, finalize );
+			await finalizeFailedRemoval( configuration, currentSite, finalize );
 
 			throw error;
 		}
 
-		return finalizeResult( result, result.configuration, finalize );
+		return finalizeRemovalResult( result, result.configuration, currentSite, finalize );
 	}
 
 	/**
@@ -485,9 +586,12 @@ export function createProtectionConfigurationEditor(
 	 */
 	function remove(
 		identityHostInput: unknown,
-		finalize?: ProtectionConfigurationEditFinalizer,
+		finalize?: ProtectionConfigurationRemovalFinalizer,
 	): Promise<ProtectionConfigurationEditResult> {
-		return serializeMutation( () => performRemove( identityHostInput, finalize ) );
+		return serializeMutation( () => performRemove(
+			identityHostInput,
+			finalize,
+		) );
 	}
 
 	/**
@@ -565,9 +669,31 @@ export function createProtectionConfigurationEditor(
 			);
 		}
 
+		const activeScopeIds = new Set<ProtectionScopeId>( [
+			DefaultProtectionScopeId,
+			...configuration.sites.map( ( site ) => site.rule.scopeId ),
+		] );
+		const rotatedScopeIds = timingConfiguration.data.allowanceMilliseconds ===
+			configuration.timingConfiguration.allowanceMilliseconds
+			? new Set<ProtectionScopeId>()
+			: activeScopeIds;
+		const measurementRevisionsByScope = reconcileProtectionScopeMeasurementRevisions( {
+			sites: configuration.sites,
+			currentRevisionsByScope: configuration.measurementRevisionsByScope,
+			rotatedScopeIds,
+			createMeasurementRevision: options.createMeasurementRevision,
+		} );
+
+		if ( measurementRevisionsByScope === null ) {
+			return createRejectedResult(
+				ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION,
+			);
+		}
+
 		return saveUpdatedResult( createUpdatedResult( {
 			...configuration,
 			timingConfiguration: timingConfiguration.data,
+			measurementRevisionsByScope,
 		} ) );
 	}
 
