@@ -34,8 +34,8 @@ export interface ToolbarBadgeTab {
  * @since 0.1.0 Initial implementation.
  */
 export interface ToolbarBadgeCoordinatorOptions {
-	/** Localized toolbar copy, or undefined to use the default English copy. */
-	copy?: ToolbarBadgeCopy;
+	/** Localized toolbar copy required for every browser toolbar projection. */
+	copy: ToolbarBadgeCopy;
 
 	/**
 	 * Returns the active tab in the focused browser window.
