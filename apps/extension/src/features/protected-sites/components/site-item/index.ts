@@ -7,6 +7,7 @@ import {
 	type TemplateResult,
 } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import { isLocalizationReady } from '../../../../localization/utils/is-localization-ready';
 import {
 	ProtectionConfigurationEditStatus,
 	type ProtectionConfigurationEditor,
@@ -25,7 +26,6 @@ import {
 import { type SiteDisplayIdentity } from '../../utils/site-display-name-resolver';
 import styles from './web-component-style.scss?inline';
 import {
-	DefaultProtectedSiteItemCopy,
 	ProtectedSiteAccessRestoredEventName,
 	type ProtectedSiteAccessRestoredEventDetail,
 	ProtectedSiteConfigurationChangedEventName,
@@ -33,6 +33,8 @@ import {
 	type ProtectedSiteConfigurationChangedEventDetail,
 	type ProtectedSiteEditSubmitEvent,
 	type ProtectedSiteItemCopy,
+	ProtectedSiteItemOperationErrorReason,
+	type ProtectedSiteItemOperationErrorReason as ProtectedSiteItemOperationErrorReasonValue,
 } from './types';
 
 /**
@@ -99,7 +101,7 @@ export class ComponentProtectedSiteItem extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@property( { attribute: false } )
-	accessor copy: Readonly<ProtectedSiteItemCopy> = DefaultProtectedSiteItemCopy;
+	accessor copy!: Readonly<ProtectedSiteItemCopy>;
 
 	@state()
 	private accessor editing = false;
@@ -108,7 +110,7 @@ export class ComponentProtectedSiteItem extends LitElement {
 	private accessor faviconUnavailable = false;
 
 	@state()
-	private accessor operationError = '';
+	private accessor operationErrorReason: ProtectedSiteItemOperationErrorReasonValue | null = null;
 
 	@state()
 	private accessor confirmingRemoval = false;
@@ -155,7 +157,7 @@ export class ComponentProtectedSiteItem extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	private readonly handleEdit = (): void => {
-		this.operationError = '';
+		this.operationErrorReason = null;
 		this.confirmingRemoval = false;
 		this.editing = true;
 		void this.focusControl( '#display-name' );
@@ -166,7 +168,7 @@ export class ComponentProtectedSiteItem extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	private readonly handleCancel = (): void => {
-		this.operationError = '';
+		this.operationErrorReason = null;
 		this.confirmingRemoval = false;
 		this.editing = false;
 		void this.focusControl( '.edit-action' );
@@ -203,13 +205,13 @@ export class ComponentProtectedSiteItem extends LitElement {
 		}
 
 		this.restoringAccess = true;
-		this.operationError = '';
+		this.operationErrorReason = null;
 
 		try {
 			const result = await this.permissionManager.request( this.site.rule );
 
 			if ( result.status !== SitePermissionRequestStatus.GRANTED ) {
-				this.operationError = this.copy.accessRequestError;
+				this.operationErrorReason = ProtectedSiteItemOperationErrorReason.ACCESS_REQUEST;
 				return;
 			}
 
@@ -222,7 +224,7 @@ export class ComponentProtectedSiteItem extends LitElement {
 				},
 			) );
 		} catch {
-			this.operationError = this.copy.accessRequestError;
+			this.operationErrorReason = ProtectedSiteItemOperationErrorReason.ACCESS_REQUEST;
 		} finally {
 			this.restoringAccess = false;
 		}
@@ -277,7 +279,7 @@ export class ComponentProtectedSiteItem extends LitElement {
 		}
 
 		if ( this.site === null || this.editor === null ) {
-			this.operationError = this.copy.operationError;
+			this.operationErrorReason = ProtectedSiteItemOperationErrorReason.OPERATION;
 			return;
 		}
 
@@ -286,7 +288,7 @@ export class ComponentProtectedSiteItem extends LitElement {
 		const displayName = formData.get( 'display-name' );
 		const independent = formData.get( 'behavior' ) === 'independent';
 		this.saving = true;
-		this.operationError = '';
+		this.operationErrorReason = null;
 
 		try {
 			const result = await this.editor.update(
@@ -296,7 +298,7 @@ export class ComponentProtectedSiteItem extends LitElement {
 			);
 
 			if ( result.status === ProtectionConfigurationEditStatus.REJECTED ) {
-				this.operationError = this.copy.configurationChangedError;
+				this.operationErrorReason = ProtectedSiteItemOperationErrorReason.CONFIGURATION_CHANGED;
 				return;
 			}
 
@@ -309,7 +311,7 @@ export class ComponentProtectedSiteItem extends LitElement {
 			this.confirmingRemoval = false;
 			void this.focusControl( '.edit-action' );
 		} catch {
-			this.operationError = this.copy.operationError;
+			this.operationErrorReason = ProtectedSiteItemOperationErrorReason.OPERATION;
 		} finally {
 			this.saving = false;
 		}
@@ -325,18 +327,18 @@ export class ComponentProtectedSiteItem extends LitElement {
 		}
 
 		if ( this.site === null || this.enrollmentService === null ) {
-			this.operationError = this.copy.operationError;
+			this.operationErrorReason = ProtectedSiteItemOperationErrorReason.OPERATION;
 			return;
 		}
 
 		this.saving = true;
-		this.operationError = '';
+		this.operationErrorReason = null;
 
 		try {
 			const result = await this.enrollmentService.remove( this.site );
 
 			if ( result.status !== ProtectedSiteEnrollmentStatus.REMOVED ) {
-				this.operationError = this.copy.configurationChangedError;
+				this.operationErrorReason = ProtectedSiteItemOperationErrorReason.CONFIGURATION_CHANGED;
 				return;
 			}
 
@@ -348,7 +350,7 @@ export class ComponentProtectedSiteItem extends LitElement {
 				site: result.site,
 			} );
 		} catch {
-			this.operationError = this.copy.operationError;
+			this.operationErrorReason = ProtectedSiteItemOperationErrorReason.OPERATION;
 		} finally {
 			this.saving = false;
 		}
@@ -360,6 +362,9 @@ export class ComponentProtectedSiteItem extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	protected override render(): TemplateResult {
+		if ( ! isLocalizationReady( this.copy ) ) {
+			return html``;
+		}
 		if ( this.site === null || this.identity === null ) {
 			return html``;
 		}
@@ -531,9 +536,17 @@ export class ComponentProtectedSiteItem extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	private renderOperationError(): TemplateResult {
-		return this.operationError === ''
-			? html``
-			: html`<p class="operation-error" role="alert">${ this.operationError }</p>`;
+		if ( this.operationErrorReason === null ) {
+			return html``;
+		}
+
+		const message = this.operationErrorReason === ProtectedSiteItemOperationErrorReason.ACCESS_REQUEST
+			? this.copy.accessRequestError
+			: this.operationErrorReason === ProtectedSiteItemOperationErrorReason.CONFIGURATION_CHANGED
+				? this.copy.configurationChangedError
+				: this.copy.operationError;
+
+		return html`<p class="operation-error" role="alert">${ message }</p>`;
 	}
 }
 
