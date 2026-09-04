@@ -19,6 +19,42 @@ export const ScheduleScreenLoadStatus = {
 export type ScheduleScreenLoadStatus = typeof ScheduleScreenLoadStatus[ keyof typeof ScheduleScreenLoadStatus ];
 
 /**
+ * Stable end-time validation failures retained by the Schedule screen.
+ * @since 0.1.0 Initial implementation.
+ */
+export const ScheduleWindowEndErrorReason = {
+	EQUAL_TIME: 'equal-time',
+	REQUIRED: 'required',
+} as const;
+
+/**
+ * End-time validation failure retained by the Schedule screen.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ScheduleWindowEndErrorReason = typeof ScheduleWindowEndErrorReason[
+	keyof typeof ScheduleWindowEndErrorReason
+];
+
+/**
+ * Stable save failures retained by the Schedule screen.
+ * @since 0.1.0 Initial implementation.
+ */
+export const ScheduleSaveErrorReason = {
+	GENERIC: 'generic',
+	INVALID_CONFIGURATION: 'invalid-configuration',
+	INVALID_SCHEDULE: 'invalid-schedule',
+	SCOPE_NOT_FOUND: 'scope-not-found',
+} as const;
+
+/**
+ * Save failure retained by the Schedule screen.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ScheduleSaveErrorReason = typeof ScheduleSaveErrorReason[
+	keyof typeof ScheduleSaveErrorReason
+];
+
+/**
  * Editable weekly time-window presentation.
  * @since 0.1.0 Initial implementation.
  */
@@ -31,12 +67,12 @@ export interface ScheduleWindowDraft {
 }
 
 /**
- * Validation messages associated with one editable time window.
+ * Semantic validation state associated with one editable time window.
  * @since 0.1.0 Initial implementation.
  */
 export interface ScheduleWindowDraftErrors {
-	startTime: string;
-	endTime: string;
+	startTimeRequired: boolean;
+	endTime: ScheduleWindowEndErrorReason | null;
 }
 
 /**
@@ -91,6 +127,14 @@ export interface ScheduleScreenCopy {
 	 */
 	formatIndependentScopeLabel( name: string, domain: string ): string;
 	/**
+	 * Compares two scope labels using the selected language's collation rules.
+	 * @param firstName - First scope label.
+	 * @param secondName - Second scope label.
+	 * @return Negative, zero, or positive locale-aware ordering result.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	compareNames( firstName: string, secondName: string ): number;
+	/**
 	 * Formats one weekday for native schedule options.
 	 * @param weekday - Domain weekday to present.
 	 * @return Localized weekday label.
@@ -142,90 +186,3 @@ export interface ScheduleScreenCopy {
 	scopeNotFoundError: string;
 	savedAnnouncement: string;
 }
-
-/**
- * Formats one independent-scope selector label.
- * @param name - Resolved local site name.
- * @param domain - Exact configured site identity.
- * @return Readable selector label.
- * @since 0.1.0 Initial implementation.
- */
-function formatIndependentScopeLabel( name: string, domain: string ): string {
-	return `${ name } (${ domain })`;
-}
-
-/**
- * Formats one default English weekday label.
- * @param weekday - Domain weekday to present.
- * @return English weekday label.
- * @since 0.1.0 Initial implementation.
- */
-function formatWeekday( weekday: Weekday ): string {
-	return weekday;
-}
-
-/**
- * Formats one default English time-window group label.
- * @param position - One-based visual window position.
- * @return English time-window group label.
- * @since 0.1.0 Initial implementation.
- */
-function formatWindowLabel( position: number ): string {
-	return `Time window ${ String( position ) }`;
-}
-
-/**
- * Formats one default English remove-window action label.
- * @param position - One-based visual window position.
- * @return English remove-window action label.
- * @since 0.1.0 Initial implementation.
- */
-function formatRemoveWindowLabel( position: number ): string {
-	return `Remove time window ${ String( position ) }`;
-}
-
-/**
- * Default English Schedule screen messages.
- * @since 0.1.0 Initial implementation.
- */
-export const DefaultScheduleScreenCopy: Readonly<ScheduleScreenCopy> = Object.freeze( {
-	eyebrow: 'Protection',
-	title: 'Schedule',
-	introduction: 'Choose when protection is active. Times use this device’s current time zone.',
-	appliesToLabel: 'Applies to',
-	sharedScope: 'Shared protection',
-	formatIndependentScopeLabel,
-	formatWeekday,
-	formatWindowLabel,
-	formatRemoveWindowLabel,
-	scheduleLegend: 'When should protection be active?',
-	alwaysLabel: 'All the time',
-	alwaysDescription: 'Keep protection active every day and at every time.',
-	customLabel: 'On a weekly schedule',
-	customDescription: 'Choose the days and times when protection should be active.',
-	windowsLegend: 'Active time windows',
-	windowsHelp: 'An end time earlier than its start continues into the next day.',
-	weekdayLabel: 'Day',
-	startTimeLabel: 'Start',
-	endTimeLabel: 'End',
-	removeWindow: 'Remove window',
-	addWindow: 'Add time window',
-	startTimeRequiredError: 'Choose a start time.',
-	endTimeRequiredError: 'Choose an end time.',
-	equalTimeError: 'Start and end time must be different.',
-	dirtyScopeNotice: 'Save or discard these changes before choosing another scope.',
-	discard: 'Discard changes',
-	save: 'Save schedule',
-	saving: 'Saving...',
-	loading: 'Loading schedule...',
-	malformedDataTitle: 'Your local settings need attention',
-	malformedDataDescription: 'TOCus found local settings it could not read. They were not replaced.',
-	loadErrorTitle: 'Schedule could not load',
-	loadErrorDescription: 'Your local settings were not changed. Try loading them again.',
-	retry: 'Try again',
-	saveError: 'The schedule could not be saved. Your settings were not changed.',
-	invalidConfigurationError: 'The local configuration could not be updated safely.',
-	invalidScheduleError: 'Check the schedule and try again.',
-	scopeNotFoundError: 'This protection scope is no longer available. Reload the page and try again.',
-	savedAnnouncement: 'Schedule saved.',
-} );
