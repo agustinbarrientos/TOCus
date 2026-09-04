@@ -30,6 +30,12 @@ export {
 	type PrepareStoredProtectionStateInput,
 } from './prepare-stored-protection-state';
 export {
+	cloneProtectionStatisticsDelivery,
+	createEmptyProtectionStatisticsDelivery,
+	prepareStatisticsDeliveryForTransition,
+	type PrepareStatisticsDeliveryForTransitionInput,
+} from './prepare-protection-statistics-delivery';
+export {
 	ProtectedSiteCanonicalizationRejectionReason,
 	ProtectedSiteCanonicalizationRejectionReasonSchema,
 	ProtectedSiteCanonicalizationResultSchema,
@@ -38,6 +44,10 @@ export {
 	type ProtectedSiteCanonicalizationResult,
 } from './protected-site-canonicalizer';
 export { matchProtectedUrl } from './protected-url-matcher';
+export {
+	reconcileProtectionScopeMeasurementRevisions,
+	type ReconcileProtectionScopeMeasurementRevisionsOptions,
+} from './reconcile-protection-scope-measurement-revisions';
 export {
 	ProtectionStateReconciliationRequirementReason,
 	ProtectionStateReconciliationRequirementReasonSchema,
