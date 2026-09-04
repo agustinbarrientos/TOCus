@@ -24,17 +24,12 @@ export interface ProtectedSiteListCopy {
 	sharedGroupDescription: string;
 	independentGroupTitle: string;
 	independentGroupDescription: string;
+	/**
+	 * Compares two display names using the selected language's collation rules.
+	 * @param firstName - First display name.
+	 * @param secondName - Second display name.
+	 * @return Negative, zero, or positive locale-aware ordering result.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	compareNames( firstName: string, secondName: string ): number;
 }
-
-/**
- * Default English messages for the grouped protected-site list.
- * @since 0.1.0 Initial implementation.
- */
-export const DefaultProtectedSiteListCopy: Readonly<ProtectedSiteListCopy> = Object.freeze( {
-	emptyTitle: 'No protected sites yet',
-	emptyDescription: 'Add the first site you want TOCus to gently interrupt.',
-	sharedGroupTitle: 'Shared protection',
-	sharedGroupDescription: 'These sites share one wait ladder and allowance.',
-	independentGroupTitle: 'Independent sites',
-	independentGroupDescription: 'Each of these sites keeps its own wait ladder and allowance.',
-} );
