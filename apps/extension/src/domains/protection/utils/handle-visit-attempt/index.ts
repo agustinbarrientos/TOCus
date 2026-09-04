@@ -220,6 +220,7 @@ export function handleVisitAttempt(
 		ownerParticipantId,
 		ownerEpoch: ownerParticipantId === null ? 0 : 1,
 		checkpointHighWaterMilliseconds: 0,
+		completionStatisticsEligible: true,
 		ladder,
 	}, [ {
 		type: ProtectionDecisionType.PRESENT_WAITING,
