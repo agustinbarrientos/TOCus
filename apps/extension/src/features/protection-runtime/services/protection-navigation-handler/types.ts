@@ -9,8 +9,8 @@ import { type ProtectionRuntimeBrowser, type ProtectionRuntimeNavigation } from 
  * @since 0.1.0 Initial implementation.
  */
 export interface ProtectionNavigationHandlerOptions {
-	/** Browser focus observation used to initialize participant ownership. */
-	browser: Pick<ProtectionRuntimeBrowser, 'getFocusedTabId'>;
+	/** Browser privacy and focus observations used to admit and initialize participants. */
+	browser: Pick<ProtectionRuntimeBrowser, 'getFocusedTabId' | 'listTabs'>;
 	/** Serialized protection-state coordinator. */
 	coordinator: Pick<ProtectionCoordinator, 'dispatch' | 'getStates'>;
 	/** Extension-owned interruption page URL. */
@@ -39,14 +39,14 @@ export interface ProtectionNavigationHandlerOptions {
 	 * Removes a participant associated with one browser tab.
 	 * @param tabId - Browser tab identifier.
 	 * @param cause - Observable departure cause.
-	 * @param configuration - Current validated configuration.
+	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @return Promise resolved after matching participant state is removed.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	departTab(
 		tabId: number,
 		cause: DepartureCause,
-		configuration: ProtectionConfigurationDocument,
+		configuration: ProtectionConfigurationDocument | null,
 	): Promise<void>;
 
 	/**
