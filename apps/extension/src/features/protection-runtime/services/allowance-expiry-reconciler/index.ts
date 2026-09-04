@@ -24,8 +24,8 @@ import {
  * @param options - Browser observations, clock, and identifier dependencies.
  * @param focusedTabId - Active tab in the focused browser window.
  * @param retainedTabIds - Browser tabs already represented by Ready participants.
- * @param tabs - Single open-tab snapshot shared by the expiry transaction.
- * @return Protected open pages that should enter the next gentle interruption.
+ * @param tabs - Explicitly ordinary open tabs from the expiry transaction snapshot.
+ * @return Protected ordinary pages that should enter the next gentle interruption.
  * @since 0.1.0 Initial implementation.
  */
 function createLivePageCandidates(
@@ -39,7 +39,11 @@ function createLivePageCandidates(
 	const rules = configuration.sites.map( ( site ) => site.rule );
 
 	return tabs.flatMap( ( tab ) => {
-		if ( tab.url === undefined || retainedTabIds.has( tab.id ) ) {
+		if (
+			tab.incognito !== false ||
+			tab.url === undefined ||
+			retainedTabIds.has( tab.id )
+		) {
 			return [];
 		}
 
@@ -55,6 +59,7 @@ function createLivePageCandidates(
 			pageId: createRuntimePageId( tab.id, options.createStableId() ),
 			observedDestination: tab.url,
 			focusEligible: tab.id === focusedTabId,
+			statisticsEligible: true,
 			match,
 		} ];
 	} );
@@ -95,12 +100,28 @@ export function createAllowanceExpiryReconciler(
 			return;
 		}
 
-		const [ focusedTabId, tabs ] = await Promise.all( [
+		const [ focusedTabResult, tabsResult ] = await Promise.allSettled( [
 			options.browser.getFocusedTabId(),
 			options.browser.listTabs(),
 		] );
+
+		if ( tabsResult.status === 'rejected' ) {
+			return;
+		}
+
+		const tabs = tabsResult.value;
+		const ordinaryTabs = tabs.filter( ( tab ) => tab.incognito === false );
+		const ordinaryTabIds = new Set( ordinaryTabs.map( ( tab ) => tab.id ) );
+		const observedFocusedTabId = focusedTabResult.status === 'fulfilled'
+			? focusedTabResult.value
+			: null;
+		const focusedTabId = ordinaryTabs.some( ( tab ) => tab.id === observedFocusedTabId )
+			? observedFocusedTabId
+			: null;
 		const liveDestinationsByTab = new Map(
-			tabs.flatMap( ( tab ) => tab.url === undefined ? [] : [ [ tab.id, tab.url ] as const ] ),
+			ordinaryTabs.flatMap(
+				( tab ) => tab.url === undefined ? [] : [ [ tab.id, tab.url ] as const ],
+			),
 		);
 
 		for ( const observedState of elapsedStates ) {
@@ -115,7 +136,7 @@ export function createAllowanceExpiryReconciler(
 				options,
 				focusedTabId,
 				retainedTabIds,
-				tabs,
+				ordinaryTabs,
 			);
 			const result = await options.coordinator.dispatch( ( currentStatesByScope ) => {
 				const currentState = currentStatesByScope[ observedState.scopeId ];
@@ -142,6 +163,7 @@ export function createAllowanceExpiryReconciler(
 							sourceState,
 							configuration,
 							focusedTabId,
+							ordinaryTabIds,
 							liveDestinationsByTab,
 						),
 						...liveCandidates,
