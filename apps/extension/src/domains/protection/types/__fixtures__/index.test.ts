@@ -5,6 +5,7 @@ import {
 	PauseTimeFactInputSchema,
 } from '../protection-fact';
 import {
+	DefaultProtectionSchedule,
 	NormalizedCustomScheduleSchema,
 	ScheduleEndMinuteSchema,
 	ScheduleMode,
@@ -16,6 +17,11 @@ import {
 	ProtectedSiteRuleSchema,
 	ProtectedSiteRuleSetSchema,
 } from '../protected-site-rule';
+import {
+	ProtectionConfigurationDocumentSchema,
+	ProtectionScopeMeasurementRevisionMapSchema,
+	ProtectionScopeScheduleMapSchema,
+} from '../protected-site-configuration';
 import {
 	ProtectionParticipantOrigin,
 } from '../protection-participant';
@@ -67,9 +73,18 @@ import {
 	Mock_StoredProtectionState_Durable,
 	Mock_StoredProtectionState_Session,
 } from './stored-protection-state';
+import { TestEmptyProtectionConfiguration } from './protection-configuration';
 
+/**
+ * Fixed allowance start instant used by fixture validation.
+ * @since 0.1.0 Initial implementation.
+ */
 const AllowanceStartInstant = 1_800_000_000_000;
 
+/**
+ * Allowance durations outside the supported whole-minute range.
+ * @since 0.1.0 Initial implementation.
+ */
 const InvalidAllowanceDurations = [
 	{ label: 'less than one minute', durationMilliseconds: 59_999 },
 	{ label: 'off the whole-minute grid', durationMilliseconds: 60_001 },
@@ -105,6 +120,22 @@ describe( 'protection type fixtures', () => {
 			.toStrictEqual( Mock_ProtectionSchedule_Normalized );
 	} );
 
+	it( 'round-trips the current protection configuration fixture', () => {
+		expect( ProtectionConfigurationDocumentSchema.parse( {
+			...TestEmptyProtectionConfiguration,
+			schemaVersion: 3,
+			measurementRevisionsByScope: {
+				scope_default: 'revision_initial_scope_default',
+			},
+		} ) ).toStrictEqual( {
+			...TestEmptyProtectionConfiguration,
+			schemaVersion: 3,
+			measurementRevisionsByScope: {
+				scope_default: 'revision_initial_scope_default',
+			},
+		} );
+	} );
+
 	it( 'round-trips stored-state fixtures', () => {
 		expect( StoredDurableProtectionStateSchema.parse( Mock_StoredProtectionState_Durable ) )
 			.toStrictEqual( Mock_StoredProtectionState_Durable );
@@ -125,6 +156,127 @@ describe( 'protection contract custom rules', () => {
 			{ host: 'example.com', includeSubdomains: true, scopeId: 'scope-a' },
 			{ host: 'www.example.com', includeSubdomains: false, scopeId: 'scope-a' },
 		] ).success ).toBe( false );
+	} );
+
+	it( 'requires one measurement revision for every active protection scope', () => {
+		const currentConfiguration = {
+			...TestEmptyProtectionConfiguration,
+			schemaVersion: 3,
+			measurementRevisionsByScope: {
+				scope_default: 'revision_initial_scope_default',
+			},
+		};
+
+		expect( ProtectionConfigurationDocumentSchema.safeParse( {
+			...currentConfiguration,
+			measurementRevisionsByScope: {},
+		} ).success ).toBe( false );
+		expect( ProtectionConfigurationDocumentSchema.safeParse( {
+			...currentConfiguration,
+			measurementRevisionsByScope: {
+				...currentConfiguration.measurementRevisionsByScope,
+				scope_orphan: 'revision_orphan',
+			},
+		} ).success ).toBe( false );
+		expect( ProtectionScopeMeasurementRevisionMapSchema.safeParse( {
+			'scope with spaces': 'revision_invalid_key',
+		} ).success ).toBe( false );
+	} );
+
+	it( 'preserves every supported object-property scope key in both configuration maps', () => {
+		const scopeIds = [ '__proto__', 'constructor', 'toString', 'hasOwnProperty' ];
+		const schedulesByScope = Object.fromEntries(
+			scopeIds.map( ( scopeId ) => [ scopeId, DefaultProtectionSchedule ] as const ),
+		);
+		const measurementRevisionsByScope = Object.fromEntries(
+			scopeIds.map( ( scopeId, index ) => [ scopeId, `revision_${ String( index ) }` ] as const ),
+		);
+
+		Reflect.setPrototypeOf( schedulesByScope, null );
+		Reflect.setPrototypeOf( measurementRevisionsByScope, null );
+
+		const parsedSchedules = ProtectionScopeScheduleMapSchema.parse( schedulesByScope );
+		const parsedRevisions = ProtectionScopeMeasurementRevisionMapSchema.parse(
+			measurementRevisionsByScope,
+		);
+
+		expect( Object.keys( parsedSchedules ) ).toEqual( scopeIds );
+		expect( Object.keys( parsedRevisions ) ).toEqual( scopeIds );
+		for ( const scopeId of scopeIds ) {
+			expect( Object.hasOwn( parsedSchedules, scopeId ) ).toBe( true );
+			expect( parsedSchedules[ scopeId ] ).toEqual( DefaultProtectionSchedule );
+			expect( Object.hasOwn( parsedRevisions, scopeId ) ).toBe( true );
+			expect( parsedRevisions[ scopeId ] ).toBe(
+				measurementRevisionsByScope[ scopeId ],
+			);
+		}
+	} );
+
+	it.each( [
+		{
+			label: 'schedule',
+			schema: ProtectionScopeScheduleMapSchema,
+			validValue: DefaultProtectionSchedule,
+			invalidValue: { mode: 'sometimes' },
+		},
+		{
+			label: 'measurement-revision',
+			schema: ProtectionScopeMeasurementRevisionMapSchema,
+			validValue: 'revision_valid',
+			invalidValue: 'invalid revision',
+		},
+	] )( 'rejects unsafe or invalid $label map input', ( {
+		schema,
+		validValue,
+		invalidValue,
+	} ) => {
+		const inheritedRecord = {};
+		Reflect.setPrototypeOf( inheritedRecord, { scope_inherited: validValue } );
+
+		expect( schema.safeParse( [] ).success ).toBe( false );
+		expect( schema.safeParse( 'scope-map' ).success ).toBe( false );
+		expect( schema.safeParse( 1 ).success ).toBe( false );
+		expect( schema.safeParse( null ).success ).toBe( false );
+		expect( schema.safeParse( inheritedRecord ).success ).toBe( false );
+		expect( schema.safeParse( Object.fromEntries( [
+			[ 'scope with spaces', validValue ],
+		] ) ).success ).toBe( false );
+		expect( schema.safeParse( Object.fromEntries( [
+			[ 'scope_invalid', invalidValue ],
+		] ) ).success ).toBe( false );
+	} );
+
+	it( 'round-trips prototype-named active scopes through the configuration document schema', () => {
+		const scopeIds = [ '__proto__', 'constructor', 'toString', 'hasOwnProperty' ];
+		const schedulesByScope = Object.fromEntries( [
+			[ 'scope_default', DefaultProtectionSchedule ] as const,
+			...scopeIds.map( ( scopeId ) => [ scopeId, DefaultProtectionSchedule ] as const ),
+		] );
+		const measurementRevisionsByScope = Object.fromEntries( [
+			[ 'scope_default', 'revision_default' ] as const,
+			...scopeIds.map( ( scopeId, index ) => [
+				scopeId,
+				`revision_${ String( index ) }`,
+			] as const ),
+		] );
+		const configuration = ProtectionConfigurationDocumentSchema.parse( {
+			...TestEmptyProtectionConfiguration,
+			sites: scopeIds.map( ( scopeId, index ) => ( {
+				identityHost: `scope-${ String( index ) }.example`,
+				rule: {
+					host: `scope-${ String( index ) }.example`,
+					includeSubdomains: false,
+					scopeId,
+				},
+			} ) ),
+			schedulesByScope,
+			measurementRevisionsByScope,
+		} );
+
+		for ( const scopeId of scopeIds ) {
+			expect( Object.hasOwn( configuration.schedulesByScope, scopeId ) ).toBe( true );
+			expect( Object.hasOwn( configuration.measurementRevisionsByScope, scopeId ) ).toBe( true );
+		}
 	} );
 
 	it( 'accepts only real ISO calendar dates', () => {
@@ -363,7 +515,7 @@ describe( 'protection contract custom rules', () => {
 	it( 'enforces stored-state versions and allowance intervals', () => {
 		expect( StoredDurableProtectionStateSchema.safeParse( {
 			...Mock_StoredProtectionState_Durable,
-			schemaVersion: 2,
+			schemaVersion: 3,
 		} ).success ).toBe( false );
 		expect( StoredSessionProtectionStateSchema.safeParse( {
 			...Mock_StoredProtectionState_Session,
