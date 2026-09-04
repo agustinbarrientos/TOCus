@@ -3,6 +3,7 @@ import {
 	type StatisticsProjection,
 } from '../../../../domains/statistics/types/statistics-projection';
 import { formatWellbeingSummary } from '../../utils/format-wellbeing-summary';
+import { type WellbeingSummaryCopy } from '../../utils/format-wellbeing-summary/types';
 import {
 	type WellbeingSummaryController,
 	type WellbeingSummaryControllerOptions,
@@ -28,6 +29,8 @@ export function createWellbeingSummaryController(
 ): WellbeingSummaryController {
 	let refreshGeneration = 0;
 	let started = false;
+	let copy = options.copy;
+	let latestProjection: StatisticsProjection | null = null;
 
 	/**
 	 * Formats and applies one authoritative projection.
@@ -35,10 +38,28 @@ export function createWellbeingSummaryController(
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function applyProjection( nextProjection: StatisticsProjection ): void {
+		if ( copy === undefined ) {
+			options.target.wellbeingSummary = '';
+			return;
+		}
+
 		options.target.wellbeingSummary = formatWellbeingSummary(
 			nextProjection,
-			options.copy,
+			copy,
 		);
+	}
+
+	/**
+	 * Replaces localized summary grammar and immediately reformats the latest projection.
+	 * @param nextCopy - Complete localized wellbeing-summary copy.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function setCopy( nextCopy: Readonly<WellbeingSummaryCopy> ): void {
+		copy = nextCopy;
+
+		if ( latestProjection !== null ) {
+			applyProjection( latestProjection );
+		}
 	}
 
 	/**
@@ -60,6 +81,7 @@ export function createWellbeingSummaryController(
 			return;
 		}
 
+		latestProjection = nextProjection;
 		applyProjection( nextProjection );
 	}
 
@@ -98,7 +120,7 @@ export function createWellbeingSummaryController(
 		options.source.removeStatisticsChangeListener( handleStatisticsChange );
 	}
 
-	return { refresh, start, stop };
+	return { refresh, setCopy, start, stop };
 }
 
 export type {
