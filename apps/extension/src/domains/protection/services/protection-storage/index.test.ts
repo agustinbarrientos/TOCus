@@ -11,6 +11,7 @@ import {
 
 /**
  * Promise whose completion is controlled by a test.
+ * @since 0.1.0 Initial implementation.
  */
 class DeferredPromise {
 	readonly promise: Promise<void>;
@@ -19,6 +20,7 @@ class DeferredPromise {
 
 	/**
 	 * Creates an unresolved promise.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	constructor() {
 		this.promise = new Promise( ( resolve ) => {
@@ -28,6 +30,7 @@ class DeferredPromise {
 
 	/**
 	 * Resolves the controlled promise once.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	resolve(): void {
 		this.resolver?.();
@@ -37,6 +40,7 @@ class DeferredPromise {
 
 /**
  * In-memory browser storage area used to observe storage-service behavior.
+ * @since 0.1.0 Initial implementation.
  */
 class MemoryProtectionStorageArea {
 	readonly readKeys: string[] = [];
@@ -45,6 +49,8 @@ class MemoryProtectionStorageArea {
 
 	readBarrier: Promise<void> | null = null;
 
+	writeFailure: Error | null;
+
 	/**
 	 * Creates an in-memory storage area with optional failures and write tracing.
 	 * @param values - Initial stored values.
@@ -52,19 +58,23 @@ class MemoryProtectionStorageArea {
 	 * @param label - Area label recorded for each write.
 	 * @param readFailure - Optional read failure.
 	 * @param writeFailure - Optional write failure.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	constructor(
 		private readonly values: Record<string, unknown> = {},
 		private readonly writeOrder: string[] = [],
 		private readonly label = 'storage',
 		private readonly readFailure: Error | null = null,
-		private readonly writeFailure: Error | null = null,
-	) {}
+		writeFailure: Error | null = null,
+	) {
+		this.writeFailure = writeFailure;
+	}
 
 	/**
 	 * Reads one key from the in-memory storage area.
 	 * @param key - Requested storage key.
 	 * @return Matching record or an empty record.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	async get( key: string ): Promise<Record<string, unknown>> {
 		if ( this.readFailure !== null ) {
@@ -84,6 +94,7 @@ class MemoryProtectionStorageArea {
 	 * Writes values to the in-memory storage area.
 	 * @param values - Values to store.
 	 * @return Promise resolved after the values are stored.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	set( values: Record<string, unknown> ): Promise<void> {
 		this.writeOrder.push( this.label );
@@ -99,16 +110,31 @@ class MemoryProtectionStorageArea {
 	}
 }
 
+/**
+ * Complete persisted protection state used by storage tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const STORED_PROTECTION_STATE = StoredProtectionStateSchema.parse( {
 	durable: Mock_StoredProtectionState_Durable,
 	session: Mock_StoredProtectionState_Session,
 } );
 
+/**
+ * Primary valid storage snapshot identifier.
+ * @since 0.1.0 Initial implementation.
+ */
 const TEST_SNAPSHOT_ID = '00000000-0000-4000-8000-000000000001';
+
+/**
+ * Second valid storage snapshot identifier used to detect accidental advancement.
+ * @since 0.1.0 Initial implementation.
+ */
+const SECOND_TEST_SNAPSHOT_ID = '00000000-0000-4000-8000-000000000002';
 
 /**
  * Supplies a deterministic storage snapshot identifier.
  * @return Stable snapshot identifier.
+ * @since 0.1.0 Initial implementation.
  */
 function createTestSnapshotId(): string {
 	return TEST_SNAPSHOT_ID;
@@ -119,6 +145,7 @@ function createTestSnapshotId(): string {
  * @param snapshotId - Shared storage snapshot identifier.
  * @param document - Domain persistence document.
  * @return Storage snapshot envelope.
+ * @since 0.1.0 Initial implementation.
  */
 function createStoredEnvelope( snapshotId: string, document: unknown ): Record<string, unknown> {
 	return { snapshotId, document };
@@ -299,6 +326,125 @@ describe( 'protection storage service', () => {
 				STORED_PROTECTION_STATE.durable,
 			),
 		} ] );
+	} );
+
+	it( 'writes a statistics acknowledgement under the exact loaded snapshot without session storage', async () => {
+		const durableArea = new MemoryProtectionStorageArea( {
+			[ ProtectionStorageKey.DURABLE ]: createStoredEnvelope(
+				TEST_SNAPSHOT_ID,
+				STORED_PROTECTION_STATE.durable,
+			),
+		} );
+		const sessionArea = new MemoryProtectionStorageArea();
+		const storage = createProtectionStorageService( {
+			durableArea,
+			sessionArea,
+			createSnapshotId: createTestSnapshotId,
+		} );
+
+		await storage.load();
+		await storage.saveDurableStatisticsDelivery(
+			STORED_PROTECTION_STATE.durable,
+		);
+
+		expect( durableArea.writtenValues ).toEqual( [ {
+			[ ProtectionStorageKey.DURABLE ]: createStoredEnvelope(
+				TEST_SNAPSHOT_ID,
+				STORED_PROTECTION_STATE.durable,
+			),
+		} ] );
+		expect( sessionArea.writtenValues ).toEqual( [] );
+	} );
+
+	it( 'rejects a statistics acknowledgement without a current durable snapshot', async () => {
+		const durableArea = new MemoryProtectionStorageArea();
+		const sessionArea = new MemoryProtectionStorageArea();
+		const storage = createProtectionStorageService( {
+			durableArea,
+			sessionArea,
+			createSnapshotId: createTestSnapshotId,
+		} );
+
+		await expect( storage.saveDurableStatisticsDelivery(
+			STORED_PROTECTION_STATE.durable,
+		) ).rejects.toThrow();
+		expect( durableArea.writtenValues ).toEqual( [] );
+		expect( sessionArea.writtenValues ).toEqual( [] );
+	} );
+
+	it( 'retains the prior snapshot after a failed full durable write', async () => {
+		const durableArea = new MemoryProtectionStorageArea();
+		const sessionArea = new MemoryProtectionStorageArea();
+		let snapshotId = TEST_SNAPSHOT_ID;
+
+		/**
+		 * Returns the mutable snapshot identifier selected by this test.
+		 * @return Current test snapshot identifier.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		function createMutableSnapshotId(): string {
+			return snapshotId;
+		}
+
+		const storage = createProtectionStorageService( {
+			durableArea,
+			sessionArea,
+			createSnapshotId: createMutableSnapshotId,
+		} );
+
+		await storage.save( STORED_PROTECTION_STATE );
+		snapshotId = SECOND_TEST_SNAPSHOT_ID;
+		durableArea.writeFailure = new Error( 'durable write failed' );
+
+		await expect( storage.save( STORED_PROTECTION_STATE ) ).rejects.toBe(
+			durableArea.writeFailure,
+		);
+
+		durableArea.writeFailure = null;
+		durableArea.writtenValues.length = 0;
+		sessionArea.writtenValues.length = 0;
+
+		await storage.saveDurableStatisticsDelivery(
+			STORED_PROTECTION_STATE.durable,
+		);
+
+		expect( durableArea.writtenValues ).toEqual( [ {
+			[ ProtectionStorageKey.DURABLE ]: createStoredEnvelope(
+				TEST_SNAPSHOT_ID,
+				STORED_PROTECTION_STATE.durable,
+			),
+		} ] );
+		expect( sessionArea.writtenValues ).toEqual( [] );
+	} );
+
+	it( 'validates and propagates statistics-acknowledgement durable write failures', async () => {
+		const writeFailure = new Error( 'statistics acknowledgement failed' );
+		const durableArea = new MemoryProtectionStorageArea( {
+			[ ProtectionStorageKey.DURABLE ]: createStoredEnvelope(
+				TEST_SNAPSHOT_ID,
+				STORED_PROTECTION_STATE.durable,
+			),
+		} );
+		const sessionArea = new MemoryProtectionStorageArea();
+		const storage = createProtectionStorageService( {
+			durableArea,
+			sessionArea,
+			createSnapshotId: createTestSnapshotId,
+		} );
+
+		await storage.load();
+		await expect( storage.saveDurableStatisticsDelivery( {
+			...STORED_PROTECTION_STATE.durable,
+			schemaVersion: 999,
+		} ) ).rejects.toThrow();
+
+		durableArea.writeFailure = writeFailure;
+
+		await expect( storage.saveDurableStatisticsDelivery(
+			STORED_PROTECTION_STATE.durable,
+		) ).rejects.toBe( writeFailure );
+		expect( durableArea.writtenValues ).toEqual( [] );
+		expect( sessionArea.writtenValues ).toEqual( [] );
 	} );
 
 	it( 'exposes immutable exact storage keys', () => {
