@@ -156,6 +156,13 @@ export interface InterruptionPageControllerOptions {
 	/** Browser reduced-motion preference observed by the page. */
 	motionPreference: InterruptionPageMotionPreference;
 
+	/**
+	 * Reports authoritative major presentation changes without repeating timer checkpoints.
+	 * @param state - Newly applied interruption presentation state.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	onPresentationStateChange?( state: InterruptionScreenState ): void;
+
 	/** Background runtime message boundary. */
 	runtime: InterruptionPageRuntime;
 
