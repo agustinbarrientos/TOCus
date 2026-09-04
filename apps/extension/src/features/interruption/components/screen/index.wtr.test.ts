@@ -1,9 +1,9 @@
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import { assert, expect, fixture, html, oneEvent } from '@open-wc/testing';
 import { emulateMedia, sendKeys, setViewport } from '@web/test-runner-commands';
 import { Palette, ThemeMode } from '../../../../domains/preferences/types';
 import { ComponentInterruptionScreen } from './index';
 import {
-	DefaultInterruptionScreenCopy,
 	InterruptionContinueRequestEventName,
 	InterruptionRetryRequestEventName,
 	InterruptionScreenMode,
@@ -172,7 +172,8 @@ describe( 'tocus-f-interruption-screen', () => {
 
 	it( 'renders the complete default Waiting scene without a bypass', async () => {
 		const element = await fixture<ComponentInterruptionScreen>(
-			html`<tocus-f-interruption-screen></tocus-f-interruption-screen>`,
+			html`<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption }></tocus-f-interruption-screen>`,
 		);
 		const shadowRoot = getShadowRoot( element );
 		const scene = getRequiredElement( element, '.scene' );
@@ -207,7 +208,7 @@ describe( 'tocus-f-interruption-screen', () => {
 		assert.equal( remaining.getAttribute( 'aria-live' ), null );
 		assert.equal( getRequiredElement( element, '.cue' ).textContent.trim(), 'Breathe in' );
 		assert.include( getRequiredElement( element, '.sphere-alternative' ).textContent, 'soft clay sphere' );
-		assert.equal( getRequiredElement( element, 'footer' ).textContent.trim(), 'This is a moment just for you.' );
+		assert.equal( getRequiredElement( element, 'footer' ).textContent.trim(), '' );
 		assert.equal( shadowRoot.querySelector( 'button' ), null );
 		assert.equal( shadowRoot.querySelector( '[data-design-control]' ), null );
 		assert.include( getComputedStyle( scene ).backgroundImage, 'gradient' );
@@ -218,7 +219,8 @@ describe( 'tocus-f-interruption-screen', () => {
 
 	it( 'drives the full-screen bloom from the breathing progress', async () => {
 		const element = await fixture<ComponentInterruptionScreen>( html`
-			<tocus-f-interruption-screen></tocus-f-interruption-screen>
+			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption }></tocus-f-interruption-screen>
 		` );
 		const scene = getRequiredElement( element, '.scene' );
 		const sphere = getShadowRoot( element ).querySelector( 'tocus-f-breathing-sphere' );
@@ -250,7 +252,7 @@ describe( 'tocus-f-interruption-screen', () => {
 
 	it( 'renders Quiet pause and complete localized strings without shortening the wait', async () => {
 		const copy = {
-			...DefaultInterruptionScreenCopy,
+			...TestEnglishLocalizationBundle.interruption,
 			formatRemainingTime: formatGermanRemainingTime,
 			takeAMoment: 'Nimm dir einen ruhigen Moment, bevor du dich entscheidest',
 		};
@@ -277,7 +279,7 @@ describe( 'tocus-f-interruption-screen', () => {
 		assert.equal( getRequiredElement( element, '.sphere-alternative' ).textContent.trim(), copy.stillSphereAlternative );
 		assert.equal(
 			getRequiredElement( element, '[aria-live]' ).textContent.trim(),
-			DefaultInterruptionScreenCopy.waitingStartedAnnouncement,
+			TestEnglishLocalizationBundle.interruption.waitingStartedAnnouncement,
 		);
 		assert.notInclude( getRequiredElement( element, '[aria-live]' ).textContent.toLowerCase(), 'breath' );
 		assert.equal( sphere.hasAttribute( 'still' ), true );
@@ -291,13 +293,17 @@ describe( 'tocus-f-interruption-screen', () => {
 
 	it( 'keeps the sphere and scene transitions still for an explicit reduced-motion input', async () => {
 		const element = await fixture<ComponentInterruptionScreen>( html`
-			<tocus-f-interruption-screen reduced-motion></tocus-f-interruption-screen>
+			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption } reduced-motion></tocus-f-interruption-screen>
 		` );
 		const sphere = getRequiredElement( element, 'tocus-f-breathing-sphere' );
 		const sphereShell = getRequiredElement( element, '.sphere-shell' );
 
 		assert.equal( sphere.hasAttribute( 'still' ), true );
-		assert.equal( getRequiredElement( element, '.sphere-alternative' ).textContent.trim(), DefaultInterruptionScreenCopy.stillSphereAlternative );
+		assert.equal(
+			getRequiredElement( element, '.sphere-alternative' ).textContent.trim(),
+			TestEnglishLocalizationBundle.interruption.stillSphereAlternative,
+		);
 		assert.equal( getComputedStyle( sphereShell ).transitionDuration, '0s' );
 
 		element.state = InterruptionScreenState.UNAVAILABLE;
@@ -309,6 +315,7 @@ describe( 'tocus-f-interruption-screen', () => {
 	it( 'keeps authoritative Waiting at zero without revealing Continue', async () => {
 		const element = await fixture<ComponentInterruptionScreen>( html`
 			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption }
 				.focusedProgressMilliseconds=${ 10_000 }
 				.progressing=${ true }
 			></tocus-f-interruption-screen>
@@ -322,6 +329,7 @@ describe( 'tocus-f-interruption-screen', () => {
 	it( 'normalizes non-finite authoritative progress to the start of Waiting', async () => {
 		const element = await fixture<ComponentInterruptionScreen>( html`
 			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption }
 				.focusedProgressMilliseconds=${ Number.NaN }
 			></tocus-f-interruption-screen>
 		` );
@@ -332,7 +340,8 @@ describe( 'tocus-f-interruption-screen', () => {
 
 	it( 'centers and focuses Continue only in the authoritative Ready state', async () => {
 		const element = await fixture<ComponentInterruptionScreen>( html`
-			<tocus-f-interruption-screen .state=${ InterruptionScreenState.READY }></tocus-f-interruption-screen>
+			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption } .state=${ InterruptionScreenState.READY }></tocus-f-interruption-screen>
 		` );
 		const shadowRoot = getShadowRoot( element );
 		const button = getContinueButton( element );
@@ -352,7 +361,8 @@ describe( 'tocus-f-interruption-screen', () => {
 
 	it( 'emits one plain bubbling Continue request from the button', async () => {
 		const element = await fixture<ComponentInterruptionScreen>( html`
-			<tocus-f-interruption-screen .state=${ InterruptionScreenState.READY }></tocus-f-interruption-screen>
+			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption } .state=${ InterruptionScreenState.READY }></tocus-f-interruption-screen>
 		` );
 		const eventPromise = oneEvent( element, InterruptionContinueRequestEventName );
 
@@ -366,7 +376,8 @@ describe( 'tocus-f-interruption-screen', () => {
 
 	it( 'uses native Enter and Space button activation without duplicate requests', async () => {
 		const element = await fixture<ComponentInterruptionScreen>( html`
-			<tocus-f-interruption-screen .state=${ InterruptionScreenState.READY }></tocus-f-interruption-screen>
+			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption } .state=${ InterruptionScreenState.READY }></tocus-f-interruption-screen>
 		` );
 		let requestCount = 0;
 
@@ -382,7 +393,8 @@ describe( 'tocus-f-interruption-screen', () => {
 
 	it( 'supports one guarded global Space shortcut in Ready', async () => {
 		const element = await fixture<ComponentInterruptionScreen>( html`
-			<tocus-f-interruption-screen .state=${ InterruptionScreenState.READY }></tocus-f-interruption-screen>
+			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption } .state=${ InterruptionScreenState.READY }></tocus-f-interruption-screen>
 		` );
 		let requestCount = 0;
 
@@ -416,7 +428,8 @@ describe( 'tocus-f-interruption-screen', () => {
 
 	it( 'removes Continue and focuses stable status after authoritative expiry', async () => {
 		const element = await fixture<ComponentInterruptionScreen>( html`
-			<tocus-f-interruption-screen .state=${ InterruptionScreenState.READY }></tocus-f-interruption-screen>
+			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption } .state=${ InterruptionScreenState.READY }></tocus-f-interruption-screen>
 		` );
 		let requestCount = 0;
 
@@ -433,7 +446,7 @@ describe( 'tocus-f-interruption-screen', () => {
 		assert.equal( getShadowRoot( element ).querySelector( 'button' ), null );
 		assert.equal( getShadowRoot( element ).activeElement, status );
 		assert.equal( status.getAttribute( 'tabindex' ), '-1' );
-		assert.equal( status.textContent.trim(), DefaultInterruptionScreenCopy.readyExpiredMessage );
+		assert.equal( status.textContent.trim(), TestEnglishLocalizationBundle.interruption.readyExpiredMessage );
 		assert.equal( getRequiredElement( element, '[aria-live]' ).textContent.trim(), '' );
 		staleButton.click();
 		window.dispatchEvent( new KeyboardEvent( 'keydown', { code: 'Space' } ) );
@@ -443,6 +456,7 @@ describe( 'tocus-f-interruption-screen', () => {
 	it( 'shows a compact branded recovery action when automatic recovery is unavailable', async () => {
 		const element = await fixture<ComponentInterruptionScreen>( html`
 			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption }
 				.state=${ InterruptionScreenState.UNAVAILABLE }
 			></tocus-f-interruption-screen>
 		` );
@@ -480,6 +494,7 @@ describe( 'tocus-f-interruption-screen', () => {
 	it( 'emits one plain bubbling recovery request from the retry button', async () => {
 		const element = await fixture<ComponentInterruptionScreen>( html`
 			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption }
 				.state=${ InterruptionScreenState.UNAVAILABLE }
 			></tocus-f-interruption-screen>
 		` );
@@ -496,6 +511,7 @@ describe( 'tocus-f-interruption-screen', () => {
 	it( 'disables repeated recovery requests while recovery is pending', async () => {
 		const element = await fixture<ComponentInterruptionScreen>( html`
 			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption }
 				.state=${ InterruptionScreenState.UNAVAILABLE }
 			></tocus-f-interruption-screen>
 		` );
@@ -523,6 +539,7 @@ describe( 'tocus-f-interruption-screen', () => {
 	it( 'restores retry focus after recovery remains unavailable', async () => {
 		const element = await fixture<ComponentInterruptionScreen>( html`
 			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption }
 				.state=${ InterruptionScreenState.UNAVAILABLE }
 				.recovering=${ true }
 			></tocus-f-interruption-screen>
@@ -537,6 +554,7 @@ describe( 'tocus-f-interruption-screen', () => {
 	it( 'moves focus to the Waiting scene after recovery succeeds', async () => {
 		const element = await fixture<ComponentInterruptionScreen>( html`
 			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption }
 				.state=${ InterruptionScreenState.UNAVAILABLE }
 			></tocus-f-interruption-screen>
 		` );
@@ -551,6 +569,7 @@ describe( 'tocus-f-interruption-screen', () => {
 	it( 'announces recovery progress and a recoverable failure', async () => {
 		const element = await fixture<ComponentInterruptionScreen>( html`
 			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption }
 				.state=${ InterruptionScreenState.UNAVAILABLE }
 			></tocus-f-interruption-screen>
 		` );
@@ -567,7 +586,7 @@ describe( 'tocus-f-interruption-screen', () => {
 
 	it( 'places the localized Space key inside a complete shortcut template', async () => {
 		const copy = {
-			...DefaultInterruptionScreenCopy,
+			...TestEnglishLocalizationBundle.interruption,
 			continueShortcut: 'Oder druecke {key}, wenn du bereit bist',
 			spaceKeyLabel: 'Leertaste',
 		};
@@ -584,7 +603,7 @@ describe( 'tocus-f-interruption-screen', () => {
 
 	it( 'keeps a complete shortcut sentence when its key placeholder is omitted', async () => {
 		const copy = {
-			...DefaultInterruptionScreenCopy,
+			...TestEnglishLocalizationBundle.interruption,
 			continueShortcut: 'Press the shortcut when you are ready',
 		};
 		const element = await fixture<ComponentInterruptionScreen>( html`
@@ -609,7 +628,8 @@ describe( 'tocus-f-interruption-screen', () => {
 				document.documentElement.setAttribute( 'data-tocus-theme', theme );
 				await emulateMedia( { colorScheme: theme, forcedColors: 'none' } );
 				const element = await fixture<ComponentInterruptionScreen>( html`
-					<tocus-f-interruption-screen></tocus-f-interruption-screen>
+					<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption }></tocus-f-interruption-screen>
 				` );
 				const shadowRoot = getShadowRoot( element );
 				const scene = getRequiredElement( element, '.scene' );
@@ -638,7 +658,7 @@ describe( 'tocus-f-interruption-screen', () => {
 
 		try {
 			const copy = {
-				...DefaultInterruptionScreenCopy,
+				...TestEnglishLocalizationBundle.interruption,
 				breatheIn: 'Nimm dir einen langsamen und freundlichen Atemzug, bevor du dich entscheidest',
 			};
 			const element = await fixture<ComponentInterruptionScreen>( html`
@@ -667,7 +687,7 @@ describe( 'tocus-f-interruption-screen', () => {
 
 		try {
 			const copy = {
-				...DefaultInterruptionScreenCopy,
+				...TestEnglishLocalizationBundle.interruption,
 				retryLabel: 'Versuche es bitte noch einmal',
 				unavailableMessage: 'TOCus konnte diese ruhige Pause gerade nicht wiederherstellen.',
 				unavailableTitle: 'Lass es uns noch einmal ganz in Ruhe versuchen',
@@ -696,13 +716,17 @@ describe( 'tocus-f-interruption-screen', () => {
 	it( 'retains Waiting meaning and focus visibility in forced colors', async () => {
 		await emulateMedia( { colorScheme: 'light', forcedColors: 'active' } );
 		const waitingElement = await fixture<ComponentInterruptionScreen>( html`
-			<tocus-f-interruption-screen></tocus-f-interruption-screen>
+			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption }></tocus-f-interruption-screen>
 		` );
 		const sphereAlternative = getRequiredElement( waitingElement, '.sphere-alternative' );
 
 		assert.notEqual( getComputedStyle( getRequiredElement( waitingElement, '.sphere-shell' ) ).display, 'none' );
 		assert.equal( getComputedStyle( getRequiredElement( waitingElement, 'tocus-f-breathing-sphere' ) ).display, 'none' );
-		assert.equal( sphereAlternative.textContent.trim(), DefaultInterruptionScreenCopy.sphereAlternative );
+		assert.equal(
+			sphereAlternative.textContent.trim(),
+			TestEnglishLocalizationBundle.interruption.sphereAlternative,
+		);
 		await expect( waitingElement ).to.be.accessible();
 
 		waitingElement.state = InterruptionScreenState.READY;
@@ -719,4 +743,10 @@ describe( 'tocus-f-interruption-screen', () => {
 		assert.equal( getComputedStyle( getRequiredElement( waitingElement, '.recovery-icon' ) ).borderStyle, 'solid' );
 		await expect( waitingElement ).to.be.accessible();
 	} );
+	it( 'renders nothing before localized copy is injected', async () => {
+		const element = await fixture<ComponentInterruptionScreen>( html`<tocus-f-interruption-screen></tocus-f-interruption-screen>` );
+
+		assert.equal( element.shadowRoot?.childElementCount, 0 );
+	} );
+
 } );
