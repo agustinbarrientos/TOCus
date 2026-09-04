@@ -64,6 +64,7 @@ describe( 'participant-focus-change transition', () => {
 						pageId: 'page-a',
 						retainedDestination: 'https://example.com/page-a',
 						focusEligible: false,
+						statisticsEligible: true,
 						joinSequence: 0,
 					},
 					{
@@ -72,12 +73,14 @@ describe( 'participant-focus-change transition', () => {
 						pageId: 'page-b',
 						retainedDestination: 'https://example.com/page-b',
 						focusEligible: true,
+						statisticsEligible: true,
 						joinSequence: 1,
 					},
 				],
 				ownerParticipantId: 'participant-b',
 				ownerEpoch: 2,
 				checkpointHighWaterMilliseconds: 0,
+				completionStatisticsEligible: true,
 				ladder: { completedWaits: 0, greatestObservedLocalDate: '2026-08-31' },
 			},
 			decisions: [ {
