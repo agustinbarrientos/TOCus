@@ -20,10 +20,22 @@ import {
 	type AllowanceWarningReconciler,
 } from './index';
 
+/**
+ * Fixed allowance expiry used by warning reconciliation fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const ALLOWANCE_EXPIRY_EPOCH_MILLISECONDS = 300_001;
+
+/**
+ * Fixed warning-window start used by warning reconciliation fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const WARNING_START_EPOCH_MILLISECONDS = ALLOWANCE_EXPIRY_EPOCH_MILLISECONDS - 10_000;
 
-/** Configuration containing one protected host in the default scope. */
+/**
+ * Configuration containing one protected host in the default scope.
+ * @since 0.1.0 Initial implementation.
+ */
 const CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
 	sites: [ {
@@ -36,7 +48,10 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
 	} ],
 };
 
-/** Active allowance used by warning reconciliation tests. */
+/**
+ * Active allowance used by warning reconciliation tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const ALLOWANCE_STATE = AllowanceProtectionStateSchema.parse( {
 	type: ProtectionStateType.ALLOWANCE,
 	scopeId: DefaultProtectionScopeId,
@@ -65,13 +80,18 @@ class AllowanceWarningBrowserFixture {
 
 	presentations = new Map<number, ProtectedPagePresentationStatus | null>();
 
-	tabs: ProtectionRuntimeTab[] = [ { id: 7, url: 'https://example.com/watch' } ];
+	tabs: ProtectionRuntimeTab[] = [ {
+		id: 7,
+		incognito: false,
+		url: 'https://example.com/watch',
+	} ];
 
 	updates: Array<{ message: ProtectedPageMessage; tabId: number }> = [];
 
 	/**
 	 * Returns the focused test tab identifier.
 	 * @return Focused tab identifier.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	getFocusedTabId = (): Promise<number | null> => Promise.resolve( this.focusedTabId );
 
@@ -79,6 +99,7 @@ class AllowanceWarningBrowserFixture {
 	 * Returns the current presentation for one test tab.
 	 * @param tabId - Browser tab identifier.
 	 * @return Current protected-page presentation.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	getProtectedPagePresentation = (
 		tabId: number,
@@ -91,6 +112,7 @@ class AllowanceWarningBrowserFixture {
 	/**
 	 * Returns the test browser tabs.
 	 * @return Current browser tabs.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	listTabs = (): Promise<ReadonlyArray<ProtectionRuntimeTab>> => Promise.resolve( this.tabs );
 
@@ -99,6 +121,7 @@ class AllowanceWarningBrowserFixture {
 	 * @param tabId - Browser tab identifier.
 	 * @param message - Protected-page command.
 	 * @return Resolved browser operation.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	updateProtectedPagePresentation = (
 		tabId: number,
@@ -115,6 +138,7 @@ class AllowanceWarningBrowserFixture {
  * @param browser - Browser fixture receiving presentation effects.
  * @param getTimeZone - Time-zone provider override.
  * @return Allowance-warning reconciler under test.
+ * @since 0.1.0 Initial implementation.
  */
 function createFixtureReconciler(
 	browser: AllowanceWarningBrowserFixture,
@@ -126,6 +150,7 @@ function createFixtureReconciler(
 		/**
 		 * Returns the fixture's current epoch time.
 		 * @return Current epoch milliseconds.
+		 * @since 0.1.0 Initial implementation.
 		 */
 		now: () => browser.nowEpochMilliseconds,
 	} );
@@ -277,8 +302,8 @@ describe( 'createAllowanceWarningReconciler', () => {
 	it( 'arms every protected page while warning only the focused page at the inclusive boundary', async () => {
 		const browser = new AllowanceWarningBrowserFixture();
 		browser.tabs = [
-			{ id: 7, url: 'https://example.com/watch' },
-			{ id: 8, url: 'https://example.com/other' },
+			{ id: 7, incognito: false, url: 'https://example.com/watch' },
+			{ id: 8, incognito: false, url: 'https://example.com/other' },
 		];
 		const reconciler = createFixtureReconciler( browser );
 
@@ -447,7 +472,7 @@ describe( 'createAllowanceWarningReconciler', () => {
 
 	it( 'clears allowance effects without inspecting page state when configuration is unavailable', async () => {
 		const browser = new AllowanceWarningBrowserFixture();
-		browser.tabs = [ { id: 7 } ];
+		browser.tabs = [ { id: 7, incognito: false } ];
 		browser.getProtectedPagePresentation = () => Promise.reject( new Error( 'Host access unavailable.' ) );
 		const reconciler = createFixtureReconciler( browser );
 
@@ -461,7 +486,7 @@ describe( 'createAllowanceWarningReconciler', () => {
 
 	it( 'removes an existing warning after its tab leaves every protected host', async () => {
 		const browser = new AllowanceWarningBrowserFixture();
-		browser.tabs = [ { id: 7, url: 'https://unrelated.example/' } ];
+		browser.tabs = [ { id: 7, incognito: false, url: 'https://unrelated.example/' } ];
 		browser.presentations.set( 7, {
 			allowanceWarningId: ALLOWANCE_STATE.allowanceId,
 			interruptionLayerPresented: false,
@@ -477,7 +502,7 @@ describe( 'createAllowanceWarningReconciler', () => {
 
 	it( 'clears a tab guard without inspecting page state when its URL is hidden', async () => {
 		const browser = new AllowanceWarningBrowserFixture();
-		browser.tabs = [ { id: 7 } ];
+		browser.tabs = [ { id: 7, incognito: false } ];
 		const reconciler = createFixtureReconciler( browser );
 
 		await reconciler.reconcile( CONFIGURATION, { scope_default: ALLOWANCE_STATE } );
@@ -495,6 +520,7 @@ describe( 'createAllowanceWarningReconciler', () => {
 		const browser = new AllowanceWarningBrowserFixture();
 		browser.tabs = [ {
 			id: 7,
+			incognito: false,
 			pendingUrl: 'https://example.com/watch',
 			url: 'https://unrelated.example/',
 		} ];
@@ -561,8 +587,8 @@ describe( 'createAllowanceWarningReconciler', () => {
 		const browser = new AllowanceWarningBrowserFixture();
 		browser.focusedTabId = null;
 		browser.tabs = [
-			{ id: 7, url: 'https://example.com/' },
-			{ id: 8, url: 'https://example.com/other' },
+			{ id: 7, incognito: false, url: 'https://example.com/' },
+			{ id: 8, incognito: false, url: 'https://example.com/other' },
 		];
 		browser.presentations.set( 7, {
 			allowanceWarningId: ALLOWANCE_STATE.allowanceId,
@@ -582,5 +608,45 @@ describe( 'createAllowanceWarningReconciler', () => {
 		).resolves.toBeUndefined();
 
 		expect( update ).toHaveBeenCalledTimes( 4 );
+	} );
+
+	it.each( [
+		[ 'private tab', true ],
+		[ 'tab with unknown privacy', undefined ],
+	] )( 'removes allowance effects without arming a guard on a %s', async (
+		_label,
+		incognito,
+	) => {
+		const browser = new AllowanceWarningBrowserFixture();
+		browser.tabs = [ {
+			id: 7,
+			url: 'https://example.com/private',
+			...( incognito === undefined ? {} : { incognito } ),
+		} ];
+		browser.presentations.set( 7, {
+			allowanceWarningId: ALLOWANCE_STATE.allowanceId,
+			interruptionLayerPresented: false,
+		} );
+		const reconciler = createFixtureReconciler( browser );
+
+		await reconciler.reconcile( CONFIGURATION, { scope_default: ALLOWANCE_STATE } );
+
+		expect( browser.updates ).toEqual( [
+			{
+				tabId: 7,
+				message: {
+					type: ProtectedPageMessageType.REMOVE_ALLOWANCE_WARNING,
+					allowanceId: ALLOWANCE_STATE.allowanceId,
+				},
+			},
+			{
+				tabId: 7,
+				message: { type: ProtectedPageMessageType.REMOVE_ALLOWANCE_EXPIRY_GUARD },
+			},
+			{
+				tabId: 7,
+				message: { type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER },
+			},
+		] );
 	} );
 } );
