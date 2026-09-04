@@ -1,4 +1,7 @@
-import { ProtectionEventType } from '../../../../domains/protection/types/protection-event';
+import {
+	DepartureCause,
+	ProtectionEventType,
+} from '../../../../domains/protection/types/protection-event';
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
 import { AllowanceIdSchema } from '../../../../domains/protection/types/protection-value';
 import {
@@ -122,6 +125,7 @@ export function createInterruptionRequestHandler(
 	 * Dispatches one displayed-progress checkpoint for the current Waiting owner.
 	 * @param context - Current Waiting participant context.
 	 * @param displayedFocusedDurationMilliseconds - Locally displayed total focused progress.
+	 * @param statisticsEligible - Whether the current sender is explicitly outside private browsing.
 	 * @param configuration - Current validated local configuration.
 	 * @return Whether a browser projection was applied after progress reconciliation.
 	 * @since 0.1.0 Initial implementation.
@@ -129,6 +133,7 @@ export function createInterruptionRequestHandler(
 	async function checkpointWaitingParticipant(
 		context: ProtectionRuntimeParticipantContext,
 		displayedFocusedDurationMilliseconds: number,
+		statisticsEligible: boolean,
 		configuration: Parameters<InterruptionRequestHandler[ 'synchronizeParticipantFocus' ]>[ 2 ],
 	): Promise<boolean> {
 		if (
@@ -147,6 +152,12 @@ export function createInterruptionRequestHandler(
 			unconfirmedDurationMilliseconds;
 		const nowEpochMilliseconds = options.now();
 		const timeZone = options.getTimeZone();
+		const measurementRevision = Object.hasOwn(
+			configuration.measurementRevisionsByScope,
+			waitingState.scopeId,
+		)
+			? configuration.measurementRevisionsByScope[ waitingState.scopeId ]
+			: undefined;
 		const result = await options.coordinator.dispatch( () => ( {
 			type: ProtectionEventType.PROGRESS_CHECKPOINT,
 			scopeId: waitingState.scopeId,
@@ -158,13 +169,14 @@ export function createInterruptionRequestHandler(
 			completionLocalDate: createRuntimeLocalDate( nowEpochMilliseconds, timeZone ),
 			allowanceId: AllowanceIdSchema.parse( `allowance_${ options.createStableId() }` ),
 			timingConfiguration: configuration.timingConfiguration,
+			statisticsEligible,
 			automaticCompletionObservation: createFreshRuntimeObservation(
 				context.participant,
 				configuration,
 				nowEpochMilliseconds,
 				timeZone,
 			),
-		} ) );
+		} ), measurementRevision );
 
 		await options.applyDispatchResult( result, configuration );
 
@@ -210,17 +222,34 @@ export function createInterruptionRequestHandler(
 	 * Handles one interruption-page request.
 	 * @param input - Unknown runtime message payload.
 	 * @param senderTabId - Browser-provided sender tab identifier.
+	 * @param protectionEligible - Whether the sender is explicitly outside private browsing.
 	 * @return Authoritative interruption-page projection.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function handle(
 		input: unknown,
 		senderTabId: number | null,
+		protectionEligible = false,
 	): Promise<InterruptionPageResponse> {
 		const request = InterruptionPageRequestSchema.safeParse( input );
 
 		if ( ! request.success || senderTabId === null ) {
 			return InterruptionPageResponseSchema.parse( { state: InterruptionPageResponseState.UNAVAILABLE } );
+		}
+
+		if ( ! protectionEligible ) {
+			await Promise.all( [
+				options.departTab(
+					senderTabId,
+					DepartureCause.BROWSER_ERROR_OR_RECOVERY,
+					null,
+				),
+				options.releaseInterruptionPresentation( senderTabId ),
+			] );
+
+			return InterruptionPageResponseSchema.parse( {
+				state: InterruptionPageResponseState.UNAVAILABLE,
+			} );
 		}
 
 		const configuration = await options.loadConfiguration();
@@ -255,6 +284,7 @@ export function createInterruptionRequestHandler(
 			browserProjectionApplied = await checkpointWaitingParticipant(
 				context,
 				request.data.displayedFocusedDurationMilliseconds,
+				true,
 				configuration,
 			);
 			statesByScope = await options.coordinator.getStates();
