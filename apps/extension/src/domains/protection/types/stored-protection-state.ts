@@ -14,13 +14,14 @@ import { DailyLadderSchema } from './daily-ladder';
 import {
 	StoredProtectionParticipantsSchema,
 } from './stored-protection-participant';
+import { StoredProtectionStatisticsDeliverySchema } from './stored-protection-statistics-delivery';
 import { WaitDurationMillisecondsSchema } from './wait-duration';
 
 /**
  * Current version of durable stored protection state.
  * @since 0.1.0 Initial implementation.
  */
-export const DurableStoredProtectionStateVersion = 1;
+export const DurableStoredProtectionStateVersion = 2;
 
 /**
  * Current version of session stored protection state.
@@ -104,6 +105,7 @@ export const StoredWaitingProtectionScopeStateSchema = z.object( {
 	ownerParticipantId: z.union( [ ParticipantIdSchema, z.null() ] ),
 	ownerEpoch: OwnerEpochSchema,
 	checkpointHighWaterMilliseconds: DurationMillisecondsSchema,
+	completionStatisticsEligible: z.boolean().default( false ),
 } ).strict().superRefine( ( state, context ) => {
 	if ( state.confirmedFocusedDurationMilliseconds >= state.capturedWaitDurationMilliseconds ) {
 		context.addIssue( {
@@ -263,6 +265,7 @@ const StoredSessionProtectionScopesSchema = z.preprocess(
  */
 export const StoredDurableProtectionStateSchema = z.object( {
 	schemaVersion: DurableStoredProtectionStateVersionSchema,
+	statisticsDelivery: StoredProtectionStatisticsDeliverySchema,
 	scopes: StoredDurableProtectionScopesSchema,
 } ).strict();
 
