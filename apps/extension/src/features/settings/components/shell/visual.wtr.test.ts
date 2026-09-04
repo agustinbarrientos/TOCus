@@ -4,12 +4,19 @@ import { visualDiff } from '@web/test-runner-visual-regression';
 import { DefaultPreferencesDocument, type PreferencesDocument } from '../../../../domains/preferences/types';
 import { type PreferencesEditor } from '../../../../domains/preferences/services/preferences-editor';
 import {
+	StatisticsProjectionStatus,
+	type StatisticsProjection,
+} from '../../../../domains/statistics/types/statistics-projection';
+import {
 	createProtectionConfigurationEditor,
 	type ProtectionConfigurationEditResult,
 	type ProtectionConfigurationMutation,
 } from '../../../../domains/protection/services/protection-configuration-editor';
 import { type ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
-import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
+import {
+	TestEmptyProtectionConfiguration,
+	createTestProtectionMeasurementRevision,
+} from '../../../../domains/protection/types/__fixtures__';
 import {
 	ProtectionConfigurationDocumentSchema,
 	type ProtectionConfigurationDocument,
@@ -19,7 +26,11 @@ import {
 	ScheduleMode,
 	Weekday,
 } from '../../../../domains/protection/types/protection-schedule';
-import { DefaultProtectionScopeId, ProtectionScopeIdSchema } from '../../../../domains/protection/types/protection-value';
+import {
+	DefaultProtectionScopeId,
+	ProtectionMeasurementRevisionSchema,
+	ProtectionScopeIdSchema,
+} from '../../../../domains/protection/types/protection-value';
 import { type SiteFaviconProvider } from '../../../protected-sites/services/site-favicon-provider';
 import {
 	SitePermissionGrantProvenance,
@@ -29,6 +40,11 @@ import {
 } from '../../../protected-sites/services/site-permission-manager';
 import { ComponentProtectedSitesScreen } from '../../../protected-sites/components/screen';
 import { ComponentProtectedSiteItem } from '../../../protected-sites/components/site-item';
+import { ComponentProtectedSiteList } from '../../../protected-sites/components/site-list';
+import {
+	ComponentStatisticsSettingsScreen,
+	type StatisticsSource,
+} from '../../../statistics/components/settings-screen';
 import { ComponentAppearanceScreen } from '../appearance-screen';
 import { type PreferencesPreview } from '../appearance-screen/types';
 import { ComponentScheduleScreen } from '../schedule-screen';
@@ -41,8 +57,22 @@ import {
 	type SettingsDestination as SettingsDestinationValue,
 } from './types';
 
+/**
+ * Empty protection configuration rendered by settings visual fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const EMPTY_CONFIGURATION: ProtectionConfigurationDocument = { ...TestEmptyProtectionConfiguration };
+
+/**
+ * Independent ChatGPT scope rendered by settings visual fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const VISUAL_CHATGPT_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope_visual_chatgpt' );
+
+/**
+ * Populated configuration rendered by settings visual tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const POPULATED_CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
 	sites: [
@@ -69,7 +99,17 @@ const POPULATED_CONFIGURATION: ProtectionConfigurationDocument = {
 		...TestEmptyProtectionConfiguration.schedulesByScope,
 		[ VISUAL_CHATGPT_SCOPE_ID ]: DefaultProtectionSchedule,
 	},
+	measurementRevisionsByScope: {
+		...TestEmptyProtectionConfiguration.measurementRevisionsByScope,
+		[ VISUAL_CHATGPT_SCOPE_ID ]: ProtectionMeasurementRevisionSchema.parse(
+			'revision_visual_chatgpt',
+		),
+	},
 };
+/**
+ * Custom schedule configuration rendered by settings visual tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const SCHEDULE_CONFIGURATION: ProtectionConfigurationDocument = {
 	...POPULATED_CONFIGURATION,
 	schedulesByScope: {
@@ -91,18 +131,52 @@ const SCHEDULE_CONFIGURATION: ProtectionConfigurationDocument = {
 		},
 	},
 };
+
+/**
+ * Statistics projection rendered by settings visual tests.
+ * @since 0.1.0 Initial implementation.
+ */
+const STATISTICS_PROJECTION: StatisticsProjection = {
+	status: StatisticsProjectionStatus.AVAILABLE,
+	estimatedReclaimedMilliseconds: 12_420_000,
+	focusedPauseMilliseconds: 1_620_000,
+	reconsideredVisitCount: 18,
+	completedWaitCount: 24,
+	allowanceGrantedCount: 11,
+};
+
+/**
+ * Protected Sites states rendered by settings visual tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const SETTINGS_VISUAL_STATES = [
 	'empty',
 	'populated',
 	'editing',
 	'removal-confirmation',
+	'independent-removal-confirmation',
 ] as const;
+
+/**
+ * Settings destinations rendered by visual tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const SETTINGS_VISUAL_DESTINATIONS = [
 	SettingsDestination.APPEARANCE,
 	SettingsDestination.SCHEDULE,
+	SettingsDestination.STATISTICS,
 	SettingsDestination.TIMING,
 ] as const;
+/**
+ * Explicit appearances rendered by settings visual tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const SETTINGS_VISUAL_THEMES = [ 'light', 'dark' ] as const;
+
+/**
+ * Body margin restored after settings visual tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const ORIGINAL_BODY_MARGIN = document.body.style.margin;
 
 /**
@@ -214,7 +288,16 @@ function getFaviconSource(): null {
 	return null;
 }
 
+/**
+ * Cached-favicon provider used by settings visual fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const FAVICON_PROVIDER: SiteFaviconProvider = { getSource: getFaviconSource };
+
+/**
+ * In-memory preferences editor used by settings visual fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const PREFERENCES_EDITOR = new MemorySettingsVisualPreferencesEditor();
 
 /**
@@ -226,7 +309,58 @@ function applyPreferencesPreview(): undefined {
 	return undefined;
 }
 
+/**
+ * Live preferences preview used by settings visual fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const PREFERENCES_PREVIEW: PreferencesPreview = { apply: applyPreferencesPreview };
+
+/**
+ * Returns the populated deterministic Statistics projection.
+ * @return Populated all-time Statistics projection.
+ * @since 0.1.0 Initial implementation.
+ */
+function readStatistics(): Promise<StatisticsProjection> {
+	return Promise.resolve( STATISTICS_PROJECTION );
+}
+
+/**
+ * Returns the unchanged Statistics projection for the unused reset action.
+ * @return Populated all-time Statistics projection.
+ * @since 0.1.0 Initial implementation.
+ */
+function resetStatistics(): Promise<StatisticsProjection> {
+	return Promise.resolve( STATISTICS_PROJECTION );
+}
+
+/**
+ * Accepts one statistics-change listener in settings-shell visual fixtures.
+ * @param listener - Unused fixture listener.
+ * @since 0.1.0 Initial implementation.
+ */
+function addStatisticsChangeListener( listener: () => void ): void {
+	void listener;
+}
+
+/**
+ * Removes one statistics-change listener from settings-shell visual fixtures.
+ * @param listener - Unused fixture listener.
+ * @since 0.1.0 Initial implementation.
+ */
+function removeStatisticsChangeListener( listener: () => void ): void {
+	void listener;
+}
+
+/**
+ * Deterministic statistics source used by settings visual tests.
+ * @since 0.1.0 Initial implementation.
+ */
+const STATISTICS_SOURCE: StatisticsSource = {
+	addStatisticsChangeListener,
+	readStatistics,
+	removeStatisticsChangeListener,
+	resetStatistics,
+};
 
 /**
  * Grants one configured site in visual fixtures.
@@ -270,7 +404,10 @@ function hasSiteAccess(): Promise<boolean> {
 	return Promise.resolve( true );
 }
 
-/** Permission manager used by settings-shell visual fixtures. */
+/**
+ * Permission manager used by settings-shell visual fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const PERMISSION_MANAGER: SitePermissionManager = {
 	filterConfiguration: filterPermissionConfiguration,
 	hasAccess: hasSiteAccess,
@@ -303,19 +440,61 @@ async function settleProtectedSitesScreen(
 }
 
 /**
+ * Returns every protected-site item rendered by the grouped list.
+ * @param screen - Ready populated Protected Sites screen.
+ * @return Protected-site items in visual order.
+ * @since 0.1.0 Initial implementation.
+ */
+function getProtectedSiteItems(
+	screen: ComponentProtectedSitesScreen,
+): ReadonlyArray<ComponentProtectedSiteItem> {
+	const list = screen.shadowRoot?.querySelector( 'tocus-f-protected-site-list' );
+
+	assert.instanceOf( list, ComponentProtectedSiteList );
+	if ( ! ( list instanceof ComponentProtectedSiteList ) ) {
+		throw new TypeError( 'Expected the visual fixture to render its grouped site list.' );
+	}
+
+	return Array.from(
+		list.shadowRoot?.querySelectorAll<ComponentProtectedSiteItem>(
+			'tocus-f-protected-site-item',
+		) ?? [],
+	);
+}
+
+/**
  * Returns the deterministic Instagram item rendered by a populated fixture.
  * @param screen - Ready populated Protected Sites screen.
  * @return Instagram site item.
  * @since 0.1.0 Initial implementation.
  */
 function getInstagramItem( screen: ComponentProtectedSitesScreen ): ComponentProtectedSiteItem {
-	const item = Array.from(
-		screen.shadowRoot?.querySelectorAll<ComponentProtectedSiteItem>( 'tocus-f-protected-site-item' ) ?? [],
-	).find( ( candidate ) => candidate.site?.identityHost === 'instagram.com' );
+	const item = getProtectedSiteItems( screen ).find(
+		( candidate ) => candidate.site?.identityHost === 'instagram.com',
+	);
 
 	assert.instanceOf( item, ComponentProtectedSiteItem );
 	if ( ! ( item instanceof ComponentProtectedSiteItem ) ) {
 		throw new TypeError( 'Expected the populated visual fixture to render Instagram.' );
+	}
+
+	return item;
+}
+
+/**
+ * Returns the deterministic ChatGPT item rendered by a populated fixture.
+ * @param screen - Ready populated Protected Sites screen.
+ * @return ChatGPT site item.
+ * @since 0.1.0 Initial implementation.
+ */
+function getChatGptItem( screen: ComponentProtectedSitesScreen ): ComponentProtectedSiteItem {
+	const item = getProtectedSiteItems( screen ).find(
+		( candidate ) => candidate.site?.identityHost === 'chatgpt.com',
+	);
+
+	assert.instanceOf( item, ComponentProtectedSiteItem );
+	if ( ! ( item instanceof ComponentProtectedSiteItem ) ) {
+		throw new TypeError( 'Expected the populated visual fixture to render ChatGPT.' );
 	}
 
 	return item;
@@ -357,6 +536,7 @@ async function renderSettingsState( state: SettingsVisualState ): Promise<Compon
 	const editor = createProtectionConfigurationEditor( {
 		storage,
 		createIndependentScopeId,
+		createMeasurementRevision: createTestProtectionMeasurementRevision,
 		coordinateMutation: coordinateMutationDirectly,
 	} );
 	const shell = await fixture<ComponentSettingsShell>( html`
@@ -381,13 +561,20 @@ async function renderSettingsState( state: SettingsVisualState ): Promise<Compon
 		}
 	}
 
+	if ( state === 'independent-removal-confirmation' ) {
+		const item = getChatGptItem( screen );
+
+		await clickSiteItemAction( item, '.edit-action' );
+		await clickSiteItemAction( item, '.remove-action' );
+	}
+
 	return shell;
 }
 
 /**
  * Waits for one settings destination to finish its asynchronous initial read.
  * @param shell - Connected settings shell.
- * @param destination - Appearance, Schedule, or Timing destination expected to be active.
+ * @param destination - Non-Protected-sites destination expected to be active.
  * @return Promise resolved after the active screen is ready.
  * @since 0.1.0 Initial implementation.
  */
@@ -403,16 +590,20 @@ async function settleSettingsDestination(
 		? shell.shadowRoot?.querySelector( 'tocus-f-appearance-screen' )
 		: destination === SettingsDestination.SCHEDULE
 			? shell.shadowRoot?.querySelector( 'tocus-f-schedule-screen' )
-			: shell.shadowRoot?.querySelector( 'tocus-f-timing-screen' );
+			: destination === SettingsDestination.STATISTICS
+				? shell.shadowRoot?.querySelector( 'tocus-f-statistics-settings-screen' )
+				: shell.shadowRoot?.querySelector( 'tocus-f-timing-screen' );
 
 	assert.isTrue(
 		screen instanceof ComponentAppearanceScreen ||
 		screen instanceof ComponentScheduleScreen ||
+		screen instanceof ComponentStatisticsSettingsScreen ||
 		screen instanceof ComponentTimingScreen,
 	);
 	if (
 		! ( screen instanceof ComponentAppearanceScreen ) &&
 		! ( screen instanceof ComponentScheduleScreen ) &&
+		! ( screen instanceof ComponentStatisticsSettingsScreen ) &&
 		! ( screen instanceof ComponentTimingScreen )
 	) {
 		throw new TypeError( `Expected the visual settings shell to render ${ destination }.` );
@@ -422,7 +613,7 @@ async function settleSettingsDestination(
 }
 
 /**
- * Renders one Appearance, Schedule, or Timing destination with representative local settings.
+ * Renders one non-Protected-sites destination with representative local settings.
  * @param destination - Settings destination to present.
  * @return Connected settings shell with its active screen ready.
  * @since 0.1.0 Initial implementation.
@@ -437,6 +628,7 @@ async function renderSettingsDestination(
 	const editor = createProtectionConfigurationEditor( {
 		storage,
 		createIndependentScopeId,
+		createMeasurementRevision: createTestProtectionMeasurementRevision,
 		coordinateMutation: coordinateMutationDirectly,
 	} );
 	const shell = await fixture<ComponentSettingsShell>( html`
@@ -447,6 +639,7 @@ async function renderSettingsDestination(
 			.platform=${ SettingsPlatform.CHROME }
 			.preferencesEditor=${ PREFERENCES_EDITOR }
 			.preferencesPreview=${ PREFERENCES_PREVIEW }
+			.statisticsSource=${ STATISTICS_SOURCE }
 		></tocus-f-settings-shell>
 	` );
 
@@ -504,6 +697,7 @@ describe( 'tocus-f-settings-shell visual', () => {
 				const shell = await renderSettingsState( state );
 
 				assert.isTrue( shell.isConnected );
+				window.scrollTo( 0, 0 );
 				await visualDiff( shell, `settings-protected-sites-${ state }-${ theme }` );
 			} );
 		}
@@ -516,6 +710,7 @@ describe( 'tocus-f-settings-shell visual', () => {
 				const shell = await renderSettingsDestination( destination );
 
 				assert.isTrue( shell.isConnected );
+				window.scrollTo( 0, 0 );
 				await visualDiff( shell, `settings-${ destination }-${ theme }` );
 			} );
 		}
