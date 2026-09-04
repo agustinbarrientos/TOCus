@@ -42,6 +42,24 @@ export type ProtectedSiteConfigurationChangeKind =
 	typeof ProtectedSiteConfigurationChangeKind[ keyof typeof ProtectedSiteConfigurationChangeKind ];
 
 /**
+ * Stable operation failures retained by one protected-site item.
+ * @since 0.1.0 Initial implementation.
+ */
+export const ProtectedSiteItemOperationErrorReason = {
+	ACCESS_REQUEST: 'access-request',
+	CONFIGURATION_CHANGED: 'configuration-changed',
+	OPERATION: 'operation',
+} as const;
+
+/**
+ * Operation failure retained by one protected-site item.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ProtectedSiteItemOperationErrorReason = typeof ProtectedSiteItemOperationErrorReason[
+	keyof typeof ProtectedSiteItemOperationErrorReason
+];
+
+/**
  * Details emitted after one protected-site configuration change is persisted.
  * @since 0.1.0 Initial implementation.
  */
@@ -122,55 +140,3 @@ export interface ProtectedSiteItemCopy {
 	 */
 	formatRemoveQuestion( name: string ): string;
 }
-
-/**
- * Formats the default protection boundary explanation.
- * @param host - Canonical protection host.
- * @param includesSubdomains - Whether descendants are protected.
- * @return Human-readable protection boundary.
- * @since 0.1.0 Initial implementation.
- */
-function formatBoundary( host: string, includesSubdomains: boolean ): string {
-	return includesSubdomains ? `Protects ${ host } and its subdomains` : `Protects only ${ host }`;
-}
-
-/**
- * Formats the default inline removal question.
- * @param name - Current resolved display name.
- * @return Human-readable removal question.
- * @since 0.1.0 Initial implementation.
- */
-function formatRemoveQuestion( name: string ): string {
-	return `Remove ${ name }?`;
-}
-
-/**
- * Default English protected-site item messages.
- * @since 0.1.0 Initial implementation.
- */
-export const DefaultProtectedSiteItemCopy: Readonly<ProtectedSiteItemCopy> = Object.freeze( {
-	accessRequired: 'Access required',
-	allowAccess: 'Allow access',
-	allowingAccess: 'Allowing...',
-	accessRequestError: 'Browser access is still required to protect this site.',
-	edit: 'Edit',
-	displayNameLabel: 'Display name',
-	useAutomaticName: 'Use automatic name',
-	behaviorLegend: 'Protection behavior',
-	sharedBehavior: 'Share with other protected sites',
-	sharedBehaviorDescription: 'Uses the shared wait, allowance, and schedule.',
-	independentBehavior: 'Protect independently',
-	independentBehaviorDescription: 'Uses its own wait, allowance, and schedule.',
-	saveChanges: 'Save changes',
-	saving: 'Saving...',
-	cancel: 'Cancel',
-	removeSite: 'Remove site',
-	keepSite: 'Keep site',
-	confirmRemove: 'Remove',
-	operationError: 'Your changes could not be saved. Nothing was replaced.',
-	configurationChangedError: 'This site changed elsewhere. Reload settings and try again.',
-	sharedLabel: 'Shared',
-	independentLabel: 'Independent',
-	formatBoundary,
-	formatRemoveQuestion,
-} );
