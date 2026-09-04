@@ -8,6 +8,7 @@ import {
 } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { keyed } from 'lit/directives/keyed.js';
+import { isLocalizationReady } from '../../../../localization/utils/is-localization-ready';
 import {
 	DefaultPreferencesDocument,
 	Palette,
@@ -21,10 +22,10 @@ import {
 	type PreferencesEditor,
 	type PreferencesUpdate,
 } from '../../../../domains/preferences/services/preferences-editor';
+import { arePreferencesEqual } from '../../../../domains/preferences/utils/are-preferences-equal';
 import styles from './web-component-style.scss?inline';
 import {
 	AppearanceScreenLoadStatus,
-	DefaultAppearanceScreenCopy,
 	type AppearanceInputEvent,
 	type AppearanceOptionCopy,
 	type AppearanceScreenCopy,
@@ -73,7 +74,7 @@ export class ComponentAppearanceScreen extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@property( { attribute: false } )
-	accessor copy: Readonly<AppearanceScreenCopy> = DefaultAppearanceScreenCopy;
+	accessor copy!: Readonly<AppearanceScreenCopy>;
 
 	@state()
 	private accessor preferences: PreferencesDocument = { ...DefaultPreferencesDocument };
@@ -85,13 +86,16 @@ export class ComponentAppearanceScreen extends LitElement {
 	private accessor saving = false;
 
 	@state()
-	private accessor saveError = '';
+	private accessor saveFailed = false;
 
 	@state()
-	private accessor recoveryError = '';
+	private accessor recoveryFailed = false;
 
 	@state()
-	private accessor announcement = '';
+	private accessor showSavedAnnouncement = false;
+
+	@state()
+	private accessor showRestoredAnnouncement = false;
 
 	@state()
 	private accessor announcementSequence = 0;
@@ -153,9 +157,19 @@ export class ComponentAppearanceScreen extends LitElement {
 	private readonly handleExternalPreferencesChange = (
 		preferences: PreferencesDocument | null,
 	): void => {
-		this.preferencesRevision += 1;
-		this.saveError = '';
-		this.recoveryError = '';
+		const duplicatesCurrentProjection = preferences !== null && arePreferencesEqual(
+			preferences,
+			this.preferences,
+		);
+
+		if ( ! duplicatesCurrentProjection ) {
+			this.preferencesRevision += 1;
+			this.showSavedAnnouncement = false;
+			this.showRestoredAnnouncement = false;
+		}
+
+		this.saveFailed = false;
+		this.recoveryFailed = false;
 
 		if ( preferences === null ) {
 			this.loadStatus = AppearanceScreenLoadStatus.MALFORMED;
@@ -191,8 +205,8 @@ export class ComponentAppearanceScreen extends LitElement {
 		const initialPreferencesRevision = this.preferencesRevision;
 
 		this.loadStatus = AppearanceScreenLoadStatus.LOADING;
-		this.saveError = '';
-		this.recoveryError = '';
+		this.saveFailed = false;
+		this.recoveryFailed = false;
 
 		if ( this.editor === null ) {
 			this.loadStatus = AppearanceScreenLoadStatus.FAILED;
@@ -242,7 +256,7 @@ export class ComponentAppearanceScreen extends LitElement {
 	};
 
 	/**
-	 * Replaces only malformed appearance data with validated defaults after an explicit user action.
+	 * Replaces malformed personalization data with validated defaults after an explicit user action.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	private readonly handleRestoreDefaults = async (): Promise<void> => {
@@ -250,7 +264,10 @@ export class ComponentAppearanceScreen extends LitElement {
 			return;
 		}
 
-		this.recoveryError = '';
+		this.preferences = { ...DefaultPreferencesDocument };
+		this.recoveryFailed = false;
+		this.showSavedAnnouncement = false;
+		this.showRestoredAnnouncement = false;
 		this.saving = true;
 		const initialPreferencesRevision = this.preferencesRevision;
 
@@ -261,11 +278,12 @@ export class ComponentAppearanceScreen extends LitElement {
 				this.preferences = preferences;
 				this.preview?.apply( preferences );
 				this.loadStatus = AppearanceScreenLoadStatus.READY;
-				this.announce( this.copy.savedAnnouncement );
+				this.showRestoredAnnouncement = true;
+				this.announcementSequence += 1;
 			}
 		} catch {
 			if ( initialPreferencesRevision === this.preferencesRevision ) {
-				this.recoveryError = this.copy.restoreDefaultsError;
+				this.recoveryFailed = true;
 			}
 		} finally {
 			this.saving = false;
@@ -279,12 +297,12 @@ export class ComponentAppearanceScreen extends LitElement {
 	};
 
 	/**
-	 * Replaces the polite live-region content so repeated messages are announced.
-	 * @param message - Localized status message to announce.
+	 * Shows the appearance-saved live-region message with a new announcement identity.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	private announce( message: string ): void {
-		this.announcement = message;
+	private announceSaved(): void {
+		this.showSavedAnnouncement = true;
+		this.showRestoredAnnouncement = false;
 		this.announcementSequence += 1;
 	}
 
@@ -348,8 +366,9 @@ export class ComponentAppearanceScreen extends LitElement {
 		this.preferences = preferences;
 		this.preview?.apply( preferences );
 		const initialPreferencesRevision = this.preferencesRevision;
-		this.saveError = '';
-		this.announcement = '';
+		this.saveFailed = false;
+		this.showSavedAnnouncement = false;
+		this.showRestoredAnnouncement = false;
 		this.saving = true;
 
 		try {
@@ -361,12 +380,12 @@ export class ComponentAppearanceScreen extends LitElement {
 				} else {
 					this.preferences = updatedPreferences;
 					this.preview?.apply( updatedPreferences );
-					this.announce( this.copy.savedAnnouncement );
+					this.announceSaved();
 				}
 			}
 		} catch {
 			if ( initialPreferencesRevision === this.preferencesRevision ) {
-				this.saveError = this.copy.saveError;
+				this.saveFailed = true;
 			}
 		} finally {
 			this.saving = false;
@@ -460,7 +479,7 @@ export class ComponentAppearanceScreen extends LitElement {
 				<div>
 					<h2>${ malformed ? this.copy.malformedDataTitle : this.copy.loadErrorTitle }</h2>
 					<p>${ malformed ? this.copy.malformedDataDescription : this.copy.loadErrorDescription }</p>
-					${ this.recoveryError === '' ? null : html`<p>${ this.recoveryError }</p>` }
+					${ this.recoveryFailed ? html`<p>${ this.copy.restoreDefaultsError }</p>` : null }
 				</div>
 				<button
 					class=${ malformed ? 'restore-action' : 'retry-action' }
@@ -480,6 +499,9 @@ export class ComponentAppearanceScreen extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	protected override render(): TemplateResult {
+		if ( ! isLocalizationReady( this.copy ) ) {
+			return html``;
+		}
 		if ( this.loadStatus !== AppearanceScreenLoadStatus.READY ) {
 			return html`
 				<main aria-labelledby="appearance-title">
@@ -492,6 +514,12 @@ export class ComponentAppearanceScreen extends LitElement {
 				</main>
 			`;
 		}
+
+		const announcement = this.showRestoredAnnouncement
+			? this.copy.restoredAnnouncement
+			: this.showSavedAnnouncement
+				? this.copy.savedAnnouncement
+				: '';
 
 		return html`
 			<main aria-labelledby="appearance-title">
@@ -547,11 +575,11 @@ export class ComponentAppearanceScreen extends LitElement {
 							</span>
 						</label>
 					</fieldset>
-					${ this.saveError === '' ? null : html`<p class="save-error" role="alert">${ this.saveError }</p>` }
+					${ this.saveFailed ? html`<p class="save-error" role="alert">${ this.copy.saveError }</p>` : null }
 					<p class="save-status" role="status" aria-live="polite">
-						${ this.announcement === ''
+						${ announcement === ''
 							? null
-							: keyed( this.announcementSequence, html`<span>${ this.announcement }</span>` ) }
+							: keyed( this.announcementSequence, html`<span>${ announcement }</span>` ) }
 					</p>
 				</form>
 			</main>
