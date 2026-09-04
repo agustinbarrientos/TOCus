@@ -6,6 +6,7 @@ import {
 } from '../../../../domains/protection/types/protected-site-configuration';
 import {
 	DefaultProtectionScopeId,
+	ProtectionMeasurementRevisionSchema,
 	ProtectionScopeIdSchema,
 } from '../../../../domains/protection/types/protection-value';
 import { createSitePermissionManager } from './index';
@@ -16,16 +17,29 @@ import {
 	type SitePermissionApi,
 } from './types';
 
+/**
+ * Shared domain rule used by permission manager tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const DOMAIN_RULE = {
 	host: 'example.com',
 	includeSubdomains: true,
 	scopeId: DefaultProtectionScopeId,
 } as const;
+/**
+ * Independent domain rule used by permission manager tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const INDEPENDENT_RULE = {
 	host: 'independent.test',
 	includeSubdomains: false,
 	scopeId: ProtectionScopeIdSchema.parse( 'scope_independent' ),
 } as const;
+
+/**
+ * Configuration containing shared and independent site rules.
+ * @since 0.1.0 Initial implementation.
+ */
 const MULTI_SITE_CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
 	sites: [
@@ -35,6 +49,10 @@ const MULTI_SITE_CONFIGURATION: ProtectionConfigurationDocument = {
 	schedulesByScope: {
 		...TestEmptyProtectionConfiguration.schedulesByScope,
 		scope_independent: { mode: 'always' },
+	},
+	measurementRevisionsByScope: {
+		...TestEmptyProtectionConfiguration.measurementRevisionsByScope,
+		scope_independent: ProtectionMeasurementRevisionSchema.parse( 'revision_independent' ),
 	},
 };
 
