@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
 	InterruptionContinueRequestEventName,
 	InterruptionRetryRequestEventName,
@@ -124,6 +124,10 @@ class MemoryInterruptionPageRuntime implements InterruptionPageRuntime {
  * @since 0.1.0 Initial implementation.
  */
 interface ScheduledTestInterval {
+	/**
+	 * Callback invoked for one deterministic interval tick.
+	 * @since 0.1.0 Initial implementation.
+	 */
 	callback: () => void;
 	delayMilliseconds: number;
 }
@@ -133,6 +137,10 @@ interface ScheduledTestInterval {
  * @since 0.1.0 Initial implementation.
  */
 interface ScheduledTestTimeout {
+	/**
+	 * Callback invoked when the deterministic timeout elapses.
+	 * @since 0.1.0 Initial implementation.
+	 */
 	callback: () => void;
 	delayMilliseconds: number;
 }
@@ -306,10 +314,14 @@ interface InterruptionPageControllerFixture {
 /**
  * Creates one controller with deterministic page dependencies.
  * @param responses - Ordered runtime responses or failures.
+ * @param onPresentationStateChange - Optional major-state observer.
  * @return Complete controller fixture.
  * @since 0.1.0 Initial implementation.
  */
-function createControllerFixture( responses: unknown[] ): InterruptionPageControllerFixture {
+function createControllerFixture(
+	responses: unknown[],
+	onPresentationStateChange?: ( state: InterruptionScreenStateValue ) => void,
+): InterruptionPageControllerFixture {
 	const clock = new MemoryInterruptionPageClock();
 	const documentTarget = new EventTarget();
 	const motionPreference = new MemoryInterruptionPageMotionPreference();
@@ -322,6 +334,7 @@ function createControllerFixture( responses: unknown[] ): InterruptionPageContro
 		clock,
 		documentTarget,
 		motionPreference,
+		...( onPresentationStateChange === undefined ? {} : { onPresentationStateChange } ),
 		runtime,
 		scheduler,
 		screen,
@@ -354,6 +367,78 @@ function settleControllerRequests(): Promise<void> {
 }
 
 describe( 'createInterruptionPageController', () => {
+	it( 'reports initial and changed authoritative states without repeating Waiting checkpoints', async () => {
+		const onPresentationStateChange = vi.fn();
+		const fixture = createControllerFixture( [
+			{
+				state: InterruptionPageResponseState.WAITING,
+				capturedWaitDurationMilliseconds: 10_000,
+				focusedProgressMilliseconds: 0,
+				progressing: true,
+			},
+			{
+				state: InterruptionPageResponseState.WAITING,
+				capturedWaitDurationMilliseconds: 10_000,
+				focusedProgressMilliseconds: 1_000,
+				progressing: true,
+			},
+			{
+				state: InterruptionPageResponseState.READY,
+				allowanceExpiresAtEpochMilliseconds: 300_000,
+			},
+		], onPresentationStateChange );
+
+		await fixture.controller.start();
+		fixture.scheduler.runIntervals();
+		await settleControllerRequests();
+		fixture.scheduler.runIntervals();
+		await settleControllerRequests();
+
+		expect( onPresentationStateChange.mock.calls ).toEqual( [
+			[ InterruptionScreenState.WAITING ],
+			[ InterruptionScreenState.READY ],
+		] );
+	} );
+
+	it( 'reports Unavailable after automatic recovery cannot restore state', async () => {
+		const onPresentationStateChange = vi.fn();
+		const fixture = createControllerFixture( [
+			new Error( 'Connect failed.' ),
+			new Error( 'Recovery failed.' ),
+		], onPresentationStateChange );
+
+		await fixture.controller.start();
+
+		expect( onPresentationStateChange ).toHaveBeenCalledOnce();
+		expect( onPresentationStateChange ).toHaveBeenCalledWith(
+			InterruptionScreenState.UNAVAILABLE,
+		);
+	} );
+
+	it( 'reports the initial state again after the controller restarts', async () => {
+		const onPresentationStateChange = vi.fn();
+		const waitingResponse = {
+			state: InterruptionPageResponseState.WAITING,
+			capturedWaitDurationMilliseconds: 10_000,
+			focusedProgressMilliseconds: 0,
+			progressing: true,
+		};
+		const fixture = createControllerFixture(
+			[ waitingResponse, waitingResponse ],
+			onPresentationStateChange,
+		);
+
+		await fixture.controller.start();
+		fixture.controller.stop();
+		await fixture.controller.start();
+
+		expect( onPresentationStateChange ).toHaveBeenCalledTimes( 2 );
+		expect( onPresentationStateChange ).toHaveBeenNthCalledWith(
+			2,
+			InterruptionScreenState.WAITING,
+		);
+	} );
+
 	it( 'connects once and projects authoritative Waiting state', async () => {
 		const fixture = createControllerFixture( [ {
 			state: InterruptionPageResponseState.WAITING,
