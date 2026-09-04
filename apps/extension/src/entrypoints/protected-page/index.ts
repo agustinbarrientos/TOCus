@@ -1,6 +1,8 @@
 import { browser } from 'wxt/browser';
 import { defineUnlistedScript } from 'wxt/utils/define-unlisted-script';
 import { createPreferencesStorageService } from '../../domains/preferences/services';
+import { type Language } from '../../domains/preferences/types';
+import { resolveLanguage } from '../../domains/preferences/utils';
 import { type AllowanceId } from '../../domains/protection/types/protection-value';
 import { ComponentProtectedPageLayer } from '../../features/interruption/components/protected-page-layer';
 import {
@@ -15,7 +17,9 @@ import {
 import {
 	createPreferencesController,
 	type PreferencesController,
+	type PreferencesLanguageChangeListener,
 } from '../../features/preferences/services/preferences-controller';
+import { createLocalizedProtectedPageCopy } from '../../localization/utils/create-localized-protected-page-copy';
 import {
 	ProtectionClockRequestType,
 	type InterruptionPageRequest,
@@ -94,6 +98,7 @@ async function initializeProtectedPageLayer(): Promise<void> {
 	const layer = new ComponentProtectedPageLayer();
 	let interruptionController: InterruptionPageController | null = null;
 	let layerController: ProtectedPageLayerController | null = null;
+	let languageChangeListener: PreferencesLanguageChangeListener | null = null;
 	let preferencesController: PreferencesController | null = null;
 	let wellbeingSummaryController: WellbeingSummaryController | null = null;
 
@@ -102,14 +107,23 @@ async function initializeProtectedPageLayer(): Promise<void> {
 	document.documentElement.append( layer );
 
 	try {
+		const browserLanguage = resolveLanguage( browser.i18n.getUILanguage() );
+		const bootstrapLocalization = createLocalizedProtectedPageCopy( browserLanguage );
+
+		layer.lang = bootstrapLocalization.languageTag;
+		layer.copy = bootstrapLocalization.protectedPageLayer;
+		layer.interruptionCopy = bootstrapLocalization.interruption;
 		await layer.updateComplete;
 		const interruptionScreen = layer.getInterruptionScreen();
+
+		interruptionScreen.wellbeingSummary = bootstrapLocalization.wellbeing.neutral;
 		const preferencesStorage = createPreferencesStorageService( {
 			area: browser.storage.local,
 		} );
 
 		preferencesController = createPreferencesController( {
 			appearanceTarget: layer,
+			browserLanguage,
 			presentation: interruptionScreen,
 			storage: preferencesStorage,
 			storageChanges: browser.storage.onChanged,
@@ -126,6 +140,24 @@ async function initializeProtectedPageLayer(): Promise<void> {
 		const activeWellbeingSummaryController = wellbeingSummaryController;
 
 		/**
+		 * Applies one complete localization snapshot to the owned protected-page layer.
+		 * @param language - Effective browser-derived or explicitly selected language.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		function applyLocalization( language: Language ): void {
+			const localization = createLocalizedProtectedPageCopy( language );
+
+			layer.lang = localization.languageTag;
+			layer.copy = localization.protectedPageLayer;
+			layer.interruptionCopy = localization.interruption;
+			interruptionScreen.wellbeingSummary = localization.wellbeing.neutral;
+			activeWellbeingSummaryController.setCopy( localization.wellbeing );
+		}
+
+		languageChangeListener = applyLocalization;
+		preferencesController.addLanguageChangeListener( languageChangeListener );
+
+		/**
 		 * Starts a non-blocking footer refresh after an authoritative major-state change.
 		 * @since 0.1.0 Initial implementation.
 		 */
@@ -134,6 +166,7 @@ async function initializeProtectedPageLayer(): Promise<void> {
 		}
 
 		await preferencesController.start();
+		applyLocalization( preferencesController.language );
 		activeWellbeingSummaryController.start();
 		const visibility: InterruptionPageVisibility = {
 			/**
@@ -208,6 +241,9 @@ async function initializeProtectedPageLayer(): Promise<void> {
 		layerController?.stop();
 		interruptionController?.stop();
 		wellbeingSummaryController?.stop();
+		if ( preferencesController !== null && languageChangeListener !== null ) {
+			preferencesController.removeLanguageChangeListener( languageChangeListener );
+		}
 		preferencesController?.stop();
 		layer.connectionGuardEnabled = false;
 		layer.remove();
