@@ -1,7 +1,7 @@
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import { assert, fixture } from '@open-wc/testing';
 import { ComponentInterruptionScreen } from './index';
 import {
-	DefaultInterruptionScreenCopy,
 	InterruptionScreenMode,
 	InterruptionScreenState,
 	type InterruptionScreenEnvironment,
@@ -216,6 +216,7 @@ async function createTimedScreen(
 	timing: ManualInterruptionScreenTiming,
 ): Promise<ComponentInterruptionScreen> {
 	const element = new ComponentInterruptionScreen( timing );
+	element.copy = TestEnglishLocalizationBundle.interruption;
 
 	return fixture<ComponentInterruptionScreen>( element );
 }
@@ -224,6 +225,7 @@ describe( 'tocus-f-interruption-screen presentation timing', () => {
 	it( 'reports locally displayed focused progress for persistence checkpoints', async () => {
 		const timing = new ManualInterruptionScreenTiming();
 		const element = new ComponentInterruptionScreen( timing );
+		element.copy = TestEnglishLocalizationBundle.interruption;
 
 		element.progressing = true;
 		await fixture( element );
@@ -235,6 +237,7 @@ describe( 'tocus-f-interruption-screen presentation timing', () => {
 	it( 'advances normal breathing with animation frames and freezes in Waiting at completion', async () => {
 		const timing = new ManualInterruptionScreenTiming();
 		const element = new ComponentInterruptionScreen( timing );
+		element.copy = TestEnglishLocalizationBundle.interruption;
 
 		element.progressing = true;
 		await fixture( element );
@@ -257,6 +260,7 @@ describe( 'tocus-f-interruption-screen presentation timing', () => {
 	it( 'starts a new Waiting interval from unchanged authoritative progress', async () => {
 		const timing = new ManualInterruptionScreenTiming();
 		const element = new ComponentInterruptionScreen( timing );
+		element.copy = TestEnglishLocalizationBundle.interruption;
 
 		element.progressing = true;
 		await fixture( element );
@@ -298,6 +302,7 @@ describe( 'tocus-f-interruption-screen presentation timing', () => {
 	it( 'coalesces overlapping focus and visibility pauses without counting paused time', async () => {
 		const timing = new ManualInterruptionScreenTiming();
 		const element = new ComponentInterruptionScreen( timing );
+		element.copy = TestEnglishLocalizationBundle.interruption;
 
 		element.progressing = true;
 		await fixture( element );
@@ -306,11 +311,14 @@ describe( 'tocus-f-interruption-screen presentation timing', () => {
 
 		timing.setWindowFocused( false );
 		await element.updateComplete;
-		assert.equal( getRequiredElement( element, '[aria-live]' ).textContent.trim(), DefaultInterruptionScreenCopy.pausedAnnouncement );
+		assert.equal(
+			getRequiredElement( element, '[aria-live]' ).textContent.trim(),
+			TestEnglishLocalizationBundle.interruption.pausedAnnouncement,
+		);
 		assert.equal( timing.getFrameCount(), 0 );
 
 		element.copy = {
-			...DefaultInterruptionScreenCopy,
+			...TestEnglishLocalizationBundle.interruption,
 			pausedAnnouncement: 'Die ruhige Pause ist angehalten.',
 		};
 		await element.updateComplete;
@@ -325,7 +333,10 @@ describe( 'tocus-f-interruption-screen presentation timing', () => {
 		timing.elapse( 5_000 );
 		timing.setDocumentVisible( true );
 		await element.updateComplete;
-		assert.equal( getRequiredElement( element, '[aria-live]' ).textContent.trim(), DefaultInterruptionScreenCopy.resumedAnnouncement );
+		assert.equal(
+			getRequiredElement( element, '[aria-live]' ).textContent.trim(),
+			TestEnglishLocalizationBundle.interruption.resumedAnnouncement,
+		);
 		assert.equal( timing.getFrameCount(), 1 );
 
 		timing.advance( 1_000 );
@@ -336,6 +347,7 @@ describe( 'tocus-f-interruption-screen presentation timing', () => {
 	it( 'uses discrete timeout updates for Quiet pause without animation frames', async () => {
 		const timing = new ManualInterruptionScreenTiming();
 		const element = new ComponentInterruptionScreen( timing );
+		element.copy = TestEnglishLocalizationBundle.interruption;
 
 		element.mode = InterruptionScreenMode.QUIET;
 		element.progressing = true;
@@ -353,6 +365,7 @@ describe( 'tocus-f-interruption-screen presentation timing', () => {
 	it( 'aligns a discrete update with the next displayed-second boundary', async () => {
 		const timing = new ManualInterruptionScreenTiming();
 		const element = new ComponentInterruptionScreen( timing );
+		element.copy = TestEnglishLocalizationBundle.interruption;
 
 		element.mode = InterruptionScreenMode.QUIET;
 		element.focusedProgressMilliseconds = 750;
@@ -368,6 +381,7 @@ describe( 'tocus-f-interruption-screen presentation timing', () => {
 	it( 'uses discrete timeout updates for explicit reduced motion', async () => {
 		const timing = new ManualInterruptionScreenTiming();
 		const element = new ComponentInterruptionScreen( timing );
+		element.copy = TestEnglishLocalizationBundle.interruption;
 
 		element.reducedMotion = true;
 		element.progressing = true;
@@ -385,6 +399,7 @@ describe( 'tocus-f-interruption-screen presentation timing', () => {
 	it( 'cancels every callback and lifecycle listener when disconnected', async () => {
 		const timing = new ManualInterruptionScreenTiming();
 		const element = new ComponentInterruptionScreen( timing );
+		element.copy = TestEnglishLocalizationBundle.interruption;
 
 		element.mode = InterruptionScreenMode.QUIET;
 		element.progressing = true;
@@ -404,6 +419,7 @@ describe( 'tocus-f-interruption-screen presentation timing', () => {
 	it( 'restarts active progress when the component lifecycle reconnects', async () => {
 		const timing = new ManualInterruptionScreenTiming();
 		const element = new ComponentInterruptionScreen( timing );
+		element.copy = TestEnglishLocalizationBundle.interruption;
 
 		element.progressing = true;
 		await fixture( element );
@@ -418,6 +434,7 @@ describe( 'tocus-f-interruption-screen presentation timing', () => {
 	it( 'ignores a frame callback that arrives after an authoritative state change', async () => {
 		const timing = new ManualInterruptionScreenTiming();
 		const element = new ComponentInterruptionScreen( timing );
+		element.copy = TestEnglishLocalizationBundle.interruption;
 
 		element.progressing = true;
 		await fixture( element );
