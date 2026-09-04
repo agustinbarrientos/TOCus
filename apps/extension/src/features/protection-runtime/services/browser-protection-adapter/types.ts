@@ -29,6 +29,7 @@ export interface BrowserProtectionAlarmsApi {
 	 * Clears one named alarm when present.
 	 * @param name - Stable extension-owned alarm name.
 	 * @return Whether an existing alarm was cleared.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	clear: ( name: string ) => Promise<boolean>;
 
@@ -37,12 +38,14 @@ export interface BrowserProtectionAlarmsApi {
 	 * @param name - Stable extension-owned alarm name.
 	 * @param details - Exact absolute deadline without a periodic interval.
 	 * @return Browser completion promise when supported.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	create: ( name: string, details: BrowserProtectionAlarmCreationDetails ) => Promise<void> | void;
 
 	/**
 	 * Lists every alarm currently registered by the extension.
 	 * @return Current extension alarms.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	getAll: () => Promise<ReadonlyArray<BrowserProtectionAlarm>>;
 }
@@ -66,6 +69,7 @@ export interface BrowserProtectionDynamicRulesApi {
 	/**
 	 * Lists every dynamic rule currently owned by the extension.
 	 * @return Current extension-owned dynamic rules.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	getDynamicRules: () => Promise<Browser.declarativeNetRequest.Rule[]>;
 
@@ -73,6 +77,7 @@ export interface BrowserProtectionDynamicRulesApi {
 	 * Atomically removes current rules and installs their replacements.
 	 * @param update - Complete dynamic-rule replacement.
 	 * @return Promise resolved after the browser applies the replacement.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	updateDynamicRules: ( update: BrowserProtectionDynamicRuleUpdate ) => Promise<void>;
 }
@@ -84,10 +89,14 @@ export interface BrowserProtectionDynamicRulesApi {
 export interface BrowserProtectionAdapterTab {
 	/** Browser-assigned tab identifier when the tab is live. */
 	id?: number | undefined;
+	/** Whether the tab belongs to a private browser context when reported. */
+	incognito?: boolean | undefined;
 	/** Accessible current URL when the extension has host access. */
 	url?: string | undefined;
 	/** Accessible pending navigation URL when the extension has host access. */
 	pendingUrl?: string | undefined;
+	/** Browser window containing the tab when reported. */
+	windowId?: number | undefined;
 }
 
 /**
@@ -119,6 +128,7 @@ export interface BrowserProtectionTabsApi {
 	 * Returns one tab to its previous history entry when the current browser supports the operation.
 	 * @param tabId - Browser-assigned tab identifier.
 	 * @return Browser completion promise when supported.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	goBack?: ( tabId: number ) => Promise<unknown>;
 
@@ -126,6 +136,7 @@ export interface BrowserProtectionTabsApi {
 	 * Lists tabs matching one local browser query.
 	 * @param query - Active-tab and window filters.
 	 * @return Matching open tabs.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	query: ( query: BrowserProtectionTabQuery ) => Promise<ReadonlyArray<BrowserProtectionAdapterTab>>;
 
@@ -143,6 +154,7 @@ export interface BrowserProtectionTabsApi {
 	 * @param tabId - Browser-assigned tab identifier.
 	 * @param update - Retained navigation destination.
 	 * @return Promise resolved after the browser accepts the update.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	update: ( tabId: number, update: BrowserProtectionTabUpdate ) => Promise<unknown>;
 }
@@ -166,6 +178,7 @@ export interface BrowserProtectionWindowsApi {
 	/**
 	 * Returns the browser window that most recently held focus.
 	 * @return Last-focused browser window details.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	getLastFocused: () => Promise<BrowserProtectionAdapterWindow>;
 }
@@ -206,6 +219,7 @@ export interface BrowserProtectionToolbarAction {
 	 * Applies one global badge background.
 	 * @param details - Accessible solid color.
 	 * @return Browser completion promise when supported.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	setBadgeBackgroundColor: ( details: BrowserProtectionBadgeColorDetails ) => Promise<void> | void;
 
@@ -213,6 +227,7 @@ export interface BrowserProtectionToolbarAction {
 	 * Applies or clears one global badge label.
 	 * @param details - Compact label.
 	 * @return Browser completion promise when supported.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	setBadgeText: ( details: BrowserProtectionBadgeTextDetails ) => Promise<void> | void;
 
@@ -220,6 +235,7 @@ export interface BrowserProtectionToolbarAction {
 	 * Applies one accessible global toolbar title.
 	 * @param details - Complete title.
 	 * @return Browser completion promise when supported.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	setTitle: ( details: BrowserProtectionToolbarTitleDetails ) => Promise<void> | void;
 }
