@@ -51,7 +51,7 @@ export function createProtectionPageProjector(
 	 * @param decision - Persisted Waiting or Ready presentation decision.
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @param statesByScope - Current authoritative protection state.
-	 * @return Whether mutating this tab cannot replace an unrelated navigation.
+	 * @return Whether mutating this ordinary tab cannot replace an unrelated navigation.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function matchesParticipantSource(
@@ -60,7 +60,7 @@ export function createProtectionPageProjector(
 		configuration: Parameters<ProtectionPageProjector[ 'applyDecisions' ]>[ 1 ],
 		statesByScope: ProtectionCoordinatorStateSnapshot | null,
 	): boolean {
-		if ( statesByScope === null ) {
+		if ( tab.incognito !== false || statesByScope === null ) {
 			return false;
 		}
 
