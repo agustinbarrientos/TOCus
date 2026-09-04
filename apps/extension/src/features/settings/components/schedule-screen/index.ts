@@ -2,6 +2,7 @@ import { LitElement, css, html, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { keyed } from 'lit/directives/keyed.js';
 import { repeat } from 'lit/directives/repeat.js';
+import { isLocalizationReady } from '../../../../localization/utils/is-localization-ready';
 import {
 	ProtectionConfigurationEditRejectionReason,
 	ProtectionConfigurationEditStatus,
@@ -28,12 +29,14 @@ import {
 import { resolveSiteDisplayIdentity } from '../../../protected-sites/utils/site-display-name-resolver';
 import styles from './web-component-style.scss?inline';
 import {
-	DefaultScheduleScreenCopy,
+	ScheduleSaveErrorReason,
 	ScheduleScreenLoadStatus,
+	ScheduleWindowEndErrorReason,
 	type ScheduleButtonEvent,
 	type ScheduleInputEvent,
 	type ScheduleSelectChangeEvent,
 	type PresentedScheduleScope,
+	type ScheduleSaveErrorReason as ScheduleSaveErrorReasonValue,
 	type ScheduleScreenCopy,
 	type ScheduleWindowDraft,
 	type ScheduleWindowDraftErrors,
@@ -96,7 +99,7 @@ export class ComponentScheduleScreen extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@property( { attribute: false } )
-	accessor copy: Readonly<ScheduleScreenCopy> = DefaultScheduleScreenCopy;
+	accessor copy!: Readonly<ScheduleScreenCopy>;
 
 	@state()
 	private accessor configuration: ProtectionConfigurationDocument | null = null;
@@ -117,7 +120,7 @@ export class ComponentScheduleScreen extends LitElement {
 	private accessor windowErrors: Record<number, ScheduleWindowDraftErrors> = {};
 
 	@state()
-	private accessor saveError = '';
+	private accessor saveErrorReason: ScheduleSaveErrorReasonValue | null = null;
 
 	@state()
 	private accessor dirty = false;
@@ -126,7 +129,7 @@ export class ComponentScheduleScreen extends LitElement {
 	private accessor saving = false;
 
 	@state()
-	private accessor announcement = '';
+	private accessor savedAnnouncementVisible = false;
 
 	@state()
 	private accessor announcementSequence = 0;
@@ -191,7 +194,7 @@ export class ComponentScheduleScreen extends LitElement {
 	 */
 	private async loadConfiguration(): Promise<void> {
 		this.loadStatus = ScheduleScreenLoadStatus.LOADING;
-		this.saveError = '';
+		this.saveErrorReason = null;
 
 		if ( this.editor === null ) {
 			this.configuration = null;
@@ -233,7 +236,7 @@ export class ComponentScheduleScreen extends LitElement {
 			? schedule.windows.map( ( window ) => this.createWindowDraft( window ) )
 			: [];
 		this.windowErrors = {};
-		this.saveError = '';
+		this.saveErrorReason = null;
 		this.dirty = false;
 	}
 
@@ -261,7 +264,7 @@ export class ComponentScheduleScreen extends LitElement {
 		return [
 			{ id: DefaultProtectionScopeId, label: this.copy.sharedScope },
 			...[ ...independentScopes.values() ].sort( ( first, second ) =>
-				first.label.localeCompare( second.label ),
+				this.copy.compareNames( first.label, second.label ),
 			),
 		];
 	}
@@ -282,12 +285,31 @@ export class ComponentScheduleScreen extends LitElement {
 
 	/**
 	 * Replaces live-region content so repeated messages are announced again.
-	 * @param message - Localized status message to announce.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	private announce( message: string ): void {
-		this.announcement = message;
+	private announceSaved(): void {
+		this.savedAnnouncementVisible = true;
 		this.announcementSequence += 1;
+	}
+
+	/**
+	 * Resolves the retained save failure through the latest localized copy.
+	 * @return Current localized save error, or an empty string when no failure is active.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private resolveSaveError(): string {
+		if ( this.saveErrorReason === null ) {
+			return '';
+		}
+
+		const messages: Record<ScheduleSaveErrorReasonValue, string> = {
+			[ ScheduleSaveErrorReason.GENERIC ]: this.copy.saveError,
+			[ ScheduleSaveErrorReason.INVALID_CONFIGURATION ]: this.copy.invalidConfigurationError,
+			[ ScheduleSaveErrorReason.INVALID_SCHEDULE ]: this.copy.invalidScheduleError,
+			[ ScheduleSaveErrorReason.SCOPE_NOT_FOUND ]: this.copy.scopeNotFoundError,
+		};
+
+		return messages[ this.saveErrorReason ];
 	}
 
 	/**
@@ -315,7 +337,7 @@ export class ComponentScheduleScreen extends LitElement {
 		}
 
 		this.windowErrors = {};
-		this.saveError = '';
+		this.saveErrorReason = null;
 		this.dirty = true;
 	};
 
@@ -344,7 +366,7 @@ export class ComponentScheduleScreen extends LitElement {
 	/**
 	 * Validates the editable fields in one time-window draft.
 	 * @param window - Editable time-window draft.
-	 * @return Current localized field errors.
+	 * @return Current semantic field-error state.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	private createWindowErrors( window: ScheduleWindowDraft ): ScheduleWindowDraftErrors {
@@ -352,12 +374,12 @@ export class ComponentScheduleScreen extends LitElement {
 		const endMinute = this.resolveEndMinute( window );
 
 		return {
-			startTime: startMinute === null ? this.copy.startTimeRequiredError : '',
+			startTimeRequired: startMinute === null,
 			endTime: endMinute === null
-				? this.copy.endTimeRequiredError
+				? ScheduleWindowEndErrorReason.REQUIRED
 				: startMinute === endMinute
-					? this.copy.equalTimeError
-					: '',
+					? ScheduleWindowEndErrorReason.EQUAL_TIME
+					: null,
 		};
 	}
 
@@ -381,7 +403,7 @@ export class ComponentScheduleScreen extends LitElement {
 
 			return updatedWindow;
 		} );
-		this.saveError = '';
+		this.saveErrorReason = null;
 		this.dirty = true;
 	}
 
@@ -529,35 +551,44 @@ export class ComponentScheduleScreen extends LitElement {
 		}
 
 		this.saving = true;
-		this.saveError = '';
+		this.saveErrorReason = null;
 
 		try {
 			const result = await this.editor.updateSchedule( this.selectedScopeId, schedule );
 
 			if ( result.status === ProtectionConfigurationEditStatus.REJECTED ) {
-				const messages: Record<ProtectionConfigurationEditRejectionReason, string> = {
-					[ ProtectionConfigurationEditRejectionReason.ALREADY_PROTECTED ]: this.copy.saveError,
+				const reasons: Record<
+					ProtectionConfigurationEditRejectionReason,
+					ScheduleSaveErrorReasonValue
+				> = {
+					[ ProtectionConfigurationEditRejectionReason.ALREADY_PROTECTED ]:
+						ScheduleSaveErrorReason.GENERIC,
 					[ ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION ]:
-						this.copy.invalidConfigurationError,
-					[ ProtectionConfigurationEditRejectionReason.INVALID_DISPLAY_NAME ]: this.copy.saveError,
+						ScheduleSaveErrorReason.INVALID_CONFIGURATION,
+					[ ProtectionConfigurationEditRejectionReason.INVALID_DISPLAY_NAME ]:
+						ScheduleSaveErrorReason.GENERIC,
 					[ ProtectionConfigurationEditRejectionReason.INVALID_SCHEDULE ]:
-						this.copy.invalidScheduleError,
-					[ ProtectionConfigurationEditRejectionReason.INVALID_SCOPE_ID ]: this.copy.saveError,
-					[ ProtectionConfigurationEditRejectionReason.INVALID_SITE ]: this.copy.saveError,
-					[ ProtectionConfigurationEditRejectionReason.INVALID_TIMING_CONFIGURATION ]: this.copy.saveError,
+						ScheduleSaveErrorReason.INVALID_SCHEDULE,
+					[ ProtectionConfigurationEditRejectionReason.INVALID_SCOPE_ID ]:
+						ScheduleSaveErrorReason.GENERIC,
+					[ ProtectionConfigurationEditRejectionReason.INVALID_SITE ]:
+						ScheduleSaveErrorReason.GENERIC,
+					[ ProtectionConfigurationEditRejectionReason.INVALID_TIMING_CONFIGURATION ]:
+						ScheduleSaveErrorReason.GENERIC,
 					[ ProtectionConfigurationEditRejectionReason.SCOPE_NOT_FOUND ]:
-						this.copy.scopeNotFoundError,
-					[ ProtectionConfigurationEditRejectionReason.SITE_NOT_FOUND ]: this.copy.saveError,
+						ScheduleSaveErrorReason.SCOPE_NOT_FOUND,
+					[ ProtectionConfigurationEditRejectionReason.SITE_NOT_FOUND ]:
+						ScheduleSaveErrorReason.GENERIC,
 				};
-				this.saveError = messages[ result.reason ];
+				this.saveErrorReason = reasons[ result.reason ];
 				return;
 			}
 
 			this.configuration = result.configuration;
 			this.loadScheduleDraft( result.configuration );
-			this.announce( this.copy.savedAnnouncement );
+			this.announceSaved();
 		} catch {
-			this.saveError = this.copy.saveError;
+			this.saveErrorReason = ScheduleSaveErrorReason.GENERIC;
 		} finally {
 			this.saving = false;
 		}
@@ -625,7 +656,13 @@ export class ComponentScheduleScreen extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	private renderWindow( window: ScheduleWindowDraft, index: number ): TemplateResult {
-		const errors = this.windowErrors[ window.id ] ?? { startTime: '', endTime: '' };
+		const errors = this.windowErrors[ window.id ] ?? { startTimeRequired: false, endTime: null };
+		const startError = errors.startTimeRequired ? this.copy.startTimeRequiredError : '';
+		const endError = errors.endTime === ScheduleWindowEndErrorReason.REQUIRED
+			? this.copy.endTimeRequiredError
+			: errors.endTime === ScheduleWindowEndErrorReason.EQUAL_TIME
+				? this.copy.equalTimeError
+				: '';
 		const startErrorId = `schedule-window-${ String( window.id ) }-start-error`;
 		const endErrorId = `schedule-window-${ String( window.id ) }-end-error`;
 		const position = index + 1;
@@ -656,11 +693,11 @@ export class ComponentScheduleScreen extends LitElement {
 						data-window-id=${ window.id }
 						.value=${ window.startTime }
 						aria-describedby=${ startErrorId }
-						aria-invalid=${ errors.startTime === '' ? 'false' : 'true' }
+						aria-invalid=${ errors.startTimeRequired ? 'true' : 'false' }
 						?disabled=${ this.saving }
 						@input=${ this.handleStartTimeInput }
 					>
-					<small id=${ startErrorId } class="field-error" role="alert">${ errors.startTime }</small>
+					<small id=${ startErrorId } class="field-error" role="alert">${ startError }</small>
 				</label>
 				<label>
 					<span>${ this.copy.endTimeLabel }</span>
@@ -671,11 +708,11 @@ export class ComponentScheduleScreen extends LitElement {
 						data-window-id=${ window.id }
 						.value=${ window.endTime }
 						aria-describedby=${ endErrorId }
-						aria-invalid=${ errors.endTime === '' ? 'false' : 'true' }
+						aria-invalid=${ errors.endTime === null ? 'false' : 'true' }
 						?disabled=${ this.saving }
 						@input=${ this.handleEndTimeInput }
 					>
-					<small id=${ endErrorId } class="field-error" role="alert">${ errors.endTime }</small>
+					<small id=${ endErrorId } class="field-error" role="alert">${ endError }</small>
 				</label>
 				<button
 					class="remove-window-action secondary-action"
@@ -700,6 +737,7 @@ export class ComponentScheduleScreen extends LitElement {
 	 */
 	private renderForm(): TemplateResult {
 		const scopes = this.presentScopes();
+		const saveError = this.resolveSaveError();
 
 		return html`
 			<form class="schedule-form" @submit=${ this.handleSave }>
@@ -756,7 +794,7 @@ export class ComponentScheduleScreen extends LitElement {
 				${ this.dirty && scopes.length > 1 ? html`
 					<p class="dirty-notice">${ this.copy.dirtyScopeNotice }</p>
 				` : html`` }
-				<p class="save-error" role="alert">${ this.saveError }</p>
+				<p class="save-error" role="alert">${ saveError }</p>
 				<div class="form-actions">
 					<button class="primary-action" type="submit" ?disabled=${ this.saving }>
 						${ this.saving ? this.copy.saving : this.copy.save }
@@ -797,7 +835,11 @@ export class ComponentScheduleScreen extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	protected override render(): TemplateResult {
+		if ( ! isLocalizationReady( this.copy ) ) {
+			return html``;
+		}
 		const loading = this.loadStatus === ScheduleScreenLoadStatus.LOADING;
+		const announcement = this.savedAnnouncementVisible ? this.copy.savedAnnouncement : '';
 
 		return html`
 			<main aria-labelledby="schedule-title" aria-busy=${ loading ? 'true' : 'false' }>
@@ -808,7 +850,7 @@ export class ComponentScheduleScreen extends LitElement {
 				</header>
 				${ this.renderContent() }
 				<p class="announcement" role="status" aria-live="polite">
-					${ keyed( this.announcementSequence, html`<span>${ this.announcement }</span>` ) }
+					${ keyed( this.announcementSequence, html`<span>${ announcement }</span>` ) }
 				</p>
 			</main>
 		`;
