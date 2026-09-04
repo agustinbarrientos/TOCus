@@ -37,11 +37,11 @@ import {
 	type ProtectedPagePresentationStatus,
 } from '../../types/protected-page-message';
 import {
-	EnglishToolbarBadgeCopy,
 	ToolbarBadgePhase,
 	type ToolbarBadgeCopy,
 	type ToolbarBadgeProjection,
 } from '../../utils/toolbar-badge-projection';
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import {
 	type ProtectionClockDeadlines,
 	type ProtectionRuntimeBrowser,
@@ -411,14 +411,14 @@ function createDecision( input: unknown ): ProtectionDecision {
  * Creates a browser projector around deterministic test boundaries.
  * @param browser - In-memory browser effects.
  * @param coordinator - Authoritative state fixture.
- * @param toolbarBadgeCopy - Optional localized toolbar copy.
+ * @param toolbarBadgeCopy - Localized toolbar copy.
  * @return Browser projector under test.
  * @since 0.1.0 Initial implementation.
  */
 function createProjector(
 	browser: ProjectorBrowserFixture,
 	coordinator: ProjectorCoordinatorFixture,
-	toolbarBadgeCopy?: ToolbarBadgeCopy,
+	toolbarBadgeCopy: ToolbarBadgeCopy = TestEnglishLocalizationBundle.toolbar,
 ): BrowserProtectionProjector {
 	/**
 	 * Returns the fixed test time zone.
@@ -442,7 +442,7 @@ function createProjector(
 		browser,
 		coordinator,
 		interruptionPageUrl: INTERRUPTION_PAGE_URL,
-		...( toolbarBadgeCopy === undefined ? {} : { toolbarBadgeCopy } ),
+		toolbarBadgeCopy,
 		getTimeZone,
 		now,
 	} );
@@ -1487,7 +1487,7 @@ describe( 'createBrowserProtectionProjector', () => {
 			browser,
 			new ProjectorCoordinatorFixture( null ),
 			{
-				...EnglishToolbarBadgeCopy,
+				...TestEnglishLocalizationBundle.toolbar,
 				inactive: {
 					text: '',
 					title: 'TOCus localizado',
