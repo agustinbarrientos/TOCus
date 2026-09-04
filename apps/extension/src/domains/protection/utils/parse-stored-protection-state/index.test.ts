@@ -4,6 +4,9 @@ import {
 	StoredProtectionParticipantOrigin,
 } from '../../types/stored-protection-participant';
 import {
+	StoredProtectionStatisticsDeliveryStatus,
+} from '../../types/stored-protection-statistics-delivery';
+import {
 	DurableStoredProtectionStateVersion,
 	SessionStoredProtectionStateVersion,
 	StoredProtectionScopeStateType,
@@ -14,8 +17,26 @@ import {
 	StoredProtectionStateParseStatus,
 } from './index';
 
+/**
+ * Fixed initial instant used by stored-state fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const FIRST_INSTANT = 1_800_000_000_000;
+
+/**
+ * Fixed allowance expiry used by stored-state fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const ALLOWANCE_EXPIRY = FIRST_INSTANT + 300_000;
+
+/**
+ * Complete empty statistics delivery used by current durable-state tests.
+ * @since 0.1.0 Initial implementation.
+ */
+const COMPLETE_STATISTICS_DELIVERY = {
+	status: StoredProtectionStatisticsDeliveryStatus.COMPLETE,
+	outbox: [],
+};
 
 /**
  * Recursively freezes a test value so mutation attempts fail.
@@ -67,6 +88,7 @@ function createStoredNavigationParticipant(
 		participantId,
 		pageId,
 		retainedDestination,
+		statisticsEligible: false,
 		joinSequence,
 	};
 }
@@ -89,6 +111,7 @@ function createStoredExpiryParticipant(
 		participantId,
 		pageId,
 		retainedDestination: null,
+		statisticsEligible: false,
 		joinSequence,
 	};
 }
@@ -102,6 +125,7 @@ function createStoredExpiryParticipant(
 function createStoredDurableState<Scopes extends object>( scopes: Scopes ) {
 	return {
 		schemaVersion: DurableStoredProtectionStateVersion,
+		statisticsDelivery: COMPLETE_STATISTICS_DELIVERY,
 		scopes,
 	};
 }
@@ -142,6 +166,7 @@ function createStoredWaitingScope() {
 		ownerParticipantId: 'participant-a',
 		ownerEpoch: 3,
 		checkpointHighWaterMilliseconds: 4_000,
+		completionStatisticsEligible: false,
 	};
 }
 
@@ -207,7 +232,58 @@ describe( 'parseStoredProtectionState', () => {
 		} );
 	} );
 
-	it.each( [ 0, 2, 999 ] )(
+	it( 'migrates a valid durable version-one document in memory', () => {
+		const versionOneDurable = {
+			schemaVersion: 1,
+			scopes: { 'scope-idle': createStoredDurableScope() },
+		};
+
+		expect( parseStoredProtectionState( { durable: versionOneDurable } ).durable ).toEqual( {
+			status: StoredProtectionStateParseStatus.CURRENT,
+			state: {
+				schemaVersion: 2,
+				statisticsDelivery: COMPLETE_STATISTICS_DELIVERY,
+				scopes: versionOneDurable.scopes,
+			},
+		} );
+	} );
+
+	it( 'preserves current incomplete statistics delivery while parsing', () => {
+		const durable = {
+			...createStoredDurableState( {} ),
+			statisticsDelivery: {
+				status: StoredProtectionStatisticsDeliveryStatus.INCOMPLETE,
+				outbox: [],
+			},
+		};
+
+		expect( parseStoredProtectionState( { durable } ).durable ).toEqual( {
+			status: StoredProtectionStateParseStatus.CURRENT,
+			state: durable,
+		} );
+	} );
+
+	it( 'preserves valid protection state while isolating malformed statistics delivery', () => {
+		const scopes = { 'scope-idle': createStoredDurableScope() };
+		const durable = {
+			...createStoredDurableState( scopes ),
+			statisticsDelivery: { status: 'complete', outbox: 'invalid' },
+		};
+
+		expect( parseStoredProtectionState( { durable } ).durable ).toEqual( {
+			status: StoredProtectionStateParseStatus.CURRENT,
+			state: {
+				schemaVersion: DurableStoredProtectionStateVersion,
+				statisticsDelivery: {
+					status: StoredProtectionStatisticsDeliveryStatus.INCOMPLETE,
+					outbox: [],
+				},
+				scopes,
+			},
+		} );
+	} );
+
+	it.each( [ 0, 3, 999 ] )(
 		'categorizes durable version %s as unsupported before stored-state validation',
 		( schemaVersion ) => {
 			expect( parseStoredProtectionState( {
@@ -218,6 +294,15 @@ describe( 'parseStoredProtectionState', () => {
 			} );
 		},
 	);
+
+	it( 'categorizes a malformed durable version-one document as invalid', () => {
+		expect( parseStoredProtectionState( {
+			durable: { schemaVersion: 1, scopes: 'invalid' },
+		} ).durable ).toEqual( {
+			status: StoredProtectionStateParseStatus.FAILED,
+			reason: StoredProtectionStateFailureReason.INVALID_STORED_STATE,
+		} );
+	} );
 
 	it.each( [ 0, 2, 999 ] )(
 		'categorizes session version %s as unsupported before stored-state validation',
