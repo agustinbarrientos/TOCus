@@ -1,6 +1,7 @@
 import { assert, expect, fixture, html } from '@open-wc/testing';
 import { emulateMedia } from '@web/test-runner-commands';
 import { ComponentPopupShell } from './index';
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 
 const APPEARANCE_PALETTES = [ 'brown', 'green', 'blue', 'purple', 'pink', 'orange' ] as const;
 const APPEARANCE_THEMES = [ 'light', 'dark' ] as const;
@@ -46,7 +47,9 @@ describe( 'tocus-f-popup-shell', () => {
 	} );
 
 	it( 'renders the product status with accessible label relationships', async () => {
-		const element = await fixture<ComponentPopupShell>( html`<tocus-f-popup-shell></tocus-f-popup-shell>` );
+		const element = await fixture<ComponentPopupShell>( html`
+			<tocus-f-popup-shell .copy=${ TestEnglishLocalizationBundle.popup }></tocus-f-popup-shell>
+		` );
 		const shadowRoot = element.shadowRoot;
 
 		assert.notEqual( shadowRoot, null );
@@ -63,19 +66,36 @@ describe( 'tocus-f-popup-shell', () => {
 		assert.equal( main?.getAttribute( 'aria-labelledby' ), 'popup-title' );
 		assert.equal( main?.getAttribute( 'aria-describedby' ), 'popup-summary foundation-note' );
 		assert.equal( heading?.textContent, 'TOCus' );
-		assert.equal( status?.textContent.trim(), 'Early development' );
-		assert.equal(
-			summary?.textContent.trim(),
-			'A gentle pause before distracting websites, designed to help you return to your intentions.',
-		);
-		assert.equal(
-			foundationNote?.textContent.trim(),
-			'This source build includes only the extension foundation. Protection and pause features are still being developed.',
-		);
+		assert.equal( status?.textContent.trim(), TestEnglishLocalizationBundle.popup.status );
+		assert.equal( summary?.textContent.trim(), TestEnglishLocalizationBundle.popup.summary );
+		assert.equal( foundationNote?.textContent.trim(), TestEnglishLocalizationBundle.popup.foundationNote );
+	} );
+
+	it( 'renders an injected localized copy bundle', async () => {
+		const element = await fixture<ComponentPopupShell>( html`<tocus-f-popup-shell></tocus-f-popup-shell>` );
+
+		element.copy = {
+			status: 'Estado localizado',
+			summary: 'Resumen localizado.',
+			foundationNote: 'Nota localizada.',
+		};
+		await element.updateComplete;
+
+		assert.equal( element.shadowRoot?.querySelector( '.status' )?.textContent.trim(), 'Estado localizado' );
+		assert.equal( element.shadowRoot?.querySelector( '#popup-summary' )?.textContent.trim(), 'Resumen localizado.' );
+		assert.equal( element.shadowRoot?.querySelector( '#foundation-note' )?.textContent.trim(), 'Nota localizada.' );
+	} );
+
+	it( 'renders nothing until localized copy is supplied', async () => {
+		const element = await fixture<ComponentPopupShell>( html`<tocus-f-popup-shell></tocus-f-popup-shell>` );
+
+		assert.equal( element.shadowRoot?.childElementCount, 0 );
 	} );
 
 	it( 'honors runtime typography roles inside the shadow root', async () => {
-		const element = await fixture<ComponentPopupShell>( html`<tocus-f-popup-shell></tocus-f-popup-shell>` );
+		const element = await fixture<ComponentPopupShell>( html`
+			<tocus-f-popup-shell .copy=${ TestEnglishLocalizationBundle.popup }></tocus-f-popup-shell>
+		` );
 		const shadowRoot = element.shadowRoot;
 
 		assert.notEqual( shadowRoot, null );
@@ -121,7 +141,7 @@ describe( 'tocus-f-popup-shell', () => {
 		await emulateMedia( { colorScheme: 'light' } );
 		const lightFrame = await fixture<HTMLElement>(
 			html`<div class="tocus-test-frame">
-				<tocus-f-popup-shell></tocus-f-popup-shell>
+				<tocus-f-popup-shell .copy=${ TestEnglishLocalizationBundle.popup }></tocus-f-popup-shell>
 			</div>`,
 		);
 
@@ -132,7 +152,7 @@ describe( 'tocus-f-popup-shell', () => {
 		await emulateMedia( { colorScheme: 'dark' } );
 		const darkFrame = await fixture<HTMLElement>(
 			html`<div class="tocus-test-frame">
-				<tocus-f-popup-shell></tocus-f-popup-shell>
+				<tocus-f-popup-shell .copy=${ TestEnglishLocalizationBundle.popup }></tocus-f-popup-shell>
 			</div>`,
 		);
 
