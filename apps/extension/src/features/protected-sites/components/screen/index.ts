@@ -1,6 +1,7 @@
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { keyed } from 'lit/directives/keyed.js';
+import { isLocalizationReady } from '../../../../localization/utils/is-localization-ready';
 import {
 	ProtectionConfigurationEditRejectionReason,
 	type ProtectionConfigurationEditor,
@@ -25,13 +26,15 @@ import {
 	ProtectedSiteConfigurationChangeKind,
 	type ProtectedSiteAccessRestoredEventDetail,
 	type ProtectedSiteConfigurationChangedEventDetail,
+	type ProtectedSiteItemCopy,
 } from '../site-item/types';
 import { ComponentProtectedSiteList } from '../site-list';
 import styles from './web-component-style.scss?inline';
 import {
-	DefaultProtectedSitesScreenCopy,
+	ProtectedSitesScreenAnnouncementKind,
 	ProtectedSitesScreenLoadStatus,
 	type ProtectedSitesAddSubmitEvent,
+	type ProtectedSitesScreenAnnouncement,
 	type ProtectedSitesScreenCopy,
 } from './types';
 
@@ -71,7 +74,14 @@ export class ComponentProtectedSitesScreen extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@property( { attribute: false } )
-	accessor copy: Readonly<ProtectedSitesScreenCopy> = DefaultProtectedSitesScreenCopy;
+	accessor copy!: Readonly<ProtectedSitesScreenCopy>;
+
+	/**
+	 * Complete localized messages rendered by each protected-site item.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor siteItemCopy!: Readonly<ProtectedSiteItemCopy>;
 
 	@state()
 	private accessor configuration: ProtectionConfigurationDocument | null = null;
@@ -80,10 +90,10 @@ export class ComponentProtectedSitesScreen extends LitElement {
 	private accessor loadStatus: ProtectedSitesScreenLoadStatus = ProtectedSitesScreenLoadStatus.LOADING;
 
 	@state()
-	private accessor siteInputError = '';
+	private accessor siteInputFailure: UnsuccessfulProtectedSiteEnrollmentResult | null = null;
 
 	@state()
-	private accessor announcement = '';
+	private accessor announcement: ProtectedSitesScreenAnnouncement | null = null;
 
 	@state()
 	private accessor announcementSequence = 0;
@@ -111,7 +121,7 @@ export class ComponentProtectedSitesScreen extends LitElement {
 	 */
 	private async loadConfiguration(): Promise<void> {
 		this.loadStatus = ProtectedSitesScreenLoadStatus.LOADING;
-		this.siteInputError = '';
+		this.siteInputFailure = null;
 
 		if ( this.editor === null ) {
 			this.configuration = null;
@@ -206,12 +216,42 @@ export class ComponentProtectedSitesScreen extends LitElement {
 
 	/**
 	 * Replaces the live-region content so repeated messages are announced again.
-	 * @param message - Localized status message to announce.
+	 * @param kind - Presentation-neutral status kind.
+	 * @param name - Resolved site name associated with the status.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	private announce( message: string ): void {
-		this.announcement = message;
+	private announce( kind: ProtectedSitesScreenAnnouncement[ 'kind' ], name: string ): void {
+		this.announcement = { kind, name };
 		this.announcementSequence += 1;
+	}
+
+	/**
+	 * Resolves the retained polite status through the latest localized copy.
+	 * @return Current localized announcement, or an empty string when no status is active.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private resolveAnnouncement(): string {
+		if ( this.announcement === null ) {
+			return '';
+		}
+
+		if ( this.announcement.kind === ProtectedSitesScreenAnnouncementKind.ACCESS_RESTORED ) {
+			return this.copy.formatAccessRestoredAnnouncement( this.announcement.name );
+		}
+
+		if ( this.announcement.kind === ProtectedSitesScreenAnnouncementKind.ADDED ) {
+			return this.copy.formatAddedAnnouncement( this.announcement.name );
+		}
+
+		if ( this.announcement.kind === ProtectedSitesScreenAnnouncementKind.PERMISSION_RETAINED ) {
+			return this.copy.formatPermissionRetainedAnnouncement( this.announcement.name );
+		}
+
+		if ( this.announcement.kind === ProtectedSitesScreenAnnouncementKind.REMOVED ) {
+			return this.copy.formatRemovedAnnouncement( this.announcement.name );
+		}
+
+		return this.copy.formatUpdatedAnnouncement( this.announcement.name );
 	}
 
 	/**
@@ -279,13 +319,13 @@ export class ComponentProtectedSitesScreen extends LitElement {
 		const siteInput = formData.get( 'site-address' );
 		const independent = formData.get( 'behavior' ) === 'independent';
 		this.saving = true;
-		this.siteInputError = '';
+		this.siteInputFailure = null;
 
 		try {
 			const result = await enrollmentService.add( siteInput, independent );
 
 			if ( result.status !== ProtectedSiteEnrollmentStatus.ADDED ) {
-				this.siteInputError = this.presentEnrollmentFailure( result );
+				this.siteInputFailure = result;
 				return;
 			}
 
@@ -295,7 +335,7 @@ export class ComponentProtectedSitesScreen extends LitElement {
 				result.site.identityHost,
 				true,
 			);
-			this.announce( this.copy.formatAddedAnnouncement( identity.name ) );
+			this.announce( ProtectedSitesScreenAnnouncementKind.ADDED, identity.name );
 			form.reset();
 		} finally {
 			this.saving = false;
@@ -325,7 +365,10 @@ export class ComponentProtectedSitesScreen extends LitElement {
 			return;
 		}
 
-		this.announce( this.copy.formatAccessRestoredAnnouncement( resolveSiteDisplayIdentity( site ).name ) );
+		this.announce(
+			ProtectedSitesScreenAnnouncementKind.ACCESS_RESTORED,
+			resolveSiteDisplayIdentity( site ).name,
+		);
 	};
 
 	/**
@@ -350,18 +393,18 @@ export class ComponentProtectedSitesScreen extends LitElement {
 		const permissionReleaseStatus = detail.kind === ProtectedSiteConfigurationChangeKind.REMOVED
 			? detail.permissionReleaseStatus
 			: SitePermissionReleaseStatus.RELEASED;
-		const removalAnnouncement = permissionReleaseStatus === SitePermissionReleaseStatus.RELEASED
-			? this.copy.formatRemovedAnnouncement( identity.name )
-			: this.copy.formatPermissionRetainedAnnouncement( identity.name );
 		this.configuration = detail.configuration;
 		if ( detail.kind === ProtectedSiteConfigurationChangeKind.REMOVED ) {
 			const accessByIdentityHost = new Map( this.accessByIdentityHost );
 			accessByIdentityHost.delete( detail.identityHost );
 			this.accessByIdentityHost = accessByIdentityHost;
 		}
-		this.announce( detail.kind === ProtectedSiteConfigurationChangeKind.REMOVED
-			? removalAnnouncement
-			: this.copy.formatUpdatedAnnouncement( identity.name ) );
+		const announcementKind = detail.kind === ProtectedSiteConfigurationChangeKind.UPDATED
+			? ProtectedSitesScreenAnnouncementKind.UPDATED
+			: permissionReleaseStatus === SitePermissionReleaseStatus.RELEASED
+				? ProtectedSitesScreenAnnouncementKind.REMOVED
+				: ProtectedSitesScreenAnnouncementKind.PERMISSION_RETAINED;
+		this.announce( announcementKind, identity.name );
 
 		await this.updateComplete;
 
@@ -421,6 +464,7 @@ export class ComponentProtectedSitesScreen extends LitElement {
 				.accessByIdentityHost=${ this.accessByIdentityHost }
 				.permissionManager=${ this.permissionManager }
 				.copy=${ this.copy }
+				.itemCopy=${ this.siteItemCopy }
 			></tocus-f-protected-site-list>
 		`;
 	}
@@ -431,8 +475,15 @@ export class ComponentProtectedSitesScreen extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	protected override render(): TemplateResult {
+		if ( ! isLocalizationReady( this.copy, this.siteItemCopy ) ) {
+			return html``;
+		}
 		const loading = this.loadStatus === ProtectedSitesScreenLoadStatus.LOADING;
 		const sites = this.configuration?.sites ?? [];
+		const siteInputError = this.siteInputFailure === null
+			? ''
+			: this.presentEnrollmentFailure( this.siteInputFailure );
+		const announcement = this.resolveAnnouncement();
 		const formDisabled =
 			this.loadStatus !== ProtectedSitesScreenLoadStatus.READY ||
 			this.saving ||
@@ -459,7 +510,7 @@ export class ComponentProtectedSitesScreen extends LitElement {
 							placeholder=${ this.copy.addressPlaceholder }
 							autocomplete="url"
 							aria-describedby="site-address-help site-address-error"
-							aria-invalid=${ this.siteInputError === '' ? 'false' : 'true' }
+							aria-invalid=${ this.siteInputFailure === null ? 'false' : 'true' }
 							?disabled=${ formDisabled }
 						>
 						<button class="primary-action" type="submit" ?disabled=${ formDisabled }>
@@ -468,7 +519,7 @@ export class ComponentProtectedSitesScreen extends LitElement {
 					</div>
 					<p id="site-address-help" class="field-help">${ this.copy.addressHelp }</p>
 					<p id="site-address-error" class="site-input-error" role="alert">
-						${ this.siteInputError }
+						${ siteInputError }
 					</p>
 					<fieldset ?disabled=${ formDisabled }>
 						<legend>${ this.copy.behaviorLegend }</legend>
@@ -496,7 +547,7 @@ export class ComponentProtectedSitesScreen extends LitElement {
 				<p class="announcement" role="status" aria-live="polite">
 					${ keyed(
 						this.announcementSequence,
-						html`<span>${ this.announcement }</span>`,
+						html`<span>${ announcement }</span>`,
 					) }
 				</p>
 			</main>
