@@ -1,6 +1,17 @@
-import { readFile } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, test } from 'vitest';
+import germanCatalog from '../../locales/de.json';
+import englishCatalog from '../../locales/en.json';
+import spanishTuCatalog from '../../locales/es-tu.json';
+import spanishVosCatalog from '../../locales/es-vos.json';
+import frenchCatalog from '../../locales/fr.json';
+import italianCatalog from '../../locales/it.json';
+import japaneseCatalog from '../../locales/ja.json';
+import portugueseBrazilCatalog from '../../locales/pt-BR.json';
+import portuguesePortugalCatalog from '../../locales/pt-PT.json';
+import russianCatalog from '../../locales/ru.json';
+import type { ExtensionMessageCatalog } from '../../src/localization/catalogs/types';
 
 const chromeManifestUrl = new URL( '../../.output/chrome-mv3/manifest.json', import.meta.url );
 const firefoxManifestUrl = new URL( '../../.output/firefox-mv2/manifest.json', import.meta.url );
@@ -43,6 +54,36 @@ const expectedProtectedPageMatches = [
 	'http://*/*',
 	'https://*/*',
 ] as const;
+const expectedManifestLocales = [
+	'de',
+	'en',
+	'es',
+	'es_419',
+	'fr',
+	'it',
+	'ja',
+	'pt_BR',
+	'pt_PT',
+	'ru',
+] as const;
+const expectedManifestCatalogs = Object.freeze( {
+	de: germanCatalog.extension,
+	en: englishCatalog.extension,
+	es: spanishTuCatalog.extension,
+	es_419: spanishVosCatalog.extension,
+	fr: frenchCatalog.extension,
+	it: italianCatalog.extension,
+	ja: japaneseCatalog.extension,
+	pt_BR: portugueseBrazilCatalog.extension,
+	pt_PT: portuguesePortugalCatalog.extension,
+	ru: russianCatalog.extension,
+} );
+
+/**
+ * Maximum generated size for each classic-script runtime that cannot load locale chunks.
+ * @since 0.1.0 Initial implementation.
+ */
+const maximumClassicRuntimeBytes = 450_000;
 const pngSignature = Buffer.from( [ 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a ] );
 
 /**
@@ -75,6 +116,43 @@ async function readOutputFile( outputUrl: URL, filePath: string ): Promise<strin
  */
 async function readOutputBuffer( outputUrl: URL, filePath: string ): Promise<Buffer> {
 	return readFile( fileURLToPath( new URL( filePath, outputUrl ) ) );
+}
+
+/**
+ * Projects canonical extension metadata into Chrome-compatible messages.
+ * @param catalog - Canonical extension metadata for one locale.
+ * @return Browser-managed message file contents.
+ * @since 0.1.0 Initial implementation.
+ */
+function createExpectedManifestMessages( catalog: ExtensionMessageCatalog ): object {
+	return {
+		extensionName: {
+			message: catalog.name,
+			description: catalog.nameDescription,
+		},
+		extensionDescription: {
+			message: catalog.description,
+			description: catalog.descriptionDescription,
+		},
+	};
+}
+
+/**
+ * Verifies that browser-managed extension metadata has complete local translations.
+ * @param outputUrl - Browser output-directory URL.
+ * @return Promise resolved after every bundled manifest locale is validated.
+ * @since 0.1.0 Initial implementation.
+ */
+async function expectLocalizedManifestMessages( outputUrl: URL ): Promise<void> {
+	for ( const locale of expectedManifestLocales ) {
+		const messages: unknown = JSON.parse(
+			await readOutputFile( outputUrl, `_locales/${ locale }/messages.json` ),
+		);
+
+		expect( messages, locale ).toEqual(
+			createExpectedManifestMessages( expectedManifestCatalogs[ locale ] ),
+		);
+	}
 }
 
 /**
@@ -202,6 +280,25 @@ async function expectProtectedPageComposition( outputUrl: URL ): Promise<void> {
 }
 
 /**
+ * Verifies one classic runtime stays self-contained and excludes unrelated settings copy.
+ * @param outputUrl - Browser output-directory URL.
+ * @param filePath - Classic background or injected-script path.
+ * @return Promise resolved after compatibility and size assertions pass.
+ * @since 0.1.0 Initial implementation.
+ */
+async function expectClassicRuntimeLocalization(
+	outputUrl: URL,
+	filePath: string,
+): Promise<void> {
+	const source = await readOutputFile( outputUrl, filePath );
+	const contents = await readOutputBuffer( outputUrl, filePath );
+
+	expect( source ).not.toContain( 'import(' );
+	expect( source ).not.toContain( englishCatalog.languageScreen.introduction );
+	expect( contents.byteLength ).toBeLessThanOrEqual( maximumClassicRuntimeBytes );
+}
+
+/**
  * Verifies that a generated manifest avoids unnecessary browsing permissions.
  * @param manifest - Parsed generated manifest.
  * @since 0.1.0 Initial implementation.
@@ -243,13 +340,23 @@ function expectValidExtensionVersion( manifest: unknown ): void {
 }
 
 describe( 'extension build manifest', () => {
+	test( 'generates browser locale messages without authored public translations', async () => {
+		for ( const locale of expectedManifestLocales ) {
+			await expect(
+				access( new URL( `../../public/_locales/${ locale }/messages.json`, import.meta.url ) ),
+			).rejects.toThrow();
+		}
+	} );
+
 	test( 'produces a minimal Chrome extension manifest', async () => {
 		const manifest = await readManifest( chromeManifestUrl );
 
 		expect( manifest ).toMatchObject( {
+			default_locale: 'en',
 			incognito: 'not_allowed',
 			manifest_version: 3,
-			name: 'TOCus',
+			name: '__MSG_extensionName__',
+			description: '__MSG_extensionDescription__',
 			minimum_chrome_version: '120',
 			action: { default_popup: 'popup.html' },
 			background: { service_worker: 'background.js' },
@@ -280,9 +387,11 @@ describe( 'extension build manifest', () => {
 		const manifest = await readManifest( firefoxManifestUrl );
 
 		expect( manifest ).toMatchObject( {
+			default_locale: 'en',
 			incognito: 'not_allowed',
 			manifest_version: 2,
-			name: 'TOCus',
+			name: '__MSG_extensionName__',
+			description: '__MSG_extensionDescription__',
 			browser_action: { default_popup: 'popup.html' },
 			background: { scripts: [ 'background.js' ], persistent: false },
 			options_ui: { page: 'options.html', open_in_tab: true },
@@ -316,8 +425,10 @@ describe( 'extension build manifest', () => {
 		const manifest = await readManifest( safariManifestUrl );
 
 		expect( manifest ).toMatchObject( {
+			default_locale: 'en',
 			manifest_version: 2,
-			name: 'TOCus',
+			name: '__MSG_extensionName__',
+			description: '__MSG_extensionDescription__',
 			browser_action: { default_popup: 'popup.html' },
 			background: { scripts: [ 'background.js' ], persistent: false },
 			options_ui: { page: 'options.html' },
@@ -374,6 +485,23 @@ describe( 'extension build manifest', () => {
 		[ 'Safari', safariOutputUrl ],
 	] )( 'packages the isolated %s protected-page layer and brand font', async ( _browser, outputUrl ) => {
 		await expectProtectedPageComposition( outputUrl );
+	} );
+
+	test.each( [
+		[ 'Chrome', chromeOutputUrl ],
+		[ 'Firefox', firefoxOutputUrl ],
+		[ 'Safari', safariOutputUrl ],
+	] )( 'packages complete localized %s manifest metadata', async ( _browser, outputUrl ) => {
+		await expectLocalizedManifestMessages( outputUrl );
+	} );
+
+	test.each( [
+		[ 'Chrome', chromeOutputUrl ],
+		[ 'Firefox', firefoxOutputUrl ],
+		[ 'Safari', safariOutputUrl ],
+	] )( 'keeps %s classic runtimes compatible and within their localization budget', async ( _browser, outputUrl ) => {
+		await expectClassicRuntimeLocalization( outputUrl, 'background.js' );
+		await expectClassicRuntimeLocalization( outputUrl, 'protected-page.js' );
 	} );
 
 	test.each( [
