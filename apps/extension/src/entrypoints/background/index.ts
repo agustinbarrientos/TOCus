@@ -5,10 +5,15 @@ import {
 	createProtectionCoordinator,
 	createProtectionStorageService,
 } from '../../domains/protection';
+import {
+	createStatisticsSessionStorageService,
+	createStatisticsStorageService,
+} from '../../domains/statistics';
 import { createBrowserProtectionAdapter } from '../../features/protection-runtime/services/browser-protection-adapter';
 import { createBrowserProtectionRuntime } from '../../features/protection-runtime/services/browser-protection-runtime';
 import { createProtectionBackgroundController } from '../../features/protection-runtime/services/protection-background-controller';
 import { createSitePermissionManager } from '../../features/protected-sites/services/site-permission-manager';
+import { createStatisticsRuntime } from '../../features/statistics/services/statistics-runtime';
 
 /**
  * Creates one collision-resistant runtime identifier fragment.
@@ -43,6 +48,7 @@ function getTimeZone(): string {
  */
 function startProtectionBackground(): void {
 	const interruptionPageUrl = browser.runtime.getURL( '/interruption.html' );
+	const optionsPageUrl = browser.runtime.getURL( '/options.html' );
 	const storage = createProtectionStorageService( {
 		durableArea: browser.storage.local,
 		sessionArea: browser.storage.session,
@@ -50,6 +56,7 @@ function startProtectionBackground(): void {
 	} );
 	const coordinator = createProtectionCoordinator( {
 		storage,
+		createProtectionFactBatchId: crypto.randomUUID.bind( crypto ),
 		createSessionContinuityId: crypto.randomUUID.bind( crypto ),
 	} );
 	const configurationStorage = createProtectionConfigurationStorageService( {
@@ -57,6 +64,21 @@ function startProtectionBackground(): void {
 	} );
 	const permissionManager = createSitePermissionManager( {
 		permissions: browser.permissions,
+	} );
+	const browserAdapter = createBrowserProtectionAdapter( browser );
+	const statisticsStorage = createStatisticsStorageService( {
+		area: browser.storage.local,
+		createGenerationId: crypto.randomUUID.bind( crypto ),
+	} );
+	const statisticsSessionStorage = createStatisticsSessionStorageService( {
+		area: browser.storage.session,
+		createFocusEpochId: createStableId,
+	} );
+	const statisticsRuntime = createStatisticsRuntime( {
+		coordinator,
+		createGenerationId: createStableId,
+		sessionStorage: statisticsSessionStorage,
+		storage: statisticsStorage,
 	} );
 
 	/**
@@ -72,7 +94,7 @@ function startProtectionBackground(): void {
 	}
 
 	const runtime = createBrowserProtectionRuntime( {
-		browser: createBrowserProtectionAdapter( browser ),
+		browser: browserAdapter,
 		configurationStorage,
 		coordinator,
 		filterConfiguration,
@@ -80,10 +102,12 @@ function startProtectionBackground(): void {
 		createStableId,
 		getTimeZone,
 		now: getCurrentTime,
+		statisticsRuntime,
 	} );
 	const controller = createProtectionBackgroundController( {
 		browser,
 		interruptionPageUrl,
+		optionsPageUrl,
 		runtime,
 	} );
 
