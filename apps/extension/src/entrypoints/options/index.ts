@@ -13,6 +13,9 @@ import {
 	createPreferencesStorageService,
 	type PreferencesMutation,
 } from '../../domains/preferences/services';
+import { type Language } from '../../domains/preferences/types';
+import { resolveLanguage } from '../../domains/preferences/utils';
+import { loadLocalizationBundle } from '../../localization';
 import { createPreferencesController } from '../../features/preferences/services/preferences-controller';
 import { ComponentSettingsShell } from '../../features/settings/components/shell';
 import { ComponentProtectedSitesScreen } from '../../features/protected-sites/components/screen';
@@ -81,6 +84,12 @@ if ( ! ( settingsShellCandidate instanceof ComponentSettingsShell ) ) {
 const settingsShell = settingsShellCandidate;
 
 /**
+ * Supported language derived from the browser UI locale.
+ * @since 0.1.0 Initial implementation.
+ */
+const browserLanguage = resolveLanguage( browser.i18n.getUILanguage() );
+
+/**
  * Refreshes the visible Protected Sites access state after a relevant browser grant changes.
  * @param change - Named and origin permissions added to or removed from the extension.
  * @since 0.1.0 Initial implementation.
@@ -133,6 +142,7 @@ const preferencesEditor = createPreferencesEditor( {
  */
 const preferencesController = createPreferencesController( {
 	appearanceTarget: document.documentElement,
+	browserLanguage,
 	storage: preferencesStorage,
 	storageChanges: browser.storage.onChanged,
 	systemMotionPreference: window.matchMedia( '(prefers-reduced-motion: reduce)' ),
@@ -154,6 +164,7 @@ settingsShell.permissionManager = createSitePermissionManager( {
 settingsShell.preferencesEditor = preferencesEditor;
 settingsShell.preferencesPreview = preferencesController;
 settingsShell.preferencesSource = preferencesController;
+settingsShell.browserLanguage = browserLanguage;
 
 /**
  * Local statistics client used by the settings statistics screen.
@@ -171,12 +182,71 @@ settingsShell.platform = import.meta.env.SAFARI
 		: 'chrome';
 
 /**
+ * Latest requested localization projection revision.
+ * @since 0.1.0 Initial implementation.
+ */
+let localizationRevision = 0;
+
+/**
+ * Applies one complete localization snapshot to every settings surface.
+ * @param language - Effective browser-derived or explicitly selected language.
+ * @return Promise resolved after the latest requested language is projected.
+ * @since 0.1.0 Initial implementation.
+ */
+async function applyLocalization( language: Language ): Promise<void> {
+	localizationRevision += 1;
+	const requestedRevision = localizationRevision;
+	const localization = await loadLocalizationBundle( language );
+
+	if ( requestedRevision !== localizationRevision ) {
+		return;
+	}
+
+	document.documentElement.lang = localization.languageTag;
+	document.title = localization.document.settingsTitle;
+	settingsShell.copy = localization.settingsShell;
+	settingsShell.appearanceCopy = localization.appearance;
+	settingsShell.languageCopy = localization.languageScreen;
+	settingsShell.protectedSitesCopy = localization.protectedSites;
+	settingsShell.protectedSiteItemCopy = localization.protectedSiteItem;
+	settingsShell.scheduleCopy = localization.schedule;
+	settingsShell.statisticsCopy = localization.statistics;
+	settingsShell.timingCopy = localization.timing;
+}
+
+/**
+ * Starts one non-blocking live localization projection.
+ * @param language - Newly effective preference language.
+ * @since 0.1.0 Initial implementation.
+ */
+function handleLanguageChange( language: Language ): void {
+	void applyLocalization( language );
+}
+
+preferencesController.addLanguageChangeListener( handleLanguageChange );
+
+/**
+ * Waits until the most recently requested localization is projected.
+ * @return Promise resolved when no newer language request is pending.
+ * @since 0.1.0 Initial implementation.
+ */
+async function synchronizeLocalization(): Promise<void> {
+	let requestedRevision: number;
+
+	do {
+		requestedRevision = localizationRevision + 1;
+		await applyLocalization( preferencesController.language );
+	} while ( requestedRevision !== localizationRevision );
+}
+
+/**
  * Applies persisted preferences before revealing the settings document.
  * @return Promise resolved after the initial preference projection.
  * @since 0.1.0 Initial implementation.
  */
 async function startPreferences(): Promise<void> {
 	await preferencesController.start();
+	await synchronizeLocalization();
 	document.documentElement.style.removeProperty( 'color-scheme' );
 	document.documentElement.style.removeProperty( 'background' );
 	document.documentElement.style.removeProperty( 'visibility' );
