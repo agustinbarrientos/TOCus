@@ -1,3 +1,4 @@
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import { assert, fixture, html } from '@open-wc/testing';
 import { emulateMedia } from '@web/test-runner-commands';
 import { visualDiff } from '@web/test-runner-visual-regression';
@@ -52,6 +53,8 @@ describe( 'tocus-f-protected-page-layer visual', () => {
 			} );
 			const element = await fixture<ComponentProtectedPageLayer>( html`
 				<tocus-f-protected-page-layer
+			.copy=${ TestEnglishLocalizationBundle.protectedPageLayer }
+			.interruptionCopy=${ TestEnglishLocalizationBundle.interruption }
 					.warningRemainingSeconds=${ 8 }
 				></tocus-f-protected-page-layer>
 			` );
