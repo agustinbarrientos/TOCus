@@ -1,10 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fakeBrowser } from 'wxt/testing/fake-browser';
+import { DefaultPreferencesDocument, Language } from '../../domains/preferences/types';
 import { TestEmptyProtectionConfiguration } from '../../domains/protection/types/__fixtures__';
 import { TestInstant } from '../../domains/protection/types/__fixtures__/protection-event';
 import { type BrowserProtectionRuntimeOptions } from '../../features/protection-runtime/services/browser-protection-runtime';
 import { type ProtectionBackgroundControllerOptions } from '../../features/protection-runtime/services/protection-background-controller';
 import { type StatisticsRuntimeOptions } from '../../features/statistics/services/statistics-runtime';
+import { ToolbarBadgeDurationUnit } from '../../features/protection-runtime/utils/toolbar-badge-projection';
 
 /**
  * Provides isolated constructor and startup doubles for the background entrypoint.
@@ -12,7 +14,8 @@ import { type StatisticsRuntimeOptions } from '../../features/statistics/service
  */
 const backgroundMocks = vi.hoisted( () => ( {
 	createBrowserProtectionAdapter: vi.fn(),
-	createBrowserProtectionRuntime: vi.fn(),
+	createBrowserProtectionRuntime: vi.fn<( options: BrowserProtectionRuntimeOptions ) => unknown>(),
+	createPreferencesStorageService: vi.fn(),
 	createProtectionBackgroundController: vi.fn(),
 	createProtectionConfigurationStorageService: vi.fn(),
 	createProtectionCoordinator: vi.fn(),
@@ -22,6 +25,11 @@ const backgroundMocks = vi.hoisted( () => ( {
 	createStatisticsSessionStorageService: vi.fn(),
 	createStatisticsStorageService: vi.fn(),
 	filterConfiguration: vi.fn(),
+	preferencesStorage: {
+		load: vi.fn(),
+		save: vi.fn(),
+	},
+	refreshToolbarBadge: vi.fn(),
 	start: vi.fn(),
 } ) );
 
@@ -40,6 +48,10 @@ vi.mock( '../../domains/protection', () => ( {
 vi.mock( '../../domains/statistics', () => ( {
 	createStatisticsSessionStorageService: backgroundMocks.createStatisticsSessionStorageService,
 	createStatisticsStorageService: backgroundMocks.createStatisticsStorageService,
+} ) );
+
+vi.mock( '../../domains/preferences/services', () => ( {
+	createPreferencesStorageService: backgroundMocks.createPreferencesStorageService,
 } ) );
 
 vi.mock( '../../features/protection-runtime/services/browser-protection-adapter', () => ( {
@@ -64,11 +76,55 @@ vi.mock( '../../features/protected-sites/services/site-permission-manager', () =
 
 import backgroundDefinition from './index';
 
+/**
+ * Configures the smallest complete constructor graph needed to start the background entrypoint.
+ * @since 0.1.0 Initial implementation.
+ */
+function configureMinimalBackground(): void {
+	backgroundMocks.createProtectionStorageService.mockReturnValue( {} );
+	backgroundMocks.createProtectionConfigurationStorageService.mockReturnValue( {} );
+	backgroundMocks.createProtectionCoordinator.mockReturnValue( {} );
+	backgroundMocks.createBrowserProtectionAdapter.mockReturnValue( {} );
+	backgroundMocks.createSitePermissionManager.mockReturnValue( {
+		filterConfiguration: backgroundMocks.filterConfiguration,
+	} );
+	backgroundMocks.createStatisticsStorageService.mockReturnValue( {} );
+	backgroundMocks.createStatisticsSessionStorageService.mockReturnValue( {} );
+	backgroundMocks.createStatisticsRuntime.mockReturnValue( {} );
+	backgroundMocks.createBrowserProtectionRuntime.mockReturnValue( {
+		refreshToolbarBadge: backgroundMocks.refreshToolbarBadge,
+	} );
+	backgroundMocks.createProtectionBackgroundController.mockReturnValue( {
+		start: backgroundMocks.start,
+	} );
+}
+
+/**
+ * Returns the typed browser runtime options supplied by the background entrypoint.
+ * @return Complete captured browser runtime options.
+ * @since 0.1.0 Initial implementation.
+ */
+function getBrowserRuntimeOptions(): BrowserProtectionRuntimeOptions {
+	const runtimeOptions = backgroundMocks.createBrowserProtectionRuntime.mock.calls[ 0 ]?.[ 0 ];
+
+	if ( runtimeOptions === undefined ) {
+		throw new TypeError( 'Expected localized browser runtime options.' );
+	}
+
+	return runtimeOptions;
+}
+
 describe( 'protection background entrypoint', () => {
 	beforeEach( () => {
 		fakeBrowser.reset();
 		vi.clearAllMocks();
 		vi.spyOn( Date, 'now' ).mockReturnValue( TestInstant );
+		vi.spyOn( fakeBrowser.i18n, 'getUILanguage' ).mockReturnValue( 'en-US' );
+		backgroundMocks.createPreferencesStorageService.mockReturnValue(
+			backgroundMocks.preferencesStorage,
+		);
+		backgroundMocks.preferencesStorage.load.mockResolvedValue( DefaultPreferencesDocument );
+		backgroundMocks.refreshToolbarBadge.mockResolvedValue( undefined );
 	} );
 
 	afterEach( () => {
@@ -97,7 +153,10 @@ describe( 'protection background entrypoint', () => {
 		const statisticsStorage = { localStatistics: true };
 		const statisticsSessionStorage = { sessionStatistics: true };
 		const statisticsRuntime = { statisticsRuntime: true };
-		const runtime = { runtime: true };
+		const runtime = {
+			runtime: true,
+			refreshToolbarBadge: backgroundMocks.refreshToolbarBadge,
+		};
 		const controller = { start: backgroundMocks.start };
 
 		backgroundMocks.createProtectionStorageService.mockReturnValue( storage );
@@ -116,6 +175,9 @@ describe( 'protection background entrypoint', () => {
 
 		expect( backgroundMocks.createProtectionStorageService ).toHaveBeenCalledOnce();
 		expect( backgroundMocks.createProtectionConfigurationStorageService ).toHaveBeenCalledWith( {
+			area: fakeBrowser.storage.local,
+		} );
+		expect( backgroundMocks.createPreferencesStorageService ).toHaveBeenCalledWith( {
 			area: fakeBrowser.storage.local,
 		} );
 		expect( backgroundMocks.createProtectionCoordinator ).toHaveBeenCalledOnce();
@@ -235,6 +297,20 @@ describe( 'protection background entrypoint', () => {
 		expect( typedRuntimeOptions.createStableId() ).toEqual( expect.any( String ) );
 		expect( typedRuntimeOptions.now() ).toBe( TestInstant );
 		expect( typedRuntimeOptions.getTimeZone() ).toEqual( expect.any( String ) );
+		expect( typedRuntimeOptions.toolbarBadgeCopy.inactive.title ).toBe( 'TOCus' );
+		expect( typedRuntimeOptions.toolbarBadgeCopy.formatActiveTitle( 'Pause: complete' ) ).toBe(
+			'TOCus: Pause: complete',
+		);
+		expect(
+			typedRuntimeOptions.toolbarBadgeCopy.formatWaiting( 2, ToolbarBadgeDurationUnit.SECOND ).title,
+		).toBe( 'Pause: 2 seconds remaining' );
+		expect(
+			typedRuntimeOptions.toolbarBadgeCopy.formatAllowance( 2, ToolbarBadgeDurationUnit.MINUTE ).title,
+		).toBe( 'Visit window: 2 minutes remaining' );
+		expect(
+			typedRuntimeOptions.toolbarBadgeCopy.formatMultipleActive( 2, '2' ).title,
+		).toBe( '2 protected-site timers active' );
+		expect( typedRuntimeOptions.toolbarBadgeCopy.formatMultipleIndicator( 2 ) ).toBe( '2×' );
 		expect( backgroundMocks.createProtectionBackgroundController ).toHaveBeenCalledOnce();
 		const backgroundControllerOptions: unknown =
 			backgroundMocks.createProtectionBackgroundController.mock.calls[ 0 ]?.[ 0 ];
@@ -259,6 +335,199 @@ describe( 'protection background entrypoint', () => {
 		);
 		expect( typedBackgroundControllerOptions.optionsPageUrl ).toContain( 'options.html' );
 		expect( typedBackgroundControllerOptions.runtime ).toBe( runtime );
+		expect( backgroundMocks.start ).toHaveBeenCalledOnce();
+	} );
+
+	it( 'updates live toolbar copy after the local language preference changes', async () => {
+		configureMinimalBackground();
+		const runBackground: () => void = backgroundDefinition.main.bind( backgroundDefinition );
+
+		runBackground();
+		await vi.waitFor( () => {
+			expect( backgroundMocks.refreshToolbarBadge ).toHaveBeenCalledOnce();
+		} );
+		backgroundMocks.refreshToolbarBadge.mockClear();
+		await fakeBrowser.storage.local.set( {
+			'tocus.preferences.v1': {
+				...DefaultPreferencesDocument,
+				language: Language.SPANISH_VOS,
+			},
+		} );
+		await vi.waitFor( () => {
+			expect( backgroundMocks.refreshToolbarBadge ).toHaveBeenCalledOnce();
+		} );
+		const typedRuntimeOptions = getBrowserRuntimeOptions();
+
+		expect(
+			typedRuntimeOptions.toolbarBadgeCopy.formatWaiting( 2, ToolbarBadgeDurationUnit.SECOND ).title,
+		).toBe( 'Pausa: quedan 2 segundos' );
+	} );
+
+	it( 'does not refresh toolbar copy when the effective language stays unchanged', async () => {
+		configureMinimalBackground();
+		const runBackground: () => void = backgroundDefinition.main.bind( backgroundDefinition );
+
+		runBackground();
+		await vi.waitFor( () => {
+			expect( backgroundMocks.refreshToolbarBadge ).toHaveBeenCalledOnce();
+		} );
+		backgroundMocks.refreshToolbarBadge.mockClear();
+
+		await fakeBrowser.storage.local.set( {
+			'tocus.preferences.v1': DefaultPreferencesDocument,
+		} );
+
+		expect( backgroundMocks.refreshToolbarBadge ).not.toHaveBeenCalled();
+	} );
+
+	it( 'keeps toolbar copy language-neutral until the saved language is restored', async () => {
+		configureMinimalBackground();
+		const deferredPreferences = Promise.withResolvers<typeof DefaultPreferencesDocument>();
+
+		backgroundMocks.preferencesStorage.load.mockReturnValueOnce( deferredPreferences.promise );
+		const runBackground: () => void = backgroundDefinition.main.bind( backgroundDefinition );
+
+		runBackground();
+
+		expect( backgroundMocks.start ).toHaveBeenCalledOnce();
+		expect( getBrowserRuntimeOptions().toolbarBadgeCopy.inactive ).toEqual( { text: '', title: 'TOCus' } );
+		expect( getBrowserRuntimeOptions().toolbarBadgeCopy.formatActiveTitle( 'Pending' ) ).toBe( 'TOCus' );
+		expect( getBrowserRuntimeOptions().toolbarBadgeCopy.formatMultipleIndicator( 2 ) ).toBe( '' );
+		expect(
+			getBrowserRuntimeOptions().toolbarBadgeCopy.formatWaiting(
+				2,
+				ToolbarBadgeDurationUnit.SECOND,
+			),
+		).toEqual( { text: '', title: 'TOCus' } );
+		expect(
+			getBrowserRuntimeOptions().toolbarBadgeCopy.formatAllowance(
+				2,
+				ToolbarBadgeDurationUnit.MINUTE,
+			),
+		).toEqual( { text: '', title: 'TOCus' } );
+		expect(
+			getBrowserRuntimeOptions().toolbarBadgeCopy.formatMultipleActive( 2, '2' ),
+		).toEqual( { text: '', title: 'TOCus' } );
+
+		deferredPreferences.resolve( {
+			...DefaultPreferencesDocument,
+			language: Language.JAPANESE,
+		} );
+		await vi.waitFor( () => {
+			expect( backgroundMocks.refreshToolbarBadge ).toHaveBeenCalledOnce();
+		} );
+		expect(
+			getBrowserRuntimeOptions().toolbarBadgeCopy.formatWaiting(
+				2,
+				ToolbarBadgeDurationUnit.SECOND,
+			).title,
+		).toBe( '\u4e00\u6642\u505c\u6b62\uff1a\u6b8b\u308a 2 \u79d2' );
+	} );
+
+	it( 'uses browser language after malformed or removed local preferences', async () => {
+		configureMinimalBackground();
+		const runBackground: () => void = backgroundDefinition.main.bind( backgroundDefinition );
+
+		runBackground();
+		await vi.waitFor( () => {
+			expect( backgroundMocks.refreshToolbarBadge ).toHaveBeenCalledOnce();
+		} );
+		backgroundMocks.refreshToolbarBadge.mockClear();
+		await fakeBrowser.storage.session.set( {
+			'tocus.preferences.v1': {
+				...DefaultPreferencesDocument,
+				language: Language.SPANISH_VOS,
+			},
+		} );
+		await fakeBrowser.storage.local.set( { unrelated: true } );
+		expect( backgroundMocks.refreshToolbarBadge ).not.toHaveBeenCalled();
+
+		await fakeBrowser.storage.local.set( {
+			'tocus.preferences.v1': {
+				...DefaultPreferencesDocument,
+				language: Language.SPANISH_VOS,
+			},
+		} );
+		await fakeBrowser.storage.local.set( {
+			'tocus.preferences.v1': { schemaVersion: 999 },
+		} );
+		await fakeBrowser.storage.local.set( {
+			'tocus.preferences.v1': {
+				...DefaultPreferencesDocument,
+				language: Language.SPANISH_VOS,
+			},
+		} );
+		await fakeBrowser.storage.onChanged.trigger( {
+			'tocus.preferences.v1': {
+				oldValue: {
+					...DefaultPreferencesDocument,
+					language: Language.SPANISH_VOS,
+				},
+			},
+		}, 'local' );
+
+		await vi.waitFor( () => {
+			expect( backgroundMocks.refreshToolbarBadge ).toHaveBeenCalledTimes( 4 );
+		} );
+		expect(
+			getBrowserRuntimeOptions().toolbarBadgeCopy.formatWaiting(
+				2,
+				ToolbarBadgeDurationUnit.SECOND,
+			).title,
+		).toBe( 'Pause: 2 seconds remaining' );
+	} );
+
+	it( 'ignores a stale initial preferences read after a newer storage event', async () => {
+		configureMinimalBackground();
+		const deferredPreferences = Promise.withResolvers<typeof DefaultPreferencesDocument>();
+
+		backgroundMocks.preferencesStorage.load.mockReturnValueOnce( deferredPreferences.promise );
+		const runBackground: () => void = backgroundDefinition.main.bind( backgroundDefinition );
+
+		runBackground();
+		await fakeBrowser.storage.local.set( {
+			'tocus.preferences.v1': {
+				...DefaultPreferencesDocument,
+				language: Language.SPANISH_VOS,
+			},
+		} );
+		deferredPreferences.resolve( {
+			...DefaultPreferencesDocument,
+			language: Language.JAPANESE,
+		} );
+		await deferredPreferences.promise;
+
+		await vi.waitFor( () => {
+			expect( backgroundMocks.refreshToolbarBadge ).toHaveBeenCalledOnce();
+		} );
+		expect(
+			getBrowserRuntimeOptions().toolbarBadgeCopy.formatWaiting(
+				2,
+				ToolbarBadgeDurationUnit.SECOND,
+			).title,
+		).toBe( 'Pausa: quedan 2 segundos' );
+	} );
+
+	it( 'keeps protection running when preference reads and toolbar refreshes fail', async () => {
+		configureMinimalBackground();
+		backgroundMocks.preferencesStorage.load.mockRejectedValueOnce( new Error( 'Read failed.' ) );
+		backgroundMocks.refreshToolbarBadge.mockRejectedValueOnce( new Error( 'Refresh failed.' ) );
+		const runBackground: () => void = backgroundDefinition.main.bind( backgroundDefinition );
+
+		runBackground();
+		await vi.waitFor( () => {
+			expect( backgroundMocks.refreshToolbarBadge ).toHaveBeenCalledOnce();
+		} );
+		await fakeBrowser.storage.local.set( {
+			'tocus.preferences.v1': {
+				...DefaultPreferencesDocument,
+				language: Language.SPANISH_VOS,
+			},
+		} );
+
+		await vi.waitFor( () => {
+			expect( backgroundMocks.refreshToolbarBadge ).toHaveBeenCalledTimes( 2 );
+		} );
 		expect( backgroundMocks.start ).toHaveBeenCalledOnce();
 	} );
 } );
