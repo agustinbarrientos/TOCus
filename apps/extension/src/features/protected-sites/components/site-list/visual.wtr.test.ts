@@ -1,3 +1,4 @@
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import { assert, fixture, html } from '@open-wc/testing';
 import { emulateMedia } from '@web/test-runner-commands';
 import { visualDiff } from '@web/test-runner-visual-regression';
@@ -77,6 +78,8 @@ describe( 'tocus-f-protected-site-list visual', () => {
 			await configureAppearance( theme );
 			const element = await fixture<ComponentProtectedSiteList>( html`
 				<tocus-f-protected-site-list
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteList }
+			.itemCopy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 					style="width: 46rem;"
 					.sites=${ VISUAL_SITES }
 					.accessByIdentityHost=${ VISUAL_ACCESS_BY_IDENTITY_HOST }
