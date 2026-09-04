@@ -7,7 +7,10 @@ import {
 	type ProtectionConfigurationMutation,
 } from '../../../../domains/protection/services/protection-configuration-editor';
 import { type ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
-import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
+import {
+	TestEmptyProtectionConfiguration,
+	createTestProtectionMeasurementRevision,
+} from '../../../../domains/protection/types/__fixtures__';
 import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { type PreferencesEditor } from '../../../../domains/preferences/services/preferences-editor';
 import { DefaultPreferencesDocument, type PreferencesDocument } from '../../../../domains/preferences/types';
@@ -19,6 +22,7 @@ import {
 	type SitePermissionManager,
 } from '../../../protected-sites/services/site-permission-manager';
 import { ComponentProtectedSitesScreen } from '../../../protected-sites/components/screen';
+import { ComponentStatisticsSettingsScreen } from '../../../statistics/components/settings-screen';
 import { ComponentAppearanceScreen } from '../appearance-screen';
 import {
 	type AppearancePreferencesChangeListener,
@@ -30,6 +34,10 @@ import { ComponentTimingScreen } from '../timing-screen';
 import { ComponentSettingsShell } from './index';
 import { SettingsPlatform, type SettingsPlatform as SettingsPlatformValue } from './types';
 
+/**
+ * Empty protection configuration rendered by settings-shell fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const EMPTY_CONFIGURATION: ProtectionConfigurationDocument = { ...TestEmptyProtectionConfiguration };
 
 /**
@@ -119,12 +127,27 @@ function getFaviconSource(): null {
 	return null;
 }
 
+/**
+ * Configuration editor shared by settings-shell tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const EDITOR: ProtectionConfigurationEditor = createProtectionConfigurationEditor( {
 	storage: new MemorySettingsShellStorage(),
 	createIndependentScopeId,
+	createMeasurementRevision: createTestProtectionMeasurementRevision,
 	coordinateMutation: coordinateMutationDirectly,
 } );
+
+/**
+ * Cached-favicon provider used by settings-shell fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const FAVICON_PROVIDER: SiteFaviconProvider = { getSource: getFaviconSource };
+
+/**
+ * In-memory preferences editor used by settings-shell fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const PREFERENCES_EDITOR = new MemorySettingsPreferencesEditor();
 
 /**
@@ -136,6 +159,10 @@ function applyPreferencesPreview(): undefined {
 	return undefined;
 }
 
+/**
+ * Live preferences preview used by settings-shell fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const PREFERENCES_PREVIEW: PreferencesPreview = { apply: applyPreferencesPreview };
 
 /**
@@ -156,6 +183,10 @@ function removePreferencesChangeListener( listener: AppearancePreferencesChangeL
 	void listener;
 }
 
+/**
+ * Preferences listener source used by settings-shell fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const PREFERENCES_SOURCE: PreferencesSource = {
 	addPreferencesChangeListener,
 	removePreferencesChangeListener,
@@ -203,7 +234,10 @@ function hasSiteAccess(): Promise<boolean> {
 	return Promise.resolve( true );
 }
 
-/** Permission manager used by settings-shell behavior fixtures. */
+/**
+ * Permission manager used by settings-shell behavior fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const PERMISSION_MANAGER: SitePermissionManager = {
 	filterConfiguration: filterPermissionConfiguration,
 	hasAccess: hasSiteAccess,
@@ -279,6 +313,7 @@ describe( 'tocus-f-settings-shell', () => {
 				{ label: 'Schedule', href: '#schedule', current: null },
 				{ label: 'Timing', href: '#timing', current: null },
 				{ label: 'Appearance', href: '#appearance', current: null },
+				{ label: 'Statistics', href: '#statistics', current: null },
 			],
 		);
 	} );
@@ -291,6 +326,7 @@ describe( 'tocus-f-settings-shell', () => {
 			schedule: 'Localized schedule',
 			timing: 'Localized timing',
 			appearance: 'Localized appearance',
+			statistics: 'Localized statistics',
 		};
 		await element.updateComplete;
 		const navigation = element.shadowRoot?.querySelector( 'nav' );
@@ -300,7 +336,13 @@ describe( 'tocus-f-settings-shell', () => {
 			Array.from( navigation?.querySelectorAll( 'a' ) ?? [] ).map( ( destination ) =>
 				destination.textContent.trim(),
 			),
-			[ 'Localized protected sites', 'Localized schedule', 'Localized timing', 'Localized appearance' ],
+			[
+				'Localized protected sites',
+				'Localized schedule',
+				'Localized timing',
+				'Localized appearance',
+				'Localized statistics',
+			],
 		);
 	} );
 
@@ -322,7 +364,7 @@ describe( 'tocus-f-settings-shell', () => {
 	it( 'navigates between Schedule, Timing, and Appearance with their dependencies', async () => {
 		const element = await renderShell();
 		const destinations = element.shadowRoot?.querySelectorAll<HTMLAnchorElement>( 'nav a' );
-		assert.equal( destinations?.length, 4 );
+		assert.equal( destinations?.length, 5 );
 
 		destinations?.item( 1 ).click();
 		await settleShell( element );
@@ -355,6 +397,72 @@ describe( 'tocus-f-settings-shell', () => {
 		assert.equal( appearanceScreen.preview, PREFERENCES_PREVIEW );
 		assert.equal( appearanceScreen.source, PREFERENCES_SOURCE );
 		assert.equal( destinations?.item( 3 ).getAttribute( 'aria-current' ), 'page' );
+	} );
+
+	it( 'opens Statistics directly and forwards its source', async () => {
+		const projection = {
+			status: 'available' as const,
+			estimatedReclaimedMilliseconds: 3_600_000,
+			focusedPauseMilliseconds: 900_000,
+			reconsideredVisitCount: 4,
+			completedWaitCount: 7,
+			allowanceGrantedCount: 3,
+		};
+		const statisticsSource = {
+			/**
+			 * Accepts one statistics-change listener in the shell fixture.
+			 * @param listener - Unused fixture listener.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			addStatisticsChangeListener( listener: () => void ): void {
+				void listener;
+			},
+			/**
+			 * Reads the Statistics projection forwarded by the shell fixture.
+			 * @return Available fixture projection.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			readStatistics(): Promise<typeof projection> {
+				return Promise.resolve( projection );
+			},
+			/**
+			 * Returns the authoritative projection after the shell fixture reset.
+			 * @return Available fixture projection.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			resetStatistics(): Promise<typeof projection> {
+				return Promise.resolve( projection );
+			},
+			/**
+			 * Removes one statistics-change listener from the shell fixture.
+			 * @param listener - Unused fixture listener.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			removeStatisticsChangeListener( listener: () => void ): void {
+				void listener;
+			},
+		};
+		window.history.replaceState( null, '', `${ window.location.pathname }#statistics` );
+		const element = await fixture<ComponentSettingsShell>( html`
+			<tocus-f-settings-shell></tocus-f-settings-shell>
+		` );
+
+		( element as ComponentSettingsShell & { statisticsSource: typeof statisticsSource } ).statisticsSource =
+			statisticsSource;
+		await element.updateComplete;
+
+		const screen = element.shadowRoot?.querySelector(
+			'tocus-f-statistics-settings-screen',
+		);
+		assert.instanceOf( screen, ComponentStatisticsSettingsScreen );
+		if ( ! ( screen instanceof ComponentStatisticsSettingsScreen ) ) {
+			throw new TypeError( 'Expected the Statistics settings screen to render.' );
+		}
+		assert.equal( screen.source, statisticsSource );
+		assert.equal(
+			element.shadowRoot?.querySelector( 'a[href="#statistics"]' )?.getAttribute( 'aria-current' ),
+			'page',
+		);
 	} );
 
 	it( 'uses a sidebar at wide options-page widths', async () => {
@@ -403,6 +511,36 @@ describe( 'tocus-f-settings-shell', () => {
 		assert.equal( getComputedStyle( layout ).gridTemplateColumns.split( ' ' ).length, 1 );
 		assert.equal( getComputedStyle( navigation ).borderRightWidth, '0px' );
 		assert.equal( getComputedStyle( navigation ).borderBottomWidth, '1px' );
+	} );
+
+	it( 'contains all five destinations in a reachable narrow navigation scroller', async () => {
+		await setViewport( { height: 700, width: 420 } );
+
+		try {
+			const element = await renderShell( SettingsPlatform.SAFARI );
+			const layout = element.shadowRoot?.querySelector<HTMLElement>( '.settings-layout' );
+			const navigation = element.shadowRoot?.querySelector<HTMLElement>( 'nav' );
+			const statistics = element.shadowRoot?.querySelector<HTMLAnchorElement>( 'a[href="#statistics"]' );
+
+			assert.instanceOf( layout, HTMLElement );
+			assert.instanceOf( navigation, HTMLElement );
+			assert.instanceOf( statistics, HTMLAnchorElement );
+			if (
+				! ( layout instanceof HTMLElement ) ||
+				! ( navigation instanceof HTMLElement ) ||
+				! ( statistics instanceof HTMLAnchorElement )
+			) {
+				throw new TypeError( 'Expected the complete narrow Statistics navigation.' );
+			}
+
+			assert.isAtMost( layout.scrollWidth, layout.clientWidth );
+			assert.isAbove( navigation.scrollWidth, navigation.clientWidth );
+			navigation.scrollLeft = navigation.scrollWidth;
+			statistics.focus();
+			assert.equal( element.shadowRoot?.activeElement, statistics );
+		} finally {
+			await setViewport( { height: 600, width: 800 } );
+		}
 	} );
 
 	it( 'has no automatically detectable accessibility violations', async () => {
