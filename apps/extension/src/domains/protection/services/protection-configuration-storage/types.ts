@@ -1,4 +1,30 @@
-import { type ProtectionConfigurationDocument } from '../../types/protected-site-configuration';
+import { z } from 'zod';
+import {
+	ProtectedSiteConfigurationSetSchema,
+	ProtectionScopeScheduleMapSchema,
+	type ProtectionConfigurationDocument,
+} from '../../types/protected-site-configuration';
+import { TimingConfigurationSchema } from '../../types/timing-configuration';
+
+/**
+ * Validates the complete configuration document used before schedules and timing were persisted.
+ * @since 0.1.0 Initial implementation.
+ */
+export const VersionOneProtectionConfigurationDocumentSchema = z.object( {
+	schemaVersion: z.number().int().nonnegative().refine( ( version ) => version === 1 ),
+	sites: ProtectedSiteConfigurationSetSchema,
+} ).strict();
+
+/**
+ * Validates the complete configuration document used before measurement revisions were persisted.
+ * @since 0.1.0 Initial implementation.
+ */
+export const VersionTwoProtectionConfigurationDocumentSchema = z.object( {
+	schemaVersion: z.number().int().nonnegative().refine( ( version ) => version === 2 ),
+	sites: ProtectedSiteConfigurationSetSchema,
+	timingConfiguration: TimingConfigurationSchema,
+	schedulesByScope: ProtectionScopeScheduleMapSchema,
+} ).strict();
 
 /**
  * Stable key for the current protected-site configuration document.
