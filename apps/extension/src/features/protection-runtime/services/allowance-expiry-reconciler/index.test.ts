@@ -20,8 +20,10 @@ import {
 } from '../../../../domains/protection/types/protection-event';
 import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { type AllowanceProtectionState } from '../../../../domains/protection/types/protection-state';
+import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
 import {
 	DefaultProtectionScopeId,
+	ProtectionMeasurementRevisionSchema,
 	ProtectionScopeIdSchema,
 } from '../../../../domains/protection/types/protection-value';
 import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
@@ -30,22 +32,34 @@ import { type ProtectionRuntimeBrowser, type ProtectionRuntimeTab } from '../../
 import { createAllowanceExpiryReconciler } from './index';
 import { type AllowanceExpiryReconcilerOptions } from './types';
 
-/** Fixed wall-clock instant used by allowance-expiry fixtures. */
+/**
+ * Fixed wall-clock instant used by allowance-expiry fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const NOW_EPOCH_MILLISECONDS = Date.UTC( 2026, 8, 2, 12 );
 
-/** Independent protection scope used by multi-scope fixtures. */
+/**
+ * Independent protection scope used by multi-scope fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const OTHER_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope_other' );
 
-/** Applied coordinator result returned by successful dispatch fixtures. */
+/**
+ * Applied coordinator result returned by successful dispatch fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const APPLIED_RESULT: ProtectionCoordinatorDispatchResult = {
 	status: ProtectionCoordinatorDispatchStatus.APPLIED,
 	decisions: [],
 	facts: [],
 };
 
-/** Protected-site configuration used by allowance-expiry fixtures. */
+/**
+ * Protected-site configuration used by allowance-expiry fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const CONFIGURATION: ProtectionConfigurationDocument = {
-	schemaVersion: 2,
+	...TestEmptyProtectionConfiguration,
 	sites: [
 		{
 			identityHost: 'example.com',
@@ -69,12 +83,17 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
 		[ DefaultProtectionScopeId ]: { mode: 'always' },
 		[ OTHER_SCOPE_ID ]: { mode: 'always' },
 	},
+	measurementRevisionsByScope: {
+		[ DefaultProtectionScopeId ]: ProtectionMeasurementRevisionSchema.parse( 'revision_default' ),
+		[ OTHER_SCOPE_ID ]: ProtectionMeasurementRevisionSchema.parse( 'revision_other' ),
+	},
 };
 
 /**
  * Creates an allowance state at a configurable expiry instant.
  * @param expiresAtEpochMilliseconds - Allowance expiry instant.
  * @return Allowance state owned by the default protection scope.
+ * @since 0.1.0 Initial implementation.
  */
 function createTestAllowanceState(
 	expiresAtEpochMilliseconds: number,
@@ -100,6 +119,7 @@ function createTestAllowanceState(
  * @param dispatchStatesByScope - Snapshot supplied while preparing an event.
  * @param tabs - Open browser tabs returned to the reconciler.
  * @return Reconciler and observable dependency doubles.
+ * @since 0.1.0 Initial implementation.
  */
 function createReconcilerHarness(
 	statesByScope: ProtectionCoordinatorStateSnapshot | null,
@@ -154,6 +174,140 @@ function createReconcilerHarness(
 }
 
 describe( 'createAllowanceExpiryReconciler', () => {
+	it( 'creates a live-page expiry candidate only for an explicitly ordinary tab', async () => {
+		const expiredAllowance = createTestAllowanceState( NOW_EPOCH_MILLISECONDS );
+		const harness = createReconcilerHarness(
+			{ [ DefaultProtectionScopeId ]: expiredAllowance },
+			{ [ DefaultProtectionScopeId ]: expiredAllowance },
+			[ {
+				id: 7,
+				url: 'https://example.com/focused',
+				incognito: false,
+			} ],
+		);
+
+		await harness.reconciler.reconcile( CONFIGURATION );
+
+		expect( harness.events[ 0 ] ).toMatchObject( {
+			candidates: [
+				{ source: AllowanceExpiryCandidateSource.READY_PARTICIPANT },
+				{
+					source: AllowanceExpiryCandidateSource.LIVE_PAGE,
+					statisticsEligible: true,
+				},
+			],
+		} );
+	} );
+
+	it.each( [
+		[ 'private live page', true ],
+		[ 'live page with unknown privacy', undefined ],
+	] )( 'excludes a %s from persisted allowance-expiry candidates', async (
+		_label,
+		incognito,
+	) => {
+		const expiredAllowance = createTestAllowanceState( NOW_EPOCH_MILLISECONDS );
+		const harness = createReconcilerHarness(
+			{ [ DefaultProtectionScopeId ]: expiredAllowance },
+			{ [ DefaultProtectionScopeId ]: expiredAllowance },
+			[ {
+				id: 7,
+				url: 'https://example.com/private',
+				...( incognito === undefined ? {} : { incognito } ),
+			} ],
+		);
+
+		await harness.reconciler.reconcile( CONFIGURATION );
+
+		expect( harness.events[ 0 ] ).toMatchObject( {
+			candidates: [
+				{ source: AllowanceExpiryCandidateSource.READY_PARTICIPANT },
+			],
+		} );
+	} );
+
+	it.each( [
+		[ 'private tab', true ],
+		[ 'tab with unknown privacy', undefined ],
+	] )( 'fails open a navigation-origin Ready participant from a %s', async (
+		_label,
+		incognito,
+	) => {
+		const expiredAllowance = {
+			...createTestAllowanceState( NOW_EPOCH_MILLISECONDS ),
+			readyParticipants: [ createNavigationParticipant(
+				'participant_private',
+				'page_tab_9_private',
+				true,
+				0,
+				'https://example.com/private',
+			) ],
+		};
+		const harness = createReconcilerHarness(
+			{ [ DefaultProtectionScopeId ]: expiredAllowance },
+			{ [ DefaultProtectionScopeId ]: expiredAllowance },
+			[ {
+				id: 9,
+				url: 'chrome-extension://extension-id/interruption.html',
+				...( incognito === undefined ? {} : { incognito } ),
+			} ],
+		);
+
+		await harness.reconciler.reconcile( CONFIGURATION );
+
+		expect( harness.events[ 0 ] ).toMatchObject( {
+			candidates: [ {
+				source: AllowanceExpiryCandidateSource.READY_PARTICIPANT,
+				participantId: 'participant_private',
+				observedDestination: 'https://example.com/private',
+				focusEligible: false,
+				match: { status: ProtectedUrlMatchStatus.UNPROTECTED },
+			} ],
+		} );
+		const event = harness.events[ 0 ];
+
+		if ( event === undefined ) {
+			throw new Error( 'Expected an allowance-expiry event.' );
+		}
+
+		const transition = transitionProtectionState( expiredAllowance, event );
+
+		expect( transition.state.type ).toBe( 'idle' );
+		expect( transition.facts ).toEqual( [] );
+	} );
+
+	it( 'defers expiry without weakening protection when open tabs cannot be observed', async () => {
+		const expiredAllowance = createTestAllowanceState( NOW_EPOCH_MILLISECONDS );
+		const harness = createReconcilerHarness( {
+			[ DefaultProtectionScopeId ]: expiredAllowance,
+		} );
+
+		harness.listTabs.mockRejectedValue( new Error( 'Open tabs unavailable.' ) );
+
+		await expect( harness.reconciler.reconcile( CONFIGURATION ) ).resolves.toBeUndefined();
+		expect( harness.dispatch ).not.toHaveBeenCalled();
+		expect( harness.applyDispatchResult ).not.toHaveBeenCalled();
+	} );
+
+	it( 'continues expiry with no focused candidate when browser focus cannot be observed', async () => {
+		const expiredAllowance = createTestAllowanceState( NOW_EPOCH_MILLISECONDS );
+		const harness = createReconcilerHarness(
+			{ [ DefaultProtectionScopeId ]: expiredAllowance },
+			{ [ DefaultProtectionScopeId ]: expiredAllowance },
+			[ { id: 7, incognito: false, url: 'https://example.com/focused' } ],
+		);
+
+		harness.getFocusedTabId.mockRejectedValue( new Error( 'Browser focus unavailable.' ) );
+
+		await expect( harness.reconciler.reconcile( CONFIGURATION ) ).resolves.toBeUndefined();
+		expect( harness.events[ 0 ] ).toMatchObject( {
+			candidates: [
+				{ focusEligible: false },
+				{ focusEligible: false, statisticsEligible: true },
+			],
+		} );
+	} );
+
 	it( 'does nothing before coordinator initialization', async () => {
 		const harness = createReconcilerHarness( null );
 
@@ -188,10 +342,11 @@ describe( 'createAllowanceExpiryReconciler', () => {
 			{ [ DefaultProtectionScopeId ]: expiredAllowance },
 			[
 				{ id: 1 },
-				{ id: 2, url: 'https://unprotected.example/' },
-				{ id: 3, url: 'https://other.example/' },
-				{ id: 7, url: 'https://example.com/focused' },
-				{ id: 8, url: 'https://sub.example.com/background' },
+				{ id: 2, incognito: false, url: 'https://unprotected.example/' },
+				{ id: 3, incognito: false, url: 'https://other.example/' },
+				{ id: 4, incognito: false },
+				{ id: 7, incognito: false, url: 'https://example.com/focused' },
+				{ id: 8, incognito: false, url: 'https://sub.example.com/background' },
 			],
 		);
 
@@ -260,7 +415,7 @@ describe( 'createAllowanceExpiryReconciler', () => {
 		const harness = createReconcilerHarness(
 			{ [ DefaultProtectionScopeId ]: expiredAllowance },
 			{ [ DefaultProtectionScopeId ]: expiredAllowance },
-			[ { id: 9, url: 'https://example.com/preserved-draft' } ],
+			[ { id: 9, incognito: false, url: 'https://example.com/preserved-draft' } ],
 		);
 		harness.getFocusedTabId.mockResolvedValue( 9 );
 
@@ -293,6 +448,46 @@ describe( 'createAllowanceExpiryReconciler', () => {
 			type: 'present-waiting',
 			pageId: 'page_tab_9_expiry',
 		} ) );
+	} );
+
+	it.each( [
+		[ 'private tab', true ],
+		[ 'tab with unknown privacy', undefined ],
+	] )( 'does not reattach an expiry-origin Ready page from a %s', async (
+		_label,
+		incognito,
+	) => {
+		const expiredAllowance = {
+			...createTestAllowanceState( NOW_EPOCH_MILLISECONDS ),
+			readyParticipants: [ createAllowanceExpiryParticipant(
+				'participant_expiry',
+				'page_tab_9_expiry',
+				true,
+				0,
+			) ],
+		};
+		const harness = createReconcilerHarness(
+			{ [ DefaultProtectionScopeId ]: expiredAllowance },
+			{ [ DefaultProtectionScopeId ]: expiredAllowance },
+			[ {
+				id: 9,
+				url: 'https://example.com/private',
+				...( incognito === undefined ? {} : { incognito } ),
+			} ],
+		);
+		harness.getFocusedTabId.mockResolvedValue( 9 );
+
+		await harness.reconciler.reconcile( CONFIGURATION );
+
+		expect( harness.events[ 0 ] ).toMatchObject( {
+			candidates: [ {
+				source: AllowanceExpiryCandidateSource.READY_PARTICIPANT,
+				participantId: 'participant_expiry',
+				observedDestination: null,
+				focusEligible: false,
+				match: { status: 'unprotected' },
+			} ],
+		} );
 	} );
 
 	it( 'uses the observed allowance and an inactive schedule when the dispatch snapshot changed', async () => {
