@@ -12,6 +12,7 @@ import {
 	ProtectionCoordinatorDispatchStatus,
 	type ProtectionCoordinatorDispatchResult,
 } from '../../../../domains/protection/services/protection-coordinator';
+import { type StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
 import { evaluateSchedule } from '../../../../domains/protection/utils/schedule-evaluator';
 import {
 	InterruptionPageResponseSchema,
@@ -31,7 +32,12 @@ import { createProtectionRuntimeRestorer } from '../protection-runtime-restorer'
 import {
 	type BrowserProtectionRuntime,
 	type BrowserProtectionRuntimeOptions,
+	type BrowserProtectionStatisticsObservation,
 } from './types';
+import { createBrowserStatisticsBridge } from '../../../statistics/services/browser-statistics-bridge';
+import {
+	StatisticsFocusObservationMode,
+} from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
 
 /**
  * Evaluates the current schedule for one configured protection scope.
@@ -74,6 +80,14 @@ function createUnavailablePageResponse(): InterruptionPageResponse {
 export function createBrowserProtectionRuntime( options: BrowserProtectionRuntimeOptions ): BrowserProtectionRuntime {
 	let operationQueue: Promise<void> = Promise.resolve();
 	let available = false;
+	let latestConfiguration: ProtectionConfigurationDocument | null = null;
+	const statisticsBridge = createBrowserStatisticsBridge( {
+		browser: options.browser,
+		configurationStorage: options.configurationStorage,
+		coordinator: options.coordinator,
+		now: options.now,
+		statisticsRuntime: options.statisticsRuntime,
+	} );
 	const projector = createBrowserProtectionProjector( {
 		browser: options.browser,
 		coordinator: options.coordinator,
@@ -83,14 +97,6 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 		...( options.toolbarBadgeCopy === undefined ? {} : { toolbarBadgeCopy: options.toolbarBadgeCopy } ),
 	} );
 
-	const allowanceExpiryReconciler = createAllowanceExpiryReconciler( {
-		browser: options.browser,
-		coordinator: options.coordinator,
-		applyDispatchResult,
-		createStableId: options.createStableId,
-		getTimeZone: options.getTimeZone,
-		now: options.now,
-	} );
 	const participantReconciler = createProtectionParticipantReconciler( {
 		browser: options.browser,
 		coordinator: options.coordinator,
@@ -98,6 +104,14 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 		applyDispatchResult,
 		releaseInjectedInterruption: projector.releaseInjectedInterruption,
 		releaseNavigationIfInterrupted: projector.releaseNavigationIfInterrupted,
+		now: options.now,
+	} );
+	const allowanceExpiryReconciler = createAllowanceExpiryReconciler( {
+		browser: options.browser,
+		coordinator: options.coordinator,
+		applyDispatchResult,
+		createStableId: options.createStableId,
+		getTimeZone: options.getTimeZone,
 		now: options.now,
 	} );
 	const navigationHandler = createProtectionNavigationHandler( {
@@ -123,6 +137,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 		coordinator: options.coordinator,
 		applyDispatchResult,
 		createStableId: options.createStableId,
+		departTab: participantReconciler.departTab,
 		getTimeZone: options.getTimeZone,
 		loadConfiguration,
 		now: options.now,
@@ -169,24 +184,87 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	}
 
 	/**
+	 * Serializes one browser operation and always records its final observable state.
+	 * @param operation - Deferred browser operation.
+	 * @param observationMode - Relationship between this operation and browser focus state.
+	 * @param navigation - Optional top-level navigation observed by the operation.
+	 * @param capturedObservation - Browser inputs already captured at event ingress.
+	 * @return Promise for the browser operation result.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function enqueueObserved<T>(
+		operation: () => Promise<T>,
+		observationMode: Parameters<BrowserProtectionRuntime[ 'captureStatisticsObservation' ]>[ 0 ],
+		navigation?: Parameters<BrowserProtectionRuntime[ 'handleNavigation' ]>[ 0 ],
+		capturedObservation?: Promise<BrowserProtectionStatisticsObservation>,
+	): Promise<T> {
+		const browserObservation = capturedObservation ??
+			statisticsBridge.captureObservation( observationMode, navigation );
+
+		return enqueue( async () => {
+			let fulfilled = false;
+
+			try {
+				const result = await operation();
+
+				fulfilled = true;
+				return result;
+			} finally {
+				statisticsBridge.observeProtectionOperation(
+					fulfilled && available ? latestConfiguration : null,
+					browserObservation,
+				);
+			}
+		} );
+	}
+
+	/**
 	 * Loads and validates the current local protection configuration.
 	 * @return Current configuration or null when storage is unavailable or malformed.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	async function loadConfiguration(): Promise<ProtectionConfigurationDocument | null> {
+	async function loadRawConfiguration(): Promise<ProtectionConfigurationDocument | null> {
+		let configuration: unknown;
+
 		try {
-			const configuration = await options.configurationStorage.load();
-			const result = ProtectionConfigurationDocumentSchema.safeParse( configuration );
+			configuration = await options.configurationStorage.load();
+		} catch {
+			latestConfiguration = null;
+			statisticsBridge.reconcileConfiguration( null );
+			return null;
+		}
 
-			if ( ! result.success ) {
-				return null;
-			}
+		statisticsBridge.reconcileConfiguration( configuration );
+		const result = ProtectionConfigurationDocumentSchema.safeParse( configuration );
 
-			const filteredConfiguration = await options.filterConfiguration( result.data );
+		if ( ! result.success ) {
+			latestConfiguration = null;
+			return null;
+		}
+
+		return result.data;
+	}
+
+	/**
+	 * Loads, validates, and permission-filters the current local protection configuration.
+	 * @return Current runtime-safe configuration or null when unavailable or malformed.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function loadConfiguration(): Promise<ProtectionConfigurationDocument | null> {
+		const configuration = await loadRawConfiguration();
+
+		if ( configuration === null ) {
+			return null;
+		}
+
+		try {
+			const filteredConfiguration = await options.filterConfiguration( configuration );
 			const filteredResult = ProtectionConfigurationDocumentSchema.safeParse( filteredConfiguration );
 
-			return filteredResult.success ? filteredResult.data : null;
+			latestConfiguration = filteredResult.success ? filteredResult.data : null;
+			return latestConfiguration;
 		} catch {
+			latestConfiguration = null;
 			return null;
 		}
 	}
@@ -198,6 +276,13 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 */
 	async function failOpenOperation(): Promise<void> {
 		available = false;
+		latestConfiguration = null;
+		statisticsBridge.discardFocusMeasurement();
+
+		if ( await options.coordinator.getStates() === null ) {
+			await restorer.restore( null );
+		}
+
 		await projector.failOpen();
 		await participantReconciler.departAll( DepartureCause.PERMISSION_LOSS, null );
 	}
@@ -209,6 +294,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 */
 	async function reconcileUnavailableConfiguration(): Promise<void> {
 		available = false;
+		statisticsBridge.discardFocusMeasurement();
 		await projector.failOpen();
 		await participantReconciler.departAll( DepartureCause.STORAGE_FAILURE, null );
 	}
@@ -305,7 +391,9 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 			return;
 		}
 
-		if ( ! await restorer.restore() ) {
+		const configuration = await loadConfiguration();
+
+		if ( ! await restorer.restore( configuration ) ) {
 			await failOpenOperation();
 			return;
 		}
@@ -315,67 +403,127 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	}
 
 	/**
+	 * Captures browser focus and time before a protection queue can delay one event.
+	 * @param mode - Relationship between this observation and browser focus state.
+	 * @param navigation - Optional top-level navigation received with the event.
+	 * @param focusEvent - Exact browser focus event identity when available.
+	 * @return Privacy-safe event-ingress browser observation.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function captureStatisticsObservation(
+		mode: Parameters<BrowserProtectionRuntime[ 'captureStatisticsObservation' ]>[ 0 ],
+		navigation?: Parameters<BrowserProtectionRuntime[ 'captureStatisticsObservation' ]>[ 1 ],
+		focusEvent?: Parameters<BrowserProtectionRuntime[ 'captureStatisticsObservation' ]>[ 2 ],
+	): ReturnType<BrowserProtectionRuntime[ 'captureStatisticsObservation' ]> {
+		return statisticsBridge.captureObservation( mode, navigation, focusEvent );
+	}
+
+	/**
 	 * Starts runtime browser-state reconciliation through the serialized queue.
+	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after startup reconciliation.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	function start(): Promise<void> {
-		return enqueue( initializeOperation );
+	function start(
+		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
+	): Promise<void> {
+		return enqueueObserved(
+			initializeOperation,
+			StatisticsFocusObservationMode.STARTUP,
+			undefined,
+			statisticsObservation,
+		);
 	}
 
 	/**
 	 * Removes runtime-owned browser effects through the serialized queue.
+	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after fail-open cleanup.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	function failOpen(): Promise<void> {
-		return enqueue( failOpenOperation );
+	function failOpen(
+		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
+	): Promise<void> {
+		return enqueueObserved(
+			failOpenOperation,
+			StatisticsFocusObservationMode.BOUNDARY,
+			undefined,
+			statisticsObservation,
+		);
+	}
+
+	/**
+	 * Reads all-time statistics through the same serialized authority as protection events.
+	 * @return Available local totals or an unavailable projection.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function readStatistics(): Promise<StatisticsProjection> {
+		return statisticsBridge.readStatistics();
+	}
+
+	/**
+	 * Resets all statistics persistence through the serialized runtime authority.
+	 * @return Zero-valued local totals after success or an unavailable projection.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function resetStatistics(): Promise<StatisticsProjection> {
+		return enqueue( () => statisticsBridge.resetStatistics() );
 	}
 
 	/**
 	 * Handles one observed navigation through the serialized queue.
 	 * @param navigation - Browser navigation details.
+	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after navigation handling.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function handleNavigation(
 		navigation: Parameters<BrowserProtectionRuntime[ 'handleNavigation' ]>[ 0 ],
+		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
 	): Promise<void> {
-		return enqueue( async () => {
+		return enqueueObserved( async () => {
 			if ( available ) {
 				await navigationHandler.handle( navigation );
 			}
-		} );
+		}, StatisticsFocusObservationMode.BOUNDARY, navigation, statisticsObservation );
 	}
 
 	/**
 	 * Handles one interruption-page message through the serialized queue.
 	 * @param input - Unknown runtime message payload.
 	 * @param senderTabId - Browser-provided sender tab identifier.
+	 * @param protectionEligible - Whether the sender is explicitly outside private browsing.
+	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Authoritative interruption-page response.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function handlePageRequest(
 		input: unknown,
 		senderTabId: number | null,
+		protectionEligible = false,
+		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
 	): Promise<InterruptionPageResponse> {
-		return enqueue( async () => {
+		return enqueueObserved( async () => {
 			if ( ! available ) {
 				return createUnavailablePageResponse();
 			}
 
-			return interruptionRequestHandler.handle( input, senderTabId );
-		} );
+			return interruptionRequestHandler.handle( input, senderTabId, protectionEligible );
+		}, StatisticsFocusObservationMode.BOUNDARY, undefined, statisticsObservation );
 	}
 
 	/**
 	 * Removes one closed-tab participant through the serialized queue.
 	 * @param tabId - Closed browser tab identifier.
+	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after runtime reconciliation.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	function handleTabRemoved( tabId: number ): Promise<void> {
-		return enqueue( async () => {
+	function handleTabRemoved(
+		tabId: number,
+		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
+	): Promise<void> {
+		return enqueueObserved( async () => {
 			if ( ! available ) {
 				return;
 			}
@@ -393,42 +541,64 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 				configuration,
 			);
 			await projector.reconcile( configuration );
-		} );
+		}, StatisticsFocusObservationMode.BOUNDARY, undefined, statisticsObservation );
 	}
 
 	/**
 	 * Reconciles browser focus through the serialized queue.
+	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after focus reconciliation.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	function handleFocusChanged(): Promise<void> {
-		return enqueue( async () => {
+	function handleFocusChanged(
+		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
+	): Promise<void> {
+		return enqueueObserved( async () => {
 			if ( available ) {
 				await focusReconciler.reconcile();
 			}
-		} );
+		}, StatisticsFocusObservationMode.BOUNDARY, undefined, statisticsObservation );
 	}
 
 	/**
 	 * Processes elapsed wall-clock state through the serialized queue.
+	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after clock reconciliation.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	function handleClockTick(): Promise<void> {
-		return enqueue( reconcileOperation );
+	function handleClockTick(
+		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
+	): Promise<void> {
+		return enqueueObserved(
+			reconcileOperation,
+			StatisticsFocusObservationMode.SAMPLE,
+			undefined,
+			statisticsObservation,
+		);
 	}
 
 	/**
 	 * Reconciles changed local configuration through the serialized queue.
+	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after configuration reconciliation.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	function handleConfigurationChanged(): Promise<void> {
-		return enqueue( initializeOperation );
+	function handleConfigurationChanged(
+		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
+	): Promise<void> {
+		return enqueueObserved(
+			initializeOperation,
+			StatisticsFocusObservationMode.BOUNDARY,
+			undefined,
+			statisticsObservation,
+		);
 	}
 
 	return {
+		captureStatisticsObservation,
 		failOpen,
+		readStatistics,
+		resetStatistics,
 		start,
 		handleNavigation,
 		handlePageRequest,
