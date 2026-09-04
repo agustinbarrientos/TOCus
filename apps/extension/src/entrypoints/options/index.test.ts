@@ -7,6 +7,8 @@ import {
 	type ProtectionConfigurationEditorOptions,
 	type ProtectionConfigurationMutation,
 } from '../../domains/protection/services/protection-configuration-editor';
+import { Language } from '../../domains/preferences/types';
+import { type PreferencesLanguageChangeListener } from '../../features/preferences/services/preferences-controller/types';
 
 /**
  * Browser permission change consumed by the options entrypoint fixture.
@@ -47,6 +49,15 @@ const entrypointMocks = vi.hoisted( () => {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	class TestSettingsShell {
+		/** Localized Appearance screen copy. */
+		appearanceCopy: unknown;
+
+		/** Browser-derived language shown by Language settings. */
+		browserLanguage: unknown;
+
+		/** Localized navigation copy. */
+		copy: unknown;
+
 		/**
 		 * Protection configuration editor forwarded to the settings shell.
 		 * @since 0.1.0 Initial implementation.
@@ -58,6 +69,9 @@ const entrypointMocks = vi.hoisted( () => {
 		 * @since 0.1.0 Initial implementation.
 		 */
 		faviconProvider: unknown;
+
+		/** Localized Language screen copy. */
+		languageCopy: unknown;
 
 		/**
 		 * Permission manager forwarded to the settings shell.
@@ -83,11 +97,26 @@ const entrypointMocks = vi.hoisted( () => {
 		 */
 		preferencesSource: unknown;
 
+		/** Localized Protected Site item copy. */
+		protectedSiteItemCopy: unknown;
+
+		/** Localized Protected Sites screen copy. */
+		protectedSitesCopy: unknown;
+
+		/** Localized Schedule screen copy. */
+		scheduleCopy: unknown;
+
+		/** Localized Statistics screen copy. */
+		statisticsCopy: unknown;
+
 		/**
 		 * Statistics source forwarded to the settings shell.
 		 * @since 0.1.0 Initial implementation.
 		 */
 		statisticsSource: unknown;
+
+		/** Localized Timing screen copy. */
+		timingCopy: unknown;
 
 		/**
 		 * Browser family rendered by the settings shell.
@@ -125,11 +154,45 @@ const entrypointMocks = vi.hoisted( () => {
 		}
 	}
 
-	const permissionAddition = { listener: null as TestPermissionChangeListener | null };
-	const permissionRemoval = { listener: null as TestPermissionChangeListener | null };
+	const permissionAddition: { listener: TestPermissionChangeListener | null } = { listener: null };
+	const permissionRemoval: { listener: TestPermissionChangeListener | null } = { listener: null };
+	const initialLocalization = {
+		appearance: { value: 'Localized appearance copy' },
+		document: { settingsTitle: 'Localized settings title' },
+		languageTag: 'fr',
+		languageScreen: { value: 'Localized language copy' },
+		protectedSiteItem: { value: 'Localized protected-site item copy' },
+		protectedSites: { value: 'Localized protected-sites copy' },
+		schedule: { value: 'Localized schedule copy' },
+		settingsShell: { value: 'Localized navigation copy' },
+		statistics: { value: 'Localized statistics copy' },
+		timing: { value: 'Localized timing copy' },
+	};
+	const liveLocalization = {
+		appearance: { value: 'Live appearance copy' },
+		document: { settingsTitle: 'Live settings title' },
+		languageTag: 'ja',
+		languageScreen: { value: 'Live language copy' },
+		protectedSiteItem: { value: 'Live protected-site item copy' },
+		protectedSites: { value: 'Live protected-sites copy' },
+		schedule: { value: 'Live schedule copy' },
+		settingsShell: { value: 'Live navigation copy' },
+		statistics: { value: 'Live statistics copy' },
+		timing: { value: 'Live timing copy' },
+	};
+	const languageChangeListener: { value: PreferencesLanguageChangeListener | null } = {
+		value: null,
+	};
 	const removeDocumentVisibility = vi.fn();
 	const preferencesController = {
+		addLanguageChangeListener: vi.fn<( listener: PreferencesLanguageChangeListener ) => void>(
+			( listener ) => {
+				languageChangeListener.value = listener;
+			},
+		),
 		apply: vi.fn(),
+		language: 'fr',
+		removeLanguageChangeListener: vi.fn(),
 		start: vi.fn().mockResolvedValue( undefined ),
 		stop: vi.fn(),
 	};
@@ -155,6 +218,9 @@ const entrypointMocks = vi.hoisted( () => {
 		createEditor: vi.fn<( options: ProtectionConfigurationEditorOptions ) => unknown>()
 			.mockReturnValue( {} ),
 		createFaviconProvider: vi.fn().mockReturnValue( {} ),
+		loadLocalizationBundle: vi.fn<( language: string ) => Promise<unknown>>( ( language ) =>
+			Promise.resolve( language === 'ja' ? liveLocalization : initialLocalization ),
+		),
 		createPermissionManager: vi.fn().mockReturnValue( {} ),
 		createPreferencesEditor: vi.fn<( options: PreferencesEditorOptions ) => unknown>()
 			.mockReturnValue( preferencesEditor ),
@@ -162,6 +228,10 @@ const entrypointMocks = vi.hoisted( () => {
 		createPreferencesStorage: vi.fn().mockReturnValue( preferencesStorage ),
 		createStorage: vi.fn().mockReturnValue( {} ),
 		createStatisticsClient: vi.fn().mockReturnValue( statisticsClient ),
+		getUILanguage: vi.fn().mockReturnValue( 'es-AR' ),
+		initialLocalization,
+		languageChangeListener,
+		liveLocalization,
 		permissionAddition,
 		permissionRemoval,
 		preferencesController,
@@ -172,6 +242,7 @@ const entrypointMocks = vi.hoisted( () => {
 			name: string,
 			mutation: PreferencesMutation<unknown>,
 		) => Promise<unknown>>( ( _name, mutation ) => mutation() ),
+		resolveLanguage: vi.fn().mockReturnValue( 'es-vos' ),
 		storageArea,
 		storageChanges,
 		statisticsClient,
@@ -183,6 +254,7 @@ vi.mock( '@tocus/theme/index.scss', () => ( {} ) );
 vi.mock( './styles.scss', () => ( {} ) );
 vi.mock( 'wxt/browser', () => ( {
 	browser: {
+		i18n: { getUILanguage: entrypointMocks.getUILanguage },
 		permissions: {
 			onAdded: { addListener: entrypointMocks.addPermissionAdditionListener },
 			onRemoved: { addListener: entrypointMocks.addPermissionRemovalListener },
@@ -200,6 +272,12 @@ vi.mock( '../../domains/preferences/services', () => ( {
 	PreferencesStorageKey: { PREFERENCES: 'tocus.preferences.v1' },
 	createPreferencesEditor: entrypointMocks.createPreferencesEditor,
 	createPreferencesStorageService: entrypointMocks.createPreferencesStorage,
+} ) );
+vi.mock( '../../domains/preferences/utils', () => ( {
+	resolveLanguage: entrypointMocks.resolveLanguage,
+} ) );
+vi.mock( '../../localization', () => ( {
+	loadLocalizationBundle: entrypointMocks.loadLocalizationBundle,
 } ) );
 vi.mock( '../../features/preferences/services/preferences-controller', () => ( {
 	createPreferencesController: entrypointMocks.createPreferencesController,
@@ -235,6 +313,13 @@ describe( 'options entrypoint permission refresh', () => {
 		vi.clearAllMocks();
 		entrypointMocks.permissionAddition.listener = null;
 		entrypointMocks.permissionRemoval.listener = null;
+		entrypointMocks.languageChangeListener.value = null;
+		entrypointMocks.loadLocalizationBundle.mockImplementation( ( language ) =>
+			Promise.resolve( language === 'ja'
+				? entrypointMocks.liveLocalization
+				: entrypointMocks.initialLocalization ),
+		);
+		entrypointMocks.preferencesController.language = 'fr';
 		entrypointMocks.preferencesController.start.mockResolvedValue( undefined );
 		vi.stubGlobal( 'window', {
 			matchMedia: vi.fn().mockReturnValue( {} ),
@@ -285,17 +370,23 @@ describe( 'options entrypoint permission refresh', () => {
 		vi.stubGlobal( 'window', {
 			matchMedia: vi.fn().mockReturnValue( motionPreference ),
 		} );
-		vi.stubGlobal( 'document', {
+		const documentTarget = {
 			documentElement: appearanceTarget,
 			querySelector: vi.fn().mockReturnValue( settingsShell ),
-		} );
+			title: 'Original settings title',
+		};
+
+		vi.stubGlobal( 'document', documentTarget );
 		await import( './index' );
 
+		expect( entrypointMocks.getUILanguage ).toHaveBeenCalledOnce();
+		expect( entrypointMocks.resolveLanguage ).toHaveBeenCalledWith( 'es-AR' );
 		expect( entrypointMocks.createPreferencesStorage ).toHaveBeenCalledWith( {
 			area: entrypointMocks.storageArea,
 		} );
 		expect( entrypointMocks.createPreferencesController ).toHaveBeenCalledWith( {
 			appearanceTarget,
+			browserLanguage: Language.SPANISH_VOS,
 			storage: entrypointMocks.preferencesStorage,
 			storageChanges: entrypointMocks.storageChanges,
 			systemMotionPreference: motionPreference,
@@ -328,9 +419,12 @@ describe( 'options entrypoint permission refresh', () => {
 			protectionMutation,
 		);
 		expect( entrypointMocks.preferencesController.start ).toHaveBeenCalledOnce();
+		expect( entrypointMocks.preferencesController.addLanguageChangeListener ).toHaveBeenCalledOnce();
+		expect( entrypointMocks.loadLocalizationBundle ).not.toHaveBeenCalled();
 		expect( entrypointMocks.removeDocumentVisibility ).not.toHaveBeenCalled();
 		completePreferencesStart();
 		await vi.waitFor( () => {
+			expect( settingsShell.copy ).toBe( entrypointMocks.initialLocalization.settingsShell );
 			expect( entrypointMocks.removeDocumentVisibility ).toHaveBeenNthCalledWith(
 				1,
 				'color-scheme',
@@ -344,6 +438,17 @@ describe( 'options entrypoint permission refresh', () => {
 				'visibility',
 			);
 		} );
+		expect( entrypointMocks.loadLocalizationBundle ).toHaveBeenCalledWith( Language.FRENCH );
+		expect( documentTarget.title ).toBe( 'Localized settings title' );
+		expect( settingsShell.appearanceCopy ).toBe( entrypointMocks.initialLocalization.appearance );
+		expect( settingsShell.browserLanguage ).toBe( Language.SPANISH_VOS );
+		expect( settingsShell.languageCopy ).toBe( entrypointMocks.initialLocalization.languageScreen );
+		expect( settingsShell.protectedSitesCopy ).toBe( entrypointMocks.initialLocalization.protectedSites );
+		expect( settingsShell.protectedSiteItemCopy )
+			.toBe( entrypointMocks.initialLocalization.protectedSiteItem );
+		expect( settingsShell.scheduleCopy ).toBe( entrypointMocks.initialLocalization.schedule );
+		expect( settingsShell.statisticsCopy ).toBe( entrypointMocks.initialLocalization.statistics );
+		expect( settingsShell.timingCopy ).toBe( entrypointMocks.initialLocalization.timing );
 		expect( settingsShell.preferencesEditor ).toBe( entrypointMocks.preferencesEditor );
 		expect( settingsShell.preferencesPreview ).toBe( entrypointMocks.preferencesController );
 		expect( settingsShell.preferencesSource ).toBe( entrypointMocks.preferencesController );
@@ -352,6 +457,79 @@ describe( 'options entrypoint permission refresh', () => {
 			storageChanges: entrypointMocks.storageChanges,
 		} );
 		expect( settingsShell.statisticsSource ).toBe( entrypointMocks.statisticsClient );
+	} );
+
+	it( 'applies live language changes to every localized settings surface', async () => {
+		const settingsShell = new entrypointMocks.ComponentSettingsShell(
+			new entrypointMocks.ComponentProtectedSitesScreen(),
+		);
+		const documentTarget = {
+			documentElement: {
+				style: { removeProperty: entrypointMocks.removeDocumentVisibility },
+			},
+			querySelector: vi.fn().mockReturnValue( settingsShell ),
+			title: 'Original settings title',
+		};
+
+		vi.stubGlobal( 'document', documentTarget );
+		await import( './index' );
+		await vi.waitFor( () => {
+			expect( settingsShell.copy ).toBe( entrypointMocks.initialLocalization.settingsShell );
+		} );
+
+		entrypointMocks.languageChangeListener.value?.( Language.JAPANESE );
+		await vi.waitFor( () => {
+			expect( settingsShell.copy ).toBe( entrypointMocks.liveLocalization.settingsShell );
+		} );
+
+		expect( entrypointMocks.loadLocalizationBundle ).toHaveBeenLastCalledWith( Language.JAPANESE );
+		expect( documentTarget.title ).toBe( 'Live settings title' );
+		expect( settingsShell.appearanceCopy ).toBe( entrypointMocks.liveLocalization.appearance );
+		expect( settingsShell.languageCopy ).toBe( entrypointMocks.liveLocalization.languageScreen );
+		expect( settingsShell.protectedSitesCopy ).toBe( entrypointMocks.liveLocalization.protectedSites );
+		expect( settingsShell.protectedSiteItemCopy ).toBe( entrypointMocks.liveLocalization.protectedSiteItem );
+		expect( settingsShell.scheduleCopy ).toBe( entrypointMocks.liveLocalization.schedule );
+		expect( settingsShell.statisticsCopy ).toBe( entrypointMocks.liveLocalization.statistics );
+		expect( settingsShell.timingCopy ).toBe( entrypointMocks.liveLocalization.timing );
+	} );
+
+	it( 'keeps settings hidden until the latest requested language is projected', async () => {
+		const settingsShell = new entrypointMocks.ComponentSettingsShell(
+			new entrypointMocks.ComponentProtectedSitesScreen(),
+		);
+		const frenchLocalization = Promise.withResolvers<unknown>();
+		const documentTarget = {
+			documentElement: {
+				style: { removeProperty: entrypointMocks.removeDocumentVisibility },
+			},
+			querySelector: vi.fn().mockReturnValue( settingsShell ),
+			title: 'Original settings title',
+		};
+
+		entrypointMocks.loadLocalizationBundle.mockImplementation( ( language ) =>
+			language === Language.FRENCH
+				? frenchLocalization.promise
+				: Promise.resolve( entrypointMocks.liveLocalization ),
+		);
+		vi.stubGlobal( 'document', documentTarget );
+		await import( './index' );
+		await vi.waitFor( () => {
+			expect( entrypointMocks.loadLocalizationBundle ).toHaveBeenCalledWith( Language.FRENCH );
+		} );
+
+		entrypointMocks.preferencesController.language = Language.JAPANESE;
+		entrypointMocks.languageChangeListener.value?.( Language.JAPANESE );
+		await vi.waitFor( () => {
+			expect( settingsShell.copy ).toBe( entrypointMocks.liveLocalization.settingsShell );
+		} );
+		expect( entrypointMocks.removeDocumentVisibility ).not.toHaveBeenCalled();
+
+		frenchLocalization.resolve( entrypointMocks.initialLocalization );
+		await vi.waitFor( () => {
+			expect( entrypointMocks.removeDocumentVisibility ).toHaveBeenCalledWith( 'visibility' );
+		} );
+		expect( settingsShell.copy ).toBe( entrypointMocks.liveLocalization.settingsShell );
+		expect( documentTarget.title ).toBe( 'Live settings title' );
 	} );
 
 	it( 'refreshes access after navigation or host permission removal', async () => {
