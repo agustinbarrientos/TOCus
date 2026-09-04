@@ -37,6 +37,7 @@ export const NavigationProtectionParticipantSchema = z.object( {
 	pageId: PageIdSchema,
 	retainedDestination: RetainedNavigationDestinationSchema,
 	focusEligible: z.boolean(),
+	statisticsEligible: z.boolean().default( false ),
 	joinSequence: JoinSequenceSchema,
 } ).strict();
 
@@ -56,6 +57,7 @@ export const AllowanceExpiryProtectionParticipantSchema = z.object( {
 	pageId: PageIdSchema,
 	retainedDestination: z.null(),
 	focusEligible: z.boolean(),
+	statisticsEligible: z.boolean().default( false ),
 	joinSequence: JoinSequenceSchema,
 } ).strict();
 
@@ -92,6 +94,7 @@ export const VisitAttemptParticipantSchema = z.object( {
 	pageId: PageIdSchema,
 	retainedDestination: RetainedNavigationDestinationSchema,
 	focusEligible: z.boolean(),
+	statisticsEligible: z.boolean().default( false ),
 } ).strict();
 
 /**
