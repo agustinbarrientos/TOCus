@@ -3,11 +3,17 @@ import {
 	InterruptionPageRequestType,
 	type InterruptionPageRequest,
 } from '../../features/protection-runtime/types/runtime-message';
+import { InterruptionScreenState } from '../../features/interruption/components/screen/types';
 import {
 	type InterruptionPageController,
 	type InterruptionPageControllerOptions,
 } from '../../features/interruption/services/interruption-page-controller/types';
+import { type PreferencesChangeListener } from '../../features/preferences/services/preferences-controller/types';
 
+/**
+ * Hoisted entrypoint dependencies used by interruption composition tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const entrypointMocks = vi.hoisted( () => {
 	/**
 	 * Minimal interruption screen used to verify entrypoint composition.
@@ -16,14 +22,22 @@ const entrypointMocks = vi.hoisted( () => {
 	class TestInterruptionScreen extends EventTarget {}
 
 	const preferencesController = Object.assign( new EventTarget(), {
+		addPreferencesChangeListener: vi.fn<( listener: PreferencesChangeListener ) => void>(),
 		apply: vi.fn(),
 		matches: false,
+		removePreferencesChangeListener: vi.fn(),
 		start: vi.fn(),
 		stop: vi.fn(),
 	} );
 	const preferencesStorage = {};
 	const removeDocumentVisibility = vi.fn();
 	const storageChanges = {};
+	const statisticsClient = {};
+	const wellbeingSummaryController = {
+		refresh: vi.fn(),
+		start: vi.fn(),
+		stop: vi.fn(),
+	};
 
 	return {
 		ComponentInterruptionScreen: TestInterruptionScreen,
@@ -32,12 +46,16 @@ const entrypointMocks = vi.hoisted( () => {
 		) => InterruptionPageController>(),
 		createPreferencesController: vi.fn().mockReturnValue( preferencesController ),
 		createPreferencesStorage: vi.fn().mockReturnValue( preferencesStorage ),
+		createStatisticsClient: vi.fn().mockReturnValue( statisticsClient ),
+		createWellbeingSummaryController: vi.fn().mockReturnValue( wellbeingSummaryController ),
 		preferencesController,
 		preferencesStorage,
 		removeDocumentVisibility,
 		sendMessage: vi.fn<( request: InterruptionPageRequest ) => Promise<unknown>>(),
 		start: vi.fn(),
 		storageChanges,
+		statisticsClient,
+		wellbeingSummaryController,
 	};
 } );
 
@@ -61,6 +79,12 @@ vi.mock( '../../features/interruption/components/screen', () => ( {
 vi.mock( '../../features/interruption/services/interruption-page-controller', () => ( {
 	createInterruptionPageController: entrypointMocks.createInterruptionPageController,
 } ) );
+vi.mock( '../../features/statistics/services/statistics-client', () => ( {
+	createStatisticsClient: entrypointMocks.createStatisticsClient,
+} ) );
+vi.mock( '../../features/statistics/services/wellbeing-summary-controller', () => ( {
+	createWellbeingSummaryController: entrypointMocks.createWellbeingSummaryController,
+} ) );
 
 /**
  * Provides an inert initial callback before a pending preference start captures its resolver.
@@ -69,6 +93,23 @@ vi.mock( '../../features/interruption/services/interruption-page-controller', ()
  */
 function ignorePreferencesStartResolution(): undefined {
 	return undefined;
+}
+
+/**
+ * Reports one authoritative Waiting state while leaving footer refresh work pending.
+ * @return Immediately resolved interruption-controller startup.
+ * @since 0.1.0 Initial implementation.
+ */
+function startControllerAndReportWaiting(): Promise<void> {
+	const options = entrypointMocks.createInterruptionPageController.mock.calls[ 0 ]?.[ 0 ];
+
+	if ( options === undefined ) {
+		throw new TypeError( 'Expected interruption page controller options.' );
+	}
+
+	options.onPresentationStateChange?.( InterruptionScreenState.WAITING );
+
+	return Promise.resolve();
 }
 
 describe( 'interruption page entrypoint', () => {
@@ -110,7 +151,10 @@ describe( 'interruption page entrypoint', () => {
 			start: entrypointMocks.start,
 			stop: vi.fn(),
 		} );
-		entrypointMocks.start.mockResolvedValue( undefined );
+		entrypointMocks.start.mockImplementation( startControllerAndReportWaiting );
+		entrypointMocks.wellbeingSummaryController.refresh.mockReturnValue(
+			new Promise<void>( ignorePreferencesStartResolution ),
+		);
 		let completePreferencesStart: ( value?: void | PromiseLike<void> ) => void =
 			ignorePreferencesStartResolution;
 		entrypointMocks.preferencesController.start.mockReturnValueOnce( new Promise<void>( ( resolve ) => {
@@ -128,12 +172,22 @@ describe( 'interruption page entrypoint', () => {
 			storageChanges: entrypointMocks.storageChanges,
 			systemMotionPreference: motionPreference,
 		} );
+		expect( entrypointMocks.createStatisticsClient ).toHaveBeenCalledWith( {
+			runtime: { sendMessage: entrypointMocks.sendMessage },
+			storageChanges: entrypointMocks.storageChanges,
+		} );
+		expect( entrypointMocks.createWellbeingSummaryController ).toHaveBeenCalledWith( {
+			source: entrypointMocks.statisticsClient,
+			target: interruptionScreen,
+		} );
 		expect( entrypointMocks.createInterruptionPageController ).not.toHaveBeenCalled();
 		expect( entrypointMocks.removeDocumentVisibility ).not.toHaveBeenCalled();
 		completePreferencesStart();
 		await vi.waitFor( () => {
 			expect( entrypointMocks.createInterruptionPageController ).toHaveBeenCalledOnce();
 		} );
+		expect( entrypointMocks.preferencesController.addPreferencesChangeListener )
+			.not.toHaveBeenCalled();
 		expect( entrypointMocks.removeDocumentVisibility ).toHaveBeenNthCalledWith(
 			1,
 			'color-scheme',
@@ -146,6 +200,8 @@ describe( 'interruption page entrypoint', () => {
 			3,
 			'visibility',
 		);
+		expect( entrypointMocks.wellbeingSummaryController.refresh ).toHaveBeenCalledOnce();
+		expect( entrypointMocks.wellbeingSummaryController.start ).toHaveBeenCalledOnce();
 		expect( entrypointMocks.createInterruptionPageController ).toHaveBeenCalledOnce();
 		const options = entrypointMocks.createInterruptionPageController.mock.calls[ 0 ]?.[ 0 ];
 
