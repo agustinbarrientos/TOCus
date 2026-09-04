@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DefaultPreferencesDocument } from '../../types';
+import { DefaultPreferencesDocument, Language, PreferencesDocumentVersion } from '../../types';
 import {
 	PreferencesStorageKey,
 	createPreferencesStorageService,
@@ -77,6 +77,7 @@ describe( 'createPreferencesStorageService', () => {
 			palette: 'purple',
 			pauseMode: 'quiet',
 			reducedMotion: true,
+			language: Language.SPANISH_VOS,
 		};
 		const area = new MemoryPreferencesStorageArea();
 		const storage = createPreferencesStorageService( { area } );
@@ -89,9 +90,33 @@ describe( 'createPreferencesStorageService', () => {
 		await expect( storage.load() ).resolves.toEqual( preferences );
 	} );
 
+	it( 'migrates version-one preferences to automatic language selection without writing', async () => {
+		const area = new MemoryPreferencesStorageArea( {
+			[ PreferencesStorageKey.PREFERENCES ]: {
+				schemaVersion: 1,
+				theme: 'dark',
+				palette: 'purple',
+				pauseMode: 'quiet',
+				reducedMotion: true,
+			},
+		} );
+		const storage = createPreferencesStorageService( { area } );
+
+		await expect( storage.load() ).resolves.toEqual( {
+			schemaVersion: 2,
+			theme: 'dark',
+			palette: 'purple',
+			pauseMode: 'quiet',
+			reducedMotion: true,
+			language: null,
+		} );
+		expect( area.writtenValues ).toEqual( [] );
+	} );
+
 	it.each( [
-		{ ...DefaultPreferencesDocument, schemaVersion: 2 },
+		{ ...DefaultPreferencesDocument, schemaVersion: PreferencesDocumentVersion + 1 },
 		{ ...DefaultPreferencesDocument, palette: 'teal' },
+		{ ...DefaultPreferencesDocument, language: 'es-MX' },
 		{ ...DefaultPreferencesDocument, remoteSync: true },
 	] )( 'preserves unsupported or malformed stored preferences', async ( preferences ) => {
 		const area = new MemoryPreferencesStorageArea( {
