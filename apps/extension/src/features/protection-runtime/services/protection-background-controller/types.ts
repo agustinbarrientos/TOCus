@@ -1,7 +1,7 @@
 import { type Browser } from 'wxt/browser';
 import { type InterruptionPageResponse } from '../../types/runtime-message';
 import { type BrowserProtectionRuntime } from '../browser-protection-runtime';
-import { type ProtectionRuntimeNavigation } from '../../types/browser-runtime';
+import { type StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
 
 /**
  * Stable background alarms owned by protection runtime coordination.
@@ -58,6 +58,7 @@ export interface ProtectionBackgroundAlarmsApi {
 	 * @param name - Stable extension alarm name.
 	 * @param schedule - Periodic alarm schedule.
 	 * @return Browser completion promise when supported.
+	 * @since 0.1.0 Initial implementation.
 	 */
 	create( name: string, schedule: ProtectionBackgroundAlarmSchedule ): Promise<void> | void;
 	/** Extension alarm event. */
@@ -126,6 +127,8 @@ export interface ProtectionBackgroundPermissionsApi {
 export interface ProtectionBackgroundMessageSenderTab {
 	/** Browser-assigned tab identifier when the sender is a live tab. */
 	id?: number | undefined;
+	/** Whether the sender belongs to a private browser context when reported. */
+	incognito?: boolean | undefined;
 }
 
 /**
@@ -142,10 +145,18 @@ export interface ProtectionBackgroundMessageSender {
 }
 
 /**
+ * Response returned by one claimed protection or statistics runtime request.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ProtectionBackgroundMessageResponse = boolean | InterruptionPageResponse | StatisticsProjection;
+
+/**
  * Sends one asynchronous response through a browser runtime message channel.
  * @since 0.1.0 Initial implementation.
  */
-export type ProtectionBackgroundSendResponse = ( response?: InterruptionPageResponse ) => void;
+export type ProtectionBackgroundSendResponse = (
+	response?: ProtectionBackgroundMessageResponse,
+) => void;
 
 /**
  * Listener receiving one unknown runtime message.
@@ -214,10 +225,29 @@ export interface ProtectionBackgroundTabsApi {
 }
 
 /**
- * Listener receiving one browser navigation.
+ * Browser navigation details available across supported event phases.
  * @since 0.1.0 Initial implementation.
  */
-export type ProtectionBackgroundNavigationListener = ( navigation: ProtectionRuntimeNavigation ) => void;
+export interface ProtectionBackgroundNavigationDetails {
+	/** Browser frame receiving the navigation. */
+	frameId: number;
+	/** Browser tab receiving the navigation. */
+	tabId: number;
+	/** Browser-reported transition qualifiers when available after commit. */
+	transitionQualifiers?: ReadonlyArray<string> | undefined;
+	/** Browser-reported transition type when available after commit. */
+	transitionType?: string | undefined;
+	/** Absolute navigation URL. */
+	url: string;
+}
+
+/**
+ * Listener receiving one browser navigation event.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ProtectionBackgroundNavigationListener = (
+	navigation: ProtectionBackgroundNavigationDetails,
+) => void;
 
 /**
  * Optional navigation event that supports listener removal after permission revocation.
@@ -243,6 +273,8 @@ export interface ProtectionBackgroundWebNavigationApi {
 	onBeforeNavigate: ProtectionBackgroundNavigationEvent;
 	/** Navigation event observed after the destination document commits. */
 	onCommitted: ProtectionBackgroundNavigationEvent;
+	/** Navigation error event when exposed by the current browser. */
+	onErrorOccurred?: ProtectionBackgroundNavigationEvent | undefined;
 	/** Same-document History API navigation event when supported. */
 	onHistoryStateUpdated?: ProtectionBackgroundNavigationEvent | undefined;
 	/** Same-document fragment navigation event when supported. */
@@ -294,6 +326,11 @@ export interface ProtectionBackgroundControllerOptions {
 	browser: ProtectionBackgroundBrowser;
 	/** Exact extension-owned interruption page URL. */
 	interruptionPageUrl: string;
+	/**
+	 * Exact extension-owned settings page URL.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	optionsPageUrl: string;
 	/** Authoritative browser protection runtime. */
 	runtime: BrowserProtectionRuntime;
 }
