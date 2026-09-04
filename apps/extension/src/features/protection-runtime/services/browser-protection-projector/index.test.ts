@@ -50,13 +50,22 @@ import {
 import { createBrowserProtectionProjector } from './index';
 import { type BrowserProtectionProjector } from './types';
 
-/** Extension-owned interruption URL used by browser-effect fixtures. */
+/**
+ * Extension-owned interruption URL used by browser-effect fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/interruption.html';
 
-/** Fixed wall-clock instant used by projector fixtures. */
+/**
+ * Fixed wall-clock instant used by projector fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const NOW_EPOCH_MILLISECONDS = 1_000_000;
 
-/** Protected-site configuration used by projector fixtures. */
+/**
+ * Protected-site configuration used by projector fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
 	sites: [ {
@@ -383,6 +392,7 @@ function createExpiryParticipant(
 		pageId: PageIdSchema.parse( `page_tab_${ String( tabId ) }_expiry` ),
 		retainedDestination: null,
 		focusEligible,
+		statisticsEligible: true,
 		joinSequence: 0,
 	};
 }
@@ -606,7 +616,7 @@ describe( 'createBrowserProtectionProjector', () => {
 			completedWaitId: 'wait_22',
 			readyParticipants: [ participant ],
 		} );
-		browser.tabs = [ { id: 22, url: 'https://example.com/draft' } ];
+		browser.tabs = [ { id: 22, incognito: false, url: 'https://example.com/draft' } ];
 		const projector = createProjector( browser, new ProjectorCoordinatorFixture( {
 			scope_default: allowance,
 		} ) );
@@ -709,7 +719,7 @@ describe( 'createBrowserProtectionProjector', () => {
 			completedWaitId: 'wait_27',
 			readyParticipants: [ missingParticipant, movedParticipant ],
 		} );
-		browser.tabs = [ { id: 28, url: 'https://unrelated.example/' } ];
+		browser.tabs = [ { id: 28, incognito: false, url: 'https://unrelated.example/' } ];
 		const projector = createProjector( browser, new ProjectorCoordinatorFixture( {
 			scope_default: allowance,
 		} ) );
@@ -816,13 +826,13 @@ describe( 'createBrowserProtectionProjector', () => {
 	it( 'applies persisted page decisions only to matching live interruption tabs', async () => {
 		const browser = new ProjectorBrowserFixture();
 		browser.tabs = [
-			{ id: 1, url: 'https://example.com/' },
-			{ id: 2, url: INTERRUPTION_PAGE_URL },
-			{ id: 3 },
-			{ id: 4, url: INTERRUPTION_PAGE_URL },
-			{ id: 5, url: 'https://example.com/other' },
-			{ id: 6, url: INTERRUPTION_PAGE_URL },
-			{ id: 7, url: 'https://example.com/other' },
+			{ id: 1, incognito: false, url: 'https://example.com/' },
+			{ id: 2, incognito: false, url: INTERRUPTION_PAGE_URL },
+			{ id: 3, incognito: false },
+			{ id: 4, incognito: false, url: INTERRUPTION_PAGE_URL },
+			{ id: 5, incognito: false, url: 'https://example.com/other' },
+			{ id: 6, incognito: false, url: INTERRUPTION_PAGE_URL },
+			{ id: 7, incognito: false, url: 'https://example.com/other' },
 		];
 		const projector = createProjector( browser, new ProjectorCoordinatorFixture(
 			createWaitingSnapshot( [
@@ -977,7 +987,7 @@ describe( 'createBrowserProtectionProjector', () => {
 
 	it( 'applies accepted dispatch decisions after durable state is available', async () => {
 		const browser = new ProjectorBrowserFixture();
-		browser.tabs = [ { id: 11, url: 'https://example.com/' } ];
+		browser.tabs = [ { id: 11, incognito: false, url: 'https://example.com/' } ];
 		const projector = createProjector( browser, new ProjectorCoordinatorFixture(
 			createWaitingSnapshot( [ createNavigationParticipant(
 				'participant_11',
@@ -1223,6 +1233,7 @@ describe( 'createBrowserProtectionProjector', () => {
 			pageId: PageIdSchema.parse( 'page_tab_7_alpha' ),
 			retainedDestination: 'https://example.com/retained',
 			focusEligible: false,
+			statisticsEligible: true,
 			joinSequence: 0,
 		} );
 		browser.tabs = [
@@ -1267,6 +1278,7 @@ describe( 'createBrowserProtectionProjector', () => {
 			pageId: PageIdSchema.parse( 'page_tab_17_alpha' ),
 			retainedDestination: 'https://example.com/retained',
 			focusEligible: false,
+			statisticsEligible: true,
 			joinSequence: 0,
 		} );
 		browser.tabs = [ { id: 17, url: INTERRUPTION_PAGE_URL } ];
@@ -1379,8 +1391,8 @@ describe( 'createBrowserProtectionProjector', () => {
 		const browser = new ProjectorBrowserFixture();
 		browser.focusedTabId = 7;
 		browser.tabs = [
-			{ id: 7, url: 'https://example.com/first' },
-			{ id: 8, url: 'https://example.com/second' },
+			{ id: 7, incognito: false, url: 'https://example.com/first' },
+			{ id: 8, incognito: false, url: 'https://example.com/second' },
 		];
 		const projector = createProjector( browser, new ProjectorCoordinatorFixture( null ) );
 		const allowance = createAllowanceState(
@@ -1425,8 +1437,8 @@ describe( 'createBrowserProtectionProjector', () => {
 		const browser = new ProjectorBrowserFixture();
 		browser.focusedTabId = 8;
 		browser.tabs = [
-			{ id: 7, url: 'https://example.com/first' },
-			{ id: 8, url: 'https://example.com/second' },
+			{ id: 7, incognito: false, url: 'https://example.com/first' },
+			{ id: 8, incognito: false, url: 'https://example.com/second' },
 		];
 		const projector = createProjector( browser, new ProjectorCoordinatorFixture( null ) );
 		const allowance = createAllowanceState(
