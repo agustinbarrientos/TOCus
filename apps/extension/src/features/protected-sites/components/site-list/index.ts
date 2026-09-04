@@ -1,6 +1,7 @@
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
+import { isLocalizationReady } from '../../../../localization/utils/is-localization-ready';
 import { type ProtectionConfigurationEditor } from '../../../../domains/protection/services/protection-configuration-editor';
 import { type ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
 import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
@@ -12,9 +13,11 @@ import { type SiteFaviconProvider } from '../../services/site-favicon-provider';
 import { type SitePermissionManager } from '../../services/site-permission-manager';
 import { resolveSiteDisplayIdentity } from '../../utils/site-display-name-resolver';
 import { ComponentProtectedSiteItem } from '../site-item';
+import {
+	type ProtectedSiteItemCopy,
+} from '../site-item/types';
 import styles from './web-component-style.scss?inline';
 import {
-	DefaultProtectedSiteListCopy,
 	type PresentedProtectedSite,
 	type ProtectedSiteListCopy,
 } from './types';
@@ -69,7 +72,14 @@ export class ComponentProtectedSiteList extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@property( { attribute: false } )
-	accessor copy: Readonly<ProtectedSiteListCopy> = DefaultProtectedSiteListCopy;
+	accessor copy!: Readonly<ProtectedSiteListCopy>;
+
+	/**
+	 * Complete localized messages forwarded to each protected-site item.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor itemCopy!: Readonly<ProtectedSiteItemCopy>;
 
 	/**
 	 * Creates sorted local presentation for each configured site.
@@ -84,7 +94,10 @@ export class ComponentProtectedSiteList extends LitElement {
 				faviconSource: this.faviconProvider?.getSource( site.identityHost ) ?? null,
 				accessGranted: this.accessByIdentityHost.get( site.identityHost ) ?? false,
 			} ) )
-			.sort( ( first, second ) => first.identity.name.localeCompare( second.identity.name ) );
+			.sort( ( first, second ) => this.copy.compareNames(
+				first.identity.name,
+				second.identity.name,
+			) );
 	}
 
 	/**
@@ -145,6 +158,7 @@ export class ComponentProtectedSiteList extends LitElement {
 								.faviconSource=${ presentedSite.faviconSource }
 								.accessGranted=${ presentedSite.accessGranted }
 								.permissionManager=${ this.permissionManager }
+								.copy=${ this.itemCopy }
 							></tocus-f-protected-site-item>
 						</li>
 					` ) }
@@ -159,6 +173,9 @@ export class ComponentProtectedSiteList extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	protected override render(): TemplateResult {
+		if ( ! isLocalizationReady( this.copy, this.itemCopy ) ) {
+			return html``;
+		}
 		const sites = this.presentSites();
 		const enrollmentService = this.editor === null || this.permissionManager === null
 			? null
