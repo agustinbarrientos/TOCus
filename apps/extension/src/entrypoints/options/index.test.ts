@@ -8,49 +8,117 @@ import {
 	type ProtectionConfigurationMutation,
 } from '../../domains/protection/services/protection-configuration-editor';
 
-/** Browser permission change consumed by the options entrypoint fixture. */
+/**
+ * Browser permission change consumed by the options entrypoint fixture.
+ * @since 0.1.0 Initial implementation.
+ */
 interface TestPermissionChange {
 	permissions?: string[];
 	origins?: string[];
 }
 
-/** Browser permission-change listener captured by the options entrypoint fixture. */
+/**
+ * Browser permission-change listener captured by the options entrypoint fixture.
+ * @param change - Browser permission change delivered to the listener.
+ * @return No return value.
+ * @since 0.1.0 Initial implementation.
+ */
 type TestPermissionChangeListener = ( change: TestPermissionChange ) => void;
 
+/**
+ * Hoisted entrypoint dependencies used by options composition tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const entrypointMocks = vi.hoisted( () => {
-	/** Minimal Protected Sites screen used to observe access refreshes. */
+	/**
+	 * Minimal Protected Sites screen used to observe access refreshes.
+	 * @since 0.1.0 Initial implementation.
+	 */
 	class TestProtectedSitesScreen {
-		/** Refreshes rendered access from the current permission snapshot. */
+		/**
+		 * Refreshes rendered access from the current permission snapshot.
+		 * @since 0.1.0 Initial implementation.
+		 */
 		readonly refreshAccessState = vi.fn<() => Promise<ReadonlyMap<string, boolean> | null>>();
 	}
 
-	/** Minimal settings shell used to expose the rendered Protected Sites screen. */
+	/**
+	 * Minimal settings shell used to expose the rendered Protected Sites screen.
+	 * @since 0.1.0 Initial implementation.
+	 */
 	class TestSettingsShell {
+		/**
+		 * Protection configuration editor forwarded to the settings shell.
+		 * @since 0.1.0 Initial implementation.
+		 */
 		editor: unknown;
 
+		/**
+		 * Favicon provider forwarded to the settings shell.
+		 * @since 0.1.0 Initial implementation.
+		 */
 		faviconProvider: unknown;
 
+		/**
+		 * Permission manager forwarded to the settings shell.
+		 * @since 0.1.0 Initial implementation.
+		 */
 		permissionManager: unknown;
 
+		/**
+		 * Preferences editor forwarded to the settings shell.
+		 * @since 0.1.0 Initial implementation.
+		 */
 		preferencesEditor: unknown;
 
+		/**
+		 * Live preferences preview forwarded to the settings shell.
+		 * @since 0.1.0 Initial implementation.
+		 */
 		preferencesPreview: unknown;
 
+		/**
+		 * Preferences listener source forwarded to the settings shell.
+		 * @since 0.1.0 Initial implementation.
+		 */
 		preferencesSource: unknown;
 
+		/**
+		 * Statistics source forwarded to the settings shell.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		statisticsSource: unknown;
+
+		/**
+		 * Browser family rendered by the settings shell.
+		 * @since 0.1.0 Initial implementation.
+		 */
 		platform = '';
 
-		readonly shadowRoot: { querySelector: () => TestProtectedSitesScreen };
+		/**
+		 * Minimal shadow-root contract exposed by the fixture shell.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		readonly shadowRoot: {
+			/**
+			 * Returns the rendered Protected Sites screen.
+			 * @return Protected Sites screen owned by the fixture shell.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			querySelector: () => TestProtectedSitesScreen;
+		};
 
 		/**
 		 * Creates a settings shell around one rendered Protected Sites screen.
 		 * @param protectedSitesScreen - Screen returned from the shell shadow root.
+		 * @since 0.1.0 Initial implementation.
 		 */
 		constructor( protectedSitesScreen: TestProtectedSitesScreen ) {
 			this.shadowRoot = {
 				/**
 				 * Returns the rendered Protected Sites screen.
 				 * @return Protected Sites screen owned by the fixture shell.
+				 * @since 0.1.0 Initial implementation.
 				 */
 				querySelector: () => protectedSitesScreen,
 			};
@@ -67,8 +135,13 @@ const entrypointMocks = vi.hoisted( () => {
 	};
 	const preferencesStorage = {};
 	const preferencesEditor = {};
+	const statisticsClient = {};
 	const storageArea = {};
 	const storageChanges = {};
+	const runtimeApi = {
+		getURL: vi.fn().mockReturnValue( 'chrome-extension://extension-id/' ),
+		sendMessage: vi.fn(),
+	};
 
 	return {
 		ComponentProtectedSitesScreen: TestProtectedSitesScreen,
@@ -88,6 +161,7 @@ const entrypointMocks = vi.hoisted( () => {
 		createPreferencesController: vi.fn().mockReturnValue( preferencesController ),
 		createPreferencesStorage: vi.fn().mockReturnValue( preferencesStorage ),
 		createStorage: vi.fn().mockReturnValue( {} ),
+		createStatisticsClient: vi.fn().mockReturnValue( statisticsClient ),
 		permissionAddition,
 		permissionRemoval,
 		preferencesController,
@@ -100,6 +174,8 @@ const entrypointMocks = vi.hoisted( () => {
 		) => Promise<unknown>>( ( _name, mutation ) => mutation() ),
 		storageArea,
 		storageChanges,
+		statisticsClient,
+		runtimeApi,
 	};
 } );
 
@@ -111,7 +187,7 @@ vi.mock( 'wxt/browser', () => ( {
 			onAdded: { addListener: entrypointMocks.addPermissionAdditionListener },
 			onRemoved: { addListener: entrypointMocks.addPermissionRemovalListener },
 		},
-		runtime: { getURL: vi.fn().mockReturnValue( 'chrome-extension://extension-id/' ) },
+		runtime: entrypointMocks.runtimeApi,
 		storage: { local: entrypointMocks.storageArea, onChanged: entrypointMocks.storageChanges },
 	},
 } ) );
@@ -139,6 +215,9 @@ vi.mock( '../../features/protected-sites/services/site-permission-manager', () =
 } ) );
 vi.mock( '../../features/settings/components/shell', () => ( {
 	ComponentSettingsShell: entrypointMocks.ComponentSettingsShell,
+} ) );
+vi.mock( '../../features/statistics/services/statistics-client', () => ( {
+	createStatisticsClient: entrypointMocks.createStatisticsClient,
 } ) );
 
 /**
@@ -229,6 +308,7 @@ describe( 'options entrypoint permission refresh', () => {
 		}
 		expect( editorOptions.storage ).toBe( entrypointMocks.preferencesStorage );
 		expect( protectionEditorOptions.createIndependentScopeId() ).toBe( 'scope_fixture-id' );
+		expect( protectionEditorOptions.createMeasurementRevision() ).toBe( 'revision_fixture-id' );
 
 		const mutation = vi.fn<PreferencesMutation<string>>().mockResolvedValue( 'updated' );
 		const protectionMutation = vi.fn<ProtectionConfigurationMutation>().mockRejectedValue(
@@ -267,6 +347,11 @@ describe( 'options entrypoint permission refresh', () => {
 		expect( settingsShell.preferencesEditor ).toBe( entrypointMocks.preferencesEditor );
 		expect( settingsShell.preferencesPreview ).toBe( entrypointMocks.preferencesController );
 		expect( settingsShell.preferencesSource ).toBe( entrypointMocks.preferencesController );
+		expect( entrypointMocks.createStatisticsClient ).toHaveBeenCalledWith( {
+			runtime: entrypointMocks.runtimeApi,
+			storageChanges: entrypointMocks.storageChanges,
+		} );
+		expect( settingsShell.statisticsSource ).toBe( entrypointMocks.statisticsClient );
 	} );
 
 	it( 'refreshes access after navigation or host permission removal', async () => {
