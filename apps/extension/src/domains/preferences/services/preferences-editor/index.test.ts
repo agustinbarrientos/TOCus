@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
 	DefaultPreferencesDocument,
+	Language,
 	Palette,
 	PauseMode,
 	PreferencesDocumentSchema,
@@ -143,6 +144,21 @@ describe( 'createPreferencesEditor', () => {
 		expect( storage.writes ).toHaveLength( 1 );
 	} );
 
+	it( 'stores explicit and automatic language selections as ordinary preference updates', async () => {
+		const storage = new MemoryPreferencesEditorStorage( DefaultPreferencesDocument );
+		const editor = createPreferencesEditor( {
+			coordinateMutation: coordinateMutationDirectly,
+			storage,
+		} );
+
+		await expect( editor.update( { language: Language.JAPANESE } ) ).resolves.toMatchObject( {
+			language: Language.JAPANESE,
+		} );
+		await expect( editor.update( { language: null } ) ).resolves.toMatchObject( {
+			language: null,
+		} );
+	} );
+
 	it( 'rejects invalid or empty updates before reading storage', async () => {
 		const storage = new MemoryPreferencesEditorStorage( DefaultPreferencesDocument );
 		const editor = createPreferencesEditor( {
@@ -153,6 +169,7 @@ describe( 'createPreferencesEditor', () => {
 		await expect( editor.update( {} ) ).rejects.toThrow();
 		await expect( editor.update( { theme: undefined } ) ).rejects.toThrow();
 		await expect( editor.update( { palette: 'teal' } ) ).rejects.toThrow();
+		await expect( editor.update( { language: 'es-MX' } ) ).rejects.toThrow();
 		expect( storage.loads ).toBe( 0 );
 		expect( storage.writes ).toEqual( [] );
 	} );
@@ -203,13 +220,13 @@ describe( 'createPreferencesEditor', () => {
 
 		await Promise.all( [
 			firstEditor.update( { palette: Palette.PURPLE } ),
-			secondEditor.update( { pauseMode: PauseMode.QUIET } ),
+			secondEditor.update( { language: Language.PORTUGUESE_PORTUGAL } ),
 		] );
 
 		expect( storage.preferences ).toEqual( {
 			...DefaultPreferencesDocument,
 			palette: Palette.PURPLE,
-			pauseMode: PauseMode.QUIET,
+			language: Language.PORTUGUESE_PORTUGAL,
 		} );
 	} );
 
