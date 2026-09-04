@@ -88,6 +88,7 @@ export interface RemovedProtectedSiteEnrollmentResult {
 	status: typeof ProtectedSiteEnrollmentStatus.REMOVED;
 	configuration: ProtectionConfigurationDocument;
 	permissionReleaseStatus: SitePermissionReleaseStatus;
+	site: ProtectedSiteConfiguration;
 }
 
 /**
