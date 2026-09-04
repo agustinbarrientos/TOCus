@@ -15,18 +15,30 @@ import {
 } from '../../../../domains/protection/types/__fixtures__';
 import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { DepartureCause } from '../../../../domains/protection/types/protection-event';
-import { ProtectionScopeIdSchema } from '../../../../domains/protection/types/protection-value';
+import {
+	ProtectionMeasurementRevisionSchema,
+	ProtectionScopeIdSchema,
+} from '../../../../domains/protection/types/protection-value';
 import { type ProtectionRuntimeTab } from '../../types/browser-runtime';
 import { createProtectionParticipantReconciler } from './index';
 import { type ProtectionParticipantReconciler } from './types';
 
-/** Extension-owned interruption page used by participant reconciliation tests. */
+/**
+ * Extension-owned interruption page used by participant reconciliation tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/interruption.html';
 
-/** Protection scope used by the shared domain fixtures. */
+/**
+ * Protection scope used by the shared domain fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const TEST_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope-default' );
 
-/** Protected-site configuration used by participant reconciliation tests. */
+/**
+ * Protected-site configuration used by participant reconciliation tests.
+ * @since 0.1.0 Initial implementation.
+ */
 const CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
 	sites: [ {
@@ -37,7 +49,14 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
 			scopeId: TEST_SCOPE_ID,
 		},
 	} ],
-	schedulesByScope: { [ TEST_SCOPE_ID ]: { mode: 'always' } },
+	schedulesByScope: {
+		...TestEmptyProtectionConfiguration.schedulesByScope,
+		[ TEST_SCOPE_ID ]: { mode: 'always' },
+	},
+	measurementRevisionsByScope: {
+		...TestEmptyProtectionConfiguration.measurementRevisionsByScope,
+		[ TEST_SCOPE_ID ]: ProtectionMeasurementRevisionSchema.parse( 'revision_test_scope' ),
+	},
 };
 
 /**
@@ -47,6 +66,9 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
 class ParticipantCoordinatorFixture {
 	/** Protection events prepared by the reconciler. */
 	events: unknown[] = [];
+
+	/** Measurement revisions supplied with prepared departure events. */
+	measurementRevisions: unknown[] = [];
 
 	/**
 	 * Creates a coordinator fixture around one current state snapshot.
@@ -67,11 +89,16 @@ class ParticipantCoordinatorFixture {
 	/**
 	 * Records one event prepared under the coordinator boundary.
 	 * @param prepareEvent - Deferred protection-event preparation.
+	 * @param measurementRevision - Optional statistics measurement revision.
 	 * @return Applied coordinator result without browser decisions.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	dispatch( prepareEvent: PrepareProtectionEvent ): Promise<ProtectionCoordinatorDispatchResult> {
+	dispatch(
+		prepareEvent: PrepareProtectionEvent,
+		measurementRevision?: unknown,
+	): Promise<ProtectionCoordinatorDispatchResult> {
 		this.events.push( prepareEvent( this.states ) );
+		this.measurementRevisions.push( measurementRevision );
 
 		return Promise.resolve( {
 			status: ProtectionCoordinatorDispatchStatus.APPLIED,
@@ -166,7 +193,7 @@ describe( 'createProtectionParticipantReconciler', () => {
 		) ];
 		const harness = createHarness(
 			{ 'scope-default': waiting },
-			[ { id: 7, url: INTERRUPTION_PAGE_URL } ],
+			[ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ],
 		);
 
 		await harness.reconciler.reconcile( CONFIGURATION );
@@ -194,7 +221,7 @@ describe( 'createProtectionParticipantReconciler', () => {
 		) ];
 		const harness = createHarness(
 			{ 'scope-default': waiting },
-			[ { id: 7, url: INTERRUPTION_PAGE_URL } ],
+			[ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ],
 		);
 
 		await harness.reconciler.reconcile( CONFIGURATION );
@@ -215,7 +242,7 @@ describe( 'createProtectionParticipantReconciler', () => {
 		) ];
 		const harness = createHarness(
 			{ 'scope-default': waiting },
-			[ { id: 7, url: 'https://example.com/' } ],
+			[ { id: 7, incognito: false, url: 'https://example.com/' } ],
 		);
 
 		await harness.reconciler.reconcile( CONFIGURATION );
@@ -240,7 +267,7 @@ describe( 'createProtectionParticipantReconciler', () => {
 		) ];
 		const harness = createHarness(
 			{ 'scope-default': allowance, idle: createIdleState() },
-			[ { id: 7, pendingUrl: 'https://example.com/feed' } ],
+			[ { id: 7, incognito: false, pendingUrl: 'https://example.com/feed' } ],
 		);
 
 		await harness.reconciler.reconcile( CONFIGURATION );
@@ -258,7 +285,7 @@ describe( 'createProtectionParticipantReconciler', () => {
 		) ];
 		const harness = createHarness(
 			{ 'scope-default': waiting },
-			[ { id: 7, url: INTERRUPTION_PAGE_URL } ],
+			[ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ],
 		);
 
 		await harness.reconciler.reconcile( CONFIGURATION );
@@ -285,7 +312,7 @@ describe( 'createProtectionParticipantReconciler', () => {
 		];
 		const harness = createHarness(
 			{ 'scope-default': waiting },
-			[ { id: 8, url: 'https://unprotected.test/' } ],
+			[ { id: 8, incognito: false, url: 'https://unprotected.test/' } ],
 		);
 
 		await harness.reconciler.reconcile( CONFIGURATION );
@@ -306,13 +333,47 @@ describe( 'createProtectionParticipantReconciler', () => {
 		) ];
 		const harness = createHarness(
 			{ 'scope-default': waiting },
-			[ { id: 7, url: INTERRUPTION_PAGE_URL } ],
+			[ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ],
 		);
 
 		await harness.reconciler.reconcile( TestEmptyProtectionConfiguration );
 
 		expect( harness.coordinator.events ).toMatchObject( [ {
 			cause: DepartureCause.CONFIGURATION_CHANGE,
+		} ] );
+		expect( harness.releaseInjectedInterruption ).toHaveBeenCalledWith(
+			waiting.participants[ 0 ],
+		);
+	} );
+
+	it.each( [
+		[ 'private tab', true ],
+		[ 'tab with unknown privacy', undefined ],
+	] )( 'removes an allowance-expiry participant owned by a %s', async (
+		_label,
+		incognito,
+	) => {
+		const waiting = createWaitingState();
+		waiting.participants = [ createAllowanceExpiryParticipant(
+			'participant-a',
+			'page_tab_7_alpha',
+			true,
+			0,
+		) ];
+		const harness = createHarness(
+			{ 'scope-default': waiting },
+			[ {
+				id: 7,
+				url: 'https://example.com/private',
+				...( incognito === undefined ? {} : { incognito } ),
+			} ],
+		);
+
+		await harness.reconciler.reconcile( CONFIGURATION );
+
+		expect( harness.coordinator.events ).toMatchObject( [ {
+			participantId: 'participant-a',
+			cause: DepartureCause.BROWSER_ERROR_OR_RECOVERY,
 		} ] );
 		expect( harness.releaseInjectedInterruption ).toHaveBeenCalledWith(
 			waiting.participants[ 0 ],
@@ -353,6 +414,7 @@ describe( 'createProtectionParticipantReconciler', () => {
 			participantId: 'participant-a',
 			cause: DepartureCause.ACTIVE_SESSION_TAB_CLOSE,
 		} ] );
+		expect( harness.coordinator.measurementRevisions ).toEqual( [ 'revision_test_scope' ] );
 	} );
 
 	it( 'removes every retained participant with the supplied fail-open cause', async () => {
@@ -380,6 +442,7 @@ describe( 'createProtectionParticipantReconciler', () => {
 				/**
 				 * Returns no live browser tabs.
 				 * @return Empty browser-tab collection.
+				 * @since 0.1.0 Initial implementation.
 				 */
 				listTabs: () => Promise.resolve( [] ),
 			},
@@ -388,11 +451,13 @@ describe( 'createProtectionParticipantReconciler', () => {
 				 * Rejects an unexpected dispatch against unavailable state.
 				 * @return Rejected coordinator operation.
 				 * @throws {Error} Always, because unavailable snapshots cannot accept events.
+				 * @since 0.1.0 Initial implementation.
 				 */
 				dispatch: () => Promise.reject( new Error( 'Unexpected dispatch.' ) ),
 				/**
 				 * Returns the unavailable coordinator marker.
 				 * @return Unavailable state marker.
+				 * @since 0.1.0 Initial implementation.
 				 */
 				getStates: () => Promise.resolve( null ),
 			},
@@ -401,23 +466,27 @@ describe( 'createProtectionParticipantReconciler', () => {
 			 * Rejects an unexpected projection against unavailable state.
 			 * @return Rejected browser projection operation.
 			 * @throws {Error} Always, because unavailable snapshots cannot produce results.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			applyDispatchResult: () => Promise.reject( new Error( 'Unexpected projection.' ) ),
 			/**
 			 * Rejects an unexpected injected-layer release against unavailable state.
 			 * @return Rejected page release operation.
 			 * @throws {Error} Always, because unavailable snapshots own no pages.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			releaseInjectedInterruption: () => Promise.reject( new Error( 'Unexpected release.' ) ),
 			/**
 			 * Rejects an unexpected page release against unavailable state.
 			 * @return Rejected page release operation.
 			 * @throws {Error} Always, because unavailable snapshots own no pages.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			releaseNavigationIfInterrupted: () => Promise.reject( new Error( 'Unexpected release.' ) ),
 			/**
 			 * Returns the deterministic test clock instant.
 			 * @return Current test epoch milliseconds.
+			 * @since 0.1.0 Initial implementation.
 			 */
 			now: () => 1_800_000_000_000,
 		} );
