@@ -58,6 +58,58 @@ describe( 'progress-checkpoint transition', () => {
 		} );
 	} );
 
+	it( 'accepts private progress without exposing it as an ordinary statistic', () => {
+		const state = createWaitingState();
+
+		state.participants = [ createNavigationParticipant(
+			'participant-a',
+			'page-a',
+			true,
+			0,
+			'https://example.com/page-a',
+			false,
+		) ];
+
+		const result = handleProgressCheckpoint(
+			state,
+			createProgressCheckpoint( 2_000, { statisticsEligible: false } ),
+		);
+
+		expect( result ).toMatchObject( {
+			state: {
+				confirmedFocusedDurationMilliseconds: 2_000,
+				completionStatisticsEligible: false,
+			},
+			facts: [],
+		} );
+	} );
+
+	it( 'completes a wholly private wait without emitting ordinary statistics', () => {
+		const state = createWaitingState();
+		const result = handleProgressCheckpoint(
+			state,
+			createProgressCheckpoint( 10_000, { statisticsEligible: false } ),
+		);
+
+		expect( result.state.type ).toBe( ProtectionStateType.ALLOWANCE );
+		expect( result.facts ).toEqual( [] );
+	} );
+
+	it( 'does not count a completed wait after private progress entered the transaction', () => {
+		const state = createWaitingState();
+
+		state.confirmedFocusedDurationMilliseconds = 5_000;
+		state.checkpointHighWaterMilliseconds = 5_000;
+		Object.assign( state, { completionStatisticsEligible: false } );
+		const result = handleProgressCheckpoint(
+			state,
+			createProgressCheckpoint( 10_000, { statisticsEligible: true } ),
+		);
+
+		expect( result.state.type ).toBe( ProtectionStateType.ALLOWANCE );
+		expect( result.facts.map( ( fact ) => fact.type ) ).toEqual( [ ProtectionFactType.PAUSE_TIME ] );
+	} );
+
 	it.each( [ 3_000, 2_999, 0 ] )(
 		'ignores duplicate, lower, or reordered cumulative checkpoint %i',
 		( cumulativeCheckpointMilliseconds ) => {
