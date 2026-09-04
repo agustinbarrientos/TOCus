@@ -7,11 +7,14 @@ import {
 	type TemplateResult,
 } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
+import { isLocalizationReady } from '../../../../localization/utils/is-localization-ready';
 import '../screen';
 import { type ComponentInterruptionScreen } from '../screen';
+import {
+	type InterruptionScreenCopy,
+} from '../screen/types';
 import styles from './web-component-style.scss?inline';
 import {
-	DefaultProtectedPageLayerCopy,
 	ProtectedPageLayerDismissedEventName,
 	type ProtectedPageLayerCopy,
 } from './types';
@@ -80,13 +83,20 @@ export class ComponentProtectedPageLayer extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@property( { attribute: false } )
-	accessor copy: Readonly<ProtectedPageLayerCopy> = DefaultProtectedPageLayerCopy;
+	accessor copy!: Readonly<ProtectedPageLayerCopy>;
+
+	/**
+	 * Complete localized messages forwarded to the interruption screen.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor interruptionCopy!: Readonly<InterruptionScreenCopy>;
 
 	@query( 'dialog' )
-	private accessor dialogElement!: HTMLDialogElement;
+	private accessor dialogElement!: HTMLDialogElement | null;
 
 	@query( 'tocus-f-interruption-screen' )
-	private accessor interruptionScreen!: ComponentInterruptionScreen;
+	private accessor interruptionScreen!: ComponentInterruptionScreen | null;
 
 	private previouslyFocusedElement: HTMLElement | null = null;
 
@@ -114,7 +124,7 @@ export class ComponentProtectedPageLayer extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	private readonly handleDialogClose = (): void => {
-		if ( ! this.interruptionLayerPresented ) {
+		if ( ! this.interruptionLayerPresented || this.interruptionScreen === null ) {
 			return;
 		}
 
@@ -127,9 +137,9 @@ export class ComponentProtectedPageLayer extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	override disconnectedCallback(): void {
-		if ( this.interruptionLayerPresented ) {
+		if ( this.interruptionLayerPresented && this.interruptionScreen !== null ) {
 			this.interruptionScreen.progressing = false;
-			if ( this.dialogElement.open ) {
+			if ( this.dialogElement !== null && this.dialogElement.open ) {
 				this.dialogElement.close();
 			}
 		}
@@ -154,10 +164,17 @@ export class ComponentProtectedPageLayer extends LitElement {
 	/**
 	 * Returns the interruption screen controlled by the protected-page runtime.
 	 * @return Rendered interruption screen.
+	 * @throws {Error} When localized presentation has not rendered the screen yet.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	getInterruptionScreen(): ComponentInterruptionScreen {
-		return this.interruptionScreen;
+		const interruptionScreen = this.interruptionScreen;
+
+		if ( interruptionScreen === null ) {
+			throw new Error( 'The protected-page interruption screen is not rendered.' );
+		}
+
+		return interruptionScreen;
 	}
 
 	/**
@@ -166,7 +183,7 @@ export class ComponentProtectedPageLayer extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	isInterruptionPresentationVisible(): boolean {
-		return this.isConnected && this.interruptionLayerPresented && this.dialogElement.open;
+		return this.isConnected && this.interruptionLayerPresented && ( this.dialogElement?.open ?? false );
 	}
 
 	/**
@@ -189,6 +206,10 @@ export class ComponentProtectedPageLayer extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	protected override updated( changedProperties: PropertyValues<this> ): void {
+		if ( ! isLocalizationReady( this.copy, this.interruptionCopy ) ) {
+			return;
+		}
+
 		if ( ! changedProperties.has( 'interruptionLayerPresented' ) ) {
 			return;
 		}
@@ -207,6 +228,9 @@ export class ComponentProtectedPageLayer extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	protected override render(): TemplateResult {
+		if ( ! isLocalizationReady( this.copy, this.interruptionCopy ) ) {
+			return html``;
+		}
 		return html`
 			${ this.warningRemainingSeconds === null
 				? null
@@ -227,6 +251,7 @@ export class ComponentProtectedPageLayer extends LitElement {
 				@close=${ this.handleDialogClose }
 			>
 				<tocus-f-interruption-screen
+					.copy=${ this.interruptionCopy }
 					.continueShortcutEnabled=${ this.interruptionLayerPresented }
 				></tocus-f-interruption-screen>
 			</dialog>
@@ -238,7 +263,7 @@ export class ComponentProtectedPageLayer extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	private presentDialog(): void {
-		if ( this.dialogElement.open || ! this.isConnected ) {
+		if ( this.dialogElement === null || this.dialogElement.open || ! this.isConnected ) {
 			return;
 		}
 
@@ -251,7 +276,7 @@ export class ComponentProtectedPageLayer extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	private dismissDialog(): void {
-		if ( ! this.dialogElement.open ) {
+		if ( this.dialogElement === null || ! this.dialogElement.open ) {
 			return;
 		}
 
