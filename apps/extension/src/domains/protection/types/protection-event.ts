@@ -197,6 +197,7 @@ export const LivePageAllowanceExpiryCandidateSchema = z.object( {
 	pageId: PageIdSchema,
 	observedDestination: RetainedNavigationDestinationSchema,
 	focusEligible: z.boolean(),
+	statisticsEligible: z.boolean().default( false ),
 	match: ProtectedUrlMatchResultSchema,
 } ).strict();
 
@@ -255,6 +256,7 @@ export const ProgressCheckpointEventSchema = z.object( {
 	completionLocalDate: LocalDateSchema,
 	allowanceId: AllowanceIdSchema,
 	timingConfiguration: TimingConfigurationSchema,
+	statisticsEligible: z.boolean().default( false ),
 	automaticCompletionObservation: z.union( [ FreshParticipantObservationSchema, z.null() ] ),
 } ).strict().superRefine( ( event, context ) => {
 	const allowanceExpiryEpochMilliseconds =
