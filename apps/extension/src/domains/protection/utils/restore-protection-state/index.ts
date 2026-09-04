@@ -78,6 +78,7 @@ function restoreParticipant( participant: StoredProtectionParticipant ): Protect
 		pageId: participant.pageId,
 		retainedDestination: participant.retainedDestination,
 		focusEligible: false,
+		statisticsEligible: participant.statisticsEligible,
 		joinSequence: participant.joinSequence,
 	} );
 }
@@ -168,6 +169,7 @@ export function restoreProtectionState( input: unknown ): RestoreProtectionState
 					ownerParticipantId: null,
 					ownerEpoch: sessionScope.ownerEpoch + 1,
 					checkpointHighWaterMilliseconds: 0,
+					completionStatisticsEligible: sessionScope.completionStatisticsEligible,
 					ladder: durableScope.ladder,
 				} );
 
