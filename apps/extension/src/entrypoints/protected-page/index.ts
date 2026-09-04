@@ -20,7 +20,16 @@ import {
 	ProtectionClockRequestType,
 	type InterruptionPageRequest,
 } from '../../features/protection-runtime/types/runtime-message';
+import { createStatisticsClient } from '../../features/statistics/services/statistics-client';
+import {
+	createWellbeingSummaryController,
+	type WellbeingSummaryController,
+} from '../../features/statistics/services/wellbeing-summary-controller';
 
+/**
+ * Isolated-world key that prevents duplicate protected-page initialization.
+ * @since 0.1.0 Initial implementation.
+ */
 const PROTECTED_PAGE_INITIALIZATION_KEY = Symbol.for( 'tocus.protected-page.initialization' );
 
 /**
@@ -86,6 +95,7 @@ async function initializeProtectedPageLayer(): Promise<void> {
 	let interruptionController: InterruptionPageController | null = null;
 	let layerController: ProtectedPageLayerController | null = null;
 	let preferencesController: PreferencesController | null = null;
+	let wellbeingSummaryController: WellbeingSummaryController | null = null;
 
 	layer.connectionGuardEnabled = true;
 	layer.style.visibility = 'hidden';
@@ -105,7 +115,26 @@ async function initializeProtectedPageLayer(): Promise<void> {
 			storageChanges: browser.storage.onChanged,
 			systemMotionPreference: window.matchMedia( '(prefers-reduced-motion: reduce)' ),
 		} );
+		const statisticsClient = createStatisticsClient( {
+			runtime: browser.runtime,
+			storageChanges: browser.storage.onChanged,
+		} );
+		wellbeingSummaryController = createWellbeingSummaryController( {
+			source: statisticsClient,
+			target: interruptionScreen,
+		} );
+		const activeWellbeingSummaryController = wellbeingSummaryController;
+
+		/**
+		 * Starts a non-blocking footer refresh after an authoritative major-state change.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		function refreshWellbeingSummary(): void {
+			void activeWellbeingSummaryController.refresh();
+		}
+
 		await preferencesController.start();
+		activeWellbeingSummaryController.start();
 		const visibility: InterruptionPageVisibility = {
 			/**
 			 * Reports whether the live protected page and native interruption are both visible.
@@ -129,6 +158,7 @@ async function initializeProtectedPageLayer(): Promise<void> {
 			clock: { now: getCurrentEpochMilliseconds },
 			documentTarget: document,
 			motionPreference: preferencesController,
+			onPresentationStateChange: refreshWellbeingSummary,
 			runtime: { sendMessage: sendInterruptionPageRequest },
 			scheduler: window,
 			screen: interruptionScreen,
@@ -177,6 +207,7 @@ async function initializeProtectedPageLayer(): Promise<void> {
 	} catch ( error ) {
 		layerController?.stop();
 		interruptionController?.stop();
+		wellbeingSummaryController?.stop();
 		preferencesController?.stop();
 		layer.connectionGuardEnabled = false;
 		layer.remove();
