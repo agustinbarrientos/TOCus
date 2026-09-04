@@ -16,6 +16,7 @@ import {
 	type ToolbarBadgeCopy,
 	type ToolbarBadgeProjection,
 } from '../../../utils/toolbar-badge-projection';
+import { TestEnglishLocalizationBundle } from '../../../../../localization/__fixtures__';
 import {
 	InterruptionPageRequestType,
 	InterruptionPageResponseState,
@@ -491,7 +492,7 @@ export class MemoryRuntimeBrowser implements ProtectionRuntimeBrowser {
  * @param configurationStorage - Local configuration storage.
  * @param browser - Browser-effect test double.
  * @param storage - Runtime state persistence shared across worker lifetimes.
- * @param toolbarBadgeCopy - Optional localized toolbar badge copy.
+ * @param toolbarBadgeCopy - Localized toolbar badge copy.
  * @param statisticsRuntime - Optional statistics observer under test.
  * @return Initialized browser protection runtime and its coordinator.
  * @since 0.1.0 Initial implementation.
@@ -501,7 +502,7 @@ export function createRuntime(
 	configurationStorage: MemoryConfigurationStorage,
 	browser: MemoryRuntimeBrowser,
 	storage: MemoryProtectionStorage = new MemoryProtectionStorage(),
-	toolbarBadgeCopy?: ToolbarBadgeCopy,
+	toolbarBadgeCopy: ToolbarBadgeCopy = TestEnglishLocalizationBundle.toolbar,
 	statisticsRuntime: StatisticsRuntime = createInertStatisticsRuntime(),
 ): RuntimeTestHarness {
 	/**
@@ -570,7 +571,7 @@ export function createRuntime(
 		getTimeZone,
 		now: getCurrentTime,
 		statisticsRuntime,
-		...( toolbarBadgeCopy === undefined ? {} : { toolbarBadgeCopy } ),
+		toolbarBadgeCopy,
 	} );
 
 	return { coordinator, runtime };
