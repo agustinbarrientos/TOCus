@@ -1,3 +1,4 @@
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import { assert, expect, fixture, html, oneEvent } from '@open-wc/testing';
 import { ComponentProtectedPageLayer } from './index';
 import {
@@ -5,7 +6,6 @@ import {
 	InterruptionScreenState,
 } from '../screen/types';
 import {
-	DefaultProtectedPageLayerCopy,
 	ProtectedPageLayerDismissedEventName,
 } from './types';
 
@@ -43,7 +43,9 @@ describe( 'tocus-f-protected-page-layer', () => {
 
 	it( 'keeps its presentation tree inaccessible to the protected page', async () => {
 		const element = await fixture<ComponentProtectedPageLayer>( html`
-			<tocus-f-protected-page-layer></tocus-f-protected-page-layer>
+			<tocus-f-protected-page-layer
+			.copy=${ TestEnglishLocalizationBundle.protectedPageLayer }
+			.interruptionCopy=${ TestEnglishLocalizationBundle.interruption }></tocus-f-protected-page-layer>
 		` );
 
 		assert.equal( element.shadowRoot, null );
@@ -52,6 +54,8 @@ describe( 'tocus-f-protected-page-layer', () => {
 	it( 'keeps the quiet warning non-modal and isolated from the host page', async () => {
 		const element = await fixture<ComponentProtectedPageLayer>( html`
 			<tocus-f-protected-page-layer
+			.copy=${ TestEnglishLocalizationBundle.protectedPageLayer }
+			.interruptionCopy=${ TestEnglishLocalizationBundle.interruption }
 				.warningRemainingSeconds=${ 10 }
 			></tocus-f-protected-page-layer>
 		` );
@@ -77,6 +81,8 @@ describe( 'tocus-f-protected-page-layer', () => {
 	it( 'updates visible warning digits without repeatedly changing the live announcement', async () => {
 		const element = await fixture<ComponentProtectedPageLayer>( html`
 			<tocus-f-protected-page-layer
+			.copy=${ TestEnglishLocalizationBundle.protectedPageLayer }
+			.interruptionCopy=${ TestEnglishLocalizationBundle.interruption }
 				.warningRemainingSeconds=${ 10 }
 			></tocus-f-protected-page-layer>
 		` );
@@ -100,14 +106,19 @@ describe( 'tocus-f-protected-page-layer', () => {
 
 	it( 'renders complete injected copy without composing English fragments', async () => {
 		const copy = {
-			...DefaultProtectedPageLayerCopy,
+			...TestEnglishLocalizationBundle.protectedPageLayer,
 			allowanceWarningAnnouncement: 'Tu tiempo est\u00e1 por terminar.',
 			dialogLabel: 'Pausa de TOCus',
 			formatAllowanceWarning: formatSpanishAllowanceWarning,
 		};
+		const interruptionCopy = {
+			...TestEnglishLocalizationBundle.interruption,
+			waitingInstruction: 'Respira con la forma.',
+		};
 		const element = await fixture<ComponentProtectedPageLayer>( html`
 			<tocus-f-protected-page-layer
 				.copy=${ copy }
+				.interruptionCopy=${ interruptionCopy }
 				.warningRemainingSeconds=${ 7 }
 			></tocus-f-protected-page-layer>
 		` );
@@ -122,6 +133,7 @@ describe( 'tocus-f-protected-page-layer', () => {
 		assert.equal( announcement.textContent.trim(), 'Tu tiempo est\u00e1 por terminar.' );
 		assert.equal( countdown.textContent.trim(), 'Tu tiempo termina en 7 s.' );
 		assert.equal( dialog.getAttribute( 'aria-label' ), 'Pausa de TOCus' );
+		assert.equal( element.getInterruptionScreen().copy, interruptionCopy );
 	} );
 
 	it( 'opens a native modal layer and restores the live document focus after dismissal', async () => {
@@ -130,7 +142,9 @@ describe( 'tocus-f-protected-page-layer', () => {
 		document.body.append( field );
 		field.focus();
 		const element = await fixture<ComponentProtectedPageLayer>( html`
-			<tocus-f-protected-page-layer></tocus-f-protected-page-layer>
+			<tocus-f-protected-page-layer
+			.copy=${ TestEnglishLocalizationBundle.protectedPageLayer }
+			.interruptionCopy=${ TestEnglishLocalizationBundle.interruption }></tocus-f-protected-page-layer>
 		` );
 
 		element.interruptionLayerPresented = true;
@@ -158,6 +172,8 @@ describe( 'tocus-f-protected-page-layer', () => {
 	it( 'removes the layer entrance animation when the user requests reduced motion', async () => {
 		const element = await fixture<ComponentProtectedPageLayer>( html`
 			<tocus-f-protected-page-layer
+			.copy=${ TestEnglishLocalizationBundle.protectedPageLayer }
+			.interruptionCopy=${ TestEnglishLocalizationBundle.interruption }
 				data-tocus-reduced-motion="true"
 				.interruptionLayerPresented=${ true }
 			></tocus-f-protected-page-layer>
@@ -170,7 +186,9 @@ describe( 'tocus-f-protected-page-layer', () => {
 
 	it( 'rejects presentation readiness while its modal is not requested', async () => {
 		const element = await fixture<ComponentProtectedPageLayer>( html`
-			<tocus-f-protected-page-layer></tocus-f-protected-page-layer>
+			<tocus-f-protected-page-layer
+			.copy=${ TestEnglishLocalizationBundle.protectedPageLayer }
+			.interruptionCopy=${ TestEnglishLocalizationBundle.interruption }></tocus-f-protected-page-layer>
 		` );
 		let rejection: unknown;
 
@@ -193,7 +211,9 @@ describe( 'tocus-f-protected-page-layer', () => {
 		document.body.append( host );
 		field.focus();
 		const element = await fixture<ComponentProtectedPageLayer>( html`
-			<tocus-f-protected-page-layer></tocus-f-protected-page-layer>
+			<tocus-f-protected-page-layer
+			.copy=${ TestEnglishLocalizationBundle.protectedPageLayer }
+			.interruptionCopy=${ TestEnglishLocalizationBundle.interruption }></tocus-f-protected-page-layer>
 		` );
 
 		element.interruptionLayerPresented = true;
@@ -212,7 +232,9 @@ describe( 'tocus-f-protected-page-layer', () => {
 		document.body.append( field );
 		field.focus();
 		const element = await fixture<ComponentProtectedPageLayer>( html`
-			<tocus-f-protected-page-layer></tocus-f-protected-page-layer>
+			<tocus-f-protected-page-layer
+			.copy=${ TestEnglishLocalizationBundle.protectedPageLayer }
+			.interruptionCopy=${ TestEnglishLocalizationBundle.interruption }></tocus-f-protected-page-layer>
 		` );
 
 		element.interruptionLayerPresented = true;
@@ -233,7 +255,9 @@ describe( 'tocus-f-protected-page-layer', () => {
 		document.body.append( graphic );
 		graphic.focus();
 		const element = await fixture<ComponentProtectedPageLayer>( html`
-			<tocus-f-protected-page-layer></tocus-f-protected-page-layer>
+			<tocus-f-protected-page-layer
+			.copy=${ TestEnglishLocalizationBundle.protectedPageLayer }
+			.interruptionCopy=${ TestEnglishLocalizationBundle.interruption }></tocus-f-protected-page-layer>
 		` );
 
 		element.interruptionLayerPresented = true;
@@ -250,6 +274,8 @@ describe( 'tocus-f-protected-page-layer', () => {
 	it( 'does not capture Space after the injected interruption is dismissed', async () => {
 		const element = await fixture<ComponentProtectedPageLayer>( html`
 			<tocus-f-protected-page-layer
+			.copy=${ TestEnglishLocalizationBundle.protectedPageLayer }
+			.interruptionCopy=${ TestEnglishLocalizationBundle.interruption }
 				.interruptionLayerPresented=${ true }
 			></tocus-f-protected-page-layer>
 		` );
@@ -280,6 +306,8 @@ describe( 'tocus-f-protected-page-layer', () => {
 	it( 'prevents Escape from bypassing the modal interruption', async () => {
 		const element = await fixture<ComponentProtectedPageLayer>( html`
 			<tocus-f-protected-page-layer
+			.copy=${ TestEnglishLocalizationBundle.protectedPageLayer }
+			.interruptionCopy=${ TestEnglishLocalizationBundle.interruption }
 				.interruptionLayerPresented=${ true }
 			></tocus-f-protected-page-layer>
 		` );
@@ -295,6 +323,8 @@ describe( 'tocus-f-protected-page-layer', () => {
 	it( 'repairs unexpected native closure without crediting hidden progress', async () => {
 		const element = await fixture<ComponentProtectedPageLayer>( html`
 			<tocus-f-protected-page-layer
+			.copy=${ TestEnglishLocalizationBundle.protectedPageLayer }
+			.interruptionCopy=${ TestEnglishLocalizationBundle.interruption }
 				.interruptionLayerPresented=${ true }
 			></tocus-f-protected-page-layer>
 		` );
@@ -315,6 +345,8 @@ describe( 'tocus-f-protected-page-layer', () => {
 	it( 'pauses local progress when the host layer is removed', async () => {
 		const element = await fixture<ComponentProtectedPageLayer>( html`
 			<tocus-f-protected-page-layer
+			.copy=${ TestEnglishLocalizationBundle.protectedPageLayer }
+			.interruptionCopy=${ TestEnglishLocalizationBundle.interruption }
 				.interruptionLayerPresented=${ true }
 			></tocus-f-protected-page-layer>
 		` );
@@ -329,6 +361,8 @@ describe( 'tocus-f-protected-page-layer', () => {
 	it( 'reattaches the guarded host and restores its native modal after removal', async () => {
 		const element = await fixture<ComponentProtectedPageLayer>( html`
 			<tocus-f-protected-page-layer
+			.copy=${ TestEnglishLocalizationBundle.protectedPageLayer }
+			.interruptionCopy=${ TestEnglishLocalizationBundle.interruption }
 				.interruptionLayerPresented=${ true }
 			></tocus-f-protected-page-layer>
 		` );
@@ -353,6 +387,8 @@ describe( 'tocus-f-protected-page-layer', () => {
 	it( 'reports native dismissal so the controller can release listeners', async () => {
 		const element = await fixture<ComponentProtectedPageLayer>( html`
 			<tocus-f-protected-page-layer
+			.copy=${ TestEnglishLocalizationBundle.protectedPageLayer }
+			.interruptionCopy=${ TestEnglishLocalizationBundle.interruption }
 				.interruptionLayerPresented=${ true }
 			></tocus-f-protected-page-layer>
 		` );
@@ -366,4 +402,14 @@ describe( 'tocus-f-protected-page-layer', () => {
 		assert.equal( event.bubbles, true );
 		assert.equal( event.composed, true );
 	} );
+	it( 'renders nothing before localized copy is injected', async () => {
+		const element = await fixture<ComponentProtectedPageLayer>( html`<tocus-f-protected-page-layer></tocus-f-protected-page-layer>` );
+
+		assert.equal( element.isInterruptionPresentationVisible(), false );
+		assert.throws(
+			() => element.getInterruptionScreen(),
+			/The protected-page interruption screen is not rendered\./u,
+		);
+	} );
+
 } );
