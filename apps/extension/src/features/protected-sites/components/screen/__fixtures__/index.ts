@@ -30,6 +30,7 @@ import {
 import { ComponentProtectedSiteList } from '../../site-list';
 import '../index';
 import { type ComponentProtectedSitesScreen } from '../index';
+import { TestEnglishLocalizationBundle } from '../../../../../localization/__fixtures__';
 
 /**
  * Empty protection configuration shared by screen component fixtures.
@@ -302,6 +303,8 @@ export async function createProtectedSitesScreenFixture(
 	} );
 	const element = await fixture<ComponentProtectedSitesScreen>( html`
 		<tocus-f-protected-sites-screen
+			.copy=${ TestEnglishLocalizationBundle.protectedSites }
+			.siteItemCopy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 			.editor=${ editor }
 			.faviconProvider=${ faviconProvider }
 			.permissionManager=${ permissionManager }
