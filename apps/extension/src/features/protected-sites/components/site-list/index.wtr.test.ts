@@ -1,3 +1,4 @@
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import { assert, expect, fixture, html } from '@open-wc/testing';
 import {
 	type ProtectedSiteConfiguration,
@@ -41,6 +42,19 @@ const INDEPENDENT_SITE: ProtectedSiteConfiguration = {
 };
 
 /**
+ * Additional shared site used to verify localized ordering.
+ * @since 0.1.0 Initial implementation.
+ */
+const ADDITIONAL_SHARED_SITE: ProtectedSiteConfiguration = {
+	identityHost: 'instagram.com',
+	rule: {
+		host: 'instagram.com',
+		includeSubdomains: true,
+		scopeId: DefaultProtectionScopeId,
+	},
+};
+
+/**
  * Deterministic local favicon source used by list tests.
  * @since 0.1.0 Initial implementation.
  */
@@ -63,6 +77,17 @@ const FAVICON_PROVIDER: SiteFaviconProvider = {
 };
 
 /**
+ * Sorts display names in deterministic descending order.
+ * @param firstName - First display name.
+ * @param secondName - Second display name.
+ * @return Descending comparison result.
+ * @since 0.1.0 Initial implementation.
+ */
+function compareNamesDescending( firstName: string, secondName: string ): number {
+	return secondName.localeCompare( firstName, 'en' );
+}
+
+/**
  * Returns all rendered site items from one grouped list.
  * @param element - Rendered grouped protected-site list.
  * @return Protected-site item elements in visual order.
@@ -81,7 +106,9 @@ function getSiteItems(
 describe( 'tocus-f-protected-site-list', () => {
 	it( 'renders an accessible empty state without site groups', async () => {
 		const element = await fixture<ComponentProtectedSiteList>( html`
-			<tocus-f-protected-site-list></tocus-f-protected-site-list>
+			<tocus-f-protected-site-list
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteList }
+			.itemCopy=${ TestEnglishLocalizationBundle.protectedSiteItem }></tocus-f-protected-site-list>
 		` );
 
 		assert.include( element.shadowRoot?.textContent, 'No protected sites yet' );
@@ -94,11 +121,14 @@ describe( 'tocus-f-protected-site-list', () => {
 	} );
 
 	it( 'groups, sorts, and fully presents shared and independent sites', async () => {
+		const itemCopy = { ...TestEnglishLocalizationBundle.protectedSiteItem, edit: 'Localized edit' };
 		const element = await fixture<ComponentProtectedSiteList>( html`
 			<tocus-f-protected-site-list
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteList }
 				.sites=${ [ SHARED_SITE, INDEPENDENT_SITE ] }
 				.faviconProvider=${ FAVICON_PROVIDER }
 				.accessByIdentityHost=${ new Map( [ [ SHARED_SITE.identityHost, true ] ] ) }
+				.itemCopy=${ itemCopy }
 			></tocus-f-protected-site-list>
 		` );
 		const items = getSiteItems( element );
@@ -110,12 +140,15 @@ describe( 'tocus-f-protected-site-list', () => {
 		assert.isTrue( items.at( 0 )?.accessGranted );
 		assert.equal( items.at( 1 )?.faviconSource, null );
 		assert.isFalse( items.at( 1 )?.accessGranted );
+		assert.isTrue( items.every( ( item ) => item.copy === itemCopy ) );
 		await expect( element ).to.be.accessible();
 	} );
 
 	it( 'omits an empty independent group', async () => {
 		const element = await fixture<ComponentProtectedSiteList>( html`
 			<tocus-f-protected-site-list
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteList }
+			.itemCopy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.sites=${ [ SHARED_SITE ] }
 			></tocus-f-protected-site-list>
 		` );
@@ -124,9 +157,26 @@ describe( 'tocus-f-protected-site-list', () => {
 		assert.equal( element.shadowRoot.querySelector( '.independent-sites' ), null );
 	} );
 
+	it( 'uses the localized name comparator for visual ordering', async () => {
+		const element = await fixture<ComponentProtectedSiteList>( html`
+			<tocus-f-protected-site-list
+			.itemCopy=${ TestEnglishLocalizationBundle.protectedSiteItem }
+				.sites=${ [ SHARED_SITE, ADDITIONAL_SHARED_SITE ] }
+				.copy=${ { ...TestEnglishLocalizationBundle.protectedSiteList, compareNames: compareNamesDescending } }
+			></tocus-f-protected-site-list>
+		` );
+
+		assert.deepEqual(
+			getSiteItems( element ).map( ( item ) => item.identity?.name ),
+			[ 'YouTube', 'Instagram' ],
+		);
+	} );
+
 	it( 'focuses the matching site edit action after a grouped-list rerender', async () => {
 		const element = await fixture<ComponentProtectedSiteList>( html`
 			<tocus-f-protected-site-list
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteList }
+			.itemCopy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.sites=${ [ SHARED_SITE, INDEPENDENT_SITE ] }
 			></tocus-f-protected-site-list>
 		` );
@@ -147,6 +197,8 @@ describe( 'tocus-f-protected-site-list', () => {
 	it( 'reports when no rendered site can accept restored edit focus', async () => {
 		const element = await fixture<ComponentProtectedSiteList>( html`
 			<tocus-f-protected-site-list
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteList }
+			.itemCopy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.sites=${ [ SHARED_SITE ] }
 			></tocus-f-protected-site-list>
 		` );
@@ -158,6 +210,8 @@ describe( 'tocus-f-protected-site-list', () => {
 		const frame = await fixture<HTMLDivElement>( html`
 			<div>
 				<tocus-f-protected-site-list
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteList }
+			.itemCopy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 					.sites=${ [ SHARED_SITE ] }
 				></tocus-f-protected-site-list>
 			</div>
@@ -184,4 +238,10 @@ describe( 'tocus-f-protected-site-list', () => {
 
 		assert.deepEqual( details, [ { identityHost: SHARED_SITE.identityHost } ] );
 	} );
+	it( 'renders nothing before localized copy is injected', async () => {
+		const element = await fixture<ComponentProtectedSiteList>( html`<tocus-f-protected-site-list></tocus-f-protected-site-list>` );
+
+		assert.equal( element.shadowRoot?.childElementCount, 0 );
+	} );
+
 } );
