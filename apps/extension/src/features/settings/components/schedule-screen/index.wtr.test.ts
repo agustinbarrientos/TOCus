@@ -7,7 +7,10 @@ import {
 	type ProtectionConfigurationMutation,
 } from '../../../../domains/protection/services/protection-configuration-editor';
 import { type ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
-import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
+import {
+	TestEmptyProtectionConfiguration,
+	createTestProtectionMeasurementRevision,
+} from '../../../../domains/protection/types/__fixtures__';
 import {
 	type ProtectedSiteConfiguration,
 	type ProtectionConfigurationDocument,
@@ -16,10 +19,23 @@ import {
 	ScheduleMode,
 	Weekday,
 } from '../../../../domains/protection/types/protection-schedule';
-import { DefaultProtectionScopeId, ProtectionScopeIdSchema } from '../../../../domains/protection/types/protection-value';
+import {
+	DefaultProtectionScopeId,
+	ProtectionMeasurementRevisionSchema,
+	ProtectionScopeIdSchema,
+} from '../../../../domains/protection/types/protection-value';
 import { ComponentScheduleScreen, DefaultScheduleScreenCopy } from './index';
 
+/**
+ * Independent protection scope used by ChatGPT schedule fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const INDEPENDENT_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope_chatgpt' );
+
+/**
+ * ChatGPT site assigned to the independent schedule scope.
+ * @since 0.1.0 Initial implementation.
+ */
 const CHATGPT_SITE: ProtectedSiteConfiguration = {
 	identityHost: 'chatgpt.com',
 	rule: {
@@ -28,7 +44,16 @@ const CHATGPT_SITE: ProtectedSiteConfiguration = {
 		scopeId: INDEPENDENT_SCOPE_ID,
 	},
 };
+/**
+ * Independent protection scope used by YouTube schedule fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
 const YOUTUBE_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope_youtube' );
+
+/**
+ * YouTube site assigned to its independent schedule scope.
+ * @since 0.1.0 Initial implementation.
+ */
 const YOUTUBE_SITE: ProtectedSiteConfiguration = {
 	identityHost: 'youtube.com',
 	rule: {
@@ -37,6 +62,10 @@ const YOUTUBE_SITE: ProtectedSiteConfiguration = {
 		scopeId: YOUTUBE_SCOPE_ID,
 	},
 };
+/**
+ * Site assigned to the shared protection scope.
+ * @since 0.1.0 Initial implementation.
+ */
 const SHARED_SITE: ProtectedSiteConfiguration = {
 	identityHost: 'x.com',
 	rule: {
@@ -45,6 +74,10 @@ const SHARED_SITE: ProtectedSiteConfiguration = {
 		scopeId: DefaultProtectionScopeId,
 	},
 };
+/**
+ * Second site assigned to the ChatGPT schedule scope.
+ * @since 0.1.0 Initial implementation.
+ */
 const SECOND_CHATGPT_SCOPE_SITE: ProtectedSiteConfiguration = {
 	identityHost: 'openai.com',
 	rule: {
@@ -53,6 +86,11 @@ const SECOND_CHATGPT_SCOPE_SITE: ProtectedSiteConfiguration = {
 		scopeId: INDEPENDENT_SCOPE_ID,
 	},
 };
+
+/**
+ * Configuration used to exercise a populated schedule screen.
+ * @since 0.1.0 Initial implementation.
+ */
 const POPULATED_CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
 	sites: [ CHATGPT_SITE ],
@@ -66,6 +104,10 @@ const POPULATED_CONFIGURATION: ProtectionConfigurationDocument = {
 				endMinute: 1_020,
 			} ],
 		},
+	},
+	measurementRevisionsByScope: {
+		...TestEmptyProtectionConfiguration.measurementRevisionsByScope,
+		[ INDEPENDENT_SCOPE_ID ]: ProtectionMeasurementRevisionSchema.parse( 'revision_chatgpt' ),
 	},
 };
 
@@ -84,10 +126,22 @@ function formatLocalizedWeekday( weekday: Weekday ): string {
  * @since 0.1.0 Initial implementation.
  */
 class MemoryScheduleScreenStorage implements ProtectionConfigurationStorageService {
+	/**
+	 * Whether local configuration reads should fail.
+	 * @since 0.1.0 Initial implementation.
+	 */
 	rejectLoads = false;
 
+	/**
+	 * Whether local configuration writes should fail.
+	 * @since 0.1.0 Initial implementation.
+	 */
 	rejectSaves = false;
 
+	/**
+	 * Number of local configuration writes accepted by the fixture.
+	 * @since 0.1.0 Initial implementation.
+	 */
 	writes = 0;
 
 	/**
@@ -133,6 +187,10 @@ class MemoryScheduleScreenStorage implements ProtectionConfigurationStorageServi
  * @since 0.1.0 Initial implementation.
  */
 class DeferredScheduleScreenStorage extends MemoryScheduleScreenStorage {
+	/**
+	 * Resolver for the pending local configuration write.
+	 * @since 0.1.0 Initial implementation.
+	 */
 	private resolvePendingSave: ( () => void ) | null = null;
 
 	/**
@@ -195,6 +253,7 @@ function createEditor( storage: MemoryScheduleScreenStorage ): ProtectionConfigu
 	return createProtectionConfigurationEditor( {
 		storage,
 		createIndependentScopeId,
+		createMeasurementRevision: createTestProtectionMeasurementRevision,
 		coordinateMutation: coordinateMutationDirectly,
 	} );
 }
@@ -418,6 +477,10 @@ describe( 'tocus-f-schedule-screen', () => {
 			schedulesByScope: {
 				...POPULATED_CONFIGURATION.schedulesByScope,
 				[ YOUTUBE_SCOPE_ID ]: { mode: ScheduleMode.ALWAYS },
+			},
+			measurementRevisionsByScope: {
+				...POPULATED_CONFIGURATION.measurementRevisionsByScope,
+				[ YOUTUBE_SCOPE_ID ]: ProtectionMeasurementRevisionSchema.parse( 'revision_youtube' ),
 			},
 		};
 		const element = await createScreen( new MemoryScheduleScreenStorage( configuration ) );
