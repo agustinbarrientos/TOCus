@@ -7,6 +7,10 @@ import {
 import { ScheduleMode } from '../../types/protection-schedule';
 import { DefaultTimingConfiguration } from '../../types/timing-configuration';
 
+/**
+ * Persisted configuration from the initial storage format.
+ * @since 0.1.0 Initial implementation.
+ */
 const VERSION_ONE_CONFIGURATION = {
 	schemaVersion: 1,
 	sites: [
@@ -21,12 +25,29 @@ const VERSION_ONE_CONFIGURATION = {
 		},
 	],
 };
-const CURRENT_CONFIGURATION = {
+
+/**
+ * Persisted configuration from before measurement revisions were introduced.
+ * @since 0.1.0 Initial implementation.
+ */
+const VERSION_TWO_CONFIGURATION = {
 	schemaVersion: 2,
 	sites: VERSION_ONE_CONFIGURATION.sites,
 	timingConfiguration: DefaultTimingConfiguration,
 	schedulesByScope: {
 		scope_default: { mode: ScheduleMode.ALWAYS },
+	},
+};
+
+/**
+ * Current persisted configuration used by storage tests.
+ * @since 0.1.0 Initial implementation.
+ */
+const CURRENT_CONFIGURATION = {
+	...VERSION_TWO_CONFIGURATION,
+	schemaVersion: 3,
+	measurementRevisionsByScope: {
+		scope_default: 'revision_initial_scope_default',
 	},
 };
 
@@ -78,11 +99,14 @@ describe( 'createProtectionConfigurationStorageService', () => {
 		const storage = createProtectionConfigurationStorageService( { area } );
 
 		await expect( storage.load() ).resolves.toEqual( {
-			schemaVersion: 2,
+			schemaVersion: 3,
 			sites: [],
 			timingConfiguration: DefaultTimingConfiguration,
 			schedulesByScope: {
 				scope_default: { mode: ScheduleMode.ALWAYS },
+			},
+			measurementRevisionsByScope: {
+				scope_default: 'revision_initial_scope_default',
 			},
 		} );
 		expect( area.readKeys ).toEqual( [ 'tocus.protection.configuration.v1' ] );
@@ -99,10 +123,65 @@ describe( 'createProtectionConfigurationStorageService', () => {
 		expect( area.writtenValues ).toEqual( [] );
 	} );
 
+	it( 'migrates one valid version-two document in memory without writing during load', async () => {
+		const area = new MemoryProtectionConfigurationStorageArea( {
+			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: VERSION_TWO_CONFIGURATION,
+		} );
+		const storage = createProtectionConfigurationStorageService( { area } );
+
+		await expect( storage.load() ).resolves.toEqual( CURRENT_CONFIGURATION );
+		expect( area.writtenValues ).toEqual( [] );
+	} );
+
+	it( 'migrates a version-two document with a prototype-named scope', async () => {
+		const schedulesByScope = Object.fromEntries( [
+			[ 'scope_default', { mode: ScheduleMode.ALWAYS } ],
+			[ '__proto__', { mode: ScheduleMode.ALWAYS } ],
+		] );
+		const area = new MemoryProtectionConfigurationStorageArea( {
+			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: {
+				...VERSION_TWO_CONFIGURATION,
+				sites: [ {
+					identityHost: 'prototype.example',
+					rule: {
+						host: 'prototype.example',
+						includeSubdomains: false,
+						scopeId: '__proto__',
+					},
+				} ],
+				schedulesByScope,
+			},
+		} );
+		const storage = createProtectionConfigurationStorageService( { area } );
+
+		const configuration = await storage.load();
+
+		expect( configuration ).not.toBeNull();
+		expect( Object.hasOwn( configuration?.schedulesByScope ?? {}, '__proto__' ) ).toBe( true );
+		expect( Object.hasOwn(
+			configuration?.measurementRevisionsByScope ?? {},
+			'__proto__',
+		) ).toBe( true );
+		expect( area.writtenValues ).toEqual( [] );
+	} );
+
+	it( 'preserves a version-two document whose scope schedules violate current invariants', async () => {
+		const area = new MemoryProtectionConfigurationStorageArea( {
+			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: {
+				...VERSION_TWO_CONFIGURATION,
+				schedulesByScope: {},
+			},
+		} );
+		const storage = createProtectionConfigurationStorageService( { area } );
+
+		await expect( storage.load() ).resolves.toBeNull();
+		expect( area.writtenValues ).toEqual( [] );
+	} );
+
 	it.each( [
 		{
 			label: 'future document version',
-			configuration: { ...CURRENT_CONFIGURATION, schemaVersion: 3 },
+			configuration: { ...CURRENT_CONFIGURATION, schemaVersion: 4 },
 		},
 		{
 			label: 'version-one document with an unknown field',
@@ -139,6 +218,10 @@ describe( 'createProtectionConfigurationStorageService', () => {
 				scope_default: { mode: ScheduleMode.ALWAYS },
 				scope_independent: { mode: ScheduleMode.ALWAYS },
 			},
+			measurementRevisionsByScope: {
+				scope_default: 'revision_initial_scope_default',
+				scope_independent: 'revision_initial_scope_independent',
+			},
 		} );
 		expect( area.writtenValues ).toEqual( [] );
 	} );
@@ -168,7 +251,7 @@ describe( 'createProtectionConfigurationStorageService', () => {
 
 	it( 'stores the exact identity host separately from its broader protection rule', async () => {
 		const configuration = {
-			schemaVersion: 2,
+			schemaVersion: 3,
 			sites: [ {
 				identityHost: 'mail.google.com',
 				rule: {
@@ -180,6 +263,9 @@ describe( 'createProtectionConfigurationStorageService', () => {
 			timingConfiguration: DefaultTimingConfiguration,
 			schedulesByScope: {
 				scope_default: { mode: ScheduleMode.ALWAYS },
+			},
+			measurementRevisionsByScope: {
+				scope_default: 'revision_initial_scope_default',
 			},
 		};
 		const area = new MemoryProtectionConfigurationStorageArea();
@@ -214,7 +300,7 @@ describe( 'createProtectionConfigurationStorageService', () => {
 	} );
 
 	it.each( [
-		{ ...CURRENT_CONFIGURATION, schemaVersion: 3 },
+		{ ...CURRENT_CONFIGURATION, schemaVersion: 4 },
 		{
 			...CURRENT_CONFIGURATION,
 			sites: [ {
