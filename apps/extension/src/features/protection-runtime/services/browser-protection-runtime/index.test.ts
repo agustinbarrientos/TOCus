@@ -6,7 +6,8 @@ import {
 	PageIdSchema,
 	ParticipantIdSchema,
 } from '../../../../domains/protection/types/protection-value';
-import { EnglishToolbarBadgeCopy, type ToolbarBadgeCopy } from '../../utils/toolbar-badge-projection';
+import { type ToolbarBadgeCopy } from '../../utils/toolbar-badge-projection';
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import {
 	InterruptionPageRequestType,
 	InterruptionPageResponseState,
@@ -369,7 +370,7 @@ describe( 'createBrowserProtectionRuntime', () => {
 		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
 		const browser = new MemoryRuntimeBrowser();
 		const localizedCopy: ToolbarBadgeCopy = {
-			...EnglishToolbarBadgeCopy,
+			...TestEnglishLocalizationBundle.toolbar,
 			inactive: { text: '', title: 'TOCus localizado' },
 		};
 		const { runtime } = createRuntime(
@@ -387,6 +388,45 @@ describe( 'createBrowserProtectionRuntime', () => {
 			text: '',
 			title: 'TOCus localizado',
 		} );
+	} );
+
+	it( 'refreshes the toolbar after localized copy changes', async () => {
+		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
+		const browser = new MemoryRuntimeBrowser();
+		const localizedCopy: ToolbarBadgeCopy = {
+			...TestEnglishLocalizationBundle.toolbar,
+			inactive: { text: '', title: 'TOCus' },
+		};
+		const { runtime } = createRuntime(
+			now,
+			new MemoryConfigurationStorage( EXAMPLE_CONFIGURATION ),
+			browser,
+			new MemoryProtectionStorage(),
+			localizedCopy,
+		);
+
+		await runtime.start();
+		localizedCopy.inactive = { text: '', title: 'TOCus localizado' };
+		await runtime.refreshToolbarBadge();
+
+		expect( browser.badge ).toEqual( {
+			phase: 'inactive',
+			text: '',
+			title: 'TOCus localizado',
+		} );
+	} );
+
+	it( 'ignores a presentation refresh before protection becomes available', async () => {
+		const browser = new MemoryRuntimeBrowser();
+		const { runtime } = createRuntime(
+			{ value: Date.UTC( 2026, 8, 2, 12 ) },
+			new MemoryConfigurationStorage( EXAMPLE_CONFIGURATION ),
+			browser,
+		);
+
+		await runtime.refreshToolbarBadge();
+
+		expect( browser.badge ).toBeNull();
 	} );
 
 	it( 'recovers its operation queue after persistence rejects a protected visit', async () => {
