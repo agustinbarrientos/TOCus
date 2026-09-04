@@ -23,9 +23,12 @@ export function reconcileProtectionScopeSchedules(
 	] );
 
 	return ProtectionScopeScheduleMapSchema.parse( Object.fromEntries(
-		[ ...activeScopeIds ].map( ( scopeId ) => [
-			scopeId,
-			schedulesByScope[ scopeId ] ?? DefaultProtectionSchedule,
-		] ),
+		[ ...activeScopeIds ].map( ( scopeId ) => {
+			const currentSchedule = Object.hasOwn( schedulesByScope, scopeId )
+				? schedulesByScope[ scopeId ]
+				: undefined;
+
+			return [ scopeId, currentSchedule ?? DefaultProtectionSchedule ];
+		} ),
 	) );
 }
