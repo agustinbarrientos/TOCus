@@ -1,10 +1,16 @@
 import {
+	StoredProtectionStatisticsDeliveryStatus,
+} from '../../types/stored-protection-statistics-delivery';
+import {
 	DurableStoredProtectionStateVersion,
 	SessionStoredProtectionStateVersion,
 	StoredDurableProtectionStateSchema,
 	StoredSessionProtectionStateSchema,
+	type StoredDurableProtectionState,
 } from '../../types/stored-protection-state';
 import {
+	DurableStoredProtectionStateVersionOne,
+	StoredDurableProtectionStateVersionOneSchema,
 	ParsedDurableStoredProtectionStateSchema,
 	ParsedSessionStoredProtectionStateSchema,
 	ParsedStoredProtectionStateSchema,
@@ -17,6 +23,36 @@ import {
 	type ParsedSessionStoredProtectionState,
 	type ParsedStoredProtectionState,
 } from './types';
+
+/**
+ * Statistics delivery used when protection state is valid but its observational data is not.
+ * @since 0.1.0 Initial implementation.
+ */
+const IncompleteStatisticsDelivery = Object.freeze( {
+	status: StoredProtectionStatisticsDeliveryStatus.INCOMPLETE,
+	outbox: [],
+} as const );
+
+/**
+ * Recovers valid protection fields while replacing untrusted statistics delivery.
+ * @param input - Unknown durable document whose complete parse failed.
+ * @return Current protection state with incomplete statistics, or null when protection is invalid.
+ * @since 0.1.0 Initial implementation.
+ */
+function recoverDurableProtectionWithoutStatistics(
+	input: unknown,
+): StoredDurableProtectionState | null {
+	if ( typeof input !== 'object' || input === null || Array.isArray( input ) ) {
+		return null;
+	}
+
+	const recoveredState = StoredDurableProtectionStateSchema.safeParse( {
+		...input,
+		statisticsDelivery: IncompleteStatisticsDelivery,
+	} );
+
+	return recoveredState.success ? recoveredState.data : null;
+}
 
 /**
  * Parses one unknown durable stored value without exposing raw failure details.
@@ -36,6 +72,29 @@ function parseDurableStoredProtectionState( input: unknown ): ParsedDurableStore
 	if ( versionProbe.success ) {
 		const version = StoredProtectionStateVersionSchema.safeParse( versionProbe.data.schemaVersion );
 
+		if ( version.success && version.data === DurableStoredProtectionStateVersionOne ) {
+			const versionOneState = StoredDurableProtectionStateVersionOneSchema.safeParse( input );
+
+			if ( ! versionOneState.success ) {
+				return ParsedDurableStoredProtectionStateSchema.parse( {
+					status: StoredProtectionStateParseStatus.FAILED,
+					reason: StoredProtectionStateFailureReason.INVALID_STORED_STATE,
+				} );
+			}
+
+			return ParsedDurableStoredProtectionStateSchema.parse( {
+				status: StoredProtectionStateParseStatus.CURRENT,
+				state: {
+					...versionOneState.data,
+					schemaVersion: DurableStoredProtectionStateVersion,
+					statisticsDelivery: {
+						status: StoredProtectionStatisticsDeliveryStatus.COMPLETE,
+						outbox: [],
+					},
+				},
+			} );
+		}
+
 		if ( version.success && version.data !== DurableStoredProtectionStateVersion ) {
 			return ParsedDurableStoredProtectionStateSchema.parse( {
 				status: StoredProtectionStateParseStatus.FAILED,
@@ -47,6 +106,15 @@ function parseDurableStoredProtectionState( input: unknown ): ParsedDurableStore
 	const state = StoredDurableProtectionStateSchema.safeParse( input );
 
 	if ( ! state.success ) {
+		const recoveredState = recoverDurableProtectionWithoutStatistics( input );
+
+		if ( recoveredState !== null ) {
+			return ParsedDurableStoredProtectionStateSchema.parse( {
+				status: StoredProtectionStateParseStatus.CURRENT,
+				state: recoveredState,
+			} );
+		}
+
 		return ParsedDurableStoredProtectionStateSchema.parse( {
 			status: StoredProtectionStateParseStatus.FAILED,
 			reason: StoredProtectionStateFailureReason.INVALID_STORED_STATE,
