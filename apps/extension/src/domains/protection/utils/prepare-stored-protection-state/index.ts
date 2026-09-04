@@ -59,6 +59,7 @@ function prepareStoredParticipant( participant: ProtectionParticipant ): StoredP
 		participantId: participant.participantId,
 		pageId: participant.pageId,
 		retainedDestination: participant.retainedDestination,
+		statisticsEligible: participant.statisticsEligible,
 		joinSequence: participant.joinSequence,
 	} );
 }
@@ -105,6 +106,7 @@ export function prepareStoredProtectionState( input: unknown ): StoredProtection
 				ownerParticipantId: state.ownerParticipantId,
 				ownerEpoch: state.ownerEpoch,
 				checkpointHighWaterMilliseconds: state.checkpointHighWaterMilliseconds,
+				completionStatisticsEligible: state.completionStatisticsEligible,
 			} );
 			continue;
 		}
@@ -122,6 +124,7 @@ export function prepareStoredProtectionState( input: unknown ): StoredProtection
 	return StoredProtectionStateSchema.parse( {
 		durable: {
 			schemaVersion: DurableStoredProtectionStateVersion,
+			statisticsDelivery: parsedInput.statisticsDelivery,
 			scopes: durableScopes,
 		},
 		session: {
