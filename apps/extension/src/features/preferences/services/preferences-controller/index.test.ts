@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
 	DefaultPreferencesDocument,
+	Language,
 	Palette,
 	PauseMode,
 	ThemeMode,
@@ -9,6 +10,7 @@ import {
 import { PreferencesStorageKey } from '../../../../domains/preferences/services/preferences-storage';
 import {
 	createPreferencesController,
+	type PreferencesLanguageChangeListener,
 	type PreferencesStorageChangeListener,
 	type PreferencesStorageChangeSource,
 	type PreferencesSystemMotionPreference,
@@ -149,6 +151,7 @@ function createFixture( preferences: PreferencesDocument | null = createPreferen
 	const systemMotionPreference = new MemorySystemMotionPreference();
 	const controller = createPreferencesController( {
 		appearanceTarget: target,
+		browserLanguage: Language.FRENCH,
 		presentation,
 		storage,
 		storageChanges,
@@ -167,24 +170,38 @@ function createFixture( preferences: PreferencesDocument | null = createPreferen
 }
 
 describe( 'createPreferencesController', () => {
-	it( 'projects persisted appearance and pause preferences', async () => {
+	it( 'projects persisted appearance, pause, and automatic browser-language preferences', async () => {
 		const fixture = createFixture();
 
 		await fixture.controller.start();
 
 		expect( fixture.attributes ).toEqual( new Map( [
+			[ 'lang', 'fr' ],
 			[ 'data-tocus-theme', 'dark' ],
 			[ 'data-tocus-palette', 'purple' ],
 			[ 'data-tocus-reduced-motion', 'false' ],
 		] ) );
 		expect( fixture.presentation.mode ).toBe( PauseMode.QUIET );
 		expect( fixture.controller.matches ).toBe( false );
+		expect( fixture.controller.language ).toBe( Language.FRENCH );
+	} );
+
+	it( 'projects an explicit language instead of the detected browser language', async () => {
+		const fixture = createFixture( createPreferences( {
+			language: Language.SPANISH_VOS,
+		} ) );
+
+		await fixture.controller.start();
+
+		expect( fixture.controller.language ).toBe( Language.SPANISH_VOS );
+		expect( fixture.attributes.get( 'lang' ) ).toBe( 'es-AR' );
 	} );
 
 	it( 'projects appearance without requiring an interruption presentation', async () => {
 		const target = { setAttribute: vi.fn() };
 		const controller = createPreferencesController( {
 			appearanceTarget: target,
+			browserLanguage: Language.ENGLISH,
 			storage: { load: vi.fn().mockResolvedValue( createPreferences() ), save: vi.fn() },
 			storageChanges: new MemoryPreferencesStorageChangeSource(),
 			systemMotionPreference: new MemorySystemMotionPreference(),
@@ -195,6 +212,35 @@ describe( 'createPreferencesController', () => {
 		expect( target.setAttribute ).toHaveBeenCalledWith( 'data-tocus-theme', ThemeMode.DARK );
 		expect( target.setAttribute ).toHaveBeenCalledWith( 'data-tocus-palette', Palette.PURPLE );
 		expect( target.setAttribute ).toHaveBeenCalledWith( 'data-tocus-reduced-motion', 'false' );
+		expect( target.setAttribute ).toHaveBeenCalledWith( 'lang', 'en' );
+	} );
+
+	it( 'notifies language listeners only after the effective language and metadata change', async () => {
+		const fixture = createFixture();
+		const observedLanguageTags: string[] = [];
+		/**
+		 * Records the language and metadata visible during one effective-language notification.
+		 * @param language - Effective language delivered by the controller.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		const listener: PreferencesLanguageChangeListener = ( language ) => {
+			observedLanguageTags.push( `${ language }:${ fixture.attributes.get( 'lang' ) ?? '' }` );
+		};
+
+		fixture.controller.addLanguageChangeListener( listener );
+		await fixture.controller.start();
+		fixture.storageChanges.emit( createPreferences( { theme: ThemeMode.LIGHT } ) );
+		fixture.storageChanges.emit( createPreferences( { language: Language.JAPANESE } ) );
+		fixture.storageChanges.emit( createPreferences( {
+			language: Language.JAPANESE,
+			palette: Palette.GREEN,
+		} ) );
+
+		expect( observedLanguageTags ).toEqual( [ `${ Language.JAPANESE }:ja` ] );
+
+		fixture.controller.removeLanguageChangeListener( listener );
+		fixture.storageChanges.emit( createPreferences( { language: Language.GERMAN } ) );
+		expect( observedLanguageTags ).toEqual( [ `${ Language.JAPANESE }:ja` ] );
 	} );
 
 	it( 'combines the stored setting with the operating-system motion preference', async () => {
@@ -247,6 +293,7 @@ describe( 'createPreferencesController', () => {
 		} ) );
 
 		expect( fixture.attributes ).toEqual( new Map( [
+			[ 'lang', 'fr' ],
 			[ 'data-tocus-theme', 'light' ],
 			[ 'data-tocus-palette', 'green' ],
 			[ 'data-tocus-reduced-motion', 'true' ],
@@ -281,11 +328,29 @@ describe( 'createPreferencesController', () => {
 		await fixture.controller.start();
 
 		expect( fixture.attributes ).toEqual( new Map( [
+			[ 'lang', 'fr' ],
 			[ 'data-tocus-theme', 'system' ],
 			[ 'data-tocus-palette', 'brown' ],
 			[ 'data-tocus-reduced-motion', 'false' ],
 		] ) );
 		expect( fixture.presentation.mode ).toBe( PauseMode.BREATHING );
+	} );
+
+	it( 'migrates a version-one preferences storage event through the shared parser', async () => {
+		const fixture = createFixture( createPreferences( { language: Language.RUSSIAN } ) );
+
+		await fixture.controller.start();
+		fixture.storageChanges.emit( {
+			schemaVersion: 1,
+			theme: ThemeMode.LIGHT,
+			palette: Palette.GREEN,
+			pauseMode: PauseMode.BREATHING,
+			reducedMotion: false,
+		} );
+
+		expect( fixture.attributes.get( 'data-tocus-theme' ) ).toBe( ThemeMode.LIGHT );
+		expect( fixture.attributes.get( 'lang' ) ).toBe( 'fr' );
+		expect( fixture.controller.language ).toBe( Language.FRENCH );
 	} );
 
 	it( 'falls back safely when the initial storage read rejects', async () => {
