@@ -1,3 +1,4 @@
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import { assert, expect, fixture, html } from '@open-wc/testing';
 import { emulateMedia } from '@web/test-runner-commands';
 import {
@@ -15,7 +16,6 @@ import {
 import './index';
 import { ComponentAppearanceScreen } from './index';
 import {
-	DefaultAppearanceScreenCopy,
 	type AppearancePreferencesChangeListener,
 	type PreferencesPreview,
 	type PreferencesSource,
@@ -351,6 +351,7 @@ async function renderScreen(
 ): Promise<ComponentAppearanceScreen> {
 	const element = await fixture<ComponentAppearanceScreen>( html`
 		<tocus-f-appearance-screen
+			.copy=${ TestEnglishLocalizationBundle.appearance }
 			.editor=${ editor }
 			.preview=${ preview }
 			.source=${ source }
@@ -484,6 +485,7 @@ describe( 'tocus-f-appearance-screen', () => {
 		const source = new MemoryPreferencesSource();
 		const element = await fixture<ComponentAppearanceScreen>( html`
 			<tocus-f-appearance-screen
+			.copy=${ TestEnglishLocalizationBundle.appearance }
 				.editor=${ editor }
 				.source=${ source }
 			></tocus-f-appearance-screen>
@@ -506,6 +508,7 @@ describe( 'tocus-f-appearance-screen', () => {
 		const preview = new MemoryPreferencesPreview();
 		const element = await fixture<ComponentAppearanceScreen>( html`
 			<tocus-f-appearance-screen
+			.copy=${ TestEnglishLocalizationBundle.appearance }
 				.editor=${ editor }
 				.preview=${ preview }
 			></tocus-f-appearance-screen>
@@ -528,7 +531,8 @@ describe( 'tocus-f-appearance-screen', () => {
 		const currentPreferences = { ...DefaultPreferencesDocument, palette: Palette.PINK };
 		const editor = new DeferredAppearanceLoadEditor( DefaultPreferencesDocument );
 		const element = await fixture<ComponentAppearanceScreen>( html`
-			<tocus-f-appearance-screen .editor=${ editor }></tocus-f-appearance-screen>
+			<tocus-f-appearance-screen
+			.copy=${ TestEnglishLocalizationBundle.appearance } .editor=${ editor }></tocus-f-appearance-screen>
 		` );
 
 		element.remove();
@@ -674,6 +678,40 @@ describe( 'tocus-f-appearance-screen', () => {
 		);
 	} );
 
+	it( 'renders a pending save error with the latest localized copy', async () => {
+		const storage = new MemoryAppearanceEditor( { ...DefaultPreferencesDocument } );
+		const element = await renderScreen( storage );
+
+		storage.rejectSaves = true;
+		getRequiredElement( element, '#palette-blue', HTMLInputElement ).click();
+		await settleScreen( element );
+		element.copy = {
+			...TestEnglishLocalizationBundle.appearance,
+			saveError: 'Localized save error.',
+		};
+		await element.updateComplete;
+
+		assert.include( element.shadowRoot?.textContent ?? '', 'Localized save error.' );
+		assert.notInclude( element.shadowRoot?.textContent ?? '', 'Your appearance could not be saved.' );
+	} );
+
+	it( 'renders a success announcement with the latest localized copy', async () => {
+		const element = await renderScreen( new MemoryAppearanceEditor( {
+			...DefaultPreferencesDocument,
+		} ) );
+
+		getRequiredElement( element, '#palette-blue', HTMLInputElement ).click();
+		await settleScreen( element );
+		element.copy = {
+			...TestEnglishLocalizationBundle.appearance,
+			savedAnnouncement: 'Localized appearance saved.',
+		};
+		await element.updateComplete;
+
+		assert.include( element.shadowRoot?.textContent ?? '', 'Localized appearance saved.' );
+		assert.notInclude( element.shadowRoot?.textContent ?? '', 'Appearance saved.' );
+	} );
+
 	it( 'ignores unavailable, pending, unchecked, unsupported, and invalid changes', async () => {
 		const storage = new DeferredAppearanceEditor( { ...DefaultPreferencesDocument } );
 		const element = await renderScreen( storage );
@@ -713,7 +751,8 @@ describe( 'tocus-f-appearance-screen', () => {
 
 	it( 'keeps the retry action focused when no storage dependency is available', async () => {
 		const element = await fixture<ComponentAppearanceScreen>( html`
-			<tocus-f-appearance-screen></tocus-f-appearance-screen>
+			<tocus-f-appearance-screen
+			.copy=${ TestEnglishLocalizationBundle.appearance }></tocus-f-appearance-screen>
 		` );
 
 		await settleScreen( element );
@@ -725,19 +764,25 @@ describe( 'tocus-f-appearance-screen', () => {
 		assert.equal( element.shadowRoot?.activeElement, retry );
 	} );
 
-	it( 'restores invalid local appearance data to defaults only after confirmation', async () => {
+	it( 'restores invalid local personalization data to defaults only after confirmation', async () => {
 		const storage = new MemoryAppearanceEditor( null );
 		const preview = new MemoryPreferencesPreview();
 		const element = await renderScreen( storage, preview );
 		const restore = getRequiredElement( element, '.restore-action', HTMLButtonElement );
 
-		assert.include( restore.textContent, 'Restore defaults' );
+		assert.include( element.shadowRoot?.textContent ?? '', 'Personalization settings need your attention' );
+		assert.include( element.shadowRoot?.textContent ?? '', 'appearance, pause, motion, and language preferences' );
+		assert.include( restore.textContent, 'Restore personalization defaults' );
 		restore.click();
 		await settleScreen( element );
 
 		assert.deepEqual( storage.writes, [ DefaultPreferencesDocument ] );
 		assert.deepEqual( preview.projections, [ DefaultPreferencesDocument ] );
 		assert.isNull( element.shadowRoot?.querySelector( '[role="alert"]' ) ?? null );
+		assert.include(
+			element.shadowRoot?.querySelector( '[role="status"]' )?.textContent ?? '',
+			'Personalization defaults restored.',
+		);
 		assert.equal(
 			element.shadowRoot?.activeElement,
 			getRequiredElement( element, '#theme-system', HTMLInputElement ),
@@ -816,6 +861,23 @@ describe( 'tocus-f-appearance-screen', () => {
 		assert.equal( element.shadowRoot?.activeElement, restore );
 	} );
 
+	it( 'renders a recovery error with the latest localized copy', async () => {
+		const storage = new MemoryAppearanceEditor( null );
+
+		storage.rejectSaves = true;
+		const element = await renderScreen( storage );
+		getRequiredElement( element, '.restore-action', HTMLButtonElement ).click();
+		await settleScreen( element );
+		element.copy = {
+			...TestEnglishLocalizationBundle.appearance,
+			restoreDefaultsError: 'Localized recovery error.',
+		};
+		await element.updateComplete;
+
+		assert.include( element.shadowRoot?.textContent ?? '', 'Localized recovery error.' );
+		assert.notInclude( element.shadowRoot?.textContent ?? '', 'TOCus could not restore' );
+	} );
+
 	it( 'retries a failed local appearance read', async () => {
 		const storage = new MemoryAppearanceEditor( {
 			...DefaultPreferencesDocument,
@@ -865,7 +927,7 @@ describe( 'tocus-f-appearance-screen', () => {
 			<tocus-f-appearance-screen
 				.editor=${ storage }
 				.copy=${ {
-					...DefaultAppearanceScreenCopy,
+					...TestEnglishLocalizationBundle.appearance,
 					title: 'Apariencia',
 					themeLegend: 'Tema',
 				} }
@@ -877,4 +939,10 @@ describe( 'tocus-f-appearance-screen', () => {
 		assert.include( element.shadowRoot?.querySelector( 'h1' )?.textContent ?? '', 'Apariencia' );
 		assert.include( element.shadowRoot?.querySelector( 'legend' )?.textContent ?? '', 'Tema' );
 	} );
+	it( 'renders nothing before localized copy is injected', async () => {
+		const element = await fixture<ComponentAppearanceScreen>( html`<tocus-f-appearance-screen></tocus-f-appearance-screen>` );
+
+		assert.equal( element.shadowRoot?.childElementCount, 0 );
+	} );
+
 } );
