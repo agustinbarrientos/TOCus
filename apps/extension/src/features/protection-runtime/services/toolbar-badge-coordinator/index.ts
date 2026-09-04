@@ -74,14 +74,14 @@ function selectToolbarState(
  * Creates a browser-neutral badge for the selected toolbar state.
  * @param selectedState - Active state, multiple marker, or inactive marker.
  * @param nowEpochMilliseconds - Current wall-clock time.
- * @param copy - Localized toolbar copy, or undefined to use the default English copy.
+ * @param copy - Localized toolbar copy.
  * @return Complete compact badge projection.
  * @since 0.1.0 Initial implementation.
  */
 function createSelectedProjection(
 	selectedState: ProtectionState | number | null,
 	nowEpochMilliseconds: number,
-	copy: ToolbarBadgeCopy | undefined,
+	copy: ToolbarBadgeCopy,
 ): ToolbarBadgeProjection {
 	if ( typeof selectedState === 'number' ) {
 		return createToolbarBadgeProjection( {
