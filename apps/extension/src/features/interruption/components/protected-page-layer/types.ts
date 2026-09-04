@@ -21,25 +21,3 @@ export interface ProtectedPageLayerCopy {
 	 */
 	formatAllowanceWarning( remainingSeconds: number ): string;
 }
-
-/**
- * Formats the safe English final allowance warning.
- * @param remainingSeconds - Whole allowance seconds remaining.
- * @return Complete English warning sentence.
- * @since 0.1.0 Initial implementation.
- */
-function formatDefaultAllowanceWarning( remainingSeconds: number ): string {
-	const unit = remainingSeconds === 1 ? 'second' : 'seconds';
-
-	return `Your visit window ends in ${ String( remainingSeconds ) } ${ unit }.`;
-}
-
-/**
- * Safe English fallback messages for an unlocalized protected-page layer.
- * @since 0.1.0 Initial implementation.
- */
-export const DefaultProtectedPageLayerCopy: Readonly<ProtectedPageLayerCopy> = {
-	allowanceWarningAnnouncement: 'Your visit window is ending soon.',
-	dialogLabel: 'TOCus pause',
-	formatAllowanceWarning: formatDefaultAllowanceWarning,
-};
