@@ -5,6 +5,30 @@ import {
 } from '../../types/stored-protection-state';
 
 /**
+ * Durable stored-state version accepted for the one supported migration.
+ * @since 0.1.0 Initial implementation.
+ */
+export const DurableStoredProtectionStateVersionOne = 1;
+
+/**
+ * Validates the durable stored-state version accepted for migration.
+ * @since 0.1.0 Initial implementation.
+ */
+export const DurableStoredProtectionStateVersionOneSchema = z.number().int().nonnegative().refine(
+	( version ) => version === DurableStoredProtectionStateVersionOne,
+);
+
+/**
+ * Validates the exact durable version-one document accepted for in-memory migration.
+ * @since 0.1.0 Initial implementation.
+ */
+export const StoredDurableProtectionStateVersionOneSchema = StoredDurableProtectionStateSchema.omit( {
+	statisticsDelivery: true,
+} ).extend( {
+	schemaVersion: DurableStoredProtectionStateVersionOneSchema,
+} ).strict();
+
+/**
  * Outcomes produced while parsing one stored protection-state value.
  * @since 0.1.0 Initial implementation.
  */
