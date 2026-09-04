@@ -7,7 +7,16 @@ import {
 	ProtectionStateType,
 	type ProtectionState,
 } from '../../types/protection-state';
-import { SessionContinuityIdSchema } from '../../types/protection-value';
+import {
+	ProtectionFactBatchIdSchema,
+	SessionContinuityIdSchema,
+	type SessionContinuityId,
+} from '../../types/protection-value';
+import {
+	StoredProtectionStatisticsDeliverySchema,
+	StoredProtectionStatisticsDeliveryStatus,
+	type StoredProtectionStatisticsDelivery,
+} from '../../types/stored-protection-statistics-delivery';
 import {
 	StoredProtectionStateParseStatus,
 	parseStoredProtectionState,
@@ -31,9 +40,16 @@ import {
 	type ProtectionCoordinatorFailureReason as ProtectionCoordinatorFailureReasonValue,
 	type ProtectionCoordinatorInitializationResult,
 	type ProtectionCoordinatorOptions,
+	type ProtectionCoordinatorStatisticsDeliveryBoundary,
+	type ProtectionCoordinatorStatisticsDeliverySnapshot,
 	type ProtectionCoordinatorStateSnapshot,
 	type PrepareProtectionEvent,
 } from './types';
+import {
+	cloneProtectionStatisticsDelivery,
+	createEmptyProtectionStatisticsDelivery,
+	prepareStatisticsDeliveryForTransition,
+} from '../../utils/prepare-protection-statistics-delivery';
 
 /**
  * Clones current runtime state without exposing the coordinator's mutable authority.
@@ -95,8 +111,18 @@ function createDispatchRejection(
  */
 export function createProtectionCoordinator( options: ProtectionCoordinatorOptions ): ProtectionCoordinator {
 	let statesByScope: Record<string, ProtectionState> | null = null;
-	let sessionContinuityId: string | null = null;
+	let sessionContinuityId: SessionContinuityId | null = null;
+	let statisticsDelivery: StoredProtectionStatisticsDelivery | null = null;
 	let operationQueue: Promise<void> = Promise.resolve();
+
+	/**
+	 * Invokes the statistics batch identifier dependency without losing its receiver.
+	 * @return Unknown identifier candidate.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function createProtectionFactBatchId(): unknown {
+		return options.createProtectionFactBatchId();
+	}
 
 	/**
 	 * Serializes one coordinator operation without poisoning the queue after rejection.
@@ -123,6 +149,10 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function initializeOperation( input: unknown ): Promise<ProtectionCoordinatorInitializationResult> {
+		statesByScope = null;
+		sessionContinuityId = null;
+		statisticsDelivery = null;
+
 		const parsedInput = ProtectionCoordinatorInitializationInputSchema.parse( input );
 		let loadedState: Awaited<ReturnType<typeof options.storage.load>>;
 
@@ -158,9 +188,15 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 			return createInitializationFailure( ProtectionCoordinatorFailureReason.INVALID_DURABLE_STATE );
 		}
 
+		const nextStatisticsDelivery =
+			parsedState.durable.status === StoredProtectionStateParseStatus.CURRENT
+				? parsedState.durable.state.statisticsDelivery
+				: createEmptyProtectionStatisticsDelivery();
+
 		const preparedState = prepareStoredProtectionState( {
 			statesByScope: restoredState.statesByScope,
 			sessionContinuityId: nextSessionContinuityId,
+			statisticsDelivery: nextStatisticsDelivery,
 		} );
 
 		try {
@@ -171,6 +207,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 
 		statesByScope = restoredState.statesByScope;
 		sessionContinuityId = nextSessionContinuityId;
+		statisticsDelivery = nextStatisticsDelivery;
 
 		return ProtectionCoordinatorInitializationResultSchema.parse( {
 			status: restoredState.status === ProtectionStateRestoreStatus.RECONCILIATION_REQUIRED
@@ -185,17 +222,24 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	/**
 	 * Prepares, applies, and persists one protection event inside the serialized queue.
 	 * @param prepareEvent - Deferred event preparation with current browser observations.
+	 * @param measurementRevision - Optional revision captured with an emitted statistics batch.
 	 * @return Validated dispatch result after persistence.
 	 * @throws {Error} When event preparation rejects or a domain invariant fails unexpectedly.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function dispatchOperation(
 		prepareEvent: PrepareProtectionEvent,
+		measurementRevision?: unknown,
 	): Promise<ProtectionCoordinatorDispatchResult> {
 		const currentStatesByScope = statesByScope;
 		const currentSessionContinuityId = sessionContinuityId;
+		const currentStatisticsDelivery = statisticsDelivery;
 
-		if ( currentStatesByScope === null || currentSessionContinuityId === null ) {
+		if (
+			currentStatesByScope === null ||
+			currentSessionContinuityId === null ||
+			currentStatisticsDelivery === null
+		) {
 			return createDispatchRejection( ProtectionCoordinatorFailureReason.NOT_INITIALIZED );
 		}
 
@@ -232,9 +276,19 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 			...currentStatesByScope,
 			[ parsedEvent.scopeId ]: transition.state,
 		};
+		const nextStatisticsDelivery = transition.facts.length === 0
+			? currentStatisticsDelivery
+			: prepareStatisticsDeliveryForTransition( {
+				delivery: currentStatisticsDelivery,
+				facts: transition.facts,
+				scopeId: parsedEvent.scopeId,
+				measurementRevision,
+				createProtectionFactBatchId,
+			} );
 		const preparedState = prepareStoredProtectionState( {
 			statesByScope: nextStatesByScope,
 			sessionContinuityId: currentSessionContinuityId,
+			statisticsDelivery: nextStatisticsDelivery,
 		} );
 
 		try {
@@ -244,6 +298,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 		}
 
 		statesByScope = nextStatesByScope;
+		statisticsDelivery = nextStatisticsDelivery;
 
 		return ProtectionCoordinatorDispatchResultSchema.parse( {
 			status: ProtectionCoordinatorDispatchStatus.APPLIED,
@@ -266,12 +321,16 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	/**
 	 * Enqueues deferred preparation for one protection event.
 	 * @param prepareEvent - Deferred event preparation with current browser observations.
+	 * @param measurementRevision - Optional revision captured with an emitted statistics batch.
 	 * @return Validated dispatch result after persistence.
 	 * @throws {Error} When event preparation rejects or a domain invariant fails unexpectedly.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	function dispatch( prepareEvent: PrepareProtectionEvent ): Promise<ProtectionCoordinatorDispatchResult> {
-		return enqueue( () => dispatchOperation( prepareEvent ) );
+	function dispatch(
+		prepareEvent: PrepareProtectionEvent,
+		measurementRevision?: unknown,
+	): Promise<ProtectionCoordinatorDispatchResult> {
+		return enqueue( () => dispatchOperation( prepareEvent, measurementRevision ) );
 	}
 
 	/**
@@ -285,7 +344,195 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 		) );
 	}
 
-	return { dispatch, getStates, initialize };
+	/**
+	 * Returns detached statistics delivery after earlier queued operations settle.
+	 * @return Current durable delivery, or null before successful initialization.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function getStatisticsDelivery(): Promise<ProtectionCoordinatorStatisticsDeliverySnapshot | null> {
+		return enqueue( () => Promise.resolve(
+			statisticsDelivery === null
+				? null
+				: cloneProtectionStatisticsDelivery( statisticsDelivery ),
+		) );
+	}
+
+	/**
+	 * Captures the current durable-delivery tail without entering the coordinator queue.
+	 * @return Current FIFO boundary, or null before successful initialization.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function getStatisticsDeliveryBoundary(): ProtectionCoordinatorStatisticsDeliveryBoundary | null {
+		if ( statisticsDelivery === null ) {
+			return null;
+		}
+
+		return {
+			lastBatchId: statisticsDelivery.outbox.at( -1 )?.batchId ?? null,
+		};
+	}
+
+	/**
+	 * Returns the current browser-session continuity identifier without entering the queue.
+	 * @return Current continuity identifier, or null before successful initialization.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function getSessionContinuityId(): SessionContinuityId | null {
+		return sessionContinuityId;
+	}
+
+	/**
+	 * Removes one exact head delivery batch after durable-only persistence succeeds.
+	 * @param batchId - Unknown candidate head batch identifier.
+	 * @return True only after the matching head is durably removed.
+	 * @throws {Error} When durable-only persistence rejects unexpectedly.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function acknowledgeStatisticsDeliveryBatchOperation( batchId: unknown ): Promise<boolean> {
+		const currentStatesByScope = statesByScope;
+		const currentSessionContinuityId = sessionContinuityId;
+		const currentStatisticsDelivery = statisticsDelivery;
+
+		if (
+			currentStatesByScope === null ||
+			currentSessionContinuityId === null ||
+			currentStatisticsDelivery === null
+		) {
+			return false;
+		}
+
+		const parsedBatchId = ProtectionFactBatchIdSchema.safeParse( batchId );
+		const headBatch = currentStatisticsDelivery.outbox[ 0 ];
+
+		if ( ! parsedBatchId.success || headBatch?.batchId !== parsedBatchId.data ) {
+			return false;
+		}
+
+		const nextStatisticsDelivery = StoredProtectionStatisticsDeliverySchema.parse( {
+			status: currentStatisticsDelivery.status,
+			outbox: currentStatisticsDelivery.outbox.slice( 1 ),
+		} );
+		const preparedState = prepareStoredProtectionState( {
+			statesByScope: currentStatesByScope,
+			sessionContinuityId: currentSessionContinuityId,
+			statisticsDelivery: nextStatisticsDelivery,
+		} );
+
+		await options.storage.saveDurableStatisticsDelivery( preparedState.durable );
+		statisticsDelivery = nextStatisticsDelivery;
+
+		return true;
+	}
+
+	/**
+	 * Enqueues one exact-head statistics-delivery acknowledgement.
+	 * @param batchId - Unknown candidate head batch identifier.
+	 * @return True only after the matching head is durably removed.
+	 * @throws {Error} When durable-only persistence rejects unexpectedly.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function acknowledgeStatisticsDeliveryBatch( batchId: unknown ): Promise<boolean> {
+		return enqueue( () => acknowledgeStatisticsDeliveryBatchOperation( batchId ) );
+	}
+
+	/**
+	 * Replaces current statistics delivery with an empty incomplete reset marker.
+	 * @return True only after the reset is durably stored.
+	 * @throws {Error} When durable-only persistence rejects unexpectedly.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function resetStatisticsDeliveryOperation(): Promise<boolean> {
+		const currentStatesByScope = statesByScope;
+		const currentSessionContinuityId = sessionContinuityId;
+
+		if (
+			currentStatesByScope === null ||
+			currentSessionContinuityId === null ||
+			statisticsDelivery === null
+		) {
+			return false;
+		}
+
+		const nextStatisticsDelivery = StoredProtectionStatisticsDeliverySchema.parse( {
+			status: StoredProtectionStatisticsDeliveryStatus.INCOMPLETE,
+			outbox: [],
+		} );
+		const preparedState = prepareStoredProtectionState( {
+			statesByScope: currentStatesByScope,
+			sessionContinuityId: currentSessionContinuityId,
+			statisticsDelivery: nextStatisticsDelivery,
+		} );
+
+		await options.storage.saveDurableStatisticsDelivery( preparedState.durable );
+		statisticsDelivery = nextStatisticsDelivery;
+
+		return true;
+	}
+
+	/**
+	 * Enqueues one durable statistics-delivery reset.
+	 * @return True only after the reset is durably stored.
+	 * @throws {Error} When durable-only persistence rejects unexpectedly.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function resetStatisticsDelivery(): Promise<boolean> {
+		return enqueue( resetStatisticsDeliveryOperation );
+	}
+
+	/**
+	 * Marks one empty incomplete statistics-delivery reset complete after durable persistence.
+	 * @return True only after the completion is durably stored.
+	 * @throws {Error} When durable-only persistence rejects unexpectedly.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function completeStatisticsDeliveryResetOperation(): Promise<boolean> {
+		const currentStatesByScope = statesByScope;
+		const currentSessionContinuityId = sessionContinuityId;
+		const currentStatisticsDelivery = statisticsDelivery;
+
+		if (
+			currentStatesByScope === null ||
+			currentSessionContinuityId === null ||
+			currentStatisticsDelivery?.status !== StoredProtectionStatisticsDeliveryStatus.INCOMPLETE ||
+			currentStatisticsDelivery.outbox.length !== 0
+		) {
+			return false;
+		}
+
+		const nextStatisticsDelivery = createEmptyProtectionStatisticsDelivery();
+		const preparedState = prepareStoredProtectionState( {
+			statesByScope: currentStatesByScope,
+			sessionContinuityId: currentSessionContinuityId,
+			statisticsDelivery: nextStatisticsDelivery,
+		} );
+
+		await options.storage.saveDurableStatisticsDelivery( preparedState.durable );
+		statisticsDelivery = nextStatisticsDelivery;
+
+		return true;
+	}
+
+	/**
+	 * Enqueues completion of one durable statistics-delivery reset.
+	 * @return True only after the completion is durably stored.
+	 * @throws {Error} When durable-only persistence rejects unexpectedly.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function completeStatisticsDeliveryReset(): Promise<boolean> {
+		return enqueue( completeStatisticsDeliveryResetOperation );
+	}
+
+	return {
+		acknowledgeStatisticsDeliveryBatch,
+		completeStatisticsDeliveryReset,
+		dispatch,
+		getStates,
+		getSessionContinuityId,
+		getStatisticsDelivery,
+		getStatisticsDeliveryBoundary,
+		initialize,
+		resetStatisticsDelivery,
+	};
 }
 
 export * from './types';
