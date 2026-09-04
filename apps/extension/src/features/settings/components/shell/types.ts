@@ -22,6 +22,7 @@ export const SettingsDestination = {
 	APPEARANCE: 'appearance',
 	PROTECTED_SITES: 'protected-sites',
 	SCHEDULE: 'schedule',
+	STATISTICS: 'statistics',
 	TIMING: 'timing',
 } as const;
 
@@ -40,6 +41,7 @@ export interface SettingsShellCopy {
 	appearance: string;
 	protectedSites: string;
 	schedule: string;
+	statistics: string;
 	timing: string;
 }
 
@@ -52,5 +54,6 @@ export const DefaultSettingsShellCopy: Readonly<SettingsShellCopy> = Object.free
 	appearance: 'Appearance',
 	protectedSites: 'Protected sites',
 	schedule: 'Schedule',
+	statistics: 'Statistics',
 	timing: 'Timing',
 } );
