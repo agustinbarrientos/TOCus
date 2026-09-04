@@ -1,6 +1,7 @@
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { keyed } from 'lit/directives/keyed.js';
+import { isLocalizationReady } from '../../../../localization/utils/is-localization-ready';
 import {
 	ProtectionConfigurationEditRejectionReason,
 	ProtectionConfigurationEditStatus,
@@ -11,11 +12,12 @@ import { type ProtectionConfigurationDocument } from '../../../../domains/protec
 import { DefaultTimingConfiguration, type TimingConfiguration } from '../../../../domains/protection/types/timing-configuration';
 import styles from './web-component-style.scss?inline';
 import {
-	DefaultTimingScreenCopy,
 	TimingScreenLoadStatus,
+	TimingScreenSaveErrorReason,
 	type TimingFormEvent,
 	type TimingScreenCopy,
 	type TimingScreenLoadStatus as TimingScreenLoadStatusValue,
+	type TimingScreenSaveErrorReason as TimingScreenSaveErrorReasonValue,
 } from './types';
 
 const SECOND_MILLISECONDS = 1_000;
@@ -65,7 +67,7 @@ export class ComponentTimingScreen extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@property( { attribute: false } )
-	accessor copy: Readonly<TimingScreenCopy> = DefaultTimingScreenCopy;
+	accessor copy!: Readonly<TimingScreenCopy>;
 
 	@state()
 	private accessor configuration: ProtectionConfigurationDocument | null = null;
@@ -80,13 +82,13 @@ export class ComponentTimingScreen extends LitElement {
 	private accessor saving = false;
 
 	@state()
-	private accessor maximumWaitError = '';
+	private accessor maximumWaitInvalid = false;
 
 	@state()
-	private accessor saveError = '';
+	private accessor saveErrorReason: TimingScreenSaveErrorReasonValue | null = null;
 
 	@state()
-	private accessor announcement = '';
+	private accessor savedAnnouncementVisible = false;
 
 	@state()
 	private accessor announcementSequence = 0;
@@ -179,12 +181,31 @@ export class ComponentTimingScreen extends LitElement {
 
 	/**
 	 * Replaces the polite live-region content so repeated messages are announced.
-	 * @param message - Localized status message to announce.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	private announce( message: string ): void {
-		this.announcement = message;
+	private announceSaved(): void {
+		this.savedAnnouncementVisible = true;
 		this.announcementSequence += 1;
+	}
+
+	/**
+	 * Resolves the retained save failure through the latest localized copy.
+	 * @return Current localized save error, or an empty string when no failure is active.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private resolveSaveError(): string {
+		if ( this.saveErrorReason === null ) {
+			return '';
+		}
+
+		const messages: Record<TimingScreenSaveErrorReasonValue, string> = {
+			[ TimingScreenSaveErrorReason.INVALID_CONFIGURATION ]: this.copy.invalidConfigurationError,
+			[ TimingScreenSaveErrorReason.INVALID_TIMING_CONFIGURATION ]:
+				this.copy.invalidTimingConfigurationError,
+			[ TimingScreenSaveErrorReason.PERSISTENCE ]: this.copy.saveError,
+		};
+
+		return messages[ this.saveErrorReason ];
 	}
 
 	/**
@@ -216,11 +237,9 @@ export class ComponentTimingScreen extends LitElement {
 	private readonly handleFormChange = ( event: TimingFormEvent ): void => {
 		const timingConfiguration = this.readTimingConfiguration( event.currentTarget );
 		this.timingConfiguration = timingConfiguration;
-		this.maximumWaitError =
-			timingConfiguration.maximumWaitMilliseconds < timingConfiguration.initialWaitMilliseconds
-				? this.copy.maximumWaitError
-				: '';
-		this.saveError = '';
+		this.maximumWaitInvalid =
+			timingConfiguration.maximumWaitMilliseconds < timingConfiguration.initialWaitMilliseconds;
+		this.saveErrorReason = null;
 	};
 
 	/**
@@ -243,11 +262,11 @@ export class ComponentTimingScreen extends LitElement {
 
 		const timingConfiguration = this.readTimingConfiguration( event.currentTarget );
 		this.timingConfiguration = timingConfiguration;
-		this.maximumWaitError = '';
-		this.saveError = '';
+		this.maximumWaitInvalid = false;
+		this.saveErrorReason = null;
 
 		if ( timingConfiguration.maximumWaitMilliseconds < timingConfiguration.initialWaitMilliseconds ) {
-			this.maximumWaitError = this.copy.maximumWaitError;
+			this.maximumWaitInvalid = true;
 			await this.updateComplete;
 			this.shadowRoot?.querySelector<HTMLSelectElement>( '#maximum-wait' )?.focus();
 			return;
@@ -259,18 +278,18 @@ export class ComponentTimingScreen extends LitElement {
 			const result = await this.editor.updateTiming( timingConfiguration );
 
 			if ( result.status === ProtectionConfigurationEditStatus.REJECTED ) {
-				this.saveError = result.reason ===
+				this.saveErrorReason = result.reason ===
 					ProtectionConfigurationEditRejectionReason.INVALID_TIMING_CONFIGURATION
-					? this.copy.invalidTimingConfigurationError
-					: this.copy.invalidConfigurationError;
+					? TimingScreenSaveErrorReason.INVALID_TIMING_CONFIGURATION
+					: TimingScreenSaveErrorReason.INVALID_CONFIGURATION;
 				return;
 			}
 
 			this.configuration = result.configuration;
 			this.timingConfiguration = result.configuration.timingConfiguration;
-			this.announce( this.copy.savedAnnouncement );
+			this.announceSaved();
 		} catch {
-			this.saveError = this.copy.saveError;
+			this.saveErrorReason = TimingScreenSaveErrorReason.PERSISTENCE;
 		} finally {
 			this.saving = false;
 		}
@@ -282,12 +301,18 @@ export class ComponentTimingScreen extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	protected override render(): TemplateResult {
+		if ( ! isLocalizationReady( this.copy ) ) {
+			return html``;
+		}
 		const loading = this.loadStatus === TimingScreenLoadStatus.LOADING;
 		const formDisabled = this.loadStatus !== TimingScreenLoadStatus.READY || this.saving;
 		const initialWaitSeconds = this.timingConfiguration.initialWaitMilliseconds / SECOND_MILLISECONDS;
 		const waitIncreaseSeconds = this.timingConfiguration.ladderIncreaseMilliseconds / SECOND_MILLISECONDS;
 		const maximumWaitSeconds = this.timingConfiguration.maximumWaitMilliseconds / SECOND_MILLISECONDS;
 		const allowanceMinutes = this.timingConfiguration.allowanceMilliseconds / MINUTE_MILLISECONDS;
+		const maximumWaitError = this.maximumWaitInvalid ? this.copy.maximumWaitError : '';
+		const saveError = this.resolveSaveError();
+		const announcement = this.savedAnnouncementVisible ? this.copy.savedAnnouncement : '';
 
 		return html`
 			<main aria-labelledby="timing-title" aria-busy=${ loading ? 'true' : 'false' }>
@@ -344,7 +369,7 @@ export class ComponentTimingScreen extends LitElement {
 								id="maximum-wait"
 								name="maximum-wait"
 								aria-describedby="maximum-wait-help maximum-wait-error"
-								aria-invalid=${ this.maximumWaitError === '' ? 'false' : 'true' }
+								aria-invalid=${ this.maximumWaitInvalid ? 'true' : 'false' }
 								?disabled=${ formDisabled }
 							>
 								${ WAIT_SECONDS_OPTIONS.map( ( seconds ) => html`
@@ -356,7 +381,7 @@ export class ComponentTimingScreen extends LitElement {
 							</select>
 							<p id="maximum-wait-help" class="field-help">${ this.copy.maximumWaitHelp }</p>
 							<p id="maximum-wait-error" class="maximum-wait-error" role="alert">
-								${ this.maximumWaitError }
+								${ maximumWaitError }
 							</p>
 						</div>
 						<div class="timing-field">
@@ -422,7 +447,7 @@ export class ComponentTimingScreen extends LitElement {
 						<button class="save-action" type="submit" ?disabled=${ formDisabled }>
 							${ this.saving ? this.copy.savingTiming : this.copy.saveTiming }
 						</button>
-						<p class="form-error" role="alert">${ this.saveError }</p>
+						<p class="form-error" role="alert">${ saveError }</p>
 					</div>
 				</form>
 				` : html`` }
@@ -430,7 +455,7 @@ export class ComponentTimingScreen extends LitElement {
 				<p class="announcement" role="status" aria-live="polite">
 					${ keyed(
 						this.announcementSequence,
-						html`<span>${ this.announcement }</span>`,
+						html`<span>${ announcement }</span>`,
 					) }
 				</p>
 			</main>
