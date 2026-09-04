@@ -110,4 +110,13 @@ export interface ProtectionStorageService {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	save( input: unknown ): Promise<void>;
+
+	/**
+	 * Validates and stores only the durable document for one statistics-delivery update.
+	 * @param input - Unknown current durable-state input.
+	 * @return Promise resolved after the durable write completes.
+	 * @throws {Error} When validation fails, no current snapshot is established, or storage rejects.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	saveDurableStatisticsDelivery( input: unknown ): Promise<void>;
 }
