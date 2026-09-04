@@ -1,3 +1,4 @@
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import { assert, expect, fixture, html } from '@open-wc/testing';
 import {
 	createProtectionConfigurationEditor,
@@ -368,7 +369,8 @@ async function settleAsyncAction( element: ComponentProtectedSiteItem ): Promise
 describe( 'tocus-f-protected-site-item', () => {
 	it( 'renders no partial item before complete site identity inputs exist', async () => {
 		const element = await fixture<ComponentProtectedSiteItem>( html`
-			<tocus-f-protected-site-item></tocus-f-protected-site-item>
+			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }></tocus-f-protected-site-item>
 		` );
 
 		assert.equal( element.shadowRoot?.textContent.trim(), '' );
@@ -380,6 +382,7 @@ describe( 'tocus-f-protected-site-item', () => {
 		);
 		const element = await fixture<ComponentProtectedSiteItem>( html`
 			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 				.accessGranted=${ false }
@@ -394,12 +397,41 @@ describe( 'tocus-f-protected-site-item', () => {
 		assert.include( getRequiredElement( element, '.operation-error' ).textContent, 'still required' );
 	} );
 
+	it( 'renders an active access error from the latest localized copy', async () => {
+		const permissionManager = createPermissionManager(
+			() => Promise.resolve( { status: SitePermissionRequestStatus.DENIED } ),
+		);
+		const element = await fixture<ComponentProtectedSiteItem>( html`
+			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
+				.site=${ SITE }
+				.identity=${ IDENTITY }
+				.accessGranted=${ false }
+				.permissionManager=${ permissionManager }
+			></tocus-f-protected-site-item>
+		` );
+
+		getRequiredElement( element, '.restore-access-action', HTMLButtonElement ).click();
+		await settleAsyncAction( element );
+		element.copy = {
+			...TestEnglishLocalizationBundle.protectedSiteItem,
+			accessRequestError: 'Localized access error.',
+		};
+		await element.updateComplete;
+
+		assert.equal(
+			getRequiredElement( element, '.operation-error' ).textContent.trim(),
+			'Localized access error.',
+		);
+	} );
+
 	it( 'keeps the access-required state when the browser permission request rejects', async () => {
 		const permissionManager = createPermissionManager(
 			() => Promise.reject( new Error( 'Unavailable.' ) ),
 		);
 		const element = await fixture<ComponentProtectedSiteItem>( html`
 			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 				.accessGranted=${ false }
@@ -441,6 +473,7 @@ describe( 'tocus-f-protected-site-item', () => {
 		} );
 		const element = await fixture<ComponentProtectedSiteItem>( html`
 			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 				.accessGranted=${ false }
@@ -476,6 +509,7 @@ describe( 'tocus-f-protected-site-item', () => {
 
 		const element = await fixture<ComponentProtectedSiteItem>( html`
 			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 			></tocus-f-protected-site-item>
@@ -495,6 +529,7 @@ describe( 'tocus-f-protected-site-item', () => {
 	it( 'labels independent exact-host behavior without implying broader coverage', async () => {
 		const element = await fixture<ComponentProtectedSiteItem>( html`
 			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.site=${ {
 					identityHost: 'localhost',
 					rule: {
@@ -518,6 +553,7 @@ describe( 'tocus-f-protected-site-item', () => {
 	it( 'uses a decorative cached favicon and silently returns to the monogram after image failure', async () => {
 		const element = await fixture<ComponentProtectedSiteItem>( html`
 			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 				.faviconSource=${ 'chrome-extension://extension-id/_favicon/?pageUrl=https%3A%2F%2Fwww.instagram.com%2F&size=32' }
@@ -538,6 +574,7 @@ describe( 'tocus-f-protected-site-item', () => {
 	it( 'renders the selected edit behavior without relational-selector support', async () => {
 		const element = await fixture<ComponentProtectedSiteItem>( html`
 			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 			></tocus-f-protected-site-item>
@@ -563,6 +600,7 @@ describe( 'tocus-f-protected-site-item', () => {
 		const storage = new MemorySiteItemStorage();
 		const element = await fixture<ComponentProtectedSiteItem>( html`
 			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 				.editor=${ createEditor( storage ) }
@@ -602,6 +640,7 @@ describe( 'tocus-f-protected-site-item', () => {
 		const storage = new MemorySiteItemStorage( true );
 		const element = await fixture<ComponentProtectedSiteItem>( html`
 			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 				.editor=${ createEditor( storage ) }
@@ -626,6 +665,7 @@ describe( 'tocus-f-protected-site-item', () => {
 		const storage = new DeferredSiteItemStorage();
 		const element = await fixture<ComponentProtectedSiteItem>( html`
 			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 				.editor=${ createEditor( storage ) }
@@ -654,6 +694,7 @@ describe( 'tocus-f-protected-site-item', () => {
 		const storage = new MemorySiteItemStorage();
 		const element = await fixture<ComponentProtectedSiteItem>( html`
 			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 				.editor=${ createEditor( storage ) }
@@ -681,6 +722,7 @@ describe( 'tocus-f-protected-site-item', () => {
 		const storage = new MemorySiteItemStorage();
 		const element = await fixture<ComponentProtectedSiteItem>( html`
 			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 				.editor=${ createEditor( storage ) }
@@ -700,6 +742,7 @@ describe( 'tocus-f-protected-site-item', () => {
 	it( 'reports a missing editor dependency without discarding the open form', async () => {
 		const element = await fixture<ComponentProtectedSiteItem>( html`
 			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 			></tocus-f-protected-site-item>
@@ -717,6 +760,7 @@ describe( 'tocus-f-protected-site-item', () => {
 		const storage = new MemorySiteItemStorage();
 		const element = await fixture<ComponentProtectedSiteItem>( html`
 			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 				.editor=${ createEditor( storage ) }
@@ -759,6 +803,7 @@ describe( 'tocus-f-protected-site-item', () => {
 		storage.configuration = INDEPENDENT_CONFIGURATION;
 		const element = await fixture<ComponentProtectedSiteItem>( html`
 			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.site=${ INDEPENDENT_SITE }
 				.identity=${ IDENTITY }
 				.editor=${ createEditor( storage ) }
@@ -795,6 +840,7 @@ describe( 'tocus-f-protected-site-item', () => {
 		const storage = new MemorySiteItemStorage();
 		const element = await fixture<ComponentProtectedSiteItem>( html`
 			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 				.editor=${ createEditor( storage ) }
@@ -818,6 +864,7 @@ describe( 'tocus-f-protected-site-item', () => {
 		const storage = new MemorySiteItemStorage( true );
 		const element = await fixture<ComponentProtectedSiteItem>( html`
 			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 				.editor=${ createEditor( storage ) }
@@ -840,6 +887,7 @@ describe( 'tocus-f-protected-site-item', () => {
 		const storage = new DeferredSiteItemStorage();
 		const element = await fixture<ComponentProtectedSiteItem>( html`
 			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 				.editor=${ createEditor( storage ) }
@@ -867,6 +915,7 @@ describe( 'tocus-f-protected-site-item', () => {
 	it( 'reports a missing editor dependency from removal confirmation', async () => {
 		const element = await fixture<ComponentProtectedSiteItem>( html`
 			<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 				.site=${ SITE }
 				.identity=${ IDENTITY }
 			></tocus-f-protected-site-item>
@@ -881,4 +930,10 @@ describe( 'tocus-f-protected-site-item', () => {
 
 		assert.include( getRequiredElement( element, '.operation-error' ).textContent, 'could not be saved' );
 	} );
+	it( 'renders nothing before localized copy is injected', async () => {
+		const element = await fixture<ComponentProtectedSiteItem>( html`<tocus-f-protected-site-item></tocus-f-protected-site-item>` );
+
+		assert.equal( element.shadowRoot?.childElementCount, 0 );
+	} );
+
 } );
