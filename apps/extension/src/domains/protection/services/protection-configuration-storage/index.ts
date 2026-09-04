@@ -1,27 +1,73 @@
-import { z } from 'zod';
 import {
-	ProtectedSiteConfigurationSetSchema,
 	ProtectionConfigurationDocumentSchema,
 	ProtectionConfigurationDocumentVersion,
 	type ProtectionConfigurationDocument,
+	type ProtectionScopeMeasurementRevisionMap,
+	type ProtectionScopeScheduleMap,
 } from '../../types/protected-site-configuration';
 import { DefaultProtectionSchedule } from '../../types/protection-schedule';
-import { DefaultProtectionScopeId } from '../../types/protection-value';
-import { DefaultTimingConfiguration } from '../../types/timing-configuration';
+import {
+	DefaultProtectionScopeId,
+	ProtectionMeasurementRevisionSchema,
+	type ProtectionScopeId,
+} from '../../types/protection-value';
+import {
+	DefaultTimingConfiguration,
+	type TimingConfiguration,
+} from '../../types/timing-configuration';
 import {
 	ProtectionConfigurationStorageKey,
+	VersionOneProtectionConfigurationDocumentSchema,
+	VersionTwoProtectionConfigurationDocumentSchema,
 	type ProtectionConfigurationStorageService,
 	type ProtectionConfigurationStorageServiceOptions,
 } from './types';
 
 /**
- * Validates the complete configuration document used before schedules and timing were persisted.
+ * Creates deterministic initial revisions for every active scope in a migrated configuration.
+ * @param sites - Validated protected-site configurations whose active scopes need revisions.
+ * @return Stable initial measurement revisions indexed by active scope.
  * @since 0.1.0 Initial implementation.
  */
-const VersionOneProtectionConfigurationDocumentSchema = z.object( {
-	schemaVersion: z.literal( 1 ),
-	sites: ProtectedSiteConfigurationSetSchema,
-} ).strict();
+function createInitialMeasurementRevisions(
+	sites: ProtectionConfigurationDocument[ 'sites' ],
+): ProtectionScopeMeasurementRevisionMap {
+	const scopeIds = new Set<ProtectionScopeId>( [
+		DefaultProtectionScopeId,
+		...sites.map( ( site ) => site.rule.scopeId ),
+	] );
+
+	return Object.fromEntries(
+		[ ...scopeIds ].map( ( scopeId ) => [
+			scopeId,
+			ProtectionMeasurementRevisionSchema.parse( `revision_initial_${ scopeId }` ),
+		] ),
+	);
+}
+
+/**
+ * Creates a current configuration document from validated persisted fields.
+ * @param sites - Validated protected-site configurations to retain.
+ * @param timingConfiguration - Validated global timing configuration to retain.
+ * @param schedulesByScope - Validated normalized schedules to retain.
+ * @return Current configuration or null when the migrated fields violate current invariants.
+ * @since 0.1.0 Initial implementation.
+ */
+function migrateConfiguration(
+	sites: ProtectionConfigurationDocument[ 'sites' ],
+	timingConfiguration: TimingConfiguration,
+	schedulesByScope: ProtectionScopeScheduleMap,
+): ProtectionConfigurationDocument | null {
+	const configuration = ProtectionConfigurationDocumentSchema.safeParse( {
+		schemaVersion: ProtectionConfigurationDocumentVersion,
+		sites,
+		timingConfiguration,
+		schedulesByScope,
+		measurementRevisionsByScope: createInitialMeasurementRevisions( sites ),
+	} );
+
+	return configuration.success ? configuration.data : null;
+}
 
 /**
  * Creates the current configuration defaults for one validated protected-site set.
@@ -31,18 +77,13 @@ const VersionOneProtectionConfigurationDocumentSchema = z.object( {
  */
 function migrateVersionOneConfiguration(
 	sites: ProtectionConfigurationDocument[ 'sites' ],
-): ProtectionConfigurationDocument {
+): ProtectionConfigurationDocument | null {
 	const scopeIds = new Set( [ DefaultProtectionScopeId, ...sites.map( ( site ) => site.rule.scopeId ) ] );
 	const schedulesByScope = Object.fromEntries(
 		[ ...scopeIds ].map( ( scopeId ) => [ scopeId, DefaultProtectionSchedule ] ),
 	);
 
-	return ProtectionConfigurationDocumentSchema.parse( {
-		schemaVersion: ProtectionConfigurationDocumentVersion,
-		sites,
-		timingConfiguration: DefaultTimingConfiguration,
-		schedulesByScope,
-	} );
+	return migrateConfiguration( sites, DefaultTimingConfiguration, schedulesByScope );
 }
 
 /**
@@ -77,6 +118,17 @@ export function createProtectionConfigurationStorageService(
 		const versionOneConfiguration = VersionOneProtectionConfigurationDocumentSchema.safeParse(
 			storedConfiguration,
 		);
+		const versionTwoConfiguration = VersionTwoProtectionConfigurationDocumentSchema.safeParse(
+			storedConfiguration,
+		);
+
+		if ( versionTwoConfiguration.success ) {
+			return migrateConfiguration(
+				versionTwoConfiguration.data.sites,
+				versionTwoConfiguration.data.timingConfiguration,
+				versionTwoConfiguration.data.schedulesByScope,
+			);
+		}
 
 		return versionOneConfiguration.success
 			? migrateVersionOneConfiguration( versionOneConfiguration.data.sites )
