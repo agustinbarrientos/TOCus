@@ -7,6 +7,8 @@ import { type ProtectionConfigurationEditor } from '../../../../domains/protecti
 import { type PreferencesEditor } from '../../../../domains/preferences/services/preferences-editor';
 import { type SiteFaviconProvider } from '../../../protected-sites/services/site-favicon-provider';
 import { type SitePermissionManager } from '../../../protected-sites/services/site-permission-manager';
+import '../../../statistics/components/settings-screen';
+import { type StatisticsSource } from '../../../statistics/components/settings-screen/types';
 import '../../../protected-sites/components/screen';
 import '../appearance-screen';
 import { type PreferencesPreview, type PreferencesSource } from '../appearance-screen/types';
@@ -34,6 +36,8 @@ function resolveSettingsDestination( hash: string ): SettingsDestinationValue {
 			return SettingsDestination.APPEARANCE;
 		case `#${ SettingsDestination.SCHEDULE }`:
 			return SettingsDestination.SCHEDULE;
+		case `#${ SettingsDestination.STATISTICS }`:
+			return SettingsDestination.STATISTICS;
 		case `#${ SettingsDestination.TIMING }`:
 			return SettingsDestination.TIMING;
 		default:
@@ -49,6 +53,10 @@ function resolveSettingsDestination( hash: string ): SettingsDestinationValue {
  */
 @customElement( 'tocus-f-settings-shell' )
 export class ComponentSettingsShell extends LitElement {
+	/**
+	 * Shadow-root styles for the settings shell.
+	 * @since 0.1.0 Initial implementation.
+	 */
 	static override styles = css`${ unsafeCSS( styles ) }`;
 
 	/**
@@ -94,6 +102,13 @@ export class ComponentSettingsShell extends LitElement {
 	accessor preferencesSource: PreferencesSource | null = null;
 
 	/**
+	 * Authoritative all-time statistics source used by the Statistics screen.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor statisticsSource: StatisticsSource | null = null;
+
+	/**
 	 * Browser family whose native settings conventions the shell follows.
 	 * @since 0.1.0 Initial implementation.
 	 */
@@ -107,6 +122,10 @@ export class ComponentSettingsShell extends LitElement {
 	@property( { attribute: false } )
 	accessor copy: Readonly<SettingsShellCopy> = DefaultSettingsShellCopy;
 
+	/**
+	 * Settings destination selected by the current URL hash.
+	 * @since 0.1.0 Initial implementation.
+	 */
 	@state()
 	private accessor destination: SettingsDestinationValue = resolveSettingsDestination( window.location.hash );
 
@@ -154,6 +173,12 @@ export class ComponentSettingsShell extends LitElement {
 				`;
 			case SettingsDestination.SCHEDULE:
 				return html`<tocus-f-schedule-screen .editor=${ this.editor }></tocus-f-schedule-screen>`;
+			case SettingsDestination.STATISTICS:
+				return html`
+					<tocus-f-statistics-settings-screen
+						.source=${ this.statisticsSource }
+					></tocus-f-statistics-settings-screen>
+				`;
 			case SettingsDestination.TIMING:
 				return html`<tocus-f-timing-screen .editor=${ this.editor }></tocus-f-timing-screen>`;
 			default:
@@ -205,6 +230,12 @@ export class ComponentSettingsShell extends LitElement {
 								this.destination === SettingsDestination.APPEARANCE ? 'page' : undefined,
 							) }
 						>${ this.copy.appearance }</a>
+						<a
+							href="#statistics"
+							aria-current=${ ifDefined(
+								this.destination === SettingsDestination.STATISTICS ? 'page' : undefined,
+							) }
+						>${ this.copy.statistics }</a>
 					</nav>
 				</aside>
 				<div class="content" id=${ this.destination }>
