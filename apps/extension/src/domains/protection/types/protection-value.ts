@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 /**
  * Validates the shared ASCII syntax used by stable domain identifiers.
+ * @since 0.1.0 Initial implementation.
  */
 const StableIdentifierSchema = z.string().regex( /^[A-Za-z0-9_-]+$/ );
 
@@ -24,6 +25,25 @@ export const DefaultProtectionScopeId = ProtectionScopeIdSchema.parse( 'scope_de
  * @since 0.1.0 Initial implementation.
  */
 export type ProtectionScopeId = z.infer<typeof ProtectionScopeIdSchema>;
+
+/**
+ * Validates an opaque revision that identifies one protection scope's measurement contract.
+ * @since 0.1.0 Initial implementation.
+ */
+export const ProtectionMeasurementRevisionSchema = StableIdentifierSchema
+	.brand<'ProtectionMeasurementRevision'>();
+
+/**
+ * Opaque revision for one protection scope's measurement contract.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ProtectionMeasurementRevision = z.infer<typeof ProtectionMeasurementRevisionSchema>;
+
+/**
+ * Creates one globally unique stable measurement revision.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ProtectionMeasurementRevisionFactory = () => unknown;
 
 /**
  * Validates a stable browser-page identifier.
@@ -84,6 +104,18 @@ export const FactIdSchema = StableIdentifierSchema.brand<'FactId'>();
  * @since 0.1.0 Initial implementation.
  */
 export type FactId = z.infer<typeof FactIdSchema>;
+
+/**
+ * Validates a stable protection-fact batch identifier.
+ * @since 0.1.0 Initial implementation.
+ */
+export const ProtectionFactBatchIdSchema = StableIdentifierSchema.brand<'ProtectionFactBatchId'>();
+
+/**
+ * Stable identifier for one durable protection-fact batch.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ProtectionFactBatchId = z.infer<typeof ProtectionFactBatchIdSchema>;
 
 /**
  * Validates a stable browser-session continuity identifier.
