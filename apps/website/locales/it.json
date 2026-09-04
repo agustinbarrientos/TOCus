@@ -1,0 +1,12 @@
+{
+	"metadata": {
+		"description": "TOCus è un'estensione open source per browser nelle prime fasi di sviluppo."
+	},
+	"status": "Sviluppo iniziale",
+	"eyebrow": "Estensione open source per browser",
+	"intro": "Un momento più tranquillo prima del prossimo clic.",
+	"description": "TOCus è nelle prime fasi di sviluppo e sperimenta una semplice pausa per favorire una navigazione più consapevole.",
+	"sourceLink": "Esplora il codice sorgente su GitHub",
+	"privacy": "TOCus v1 funziona solo in locale: nessun account o server TOCus, nessuna telemetria o analisi del prodotto, nessuna analisi della cronologia di navigazione e nessuna richiesta di rete per il funzionamento principale.",
+	"languageMenuLabel": "Lingua del sito"
+}
