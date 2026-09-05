@@ -41,7 +41,7 @@ async function renderOnboardingShell(
 			.language=${ language }
 			.theme=${ theme }
 			.palette=${ palette }
-			.protectedRuleHosts=${ [] }
+			.protectedSites=${ [] }
 			.reducedMotion=${ true }
 			.suggestions=${ OnboardingSiteSuggestions }
 		></tocus-f-onboarding-shell>
@@ -203,5 +203,31 @@ describe( 'tocus-f-onboarding-shell visual', () => {
 		await showAppearanceStep( element );
 
 		await visualDiff( element, 'onboarding-shell-appearance-purple-dark-narrow' );
+	} );
+
+	it( 'keeps the scrolled Appearance action above the preview at phone height', async () => {
+		await setViewport( { height: 900, width: 420 } );
+		await configureAppearance( ThemeMode.DARK, Palette.PURPLE, 'light' );
+		const element = await renderOnboardingShell( ThemeMode.DARK, Palette.PURPLE, Language.ENGLISH );
+
+		await showAppearanceStep( element );
+		const main = element.shadowRoot?.querySelector( 'main' );
+
+		assert.instanceOf( main, HTMLElement );
+		main.scrollTop = main.scrollHeight;
+		await visualDiff( element, 'onboarding-shell-appearance-purple-dark-phone-scrolled' );
+	} );
+
+	it( 'keeps the scrolled Appearance action beside the preview in short landscape', async () => {
+		await setViewport( { height: 420, width: 800 } );
+		await configureAppearance( ThemeMode.LIGHT, Palette.BROWN, 'dark' );
+		const element = await renderOnboardingShell( ThemeMode.LIGHT, Palette.BROWN, Language.ENGLISH );
+
+		await showAppearanceStep( element );
+		const main = element.shadowRoot?.querySelector( 'main' );
+
+		assert.instanceOf( main, HTMLElement );
+		main.scrollTop = main.scrollHeight;
+		await visualDiff( element, 'onboarding-shell-appearance-brown-light-landscape-scrolled' );
 	} );
 } );

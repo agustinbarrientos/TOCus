@@ -1,4 +1,5 @@
 import { assert, expect, fixture, html } from '@open-wc/testing';
+import { emulateMedia, setViewport } from '@web/test-runner-commands';
 import {
 	Palette,
 	ThemeMode,
@@ -161,6 +162,139 @@ describe( 'tocus-f-appearance-controls', () => {
 		assert.closeTo( paletteBounds.width, 44, 0.5 );
 		assert.closeTo( paletteBounds.height, 44, 0.5 );
 		assert.closeTo( previewBounds.width / previewBounds.height, 4 / 3, 0.02 );
+	} );
+
+	it( 'centers the selected palette mark within the color swatch', async () => {
+		await emulateMedia( { reducedMotion: 'reduce' } );
+
+		try {
+			const element = await renderControls();
+			const swatch = getShadowRoot( element ).querySelector( '[data-palette="purple"]' );
+			const mark = swatch?.querySelector( '.selection-mark' );
+
+			assert.instanceOf( swatch, HTMLElement );
+			assert.instanceOf( mark, HTMLElement );
+			const swatchBounds = swatch.getBoundingClientRect();
+			const markBounds = mark.getBoundingClientRect();
+
+			assert.closeTo( markBounds.left + markBounds.width / 2, swatchBounds.left + swatchBounds.width / 2, 0.1 );
+			assert.closeTo( markBounds.top + markBounds.height / 2, swatchBounds.top + swatchBounds.height / 2, 0.1 );
+		} finally {
+			await emulateMedia( { reducedMotion: 'no-preference' } );
+		}
+	} );
+
+	it( 'insets theme marks within the selected preview at narrow widths', async () => {
+		await setViewport( { height: 900, width: 320 } );
+		await emulateMedia( { reducedMotion: 'reduce' } );
+
+		try {
+			const element = await renderControls();
+			const surface = getShadowRoot( element ).querySelector( '#theme-dark + .theme-option-surface' );
+			const mark = surface?.querySelector( '.selection-mark' );
+
+			assert.instanceOf( surface, HTMLElement );
+			assert.instanceOf( mark, HTMLElement );
+			const surfaceBounds = surface.getBoundingClientRect();
+			const markBounds = mark.getBoundingClientRect();
+
+			assert.isAtLeast( markBounds.top - surfaceBounds.top, 12 );
+			assert.isAtLeast( surfaceBounds.right - markBounds.right, 12 );
+			assert.isAtMost( element.scrollWidth, element.clientWidth );
+		} finally {
+			await setViewport( { height: 600, width: 800 } );
+			await emulateMedia( { reducedMotion: 'no-preference' } );
+		}
+	} );
+
+	it( 'reserves accent borders for selected themes', async () => {
+		const element = await renderControls();
+
+		element.style.setProperty( '--tocus-color-outline', '#ff0000' );
+		element.style.setProperty( '--tocus-color-action', '#ff0000' );
+		element.style.setProperty( '--tocus-color-on-surface', '#444444' );
+		const selected = getShadowRoot( element ).querySelector( '#theme-dark + .theme-option-surface' );
+		const unselected = getShadowRoot( element ).querySelector( '#theme-light + .theme-option-surface' );
+
+		assert.instanceOf( selected, HTMLElement );
+		assert.instanceOf( unselected, HTMLElement );
+		assert.equal( getComputedStyle( selected ).borderTopColor, 'rgb(255, 0, 0)' );
+		assert.notEqual( getComputedStyle( unselected ).borderTopColor, 'rgb(255, 0, 0)' );
+	} );
+
+	it( 'keeps miniature brands visible and clear of the selected System mark at narrow widths', async () => {
+		await emulateMedia( { reducedMotion: 'reduce' } );
+
+		try {
+			const element = await renderControls();
+
+			element.theme = ThemeMode.SYSTEM;
+			element.style.width = 'calc(100% - 3rem)';
+			await element.updateComplete;
+
+			for ( const width of [ 320, 420 ] ) {
+				await setViewport( { height: 900, width } );
+				const shadowRoot = getShadowRoot( element );
+				const previews = shadowRoot.querySelectorAll( '.theme-preview' );
+				const systemMark = shadowRoot.querySelector( '#theme-system + .theme-option-surface .selection-mark' );
+
+				assert.instanceOf( systemMark, HTMLElement );
+				for ( const preview of previews ) {
+					const brands = preview.querySelectorAll( '.theme-preview-brand' );
+
+					assert.lengthOf( brands, 1 );
+					const brand = brands.item( 0 );
+					const brandBounds = brand.getBoundingClientRect();
+					const previewBounds = preview.getBoundingClientRect();
+					const wordmark = brand.querySelector( 'span:last-child' );
+
+					assert.instanceOf( wordmark, HTMLElement );
+					assert.isAtMost( wordmark.scrollWidth, wordmark.clientWidth );
+					assert.isAtLeast( brandBounds.left, previewBounds.left );
+					assert.isAtMost( brandBounds.right, previewBounds.right );
+					if ( preview.classList.contains( 'theme-preview--system' ) ) {
+						assert.isAtLeast( brandBounds.top, systemMark.getBoundingClientRect().bottom );
+					}
+				}
+			}
+		} finally {
+			await setViewport( { height: 600, width: 800 } );
+			await emulateMedia( { reducedMotion: 'no-preference' } );
+		}
+	} );
+
+	it( 'retains enhanced colors for every explicit theme and palette', async () => {
+		const root = document.documentElement;
+		const originalTheme = root.getAttribute( 'data-tocus-theme' );
+		const originalPalette = root.getAttribute( 'data-tocus-palette' );
+
+		try {
+			const element = await renderControls();
+
+			for ( const theme of [ ThemeMode.LIGHT, ThemeMode.DARK ] ) {
+				for ( const palette of Object.values( Palette ) ) {
+					root.setAttribute( 'data-tocus-theme', theme );
+					root.setAttribute( 'data-tocus-palette', palette );
+					const styles = getComputedStyle( element );
+
+					for ( const token of [ '--tocus-color-outline', '--tocus-color-glass-border', '--tocus-color-stage-glow' ] ) {
+						assert.include( styles.getPropertyValue( token ), 'color-mix', `${ theme } ${ palette } ${ token }` );
+					}
+				}
+			}
+		} finally {
+			if ( originalTheme === null ) {
+				root.removeAttribute( 'data-tocus-theme' );
+			} else {
+				root.setAttribute( 'data-tocus-theme', originalTheme );
+			}
+
+			if ( originalPalette === null ) {
+				root.removeAttribute( 'data-tocus-palette' );
+			} else {
+				root.setAttribute( 'data-tocus-palette', originalPalette );
+			}
+		}
 	} );
 
 	it( 'emits typed controlled theme and color updates', async () => {

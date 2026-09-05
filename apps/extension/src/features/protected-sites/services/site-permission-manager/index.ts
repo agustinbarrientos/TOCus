@@ -9,6 +9,8 @@ import {
 	SitePermissionReleaseStatus,
 	SitePermissionRequestStatus,
 	type SitePermissionDescriptor,
+	type SitePermissionBatchRequestResult,
+	type SitePermissionGrantSnapshot,
 	type SitePermissionManager,
 	type SitePermissionManagerOptions,
 } from './types';
@@ -144,6 +146,87 @@ export function createSitePermissionManager( options: SitePermissionManagerOptio
 	}
 
 	/**
+	 * Requests selected rule origins together without awaiting work before browser consent.
+	 * @param rules - Canonical protected-site rules selected by the user.
+	 * @return Batch grant and its prior access snapshot, denial, or browser error.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function requestMany(
+		rules: Parameters<SitePermissionManager[ 'requestMany' ]>[ 0 ],
+	): Promise<SitePermissionBatchRequestResult> {
+		const origins = [ ...new Set( rules.flatMap( createSitePermissionOrigins ) ) ];
+		let previousGrantPromise: Promise<SitePermissionGrantSnapshot | null>;
+
+		try {
+			previousGrantPromise = options.permissions.getAll().catch( () => null );
+		} catch {
+			previousGrantPromise = Promise.resolve( null );
+		}
+
+		if ( origins.length === 0 ) {
+			return { status: SitePermissionRequestStatus.GRANTED, previousGrant: await previousGrantPromise };
+		}
+
+		try {
+			const requestPromise = options.permissions.request( createRequestDescriptor( origins ) );
+			const [ granted, previousGrant ] = await Promise.all( [ requestPromise, previousGrantPromise ] );
+
+			return granted
+				? { status: SitePermissionRequestStatus.GRANTED, previousGrant }
+				: { status: SitePermissionRequestStatus.DENIED };
+		} catch {
+			return { status: SitePermissionRequestStatus.ERROR };
+		}
+	}
+
+	/**
+	 * Removes only new batch permissions unowned by the authoritative configuration.
+	 * @param rules - Canonical rules included in the batch request.
+	 * @param previousGrant - Original access snapshot, or null when unavailable.
+	 * @param configuration - Current configuration held inside mutation coordination.
+	 * @return Released, retained, or browser-error result.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function releaseNewAccess(
+		rules: Parameters<SitePermissionManager[ 'releaseNewAccess' ]>[ 0 ],
+		previousGrant: SitePermissionGrantSnapshot | null,
+		configuration: Parameters<SitePermissionManager[ 'releaseNewAccess' ]>[ 2 ],
+	): Promise<SitePermissionReleaseStatus> {
+		if ( previousGrant === null || configuration === null ) {
+			return SitePermissionReleaseStatus.RETAINED;
+		}
+
+		const retainedOrigins = [
+			...( previousGrant.origins ?? [] ),
+			...configuration.sites.flatMap( ( site ) => createSitePermissionOrigins( site.rule ) ),
+		];
+		const newOrigins = [ ...new Set( rules.flatMap( createSitePermissionOrigins ) ) ].filter(
+			( origin ) => ! isSitePermissionOriginCovered( origin, retainedOrigins ),
+		);
+		const origins = newOrigins.filter( ( origin ) => ! retainedOrigins.some(
+			( retainedOrigin ) => isSitePermissionOriginCovered( retainedOrigin, [ origin ] ),
+		) );
+		const hasOverlappingGrants = origins.length !== newOrigins.length;
+		const removeNavigation = configuration.sites.length === 0 &&
+			! previousGrant.permissions?.includes( NAVIGATION_PERMISSION );
+
+		if ( origins.length === 0 && ! removeNavigation ) {
+			return hasOverlappingGrants ? SitePermissionReleaseStatus.RETAINED : SitePermissionReleaseStatus.RELEASED;
+		}
+
+		try {
+			return await options.permissions.remove( {
+				origins,
+				...( removeNavigation ? { permissions: [ NAVIGATION_PERMISSION ] } : {} ),
+			} ) && ! hasOverlappingGrants
+				? SitePermissionReleaseStatus.RELEASED
+				: SitePermissionReleaseStatus.RETAINED;
+		} catch {
+			return SitePermissionReleaseStatus.ERROR;
+		}
+	}
+
+	/**
 	 * Releases one rule's origins and the shared navigation capability when no sites remain.
 	 * @param rule - Removed canonical protected-site rule.
 	 * @param hasRemainingSites - Whether another configured protected site remains.
@@ -168,7 +251,7 @@ export function createSitePermissionManager( options: SitePermissionManagerOptio
 		}
 	}
 
-	return { filterConfiguration, hasAccess, release, request };
+	return { filterConfiguration, hasAccess, release, releaseNewAccess, request, requestMany };
 }
 
 export * from './types';

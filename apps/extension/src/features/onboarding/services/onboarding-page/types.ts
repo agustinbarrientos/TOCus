@@ -13,7 +13,7 @@ import {
 	type BrowserProtectionCryptography,
 } from '../../../../domains/protection/services/browser-protection-configuration-editor';
 import { type ProtectionConfigurationStorageArea } from '../../../../domains/protection/services/protection-configuration-storage';
-import { type CanonicalHost } from '../../../../domains/protection/types/protected-site-rule';
+import { type ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
 import { type InterruptionScreenCopy } from '../../../interruption/components/screen/types';
 import {
 	type PreferencesAppearanceTarget,
@@ -54,8 +54,8 @@ export interface OnboardingPageShell extends EventTarget {
 	theme: ThemeMode;
 	/** Selected scene palette. */
 	palette: Palette;
-	/** Canonical hosts already protected. */
-	protectedRuleHosts: readonly CanonicalHost[];
+	/** Authoritative site configurations already protected. */
+	protectedSites: readonly ProtectedSiteConfiguration[];
 	/** Whether continuous motion must be reduced. */
 	reducedMotion: boolean;
 	/** Fixed local protected-site suggestions. */

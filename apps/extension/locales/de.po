@@ -85,10 +85,12 @@ msgstr "Der Zugriff auf {name} wurde wiederhergestellt."
 msgid "{name} was added to your list."
 msgstr "{name} wurde deiner Liste hinzugefügt."
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "{name} was removed from your list."
 msgstr "{name} wurde aus deiner Liste entfernt."
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "{name} was removed, but its browser access could not be removed automatically."
 msgstr "{name} wurde entfernt, aber der Browserzugriff konnte nicht automatisch entzogen werden."
@@ -156,15 +158,18 @@ msgstr "Aktive Zeiten"
 msgid "Add {siteName}"
 msgstr "{siteName} hinzufügen"
 
-#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
-#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Add a pause here"
 msgstr "Hier eine Pause hinzufügen"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Add another site"
 msgstr "Weitere Website hinzufügen"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Add site"
+msgstr "Website hinzufügen"
 
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "Add the first site you want TOCus to gently interrupt."
@@ -784,6 +789,7 @@ msgstr "Entfernen"
 msgid "Remove {name}?"
 msgstr "{name} entfernen?"
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Remove site"
 msgstr "Website entfernen"
@@ -1373,6 +1379,11 @@ msgstr "Dein Browser konnte den Zugriff auf diese Website nicht anfordern. Versu
 msgid "Your browser currently selects {name}."
 msgstr "Dein Browser wählt derzeit {name}."
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Your browser will ask for access to the selected websites when you finish."
+msgstr "Dein Browser fragt beim Abschließen nach dem Zugriff auf die ausgewählten Websites."
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Your changes could not be saved. Nothing was replaced."
 msgstr "Deine Änderungen konnten nicht gespeichert werden. Es wurde nichts ersetzt."

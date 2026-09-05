@@ -210,6 +210,19 @@ function requestSitePermission(): ReturnType<SitePermissionManager[ 'request' ]>
 	} );
 }
 
+
+/**
+ * Grants a configured group of sites in component fixtures.
+ * @return Successful batch permission result with the prior grant snapshot.
+ * @since 0.1.0 Initial implementation.
+ */
+function requestSitePermissions(): ReturnType<SitePermissionManager[ 'requestMany' ]> {
+	return Promise.resolve( {
+		status: SitePermissionRequestStatus.GRANTED,
+		previousGrant: { origins: [], permissions: [] },
+	} );
+}
+
 /**
  * Releases a site permission in settings-shell fixtures.
  * @return Successful release result.
@@ -249,6 +262,8 @@ const PERMISSION_MANAGER: SitePermissionManager = {
 	hasAccess: hasSiteAccess,
 	request: requestSitePermission,
 	release: releaseSitePermission,
+	requestMany: requestSitePermissions,
+	releaseNewAccess: releaseSitePermission,
 };
 
 /**

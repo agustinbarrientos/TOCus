@@ -11,22 +11,22 @@ const TYPOGRAPHY_PROPERTIES = [
 ] as const;
 
 const TYPOGRAPHY_ROLES = [
-	{ role: 'display-large', values: [ 'var(--tocus-font-family-brand)', '3.5625rem', '600', '4rem', '-0.015625rem' ] },
-	{ role: 'display-medium', values: [ 'var(--tocus-font-family-brand)', '2.8125rem', '600', '3.25rem', '0' ] },
-	{ role: 'display-small', values: [ 'var(--tocus-font-family-brand)', '2.25rem', '600', '2.75rem', '0' ] },
-	{ role: 'headline-large', values: [ 'var(--tocus-font-family-brand)', '2rem', '600', '2.5rem', '0' ] },
-	{ role: 'headline-medium', values: [ 'var(--tocus-font-family-brand)', '1.75rem', '600', '2.25rem', '0' ] },
-	{ role: 'headline-small', values: [ 'var(--tocus-font-family-brand)', '1.5rem', '600', '2rem', '0' ] },
-	{ role: 'brand-small', values: [ 'var(--tocus-font-family-brand)', '0.6875rem', '600', '1rem', '0' ] },
-	{ role: 'title-large', values: [ 'var(--tocus-font-family-body)', '1.375rem', '400', '1.75rem', '0' ] },
-	{ role: 'title-medium', values: [ 'var(--tocus-font-family-body)', '1rem', '500', '1.5rem', '0.009375rem' ] },
-	{ role: 'title-small', values: [ 'var(--tocus-font-family-body)', '0.875rem', '500', '1.25rem', '0.00625rem' ] },
-	{ role: 'body-large', values: [ 'var(--tocus-font-family-body)', '1rem', '400', '1.5rem', '0.03125rem' ] },
-	{ role: 'body-medium', values: [ 'var(--tocus-font-family-body)', '0.875rem', '400', '1.25rem', '0.015625rem' ] },
-	{ role: 'body-small', values: [ 'var(--tocus-font-family-body)', '0.75rem', '400', '1rem', '0.025rem' ] },
-	{ role: 'label-large', values: [ 'var(--tocus-font-family-body)', '0.875rem', '500', '1.25rem', '0.00625rem' ] },
-	{ role: 'label-medium', values: [ 'var(--tocus-font-family-body)', '0.75rem', '500', '1rem', '0.03125rem' ] },
-	{ role: 'label-small', values: [ 'var(--tocus-font-family-body)', '0.6875rem', '500', '1rem', '0.03125rem' ] },
+	{ role: 'display-large', values: [ 'var(--tocus-font-family-brand)', '4.453125rem', '600', '5rem', '-0.019531rem' ] },
+	{ role: 'display-medium', values: [ 'var(--tocus-font-family-brand)', '3.515625rem', '600', '4.0625rem', '0' ] },
+	{ role: 'display-small', values: [ 'var(--tocus-font-family-brand)', '2.8125rem', '600', '3.4375rem', '0' ] },
+	{ role: 'headline-large', values: [ 'var(--tocus-font-family-brand)', '2.5rem', '600', '3.125rem', '0' ] },
+	{ role: 'headline-medium', values: [ 'var(--tocus-font-family-brand)', '2.1875rem', '600', '2.8125rem', '0' ] },
+	{ role: 'headline-small', values: [ 'var(--tocus-font-family-brand)', '1.875rem', '600', '2.5rem', '0' ] },
+	{ role: 'brand-small', values: [ 'var(--tocus-font-family-brand)', '0.859375rem', '600', '1.25rem', '0' ] },
+	{ role: 'title-large', values: [ 'var(--tocus-font-family-body)', '1.71875rem', '400', '2.1875rem', '0' ] },
+	{ role: 'title-medium', values: [ 'var(--tocus-font-family-body)', '1.25rem', '500', '1.875rem', '0.011719rem' ] },
+	{ role: 'title-small', values: [ 'var(--tocus-font-family-body)', '1.09375rem', '500', '1.5625rem', '0.007813rem' ] },
+	{ role: 'body-large', values: [ 'var(--tocus-font-family-body)', '1.25rem', '400', '1.875rem', '0.039063rem' ] },
+	{ role: 'body-medium', values: [ 'var(--tocus-font-family-body)', '1.09375rem', '400', '1.5625rem', '0.019531rem' ] },
+	{ role: 'body-small', values: [ 'var(--tocus-font-family-body)', '0.9375rem', '400', '1.25rem', '0.03125rem' ] },
+	{ role: 'label-large', values: [ 'var(--tocus-font-family-body)', '1.09375rem', '500', '1.5625rem', '0.007813rem' ] },
+	{ role: 'label-medium', values: [ 'var(--tocus-font-family-body)', '0.9375rem', '500', '1.25rem', '0.039063rem' ] },
+	{ role: 'label-small', values: [ 'var(--tocus-font-family-body)', '0.859375rem', '500', '1.25rem', '0.039063rem' ] },
 ] as const;
 
 /**

@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import {
 	type ProtectionConfigurationEditRejectionReason,
 	type ProtectionConfigurationEditor,
@@ -10,6 +11,12 @@ import {
 	type SitePermissionManager,
 	type SitePermissionReleaseStatus,
 } from '../site-permission-manager';
+
+/**
+ * Validates user-entered site strings before batch canonicalization and browser consent.
+ * @since 0.1.0 Initial implementation.
+ */
+export const ProtectedSiteBatchInputsSchema = z.array( z.string() );
 
 /**
  * Stable outcomes returned by protected-site enrollment.
@@ -40,6 +47,16 @@ export interface AddedProtectedSiteEnrollmentResult {
 	status: typeof ProtectedSiteEnrollmentStatus.ADDED;
 	configuration: ProtectionConfigurationDocument;
 	site: ProtectedSiteConfiguration;
+}
+
+/**
+ * Successful atomic enrollment of shared protected sites.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface AddedProtectedSiteBatchEnrollmentResult {
+	status: typeof ProtectedSiteEnrollmentStatus.ADDED;
+	configuration: ProtectionConfigurationDocument;
+	sites: ProtectedSiteConfiguration[];
 }
 
 /**
@@ -79,6 +96,13 @@ export type ProtectedSiteEnrollmentResult =
 export type UnsuccessfulProtectedSiteEnrollmentResult =
 	RejectedProtectedSiteEnrollmentResult |
 	FailedProtectedSiteEnrollmentResult;
+
+/**
+ * Complete result from one atomic protected-site batch enrollment.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ProtectedSiteBatchEnrollmentResult =
+	AddedProtectedSiteBatchEnrollmentResult | UnsuccessfulProtectedSiteEnrollmentResult;
 
 /**
  * Successful protected-site removal with its permission cleanup outcome.
@@ -124,6 +148,14 @@ export interface ProtectedSiteEnrollmentService {
 		siteInput: unknown,
 		independent: boolean,
 	): Promise<ProtectedSiteEnrollmentResult>;
+
+	/**
+	 * Adds unique shared sites with one browser permission request and one configuration write.
+	 * @param siteInputs - User-entered hostnames or HTTP(S) URLs.
+	 * @return Successful batch enrollment or a presentation-neutral failure.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	addMany( siteInputs: readonly string[] ): Promise<ProtectedSiteBatchEnrollmentResult>;
 
 	/**
 	 * Removes one protected site and reconciles its browser access before coordination is released.
