@@ -186,12 +186,14 @@ describe( 'tocus-f-protected-sites-screen', () => {
 
 		const shadowRoot = element.shadowRoot;
 		assert.instanceOf( shadowRoot, ShadowRoot );
-		assert.equal( shadowRoot.querySelector( 'h1' )?.textContent.trim(), 'Protected sites' );
-		assert.equal( shadowRoot.querySelector( 'label[for="site-address"]' )?.textContent.trim(), 'Website address' );
-		assert.instanceOf( shadowRoot.querySelector( '#site-address' ), HTMLInputElement );
+		assert.equal( shadowRoot.querySelector( 'h1' )?.textContent.trim(), 'Websites' );
+		const addressInput = shadowRoot.querySelector( '#site-address' );
+		assert.instanceOf( addressInput, HTMLInputElement );
+		assert.equal( addressInput.getAttribute( 'aria-label' ), 'Website address' );
+		assert.equal( shadowRoot.querySelector( 'label[for="site-address"]' ), null );
 		assert.equal(
 			getRequiredElement( element, '.empty-state h2', Element ).textContent.trim(),
-			'No protected sites yet',
+			'No websites yet',
 		);
 		assert.equal( shadowRoot.querySelector( '[aria-busy="true"]' ), null );
 		await expect( element ).to.be.accessible();
@@ -573,7 +575,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 
 		assert.equal( releasedRuleHost, '' );
 		assert.isFalse( hadRemainingSites );
-		assert.include( getRequiredElement( element, '.site-input-error', Element ).textContent, 'already protected' );
+		assert.include( getRequiredElement( element, '.site-input-error', Element ).textContent, 'already on your list' );
 		assert.equal( storage.writes, 0 );
 	} );
 
@@ -679,7 +681,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 			label: 'overlapping input',
 			configuration: POPULATED_CONFIGURATION,
 			input: 'music.youtube.com',
-			expectedMessage: 'already protected',
+			expectedMessage: 'already on your list',
 		},
 	] ) {
 		it( `keeps ${ scenario.label } in the form with a specific explanation`, async () => {
@@ -715,7 +717,7 @@ describe( 'tocus-f-protected-sites-screen', () => {
 		);
 
 		assert.deepEqual( sections.map( ( section ) => section.querySelector( 'h2' )?.textContent.trim() ), [
-			'Shared protection',
+			'Shared timing',
 			'Independent sites',
 		] );
 		assert.deepEqual( items.map( ( item ) => item.identity?.name ), [ 'Instagram', 'YouTube', 'X' ] );

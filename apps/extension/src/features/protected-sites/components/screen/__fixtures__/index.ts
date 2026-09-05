@@ -4,7 +4,6 @@ import {
 	type ProtectionConfigurationEditResult,
 	type ProtectionConfigurationMutation,
 } from '../../../../../domains/protection/services/protection-configuration-editor';
-import { type ProtectionConfigurationStorageService } from '../../../../../domains/protection/services/protection-configuration-storage';
 import {
 	TestEmptyProtectionConfiguration,
 	createTestProtectionMeasurementRevision,
@@ -20,7 +19,6 @@ import {
 	ProtectionMeasurementRevisionSchema,
 	ProtectionScopeIdSchema,
 } from '../../../../../domains/protection/types/protection-value';
-import { type SiteFaviconProvider } from '../../../services/site-favicon-provider';
 import {
 	SitePermissionGrantProvenance,
 	SitePermissionReleaseStatus,
@@ -31,6 +29,11 @@ import { ComponentProtectedSiteList } from '../../site-list';
 import '../index';
 import { type ComponentProtectedSitesScreen } from '../index';
 import { TestEnglishLocalizationBundle } from '../../../../../localization/__fixtures__';
+import {
+	type ElementConstructor,
+	type MemoryProtectedSitesScreenStorage,
+	type ProtectedSitesScreenFixtureOptions,
+} from './types';
 
 /**
  * Empty protection configuration shared by screen component fixtures.
@@ -82,54 +85,6 @@ export const POPULATED_CONFIGURATION: ProtectionConfigurationDocument = {
 		[ X_SITE.rule.scopeId ]: ProtectionMeasurementRevisionSchema.parse( 'revision_x' ),
 	},
 };
-
-/**
- * Runtime constructor used to validate one queried test element.
- * @since 0.1.0 Initial implementation.
- */
-export interface ElementConstructor<T extends Element> {
-	new(): T;
-}
-
-/**
- * Optional dependencies supplied to one connected screen fixture.
- * @since 0.1.0 Initial implementation.
- */
-export interface ProtectedSitesScreenFixtureOptions {
-	storage: ProtectionConfigurationStorageService;
-	faviconProvider?: SiteFaviconProvider | null;
-	permissionManager?: SitePermissionManager | null;
-}
-
-/**
- * Controllable in-memory storage shared by screen component fixtures.
- * @since 0.1.0 Initial implementation.
- */
-export interface MemoryProtectedSitesScreenStorage extends ProtectionConfigurationStorageService {
-	/**
-	 * Current local configuration or malformed-data marker.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	configuration: ProtectionConfigurationDocument | null;
-
-	/**
-	 * Whether the next and later reads reject.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	rejectLoads: boolean;
-
-	/**
-	 * Whether the next and later writes reject.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	rejectSaves: boolean;
-
-	/**
-	 * Number of successful writes completed by this fixture.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	writes: number;
-}
 
 /**
  * Implements controllable in-memory storage for screen component fixtures.
@@ -371,3 +326,9 @@ export async function settleScreen( element: ComponentProtectedSitesScreen ): Pr
 	} );
 	await element.updateComplete;
 }
+
+export type {
+	ElementConstructor,
+	MemoryProtectedSitesScreenStorage,
+	ProtectedSitesScreenFixtureOptions,
+} from './types';

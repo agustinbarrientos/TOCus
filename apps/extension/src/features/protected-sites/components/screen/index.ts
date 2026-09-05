@@ -501,7 +501,6 @@ export class ComponentProtectedSitesScreen extends LitElement {
 					<p class="introduction">${ this.copy.introduction }</p>
 				</header>
 				<form class="add-site-form" @submit=${ this.handleAddSite }>
-					<label for="site-address">${ this.copy.addressLabel }</label>
 					<div class="add-site-control">
 						<input
 							id="site-address"
@@ -509,6 +508,7 @@ export class ComponentProtectedSitesScreen extends LitElement {
 							type="text"
 							placeholder=${ this.copy.addressPlaceholder }
 							autocomplete="url"
+							aria-label=${ this.copy.addressLabel }
 							aria-describedby="site-address-help site-address-error"
 							aria-invalid=${ this.siteInputFailure === null ? 'false' : 'true' }
 							?disabled=${ formDisabled }
