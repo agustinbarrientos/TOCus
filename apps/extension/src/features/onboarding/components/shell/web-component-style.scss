@@ -398,7 +398,43 @@ main {
 		}
 
 		&.complete span {
-			border-color: var(--tocus-color-action);
+			border-color: transparent;
+			background: transparent;
+			color: var(--tocus-color-action);
+		}
+
+		button {
+			display: flex;
+			width: 100%;
+			min-height: 2.75rem;
+			align-items: center;
+			gap: var(--tocus-space-2);
+			padding: 0;
+			border: 0;
+			border-radius: var(--tocus-radius-small);
+			background: transparent;
+			color: inherit;
+			font: inherit;
+			text-align: start;
+
+			&:not(:disabled) {
+				cursor: pointer;
+
+				&:hover {
+					background: var(--tocus-color-surface-container);
+				}
+			}
+
+			&:focus-visible {
+				outline: 2px solid var(--tocus-color-action);
+				outline-offset: 3px;
+			}
+		}
+
+		svg {
+			width: 100%;
+			height: 100%;
+			fill: currentcolor;
 		}
 	}
 }
@@ -644,7 +680,7 @@ footer {
 			white-space: nowrap;
 		}
 
-		li {
+		button {
 			justify-content: center;
 		}
 	}

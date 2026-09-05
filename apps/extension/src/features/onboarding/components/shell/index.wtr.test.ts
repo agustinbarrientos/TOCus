@@ -382,7 +382,11 @@ describe( 'tocus-f-onboarding-shell', () => {
 		await settle();
 		await element.updateComplete;
 
-		assert.deepEqual( editor.updates, [ { language: Language.SPANISH_VOS } ] );
+		assert.deepEqual( editor.updates, [ {
+			language: Language.SPANISH_VOS,
+			theme: ThemeMode.SYSTEM,
+			palette: Palette.BROWN,
+		} ] );
 		assert.instanceOf( shadowRoot.querySelector( 'tocus-f-onboarding-appearance-step' ), HTMLElement );
 	} );
 
@@ -587,7 +591,11 @@ describe( 'tocus-f-onboarding-shell', () => {
 		assert.equal( element.getAttribute( 'data-tocus-theme' ), ThemeMode.DARK );
 		assert.equal( element.getAttribute( 'data-tocus-palette' ), Palette.GREEN );
 		assert.equal( preview.mode, InterruptionScreenMode.BREATHING );
-		assert.deepEqual( editor.updates, [ { language: Language.ENGLISH } ] );
+		assert.deepEqual( editor.updates, [ {
+			language: Language.ENGLISH,
+			theme: ThemeMode.SYSTEM,
+			palette: Palette.BROWN,
+		} ] );
 		await expect( element ).to.be.accessible();
 		appearanceStep.dispatchEvent( new CustomEvent( 'tocus-onboarding-appearance-continue', {
 			bubbles: true,
