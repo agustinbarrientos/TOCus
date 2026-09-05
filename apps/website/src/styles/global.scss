@@ -7,8 +7,6 @@
 }
 
 html {
-	@include typography.apply( 'body-medium' );
-
 	min-width: 20rem;
 	background: var(--tocus-color-surface);
 	color: var(--tocus-color-on-surface);
@@ -16,6 +14,8 @@ html {
 }
 
 body {
+	@include typography.apply( 'body-medium' );
+
 	min-height: 100vh;
 	min-height: 100svh;
 	margin: 0;
