@@ -7,6 +7,6 @@ export interface PopupShellCopy {
 	status: string;
 	/** Concise explanation of the product purpose. */
 	summary: string;
-	/** Supporting note about the current build. */
+	/** Supporting local-privacy note. */
 	foundationNote: string;
 }
