@@ -522,7 +522,7 @@ describe( 'tocus-f-protected-site-item', () => {
 		assert.equal( shadowRoot.querySelector( '.monogram' )?.textContent.trim(), 'I' );
 		assert.include( shadowRoot.querySelector( '.boundary' )?.textContent, 'subdomains' );
 		assert.equal( shadowRoot.querySelector( '.scope-label' )?.textContent.trim(), 'Shared' );
-		assert.equal( shadowRoot.querySelector( 'button' )?.textContent.trim(), 'Edit' );
+		assert.equal( shadowRoot.querySelector( 'button' )?.textContent.trim(), 'Manage this website' );
 		await expect( element ).to.be.accessible();
 	} );
 
@@ -547,7 +547,7 @@ describe( 'tocus-f-protected-site-item', () => {
 		` );
 
 		assert.equal( element.shadowRoot?.querySelector( '.scope-label' )?.textContent.trim(), 'Independent' );
-		assert.equal( element.shadowRoot?.querySelector( '.boundary' )?.textContent.trim(), 'Protects only localhost' );
+		assert.equal( element.shadowRoot?.querySelector( '.boundary' )?.textContent.trim(), 'Includes only localhost' );
 	} );
 
 	it( 'uses a decorative cached favicon and silently returns to the monogram after image failure', async () => {
