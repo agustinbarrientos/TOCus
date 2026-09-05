@@ -135,6 +135,9 @@ importers:
       playwright:
         specifier: 1.62.1
         version: 1.62.1
+      sharp:
+        specifier: 0.35.4
+        version: 0.35.4(@types/node@24.13.3)
       typescript:
         specifier: 6.0.3
         version: 6.0.3
