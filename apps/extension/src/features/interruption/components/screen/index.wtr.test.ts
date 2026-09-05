@@ -9,6 +9,7 @@ import {
 	InterruptionScreenMode,
 	InterruptionScreenState,
 } from './types';
+import { createManualInterruptionScreenEnvironment } from './__fixtures__';
 
 /**
  * Returns the open shadow root owned by a screen fixture.
@@ -215,6 +216,80 @@ describe( 'tocus-f-interruption-screen', () => {
 		assert.equal( radialGradientCount, 1 );
 		assert.equal( bloomStyle.backgroundRepeat, 'no-repeat' );
 		await expect( element ).to.be.accessible();
+	} );
+
+	it( 'contains and loops only an opt-in preview', async () => {
+		const previewEnvironment = createManualInterruptionScreenEnvironment();
+		const container = await fixture<HTMLDivElement>( html`
+			<div style="position: relative; width: 24rem; height: 15rem;"></div>
+		` );
+		const element = new ComponentInterruptionScreen( previewEnvironment );
+
+		element.copy = TestEnglishLocalizationBundle.interruption;
+		element.preview = true;
+		element.progressing = true;
+		container.append( element );
+		await element.updateComplete;
+
+		const scene = getRequiredElement( element, '.scene' );
+		const sphereShell = getRequiredElement( element, '.sphere-shell' );
+		const containerBounds = container.getBoundingClientRect();
+		const elementBounds = element.getBoundingClientRect();
+		const sceneBounds = scene.getBoundingClientRect();
+		const sphereBounds = sphereShell.getBoundingClientRect();
+		const cueBounds = getRequiredElement( element, '.cue' ).getBoundingClientRect();
+		const directRegions = Array.from( scene.children ).map( ( child ) => child.tagName );
+
+		assert.isTrue( element.preview );
+		assert.isTrue( element.hasAttribute( 'preview' ) );
+		assert.deepEqual( directRegions, [ 'HEADER', 'MAIN', 'FOOTER' ] );
+		assert.approximately( elementBounds.left, containerBounds.left, 1 );
+		assert.approximately( elementBounds.top, containerBounds.top, 1 );
+		assert.approximately( elementBounds.width, containerBounds.width, 1 );
+		assert.approximately( elementBounds.height, containerBounds.height, 1 );
+		assert.approximately( sceneBounds.left, containerBounds.left, 1 );
+		assert.approximately( sceneBounds.top, containerBounds.top, 1 );
+		assert.approximately( sceneBounds.width, containerBounds.width, 1 );
+		assert.approximately( sceneBounds.height, containerBounds.height, 1 );
+		assert.notEqual( elementBounds.width, window.innerWidth );
+		assert.notEqual( elementBounds.height, window.innerHeight );
+		assert.approximately(
+			sphereBounds.left + sphereBounds.width / 2,
+			sceneBounds.left + sceneBounds.width / 2,
+			1,
+		);
+		assert.isAtMost( cueBounds.bottom, sphereBounds.top );
+		assert.instanceOf( getShadowRoot( element ).querySelector( '.brand svg' ), SVGElement );
+		assert.equal( getRequiredElement( element, '.wordmark' ).textContent.trim(), 'TOCus' );
+		assert.equal( getRequiredElement( element, '.remaining' ).textContent.trim(), '10s remaining' );
+		assert.equal( getRequiredElement( element, '.cue' ).textContent.trim(), 'Breathe in' );
+		assert.instanceOf( getShadowRoot( element ).querySelector( 'tocus-f-breathing-sphere' ), HTMLElement );
+
+		previewEnvironment.advance( 4_000 );
+		await element.updateComplete;
+		assert.approximately( element.getFocusedProgressMilliseconds(), 4_000, 1 );
+
+		previewEnvironment.advance( 6_000 );
+		await element.updateComplete;
+		assert.approximately( element.getFocusedProgressMilliseconds(), 0, 1 );
+
+		previewEnvironment.advance( 750 );
+		await element.updateComplete;
+		assert.approximately( element.getFocusedProgressMilliseconds(), 750, 1 );
+
+		const defaultEnvironment = createManualInterruptionScreenEnvironment();
+		const defaultElement = new ComponentInterruptionScreen( defaultEnvironment );
+
+		defaultElement.copy = TestEnglishLocalizationBundle.interruption;
+		defaultElement.progressing = true;
+		container.append( defaultElement );
+		await defaultElement.updateComplete;
+		defaultEnvironment.advance( 10_000 );
+		await defaultElement.updateComplete;
+
+		assert.isFalse( defaultElement.preview );
+		assert.isFalse( defaultElement.hasAttribute( 'preview' ) );
+		assert.equal( defaultElement.getFocusedProgressMilliseconds(), 10_000 );
 	} );
 
 	it( 'drives the full-screen bloom from the breathing progress', async () => {

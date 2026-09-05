@@ -117,6 +117,7 @@ function hasInteractiveShortcutTarget( event: KeyboardEvent ): boolean {
  * @attr progressing - Whether the presentation owner currently permits progress.
  * @attr reduced-motion - Whether the sphere must remain still.
  * @attr recovering - Whether an unavailable pause is currently being recovered.
+ * @attr preview - Whether this screen is a contained, looping presentation preview.
  * @attr wellbeing-summary - Complete localized all-time wellbeing sentence.
  * @fires ComponentInterruptionScreen#event:continueRequest - Emits the plain bubbling `tocus-continue-request` event from Ready.
  * @fires ComponentInterruptionScreen#event:retryRequest - Emits the plain bubbling `tocus-retry-request` event from Unavailable.
@@ -168,6 +169,13 @@ export class ComponentInterruptionScreen extends LitElement {
 	 */
 	@property( { attribute: 'reduced-motion', reflect: true, type: Boolean } )
 	accessor reducedMotion = false;
+
+	/**
+	 * Whether this screen fills a bounded preview and loops its presentation clock.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { reflect: true, type: Boolean } )
+	accessor preview = false;
 
 	/**
 	 * Whether the owning controller is currently attempting recovery.
@@ -322,7 +330,8 @@ export class ComponentInterruptionScreen extends LitElement {
 				changedProperties.has( 'waitDurationMilliseconds' ) ||
 				changedProperties.has( 'focusedProgressMilliseconds' ) ||
 				changedProperties.has( 'progressing' ) ||
-				changedProperties.has( 'reducedMotion' )
+				changedProperties.has( 'reducedMotion' ) ||
+				changedProperties.has( 'preview' )
 			)
 		) {
 			const reanchor = changedProperties.has( 'waitDurationMilliseconds' ) ||
@@ -549,6 +558,7 @@ export class ComponentInterruptionScreen extends LitElement {
 			continuous: this.mode === InterruptionScreenMode.BREATHING && ! this.reducedMotion,
 			documentVisible: this.environment.isDocumentVisible(),
 			durationMilliseconds: this.waitDurationMilliseconds,
+			looping: this.preview,
 			progressing: this.progressing,
 			waiting: this.state === InterruptionScreenState.WAITING,
 			windowFocused: this.environment.isWindowFocused(),

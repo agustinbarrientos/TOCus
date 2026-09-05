@@ -321,6 +321,79 @@ footer {
 	overflow-wrap: anywhere;
 }
 
+:host([preview]) {
+	--tocus-typography-headline-small-font-size: clamp(0.75rem, 6cqh, 1rem);
+	--tocus-typography-headline-small-line-height: 1.15;
+	--tocus-typography-body-large-font-size: clamp(0.625rem, 4.5cqh, 0.8rem);
+	--tocus-typography-body-large-line-height: 1.2;
+	--tocus-typography-headline-large-font-size: clamp(0.8rem, 6cqh, 1.15rem);
+	--tocus-typography-headline-large-line-height: 1.15;
+	--tocus-typography-body-small-font-size: clamp(0.55rem, 3.8cqh, 0.7rem);
+	--tocus-typography-body-small-line-height: 1.25;
+
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	border-radius: inherit;
+	container-type: size;
+
+	.scene {
+		min-height: 0;
+		overflow: hidden;
+	}
+
+	header {
+		gap: 0.5rem;
+		padding: clamp(0.5rem, 4cqh, 0.75rem) clamp(0.625rem, 4cqw, 1rem);
+	}
+
+	.brand {
+		gap: 0.4rem;
+	}
+
+	.brand-icon {
+		width: clamp(1rem, 7cqh, 1.35rem);
+		height: clamp(1rem, 7cqh, 1.35rem);
+	}
+
+	.wordmark {
+		white-space: nowrap;
+	}
+
+	.remaining {
+		flex: 0 0 auto;
+		max-width: 58%;
+		padding: 0.25rem 0.55rem;
+		white-space: nowrap;
+	}
+
+	main {
+		padding-inline: clamp(0.5rem, 4cqw, 1rem);
+	}
+
+	.stage {
+		min-height: 0;
+	}
+
+	.cue {
+		max-width: 90%;
+		margin-top: 0.25rem;
+	}
+
+	.sphere-shell {
+		width: min(86cqw, 16rem);
+		height: 100%;
+		min-height: 0;
+		max-height: min(58cqh, 10rem);
+	}
+
+	footer {
+		max-width: 100%;
+		padding: 0.4rem clamp(0.625rem, 4cqw, 1rem) clamp(0.5rem, 4cqh, 0.75rem);
+	}
+}
+
 .visually-hidden {
 	position: absolute;
 	width: 0.0625rem;
