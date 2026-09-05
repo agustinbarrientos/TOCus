@@ -1,0 +1,202 @@
+@use '@tocus/theme/typography' as typography;
+
+:host {
+	display: block;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+.step {
+	color: var(--tocus-color-on-surface);
+}
+
+header {
+	margin-bottom: var(--tocus-space-6);
+
+	h1 {
+		@include typography.apply( 'headline-large' );
+
+		margin: 0;
+
+		&:focus {
+			outline: none;
+		}
+	}
+
+	p {
+		@include typography.apply( 'body-large' );
+
+		max-width: 38rem;
+		margin: var(--tocus-space-3) 0 0;
+		color: var(--tocus-color-on-surface-muted);
+	}
+}
+
+form,
+fieldset {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+legend {
+	@include typography.apply( 'label-large' );
+
+	padding: 0;
+}
+
+.language-options {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: var(--tocus-space-3);
+	margin-top: var(--tocus-space-3);
+}
+
+.language-option {
+	position: relative;
+	display: grid;
+	place-items: center;
+	min-height: 5.25rem;
+	padding: var(--tocus-space-4);
+	border-radius: var(--tocus-radius-medium);
+	cursor: pointer;
+	isolation: isolate;
+
+	input {
+		position: absolute;
+		z-index: 2;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		opacity: 0;
+		cursor: inherit;
+
+		&:checked + .selection {
+			border-color: var(--tocus-color-action);
+			background: var(--tocus-color-surface-container);
+			box-shadow: 0 0 0 1px color-mix(in srgb, var(--tocus-color-action) 18%, transparent);
+		}
+
+		&:focus-visible + .selection {
+			outline: 3px solid var(--tocus-color-focus-ring);
+			outline-offset: 2px;
+		}
+
+		&:disabled {
+			cursor: wait;
+		}
+	}
+
+	.selection {
+		position: absolute;
+		z-index: 0;
+		inset: 0;
+		border: 1px solid var(--tocus-color-outline);
+		border-radius: inherit;
+		background: color-mix(in srgb, var(--tocus-color-surface) 78%, transparent);
+		transition:
+			background-color var(--tocus-transition-fast),
+			border-color var(--tocus-transition-fast),
+			transform var(--tocus-transition-fast);
+	}
+
+	strong {
+		@include typography.apply( 'title-small' );
+
+		position: relative;
+		z-index: 1;
+		text-align: center;
+	}
+
+	&:hover .selection {
+		transform: translateY(-0.125rem);
+	}
+
+	&:has(input:disabled) {
+		cursor: wait;
+		opacity: 0.65;
+	}
+}
+
+.variant-choice {
+	min-width: 0;
+	margin-top: var(--tocus-space-5);
+}
+
+.variant-options {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--tocus-space-3);
+	margin-top: var(--tocus-space-3);
+}
+
+.error {
+	@include typography.apply( 'body-small' );
+
+	min-height: 1.25rem;
+	margin: var(--tocus-space-4) 0 0;
+}
+
+.actions {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: var(--tocus-space-4);
+}
+
+button {
+	@include typography.apply( 'label-large' );
+
+	min-width: 8rem;
+	min-height: 3rem;
+	padding: var(--tocus-space-3) var(--tocus-space-6);
+	border: 0;
+	border-radius: var(--tocus-radius-full);
+	background: var(--tocus-color-action);
+	color: var(--tocus-color-on-action);
+	cursor: pointer;
+	box-shadow: 0 0.75rem 1.5rem color-mix(in srgb, var(--tocus-color-shadow-depth) 16%, transparent);
+
+	&:hover {
+		filter: brightness(1.04);
+	}
+
+	&:focus-visible {
+		outline: 3px solid var(--tocus-color-focus-ring);
+		outline-offset: 3px;
+	}
+
+	&:disabled {
+		cursor: wait;
+		opacity: 0.65;
+	}
+}
+
+@media (width <= 44rem) {
+	.language-options {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.language-option .selection {
+		transition: none;
+	}
+
+	.language-option:hover .selection {
+		transform: none;
+	}
+}
+
+@media (forced-colors: active) {
+	.language-option input:checked + .selection {
+		border-color: Highlight;
+		background: Highlight;
+		color: HighlightText;
+		forced-color-adjust: none;
+	}
+}
