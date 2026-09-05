@@ -33,6 +33,11 @@ msgstr "{count, plural, zero {# segundos} one {# segundo} two {# segundos} few {
 msgid "{count, plural, one {# timer active} other {# timers active}}"
 msgstr "{count, plural, one {# cronômetro ativo} other {# cronômetros ativos}}"
 
+#. Number of websites using one shared active timing scope.
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "{count, plural, one {# website} other {# websites}}"
+msgstr "{count, plural, one {# site} other {# sites}}"
+
 #. Compact countdown shown during a focused pause. The letter s means seconds.
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "{count, plural, one {#s remaining} other {#s remaining}}"
@@ -106,11 +111,6 @@ msgctxt "Extension description"
 msgid "A gentle pause before distracting websites, designed to help you return to your intentions."
 msgstr "Uma pausa gentil antes de sites que distraem, criada para ajudar você a retomar suas intenções."
 
-#: apps/extension/src/localization/utils/create-popup-copy/index.ts
-msgctxt "Popup summary"
-msgid "A gentle pause before distracting websites, designed to help you return to your intentions."
-msgstr "Uma pausa gentil antes de sites que distraem, feita para ajudar você a retomar suas intenções."
-
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "A private, all-time view of the pauses and choices TOCus has supported on this device."
 msgstr "Uma visão privada de todo o histórico de pausas e escolhas que o TOCus apoiou neste dispositivo."
@@ -147,11 +147,17 @@ msgstr "Acessibilidade"
 msgid "Active time windows"
 msgstr "Faixas de horário ativas"
 
+#. Popup heading above all timing scopes with a currently running timer.
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Active timing"
+msgstr "Tempos ativos"
+
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Add {siteName}"
 msgstr "Adicionar {siteName}"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Add a pause here"
 msgstr "Adicionar uma pausa aqui"
@@ -173,6 +179,7 @@ msgid "Adding {siteName}..."
 msgstr "Adicionando {siteName}..."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Adding..."
 msgstr "Adicionando..."
@@ -254,13 +261,26 @@ msgstr "Respiração"
 msgid "Brown"
 msgstr "Marrom"
 
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Browser access could not be confirmed. Try again."
+msgstr "Não foi possível confirmar o acesso do navegador. Tente novamente."
+
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Browser access could not be requested. Nothing was saved."
 msgstr "Não foi possível solicitar acesso ao navegador. Nada foi salvo."
 
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Browser access is needed to add a pause here."
+msgstr "É necessário permitir o acesso do navegador para adicionar uma pausa aqui."
+
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Browser access is still required to show the pause on this website."
 msgstr "O acesso ao navegador ainda é necessário para mostrar a pausa neste site."
+
+#. Popup status when TOCus needs browser permission for the current website.
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Browser access needed"
+msgstr "Acesso do navegador necessário"
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Browser access to show the pause on this website is required. Nothing was saved."
@@ -344,6 +364,12 @@ msgstr "Continuar"
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Create a gentle pause before the websites you choose."
 msgstr "Crie uma pausa gentil antes dos sites que você escolher."
+
+#. Heading above the current browser website in the extension popup.
+#. Popup timing-scope label when the scope belongs to the current website.
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Current website"
+msgstr "Site atual"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
@@ -579,6 +605,7 @@ msgstr "Dados locais"
 msgid "Make TOCus yours"
 msgstr "Deixe o TOCus do seu jeito"
 
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Manage this website"
 msgstr "Gerenciar este site"
@@ -595,6 +622,16 @@ msgstr "A espera máxima deve durar pelo menos tanto quanto a espera inicial."
 msgid "Monday"
 msgstr "Segunda-feira"
 
+#. Popup label for the duration of the next required pause.
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Next pause"
+msgstr "Próxima pausa"
+
+#. Popup status when the current website is not on the user's TOCus list.
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "No pause here"
+msgstr "Sem pausa aqui"
+
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "No websites yet"
 msgstr "Nenhum site ainda"
@@ -602,6 +639,11 @@ msgstr "Nenhum site ainda"
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Not enough history yet"
 msgstr "Ainda não há histórico suficiente"
+
+#. Popup status when the current website schedule is inactive at this moment.
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Off right now"
+msgstr "Desativado agora"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "On a weekly schedule"
@@ -638,9 +680,19 @@ msgstr "P{count}m"
 msgid "P{count}s"
 msgstr "P{count}s"
 
+#. Short popup label beside a countdown for an active timed pause.
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Pause"
+msgstr "Pausa"
+
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Pause behavior"
 msgstr "Comportamento da pausa"
+
+#. Popup status while the user is completing a timed pause before a website.
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Pause in progress"
+msgstr "Pausa em andamento"
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -704,7 +756,6 @@ msgid "Português (Portugal)"
 msgstr "Português (Portugal)"
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
-#: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Private by design"
 msgstr "Privacidade desde a concepção"
 
@@ -805,6 +856,7 @@ msgstr "Horários salvos."
 msgid "Set one calm timing pattern for every website on your list."
 msgstr "Defina um padrão de tempos tranquilo para todos os sites da sua lista."
 
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 msgid "Settings"
 msgstr "Configurações"
@@ -818,6 +870,7 @@ msgstr "Progresso da configuração"
 msgid "Shared"
 msgstr "Compartilhada"
 
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -858,6 +911,7 @@ msgstr "Início"
 msgid "Start and end time must be different."
 msgstr "Os horários de início e fim devem ser diferentes."
 
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Statistics"
@@ -874,6 +928,10 @@ msgstr "Não foi possível zerar as estatísticas"
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Statistics were reset. Your totals now start from zero."
 msgstr "As estatísticas foram zeradas. Seus totais agora começam do zero."
+
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Status unavailable"
+msgstr "Status indisponível"
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Step {currentStep} of {totalSteps}: {stepName}"
@@ -953,6 +1011,11 @@ msgstr "Este grupo de tempos não está mais disponível. Recarregue a página e
 msgid "This visit window has ended. Start another pause when you are ready."
 msgstr "Este tempo de visita terminou. Comece outra pausa quando quiser."
 
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "This website could not be added. Nothing was changed."
+msgstr "Não foi possível adicionar este site. Nada foi alterado."
+
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "This website could not be saved. Its browser access may still be active."
 msgstr "Não foi possível salvar este site. O acesso do navegador talvez ainda esteja ativo."
@@ -1017,6 +1080,16 @@ msgctxt "Extension name"
 msgid "TOCus"
 msgstr "TOCus"
 
+#. Popup explanation shown for browser-owned pages that extensions cannot manage.
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "TOCus cannot add a pause to this browser page."
+msgstr "O TOCus não pode adicionar uma pausa a esta página do navegador."
+
+#. Popup explanation shown when the current website cannot be identified.
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "TOCus cannot read the current website."
+msgstr "O TOCus não consegue ler o site atual."
+
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "TOCus could not confirm the reset. No totals are shown until your local statistics can be read again."
 msgstr "O TOCus não conseguiu confirmar a redefinição. Nenhum total será exibido até que suas estatísticas locais possam ser lidas novamente."
@@ -1066,9 +1139,19 @@ msgstr "O TOCus não conseguiu salvar esse site. Tente novamente."
 msgid "TOCus found local settings it could not read. They were not replaced."
 msgstr "O TOCus encontrou configurações locais que não conseguiu ler. Elas não foram substituídas."
 
+#. Popup status when TOCus is currently active for the selected website.
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "TOCus is active"
+msgstr "O TOCus está ativo"
+
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "TOCus is ready. You can close this tab or continue in Settings."
 msgstr "O TOCus está pronto. Você pode fechar esta aba ou continuar em Configurações."
+
+#. Gentle popup error heading when the current status cannot load.
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "TOCus is taking a moment"
+msgstr "O TOCus precisa de um momento"
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "TOCus language"
@@ -1106,6 +1189,7 @@ msgstr "TOCus: {title}"
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
@@ -1118,6 +1202,7 @@ msgid "Try again, or continue in Settings."
 msgstr "Tente novamente ou continue nas Configurações."
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Trying again..."
 msgstr "Tentando novamente..."
 
@@ -1182,6 +1267,16 @@ msgstr "V<1m"
 #: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "V0m"
 msgstr "V0m"
+
+#. Short popup label beside a countdown for an active website allowance.
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Visit window"
+msgstr "Tempo de visita"
+
+#. Popup status while a timed website allowance is currently open.
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Visit window open"
+msgstr "Tempo de visita aberto"
 
 #: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "Visit window: complete"
@@ -1327,10 +1422,6 @@ msgstr "Sua pausa começou."
 msgid "Your pause is paused."
 msgstr "A contagem da sua pausa foi pausada."
 
-#: apps/extension/src/localization/utils/create-popup-copy/index.ts
-msgid "Your settings and statistics stay on this device."
-msgstr "Suas configurações e estatísticas ficam neste dispositivo."
-
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Your statistics stay on this device."
 msgstr "Suas estatísticas ficam neste dispositivo."
@@ -1354,6 +1445,10 @@ msgstr "Sua lista de sites mudou. Tente novamente antes de adicionar este site."
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Your website list needs attention"
 msgstr "Sua lista de sites precisa de atenção"
+
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Your websites and settings are unchanged. Try again."
+msgstr "Seus sites e configurações não foram alterados. Tente novamente."
 
 #. Language autonym. Keep the language name written in Russian.
 #. Language-menu autonym. Keep this language name written in Russian.
