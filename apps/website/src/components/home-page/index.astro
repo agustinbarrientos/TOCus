@@ -28,7 +28,7 @@ const { catalog } = localization;
 					<p class="status">{catalog.status}</p>
 					<nav class="language-navigation" aria-label={catalog.languageMenuLabel}>
 						<details class="language-menu">
-							<summary>{localization.autonym}</summary>
+							<summary>{catalog.languageLabels[localization.language]}</summary>
 							<ul>
 								{localizations.map( ( option ) => (
 									<li>
@@ -37,7 +37,7 @@ const { catalog } = localization;
 											lang={option.languageTag}
 											aria-current={option.language === localization.language ? 'page' : undefined}
 										>
-											{option.autonym}
+											{catalog.languageLabels[option.language]}
 										</a>
 									</li>
 								) )}

@@ -42,16 +42,16 @@ export interface WebsiteCatalog {
 	sourceLink: string;
 	privacy: string;
 	languageMenuLabel: string;
+	languageLabels: Readonly<Record<WebsiteLanguage, string>>;
 }
 
 /**
- * Stable routing and autonym metadata for one website language.
+ * Stable routing metadata for one website language.
  * @since 0.1.0 Initial implementation.
  */
 export interface WebsiteLanguageMetadata {
 	languageTag: string;
 	path: string;
-	autonym: string;
 }
 
 /**
