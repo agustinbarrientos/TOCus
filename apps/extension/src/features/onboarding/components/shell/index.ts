@@ -15,7 +15,7 @@ import {
 	type Palette as PaletteValue,
 	type ThemeMode as ThemeModeValue,
 } from '../../../../domains/preferences/types';
-import { type CanonicalHost } from '../../../../domains/protection/types/protected-site-rule';
+import { type ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
 import '../../../interruption/components/screen';
 import {
 	InterruptionScreenMode,
@@ -111,11 +111,11 @@ export class ComponentOnboardingShell extends LitElement {
 	accessor reducedMotion = false;
 
 	/**
-	 * Canonical site rules already protected before onboarding renders.
+	 * Authoritative site configurations already protected before onboarding renders.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@property( { attribute: false } )
-	accessor protectedRuleHosts: readonly CanonicalHost[] = [];
+	accessor protectedSites: readonly ProtectedSiteConfiguration[] = [];
 
 	/**
 	 * Fixed local suggestions rendered by the final step.
@@ -480,7 +480,7 @@ export class ComponentOnboardingShell extends LitElement {
 				data-onboarding-step
 				.copy=${ this.copy.sites }
 				.enrollment=${ this.enrollment }
-				.protectedRuleHosts=${ this.protectedRuleHosts }
+				.protectedSites=${ this.protectedSites }
 				.suggestions=${ this.suggestions }
 				@tocus-onboarding-sites-finish=${ this.handleSitesFinish }
 			></tocus-f-onboarding-sites-step>

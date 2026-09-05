@@ -10,12 +10,14 @@ import {
 import {
 	createBrowserProtectionConfigurationEditor,
 } from '../../../../domains/protection/services/browser-protection-configuration-editor';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import { ProtectionConfigurationDocumentSchema, type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import { ProtectionConfigurationStorageKey } from '../../../../domains/protection/services/protection-configuration-storage';
 import {
 	createEnglishLocalizationBundle,
 	type LocalizationBundle,
 } from '../../../../localization';
 import { createPreferencesController } from '../../../preferences/services/preferences-controller';
+import { type PreferencesStorageChanges } from '../../../preferences/services/preferences-controller/types';
 import { createProtectedSiteEnrollmentService } from '../../../protected-sites/services/protected-site-enrollment';
 import { createSitePermissionManager } from '../../../protected-sites/services/site-permission-manager';
 import { OnboardingLanguageSelectEventName } from '../../components/language-step/types';
@@ -93,6 +95,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 		permissionManager: createSitePermissionManager( { permissions: options.permissions } ),
 	} );
 	let localizationLanguage = options.browserLanguage;
+	const protectionProjection = { changedDuringStartup: false };
 
 	/**
 	 * Projects one complete onboarding localization snapshot.
@@ -150,10 +153,28 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 	 * @param configuration - Validated configuration or a malformed-data marker.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	function applyProtectedRuleHosts(
+	function applyProtectedSites(
 		configuration: ProtectionConfigurationDocument | null,
 	): void {
-		options.shell.protectedRuleHosts = configuration?.sites.map( ( site ) => site.rule.host ) ?? [];
+		options.shell.protectedSites = configuration?.sites ?? [];
+	}
+
+	/**
+	 * Projects validated local protection updates without accepting malformed state.
+	 * @param changes - Browser storage changes indexed by key.
+	 * @param areaName - Storage area containing the change.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function handleProtectionChange( changes: PreferencesStorageChanges, areaName: string ): void {
+		const change = changes[ ProtectionConfigurationStorageKey.CONFIGURATION ];
+		if ( areaName !== 'local' || change === undefined ) {
+			return;
+		}
+		const configuration = ProtectionConfigurationDocumentSchema.safeParse( change.newValue );
+		if ( configuration.success ) {
+			protectionProjection.changedDuringStartup = true;
+			applyProtectedSites( configuration.data );
+		}
 	}
 
 	/**
@@ -272,6 +293,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 	}
 
 	try {
+		options.storageChanges.addListener( handleProtectionChange );
 		preferencesController.addLanguageChangeListener( handleLanguageChange );
 		preferencesController.addPreferencesChangeListener( applyPreferences );
 		preferencesController.addEventListener( 'change', applyReducedMotion );
@@ -288,11 +310,14 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 		] );
 
 		applyReducedMotion();
-		applyProtectedRuleHosts( protectionConfiguration );
+		if ( ! protectionProjection.changedDuringStartup ) {
+			applyProtectedSites( protectionConfiguration );
+		}
 		await synchronizeLocalization();
 		options.shell.startupUnavailable = false;
 		revealOnboardingPage( options );
 	} catch ( error ) {
+		options.storageChanges.removeListener( handleProtectionChange );
 		preferencesController.removeLanguageChangeListener( handleLanguageChange );
 		preferencesController.removePreferencesChangeListener( applyPreferences );
 		preferencesController.removeEventListener( 'change', applyReducedMotion );
