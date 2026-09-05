@@ -17,17 +17,57 @@ msgstr ""
 msgid "A calmer moment before the next click."
 msgstr "Un momento più tranquillo prima del prossimo clic."
 
+#. Language-menu autonym. Keep this language name written in German.
+#: apps/website/src/localization/index.ts
+msgid "Deutsch"
+msgstr "Deutsch"
+
 #: apps/website/src/localization/index.ts
 msgid "Early development"
 msgstr "Sviluppo iniziale"
+
+#. Language-menu autonym. Keep this language name written in English.
+#: apps/website/src/localization/index.ts
+msgid "English"
+msgstr "English"
+
+#. Language-menu autonym for the tuteo variant. Keep this language name written in Spanish.
+#: apps/website/src/localization/index.ts
+msgid "Español (tú)"
+msgstr "Español (tú)"
+
+#. Language-menu autonym for the voseo variant. Keep this language name written in Spanish.
+#: apps/website/src/localization/index.ts
+msgid "Español (vos)"
+msgstr "Español (vos)"
 
 #: apps/website/src/localization/index.ts
 msgid "Explore the source on GitHub"
 msgstr "Esplora il codice sorgente su GitHub"
 
+#. Language-menu autonym. Keep this language name written in French.
+#: apps/website/src/localization/index.ts
+msgid "Français"
+msgstr "Français"
+
+#. Language-menu autonym. Keep this language name written in Italian.
+#: apps/website/src/localization/index.ts
+msgid "Italiano"
+msgstr "Italiano"
+
 #: apps/website/src/localization/index.ts
 msgid "Open-source browser extension"
 msgstr "Estensione open source per browser"
+
+#. Language-menu autonym for Brazilian Portuguese. Keep this language name written in Portuguese.
+#: apps/website/src/localization/index.ts
+msgid "Português (Brasil)"
+msgstr "Português (Brasil)"
+
+#. Language-menu autonym for European Portuguese. Keep this language name written in Portuguese.
+#: apps/website/src/localization/index.ts
+msgid "Português (Portugal)"
+msgstr "Português (Portugal)"
 
 #: apps/website/src/localization/index.ts
 msgid "TOCus is an open-source browser extension in early development."
@@ -44,3 +84,13 @@ msgstr "TOCus v1 funziona solo in locale: nessun account o server TOCus, nessuna
 #: apps/website/src/localization/index.ts
 msgid "Website language"
 msgstr "Lingua del sito"
+
+#. Language-menu autonym. Keep this language name written in Russian.
+#: apps/website/src/localization/index.ts
+msgid "Русский"
+msgstr "Русский"
+
+#. Language-menu autonym. Keep this language name written in Japanese.
+#: apps/website/src/localization/index.ts
+msgid "日本語"
+msgstr "日本語"
