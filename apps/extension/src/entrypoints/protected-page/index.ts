@@ -1,3 +1,4 @@
+import '@webcomponents/custom-elements';
 import { defineUnlistedScript } from 'wxt/utils/define-unlisted-script';
 import { mountProtectedPageLayer } from '../../features/interruption/services/protected-page';
 

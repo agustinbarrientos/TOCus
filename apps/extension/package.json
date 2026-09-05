@@ -20,6 +20,7 @@
 	"dependencies": {
 		"@lingui/core": "6.6.0",
 		"@tocus/theme": "workspace:*",
+		"@webcomponents/custom-elements": "1.6.0",
 		"lit": "3.3.3",
 		"tldts": "7.4.11",
 		"zod": "4.5.4"

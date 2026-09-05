@@ -92,6 +92,9 @@ importers:
       '@tocus/theme':
         specifier: workspace:*
         version: link:../../packages/theme
+      '@webcomponents/custom-elements':
+        specifier: 1.6.0
+        version: 1.6.0
       lit:
         specifier: 3.3.3
         version: 3.3.3
@@ -1997,6 +2000,9 @@ packages:
     resolution: {integrity: sha512-eZkVgRcrhPiPG4V8PlBsnpEjVWzGjyRhWzhsH2QzZKvIgIqamwLfH5NFQqLOQQ7OW+G7bjUE8Pg4URRH0XmhDw==}
     engines: {node: '>=22.0.0'}
     hasBin: true
+
+  '@webcomponents/custom-elements@1.6.0':
+    resolution: {integrity: sha512-CqTpxOlUCPWRNUPZDxT5v2NnHXA4oox612iUGnmTUGQFhZ1Gkj8kirtl/2wcF6MqX7+PqqicZzOCBKKfIn0dww==}
 
   '@webext-core/fake-browser@2.0.1':
     resolution: {integrity: sha512-4x5z1z8F0KU8ShF4ForXJ8qnA8oZTy7HYjI91Mbpdzp3H3hU9HR6TNPUxfWtSpFz2FwgEircuJKQg0qFIn6RLg==}
@@ -6853,6 +6859,8 @@ snapshots:
       - supports-color
       - utf-8-validate
       - yauzl
+
+  '@webcomponents/custom-elements@1.6.0': {}
 
   '@webext-core/fake-browser@2.0.1':
     dependencies:

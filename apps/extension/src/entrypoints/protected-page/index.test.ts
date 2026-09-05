@@ -20,6 +20,7 @@ const bootstrapMocks = vi.hoisted( () => {
 vi.mock( 'wxt/utils/define-unlisted-script', () => ( {
 	defineUnlistedScript: bootstrapMocks.defineUnlistedScript,
 } ) );
+vi.mock( '@webcomponents/custom-elements', () => ( {} ) );
 vi.mock( '../../features/interruption/services/protected-page', () => ( {
 	mountProtectedPageLayer: bootstrapMocks.mountProtectedPageLayer,
 } ) );
