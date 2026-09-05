@@ -1,4 +1,5 @@
 import { type Browser, type WxtBrowser } from 'wxt/browser';
+import { type ExtensionTabContextRuntime } from '../../../../shared/services/extension-tab-context';
 
 /**
  * Exact one-shot alarm deadline accepted by the browser.
@@ -245,6 +246,8 @@ export interface BrowserProtectionToolbarAction {
  * @since 0.1.0 Initial implementation.
  */
 export interface BrowserProtectionAdapterApi {
+	/** Live extension-document lookup when supported by the browser. */
+	runtime?: ExtensionTabContextRuntime | undefined;
 	/** Exact one-shot protection-clock alarms. */
 	alarms: BrowserProtectionAlarmsApi;
 	/** Dynamic declarative-navigation operations. */

@@ -1,5 +1,6 @@
 import { ToolbarBadgeBackgroundColor } from '@tocus/theme/runtime-colors';
 import { type Browser } from 'wxt/browser';
+import { enrichExtensionTabUrls } from '../../../../shared/services/extension-tab-context';
 import { isProtectionNavigationRuleId } from '../../utils/protection-navigation-rules';
 import {
 	ProtectedPageMessageSchema,
@@ -169,7 +170,8 @@ export function createBrowserProtectionAdapter(
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function listTabs(): Promise<ReadonlyArray<ProtectionRuntimeTab>> {
-		const tabs = await browserApi.tabs.query( {} );
+		const queriedTabs = await browserApi.tabs.query( {} );
+		const tabs = await enrichExtensionTabUrls( queriedTabs, browserApi.runtime );
 
 		return tabs.flatMap( ( tab ) => {
 			if ( tab.id === undefined ) {
