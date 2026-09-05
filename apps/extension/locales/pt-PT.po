@@ -1067,10 +1067,6 @@ msgid "TOCus found local settings it could not read. They were not replaced."
 msgstr "O TOCus encontrou definições locais que não conseguiu ler. Estas não foram substituídas."
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
-msgid "TOCus is a focus aid, not medical treatment."
-msgstr "O TOCus é uma ajuda à concentração, não um tratamento médico."
-
-#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "TOCus is ready. You can close this tab or continue in Settings."
 msgstr "O TOCus está pronto. Pode fechar este separador ou continuar nas Definições."
 
