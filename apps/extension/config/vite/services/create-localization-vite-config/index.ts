@@ -21,6 +21,7 @@ export function createLocalizationViteConfig(): LocalizationViteConfig {
 			createLocalizationRuntimeMessagesPlugin(),
 			...lingui( { configPath: LinguiConfigPath } ),
 			babel( {
+				plugins: [ [ '@babel/plugin-proposal-decorators', { version: '2023-11' } ] ],
 				presets: [ linguiTransformerBabelPreset( {}, { configPath: LinguiConfigPath } ) ],
 			} ),
 		],
