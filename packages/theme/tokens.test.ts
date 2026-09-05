@@ -84,8 +84,13 @@ describe( 'theme color tokens', () => {
 		const css = compileHostTokens();
 
 		expect( css ).toContain( ':host {' );
-		expect( css ).toContain( ':host[data-tocus-theme=dark]' );
-		expect( css ).toContain( ':host[data-tocus-palette=green]' );
+		expect( css ).toContain( ':host([data-tocus-theme=dark])' );
+		expect( css ).toContain( ':host([data-tocus-palette=green])' );
+		expect( css ).toContain(
+			':host([data-tocus-theme=dark][data-tocus-palette=purple])',
+		);
+		expect( css ).toContain( ':host(:not([data-tocus-theme=light]))' );
+		expect( css ).not.toContain( ':host[data-' );
 		expect( css ).not.toContain( ':root' );
 
 		for ( const token of FALLBACK_COLOR_TOKENS ) {
