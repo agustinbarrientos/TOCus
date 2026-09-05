@@ -322,13 +322,13 @@ footer {
 }
 
 :host([preview]) {
-	--tocus-typography-headline-small-font-size: clamp(0.75rem, 6cqh, 1rem);
+	--tocus-typography-headline-small-font-size: clamp(0.9375rem, 7.5cqh, 1.25rem);
 	--tocus-typography-headline-small-line-height: 1.15;
-	--tocus-typography-body-large-font-size: clamp(0.625rem, 4.5cqh, 0.8rem);
+	--tocus-typography-body-large-font-size: clamp(0.78125rem, 5.625cqh, 1rem);
 	--tocus-typography-body-large-line-height: 1.2;
-	--tocus-typography-headline-large-font-size: clamp(0.8rem, 6cqh, 1.15rem);
+	--tocus-typography-headline-large-font-size: clamp(1rem, 7.5cqh, 1.4375rem);
 	--tocus-typography-headline-large-line-height: 1.15;
-	--tocus-typography-body-small-font-size: clamp(0.55rem, 3.8cqh, 0.7rem);
+	--tocus-typography-body-small-font-size: clamp(0.6875rem, 4.75cqh, 0.875rem);
 	--tocus-typography-body-small-line-height: 1.25;
 
 	position: absolute;
