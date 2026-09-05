@@ -308,7 +308,9 @@ describe( 'createPreferencesController', () => {
 
 		fixture.controller.addPreferencesChangeListener( listener );
 		await fixture.controller.start();
-		listener.mockClear();
+		expect( listener ).toHaveBeenCalledOnce();
+		expect( listener ).toHaveBeenLastCalledWith( createPreferences() );
+
 		const preferences = createPreferences( {
 			palette: Palette.ORANGE,
 			theme: ThemeMode.LIGHT,
@@ -319,7 +321,19 @@ describe( 'createPreferencesController', () => {
 
 		fixture.controller.removePreferencesChangeListener( listener );
 		fixture.storageChanges.emit( createPreferences() );
+		expect( listener ).toHaveBeenCalledTimes( 2 );
+	} );
+
+	it( 'delivers the malformed fallback after an accepted initial read', async () => {
+		const fixture = createFixture( null );
+		const listener = vi.fn();
+
+		fixture.controller.addPreferencesChangeListener( listener );
+		await fixture.controller.start();
+
 		expect( listener ).toHaveBeenCalledOnce();
+		expect( listener ).toHaveBeenLastCalledWith( null );
+		expect( fixture.attributes.get( 'data-tocus-theme' ) ).toBe( ThemeMode.SYSTEM );
 	} );
 
 	it( 'falls back safely when loaded preferences are unavailable', async () => {
@@ -382,20 +396,25 @@ describe( 'createPreferencesController', () => {
 	it( 'does not let a stale initial read replace a newer storage event', async () => {
 		let resolveLoad: ( preferences: PreferencesDocument ) => void = ignoreDeferredResolution;
 		const fixture = createFixture();
+		const listener = vi.fn();
 
 		fixture.storage.load.mockReturnValueOnce( new Promise<PreferencesDocument>( ( resolve ) => {
 			resolveLoad = resolve;
 		} ) );
+		fixture.controller.addPreferencesChangeListener( listener );
 		const startPromise = fixture.controller.start();
-		fixture.storageChanges.emit( createPreferences( {
+		const livePreferences = createPreferences( {
 			theme: ThemeMode.LIGHT,
 			palette: Palette.ORANGE,
-		} ) );
+		} );
+		fixture.storageChanges.emit( livePreferences );
 		resolveLoad( createPreferences() );
 		await startPromise;
 
 		expect( fixture.attributes.get( 'data-tocus-theme' ) ).toBe( ThemeMode.LIGHT );
 		expect( fixture.attributes.get( 'data-tocus-palette' ) ).toBe( Palette.ORANGE );
+		expect( listener ).toHaveBeenCalledOnce();
+		expect( listener ).toHaveBeenLastCalledWith( livePreferences );
 	} );
 
 	it( 'does not let a failed initial read replace a newer in-memory preview', async () => {

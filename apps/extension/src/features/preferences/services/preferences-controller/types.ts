@@ -6,7 +6,7 @@ import {
 } from '../../../../domains/preferences/types';
 
 /**
- * Receives one validated preferences projection or a malformed-data marker.
+ * Receives an accepted initial or later preferences projection, or a malformed-data marker.
  * @since 0.1.0 Initial implementation.
  */
 export type PreferencesChangeListener = ( preferences: PreferencesDocument | null ) => void;
@@ -141,7 +141,7 @@ export interface PreferencesController {
 	apply( preferences: PreferencesDocument ): void;
 
 	/**
-	 * Begins observing validated preferences projections and malformed-data markers.
+	 * Begins observing the accepted initial read and later preferences projections.
 	 * @param listener - Preferences projection listener.
 	 * @since 0.1.0 Initial implementation.
 	 */
@@ -171,7 +171,7 @@ export interface PreferencesController {
 	removeEventListener( type: 'change', listener: EventListenerOrEventListenerObject ): void;
 
 	/**
-	 * Stops observing validated preferences projections and malformed-data markers.
+	 * Stops observing accepted initial and later preferences projections.
 	 * @param listener - Preferences projection listener.
 	 * @since 0.1.0 Initial implementation.
 	 */

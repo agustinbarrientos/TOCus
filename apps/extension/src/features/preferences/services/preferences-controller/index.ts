@@ -117,7 +117,7 @@ export function createPreferencesController(
 	}
 
 	/**
-	 * Begins delivering validated preferences projections and malformed-data markers to one listener.
+	 * Begins delivering the accepted initial read and later preferences projections to one listener.
 	 * @param listener - Preferences projection listener.
 	 * @since 0.1.0 Initial implementation.
 	 */
@@ -203,7 +203,7 @@ export function createPreferencesController(
 	}
 
 	/**
-	 * Stops delivering validated preferences projections and malformed-data markers to one listener.
+	 * Stops delivering accepted initial and later preferences projections to one listener.
 	 * @param listener - Preferences projection listener.
 	 * @since 0.1.0 Initial implementation.
 	 */
@@ -253,7 +253,7 @@ export function createPreferencesController(
 			return;
 		}
 
-		projectPreferences( loadedPreferences ?? DefaultPreferencesDocument );
+		applyStoredPreferences( loadedPreferences );
 	}
 
 	/**
