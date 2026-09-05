@@ -14,6 +14,7 @@ const entrypointMocks = vi.hoisted( () => {
 	const preferencesController = {};
 	const protectionEditor = {};
 	const enrollment = {};
+	const enrollmentClient = {};
 	const faviconProvider = {};
 	const currentTabReader = {};
 	const statusClient = {};
@@ -43,12 +44,14 @@ const entrypointMocks = vi.hoisted( () => {
 		createPreferencesController: vi.fn().mockReturnValue( preferencesController ),
 		createPreferencesStorageService: vi.fn().mockReturnValue( preferencesStorage ),
 		createProtectedSiteEnrollmentService: vi.fn().mockReturnValue( enrollment ),
+		createPopupEnrollmentClient: vi.fn().mockReturnValue( enrollmentClient ),
 		createSiteFaviconProvider: vi.fn().mockReturnValue( faviconProvider ),
 		createSitePermissionManager: vi.fn().mockReturnValue( { permissions: true } ),
 		createPopupStatusClient: vi.fn().mockReturnValue( statusClient ),
 		currentTabReader,
 		document: { querySelector: vi.fn().mockReturnValue( shell ) },
 		enrollment,
+		enrollmentClient,
 		faviconProvider,
 		loadLocalizationBundle: vi.fn(),
 		preferencesController,
@@ -92,6 +95,9 @@ vi.mock( '../../features/popup/components/shell', () => ( {
 vi.mock( '../../features/popup/services/current-tab-reader', () => ( {
 	createCurrentTabReader: entrypointMocks.createCurrentTabReader,
 } ) );
+vi.mock( '../../features/popup/services/popup-enrollment-client', () => ( {
+	createPopupEnrollmentClient: entrypointMocks.createPopupEnrollmentClient,
+} ) );
 vi.mock( '../../features/popup/services/popup-page', () => ( {
 	bootstrapPopupPage: entrypointMocks.bootstrapPopupPage,
 } ) );
@@ -107,14 +113,17 @@ describe( 'popup entrypoint', () => {
 	beforeEach( () => {
 		vi.resetModules();
 		vi.clearAllMocks();
+		vi.stubEnv( 'CHROME', '' );
 		entrypointMocks.document.querySelector.mockReturnValue( entrypointMocks.shell );
 	} );
 
 	afterEach( () => {
+		vi.unstubAllEnvs();
 		vi.unstubAllGlobals();
 	} );
 
-	it( 'composes local popup services without requesting broad tab access', async () => {
+	it.each( [ 'FIREFOX', 'SAFARI' ] )( 'preserves direct popup permission enrollment on %s', async ( browserTarget ) => {
+		vi.stubEnv( browserTarget, 'true' );
 		vi.stubGlobal( 'document', entrypointMocks.document );
 		vi.stubGlobal( 'window', {
 			addEventListener: vi.fn(),
@@ -138,6 +147,10 @@ describe( 'popup entrypoint', () => {
 			editor: entrypointMocks.protectionEditor,
 			permissionManager: { permissions: true },
 		} );
+		expect( entrypointMocks.createSitePermissionManager ).toHaveBeenCalledWith( {
+			permissions: entrypointMocks.browser.permissions,
+		} );
+		expect( entrypointMocks.createPopupEnrollmentClient ).not.toHaveBeenCalled();
 		expect( entrypointMocks.bootstrapPopupPage ).toHaveBeenCalledWith( expect.objectContaining( {
 			currentTabReader: entrypointMocks.currentTabReader,
 			enrollment: entrypointMocks.enrollment,
@@ -147,6 +160,26 @@ describe( 'popup entrypoint', () => {
 			shell: entrypointMocks.shell,
 			statisticsPageUrl: 'chrome-extension://extension-id/options.html#statistics',
 			statusClient: entrypointMocks.statusClient,
+		} ) );
+	} );
+
+	it( 'does not construct a popup-local configuration editor or permission flow on Chrome', async () => {
+		vi.stubEnv( 'CHROME', 'true' );
+		vi.stubGlobal( 'document', entrypointMocks.document );
+		vi.stubGlobal( 'window', { matchMedia: vi.fn().mockReturnValue( {} ) } );
+		vi.stubGlobal( 'navigator', { locks: {} } );
+		vi.stubGlobal( 'crypto', {} );
+
+		await import( './index' );
+
+		expect( entrypointMocks.createBrowserProtectionConfigurationEditor ).not.toHaveBeenCalled();
+		expect( entrypointMocks.createProtectedSiteEnrollmentService ).not.toHaveBeenCalled();
+		expect( entrypointMocks.createSitePermissionManager ).not.toHaveBeenCalled();
+		expect( entrypointMocks.createPopupEnrollmentClient ).toHaveBeenCalledExactlyOnceWith( {
+			runtime: entrypointMocks.browser.runtime,
+		} );
+		expect( entrypointMocks.bootstrapPopupPage ).toHaveBeenCalledWith( expect.objectContaining( {
+			enrollment: entrypointMocks.enrollmentClient,
 		} ) );
 	} );
 
