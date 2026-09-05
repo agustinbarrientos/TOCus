@@ -85,10 +85,12 @@ msgstr "Доступ к {name} восстановлен."
 msgid "{name} was added to your list."
 msgstr "Сайт {name} добавлен в ваш список."
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "{name} was removed from your list."
 msgstr "Сайт {name} удалён из вашего списка."
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "{name} was removed, but its browser access could not be removed automatically."
 msgstr "{name} удалён, но доступ браузера к нему не удалось отозвать автоматически."
@@ -156,15 +158,18 @@ msgstr "Активные интервалы"
 msgid "Add {siteName}"
 msgstr "Добавить {siteName}"
 
-#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
-#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Add a pause here"
 msgstr "Добавить паузу здесь"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Add another site"
 msgstr "Добавить другой сайт"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Add site"
+msgstr "Добавить сайт"
 
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "Add the first site you want TOCus to gently interrupt."
@@ -784,6 +789,7 @@ msgstr "Удалить"
 msgid "Remove {name}?"
 msgstr "Удалить {name}?"
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Remove site"
 msgstr "Удалить сайт"
@@ -1373,6 +1379,11 @@ msgstr "Браузер не смог запросить доступ к этом
 msgid "Your browser currently selects {name}."
 msgstr "Сейчас браузер выбирает язык: {name}."
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Your browser will ask for access to the selected websites when you finish."
+msgstr "Когда вы завершите настройку, браузер запросит доступ к выбранным сайтам."
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Your changes could not be saved. Nothing was replaced."
 msgstr "Не удалось сохранить изменения. Ничего не заменено."

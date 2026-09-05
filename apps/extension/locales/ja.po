@@ -85,10 +85,12 @@ msgstr "{name} へのアクセスを復元しました。"
 msgid "{name} was added to your list."
 msgstr "{name} をリストに追加しました。"
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "{name} was removed from your list."
 msgstr "{name} をリストから削除しました。"
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "{name} was removed, but its browser access could not be removed automatically."
 msgstr "{name} を削除しましたが、ブラウザーのアクセス権限を自動的に解除できませんでした。"
@@ -156,15 +158,18 @@ msgstr "作動中のタイマー"
 msgid "Add {siteName}"
 msgstr "{siteName} を追加"
 
-#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
-#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Add a pause here"
 msgstr "ここに一時停止を追加"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Add another site"
 msgstr "別のサイトを追加"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Add site"
+msgstr "サイトを追加"
 
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "Add the first site you want TOCus to gently interrupt."
@@ -784,6 +789,7 @@ msgstr "削除"
 msgid "Remove {name}?"
 msgstr "{name} を削除しますか？"
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Remove site"
 msgstr "サイトを削除"
@@ -1373,6 +1379,11 @@ msgstr "ブラウザがこのサイトへのアクセスを要求できません
 msgid "Your browser currently selects {name}."
 msgstr "現在、ブラウザーでは {name} が選択されています。"
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Your browser will ask for access to the selected websites when you finish."
+msgstr "設定を完了すると、ブラウザーが選択したサイトへのアクセス許可を求めます。"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Your changes could not be saved. Nothing was replaced."
 msgstr "変更を保存できませんでした。何も置き換えられていません。"
