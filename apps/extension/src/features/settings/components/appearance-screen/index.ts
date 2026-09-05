@@ -8,12 +8,11 @@ import {
 } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { keyed } from 'lit/directives/keyed.js';
+import { isLocalizationReady } from '../../../../localization/utils/is-localization-ready';
 import {
 	DefaultPreferencesDocument,
-	Palette,
 	PauseMode,
 	PreferencesDocumentSchema,
-	ThemeMode,
 	type PreferencesDocument,
 } from '../../../../domains/preferences/types';
 import {
@@ -21,20 +20,19 @@ import {
 	type PreferencesEditor,
 	type PreferencesUpdate,
 } from '../../../../domains/preferences/services/preferences-editor';
+import { arePreferencesEqual } from '../../../../domains/preferences/utils/are-preferences-equal';
+import '../../../preferences/components/appearance-controls';
+import type { AppearanceControlsChangeDetail } from '../../../preferences/components/appearance-controls/types';
 import styles from './web-component-style.scss?inline';
 import {
 	AppearanceScreenLoadStatus,
-	DefaultAppearanceScreenCopy,
 	type AppearanceInputEvent,
-	type AppearanceOptionCopy,
 	type AppearanceScreenCopy,
 	type AppearanceScreenLoadStatus as AppearanceScreenLoadStatusValue,
 	type PreferencesPreview,
 	type PreferencesSource,
 } from './types';
 
-const THEME_OPTIONS = Object.values( ThemeMode );
-const PALETTE_OPTIONS = Object.values( Palette );
 const PAUSE_MODE_OPTIONS = Object.values( PauseMode );
 
 /**
@@ -73,7 +71,7 @@ export class ComponentAppearanceScreen extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@property( { attribute: false } )
-	accessor copy: Readonly<AppearanceScreenCopy> = DefaultAppearanceScreenCopy;
+	accessor copy!: Readonly<AppearanceScreenCopy>;
 
 	@state()
 	private accessor preferences: PreferencesDocument = { ...DefaultPreferencesDocument };
@@ -85,13 +83,16 @@ export class ComponentAppearanceScreen extends LitElement {
 	private accessor saving = false;
 
 	@state()
-	private accessor saveError = '';
+	private accessor saveFailed = false;
 
 	@state()
-	private accessor recoveryError = '';
+	private accessor recoveryFailed = false;
 
 	@state()
-	private accessor announcement = '';
+	private accessor showSavedAnnouncement = false;
+
+	@state()
+	private accessor showRestoredAnnouncement = false;
 
 	@state()
 	private accessor announcementSequence = 0;
@@ -153,9 +154,19 @@ export class ComponentAppearanceScreen extends LitElement {
 	private readonly handleExternalPreferencesChange = (
 		preferences: PreferencesDocument | null,
 	): void => {
-		this.preferencesRevision += 1;
-		this.saveError = '';
-		this.recoveryError = '';
+		const duplicatesCurrentProjection = preferences !== null && arePreferencesEqual(
+			preferences,
+			this.preferences,
+		);
+
+		if ( ! duplicatesCurrentProjection ) {
+			this.preferencesRevision += 1;
+			this.showSavedAnnouncement = false;
+			this.showRestoredAnnouncement = false;
+		}
+
+		this.saveFailed = false;
+		this.recoveryFailed = false;
 
 		if ( preferences === null ) {
 			this.loadStatus = AppearanceScreenLoadStatus.MALFORMED;
@@ -191,8 +202,8 @@ export class ComponentAppearanceScreen extends LitElement {
 		const initialPreferencesRevision = this.preferencesRevision;
 
 		this.loadStatus = AppearanceScreenLoadStatus.LOADING;
-		this.saveError = '';
-		this.recoveryError = '';
+		this.saveFailed = false;
+		this.recoveryFailed = false;
 
 		if ( this.editor === null ) {
 			this.loadStatus = AppearanceScreenLoadStatus.FAILED;
@@ -228,6 +239,30 @@ export class ComponentAppearanceScreen extends LitElement {
 	}
 
 	/**
+	 * Moves focus to a Settings-owned input or a nested shared appearance control.
+	 * @param controlId - Native preference-control identifier without a selector prefix.
+	 * @return Promise resolved after a nested shared control is ready and focused.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private async focusPreferenceControl( controlId: string ): Promise<void> {
+		const sharedControl = controlId.startsWith( 'theme-' ) || controlId.startsWith( 'palette-' );
+
+		if ( sharedControl ) {
+			const appearanceControls = this.shadowRoot?.querySelector( 'tocus-f-appearance-controls' );
+
+			if ( appearanceControls !== null && appearanceControls !== undefined ) {
+				await appearanceControls.updateComplete;
+				appearanceControls.focusControl( controlId );
+				return;
+			}
+		}
+
+		this.shadowRoot
+			?.querySelector<HTMLElement>( `#${ CSS.escape( controlId ) }` )
+			?.focus();
+	}
+
+	/**
 	 * Retries the local preferences read and restores useful focus.
 	 * @since 0.1.0 Initial implementation.
 	 */
@@ -235,14 +270,15 @@ export class ComponentAppearanceScreen extends LitElement {
 		await this.refreshPreferences();
 		await this.updateComplete;
 
-		const focusTarget = this.loadStatus === AppearanceScreenLoadStatus.READY
-			? `#theme-${ this.preferences.theme }`
-			: '.retry-action';
-		this.shadowRoot?.querySelector<HTMLElement>( focusTarget )?.focus();
+		if ( this.loadStatus === AppearanceScreenLoadStatus.READY ) {
+			await this.focusPreferenceControl( `theme-${ this.preferences.theme }` );
+		} else {
+			this.shadowRoot?.querySelector<HTMLElement>( '.retry-action' )?.focus();
+		}
 	};
 
 	/**
-	 * Replaces only malformed appearance data with validated defaults after an explicit user action.
+	 * Replaces malformed personalization data with validated defaults after an explicit user action.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	private readonly handleRestoreDefaults = async (): Promise<void> => {
@@ -250,7 +286,10 @@ export class ComponentAppearanceScreen extends LitElement {
 			return;
 		}
 
-		this.recoveryError = '';
+		this.preferences = { ...DefaultPreferencesDocument };
+		this.recoveryFailed = false;
+		this.showSavedAnnouncement = false;
+		this.showRestoredAnnouncement = false;
 		this.saving = true;
 		const initialPreferencesRevision = this.preferencesRevision;
 
@@ -261,30 +300,33 @@ export class ComponentAppearanceScreen extends LitElement {
 				this.preferences = preferences;
 				this.preview?.apply( preferences );
 				this.loadStatus = AppearanceScreenLoadStatus.READY;
-				this.announce( this.copy.savedAnnouncement );
+				this.showRestoredAnnouncement = true;
+				this.announcementSequence += 1;
 			}
 		} catch {
 			if ( initialPreferencesRevision === this.preferencesRevision ) {
-				this.recoveryError = this.copy.restoreDefaultsError;
+				this.recoveryFailed = true;
 			}
 		} finally {
 			this.saving = false;
 		}
 
 		await this.updateComplete;
-		const focusTarget = this.loadStatus === AppearanceScreenLoadStatus.READY
-			? `#theme-${ this.preferences.theme }`
-			: '.restore-action';
-		this.shadowRoot?.querySelector<HTMLElement>( focusTarget )?.focus();
+
+		if ( this.loadStatus === AppearanceScreenLoadStatus.READY ) {
+			await this.focusPreferenceControl( `theme-${ this.preferences.theme }` );
+		} else {
+			this.shadowRoot?.querySelector<HTMLElement>( '.restore-action' )?.focus();
+		}
 	};
 
 	/**
-	 * Replaces the polite live-region content so repeated messages are announced.
-	 * @param message - Localized status message to announce.
+	 * Shows the appearance-saved live-region message with a new announcement identity.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	private announce( message: string ): void {
-		this.announcement = message;
+	private announceSaved(): void {
+		this.showSavedAnnouncement = true;
+		this.showRestoredAnnouncement = false;
 		this.announcementSequence += 1;
 	}
 
@@ -298,12 +340,6 @@ export class ComponentAppearanceScreen extends LitElement {
 		let candidate: unknown;
 
 		switch ( input.name ) {
-			case 'theme':
-				candidate = { theme: input.value };
-				break;
-			case 'palette':
-				candidate = { palette: input.value };
-				break;
 			case 'pause-mode':
 				candidate = { pauseMode: input.value };
 				break;
@@ -320,21 +356,17 @@ export class ComponentAppearanceScreen extends LitElement {
 	}
 
 	/**
-	 * Applies and persists one user-selected preference immediately.
-	 * @param event - Native changed appearance control.
+	 * Applies and persists one validated user-selected preference immediately.
+	 * @param update - Exact validated preference update.
+	 * @param focusTargetId - Native control identifier restored after persistence.
 	 * @return Promise resolved after local persistence settles.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	private readonly handlePreferenceChange = async ( event: AppearanceInputEvent ): Promise<void> => {
-		const uncheckedRadio = event.currentTarget.type === 'radio' && ! event.currentTarget.checked;
-
-		if ( this.saving || this.editor === null || uncheckedRadio ) {
-			return;
-		}
-
-		const update = this.createPreferencesUpdate( event.currentTarget );
-
-		if ( update === null ) {
+	private async persistPreferenceUpdate(
+		update: PreferencesUpdate,
+		focusTargetId: string,
+	): Promise<void> {
+		if ( this.saving || this.editor === null ) {
 			return;
 		}
 
@@ -343,13 +375,12 @@ export class ComponentAppearanceScreen extends LitElement {
 			...update,
 		} );
 
-		const focusTargetId = event.currentTarget.id;
-
 		this.preferences = preferences;
 		this.preview?.apply( preferences );
 		const initialPreferencesRevision = this.preferencesRevision;
-		this.saveError = '';
-		this.announcement = '';
+		this.saveFailed = false;
+		this.showSavedAnnouncement = false;
+		this.showRestoredAnnouncement = false;
 		this.saving = true;
 
 		try {
@@ -361,49 +392,95 @@ export class ComponentAppearanceScreen extends LitElement {
 				} else {
 					this.preferences = updatedPreferences;
 					this.preview?.apply( updatedPreferences );
-					this.announce( this.copy.savedAnnouncement );
+					this.announceSaved();
 				}
 			}
 		} catch {
 			if ( initialPreferencesRevision === this.preferencesRevision ) {
-				this.saveError = this.copy.saveError;
+				this.saveFailed = true;
 			}
 		} finally {
 			this.saving = false;
 		}
 
 		await this.updateComplete;
-		const focusTarget = this.loadStatus === AppearanceScreenLoadStatus.READY
-			? `#${ focusTargetId }`
-			: '.restore-action';
-		this.shadowRoot?.querySelector<HTMLElement>( focusTarget )?.focus();
+
+		if ( this.loadStatus === AppearanceScreenLoadStatus.READY ) {
+			await this.focusPreferenceControl( focusTargetId );
+		} else {
+			this.shadowRoot?.querySelector<HTMLElement>( '.restore-action' )?.focus();
+		}
+	}
+
+	/**
+	 * Validates and persists one shared theme or palette selection.
+	 * @param event - Shared controlled appearance change.
+	 * @return Promise resolved after local persistence settles.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private readonly handleAppearanceControlsChange = async (
+		event: CustomEvent<AppearanceControlsChangeDetail>,
+	): Promise<void> => {
+		event.stopPropagation();
+		const result = PreferencesUpdateSchema.safeParse( event.detail.update );
+
+		if ( ! result.success ) {
+			return;
+		}
+
+		let focusTargetId: string;
+
+		if ( 'theme' in event.detail.update ) {
+			focusTargetId = `theme-${ event.detail.update.theme }`;
+		} else if ( 'palette' in event.detail.update ) {
+			focusTargetId = `palette-${ event.detail.update.palette }`;
+		} else {
+			return;
+		}
+
+		await this.persistPreferenceUpdate( result.data, focusTargetId );
 	};
 
 	/**
-	 * Renders one theme or pause-style option.
-	 * @param name - Native radio-group name.
-	 * @param value - Persisted preference value.
-	 * @param selected - Whether the option is selected.
-	 * @param copy - Localizable label and supporting text.
+	 * Validates and persists one Settings-owned pause or accessibility selection.
+	 * @param event - Native changed Settings-only control.
+	 * @return Promise resolved after local persistence settles.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private readonly handlePreferenceChange = async ( event: AppearanceInputEvent ): Promise<void> => {
+		const uncheckedRadio = event.currentTarget.type === 'radio' && ! event.currentTarget.checked;
+
+		if ( uncheckedRadio ) {
+			return;
+		}
+
+		const update = this.createPreferencesUpdate( event.currentTarget );
+
+		if ( update === null ) {
+			return;
+		}
+
+		await this.persistPreferenceUpdate( update, event.currentTarget.id );
+	};
+
+	/**
+	 * Renders one pause-style option.
+	 * @param pauseMode - Persisted pause presentation mode.
 	 * @return Semantic native radio option.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	private renderDescribedOption(
-		name: string,
-		value: string,
-		selected: boolean,
-		copy: Readonly<AppearanceOptionCopy>,
-	): TemplateResult {
-		const id = `${ name }-${ value }`;
+	private renderPauseModeOption( pauseMode: PauseMode ): TemplateResult {
+		const id = `pause-mode-${ pauseMode }`;
+		const copy = this.copy.pauseModeOptions[ pauseMode ];
 
 		return html`
 			<label class="option" for=${ id }>
 				<input
 					id=${ id }
 					type="radio"
-					name=${ name }
-					value=${ value }
-					.checked=${ selected }
+					name="pause-mode"
+					value=${ pauseMode }
+					.checked=${ this.preferences.pauseMode === pauseMode }
 					?disabled=${ this.saving }
 					@change=${ this.handlePreferenceChange }
 				>
@@ -412,33 +489,6 @@ export class ComponentAppearanceScreen extends LitElement {
 					<strong>${ copy.label }</strong>
 					<small>${ copy.description }</small>
 				</span>
-			</label>
-		`;
-	}
-
-	/**
-	 * Renders one named palette option with a visible color sample.
-	 * @param palette - Persisted palette value.
-	 * @return Semantic native palette radio option.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	private renderPaletteOption( palette: Palette ): TemplateResult {
-		const id = `palette-${ palette }`;
-
-		return html`
-			<label class="option option--palette" for=${ id }>
-				<input
-					id=${ id }
-					type="radio"
-					name="palette"
-					value=${ palette }
-					.checked=${ this.preferences.palette === palette }
-					?disabled=${ this.saving }
-					@change=${ this.handlePreferenceChange }
-				>
-				<span class="selection" aria-hidden="true"></span>
-				<span class="swatch" data-palette=${ palette } aria-hidden="true"></span>
-				<strong>${ this.copy.paletteLabels[ palette ] }</strong>
 			</label>
 		`;
 	}
@@ -460,7 +510,7 @@ export class ComponentAppearanceScreen extends LitElement {
 				<div>
 					<h2>${ malformed ? this.copy.malformedDataTitle : this.copy.loadErrorTitle }</h2>
 					<p>${ malformed ? this.copy.malformedDataDescription : this.copy.loadErrorDescription }</p>
-					${ this.recoveryError === '' ? null : html`<p>${ this.recoveryError }</p>` }
+					${ this.recoveryFailed ? html`<p>${ this.copy.restoreDefaultsError }</p>` : null }
 				</div>
 				<button
 					class=${ malformed ? 'restore-action' : 'retry-action' }
@@ -480,6 +530,9 @@ export class ComponentAppearanceScreen extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	protected override render(): TemplateResult {
+		if ( ! isLocalizationReady( this.copy ) ) {
+			return html``;
+		}
 		if ( this.loadStatus !== AppearanceScreenLoadStatus.READY ) {
 			return html`
 				<main aria-labelledby="appearance-title">
@@ -493,6 +546,12 @@ export class ComponentAppearanceScreen extends LitElement {
 			`;
 		}
 
+		const announcement = this.showRestoredAnnouncement
+			? this.copy.restoredAnnouncement
+			: this.showSavedAnnouncement
+				? this.copy.savedAnnouncement
+				: '';
+
 		return html`
 			<main aria-labelledby="appearance-title">
 				<header>
@@ -501,36 +560,20 @@ export class ComponentAppearanceScreen extends LitElement {
 					<p class="introduction">${ this.copy.introduction }</p>
 				</header>
 				<form class="appearance-form" aria-label=${ this.copy.formLabel } aria-busy=${ this.saving ? 'true' : 'false' }>
-					<fieldset>
-						<legend>${ this.copy.themeLegend }</legend>
-						<div class="options options--theme">
-							${ THEME_OPTIONS.map( ( theme ) => this.renderDescribedOption(
-								'theme',
-								theme,
-								this.preferences.theme === theme,
-								this.copy.themeOptions[ theme ],
-							) ) }
-						</div>
-					</fieldset>
-					<fieldset>
-						<legend>${ this.copy.paletteLegend }</legend>
-						<p class="field-help">${ this.copy.paletteHelp }</p>
-						<div class="options options--palette">
-							${ PALETTE_OPTIONS.map( ( palette ) => this.renderPaletteOption( palette ) ) }
-						</div>
-					</fieldset>
-					<fieldset>
+					<tocus-f-appearance-controls
+						.copy=${ this.copy }
+						.theme=${ this.preferences.theme }
+						.palette=${ this.preferences.palette }
+						.disabled=${ this.saving }
+						@tocus-appearance-controls-change=${ this.handleAppearanceControlsChange }
+					></tocus-f-appearance-controls>
+					<fieldset class="settings-section">
 						<legend>${ this.copy.pauseModeLegend }</legend>
 						<div class="options options--pause">
-							${ PAUSE_MODE_OPTIONS.map( ( pauseMode ) => this.renderDescribedOption(
-								'pause-mode',
-								pauseMode,
-								this.preferences.pauseMode === pauseMode,
-								this.copy.pauseModeOptions[ pauseMode ],
-							) ) }
+							${ PAUSE_MODE_OPTIONS.map( ( pauseMode ) => this.renderPauseModeOption( pauseMode ) ) }
 						</div>
 					</fieldset>
-					<fieldset>
+					<fieldset class="settings-section">
 						<legend>${ this.copy.accessibilityLegend }</legend>
 						<label class="motion-option" for="reduced-motion">
 							<input
@@ -547,11 +590,11 @@ export class ComponentAppearanceScreen extends LitElement {
 							</span>
 						</label>
 					</fieldset>
-					${ this.saveError === '' ? null : html`<p class="save-error" role="alert">${ this.saveError }</p>` }
+					${ this.saveFailed ? html`<p class="save-error" role="alert">${ this.copy.saveError }</p>` : null }
 					<p class="save-status" role="status" aria-live="polite">
-						${ this.announcement === ''
+						${ announcement === ''
 							? null
-							: keyed( this.announcementSequence, html`<span>${ this.announcement }</span>` ) }
+							: keyed( this.announcementSequence, html`<span>${ announcement }</span>` ) }
 					</p>
 				</form>
 			</main>

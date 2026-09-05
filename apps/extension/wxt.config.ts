@@ -1,4 +1,6 @@
 import { defineConfig } from 'wxt';
+import { addBrowserLocaleAssets } from './config/localization/services/create-browser-locale-assets/index.ts';
+import { createLocalizationViteConfig } from './config/vite/services/create-localization-vite-config/index.ts';
 
 const PROTECTED_PAGE_MATCHES = [
 	'http://*/*',
@@ -10,19 +12,27 @@ const PROTECTED_PAGE_RESOURCES = [
 	'assets/protected-page-font3.woff2',
 	'interruption.html',
 ];
-
 /**
  * Configures extension metadata and browser build behavior.
  * @since 0.1.0 Initial implementation.
  */
 export default defineConfig( {
 	srcDir: 'src',
+	/**
+	 * Creates the Vite plugins that compile Lingui messages for each extension build.
+	 * @return Vite configuration shared by every entrypoint group.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	vite: createLocalizationViteConfig,
 	imports: false,
 	modules: [ '@wxt-dev/auto-icons' ],
 	autoIcons: {
 		baseIconPath: '../../../packages/theme/assets/icon.svg',
 		developmentIndicator: false,
 		sizes: [ 16, 19, 24, 32, 38, 48, 64, 96, 128, 256, 512 ],
+	},
+	hooks: {
+		'build:publicAssets': addBrowserLocaleAssets,
 	},
 	/**
 	 * Creates browser-specific extension metadata.
@@ -31,8 +41,9 @@ export default defineConfig( {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	manifest: ( context ) => ( {
-		name: 'TOCus',
-		description: 'A gentle pause before distracting websites, designed to help you return to your intentions.',
+		default_locale: 'en',
+		name: '__MSG_extensionName__',
+		description: '__MSG_extensionDescription__',
 		...( context.browser === 'safari' ? {} : { incognito: 'not_allowed' as const } ),
 		permissions: [
 			'storage',

@@ -1,11 +1,21 @@
 import { type PreferencesStorageService } from '../../../../domains/preferences/services/preferences-storage';
-import { type PauseMode, type PreferencesDocument } from '../../../../domains/preferences/types';
+import {
+	type Language,
+	type PauseMode,
+	type PreferencesDocument,
+} from '../../../../domains/preferences/types';
 
 /**
- * Receives one validated preferences projection or a malformed-data marker.
+ * Receives an accepted initial or later preferences projection, or a malformed-data marker.
  * @since 0.1.0 Initial implementation.
  */
 export type PreferencesChangeListener = ( preferences: PreferencesDocument | null ) => void;
+
+/**
+ * Receives one effective browser-derived or explicitly selected language.
+ * @since 0.1.0 Initial implementation.
+ */
+export type PreferencesLanguageChangeListener = ( language: Language ) => void;
 
 /**
  * One browser storage-key change delivered to preference observers.
@@ -51,14 +61,14 @@ export interface PreferencesStorageChangeSource {
 }
 
 /**
- * Element-like target that receives theme and palette attributes.
+ * Element-like target that receives appearance and language attributes.
  * @since 0.1.0 Initial implementation.
  */
 export interface PreferencesAppearanceTarget {
 	/**
-	 * Sets one appearance attribute.
-	 * @param name - Appearance attribute name.
-	 * @param value - Persisted preference value.
+	 * Sets one projected preference attribute.
+	 * @param name - Projected attribute name.
+	 * @param value - Projected attribute value.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	setAttribute( name: string, value: string ): void;
@@ -104,6 +114,8 @@ export interface PreferencesSystemMotionPreference {
  */
 export interface PreferencesControllerOptions {
 	appearanceTarget: PreferencesAppearanceTarget;
+	/** Browser-derived language used while the user has no explicit selection. */
+	browserLanguage: Language;
 	presentation?: PreferencesPresentation;
 	storage: PreferencesStorageService;
 	storageChanges: PreferencesStorageChangeSource;
@@ -111,12 +123,15 @@ export interface PreferencesControllerOptions {
 }
 
 /**
- * Live preference projection and effective reduced-motion source.
+ * Live preference projection with effective language and reduced-motion sources.
  * @since 0.1.0 Initial implementation.
  */
 export interface PreferencesController {
 	/** Whether either the user or operating system currently requests reduced motion. */
 	readonly matches: boolean;
+
+	/** Browser-derived or explicitly selected language currently projected by this context. */
+	readonly language: Language;
 
 	/**
 	 * Projects one in-memory preference preview without persisting it.
@@ -126,11 +141,18 @@ export interface PreferencesController {
 	apply( preferences: PreferencesDocument ): void;
 
 	/**
-	 * Begins observing validated preferences projections and malformed-data markers.
+	 * Begins observing the accepted initial read and later preferences projections.
 	 * @param listener - Preferences projection listener.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	addPreferencesChangeListener( listener: PreferencesChangeListener ): void;
+
+	/**
+	 * Begins observing effective language changes.
+	 * @param listener - Effective language listener.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	addLanguageChangeListener( listener: PreferencesLanguageChangeListener ): void;
 
 	/**
 	 * Begins observing effective reduced-motion changes.
@@ -149,11 +171,18 @@ export interface PreferencesController {
 	removeEventListener( type: 'change', listener: EventListenerOrEventListenerObject ): void;
 
 	/**
-	 * Stops observing validated preferences projections and malformed-data markers.
+	 * Stops observing accepted initial and later preferences projections.
 	 * @param listener - Preferences projection listener.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	removePreferencesChangeListener( listener: PreferencesChangeListener ): void;
+
+	/**
+	 * Stops observing effective language changes.
+	 * @param listener - Effective language listener.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	removeLanguageChangeListener( listener: PreferencesLanguageChangeListener ): void;
 
 	/**
 	 * Loads and begins observing preferences.

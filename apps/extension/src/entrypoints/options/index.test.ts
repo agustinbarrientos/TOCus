@@ -1,181 +1,32 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-	type PreferencesEditorOptions,
-	type PreferencesMutation,
-} from '../../domains/preferences/services/preferences-editor';
-import {
-	type ProtectionConfigurationEditorOptions,
-	type ProtectionConfigurationMutation,
-} from '../../domains/protection/services/protection-configuration-editor';
+import { SettingsPlatform } from '../../features/settings/components/shell/types';
+import { type SettingsPageOptions } from '../../features/settings/services/settings-page/types';
 
 /**
- * Browser permission change consumed by the options entrypoint fixture.
- * @since 0.1.0 Initial implementation.
- */
-interface TestPermissionChange {
-	permissions?: string[];
-	origins?: string[];
-}
-
-/**
- * Browser permission-change listener captured by the options entrypoint fixture.
- * @param change - Browser permission change delivered to the listener.
- * @return No return value.
- * @since 0.1.0 Initial implementation.
- */
-type TestPermissionChangeListener = ( change: TestPermissionChange ) => void;
-
-/**
- * Hoisted entrypoint dependencies used by options composition tests.
+ * Hoisted dependencies used by settings entrypoint composition tests.
  * @since 0.1.0 Initial implementation.
  */
 const entrypointMocks = vi.hoisted( () => {
 	/**
-	 * Minimal Protected Sites screen used to observe access refreshes.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	class TestProtectedSitesScreen {
-		/**
-		 * Refreshes rendered access from the current permission snapshot.
-		 * @since 0.1.0 Initial implementation.
-		 */
-		readonly refreshAccessState = vi.fn<() => Promise<ReadonlyMap<string, boolean> | null>>();
-	}
-
-	/**
-	 * Minimal settings shell used to expose the rendered Protected Sites screen.
+	 * Minimal settings shell recognized by the composition root.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	class TestSettingsShell {
-		/**
-		 * Protection configuration editor forwarded to the settings shell.
-		 * @since 0.1.0 Initial implementation.
-		 */
-		editor: unknown;
-
-		/**
-		 * Favicon provider forwarded to the settings shell.
-		 * @since 0.1.0 Initial implementation.
-		 */
-		faviconProvider: unknown;
-
-		/**
-		 * Permission manager forwarded to the settings shell.
-		 * @since 0.1.0 Initial implementation.
-		 */
-		permissionManager: unknown;
-
-		/**
-		 * Preferences editor forwarded to the settings shell.
-		 * @since 0.1.0 Initial implementation.
-		 */
-		preferencesEditor: unknown;
-
-		/**
-		 * Live preferences preview forwarded to the settings shell.
-		 * @since 0.1.0 Initial implementation.
-		 */
-		preferencesPreview: unknown;
-
-		/**
-		 * Preferences listener source forwarded to the settings shell.
-		 * @since 0.1.0 Initial implementation.
-		 */
-		preferencesSource: unknown;
-
-		/**
-		 * Statistics source forwarded to the settings shell.
-		 * @since 0.1.0 Initial implementation.
-		 */
-		statisticsSource: unknown;
-
-		/**
-		 * Browser family rendered by the settings shell.
-		 * @since 0.1.0 Initial implementation.
-		 */
-		platform = '';
-
-		/**
-		 * Minimal shadow-root contract exposed by the fixture shell.
-		 * @since 0.1.0 Initial implementation.
-		 */
-		readonly shadowRoot: {
-			/**
-			 * Returns the rendered Protected Sites screen.
-			 * @return Protected Sites screen owned by the fixture shell.
-			 * @since 0.1.0 Initial implementation.
-			 */
-			querySelector: () => TestProtectedSitesScreen;
-		};
-
-		/**
-		 * Creates a settings shell around one rendered Protected Sites screen.
-		 * @param protectedSitesScreen - Screen returned from the shell shadow root.
-		 * @since 0.1.0 Initial implementation.
-		 */
-		constructor( protectedSitesScreen: TestProtectedSitesScreen ) {
-			this.shadowRoot = {
-				/**
-				 * Returns the rendered Protected Sites screen.
-				 * @return Protected Sites screen owned by the fixture shell.
-				 * @since 0.1.0 Initial implementation.
-				 */
-				querySelector: () => protectedSitesScreen,
-			};
-		}
+		/** Stable fixture marker preventing an empty test class. */
+		readonly fixture = true;
 	}
 
-	const permissionAddition = { listener: null as TestPermissionChangeListener | null };
-	const permissionRemoval = { listener: null as TestPermissionChangeListener | null };
-	const removeDocumentVisibility = vi.fn();
-	const preferencesController = {
-		apply: vi.fn(),
-		start: vi.fn().mockResolvedValue( undefined ),
-		stop: vi.fn(),
-	};
-	const preferencesStorage = {};
-	const preferencesEditor = {};
-	const statisticsClient = {};
-	const storageArea = {};
-	const storageChanges = {};
-	const runtimeApi = {
-		getURL: vi.fn().mockReturnValue( 'chrome-extension://extension-id/' ),
-		sendMessage: vi.fn(),
-	};
-
 	return {
-		ComponentProtectedSitesScreen: TestProtectedSitesScreen,
 		ComponentSettingsShell: TestSettingsShell,
-		addPermissionAdditionListener: vi.fn<( listener: TestPermissionChangeListener ) => void>( ( listener ) => {
-			permissionAddition.listener = listener;
-		} ),
-		addPermissionRemovalListener: vi.fn<( listener: TestPermissionChangeListener ) => void>( ( listener ) => {
-			permissionRemoval.listener = listener;
-		} ),
-		createEditor: vi.fn<( options: ProtectionConfigurationEditorOptions ) => unknown>()
-			.mockReturnValue( {} ),
-		createFaviconProvider: vi.fn().mockReturnValue( {} ),
-		createPermissionManager: vi.fn().mockReturnValue( {} ),
-		createPreferencesEditor: vi.fn<( options: PreferencesEditorOptions ) => unknown>()
-			.mockReturnValue( preferencesEditor ),
-		createPreferencesController: vi.fn().mockReturnValue( preferencesController ),
-		createPreferencesStorage: vi.fn().mockReturnValue( preferencesStorage ),
-		createStorage: vi.fn().mockReturnValue( {} ),
-		createStatisticsClient: vi.fn().mockReturnValue( statisticsClient ),
-		permissionAddition,
-		permissionRemoval,
-		preferencesController,
-		preferencesEditor,
-		preferencesStorage,
-		removeDocumentVisibility,
-		requestPreferenceLock: vi.fn<(
-			name: string,
-			mutation: PreferencesMutation<unknown>,
-		) => Promise<unknown>>( ( _name, mutation ) => mutation() ),
-		storageArea,
-		storageChanges,
-		statisticsClient,
-		runtimeApi,
+		getUILanguage: vi.fn().mockReturnValue( 'es-AR' ),
+		loadLocalizationBundle: vi.fn(),
+		matchMedia: vi.fn().mockReturnValue( {} ),
+		permissions: {},
+		resolveLanguage: vi.fn().mockReturnValue( 'es-vos' ),
+		runtime: { getURL: vi.fn().mockReturnValue( 'chrome-extension://extension-id/' ) },
+		bootstrapSettingsPage: vi.fn<( options: SettingsPageOptions ) => Promise<void>>(),
+		storageArea: {},
+		storageChanges: {},
 	};
 } );
 
@@ -183,68 +34,52 @@ vi.mock( '@tocus/theme/index.scss', () => ( {} ) );
 vi.mock( './styles.scss', () => ( {} ) );
 vi.mock( 'wxt/browser', () => ( {
 	browser: {
-		permissions: {
-			onAdded: { addListener: entrypointMocks.addPermissionAdditionListener },
-			onRemoved: { addListener: entrypointMocks.addPermissionRemovalListener },
+		i18n: { getUILanguage: entrypointMocks.getUILanguage },
+		permissions: entrypointMocks.permissions,
+		runtime: entrypointMocks.runtime,
+		storage: {
+			local: entrypointMocks.storageArea,
+			onChanged: entrypointMocks.storageChanges,
 		},
-		runtime: entrypointMocks.runtimeApi,
-		storage: { local: entrypointMocks.storageArea, onChanged: entrypointMocks.storageChanges },
 	},
 } ) );
-vi.mock( '../../domains/protection/services', () => ( {
-	ProtectionConfigurationStorageKey: { CONFIGURATION: 'tocus.protection.configuration.v1' },
-	createProtectionConfigurationEditor: entrypointMocks.createEditor,
-	createProtectionConfigurationStorageService: entrypointMocks.createStorage,
-} ) );
-vi.mock( '../../domains/preferences/services', () => ( {
-	PreferencesStorageKey: { PREFERENCES: 'tocus.preferences.v1' },
-	createPreferencesEditor: entrypointMocks.createPreferencesEditor,
-	createPreferencesStorageService: entrypointMocks.createPreferencesStorage,
-} ) );
-vi.mock( '../../features/preferences/services/preferences-controller', () => ( {
-	createPreferencesController: entrypointMocks.createPreferencesController,
-} ) );
-vi.mock( '../../features/protected-sites/components/screen', () => ( {
-	ComponentProtectedSitesScreen: entrypointMocks.ComponentProtectedSitesScreen,
-} ) );
-vi.mock( '../../features/protected-sites/services/site-favicon-provider', () => ( {
-	createSiteFaviconProvider: entrypointMocks.createFaviconProvider,
-} ) );
-vi.mock( '../../features/protected-sites/services/site-permission-manager', () => ( {
-	createSitePermissionManager: entrypointMocks.createPermissionManager,
+vi.mock( '../../domains/preferences/utils', () => ( {
+	resolveLanguage: entrypointMocks.resolveLanguage,
 } ) );
 vi.mock( '../../features/settings/components/shell', () => ( {
 	ComponentSettingsShell: entrypointMocks.ComponentSettingsShell,
 } ) );
-vi.mock( '../../features/statistics/services/statistics-client', () => ( {
-	createStatisticsClient: entrypointMocks.createStatisticsClient,
+vi.mock( '../../features/settings/services/settings-page', () => ( {
+	bootstrapSettingsPage: entrypointMocks.bootstrapSettingsPage,
+} ) );
+vi.mock( '../../localization', () => ( {
+	loadLocalizationBundle: entrypointMocks.loadLocalizationBundle,
 } ) );
 
 /**
- * Provides an inert callback before a pending preference start captures its resolver.
- * @return Undefined inert result.
+ * Imports the settings entrypoint for one browser environment.
+ * @param environment - Browser build flags exposed by WXT.
+ * @return Promise resolved after entrypoint evaluation.
  * @since 0.1.0 Initial implementation.
  */
-function ignorePreferencesStartResolution(): undefined {
-	return undefined;
+async function importSettingsEntrypoint(
+	environment: Readonly<{ CHROME?: string; FIREFOX?: string; SAFARI?: string }> = {},
+): Promise<void> {
+	for ( const [ name, value ] of Object.entries( environment ) ) {
+		vi.stubEnv( name, value );
+	}
+
+	await import( './index' );
 }
 
-describe( 'options entrypoint permission refresh', () => {
+describe( 'settings entrypoint', () => {
 	beforeEach( () => {
 		vi.resetModules();
 		vi.clearAllMocks();
-		entrypointMocks.permissionAddition.listener = null;
-		entrypointMocks.permissionRemoval.listener = null;
-		entrypointMocks.preferencesController.start.mockResolvedValue( undefined );
-		vi.stubGlobal( 'window', {
-			matchMedia: vi.fn().mockReturnValue( {} ),
-		} );
-		vi.stubGlobal( 'crypto', {
-			randomUUID: vi.fn().mockReturnValue( 'fixture-id' ),
-		} );
-		vi.stubGlobal( 'navigator', {
-			locks: { request: entrypointMocks.requestPreferenceLock },
-		} );
+		entrypointMocks.bootstrapSettingsPage.mockResolvedValue( undefined );
+		vi.stubGlobal( 'crypto', { randomUUID: vi.fn().mockReturnValue( 'fixture-id' ) } );
+		vi.stubGlobal( 'navigator', { locks: {} } );
+		vi.stubGlobal( 'window', { matchMedia: entrypointMocks.matchMedia } );
 	} );
 
 	afterEach( () => {
@@ -252,181 +87,69 @@ describe( 'options entrypoint permission refresh', () => {
 		vi.unstubAllGlobals();
 	} );
 
-	it( 'ignores removal events unrelated to protected-site access', async () => {
-		const protectedSitesScreen = new entrypointMocks.ComponentProtectedSitesScreen();
-		const settingsShell = new entrypointMocks.ComponentSettingsShell( protectedSitesScreen );
-
-		vi.stubGlobal( 'document', {
-			documentElement: { style: { removeProperty: entrypointMocks.removeDocumentVisibility } },
-			querySelector: vi.fn().mockReturnValue( settingsShell ),
-		} );
-		await import( './index' );
-
-		entrypointMocks.permissionRemoval.listener?.( { permissions: [ 'notifications' ] } );
-		entrypointMocks.permissionRemoval.listener?.( { origins: [] } );
-
-		expect( protectedSitesScreen.refreshAccessState ).not.toHaveBeenCalled();
-	} );
-
-	it( 'projects local preferences and exposes them to the Appearance screen', async () => {
-		const protectedSitesScreen = new entrypointMocks.ComponentProtectedSitesScreen();
-		const settingsShell = new entrypointMocks.ComponentSettingsShell( protectedSitesScreen );
-		const appearanceTarget = {
-			style: { removeProperty: entrypointMocks.removeDocumentVisibility },
+	it( 'starts Chrome settings with browser and document dependencies', async () => {
+		const shell = new entrypointMocks.ComponentSettingsShell();
+		const removeProperty = vi.fn();
+		const documentTarget = {
+			documentElement: {
+				setAttribute: vi.fn(),
+				style: { removeProperty },
+			},
+			querySelector: vi.fn().mockReturnValue( shell ),
+			title: 'TOCus',
 		};
-		const motionPreference = {};
-		let completePreferencesStart: ( value?: void | PromiseLike<void> ) => void =
-			ignorePreferencesStartResolution;
 
-		entrypointMocks.preferencesController.start.mockReturnValueOnce( new Promise<void>( ( resolve ) => {
-			completePreferencesStart = resolve;
-		} ) );
+		vi.stubGlobal( 'document', documentTarget );
+		await importSettingsEntrypoint( { CHROME: 'true', FIREFOX: '', SAFARI: '' } );
 
-		vi.stubGlobal( 'window', {
-			matchMedia: vi.fn().mockReturnValue( motionPreference ),
-		} );
-		vi.stubGlobal( 'document', {
-			documentElement: appearanceTarget,
-			querySelector: vi.fn().mockReturnValue( settingsShell ),
-		} );
-		await import( './index' );
+		expect( entrypointMocks.bootstrapSettingsPage ).toHaveBeenCalledOnce();
+		const options = entrypointMocks.bootstrapSettingsPage.mock.calls[ 0 ]?.[ 0 ];
 
-		expect( entrypointMocks.createPreferencesStorage ).toHaveBeenCalledWith( {
-			area: entrypointMocks.storageArea,
-		} );
-		expect( entrypointMocks.createPreferencesController ).toHaveBeenCalledWith( {
-			appearanceTarget,
-			storage: entrypointMocks.preferencesStorage,
-			storageChanges: entrypointMocks.storageChanges,
-			systemMotionPreference: motionPreference,
-		} );
-		const editorOptions = entrypointMocks.createPreferencesEditor.mock.calls[ 0 ]?.[ 0 ];
-		const protectionEditorOptions = entrypointMocks.createEditor.mock.calls[ 0 ]?.[ 0 ];
-
-		if ( editorOptions === undefined || protectionEditorOptions === undefined ) {
-			throw new TypeError( 'Expected local editor options.' );
+		if ( options === undefined ) {
+			throw new TypeError( 'Expected settings page options.' );
 		}
-		expect( editorOptions.storage ).toBe( entrypointMocks.preferencesStorage );
-		expect( protectionEditorOptions.createIndependentScopeId() ).toBe( 'scope_fixture-id' );
-		expect( protectionEditorOptions.createMeasurementRevision() ).toBe( 'revision_fixture-id' );
 
-		const mutation = vi.fn<PreferencesMutation<string>>().mockResolvedValue( 'updated' );
-		const protectionMutation = vi.fn<ProtectionConfigurationMutation>().mockRejectedValue(
-			new Error( 'Mutation stopped.' ),
-		);
-
-		await expect( editorOptions.coordinateMutation( mutation ) ).resolves.toBe( 'updated' );
-		expect( entrypointMocks.requestPreferenceLock ).toHaveBeenCalledWith(
-			'tocus.preferences.v1',
-			mutation,
-		);
-		await expect(
-			protectionEditorOptions.coordinateMutation( protectionMutation ),
-		).rejects.toThrow( 'Mutation stopped.' );
-		expect( entrypointMocks.requestPreferenceLock ).toHaveBeenCalledWith(
-			'tocus.protection.configuration.v1',
-			protectionMutation,
-		);
-		expect( entrypointMocks.preferencesController.start ).toHaveBeenCalledOnce();
-		expect( entrypointMocks.removeDocumentVisibility ).not.toHaveBeenCalled();
-		completePreferencesStart();
-		await vi.waitFor( () => {
-			expect( entrypointMocks.removeDocumentVisibility ).toHaveBeenNthCalledWith(
-				1,
-				'color-scheme',
-			);
-			expect( entrypointMocks.removeDocumentVisibility ).toHaveBeenNthCalledWith(
-				2,
-				'background',
-			);
-			expect( entrypointMocks.removeDocumentVisibility ).toHaveBeenNthCalledWith(
-				3,
-				'visibility',
-			);
-		} );
-		expect( settingsShell.preferencesEditor ).toBe( entrypointMocks.preferencesEditor );
-		expect( settingsShell.preferencesPreview ).toBe( entrypointMocks.preferencesController );
-		expect( settingsShell.preferencesSource ).toBe( entrypointMocks.preferencesController );
-		expect( entrypointMocks.createStatisticsClient ).toHaveBeenCalledWith( {
-			runtime: entrypointMocks.runtimeApi,
-			storageChanges: entrypointMocks.storageChanges,
-		} );
-		expect( settingsShell.statisticsSource ).toBe( entrypointMocks.statisticsClient );
+		expect( options.shell ).toBe( shell );
+		expect( options.browserLanguage ).toBe( 'es-vos' );
+		expect( options.platform ).toBe( SettingsPlatform.CHROME );
+		expect( options.supportsCachedFavicons ).toBeTruthy();
+		expect( options.extensionRootUrl ).toBe( 'chrome-extension://extension-id/' );
+		expect( options.cryptography ).toBe( crypto );
+		expect( options.document ).toBe( documentTarget );
+		expect( options.pageWindow ).toBe( window );
+		expect( removeProperty ).not.toHaveBeenCalled();
 	} );
 
-	it( 'refreshes access after navigation or host permission removal', async () => {
-		const protectedSitesScreen = new entrypointMocks.ComponentProtectedSitesScreen();
-		const settingsShell = new entrypointMocks.ComponentSettingsShell( protectedSitesScreen );
-
-		protectedSitesScreen.refreshAccessState.mockResolvedValue( new Map() );
+	it( 'selects the Firefox settings platform', async () => {
 		vi.stubGlobal( 'document', {
-			documentElement: { style: { removeProperty: entrypointMocks.removeDocumentVisibility } },
-			querySelector: vi.fn().mockReturnValue( settingsShell ),
+			documentElement: { style: { removeProperty: vi.fn() } },
+			querySelector: vi.fn().mockReturnValue( new entrypointMocks.ComponentSettingsShell() ),
 		} );
-		await import( './index' );
 
-		entrypointMocks.permissionRemoval.listener?.( { permissions: [ 'webNavigation' ] } );
-		entrypointMocks.permissionRemoval.listener?.( { origins: [ '*://*.example.com/*' ] } );
+		await importSettingsEntrypoint( { CHROME: '', FIREFOX: 'true', SAFARI: '' } );
 
-		expect( protectedSitesScreen.refreshAccessState ).toHaveBeenCalledTimes( 2 );
+		expect( entrypointMocks.bootstrapSettingsPage.mock.calls[ 0 ]?.[ 0 ].platform )
+			.toBe( SettingsPlatform.FIREFOX );
 	} );
 
-	it( 'refreshes access after navigation or host permission addition', async () => {
-		const protectedSitesScreen = new entrypointMocks.ComponentProtectedSitesScreen();
-		const settingsShell = new entrypointMocks.ComponentSettingsShell( protectedSitesScreen );
-
-		protectedSitesScreen.refreshAccessState.mockResolvedValue( new Map() );
+	it( 'selects the Safari settings platform', async () => {
 		vi.stubGlobal( 'document', {
-			documentElement: { style: { removeProperty: entrypointMocks.removeDocumentVisibility } },
-			querySelector: vi.fn().mockReturnValue( settingsShell ),
+			documentElement: { style: { removeProperty: vi.fn() } },
+			querySelector: vi.fn().mockReturnValue( new entrypointMocks.ComponentSettingsShell() ),
 		} );
-		await import( './index' );
 
-		entrypointMocks.permissionAddition.listener?.( { permissions: [ 'webNavigation' ] } );
-		entrypointMocks.permissionAddition.listener?.( { origins: [ '*://*.example.com/*' ] } );
+		await importSettingsEntrypoint( { CHROME: '', FIREFOX: '', SAFARI: 'true' } );
 
-		expect( protectedSitesScreen.refreshAccessState ).toHaveBeenCalledTimes( 2 );
-	} );
-
-	it( 'identifies the Safari settings surface', async () => {
-		const settingsShell = new entrypointMocks.ComponentSettingsShell(
-			new entrypointMocks.ComponentProtectedSitesScreen(),
-		);
-
-		vi.stubEnv( 'SAFARI', 'true' );
-		vi.stubEnv( 'FIREFOX', '' );
-		vi.stubGlobal( 'document', {
-			documentElement: { style: { removeProperty: entrypointMocks.removeDocumentVisibility } },
-			querySelector: vi.fn().mockReturnValue( settingsShell ),
-		} );
-		await import( './index' );
-
-		expect( settingsShell.platform ).toBe( 'safari' );
-	} );
-
-	it( 'identifies the Firefox settings surface', async () => {
-		const settingsShell = new entrypointMocks.ComponentSettingsShell(
-			new entrypointMocks.ComponentProtectedSitesScreen(),
-		);
-
-		vi.stubEnv( 'SAFARI', '' );
-		vi.stubEnv( 'FIREFOX', 'true' );
-		vi.stubGlobal( 'document', {
-			documentElement: { style: { removeProperty: entrypointMocks.removeDocumentVisibility } },
-			querySelector: vi.fn().mockReturnValue( settingsShell ),
-		} );
-		await import( './index' );
-
-		expect( settingsShell.platform ).toBe( 'firefox' );
+		expect( entrypointMocks.bootstrapSettingsPage.mock.calls[ 0 ]?.[ 0 ].platform )
+			.toBe( SettingsPlatform.SAFARI );
 	} );
 
 	it( 'fails clearly when the settings shell is missing', async () => {
-		vi.stubGlobal( 'document', {
-			querySelector: vi.fn().mockReturnValue( null ),
-		} );
+		vi.stubGlobal( 'document', { querySelector: vi.fn().mockReturnValue( null ) } );
 
-		await expect( import( './index' ) ).rejects.toThrow(
+		await expect( importSettingsEntrypoint() ).rejects.toThrow(
 			'Expected the options page to contain the settings shell.',
 		);
+		expect( entrypointMocks.bootstrapSettingsPage ).not.toHaveBeenCalled();
 	} );
 } );

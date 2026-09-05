@@ -110,42 +110,6 @@ export interface InterruptionScreenEnvironment extends FocusedProgressClockTimin
 }
 
 /**
- * Formats the default English remaining-time label.
- * @param remainingSeconds - Whole remaining seconds.
- * @return Complete remaining-time label.
- */
-function formatDefaultRemainingTime( remainingSeconds: number ): string {
-	return `${ String( remainingSeconds ) }s remaining`;
-}
-
-/**
- * Safe English fallback messages for an unlocalized screen fixture.
- * @since 0.1.0 Initial implementation.
- */
-export const DefaultInterruptionScreenCopy: Readonly<InterruptionScreenCopy> = {
-	breatheIn: 'Breathe in',
-	breatheOut: 'Breathe out',
-	continueLabel: 'Continue',
-	continueShortcut: 'Or press {key}',
-	formatRemainingTime: formatDefaultRemainingTime,
-	pausedAnnouncement: 'Your pause is paused.',
-	readyAnnouncement: 'You can continue when you are ready.',
-	readyExpiredMessage: 'This visit window has ended. Start another pause when you are ready.',
-	recoveryFailedAnnouncement: 'TOCus still could not restore this pause.',
-	recoveryStartedAnnouncement: 'Trying to restore your pause.',
-	retryLabel: 'Try again',
-	retryingLabel: 'Trying again...',
-	resumedAnnouncement: 'Your pause has resumed.',
-	spaceKeyLabel: 'Space',
-	sphereAlternative: 'A soft clay sphere expands as you breathe in and settles as you breathe out.',
-	stillSphereAlternative: 'A soft clay sphere rests at the center of the screen.',
-	takeAMoment: 'Take a moment',
-	unavailableMessage: 'TOCus could not restore this pause.',
-	unavailableTitle: "Let's try that again",
-	waitingStartedAnnouncement: 'Your pause has started.',
-};
-
-/**
  * Name of the plain Continue-request event emitted by the screen.
  * @since 0.1.0 Initial implementation.
  */

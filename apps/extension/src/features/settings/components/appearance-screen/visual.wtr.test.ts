@@ -1,3 +1,4 @@
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import { assert, fixture, html } from '@open-wc/testing';
 import { emulateMedia, setViewport } from '@web/test-runner-commands';
 import { visualDiff } from '@web/test-runner-visual-regression';
@@ -66,6 +67,7 @@ async function renderAppearanceScreen(
 	const editor = new MemoryAppearanceVisualEditor( preferences );
 	const element = await fixture<ComponentAppearanceScreen>( html`
 		<tocus-f-appearance-screen
+			.copy=${ TestEnglishLocalizationBundle.appearance }
 			style=${ `width: ${ width };` }
 			.editor=${ editor }
 		></tocus-f-appearance-screen>

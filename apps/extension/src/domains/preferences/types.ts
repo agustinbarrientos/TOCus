@@ -1,6 +1,35 @@
 import { z } from 'zod';
 
 /**
+ * Languages available throughout TOCus.
+ * @since 0.1.0 Initial implementation.
+ */
+export const Language = {
+	ENGLISH: 'en',
+	SPANISH_TU: 'es-tu',
+	SPANISH_VOS: 'es-vos',
+	PORTUGUESE_BRAZIL: 'pt-BR',
+	PORTUGUESE_PORTUGAL: 'pt-PT',
+	ITALIAN: 'it',
+	FRENCH: 'fr',
+	GERMAN: 'de',
+	JAPANESE: 'ja',
+	RUSSIAN: 'ru',
+} as const;
+
+/**
+ * Validates a supported TOCus language.
+ * @since 0.1.0 Initial implementation.
+ */
+export const LanguageSchema = z.enum( Language );
+
+/**
+ * Supported TOCus language.
+ * @since 0.1.0 Initial implementation.
+ */
+export type Language = z.infer<typeof LanguageSchema>;
+
+/**
  * Theme modes available throughout TOCus.
  * @since 0.1.0 Initial implementation.
  */
@@ -72,7 +101,7 @@ export type PauseMode = z.infer<typeof PauseModeSchema>;
  * Current local preferences document version.
  * @since 0.1.0 Initial implementation.
  */
-export const PreferencesDocumentVersion = 1;
+export const PreferencesDocumentVersion = 2;
 
 /**
  * Validates the current local preferences document version.
@@ -93,6 +122,7 @@ export const PreferencesDocumentSchema = z.object( {
 	palette: PaletteSchema,
 	pauseMode: PauseModeSchema,
 	reducedMotion: z.boolean(),
+	language: LanguageSchema.nullable(),
 } ).strict();
 
 /**
@@ -112,5 +142,6 @@ export const DefaultPreferencesDocument: Readonly<PreferencesDocument> = Object.
 		palette: Palette.BROWN,
 		pauseMode: PauseMode.BREATHING,
 		reducedMotion: false,
+		language: null,
 	} ),
 );

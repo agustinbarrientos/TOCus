@@ -1,3 +1,4 @@
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import { assert, fixture, html } from '@open-wc/testing';
 import { emulateMedia, setViewport } from '@web/test-runner-commands';
 import { visualDiff } from '@web/test-runner-visual-regression';
@@ -183,6 +184,7 @@ async function renderStatisticsScreen(
 ): Promise<ComponentStatisticsSettingsScreen> {
 	const element = await fixture<ComponentStatisticsSettingsScreen>( html`
 		<tocus-f-statistics-settings-screen
+			.copy=${ TestEnglishLocalizationBundle.statistics }
 			style=${ `width: ${ width };` }
 			.source=${ source }
 		></tocus-f-statistics-settings-screen>

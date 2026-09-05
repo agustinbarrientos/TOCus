@@ -12,10 +12,10 @@ import {
 	ProtectionScopeIdSchema,
 } from '../../../../domains/protection/types/protection-value';
 import {
-	EnglishToolbarBadgeCopy,
 	type ToolbarBadgeCopy,
 	type ToolbarBadgeProjection,
 } from '../../utils/toolbar-badge-projection';
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import {
 	createToolbarBadgeCoordinator,
 	type ToolbarBadgeCoordinator,
@@ -188,10 +188,10 @@ class ToolbarBadgeBrowserFixture {
  */
 function createFixtureCoordinator(
 	browser: ToolbarBadgeBrowserFixture,
-	copy?: ToolbarBadgeCopy,
+	copy: ToolbarBadgeCopy = TestEnglishLocalizationBundle.toolbar,
 ): ToolbarBadgeCoordinator {
 	return createToolbarBadgeCoordinator( {
-		...( copy === undefined ? {} : { copy } ),
+		copy,
 		getFocusedTabId: browser.getFocusedTabId,
 		interruptionPageUrl: INTERRUPTION_PAGE_URL,
 		listTabs: browser.listTabs,
@@ -298,7 +298,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			scope_secondary: SECOND_WAITING_STATE,
 		} );
 
-		expect( browser.projection ).toMatchObject( { text: '2x' } );
+		expect( browser.projection ).toMatchObject( { text: '2\u00d7' } );
 	} );
 
 	it.each( [
@@ -333,7 +333,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			scope_secondary: SECOND_WAITING_STATE,
 		} );
 
-		expect( browser.projection ).toMatchObject( { text: '2x' } );
+		expect( browser.projection ).toMatchObject( { text: '2\u00d7' } );
 	} );
 
 	it.each( [
@@ -375,7 +375,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			scope_secondary: SECOND_WAITING_STATE,
 		} );
 
-		expect( browser.projection ).toMatchObject( { text: '2x' } );
+		expect( browser.projection ).toMatchObject( { text: '2\u00d7' } );
 	} );
 
 	it( 'falls back to the only active scope when browser context reads fail', async () => {
@@ -418,7 +418,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 
 		const coordinator = createToolbarBadgeCoordinator( {
 			copy: {
-				...EnglishToolbarBadgeCopy,
+				...TestEnglishLocalizationBundle.toolbar,
 				formatWaiting: formatLocalizedWaiting,
 			},
 
@@ -471,6 +471,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 		let projection: ToolbarBadgeProjection | null = null;
 		let updateCount = 0;
 		const coordinator = createToolbarBadgeCoordinator( {
+			copy: TestEnglishLocalizationBundle.toolbar,
 			/**
 			 * Returns the focused protected tab fixture.
 			 * @return Focused tab identifier.
@@ -518,6 +519,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 	it( 'clears the global badge when no scope is active', async () => {
 		let projection: ToolbarBadgeProjection | null = null;
 		const coordinator = createToolbarBadgeCoordinator( {
+			copy: TestEnglishLocalizationBundle.toolbar,
 			/**
 			 * Reports that no browser window is focused.
 			 * @return Null focused-tab fixture.
@@ -560,6 +562,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 	it( 'ignores retained state for a scope no longer present in configuration', async () => {
 		let projection: ToolbarBadgeProjection | null = null;
 		const coordinator = createToolbarBadgeCoordinator( {
+			copy: TestEnglishLocalizationBundle.toolbar,
 			/**
 			 * Reports that no browser window is focused.
 			 * @return Null focused-tab fixture.
@@ -602,6 +605,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 	it( 'uses the only active scope when the focused tab does not identify one', async () => {
 		let projection: ToolbarBadgeProjection | null = null;
 		const coordinator = createToolbarBadgeCoordinator( {
+			copy: TestEnglishLocalizationBundle.toolbar,
 			/**
 			 * Returns the focused tab fixture.
 			 * @return Null because no browser window is focused.
@@ -641,6 +645,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 	it( 'shows a multiple marker when several scopes are active without a focused match', async () => {
 		let projection: ToolbarBadgeProjection | null = null;
 		const coordinator = createToolbarBadgeCoordinator( {
+			copy: TestEnglishLocalizationBundle.toolbar,
 			/**
 			 * Returns the focused tab fixture.
 			 * @return Null because no browser window is focused.
@@ -677,6 +682,6 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			scope_secondary: SECOND_WAITING_STATE,
 		} );
 
-		expect( projection ).toMatchObject( { text: '2x' } );
+		expect( projection ).toMatchObject( { text: '2\u00d7' } );
 	} );
 } );

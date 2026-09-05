@@ -1,12 +1,11 @@
-import {
-	Palette,
-	PauseMode,
-	ThemeMode,
-	type Palette as PaletteValue,
-	type PauseMode as PauseModeValue,
-	type PreferencesDocument,
-	type ThemeMode as ThemeModeValue,
+import type {
+	PauseMode as PauseModeValue,
+	PreferencesDocument,
 } from '../../../../domains/preferences/types';
+import type {
+	AppearanceControlsCopy,
+	AppearanceControlsOptionCopy,
+} from '../../../preferences/components/appearance-controls/types';
 
 /**
  * Stable loading states rendered by the Appearance settings screen.
@@ -77,101 +76,50 @@ export interface PreferencesSource {
 }
 
 /**
- * Localizable label and supporting text for one appearance choice.
- * @since 0.1.0 Initial implementation.
- */
-export interface AppearanceOptionCopy {
-	label: string;
-	description: string;
-}
-
-/**
  * Localizable messages rendered by the Appearance settings screen.
  * @since 0.1.0 Initial implementation.
  */
-export interface AppearanceScreenCopy {
+export interface AppearanceScreenCopy extends AppearanceControlsCopy {
+	/** Settings-page eyebrow. */
 	eyebrow: string;
+	/** Settings-page heading. */
 	title: string;
+	/** Settings-page introduction. */
 	introduction: string;
+	/** Accessible label for the complete Settings form. */
 	formLabel: string;
-	themeLegend: string;
-	themeOptions: Readonly<Record<ThemeModeValue, Readonly<AppearanceOptionCopy>>>;
-	paletteLegend: string;
+	/** Required supporting palette explanation on the Settings page. */
 	paletteHelp: string;
-	paletteLabels: Readonly<Record<PaletteValue, string>>;
+	/** Pause-style section legend. */
 	pauseModeLegend: string;
-	pauseModeOptions: Readonly<Record<PauseModeValue, Readonly<AppearanceOptionCopy>>>;
+	/** Labels and descriptions for every pause-style choice. */
+	pauseModeOptions: Readonly<Record<PauseModeValue, Readonly<AppearanceControlsOptionCopy>>>;
+	/** Accessibility section legend. */
 	accessibilityLegend: string;
+	/** Reduced-motion checkbox label. */
 	reducedMotionLabel: string;
+	/** Reduced-motion checkbox description. */
 	reducedMotionDescription: string;
+	/** Loading-state message. */
 	loading: string;
+	/** Malformed-data recovery heading. */
 	malformedDataTitle: string;
+	/** Malformed-data recovery explanation. */
 	malformedDataDescription: string;
+	/** Failed-load heading. */
 	loadErrorTitle: string;
+	/** Failed-load explanation. */
 	loadErrorDescription: string;
+	/** Malformed-data recovery action. */
 	restoreDefaults: string;
+	/** Malformed-data recovery failure. */
 	restoreDefaultsError: string;
+	/** Failed-load retry action. */
 	retry: string;
+	/** Preference persistence failure. */
 	saveError: string;
+	/** Preference persistence success announcement. */
 	savedAnnouncement: string;
+	/** Malformed-data recovery success announcement. */
+	restoredAnnouncement: string;
 }
-
-/**
- * Default English messages rendered by the Appearance settings screen.
- * @since 0.1.0 Initial implementation.
- */
-export const DefaultAppearanceScreenCopy: Readonly<AppearanceScreenCopy> = Object.freeze( {
-	eyebrow: 'Personalization',
-	title: 'Appearance',
-	introduction: 'Choose the colors and pause style that feel right for you.',
-	formLabel: 'Appearance and accessibility preferences',
-	themeLegend: 'Theme',
-	themeOptions: Object.freeze( {
-		[ ThemeMode.SYSTEM ]: Object.freeze( {
-			label: 'System',
-			description: 'Follow your device appearance.',
-		} ),
-		[ ThemeMode.LIGHT ]: Object.freeze( {
-			label: 'Light',
-			description: 'Use a light appearance.',
-		} ),
-		[ ThemeMode.DARK ]: Object.freeze( {
-			label: 'Dark',
-			description: 'Use a dark appearance.',
-		} ),
-	} ),
-	paletteLegend: 'Color palette',
-	paletteHelp: 'The selected palette colors the complete pause experience.',
-	paletteLabels: Object.freeze( {
-		[ Palette.BROWN ]: 'Brown',
-		[ Palette.GREEN ]: 'Green',
-		[ Palette.BLUE ]: 'Blue',
-		[ Palette.PURPLE ]: 'Purple',
-		[ Palette.PINK ]: 'Pink',
-		[ Palette.ORANGE ]: 'Orange',
-	} ),
-	pauseModeLegend: 'Pause style',
-	pauseModeOptions: Object.freeze( {
-		[ PauseMode.BREATHING ]: Object.freeze( {
-			label: 'Breathing',
-			description: 'A soft sphere guides your breathing.',
-		} ),
-		[ PauseMode.QUIET ]: Object.freeze( {
-			label: 'Quiet pause',
-			description: 'A still pause with no breathing cue.',
-		} ),
-	} ),
-	accessibilityLegend: 'Accessibility',
-	reducedMotionLabel: 'Reduce motion',
-	reducedMotionDescription: 'Keep the pause still and remove movement.',
-	loading: 'Loading appearance settings...',
-	malformedDataTitle: 'Appearance settings need your attention',
-	malformedDataDescription: 'Your local appearance data is not valid, so it was not replaced.',
-	loadErrorTitle: 'Appearance settings could not load',
-	loadErrorDescription: 'TOCus could not load local appearance settings. Nothing was changed.',
-	restoreDefaults: 'Restore defaults',
-	restoreDefaultsError: 'TOCus could not restore the default appearance settings. Nothing was changed.',
-	retry: 'Try again',
-	saveError: 'Your appearance could not be saved. Your choice is still shown here.',
-	savedAnnouncement: 'Appearance saved.',
-} );

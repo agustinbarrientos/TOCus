@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config';
+import { createLocalizationViteConfig } from '../apps/extension/config/vite/services/create-localization-vite-config/index.ts';
 
 /**
  * Configures the repository's unit and build-contract test projects.
@@ -12,6 +13,7 @@ export default defineConfig( {
 				'**/__fixtures__/**',
 				'apps/extension/src/domains/preferences/index.ts',
 				'apps/extension/src/domains/preferences/services/index.ts',
+				'apps/extension/src/domains/preferences/utils/index.ts',
 				'apps/extension/src/domains/protection/index.ts',
 				'apps/extension/src/domains/protection/services/index.ts',
 				'apps/extension/src/domains/protection/types/index.ts',
@@ -20,13 +22,19 @@ export default defineConfig( {
 				'apps/extension/src/domains/statistics/services/index.ts',
 				'apps/extension/src/domains/statistics/types/index.ts',
 				'apps/extension/src/domains/statistics/utils/index.ts',
+				'apps/extension/src/localization/index.ts',
 			],
 			include: [
+				'apps/extension/config/localization/**/*.ts',
+				'apps/extension/config/vite/**/*.ts',
+				'apps/website/src/localization/**/*.ts',
 				'apps/extension/src/domains/preferences/**/*.ts',
 				'apps/extension/src/domains/protection/**/*.ts',
 				'apps/extension/src/domains/statistics/**/*.ts',
+				'apps/extension/src/localization/**/*.ts',
 				'apps/extension/src/entrypoints/background/index.ts',
 				'apps/extension/src/entrypoints/interruption/index.ts',
+				'apps/extension/src/entrypoints/onboarding/index.ts',
 				'apps/extension/src/entrypoints/options/index.ts',
 				'apps/extension/src/entrypoints/popup/index.ts',
 				'apps/extension/src/entrypoints/protected-page/index.ts',
@@ -37,12 +45,18 @@ export default defineConfig( {
 				'apps/extension/src/features/protected-sites/utils/site-permission-origins/**/*.ts',
 				'apps/extension/src/features/protected-sites/utils/site-display-name-catalog/**/*.ts',
 				'apps/extension/src/features/protected-sites/utils/site-display-name-resolver/**/*.ts',
+				'apps/extension/src/features/onboarding/services/**/*.ts',
+				'apps/extension/src/features/onboarding/utils/site-suggestion-catalog/**/*.ts',
+				'apps/extension/src/features/settings/services/**/*.ts',
+				'apps/extension/src/features/interruption/services/interruption-page/**/*.ts',
 				'apps/extension/src/features/interruption/services/interruption-page-controller/**/*.ts',
+				'apps/extension/src/features/interruption/services/protected-page/**/*.ts',
 				'apps/extension/src/features/interruption/services/protected-page-layer-controller/**/*.ts',
 				'apps/extension/src/features/interruption/services/focused-progress-clock/**/*.ts',
 				'apps/extension/src/features/interruption/utils/breathing-motion/**/*.ts',
 				'apps/extension/src/features/interruption/utils/breathing-sphere-geometry/**/*.ts',
 				'apps/extension/src/features/protection-runtime/**/*.ts',
+				'apps/extension/src/features/popup/services/**/*.ts',
 				'apps/extension/src/features/statistics/services/**/*.ts',
 				'apps/extension/src/features/statistics/types/**/*.ts',
 				'apps/extension/src/features/statistics/utils/**/*.ts',
@@ -59,10 +73,12 @@ export default defineConfig( {
 		passWithNoTests: false,
 		projects: [
 			{
+				plugins: createLocalizationViteConfig().plugins,
 				test: {
 					exclude: [ '**/node_modules/**', 'apps/**/src/**/*.wtr.test.{ts,tsx}' ],
 					name: 'unit',
 					include: [
+						'apps/extension/config/**/*.test.{ts,mjs}',
 						'apps/**/src/**/*.test.{ts,tsx}',
 						'packages/**/*.test.{ts,tsx}',
 					],

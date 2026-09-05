@@ -116,6 +116,13 @@ export interface ToolbarBadgeCopy {
 	inactive: ToolbarBadgeCopyResult;
 
 	/**
+	 * Wraps one active browser-action title with local product punctuation.
+	 * @param title - Localized active-state title content.
+	 * @return Complete localized active browser-action title.
+	 */
+	formatActiveTitle( title: string ): string;
+
+	/**
 	 * Formats one focused-pause countdown.
 	 * @param amount - Nonnegative rounded duration amount.
 	 * @param unit - Duration unit selected for the compact badge.
@@ -132,9 +139,16 @@ export interface ToolbarBadgeCopy {
 	formatAllowance( amount: number, unit: ToolbarBadgeDurationUnit ): ToolbarBadgeCopyResult;
 
 	/**
+	 * Formats one compact badge count for several active protection scopes.
+	 * @param activeScopeCount - Complete active scope count.
+	 * @return Localized compact count including overflow notation when needed.
+	 */
+	formatMultipleIndicator( activeScopeCount: number ): string;
+
+	/**
 	 * Formats a summary for several active protection scopes.
 	 * @param activeScopeCount - Complete number of active scopes.
-	 * @param visibleScopeCount - Compact count capped for the browser badge.
+	 * @param visibleScopeCount - Localized compact count supplied by the copy contract.
 	 * @return Localized multiple-active badge copy.
 	 */
 	formatMultipleActive( activeScopeCount: number, visibleScopeCount: string ): ToolbarBadgeCopyResult;

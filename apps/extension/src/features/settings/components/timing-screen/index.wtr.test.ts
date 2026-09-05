@@ -1,3 +1,4 @@
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import { assert, expect, fixture, html } from '@open-wc/testing';
 import { setViewport } from '@web/test-runner-commands';
 import {
@@ -300,7 +301,8 @@ async function createScreen(
 	storage: MemoryTimingScreenStorage,
 ): Promise<ComponentTimingScreen> {
 	const element = await fixture<ComponentTimingScreen>( html`
-		<tocus-f-timing-screen .editor=${ createEditor( storage ) }></tocus-f-timing-screen>
+		<tocus-f-timing-screen
+			.copy=${ TestEnglishLocalizationBundle.timing } .editor=${ createEditor( storage ) }></tocus-f-timing-screen>
 	` );
 	await settleScreen( element );
 
@@ -344,7 +346,8 @@ function getOptionValues(
 describe( 'tocus-f-timing-screen', () => {
 	it( 'reports an unavailable editor dependency without leaving the screen busy', async () => {
 		const element = await fixture<ComponentTimingScreen>( html`
-			<tocus-f-timing-screen></tocus-f-timing-screen>
+			<tocus-f-timing-screen
+			.copy=${ TestEnglishLocalizationBundle.timing }></tocus-f-timing-screen>
 		` );
 		await settleScreen( element );
 
@@ -356,7 +359,8 @@ describe( 'tocus-f-timing-screen', () => {
 	it( 'shows loading until the editor returns the persisted global timing values', async () => {
 		const storage = new DeferredTimingScreenStorage( LOADED_CONFIGURATION );
 		const element = await fixture<ComponentTimingScreen>( html`
-			<tocus-f-timing-screen .editor=${ createEditor( storage ) }></tocus-f-timing-screen>
+			<tocus-f-timing-screen
+			.copy=${ TestEnglishLocalizationBundle.timing } .editor=${ createEditor( storage ) }></tocus-f-timing-screen>
 		` );
 
 		assert.equal( customElements.get( 'tocus-f-timing-screen' ), ComponentTimingScreen );
@@ -502,7 +506,8 @@ describe( 'tocus-f-timing-screen', () => {
 			createReturnedConfigurationCoordinator( returnedConfiguration ),
 		);
 		const element = await fixture<ComponentTimingScreen>( html`
-			<tocus-f-timing-screen .editor=${ editor }></tocus-f-timing-screen>
+			<tocus-f-timing-screen
+			.copy=${ TestEnglishLocalizationBundle.timing } .editor=${ editor }></tocus-f-timing-screen>
 		` );
 		await settleScreen( element );
 
@@ -550,6 +555,26 @@ describe( 'tocus-f-timing-screen', () => {
 		assert.equal( maximumError.getAttribute( 'role' ), 'alert' );
 		assert.equal( element.shadowRoot?.activeElement, maximumWait );
 		await expect( element ).to.be.accessible();
+	} );
+
+	it( 'renders an active maximum-wait error from the latest localized copy', async () => {
+		const element = await createScreen( new MemoryTimingScreenStorage( LOADED_CONFIGURATION ) );
+
+		chooseSelectValue( element, '#initial-wait', '60' );
+		chooseSelectValue( element, '#maximum-wait', '55' );
+		getRequiredElement( element, '.timing-form', HTMLFormElement ).requestSubmit();
+		await settleScreen( element );
+
+		element.copy = {
+			...TestEnglishLocalizationBundle.timing,
+			maximumWaitError: 'Localized maximum-wait error.',
+		};
+		await element.updateComplete;
+
+		assert.equal(
+			getRequiredElement( element, '#maximum-wait-error', HTMLParagraphElement ).textContent.trim(),
+			'Localized maximum-wait error.',
+		);
 	} );
 
 	it( 'keeps the maximum error when only the allowance changes', async () => {
@@ -607,6 +632,25 @@ describe( 'tocus-f-timing-screen', () => {
 		assert.equal( getRequiredElement( element, '.form-error', HTMLParagraphElement ).getAttribute( 'role' ), 'alert' );
 		assert.isFalse( getRequiredElement( element, '.save-action', HTMLButtonElement ).disabled );
 		await expect( element ).to.be.accessible();
+	} );
+
+	it( 'renders an active persistence error from the latest localized copy', async () => {
+		const storage = new MemoryTimingScreenStorage( LOADED_CONFIGURATION );
+		storage.rejectSaves = true;
+		const element = await createScreen( storage );
+
+		getRequiredElement( element, '.timing-form', HTMLFormElement ).requestSubmit();
+		await settleScreen( element );
+		element.copy = {
+			...TestEnglishLocalizationBundle.timing,
+			saveError: 'Localized timing persistence error.',
+		};
+		await element.updateComplete;
+
+		assert.equal(
+			getRequiredElement( element, '.form-error', HTMLParagraphElement ).textContent.trim(),
+			'Localized timing persistence error.',
+		);
 	} );
 
 	it( 'keeps one timing write pending and ignores a duplicate submission', async () => {
@@ -680,6 +724,23 @@ describe( 'tocus-f-timing-screen', () => {
 		assert.include( announcement.textContent, 'Timing settings were saved' );
 	} );
 
+	it( 'renders the retained success status from the latest localized copy', async () => {
+		const element = await createScreen( new MemoryTimingScreenStorage( LOADED_CONFIGURATION ) );
+
+		getRequiredElement( element, '.timing-form', HTMLFormElement ).requestSubmit();
+		await settleScreen( element );
+		element.copy = {
+			...TestEnglishLocalizationBundle.timing,
+			savedAnnouncement: 'Localized timing saved status.',
+		};
+		await element.updateComplete;
+
+		assert.equal(
+			getRequiredElement( element, '.announcement', HTMLParagraphElement ).textContent.trim(),
+			'Localized timing saved status.',
+		);
+	} );
+
 	it( 'uses one native accessible form and keeps its draft summary non-live', async () => {
 		const element = await createScreen( new MemoryTimingScreenStorage( LOADED_CONFIGURATION ) );
 		const shadowRoot = element.shadowRoot;
@@ -750,4 +811,10 @@ describe( 'tocus-f-timing-screen', () => {
 
 		await setViewport( { height: 800, width: 1_000 } );
 	} );
+	it( 'renders nothing before localized copy is injected', async () => {
+		const element = await fixture<ComponentTimingScreen>( html`<tocus-f-timing-screen></tocus-f-timing-screen>` );
+
+		assert.equal( element.shadowRoot?.childElementCount, 0 );
+	} );
+
 } );

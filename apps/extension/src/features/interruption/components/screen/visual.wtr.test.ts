@@ -1,3 +1,4 @@
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import { assert, fixture, html } from '@open-wc/testing';
 import { emulateMedia, setViewport } from '@web/test-runner-commands';
 import { visualDiff } from '@web/test-runner-visual-regression';
@@ -30,6 +31,7 @@ describe( 'tocus-f-interruption-screen visual', () => {
 		await emulateMedia( { colorScheme: 'light', forcedColors: 'none', reducedMotion: 'no-preference' } );
 		const element = await fixture<ComponentInterruptionScreen>( html`
 			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption }
 				.focusedProgressMilliseconds=${ 2_000 }
 				.wellbeingSummary=${ VISUAL_WELLBEING_SUMMARY }
 			></tocus-f-interruption-screen>
@@ -45,6 +47,7 @@ describe( 'tocus-f-interruption-screen visual', () => {
 		await emulateMedia( { colorScheme: 'dark', forcedColors: 'none', reducedMotion: 'no-preference' } );
 		const element = await fixture<ComponentInterruptionScreen>( html`
 			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption }
 				.focusedProgressMilliseconds=${ 2_000 }
 				.wellbeingSummary=${ VISUAL_WELLBEING_SUMMARY }
 			></tocus-f-interruption-screen>
@@ -60,6 +63,7 @@ describe( 'tocus-f-interruption-screen visual', () => {
 		await emulateMedia( { colorScheme: 'dark', forcedColors: 'none', reducedMotion: 'reduce' } );
 		const element = await fixture<ComponentInterruptionScreen>( html`
 			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption }
 				reduced-motion
 				.mode=${ InterruptionScreenMode.QUIET }
 				.focusedProgressMilliseconds=${ 2_000 }
@@ -77,6 +81,7 @@ describe( 'tocus-f-interruption-screen visual', () => {
 		await emulateMedia( { colorScheme: 'light', forcedColors: 'none', reducedMotion: 'reduce' } );
 		const element = await fixture<ComponentInterruptionScreen>( html`
 			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption }
 				reduced-motion
 				.state=${ InterruptionScreenState.READY }
 				.wellbeingSummary=${ VISUAL_WELLBEING_SUMMARY }
@@ -93,6 +98,7 @@ describe( 'tocus-f-interruption-screen visual', () => {
 		await emulateMedia( { colorScheme: 'light', forcedColors: 'none', reducedMotion: 'reduce' } );
 		const element = await fixture<ComponentInterruptionScreen>( html`
 			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption }
 				reduced-motion
 				.state=${ InterruptionScreenState.UNAVAILABLE }
 				.wellbeingSummary=${ VISUAL_WELLBEING_SUMMARY }
@@ -109,6 +115,7 @@ describe( 'tocus-f-interruption-screen visual', () => {
 		await emulateMedia( { colorScheme: 'dark', forcedColors: 'none', reducedMotion: 'reduce' } );
 		const element = await fixture<ComponentInterruptionScreen>( html`
 			<tocus-f-interruption-screen
+			.copy=${ TestEnglishLocalizationBundle.interruption }
 				reduced-motion
 				.state=${ InterruptionScreenState.UNAVAILABLE }
 				.wellbeingSummary=${ VISUAL_WELLBEING_SUMMARY }

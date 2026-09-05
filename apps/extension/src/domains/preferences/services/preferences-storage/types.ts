@@ -1,4 +1,37 @@
-import { type PreferencesDocument } from '../../types';
+import { z } from 'zod';
+import {
+	PaletteSchema,
+	PauseModeSchema,
+	ThemeModeSchema,
+	type PreferencesDocument,
+} from '../../types';
+
+/**
+ * Preferences document version used before language selection was persisted.
+ * @since 0.1.0 Initial implementation.
+ */
+export const VersionOnePreferencesDocumentVersion = 1;
+
+/**
+ * Validates the preferences document version used before language selection was persisted.
+ * @since 0.1.0 Initial implementation.
+ */
+const VersionOnePreferencesDocumentVersionSchema = z.number().int().nonnegative().refine(
+	( version ) => version === VersionOnePreferencesDocumentVersion,
+	{ message: 'Version-one preferences document version is not supported.' },
+);
+
+/**
+ * Validates the preferences document used before language selection was persisted.
+ * @since 0.1.0 Initial implementation.
+ */
+export const VersionOnePreferencesDocumentSchema = z.object( {
+	schemaVersion: VersionOnePreferencesDocumentVersionSchema,
+	theme: ThemeModeSchema,
+	palette: PaletteSchema,
+	pauseMode: PauseModeSchema,
+	reducedMotion: z.boolean(),
+} ).strict();
 
 /**
  * Stable key for the current local preferences document.

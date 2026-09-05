@@ -1,0 +1,170 @@
+@use '@tocus/theme/typography' as typography;
+
+:host {
+	display: block;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+main {
+	width: min(100%, 44rem);
+	margin: 0 auto;
+	color: var(--tocus-color-on-surface);
+}
+
+header {
+	margin-bottom: var(--tocus-space-6);
+}
+
+.eyebrow {
+	@include typography.apply( 'label-large' );
+
+	margin: 0 0 var(--tocus-space-2);
+	color: var(--tocus-color-action);
+}
+
+h1 {
+	@include typography.apply( 'headline-large' );
+
+	margin: 0;
+}
+
+.introduction {
+	@include typography.apply( 'body-large' );
+
+	max-width: 38rem;
+	margin: var(--tocus-space-3) 0 0;
+	color: var(--tocus-color-on-surface-muted);
+}
+
+.language-form {
+	padding: var(--tocus-space-5);
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-medium);
+	background: var(--tocus-color-surface);
+}
+
+label {
+	@include typography.apply( 'label-large' );
+}
+
+select {
+	@include typography.apply( 'body-large' );
+
+	width: 100%;
+	min-height: 3.25rem;
+	margin-top: var(--tocus-space-2);
+	padding: var(--tocus-space-3) var(--tocus-space-4);
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-small);
+	background: var(--tocus-color-surface-lowest);
+	color: var(--tocus-color-on-surface);
+
+	&:focus-visible {
+		border-color: var(--tocus-color-focus-ring);
+		outline: 2px solid var(--tocus-color-focus-ring);
+		outline-offset: 1px;
+	}
+
+	&:disabled {
+		cursor: wait;
+		opacity: 0.6;
+	}
+}
+
+.field-help,
+.save-error,
+.save-status,
+.loading-status,
+.load-error p {
+	@include typography.apply( 'body-small' );
+}
+
+.field-help {
+	margin: var(--tocus-space-2) 0 0;
+	color: var(--tocus-color-on-surface-muted);
+}
+
+.save-error,
+.save-status {
+	min-height: 1rem;
+	margin: var(--tocus-space-4) 0 0;
+}
+
+.save-error {
+	color: var(--tocus-color-on-surface);
+}
+
+.save-status {
+	color: var(--tocus-color-on-surface-muted);
+}
+
+.loading-status,
+.load-error {
+	margin: var(--tocus-space-5) 0 0;
+	padding: var(--tocus-space-5);
+	border: 1px dashed var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-medium);
+	background: color-mix(in srgb, var(--tocus-color-surface) 72%, transparent);
+}
+
+.loading-status {
+	text-align: center;
+}
+
+.load-error {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--tocus-space-5);
+
+	h2 {
+		@include typography.apply( 'title-medium' );
+
+		margin: 0;
+	}
+
+	p {
+		margin: var(--tocus-space-2) 0 0;
+		color: var(--tocus-color-on-surface-muted);
+	}
+}
+
+button {
+	@include typography.apply( 'label-large' );
+
+	flex: 0 0 auto;
+	min-height: 2.75rem;
+	padding: var(--tocus-space-2) var(--tocus-space-5);
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-full);
+	background: transparent;
+	color: var(--tocus-color-action);
+	cursor: pointer;
+
+	&:hover {
+		background: var(--tocus-color-surface-container);
+	}
+
+	&:focus-visible {
+		outline: 3px solid var(--tocus-color-focus-ring);
+		outline-offset: 2px;
+	}
+}
+
+@media (width <= 28rem) {
+	.language-form,
+	.loading-status,
+	.load-error {
+		padding: var(--tocus-space-4);
+	}
+
+	.load-error {
+		align-items: stretch;
+		flex-direction: column;
+	}
+}

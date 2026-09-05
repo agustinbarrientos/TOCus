@@ -8,6 +8,7 @@ import {
 } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { keyed } from 'lit/directives/keyed.js';
+import { isLocalizationReady } from '../../../../localization/utils/is-localization-ready';
 import {
 	StatisticsProjectionSchema,
 	StatisticsProjectionStatus,
@@ -15,7 +16,6 @@ import {
 } from '../../../../domains/statistics/types/statistics-projection';
 import styles from './web-component-style.scss?inline';
 import {
-	DefaultStatisticsSettingsScreenCopy,
 	StatisticsRecoveryReason,
 	StatisticsScreenLoadStatus,
 	type StatisticsRecoveryReason as StatisticsRecoveryReasonValue,
@@ -46,7 +46,7 @@ export class ComponentStatisticsSettingsScreen extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@property( { attribute: false } )
-	accessor copy: Readonly<StatisticsSettingsScreenCopy> = DefaultStatisticsSettingsScreenCopy;
+	accessor copy!: Readonly<StatisticsSettingsScreenCopy>;
 
 	/**
 	 * Current authoritative projection shown by the screen.
@@ -77,11 +77,11 @@ export class ComponentStatisticsSettingsScreen extends LitElement {
 	private accessor resetting = false;
 
 	/**
-	 * Complete polite status message presented to assistive technology.
+	 * Presentation-neutral polite status presented to assistive technology.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@state()
-	private accessor announcement = '';
+	private accessor resetSuccessAnnouncementVisible = false;
 
 	/**
 	 * Monotonic key that recreates repeated live-region messages.
@@ -213,7 +213,7 @@ export class ComponentStatisticsSettingsScreen extends LitElement {
 			this.recoveryReason = StatisticsRecoveryReason.LOAD;
 			this.confirmingReset = false;
 			this.resetting = false;
-			this.announcement = '';
+			this.resetSuccessAnnouncementVisible = false;
 		}
 
 		try {
@@ -373,11 +373,10 @@ export class ComponentStatisticsSettingsScreen extends LitElement {
 
 	/**
 	 * Replaces the live-region content so repeated messages remain announceable.
-	 * @param message - Complete localized status message.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	private announce( message: string ): void {
-		this.announcement = message;
+	private announceResetSuccess(): void {
+		this.resetSuccessAnnouncementVisible = true;
 		this.announcementSequence += 1;
 	}
 
@@ -405,7 +404,7 @@ export class ComponentStatisticsSettingsScreen extends LitElement {
 		const operationGeneration = ++this.operationGeneration;
 		const source = this.source;
 		this.resetting = true;
-		this.announcement = '';
+		this.resetSuccessAnnouncementVisible = false;
 		let succeeded = false;
 
 		try {
@@ -419,7 +418,7 @@ export class ComponentStatisticsSettingsScreen extends LitElement {
 				this.projection = result.data;
 				this.loadStatus = StatisticsScreenLoadStatus.READY;
 				this.confirmingReset = false;
-				this.announce( this.copy.resetSuccess );
+				this.announceResetSuccess();
 				succeeded = true;
 			} else {
 				this.showResetFailure();
@@ -516,6 +515,11 @@ export class ComponentStatisticsSettingsScreen extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	protected override render(): TemplateResult {
+		if ( ! isLocalizationReady( this.copy ) ) {
+			return html``;
+		}
+		const announcement = this.resetSuccessAnnouncementVisible ? this.copy.resetSuccess : '';
+
 		return html`
 			<main
 				aria-labelledby="statistics-title"
@@ -532,7 +536,7 @@ export class ComponentStatisticsSettingsScreen extends LitElement {
 				<p class="announcement" role="status" aria-live="polite">
 					${ keyed(
 						this.announcementSequence,
-						html`<span>${ this.announcement }</span>`,
+						html`<span>${ announcement }</span>`,
 					) }
 				</p>
 			</main>

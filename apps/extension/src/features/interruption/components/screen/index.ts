@@ -11,6 +11,7 @@ import { customElement, property } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
+import { isLocalizationReady } from '../../../../localization/utils/is-localization-ready';
 import {
 	createFocusedProgressClock,
 	FocusedProgressClockTransition,
@@ -22,7 +23,6 @@ import { getBreathingMotionFrame, BreathingMotionPhase } from '../../utils/breat
 import '../breathing-sphere';
 import styles from './web-component-style.scss?inline';
 import {
-	DefaultInterruptionScreenCopy,
 	InterruptionContinueRequestEventName,
 	InterruptionRetryRequestEventName,
 	InterruptionScreenAnnouncementKind,
@@ -34,7 +34,6 @@ import {
 } from './types';
 
 const DEFAULT_WAIT_DURATION_MILLISECONDS = 10_000;
-const DEFAULT_WELLBEING_SUMMARY = 'This is a moment just for you.';
 const SHORTCUT_KEY_PLACEHOLDER = '{key}';
 const INTERACTIVE_SHORTCUT_TARGETS = [
 	'a[href]',
@@ -118,6 +117,7 @@ function hasInteractiveShortcutTarget( event: KeyboardEvent ): boolean {
  * @attr progressing - Whether the presentation owner currently permits progress.
  * @attr reduced-motion - Whether the sphere must remain still.
  * @attr recovering - Whether an unavailable pause is currently being recovered.
+ * @attr preview - Whether this screen is a contained, looping presentation preview.
  * @attr wellbeing-summary - Complete localized all-time wellbeing sentence.
  * @fires ComponentInterruptionScreen#event:continueRequest - Emits the plain bubbling `tocus-continue-request` event from Ready.
  * @fires ComponentInterruptionScreen#event:retryRequest - Emits the plain bubbling `tocus-retry-request` event from Unavailable.
@@ -171,6 +171,13 @@ export class ComponentInterruptionScreen extends LitElement {
 	accessor reducedMotion = false;
 
 	/**
+	 * Whether this screen fills a bounded preview and loops its presentation clock.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { reflect: true, type: Boolean } )
+	accessor preview = false;
+
+	/**
 	 * Whether the owning controller is currently attempting recovery.
 	 * @since 0.1.0 Initial implementation.
 	 */
@@ -189,16 +196,16 @@ export class ComponentInterruptionScreen extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@property( { attribute: false } )
-	accessor copy: Readonly<InterruptionScreenCopy> = DefaultInterruptionScreenCopy;
+	accessor copy!: Readonly<InterruptionScreenCopy>;
 
 	/**
 	 * Complete localized all-time wellbeing sentence shown in the footer.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@property( { attribute: 'wellbeing-summary' } )
-	accessor wellbeingSummary = DEFAULT_WELLBEING_SUMMARY;
+	accessor wellbeingSummary = '';
 
-	private announcement = DefaultInterruptionScreenCopy.waitingStartedAnnouncement;
+	private announcement = '';
 
 	private announcementKind: InterruptionScreenAnnouncementKindValue =
 		InterruptionScreenAnnouncementKind.WAITING_STARTED;
@@ -316,12 +323,16 @@ export class ComponentInterruptionScreen extends LitElement {
 	 */
 	protected override willUpdate( changedProperties: PropertyValues<this> ): void {
 		if (
-			changedProperties.has( 'state' ) ||
-			changedProperties.has( 'mode' ) ||
-			changedProperties.has( 'waitDurationMilliseconds' ) ||
-			changedProperties.has( 'focusedProgressMilliseconds' ) ||
-			changedProperties.has( 'progressing' ) ||
-			changedProperties.has( 'reducedMotion' )
+			isLocalizationReady( this.copy ) &&
+			(
+				changedProperties.has( 'state' ) ||
+				changedProperties.has( 'mode' ) ||
+				changedProperties.has( 'waitDurationMilliseconds' ) ||
+				changedProperties.has( 'focusedProgressMilliseconds' ) ||
+				changedProperties.has( 'progressing' ) ||
+				changedProperties.has( 'reducedMotion' ) ||
+				changedProperties.has( 'preview' )
+			)
 		) {
 			const reanchor = changedProperties.has( 'waitDurationMilliseconds' ) ||
 				changedProperties.has( 'focusedProgressMilliseconds' );
@@ -350,9 +361,12 @@ export class ComponentInterruptionScreen extends LitElement {
 		}
 
 		if (
-			changedProperties.has( 'state' ) ||
-			changedProperties.has( 'copy' ) ||
-			changedProperties.has( 'recovering' )
+			isLocalizationReady( this.copy ) &&
+			(
+				changedProperties.has( 'state' ) ||
+				changedProperties.has( 'copy' ) ||
+				changedProperties.has( 'recovering' )
+			)
 		) {
 			this.announcement = this.resolveAnnouncement();
 		}
@@ -364,6 +378,10 @@ export class ComponentInterruptionScreen extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	protected override updated( changedProperties: PropertyValues<this> ): void {
+		if ( ! isLocalizationReady( this.copy ) ) {
+			return;
+		}
+
 		if ( this.focusedState !== this.state ) {
 			const previousFocusedState = this.focusedState;
 
@@ -400,6 +418,9 @@ export class ComponentInterruptionScreen extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	protected override render(): TemplateResult {
+		if ( ! isLocalizationReady( this.copy ) ) {
+			return html``;
+		}
 		const waiting = this.state === InterruptionScreenState.WAITING;
 		const ready = this.state === InterruptionScreenState.READY;
 		const expired = this.state === InterruptionScreenState.READY_EXPIRED;
@@ -537,6 +558,7 @@ export class ComponentInterruptionScreen extends LitElement {
 			continuous: this.mode === InterruptionScreenMode.BREATHING && ! this.reducedMotion,
 			documentVisible: this.environment.isDocumentVisible(),
 			durationMilliseconds: this.waitDurationMilliseconds,
+			looping: this.preview,
 			progressing: this.progressing,
 			waiting: this.state === InterruptionScreenState.WAITING,
 			windowFocused: this.environment.isWindowFocused(),
@@ -657,7 +679,6 @@ export class ComponentInterruptionScreen extends LitElement {
 }
 
 export {
-	DefaultInterruptionScreenCopy,
 	InterruptionContinueRequestEventName,
 	InterruptionRetryRequestEventName,
 	InterruptionScreenMode,

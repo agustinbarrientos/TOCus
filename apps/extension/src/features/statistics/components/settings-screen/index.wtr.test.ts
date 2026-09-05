@@ -1,3 +1,4 @@
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import { assert, expect, fixture, html } from '@open-wc/testing';
 import { emulateMedia, setViewport } from '@web/test-runner-commands';
 import {
@@ -6,7 +7,6 @@ import {
 } from '../../../../domains/statistics/types/statistics-projection';
 import { ComponentStatisticsSettingsScreen } from './index';
 import {
-	DefaultStatisticsSettingsScreenCopy,
 	type StatisticsSource,
 } from './types';
 
@@ -248,6 +248,7 @@ async function settleScreen( element: ComponentStatisticsSettingsScreen ): Promi
 async function renderScreen( source: StatisticsSource ): Promise<ComponentStatisticsSettingsScreen> {
 	const element = await fixture<ComponentStatisticsSettingsScreen>( html`
 		<tocus-f-statistics-settings-screen
+			.copy=${ TestEnglishLocalizationBundle.statistics }
 			.source=${ source }
 		></tocus-f-statistics-settings-screen>
 	` );
@@ -289,7 +290,8 @@ function formatTestCount( count: number ): string {
 describe( 'tocus-f-statistics-settings-screen', () => {
 	it( 'shows recovery without fabricating metrics when no source is available', async () => {
 		const element = await fixture<ComponentStatisticsSettingsScreen>( html`
-			<tocus-f-statistics-settings-screen></tocus-f-statistics-settings-screen>
+			<tocus-f-statistics-settings-screen
+			.copy=${ TestEnglishLocalizationBundle.statistics }></tocus-f-statistics-settings-screen>
 		` );
 		await settleScreen( element );
 
@@ -301,6 +303,7 @@ describe( 'tocus-f-statistics-settings-screen', () => {
 		const source = new DeferredReadStatisticsSource( POPULATED_PROJECTION );
 		const element = await fixture<ComponentStatisticsSettingsScreen>( html`
 			<tocus-f-statistics-settings-screen
+			.copy=${ TestEnglishLocalizationBundle.statistics }
 				.source=${ source }
 			></tocus-f-statistics-settings-screen>
 		` );
@@ -326,6 +329,7 @@ describe( 'tocus-f-statistics-settings-screen', () => {
 		};
 		const element = await fixture<ComponentStatisticsSettingsScreen>( html`
 			<tocus-f-statistics-settings-screen
+			.copy=${ TestEnglishLocalizationBundle.statistics }
 				.source=${ oldSource }
 			></tocus-f-statistics-settings-screen>
 		` );
@@ -439,12 +443,18 @@ describe( 'tocus-f-statistics-settings-screen', () => {
 		);
 		assert.deepEqual(
 			Array.from( values ?? [], ( value ) => value.textContent.trim() ),
-			[ 'About 1 hour 30 minutes', '2 hours', '12', '8', '5' ],
+			[
+				TestEnglishLocalizationBundle.statistics.formatEstimatedDuration( 5_400_000 ),
+				TestEnglishLocalizationBundle.statistics.formatDuration( 7_200_000 ),
+				TestEnglishLocalizationBundle.statistics.formatCount( 12 ),
+				TestEnglishLocalizationBundle.statistics.formatCount( 8 ),
+				TestEnglishLocalizationBundle.statistics.formatCount( 5 ),
+			],
 		);
 		assert.notInclude( getRequiredElement( element, 'main', HTMLElement ).textContent, 'at least' );
 		assert.include(
 			getRequiredElement( element, '.method-note', HTMLParagraphElement ).textContent,
-			'Estimated protected-site time avoided, based on your prior focused use.',
+			'Estimated browsing time avoided on your selected websites, based on your prior focused use.',
 		);
 	} );
 
@@ -453,7 +463,7 @@ describe( 'tocus-f-statistics-settings-screen', () => {
 			<tocus-f-statistics-settings-screen
 				.source=${ new MemoryStatisticsSource( POPULATED_PROJECTION ) }
 				.copy=${ {
-					...DefaultStatisticsSettingsScreenCopy,
+					...TestEnglishLocalizationBundle.statistics,
 					title: 'Local wellbeing',
 					formatEstimatedDuration: formatTestEstimatedDuration,
 					formatDuration: formatTestDuration,
@@ -673,7 +683,7 @@ describe( 'tocus-f-statistics-settings-screen', () => {
 		assert.equal( confirmation.getAttribute( 'aria-labelledby' ), 'reset-confirmation-title' );
 		assert.equal( confirmation.getAttribute( 'aria-describedby' ), confirmationDescription.id );
 		const confirmationText = confirmation.textContent.toLowerCase();
-		for ( const preservedSetting of [ 'protected sites', 'schedules', 'timing', 'appearance' ] ) {
+		for ( const preservedSetting of [ 'websites', 'schedules', 'timing', 'appearance' ] ) {
 			assert.include( confirmationText, preservedSetting );
 		}
 		assert.equal( source.resets, 0 );
@@ -736,6 +746,26 @@ describe( 'tocus-f-statistics-settings-screen', () => {
 		assert.equal(
 			element.shadowRoot?.activeElement,
 			getRequiredElement( element, '.reset-action', HTMLButtonElement ),
+		);
+	} );
+
+	it( 'renders the retained reset status from the latest localized copy', async () => {
+		const source = new MemoryStatisticsSource( POPULATED_PROJECTION, EMPTY_PROJECTION );
+		const element = await renderScreen( source );
+
+		getRequiredElement( element, '.reset-action', HTMLButtonElement ).click();
+		await element.updateComplete;
+		getRequiredElement( element, '.confirm-reset-action', HTMLButtonElement ).click();
+		await settleScreen( element );
+		element.copy = {
+			...TestEnglishLocalizationBundle.statistics,
+			resetSuccess: 'Localized reset status.',
+		};
+		await element.updateComplete;
+
+		assert.equal(
+			getRequiredElement( element, '.announcement', HTMLParagraphElement ).textContent.trim(),
+			'Localized reset status.',
 		);
 	} );
 
@@ -835,4 +865,10 @@ describe( 'tocus-f-statistics-settings-screen', () => {
 			await emulateMedia( { colorScheme: 'light', forcedColors: 'none' } );
 		}
 	} );
+	it( 'renders nothing before localized copy is injected', async () => {
+		const element = await fixture<ComponentStatisticsSettingsScreen>( html`<tocus-f-statistics-settings-screen></tocus-f-statistics-settings-screen>` );
+
+		assert.equal( element.shadowRoot?.childElementCount, 0 );
+	} );
+
 } );

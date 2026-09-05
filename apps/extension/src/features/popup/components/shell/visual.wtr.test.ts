@@ -2,6 +2,7 @@ import { assert, fixture, html } from '@open-wc/testing';
 import { emulateMedia } from '@web/test-runner-commands';
 import { visualDiff } from '@web/test-runner-visual-regression';
 import './index';
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 
 describe( 'tocus-f-popup-shell visual', () => {
 	before( async () => {
@@ -14,7 +15,7 @@ describe( 'tocus-f-popup-shell visual', () => {
 		await emulateMedia( { colorScheme: 'light' } );
 		const frame = await fixture<HTMLElement>(
 			html`<div class="tocus-test-frame">
-				<tocus-f-popup-shell></tocus-f-popup-shell>
+				<tocus-f-popup-shell .copy=${ TestEnglishLocalizationBundle.popup }></tocus-f-popup-shell>
 			</div>`,
 		);
 
@@ -26,7 +27,7 @@ describe( 'tocus-f-popup-shell visual', () => {
 		await emulateMedia( { colorScheme: 'dark' } );
 		const frame = await fixture<HTMLElement>(
 			html`<div class="tocus-test-frame">
-				<tocus-f-popup-shell></tocus-f-popup-shell>
+				<tocus-f-popup-shell .copy=${ TestEnglishLocalizationBundle.popup }></tocus-f-popup-shell>
 			</div>`,
 		);
 

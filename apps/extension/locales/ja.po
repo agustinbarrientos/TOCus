@@ -1,0 +1,1370 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-09-04 11:22-0500\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: ja\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#. Standalone duration displayed as a whole number of hours.
+#: apps/extension/src/localization/utils/format-localized-duration/index.ts
+msgid "{count, plural, one {# hour} other {# hours}}"
+msgstr "{count, plural, zero {# 時間} one {# 時間} two {# 時間} few {# 時間} many {# 時間} other {# 時間}}"
+
+#. Standalone duration displayed as a whole number of minutes.
+#: apps/extension/src/localization/utils/format-localized-duration/index.ts
+msgid "{count, plural, one {# minute} other {# minutes}}"
+msgstr "{count, plural, zero {# 分} one {# 分} two {# 分} few {# 分} many {# 分} other {# 分}}"
+
+#. Standalone duration displayed as a whole number of seconds.
+#: apps/extension/src/localization/utils/format-localized-duration/index.ts
+msgid "{count, plural, one {# second} other {# seconds}}"
+msgstr "{count, plural, zero {# 秒} one {# 秒} two {# 秒} few {# 秒} many {# 秒} other {# 秒}}"
+
+#. Browser toolbar tooltip when several protection scopes have active timers.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "{count, plural, one {# timer active} other {# timers active}}"
+msgstr "{count, plural, zero {# 件のタイマーが作動中} one {# 件のタイマーが作動中} two {# 件のタイマーが作動中} few {# 件のタイマーが作動中} many {# 件のタイマーが作動中} other {# 件のタイマーが作動中}}"
+
+#. Compact countdown shown during a focused pause. The letter s means seconds.
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "{count, plural, one {#s remaining} other {#s remaining}}"
+msgstr "{count, plural, zero {残り # 秒} one {残り # 秒} two {残り # 秒} few {残り # 秒} many {残り # 秒} other {残り # 秒}}"
+
+#. Browser toolbar tooltip while a focused pause has whole minutes remaining.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "{count, plural, one {Pause: # minute remaining} other {Pause: # minutes remaining}}"
+msgstr "{count, plural, zero {一時停止：残り # 分} one {一時停止：残り # 分} two {一時停止：残り # 分} few {一時停止：残り # 分} many {一時停止：残り # 分} other {一時停止：残り # 分}}"
+
+#. Browser toolbar tooltip while a focused pause has seconds remaining.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "{count, plural, one {Pause: # second remaining} other {Pause: # seconds remaining}}"
+msgstr "{count, plural, zero {一時停止：残り # 秒} one {一時停止：残り # 秒} two {一時停止：残り # 秒} few {一時停止：残り # 秒} many {一時停止：残り # 秒} other {一時停止：残り # 秒}}"
+
+#. Browser toolbar tooltip while a protected-site visit window has whole minutes remaining.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "{count, plural, one {Visit window: # minute remaining} other {Visit window: # minutes remaining}}"
+msgstr "{count, plural, zero {利用可能時間：残り # 分} one {利用可能時間：残り # 分} two {利用可能時間：残り # 分} few {利用可能時間：残り # 分} many {利用可能時間：残り # 分} other {利用可能時間：残り # 分}}"
+
+#. Warning shown shortly before an active protected-site visit window ends.
+#: apps/extension/src/localization/utils/create-protected-page-layer-copy/index.ts
+msgid "{count, plural, one {Your visit window ends in # second.} other {Your visit window ends in # seconds.}}"
+msgstr "{count, plural, zero {利用可能時間はあと # 秒で終了します。} one {利用可能時間はあと # 秒で終了します。} two {利用可能時間はあと # 秒で終了します。} few {利用可能時間はあと # 秒で終了します。} many {利用可能時間はあと # 秒で終了します。} other {利用可能時間はあと # 秒で終了します。}}"
+
+#. Compact toolbar count above the visible limit; keep the plus sign and keep it very short.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "{count}+"
+msgstr "{count}件+"
+
+#. Compact toolbar count for multiple active protection scopes; keep it very short.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "{count}×"
+msgstr "{count}件"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "{name} ({domain})"
+msgstr "{name}（{domain}）"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "{name} access was restored."
+msgstr "{name} へのアクセスを復元しました。"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "{name} was added to your list."
+msgstr "{name} をリストに追加しました。"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "{name} was removed from your list."
+msgstr "{name} をリストから削除しました。"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "{name} was removed, but its browser access could not be removed automatically."
+msgstr "{name} を削除しましたが、ブラウザーのアクセス権限を自動的に解除できませんでした。"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "{name} was updated."
+msgstr "{name} を更新しました。"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "{siteName} added"
+msgstr "{siteName} を追加済み"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "{siteName} was added to your list."
+msgstr "{siteName} をリストに追加しました。"
+
+#. Short extension description shown by the browser and extension store.
+#: apps/extension/src/localization/utils/create-browser-locale-messages/index.ts
+msgctxt "Extension description"
+msgid "A gentle pause before distracting websites, designed to help you return to your intentions."
+msgstr "気が散るサイトを開く前に、意図へ戻るための穏やかな間をつくります。"
+
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgctxt "Popup summary"
+msgid "A gentle pause before distracting websites, designed to help you return to your intentions."
+msgstr "気が散るウェブサイトを開く前にやさしく立ち止まり、本来の目的に戻れるようサポートします。"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "A private, all-time view of the pauses and choices TOCus has supported on this device."
+msgstr "このデバイスで TOCus が支えた一時停止と選択を、全期間にわたって非公開で確認できます。"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "A soft clay sphere expands as you breathe in and settles as you breathe out."
+msgstr "やわらかな粘土の球体が、息を吸うと膨らみ、息を吐くと落ち着きます。"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "A soft clay sphere rests at the center of the screen."
+msgstr "やわらかな粘土の球体が画面の中央で静止しています。"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "A soft sphere guides your breathing."
+msgstr "やわらかな球体が呼吸を導きます。"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "A still pause with no breathing cue."
+msgstr "呼吸の案内がない、動きのない一時停止です。"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "About {duration}"
+msgstr "約 {duration}"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Access required"
+msgstr "アクセス権限が必要です"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "Accessibility"
+msgstr "アクセシビリティ"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Active time windows"
+msgstr "有効な時間帯"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Add {siteName}"
+msgstr "{siteName} を追加"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Add a pause here"
+msgstr "ここに一時停止を追加"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Add another site"
+msgstr "別のサイトを追加"
+
+#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
+msgid "Add the first site you want TOCus to gently interrupt."
+msgstr "TOCus でやさしく中断したい最初のサイトを追加してください。"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Add time window"
+msgstr "時間帯を追加"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Adding {siteName}..."
+msgstr "{siteName} を追加中..."
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Adding..."
+msgstr "追加しています..."
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "All the time"
+msgstr "常に"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "All time"
+msgstr "全期間"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Allow access"
+msgstr "アクセスを許可"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Allowance"
+msgstr "利用可能時間"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Allowances granted"
+msgstr "付与された利用可能時間"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Allowing..."
+msgstr "アクセスを許可しています..."
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "An end time earlier than its start continues into the next day."
+msgstr "終了時刻が開始時刻より前の場合は、翌日まで続きます。"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Appearance"
+msgstr "外観"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "Appearance and accessibility preferences"
+msgstr "外観とアクセシビリティの設定"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "Appearance saved."
+msgstr "外観を保存しました。"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "Appearance settings could not load"
+msgstr "外観設定を読み込めませんでした"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Applies to"
+msgstr "適用先"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "Blue"
+msgstr "青"
+
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Brasil"
+msgstr "Brasil"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Breathe in"
+msgstr "息を吸って"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Breathe out"
+msgstr "息を吐いて"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "Breathing"
+msgstr "呼吸ガイド"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "Brown"
+msgstr "茶色"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Browser access could not be requested. Nothing was saved."
+msgstr "ブラウザーのアクセス権限を要求できませんでした。何も保存されていません。"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Browser access is still required to show the pause on this website."
+msgstr "このウェブサイトで一時停止画面を表示するには、引き続きブラウザーのアクセス権限が必要です。"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Browser access to show the pause on this website is required. Nothing was saved."
+msgstr "このウェブサイトで一時停止画面を表示するにはブラウザーのアクセス権限が必要です。何も保存されていません。"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Check the schedule and try again."
+msgstr "スケジュールを確認して、もう一度試してください。"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Choose a maximum that is at least as long as the initial wait."
+msgstr "初回の待ち時間以上の長さを選択してください。"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Choose a start time."
+msgstr "開始時刻を選択してください。"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Choose an end time."
+msgstr "終了時刻を選択してください。"
+
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "Choose the appearance and color that feel right for you."
+msgstr "自分に合う外観と色を選んでください。"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "Choose the colors and pause style that feel right for you."
+msgstr "使いやすい色と一時停止のスタイルを選択します。"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Choose the days and times when TOCus should be active."
+msgstr "TOCus を有効にする曜日と時間を選んでください。"
+
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Choose the language TOCus uses across the extension."
+msgstr "拡張機能全体で TOCus が使用する言語を選択します。"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Choose the websites where a calm pause can help you return to your intentions."
+msgstr "落ち着いて立ち止まり、本来の目的に戻るきっかけが必要なウェブサイトを選択します。"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Choose websites"
+msgstr "ウェブサイトを選ぶ"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Choose when TOCus is active. Times use this device's current time zone."
+msgstr "TOCus を有効にする時間を選んでください。時刻には、このデバイスの現在のタイムゾーンが使用されます。"
+
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Choose your language"
+msgstr "言語を選ぶ"
+
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "Color"
+msgstr "色"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "Color palette"
+msgstr "カラーパレット"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Completed waits"
+msgstr "完了した待ち時間"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Completing a wait keeps your websites available for this long."
+msgstr "待機を完了すると、この時間だけウェブサイトを利用できます。"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Continue"
+msgstr "続ける"
+
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "Create a gentle pause before the websites you choose."
+msgstr "選んだウェブサイトを開く前に、やさしい間をつくります。"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "Dark"
+msgstr "ダーク"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Day"
+msgstr "曜日"
+
+#. Language autonym. Keep the language name written in German.
+#. Language-menu autonym. Keep this language name written in German.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Deutsch"
+msgstr "Deutsch"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Discard changes"
+msgstr "変更を破棄"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Display name"
+msgstr "表示名"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Each completed wait adds this amount to the next wait that day."
+msgstr "待ち時間を完了するたびに、その日の次回の待ち時間へこの長さが加算されます。"
+
+#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
+msgid "Each of these sites keeps its own wait ladder and allowance."
+msgstr "これらのサイトでは、それぞれ個別の待ち時間の段階と利用可能時間が維持されます。"
+
+#. Label for the end-time field of a scheduled protection window.
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "End"
+msgstr "終了"
+
+#. Language autonym. Keep the language name written in English.
+#. Language-menu autonym. Keep this language name written in English.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "English"
+msgstr "English"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Enter a domain or a full web address. TOCus includes the whole domain by default."
+msgstr "ドメインまたは完全なウェブアドレスを入力してください。TOCus では、デフォルトでドメイン全体が対象になります。"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Enter a valid website address, such as example.com."
+msgstr "example.com のような有効なウェブサイトのアドレスを入力してください。"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Enter a valid website address."
+msgstr "有効なウェブサイトのアドレスを入力してください。"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Enter a website address or domain. TOCus includes its subdomains by default."
+msgstr "ウェブサイトのアドレスまたはドメインを入力してください。TOCus では、デフォルトでそのサブドメインも対象になります。"
+
+#. Language autonym. Keep the language name written in Spanish.
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Español"
+msgstr "Español"
+
+#. Language-menu autonym for the tuteo variant. Keep this language name written in Spanish.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Español (tú)"
+msgstr "Español (tú)"
+
+#. Language-menu autonym for the voseo variant. Keep this language name written in Spanish.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Español (vos)"
+msgstr "Español (vos)"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Estimated browsing time avoided on your selected websites, based on your prior focused use."
+msgstr "選択したウェブサイトの閲覧を避けられた推定時間です。過去にアクティブに利用した時間に基づいています。"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Estimated time reclaimed"
+msgstr "取り戻した推定時間"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "example.com"
+msgstr "example.com"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Finish setup"
+msgstr "設定を完了"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "Follow your device appearance."
+msgstr "デバイスの外観設定に合わせます。"
+
+#. Language autonym. Keep the language name written in French.
+#. Language-menu autonym. Keep this language name written in French.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Français"
+msgstr "Français"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Friday"
+msgstr "金曜日"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Give this site its own wait and allowance."
+msgstr "このサイト専用の待ち時間と利用可能時間を使用します。"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Give this website its own timing"
+msgstr "このウェブサイトに個別の時間設定を適用"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Global timing"
+msgstr "全体の時間設定"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "Green"
+msgstr "緑"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "How should this site behave?"
+msgstr "このサイトをどのように保護しますか？"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Includes {host} and its subdomains"
+msgstr "{host} とそのサブドメインを含む"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Includes only {host}"
+msgstr "{host} のみを含む"
+
+#. Status adjective for a site with its own protection timing.
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Independent"
+msgstr "個別"
+
+#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
+msgid "Independent sites"
+msgstr "個別のサイト"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Initial wait"
+msgstr "初回の待ち時間"
+
+#. Language autonym. Keep the language name written in Italian.
+#. Language-menu autonym. Keep this language name written in Italian.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Italiano"
+msgstr "Italiano"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Keep site"
+msgstr "サイトを残す"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "Keep the pause still and remove movement."
+msgstr "一時停止の画面を静止させ、動きをなくします。"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Keep TOCus active every day and at every time."
+msgstr "TOCus を毎日、終日有効にします。"
+
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Language"
+msgstr "言語"
+
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Language preference"
+msgstr "言語設定"
+
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Language saved."
+msgstr "言語を保存しました。"
+
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Language settings could not load"
+msgstr "言語設定を読み込めませんでした"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Less than 1 minute"
+msgstr "1 分未満"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Let's try that again"
+msgstr "もう一度試しましょう"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "Light"
+msgstr "ライト"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "Loading appearance settings..."
+msgstr "外観設定を読み込んでいます..."
+
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Loading language settings..."
+msgstr "言語設定を読み込んでいます..."
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Loading schedule..."
+msgstr "スケジュールを読み込んでいます..."
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Loading statistics..."
+msgstr "統計を読み込んでいます..."
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Loading timing settings..."
+msgstr "時間設定を読み込んでいます..."
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Loading websites..."
+msgstr "ウェブサイトを読み込んでいます..."
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Local data"
+msgstr "ローカルデータ"
+
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "Make TOCus yours"
+msgstr "TOCus を自分好みに"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Manage this website"
+msgstr "このウェブサイトを管理"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Maximum wait"
+msgstr "最長の待ち時間"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Maximum wait must be at least as long as the initial wait."
+msgstr "最長の待ち時間は、初回の待ち時間以上にしてください。"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Monday"
+msgstr "月曜日"
+
+#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
+msgid "No websites yet"
+msgstr "ウェブサイトはまだありません"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Not enough history yet"
+msgstr "履歴がまだ十分ではありません"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "On a weekly schedule"
+msgstr "週間スケジュール"
+
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "Open Settings"
+msgstr "設定を開く"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Open the requested site as soon as the wait ends."
+msgstr "待ち時間が終了したら、要求されたサイトをすぐに開きます。"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Open the site automatically"
+msgstr "サイトを自動的に開く"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Or press {key}"
+msgstr "または {key} キーを押す"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "Orange"
+msgstr "オレンジ"
+
+#. Compact toolbar badge. P means pause and m means minutes; keep it very short.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "P{count}m"
+msgstr "休{count}分"
+
+#. Compact toolbar badge. P means pause and s means seconds; keep it very short.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "P{count}s"
+msgstr "休{count}秒"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Pause behavior"
+msgstr "一時停止の動作"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Pause setup"
+msgstr "一時停止の設定"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "Pause style"
+msgstr "一時停止のスタイル"
+
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "Pause: complete"
+msgstr "一時停止：完了"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Personalization"
+msgstr "カスタマイズ"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Personalization defaults restored."
+msgstr "カスタマイズ設定を既定値に戻しました。"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Personalization settings need your attention"
+msgstr "カスタマイズ設定を確認してください"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Pick any suggestions or add a site yourself. You can finish without choosing one."
+msgstr "候補から選ぶか、サイトを自分で追加してください。何も選ばずに完了することもできます。"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "Pink"
+msgstr "ピンク"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Popular choices"
+msgstr "人気のサイト"
+
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Portugal"
+msgstr "Portugal"
+
+#. Language autonym. Keep the language name written in Portuguese.
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Português"
+msgstr "Português"
+
+#. Language-menu autonym for Brazilian Portuguese. Keep this language name written in Portuguese.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Português (Brasil)"
+msgstr "Português (Brasil)"
+
+#. Language-menu autonym for European Portuguese. Keep this language name written in Portuguese.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Português (Portugal)"
+msgstr "Português (Portugal)"
+
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Private by design"
+msgstr "プライバシーを守る設計"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "Purple"
+msgstr "紫"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "Quiet pause"
+msgstr "静かな一時停止"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Reconsidered visits"
+msgstr "再考したアクセス"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "Reduce motion"
+msgstr "動きを抑える"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Remove"
+msgstr "削除"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Remove {name}?"
+msgstr "{name} を削除しますか？"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Remove site"
+msgstr "サイトを削除"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Remove time window {position}"
+msgstr "{position} 番目の時間帯を削除"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Remove window"
+msgstr "時間帯を削除"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Reset statistics"
+msgstr "統計をリセット"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Reset statistics?"
+msgstr "統計をリセットしますか？"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Resetting..."
+msgstr "リセットしています..."
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Restore personalization defaults"
+msgstr "カスタマイズ設定を既定値に戻す"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Saturday"
+msgstr "土曜日"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Save changes"
+msgstr "変更を保存"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Save or discard these changes before choosing another scope."
+msgstr "別の保護範囲を選ぶ前に、変更を保存または破棄してください。"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Save schedule"
+msgstr "スケジュールを保存"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Save timing"
+msgstr "時間設定を保存"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Saving..."
+msgstr "保存しています..."
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Schedule"
+msgstr "スケジュール"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Schedule could not load"
+msgstr "スケジュールを読み込めませんでした"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Schedule saved."
+msgstr "スケジュールを保存しました。"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Set one calm timing pattern for every website on your list."
+msgstr "リスト内のすべてのウェブサイトに、ひとつの穏やかな時間設定を適用します。"
+
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Settings"
+msgstr "設定"
+
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "Setup progress"
+msgstr "設定の進行状況"
+
+#. Status adjective for a site that shares protection timing with other sites.
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Shared"
+msgstr "共有"
+
+#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Shared timing"
+msgstr "共通の時間設定"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Show a Continue button"
+msgstr "「続ける」ボタンを表示"
+
+#: apps/extension/src/localization/utils/create-wellbeing-copy/index.ts
+msgid "Since you started, you've given yourself about {estimatedReclaimedTime} back and taken {focusedPauseTime} for yourself."
+msgstr "使い始めてから、約 {estimatedReclaimedTime} を自分のために取り戻し、{focusedPauseTime} の時間を自分のために取りました。"
+
+#: apps/extension/src/localization/utils/create-wellbeing-copy/index.ts
+msgid "Since you started, you've given yourself about {estimatedReclaimedTime} back."
+msgstr "使い始めてから、約 {estimatedReclaimedTime} を自分のために取り戻しました。"
+
+#: apps/extension/src/localization/utils/create-wellbeing-copy/index.ts
+msgid "Since you started, you've taken {focusedPauseTime} for yourself."
+msgstr "使い始めてから、自分のために {focusedPauseTime} の時間を取りました。"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Something went wrong while adding that site. Try again."
+msgstr "サイトの追加中に問題が発生しました。もう一度お試しください。"
+
+#. Label printed inside the keyboard-key visual for the space bar.
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Space"
+msgstr "スペース"
+
+#. Label for the start-time field of a scheduled protection window.
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Start"
+msgstr "開始"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Start and end time must be different."
+msgstr "開始時刻と終了時刻は異なる時刻にしてください。"
+
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Statistics"
+msgstr "統計"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Statistics are unavailable"
+msgstr "統計を利用できません"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Statistics could not be reset"
+msgstr "統計をリセットできませんでした"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Statistics were reset. Your totals now start from zero."
+msgstr "統計をリセットしました。合計はゼロから記録されます。"
+
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "Step {currentStep} of {totalSteps}: {stepName}"
+msgstr "ステップ {currentStep}/{totalSteps}: {stepName}"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Sunday"
+msgstr "日曜日"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "System"
+msgstr "システム"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Take a moment"
+msgstr "少し立ち止まる"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "That website is already on your list."
+msgstr "そのウェブサイトはすでにリストにあります。"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "The first interruption of the day starts with this wait."
+msgstr "その日の最初の中断は、この待ち時間から始まります。"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "The local configuration could not be updated safely."
+msgstr "ローカル設定を安全に更新できませんでした。"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "The schedule could not be saved. Your settings were not changed."
+msgstr "スケジュールを保存できませんでした。設定は変更されていません。"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "The selected palette colors the complete pause experience."
+msgstr "選択したパレットが一時停止の画面全体に適用されます。"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "The website name is not valid."
+msgstr "ウェブサイト名が無効です。"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "Theme"
+msgstr "テーマ"
+
+#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
+msgid "These sites share one wait ladder and allowance."
+msgstr "これらのサイトは、待ち時間の段階と利用可能時間を共有します。"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "These timing choices are not valid. Review them before saving."
+msgstr "時間設定の選択内容が無効です。保存する前に確認してください。"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+#: apps/extension/src/localization/utils/create-wellbeing-copy/index.ts
+msgid "This is a moment just for you."
+msgstr "これはあなたのためだけの時間です。"
+
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "This is what you'll see"
+msgstr "このように表示されます"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "This site changed elsewhere. Reload settings and try again."
+msgstr "このサイトは別の場所で変更されました。設定を再読み込みして、もう一度試してください。"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "This site was not saved, but TOCus may still have browser access to it. Add it again to finish setup, or remove that access from your browser's extension settings."
+msgstr "このサイトは保存されませんでしたが、TOCus はブラウザから引き続きアクセスできる可能性があります。設定を完了するにはもう一度追加するか、ブラウザの拡張機能設定からそのアクセス権を削除してください。"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "This timing group is no longer available. Reload the page and try again."
+msgstr "この時間設定グループは利用できなくなりました。ページを再読み込みして、もう一度お試しください。"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "This visit window has ended. Start another pause when you are ready."
+msgstr "この利用可能時間は終了しました。必要になったら、もう一度一時停止を始めてください。"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "This website could not be saved. Its browser access may still be active."
+msgstr "このウェブサイトを保存できませんでした。ブラウザーのアクセス権限が残っている可能性があります。"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "This website could not be saved. Your entry is still here."
+msgstr "このウェブサイトを保存できませんでした。入力内容はこの画面に残っています。"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "This website is already on your list."
+msgstr "このウェブサイトはすでにリストにあります。"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "This website is no longer on your list."
+msgstr "このウェブサイトはリストにありません。"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Thursday"
+msgstr "木曜日"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Time window {position}"
+msgstr "時間帯 {position}"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Time you took to pause"
+msgstr "一時停止に使った時間"
+
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Timing"
+msgstr "時間設定"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Timing settings could not be saved. Your choices are still here."
+msgstr "時間設定を保存できませんでした。選択内容はこの画面に残っています。"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Timing settings could not load"
+msgstr "時間設定を読み込めませんでした"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Timing settings need your attention"
+msgstr "時間設定を確認してください"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Timing settings were saved."
+msgstr "時間設定を保存しました。"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Timing summary"
+msgstr "時間設定の概要"
+
+#: apps/extension/src/localization/utils/create-document-copy/index.ts
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "TOCus"
+msgstr "TOCus"
+
+#. Extension name.
+#: apps/extension/src/localization/utils/create-browser-locale-messages/index.ts
+msgctxt "Extension name"
+msgid "TOCus"
+msgstr "TOCus"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "TOCus could not confirm the reset. No totals are shown until your local statistics can be read again."
+msgstr "TOCus はリセットを確認できませんでした。ローカルの統計を再び読み込めるようになるまで、合計は表示されません。"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "TOCus could not create separate timing for this site."
+msgstr "TOCus はこのサイト用の個別の時間設定を作成できませんでした。"
+
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "TOCus could not finish opening"
+msgstr "TOCus を完全に起動できませんでした"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "TOCus could not load local appearance settings. Nothing was changed."
+msgstr "TOCus はローカルの外観設定を読み込めませんでした。何も変更されていません。"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "TOCus could not load local settings. Nothing was changed."
+msgstr "TOCus はローカル設定を読み込めませんでした。何も変更されていません。"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "TOCus could not load local timing settings. Nothing was changed."
+msgstr "TOCus はローカルの時間設定を読み込めませんでした。何も変更されていません。"
+
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "TOCus could not load your local language setting. Nothing was changed."
+msgstr "TOCus はローカルの言語設定を読み込めませんでした。何も変更されていません。"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "TOCus could not read your local statistics. No estimates or totals are shown."
+msgstr "TOCus はローカルの統計を読み込めませんでした。推定値や合計は表示されません。"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "TOCus could not restore this pause."
+msgstr "TOCus はこの一時停止を復元できませんでした。"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "TOCus could not restore your personalization defaults. Nothing was changed."
+msgstr "TOCus はカスタマイズ設定を既定値に戻せませんでした。何も変更されていません。"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "TOCus could not save that site. Try again."
+msgstr "TOCus はこのサイトを保存できませんでした。もう一度お試しください。"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "TOCus found local settings it could not read. They were not replaced."
+msgstr "TOCus は読み取れないローカル設定を検出しました。設定は置き換えられていません。"
+
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "TOCus is ready. You can close this tab or continue in Settings."
+msgstr "TOCus の準備ができました。このタブを閉じるか、設定を続けることができます。"
+
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "TOCus language"
+msgstr "TOCus の言語"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "TOCus needs browser access to show the pause on that website. Nothing was added."
+msgstr "そのウェブサイトで一時停止画面を表示するには、TOCus にブラウザーのアクセス権限が必要です。何も追加されていません。"
+
+#: apps/extension/src/localization/utils/create-protected-page-layer-copy/index.ts
+msgid "TOCus pause"
+msgstr "TOCus の一時停止"
+
+#: apps/extension/src/localization/utils/create-document-copy/index.ts
+msgid "TOCus settings"
+msgstr "TOCus の設定"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "TOCus still could not restore this pause."
+msgstr "TOCus はこの一時停止をまだ復元できません。"
+
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "TOCus will keep using this language until you change it."
+msgstr "変更するまで TOCus はこの言語を使用します。"
+
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "TOCus will use it everywhere. You can change it later in Settings."
+msgstr "TOCus のすべての画面でこの言語を使用します。後から設定で変更できます。"
+
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "TOCus: {title}"
+msgstr "TOCus：{title}"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Try again"
+msgstr "もう一度試す"
+
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "Try again, or continue in Settings."
+msgstr "もう一度試すか、設定で続けてください。"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Trying again..."
+msgstr "もう一度試しています..."
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Trying to restore your pause."
+msgstr "一時停止の復元を試しています。"
+
+#. Conversational Spanish variant name. Keep this label written in Spanish.
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Tú"
+msgstr "Tú"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Tuesday"
+msgstr "火曜日"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "Use a dark appearance."
+msgstr "暗い外観を使用します。"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "Use a light appearance."
+msgstr "明るい外観を使用します。"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Use automatic name"
+msgstr "自動の名前を使用"
+
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Use browser language"
+msgstr "ブラウザーの言語を使用"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Use shared timing"
+msgstr "共通の時間設定を使用"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Use the same wait and allowance as your other websites."
+msgstr "ほかのウェブサイトと同じ待ち時間と利用可能時間を使用します。"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Uses its own wait, allowance, and schedule."
+msgstr "専用の待ち時間、利用可能時間、スケジュールを使用します。"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Uses the shared wait, allowance, and schedule."
+msgstr "共有の待ち時間、利用可能時間、スケジュールを使用します。"
+
+#. Compact toolbar badge. V means visit window and m means minutes; keep it very short.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "V{count}m"
+msgstr "閲{count}分"
+
+#. Compact toolbar badge. V means visit window and m means minutes; keep it very short.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "V<1m"
+msgstr "閲<1分"
+
+#. Compact toolbar badge. V means visit window and m means minutes; keep it very short.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "V0m"
+msgstr "閲0分"
+
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "Visit window: complete"
+msgstr "利用可能時間：終了"
+
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "Visit window: less than 1 minute remaining"
+msgstr "利用可能時間：残り 1 分未満"
+
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Vos"
+msgstr "Vos"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Wait for an explicit choice before opening the site."
+msgstr "サイトを開く前に、明示的な操作を待ちます。"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Wait increase"
+msgstr "待ち時間の増加量"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Waits start at {initialWait}. Each completed wait adds {waitIncrease} to the next wait, up to {maximumWait}. Completing a wait starts an allowance for {allowance} and opens the site automatically."
+msgstr "待ち時間は {initialWait} から始まります。待ち時間を完了するたびに次回の待ち時間へ {waitIncrease} が加算され、最大 {maximumWait} まで増えます。完了すると {allowance} の利用可能時間が始まり、サイトが自動的に開きます。"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Waits start at {initialWait}. Each completed wait adds {waitIncrease} to the next wait, up to {maximumWait}. Completing a wait starts an allowance for {allowance} and shows a Continue button."
+msgstr "待ち時間は {initialWait} から始まります。待ち時間を完了するたびに次回の待ち時間へ {waitIncrease} が加算され、最大 {maximumWait} まで増えます。完了すると {allowance} の利用可能時間が始まり、「続ける」ボタンが表示されます。"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Website address"
+msgstr "ウェブサイトのアドレス"
+
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Websites"
+msgstr "ウェブサイト"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Websites could not load"
+msgstr "ウェブサイトを読み込めませんでした"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Wednesday"
+msgstr "水曜日"
+
+#: apps/extension/src/localization/utils/create-document-copy/index.ts
+msgid "Welcome to TOCus"
+msgstr "TOCus へようこそ"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Wellbeing"
+msgstr "ウェルビーイング"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "When should TOCus be active?"
+msgstr "TOCus をいつ有効にしますか？"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "When the wait finishes"
+msgstr "待ち時間が終了したとき"
+
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Which Portuguese should TOCus use?"
+msgstr "TOCus で使用するポルトガル語を選んでください"
+
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Which Spanish should TOCus use?"
+msgstr "TOCus で使用するスペイン語を選んでください"
+
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "You can change these choices and fine-tune timing or schedules any time in Settings."
+msgstr "これらの選択は設定でいつでも変更でき、待ち時間やスケジュールも細かく調整できます。"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "You can continue when you are ready."
+msgstr "準備ができたら続けられます。"
+
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "You're all set"
+msgstr "準備ができました"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "Your appearance could not be saved. Your choice is still shown here."
+msgstr "外観を保存できませんでした。選択内容はこの画面に残っています。"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Your browser could not request access for that site. Try again."
+msgstr "ブラウザがこのサイトへのアクセスを要求できませんでした。もう一度お試しください。"
+
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Your browser currently selects {name}."
+msgstr "現在、ブラウザーでは {name} が選択されています。"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Your changes could not be saved. Nothing was replaced."
+msgstr "変更を保存できませんでした。何も置き換えられていません。"
+
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "Your choice could not be saved. Try again."
+msgstr "選択内容を保存できませんでした。もう一度お試しください。"
+
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "Your choices and statistics stay on this device. TOCus never reads your browsing history."
+msgstr "選択内容と統計はこの端末に保存されます。TOCus が閲覧履歴を読み取ることはありません。"
+
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Your language could not be saved. TOCus returned to your previous language."
+msgstr "言語を保存できなかったため、TOCus は以前の言語に戻しました。"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Your local personalization data is not valid. Restoring defaults will reset appearance, pause, motion, and language preferences."
+msgstr "ローカルのカスタマイズデータが無効です。既定値に戻すと、外観、一時停止、動き、言語の設定がリセットされます。"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Your local settings need attention"
+msgstr "ローカル設定を確認してください"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Your local settings were not changed. Try loading them again."
+msgstr "ローカル設定は変更されていません。もう一度読み込んでください。"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Your local timing data is not valid, so it was not replaced."
+msgstr "ローカルの時間設定データが無効なため、置き換えませんでした。"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Your local website list is not valid, so it was not replaced."
+msgstr "ローカルのウェブサイトリストが無効なため、置き換えられませんでした。"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Your pause has resumed."
+msgstr "一時停止を再開しました。"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Your pause has started."
+msgstr "一時停止を始めました。"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Your pause is paused."
+msgstr "一時停止のカウントを停止しました。"
+
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Your settings and statistics stay on this device."
+msgstr "設定と統計データはこのデバイスに保存されます。"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Your statistics stay on this device."
+msgstr "統計はこのデバイスにのみ保存されます。"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Your statistics will start over from zero. Websites, schedules, timing, and appearance remain unchanged."
+msgstr "統計はゼロから再集計されます。ウェブサイト、スケジュール、時間設定、外観は変更されません。"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Your timing data changed. Retry before saving these choices."
+msgstr "時間設定データが別の場所で変更されました。選択内容を保存する前に、もう一度試してください。"
+
+#: apps/extension/src/localization/utils/create-protected-page-layer-copy/index.ts
+msgid "Your visit window is ending soon."
+msgstr "利用可能時間がまもなく終了します。"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Your website list changed. Retry before adding this site."
+msgstr "ウェブサイトリストが変更されました。このサイトを追加する前に、もう一度お試しください。"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Your website list needs attention"
+msgstr "ウェブサイトリストを確認してください"
+
+#. Language autonym. Keep the language name written in Russian.
+#. Language-menu autonym. Keep this language name written in Russian.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Русский"
+msgstr "Русский"
+
+#. Language autonym. Keep the language name written in Japanese.
+#. Language-menu autonym. Keep this language name written in Japanese.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "日本語"
+msgstr "日本語"

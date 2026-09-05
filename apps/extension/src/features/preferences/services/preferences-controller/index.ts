@@ -1,20 +1,25 @@
 import {
 	DefaultPreferencesDocument,
-	PreferencesDocumentSchema,
+	type Language,
 	type PreferencesDocument,
 } from '../../../../domains/preferences/types';
-import { PreferencesStorageKey } from '../../../../domains/preferences/services/preferences-storage';
+import { getLanguageTag } from '../../../../domains/preferences/utils/resolve-language';
+import {
+	PreferencesStorageKey,
+	parseStoredPreferences,
+} from '../../../../domains/preferences/services/preferences-storage';
 import {
 	type PreferencesController,
 	type PreferencesControllerOptions,
 	type PreferencesChangeListener,
+	type PreferencesLanguageChangeListener,
 	type PreferencesStorageChanges,
 } from './types';
 
 /**
  * Creates a live projection of local preferences for one extension context.
  * @param options - Persistence, browser preference, and presentation dependencies.
- * @return Preference lifecycle and effective reduced-motion source.
+ * @return Preference lifecycle with effective language and reduced-motion sources.
  * @since 0.1.0 Initial implementation.
  */
 export function createPreferencesController(
@@ -22,7 +27,9 @@ export function createPreferencesController(
 ): PreferencesController {
 	const motionChangeTarget = new EventTarget();
 	const preferencesChangeListeners = new Set<PreferencesChangeListener>();
+	const languageChangeListeners = new Set<PreferencesLanguageChangeListener>();
 	let preferences: Readonly<PreferencesDocument> = DefaultPreferencesDocument;
+	let effectiveLanguage: Language = options.browserLanguage;
 	let effectiveReducedMotion = false;
 	let lifecycleGeneration = 0;
 	let projectionRevision = 0;
@@ -49,12 +56,33 @@ export function createPreferencesController(
 	}
 
 	/**
+	 * Synchronizes effective language metadata and notifies active consumers after a change.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function synchronizeLanguage(): void {
+		const nextLanguage = preferences.language ?? options.browserLanguage;
+
+		options.appearanceTarget.setAttribute( 'lang', getLanguageTag( nextLanguage ) );
+
+		if ( effectiveLanguage === nextLanguage ) {
+			return;
+		}
+
+		effectiveLanguage = nextLanguage;
+
+		for ( const listener of languageChangeListeners ) {
+			listener( nextLanguage );
+		}
+	}
+
+	/**
 	 * Projects one complete preference document into this extension context.
 	 * @param nextPreferences - Complete validated preferences to project.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function projectPreferences( nextPreferences: PreferencesDocument ): void {
 		preferences = nextPreferences;
+		synchronizeLanguage();
 		options.appearanceTarget.setAttribute( 'data-tocus-theme', nextPreferences.theme );
 		options.appearanceTarget.setAttribute( 'data-tocus-palette', nextPreferences.palette );
 
@@ -89,12 +117,21 @@ export function createPreferencesController(
 	}
 
 	/**
-	 * Begins delivering validated preferences projections and malformed-data markers to one listener.
+	 * Begins delivering the accepted initial read and later preferences projections to one listener.
 	 * @param listener - Preferences projection listener.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function addPreferencesChangeListener( listener: PreferencesChangeListener ): void {
 		preferencesChangeListeners.add( listener );
+	}
+
+	/**
+	 * Begins delivering effective language changes to one listener.
+	 * @param listener - Effective language listener.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function addLanguageChangeListener( listener: PreferencesLanguageChangeListener ): void {
+		languageChangeListeners.add( listener );
 	}
 
 	/**
@@ -108,9 +145,7 @@ export function createPreferencesController(
 			return DefaultPreferencesDocument;
 		}
 
-		const result = PreferencesDocumentSchema.safeParse( input );
-
-		return result.success ? result.data : null;
+		return parseStoredPreferences( input );
 	}
 
 	/**
@@ -168,12 +203,21 @@ export function createPreferencesController(
 	}
 
 	/**
-	 * Stops delivering validated preferences projections and malformed-data markers to one listener.
+	 * Stops delivering accepted initial and later preferences projections to one listener.
 	 * @param listener - Preferences projection listener.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function removePreferencesChangeListener( listener: PreferencesChangeListener ): void {
 		preferencesChangeListeners.delete( listener );
+	}
+
+	/**
+	 * Stops delivering effective language changes to one listener.
+	 * @param listener - Effective language listener.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function removeLanguageChangeListener( listener: PreferencesLanguageChangeListener ): void {
+		languageChangeListeners.delete( listener );
 	}
 
 	/**
@@ -209,7 +253,7 @@ export function createPreferencesController(
 			return;
 		}
 
-		projectPreferences( loadedPreferences ?? DefaultPreferencesDocument );
+		applyStoredPreferences( loadedPreferences );
 	}
 
 	/**
@@ -302,6 +346,14 @@ export function createPreferencesController(
 
 	return {
 		/**
+		 * Reports the browser-derived or explicitly selected language currently projected by this context.
+		 * @return Effective TOCus language.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		get language(): Language {
+			return effectiveLanguage;
+		},
+		/**
 		 * Reports whether either the user or operating system currently requests reduced motion.
 		 * @return Effective reduced-motion preference.
 		 * @since 0.1.0 Initial implementation.
@@ -310,9 +362,11 @@ export function createPreferencesController(
 			return effectiveReducedMotion;
 		},
 		addEventListener,
+		addLanguageChangeListener,
 		addPreferencesChangeListener,
 		apply,
 		removeEventListener,
+		removeLanguageChangeListener,
 		removePreferencesChangeListener,
 		start,
 		stop,

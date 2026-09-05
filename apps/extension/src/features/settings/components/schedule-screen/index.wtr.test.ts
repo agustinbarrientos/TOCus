@@ -1,3 +1,4 @@
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import { assert, expect, fixture, html } from '@open-wc/testing';
 import { setViewport } from '@web/test-runner-commands';
 import {
@@ -24,13 +25,24 @@ import {
 	ProtectionMeasurementRevisionSchema,
 	ProtectionScopeIdSchema,
 } from '../../../../domains/protection/types/protection-value';
-import { ComponentScheduleScreen, DefaultScheduleScreenCopy } from './index';
+import { ComponentScheduleScreen } from './index';
 
 /**
  * Independent protection scope used by ChatGPT schedule fixtures.
  * @since 0.1.0 Initial implementation.
  */
 const INDEPENDENT_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope_chatgpt' );
+
+/**
+ * Sorts schedule-scope labels in deterministic descending order.
+ * @param firstName - First scope label.
+ * @param secondName - Second scope label.
+ * @return Descending comparison result.
+ * @since 0.1.0 Initial implementation.
+ */
+function compareNamesDescending( firstName: string, secondName: string ): number {
+	return secondName.localeCompare( firstName, 'en' );
+}
 
 /**
  * ChatGPT site assigned to the independent schedule scope.
@@ -313,6 +325,7 @@ async function createScreen(
 ): Promise<ComponentScheduleScreen> {
 	const element = await fixture<ComponentScheduleScreen>( html`
 		<tocus-f-schedule-screen
+			.copy=${ TestEnglishLocalizationBundle.schedule }
 			.editor=${ createEditor( storage ) }
 		></tocus-f-schedule-screen>
 	` );
@@ -324,7 +337,8 @@ async function createScreen(
 describe( 'tocus-f-schedule-screen', () => {
 	it( 'reports an unavailable editor dependency without leaving the screen busy', async () => {
 		const element = await fixture<ComponentScheduleScreen>( html`
-			<tocus-f-schedule-screen></tocus-f-schedule-screen>
+			<tocus-f-schedule-screen
+			.copy=${ TestEnglishLocalizationBundle.schedule }></tocus-f-schedule-screen>
 		` );
 		await settleScreen( element );
 
@@ -339,7 +353,7 @@ describe( 'tocus-f-schedule-screen', () => {
 
 		assert.equal( customElements.get( 'tocus-f-schedule-screen' ), ComponentScheduleScreen );
 		assert.equal( getRequiredElement( element, 'h1', Element ).textContent.trim(), 'Schedule' );
-		assert.include( getRequiredElement( element, '.scope-summary', Element ).textContent, 'Shared protection' );
+		assert.include( getRequiredElement( element, '.scope-summary', Element ).textContent, 'Shared timing' );
 		assert.isTrue( getRequiredElement(
 			element,
 			'input[name="schedule-mode"][value="always"]',
@@ -402,7 +416,7 @@ describe( 'tocus-f-schedule-screen', () => {
 	it( 'uses localizable labels for every weekday option', async () => {
 		const element = await createScreen( new MemoryScheduleScreenStorage( POPULATED_CONFIGURATION ) );
 		element.copy = {
-			...DefaultScheduleScreenCopy,
+			...TestEnglishLocalizationBundle.schedule,
 			formatWeekday: formatLocalizedWeekday,
 		};
 		await element.updateComplete;
@@ -454,7 +468,7 @@ describe( 'tocus-f-schedule-screen', () => {
 
 		assert.deepEqual(
 			Array.from( scopeSelect.options ).map( ( option ) => option.textContent.trim() ),
-			[ 'Shared protection', 'ChatGPT (chatgpt.com)' ],
+			[ 'Shared timing', 'ChatGPT (chatgpt.com)' ],
 		);
 
 		scopeSelect.value = INDEPENDENT_SCOPE_ID;
@@ -484,11 +498,16 @@ describe( 'tocus-f-schedule-screen', () => {
 			},
 		};
 		const element = await createScreen( new MemoryScheduleScreenStorage( configuration ) );
+		element.copy = {
+			...TestEnglishLocalizationBundle.schedule,
+			compareNames: compareNamesDescending,
+		};
+		await element.updateComplete;
 		const options = getRequiredElement( element, '#schedule-scope', HTMLSelectElement ).options;
 
 		assert.deepEqual(
 			Array.from( options ).map( ( option ) => option.textContent.trim() ),
-			[ 'Shared protection', 'ChatGPT (chatgpt.com)', 'YouTube (youtube.com)' ],
+			[ 'Shared timing', 'YouTube (youtube.com)', 'ChatGPT (chatgpt.com)' ],
 		);
 	} );
 
@@ -539,6 +558,36 @@ describe( 'tocus-f-schedule-screen', () => {
 		assert.equal(
 			getRequiredElement( element, 'input[name="end-time"] + .field-error', Element ).textContent,
 			'',
+		);
+	} );
+
+	it( 'renders active time feedback from the latest localized copy', async () => {
+		const element = await createScreen(
+			new MemoryScheduleScreenStorage( { ...TestEmptyProtectionConfiguration } ),
+		);
+
+		getRequiredElement(
+			element,
+			'input[name="schedule-mode"][value="custom"]',
+			HTMLInputElement,
+		).click();
+		await settleScreen( element );
+		getRequiredElement( element, '.schedule-form', HTMLFormElement ).requestSubmit();
+		await settleScreen( element );
+		element.copy = {
+			...TestEnglishLocalizationBundle.schedule,
+			startTimeRequiredError: 'Localized start-time error.',
+			endTimeRequiredError: 'Localized end-time error.',
+		};
+		await element.updateComplete;
+
+		assert.equal(
+			getRequiredElement( element, 'input[name="start-time"] + .field-error', Element ).textContent.trim(),
+			'Localized start-time error.',
+		);
+		assert.equal(
+			getRequiredElement( element, 'input[name="end-time"] + .field-error', Element ).textContent.trim(),
+			'Localized end-time error.',
 		);
 	} );
 
@@ -623,6 +672,25 @@ describe( 'tocus-f-schedule-screen', () => {
 		assert.equal( getRequiredElement( element, 'input[name="start-time"]', HTMLInputElement ).value, '08:30' );
 		assert.include( getRequiredElement( element, '.save-error', Element ).textContent, 'not changed' );
 		assert.equal( storage.writes, 0 );
+	} );
+
+	it( 'renders an active schedule persistence error from the latest localized copy', async () => {
+		const storage = new MemoryScheduleScreenStorage( { ...TestEmptyProtectionConfiguration } );
+		storage.rejectSaves = true;
+		const element = await createScreen( storage );
+
+		getRequiredElement( element, '.schedule-form', HTMLFormElement ).requestSubmit();
+		await settleScreen( element );
+		element.copy = {
+			...TestEnglishLocalizationBundle.schedule,
+			saveError: 'Localized schedule persistence error.',
+		};
+		await element.updateComplete;
+
+		assert.equal(
+			getRequiredElement( element, '.save-error', Element ).textContent.trim(),
+			'Localized schedule persistence error.',
+		);
 	} );
 
 	it( 'adds and removes time windows while preserving predictable focus', async () => {
@@ -794,4 +862,29 @@ describe( 'tocus-f-schedule-screen', () => {
 		assert.notEqual( firstMessage, secondMessage );
 		assert.equal( secondMessage.textContent.trim(), 'Schedule saved.' );
 	} );
+
+	it( 'renders the retained save status from the latest localized copy', async () => {
+		const element = await createScreen(
+			new MemoryScheduleScreenStorage( { ...TestEmptyProtectionConfiguration } ),
+		);
+
+		getRequiredElement( element, '.schedule-form', HTMLFormElement ).requestSubmit();
+		await settleScreen( element );
+		element.copy = {
+			...TestEnglishLocalizationBundle.schedule,
+			savedAnnouncement: 'Localized schedule saved status.',
+		};
+		await element.updateComplete;
+
+		assert.equal(
+			getRequiredElement( element, '.announcement', Element ).textContent.trim(),
+			'Localized schedule saved status.',
+		);
+	} );
+	it( 'renders nothing before localized copy is injected', async () => {
+		const element = await fixture<ComponentScheduleScreen>( html`<tocus-f-schedule-screen></tocus-f-schedule-screen>` );
+
+		assert.equal( element.shadowRoot?.childElementCount, 0 );
+	} );
+
 } );

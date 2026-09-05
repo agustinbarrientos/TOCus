@@ -1,11 +1,69 @@
 import { describe, expect, it } from 'vitest';
 import {
 	createToolbarBadgeProjection,
-	EnglishToolbarBadgeCopy,
 	ToolbarBadgePhase,
 } from './index';
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 
 describe( 'createToolbarBadgeProjection', () => {
+	it( 'delegates active-title wrapping and multiple-scope notation to localized copy', () => {
+		const copy = {
+			inactive: { text: '', title: 'product' },
+			/**
+			 * Wraps a toolbar title for the projection fixture.
+			 * @param title - Active title content.
+			 * @return Wrapped fixture title.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			formatActiveTitle: ( title: string ) => `[${ title }]`,
+			/**
+			 * Returns the allowance fixture projection.
+			 * @return Allowance fixture copy.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			formatAllowance: () => ( { text: 'allowance', title: 'allowance-title' } ),
+			/**
+			 * Returns the multiple-scope fixture projection.
+			 * @param _activeScopeCount - Complete active-scope count.
+			 * @param visibleScopeCount - Visible localized scope count.
+			 * @return Multiple-scope fixture copy.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			formatMultipleActive: ( _activeScopeCount: number, visibleScopeCount: string ) => ( {
+				text: visibleScopeCount,
+				title: 'multiple-title',
+			} ),
+			/**
+			 * Formats the multiple-scope fixture indicator.
+			 * @param activeScopeCount - Complete active-scope count.
+			 * @return Visible fixture indicator.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			formatMultipleIndicator: ( activeScopeCount: number ) => `(${ String( activeScopeCount ) })`,
+			/**
+			 * Returns the waiting fixture projection.
+			 * @return Waiting fixture copy.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			formatWaiting: () => ( { text: 'waiting', title: 'waiting-title' } ),
+		};
+
+		expect( createToolbarBadgeProjection( {
+			phase: ToolbarBadgePhase.WAITING,
+			remainingMilliseconds: 8_000,
+		}, copy ) ).toMatchObject( {
+			text: 'waiting',
+			title: '[waiting-title]',
+		} );
+		expect( createToolbarBadgeProjection( {
+			activeScopeCount: 2,
+			phase: ToolbarBadgePhase.MULTIPLE_ACTIVE,
+		}, copy ) ).toMatchObject( {
+			text: '(2)',
+			title: '[multiple-title]',
+		} );
+	} );
+
 	it( 'uses injected localized copy without changing timer projection', () => {
 		/**
 		 * Formats one localized toolbar badge fixture.
@@ -22,7 +80,7 @@ describe( 'createToolbarBadgeProjection', () => {
 			phase: ToolbarBadgePhase.WAITING,
 			remainingMilliseconds: 8_000,
 		}, {
-			...EnglishToolbarBadgeCopy,
+			...TestEnglishLocalizationBundle.toolbar,
 			formatWaiting: formatLocalizedCopy,
 		} ) ).toEqual( {
 			phase: 'waiting',
@@ -34,7 +92,7 @@ describe( 'createToolbarBadgeProjection', () => {
 	it( 'clears the badge and restores its neutral title when protection is inactive', () => {
 		expect( createToolbarBadgeProjection( {
 			phase: ToolbarBadgePhase.INACTIVE,
-		} ) ).toEqual( {
+		}, TestEnglishLocalizationBundle.toolbar ) ).toEqual( {
 			phase: 'inactive',
 			text: '',
 			title: 'TOCus',
@@ -54,7 +112,7 @@ describe( 'createToolbarBadgeProjection', () => {
 		expect( createToolbarBadgeProjection( {
 			phase: ToolbarBadgePhase.WAITING,
 			remainingMilliseconds: expectation.remainingMilliseconds,
-		} ) ).toEqual( {
+		}, TestEnglishLocalizationBundle.toolbar ) ).toEqual( {
 			phase: 'waiting',
 			text: expectation.text,
 			title: expectation.title,
@@ -72,7 +130,7 @@ describe( 'createToolbarBadgeProjection', () => {
 		expect( createToolbarBadgeProjection( {
 			phase: ToolbarBadgePhase.ALLOWANCE,
 			remainingMilliseconds: expectation.remainingMilliseconds,
-		} ) ).toEqual( {
+		}, TestEnglishLocalizationBundle.toolbar ) ).toEqual( {
 			phase: 'allowance',
 			text: expectation.text,
 			title: expectation.title,
@@ -80,14 +138,14 @@ describe( 'createToolbarBadgeProjection', () => {
 	} );
 
 	it.each( [
-		{ activeScopeCount: 2, text: '2x', title: 'TOCus: 2 protected-site timers active' },
-		{ activeScopeCount: 42, text: '42x', title: 'TOCus: 42 protected-site timers active' },
-		{ activeScopeCount: 100, text: '99+', title: 'TOCus: 100 protected-site timers active' },
+		{ activeScopeCount: 2, text: '2\u00d7', title: 'TOCus: 2 timers active' },
+		{ activeScopeCount: 42, text: '42\u00d7', title: 'TOCus: 42 timers active' },
+		{ activeScopeCount: 100, text: '99+', title: 'TOCus: 100 timers active' },
 	] )( 'projects a neutral summary for $activeScopeCount active scopes', ( expectation ) => {
 		expect( createToolbarBadgeProjection( {
 			activeScopeCount: expectation.activeScopeCount,
 			phase: ToolbarBadgePhase.MULTIPLE_ACTIVE,
-		} ) ).toEqual( {
+		}, TestEnglishLocalizationBundle.toolbar ) ).toEqual( {
 			phase: 'multiple-active',
 			text: expectation.text,
 			title: expectation.title,
@@ -100,7 +158,7 @@ describe( 'createToolbarBadgeProjection', () => {
 			expect( () => createToolbarBadgeProjection( {
 				phase: ToolbarBadgePhase.WAITING,
 				remainingMilliseconds,
-			} ) ).toThrow( RangeError );
+			}, TestEnglishLocalizationBundle.toolbar ) ).toThrow( RangeError );
 		},
 	);
 
@@ -110,7 +168,7 @@ describe( 'createToolbarBadgeProjection', () => {
 			expect( () => createToolbarBadgeProjection( {
 				activeScopeCount,
 				phase: ToolbarBadgePhase.MULTIPLE_ACTIVE,
-			} ) ).toThrow( RangeError );
+			}, TestEnglishLocalizationBundle.toolbar ) ).toThrow( RangeError );
 		},
 	);
 } );

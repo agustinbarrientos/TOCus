@@ -1,3 +1,4 @@
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import { assert, expect, fixture, html } from '@open-wc/testing';
 import { setViewport } from '@web/test-runner-commands';
 import {
@@ -13,7 +14,11 @@ import {
 } from '../../../../domains/protection/types/__fixtures__';
 import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { type PreferencesEditor } from '../../../../domains/preferences/services/preferences-editor';
-import { DefaultPreferencesDocument, type PreferencesDocument } from '../../../../domains/preferences/types';
+import {
+	DefaultPreferencesDocument,
+	Language,
+	type PreferencesDocument,
+} from '../../../../domains/preferences/types';
 import { type SiteFaviconProvider } from '../../../protected-sites/services/site-favicon-provider';
 import {
 	SitePermissionGrantProvenance,
@@ -29,6 +34,7 @@ import {
 	type PreferencesPreview,
 	type PreferencesSource,
 } from '../appearance-screen/types';
+import { ComponentLanguageScreen } from '../language-screen';
 import { ComponentScheduleScreen } from '../schedule-screen';
 import { ComponentTimingScreen } from '../timing-screen';
 import { ComponentSettingsShell } from './index';
@@ -258,6 +264,14 @@ async function renderShell(
 
 	return fixture<ComponentSettingsShell>( html`
 		<tocus-f-settings-shell
+			.copy=${ TestEnglishLocalizationBundle.settingsShell }
+			.appearanceCopy=${ TestEnglishLocalizationBundle.appearance }
+			.languageCopy=${ TestEnglishLocalizationBundle.languageScreen }
+			.protectedSitesCopy=${ TestEnglishLocalizationBundle.protectedSites }
+			.protectedSiteItemCopy=${ TestEnglishLocalizationBundle.protectedSiteItem }
+			.scheduleCopy=${ TestEnglishLocalizationBundle.schedule }
+			.statisticsCopy=${ TestEnglishLocalizationBundle.statistics }
+			.timingCopy=${ TestEnglishLocalizationBundle.timing }
 			.editor=${ EDITOR }
 			.faviconProvider=${ FAVICON_PROVIDER }
 			.permissionManager=${ PERMISSION_MANAGER }
@@ -309,10 +323,11 @@ describe( 'tocus-f-settings-shell', () => {
 				current: destination.getAttribute( 'aria-current' ),
 			} ) ),
 			[
-				{ label: 'Protected sites', href: '#protected-sites', current: 'page' },
+				{ label: 'Websites', href: '#protected-sites', current: 'page' },
 				{ label: 'Schedule', href: '#schedule', current: null },
 				{ label: 'Timing', href: '#timing', current: null },
 				{ label: 'Appearance', href: '#appearance', current: null },
+				{ label: 'Language', href: '#language', current: null },
 				{ label: 'Statistics', href: '#statistics', current: null },
 			],
 		);
@@ -326,6 +341,7 @@ describe( 'tocus-f-settings-shell', () => {
 			schedule: 'Localized schedule',
 			timing: 'Localized timing',
 			appearance: 'Localized appearance',
+			language: 'Localized language',
 			statistics: 'Localized statistics',
 		};
 		await element.updateComplete;
@@ -341,30 +357,49 @@ describe( 'tocus-f-settings-shell', () => {
 				'Localized schedule',
 				'Localized timing',
 				'Localized appearance',
+				'Localized language',
 				'Localized statistics',
 			],
 		);
 	} );
 
-	it( 'forwards local configuration dependencies to the Protected sites screen', async () => {
+	it( 'forwards local configuration dependencies to the Websites screen', async () => {
 		const element = await renderShell( SettingsPlatform.FIREFOX );
+		const protectedSitesCopy = { ...TestEnglishLocalizationBundle.protectedSites, title: 'Localized sites' };
+		const protectedSiteItemCopy = { ...TestEnglishLocalizationBundle.protectedSiteItem, edit: 'Localized edit' };
+
+		element.protectedSitesCopy = protectedSitesCopy;
+		element.protectedSiteItemCopy = protectedSiteItemCopy;
+		await element.updateComplete;
 		const screen = element.shadowRoot?.querySelector( 'tocus-f-protected-sites-screen' );
 
 		assert.instanceOf( screen, ComponentProtectedSitesScreen );
 		if ( ! ( screen instanceof ComponentProtectedSitesScreen ) ) {
-			throw new Error( 'Expected the Protected sites screen to render.' );
+			throw new Error( 'Expected the Websites screen to render.' );
 		}
 
 		assert.equal( screen.editor, EDITOR );
 		assert.equal( screen.faviconProvider, FAVICON_PROVIDER );
 		assert.equal( screen.permissionManager, PERMISSION_MANAGER );
+		assert.equal( screen.copy, protectedSitesCopy );
+		assert.equal( screen.siteItemCopy, protectedSiteItemCopy );
 		assert.equal( element.getAttribute( 'platform' ), SettingsPlatform.FIREFOX );
 	} );
 
-	it( 'navigates between Schedule, Timing, and Appearance with their dependencies', async () => {
+	it( 'navigates between Schedule, Timing, Appearance, and Language with their dependencies', async () => {
 		const element = await renderShell();
+		const scheduleCopy = { ...TestEnglishLocalizationBundle.schedule, title: 'Localized schedule' };
+		const timingCopy = { ...TestEnglishLocalizationBundle.timing, title: 'Localized timing' };
+		const appearanceCopy = { ...TestEnglishLocalizationBundle.appearance, title: 'Localized appearance' };
+		const languageCopy = { ...TestEnglishLocalizationBundle.languageScreen, title: 'Localized language' };
+
+		element.scheduleCopy = scheduleCopy;
+		element.timingCopy = timingCopy;
+		element.appearanceCopy = appearanceCopy;
+		element.languageCopy = languageCopy;
+		await element.updateComplete;
 		const destinations = element.shadowRoot?.querySelectorAll<HTMLAnchorElement>( 'nav a' );
-		assert.equal( destinations?.length, 5 );
+		assert.equal( destinations?.length, 6 );
 
 		destinations?.item( 1 ).click();
 		await settleShell( element );
@@ -374,6 +409,7 @@ describe( 'tocus-f-settings-shell', () => {
 			throw new Error( 'Expected the Schedule screen to render.' );
 		}
 		assert.equal( scheduleScreen.editor, EDITOR );
+		assert.equal( scheduleScreen.copy, scheduleCopy );
 		assert.equal( destinations?.item( 1 ).getAttribute( 'aria-current' ), 'page' );
 
 		destinations?.item( 2 ).click();
@@ -384,6 +420,7 @@ describe( 'tocus-f-settings-shell', () => {
 			throw new Error( 'Expected the Timing screen to render.' );
 		}
 		assert.equal( timingScreen.editor, EDITOR );
+		assert.equal( timingScreen.copy, timingCopy );
 		assert.equal( destinations?.item( 2 ).getAttribute( 'aria-current' ), 'page' );
 
 		destinations?.item( 3 ).click();
@@ -396,7 +433,22 @@ describe( 'tocus-f-settings-shell', () => {
 		assert.equal( appearanceScreen.editor, PREFERENCES_EDITOR );
 		assert.equal( appearanceScreen.preview, PREFERENCES_PREVIEW );
 		assert.equal( appearanceScreen.source, PREFERENCES_SOURCE );
+		assert.equal( appearanceScreen.copy, appearanceCopy );
 		assert.equal( destinations?.item( 3 ).getAttribute( 'aria-current' ), 'page' );
+
+		destinations?.item( 4 ).click();
+		await settleShell( element );
+		const languageScreen = element.shadowRoot?.querySelector( 'tocus-f-language-screen' );
+		assert.instanceOf( languageScreen, ComponentLanguageScreen );
+		if ( ! ( languageScreen instanceof ComponentLanguageScreen ) ) {
+			throw new Error( 'Expected the Language screen to render.' );
+		}
+		assert.equal( languageScreen.editor, PREFERENCES_EDITOR );
+		assert.equal( languageScreen.preview, PREFERENCES_PREVIEW );
+		assert.equal( languageScreen.source, PREFERENCES_SOURCE );
+		assert.equal( languageScreen.browserLanguage, Language.ENGLISH );
+		assert.equal( languageScreen.copy, languageCopy );
+		assert.equal( destinations?.item( 4 ).getAttribute( 'aria-current' ), 'page' );
 	} );
 
 	it( 'opens Statistics directly and forwards its source', async () => {
@@ -442,13 +494,23 @@ describe( 'tocus-f-settings-shell', () => {
 				void listener;
 			},
 		};
+		const statisticsCopy = { ...TestEnglishLocalizationBundle.statistics, title: 'Localized statistics' };
 		window.history.replaceState( null, '', `${ window.location.pathname }#statistics` );
 		const element = await fixture<ComponentSettingsShell>( html`
-			<tocus-f-settings-shell></tocus-f-settings-shell>
+			<tocus-f-settings-shell
+			.copy=${ TestEnglishLocalizationBundle.settingsShell }
+			.appearanceCopy=${ TestEnglishLocalizationBundle.appearance }
+			.languageCopy=${ TestEnglishLocalizationBundle.languageScreen }
+			.protectedSitesCopy=${ TestEnglishLocalizationBundle.protectedSites }
+			.protectedSiteItemCopy=${ TestEnglishLocalizationBundle.protectedSiteItem }
+			.scheduleCopy=${ TestEnglishLocalizationBundle.schedule }
+			.statisticsCopy=${ TestEnglishLocalizationBundle.statistics }
+			.timingCopy=${ TestEnglishLocalizationBundle.timing }></tocus-f-settings-shell>
 		` );
 
 		( element as ComponentSettingsShell & { statisticsSource: typeof statisticsSource } ).statisticsSource =
 			statisticsSource;
+		element.statisticsCopy = statisticsCopy;
 		await element.updateComplete;
 
 		const screen = element.shadowRoot?.querySelector(
@@ -459,6 +521,7 @@ describe( 'tocus-f-settings-shell', () => {
 			throw new TypeError( 'Expected the Statistics settings screen to render.' );
 		}
 		assert.equal( screen.source, statisticsSource );
+		assert.equal( screen.copy, statisticsCopy );
 		assert.equal(
 			element.shadowRoot?.querySelector( 'a[href="#statistics"]' )?.getAttribute( 'aria-current' ),
 			'page',
@@ -489,6 +552,50 @@ describe( 'tocus-f-settings-shell', () => {
 		assert.equal( getComputedStyle( navigation ).borderBottomWidth, '0px' );
 	} );
 
+	it( 'keeps Schedule and Timing at the same content width', async () => {
+		await setViewport( { height: 900, width: 1_280 } );
+
+		try {
+			const element = await renderShell();
+			const destinations = element.shadowRoot?.querySelectorAll<HTMLAnchorElement>( 'nav a' );
+
+			destinations?.item( 1 ).click();
+			await settleShell( element );
+			const scheduleScreen = element.shadowRoot?.querySelector( 'tocus-f-schedule-screen' );
+
+			assert.instanceOf( scheduleScreen, ComponentScheduleScreen );
+			if ( ! ( scheduleScreen instanceof ComponentScheduleScreen ) ) {
+				throw new TypeError( 'Expected the Schedule settings screen to render.' );
+			}
+
+			const scheduleMain = scheduleScreen.shadowRoot?.querySelector( 'main' );
+			assert.instanceOf( scheduleMain, HTMLElement );
+			if ( ! ( scheduleMain instanceof HTMLElement ) ) {
+				throw new TypeError( 'Expected the Schedule settings content to render.' );
+			}
+			const scheduleWidth = scheduleMain.getBoundingClientRect().width;
+
+			destinations?.item( 2 ).click();
+			await settleShell( element );
+			const timingScreen = element.shadowRoot?.querySelector( 'tocus-f-timing-screen' );
+
+			assert.instanceOf( timingScreen, ComponentTimingScreen );
+			if ( ! ( timingScreen instanceof ComponentTimingScreen ) ) {
+				throw new TypeError( 'Expected the Timing settings screen to render.' );
+			}
+
+			const timingMain = timingScreen.shadowRoot?.querySelector( 'main' );
+			assert.instanceOf( timingMain, HTMLElement );
+			if ( ! ( timingMain instanceof HTMLElement ) ) {
+				throw new TypeError( 'Expected the Timing settings content to render.' );
+			}
+
+			assert.equal( timingMain.getBoundingClientRect().width, scheduleWidth );
+		} finally {
+			await setViewport( { height: 600, width: 800 } );
+		}
+	} );
+
 	it( 'moves navigation above the screen at narrow options-page widths', async () => {
 		await setViewport( { height: 700, width: 640 } );
 		const element = await renderShell( SettingsPlatform.SAFARI );
@@ -513,7 +620,7 @@ describe( 'tocus-f-settings-shell', () => {
 		assert.equal( getComputedStyle( navigation ).borderBottomWidth, '1px' );
 	} );
 
-	it( 'contains all five destinations in a reachable narrow navigation scroller', async () => {
+	it( 'contains all six destinations in a reachable narrow navigation scroller', async () => {
 		await setViewport( { height: 700, width: 420 } );
 
 		try {
@@ -549,4 +656,10 @@ describe( 'tocus-f-settings-shell', () => {
 
 		await expect( element ).to.be.accessible();
 	} );
+	it( 'renders nothing before localized copy is injected', async () => {
+		const element = await fixture<ComponentSettingsShell>( html`<tocus-f-settings-shell></tocus-f-settings-shell>` );
+
+		assert.equal( element.shadowRoot?.childElementCount, 0 );
+	} );
+
 } );

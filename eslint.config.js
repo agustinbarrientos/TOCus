@@ -1,6 +1,7 @@
 import eslint from '@eslint/js';
 import astro from 'eslint-plugin-astro';
 import jsdoc from 'eslint-plugin-jsdoc';
+import lingui from 'eslint-plugin-lingui';
 import lit from 'eslint-plugin-lit';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
@@ -190,6 +191,17 @@ export default tseslint.config(
 					returns: 'return',
 				},
 			},
+		},
+	},
+	{
+		files: sourceFiles,
+		plugins: { lingui },
+		rules: {
+			'lingui/consistent-plural-format': 'error',
+			'lingui/no-expression-in-message': 'error',
+			'lingui/no-single-variables-to-translate': 'error',
+			'lingui/require-implicit-id': 'error',
+			'lingui/t-call-in-function': 'error',
 		},
 	},
 	{

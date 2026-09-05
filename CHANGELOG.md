@@ -21,5 +21,6 @@ _In development._
 - Added live Chrome, Firefox, and Safari navigation protection with shared waits, wall-clock allowances, restart recovery, and non-destructive gentle re-interruption.
 - Added generated browser icons and global toolbar badges for active wait, allowance, and multiple-scope status.
 - Added local appearance and accessibility preferences for system, light, and dark themes, six full-scene palettes, Breathing and Quiet pause presentation, and user or operating-system reduced motion across extension surfaces.
+- Added fully local interface translations across the extension and website for English, two Spanish variants, two Portuguese variants, Italian, French, German, Japanese, and Russian, with one canonical catalog per language, automatic browser-language detection, and an explicit Language setting.
 - Added local-only statistics for estimated time reclaimed, focused pause time, reconsidered visits, completed waits, and allowances granted, with all-time interruption summaries and a reset that leaves protection settings untouched.
 - Added the initial project website, contribution guidance, and public project documentation.

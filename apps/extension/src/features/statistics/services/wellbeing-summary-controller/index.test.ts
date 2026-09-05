@@ -5,6 +5,8 @@ import {
 } from '../../../../domains/statistics/types/statistics-projection';
 import { createWellbeingSummaryController } from './index';
 import { type WellbeingSummaryTarget } from './types';
+import { type WellbeingSummaryValues } from '../../utils/format-wellbeing-summary/types';
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 
 /**
  * Statistics-change listener used by the controller fixture.
@@ -99,11 +101,61 @@ function createTarget(): WellbeingSummaryTarget {
 	};
 }
 
+/**
+ * Formats one deterministic localized duration for controller tests.
+ * @param milliseconds - Positive fixture duration.
+ * @return Deterministic localized duration.
+ * @since 0.1.0 Initial implementation.
+ */
+function formatLocalizedDuration( milliseconds: number ): string {
+	return `${ String( milliseconds / 60_000 ) } minutos`;
+}
+
+/**
+ * Composes one deterministic localized wellbeing sentence for controller tests.
+ * @param values - Formatted fixture values.
+ * @return Deterministic localized sentence.
+ * @since 0.1.0 Initial implementation.
+ */
+function formatLocalizedSummary( values: WellbeingSummaryValues ): string {
+	return `Tiempo recuperado: ${ values.estimatedReclaimedTime ?? 'ninguno' }; pausa: ${ values.focusedPauseTime ?? 'ninguna' }.`;
+}
+
 describe( 'wellbeing summary controller', () => {
+	it( 'accepts localized copy before the first statistics projection', () => {
+		const target = createTarget();
+		const controller = createWellbeingSummaryController( {
+			copy: TestEnglishLocalizationBundle.wellbeing,
+			source: new MemoryStatisticsSource( vi.fn() ),
+			target,
+		} );
+
+		controller.setCopy( {
+			neutral: 'Este momento es para vos.',
+			formatDuration: formatLocalizedDuration,
+			formatSummary: formatLocalizedSummary,
+		} );
+
+		expect( target.wellbeingSummary ).toBe( 'Initial neutral footer.' );
+	} );
+
+	it( 'keeps the footer empty until localized copy is available', async () => {
+		const target = createTarget();
+		const controller = createWellbeingSummaryController( {
+			source: new MemoryStatisticsSource( vi.fn().mockResolvedValue( createProjection( 120_000, 60_000 ) ) ),
+			target,
+		} );
+
+		await controller.refresh();
+
+		expect( target.wellbeingSummary ).toBe( '' );
+	} );
+
 	it( 'reads and projects the authoritative summary', async () => {
 		const target = createTarget();
 		const readStatistics = vi.fn().mockResolvedValue( createProjection( 120_000, 60_000 ) );
 		const controller = createWellbeingSummaryController( {
+			copy: TestEnglishLocalizationBundle.wellbeing,
 			source: new MemoryStatisticsSource( readStatistics ),
 			target,
 		} );
@@ -122,6 +174,7 @@ describe( 'wellbeing summary controller', () => {
 			.mockResolvedValueOnce( { status: StatisticsProjectionStatus.UNAVAILABLE } )
 			.mockRejectedValueOnce( new Error( 'Local read failed.' ) );
 		const controller = createWellbeingSummaryController( {
+			copy: TestEnglishLocalizationBundle.wellbeing,
 			source: new MemoryStatisticsSource( readStatistics ),
 			target,
 		} );
@@ -142,6 +195,7 @@ describe( 'wellbeing summary controller', () => {
 			.mockReturnValueOnce( firstRead.promise )
 			.mockReturnValueOnce( secondRead.promise );
 		const controller = createWellbeingSummaryController( {
+			copy: TestEnglishLocalizationBundle.wellbeing,
 			source: new MemoryStatisticsSource( readStatistics ),
 			target,
 		} );
@@ -158,13 +212,39 @@ describe( 'wellbeing summary controller', () => {
 		);
 	} );
 
+	it( 'reformats the latest projection when localized copy changes', async () => {
+		const target = createTarget();
+		const readStatistics = vi.fn().mockResolvedValue( createProjection( 120_000, 60_000 ) );
+		const controller = createWellbeingSummaryController( {
+			copy: TestEnglishLocalizationBundle.wellbeing,
+			source: new MemoryStatisticsSource( readStatistics ),
+			target,
+		} );
+
+		await controller.refresh();
+		controller.setCopy( {
+			neutral: 'Este momento es para vos.',
+			formatDuration: formatLocalizedDuration,
+			formatSummary: formatLocalizedSummary,
+		} );
+
+		expect( target.wellbeingSummary ).toBe(
+			'Tiempo recuperado: 2 minutos; pausa: 1 minutos.',
+		);
+		expect( readStatistics ).toHaveBeenCalledOnce();
+	} );
+
 	it( 'refreshes a waiting footer when authoritative local statistics change', async () => {
 		const target = createTarget();
 		const readStatistics = vi.fn()
 			.mockResolvedValueOnce( createProjection( 0, 60_000 ) )
 			.mockResolvedValueOnce( createProjection( 120_000, 180_000 ) );
 		const source = new MemoryStatisticsSource( readStatistics );
-		const controller = createWellbeingSummaryController( { source, target } );
+		const controller = createWellbeingSummaryController( {
+			copy: TestEnglishLocalizationBundle.wellbeing,
+			source,
+			target,
+		} );
 
 		controller.start();
 		controller.start();

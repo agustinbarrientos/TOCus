@@ -94,7 +94,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 		interruptionPageUrl: options.interruptionPageUrl,
 		getTimeZone: options.getTimeZone,
 		now: options.now,
-		...( options.toolbarBadgeCopy === undefined ? {} : { toolbarBadgeCopy: options.toolbarBadgeCopy } ),
+		toolbarBadgeCopy: options.toolbarBadgeCopy,
 	} );
 
 	const participantReconciler = createProtectionParticipantReconciler( {
@@ -578,6 +578,24 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	}
 
 	/**
+	 * Reprojects the current toolbar state after presentation-only copy changes.
+	 * @return Promise resolved after the serialized toolbar update settles.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function refreshToolbarBadge(): Promise<void> {
+		return enqueue( async () => {
+			if ( ! available ) {
+				return;
+			}
+
+			await projector.refreshToolbarBadge(
+				latestConfiguration,
+				await options.coordinator.getStates(),
+			);
+		} );
+	}
+
+	/**
 	 * Reconciles changed local configuration through the serialized queue.
 	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after configuration reconciliation.
@@ -599,6 +617,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 		failOpen,
 		readStatistics,
 		resetStatistics,
+		refreshToolbarBadge,
 		start,
 		handleNavigation,
 		handlePageRequest,

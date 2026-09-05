@@ -1,16 +1,44 @@
 import {
 	DefaultPreferencesDocument,
 	PreferencesDocumentSchema,
+	PreferencesDocumentVersion,
 	type PreferencesDocument,
 } from '../../types';
 import {
 	PreferencesStorageKey,
+	VersionOnePreferencesDocumentSchema,
 	type PreferencesStorageService,
 	type PreferencesStorageServiceOptions,
 } from './types';
 
 /**
- * Creates local persistence for appearance and accessibility preferences.
+ * Parses current preferences or migrates a valid version-one document in memory.
+ * @param input - Unknown stored preferences document.
+ * @return Current preferences or null for malformed and unsupported data.
+ * @since 0.1.0 Initial implementation.
+ */
+export function parseStoredPreferences( input: unknown ): PreferencesDocument | null {
+	const currentPreferences = PreferencesDocumentSchema.safeParse( input );
+
+	if ( currentPreferences.success ) {
+		return currentPreferences.data;
+	}
+
+	const versionOnePreferences = VersionOnePreferencesDocumentSchema.safeParse( input );
+
+	if ( ! versionOnePreferences.success ) {
+		return null;
+	}
+
+	return PreferencesDocumentSchema.parse( {
+		...versionOnePreferences.data,
+		schemaVersion: PreferencesDocumentVersion,
+		language: null,
+	} );
+}
+
+/**
+ * Creates local persistence for user preferences.
  * @param options - Local browser storage dependency.
  * @return Local preferences persistence operations.
  * @since 0.1.0 Initial implementation.
@@ -31,11 +59,7 @@ export function createPreferencesStorageService(
 			return DefaultPreferencesDocument;
 		}
 
-		const preferences = PreferencesDocumentSchema.safeParse(
-			values[ PreferencesStorageKey.PREFERENCES ],
-		);
-
-		return preferences.success ? preferences.data : null;
+		return parseStoredPreferences( values[ PreferencesStorageKey.PREFERENCES ] );
 	}
 
 	/**

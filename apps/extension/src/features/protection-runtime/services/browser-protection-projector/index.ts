@@ -106,7 +106,7 @@ export function createBrowserProtectionProjector(
 		now: options.now,
 	} );
 	const toolbarBadgeCoordinator = createToolbarBadgeCoordinator( {
-		...( options.toolbarBadgeCopy === undefined ? {} : { copy: options.toolbarBadgeCopy } ),
+		copy: options.toolbarBadgeCopy,
 		getFocusedTabId: options.browser.getFocusedTabId,
 		interruptionPageUrl: options.interruptionPageUrl,
 		listTabs: options.browser.listTabs,

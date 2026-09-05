@@ -24,8 +24,8 @@ export interface BrowserProtectionProjectorOptions {
 	/** Extension-owned interruption page URL. */
 	interruptionPageUrl: string;
 
-	/** Localized toolbar copy, or undefined to use the default English copy. */
-	toolbarBadgeCopy?: ToolbarBadgeCopy;
+	/** Localized toolbar copy required for global toolbar projection. */
+	toolbarBadgeCopy: ToolbarBadgeCopy;
 
 	/**
 	 * Returns the current local IANA time zone.

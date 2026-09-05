@@ -3,20 +3,47 @@ import { LitElement, css, html, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
+import { isLocalizationReady } from '../../../../localization/utils/is-localization-ready';
 import { type ProtectionConfigurationEditor } from '../../../../domains/protection/services/protection-configuration-editor';
 import { type PreferencesEditor } from '../../../../domains/preferences/services/preferences-editor';
+import {
+	Language,
+	type Language as LanguageValue,
+} from '../../../../domains/preferences/types';
 import { type SiteFaviconProvider } from '../../../protected-sites/services/site-favicon-provider';
 import { type SitePermissionManager } from '../../../protected-sites/services/site-permission-manager';
 import '../../../statistics/components/settings-screen';
-import { type StatisticsSource } from '../../../statistics/components/settings-screen/types';
+import {
+	type StatisticsSettingsScreenCopy,
+	type StatisticsSource,
+} from '../../../statistics/components/settings-screen/types';
 import '../../../protected-sites/components/screen';
+import {
+	type ProtectedSitesScreenCopy,
+} from '../../../protected-sites/components/screen/types';
+import {
+	type ProtectedSiteItemCopy,
+} from '../../../protected-sites/components/site-item/types';
 import '../appearance-screen';
-import { type PreferencesPreview, type PreferencesSource } from '../appearance-screen/types';
+import {
+	type AppearanceScreenCopy,
+	type PreferencesPreview,
+	type PreferencesSource,
+} from '../appearance-screen/types';
+import '../language-screen';
+import {
+	type LanguageScreenCopy,
+} from '../language-screen/types';
 import '../schedule-screen';
+import {
+	type ScheduleScreenCopy,
+} from '../schedule-screen/types';
 import '../timing-screen';
+import {
+	type TimingScreenCopy,
+} from '../timing-screen/types';
 import styles from './web-component-style.scss?inline';
 import {
-	DefaultSettingsShellCopy,
 	SettingsDestination,
 	SettingsPlatform,
 	type SettingsDestination as SettingsDestinationValue,
@@ -27,13 +54,15 @@ import {
 /**
  * Resolves one settings URL hash to a supported destination.
  * @param hash - Current window location hash.
- * @return Matching settings destination or Protected sites as the safe default.
+ * @return Matching settings destination or Websites as the safe default.
  * @since 0.1.0 Initial implementation.
  */
 function resolveSettingsDestination( hash: string ): SettingsDestinationValue {
 	switch ( hash ) {
 		case `#${ SettingsDestination.APPEARANCE }`:
 			return SettingsDestination.APPEARANCE;
+		case `#${ SettingsDestination.LANGUAGE }`:
+			return SettingsDestination.LANGUAGE;
 		case `#${ SettingsDestination.SCHEDULE }`:
 			return SettingsDestination.SCHEDULE;
 		case `#${ SettingsDestination.STATISTICS }`:
@@ -60,7 +89,7 @@ export class ComponentSettingsShell extends LitElement {
 	static override styles = css`${ unsafeCSS( styles ) }`;
 
 	/**
-	 * Domain editor used by the active Protected sites screen.
+	 * Domain editor used by the active Websites screen.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@property( { attribute: false } )
@@ -74,7 +103,7 @@ export class ComponentSettingsShell extends LitElement {
 	accessor faviconProvider: SiteFaviconProvider | null = null;
 
 	/**
-	 * Browser permission manager used by the active Protected sites screen.
+	 * Browser permission manager used by the active Websites screen.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@property( { attribute: false } )
@@ -102,6 +131,13 @@ export class ComponentSettingsShell extends LitElement {
 	accessor preferencesSource: PreferencesSource | null = null;
 
 	/**
+	 * Supported language currently derived from the browser UI locale.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor browserLanguage: LanguageValue = Language.ENGLISH;
+
+	/**
 	 * Authoritative all-time statistics source used by the Statistics screen.
 	 * @since 0.1.0 Initial implementation.
 	 */
@@ -120,7 +156,56 @@ export class ComponentSettingsShell extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@property( { attribute: false } )
-	accessor copy: Readonly<SettingsShellCopy> = DefaultSettingsShellCopy;
+	accessor copy!: Readonly<SettingsShellCopy>;
+
+	/**
+	 * Complete localized messages rendered by the Appearance destination.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor appearanceCopy!: Readonly<AppearanceScreenCopy>;
+
+	/**
+	 * Complete localized messages rendered by the Language destination.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor languageCopy!: Readonly<LanguageScreenCopy>;
+
+	/**
+	 * Complete localized messages rendered by the Protected Sites destination.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor protectedSitesCopy!: Readonly<ProtectedSitesScreenCopy>;
+
+	/**
+	 * Complete localized messages rendered by each protected-site item.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor protectedSiteItemCopy!: Readonly<ProtectedSiteItemCopy>;
+
+	/**
+	 * Complete localized messages rendered by the Schedule destination.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor scheduleCopy!: Readonly<ScheduleScreenCopy>;
+
+	/**
+	 * Complete localized messages rendered by the Statistics destination.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor statisticsCopy!: Readonly<StatisticsSettingsScreenCopy>;
+
+	/**
+	 * Complete localized messages rendered by the Timing destination.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor timingCopy!: Readonly<TimingScreenCopy>;
 
 	/**
 	 * Settings destination selected by the current URL hash.
@@ -166,27 +251,51 @@ export class ComponentSettingsShell extends LitElement {
 			case SettingsDestination.APPEARANCE:
 				return html`
 					<tocus-f-appearance-screen
+						.copy=${ this.appearanceCopy }
 						.editor=${ this.preferencesEditor }
 						.preview=${ this.preferencesPreview }
 						.source=${ this.preferencesSource }
 					></tocus-f-appearance-screen>
 				`;
+			case SettingsDestination.LANGUAGE:
+				return html`
+					<tocus-f-language-screen
+						.browserLanguage=${ this.browserLanguage }
+						.copy=${ this.languageCopy }
+						.editor=${ this.preferencesEditor }
+						.preview=${ this.preferencesPreview }
+						.source=${ this.preferencesSource }
+					></tocus-f-language-screen>
+				`;
 			case SettingsDestination.SCHEDULE:
-				return html`<tocus-f-schedule-screen .editor=${ this.editor }></tocus-f-schedule-screen>`;
+				return html`
+					<tocus-f-schedule-screen
+						.copy=${ this.scheduleCopy }
+						.editor=${ this.editor }
+					></tocus-f-schedule-screen>
+				`;
 			case SettingsDestination.STATISTICS:
 				return html`
 					<tocus-f-statistics-settings-screen
+						.copy=${ this.statisticsCopy }
 						.source=${ this.statisticsSource }
 					></tocus-f-statistics-settings-screen>
 				`;
 			case SettingsDestination.TIMING:
-				return html`<tocus-f-timing-screen .editor=${ this.editor }></tocus-f-timing-screen>`;
+				return html`
+					<tocus-f-timing-screen
+						.copy=${ this.timingCopy }
+						.editor=${ this.editor }
+					></tocus-f-timing-screen>
+				`;
 			default:
 				return html`
 					<tocus-f-protected-sites-screen
+						.copy=${ this.protectedSitesCopy }
 						.editor=${ this.editor }
 						.faviconProvider=${ this.faviconProvider }
 						.permissionManager=${ this.permissionManager }
+						.siteItemCopy=${ this.protectedSiteItemCopy }
 					></tocus-f-protected-sites-screen>
 				`;
 		}
@@ -198,6 +307,18 @@ export class ComponentSettingsShell extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	protected override render(): TemplateResult {
+		if ( ! isLocalizationReady(
+			this.copy,
+			this.appearanceCopy,
+			this.languageCopy,
+			this.protectedSitesCopy,
+			this.protectedSiteItemCopy,
+			this.scheduleCopy,
+			this.statisticsCopy,
+			this.timingCopy,
+		) ) {
+			return html``;
+		}
 		return html`
 			<div class="settings-layout">
 				<aside class="navigation">
@@ -229,7 +350,13 @@ export class ComponentSettingsShell extends LitElement {
 							aria-current=${ ifDefined(
 								this.destination === SettingsDestination.APPEARANCE ? 'page' : undefined,
 							) }
-						>${ this.copy.appearance }</a>
+							>${ this.copy.appearance }</a>
+						<a
+							href="#language"
+							aria-current=${ ifDefined(
+								this.destination === SettingsDestination.LANGUAGE ? 'page' : undefined,
+							) }
+						>${ this.copy.language }</a>
 						<a
 							href="#statistics"
 							aria-current=${ ifDefined(

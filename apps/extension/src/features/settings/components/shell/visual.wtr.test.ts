@@ -1,3 +1,4 @@
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import { assert, fixture, html } from '@open-wc/testing';
 import { emulateMedia, setViewport } from '@web/test-runner-commands';
 import { visualDiff } from '@web/test-runner-visual-regression';
@@ -47,6 +48,7 @@ import {
 } from '../../../statistics/components/settings-screen';
 import { ComponentAppearanceScreen } from '../appearance-screen';
 import { type PreferencesPreview } from '../appearance-screen/types';
+import { ComponentLanguageScreen } from '../language-screen';
 import { ComponentScheduleScreen } from '../schedule-screen';
 import { ComponentTimingScreen } from '../timing-screen';
 import './index';
@@ -163,6 +165,7 @@ const SETTINGS_VISUAL_STATES = [
  */
 const SETTINGS_VISUAL_DESTINATIONS = [
 	SettingsDestination.APPEARANCE,
+	SettingsDestination.LANGUAGE,
 	SettingsDestination.SCHEDULE,
 	SettingsDestination.STATISTICS,
 	SettingsDestination.TIMING,
@@ -541,6 +544,14 @@ async function renderSettingsState( state: SettingsVisualState ): Promise<Compon
 	} );
 	const shell = await fixture<ComponentSettingsShell>( html`
 		<tocus-f-settings-shell
+			.copy=${ TestEnglishLocalizationBundle.settingsShell }
+			.appearanceCopy=${ TestEnglishLocalizationBundle.appearance }
+			.languageCopy=${ TestEnglishLocalizationBundle.languageScreen }
+			.protectedSitesCopy=${ TestEnglishLocalizationBundle.protectedSites }
+			.protectedSiteItemCopy=${ TestEnglishLocalizationBundle.protectedSiteItem }
+			.scheduleCopy=${ TestEnglishLocalizationBundle.schedule }
+			.statisticsCopy=${ TestEnglishLocalizationBundle.statistics }
+			.timingCopy=${ TestEnglishLocalizationBundle.timing }
 			.editor=${ editor }
 			.faviconProvider=${ FAVICON_PROVIDER }
 			.permissionManager=${ PERMISSION_MANAGER }
@@ -586,22 +597,35 @@ async function settleSettingsDestination(
 		setTimeout( resolve, 0 );
 	} );
 
-	const screen = destination === SettingsDestination.APPEARANCE
-		? shell.shadowRoot?.querySelector( 'tocus-f-appearance-screen' )
-		: destination === SettingsDestination.SCHEDULE
-			? shell.shadowRoot?.querySelector( 'tocus-f-schedule-screen' )
-			: destination === SettingsDestination.STATISTICS
-				? shell.shadowRoot?.querySelector( 'tocus-f-statistics-settings-screen' )
-				: shell.shadowRoot?.querySelector( 'tocus-f-timing-screen' );
+	let screen: Element | null | undefined;
+
+	switch ( destination ) {
+		case SettingsDestination.APPEARANCE:
+			screen = shell.shadowRoot?.querySelector( 'tocus-f-appearance-screen' );
+			break;
+		case SettingsDestination.LANGUAGE:
+			screen = shell.shadowRoot?.querySelector( 'tocus-f-language-screen' );
+			break;
+		case SettingsDestination.SCHEDULE:
+			screen = shell.shadowRoot?.querySelector( 'tocus-f-schedule-screen' );
+			break;
+		case SettingsDestination.STATISTICS:
+			screen = shell.shadowRoot?.querySelector( 'tocus-f-statistics-settings-screen' );
+			break;
+		default:
+			screen = shell.shadowRoot?.querySelector( 'tocus-f-timing-screen' );
+	}
 
 	assert.isTrue(
 		screen instanceof ComponentAppearanceScreen ||
+		screen instanceof ComponentLanguageScreen ||
 		screen instanceof ComponentScheduleScreen ||
 		screen instanceof ComponentStatisticsSettingsScreen ||
 		screen instanceof ComponentTimingScreen,
 	);
 	if (
 		! ( screen instanceof ComponentAppearanceScreen ) &&
+		! ( screen instanceof ComponentLanguageScreen ) &&
 		! ( screen instanceof ComponentScheduleScreen ) &&
 		! ( screen instanceof ComponentStatisticsSettingsScreen ) &&
 		! ( screen instanceof ComponentTimingScreen )
@@ -633,6 +657,14 @@ async function renderSettingsDestination(
 	} );
 	const shell = await fixture<ComponentSettingsShell>( html`
 		<tocus-f-settings-shell
+			.copy=${ TestEnglishLocalizationBundle.settingsShell }
+			.appearanceCopy=${ TestEnglishLocalizationBundle.appearance }
+			.languageCopy=${ TestEnglishLocalizationBundle.languageScreen }
+			.protectedSitesCopy=${ TestEnglishLocalizationBundle.protectedSites }
+			.protectedSiteItemCopy=${ TestEnglishLocalizationBundle.protectedSiteItem }
+			.scheduleCopy=${ TestEnglishLocalizationBundle.schedule }
+			.statisticsCopy=${ TestEnglishLocalizationBundle.statistics }
+			.timingCopy=${ TestEnglishLocalizationBundle.timing }
 			.editor=${ editor }
 			.faviconProvider=${ FAVICON_PROVIDER }
 			.permissionManager=${ PERMISSION_MANAGER }

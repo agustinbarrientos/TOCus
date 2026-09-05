@@ -5,6 +5,17 @@ import {
 } from '../../../../domains/statistics/types/statistics-projection';
 import { formatWellbeingSummary } from './index';
 import { type WellbeingSummaryValues } from './types';
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
+
+/**
+ * Formats one wellbeing summary with centralized test localization.
+ * @param projection - Projection rendered by the formatter.
+ * @return Localized wellbeing summary.
+ * @since 0.1.0 Initial implementation.
+ */
+function formatTestWellbeingSummary( projection: StatisticsProjection ): string {
+	return formatWellbeingSummary( projection, TestEnglishLocalizationBundle.wellbeing );
+}
 
 /**
  * Exposes duration input for localized-copy delegation tests.
@@ -48,16 +59,16 @@ function createProjection(
 
 describe( 'format wellbeing summary', () => {
 	it( 'uses the neutral message when statistics are unavailable or both values are zero', () => {
-		expect( formatWellbeingSummary(
+		expect( formatTestWellbeingSummary(
 			{ status: StatisticsProjectionStatus.UNAVAILABLE },
 		) ).toBe( 'This is a moment just for you.' );
-		expect( formatWellbeingSummary(
+		expect( formatTestWellbeingSummary(
 			createProjection(),
 		) ).toBe( 'This is a moment just for you.' );
 	} );
 
 	it( 'uses neutral all-time pause language before a reclaimed-time baseline exists', () => {
-		expect( formatWellbeingSummary(
+		expect( formatTestWellbeingSummary(
 			createProjection( {
 				estimatedReclaimedMilliseconds: null,
 				focusedPauseMilliseconds: 18 * 60_000,
@@ -66,35 +77,35 @@ describe( 'format wellbeing summary', () => {
 	} );
 
 	it( 'describes reclaimed time honestly without a pause total', () => {
-		expect( formatWellbeingSummary(
+		expect( formatTestWellbeingSummary(
 			createProjection( {
 				estimatedReclaimedMilliseconds: ( 3 * 60 + 24 ) * 60_000,
 			} ),
-		) ).toBe( "Since you started, you've given yourself about 3 hours 24 minutes back." );
+		) ).toBe( "Since you started, you've given yourself about 3 hours, 24 minutes back." );
 	} );
 
 	it( 'combines reclaimed and neutral all-time pause time in one human sentence', () => {
-		expect( formatWellbeingSummary(
+		expect( formatTestWellbeingSummary(
 			createProjection( {
 				estimatedReclaimedMilliseconds: ( 3 * 60 + 24 ) * 60_000,
 				focusedPauseMilliseconds: 18 * 60_000,
 			} ),
 		) ).toBe(
-			"Since you started, you've given yourself about 3 hours 24 minutes back and taken 18 minutes for yourself.",
+			"Since you started, you've given yourself about 3 hours, 24 minutes back and taken 18 minutes for yourself.",
 		);
 	} );
 
 	it( 'formats nonzero seconds, minutes, and rounded hours with natural units', () => {
-		expect( formatWellbeingSummary(
+		expect( formatTestWellbeingSummary(
 			createProjection( { focusedPauseMilliseconds: 400 } ),
 		) ).toContain( '1 second' );
-		expect( formatWellbeingSummary(
+		expect( formatTestWellbeingSummary(
 			createProjection( { focusedPauseMilliseconds: 89_000 } ),
 		) ).toContain( '1 minute' );
-		expect( formatWellbeingSummary(
+		expect( formatTestWellbeingSummary(
 			createProjection( { focusedPauseMilliseconds: 119_000 } ),
 		) ).toContain( '2 minutes' );
-		expect( formatWellbeingSummary(
+		expect( formatTestWellbeingSummary(
 			createProjection( { focusedPauseMilliseconds: 60 * 60_000 } ),
 		) ).toContain( '1 hour' );
 	} );

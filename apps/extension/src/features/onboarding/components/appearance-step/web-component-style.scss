@@ -1,0 +1,83 @@
+@use '@tocus/theme/tokens.scss' with ( $selector: ':host' );
+@use '@tocus/theme/typography' as typography;
+
+:host {
+	display: block;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+.step {
+	color: var(--tocus-color-on-surface);
+}
+
+header {
+	margin-bottom: var(--tocus-space-6);
+
+	h1 {
+		@include typography.apply( 'headline-large' );
+
+		margin: 0;
+
+		&:focus {
+			outline: none;
+		}
+	}
+
+	p {
+		@include typography.apply( 'body-large' );
+
+		max-width: 40rem;
+		margin: var(--tocus-space-3) 0 0;
+		color: var(--tocus-color-on-surface-muted);
+	}
+}
+
+form {
+	margin: 0;
+}
+
+.error {
+	@include typography.apply( 'body-small' );
+
+	min-height: 1.25rem;
+	margin: var(--tocus-space-4) 0 0;
+}
+
+.actions {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: var(--tocus-space-4);
+}
+
+.continue-action {
+	@include typography.apply( 'label-large' );
+
+	min-width: 8rem;
+	min-height: 3rem;
+	padding: var(--tocus-space-3) var(--tocus-space-5);
+	border: 0;
+	border-radius: var(--tocus-radius-full);
+	background: var(--tocus-color-action);
+	box-shadow: 0 0.75rem 1.5rem color-mix(in srgb, var(--tocus-color-shadow-depth) 16%, transparent);
+	color: var(--tocus-color-on-action);
+	cursor: pointer;
+
+	&:hover {
+		filter: brightness(1.04);
+	}
+
+	&:focus-visible {
+		outline: 3px solid var(--tocus-color-focus-ring);
+		outline-offset: 3px;
+	}
+
+	&:disabled {
+		cursor: wait;
+		opacity: 0.65;
+	}
+}

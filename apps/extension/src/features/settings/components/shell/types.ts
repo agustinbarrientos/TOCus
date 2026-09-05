@@ -20,6 +20,7 @@ export type SettingsPlatform = typeof SettingsPlatform[ keyof typeof SettingsPla
  */
 export const SettingsDestination = {
 	APPEARANCE: 'appearance',
+	LANGUAGE: 'language',
 	PROTECTED_SITES: 'protected-sites',
 	SCHEDULE: 'schedule',
 	STATISTICS: 'statistics',
@@ -39,21 +40,9 @@ export type SettingsDestination = typeof SettingsDestination[ keyof typeof Setti
 export interface SettingsShellCopy {
 	navigationLabel: string;
 	appearance: string;
+	language: string;
 	protectedSites: string;
 	schedule: string;
 	statistics: string;
 	timing: string;
 }
-
-/**
- * Default English messages rendered by the settings shell.
- * @since 0.1.0 Initial implementation.
- */
-export const DefaultSettingsShellCopy: Readonly<SettingsShellCopy> = Object.freeze( {
-	navigationLabel: 'Settings',
-	appearance: 'Appearance',
-	protectedSites: 'Protected sites',
-	schedule: 'Schedule',
-	statistics: 'Statistics',
-	timing: 'Timing',
-} );

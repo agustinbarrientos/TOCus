@@ -29,6 +29,13 @@ export interface WellbeingSummaryControllerOptions {
  */
 export interface WellbeingSummaryController {
 	/**
+	 * Replaces localized summary grammar and immediately reformats the latest projection.
+	 * @param copy - Complete localized wellbeing-summary copy.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	setCopy( copy: Readonly<WellbeingSummaryCopy> ): void;
+
+	/**
 	 * Begins refreshing the footer after authoritative statistics changes.
 	 * @since 0.1.0 Initial implementation.
 	 */

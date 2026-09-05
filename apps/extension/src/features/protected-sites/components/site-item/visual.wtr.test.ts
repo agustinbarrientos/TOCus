@@ -1,3 +1,4 @@
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import { assert, fixture, html } from '@open-wc/testing';
 import { emulateMedia } from '@web/test-runner-commands';
 import { visualDiff } from '@web/test-runner-visual-regression';
@@ -112,6 +113,7 @@ describe( 'tocus-f-protected-site-item visual', () => {
 			await configureAppearance( theme );
 			const element = await fixture<ComponentProtectedSiteItem>( html`
 				<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 					style="width: 46rem;"
 					.site=${ VISUAL_SITE }
 					.identity=${ VISUAL_IDENTITY }
@@ -128,6 +130,7 @@ describe( 'tocus-f-protected-site-item visual', () => {
 			await configureAppearance( theme );
 			const element = await fixture<ComponentProtectedSiteItem>( html`
 				<tocus-f-protected-site-item
+			.copy=${ TestEnglishLocalizationBundle.protectedSiteItem }
 					style="width: 46rem;"
 					.site=${ VISUAL_SITE }
 					.identity=${ VISUAL_IDENTITY }

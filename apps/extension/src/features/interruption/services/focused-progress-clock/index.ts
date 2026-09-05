@@ -35,6 +35,7 @@ export function createFocusedProgressClock(
 		continuous: false,
 		documentVisible: false,
 		durationMilliseconds: 0,
+		looping: false,
 		progressing: false,
 		waiting: false,
 		windowFocused: false,
@@ -79,10 +80,13 @@ export function createFocusedProgressClock(
 			nowMilliseconds - lastProgressTimestampMilliseconds,
 		);
 
-		displayedProgressMilliseconds = clampProgress(
-			displayedProgressMilliseconds + elapsedMilliseconds,
-			input.durationMilliseconds,
-		);
+		const nextProgressMilliseconds = displayedProgressMilliseconds + elapsedMilliseconds;
+
+		displayedProgressMilliseconds = input.looping &&
+			input.durationMilliseconds > 0 &&
+			Number.isFinite( nextProgressMilliseconds )
+			? nextProgressMilliseconds % input.durationMilliseconds
+			: clampProgress( nextProgressMilliseconds, input.durationMilliseconds );
 		lastProgressTimestampMilliseconds = nowMilliseconds;
 	}
 
@@ -96,7 +100,9 @@ export function createFocusedProgressClock(
 			input.progressing &&
 			input.documentVisible &&
 			input.windowFocused &&
-			displayedProgressMilliseconds < input.durationMilliseconds;
+			( input.looping
+				? input.durationMilliseconds > 0
+				: displayedProgressMilliseconds < input.durationMilliseconds );
 	}
 
 	/**

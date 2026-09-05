@@ -2,48 +2,8 @@ import { vi } from 'vitest';
 import { StatisticsFocusEpochIdSchema } from '../../../../../domains/statistics/types/statistics-value';
 import { StatisticsFocusObservationMode } from '../../../../../domains/statistics/utils/prepare-statistics-checkpoint';
 import { type StatisticsRuntime } from '../../../../statistics/services/statistics-runtime';
+import { type StatisticsRuntimeDouble } from './types';
 
-/**
- * Inspectable statistics runtime double used by lifecycle integration tests.
- * @since 0.1.0 Initial implementation.
- */
-export interface StatisticsRuntimeDouble extends StatisticsRuntime {
-	/**
-	 * Records focus observation boundaries.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	beginFocusObservation: ReturnType<typeof vi.fn<StatisticsRuntime[ 'beginFocusObservation' ]>>;
-	/**
-	 * Records focus checkpoints.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	checkpoint: ReturnType<typeof vi.fn<StatisticsRuntime[ 'checkpoint' ]>>;
-	/**
-	 * Records durable fact drains.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	drainProtectionFacts: ReturnType<typeof vi.fn<StatisticsRuntime[ 'drainProtectionFacts' ]>>;
-	/**
-	 * Records privacy-safe focus measurement discards.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	discardFocusMeasurement: ReturnType<typeof vi.fn<StatisticsRuntime[ 'discardFocusMeasurement' ]>>;
-	/**
-	 * Records snapshot reads.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	getSnapshot: ReturnType<typeof vi.fn<StatisticsRuntime[ 'getSnapshot' ]>>;
-	/**
-	 * Records raw configuration reconciliation.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	reconcileConfiguration: ReturnType<typeof vi.fn<StatisticsRuntime[ 'reconcileConfiguration' ]>>;
-	/**
-	 * Records explicit statistics resets.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	reset: ReturnType<typeof vi.fn<StatisticsRuntime[ 'reset' ]>>;
-}
 /**
  * Creates an inert statistics runtime for protection-only integration scenarios.
  * @return Statistics runtime whose operations resolve without side effects.
@@ -74,3 +34,5 @@ export function createInertStatisticsRuntime(): StatisticsRuntimeDouble {
 		reset: vi.fn().mockResolvedValue( true ),
 	};
 }
+
+export type { StatisticsRuntimeDouble } from './types';

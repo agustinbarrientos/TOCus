@@ -1,0 +1,68 @@
+---
+import '@tocus/theme/index.scss';
+import '../../styles/global.scss';
+import { type LocalizedHomePageProperties as Props } from '../../localization';
+
+const { localization, localizations } = Astro.props;
+const { catalog } = localization;
+---
+
+<!doctype html>
+<html lang={localization.languageTag}>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="color-scheme" content="light dark" />
+		<meta name="description" content={catalog.metadata.description} />
+		<title>TOCus</title>
+		<link rel="alternate" hreflang="x-default" href="/" />
+		{localizations.map( ( option ) => (
+			<link rel="alternate" hreflang={option.languageTag} href={option.path} />
+		) )}
+	</head>
+	<body>
+		<div class="page-shell">
+			<header class="site-header">
+				<p class="wordmark">TOCus</p>
+				<div class="header-actions">
+					<p class="status">{catalog.status}</p>
+					<nav class="language-navigation" aria-label={catalog.languageMenuLabel}>
+						<details class="language-menu">
+							<summary>{catalog.languageLabels[localization.language]}</summary>
+							<ul>
+								{localizations.map( ( option ) => (
+									<li>
+										<a
+											href={option.path}
+											lang={option.languageTag}
+											aria-current={option.language === localization.language ? 'page' : undefined}
+										>
+											{catalog.languageLabels[option.language]}
+										</a>
+									</li>
+								) )}
+							</ul>
+						</details>
+					</nav>
+				</div>
+			</header>
+
+			<main>
+				<article class="hero" aria-labelledby="page-title">
+					<p class="eyebrow">{catalog.eyebrow}</p>
+					<h1 id="page-title">TOCus</h1>
+					<p class="intro">{catalog.intro}</p>
+					<p class="description">{catalog.description}</p>
+					<a class="source-link" href="https://github.com/agustinbarrientos/TOCus">
+						{catalog.sourceLink}
+						<span aria-hidden="true">&#8599;</span>
+					</a>
+				</article>
+			</main>
+
+			<footer>
+				<p>{catalog.privacy}</p>
+			</footer>
+		</div>
+	</body>
+</html>
