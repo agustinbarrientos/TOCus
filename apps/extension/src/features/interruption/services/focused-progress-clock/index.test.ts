@@ -169,6 +169,7 @@ function createInput( overrides: Partial<FocusedProgressClockInput> = {} ): Focu
 		continuous: true,
 		documentVisible: true,
 		durationMilliseconds: 10_000,
+		looping: false,
 		progressing: true,
 		waiting: true,
 		windowFocused: true,
@@ -210,6 +211,36 @@ describe( 'createFocusedProgressClock', () => {
 		expect( clock.getProgressMilliseconds() ).toBe( 10_000 );
 		expect( timing.getFrameCount() ).toBe( 0 );
 		expect( progressUpdateCount ).toBe( 1 );
+	} );
+
+	it( 'wraps preview progress and keeps its clock active', () => {
+		const timing = new ManualFocusedProgressClockTiming();
+		const clock = createFocusedProgressClock( { onProgress: ignoreProgressUpdate, timing } );
+
+		clock.connect( createInput( { looping: true } ) );
+		timing.advance( 10_000 );
+
+		expect( clock.getProgressMilliseconds() ).toBe( 0 );
+		expect( timing.getFrameCount() ).toBe( 1 );
+
+		timing.advance( 750 );
+
+		expect( clock.getProgressMilliseconds() ).toBe( 750 );
+		expect( timing.getFrameCount() ).toBe( 1 );
+	} );
+
+	it( 'loops a discrete Quiet preview without scheduling a zero-delay timeout', () => {
+		const timing = new ManualFocusedProgressClockTiming();
+		const clock = createFocusedProgressClock( { onProgress: ignoreProgressUpdate, timing } );
+
+		clock.connect( createInput( { continuous: false, looping: true } ) );
+
+		expect( timing.getNextTimeoutDelayMilliseconds() ).toBe( 1_000 );
+		timing.advance( 10_000 );
+
+		expect( clock.getProgressMilliseconds() ).toBe( 0 );
+		expect( timing.getTimeoutCount() ).toBe( 1 );
+		expect( timing.getNextTimeoutDelayMilliseconds() ).toBe( 1_000 );
 	} );
 
 	it( 'aligns discrete updates to the next displayed-second boundary', () => {

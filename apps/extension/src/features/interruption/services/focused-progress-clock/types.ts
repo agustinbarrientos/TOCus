@@ -26,6 +26,9 @@ export interface FocusedProgressClockInput {
 	/** Whether the next update should use animation frames instead of a discrete timer. */
 	continuous: boolean;
 
+	/** Whether progress wraps at the captured duration for a presentation preview. */
+	looping: boolean;
+
 	/** Whether the document is visible. */
 	documentVisible: boolean;
 
