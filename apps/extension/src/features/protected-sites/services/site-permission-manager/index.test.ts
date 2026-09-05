@@ -71,6 +71,112 @@ function createPermissionsApi(): SitePermissionApi {
 }
 
 describe( 'createSitePermissionManager', () => {
+	it( 'does not request navigation access for an empty batch of rules', async () => {
+		const permissions = createPermissionsApi();
+
+		await expect( createSitePermissionManager( { permissions } ).requestMany( [] ) ).resolves.toEqual( {
+			status: SitePermissionRequestStatus.GRANTED,
+			previousGrant: { origins: [], permissions: [] },
+		} );
+		expect( permissions.request ).not.toHaveBeenCalled();
+	} );
+
+	it( 'requests unique batch origins immediately and preserves the original grant snapshot', async () => {
+		const permissions = createPermissionsApi();
+		vi.mocked( permissions.getAll ).mockResolvedValue( {
+			origins: [ '*://*.example.com/*' ], permissions: [ 'webNavigation' ],
+		} );
+		const request = createSitePermissionManager( { permissions } )
+			.requestMany( [ DOMAIN_RULE, INDEPENDENT_RULE, DOMAIN_RULE ] );
+
+		expect( permissions.request ).toHaveBeenCalledExactlyOnceWith( {
+			permissions: [ 'webNavigation' ],
+			origins: [ '*://*.example.com/*', '*://independent.test/*' ],
+		} );
+		await expect( request ).resolves.toEqual( {
+			status: SitePermissionRequestStatus.GRANTED,
+			previousGrant: { origins: [ '*://*.example.com/*' ], permissions: [ 'webNavigation' ] },
+		} );
+	} );
+
+	it( 'still requests batch access in the gesture when the snapshot throws synchronously', async () => {
+		const permissions = createPermissionsApi();
+		vi.mocked( permissions.getAll ).mockImplementation( () => {
+			throw new Error( 'Unavailable.' );
+		} );
+		const request = createSitePermissionManager( { permissions } ).requestMany( [ DOMAIN_RULE ] );
+
+		expect( permissions.request ).toHaveBeenCalledOnce();
+		await expect( request ).resolves.toEqual( {
+			status: SitePermissionRequestStatus.GRANTED, previousGrant: null,
+		} );
+	} );
+
+	it( 'reports batch denial and browser request rejection without throwing', async () => {
+		const permissions = createPermissionsApi();
+		vi.mocked( permissions.request ).mockResolvedValueOnce( false ).mockRejectedValueOnce( new Error( 'Unavailable.' ) );
+		const manager = createSitePermissionManager( { permissions } );
+
+		await expect( manager.requestMany( [ DOMAIN_RULE ] ) ).resolves.toEqual( {
+			status: SitePermissionRequestStatus.DENIED,
+		} );
+		await expect( manager.requestMany( [ DOMAIN_RULE ] ) ).resolves.toEqual( {
+			status: SitePermissionRequestStatus.ERROR,
+		} );
+	} );
+
+	it( 'releases fresh origins and navigation together when a batch leaves no persisted sites', async () => {
+		const permissions = createPermissionsApi();
+		const manager = createSitePermissionManager( { permissions } );
+
+		await expect( manager.releaseNewAccess( [ DOMAIN_RULE ], {}, TestEmptyProtectionConfiguration ) )
+			.resolves.toBe( SitePermissionReleaseStatus.RELEASED );
+		expect( permissions.remove ).toHaveBeenCalledExactlyOnceWith( {
+			origins: [ '*://*.example.com/*' ], permissions: [ 'webNavigation' ],
+		} );
+	} );
+
+	it( 'does not release batch origins now owned by another persisted site', async () => {
+		const permissions = createPermissionsApi();
+		const manager = createSitePermissionManager( { permissions } );
+
+		await expect( manager.releaseNewAccess( [ DOMAIN_RULE ], {}, MULTI_SITE_CONFIGURATION ) )
+			.resolves.toBe( SitePermissionReleaseStatus.RELEASED );
+		expect( permissions.remove ).not.toHaveBeenCalled();
+	} );
+
+	it( 'retains batch access when configuration ownership cannot be read', async () => {
+		const permissions = createPermissionsApi();
+		const manager = createSitePermissionManager( { permissions } );
+
+		await expect( manager.releaseNewAccess( [ DOMAIN_RULE ], {}, null ) )
+			.resolves.toBe( SitePermissionReleaseStatus.RETAINED );
+		expect( permissions.remove ).not.toHaveBeenCalled();
+	} );
+
+	it( 'reports unsuccessful batch cleanup when the browser retains access or throws', async () => {
+		const permissions = createPermissionsApi();
+		vi.mocked( permissions.remove ).mockResolvedValueOnce( false ).mockRejectedValueOnce( new Error( 'Unavailable.' ) );
+		const manager = createSitePermissionManager( { permissions } );
+
+		await expect( manager.releaseNewAccess( [ DOMAIN_RULE ], {}, TestEmptyProtectionConfiguration ) )
+			.resolves.toBe( SitePermissionReleaseStatus.RETAINED );
+		await expect( manager.releaseNewAccess( [ DOMAIN_RULE ], {}, TestEmptyProtectionConfiguration ) )
+			.resolves.toBe( SitePermissionReleaseStatus.ERROR );
+	} );
+
+	it( 'preserves narrower existing origin grants when batch cleanup cannot safely separate them', async () => {
+		const permissions = createPermissionsApi();
+		const manager = createSitePermissionManager( { permissions } );
+
+		await expect( manager.releaseNewAccess(
+			[ DOMAIN_RULE ],
+			{ origins: [ 'https://www.example.com/*' ], permissions: [ 'webNavigation' ] },
+			TestEmptyProtectionConfiguration,
+		) ).resolves.toBe( SitePermissionReleaseStatus.RETAINED );
+		expect( permissions.remove ).not.toHaveBeenCalled();
+	} );
+
 	it( 'checks the complete navigation and origin grant for one configured rule', async () => {
 		const permissions = createPermissionsApi();
 		vi.mocked( permissions.contains ).mockResolvedValue( true );

@@ -117,6 +117,22 @@ export type SitePermissionRequestResult =
 	UnsuccessfulSitePermissionRequestResult;
 
 /**
+ * Successful batch permission grant with its original access snapshot for compensation.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface GrantedSitePermissionBatchRequestResult {
+	status: typeof SitePermissionRequestStatus.GRANTED;
+	previousGrant: SitePermissionGrantSnapshot | null;
+}
+
+/**
+ * Complete result from one batch browser permission request.
+ * @since 0.1.0 Initial implementation.
+ */
+export type SitePermissionBatchRequestResult =
+	GrantedSitePermissionBatchRequestResult | UnsuccessfulSitePermissionRequestResult;
+
+/**
  * Stable outcomes returned when releasing protected-site permissions.
  * @since 0.1.0 Initial implementation.
  */
@@ -163,6 +179,28 @@ export interface SitePermissionManager {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	request( rule: ProtectedSiteRule ): Promise<SitePermissionRequestResult>;
+
+	/**
+	 * Requests all selected rules in one browser prompt within the current user gesture.
+	 * @param rules - Canonical protected-site rules selected by the user.
+	 * @return Grant with its original permissions, denial, or browser error.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	requestMany( rules: readonly ProtectedSiteRule[] ): Promise<SitePermissionBatchRequestResult>;
+
+	/**
+	 * Releases newly acquired batch access that no persisted site currently requires.
+	 * @param rules - Requested canonical protected-site rules.
+	 * @param previousGrant - Access snapshot captured before the batch request.
+	 * @param configuration - Authoritative configuration inside mutation coordination.
+	 * @return Whether unused newly acquired access was released or retained.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	releaseNewAccess(
+		rules: readonly ProtectedSiteRule[],
+		previousGrant: SitePermissionGrantSnapshot | null,
+		configuration: ProtectionConfigurationDocument | null,
+	): Promise<SitePermissionReleaseStatus>;
 
 	/**
 	 * Releases one rule's origins and the shared navigation capability when no sites remain.
