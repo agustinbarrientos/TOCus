@@ -264,10 +264,10 @@ describe( 'tocus-f-interruption-screen', () => {
 		assert.equal( getRequiredElement( element, '.remaining' ).textContent.trim(), '10s remaining' );
 		assert.equal( getRequiredElement( element, '.cue' ).textContent.trim(), 'Breathe in' );
 		assert.instanceOf( getShadowRoot( element ).querySelector( 'tocus-f-breathing-sphere' ), HTMLElement );
-		assert.closeTo( parseFloat( getComputedStyle( getRequiredElement( element, '.wordmark' ) ).fontSize ), 18, 0.1 );
-		assert.closeTo( parseFloat( getComputedStyle( getRequiredElement( element, '.remaining' ) ).fontSize ), 13.5, 0.1 );
-		assert.closeTo( parseFloat( getComputedStyle( getRequiredElement( element, '.cue' ) ).fontSize ), 18, 0.1 );
-		assert.closeTo( parseFloat( getComputedStyle( getRequiredElement( element, 'footer' ) ).fontSize ), 11.4, 0.1 );
+		assert.closeTo( parseFloat( getComputedStyle( getRequiredElement( element, '.wordmark' ) ).fontSize ), 16.56, 0.1 );
+		assert.closeTo( parseFloat( getComputedStyle( getRequiredElement( element, '.remaining' ) ).fontSize ), 12.42, 0.1 );
+		assert.closeTo( parseFloat( getComputedStyle( getRequiredElement( element, '.cue' ) ).fontSize ), 16.56, 0.1 );
+		assert.closeTo( parseFloat( getComputedStyle( getRequiredElement( element, 'footer' ) ).fontSize ), 10.488, 0.1 );
 
 		previewEnvironment.advance( 4_000 );
 		await element.updateComplete;
