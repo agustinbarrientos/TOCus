@@ -424,7 +424,10 @@ describe( 'popup page service', () => {
 		expect( harness.shell.focusAfterRetry ).toHaveBeenCalledTimes( 2 );
 	} );
 
-	it( 'ticks allowance time locally and refreshes once at expiry', async () => {
+	it.each( [
+		{ id: 17, incognito: false, url: 'chrome-extension://extension-id/interruption.html' },
+		null,
+	] )( 'ticks locally and rereads current-tab context once at expiry: %j', async ( nextTab ) => {
 		const allowanceProjection: PopupProjection = {
 			...PROTECTED_PROJECTION,
 			currentSite: ACTIVE_PROTECTED_CURRENT_SITE,
@@ -442,6 +445,7 @@ describe( 'popup page service', () => {
 
 		harness.statusClient.refreshStatus.mockResolvedValueOnce( PROTECTED_PROJECTION );
 		await startPopupPage( harness.options );
+		harness.currentTabReader.read.mockResolvedValueOnce( nextTab );
 		expect( harness.pageWindowHarness.pageWindow.setInterval ).toHaveBeenCalledWith(
 			expect.any( Function ),
 			1_000,
@@ -451,12 +455,15 @@ describe( 'popup page service', () => {
 		harness.pageWindowHarness.tick();
 		expect( harness.shell.nowEpochMilliseconds ).toBe( 1_800_000_001_000 );
 		expect( harness.statusClient.refreshStatus ).not.toHaveBeenCalled();
+		expect( harness.currentTabReader.read ).toHaveBeenCalledOnce();
 
 		harness.now.mockReturnValueOnce( 1_800_000_002_000 );
 		harness.pageWindowHarness.tick();
 		await vi.waitFor( () => {
 			expect( harness.statusClient.refreshStatus ).toHaveBeenCalledOnce();
 		} );
+		expect( harness.currentTabReader.read ).toHaveBeenCalledTimes( 2 );
+		expect( harness.statusClient.refreshStatus ).toHaveBeenCalledWith( nextTab );
 		expect( harness.pageWindowHarness.pageWindow.clearInterval ).toHaveBeenCalledWith( 29 );
 	} );
 

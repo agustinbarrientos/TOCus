@@ -196,7 +196,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function handleCountdownExpiry(): void {
-		void refreshProjection( false );
+		void refreshProjection( true );
 	}
 
 	/**

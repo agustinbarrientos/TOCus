@@ -554,6 +554,41 @@ describe( 'createPopupProjection', () => {
 		} );
 	} );
 
+	it( 'recovers the intended website while its interruption participant is ready during Allowance', () => {
+		const allowance = createAllowanceState( DefaultProtectionScopeId, 90_000 );
+		const state = createState( {
+			...allowance,
+			readyParticipants: [ {
+				origin: 'navigation',
+				participantId: 'participant_ready',
+				pageId: 'page_tab_11_fixture',
+				retainedDestination: 'https://www.instagram.com/reels/',
+				focusEligible: true,
+				statisticsEligible: true,
+				joinSequence: 0,
+			} ],
+		} );
+		const projection = createPopupProjection( {
+			currentTab: { id: 11, incognito: false, url: INTERRUPTION_PAGE_URL },
+			interruptionPageUrl: INTERRUPTION_PAGE_URL,
+			snapshot: createSnapshot( { [ DefaultProtectionScopeId ]: state } ),
+		} );
+
+		expect( projection ).toMatchObject( {
+			status: PopupProjectionStatus.AVAILABLE,
+			currentSite: {
+				status: PopupCurrentSiteStatus.PROTECTED,
+				site: { identityHost: 'www.instagram.com' },
+			},
+			activeScopes: [ {
+				scopeId: DefaultProtectionScopeId,
+				isCurrentScope: true,
+				phase: PopupTimerPhase.ALLOWANCE,
+				expiresAtEpochMilliseconds: NOW + 90_000,
+			} ],
+		} );
+	} );
+
 	it( 'counts every website intentionally sharing one independent timing scope', () => {
 		const configuration = ProtectionConfigurationDocumentSchema.parse( {
 			...createConfiguration(),
