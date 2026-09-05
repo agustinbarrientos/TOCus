@@ -88,8 +88,8 @@ function formatAddedAnnouncement( siteName: string ): string {
  */
 const TEST_COPY: Readonly<OnboardingShellCopy> = {
 	introduction: 'Create a gentle pause before the websites you choose.',
-	privacyTitle: 'Private by design',
-	privacyDescription: 'Your choices and statistics stay on this device. TOCus never reads your browsing history.',
+	privacyTitle: '100% private',
+	privacyDescription: 'TOCus works offline. Your data stays on this device and is never sent to servers.',
 	progressLabel: 'Setup progress',
 	stepNames: {
 		language: 'Language',
@@ -309,6 +309,11 @@ describe( 'tocus-f-onboarding-shell', () => {
 		assert.equal( customElements.get( 'tocus-f-onboarding-shell' ), ComponentOnboardingShell );
 		assert.instanceOf( shadowRoot.querySelector( 'tocus-f-onboarding-language-step' ), HTMLElement );
 		assert.include( shadowRoot.querySelector( '.privacy-card' )?.textContent, TEST_COPY.privacyDescription );
+		const privacyDescription = shadowRoot.querySelector( '.privacy-card p' );
+
+		assert.instanceOf( privacyDescription, HTMLElement );
+		const privacyStyle = getComputedStyle( privacyDescription );
+		assert.closeTo( parseFloat( privacyStyle.lineHeight ) / parseFloat( privacyStyle.fontSize ), 1.6, 0.01 );
 		assert.instanceOf( shadowRoot.querySelector( '.privacy-mark svg' ), SVGElement );
 		assert.equal( shadowRoot.querySelector( '.privacy-mark svg' )?.getAttribute( 'viewBox' ), '0 0 640 640' );
 		assert.equal( shadowRoot.querySelector( '.welcome-label' ), null );
