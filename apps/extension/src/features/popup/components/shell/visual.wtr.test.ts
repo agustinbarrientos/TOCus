@@ -1,6 +1,7 @@
 import { assert, fixture, fixtureCleanup, html } from '@open-wc/testing';
 import { emulateMedia, setViewport } from '@web/test-runner-commands';
 import { visualDiff } from '@web/test-runner-visual-regression';
+import popupStyles from '../../../../entrypoints/popup/styles.scss?inline';
 import {
 	Palette,
 	ThemeMode,
@@ -267,6 +268,14 @@ async function renderPopup(
 }
 
 describe( 'tocus-f-popup-shell visual', () => {
+	let pageStyle: HTMLStyleElement;
+
+	beforeEach( () => {
+		pageStyle = document.createElement( 'style' );
+		pageStyle.textContent = popupStyles;
+		document.head.append( pageStyle );
+	} );
+
 	before( async () => {
 		const loadedFonts = await document.fonts.load( '600 2rem "Fredoka Variable"', 'TOCus' );
 
@@ -275,6 +284,7 @@ describe( 'tocus-f-popup-shell visual', () => {
 
 	afterEach( async () => {
 		fixtureCleanup();
+		pageStyle.remove();
 		document.documentElement.removeAttribute( 'data-tocus-theme' );
 		document.documentElement.removeAttribute( 'data-tocus-palette' );
 		await emulateMedia( {

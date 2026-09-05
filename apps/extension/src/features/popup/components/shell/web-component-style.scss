@@ -106,7 +106,7 @@ main {
 }
 
 .eyebrow {
-	@include typography.apply( 'label-small' );
+	@include typography.apply( 'label-medium' );
 
 	position: relative;
 	margin: 0 0 var(--tocus-space-3);
@@ -174,7 +174,7 @@ main {
 }
 
 .site-status {
-	@include typography.apply( 'label-small' );
+	@include typography.apply( 'label-medium' );
 
 	grid-column: 1 / -1;
 	justify-self: start;
@@ -303,7 +303,7 @@ main {
 	overflow: hidden;
 
 	h2 {
-		@include typography.apply( 'label-small' );
+		@include typography.apply( 'label-medium' );
 
 		margin: 0;
 		padding: var(--tocus-space-3) var(--tocus-space-4);
@@ -379,7 +379,7 @@ main {
 }
 
 .current-scope {
-	@include typography.apply( 'label-small' );
+	@include typography.apply( 'label-medium' );
 
 	grid-column: 1 / -1;
 	justify-self: start;
