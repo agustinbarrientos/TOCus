@@ -394,6 +394,39 @@ describe( 'tocus-f-language-screen', () => {
 		] );
 	} );
 
+	it( 'renders language option names from localized screen copy', async () => {
+		const copy = {
+			...TestEnglishLocalizationBundle.languageScreen,
+			languageLabels: Object.freeze( {
+				[ Language.ENGLISH ]: 'Localized English',
+				[ Language.SPANISH_TU ]: 'Localized Spanish tu',
+				[ Language.SPANISH_VOS ]: 'Localized Spanish vos',
+				[ Language.PORTUGUESE_BRAZIL ]: 'Localized Portuguese Brazil',
+				[ Language.PORTUGUESE_PORTUGAL ]: 'Localized Portuguese Portugal',
+				[ Language.ITALIAN ]: 'Localized Italian',
+				[ Language.FRENCH ]: 'Localized French',
+				[ Language.GERMAN ]: 'Localized German',
+				[ Language.JAPANESE ]: 'Localized Japanese',
+				[ Language.RUSSIAN ]: 'Localized Russian',
+			} ),
+		};
+		const screen = await fixture<ComponentLanguageScreen>( html`
+			<tocus-f-language-screen
+				.copy=${ copy }
+				.editor=${ new MemoryLanguageEditor( DefaultPreferencesDocument ) }
+				.browserLanguage=${ Language.ENGLISH }
+			></tocus-f-language-screen>
+		` );
+
+		await settleScreen( screen );
+
+		const select = getRequiredElement( screen, '#language', HTMLSelectElement );
+
+		assert.equal( select.options.item( 1 )?.textContent.trim(), 'Localized English' );
+		assert.equal( select.options.item( 10 )?.textContent.trim(), 'Localized Russian' );
+		assert.include( screen.shadowRoot?.textContent ?? '', 'Your browser currently selects Localized English.' );
+	} );
+
 	it( 'previews and saves an explicit language immediately', async () => {
 		const editor = new MemoryLanguageEditor( DefaultPreferencesDocument );
 		const preview = new MemoryLanguagePreview();

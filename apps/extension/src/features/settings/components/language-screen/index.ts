@@ -17,10 +17,9 @@ import {
 } from '../../../../domains/preferences/services/preferences-editor';
 import { arePreferencesEqual } from '../../../../domains/preferences/utils/are-preferences-equal';
 import { getLanguageTag } from '../../../../domains/preferences/utils/resolve-language';
+import { SupportedLanguages } from '../../../../localization/utils/supported-languages';
 import styles from './web-component-style.scss?inline';
 import {
-	LanguageNames,
-	LanguageOptions,
 	LanguageScreenLoadStatus,
 	type LanguagePreferencesPreview,
 	type LanguagePreferencesSource,
@@ -28,16 +27,6 @@ import {
 	type LanguageScreenLoadStatus as LanguageScreenLoadStatusValue,
 	type LanguageSelectEvent,
 } from './types';
-
-/**
- * Finds the fixed native label for one supported language.
- * @param language - Supported TOCus language.
- * @return Native language label.
- * @since 0.1.0 Initial implementation.
- */
-function getLanguageName( language: LanguageValue ): string {
-	return LanguageNames[ language ];
-}
 
 /**
  * Renders and immediately persists the extension display-language preference.
@@ -430,7 +419,7 @@ export class ComponentLanguageScreen extends LitElement {
 	 */
 	private renderSelectionDescription(): string {
 		return this.preferences.language === null
-			? this.copy.formatBrowserLanguageDescription( getLanguageName( this.browserLanguage ) )
+			? this.copy.formatBrowserLanguageDescription( this.copy.languageLabels[ this.browserLanguage ] )
 			: this.copy.explicitLanguageDescription;
 	}
 
@@ -464,12 +453,12 @@ export class ComponentLanguageScreen extends LitElement {
 					<option value="" ?selected=${ this.preferences.language === null }>
 						${ this.copy.browserLanguageOption }
 					</option>
-					${ LanguageOptions.map( ( option ) => html`
+					${ SupportedLanguages.map( ( language ) => html`
 						<option
-							value=${ option.language }
-							lang=${ getLanguageTag( option.language ) }
-							?selected=${ this.preferences.language === option.language }
-						>${ option.label }</option>
+							value=${ language }
+							lang=${ getLanguageTag( language ) }
+							?selected=${ this.preferences.language === language }
+						>${ this.copy.languageLabels[ language ] }</option>
 					` ) }
 				</select>
 				<p class="field-help" id="language-help">${ this.renderSelectionDescription() }</p>

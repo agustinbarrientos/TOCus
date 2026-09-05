@@ -36,6 +36,7 @@ const LONG_GERMAN_LANGUAGE_COPY: Readonly<LanguageScreenCopy> = Object.freeze( {
 	introduction: 'W\u00e4hlen Sie die Sprache, die TOCus in der gesamten Browser-Erweiterung f\u00fcr alle Hinweise und Einstellungen verwendet.',
 	formLabel: 'Spracheinstellung',
 	languageLabel: 'Sprache der TOCus-Benutzeroberfl\u00e4che',
+	languageLabels: TestEnglishLocalizationBundle.languageScreen.languageLabels,
 	browserLanguageOption: 'Spracheinstellungen des Browsers automatisch verwenden',
 	explicitLanguageDescription: 'TOCus verwendet diese Sprache weiter, bis Sie in den Einstellungen eine andere ausw\u00e4hlen.',
 	loading: 'Spracheinstellungen werden geladen...',
