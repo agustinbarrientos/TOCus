@@ -230,4 +230,36 @@ describe( 'tocus-f-onboarding-shell visual', () => {
 		main.scrollTop = main.scrollHeight;
 		await visualDiff( element, 'onboarding-shell-appearance-brown-light-landscape-scrolled' );
 	} );
+
+	it( 'shows two completed steps above the website choices', async () => {
+		await setViewport( { height: 1_200, width: 1_440 } );
+		await configureAppearance( ThemeMode.LIGHT, Palette.BROWN, 'light' );
+		const element = await renderOnboardingShell( ThemeMode.LIGHT, Palette.BROWN, Language.ENGLISH );
+		await showAppearanceStep( element );
+		const appearance = element.shadowRoot?.querySelector( 'tocus-f-onboarding-appearance-step' );
+		const continueButton = appearance?.shadowRoot?.querySelector( '.continue-action' );
+		assert.instanceOf( continueButton, HTMLButtonElement );
+		continueButton.click();
+		await new Promise<void>( ( resolve ) => {
+			setTimeout( resolve, 0 );
+		} );
+		await element.updateComplete;
+		assert.instanceOf( element.shadowRoot?.querySelector( 'tocus-f-onboarding-sites-step' ), HTMLElement );
+		await visualDiff( element, 'onboarding-shell-sites-brown-light' );
+	} );
+
+	it( 'retains completion marks when returning to Language', async () => {
+		await setViewport( { height: 1_400, width: 420 } );
+		await configureAppearance( ThemeMode.DARK, Palette.PURPLE, 'dark' );
+		const element = await renderOnboardingShell( ThemeMode.DARK, Palette.PURPLE, Language.ENGLISH );
+		await showAppearanceStep( element );
+		const back = element.shadowRoot?.querySelector( '.progress li:first-child button' );
+		assert.instanceOf( back, HTMLButtonElement );
+		back.click();
+		await element.updateComplete;
+		const language = element.shadowRoot?.querySelector( 'tocus-f-onboarding-language-step' );
+		assert.instanceOf( language, HTMLElement );
+		await language.updateComplete;
+		await visualDiff( element, 'onboarding-shell-language-completed-purple-dark-narrow' );
+	} );
 } );
