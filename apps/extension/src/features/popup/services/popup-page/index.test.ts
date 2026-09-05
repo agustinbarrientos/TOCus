@@ -1,16 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Language } from '../../../../domains/preferences/types';
 import { ProtectionConfigurationEditRejectionReason } from '../../../../domains/protection/services/protection-configuration-editor';
-import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import {
 	DefaultProtectionScopeId,
 	ProtectionScopeIdSchema,
 } from '../../../../domains/protection/types/protection-value';
 import { createEnglishLocalizationBundle } from '../../../../localization';
-import {
-	ProtectedSiteEnrollmentStatus,
-	type ProtectedSiteEnrollmentResult,
-} from '../../../protected-sites/services/protected-site-enrollment';
+import { ProtectedSiteEnrollmentStatus } from '../../../protected-sites/services/protected-site-enrollment';
 import {
 	PopupAddSiteRequestEventName,
 	PopupOperationError,
@@ -25,6 +21,7 @@ import {
 	PopupTimerPhase,
 	type PopupProjection,
 } from '../../types/popup-projection';
+import { type PopupSiteEnrollmentResult } from '../../types/site-enrollment';
 import { bootstrapPopupPage, startPopupPage } from './index';
 import { type PopupPageOptions } from './types';
 
@@ -194,14 +191,9 @@ function createHarness( initialProjection: PopupProjection = UNPROTECTED_PROJECT
 		refreshStatus: vi.fn().mockResolvedValue( PROTECTED_PROJECTION ),
 	};
 	const enrollment = {
-		add: vi.fn<( input: unknown, independent: boolean ) => Promise<ProtectedSiteEnrollmentResult>>()
+		add: vi.fn<( input: unknown, independent: boolean ) => Promise<PopupSiteEnrollmentResult>>()
 			.mockResolvedValue( {
 				status: ProtectedSiteEnrollmentStatus.ADDED,
-				configuration: {
-					...TestEmptyProtectionConfiguration,
-					sites: [ TEST_SITE ],
-				},
-				site: TEST_SITE,
 			} ),
 	};
 	const faviconProvider = {
@@ -318,7 +310,7 @@ describe( 'popup page service', () => {
 
 	it( 'requests enrollment directly from the add event and refreshes successful status', async () => {
 		const harness = createHarness();
-		const enrollmentResult = Promise.withResolvers<ProtectedSiteEnrollmentResult>();
+		const enrollmentResult = Promise.withResolvers<PopupSiteEnrollmentResult>();
 
 		harness.enrollment.add.mockReturnValueOnce( enrollmentResult.promise );
 		await startPopupPage( harness.options );
@@ -330,11 +322,6 @@ describe( 'popup page service', () => {
 
 		enrollmentResult.resolve( {
 			status: ProtectedSiteEnrollmentStatus.ADDED,
-			configuration: {
-				...TestEmptyProtectionConfiguration,
-				sites: [ TEST_SITE ],
-			},
-			site: TEST_SITE,
 		} );
 		await vi.waitFor( () => {
 			expect( harness.shell.adding ).toBe( false );
@@ -664,7 +651,7 @@ describe( 'popup page service', () => {
 
 	it( 'does not finish enrollment after the popup has closed', async () => {
 		const harness = createHarness();
-		const enrollmentResult = Promise.withResolvers<ProtectedSiteEnrollmentResult>();
+		const enrollmentResult = Promise.withResolvers<PopupSiteEnrollmentResult>();
 
 		harness.enrollment.add.mockReturnValueOnce( enrollmentResult.promise );
 		await startPopupPage( harness.options );
@@ -672,8 +659,6 @@ describe( 'popup page service', () => {
 		harness.pageWindowHarness.dispatchPageHide();
 		enrollmentResult.resolve( {
 			status: ProtectedSiteEnrollmentStatus.ADDED,
-			configuration: TestEmptyProtectionConfiguration,
-			site: TEST_SITE,
 		} );
 		await settlePageWork();
 
@@ -682,7 +667,7 @@ describe( 'popup page service', () => {
 
 	it( 'discards an enrollment failure after the popup has closed', async () => {
 		const harness = createHarness();
-		const enrollmentResult = Promise.withResolvers<ProtectedSiteEnrollmentResult>();
+		const enrollmentResult = Promise.withResolvers<PopupSiteEnrollmentResult>();
 
 		harness.enrollment.add.mockReturnValueOnce( enrollmentResult.promise );
 		await startPopupPage( harness.options );
