@@ -111,7 +111,7 @@ describe( 'tocus-f-protected-site-list', () => {
 			.itemCopy=${ TestEnglishLocalizationBundle.protectedSiteItem }></tocus-f-protected-site-list>
 		` );
 
-		assert.include( element.shadowRoot?.textContent, 'No protected sites yet' );
+		assert.include( element.shadowRoot?.textContent, 'No websites yet' );
 		assert.include(
 			element.shadowRoot?.textContent,
 			'Add the first site you want TOCus to gently interrupt.',
@@ -133,7 +133,7 @@ describe( 'tocus-f-protected-site-list', () => {
 		` );
 		const items = getSiteItems( element );
 
-		assert.include( element.shadowRoot?.textContent, 'Shared protection' );
+		assert.include( element.shadowRoot?.textContent, 'Shared timing' );
 		assert.include( element.shadowRoot?.textContent, 'Independent sites' );
 		assert.deepEqual( items.map( ( item ) => item.identity?.name ), [ 'YouTube', 'X' ] );
 		assert.equal( items.at( 0 )?.faviconSource, FAVICON_SOURCE );

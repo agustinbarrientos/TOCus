@@ -62,7 +62,7 @@ describe( 'tocus-f-protected-site-list visual', () => {
 	before( async () => {
 		const loadedFonts = await document.fonts.load(
 			'600 1rem "Fredoka Variable"',
-			'Shared protection Independent sites YouTube X',
+			'Shared timing Independent sites YouTube X',
 		);
 
 		assert.isAbove( loadedFonts.length, 0 );
