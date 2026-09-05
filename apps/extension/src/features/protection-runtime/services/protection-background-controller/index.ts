@@ -692,7 +692,34 @@ export function createProtectionBackgroundController(
 		) ).catch( handleTerminalCleanupFailure );
 	}
 
-	return { start };
+	/**
+	 * Reconciles configuration through the same capability gate as browser events.
+	 * @return Promise resolved after protection is current, or rejected after fail-open cleanup.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function refresh(): Promise<void> {
+		const statisticsObservation = options.runtime.captureStatisticsObservation(
+			StatisticsFocusObservationMode.BOUNDARY,
+		);
+
+		try {
+			await runAfterCapability( () => reconcileConfiguration( statisticsObservation ) );
+		} catch ( error ) {
+			await options.runtime.failOpen( statisticsObservation );
+			throw error;
+		}
+	}
+
+	/**
+	 * Waits for pending navigation-capability startup or transitions to settle.
+	 * @return Promise resolved after the capability barrier settles.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function waitUntilReady(): Promise<void> {
+		return capabilityOperation;
+	}
+
+	return { refresh, start, waitUntilReady };
 }
 
 export * from './types';

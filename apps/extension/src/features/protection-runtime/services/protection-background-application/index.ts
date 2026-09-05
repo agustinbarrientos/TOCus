@@ -13,6 +13,7 @@ import { registerOnboardingOpenOnInstall } from '../../../onboarding/services/op
 import { createSitePermissionManager } from '../../../protected-sites/services/site-permission-manager';
 import { createStatisticsRuntime } from '../../../statistics/services/statistics-runtime';
 import { createLocalizedToolbarCopy } from '../../../../localization/utils/create-localized-toolbar-copy';
+import { createPopupBackgroundController } from '../../../popup/services/popup-background-controller';
 import { createBrowserProtectionAdapter } from '../browser-protection-adapter';
 import { createBrowserProtectionRuntime } from '../browser-protection-runtime';
 import { createProtectionBackgroundController } from '../protection-background-controller';
@@ -129,6 +130,36 @@ export function startProtectionBackgroundApplication(
 	} );
 
 	/**
+	 * Refreshes capability-aware protection through its owning controller.
+	 * @return Promise resolved after protection reconciliation settles.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function refreshProtection(): Promise<void> {
+		return protectionController.refresh();
+	}
+
+	/**
+	 * Waits for initial protection-capability detection to settle.
+	 * @return Promise resolved after the capability barrier settles.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function waitForProtectionReady(): Promise<void> {
+		return protectionController.waitUntilReady();
+	}
+
+	const popupController = createPopupBackgroundController( {
+		browser: options.browser,
+		configurationStorage,
+		getTimeZone,
+		interruptionPageUrl,
+		now: getCurrentTime,
+		popupPageUrl: options.browser.runtime.getURL( '/popup.html' ),
+		refreshProtection,
+		runtime,
+		waitForProtectionReady,
+	} );
+
+	/**
 	 * Reprojects the toolbar through the active browser protection runtime.
 	 * @return Promise resolved after the toolbar update settles.
 	 * @since 0.1.0 Initial implementation.
@@ -138,6 +169,7 @@ export function startProtectionBackgroundApplication(
 	}
 
 	protectionController.start();
+	popupController.start();
 	toolbarLanguageController.start( refreshToolbarBadge );
 }
 

@@ -48,12 +48,31 @@ describe( 'createLocalizationBundle', () => {
 		expect( Intl.getCanonicalLocales( bundle.languageTag ) ).toEqual( [ expectedLanguageTag ] );
 	} );
 
+	it.each( [
+		[ Language.ENGLISH, 'Current website', 'TOCus is active', '2 websites' ],
+		[ Language.SPANISH_TU, 'Sitio web actual', 'TOCus está activo', '2 sitios web' ],
+		[ Language.SPANISH_VOS, 'Sitio actual', 'TOCus está activo', '2 sitios' ],
+		[ Language.PORTUGUESE_BRAZIL, 'Site atual', 'O TOCus está ativo', '2 sites' ],
+		[ Language.PORTUGUESE_PORTUGAL, 'Site atual', 'O TOCus está ativo', '2 sites' ],
+		[ Language.ITALIAN, 'Sito web attuale', 'TOCus è attivo', '2 siti web' ],
+		[ Language.FRENCH, 'Site actuel', 'TOCus est actif', '2 sites' ],
+		[ Language.GERMAN, 'Aktuelle Website', 'TOCus ist aktiv', '2 Websites' ],
+		[ Language.JAPANESE, '現在のウェブサイト', 'TOCus は有効です', '2 件のウェブサイト' ],
+		[ Language.RUSSIAN, 'Текущий сайт', 'TOCus активен', '2 сайта' ],
+	] )( 'loads translated popup copy for %s', async ( language, currentWebsite, activeStatus, websiteCount ) => {
+		const bundle = await loadLocalizationBundle( language );
+
+		expect( bundle.popup.currentWebsite ).toBe( currentWebsite );
+		expect( bundle.popup.tocusActive ).toBe( activeStatus );
+		expect( bundle.popup.formatWebsiteCount( 2 ) ).toBe( websiteCount );
+	} );
+
 	it( 'provides every production copy slice and the pending local copy contracts', async () => {
 		const bundle = await loadLocalizationBundle( Language.ENGLISH );
 
 		expect( bundle.document.settingsTitle ).toBe( 'TOCus settings' );
-		expect( bundle.popup.status ).toBe( 'Private by design' );
-		expect( bundle.popup.foundationNote ).toBe( 'Your settings and statistics stay on this device.' );
+		expect( bundle.popup.currentWebsite ).toBe( 'Current website' );
+		expect( bundle.popup.addPauseHere ).toBe( 'Add a pause here' );
 		expect( bundle.settingsShell.navigationLabel ).toBe( 'Settings' );
 		expect( bundle.languageScreen.languageLabel ).toBe( 'TOCus language' );
 		expect( bundle.appearance.themeOptions.system.label ).toBe( 'System' );

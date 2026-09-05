@@ -10,7 +10,7 @@ _In development._
 
 - Established the initial Chrome, Firefox, and Safari extension foundation with WXT and Lit.
 - Kept the extension local-first with no saved-history access or telemetry, exact site access requested only when protection is enabled, and an explicit no-data declaration for Firefox.
-- Added the first popup shell with light and dark appearances.
+- Added the localized toolbar popup with current-website status, one-click website setup, active timing scopes, allowance and next-wait information, local cached favicons where supported, and links to Settings and Statistics.
 - Added the shared theme, six color palettes, bundled Fredoka brand typography, and semantic typography roles.
 - Added build-contract, accessibility, local visual-regression, and cross-browser build checks.
 - Added the local protection-domain foundation for protected sites, schedules, daily wait progression, breathing plans, focus-aware shared waits, wall-clock allowances, warning decisions, metric facts, and restart-safe restoration.

@@ -47,6 +47,7 @@ export default defineConfig( {
 		...( context.browser === 'safari' ? {} : { incognito: 'not_allowed' as const } ),
 		permissions: [
 			'storage',
+			'activeTab',
 			...( context.browser === 'chrome' ? [ 'favicon' as const ] : [] ),
 			'alarms',
 			'declarativeNetRequestWithHostAccess',

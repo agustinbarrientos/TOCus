@@ -467,6 +467,7 @@ describe( 'extension build manifest', () => {
 		expect( manifest ).toHaveProperty( 'action.default_icon', expectedToolbarIcons );
 		expect( manifest ).toHaveProperty( 'permissions', [
 			'storage',
+			'activeTab',
 			'favicon',
 			'alarms',
 			'declarativeNetRequestWithHostAccess',
@@ -508,6 +509,7 @@ describe( 'extension build manifest', () => {
 		expect( manifest ).toHaveProperty( 'browser_action.default_icon', expectedToolbarIcons );
 		expect( manifest ).toHaveProperty( 'permissions', [
 			'storage',
+			'activeTab',
 			'alarms',
 			'declarativeNetRequestWithHostAccess',
 			'scripting',
@@ -542,6 +544,7 @@ describe( 'extension build manifest', () => {
 		expect( manifest ).toHaveProperty( 'browser_action.default_icon', expectedToolbarIcons );
 		expect( manifest ).toHaveProperty( 'permissions', [
 			'storage',
+			'activeTab',
 			'alarms',
 			'declarativeNetRequestWithHostAccess',
 			'scripting',

@@ -341,6 +341,20 @@ export interface ProtectionBackgroundControllerOptions {
  */
 export interface ProtectionBackgroundController {
 	/**
+	 * Reconciles configuration through the serialized navigation-capability gate.
+	 * @return Promise resolved after protection is current, or rejected after fail-open cleanup.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	refresh(): Promise<void>;
+
+	/**
+	 * Waits for pending navigation-capability startup or transitions to settle.
+	 * @return Promise resolved after the capability barrier settles.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	waitUntilReady(): Promise<void>;
+
+	/**
 	 * Registers browser events before starting asynchronous restoration.
 	 * @since 0.1.0 Initial implementation.
 	 */

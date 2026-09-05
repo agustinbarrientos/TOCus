@@ -28,6 +28,67 @@ import {
 import { createInertStatisticsRuntime } from './__fixtures__/statistics-runtime';
 
 describe( 'createBrowserProtectionRuntime', () => {
+	it( 'returns no popup snapshot before authoritative startup', async () => {
+		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
+		const browser = new MemoryRuntimeBrowser();
+		const { runtime } = createRuntime(
+			now,
+			new MemoryConfigurationStorage( EXAMPLE_CONFIGURATION ),
+			browser,
+		);
+
+		await expect( runtime.readSnapshot() ).resolves.toBeNull();
+	} );
+
+	it( 'returns detached raw and permission-filtered popup state after startup', async () => {
+		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
+		const browser = new MemoryRuntimeBrowser();
+		const configurationStorage = new MemoryConfigurationStorage( EXAMPLE_CONFIGURATION );
+		configurationStorage.accessibleConfiguration = TestEmptyProtectionConfiguration;
+		const { runtime } = createRuntime( now, configurationStorage, browser );
+
+		await runtime.start();
+		const snapshot = await runtime.readSnapshot();
+
+		expect( snapshot ).toMatchObject( {
+			configuration: { sites: EXAMPLE_CONFIGURATION.sites },
+			activeConfiguration: { sites: [] },
+			statesByScope: {},
+			capturedAtEpochMilliseconds: now.value,
+			timeZone: 'UTC',
+		} );
+		expect( snapshot?.configuration ).not.toBe( configurationStorage.configuration );
+		expect( snapshot?.activeConfiguration ).not.toBe( configurationStorage.accessibleConfiguration );
+	} );
+
+	it( 'returns no popup snapshot after protection becomes unavailable', async () => {
+		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
+		const browser = new MemoryRuntimeBrowser();
+		const configurationStorage = new MemoryConfigurationStorage( EXAMPLE_CONFIGURATION );
+		const { runtime } = createRuntime( now, configurationStorage, browser );
+
+		await runtime.start();
+		configurationStorage.throwOnLoad = true;
+		await runtime.handleConfigurationChanged();
+
+		await expect( runtime.readSnapshot() ).resolves.toBeNull();
+	} );
+
+	it( 'returns no popup snapshot when coordinator state is unavailable', async () => {
+		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
+		const browser = new MemoryRuntimeBrowser();
+		const { coordinator, runtime } = createRuntime(
+			now,
+			new MemoryConfigurationStorage( EXAMPLE_CONFIGURATION ),
+			browser,
+		);
+
+		await runtime.start();
+		vi.spyOn( coordinator, 'getStates' ).mockResolvedValueOnce( null );
+
+		await expect( runtime.readSnapshot() ).resolves.toBeNull();
+	} );
+
 	it( 'dismisses an orphaned standalone interruption after synchronization', async () => {
 		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
 		const browser = new MemoryRuntimeBrowser();
