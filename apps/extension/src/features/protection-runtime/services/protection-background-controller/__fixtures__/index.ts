@@ -10,6 +10,11 @@ import {
 	type ProtectionBackgroundSendResponse,
 } from '../types';
 import { StatisticsProjectionStatus } from '../../../../../domains/statistics/types/statistics-projection';
+import {
+	type RuntimeHarness,
+	type TestMessageSender,
+	type TestPermissionChange,
+} from './types';
 
 /**
  * Packaged interruption page accepted by authenticated message tests.
@@ -124,76 +129,6 @@ export class DeferredPermissionResult {
 
 		this.resolvePromise( granted );
 	}
-}
-
-/**
- * Browser message sender fixture.
- * @since 0.1.0 Initial implementation.
- */
-interface TestMessageSender {
-	/** Sending frame identifier when the message came from a tab. */
-	frameId?: number | undefined;
-	/** Sending tab fixture. */
-	tab?: {
-		/** Whether the sender tab belongs to a private browsing context. */
-		incognito?: boolean | undefined;
-		/** Browser tab identifier. */
-		id?: number | undefined;
-	} | undefined;
-	/** URL of the page or frame hosting the sending script. */
-	url?: string | undefined;
-}
-
-/**
- * Browser permission-change fixture.
- * @since 0.1.0 Initial implementation.
- */
-interface TestPermissionChange {
-	/** Changed named permissions. */
-	permissions?: ReadonlyArray<string> | undefined;
-	/** Changed origin permissions. */
-	origins?: ReadonlyArray<string> | undefined;
-}
-
-/**
- * Fully spied runtime returned to controller tests.
- * @since 0.1.0 Initial implementation.
- */
-interface RuntimeHarness {
-	/** Runtime contract supplied to the controller. */
-	runtime: BrowserProtectionRuntime;
-	/** Event-ingress statistics observation spy. */
-	captureStatisticsObservation: ReturnType<typeof vi.fn>;
-	/** Observation promises created synchronously at browser-event ingress. */
-	capturedStatisticsObservations: Array<Promise<BrowserProtectionStatisticsObservation>>;
-	/** Runtime startup spy. */
-	start: ReturnType<typeof vi.fn>;
-	/** Navigation spy. */
-	handleNavigation: ReturnType<typeof vi.fn>;
-	/** Page-request spy. */
-	handlePageRequest: ReturnType<typeof vi.fn>;
-	/** Tab-removal spy. */
-	handleTabRemoved: ReturnType<typeof vi.fn>;
-	/** Focus-change spy. */
-	handleFocusChanged: ReturnType<typeof vi.fn>;
-	/** Clock-tick spy. */
-	handleClockTick: ReturnType<typeof vi.fn>;
-	/** Configuration-change spy. */
-	handleConfigurationChanged: ReturnType<typeof vi.fn>;
-	/** Toolbar refresh spy. */
-	refreshToolbarBadge: ReturnType<typeof vi.fn>;
-	/** Fail-open cleanup spy. */
-	failOpen: ReturnType<typeof vi.fn>;
-	/**
-	 * Statistics read spy.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	readStatistics: ReturnType<typeof vi.fn>;
-	/**
-	 * Statistics reset spy.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	resetStatistics: ReturnType<typeof vi.fn>;
 }
 
 /**
