@@ -402,8 +402,21 @@ export class ComponentOnboardingShell extends LitElement {
 				<figcaption>${ this.copy.appearance.previewTitle }</figcaption>
 				<div class="pause-preview-browser" aria-hidden="true">
 					<div class="pause-preview-chrome">
-						<span class="pause-preview-tab"></span>
-						<span class="pause-preview-address"></span>
+						<div class="pause-preview-tab-strip">
+							<span class="pause-preview-window-controls"></span>
+							<span class="pause-preview-tab">
+								<span class="pause-preview-tab-icon"></span>
+								<span class="pause-preview-tab-label"></span>
+							</span>
+						</div>
+						<div class="pause-preview-toolbar">
+							<span class="pause-preview-navigation"></span>
+							<span class="pause-preview-address">
+								<span class="pause-preview-address-placeholder"></span>
+								<span class="pause-preview-address-placeholder pause-preview-address-placeholder-short"></span>
+							</span>
+							<span class="pause-preview-menu"></span>
+						</div>
 					</div>
 					<div class="pause-preview-viewport">
 						<tocus-f-interruption-screen

@@ -616,9 +616,9 @@ describe( 'tocus-f-onboarding-shell', () => {
 		await expect( element ).to.be.accessible();
 	} );
 
-	it( 'keeps the browser preview fixed outside the settings card at every width', async () => {
-		await setViewport( { height: 1_000, width: 976 } );
-		await emulateMedia( { colorScheme: 'light' } );
+	it( 'keeps a layered browser preview at the viewport bottom-left', async () => {
+		await setViewport( { height: 1_000, width: 1_440 } );
+		await emulateMedia( { colorScheme: 'light', forcedColors: 'none' } );
 
 		try {
 			const editor = new MemoryOnboardingPreferencesEditor();
@@ -638,16 +638,35 @@ describe( 'tocus-f-onboarding-shell', () => {
 			const preview = shadowRoot.querySelector( '.pause-preview' );
 			const setupCard = shadowRoot.querySelector( '.setup-card' );
 			const browserWindow = shadowRoot.querySelector( '.pause-preview-browser' );
+			const browserChrome = shadowRoot.querySelector( '.pause-preview-chrome' );
+			const tabStrip = shadowRoot.querySelector( '.pause-preview-tab-strip' );
+			const toolbar = shadowRoot.querySelector( '.pause-preview-toolbar' );
+			const windowControls = shadowRoot.querySelector( '.pause-preview-window-controls' );
 			const browserTab = shadowRoot.querySelector( '.pause-preview-tab' );
 			const browserAddress = shadowRoot.querySelector( '.pause-preview-address' );
+			const addressPlaceholder = shadowRoot.querySelector( '.pause-preview-address-placeholder' );
+			const browserViewport = shadowRoot.querySelector( '.pause-preview-viewport' );
 
 			assert.instanceOf( preview, HTMLElement );
 			assert.instanceOf( setupCard, HTMLElement );
 			assert.instanceOf( browserWindow, HTMLElement );
+			assert.instanceOf( browserChrome, HTMLElement );
+			assert.instanceOf( tabStrip, HTMLElement );
+			assert.instanceOf( toolbar, HTMLElement );
+			assert.instanceOf( windowControls, HTMLElement );
 			assert.instanceOf( browserTab, HTMLElement );
 			assert.instanceOf( browserAddress, HTMLElement );
+			assert.instanceOf( addressPlaceholder, HTMLElement );
+			assert.instanceOf( browserViewport, HTMLElement );
 			assert.equal( preview.parentNode, shadowRoot );
+			assert.equal( tabStrip.parentNode, browserChrome );
+			assert.equal( toolbar.parentNode, browserChrome );
+			assert.equal( browserTab.parentNode, tabStrip );
+			assert.equal( browserAddress.parentNode, toolbar );
+			assert.equal( browserViewport.previousElementSibling, browserChrome );
 			assert.equal( getComputedStyle( preview ).position, 'fixed' );
+			assert.closeTo( preview.getBoundingClientRect().left, 16, 0.5 );
+			assert.closeTo( window.innerHeight - preview.getBoundingClientRect().bottom, 16, 0.5 );
 			const lightChromeColor = getComputedStyle( browserWindow ).backgroundColor;
 
 			element.theme = ThemeMode.DARK;
@@ -663,13 +682,61 @@ describe( 'tocus-f-onboarding-shell', () => {
 			await setViewport( { height: 1_600, width: 420 } );
 
 			assert.equal( getComputedStyle( preview ).position, 'fixed' );
+			assert.closeTo( preview.getBoundingClientRect().left, 16, 0.5 );
+			assert.closeTo( window.innerHeight - preview.getBoundingClientRect().bottom, 16, 0.5 );
+			assert.isAtMost(
+				setupCard.getBoundingClientRect().bottom,
+				preview.getBoundingClientRect().top,
+			);
+
+			await emulateMedia( { colorScheme: 'light', forcedColors: 'active' } );
+			assert.equal( getComputedStyle( browserAddress ).borderTopStyle, 'solid' );
+			assert.notEqual(
+				getComputedStyle( addressPlaceholder ).backgroundColor,
+				getComputedStyle( toolbar ).backgroundColor,
+			);
+			assert.notEqual(
+				getComputedStyle( windowControls, '::before' ).backgroundColor,
+				getComputedStyle( tabStrip ).backgroundColor,
+			);
+		} finally {
+			await setViewport( { height: 600, width: 800 } );
+			await emulateMedia( { colorScheme: 'light', forcedColors: 'none' } );
+		}
+	} );
+
+	it( 'moves the preview below settings in a short reflow viewport', async () => {
+		await setViewport( { height: 256, width: 320 } );
+		await emulateMedia( { colorScheme: 'light', forcedColors: 'none' } );
+
+		try {
+			const editor = new MemoryOnboardingPreferencesEditor();
+			const element = await renderShell( editor );
+			const shadowRoot = getShadowRoot( element );
+			const languageStep = shadowRoot.querySelector( 'tocus-f-onboarding-language-step' );
+
+			assert.instanceOf( languageStep, HTMLElement );
+			languageStep.dispatchEvent( new CustomEvent( 'tocus-onboarding-language-continue', {
+				bubbles: true,
+				composed: true,
+				detail: { language: Language.ENGLISH },
+			} ) );
+			await settle();
+			await element.updateComplete;
+
+			const preview = shadowRoot.querySelector( '.pause-preview' );
+			const setupCard = shadowRoot.querySelector( '.setup-card' );
+
+			assert.instanceOf( preview, HTMLElement );
+			assert.instanceOf( setupCard, HTMLElement );
+			assert.equal( getComputedStyle( preview ).position, 'absolute' );
 			assert.isAtMost(
 				setupCard.getBoundingClientRect().bottom,
 				preview.getBoundingClientRect().top,
 			);
 		} finally {
 			await setViewport( { height: 600, width: 800 } );
-			await emulateMedia( { colorScheme: 'light' } );
+			await emulateMedia( { colorScheme: 'light', forcedColors: 'none' } );
 		}
 	} );
 
