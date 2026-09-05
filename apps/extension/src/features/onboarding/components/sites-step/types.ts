@@ -139,3 +139,9 @@ export interface OnboardingSiteRemovalClickEvent extends MouseEvent {
  * @since 0.1.0 Initial implementation.
  */
 export const OnboardingSitesFinishEventName = 'tocus-onboarding-sites-finish';
+
+/**
+ * Name of the composed event carrying whether a website operation is pending.
+ * @since 0.1.0 Initial implementation.
+ */
+export const OnboardingSitesPendingChangeEventName = 'tocus-onboarding-sites-pending-change';

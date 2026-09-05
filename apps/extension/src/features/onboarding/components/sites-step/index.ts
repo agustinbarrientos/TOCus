@@ -16,6 +16,7 @@ import circleCheckIconMarkup from '../../assets/icon-circle-check.svg?raw';
 import styles from './web-component-style.scss?inline';
 import {
 	OnboardingSitesFinishEventName,
+	OnboardingSitesPendingChangeEventName,
 	OnboardingSiteUnexpectedFailure,
 	type OnboardingEnrollmentFailure,
 	type OnboardingPendingSiteRemoval,
@@ -30,6 +31,7 @@ import {
  * Collects local website selections and requests browser access together at completion.
  * @element tocus-f-onboarding-sites-step
  * @summary Protected-site onboarding step.
+ * @fires ComponentOnboardingSitesStep#event:pendingChange - Emits `tocus-onboarding-sites-pending-change` with a boolean enrollment or removal state.
  * @since 0.1.0 Initial implementation.
  */
 @customElement( 'tocus-f-onboarding-sites-step' )
@@ -79,6 +81,20 @@ export class ComponentOnboardingSitesStep extends LitElement {
 
 	@state()
 	private accessor pending = false;
+
+	/**
+	 * Updates operation state and synchronously informs the owning navigation.
+	 * @param pending - Whether a browser operation is pending.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private setPending( pending: boolean ): void {
+		this.pending = pending;
+		this.dispatchEvent( new CustomEvent<boolean>( OnboardingSitesPendingChangeEventName, {
+			bubbles: true,
+			composed: true,
+			detail: pending,
+		} ) );
+	}
 
 	/**
 	 * Focused row kept mounted until removal and browser-access cleanup settle.
@@ -248,7 +264,7 @@ export class ComponentOnboardingSitesStep extends LitElement {
 		}
 		this.pendingRemoval = source !== null && this.shadowRoot?.activeElement === source
 			? { site, index: removedIndex } : null;
-		this.pending = true;
+		this.setPending( true );
 		try {
 			const result = await this.enrollment.remove( site );
 			if ( result.status !== ProtectedSiteEnrollmentStatus.REMOVED ) {
@@ -263,7 +279,7 @@ export class ComponentOnboardingSitesStep extends LitElement {
 			return;
 		} finally {
 			this.pendingRemoval = null;
-			this.pending = false;
+			this.setPending( false );
 		}
 		await this.restoreRemovalFocus( source, removedIndex );
 	}
@@ -341,7 +357,7 @@ export class ComponentOnboardingSitesStep extends LitElement {
 		if ( this.enrollment === null ) {
 			return;
 		}
-		this.pending = true;
+		this.setPending( true );
 		this.finishFailure = null;
 		try {
 			const result = await this.enrollment.addMany( this.draftSites.map( ( site ) => site.identityHost ) );
@@ -355,7 +371,7 @@ export class ComponentOnboardingSitesStep extends LitElement {
 		} catch {
 			this.finishFailure = OnboardingSiteUnexpectedFailure;
 		} finally {
-			this.pending = false;
+			this.setPending( false );
 		}
 	};
 
