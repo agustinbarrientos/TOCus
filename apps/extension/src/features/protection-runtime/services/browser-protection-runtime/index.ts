@@ -32,6 +32,7 @@ import { createProtectionRuntimeRestorer } from '../protection-runtime-restorer'
 import {
 	type BrowserProtectionRuntime,
 	type BrowserProtectionRuntimeOptions,
+	type BrowserProtectionRuntimeSnapshot,
 	type BrowserProtectionStatisticsObservation,
 } from './types';
 import { createBrowserStatisticsBridge } from '../../../statistics/services/browser-statistics-bridge';
@@ -80,6 +81,7 @@ function createUnavailablePageResponse(): InterruptionPageResponse {
 export function createBrowserProtectionRuntime( options: BrowserProtectionRuntimeOptions ): BrowserProtectionRuntime {
 	let operationQueue: Promise<void> = Promise.resolve();
 	let available = false;
+	let latestPersistedConfiguration: ProtectionConfigurationDocument | null = null;
 	let latestConfiguration: ProtectionConfigurationDocument | null = null;
 	const statisticsBridge = createBrowserStatisticsBridge( {
 		browser: options.browser,
@@ -229,6 +231,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 		try {
 			configuration = await options.configurationStorage.load();
 		} catch {
+			latestPersistedConfiguration = null;
 			latestConfiguration = null;
 			statisticsBridge.reconcileConfiguration( null );
 			return null;
@@ -238,10 +241,12 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 		const result = ProtectionConfigurationDocumentSchema.safeParse( configuration );
 
 		if ( ! result.success ) {
+			latestPersistedConfiguration = null;
 			latestConfiguration = null;
 			return null;
 		}
 
+		latestPersistedConfiguration = result.data;
 		return result.data;
 	}
 
@@ -276,6 +281,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 */
 	async function failOpenOperation(): Promise<void> {
 		available = false;
+		latestPersistedConfiguration = null;
 		latestConfiguration = null;
 		statisticsBridge.discardFocusMeasurement();
 
@@ -294,6 +300,8 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 */
 	async function reconcileUnavailableConfiguration(): Promise<void> {
 		available = false;
+		latestPersistedConfiguration = null;
+		latestConfiguration = null;
 		statisticsBridge.discardFocusMeasurement();
 		await projector.failOpen();
 		await participantReconciler.departAll( DepartureCause.STORAGE_FAILURE, null );
@@ -312,6 +320,8 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	): Promise<void> {
 		if ( result.status === ProtectionCoordinatorDispatchStatus.REJECTED ) {
 			available = false;
+			latestPersistedConfiguration = null;
+			latestConfiguration = null;
 		}
 
 		return projector.applyDispatchResult( result, configuration );
@@ -596,6 +606,33 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	}
 
 	/**
+	 * Reads detached protection state through the serialized runtime authority.
+	 * @return Current background-internal state or null while protection is unavailable.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function readSnapshot(): Promise<BrowserProtectionRuntimeSnapshot | null> {
+		return enqueue( async () => {
+			if ( ! available || latestPersistedConfiguration === null || latestConfiguration === null ) {
+				return null;
+			}
+
+			const statesByScope = await options.coordinator.getStates();
+
+			if ( statesByScope === null ) {
+				return null;
+			}
+
+			return {
+				configuration: ProtectionConfigurationDocumentSchema.parse( latestPersistedConfiguration ),
+				activeConfiguration: ProtectionConfigurationDocumentSchema.parse( latestConfiguration ),
+				statesByScope,
+				capturedAtEpochMilliseconds: options.now(),
+				timeZone: options.getTimeZone(),
+			};
+		} );
+	}
+
+	/**
 	 * Reconciles changed local configuration through the serialized queue.
 	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after configuration reconciliation.
@@ -618,6 +655,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 		readStatistics,
 		resetStatistics,
 		refreshToolbarBadge,
+		readSnapshot,
 		start,
 		handleNavigation,
 		handlePageRequest,

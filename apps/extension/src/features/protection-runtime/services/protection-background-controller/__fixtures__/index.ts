@@ -156,6 +156,7 @@ function createRuntime(): RuntimeHarness {
 	const handleClockTick = vi.fn().mockResolvedValue( undefined );
 	const handleConfigurationChanged = vi.fn().mockResolvedValue( undefined );
 	const refreshToolbarBadge = vi.fn().mockResolvedValue( undefined );
+	const readSnapshot = vi.fn().mockResolvedValue( null );
 	const failOpen = vi.fn().mockResolvedValue( undefined );
 	const readStatistics = vi.fn().mockResolvedValue( {
 		status: StatisticsProjectionStatus.UNAVAILABLE,
@@ -173,6 +174,7 @@ function createRuntime(): RuntimeHarness {
 		handleClockTick,
 		handleConfigurationChanged,
 		refreshToolbarBadge,
+		readSnapshot,
 		failOpen,
 		readStatistics,
 		resetStatistics,

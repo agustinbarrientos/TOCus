@@ -1,5 +1,8 @@
 import { type ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
-import { type ProtectionCoordinator } from '../../../../domains/protection/services/protection-coordinator';
+import {
+	type ProtectionCoordinator,
+	type ProtectionCoordinatorStateSnapshot,
+} from '../../../../domains/protection/services/protection-coordinator';
 import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { type InterruptionPageResponse } from '../../types/runtime-message';
 import {
@@ -14,6 +17,23 @@ import {
 } from '../../../statistics/services/browser-statistics-bridge';
 import { type StatisticsFocusObservationMode } from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
 import { type StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
+
+/**
+ * Detached protection state used only inside the trusted background process.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface BrowserProtectionRuntimeSnapshot {
+	/** Persisted configuration, including websites whose optional browser access is currently missing. */
+	configuration: ProtectionConfigurationDocument;
+	/** Permission-filtered configuration currently enforced by the browser runtime, or null without navigation access. */
+	activeConfiguration: ProtectionConfigurationDocument | null;
+	/** Detached authoritative states indexed by protection scope, including private retained destinations. */
+	statesByScope: ProtectionCoordinatorStateSnapshot;
+	/** Wall-clock instant at which the snapshot was captured. */
+	capturedAtEpochMilliseconds: number;
+	/** Local IANA time zone used for schedule projection. */
+	timeZone: string;
+}
 
 /**
  * Dependencies used by one browser protection runtime.
@@ -110,6 +130,13 @@ export interface BrowserProtectionRuntime {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	refreshToolbarBadge(): Promise<void>;
+
+	/**
+	 * Returns one detached snapshot for trusted local extension surfaces.
+	 * @return Current protection state, or null when the runtime is unavailable.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	readSnapshot(): Promise<BrowserProtectionRuntimeSnapshot | null>;
 
 	/**
 	 * Restores navigation rules and toolbar state from local configuration and runtime state.
