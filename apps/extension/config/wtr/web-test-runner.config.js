@@ -335,6 +335,7 @@ export default {
 			'src/features/interruption/utils/breathing-motion/**/*.ts',
 			'src/features/interruption/utils/breathing-sphere-geometry/**/*.ts',
 			'src/features/preferences/services/preferences-controller/**/*.ts',
+			'src/features/popup/types/**/*.ts',
 		],
 		include: [ 'src/**/*.ts' ],
 		threshold: {

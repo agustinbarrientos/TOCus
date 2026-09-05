@@ -57,6 +57,8 @@ export default defineConfig( {
 				'apps/extension/src/features/interruption/utils/breathing-sphere-geometry/**/*.ts',
 				'apps/extension/src/features/protection-runtime/**/*.ts',
 				'apps/extension/src/features/popup/services/**/*.ts',
+				'apps/extension/src/features/popup/types/**/*.ts',
+				'apps/extension/src/features/popup/utils/**/*.ts',
 				'apps/extension/src/features/statistics/services/**/*.ts',
 				'apps/extension/src/features/statistics/types/**/*.ts',
 				'apps/extension/src/features/statistics/utils/**/*.ts',
