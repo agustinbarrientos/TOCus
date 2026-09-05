@@ -3,7 +3,6 @@ import { Language } from '../../../domains/preferences/types';
 import { CompletionAction } from '../../../domains/protection/types/completion-action';
 import { Weekday } from '../../../domains/protection/types/protection-schedule';
 import { ToolbarBadgeDurationUnit } from '../../../features/protection-runtime/utils/toolbar-badge-projection/types';
-import { loadLocalizationCatalog } from '../../catalogs';
 import { createLocalizationBundle, loadLocalizationBundle } from '../../index';
 
 describe( 'createLocalizationBundle', () => {
@@ -23,6 +22,11 @@ describe( 'createLocalizationBundle', () => {
 		expect( bundle.language ).toBe( Language.ENGLISH );
 		expect( bundle.languageTag ).toBe( 'en' );
 		expect( bundle.document.settingsTitle ).toBe( 'TOCus settings' );
+		expect( bundle.document.onboardingTitle ).toBe( 'Welcome to TOCus' );
+		expect( bundle.onboarding.language.title ).toBe( 'Choose your language' );
+		expect( bundle.onboarding.appearance.themeOptions.system.label ).toBe( 'System' );
+		expect( bundle.onboarding.appearance.paletteLabels.brown ).toBe( 'Brown' );
+		expect( bundle.onboarding.sites.suggestionsLegend ).toBe( 'Popular choices' );
 	} );
 
 	it.each( [
@@ -48,14 +52,15 @@ describe( 'createLocalizationBundle', () => {
 		const bundle = await loadLocalizationBundle( Language.ENGLISH );
 
 		expect( bundle.document.settingsTitle ).toBe( 'TOCus settings' );
-		expect( bundle.popup.status ).toBe( 'Early development' );
+		expect( bundle.popup.status ).toBe( 'Private by design' );
+		expect( bundle.popup.foundationNote ).toBe( 'Your settings and statistics stay on this device.' );
 		expect( bundle.settingsShell.navigationLabel ).toBe( 'Settings' );
 		expect( bundle.languageScreen.languageLabel ).toBe( 'TOCus language' );
 		expect( bundle.appearance.themeOptions.system.label ).toBe( 'System' );
-		expect( bundle.schedule.sharedScope ).toBe( 'Shared protection' );
+		expect( bundle.schedule.sharedScope ).toBe( 'Shared timing' );
 		expect( bundle.timing.initialWaitLabel ).toBe( 'Initial wait' );
-		expect( bundle.protectedSites.emptyTitle ).toBe( 'No protected sites yet' );
-		expect( bundle.protectedSiteList.sharedGroupTitle ).toBe( 'Shared protection' );
+		expect( bundle.protectedSites.emptyTitle ).toBe( 'No websites yet' );
+		expect( bundle.protectedSiteList.sharedGroupTitle ).toBe( 'Shared timing' );
 		expect( bundle.protectedSiteItem.accessRequired ).toBe( 'Access required' );
 		expect( bundle.statistics.allTimeTitle ).toBe( 'All time' );
 		expect( bundle.interruption.takeAMoment ).toBe( 'Take a moment' );
@@ -75,33 +80,26 @@ describe( 'createLocalizationBundle', () => {
 		expect( bundle.schedule.formatWindowLabel( 2 ) ).toBe( 'Time window 2' );
 		expect( bundle.schedule.formatRemoveWindowLabel( 2 ) ).toBe( 'Remove time window 2' );
 		expect( bundle.protectedSites.formatAddedAnnouncement( 'Reddit' ) ).toBe(
-			'Reddit was added to protected sites.',
+			'Reddit was added to your list.',
 		);
 		expect( bundle.protectedSiteItem.formatBoundary( 'reddit.com', true ) ).toBe(
-			'Protects reddit.com and its subdomains',
+			'Includes reddit.com and its subdomains',
 		);
-		expect( bundle.protectedSiteItem.formatBoundary( 'reddit.com', false ) ).toBe( 'Protects only reddit.com' );
+		expect( bundle.protectedSiteItem.formatBoundary( 'reddit.com', false ) ).toBe( 'Includes only reddit.com' );
 		expect( bundle.protectedSiteItem.formatRemoveQuestion( 'Reddit' ) ).toBe( 'Remove Reddit?' );
 		expect( bundle.interruption.formatRemainingTime( 12 ) ).toBe( '12s remaining' );
 		expect( bundle.protectedPageLayer.formatAllowanceWarning( 1 ) ).toBe(
 			'Your visit window ends in 1 second.',
 		);
 		expect( bundle.protectedPageLayer.formatAllowanceWarning( 2 ) ).toBe( 'Your visit window ends in 2 seconds.' );
+		expect( bundle.onboarding.formatStepProgress( 2, 3, 'Appearance' ) ).toBe( 'Step 2 of 3: Appearance' );
+		expect( bundle.onboarding.sites.formatAddSuggestionLabel( 'Instagram' ) ).toBe( 'Add Instagram' );
 	} );
 
-	it( 'rejects a translator template whose named value is unavailable', async () => {
-		const catalog = await loadLocalizationCatalog( Language.ENGLISH );
-		const bundle = createLocalizationBundle( Language.ENGLISH, {
-			...catalog,
-			languageScreen: {
-				...catalog.languageScreen,
-				browserLanguageDescription: '{missing}',
-			},
-		} );
+	it( 'falls back to source English when one compiled translation is missing', () => {
+		const bundle = createLocalizationBundle( Language.FRENCH, {} );
 
-		expect( () => bundle.languageScreen.formatBrowserLanguageDescription( 'English' ) ).toThrow(
-			'No localized value was provided for {missing}.',
-		);
+		expect( bundle.document.settingsTitle ).toBe( 'TOCus settings' );
 	} );
 
 	it( 'formats numbers and plural categories with the selected locale', async () => {
@@ -175,7 +173,7 @@ describe( 'createLocalizationBundle', () => {
 		const multipleIndicator = bundle.toolbar.formatMultipleIndicator( 120 );
 
 		expect( bundle.toolbar.formatActiveTitle( 'Pause: complete' ) ).toBe( 'TOCus: Pause: complete' );
-		expect( bundle.toolbar.formatMultipleIndicator( 2 ) ).toBe( '2×' );
+		expect( bundle.toolbar.formatMultipleIndicator( 2 ) ).toBe( '2\u00d7' );
 		expect( multipleIndicator ).toBe( '99+' );
 
 		expect( bundle.toolbar.formatWaiting( 0, ToolbarBadgeDurationUnit.SECOND ) ).toEqual( {
@@ -196,7 +194,7 @@ describe( 'createLocalizationBundle', () => {
 		} );
 		expect( bundle.toolbar.formatMultipleActive( 120, multipleIndicator ) ).toEqual( {
 			text: '99+',
-			title: '120 protected-site timers active',
+			title: '120 timers active',
 		} );
 	} );
 
@@ -204,10 +202,10 @@ describe( 'createLocalizationBundle', () => {
 		const japanese = await loadLocalizationBundle( Language.JAPANESE );
 		const russian = await loadLocalizationBundle( Language.RUSSIAN );
 
-		expect( japanese.toolbar.formatActiveTitle( '一時停止：完了' ) ).toBe( 'TOCus：一時停止：完了' );
-		expect( japanese.toolbar.formatMultipleIndicator( 2 ) ).toBe( '2件' );
-		expect( japanese.toolbar.formatMultipleIndicator( 120 ) ).toBe( '99件+' );
-		expect( russian.toolbar.formatMultipleIndicator( 2 ) ).toBe( '2×' );
+		expect( japanese.toolbar.formatActiveTitle( '\u4e00\u6642\u505c\u6b62\uff1a\u5b8c\u4e86' ) ).toBe( 'TOCus\uff1a\u4e00\u6642\u505c\u6b62\uff1a\u5b8c\u4e86' );
+		expect( japanese.toolbar.formatMultipleIndicator( 2 ) ).toBe( '2\u4ef6' );
+		expect( japanese.toolbar.formatMultipleIndicator( 120 ) ).toBe( '99\u4ef6+' );
+		expect( russian.toolbar.formatMultipleIndicator( 2 ) ).toBe( '2\u00d7' );
 		expect( russian.toolbar.formatMultipleIndicator( 120 ) ).toBe( '99+' );
 	} );
 
@@ -241,6 +239,12 @@ describe( 'createLocalizationBundle', () => {
 		const bundle = await loadLocalizationBundle( language );
 		const messages = [
 			bundle.languageScreen.formatBrowserLanguageDescription( 'English' ),
+			bundle.onboarding.formatStepProgress( 2, 3, bundle.onboarding.stepNames.appearance ),
+			bundle.onboarding.appearance.previewTitle,
+			bundle.onboarding.sites.formatAddSuggestionLabel( 'Instagram' ),
+			bundle.onboarding.sites.formatAddingSuggestionLabel( 'Instagram' ),
+			bundle.onboarding.sites.formatAddedSuggestionLabel( 'Instagram' ),
+			bundle.onboarding.sites.formatAddedAnnouncement( 'Instagram' ),
 			bundle.schedule.formatIndependentScopeLabel( 'Reddit', 'reddit.com' ),
 			bundle.schedule.formatWeekday( Weekday.SUNDAY ),
 			bundle.schedule.formatWindowLabel( 3 ),
