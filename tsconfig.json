@@ -5,8 +5,9 @@
 		"target": "ES2022",
 		"module": "ESNext",
 		"moduleResolution": "Bundler",
+		"allowImportingTsExtensions": true,
 		"resolveJsonModule": true,
 		"types": [ "node" ]
 	},
-	"include": ["config/**/*.ts", "apps/**/tests/**/*.ts", "packages/**/*.ts"]
+	"include": ["lingui.config.ts", "config/**/*.ts", "apps/**/tests/**/*.ts", "packages/**/*.ts"]
 }
