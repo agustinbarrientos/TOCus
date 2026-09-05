@@ -25,6 +25,7 @@ export default defineConfig( {
 				'apps/extension/src/localization/index.ts',
 			],
 			include: [
+				'apps/extension/config/icons/**/*.ts',
 				'apps/extension/config/localization/**/*.ts',
 				'apps/extension/config/vite/**/*.ts',
 				'apps/website/src/localization/**/*.ts',
@@ -32,6 +33,7 @@ export default defineConfig( {
 				'apps/extension/src/domains/protection/**/*.ts',
 				'apps/extension/src/domains/statistics/**/*.ts',
 				'apps/extension/src/localization/**/*.ts',
+				'apps/extension/src/shared/**/*.ts',
 				'apps/extension/src/entrypoints/background/index.ts',
 				'apps/extension/src/entrypoints/interruption/index.ts',
 				'apps/extension/src/entrypoints/onboarding/index.ts',
