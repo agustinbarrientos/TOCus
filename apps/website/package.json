@@ -9,6 +9,7 @@
 		"typecheck": "astro check"
 	},
 	"dependencies": {
+		"@lingui/core": "6.6.0",
 		"@tocus/theme": "workspace:*",
 		"astro": "7.2.9"
 	},
