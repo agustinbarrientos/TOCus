@@ -14,1072 +14,1361 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. Standalone duration displayed as a whole number of hours.
-#: apps/extension/src/localization/utils/create-localization-bundle/formatters.ts
+#: apps/extension/src/localization/utils/format-localized-duration/index.ts
 msgid "{count, plural, one {# hour} other {# hours}}"
 msgstr "{count, plural, zero {# часов} one {# час} two {# часа} few {# часа} many {# часов} other {# часа}}"
 
 #. Standalone duration displayed as a whole number of minutes.
-#: apps/extension/src/localization/utils/create-localization-bundle/formatters.ts
+#: apps/extension/src/localization/utils/format-localized-duration/index.ts
 msgid "{count, plural, one {# minute} other {# minutes}}"
 msgstr "{count, plural, zero {# минут} one {# минута} two {# минуты} few {# минуты} many {# минут} other {# минуты}}"
 
-#. Browser toolbar tooltip when several protection scopes have active timers.
-#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
-msgid "{count, plural, one {# protected-site timer active} other {# protected-site timers active}}"
-msgstr "{count, plural, zero {Активно # таймеров защищённых сайтов} one {Активен # таймер защищённого сайта} two {Активны # таймера защищённых сайтов} few {Активны # таймера защищённых сайтов} many {Активно # таймеров защищённых сайтов} other {Активно # таймера защищённого сайта}}"
-
 #. Standalone duration displayed as a whole number of seconds.
-#: apps/extension/src/localization/utils/create-localization-bundle/formatters.ts
+#: apps/extension/src/localization/utils/format-localized-duration/index.ts
 msgid "{count, plural, one {# second} other {# seconds}}"
 msgstr "{count, plural, zero {# секунд} one {# секунда} two {# секунды} few {# секунды} many {# секунд} other {# секунды}}"
 
+#. Browser toolbar tooltip when several protection scopes have active timers.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "{count, plural, one {# timer active} other {# timers active}}"
+msgstr "{count, plural, zero {Активно # таймеров} one {Активен # таймер} two {Активно # таймера} few {Активно # таймера} many {Активно # таймеров} other {Активно # таймера}}"
+
 #. Compact countdown shown during a focused pause. The letter s means seconds.
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "{count, plural, one {#s remaining} other {#s remaining}}"
 msgstr "{count, plural, zero {Осталось # с} one {Осталась # с} two {Осталось # с} few {Осталось # с} many {Осталось # с} other {Осталось # с}}"
 
 #. Browser toolbar tooltip while a focused pause has whole minutes remaining.
-#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "{count, plural, one {Pause: # minute remaining} other {Pause: # minutes remaining}}"
 msgstr "{count, plural, zero {Пауза: осталось # минут} one {Пауза: осталась # минута} two {Пауза: осталось # минуты} few {Пауза: осталось # минуты} many {Пауза: осталось # минут} other {Пауза: осталось # минуты}}"
 
 #. Browser toolbar tooltip while a focused pause has seconds remaining.
-#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "{count, plural, one {Pause: # second remaining} other {Pause: # seconds remaining}}"
 msgstr "{count, plural, zero {Пауза: осталось # секунд} one {Пауза: осталась # секунда} two {Пауза: осталось # секунды} few {Пауза: осталось # секунды} many {Пауза: осталось # секунд} other {Пауза: осталось # секунды}}"
 
 #. Browser toolbar tooltip while a protected-site visit window has whole minutes remaining.
-#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "{count, plural, one {Visit window: # minute remaining} other {Visit window: # minutes remaining}}"
 msgstr "{count, plural, zero {Период доступа: осталось # минут} one {Период доступа: осталась # минута} two {Период доступа: осталось # минуты} few {Период доступа: осталось # минуты} many {Период доступа: осталось # минут} other {Период доступа: осталось # минуты}}"
 
 #. Warning shown shortly before an active protected-site visit window ends.
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-page-layer-copy/index.ts
 msgid "{count, plural, one {Your visit window ends in # second.} other {Your visit window ends in # seconds.}}"
 msgstr "{count, plural, zero {Период доступа закончится через # секунд.} one {Период доступа закончится через # секунду.} two {Период доступа закончится через # секунды.} few {Период доступа закончится через # секунды.} many {Период доступа закончится через # секунд.} other {Период доступа закончится через # секунды.}}"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+#. Compact toolbar count above the visible limit; keep the plus sign and keep it very short.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "{count}+"
 msgstr "{count}+"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+#. Compact toolbar count for multiple active protection scopes; keep it very short.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "{count}×"
 msgstr "{count}×"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "{name} ({domain})"
 msgstr "{name} ({domain})"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "{name} access was restored."
 msgstr "Доступ к {name} восстановлен."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "{name} was added to protected sites."
-msgstr "{name} добавлен в список защищённых сайтов."
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "{name} was added to your list."
+msgstr "Сайт {name} добавлен в ваш список."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "{name} was removed from protected sites."
-msgstr "{name} удалён из списка защищённых сайтов."
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "{name} was removed from your list."
+msgstr "Сайт {name} удалён из вашего списка."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "{name} was removed, but its browser access could not be removed automatically."
 msgstr "{name} удалён, но доступ браузера к нему не удалось отозвать автоматически."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "{name} was updated."
 msgstr "Сайт {name} обновлён."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
-msgid "{visibleScopeCount}"
-msgstr "{visibleScopeCount}"
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "{siteName} added"
+msgstr "Сайт {siteName} добавлен"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "{siteName} was added to your list."
+msgstr "Сайт {siteName} добавлен в ваш список."
 
 #. Short extension description shown by the browser and extension store.
-#: apps/extension/src/localization/catalogs/create-browser-locale-messages.ts
+#: apps/extension/src/localization/utils/create-browser-locale-messages/index.ts
 msgctxt "Extension description"
 msgid "A gentle pause before distracting websites, designed to help you return to your intentions."
 msgstr "Мягкая пауза перед отвлекающими сайтами, которая помогает вернуться к своим намерениям."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgctxt "Popup summary"
 msgid "A gentle pause before distracting websites, designed to help you return to your intentions."
 msgstr "Небольшая пауза перед отвлекающими сайтами помогает вернуться к своим намерениям."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "A private, all-time view of the pauses and choices TOCus has supported on this device."
 msgstr "Приватный обзор всех пауз и решений, которые TOCus поддержал на этом устройстве."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "A soft clay sphere expands as you breathe in and settles as you breathe out."
 msgstr "Мягкая глиняная сфера расширяется на вдохе и сжимается на выдохе."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "A soft clay sphere rests at the center of the screen."
 msgstr "Мягкая глиняная сфера неподвижно находится в центре экрана."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "A soft sphere guides your breathing."
 msgstr "Мягкая сфера направляет дыхание."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "A still pause with no breathing cue."
 msgstr "Неподвижная пауза без подсказок для дыхания."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "About {duration}"
 msgstr "Около {duration}"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Access required"
 msgstr "Требуется доступ"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Accessibility"
 msgstr "Специальные возможности"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Active time windows"
 msgstr "Активные интервалы"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Add site"
-msgstr "Добавить сайт"
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Add {siteName}"
+msgstr "Добавить {siteName}"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Add a pause here"
+msgstr "Добавить паузу здесь"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Add another site"
+msgstr "Добавить другой сайт"
+
+#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "Add the first site you want TOCus to gently interrupt."
 msgstr "Добавьте первый сайт, который TOCus будет мягко прерывать."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Add time window"
 msgstr "Добавить интервал"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Adding {siteName}..."
+msgstr "Добавляем {siteName}..."
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Adding..."
 msgstr "Добавление..."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "All the time"
 msgstr "Всегда"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "All time"
 msgstr "За всё время"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Allow access"
 msgstr "Разрешить доступ"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Allowance"
 msgstr "Период доступа"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Allowances granted"
 msgstr "Предоставленные периоды доступа"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Allowing..."
 msgstr "Предоставление доступа..."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "An end time earlier than its start continues into the next day."
 msgstr "Если время окончания раньше времени начала, интервал продолжается на следующий день."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 msgid "Appearance"
 msgstr "Оформление"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Appearance and accessibility preferences"
 msgstr "Настройки оформления и специальных возможностей"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Appearance saved."
 msgstr "Оформление сохранено."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Appearance settings could not load"
 msgstr "Не удалось загрузить настройки оформления"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Applies to"
 msgstr "Применяется к"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Blue"
 msgstr "Синий"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Brasil"
+msgstr "Brasil"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Breathe in"
 msgstr "Вдохните"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Breathe out"
 msgstr "Выдохните"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Breathing"
 msgstr "Дыхание"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Brown"
 msgstr "Коричневый"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Browser access could not be requested. Nothing was saved."
 msgstr "Не удалось запросить доступ браузера. Ничего не сохранено."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Browser access is required to protect this website. Nothing was saved."
-msgstr "Для защиты этого сайта нужен доступ браузера. Ничего не сохранено."
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Browser access is still required to show the pause on this website."
+msgstr "Для показа паузы на этом сайте по-прежнему нужен доступ браузера."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Browser access is still required to protect this site."
-msgstr "Для защиты этого сайта по-прежнему нужен доступ браузера."
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Browser access to show the pause on this website is required. Nothing was saved."
+msgstr "Для показа паузы на этом сайте нужен доступ браузера. Ничего не сохранено."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Cancel"
 msgstr "Отмена"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Check the schedule and try again."
 msgstr "Проверьте расписание и повторите попытку."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Choose a maximum that is at least as long as the initial wait."
 msgstr "Выберите максимум не короче первого ожидания."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Choose a start time."
 msgstr "Выберите время начала."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Choose an end time."
 msgstr "Выберите время окончания."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "Choose the appearance and color that feel right for you."
+msgstr "Выберите подходящие вам оформление и цвет."
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Choose the colors and pause style that feel right for you."
 msgstr "Выберите удобные цвета и стиль паузы."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Choose the days and times when protection should be active."
-msgstr "Выберите дни и время действия защиты."
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Choose the days and times when TOCus should be active."
+msgstr "Выберите дни и время, когда TOCus должен быть активен."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Choose the language TOCus uses across the extension."
 msgstr "Выберите язык интерфейса TOCus во всём расширении."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Choose the websites where a calm pause can help you return to your intentions."
 msgstr "Выберите сайты, на которых спокойная пауза поможет вернуться к своим намерениям."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Choose when protection is active. Times use this device’s current time zone."
-msgstr "Выберите, когда защита активна. Время указано в текущем часовом поясе устройства."
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Choose websites"
+msgstr "Выберите сайты"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Choose when TOCus is active. Times use this device's current time zone."
+msgstr "Выберите, когда TOCus должен быть активен. Время указано в текущем часовом поясе устройства."
+
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Choose your language"
+msgstr "Выберите язык"
+
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "Color"
+msgstr "Цвет"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Color palette"
 msgstr "Цветовая палитра"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Completed waits"
 msgstr "Завершённые ожидания"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Completing a wait pauses protection for this long."
-msgstr "После завершения ожидания защита приостанавливается на это время."
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Completing a wait keeps your websites available for this long."
+msgstr "После завершения ожидания сайты будут доступны в течение этого времени."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
 msgid "Continue"
 msgstr "Продолжить"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "Create a gentle pause before the websites you choose."
+msgstr "Создайте мягкую паузу перед выбранными сайтами."
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Dark"
 msgstr "Тёмная"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Day"
 msgstr "День недели"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#. Language autonym. Keep the language name written in German.
+#. Language-menu autonym. Keep this language name written in German.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Deutsch"
+msgstr "Deutsch"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Discard changes"
 msgstr "Отменить изменения"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Display name"
 msgstr "Отображаемое название"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Each completed wait adds this amount to the next wait that day."
 msgstr "Каждое завершённое ожидание увеличивает следующее ожидание этого дня на указанное время."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "Each of these sites keeps its own wait ladder and allowance."
 msgstr "У каждого из этих сайтов есть собственная шкала ожидания и период доступа."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
-msgid "Early development"
-msgstr "Ранняя версия"
-
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Edit"
-msgstr "Изменить"
-
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#. Label for the end-time field of a scheduled protection window.
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "End"
 msgstr "Окончание"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#. Language autonym. Keep the language name written in English.
+#. Language-menu autonym. Keep this language name written in English.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "English"
+msgstr "English"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Enter a domain or a full web address. TOCus includes the whole domain by default."
+msgstr "Введите домен или полный веб-адрес. По умолчанию TOCus включает весь домен."
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Enter a valid website address, such as example.com."
 msgstr "Введите допустимый адрес сайта, например example.com."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Enter a website address or domain. Whole-domain protection includes its subdomains."
-msgstr "Введите адрес сайта или домен. Защита всего домена распространяется и на его поддомены."
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Enter a valid website address."
+msgstr "Введите корректный адрес сайта."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Estimated protected-site time avoided, based on your prior focused use."
-msgstr "Оценка времени, не потраченного на защищённые сайты, на основе предыдущего сосредоточенного использования."
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Enter a website address or domain. TOCus includes its subdomains by default."
+msgstr "Введите адрес сайта или домен. По умолчанию TOCus включает и его поддомены."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#. Language autonym. Keep the language name written in Spanish.
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Español"
+msgstr "Español"
+
+#. Language-menu autonym for the tuteo variant. Keep this language name written in Spanish.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Español (tú)"
+msgstr "Español (tú)"
+
+#. Language-menu autonym for the voseo variant. Keep this language name written in Spanish.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Español (vos)"
+msgstr "Español (vos)"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Estimated browsing time avoided on your selected websites, based on your prior focused use."
+msgstr "Расчётное время, которое удалось сэкономить на просмотре выбранных сайтов, на основе данных об их предыдущем активном использовании."
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Estimated time reclaimed"
 msgstr "Оценка возвращённого времени"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "example.com"
 msgstr "example.com"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Finish setup"
+msgstr "Завершить настройку"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Follow your device appearance."
 msgstr "Следовать настройкам оформления устройства."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#. Language autonym. Keep the language name written in French.
+#. Language-menu autonym. Keep this language name written in French.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Français"
+msgstr "Français"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Friday"
 msgstr "Пятница"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Give this site its own wait and allowance."
 msgstr "Использовать для этого сайта собственное ожидание и период доступа."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Give this website its own timing"
+msgstr "Задать отдельные интервалы для этого сайта"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Global timing"
 msgstr "Общие интервалы"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Green"
 msgstr "Зелёный"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "How should this site behave?"
 msgstr "Как защищать этот сайт?"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Includes {host} and its subdomains"
+msgstr "Включает {host} и его поддомены"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Includes only {host}"
+msgstr "Включает только {host}"
+
+#. Status adjective for a site with its own protection timing.
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Independent"
 msgstr "Независимая"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "Independent sites"
 msgstr "Независимые сайты"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Initial wait"
 msgstr "Первое ожидание"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Keep protection active every day and at every time."
-msgstr "Защита активна каждый день и круглосуточно."
+#. Language autonym. Keep the language name written in Italian.
+#. Language-menu autonym. Keep this language name written in Italian.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Italiano"
+msgstr "Italiano"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Keep site"
 msgstr "Оставить сайт"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Keep the pause still and remove movement."
 msgstr "Оставить экран паузы неподвижным и убрать анимацию."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Keep TOCus active every day and at every time."
+msgstr "TOCus будет активен каждый день круглосуточно."
+
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 msgid "Language"
 msgstr "Язык"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Language preference"
 msgstr "Настройки языка"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Language saved."
 msgstr "Язык сохранён."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Language settings could not load"
 msgstr "Не удалось загрузить настройки языка"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Less than 1 minute"
 msgstr "Меньше 1 минуты"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Let's try that again"
 msgstr "Попробуем ещё раз"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Light"
 msgstr "Светлая"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Loading appearance settings..."
 msgstr "Загрузка настроек оформления..."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Loading language settings..."
 msgstr "Загрузка настроек языка..."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Loading protected sites..."
-msgstr "Загрузка защищённых сайтов..."
-
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Loading schedule..."
 msgstr "Загрузка расписания..."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Loading statistics..."
 msgstr "Загрузка статистики..."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Loading timing settings..."
 msgstr "Загрузка настроек интервалов..."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Loading websites..."
+msgstr "Загрузка сайтов..."
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Local data"
 msgstr "Локальные данные"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "Make TOCus yours"
+msgstr "Настройте TOCus под себя"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Manage this website"
+msgstr "Управлять этим сайтом"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Maximum wait"
 msgstr "Максимальное ожидание"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Maximum wait must be at least as long as the initial wait."
 msgstr "Максимальное ожидание должно быть не короче первого ожидания."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Monday"
 msgstr "Понедельник"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "No protected sites yet"
-msgstr "Защищённых сайтов пока нет"
+#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
+msgid "No websites yet"
+msgstr "Сайтов пока нет"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Not enough history yet"
 msgstr "Истории пока недостаточно"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "On a weekly schedule"
 msgstr "По недельному расписанию"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "Open Settings"
+msgstr "Открыть настройки"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Open the requested site as soon as the wait ends."
 msgstr "Открыть запрошенный сайт сразу после завершения ожидания."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Open the site automatically"
 msgstr "Открыть сайт автоматически"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Or press {key}"
 msgstr "Или нажмите {key}"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Orange"
 msgstr "Оранжевый"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+#. Compact toolbar badge. P means pause and m means minutes; keep it very short.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "P{count}m"
 msgstr "П{count}м"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+#. Compact toolbar badge. P means pause and s means seconds; keep it very short.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "P{count}s"
 msgstr "П{count}с"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Pause behavior"
+msgstr "Поведение паузы"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Pause setup"
+msgstr "Настройка паузы"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Pause style"
 msgstr "Стиль паузы"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "Pause: complete"
 msgstr "Пауза: завершена"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Personalization"
 msgstr "Персонализация"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Personalization defaults restored."
 msgstr "Настройки персонализации по умолчанию восстановлены."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Personalization settings need your attention"
 msgstr "Настройки персонализации требуют внимания"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Pick any suggestions or add a site yourself. You can finish without choosing one."
+msgstr "Выберите сайты из списка или добавьте свой. Можно завершить, ничего не выбирая."
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Pink"
 msgstr "Розовый"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Protect independently"
-msgstr "Защищать независимо"
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Popular choices"
+msgstr "Популярные сайты"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Protected sites"
-msgstr "Защищённые сайты"
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Portugal"
+msgstr "Portugal"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Protected sites could not load"
-msgstr "Не удалось загрузить защищённые сайты"
+#. Language autonym. Keep the language name written in Portuguese.
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Português"
+msgstr "Português"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Protected sites need your attention"
-msgstr "Защищённые сайты требуют внимания"
+#. Language-menu autonym for Brazilian Portuguese. Keep this language name written in Portuguese.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Português (Brasil)"
+msgstr "Português (Brasil)"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Protection"
-msgstr "Защита"
+#. Language-menu autonym for European Portuguese. Keep this language name written in Portuguese.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+msgid "Português (Portugal)"
+msgstr "Português (Portugal)"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Protection behavior"
-msgstr "Режим защиты"
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Private by design"
+msgstr "Приватность в основе"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Protects {host} and its subdomains"
-msgstr "Защищает {host} и его поддомены"
-
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Protects only {host}"
-msgstr "Защищает только {host}"
-
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Purple"
 msgstr "Фиолетовый"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Quiet pause"
 msgstr "Тихая пауза"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Reconsidered visits"
 msgstr "Пересмотренные посещения"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Reduce motion"
 msgstr "Уменьшить движение"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Remove"
 msgstr "Удалить"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Remove {name}?"
 msgstr "Удалить {name}?"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Remove site"
 msgstr "Удалить сайт"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Remove time window {position}"
 msgstr "Удалить интервал {position}"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Remove window"
 msgstr "Удалить интервал"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Reset statistics"
 msgstr "Сбросить статистику"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Reset statistics?"
 msgstr "Сбросить статистику?"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Resetting..."
 msgstr "Сброс..."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Restore personalization defaults"
 msgstr "Восстановить настройки персонализации по умолчанию"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Saturday"
 msgstr "Суббота"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Save changes"
 msgstr "Сохранить изменения"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Save or discard these changes before choosing another scope."
 msgstr "Сохраните или отмените изменения, прежде чем выбирать другую область."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Save schedule"
 msgstr "Сохранить расписание"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Save timing"
 msgstr "Сохранить интервалы"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Saving..."
 msgstr "Сохранение..."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 msgid "Schedule"
 msgstr "Расписание"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Schedule could not load"
 msgstr "Не удалось загрузить расписание"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Schedule saved."
 msgstr "Расписание сохранено."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Set one calm timing pattern for every protected site."
-msgstr "Задайте спокойный порядок ожидания для всех защищённых сайтов."
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Set one calm timing pattern for every website on your list."
+msgstr "Задайте единые спокойные интервалы для всех сайтов в вашем списке."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 msgid "Settings"
 msgstr "Настройки"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Share protection"
-msgstr "Использовать общую защиту"
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "Setup progress"
+msgstr "Ход настройки"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Share with other protected sites"
-msgstr "Использовать общую защиту"
-
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#. Status adjective for a site that shares protection timing with other sites.
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Shared"
 msgstr "Общая"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Shared protection"
-msgstr "Общая защита"
+#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Shared timing"
+msgstr "Общие интервалы"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Show a Continue button"
 msgstr "Показать кнопку «Продолжить»"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-wellbeing-copy/index.ts
 msgid "Since you started, you've given yourself about {estimatedReclaimedTime} back and taken {focusedPauseTime} for yourself."
 msgstr "С начала использования вы вернули себе около {estimatedReclaimedTime} и уделили себе {focusedPauseTime}."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-wellbeing-copy/index.ts
 msgid "Since you started, you've given yourself about {estimatedReclaimedTime} back."
 msgstr "С начала использования вы вернули себе около {estimatedReclaimedTime}."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-wellbeing-copy/index.ts
 msgid "Since you started, you've taken {focusedPauseTime} for yourself."
 msgstr "С начала использования вы уделили себе {focusedPauseTime}."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Something went wrong while adding that site. Try again."
+msgstr "При добавлении сайта произошла ошибка. Попробуйте ещё раз."
+
+#. Label printed inside the keyboard-key visual for the space bar.
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Space"
 msgstr "Пробел"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#. Label for the start-time field of a scheduled protection window.
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Start"
 msgstr "Начало"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Start and end time must be different."
 msgstr "Время начала и окончания должно различаться."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Statistics"
 msgstr "Статистика"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Statistics are unavailable"
 msgstr "Статистика недоступна"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Statistics could not be reset"
 msgstr "Не удалось сбросить статистику"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Statistics were reset. Your totals now start from zero."
 msgstr "Статистика сброшена. Итоги теперь накапливаются с нуля."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "Step {currentStep} of {totalSteps}: {stepName}"
+msgstr "Шаг {currentStep} из {totalSteps}: {stepName}"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Sunday"
 msgstr "Воскресенье"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "System"
 msgstr "Системная"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Take a moment"
 msgstr "Остановитесь на мгновение"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "That website is already on your list."
+msgstr "Этот сайт уже есть в вашем списке."
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "The first interruption of the day starts with this wait."
 msgstr "Первое прерывание за день начинается с этого ожидания."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "The local configuration could not be updated safely."
 msgstr "Не удалось безопасно обновить локальную конфигурацию."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "The schedule could not be saved. Your settings were not changed."
 msgstr "Не удалось сохранить расписание. Настройки не изменились."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "The selected palette colors the complete pause experience."
 msgstr "Выбранная палитра применяется ко всему экрану паузы."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "The website name is not valid."
 msgstr "Недопустимое название сайта."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Theme"
 msgstr "Тема"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "These sites share one wait ladder and allowance."
 msgstr "Эти сайты используют общую шкалу ожидания и период доступа."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "These timing choices are not valid. Review them before saving."
 msgstr "Выбранные интервалы недействительны. Проверьте их перед сохранением."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+#: apps/extension/src/localization/utils/create-wellbeing-copy/index.ts
 msgid "This is a moment just for you."
 msgstr "Это время только для вас."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "This protected site no longer exists."
-msgstr "Этот защищённый сайт больше не существует."
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
+msgid "This is what you'll see"
+msgstr "Вот что вы увидите"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "This protection scope is no longer available. Reload the page and try again."
-msgstr "Эта область защиты больше недоступна. Перезагрузите страницу и повторите попытку."
-
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "This site changed elsewhere. Reload settings and try again."
 msgstr "Этот сайт был изменён в другом месте. Перезагрузите настройки и повторите попытку."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
-msgid "This source build includes only the extension foundation. Protection and pause features are still being developed."
-msgstr "Эта сборка исходного кода содержит только основу расширения. Функции защиты и паузы всё ещё разрабатываются."
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "This site was not saved, but TOCus may still have browser access to it. Add it again to finish setup, or remove that access from your browser's extension settings."
+msgstr "Этот сайт не был сохранён, но у TOCus всё ещё может быть доступ к нему через браузер. Добавьте его снова, чтобы завершить настройку, или удалите этот доступ в настройках расширений браузера."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "This timing group is no longer available. Reload the page and try again."
+msgstr "Эта группа интервалов больше недоступна. Перезагрузите страницу и повторите попытку."
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "This visit window has ended. Start another pause when you are ready."
 msgstr "Этот период доступа завершён. Начните новую паузу, когда будете готовы."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "This website could not be saved. Its browser access may still be active."
 msgstr "Не удалось сохранить этот сайт. Доступ браузера к нему может оставаться активным."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "This website could not be saved. Your entry is still here."
 msgstr "Не удалось сохранить этот сайт. Введённые данные остались на экране."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "This website is already protected by an existing rule."
-msgstr "Этот сайт уже защищён существующим правилом."
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "This website is already on your list."
+msgstr "Этот сайт уже есть в вашем списке."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "This website is no longer on your list."
+msgstr "Этого сайта больше нет в вашем списке."
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Thursday"
 msgstr "Четверг"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Time window {position}"
 msgstr "Интервал {position}"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Time you took to pause"
 msgstr "Время на паузы"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Timing"
 msgstr "Интервалы"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Timing settings could not be saved. Your choices are still here."
 msgstr "Не удалось сохранить настройки интервалов. Выбранные значения остались на экране."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Timing settings could not load"
 msgstr "Не удалось загрузить настройки интервалов"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Timing settings need your attention"
 msgstr "Настройки интервалов требуют внимания"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Timing settings were saved."
 msgstr "Настройки интервалов сохранены."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Timing summary"
 msgstr "Обзор интервалов"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
-#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+#: apps/extension/src/localization/utils/create-document-copy/index.ts
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "TOCus"
 msgstr "TOCus"
 
 #. Extension name.
-#: apps/extension/src/localization/catalogs/create-browser-locale-messages.ts
+#: apps/extension/src/localization/utils/create-browser-locale-messages/index.ts
 msgctxt "Extension name"
 msgid "TOCus"
 msgstr "TOCus"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "TOCus could not confirm the reset. No totals are shown until your local statistics can be read again."
 msgstr "TOCus не удалось подтвердить сброс. Итоги не будут показаны, пока локальную статистику снова не удастся прочитать."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "TOCus could not create independent protection for this site."
-msgstr "TOCus не удалось создать независимую защиту для этого сайта."
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "TOCus could not create separate timing for this site."
+msgstr "TOCus не удалось создать отдельные интервалы для этого сайта."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "TOCus could not finish opening"
+msgstr "Не удалось полностью запустить TOCus"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "TOCus could not load local appearance settings. Nothing was changed."
 msgstr "TOCus не удалось загрузить локальные настройки оформления. Ничего не изменилось."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "TOCus could not load local settings. Nothing was changed."
 msgstr "TOCus не удалось загрузить локальные настройки. Ничего не изменилось."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "TOCus could not load local timing settings. Nothing was changed."
 msgstr "TOCus не удалось загрузить локальные настройки интервалов. Ничего не изменилось."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "TOCus could not load your local language setting. Nothing was changed."
 msgstr "TOCus не удалось загрузить локальные настройки языка. Ничего не изменилось."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "TOCus could not read your local statistics. No estimates or totals are shown."
 msgstr "TOCus не удалось прочитать локальную статистику. Оценки и итоги не показаны."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "TOCus could not restore this pause."
 msgstr "TOCus не удалось восстановить эту паузу."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "TOCus could not restore your personalization defaults. Nothing was changed."
 msgstr "TOCus не удалось восстановить настройки персонализации по умолчанию. Ничего не изменилось."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "TOCus could not save that site. Try again."
+msgstr "TOCus не удалось сохранить этот сайт. Попробуйте ещё раз."
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "TOCus found local settings it could not read. They were not replaced."
 msgstr "TOCus обнаружил локальные настройки, которые не удалось прочитать. Они не были заменены."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "TOCus is a focus aid, not medical treatment."
+msgstr "TOCus помогает сосредоточиться, но не является медицинским лечением."
+
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "TOCus is ready. You can close this tab or continue in Settings."
+msgstr "TOCus готов. Вы можете закрыть эту вкладку или продолжить в настройках."
+
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "TOCus language"
 msgstr "Язык TOCus"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "TOCus needs browser access to show the pause on that website. Nothing was added."
+msgstr "Для показа паузы на этом сайте TOCus нужен доступ браузера. Ничего не добавлено."
+
+#: apps/extension/src/localization/utils/create-protected-page-layer-copy/index.ts
 msgid "TOCus pause"
 msgstr "Пауза TOCus"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/index.ts
+#: apps/extension/src/localization/utils/create-document-copy/index.ts
 msgid "TOCus settings"
 msgstr "Настройки TOCus"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "TOCus still could not restore this pause."
 msgstr "TOCus по-прежнему не удалось восстановить эту паузу."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "TOCus will keep using this language until you change it."
 msgstr "TOCus будет использовать этот язык, пока вы его не измените."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "TOCus will use it everywhere. You can change it later in Settings."
+msgstr "TOCus будет использовать этот язык везде. Позже его можно изменить в настройках."
+
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "TOCus: {title}"
 msgstr "TOCus: {title}"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Try again"
 msgstr "Повторить попытку"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "Try again, or continue in Settings."
+msgstr "Попробуйте ещё раз или продолжите в настройках."
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Trying again..."
 msgstr "Повторная попытка..."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Trying to restore your pause."
 msgstr "Попытка восстановить паузу."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#. Conversational Spanish variant name. Keep this label written in Spanish.
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Tú"
+msgstr "Tú"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Tuesday"
 msgstr "Вторник"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Use a dark appearance."
 msgstr "Использовать тёмное оформление."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Use a light appearance."
 msgstr "Использовать светлое оформление."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Use automatic name"
 msgstr "Использовать автоматическое название"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Use browser language"
 msgstr "Использовать язык браузера"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Use the same wait and allowance as your other protected sites."
-msgstr "Использовать то же ожидание и период доступа, что и для других защищённых сайтов."
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Use shared timing"
+msgstr "Использовать общие интервалы"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Use the same wait and allowance as your other websites."
+msgstr "Использовать время ожидания и период доступа, общие с другими сайтами."
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Uses its own wait, allowance, and schedule."
 msgstr "Использует собственное ожидание, период доступа и расписание."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Uses the shared wait, allowance, and schedule."
 msgstr "Использует общее ожидание, период доступа и расписание."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+#. Compact toolbar badge. V means visit window and m means minutes; keep it very short.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "V{count}m"
 msgstr "Д{count}м"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+#. Compact toolbar badge. V means visit window and m means minutes; keep it very short.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "V<1m"
 msgstr "Д<1м"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+#. Compact toolbar badge. V means visit window and m means minutes; keep it very short.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "V0m"
 msgstr "Д0м"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "Visit window: complete"
 msgstr "Период доступа: завершён"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/toolbar-copy-adapter.ts
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "Visit window: less than 1 minute remaining"
 msgstr "Период доступа: осталось меньше 1 минуты"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Vos"
+msgstr "Vos"
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Wait for an explicit choice before opening the site."
 msgstr "Перед открытием сайта дождаться явного выбора."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Wait increase"
 msgstr "Увеличение ожидания"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Waits start at {initialWait}. Each completed wait adds {waitIncrease} to the next wait, up to {maximumWait}. Completing a wait starts an allowance for {allowance} and opens the site automatically."
 msgstr "Первое ожидание длится {initialWait}. После каждого завершённого ожидания следующее увеличивается на {waitIncrease}, но не превышает {maximumWait}. Завершение ожидания открывает доступ на {allowance}, после чего сайт открывается автоматически."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Waits start at {initialWait}. Each completed wait adds {waitIncrease} to the next wait, up to {maximumWait}. Completing a wait starts an allowance for {allowance} and shows a Continue button."
 msgstr "Первое ожидание длится {initialWait}. После каждого завершённого ожидания следующее увеличивается на {waitIncrease}, но не превышает {maximumWait}. Завершение ожидания открывает доступ на {allowance} и показывает кнопку «Продолжить»."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Website address"
 msgstr "Адрес сайта"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Websites"
+msgstr "Сайты"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Websites could not load"
+msgstr "Не удалось загрузить сайты"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Wednesday"
 msgstr "Среда"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-document-copy/index.ts
+msgid "Welcome to TOCus"
+msgstr "Добро пожаловать в TOCus"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Wellbeing"
 msgstr "Самочувствие"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "When should protection be active?"
-msgstr "Когда должна действовать защита?"
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "When should TOCus be active?"
+msgstr "Когда TOCus должен быть активен?"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "When the wait finishes"
 msgstr "Когда ожидание закончится"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Which Portuguese should TOCus use?"
+msgstr "Какой вариант португальского использовать в TOCus?"
+
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Which Spanish should TOCus use?"
+msgstr "Какой вариант испанского использовать в TOCus?"
+
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "You can change these choices and fine-tune timing or schedules any time in Settings."
+msgstr "Эти параметры можно изменить в настройках в любое время, а также точнее настроить время и расписание."
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "You can continue when you are ready."
 msgstr "Продолжите, когда будете готовы."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "You're all set"
+msgstr "Всё готово"
+
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Your appearance could not be saved. Your choice is still shown here."
 msgstr "Не удалось сохранить оформление. Выбранный вариант по-прежнему показан здесь."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Your browser could not request access for that site. Try again."
+msgstr "Браузер не смог запросить доступ к этому сайту. Попробуйте ещё раз."
+
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Your browser currently selects {name}."
 msgstr "Сейчас браузер выбирает язык: {name}."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Your changes could not be saved. Nothing was replaced."
 msgstr "Не удалось сохранить изменения. Ничего не заменено."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "Your choice could not be saved. Try again."
+msgstr "Не удалось сохранить ваш выбор. Попробуйте ещё раз."
+
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "Your choices and statistics stay on this device. TOCus never reads your browsing history."
+msgstr "Ваш выбор и статистика хранятся на этом устройстве. TOCus никогда не читает историю просмотров."
+
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Your language could not be saved. TOCus returned to your previous language."
 msgstr "Не удалось сохранить язык. TOCus вернулся к предыдущему языку."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Your local personalization data is not valid. Restoring defaults will reset appearance, pause, motion, and language preferences."
 msgstr "Локальные данные персонализации недействительны. Восстановление значений по умолчанию сбросит настройки оформления, паузы, движения и языка."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Your local protected-site data is not valid, so it was not replaced."
-msgstr "Локальные данные защищённых сайтов недействительны, поэтому они не были заменены."
-
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Your local settings need attention"
 msgstr "Локальные настройки требуют внимания"
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Your local settings were not changed. Try loading them again."
 msgstr "Локальные настройки не изменились. Попробуйте загрузить их ещё раз."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Your local timing data is not valid, so it was not replaced."
 msgstr "Локальные данные об интервалах недействительны, поэтому они не были заменены."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Your local website list is not valid, so it was not replaced."
+msgstr "Локальный список сайтов недействителен, поэтому он не был заменён."
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Your pause has resumed."
 msgstr "Пауза возобновлена."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Your pause has started."
 msgstr "Пауза началась."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Your pause is paused."
 msgstr "Пауза приостановлена."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Your protected-site data changed. Retry before adding this site."
-msgstr "Данные защищённых сайтов изменились. Повторите попытку перед добавлением этого сайта."
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Your settings and statistics stay on this device."
+msgstr "Ваши настройки и статистика остаются на этом устройстве."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Your statistics stay on this device."
 msgstr "Статистика хранится только на этом устройстве."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
-msgid "Your statistics will start over from zero. Protected sites, schedules, timing, and appearance remain unchanged."
-msgstr "Статистика начнёт накапливаться заново с нуля. Защищённые сайты, расписания, интервалы и оформление не изменятся."
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Your statistics will start over from zero. Websites, schedules, timing, and appearance remain unchanged."
+msgstr "Статистика начнёт накапливаться заново с нуля. Сайты, расписания, интервалы и оформление не изменятся."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/settings-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Your timing data changed. Retry before saving these choices."
 msgstr "Данные об интервалах изменились. Повторите попытку перед сохранением."
 
-#: apps/extension/src/localization/utils/create-localization-bundle/interruption-copy-adapters.ts
+#: apps/extension/src/localization/utils/create-protected-page-layer-copy/index.ts
 msgid "Your visit window is ending soon."
 msgstr "Период доступа скоро закончится."
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Your website list changed. Retry before adding this site."
+msgstr "Список сайтов изменился. Повторите попытку перед добавлением этого сайта."
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Your website list needs attention"
+msgstr "Список сайтов требует внимания"
+
+#. Language autonym. Keep the language name written in Russian.
+#. Language-menu autonym. Keep this language name written in Russian.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "Русский"
+msgstr "Русский"
+
+#. Language autonym. Keep the language name written in Japanese.
+#. Language-menu autonym. Keep this language name written in Japanese.
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
+msgid "日本語"
+msgstr "日本語"
