@@ -29,7 +29,8 @@ _In development._
 
 ### Changed
 
-- Increased shared typography sizes by 25%, clarified selected appearance controls, and widened the floating breathing preview to a desktop aspect ratio.
+- Increased full-page typography sizes by 15% while keeping the toolbar popup compact, clarified selected appearance controls, and widened the floating breathing preview to a desktop aspect ratio.
+- Simplified onboarding privacy copy and increased paragraph line spacing.
 
 ### Fixed
 
@@ -38,3 +39,7 @@ _In development._
 - Matched extension-page tab icons to the browser's light or dark appearance independently of the selected interface theme.
 - Kept Chrome popup website additions running in the background when the permission dialog closes the popup, without saving denied requests.
 - Sent whole-millisecond pause checkpoints while preserving smooth animation timing, preventing fractional progress from breaking pauses and recovery.
+- Identified redacted interruption tabs through live extension contexts so pauses can preserve their destination and Continue can restore website access without the tabs permission.
+- Ignored delayed navigation events that no longer describe the current page, preventing an old blank tab from dismissing a new pause.
+- Initialized the protected-page interface in Chrome's isolated script environment with bundled Custom Elements support.
+- Kept rem-based typography from applying the size increase twice on extension pages.
