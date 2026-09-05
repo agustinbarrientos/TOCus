@@ -19,11 +19,21 @@ const PROTECTED_PAGE_RESOURCES = [
 export default defineConfig( {
 	srcDir: 'src',
 	/**
-	 * Creates the Vite plugins that compile Lingui messages for each extension build.
+	 * Creates the extension build pipeline without duplicating large imported domain tables.
 	 * @return Vite configuration shared by every entrypoint group.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	vite: createLocalizationViteConfig,
+	vite: () => ( {
+		...createLocalizationViteConfig(),
+		build: {
+			rolldownOptions: {
+				optimization: {
+					// Inlining duplicates the public-suffix label table at each lookup site.
+					inlineConst: false,
+				},
+			},
+		},
+	} ),
 	imports: false,
 	modules: [ '@wxt-dev/auto-icons' ],
 	autoIcons: {
