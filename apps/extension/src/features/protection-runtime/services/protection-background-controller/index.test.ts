@@ -14,6 +14,72 @@ import {
 } from './__fixtures__';
 
 describe( 'createProtectionBackgroundController', () => {
+	it( 'refreshes configuration through the navigation-capability gate', async () => {
+		const harness = createHarness();
+		harness.controller.start();
+		await vi.waitFor( () => {
+			expect( harness.start ).toHaveBeenCalledOnce();
+		} );
+		harness.containsPermission.mockClear();
+
+		await harness.controller.refresh();
+
+		expect( harness.containsPermission ).toHaveBeenCalledWith( { permissions: [ 'webNavigation' ] } );
+		expect( harness.handleConfigurationChanged ).toHaveBeenCalledOnce();
+	} );
+
+	it( 'fails open instead of refreshing when navigation access is unavailable', async () => {
+		const harness = createHarness( true, false );
+		harness.controller.start();
+		await vi.waitFor( () => {
+			expect( harness.failOpen ).toHaveBeenCalledOnce();
+		} );
+		harness.failOpen.mockClear();
+
+		await harness.controller.refresh();
+
+		expect( harness.handleConfigurationChanged ).not.toHaveBeenCalled();
+		expect( harness.failOpen ).toHaveBeenCalledOnce();
+	} );
+
+	it( 'fails open and rejects when explicit reconciliation fails', async () => {
+		const harness = createHarness();
+		const failure = new Error( 'Reconciliation failed.' );
+
+		harness.controller.start();
+		await harness.controller.waitUntilReady();
+		harness.failOpen.mockClear();
+		harness.handleConfigurationChanged.mockRejectedValue( failure );
+
+		await expect( harness.controller.refresh() ).rejects.toBe( failure );
+		expect( harness.failOpen ).toHaveBeenCalledOnce();
+		expect( harness.failOpen ).toHaveBeenCalledWith(
+			harness.capturedStatisticsObservations.at( -1 ),
+		);
+	} );
+
+	it( 'exposes cold-start readiness through the capability barrier', async () => {
+		const harness = createHarness();
+		const permissionResult = new DeferredPermissionResult();
+		let ready = false;
+
+		harness.containsPermission.mockReturnValue( permissionResult.promise );
+		harness.controller.start();
+		void harness.controller.waitUntilReady().then( () => {
+			ready = true;
+		} );
+		await Promise.resolve();
+
+		expect( ready ).toBe( false );
+		expect( harness.start ).not.toHaveBeenCalled();
+
+		permissionResult.resolve( true );
+		await harness.controller.waitUntilReady();
+
+		expect( ready ).toBe( true );
+		expect( harness.start ).toHaveBeenCalledOnce();
+	} );
+
 	it( 'registers listeners synchronously before starting restoration', async () => {
 		const harness = createHarness();
 

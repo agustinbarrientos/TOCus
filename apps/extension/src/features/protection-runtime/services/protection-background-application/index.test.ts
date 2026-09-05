@@ -5,6 +5,7 @@ import { TestEmptyProtectionConfiguration } from '../../../../domains/protection
 import { TestInstant } from '../../../../domains/protection/types/__fixtures__/protection-event';
 import { type StatisticsRuntimeOptions } from '../../../statistics/services/statistics-runtime';
 import { type BrowserProtectionRuntimeOptions } from '../browser-protection-runtime';
+import { type PopupBackgroundControllerOptions } from '../../../popup/services/popup-background-controller';
 import { type ProtectionBackgroundControllerOptions } from '../protection-background-controller';
 import {
 	type ToolbarBadgeRefresh,
@@ -19,6 +20,7 @@ import { type ToolbarBadgeCopy } from '../../utils/toolbar-badge-projection';
 const backgroundMocks = vi.hoisted( () => ( {
 	createBrowserProtectionAdapter: vi.fn(),
 	createBrowserProtectionRuntime: vi.fn<( options: BrowserProtectionRuntimeOptions ) => unknown>(),
+	createPopupBackgroundController: vi.fn<( options: PopupBackgroundControllerOptions ) => unknown>(),
 	createPreferencesStorageService: vi.fn(),
 	createProtectionBackgroundController: vi.fn<( options: ProtectionBackgroundControllerOptions ) => unknown>(),
 	createProtectionConfigurationStorageService: vi.fn(),
@@ -32,7 +34,10 @@ const backgroundMocks = vi.hoisted( () => ( {
 	filterConfiguration: vi.fn(),
 	openOnInstall: vi.fn(),
 	refreshToolbarBadge: vi.fn(),
+	refreshProtection: vi.fn(),
+	waitForProtectionReady: vi.fn(),
 	startProtectionController: vi.fn(),
+	startPopupController: vi.fn(),
 	startToolbarLanguage: vi.fn<( refreshToolbarBadge: ToolbarBadgeRefresh ) => void>(),
 } ) );
 
@@ -69,6 +74,10 @@ vi.mock( '../browser-protection-adapter', () => ( {
 
 vi.mock( '../browser-protection-runtime', () => ( {
 	createBrowserProtectionRuntime: backgroundMocks.createBrowserProtectionRuntime,
+} ) );
+
+vi.mock( '../../../popup/services/popup-background-controller', () => ( {
+	createPopupBackgroundController: backgroundMocks.createPopupBackgroundController,
 } ) );
 
 vi.mock( '../protection-background-controller', () => ( {
@@ -118,7 +127,12 @@ describe( 'startProtectionBackgroundApplication', () => {
 			refreshToolbarBadge: backgroundMocks.refreshToolbarBadge,
 		};
 		const protectionController = {
+			refresh: backgroundMocks.refreshProtection,
 			start: backgroundMocks.startProtectionController,
+			waitUntilReady: backgroundMocks.waitForProtectionReady,
+		};
+		const popupController = {
+			start: backgroundMocks.startPopupController,
 		};
 
 		backgroundMocks.createPreferencesStorageService.mockReturnValue( preferencesStorage );
@@ -135,6 +149,7 @@ describe( 'startProtectionBackgroundApplication', () => {
 		backgroundMocks.createToolbarLanguageController.mockReturnValue( toolbarLanguageController );
 		backgroundMocks.createBrowserProtectionRuntime.mockReturnValue( runtime );
 		backgroundMocks.createProtectionBackgroundController.mockReturnValue( protectionController );
+		backgroundMocks.createPopupBackgroundController.mockReturnValue( popupController );
 
 		startProtectionBackgroundApplication( { browser: fakeBrowser } );
 
@@ -211,7 +226,25 @@ describe( 'startProtectionBackgroundApplication', () => {
 		expect( controllerOptions.interruptionPageUrl ).toBe( runtimeOptions.interruptionPageUrl );
 		expect( controllerOptions.optionsPageUrl ).toContain( 'options.html' );
 		expect( controllerOptions.runtime ).toBe( runtime );
+		const popupControllerOptions = backgroundMocks.createPopupBackgroundController.mock.calls[ 0 ]?.[ 0 ];
+
+		if ( popupControllerOptions === undefined ) {
+			throw new TypeError( 'Expected popup background controller options.' );
+		}
+
+		expect( popupControllerOptions.browser ).toBe( fakeBrowser );
+		expect( popupControllerOptions.configurationStorage ).toBe( configurationStorage );
+		expect( popupControllerOptions.getTimeZone() ).toEqual( expect.any( String ) );
+		expect( popupControllerOptions.interruptionPageUrl ).toBe( runtimeOptions.interruptionPageUrl );
+		expect( popupControllerOptions.now() ).toBe( TestInstant );
+		expect( popupControllerOptions.popupPageUrl ).toContain( 'popup.html' );
+		await popupControllerOptions.refreshProtection();
+		expect( backgroundMocks.refreshProtection ).toHaveBeenCalledOnce();
+		await popupControllerOptions.waitForProtectionReady();
+		expect( backgroundMocks.waitForProtectionReady ).toHaveBeenCalledOnce();
+		expect( popupControllerOptions.runtime ).toBe( runtime );
 		expect( backgroundMocks.startProtectionController ).toHaveBeenCalledOnce();
+		expect( backgroundMocks.startPopupController ).toHaveBeenCalledOnce();
 		expect( backgroundMocks.startToolbarLanguage ).toHaveBeenCalledOnce();
 		const refreshToolbarBadge = backgroundMocks.startToolbarLanguage.mock.calls[ 0 ]?.[ 0 ];
 
