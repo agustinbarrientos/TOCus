@@ -1,17 +1,9 @@
+import { readFileSync } from 'node:fs';
 import { access, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { type CatalogType } from '@lingui/cli/api';
+import { formatter } from '@lingui/format-po';
 import { describe, expect, test } from 'vitest';
-import germanCatalog from '../../locales/de.json';
-import englishCatalog from '../../locales/en.json';
-import spanishTuCatalog from '../../locales/es-tu.json';
-import spanishVosCatalog from '../../locales/es-vos.json';
-import frenchCatalog from '../../locales/fr.json';
-import italianCatalog from '../../locales/it.json';
-import japaneseCatalog from '../../locales/ja.json';
-import portugueseBrazilCatalog from '../../locales/pt-BR.json';
-import portuguesePortugalCatalog from '../../locales/pt-PT.json';
-import russianCatalog from '../../locales/ru.json';
-import type { ExtensionMessageCatalog } from '../../src/localization/catalogs/types';
 
 const chromeManifestUrl = new URL( '../../.output/chrome-mv3/manifest.json', import.meta.url );
 const firefoxManifestUrl = new URL( '../../.output/firefox-mv2/manifest.json', import.meta.url );
@@ -66,18 +58,50 @@ const expectedManifestLocales = [
 	'pt_PT',
 	'ru',
 ] as const;
-const expectedManifestCatalogs = Object.freeze( {
-	de: germanCatalog.extension,
-	en: englishCatalog.extension,
-	es: spanishTuCatalog.extension,
-	es_419: spanishVosCatalog.extension,
-	fr: frenchCatalog.extension,
-	it: italianCatalog.extension,
-	ja: japaneseCatalog.extension,
-	pt_BR: portugueseBrazilCatalog.extension,
-	pt_PT: portuguesePortugalCatalog.extension,
-	ru: russianCatalog.extension,
+const expectedManifestCatalogLocales = Object.freeze( {
+	de: 'de',
+	en: 'en',
+	es: 'es',
+	es_419: 'es',
+	fr: 'fr',
+	it: 'it',
+	ja: 'ja',
+	pt_BR: 'pt-BR',
+	pt_PT: 'pt-PT',
+	ru: 'ru',
 } );
+const expectedOnboardingSiteNames = [
+	'Chess.com',
+	'Discord',
+	'Facebook',
+	'Instagram',
+	'LinkedIn',
+	'Netflix',
+	'Pinterest',
+	'Reddit',
+	'Spotify',
+	'Threads',
+	'TikTok',
+	'Twitch',
+	'WhatsApp',
+	'X',
+	'YouTube',
+] as const;
+
+/**
+ * PO formatter used to inspect translator-authored extension metadata.
+ * @since 0.1.0 Initial implementation.
+ */
+const poFormatter = formatter( {
+	foldLength: 0,
+	lineNumbers: false,
+} );
+
+/**
+ * Settings-only copy that classic runtimes must not bundle.
+ * @since 0.1.0 Initial implementation.
+ */
+const settingsOnlyMessage = 'Choose the language TOCus uses across the extension.';
 
 /**
  * Maximum generated size for each classic-script runtime that cannot load locale chunks.
@@ -119,20 +143,63 @@ async function readOutputBuffer( outputUrl: URL, filePath: string ): Promise<Buf
 }
 
 /**
+ * Parses one extension PO catalog from its canonical app-root location.
+ * @param locale - Lingui locale filename to parse.
+ * @return Parsed translator catalog.
+ * @since 0.1.0 Initial implementation.
+ */
+async function readExtensionCatalog( locale: string ): Promise<CatalogType> {
+	const filename = fileURLToPath( new URL( `../../locales/${ locale }.po`, import.meta.url ) );
+
+	return poFormatter.parse( readFileSync( filename, 'utf8' ), {
+		filename,
+		locale,
+		sourceLocale: 'en',
+	} );
+}
+
+/**
+ * Reads one required translated message from a parsed catalog.
+ * @param catalog - Parsed translator catalog.
+ * @param locale - Locale used to identify an invalid catalog.
+ * @param message - English source message.
+ * @param context - Translator context that distinguishes the message.
+ * @return Nonempty translated message.
+ * @since 0.1.0 Initial implementation.
+ */
+function getCatalogTranslation( catalog: CatalogType, locale: string, message: string, context: string ): string {
+	const translation = Object.values( catalog ).find( ( entry ) => (
+		entry.message === message && entry.context === context
+	) )?.translation;
+
+	if ( translation === undefined || translation.trim() === '' ) {
+		throw new Error( `Catalog ${ locale } is missing ${ context }.` );
+	}
+
+	return translation;
+}
+
+/**
  * Projects canonical extension metadata into Chrome-compatible messages.
- * @param catalog - Canonical extension metadata for one locale.
+ * @param catalog - Parsed translator catalog for one locale.
+ * @param locale - Locale used to identify invalid metadata.
  * @return Browser-managed message file contents.
  * @since 0.1.0 Initial implementation.
  */
-function createExpectedManifestMessages( catalog: ExtensionMessageCatalog ): object {
+function createExpectedManifestMessages( catalog: CatalogType, locale: string ): object {
 	return {
 		extensionName: {
-			message: catalog.name,
-			description: catalog.nameDescription,
+			message: getCatalogTranslation( catalog, locale, 'TOCus', 'Extension name' ),
+			description: 'Extension name.',
 		},
 		extensionDescription: {
-			message: catalog.description,
-			description: catalog.descriptionDescription,
+			message: getCatalogTranslation(
+				catalog,
+				locale,
+				'A gentle pause before distracting websites, designed to help you return to your intentions.',
+				'Extension description',
+			),
+			description: 'Short extension description shown by the browser and extension store.',
 		},
 	};
 }
@@ -145,12 +212,14 @@ function createExpectedManifestMessages( catalog: ExtensionMessageCatalog ): obj
  */
 async function expectLocalizedManifestMessages( outputUrl: URL ): Promise<void> {
 	for ( const locale of expectedManifestLocales ) {
+		const catalogLocale = expectedManifestCatalogLocales[ locale ];
+		const catalog = await readExtensionCatalog( catalogLocale );
 		const messages: unknown = JSON.parse(
 			await readOutputFile( outputUrl, `_locales/${ locale }/messages.json` ),
 		);
 
 		expect( messages, locale ).toEqual(
-			createExpectedManifestMessages( expectedManifestCatalogs[ locale ] ),
+			createExpectedManifestMessages( catalog, catalogLocale ),
 		);
 	}
 }
@@ -230,6 +299,37 @@ async function expectOptionsComposition( outputUrl: URL ): Promise<void> {
 }
 
 /**
+ * Verifies that generated onboarding loads its shell and all local suggestion icons.
+ * @param outputUrl - Browser output-directory URL.
+ * @return Promise resolved after onboarding composition assertions pass.
+ * @since 0.1.0 Initial implementation.
+ */
+async function expectOnboardingComposition( outputUrl: URL ): Promise<void> {
+	const onboardingHtml = await readOutputFile( outputUrl, 'onboarding.html' );
+	const moduleScript = onboardingHtml.match( /<script\s[^>]*type="module"[^>]*src="([^"]+)"/u );
+	const moduleSource = moduleScript?.[ 1 ];
+
+	expectPreferencesBootstrap( onboardingHtml );
+	expect( onboardingHtml ).toContain( '<tocus-f-onboarding-shell>' );
+	expect( moduleSource ).toBeDefined();
+
+	if ( moduleSource === undefined ) {
+		throw new Error( 'The generated onboarding page is missing its module script.' );
+	}
+
+	const moduleCode = await readOutputFile( outputUrl, moduleSource.replace( /^\//u, '' ) );
+	const iconDataUrls = moduleCode.match( /data:image\/svg\+xml,[^`]+/gu ) ?? [];
+
+	expect( moduleCode ).toContain( 'tocus-f-onboarding-shell' );
+	expect( iconDataUrls ).toHaveLength( expectedOnboardingSiteNames.length );
+	expect( new Set( iconDataUrls ).size ).toBe( expectedOnboardingSiteNames.length );
+
+	for ( const siteName of expectedOnboardingSiteNames ) {
+		expect( moduleCode ).toContain( `displayName:\`${ siteName }\`` );
+	}
+}
+
+/**
  * Verifies that the generated interruption page loads its approved screen component.
  * @param outputUrl - Browser output-directory URL.
  * @return Promise resolved after all interruption-page composition assertions pass.
@@ -294,7 +394,7 @@ async function expectClassicRuntimeLocalization(
 	const contents = await readOutputBuffer( outputUrl, filePath );
 
 	expect( source ).not.toContain( 'import(' );
-	expect( source ).not.toContain( englishCatalog.languageScreen.introduction );
+	expect( source ).not.toContain( settingsOnlyMessage );
 	expect( contents.byteLength ).toBeLessThanOrEqual( maximumClassicRuntimeBytes );
 }
 
@@ -469,6 +569,14 @@ describe( 'extension build manifest', () => {
 		[ 'Safari', safariOutputUrl ],
 	] )( 'connects the generated %s options page to its settings shell', async ( _browser, outputUrl ) => {
 		await expectOptionsComposition( outputUrl );
+	} );
+
+	test.each( [
+		[ 'Chrome', chromeOutputUrl ],
+		[ 'Firefox', firefoxOutputUrl ],
+		[ 'Safari', safariOutputUrl ],
+	] )( 'packages the generated %s onboarding page and its local site icons', async ( _browser, outputUrl ) => {
+		await expectOnboardingComposition( outputUrl );
 	} );
 
 	test.each( [
