@@ -17,6 +17,7 @@ const TYPOGRAPHY_ROLES = [
 	{ role: 'headline-large', values: [ 'var(--tocus-font-family-brand)', '2rem', '600', '2.5rem', '0' ] },
 	{ role: 'headline-medium', values: [ 'var(--tocus-font-family-brand)', '1.75rem', '600', '2.25rem', '0' ] },
 	{ role: 'headline-small', values: [ 'var(--tocus-font-family-brand)', '1.5rem', '600', '2rem', '0' ] },
+	{ role: 'brand-small', values: [ 'var(--tocus-font-family-brand)', '0.6875rem', '600', '1rem', '0' ] },
 	{ role: 'title-large', values: [ 'var(--tocus-font-family-body)', '1.375rem', '400', '1.75rem', '0' ] },
 	{ role: 'title-medium', values: [ 'var(--tocus-font-family-body)', '1rem', '500', '1.5rem', '0.009375rem' ] },
 	{ role: 'title-small', values: [ 'var(--tocus-font-family-body)', '0.875rem', '500', '1.25rem', '0.00625rem' ] },
@@ -99,7 +100,7 @@ $definitions: scale.definitions();`,
 		).toThrow( 'Unknown TOCus typography role "unknown".' );
 	} );
 
-	it( 'emits the 75 exact typography tokens once from tokens.scss', () => {
+	it( 'emits the 80 exact typography tokens once from tokens.scss', () => {
 		const result = compile( "@use 'typography/tokens';" );
 		const emittedTokens = Array.from(
 			result.css.matchAll( /^\s*(--tocus-typography-[\w-]+):\s*([^;]+);$/gm ),
@@ -114,10 +115,10 @@ $definitions: scale.definitions();`,
 			},
 		);
 
-		expect( TYPOGRAPHY_ROLES ).toHaveLength( 15 );
-		expect( TYPOGRAPHY_TOKENS ).toHaveLength( 75 );
+		expect( TYPOGRAPHY_ROLES ).toHaveLength( 16 );
+		expect( TYPOGRAPHY_TOKENS ).toHaveLength( 80 );
 		expect( result.css.match( /:root/g ) ).toHaveLength( 1 );
 		expect( emittedTokens ).toEqual( TYPOGRAPHY_TOKENS );
-		expect( new Set( emittedTokens.map( ( [ name ] ) => name ) ) ).toHaveLength( 75 );
+		expect( new Set( emittedTokens.map( ( [ name ] ) => name ) ) ).toHaveLength( 80 );
 	} );
 } );
