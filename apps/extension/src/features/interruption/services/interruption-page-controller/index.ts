@@ -300,7 +300,7 @@ export function createInterruptionPageController(
 			? {
 				type: InterruptionPageRequestType.CHECKPOINT,
 				documentVisible,
-				displayedFocusedDurationMilliseconds: options.screen.getFocusedProgressMilliseconds(),
+				displayedFocusedDurationMilliseconds: Math.floor( options.screen.getFocusedProgressMilliseconds() ),
 			}
 			: {
 				type: InterruptionPageRequestType.SYNCHRONIZE,

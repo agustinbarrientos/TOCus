@@ -6,10 +6,16 @@ import {
 	type InterruptionScreenState as InterruptionScreenStateValue,
 } from '../../components/screen/types';
 import {
+	InterruptionPageRequestSchema,
 	InterruptionPageRequestType,
 	InterruptionPageResponseState,
 	type InterruptionPageRequest,
 } from '../../../protection-runtime/types/runtime-message';
+import {
+	createFocusedProgressClock,
+	type FocusedProgressClock,
+	type FocusedProgressClockTiming,
+} from '../focused-progress-clock';
 import { createInterruptionPageController } from './index';
 import {
 	type InterruptionPageController,
@@ -113,6 +119,7 @@ class MemoryInterruptionPageRuntime implements InterruptionPageRuntime {
 	 */
 	sendMessage( request: InterruptionPageRequest ): Promise<unknown> {
 		this.requests.push( request );
+		InterruptionPageRequestSchema.parse( request );
 		const response = this.responses.shift();
 
 		return response instanceof Error ? Promise.reject( response ) : Promise.resolve( response );
@@ -149,14 +156,67 @@ interface ScheduledTestTimeout {
  * Deterministic interval scheduler used by controller tests.
  * @since 0.1.0 Initial implementation.
  */
-class ManualInterruptionPageScheduler implements InterruptionPageScheduler {
+class ManualInterruptionPageScheduler implements InterruptionPageScheduler, FocusedProgressClockTiming {
+	/** Current high-resolution presentation timestamp. */
+	monotonicMilliseconds = 0;
+
 	private nextHandle = 1;
+
+	private readonly frameCallbacks = new Map<number, FrameRequestCallback>();
 
 	private readonly intervals = new Map<number, ScheduledTestInterval>();
 
 	private readonly timeouts = new Map<number, ScheduledTestTimeout>();
 
 	private readonly clearedTimeouts: ScheduledTestTimeout[] = [];
+
+	/**
+	 * Returns current high-resolution presentation time.
+	 * @return Current monotonic milliseconds.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	now(): number {
+		return this.monotonicMilliseconds;
+	}
+
+	/**
+	 * Retains one callback for the next animation frame.
+	 * @param callback - Presentation callback receiving a high-resolution timestamp.
+	 * @return Deterministic frame handle.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	requestAnimationFrame( callback: FrameRequestCallback ): number {
+		const handle = this.nextHandle;
+
+		this.nextHandle += 1;
+		this.frameCallbacks.set( handle, callback );
+
+		return handle;
+	}
+
+	/**
+	 * Removes one queued animation frame.
+	 * @param handle - Frame handle to cancel.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	cancelAnimationFrame( handle: number ): void {
+		this.frameCallbacks.delete( handle );
+	}
+
+	/**
+	 * Advances high-resolution time and executes every queued animation frame once.
+	 * @param timestampMilliseconds - Absolute monotonic timestamp for the frame.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	runAnimationFrame( timestampMilliseconds: number ): void {
+		this.monotonicMilliseconds = timestampMilliseconds;
+		const callbacks = [ ...this.frameCallbacks.values() ];
+
+		this.frameCallbacks.clear();
+		for ( const callback of callbacks ) {
+			callback( timestampMilliseconds );
+		}
+	}
 
 	/**
 	 * Retains one recurring callback.
@@ -353,6 +413,37 @@ function createControllerFixture(
 		visibility,
 		windowTarget,
 	};
+}
+
+/**
+ * Connects the real presentation clock to the fixture screen's displayed-progress boundary.
+ * @param fixture - Started controller and deterministic browser timing.
+ * @return Connected focused-progress clock.
+ * @since 0.1.0 Initial implementation.
+ */
+function connectFocusedProgressClock( fixture: InterruptionPageControllerFixture ): FocusedProgressClock {
+	const clock = createFocusedProgressClock( {
+		/**
+		 * Leaves progress available for direct inspection without a rendered component.
+		 * @return Always undefined.
+		 */
+		onProgress: () => undefined,
+		timing: fixture.scheduler,
+	} );
+
+	clock.connect( {
+		authoritativeProgressMilliseconds: fixture.screen.focusedProgressMilliseconds,
+		continuous: true,
+		documentVisible: fixture.visibility.documentVisible,
+		durationMilliseconds: fixture.screen.waitDurationMilliseconds,
+		looping: false,
+		progressing: fixture.screen.progressing,
+		waiting: fixture.screen.state === InterruptionScreenState.WAITING,
+		windowFocused: fixture.visibility.windowFocused,
+	} );
+	fixture.screen.getFocusedProgressMilliseconds = clock.getProgressMilliseconds.bind( clock );
+
+	return clock;
 }
 
 /**
@@ -645,6 +736,193 @@ describe( 'createInterruptionPageController', () => {
 		expect( fixture.screen.progressing ).toBe( false );
 		expect( fixture.scheduler.getDelaysMilliseconds() ).toEqual( [] );
 		expect( fixture.scheduler.getTimeoutDelaysMilliseconds() ).toEqual( [ 300_000 ] );
+	} );
+
+	it( 'keeps fractional animation checkpoints valid without rounding the presentation clock', async () => {
+		const fixture = createControllerFixture( [
+			{
+				state: InterruptionPageResponseState.WAITING,
+				capturedWaitDurationMilliseconds: 12_000,
+				focusedProgressMilliseconds: 0,
+				progressing: true,
+			},
+			{
+				state: InterruptionPageResponseState.WAITING,
+				capturedWaitDurationMilliseconds: 12_000,
+				focusedProgressMilliseconds: 999,
+				progressing: true,
+			},
+			{
+				state: InterruptionPageResponseState.WAITING,
+				capturedWaitDurationMilliseconds: 12_000,
+				focusedProgressMilliseconds: 1_999,
+				progressing: true,
+			},
+		] );
+
+		await fixture.controller.start();
+		fixture.scheduler.monotonicMilliseconds = 100.4;
+		const progressClock = connectFocusedProgressClock( fixture );
+
+		try {
+			fixture.scheduler.runAnimationFrame( 1_100.1 );
+			fixture.scheduler.runIntervals();
+			await settleControllerRequests();
+
+			expect( fixture.screen.state ).toBe( InterruptionScreenState.WAITING );
+			expect( fixture.screen.focusedProgressMilliseconds ).toBe( 999 );
+			expect( fixture.screen.getFocusedProgressMilliseconds() ).toBeCloseTo( 999.7 );
+			expect( fixture.runtime.requests.at( 1 ) ).toEqual( {
+				type: InterruptionPageRequestType.CHECKPOINT,
+				documentVisible: true,
+				displayedFocusedDurationMilliseconds: 999,
+			} );
+
+			fixture.scheduler.runAnimationFrame( 2_100.2 );
+			fixture.scheduler.runIntervals();
+			await settleControllerRequests();
+
+			expect( fixture.screen.state ).toBe( InterruptionScreenState.WAITING );
+			expect( fixture.screen.focusedProgressMilliseconds ).toBe( 1_999 );
+			expect( fixture.screen.getFocusedProgressMilliseconds() ).toBeCloseTo( 1_999.8 );
+			expect( fixture.runtime.requests.at( 2 ) ).toEqual( {
+				type: InterruptionPageRequestType.CHECKPOINT,
+				documentVisible: true,
+				displayedFocusedDurationMilliseconds: 1_999,
+			} );
+		} finally {
+			progressClock.disconnect();
+			fixture.controller.stop();
+		}
+	} );
+
+	it( 'waits for the full duration when the animation clock is less than one millisecond from completion', async () => {
+		const fixture = createControllerFixture( [
+			{
+				state: InterruptionPageResponseState.WAITING,
+				capturedWaitDurationMilliseconds: 12_000,
+				focusedProgressMilliseconds: 0,
+				progressing: true,
+			},
+			{
+				state: InterruptionPageResponseState.WAITING,
+				capturedWaitDurationMilliseconds: 12_000,
+				focusedProgressMilliseconds: 11_999,
+				progressing: true,
+			},
+			{
+				state: InterruptionPageResponseState.READY,
+				allowanceExpiresAtEpochMilliseconds: 300_000,
+			},
+		] );
+
+		await fixture.controller.start();
+		const progressClock = connectFocusedProgressClock( fixture );
+
+		try {
+			fixture.scheduler.runAnimationFrame( 11_999.9 );
+			fixture.scheduler.runIntervals();
+			await settleControllerRequests();
+
+			expect( fixture.screen.state ).toBe( InterruptionScreenState.WAITING );
+			expect( fixture.screen.getFocusedProgressMilliseconds() ).toBe( 11_999.9 );
+			expect( fixture.runtime.requests.at( 1 ) ).toEqual( {
+				type: InterruptionPageRequestType.CHECKPOINT,
+				documentVisible: true,
+				displayedFocusedDurationMilliseconds: 11_999,
+			} );
+
+			fixture.scheduler.runAnimationFrame( 12_000 );
+			fixture.scheduler.runIntervals();
+			await settleControllerRequests();
+
+			expect( fixture.runtime.requests.at( 2 ) ).toEqual( {
+				type: InterruptionPageRequestType.CHECKPOINT,
+				documentVisible: true,
+				displayedFocusedDurationMilliseconds: 12_000,
+			} );
+			expect( fixture.screen.state ).toBe( InterruptionScreenState.READY );
+			expect( fixture.scheduler.getDelaysMilliseconds() ).toEqual( [] );
+		} finally {
+			progressClock.disconnect();
+			fixture.controller.stop();
+		}
+	} );
+
+	it( 'keeps fractional checkpoints working after Retry recovers a transport failure', async () => {
+		const waitingResponse = {
+			state: InterruptionPageResponseState.WAITING,
+			capturedWaitDurationMilliseconds: 12_000,
+			focusedProgressMilliseconds: 0,
+			progressing: true,
+		};
+		const fixture = createControllerFixture( [
+			waitingResponse,
+			new Error( 'Runtime transport unavailable.' ),
+			waitingResponse,
+			{
+				...waitingResponse,
+				focusedProgressMilliseconds: 999,
+			},
+			{
+				...waitingResponse,
+				focusedProgressMilliseconds: 1_999,
+			},
+		] );
+
+		await fixture.controller.start();
+		fixture.scheduler.runIntervals();
+		await settleControllerRequests();
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.UNAVAILABLE );
+		expect( fixture.scheduler.getDelaysMilliseconds() ).toEqual( [] );
+
+		fixture.screen.dispatchEvent( new Event( InterruptionRetryRequestEventName ) );
+		await settleControllerRequests();
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.WAITING );
+
+		fixture.scheduler.monotonicMilliseconds = 100.4;
+		const progressClock = connectFocusedProgressClock( fixture );
+
+		try {
+			fixture.scheduler.runAnimationFrame( 1_100.1 );
+			fixture.scheduler.runIntervals();
+			await settleControllerRequests();
+
+			expect( fixture.screen.state ).toBe( InterruptionScreenState.WAITING );
+			expect( fixture.screen.focusedProgressMilliseconds ).toBe( 999 );
+			expect( fixture.screen.getFocusedProgressMilliseconds() ).toBeCloseTo( 999.7 );
+
+			fixture.scheduler.runAnimationFrame( 2_100.2 );
+			fixture.scheduler.runIntervals();
+			await settleControllerRequests();
+
+			expect( fixture.screen.state ).toBe( InterruptionScreenState.WAITING );
+			expect( fixture.screen.focusedProgressMilliseconds ).toBe( 1_999 );
+			expect( fixture.screen.recovering ).toBe( false );
+			expect( fixture.scheduler.getDelaysMilliseconds() ).toEqual( [ 1_000 ] );
+			expect( fixture.runtime.requests ).toEqual( [
+				{ type: InterruptionPageRequestType.CONNECT, documentVisible: true },
+				{
+					type: InterruptionPageRequestType.CHECKPOINT,
+					documentVisible: true,
+					displayedFocusedDurationMilliseconds: 0,
+				},
+				{ type: InterruptionPageRequestType.RECOVER, documentVisible: true },
+				{
+					type: InterruptionPageRequestType.CHECKPOINT,
+					documentVisible: true,
+					displayedFocusedDurationMilliseconds: 999,
+				},
+				{
+					type: InterruptionPageRequestType.CHECKPOINT,
+					documentVisible: true,
+					displayedFocusedDurationMilliseconds: 1_999,
+				},
+			] );
+		} finally {
+			progressClock.disconnect();
+			fixture.controller.stop();
+		}
 	} );
 
 	it( 'synchronizes exactly when a Ready allowance expires without recurring polling', async () => {
