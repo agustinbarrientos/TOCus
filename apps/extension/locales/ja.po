@@ -107,6 +107,10 @@ msgstr "{siteName} を追加済み"
 msgid "{siteName} was added to your list."
 msgstr "{siteName} をリストに追加しました。"
 
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "100% private"
+msgstr "プライバシーを100%保護"
+
 #. Short extension description shown by the browser and extension store.
 #: apps/extension/src/localization/utils/create-browser-locale-messages/index.ts
 msgctxt "Extension description"
@@ -760,10 +764,6 @@ msgstr "Português (Brasil)"
 msgid "Português (Portugal)"
 msgstr "Português (Portugal)"
 
-#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
-msgid "Private by design"
-msgstr "プライバシーを守る設計"
-
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Purple"
@@ -1187,6 +1187,10 @@ msgstr "変更するまで TOCus はこの言語を使用します。"
 msgid "TOCus will use it everywhere. You can change it later in Settings."
 msgstr "TOCus のすべての画面でこの言語を使用します。後から設定で変更できます。"
 
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "TOCus works offline. Your data stays on this device and is never sent to servers."
+msgstr "TOCusはオフラインで動作します。データはこのデバイスに保存され、サーバーに送信されることはありません。"
+
 #: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "TOCus: {title}"
 msgstr "TOCus：{title}"
@@ -1391,10 +1395,6 @@ msgstr "変更を保存できませんでした。何も置き換えられてい
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Your choice could not be saved. Try again."
 msgstr "選択内容を保存できませんでした。もう一度お試しください。"
-
-#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
-msgid "Your choices and statistics stay on this device. TOCus never reads your browsing history."
-msgstr "選択内容と統計はこの端末に保存されます。TOCus が閲覧履歴を読み取ることはありません。"
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Your language could not be saved. TOCus returned to your previous language."

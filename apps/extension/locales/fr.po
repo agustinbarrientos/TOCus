@@ -107,6 +107,10 @@ msgstr "{siteName} ajouté"
 msgid "{siteName} was added to your list."
 msgstr "{siteName} a été ajouté à votre liste."
 
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "100% private"
+msgstr "100 % privé"
+
 #. Short extension description shown by the browser and extension store.
 #: apps/extension/src/localization/utils/create-browser-locale-messages/index.ts
 msgctxt "Extension description"
@@ -760,10 +764,6 @@ msgstr "Português (Brasil)"
 msgid "Português (Portugal)"
 msgstr "Português (Portugal)"
 
-#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
-msgid "Private by design"
-msgstr "Privé dès la conception"
-
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Purple"
@@ -1187,6 +1187,10 @@ msgstr "TOCus continuera d'utiliser cette langue jusqu'à ce que vous la changie
 msgid "TOCus will use it everywhere. You can change it later in Settings."
 msgstr "TOCus utilisera cette langue partout. Vous pourrez la modifier plus tard dans les paramètres."
 
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "TOCus works offline. Your data stays on this device and is never sent to servers."
+msgstr "TOCus fonctionne hors ligne. Tes données restent sur cet appareil et ne sont jamais envoyées à des serveurs."
+
 #: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "TOCus: {title}"
 msgstr "TOCus : {title}"
@@ -1391,10 +1395,6 @@ msgstr "Vos modifications n'ont pas pu être enregistrées. Rien n'a été rempl
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Your choice could not be saved. Try again."
 msgstr "Votre choix n'a pas pu être enregistré. Réessayez."
-
-#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
-msgid "Your choices and statistics stay on this device. TOCus never reads your browsing history."
-msgstr "Vos choix et vos statistiques restent sur cet appareil. TOCus ne consulte jamais votre historique de navigation."
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Your language could not be saved. TOCus returned to your previous language."
