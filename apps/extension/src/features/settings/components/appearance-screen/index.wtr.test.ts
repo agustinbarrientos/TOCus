@@ -13,6 +13,10 @@ import {
 	PreferencesUpdateSchema,
 	type PreferencesEditor,
 } from '../../../../domains/preferences/services/preferences-editor';
+import {
+	AppearanceControlsChangeEventName,
+	ComponentAppearanceControls,
+} from '../../../preferences/components/appearance-controls';
 import './index';
 import { ComponentAppearanceScreen } from './index';
 import {
@@ -313,7 +317,11 @@ function getRequiredElement<T extends Element>(
 	selector: string,
 	expectedType: ElementConstructor<T>,
 ): T {
-	const match = element.shadowRoot?.querySelector( selector );
+	const match = element.shadowRoot?.querySelector( selector ) ??
+		element.shadowRoot
+			?.querySelector( 'tocus-f-appearance-controls' )
+			?.shadowRoot
+			?.querySelector( selector );
 
 	assert.instanceOf( match, expectedType );
 	if ( ! ( match instanceof expectedType ) ) {
@@ -321,6 +329,63 @@ function getRequiredElement<T extends Element>(
 	}
 
 	return match;
+}
+
+/**
+ * Returns the shared appearance controls rendered by the Settings screen.
+ * @param element - Rendered Appearance screen.
+ * @return Connected shared appearance controls.
+ * @since 0.1.0 Initial implementation.
+ */
+function getAppearanceControls(
+	element: ComponentAppearanceScreen,
+): ComponentAppearanceControls {
+	const controls = element.shadowRoot?.querySelector( 'tocus-f-appearance-controls' );
+
+	assert.instanceOf( controls, ComponentAppearanceControls );
+	if ( ! ( controls instanceof ComponentAppearanceControls ) ) {
+		throw new TypeError( 'Expected the Appearance screen to render shared appearance controls.' );
+	}
+
+	return controls;
+}
+
+/**
+ * Returns the rendered shadow root owned by the shared appearance controls.
+ * @param element - Rendered Appearance screen.
+ * @return Shared appearance-controls shadow root.
+ * @since 0.1.0 Initial implementation.
+ */
+function getAppearanceControlsRoot( element: ComponentAppearanceScreen ): ShadowRoot {
+	const shadowRoot = getAppearanceControls( element ).shadowRoot;
+
+	assert.instanceOf( shadowRoot, ShadowRoot );
+	if ( ! ( shadowRoot instanceof ShadowRoot ) ) {
+		throw new TypeError( 'Expected the shared appearance controls to render a shadow root.' );
+	}
+
+	return shadowRoot;
+}
+
+/**
+ * Verifies focus across either the Settings or shared appearance-control shadow boundary.
+ * @param element - Rendered Appearance screen.
+ * @param input - Preference control expected to own focus.
+ * @since 0.1.0 Initial implementation.
+ */
+function assertPreferenceControlFocused(
+	element: ComponentAppearanceScreen,
+	input: HTMLInputElement,
+): void {
+	const controls = element.shadowRoot?.querySelector( 'tocus-f-appearance-controls' );
+
+	if ( controls instanceof ComponentAppearanceControls && controls.shadowRoot?.contains( input ) ) {
+		assert.equal( element.shadowRoot?.activeElement, controls );
+		assert.equal( controls.shadowRoot.activeElement, input );
+		return;
+	}
+
+	assert.equal( element.shadowRoot?.activeElement, input );
 }
 
 /**
@@ -334,6 +399,11 @@ async function settleScreen( element: ComponentAppearanceScreen ): Promise<void>
 		setTimeout( resolve, 0 );
 	} );
 	await element.updateComplete;
+	const controls = element.shadowRoot?.querySelector( 'tocus-f-appearance-controls' );
+
+	if ( controls instanceof ComponentAppearanceControls ) {
+		await controls.updateComplete;
+	}
 }
 
 /**
@@ -377,19 +447,64 @@ describe( 'tocus-f-appearance-screen', () => {
 			reducedMotion: true,
 		};
 		const element = await renderScreen( new MemoryAppearanceEditor( preferences ) );
-		const themeInputs = element.shadowRoot?.querySelectorAll<HTMLInputElement>( 'input[name="theme"]' );
-		const paletteInputs = element.shadowRoot?.querySelectorAll<HTMLInputElement>( 'input[name="palette"]' );
+		const sharedControls = getAppearanceControls( element );
+		const sharedRoot = getAppearanceControlsRoot( element );
+		const themeInputs = sharedRoot.querySelectorAll<HTMLInputElement>( 'input[name="theme"]' );
+		const paletteInputs = sharedRoot.querySelectorAll<HTMLInputElement>( 'input[name="palette"]' );
 		const pauseInputs = element.shadowRoot?.querySelectorAll<HTMLInputElement>( 'input[name="pause-mode"]' );
 		const reducedMotion = getRequiredElement( element, '#reduced-motion', HTMLInputElement );
 
-		assert.equal( themeInputs?.length, 3 );
-		assert.equal( paletteInputs?.length, 6 );
+		assert.equal( sharedControls.theme, ThemeMode.DARK );
+		assert.equal( sharedControls.palette, Palette.PURPLE );
+		assert.strictEqual( sharedControls.copy, element.copy );
+		assert.isFalse( sharedControls.disabled );
+		assert.equal( themeInputs.length, 3 );
+		assert.equal( paletteInputs.length, 6 );
 		assert.equal( pauseInputs?.length, 2 );
 		assert.isTrue( getRequiredElement( element, '#theme-dark', HTMLInputElement ).checked );
 		assert.isTrue( getRequiredElement( element, '#palette-purple', HTMLInputElement ).checked );
 		assert.isTrue( getRequiredElement( element, '#pause-mode-quiet', HTMLInputElement ).checked );
 		assert.isTrue( reducedMotion.checked );
 		await expect( element ).to.be.accessible();
+	} );
+
+	it( 'keeps Settings-only controls full width without an enclosing settings box', async () => {
+		const element = await renderScreen( new MemoryAppearanceEditor( {
+			...DefaultPreferencesDocument,
+		} ) );
+		const form = getRequiredElement( element, '.appearance-form', HTMLFormElement );
+		const pauseOptions = getRequiredElement( element, '.options--pause', HTMLDivElement );
+		const pauseRows = [ ...pauseOptions.querySelectorAll<HTMLElement>( '.option' ) ];
+		const pauseSelections = [ ...pauseOptions.querySelectorAll<HTMLElement>( '.selection' ) ];
+		const motionOption = getRequiredElement( element, '.motion-option', HTMLLabelElement );
+		const formStyle = getComputedStyle( form );
+		const pauseBounds = pauseOptions.getBoundingClientRect();
+
+		assert.equal( formStyle.borderTopWidth, '0px' );
+		assert.equal( formStyle.paddingTop, '0px' );
+		assert.equal( formStyle.backgroundColor, 'rgba(0, 0, 0, 0)' );
+		assert.lengthOf( pauseRows, 2 );
+		assert.lengthOf( pauseSelections, 2 );
+		assert.closeTo( pauseRows[ 0 ]?.getBoundingClientRect().width ?? 0, pauseBounds.width, 0.5 );
+		assert.closeTo( pauseRows[ 1 ]?.getBoundingClientRect().width ?? 0, pauseBounds.width, 0.5 );
+		assert.closeTo(
+			pauseRows[ 0 ]?.getBoundingClientRect().height ?? 0,
+			pauseRows[ 1 ]?.getBoundingClientRect().height ?? Number.POSITIVE_INFINITY,
+			0.5,
+		);
+		for ( const selection of pauseSelections ) {
+			assert.equal( getComputedStyle( selection ).borderTopWidth, '1px' );
+			assert.notEqual( getComputedStyle( selection ).borderTopColor, 'rgba(0, 0, 0, 0)' );
+		}
+		assert.isAtLeast(
+			pauseRows[ 1 ]?.getBoundingClientRect().top ?? 0,
+			pauseRows[ 0 ]?.getBoundingClientRect().bottom ?? Number.POSITIVE_INFINITY,
+		);
+		assert.closeTo(
+			motionOption.getBoundingClientRect().width,
+			motionOption.parentElement?.getBoundingClientRect().width ?? 0,
+			0.5,
+		);
 	} );
 
 	it( 'projects loaded preferences without writing them', async () => {
@@ -569,7 +684,7 @@ describe( 'tocus-f-appearance-screen', () => {
 			assert.deepInclude( preview.projections.at( -1 ) ?? {}, {
 				[ preferenceChange.field ]: preferenceChange.value,
 			} );
-			assert.equal( element.shadowRoot?.activeElement, input );
+			assertPreferenceControlFocused( element, input );
 			assert.include( element.shadowRoot?.querySelector( '[role="status"]' )?.textContent ?? '', 'saved' );
 		} );
 	}
@@ -598,7 +713,7 @@ describe( 'tocus-f-appearance-screen', () => {
 		await settleScreen( element );
 
 		assert.isTrue( input.checked );
-		assert.equal( element.shadowRoot?.activeElement, input );
+		assertPreferenceControlFocused( element, input );
 		assert.include(
 			element.shadowRoot?.querySelector( '[role="alert"]' )?.textContent ?? '',
 			'could not be saved',
@@ -616,7 +731,7 @@ describe( 'tocus-f-appearance-screen', () => {
 		storage.completeSave();
 		await settleScreen( element );
 
-		assert.equal( element.shadowRoot?.activeElement, input );
+		assertPreferenceControlFocused( element, input );
 	} );
 
 	it( 'keeps a newer external projection when an older save settles', async () => {
@@ -715,6 +830,7 @@ describe( 'tocus-f-appearance-screen', () => {
 	it( 'ignores unavailable, pending, unchecked, unsupported, and invalid changes', async () => {
 		const storage = new DeferredAppearanceEditor( { ...DefaultPreferencesDocument } );
 		const element = await renderScreen( storage );
+		const controls = getAppearanceControls( element );
 		const themeInput = getRequiredElement( element, '#theme-light', HTMLInputElement );
 
 		themeInput.click();
@@ -722,26 +838,40 @@ describe( 'tocus-f-appearance-screen', () => {
 
 		const pendingInput = getRequiredElement( element, '#palette-green', HTMLInputElement );
 		assert.isTrue( pendingInput.dispatchEvent( new Event( 'change' ) ) );
+		controls.dispatchEvent( new CustomEvent( AppearanceControlsChangeEventName, {
+			bubbles: true,
+			composed: true,
+			detail: { update: { palette: Palette.GREEN } },
+		} ) );
 		storage.completeSave();
 		await settleScreen( element );
 		assert.lengthOf( storage.writes, 1 );
 
-		const uncheckedInput = getRequiredElement( element, '#palette-blue', HTMLInputElement );
+		const uncheckedInput = getRequiredElement( element, '#pause-mode-quiet', HTMLInputElement );
 		assert.isTrue( uncheckedInput.dispatchEvent( new Event( 'change' ) ) );
 
-		const unsupportedInput = getRequiredElement( element, '#palette-orange', HTMLInputElement );
+		const unsupportedInput = getRequiredElement( element, '#pause-mode-quiet', HTMLInputElement );
 		unsupportedInput.name = 'unsupported';
 		unsupportedInput.checked = true;
 		assert.isTrue( unsupportedInput.dispatchEvent( new Event( 'change' ) ) );
 
-		const invalidInput = getRequiredElement( element, '#palette-pink', HTMLInputElement );
-		invalidInput.name = 'theme';
-		invalidInput.value = 'sepia';
+		const invalidInput = getRequiredElement( element, '#pause-mode-breathing', HTMLInputElement );
+		invalidInput.value = 'instant';
 		invalidInput.checked = true;
 		assert.isTrue( invalidInput.dispatchEvent( new Event( 'change' ) ) );
+		controls.dispatchEvent( new CustomEvent( AppearanceControlsChangeEventName, {
+			bubbles: true,
+			composed: true,
+			detail: { update: { theme: 'sepia' } },
+		} ) );
+		controls.dispatchEvent( new CustomEvent( AppearanceControlsChangeEventName, {
+			bubbles: true,
+			composed: true,
+			detail: { update: { pauseMode: PauseMode.QUIET } },
+		} ) );
 
 		element.editor = null;
-		const unavailableInput = getRequiredElement( element, '#pause-mode-quiet', HTMLInputElement );
+		const unavailableInput = getRequiredElement( element, '#reduced-motion', HTMLInputElement );
 		unavailableInput.checked = true;
 		assert.isTrue( unavailableInput.dispatchEvent( new Event( 'change' ) ) );
 		await settleScreen( element );
@@ -783,8 +913,8 @@ describe( 'tocus-f-appearance-screen', () => {
 			element.shadowRoot?.querySelector( '[role="status"]' )?.textContent ?? '',
 			'Personalization defaults restored.',
 		);
-		assert.equal(
-			element.shadowRoot?.activeElement,
+		assertPreferenceControlFocused(
+			element,
 			getRequiredElement( element, '#theme-system', HTMLInputElement ),
 		);
 	} );
@@ -895,8 +1025,8 @@ describe( 'tocus-f-appearance-screen', () => {
 		await settleScreen( element );
 
 		assert.isNull( element.shadowRoot?.querySelector( '[role="alert"]' ) ?? null );
-		assert.equal(
-			element.shadowRoot?.activeElement,
+		assertPreferenceControlFocused(
+			element,
 			getRequiredElement( element, '#theme-dark', HTMLInputElement ),
 		);
 	} );
@@ -907,11 +1037,11 @@ describe( 'tocus-f-appearance-screen', () => {
 		try {
 			const element = await renderScreen( new MemoryAppearanceEditor( {
 				...DefaultPreferencesDocument,
-				palette: Palette.BLUE,
+				pauseMode: PauseMode.QUIET,
 			} ) );
 			const selectedSurface = getRequiredElement(
 				element,
-				'#palette-blue + .selection',
+				'#pause-mode-quiet + .selection',
 				HTMLSpanElement,
 			);
 
@@ -935,9 +1065,12 @@ describe( 'tocus-f-appearance-screen', () => {
 		` );
 
 		await settleScreen( element );
+		const controls = getAppearanceControls( element );
+
+		await controls.updateComplete;
 
 		assert.include( element.shadowRoot?.querySelector( 'h1' )?.textContent ?? '', 'Apariencia' );
-		assert.include( element.shadowRoot?.querySelector( 'legend' )?.textContent ?? '', 'Tema' );
+		assert.include( controls.shadowRoot?.querySelector( 'legend' )?.textContent ?? '', 'Tema' );
 	} );
 	it( 'renders nothing before localized copy is injected', async () => {
 		const element = await fixture<ComponentAppearanceScreen>( html`<tocus-f-appearance-screen></tocus-f-appearance-screen>` );

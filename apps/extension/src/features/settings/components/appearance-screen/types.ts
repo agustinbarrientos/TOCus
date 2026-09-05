@@ -1,9 +1,11 @@
 import type {
-	Palette as PaletteValue,
 	PauseMode as PauseModeValue,
 	PreferencesDocument,
-	ThemeMode as ThemeModeValue,
 } from '../../../../domains/preferences/types';
+import type {
+	AppearanceControlsCopy,
+	AppearanceControlsOptionCopy,
+} from '../../../preferences/components/appearance-controls/types';
 
 /**
  * Stable loading states rendered by the Appearance settings screen.
@@ -74,42 +76,50 @@ export interface PreferencesSource {
 }
 
 /**
- * Localizable label and supporting text for one appearance choice.
- * @since 0.1.0 Initial implementation.
- */
-export interface AppearanceOptionCopy {
-	label: string;
-	description: string;
-}
-
-/**
  * Localizable messages rendered by the Appearance settings screen.
  * @since 0.1.0 Initial implementation.
  */
-export interface AppearanceScreenCopy {
+export interface AppearanceScreenCopy extends AppearanceControlsCopy {
+	/** Settings-page eyebrow. */
 	eyebrow: string;
+	/** Settings-page heading. */
 	title: string;
+	/** Settings-page introduction. */
 	introduction: string;
+	/** Accessible label for the complete Settings form. */
 	formLabel: string;
-	themeLegend: string;
-	themeOptions: Readonly<Record<ThemeModeValue, Readonly<AppearanceOptionCopy>>>;
-	paletteLegend: string;
+	/** Required supporting palette explanation on the Settings page. */
 	paletteHelp: string;
-	paletteLabels: Readonly<Record<PaletteValue, string>>;
+	/** Pause-style section legend. */
 	pauseModeLegend: string;
-	pauseModeOptions: Readonly<Record<PauseModeValue, Readonly<AppearanceOptionCopy>>>;
+	/** Labels and descriptions for every pause-style choice. */
+	pauseModeOptions: Readonly<Record<PauseModeValue, Readonly<AppearanceControlsOptionCopy>>>;
+	/** Accessibility section legend. */
 	accessibilityLegend: string;
+	/** Reduced-motion checkbox label. */
 	reducedMotionLabel: string;
+	/** Reduced-motion checkbox description. */
 	reducedMotionDescription: string;
+	/** Loading-state message. */
 	loading: string;
+	/** Malformed-data recovery heading. */
 	malformedDataTitle: string;
+	/** Malformed-data recovery explanation. */
 	malformedDataDescription: string;
+	/** Failed-load heading. */
 	loadErrorTitle: string;
+	/** Failed-load explanation. */
 	loadErrorDescription: string;
+	/** Malformed-data recovery action. */
 	restoreDefaults: string;
+	/** Malformed-data recovery failure. */
 	restoreDefaultsError: string;
+	/** Failed-load retry action. */
 	retry: string;
+	/** Preference persistence failure. */
 	saveError: string;
+	/** Preference persistence success announcement. */
 	savedAnnouncement: string;
+	/** Malformed-data recovery success announcement. */
 	restoredAnnouncement: string;
 }

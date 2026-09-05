@@ -41,26 +41,11 @@ h1 {
 	color: var(--tocus-color-on-surface-muted);
 }
 
-.appearance-form {
-	padding: var(--tocus-space-5);
-	border: 1px solid var(--tocus-color-outline);
-	border-radius: var(--tocus-radius-medium);
-	background: var(--tocus-color-surface);
-}
-
-fieldset {
-	margin: 0;
-	padding: 0 0 var(--tocus-space-5);
+.settings-section {
+	margin: var(--tocus-space-6) 0 0;
+	padding: var(--tocus-space-6) 0 0;
 	border: 0;
-
-	+ fieldset {
-		padding-top: var(--tocus-space-5);
-		border-top: 1px solid var(--tocus-color-outline);
-	}
-
-	&:last-of-type {
-		padding-bottom: 0;
-	}
+	border-top: 1px solid var(--tocus-color-outline);
 }
 
 legend,
@@ -72,7 +57,6 @@ legend {
 	padding: 0;
 }
 
-.field-help,
 .option small,
 .motion-option small,
 .save-error,
@@ -82,27 +66,11 @@ legend {
 	@include typography.apply( 'body-small' );
 }
 
-.field-help {
-	margin: var(--tocus-space-2) 0 0;
-	color: var(--tocus-color-on-surface-muted);
-}
-
 .options {
 	display: grid;
+	grid-template-columns: minmax(0, 1fr);
 	gap: var(--tocus-space-2);
 	margin-top: var(--tocus-space-3);
-
-	&--theme {
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-	}
-
-	&--palette {
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-	}
-
-	&--pause {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
 }
 
 .option {
@@ -121,16 +89,14 @@ legend {
 		position: absolute;
 		z-index: 0;
 		inset: 0;
-		border: 1px solid transparent;
+		border: 1px solid var(--tocus-color-outline);
 		border-radius: inherit;
 		background: transparent;
 		pointer-events: none;
 	}
 
 	input,
-	&__copy,
-	.swatch,
-	> strong {
+	&__copy {
 		position: relative;
 		z-index: 1;
 	}
@@ -162,47 +128,9 @@ legend {
 		color: var(--tocus-color-on-surface-muted);
 	}
 
-	&--palette {
-		grid-template-columns: auto auto minmax(0, 1fr);
-		align-items: center;
-		min-height: 3.5rem;
-	}
-
 	&:has(input:disabled) {
 		cursor: wait;
 		opacity: 0.65;
-	}
-}
-
-.swatch {
-	width: 1.75rem;
-	height: 1.75rem;
-	border: 1px solid color-mix(in srgb, currentcolor 22%, transparent);
-	border-radius: 50%;
-	box-shadow: inset 0 0.25rem 0.45rem rgb(255 255 255 / 24%);
-
-	&[data-palette='brown'] {
-		background: var(--tocus-color-palette-preview-brown);
-	}
-
-	&[data-palette='green'] {
-		background: var(--tocus-color-palette-preview-green);
-	}
-
-	&[data-palette='blue'] {
-		background: var(--tocus-color-palette-preview-blue);
-	}
-
-	&[data-palette='purple'] {
-		background: var(--tocus-color-palette-preview-purple);
-	}
-
-	&[data-palette='pink'] {
-		background: var(--tocus-color-palette-preview-pink);
-	}
-
-	&[data-palette='orange'] {
-		background: var(--tocus-color-palette-preview-orange);
 	}
 }
 
@@ -211,7 +139,7 @@ legend {
 	grid-template-columns: auto minmax(0, 1fr);
 	align-items: start;
 	gap: var(--tocus-space-3);
-	width: fit-content;
+	width: 100%;
 	min-height: 2.75rem;
 	margin-top: var(--tocus-space-3);
 	cursor: pointer;
@@ -311,30 +239,7 @@ button {
 	}
 }
 
-@media (width <= 42rem) {
-	.options {
-		&--theme,
-		&--pause {
-			grid-template-columns: minmax(0, 1fr);
-		}
-
-		&--palette {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
-	}
-}
-
 @media (width <= 28rem) {
-	.appearance-form {
-		padding: var(--tocus-space-4);
-	}
-
-	.options {
-		&--palette {
-			grid-template-columns: minmax(0, 1fr);
-		}
-	}
-
 	.load-error {
 		align-items: stretch;
 		flex-direction: column;
@@ -342,18 +247,8 @@ button {
 }
 
 @media (forced-colors: active) {
-	.swatch {
-		forced-color-adjust: none;
-	}
-
 	.option input:checked + .selection {
 		border-color: Highlight;
 		background: Canvas;
-	}
-
-	.swatch {
-		border-color: CanvasText;
-		background: Canvas;
-		box-shadow: none;
 	}
 }

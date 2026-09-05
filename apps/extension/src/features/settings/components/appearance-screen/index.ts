@@ -11,10 +11,8 @@ import { keyed } from 'lit/directives/keyed.js';
 import { isLocalizationReady } from '../../../../localization/utils/is-localization-ready';
 import {
 	DefaultPreferencesDocument,
-	Palette,
 	PauseMode,
 	PreferencesDocumentSchema,
-	ThemeMode,
 	type PreferencesDocument,
 } from '../../../../domains/preferences/types';
 import {
@@ -23,19 +21,18 @@ import {
 	type PreferencesUpdate,
 } from '../../../../domains/preferences/services/preferences-editor';
 import { arePreferencesEqual } from '../../../../domains/preferences/utils/are-preferences-equal';
+import '../../../preferences/components/appearance-controls';
+import type { AppearanceControlsChangeDetail } from '../../../preferences/components/appearance-controls/types';
 import styles from './web-component-style.scss?inline';
 import {
 	AppearanceScreenLoadStatus,
 	type AppearanceInputEvent,
-	type AppearanceOptionCopy,
 	type AppearanceScreenCopy,
 	type AppearanceScreenLoadStatus as AppearanceScreenLoadStatusValue,
 	type PreferencesPreview,
 	type PreferencesSource,
 } from './types';
 
-const THEME_OPTIONS = Object.values( ThemeMode );
-const PALETTE_OPTIONS = Object.values( Palette );
 const PAUSE_MODE_OPTIONS = Object.values( PauseMode );
 
 /**
@@ -242,6 +239,30 @@ export class ComponentAppearanceScreen extends LitElement {
 	}
 
 	/**
+	 * Moves focus to a Settings-owned input or a nested shared appearance control.
+	 * @param controlId - Native preference-control identifier without a selector prefix.
+	 * @return Promise resolved after a nested shared control is ready and focused.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private async focusPreferenceControl( controlId: string ): Promise<void> {
+		const sharedControl = controlId.startsWith( 'theme-' ) || controlId.startsWith( 'palette-' );
+
+		if ( sharedControl ) {
+			const appearanceControls = this.shadowRoot?.querySelector( 'tocus-f-appearance-controls' );
+
+			if ( appearanceControls !== null && appearanceControls !== undefined ) {
+				await appearanceControls.updateComplete;
+				appearanceControls.focusControl( controlId );
+				return;
+			}
+		}
+
+		this.shadowRoot
+			?.querySelector<HTMLElement>( `#${ CSS.escape( controlId ) }` )
+			?.focus();
+	}
+
+	/**
 	 * Retries the local preferences read and restores useful focus.
 	 * @since 0.1.0 Initial implementation.
 	 */
@@ -249,10 +270,11 @@ export class ComponentAppearanceScreen extends LitElement {
 		await this.refreshPreferences();
 		await this.updateComplete;
 
-		const focusTarget = this.loadStatus === AppearanceScreenLoadStatus.READY
-			? `#theme-${ this.preferences.theme }`
-			: '.retry-action';
-		this.shadowRoot?.querySelector<HTMLElement>( focusTarget )?.focus();
+		if ( this.loadStatus === AppearanceScreenLoadStatus.READY ) {
+			await this.focusPreferenceControl( `theme-${ this.preferences.theme }` );
+		} else {
+			this.shadowRoot?.querySelector<HTMLElement>( '.retry-action' )?.focus();
+		}
 	};
 
 	/**
@@ -290,10 +312,12 @@ export class ComponentAppearanceScreen extends LitElement {
 		}
 
 		await this.updateComplete;
-		const focusTarget = this.loadStatus === AppearanceScreenLoadStatus.READY
-			? `#theme-${ this.preferences.theme }`
-			: '.restore-action';
-		this.shadowRoot?.querySelector<HTMLElement>( focusTarget )?.focus();
+
+		if ( this.loadStatus === AppearanceScreenLoadStatus.READY ) {
+			await this.focusPreferenceControl( `theme-${ this.preferences.theme }` );
+		} else {
+			this.shadowRoot?.querySelector<HTMLElement>( '.restore-action' )?.focus();
+		}
 	};
 
 	/**
@@ -316,12 +340,6 @@ export class ComponentAppearanceScreen extends LitElement {
 		let candidate: unknown;
 
 		switch ( input.name ) {
-			case 'theme':
-				candidate = { theme: input.value };
-				break;
-			case 'palette':
-				candidate = { palette: input.value };
-				break;
 			case 'pause-mode':
 				candidate = { pauseMode: input.value };
 				break;
@@ -338,21 +356,17 @@ export class ComponentAppearanceScreen extends LitElement {
 	}
 
 	/**
-	 * Applies and persists one user-selected preference immediately.
-	 * @param event - Native changed appearance control.
+	 * Applies and persists one validated user-selected preference immediately.
+	 * @param update - Exact validated preference update.
+	 * @param focusTargetId - Native control identifier restored after persistence.
 	 * @return Promise resolved after local persistence settles.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	private readonly handlePreferenceChange = async ( event: AppearanceInputEvent ): Promise<void> => {
-		const uncheckedRadio = event.currentTarget.type === 'radio' && ! event.currentTarget.checked;
-
-		if ( this.saving || this.editor === null || uncheckedRadio ) {
-			return;
-		}
-
-		const update = this.createPreferencesUpdate( event.currentTarget );
-
-		if ( update === null ) {
+	private async persistPreferenceUpdate(
+		update: PreferencesUpdate,
+		focusTargetId: string,
+	): Promise<void> {
+		if ( this.saving || this.editor === null ) {
 			return;
 		}
 
@@ -360,8 +374,6 @@ export class ComponentAppearanceScreen extends LitElement {
 			...this.preferences,
 			...update,
 		} );
-
-		const focusTargetId = event.currentTarget.id;
 
 		this.preferences = preferences;
 		this.preview?.apply( preferences );
@@ -392,37 +404,83 @@ export class ComponentAppearanceScreen extends LitElement {
 		}
 
 		await this.updateComplete;
-		const focusTarget = this.loadStatus === AppearanceScreenLoadStatus.READY
-			? `#${ focusTargetId }`
-			: '.restore-action';
-		this.shadowRoot?.querySelector<HTMLElement>( focusTarget )?.focus();
+
+		if ( this.loadStatus === AppearanceScreenLoadStatus.READY ) {
+			await this.focusPreferenceControl( focusTargetId );
+		} else {
+			this.shadowRoot?.querySelector<HTMLElement>( '.restore-action' )?.focus();
+		}
+	}
+
+	/**
+	 * Validates and persists one shared theme or palette selection.
+	 * @param event - Shared controlled appearance change.
+	 * @return Promise resolved after local persistence settles.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private readonly handleAppearanceControlsChange = async (
+		event: CustomEvent<AppearanceControlsChangeDetail>,
+	): Promise<void> => {
+		event.stopPropagation();
+		const result = PreferencesUpdateSchema.safeParse( event.detail.update );
+
+		if ( ! result.success ) {
+			return;
+		}
+
+		let focusTargetId: string;
+
+		if ( 'theme' in event.detail.update ) {
+			focusTargetId = `theme-${ event.detail.update.theme }`;
+		} else if ( 'palette' in event.detail.update ) {
+			focusTargetId = `palette-${ event.detail.update.palette }`;
+		} else {
+			return;
+		}
+
+		await this.persistPreferenceUpdate( result.data, focusTargetId );
 	};
 
 	/**
-	 * Renders one theme or pause-style option.
-	 * @param name - Native radio-group name.
-	 * @param value - Persisted preference value.
-	 * @param selected - Whether the option is selected.
-	 * @param copy - Localizable label and supporting text.
+	 * Validates and persists one Settings-owned pause or accessibility selection.
+	 * @param event - Native changed Settings-only control.
+	 * @return Promise resolved after local persistence settles.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private readonly handlePreferenceChange = async ( event: AppearanceInputEvent ): Promise<void> => {
+		const uncheckedRadio = event.currentTarget.type === 'radio' && ! event.currentTarget.checked;
+
+		if ( uncheckedRadio ) {
+			return;
+		}
+
+		const update = this.createPreferencesUpdate( event.currentTarget );
+
+		if ( update === null ) {
+			return;
+		}
+
+		await this.persistPreferenceUpdate( update, event.currentTarget.id );
+	};
+
+	/**
+	 * Renders one pause-style option.
+	 * @param pauseMode - Persisted pause presentation mode.
 	 * @return Semantic native radio option.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	private renderDescribedOption(
-		name: string,
-		value: string,
-		selected: boolean,
-		copy: Readonly<AppearanceOptionCopy>,
-	): TemplateResult {
-		const id = `${ name }-${ value }`;
+	private renderPauseModeOption( pauseMode: PauseMode ): TemplateResult {
+		const id = `pause-mode-${ pauseMode }`;
+		const copy = this.copy.pauseModeOptions[ pauseMode ];
 
 		return html`
 			<label class="option" for=${ id }>
 				<input
 					id=${ id }
 					type="radio"
-					name=${ name }
-					value=${ value }
-					.checked=${ selected }
+					name="pause-mode"
+					value=${ pauseMode }
+					.checked=${ this.preferences.pauseMode === pauseMode }
 					?disabled=${ this.saving }
 					@change=${ this.handlePreferenceChange }
 				>
@@ -431,33 +489,6 @@ export class ComponentAppearanceScreen extends LitElement {
 					<strong>${ copy.label }</strong>
 					<small>${ copy.description }</small>
 				</span>
-			</label>
-		`;
-	}
-
-	/**
-	 * Renders one named palette option with a visible color sample.
-	 * @param palette - Persisted palette value.
-	 * @return Semantic native palette radio option.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	private renderPaletteOption( palette: Palette ): TemplateResult {
-		const id = `palette-${ palette }`;
-
-		return html`
-			<label class="option option--palette" for=${ id }>
-				<input
-					id=${ id }
-					type="radio"
-					name="palette"
-					value=${ palette }
-					.checked=${ this.preferences.palette === palette }
-					?disabled=${ this.saving }
-					@change=${ this.handlePreferenceChange }
-				>
-				<span class="selection" aria-hidden="true"></span>
-				<span class="swatch" data-palette=${ palette } aria-hidden="true"></span>
-				<strong>${ this.copy.paletteLabels[ palette ] }</strong>
 			</label>
 		`;
 	}
@@ -529,36 +560,20 @@ export class ComponentAppearanceScreen extends LitElement {
 					<p class="introduction">${ this.copy.introduction }</p>
 				</header>
 				<form class="appearance-form" aria-label=${ this.copy.formLabel } aria-busy=${ this.saving ? 'true' : 'false' }>
-					<fieldset>
-						<legend>${ this.copy.themeLegend }</legend>
-						<div class="options options--theme">
-							${ THEME_OPTIONS.map( ( theme ) => this.renderDescribedOption(
-								'theme',
-								theme,
-								this.preferences.theme === theme,
-								this.copy.themeOptions[ theme ],
-							) ) }
-						</div>
-					</fieldset>
-					<fieldset>
-						<legend>${ this.copy.paletteLegend }</legend>
-						<p class="field-help">${ this.copy.paletteHelp }</p>
-						<div class="options options--palette">
-							${ PALETTE_OPTIONS.map( ( palette ) => this.renderPaletteOption( palette ) ) }
-						</div>
-					</fieldset>
-					<fieldset>
+					<tocus-f-appearance-controls
+						.copy=${ this.copy }
+						.theme=${ this.preferences.theme }
+						.palette=${ this.preferences.palette }
+						.disabled=${ this.saving }
+						@tocus-appearance-controls-change=${ this.handleAppearanceControlsChange }
+					></tocus-f-appearance-controls>
+					<fieldset class="settings-section">
 						<legend>${ this.copy.pauseModeLegend }</legend>
 						<div class="options options--pause">
-							${ PAUSE_MODE_OPTIONS.map( ( pauseMode ) => this.renderDescribedOption(
-								'pause-mode',
-								pauseMode,
-								this.preferences.pauseMode === pauseMode,
-								this.copy.pauseModeOptions[ pauseMode ],
-							) ) }
+							${ PAUSE_MODE_OPTIONS.map( ( pauseMode ) => this.renderPauseModeOption( pauseMode ) ) }
 						</div>
 					</fieldset>
-					<fieldset>
+					<fieldset class="settings-section">
 						<legend>${ this.copy.accessibilityLegend }</legend>
 						<label class="motion-option" for="reduced-motion">
 							<input
