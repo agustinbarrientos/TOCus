@@ -8,7 +8,7 @@ describe( 'createProtectedSitesCopy', () => {
 		const copy = createProtectedSitesCopy( createTestI18n(), createLocalizationFormatters( 'en' ) );
 
 		expect( copy.title ).toBe( 'Websites' );
-		expect( copy.addSite ).toBe( 'Add a pause here' );
+		expect( copy.addSite ).toBe( 'Add site' );
 		expect( copy.sharedBehavior ).toBe( 'Shared timing' );
 		expect( copy.independentBehavior ).toBe( 'Give this website its own timing' );
 		expect( copy.alreadyProtectedError ).toBe( 'This website is already on your list.' );

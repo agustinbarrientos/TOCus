@@ -49,6 +49,26 @@ export function createOnboardingSitesStepCopy( i18n: I18n ): Readonly<Onboarding
 		return i18n._( msg`${ siteName } was added to your list.` );
 	}
 
+	/**
+	 * Formats one removed-site announcement.
+	 * @param name - Local site display name.
+	 * @return Localized removal status.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function formatRemovedAnnouncement( name: string ): string {
+		return i18n._( msg`${ { name } } was removed from your list.` );
+	}
+
+	/**
+	 * Formats one removal whose browser access remains granted.
+	 * @param name - Local site display name.
+	 * @return Localized browser-access status.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function formatPermissionRetainedAnnouncement( name: string ): string {
+		return i18n._( msg`${ { name } } was removed, but its browser access could not be removed automatically.` );
+	}
+
 	return Object.freeze( {
 		title: i18n._( msg`Choose websites` ),
 		introduction: i18n._( msg`Pick any suggestions or add a site yourself. You can finish without choosing one.` ),
@@ -57,7 +77,7 @@ export function createOnboardingSitesStepCopy( i18n: I18n ): Readonly<Onboarding
 		addressLabel: i18n._( msg`Website address` ),
 		addressPlaceholder: i18n._( msg`example.com` ),
 		addressHelp: i18n._( msg`Enter a domain or a full web address. TOCus includes the whole domain by default.` ),
-		addSiteLabel: i18n._( msg`Add a pause here` ),
+		addSiteLabel: i18n._( msg`Add site` ),
 		addingSiteLabel: i18n._( msg`Adding...` ),
 		invalidSiteError: i18n._( msg`Enter a valid website address.` ),
 		alreadyProtectedError: i18n._( msg`That website is already on your list.` ),
@@ -69,9 +89,14 @@ export function createOnboardingSitesStepCopy( i18n: I18n ): Readonly<Onboarding
 		saveError: i18n._( msg`TOCus could not save that site. Try again.` ),
 		unexpectedError: i18n._( msg`Something went wrong while adding that site. Try again.` ),
 		finishLabel: i18n._( msg`Finish setup` ),
+		finishHelp: i18n._( msg`Your browser will ask for access to the selected websites when you finish.` ),
+		removeSiteLabel: i18n._( msg`Remove site` ),
+		removalError: i18n._( msg`Your changes could not be saved. Nothing was replaced.` ),
 		formatAddSuggestionLabel,
 		formatAddingSuggestionLabel,
 		formatAddedSuggestionLabel,
 		formatAddedAnnouncement,
+		formatRemovedAnnouncement,
+		formatPermissionRetainedAnnouncement,
 	} );
 }
