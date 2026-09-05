@@ -298,7 +298,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			scope_secondary: SECOND_WAITING_STATE,
 		} );
 
-		expect( browser.projection ).toMatchObject( { text: '2×' } );
+		expect( browser.projection ).toMatchObject( { text: '2\u00d7' } );
 	} );
 
 	it.each( [
@@ -333,7 +333,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			scope_secondary: SECOND_WAITING_STATE,
 		} );
 
-		expect( browser.projection ).toMatchObject( { text: '2×' } );
+		expect( browser.projection ).toMatchObject( { text: '2\u00d7' } );
 	} );
 
 	it.each( [
@@ -375,7 +375,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			scope_secondary: SECOND_WAITING_STATE,
 		} );
 
-		expect( browser.projection ).toMatchObject( { text: '2×' } );
+		expect( browser.projection ).toMatchObject( { text: '2\u00d7' } );
 	} );
 
 	it( 'falls back to the only active scope when browser context reads fail', async () => {
@@ -682,6 +682,6 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			scope_secondary: SECOND_WAITING_STATE,
 		} );
 
-		expect( projection ).toMatchObject( { text: '2×' } );
+		expect( projection ).toMatchObject( { text: '2\u00d7' } );
 	} );
 } );

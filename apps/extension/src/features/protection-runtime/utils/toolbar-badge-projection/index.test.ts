@@ -138,9 +138,9 @@ describe( 'createToolbarBadgeProjection', () => {
 	} );
 
 	it.each( [
-		{ activeScopeCount: 2, text: '2×', title: 'TOCus: 2 protected-site timers active' },
-		{ activeScopeCount: 42, text: '42×', title: 'TOCus: 42 protected-site timers active' },
-		{ activeScopeCount: 100, text: '99+', title: 'TOCus: 100 protected-site timers active' },
+		{ activeScopeCount: 2, text: '2\u00d7', title: 'TOCus: 2 timers active' },
+		{ activeScopeCount: 42, text: '42\u00d7', title: 'TOCus: 42 timers active' },
+		{ activeScopeCount: 100, text: '99+', title: 'TOCus: 100 timers active' },
 	] )( 'projects a neutral summary for $activeScopeCount active scopes', ( expectation ) => {
 		expect( createToolbarBadgeProjection( {
 			activeScopeCount: expectation.activeScopeCount,
