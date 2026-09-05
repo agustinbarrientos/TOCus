@@ -2,6 +2,10 @@ import { describe, expect, it } from 'vitest';
 import config from '../../config/wtr/web-test-runner.config.js';
 
 const [ scssPlugin ] = config.plugins;
+const linguiMacroPlugin = config.plugins.find( ( plugin ) => plugin.name === 'lingui-macro' );
+const linguiRuntimeDependenciesPlugin = config.plugins.find(
+	( plugin ) => plugin.name === 'lingui-runtime-dependencies',
+);
 const context = { path: '/src/features/popup/components/shell/index.ts' };
 
 describe( 'web test runner configuration', () => {
@@ -40,5 +44,13 @@ describe( 'web test runner configuration', () => {
 		expect( scssPlugin.serve( { path: '/__scss_inline__/../../packages/theme/tokens.scss' } ) ).to.equal(
 			undefined,
 		);
+	} );
+
+	it( 'registers the Lingui macro transform', () => {
+		expect( linguiMacroPlugin ).not.to.equal( undefined );
+	} );
+
+	it( 'serves Lingui runtime dependencies through a browser-compatible boundary', () => {
+		expect( linguiRuntimeDependenciesPlugin ).not.to.equal( undefined );
 	} );
 } );

@@ -10,6 +10,8 @@ import {
 import { playwrightLauncher } from '@web/test-runner-playwright';
 import { visualRegressionPlugin } from '@web/test-runner-visual-regression/plugin';
 import * as sass from 'sass';
+import { createLinguiMacroTransformPlugin } from './services/lingui-macro-transform/index.js';
+import { createLinguiRuntimeDependenciesPlugin } from './services/lingui-runtime-dependencies/index.js';
 
 /**
  * Absolute root directory of the browser extension workspace.
@@ -22,6 +24,12 @@ const extensionRoot = fileURLToPath( new URL( '../..', import.meta.url ) );
  * @since 0.1.0 Initial implementation.
  */
 const scssInlinePrefix = '/__scss_inline__';
+
+/**
+ * Virtual URL prefix used to serve local raw SVG modules.
+ * @since 0.1.0 Initial implementation.
+ */
+const rawSvgPrefix = '/__raw_svg__';
 
 /**
  * Virtual module path used to serve the shared theme icon.
@@ -114,6 +122,31 @@ function resolveScssPath( requestPath ) {
 }
 
 /**
+ * Resolves a root-relative SVG request without allowing it to leave the extension.
+ * @param {string} requestPath - Root-relative SVG request path.
+ * @return {string|undefined} The absolute SVG path when it is safe to serve.
+ * @since 0.1.0 Initial implementation.
+ */
+function resolveSvgPath( requestPath ) {
+	if ( ! requestPath.startsWith( '/' ) ) {
+		return undefined;
+	}
+
+	const absolutePath = path.resolve( extensionRoot, `.${ requestPath }` );
+	const relativePath = path.relative( extensionRoot, absolutePath );
+	if (
+		path.extname( absolutePath ) !== '.svg' ||
+		relativePath === '..' ||
+		relativePath.startsWith( `..${ path.sep }` ) ||
+		path.isAbsolute( relativePath )
+	) {
+		return undefined;
+	}
+
+	return absolutePath;
+}
+
+/**
  * Development-server plugin that compiles inline SCSS imports.
  * @since 0.1.0 Initial implementation.
  */
@@ -169,6 +202,60 @@ const scssPlugin = {
 
 		return {
 			body: `export default ${ JSON.stringify( result.css ) };`,
+			headers: { 'cache-control': 'no-cache' },
+			type: 'js',
+		};
+	},
+};
+
+/**
+ * Development-server plugin that serves extension-owned SVGs as raw string modules.
+ * @since 0.1.0 Initial implementation.
+ */
+const rawSvgPlugin = {
+	name: 'raw-svg',
+	/**
+	 * Resolves a relative raw SVG import to the local virtual-module namespace.
+	 * @param {{ source: string, context: { path: string } }} request - Import resolution request.
+	 * @return {string|undefined} Virtual module identifier when the request is safe and supported.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	resolveImport( request ) {
+		const { source, context } = request;
+
+		if (
+			( ! source.startsWith( './' ) && ! source.startsWith( '../' ) ) ||
+			! source.endsWith( '.svg?raw' ) ||
+			! context.path.startsWith( '/' )
+		) {
+			return undefined;
+		}
+
+		const sourcePath = source.slice( 0, -'?raw'.length );
+		const resolvedPath = path.posix.resolve( path.posix.dirname( context.path ), sourcePath );
+
+		return resolveSvgPath( resolvedPath ) === undefined
+			? undefined
+			: `${ rawSvgPrefix }${ resolvedPath }`;
+	},
+	/**
+	 * Serves one resolved SVG as a JavaScript string module.
+	 * @param {{ path: string }} context - Development-server request context.
+	 * @return {{ body: string, headers: { 'cache-control': string }, type: string }|undefined} Raw SVG module response when the path is valid.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	serve( context ) {
+		if ( ! context.path.startsWith( rawSvgPrefix ) ) {
+			return undefined;
+		}
+
+		const absolutePath = resolveSvgPath( context.path.slice( rawSvgPrefix.length ) );
+		if ( absolutePath === undefined ) {
+			return undefined;
+		}
+
+		return {
+			body: `export default ${ JSON.stringify( readFileSync( absolutePath, 'utf8' ) ) };`,
 			headers: { 'cache-control': 'no-cache' },
 			type: 'js',
 		};
@@ -276,13 +363,16 @@ export default {
 	],
 	plugins: [
 		scssPlugin,
+		rawSvgPlugin,
 		themeIconPlugin,
+		createLinguiRuntimeDependenciesPlugin(),
 		esbuildPlugin( {
 			loaders: { json: 'json' },
 			target: 'es2022',
 			ts: true,
 			tsconfig: path.join( extensionRoot, 'tsconfig.json' ),
 		} ),
+		createLinguiMacroTransformPlugin( extensionRoot ),
 		emulateMediaPlugin(),
 		sendKeysPlugin(),
 		setViewportPlugin(),
