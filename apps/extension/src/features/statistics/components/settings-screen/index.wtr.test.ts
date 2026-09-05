@@ -454,7 +454,7 @@ describe( 'tocus-f-statistics-settings-screen', () => {
 		assert.notInclude( getRequiredElement( element, 'main', HTMLElement ).textContent, 'at least' );
 		assert.include(
 			getRequiredElement( element, '.method-note', HTMLParagraphElement ).textContent,
-			'Estimated protected-site time avoided, based on your prior focused use.',
+			'Estimated browsing time avoided on your selected websites, based on your prior focused use.',
 		);
 	} );
 
@@ -683,7 +683,7 @@ describe( 'tocus-f-statistics-settings-screen', () => {
 		assert.equal( confirmation.getAttribute( 'aria-labelledby' ), 'reset-confirmation-title' );
 		assert.equal( confirmation.getAttribute( 'aria-describedby' ), confirmationDescription.id );
 		const confirmationText = confirmation.textContent.toLowerCase();
-		for ( const preservedSetting of [ 'protected sites', 'schedules', 'timing', 'appearance' ] ) {
+		for ( const preservedSetting of [ 'websites', 'schedules', 'timing', 'appearance' ] ) {
 			assert.include( confirmationText, preservedSetting );
 		}
 		assert.equal( source.resets, 0 );
