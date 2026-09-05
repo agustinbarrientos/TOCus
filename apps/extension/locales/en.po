@@ -1067,10 +1067,6 @@ msgid "TOCus found local settings it could not read. They were not replaced."
 msgstr "TOCus found local settings it could not read. They were not replaced."
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
-msgid "TOCus is a focus aid, not medical treatment."
-msgstr "TOCus is a focus aid, not medical treatment."
-
-#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "TOCus is ready. You can close this tab or continue in Settings."
 msgstr "TOCus is ready. You can close this tab or continue in Settings."
 
