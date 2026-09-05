@@ -1,4 +1,6 @@
+import { join } from 'node:path';
 import { defineConfig } from 'wxt';
+import { createTabFaviconAssets } from './config/icons/services/create-tab-favicon-assets/index.ts';
 import { addBrowserLocaleAssets } from './config/localization/services/create-browser-locale-assets/index.ts';
 import { createLocalizationViteConfig } from './config/vite/services/create-localization-vite-config/index.ts';
 
@@ -42,7 +44,17 @@ export default defineConfig( {
 		sizes: [ 16, 19, 24, 32, 38, 48, 64, 96, 128, 256, 512 ],
 	},
 	hooks: {
-		'build:publicAssets': addBrowserLocaleAssets,
+		/**
+		 * Creates local assets shared by the extension documents.
+		 * @param wxt - Active extension build context.
+		 * @param files - Public assets copied into the extension package.
+		 * @return Promise resolved after shared assets are generated.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		'build:publicAssets': async ( wxt, files ) => {
+			await addBrowserLocaleAssets( wxt, files );
+			files.push( ...await createTabFaviconAssets( join( wxt.config.wxtDir, 'tab-favicons' ) ) );
+		},
 	},
 	/**
 	 * Creates browser-specific extension metadata.
