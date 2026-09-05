@@ -1,3 +1,4 @@
+export * from './browser-protection-configuration-editor';
 export * from './protection-configuration-storage';
 export * from './protection-configuration-editor';
 export * from './protection-coordinator';
