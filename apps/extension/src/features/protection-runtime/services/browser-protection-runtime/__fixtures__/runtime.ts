@@ -2,7 +2,6 @@ import { type Browser } from 'wxt/browser';
 import {
 	createProtectionCoordinator,
 	type LoadedProtectionState,
-	type ProtectionCoordinator,
 	type ProtectionStorageService,
 } from '../../../../../domains/protection';
 import { type ProtectionConfigurationStorageService } from '../../../../../domains/protection/services/protection-configuration-storage';
@@ -36,14 +35,7 @@ import {
 } from '../../../types/browser-runtime';
 import { type StatisticsRuntime } from '../../../../statistics/services/statistics-runtime';
 import { createInertStatisticsRuntime } from './statistics-runtime';
-
-/**
- * Mutable wall-clock holder used by runtime integration tests.
- * @since 0.1.0 Initial implementation.
- */
-export interface MutableClock {
-	value: number;
-}
+import { type MutableClock, type RuntimeTestHarness } from './types';
 
 /**
  * Promise whose completion is controlled by one runtime integration test.
@@ -91,15 +83,6 @@ export function waitForQueuedWork(): Promise<void> {
 	return new Promise<void>( ( resolve ) => {
 		setTimeout( resolve, 0 );
 	} );
-}
-
-/**
- * Initialized runtime services returned to integration tests.
- * @since 0.1.0 Initial implementation.
- */
-export interface RuntimeTestHarness {
-	coordinator: ProtectionCoordinator;
-	runtime: BrowserProtectionRuntime;
 }
 
 /**
@@ -626,3 +609,5 @@ export async function presentAllowanceExpiryInterruption(
 	now.value = ready.allowanceExpiresAtEpochMilliseconds;
 	await runtime.handleClockTick();
 }
+
+export type { MutableClock, RuntimeTestHarness } from './types';
