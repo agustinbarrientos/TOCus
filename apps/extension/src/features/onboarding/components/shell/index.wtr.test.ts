@@ -90,7 +90,6 @@ const TEST_COPY: Readonly<OnboardingShellCopy> = {
 	introduction: 'Create a gentle pause before the websites you choose.',
 	privacyTitle: 'Private by design',
 	privacyDescription: 'Your choices and statistics stay on this device. TOCus never reads your browsing history.',
-	nonClinicalNote: 'TOCus is a focus aid, not medical treatment.',
 	progressLabel: 'Setup progress',
 	stepNames: {
 		language: 'Language',
@@ -313,7 +312,7 @@ describe( 'tocus-f-onboarding-shell', () => {
 		assert.equal( shadowRoot.querySelector( '.privacy-mark svg' )?.getAttribute( 'viewBox' ), '0 0 640 640' );
 		assert.equal( shadowRoot.querySelector( '.welcome-label' ), null );
 		assert.equal( shadowRoot.querySelector( 'tocus-f-interruption-screen' ), null );
-		assert.include( shadowRoot.querySelector( '.non-clinical-note' )?.textContent, TEST_COPY.nonClinicalNote );
+		assert.equal( shadowRoot.querySelector( '.non-clinical-note' ), null );
 		assert.equal( shadowRoot.querySelector( '[aria-current="step"] strong' )?.textContent.trim(), 'Language' );
 		await expect( element ).to.be.accessible();
 	} );

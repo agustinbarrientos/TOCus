@@ -7,6 +7,7 @@ describe( 'createOnboardingCopy', () => {
 		const copy = createOnboardingCopy( createTestI18n() );
 
 		expect( 'welcomeLabel' in copy ).toBe( false );
+		expect( 'nonClinicalNote' in copy ).toBe( false );
 		expect( copy.completionTitle ).toBe( "You're all set" );
 		expect( copy.completionDescription ).toBe(
 			'TOCus is ready. You can close this tab or continue in Settings.',

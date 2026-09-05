@@ -514,7 +514,6 @@ export class ComponentOnboardingShell extends LitElement {
 								<p>${ this.copy.privacyDescription }</p>
 							</div>
 						</div>
-						<p class="non-clinical-note">${ this.copy.nonClinicalNote }</p>
 					</section>
 					<section
 						class="setup-card"

@@ -35,7 +35,6 @@ export interface OnboardingShellCopy {
 	introduction: string;
 	privacyTitle: string;
 	privacyDescription: string;
-	nonClinicalNote: string;
 	completionTitle: string;
 	completionDescription: string;
 	openSettingsLabel: string;
