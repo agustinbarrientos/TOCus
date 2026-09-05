@@ -4,6 +4,7 @@ import exclamationIconMarkup from '../../assets/icon-exclamation.svg?raw';
 import lockIconMarkup from '../../assets/icon-lock.svg?raw';
 import { LitElement, css, html, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import { cache } from 'lit/directives/cache.js';
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import { isLocalizationReady } from '../../../../localization/utils/is-localization-ready';
 import { type PreferencesEditor } from '../../../../domains/preferences/services/preferences-editor';
@@ -15,7 +16,7 @@ import {
 	type Palette as PaletteValue,
 	type ThemeMode as ThemeModeValue,
 } from '../../../../domains/preferences/types';
-import { type CanonicalHost } from '../../../../domains/protection/types/protected-site-rule';
+import { type ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
 import '../../../interruption/components/screen';
 import {
 	InterruptionScreenMode,
@@ -111,11 +112,11 @@ export class ComponentOnboardingShell extends LitElement {
 	accessor reducedMotion = false;
 
 	/**
-	 * Canonical site rules already protected before onboarding renders.
+	 * Authoritative site configurations already protected before onboarding renders.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@property( { attribute: false } )
-	accessor protectedRuleHosts: readonly CanonicalHost[] = [];
+	accessor protectedSites: readonly ProtectedSiteConfiguration[] = [];
 
 	/**
 	 * Fixed local suggestions rendered by the final step.
@@ -164,6 +165,41 @@ export class ComponentOnboardingShell extends LitElement {
 	@state()
 	private accessor completed = false;
 
+	/** Number of steps successfully completed during this setup. */
+	@state()
+	private accessor completedStepCount = 0;
+
+	/** Whether website persistence or browser access is currently pending. */
+	@state()
+	private accessor sitesPending = false;
+
+	/**
+	 * Locks navigation synchronously while the Sites step performs browser operations.
+	 * @param event - Pending state emitted by the active Sites step.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private readonly handleSitesPendingChange = ( event: CustomEvent<boolean> ): void => {
+		event.stopPropagation();
+		this.sitesPending = event.detail;
+	};
+
+	/**
+	 * Returns to an earlier step without discarding its retained selections.
+	 * @param step - Earlier step selected through the progress navigation.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	private returnToStep( step: OnboardingStepValue ): void {
+		if (
+			this.preferencePending || this.sitesPending ||
+			OnboardingSteps.indexOf( step ) >= OnboardingSteps.indexOf( this.step )
+		) {
+			return;
+		}
+		this.preferenceSaveFailed = false;
+		this.step = step;
+		void this.focusCurrentStep();
+	}
+
 	/**
 	 * Adopts an exact language selection immediately for the controlled child step.
 	 * @param event - Exact language selection emitted by the Language step.
@@ -198,7 +234,11 @@ export class ComponentOnboardingShell extends LitElement {
 		this.preferenceSaveFailed = false;
 
 		try {
-			const preferences = await this.editor.update( { language: event.detail.language } );
+			const preferences = await this.editor.update( {
+				language: event.detail.language,
+				theme: this.theme,
+				palette: this.palette,
+			} );
 
 			if ( preferences === null || preferences.language === null ) {
 				this.preferenceSaveFailed = true;
@@ -212,6 +252,7 @@ export class ComponentOnboardingShell extends LitElement {
 			}
 
 			this.language = preferences.language;
+			this.completedStepCount = Math.max( this.completedStepCount, 1 );
 			this.step = OnboardingStep.APPEARANCE;
 		} catch {
 			this.preferenceSaveFailed = true;
@@ -266,6 +307,7 @@ export class ComponentOnboardingShell extends LitElement {
 
 			this.theme = preferences.theme;
 			this.palette = preferences.palette;
+			this.completedStepCount = 2;
 			this.step = OnboardingStep.SITES;
 		} catch {
 			this.preferenceSaveFailed = true;
@@ -480,9 +522,10 @@ export class ComponentOnboardingShell extends LitElement {
 				data-onboarding-step
 				.copy=${ this.copy.sites }
 				.enrollment=${ this.enrollment }
-				.protectedRuleHosts=${ this.protectedRuleHosts }
+				.protectedSites=${ this.protectedSites }
 				.suggestions=${ this.suggestions }
 				@tocus-onboarding-sites-finish=${ this.handleSitesFinish }
+				@tocus-onboarding-sites-pending-change=${ this.handleSitesPendingChange }
 			></tocus-f-onboarding-sites-step>
 		`;
 	}
@@ -543,16 +586,26 @@ export class ComponentOnboardingShell extends LitElement {
 							<ol>
 								${ OnboardingSteps.map( ( step, index ) => html`
 									<li
-										class=${ index < currentStepIndex ? 'complete' : '' }
+										class=${ index < this.completedStepCount ? 'complete' : '' }
 										aria-current=${ step === this.step ? 'step' : 'false' }
 									>
-										<span aria-hidden="true">${ ( index + 1 ).toString() }</span>
-										<strong>${ this.copy.stepNames[ step ] }</strong>
+										<button
+											type="button"
+											?disabled=${ index >= currentStepIndex || this.preferencePending || this.sitesPending }
+											@click=${ this.returnToStep.bind( this, step ) }
+										>
+											<span aria-hidden="true">
+												${ index < this.completedStepCount
+													? unsafeSVG( circleCheckIconMarkup )
+													: ( index + 1 ).toString() }
+											</span>
+											<strong>${ this.copy.stepNames[ step ] }</strong>
+										</button>
 									</li>
 								` ) }
 							</ol>
 						</nav>
-						<div class="step-content">${ this.renderStep() }</div>
+						<div class="step-content">${ cache( this.renderStep() ) }</div>
 						` }
 					</section>
 				</main>

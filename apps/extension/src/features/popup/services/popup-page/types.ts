@@ -4,7 +4,6 @@ import {
 	type PreferencesAppearanceTarget,
 	type PreferencesLanguageChangeListener,
 } from '../../../preferences/services/preferences-controller';
-import { type ProtectedSiteEnrollmentResult } from '../../../protected-sites/services/protected-site-enrollment';
 import {
 	type SiteFaviconProvider,
 	type SiteFaviconSource,
@@ -12,6 +11,7 @@ import {
 import { type PopupShellCopy, type PopupOperationError } from '../../components/shell/types';
 import { type PopupCurrentTabContext } from '../../types/current-tab-context';
 import { type PopupProjection } from '../../types/popup-projection';
+import { type PopupSiteEnrollmentResult } from '../../types/site-enrollment';
 
 /**
  * Reads the current popup invocation's minimal active-tab context.
@@ -38,7 +38,7 @@ export interface PopupPageEnrollmentService {
 	 * @return Exact protected-site enrollment outcome.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	add( input: unknown, independent: boolean ): Promise<ProtectedSiteEnrollmentResult>;
+	add( input: unknown, independent: boolean ): Promise<PopupSiteEnrollmentResult>;
 }
 
 /**

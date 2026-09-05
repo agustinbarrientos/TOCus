@@ -84,6 +84,18 @@ class MemoryStorageChanges {
 			}, 'local' );
 		}
 	}
+
+	/**
+	 * Emits one candidate protection snapshot from an arbitrary storage area.
+	 * @param configuration - Raw protection document supplied by storage.
+	 * @param areaName - Browser storage area containing the update.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	emitProtection( configuration: unknown, areaName = 'local' ): void {
+		for ( const listener of this.listeners ) {
+			listener( { [ ProtectionConfigurationStorageKey.CONFIGURATION ]: { newValue: configuration } }, areaName );
+		}
+	}
 }
 
 /**
@@ -132,7 +144,7 @@ class MemoryOnboardingShell extends EventTarget implements OnboardingPageShell {
 
 	palette: OnboardingPageShell[ 'palette' ] = Palette.BROWN;
 
-	protectedRuleHosts: OnboardingPageShell[ 'protectedRuleHosts' ] = [];
+	protectedSites: OnboardingPageShell[ 'protectedSites' ] = [];
 
 	reducedMotion = false;
 
@@ -189,6 +201,48 @@ function createOptions(
 }
 
 describe( 'startOnboardingPage', () => {
+	it( 'retains a live protection projection when an older startup read resolves later', async () => {
+		const read = Promise.withResolvers<Record<string, unknown>>();
+		const storageChanges = new MemoryStorageChanges();
+		const shell = new MemoryOnboardingShell();
+		const start = startOnboardingPage( createOptions( {
+			storageChanges,
+			shell,
+			storageArea: {
+				get: vi.fn( ( key: string ) => key === ProtectionConfigurationStorageKey.CONFIGURATION
+					? read.promise : Promise.resolve( {} ) ),
+				set: vi.fn().mockResolvedValue( undefined ),
+			},
+		} ) );
+		const site = {
+			identityHost: 'example.com',
+			rule: { host: 'example.com', includeSubdomains: true, scopeId: DefaultProtectionScopeId },
+		};
+		storageChanges.emitProtection( { ...TestEmptyProtectionConfiguration, sites: [ site ] } );
+		read.resolve( { [ ProtectionConfigurationStorageKey.CONFIGURATION ]: TestEmptyProtectionConfiguration } );
+		await start;
+		expect( shell.protectedSites ).toEqual( [ site ] );
+	} );
+
+	it( 'projects external protection additions and removals without discarding sites on malformed updates', async () => {
+		const storageChanges = new MemoryStorageChanges();
+		const shell = new MemoryOnboardingShell();
+		await startOnboardingPage( createOptions( { storageChanges, shell } ) );
+		const site = {
+			identityHost: 'example.com',
+			rule: { host: 'example.com', includeSubdomains: true, scopeId: DefaultProtectionScopeId },
+		};
+		const configuration = { ...TestEmptyProtectionConfiguration, sites: [ site ] };
+		storageChanges.emitProtection( configuration, 'sync' );
+		expect( shell.protectedSites ).toEqual( [] );
+		storageChanges.emitProtection( configuration );
+		expect( shell.protectedSites ).toEqual( [ site ] );
+		storageChanges.emitProtection( { sites: [] } );
+		expect( shell.protectedSites ).toEqual( [ site ] );
+		storageChanges.emitProtection( TestEmptyProtectionConfiguration );
+		expect( shell.protectedSites ).toEqual( [] );
+	} );
+
 	it( 'keeps onboarding hidden until preferences, protection, and localization settle', async () => {
 		const preferences = Promise.withResolvers<Record<string, unknown>>();
 		const protection = Promise.withResolvers<Record<string, unknown>>();
@@ -258,7 +312,10 @@ describe( 'startOnboardingPage', () => {
 		expect( shell.interruptionCopy ).toBe( TestEnglishLocalizationBundle.interruption );
 		expect( 'pauseMode' in shell ).toBe( false );
 		expect( 'previewWellbeingSummary' in shell ).toBe( false );
-		expect( shell.protectedRuleHosts ).toEqual( [ 'instagram.com' ] );
+		expect( shell.protectedSites ).toEqual( [ {
+			identityHost: 'www.instagram.com',
+			rule: { host: 'instagram.com', includeSubdomains: true, scopeId: DefaultProtectionScopeId },
+		} ] );
 		expect( removeProperty ).toHaveBeenNthCalledWith( 1, 'color-scheme' );
 		expect( removeProperty ).toHaveBeenNthCalledWith( 2, 'background' );
 		expect( removeProperty ).toHaveBeenNthCalledWith( 3, 'visibility' );
@@ -335,7 +392,7 @@ describe( 'startOnboardingPage', () => {
 			expectedIntroduction: 'Crea una pausa amable antes de los sitios web que elijas.',
 			expectedLanguageTag: 'es',
 			expectedPortugueseVariantLegend: '\u00bfQu\u00e9 variante de portugu\u00e9s quieres que use TOCus?',
-			expectedPrivacyTitle: 'Privacidad desde el dise\u00f1o',
+			expectedPrivacyTitle: '100% privado',
 			expectedProgressLabel: 'Progreso de la configuraci\u00f3n',
 			expectedSettingsNote: 'Puedes cambiar estas opciones y ajustar los tiempos o los horarios cuando quieras en Configuraci\u00f3n.',
 			expectedSpanishVariantLegend: '\u00bfQu\u00e9 variante de espa\u00f1ol quieres que use TOCus?',
@@ -346,7 +403,7 @@ describe( 'startOnboardingPage', () => {
 			expectedIntroduction: 'Crie uma pausa gentil antes dos sites que voc\u00ea escolher.',
 			expectedLanguageTag: 'pt-BR',
 			expectedPortugueseVariantLegend: 'Qual variante do portugu\u00eas o TOCus deve usar?',
-			expectedPrivacyTitle: 'Privacidade desde a concep\u00e7\u00e3o',
+			expectedPrivacyTitle: '100% privado',
 			expectedProgressLabel: 'Progresso da configura\u00e7\u00e3o',
 			expectedSettingsNote: 'Voc\u00ea pode alterar estas escolhas e ajustar os tempos ou hor\u00e1rios quando quiser nas Configura\u00e7\u00f5es.',
 			expectedSpanishVariantLegend: 'Qual variante do espanhol o TOCus deve usar?',
@@ -554,7 +611,7 @@ describe( 'startOnboardingPage', () => {
 		expect( shell.theme ).toBe( ThemeMode.SYSTEM );
 		expect( shell.palette ).toBe( Palette.BROWN );
 		expect( 'pauseMode' in shell ).toBe( false );
-		expect( shell.protectedRuleHosts ).toEqual( [] );
+		expect( shell.protectedSites ).toEqual( [] );
 	} );
 
 	it( 'releases observers and keeps onboarding hidden when startup fails', async () => {
@@ -584,7 +641,7 @@ describe( 'startOnboardingPage', () => {
 
 		await expect( startOnboardingPage( options ) ).rejects.toThrow( 'Catalog unavailable.' );
 
-		expect( storageListenerRemoval ).toHaveBeenCalledOnce();
+		expect( storageListenerRemoval ).toHaveBeenCalledTimes( 2 );
 		expect( motionListenerRemoval ).toHaveBeenCalledOnce();
 		expect( shellListenerRemoval ).toHaveBeenCalledTimes( 3 );
 		expect( removeProperty ).not.toHaveBeenCalled();

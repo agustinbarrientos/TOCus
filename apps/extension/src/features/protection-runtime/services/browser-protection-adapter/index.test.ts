@@ -254,6 +254,30 @@ describe( 'createBrowserProtectionAdapter', () => {
 		expect( browserApi.tabs.query ).toHaveBeenCalledWith( {} );
 	} );
 
+	it( 'observes redacted interruption documents from fresh extension contexts', async () => {
+		const browserApi = createBrowserApi();
+		const interruptionPageUrl = 'chrome-extension://extension-id/interruption.html';
+		const getContexts = vi.fn().mockResolvedValueOnce( [ {
+			contextType: 'TAB',
+			documentUrl: interruptionPageUrl,
+			frameId: 0,
+			incognito: false,
+			tabId: 7,
+		} ] ).mockResolvedValueOnce( [] );
+		browserApi.runtime = { getContexts, getURL: vi.fn().mockReturnValue( interruptionPageUrl ) };
+		vi.mocked( browserApi.tabs.query ).mockResolvedValue( [ { id: 7, incognito: false, windowId: 3 } ] );
+		const adapter = createBrowserProtectionAdapter( browserApi );
+
+		await expect( adapter.listTabs() ).resolves.toEqual( [ {
+			id: 7,
+			incognito: false,
+			url: interruptionPageUrl,
+			windowId: 3,
+		} ] );
+		await expect( adapter.listTabs() ).resolves.toEqual( [ { id: 7, incognito: false, windowId: 3 } ] );
+		expect( getContexts ).toHaveBeenCalledTimes( 2 );
+	} );
+
 	it( 'navigates the requested tab to its retained destination', async () => {
 		const browserApi = createBrowserApi();
 		const adapter = createBrowserProtectionAdapter( browserApi );

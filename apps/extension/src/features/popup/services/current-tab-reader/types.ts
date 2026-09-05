@@ -1,3 +1,4 @@
+import { type ExtensionTabContextRuntime } from '../../../../shared/services/extension-tab-context';
 import { type PopupCurrentTabContext } from '../../types/current-tab-context';
 
 /**
@@ -45,6 +46,8 @@ export interface CurrentTabReaderTabsApi {
  * @since 0.1.0 Initial implementation.
  */
 export interface CurrentTabReaderBrowser {
+	/** Live extension-document lookup when supported by the browser. */
+	runtime?: ExtensionTabContextRuntime | undefined;
 	/** Tab lookup granted by the user opening the popup. */
 	tabs: CurrentTabReaderTabsApi;
 }

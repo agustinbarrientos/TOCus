@@ -212,15 +212,12 @@ export function createProtectionNavigationHandler(
 			return;
 		}
 
-		if ( isOutcome ) {
-			pendingDestinationsByTabId.delete( navigation.tabId );
-		}
-
 		const destination = resolvesPendingInterruption
 			? pendingDestination
 			: navigation.url;
 
 		if ( ! await isTabProtectionEligible( navigation.tabId ) ) {
+			pendingDestinationsByTabId.delete( navigation.tabId );
 			await Promise.all( [
 				options.departTab(
 					navigation.tabId,
@@ -235,8 +232,29 @@ export function createProtectionNavigationHandler(
 		const configuration = await options.loadConfiguration();
 
 		if ( configuration === null ) {
+			pendingDestinationsByTabId.delete( navigation.tabId );
 			await options.reconcileUnavailableConfiguration();
 			return;
+		}
+
+		const match = matchProtectedUrl( destination, configuration.sites.map( ( site ) => site.rule ) );
+
+		if (
+			navigation.phase === ProtectionRuntimeNavigationPhase.COMMITTED &&
+			! resolvesPendingInterruption &&
+			match.status !== ProtectedUrlMatchStatus.PROTECTED
+		) {
+			const tabs = await options.browser.listTabs();
+			const tab = tabs.find( ( candidate ) => candidate.id === navigation.tabId );
+			const observedUrl = tab?.pendingUrl ?? tab?.url;
+
+			if ( observedUrl !== undefined && observedUrl !== navigation.url ) {
+				return;
+			}
+		}
+
+		if ( isOutcome ) {
+			pendingDestinationsByTabId.delete( navigation.tabId );
 		}
 
 		await options.reconcileSchedules( configuration );
@@ -246,7 +264,6 @@ export function createProtectionNavigationHandler(
 		let existingContext = statesByScope === null
 			? null
 			: findRuntimeParticipantContext( statesByScope, navigation.tabId );
-		const match = matchProtectedUrl( destination, configuration.sites.map( ( site ) => site.rule ) );
 		const isSameScopeExpiryParticipant =
 			existingContext?.participant.origin === ProtectionParticipantOrigin.ALLOWANCE_EXPIRY &&
 			match.status === ProtectedUrlMatchStatus.PROTECTED &&

@@ -30,6 +30,7 @@ import {
 	SitePermissionReleaseStatus,
 	SitePermissionRequestStatus,
 	type SitePermissionApi,
+	type SitePermissionBatchRequestResult,
 	type SitePermissionDescriptor,
 	type SitePermissionManager,
 	type SitePermissionRequestResult,
@@ -250,6 +251,29 @@ class MemoryEnrollmentPermissionManager implements SitePermissionManager {
 		this.requestedRules.push( rule );
 
 		return Promise.resolve( this.requestResult );
+	}
+
+	/**
+	 * Returns configured consent for a group of canonical rules.
+	 * @param rules - Canonical rules whose browser access is requested.
+	 * @return Batch permission result with a known original grant snapshot.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	requestMany( rules: readonly ProtectedSiteRule[] ): Promise<SitePermissionBatchRequestResult> {
+		this.requestedRules.push( ...rules );
+
+		return Promise.resolve( this.requestResult.status === SitePermissionRequestStatus.GRANTED
+			? { status: SitePermissionRequestStatus.GRANTED, previousGrant: { origins: [], permissions: [] } }
+			: this.requestResult );
+	}
+
+	/**
+	 * Returns the configured batch permission compensation outcome.
+	 * @return Configured permission release result.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	releaseNewAccess(): Promise<SitePermissionReleaseStatus> {
+		return Promise.resolve( this.releaseResult );
 	}
 
 	/**
@@ -477,6 +501,196 @@ function createService(
 }
 
 describe( 'createProtectedSiteEnrollmentService', () => {
+	it( 'requests selected batch origins once in the caller stack and saves their unique rules atomically', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		const permissions = new SharedPermissionStateApi();
+		const request = vi.spyOn( permissions, 'request' );
+		const service = createService( storage, createSitePermissionManager( { permissions } ) );
+		const resultPromise = service.addMany( [ 'www.youtube.com', 'reddit.com', 'm.youtube.com' ] );
+
+		expect( request ).toHaveBeenCalledExactlyOnceWith( {
+			permissions: [ 'webNavigation' ],
+			origins: [ '*://*.youtube.com/*', '*://*.reddit.com/*' ],
+		} );
+		const result = await resultPromise;
+		expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.ADDED );
+		expect( storage.configuration.sites.map( ( site ) => site.identityHost ) ).toEqual( [
+			'www.youtube.com', 'reddit.com',
+		] );
+		expect( storage.writes ).toBe( 1 );
+	} );
+
+	it( 'rejects an invalid batch before any permission request or persistence', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		const permissions = new SharedPermissionStateApi();
+		const request = vi.spyOn( permissions, 'request' );
+		const service = createService( storage, createSitePermissionManager( { permissions } ) );
+
+		await expect( service.addMany( [ 'youtube.com', 'chrome://settings' ] ) ).resolves.toEqual( {
+			status: ProtectedSiteEnrollmentStatus.REJECTED,
+			reason: ProtectionConfigurationEditRejectionReason.INVALID_SITE,
+		} );
+		expect( request ).not.toHaveBeenCalled();
+		expect( storage.writes ).toBe( 0 );
+	} );
+
+	it( 'rejects malformed batch input before requesting permissions', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		const permissions = new SharedPermissionStateApi();
+		const request = vi.spyOn( permissions, 'request' );
+
+		await expect( createService( storage, createSitePermissionManager( { permissions } ) )
+			.addMany( null as unknown as string[] ) ).resolves.toEqual( {
+			status: ProtectedSiteEnrollmentStatus.REJECTED,
+			reason: ProtectionConfigurationEditRejectionReason.INVALID_SITE,
+		} );
+		expect( request ).not.toHaveBeenCalled();
+	} );
+
+	it( 'removes only new batch access after an atomic save failure', async () => {
+		const storage = new MemoryEnrollmentStorage( POPULATED_CONFIGURATION );
+		storage.rejectSaves = true;
+		const permissions = new SharedPermissionStateApi();
+		const service = createService( storage, createSitePermissionManager( { permissions } ) );
+
+		await expect( service.addMany( [ 'youtube.com', 'reddit.com' ] ) ).resolves.toEqual( {
+			status: ProtectedSiteEnrollmentStatus.SAVE_ERROR,
+		} );
+		expect( storage.configuration ).toEqual( POPULATED_CONFIGURATION );
+		expect( permissions.origins ).toEqual( new Set( [ '*://*.example.com/*' ] ) );
+		expect( permissions.permissions ).toEqual( new Set( [ 'webNavigation' ] ) );
+	} );
+
+	it( 'finishes an empty batch without requesting access or changing the configuration', async () => {
+		const storage = new MemoryEnrollmentStorage( POPULATED_CONFIGURATION );
+		const permissions = new SharedPermissionStateApi();
+		const request = vi.spyOn( permissions, 'request' );
+		const service = createService( storage, createSitePermissionManager( { permissions } ) );
+
+		await expect( service.addMany( [] ) ).resolves.toEqual( {
+			status: ProtectedSiteEnrollmentStatus.ADDED,
+			configuration: POPULATED_CONFIGURATION,
+			sites: [],
+		} );
+		expect( request ).not.toHaveBeenCalled();
+		expect( storage.writes ).toBe( 0 );
+	} );
+
+	it.each( [
+		[ SitePermissionRequestStatus.DENIED, ProtectedSiteEnrollmentStatus.PERMISSION_DENIED ],
+		[ SitePermissionRequestStatus.ERROR, ProtectedSiteEnrollmentStatus.PERMISSION_ERROR ],
+	] as const )( 'does not persist a batch when permission is %s', async ( permissionStatus, enrollmentStatus ) => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		const manager = new MemoryEnrollmentPermissionManager();
+		manager.requestResult = { status: permissionStatus };
+
+		await expect( createService( storage, manager ).addMany( [ 'youtube.com', 'reddit.com' ] ) )
+			.resolves.toEqual( { status: enrollmentStatus } );
+		expect( storage.writes ).toBe( 0 );
+	} );
+
+	it( 'rejects the entire batch when another context already added one selected rule', async () => {
+		const storage = new MemoryEnrollmentStorage( POPULATED_CONFIGURATION );
+		const permissions = new SharedPermissionStateApi();
+		const service = createService( storage, createSitePermissionManager( { permissions } ) );
+
+		await expect( service.addMany( [ 'youtube.com', 'www.example.com' ] ) ).resolves.toEqual( {
+			status: ProtectedSiteEnrollmentStatus.REJECTED,
+			reason: ProtectionConfigurationEditRejectionReason.ALREADY_PROTECTED,
+		} );
+		expect( storage.writes ).toBe( 0 );
+		expect( storage.configuration ).toEqual( POPULATED_CONFIGURATION );
+		expect( permissions.origins ).toEqual( new Set( [ '*://*.example.com/*' ] ) );
+	} );
+
+	it( 'does not save any batch site when its access is revoked before coordinated persistence', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		const permissions = new SharedPermissionStateApi();
+		const manager = createSitePermissionManager( { permissions } );
+		vi.spyOn( manager, 'hasAccess' ).mockResolvedValue( false );
+
+		await expect( createService( storage, manager ).addMany( [ 'youtube.com', 'reddit.com' ] ) )
+			.resolves.toEqual( { status: ProtectedSiteEnrollmentStatus.PERMISSION_ERROR } );
+		expect( storage.writes ).toBe( 0 );
+		expect( permissions.origins ).toEqual( new Set( [ '*://*.example.com/*' ] ) );
+	} );
+
+	it( 'rejects the whole batch when only its second rule loses access before persistence', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		const permissions = new SharedPermissionStateApi();
+		let firstRuleAccessible = false;
+
+		/**
+		 * Revokes only the second rule after browser consent and before the batch mutation.
+		 * @param mutation - Deferred protected-site configuration mutation.
+		 * @return Coordinated configuration edit result.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		async function coordinateMutation(
+			mutation: ProtectionConfigurationMutation,
+		): Promise<ProtectionConfigurationEditResult> {
+			permissions.origins.delete( '*://*.reddit.com/*' );
+			firstRuleAccessible = await permissions.contains( {
+				origins: [ '*://*.youtube.com/*' ], permissions: [ 'webNavigation' ],
+			} );
+
+			return mutation();
+		}
+
+		const service = createService(
+			storage, createSitePermissionManager( { permissions } ), coordinateMutation,
+		);
+
+		await expect( service.addMany( [ 'youtube.com', 'reddit.com' ] ) ).resolves.toEqual( {
+			status: ProtectedSiteEnrollmentStatus.PERMISSION_ERROR,
+		} );
+		expect( firstRuleAccessible ).toBe( true );
+		expect( storage.writes ).toBe( 0 );
+		expect( storage.configuration ).toEqual( EMPTY_CONFIGURATION );
+		expect( permissions.origins ).toEqual( new Set( [ '*://*.example.com/*' ] ) );
+		expect( permissions.permissions ).toEqual( new Set( [ 'webNavigation' ] ) );
+	} );
+
+	it( 'reports retained batch access when storage cannot be read for compensation', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		storage.rejectLoads = true;
+		const permissions = new SharedPermissionStateApi();
+
+		await expect( createService( storage, createSitePermissionManager( { permissions } ) )
+			.addMany( [ 'youtube.com' ] ) ).resolves.toEqual( {
+			status: ProtectedSiteEnrollmentStatus.PERMISSION_RETAINED,
+		} );
+		expect( storage.writes ).toBe( 0 );
+		expect( permissions.origins.has( '*://*.youtube.com/*' ) ).toBe( true );
+	} );
+
+	it( 'keeps malformed stored configuration intact and reports retained batch access', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		storage.returnMalformedConfiguration = true;
+		const permissions = new SharedPermissionStateApi();
+
+		await expect( createService( storage, createSitePermissionManager( { permissions } ) )
+			.addMany( [ 'youtube.com' ] ) ).resolves.toEqual( {
+			status: ProtectedSiteEnrollmentStatus.PERMISSION_RETAINED,
+		} );
+		expect( storage.writes ).toBe( 0 );
+		expect( permissions.origins.has( '*://*.youtube.com/*' ) ).toBe( true );
+	} );
+
+	it( 'retains uncertain batch grants after failed persistence and reports the cleanup limitation', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		storage.rejectSaves = true;
+		const permissions = new SharedPermissionStateApi();
+		vi.spyOn( permissions, 'getAll' ).mockRejectedValue( new Error( 'Browser snapshot unavailable.' ) );
+
+		await expect( createService( storage, createSitePermissionManager( { permissions } ) )
+			.addMany( [ 'youtube.com' ] ) ).resolves.toEqual( {
+			status: ProtectedSiteEnrollmentStatus.PERMISSION_RETAINED,
+		} );
+		expect( storage.writes ).toBe( 0 );
+		expect( permissions.origins.has( '*://*.youtube.com/*' ) ).toBe( true );
+	} );
+
 	it( 'rejects invalid input before requesting browser access', async () => {
 		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
 		const permissionManager = new MemoryEnrollmentPermissionManager();
@@ -863,5 +1077,42 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		} );
 		expect( storage.configuration ).toEqual( UPDATED_EMPTY_CONFIGURATION );
 		expect( storage.writes ).toBe( 1 );
+	} );
+
+	it( 'preserves existing batch grants while cleaning up new access after deferred removal revokes navigation', async () => {
+		const storage = new MemoryEnrollmentStorage( POPULATED_CONFIGURATION );
+		const coordinateMutation = createSharedMutationCoordinator();
+		const createMeasurementRevision = vi.fn()
+			.mockReturnValueOnce( createTestProtectionMeasurementRevision() )
+			.mockReturnValueOnce( 'revision_after_batch_permission_cleanup' );
+		const permissions = new SharedPermissionStateApi();
+		permissions.origins.add( '*://*.youtube.com/*' );
+		permissions.deferNextRemoval();
+		const permissionManager = createSitePermissionManager( { permissions } );
+		const removalService = createService(
+			storage, permissionManager, coordinateMutation, createMeasurementRevision,
+		);
+		const enrollmentService = createService(
+			storage, permissionManager, coordinateMutation, createMeasurementRevision,
+		);
+		const removal = removalService.remove( EXAMPLE_SITE );
+
+		await permissions.removalStarted;
+		const enrollment = enrollmentService.addMany( [ 'youtube.com', 'another.test' ] );
+		expect( permissions.origins ).toEqual( new Set( [
+			'*://*.example.com/*', '*://*.youtube.com/*', '*://another.test/*',
+		] ) );
+		permissions.completeDeferredRemoval();
+
+		await expect( removal ).resolves.toMatchObject( {
+			status: ProtectedSiteEnrollmentStatus.REMOVED,
+		} );
+		await expect( enrollment ).resolves.toEqual( {
+			status: ProtectedSiteEnrollmentStatus.PERMISSION_ERROR,
+		} );
+		expect( storage.configuration ).toEqual( UPDATED_EMPTY_CONFIGURATION );
+		expect( storage.writes ).toBe( 1 );
+		expect( permissions.origins ).toEqual( new Set( [ '*://*.youtube.com/*' ] ) );
+		expect( permissions.permissions.size ).toBe( 0 );
 	} );
 } );

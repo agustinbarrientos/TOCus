@@ -189,6 +189,20 @@ export interface ProtectionConfigurationEditor {
 	): Promise<ProtectionConfigurationEditResult>;
 
 	/**
+	 * Adds unique shared-site rules in one coordinated configuration write.
+	 * @param siteInputs - User-entered hostnames or HTTP(S) URLs.
+	 * @param beforePersist - Optional verification immediately before persistence.
+	 * @param finalize - Optional effect completed before mutation coordination is released.
+	 * @return Updated configuration or a stable rejection without partial additions.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	addMany(
+		siteInputs: readonly string[],
+		beforePersist?: ProtectionConfigurationEditPrePersist,
+		finalize?: ProtectionConfigurationEditFinalizer,
+	): Promise<ProtectionConfigurationEditResult>;
+
+	/**
 	 * Updates one exact site's editable display name and scope behavior atomically.
 	 * @param identityHost - Exact canonical site identity.
 	 * @param displayNameInput - Unknown editable name input; an empty value restores automatic naming.

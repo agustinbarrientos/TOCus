@@ -1,8 +1,7 @@
 @use '@tocus/theme/typography' as typography;
+@include typography.emit-tokens( ':root', 1 );
 
 :root {
-	@include typography.apply( 'body-medium' );
-
 	background: var(--tocus-color-surface);
 	color: var(--tocus-color-on-surface);
 	font-synthesis: none;
@@ -13,6 +12,8 @@
 }
 
 body {
+	@include typography.apply( 'body-medium' );
+
 	width: min(22rem, 100vw);
 	margin: 0;
 	background: var(--tocus-color-surface-lowest);

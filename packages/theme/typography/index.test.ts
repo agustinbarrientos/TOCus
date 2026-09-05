@@ -11,22 +11,22 @@ const TYPOGRAPHY_PROPERTIES = [
 ] as const;
 
 const TYPOGRAPHY_ROLES = [
-	{ role: 'display-large', values: [ 'var(--tocus-font-family-brand)', '3.5625rem', '600', '4rem', '-0.015625rem' ] },
-	{ role: 'display-medium', values: [ 'var(--tocus-font-family-brand)', '2.8125rem', '600', '3.25rem', '0' ] },
-	{ role: 'display-small', values: [ 'var(--tocus-font-family-brand)', '2.25rem', '600', '2.75rem', '0' ] },
-	{ role: 'headline-large', values: [ 'var(--tocus-font-family-brand)', '2rem', '600', '2.5rem', '0' ] },
-	{ role: 'headline-medium', values: [ 'var(--tocus-font-family-brand)', '1.75rem', '600', '2.25rem', '0' ] },
-	{ role: 'headline-small', values: [ 'var(--tocus-font-family-brand)', '1.5rem', '600', '2rem', '0' ] },
-	{ role: 'brand-small', values: [ 'var(--tocus-font-family-brand)', '0.6875rem', '600', '1rem', '0' ] },
-	{ role: 'title-large', values: [ 'var(--tocus-font-family-body)', '1.375rem', '400', '1.75rem', '0' ] },
-	{ role: 'title-medium', values: [ 'var(--tocus-font-family-body)', '1rem', '500', '1.5rem', '0.009375rem' ] },
-	{ role: 'title-small', values: [ 'var(--tocus-font-family-body)', '0.875rem', '500', '1.25rem', '0.00625rem' ] },
-	{ role: 'body-large', values: [ 'var(--tocus-font-family-body)', '1rem', '400', '1.5rem', '0.03125rem' ] },
-	{ role: 'body-medium', values: [ 'var(--tocus-font-family-body)', '0.875rem', '400', '1.25rem', '0.015625rem' ] },
-	{ role: 'body-small', values: [ 'var(--tocus-font-family-body)', '0.75rem', '400', '1rem', '0.025rem' ] },
-	{ role: 'label-large', values: [ 'var(--tocus-font-family-body)', '0.875rem', '500', '1.25rem', '0.00625rem' ] },
-	{ role: 'label-medium', values: [ 'var(--tocus-font-family-body)', '0.75rem', '500', '1rem', '0.03125rem' ] },
-	{ role: 'label-small', values: [ 'var(--tocus-font-family-body)', '0.6875rem', '500', '1rem', '0.03125rem' ] },
+	{ role: 'display-large', values: [ 'var(--tocus-font-family-brand)', '4.096875rem', '600', '4.6rem', '-0.01796875rem' ] },
+	{ role: 'display-medium', values: [ 'var(--tocus-font-family-brand)', '3.234375rem', '600', '3.7375rem', '0' ] },
+	{ role: 'display-small', values: [ 'var(--tocus-font-family-brand)', '2.5875rem', '600', '3.1625rem', '0' ] },
+	{ role: 'headline-large', values: [ 'var(--tocus-font-family-brand)', '2.3rem', '600', '2.875rem', '0' ] },
+	{ role: 'headline-medium', values: [ 'var(--tocus-font-family-brand)', '2.0125rem', '600', '2.5875rem', '0' ] },
+	{ role: 'headline-small', values: [ 'var(--tocus-font-family-brand)', '1.725rem', '600', '2.3rem', '0' ] },
+	{ role: 'brand-small', values: [ 'var(--tocus-font-family-brand)', '0.790625rem', '600', '1.15rem', '0' ] },
+	{ role: 'title-large', values: [ 'var(--tocus-font-family-body)', '1.58125rem', '400', '2.0125rem', '0' ] },
+	{ role: 'title-medium', values: [ 'var(--tocus-font-family-body)', '1.15rem', '500', '1.725rem', '0.01078125rem' ] },
+	{ role: 'title-small', values: [ 'var(--tocus-font-family-body)', '1.00625rem', '500', '1.4375rem', '0.0071875rem' ] },
+	{ role: 'body-large', values: [ 'var(--tocus-font-family-body)', '1.15rem', '400', '1.725rem', '0.0359375rem' ] },
+	{ role: 'body-medium', values: [ 'var(--tocus-font-family-body)', '1.00625rem', '400', '1.4375rem', '0.01796875rem' ] },
+	{ role: 'body-small', values: [ 'var(--tocus-font-family-body)', '0.8625rem', '400', '1.15rem', '0.02875rem' ] },
+	{ role: 'label-large', values: [ 'var(--tocus-font-family-body)', '1.00625rem', '500', '1.4375rem', '0.0071875rem' ] },
+	{ role: 'label-medium', values: [ 'var(--tocus-font-family-body)', '0.8625rem', '500', '1.15rem', '0.0359375rem' ] },
+	{ role: 'label-small', values: [ 'var(--tocus-font-family-body)', '0.790625rem', '500', '1.15rem', '0.0359375rem' ] },
 ] as const;
 
 /**
@@ -120,5 +120,19 @@ $definitions: scale.definitions();`,
 		expect( result.css.match( /:root/g ) ).toHaveLength( 1 );
 		expect( emittedTokens ).toEqual( TYPOGRAPHY_TOKENS );
 		expect( new Set( emittedTokens.map( ( [ name ] ) => name ) ) ).toHaveLength( 80 );
+	} );
+
+	it( 'emits baseline role dimensions within a compact surface', () => {
+		const result = compile( `@use 'typography' as typography;
+@include typography.emit-tokens( '.compact', 1 );` );
+
+		expect( result.css ).toContain( '.compact {' );
+		expect( result.css ).toContain( '--tocus-typography-headline-small-font-size: 1.5rem;' );
+		expect( result.css ).toContain( '--tocus-typography-body-medium-font-size: 0.875rem;' );
+		expect( result.css ).toContain( '--tocus-typography-body-small-font-size: 0.75rem;' );
+		expect( result.css ).toContain( '--tocus-typography-title-medium-font-size: 1rem;' );
+		expect( result.css ).toContain( '--tocus-typography-body-medium-line-height: 1.25rem;' );
+		expect( result.css ).toContain( '--tocus-typography-body-medium-letter-spacing: 0.015625rem;' );
+		expect( result.css ).toContain( '--tocus-typography-body-medium-font-weight: 400;' );
 	} );
 } );

@@ -1,4 +1,5 @@
 @use 'sass:map';
+@use 'sass:math';
 
 $-roles: (
 	'display-large': (
@@ -119,10 +120,16 @@ $-roles: (
 	@return map.has-key( $-roles, $role );
 }
 
-@mixin emit-tokens( $selector: ':root' ) {
+@mixin emit-tokens( $selector: ':root', $scale: 1.15 ) {
 	#{ $selector } {
 		@each $role, $properties in $-roles {
 			@each $property, $value in $properties {
+				@if $property == font-size or $property == line-height or $property == letter-spacing {
+					@if not math.is-unitless( $value ) {
+						$value: $value * $scale;
+					}
+				}
+
 				--tocus-typography-#{ $role }-#{ $property }: #{ $value };
 			}
 		}

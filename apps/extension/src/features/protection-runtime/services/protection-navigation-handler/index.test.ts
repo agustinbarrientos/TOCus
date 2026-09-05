@@ -443,6 +443,86 @@ describe( 'createProtectionNavigationHandler', () => {
 		expect( harness.reconcileBrowserState ).toHaveBeenCalledWith( CONFIGURATION );
 	} );
 
+	it.each( [ {}, createNavigationWaitingSnapshot() ] )(
+		'ignores a stale blank commit while a newer protected destination displays its interruption',
+		async ( states ) => {
+			const harness = createHarness( states );
+			harness.listTabs.mockResolvedValue( [ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ] );
+
+			await harness.handler.handle( {
+				frameId: 0,
+				phase: ProtectionRuntimeNavigationPhase.COMMITTED,
+				tabId: 7,
+				transitionQualifiers: [],
+				transitionType: 'typed',
+				url: 'about:blank',
+			} );
+
+			expect( harness.departTab ).not.toHaveBeenCalled();
+			expect( harness.releaseNavigationIfInterrupted ).not.toHaveBeenCalled();
+			expect( harness.coordinator.events ).toEqual( [] );
+		},
+	);
+
+	it( 'preserves a pending protected destination when a stale blank commit arrives first', async () => {
+		const harness = createHarness( createNavigationWaitingSnapshot() );
+		harness.listTabs.mockResolvedValue( [ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ] );
+
+		await harness.handler.handle( {
+			frameId: 0,
+			phase: ProtectionRuntimeNavigationPhase.BEFORE_NAVIGATE,
+			tabId: 7,
+			url: 'https://independent.test/',
+		} );
+		await harness.handler.handle( {
+			frameId: 0,
+			phase: ProtectionRuntimeNavigationPhase.COMMITTED,
+			tabId: 7,
+			url: 'about:blank',
+		} );
+		await harness.handler.handle( {
+			frameId: 0,
+			phase: ProtectionRuntimeNavigationPhase.COMMITTED,
+			tabId: 7,
+			transitionQualifiers: [ 'server_redirect' ],
+			transitionType: 'typed',
+			url: INTERRUPTION_PAGE_URL,
+		} );
+
+		expect( harness.releaseNavigationIfInterrupted ).not.toHaveBeenCalled();
+		expect( harness.departTab ).toHaveBeenCalledExactlyOnceWith( 7, DepartureCause.REDIRECT, CONFIGURATION );
+		expect( harness.coordinator.events ).toMatchObject( [ {
+			type: 'visit-attempt',
+			scopeId: INDEPENDENT_SCOPE_ID,
+			participant: { retainedDestination: 'https://independent.test/' },
+		} ] );
+	} );
+
+	it.each( [
+		{ url: 'about:blank' },
+		{ url: INTERRUPTION_PAGE_URL, pendingUrl: 'about:blank' },
+		{},
+	] )( 'classifies an actual blank departure with its observed tab metadata %j', async ( fields ) => {
+		const harness = createHarness( createNavigationWaitingSnapshot() );
+		harness.listTabs.mockResolvedValue( [ { id: 7, incognito: false, ...fields } ] );
+
+		await harness.handler.handle( {
+			frameId: 0,
+			phase: ProtectionRuntimeNavigationPhase.COMMITTED,
+			tabId: 7,
+			transitionQualifiers: [],
+			transitionType: 'typed',
+			url: 'about:blank',
+		} );
+
+		expect( harness.departTab ).toHaveBeenCalledExactlyOnceWith(
+			7,
+			DepartureCause.NON_EXTENSION_TOP_LEVEL_NAVIGATION_AWAY,
+			CONFIGURATION,
+		);
+		expect( harness.releaseNavigationIfInterrupted ).toHaveBeenCalledWith( 7, 'about:blank' );
+	} );
+
 	it( 'reconciles a browser error when no participant exists', async () => {
 		const harness = createHarness( {} );
 
@@ -456,6 +536,26 @@ describe( 'createProtectionNavigationHandler', () => {
 		expect( harness.departTab ).not.toHaveBeenCalled();
 		expect( harness.coordinator.events ).toEqual( [] );
 		expect( harness.reconcileBrowserState ).toHaveBeenCalledWith( CONFIGURATION );
+	} );
+
+	it( 'retains committed departure evidence when the live tab disappears during observation', async () => {
+		const harness = createHarness( createNavigationWaitingSnapshot() );
+		harness.listTabs.mockResolvedValueOnce( [ { id: 7, incognito: false } ] ).mockResolvedValueOnce( [] );
+
+		await harness.handler.handle( {
+			frameId: 0,
+			phase: ProtectionRuntimeNavigationPhase.COMMITTED,
+			tabId: 7,
+			transitionQualifiers: [],
+			transitionType: 'link',
+			url: 'https://unprotected.test/',
+		} );
+
+		expect( harness.departTab ).toHaveBeenCalledExactlyOnceWith(
+			7,
+			DepartureCause.NON_EXTENSION_TOP_LEVEL_NAVIGATION_AWAY,
+			CONFIGURATION,
+		);
 	} );
 
 	it( 'persists a protected visit only for an explicitly ordinary tab', async () => {

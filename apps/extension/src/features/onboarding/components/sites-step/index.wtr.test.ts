@@ -1,610 +1,583 @@
 import { assert, expect, fixture, html } from '@open-wc/testing';
-import {
-	ProtectionConfigurationEditRejectionReason,
-} from '../../../../domains/protection/services/protection-configuration-editor';
-import {
-	type ProtectedSiteConfiguration,
-	type ProtectionConfigurationDocument,
-} from '../../../../domains/protection/types/protected-site-configuration';
+import { ProtectionConfigurationEditRejectionReason } from '../../../../domains/protection/services/protection-configuration-editor';
+import { type ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
 import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
-import {
-	DefaultProtectionScopeId,
-} from '../../../../domains/protection/types/protection-value';
+import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import {
 	ProtectedSiteEnrollmentStatus,
-	type ProtectedSiteEnrollmentResult,
+	type ProtectedSiteBatchEnrollmentResult,
 	type ProtectedSiteEnrollmentService,
 	type ProtectedSiteRemovalResult,
 } from '../../../protected-sites/services/protected-site-enrollment';
+import { SitePermissionReleaseStatus } from '../../../protected-sites/services/site-permission-manager';
 import { OnboardingSiteSuggestions } from '../../utils/site-suggestion-catalog';
-import {
-	ComponentOnboardingSitesStep,
-	OnboardingSitesFinishEventName,
-} from './index';
-import { type OnboardingSitesStepCopy } from './types';
+import { ComponentOnboardingSitesStep, OnboardingSitesFinishEventName } from './index';
 
 /**
- * Valid Instagram site returned by successful test enrollment.
+ * Valid whole-domain site used by onboarding tests.
  * @since 0.1.0 Initial implementation.
  */
 const INSTAGRAM_SITE: ProtectedSiteConfiguration = {
 	identityHost: 'www.instagram.com',
-	rule: {
-		host: 'instagram.com',
-		includeSubdomains: true,
-		scopeId: DefaultProtectionScopeId,
-	},
+	rule: { host: 'instagram.com', includeSubdomains: true, scopeId: DefaultProtectionScopeId },
 };
 
 /**
- * Valid configuration returned by successful test enrollment.
+ * Creates an enrollment boundary with successful batch and removal behavior.
+ * @param overrides - Operations replaced for one scenario.
+ * @return Complete controlled enrollment service.
  * @since 0.1.0 Initial implementation.
  */
-const INSTAGRAM_CONFIGURATION: ProtectionConfigurationDocument = {
-	...TestEmptyProtectionConfiguration,
-	sites: [ INSTAGRAM_SITE ],
-};
-
-/**
- * Formats one suggestion add action in tests.
- * @param siteName - Brand name shown by the suggestion.
- * @return English add action.
- * @since 0.1.0 Initial implementation.
- */
-function formatAddSuggestionLabel( siteName: string ): string {
-	return `Protect ${ siteName }`;
-}
-
-/**
- * Formats one pending suggestion action in tests.
- * @param siteName - Brand name shown by the suggestion.
- * @return English pending action.
- * @since 0.1.0 Initial implementation.
- */
-function formatAddingSuggestionLabel( siteName: string ): string {
-	return `Adding ${ siteName }`;
-}
-
-/**
- * Formats one selected suggestion status in tests.
- * @param siteName - Brand name shown by the suggestion.
- * @return English selected status.
- * @since 0.1.0 Initial implementation.
- */
-function formatAddedSuggestionLabel( siteName: string ): string {
-	return `${ siteName } protected`;
-}
-
-/**
- * Formats one successful enrollment announcement in tests.
- * @param siteName - Site name shown to the user.
- * @return English success announcement.
- * @since 0.1.0 Initial implementation.
- */
-function formatAddedAnnouncement( siteName: string ): string {
-	return `${ siteName } is now protected.`;
-}
-
-/**
- * Formats one visibly distinct translated announcement in localization-state tests.
- * @param siteName - Site name shown to the user.
- * @return Alternate translated announcement.
- * @since 0.1.0 Initial implementation.
- */
-function formatTranslatedAddedAnnouncement( siteName: string ): string {
-	return `Translated ${ siteName } announcement.`;
-}
-
-/**
- * Complete English copy used by the Sites-step component tests.
- * @since 0.1.0 Initial implementation.
- */
-const TEST_COPY: Readonly<OnboardingSitesStepCopy> = {
-	title: 'Choose your protected sites',
-	introduction: 'Pick any suggestions or add a website yourself. You can change this later.',
-	suggestionsLegend: 'Popular choices',
-	formatAddSuggestionLabel,
-	formatAddingSuggestionLabel,
-	formatAddedSuggestionLabel,
-	manualLegend: 'Add another website',
-	addressLabel: 'Website address',
-	addressPlaceholder: 'example.com',
-	addressHelp: 'Enter a domain or an http or https address.',
-	addSiteLabel: 'Add a pause here',
-	addingSiteLabel: 'Adding site',
-	invalidSiteError: 'Enter a valid website address.',
-	alreadyProtectedError: 'That website is already protected.',
-	permissionDeniedError: 'TOCus needs website access before it can protect this site.',
-	permissionRequestError: 'Website access could not be requested. Try again.',
-	permissionRetainedError: 'The site was not saved, but browser access may still be active.',
-	saveError: 'The site could not be saved. Try again.',
-	unexpectedError: 'Something went wrong. Try again.',
-	formatAddedAnnouncement,
-	finishLabel: 'Finish setup',
-};
-
-/**
- * Asynchronous enrollment behavior used by one test service.
- * @since 0.1.0 Initial implementation.
- */
-type TestEnrollmentHandler = (
-	siteInput: unknown,
-	independent: boolean,
-) => Promise<ProtectedSiteEnrollmentResult>;
-
-/**
- * Focused enrollment service test double with real component-facing behavior.
- * @since 0.1.0 Initial implementation.
- */
-class TestEnrollmentService implements ProtectedSiteEnrollmentService {
-	/**
-	 * Creates a service around one controlled add behavior.
-	 * @param addHandler - Add behavior controlled by the current test.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	constructor( private readonly addHandler: TestEnrollmentHandler ) {}
-
-	/**
-	 * Runs the controlled add behavior.
-	 * @param siteInput - Site input forwarded by the component.
-	 * @param independent - Scope behavior forwarded by the component.
-	 * @return Controlled enrollment result.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	add( siteInput: unknown, independent: boolean ): Promise<ProtectedSiteEnrollmentResult> {
-		return this.addHandler( siteInput, independent );
-	}
-
-	/**
-	 * Returns a stable unused removal result.
-	 * @return Rejected removal result.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	remove(): Promise<ProtectedSiteRemovalResult> {
-		return Promise.resolve( {
-			status: ProtectedSiteEnrollmentStatus.REJECTED,
-			reason: ProtectionConfigurationEditRejectionReason.SITE_NOT_FOUND,
-		} );
-	}
-}
-
-/**
- * Creates one successful Instagram enrollment result.
- * @return Successful protected-site enrollment.
- * @since 0.1.0 Initial implementation.
- */
-function createAddedResult(): ProtectedSiteEnrollmentResult {
+function createEnrollment( overrides: Partial<ProtectedSiteEnrollmentService> = {} ): ProtectedSiteEnrollmentService {
 	return {
-		status: ProtectedSiteEnrollmentStatus.ADDED,
-		configuration: INSTAGRAM_CONFIGURATION,
-		site: INSTAGRAM_SITE,
+		/**
+		 * Provides the configured enrollment outcome.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		add: () => {
+			throw new Error( 'Draft selection must not request single-site enrollment.' );
+		},
+		/**
+		 * Provides the configured enrollment outcome.
+		 * @return Controlled enrollment outcome.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		addMany: () => Promise.resolve( {
+			status: ProtectedSiteEnrollmentStatus.ADDED,
+			configuration: { ...TestEmptyProtectionConfiguration, sites: [ INSTAGRAM_SITE ] },
+			sites: [ INSTAGRAM_SITE ],
+		} ),
+		/**
+		 * Provides the configured enrollment outcome.
+		 * @param site - Input forwarded by the component.
+		 * @return Controlled enrollment outcome.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		remove: ( site ) => Promise.resolve( {
+			status: ProtectedSiteEnrollmentStatus.REMOVED,
+			configuration: TestEmptyProtectionConfiguration,
+			site,
+			permissionReleaseStatus: SitePermissionReleaseStatus.RELEASED,
+		} ),
+		...overrides,
 	};
 }
 
 /**
- * Creates a ready Sites-step fixture.
- * @param enrollment - Enrollment service used by site actions.
- * @param protectedRuleHosts - Rules already protected before onboarding renders.
- * @return Connected Sites-step component.
+ * Renders a localized Sites step with controlled browser operations.
+ * @param enrollment - Enrollment boundary used at completion.
+ * @param protectedSites - Sites already persisted before selection.
+ * @return Connected component.
  * @since 0.1.0 Initial implementation.
  */
 async function renderSitesStep(
-	enrollment: ProtectedSiteEnrollmentService,
-	protectedRuleHosts: readonly string[] = [],
+	enrollment = createEnrollment(),
+	protectedSites: readonly ProtectedSiteConfiguration[] = [],
 ): Promise<ComponentOnboardingSitesStep> {
 	return fixture<ComponentOnboardingSitesStep>( html`
 		<tocus-f-onboarding-sites-step
-			.copy=${ TEST_COPY }
+			.copy=${ TestEnglishLocalizationBundle.onboarding.sites }
 			.enrollment=${ enrollment }
-			.protectedRuleHosts=${ protectedRuleHosts }
+			.protectedSites=${ protectedSites }
 			.suggestions=${ OnboardingSiteSuggestions }
 		></tocus-f-onboarding-sites-step>
 	` );
 }
 
 /**
- * Returns the connected component shadow root.
- * @param element - Sites-step component under test.
- * @return Component shadow root.
+ * Finds one rendered control or fails with its selector.
+ * @param element - Component owning the shadow root.
+ * @param selector - Required selector.
+ * @return Matching control.
  * @since 0.1.0 Initial implementation.
  */
-function getShadowRoot( element: ComponentOnboardingSitesStep ): ShadowRoot {
-	const shadowRoot = element.shadowRoot;
-
-	assert.instanceOf( shadowRoot, ShadowRoot );
-	if ( ! ( shadowRoot instanceof ShadowRoot ) ) {
-		throw new TypeError( 'Expected the Sites step to render a shadow root.' );
-	}
-
-	return shadowRoot;
+function control( element: ComponentOnboardingSitesStep, selector: string ): HTMLElement {
+	const target = element.shadowRoot?.querySelector( selector );
+	assert.instanceOf( target, HTMLElement, selector );
+	return target;
 }
 
 /**
- * Provides a safe placeholder before a pending test enrollment captures its resolver.
- * @param result - Unused enrollment result.
+ * Submits an address and waits for the local list update.
+ * @param element - Component containing the form.
+ * @param value - Address entered into the field.
+ * @return Settled address field.
  * @since 0.1.0 Initial implementation.
  */
-function ignoreEnrollmentResolution( result: ProtectedSiteEnrollmentResult ): void {
-	void result;
+async function submitSite( element: ComponentOnboardingSitesStep, value: string ): Promise<HTMLInputElement> {
+	const input = control( element, '#onboarding-site-address' ) as HTMLInputElement;
+	input.value = value;
+	input.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+	control( element, '.manual-form' ).dispatchEvent( new SubmitEvent( 'submit', { bubbles: true, cancelable: true } ) );
+	await element.updateComplete;
+	return input;
 }
 
 /**
- * Submits one manual site and waits for enrollment and rendering to settle.
- * @param element - Sites step that owns the manual form.
- * @param siteInput - Domain or URL entered by the user.
- * @return Manual address input after enrollment settles.
+ * Waits for service completion and the resulting render.
+ * @param element - Component under test.
+ * @return Promise resolved after pending reactions.
  * @since 0.1.0 Initial implementation.
  */
-async function submitManualSite(
-	element: ComponentOnboardingSitesStep,
-	siteInput: string,
-): Promise<HTMLInputElement> {
-	const shadowRoot = getShadowRoot( element );
-	const input = shadowRoot.querySelector<HTMLInputElement>( '#onboarding-site-address' );
-	const form = shadowRoot.querySelector<HTMLFormElement>( '.manual-form' );
-
-	assert.instanceOf( input, HTMLInputElement );
-	assert.instanceOf( form, HTMLFormElement );
-	input.value = siteInput;
-	form.dispatchEvent( new SubmitEvent( 'submit', { bubbles: true, cancelable: true } ) );
+async function settle( element: ComponentOnboardingSitesStep ): Promise<void> {
 	await new Promise<void>( ( resolve ) => {
 		setTimeout( resolve, 0 );
 	} );
 	await element.updateComplete;
-
-	return input;
 }
 
 describe( 'tocus-f-onboarding-sites-step', () => {
-	it( 'renders nothing until localized copy is supplied', async () => {
-		const element = await fixture<ComponentOnboardingSitesStep>( html`
-			<tocus-f-onboarding-sites-step></tocus-f-onboarding-sites-step>
-		` );
-
-		assert.equal( getShadowRoot( element ).childElementCount, 0 );
+	it( 'renders nothing until localization is ready', async () => {
+		const element = await fixture<ComponentOnboardingSitesStep>( html`<tocus-f-onboarding-sites-step></tocus-f-onboarding-sites-step>` );
+		assert.equal( element.shadowRoot?.textContent.trim(), '' );
 	} );
 
-	it( 'renders all fifteen local suggestions with decorative packaged icons', async () => {
-		const enrollment = new TestEnrollmentService( () => Promise.resolve( createAddedResult() ) );
-		const element = await renderSitesStep( enrollment );
-		const shadowRoot = getShadowRoot( element );
-		const suggestionButtons = shadowRoot.querySelectorAll( '.suggestion' );
-		const icons = shadowRoot.querySelectorAll<HTMLImageElement>( '.suggestion img' );
-
+	it( 'renders fifteen local suggestions and an accessible manual field', async () => {
+		const element = await renderSitesStep();
 		assert.equal( customElements.get( 'tocus-f-onboarding-sites-step' ), ComponentOnboardingSitesStep );
-		assert.equal( suggestionButtons.length, 15 );
-		assert.equal( icons.length, 15 );
-		assert.isTrue( Array.from( icons ).every( ( icon ) => icon.alt === '' && icon.src.endsWith( '.svg' ) ) );
+		assert.lengthOf( element.shadowRoot?.querySelectorAll( '.suggestion' ) ?? [], 15 );
+		assert.lengthOf( element.shadowRoot?.querySelectorAll( '.suggestion img' ) ?? [], 15 );
+		assert.equal( control( element, '#onboarding-site-address' ).getAttribute( 'aria-label' ), 'Website address' );
+		assert.equal( element.shadowRoot?.querySelector( 'label[for="onboarding-site-address"]' ), null );
 		await expect( element ).to.be.accessible();
 	} );
 
-	it( 'associates suggestion errors without rendering a redundant explanation', async () => {
-		const enrollment = new TestEnrollmentService( () => Promise.resolve( createAddedResult() ) );
-		const element = await renderSitesStep( enrollment );
-		const shadowRoot = getShadowRoot( element );
-		const suggestions = shadowRoot.querySelector( '.suggestions' );
-
-		assert.instanceOf( suggestions, HTMLElement );
-		assert.equal( suggestions.getAttribute( 'aria-describedby' ), 'suggestions-error' );
-		assert.equal( shadowRoot.querySelector( '#suggestions-help' ), null );
-		assert.equal( shadowRoot.querySelector( '.protection-defaults' ), null );
+	it( 'fills the add action only while the address contains non-whitespace text', async () => {
+		const element = await renderSitesStep();
+		const input = control( element, '#onboarding-site-address' ) as HTMLInputElement;
+		const button = control( element, '.manual-control button' );
+		assert.equal( button.textContent.trim(), 'Add site' );
+		assert.isFalse( button.classList.contains( 'filled-action' ) );
+		input.value = ' example.com ';
+		input.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+		await element.updateComplete;
+		assert.isTrue( button.classList.contains( 'filled-action' ) );
+		input.value = '   ';
+		input.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+		await element.updateComplete;
+		assert.isFalse( button.classList.contains( 'filled-action' ) );
 	} );
 
-	it( 'keeps the manual address field named without rendering a visible label', async () => {
-		const enrollment = new TestEnrollmentService( () => Promise.resolve( createAddedResult() ) );
-		const element = await renderSitesStep( enrollment );
-		const shadowRoot = getShadowRoot( element );
-		const input = shadowRoot.querySelector( '#onboarding-site-address' );
+	it( 'keeps a distinct keyboard focus ring on a selected popular card', async () => {
+		const element = await renderSitesStep( createEnrollment(), [ INSTAGRAM_SITE ] );
+		const instagram = control( element, '.suggestion[data-site-id="instagram"]' );
+		instagram.focus();
 
-		assert.instanceOf( input, HTMLInputElement );
-		assert.equal( input.getAttribute( 'aria-label' ), TEST_COPY.addressLabel );
-		assert.equal( shadowRoot.querySelector( 'label[for="onboarding-site-address"]' ), null );
-	} );
-
-	it( 'marks every suggestion whose canonical rule is already protected', async () => {
-		const enrollment = new TestEnrollmentService( () => Promise.resolve( createAddedResult() ) );
-		const element = await renderSitesStep( enrollment, [ 'instagram.com' ] );
-		const instagram = getShadowRoot( element ).querySelector<HTMLButtonElement>(
-			'.suggestion[data-site-id="instagram"]',
-		);
-
-		assert.instanceOf( instagram, HTMLButtonElement );
+		assert.isTrue( element.shadowRoot?.activeElement === instagram );
+		assert.isTrue( instagram.matches( ':focus-visible' ) );
 		assert.equal( instagram.getAttribute( 'aria-pressed' ), 'true' );
-		assert.isTrue( instagram.disabled );
-		assert.instanceOf( instagram.querySelector( '.selection-mark svg' ), SVGElement );
-		assert.equal(
-			instagram.querySelector( '.selection-mark svg' )?.getAttribute( 'viewBox' ),
-			'0 0 640 640',
-		);
-		assert.equal(
-			getShadowRoot( element ).querySelector( '.suggestion[data-site-id="youtube"] .selection-mark' ),
-			null,
-		);
+		assert.equal( getComputedStyle( instagram ).outlineWidth, '3px' );
+		assert.equal( getComputedStyle( instagram ).outlineOffset, '2px' );
 	} );
 
-	it( 'ignores missing and already selected suggestions without enrolling them again', async () => {
-		let callCount = 0;
-		const enrollment = new TestEnrollmentService( () => {
-			callCount += 1;
+	it( 'moves focused draft removal to the next row, previous row, or empty-list input', async () => {
+		const element = await renderSitesStep();
+		await submitSite( element, 'first.com' );
+		await submitSite( element, 'second.com' );
+		await submitSite( element, 'third.com' );
+		const second = control( element, '.added-site:nth-child(2) .remove-action' );
+		const third = control( element, '.added-site:nth-child(3) .remove-action' );
+		second.focus();
+		second.click();
+		await settle( element );
+		assert.isTrue( element.shadowRoot?.activeElement === third );
 
-			return Promise.resolve( createAddedResult() );
-		} );
-		const element = await renderSitesStep( enrollment, [ 'instagram.com' ] );
-		const instagram = getShadowRoot( element ).querySelector<HTMLButtonElement>(
-			'.suggestion[data-site-id="instagram"]',
-		);
+		const first = control( element, '.added-site:first-child .remove-action' );
+		third.click();
+		await settle( element );
+		assert.isTrue( element.shadowRoot?.activeElement === first );
 
-		assert.instanceOf( instagram, HTMLButtonElement );
-		instagram.dataset.siteId = 'missing';
-		instagram.dispatchEvent( new MouseEvent( 'click', { bubbles: true } ) );
-		instagram.dataset.siteId = 'instagram';
-		instagram.dispatchEvent( new MouseEvent( 'click', { bubbles: true } ) );
-
-		assert.equal( callCount, 0 );
+		first.click();
+		await settle( element );
+		assert.isTrue( element.shadowRoot?.activeElement === control( element, '#onboarding-site-address' ) );
 	} );
 
-	it( 'starts one suggestion enrollment immediately and serializes permission requests', async () => {
-		let callCount = 0;
-		let resolveEnrollment: ( result: ProtectedSiteEnrollmentResult ) => void = ignoreEnrollmentResolution;
-		const pendingEnrollment = new Promise<ProtectedSiteEnrollmentResult>( ( resolve ) => {
-			resolveEnrollment = resolve;
-		} );
-		const enrollment = new TestEnrollmentService( ( siteInput, independent ) => {
-			callCount += 1;
-			assert.equal( siteInput, 'www.instagram.com' );
-			assert.isFalse( independent );
-
-			return pendingEnrollment;
-		} );
-		const element = await renderSitesStep( enrollment );
-		const shadowRoot = getShadowRoot( element );
-		const instagram = shadowRoot.querySelector<HTMLButtonElement>( '.suggestion[data-site-id="instagram"]' );
-		const youtube = shadowRoot.querySelector<HTMLButtonElement>( '.suggestion[data-site-id="youtube"]' );
-
-		assert.instanceOf( instagram, HTMLButtonElement );
-		assert.instanceOf( youtube, HTMLButtonElement );
-		instagram.click();
-		assert.equal( callCount, 1 );
-		youtube.click();
-		assert.equal( callCount, 1 );
+	it( 'retains focused persisted removal until completion and then focuses the remaining row', async () => {
+		const pending = Promise.withResolvers<ProtectedSiteRemovalResult>();
+		const enrollment = createEnrollment();
+		enrollment.remove = () => pending.promise;
+		const element = await renderSitesStep( enrollment, [ INSTAGRAM_SITE ] );
+		await submitSite( element, 'example.com' );
+		const remove = control( element, '.remove-action' );
+		const next = control( element, '.added-site:nth-child(2) .remove-action' );
+		remove.focus();
+		remove.click();
 		await element.updateComplete;
-		assert.equal( instagram.getAttribute( 'aria-busy' ), 'true' );
-
-		resolveEnrollment( createAddedResult() );
-		await pendingEnrollment;
-		await element.updateComplete;
-
-		assert.equal( instagram.getAttribute( 'aria-pressed' ), 'true' );
-		assert.include( shadowRoot.querySelector( '.announcement' )?.textContent, 'Instagram' );
+		assert.isTrue( element.shadowRoot?.activeElement === remove );
+		assert.equal( remove.getAttribute( 'aria-disabled' ), 'true' );
+		pending.resolve( {
+			status: ProtectedSiteEnrollmentStatus.REMOVED,
+			configuration: TestEmptyProtectionConfiguration,
+			site: INSTAGRAM_SITE,
+			permissionReleaseStatus: SitePermissionReleaseStatus.RELEASED,
+		} );
+		await settle( element );
+		assert.isTrue( element.shadowRoot?.activeElement === next );
 	} );
 
-	it( 'shows a localized recoverable error after permission denial', async () => {
-		const enrollment = new TestEnrollmentService( () => Promise.resolve( {
-			status: ProtectedSiteEnrollmentStatus.PERMISSION_DENIED,
+	it( 'does not move focus for removal from an unfocused row', async () => {
+		const element = await renderSitesStep();
+		const input = await submitSite( element, 'example.com' );
+		input.focus();
+		control( element, '.remove-action' ).click();
+		await settle( element );
+		assert.isTrue( element.shadowRoot?.activeElement === input );
+	} );
+
+	it( 'retains removal focus through an early authoritative update until completion', async () => {
+		const pending = Promise.withResolvers<ProtectedSiteRemovalResult>();
+		const enrollment = createEnrollment();
+		enrollment.remove = () => pending.promise;
+		const element = await renderSitesStep( enrollment, [ INSTAGRAM_SITE ] );
+		const remove = control( element, '.remove-action' );
+		remove.focus();
+		remove.click();
+		await element.updateComplete;
+		element.protectedSites = [];
+		await element.updateComplete;
+		assert.isTrue( element.shadowRoot?.activeElement === remove );
+
+		pending.resolve( {
+			status: ProtectedSiteEnrollmentStatus.REMOVED,
+			configuration: TestEmptyProtectionConfiguration,
+			site: INSTAGRAM_SITE,
+			permissionReleaseStatus: SitePermissionReleaseStatus.RELEASED,
+		} );
+		await settle( element );
+		assert.isTrue( element.shadowRoot?.activeElement === control( element, '#onboarding-site-address' ) );
+	} );
+
+	it( 'does not reclaim focus after the user leaves an asynchronous removal', async () => {
+		const pending = Promise.withResolvers<ProtectedSiteRemovalResult>();
+		const enrollment = createEnrollment();
+		enrollment.remove = () => pending.promise;
+		const element = await renderSitesStep( enrollment, [ INSTAGRAM_SITE ] );
+		const outside = await fixture<HTMLButtonElement>( html`<button type="button">Outside</button>` );
+		const remove = control( element, '.remove-action' );
+		remove.focus();
+		remove.click();
+		await element.updateComplete;
+		outside.focus();
+		element.protectedSites = [];
+		await element.updateComplete;
+		pending.resolve( {
+			status: ProtectedSiteEnrollmentStatus.REMOVED,
+			configuration: TestEmptyProtectionConfiguration,
+			site: INSTAGRAM_SITE,
+			permissionReleaseStatus: SitePermissionReleaseStatus.RELEASED,
+		} );
+		await settle( element );
+		assert.isTrue( document.activeElement === outside );
+	} );
+
+	it( 'immediately lists a normalized manual draft without requesting permissions', async () => {
+		let requests = 0;
+		const element = await renderSitesStep( createEnrollment( {
+			/**
+			 * Provides the configured enrollment outcome.
+			 * @return Controlled enrollment outcome.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			addMany: () => {
+				requests += 1;
+				return Promise.resolve( { status: ProtectedSiteEnrollmentStatus.PERMISSION_DENIED } );
+			}
 		} ) );
-		const element = await renderSitesStep( enrollment );
-		const shadowRoot = getShadowRoot( element );
-		const instagram = shadowRoot.querySelector<HTMLButtonElement>( '.suggestion[data-site-id="instagram"]' );
-
-		assert.instanceOf( instagram, HTMLButtonElement );
-		instagram.click();
-		await element.updateComplete;
-		await new Promise<void>( ( resolve ) => {
-			setTimeout( resolve, 0 );
-		} );
-		await element.updateComplete;
-
-		assert.equal( shadowRoot.querySelector( '.suggestion-error' )?.textContent.trim(), TEST_COPY.permissionDeniedError );
-		assert.equal( shadowRoot.querySelector( '#onboarding-site-address' )?.getAttribute( 'aria-invalid' ), 'false' );
-		assert.isFalse( instagram.disabled );
-	} );
-
-	it( 'treats an already-protected suggestion as a successful selection', async () => {
-		const enrollment = new TestEnrollmentService( () => Promise.resolve( {
-			status: ProtectedSiteEnrollmentStatus.REJECTED,
-			reason: ProtectionConfigurationEditRejectionReason.ALREADY_PROTECTED,
-		} ) );
-		const element = await renderSitesStep( enrollment );
-		const shadowRoot = getShadowRoot( element );
-		const instagram = shadowRoot.querySelector<HTMLButtonElement>( '.suggestion[data-site-id="instagram"]' );
-
-		assert.instanceOf( instagram, HTMLButtonElement );
-		instagram.click();
-		await new Promise<void>( ( resolve ) => {
-			setTimeout( resolve, 0 );
-		} );
-		await element.updateComplete;
-
-		assert.equal( instagram.getAttribute( 'aria-pressed' ), 'true' );
-		assert.equal( shadowRoot.querySelector( '.suggestion-error' )?.textContent.trim(), '' );
-		assert.include( shadowRoot.querySelector( '.announcement' )?.textContent, 'Instagram' );
-	} );
-
-	it( 'retranslates a retained-permission failure from semantic state', async () => {
-		const enrollment = new TestEnrollmentService( () => Promise.resolve( {
-			status: ProtectedSiteEnrollmentStatus.PERMISSION_RETAINED,
-		} ) );
-		const element = await renderSitesStep( enrollment );
-		const shadowRoot = getShadowRoot( element );
-		const instagram = shadowRoot.querySelector<HTMLButtonElement>( '.suggestion[data-site-id="instagram"]' );
-
-		assert.instanceOf( instagram, HTMLButtonElement );
-		instagram.click();
-		await new Promise<void>( ( resolve ) => {
-			setTimeout( resolve, 0 );
-		} );
-		await element.updateComplete;
-		assert.equal( shadowRoot.querySelector( '.suggestion-error' )?.textContent.trim(), TEST_COPY.permissionRetainedError );
-
-		element.copy = {
-			...TEST_COPY,
-			permissionRetainedError: 'Translated retained permission warning.',
-		};
-		await element.updateComplete;
-
-		assert.equal(
-			shadowRoot.querySelector( '.suggestion-error' )?.textContent.trim(),
-			'Translated retained permission warning.',
-		);
-	} );
-
-	it( 'retranslates a successful announcement from its site name', async () => {
-		const enrollment = new TestEnrollmentService( () => Promise.resolve( createAddedResult() ) );
-		const element = await renderSitesStep( enrollment );
-		const shadowRoot = getShadowRoot( element );
-		const instagram = shadowRoot.querySelector<HTMLButtonElement>( '.suggestion[data-site-id="instagram"]' );
-
-		assert.instanceOf( instagram, HTMLButtonElement );
-		instagram.click();
-		await new Promise<void>( ( resolve ) => {
-			setTimeout( resolve, 0 );
-		} );
-		await element.updateComplete;
-
-		element.copy = {
-			...TEST_COPY,
-			formatAddedAnnouncement: formatTranslatedAddedAnnouncement,
-		};
-		await element.updateComplete;
-
-		assert.equal(
-			shadowRoot.querySelector( '.announcement' )?.textContent.trim(),
-			'Translated Instagram announcement.',
-		);
-	} );
-
-	it( 'adds a manually entered site through shared whole-domain enrollment', async () => {
-		let receivedInput: unknown;
-		const enrollment = new TestEnrollmentService( ( siteInput, independent ) => {
-			receivedInput = siteInput;
-			assert.isFalse( independent );
-
-			return Promise.resolve( createAddedResult() );
-		} );
-		const element = await renderSitesStep( enrollment );
-		const input = await submitManualSite( element, 'https://www.instagram.com/reels' );
-
-		assert.equal( receivedInput, 'https://www.instagram.com/reels' );
+		const input = await submitSite( element, 'https://www.instagram.com/reels' );
+		const list = control( element, '.added-sites' );
+		assert.equal( requests, 0 );
 		assert.equal( input.value, '' );
+		assert.include( list.textContent, 'Instagram' );
+		assert.include( list.textContent, 'instagram.com' );
+		assert.instanceOf( list.querySelector( 'img' ), HTMLImageElement );
+		assert.equal( control( element, '.remove-action' ).textContent.trim(), 'Remove site' );
+		assert.isTrue( Boolean( list.compareDocumentPosition( control( element, '.manual-form' ) ) & Node.DOCUMENT_POSITION_PRECEDING ) );
+		assert.equal( control( element, '.suggestion[data-site-id="instagram"]' ).getAttribute( 'aria-pressed' ), 'true' );
+		assert.isFalse( control( element, '.manual-control button' ).classList.contains( 'filled-action' ) );
 	} );
 
-	it( 'maps recoverable manual enrollment failures to the correct local message', async () => {
-		const cases: ReadonlyArray<readonly [ ProtectedSiteEnrollmentResult, string ]> = [
-			[ {
-				status: ProtectedSiteEnrollmentStatus.REJECTED,
-				reason: ProtectionConfigurationEditRejectionReason.ALREADY_PROTECTED,
-			}, TEST_COPY.alreadyProtectedError ],
-			[ {
-				status: ProtectedSiteEnrollmentStatus.REJECTED,
-				reason: ProtectionConfigurationEditRejectionReason.INVALID_SITE,
-			}, TEST_COPY.invalidSiteError ],
-			[ {
+	it( 'renders automatic names and local monograms for custom domains', async () => {
+		const element = await renderSitesStep();
+		await submitSite( element, 'example.com' );
+		const list = control( element, '.added-sites' );
+		assert.include( list.textContent, 'Example' );
+		assert.include( list.textContent, 'example.com' );
+		assert.equal( list.querySelector( '.monogram' )?.textContent.trim(), 'E' );
+		assert.equal( list.querySelector( 'img' ), null );
+		await expect( element ).to.be.accessible();
+	} );
+
+	it( 'uses an authoritative display-name override and clears externally removed sites', async () => {
+		const element = await renderSitesStep( createEnrollment(), [ { ...INSTAGRAM_SITE, displayNameOverride: 'My feed' } ] );
+		assert.include( control( element, '.added-sites' ).textContent, 'My feed' );
+		element.protectedSites = [];
+		await element.updateComplete;
+		assert.equal( element.shadowRoot?.querySelector( '.added-sites' ), null );
+		assert.equal( control( element, '.suggestion[data-site-id="instagram"]' ).getAttribute( 'aria-pressed' ), 'false' );
+	} );
+
+	it( 'toggles popular drafts and removes manual drafts without browser operations', async () => {
+		const element = await renderSitesStep( createEnrollment( {
+			/**
+			 * Provides the configured enrollment outcome.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			remove: () => {
+				throw new Error( 'Draft removal must stay local.' );
+			}
+		} ) );
+		const instagram = control( element, '.suggestion[data-site-id="instagram"]' );
+		instagram.click();
+		await element.updateComplete;
+		assert.equal( instagram.getAttribute( 'aria-pressed' ), 'true' );
+		instagram.click();
+		await element.updateComplete;
+		assert.equal( element.shadowRoot?.querySelector( '.added-sites' ), null );
+		await submitSite( element, 'example.com' );
+		control( element, '.remove-action' ).click();
+		await element.updateComplete;
+		assert.equal( element.shadowRoot?.querySelector( '.added-sites' ), null );
+	} );
+
+	it( 'retains invalid and overlapping manual input for correction', async () => {
+		const element = await renderSitesStep();
+		const input = await submitSite( element, 'ftp://example.com' );
+		assert.equal( input.value, 'ftp://example.com' );
+		assert.equal( input.getAttribute( 'aria-invalid' ), 'true' );
+		assert.include( control( element, '.manual-error' ).textContent, 'valid website' );
+		await submitSite( element, 'www.instagram.com' );
+		await submitSite( element, 'instagram.com' );
+		assert.include( control( element, '.manual-error' ).textContent, 'already on your list' );
+		assert.lengthOf( element.shadowRoot?.querySelectorAll( '.added-sites li' ) ?? [], 1 );
+	} );
+
+	it( 'requests the selected batch in the Finish click stack and waits before completion', async () => {
+		const pending = Promise.withResolvers<ProtectedSiteBatchEnrollmentResult>();
+		let requested: readonly string[] = [];
+		let finishes = 0;
+		const element = await renderSitesStep( createEnrollment( {
+			/**
+			 * Provides the configured enrollment outcome.
+			 * @param inputs - Input forwarded by the component.
+			 * @return Controlled enrollment outcome.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			addMany: ( inputs ) => {
+				requested = inputs;
+				return pending.promise;
+			}
+		} ) );
+		element.addEventListener( OnboardingSitesFinishEventName, () => {
+			finishes += 1;
+		} );
+		await submitSite( element, 'www.instagram.com' );
+		await submitSite( element, 'example.com' );
+		control( element, '.finish-action' ).click();
+		assert.deepEqual( requested, [ 'www.instagram.com', 'example.com' ] );
+		assert.equal( finishes, 0 );
+		await element.updateComplete;
+		assert.isTrue( ( control( element, '.manual-control button' ) as HTMLButtonElement ).disabled );
+		assert.isTrue( ( control( element, '.remove-action' ) as HTMLButtonElement ).disabled );
+		pending.resolve( {
+			status: ProtectedSiteEnrollmentStatus.ADDED,
+			sites: [ INSTAGRAM_SITE ],
+			configuration: { ...TestEmptyProtectionConfiguration, sites: [ INSTAGRAM_SITE ] },
+		} );
+		await settle( element );
+		assert.equal( finishes, 1 );
+	} );
+
+	it( 'retains drafts and permits retry after a denied batch', async () => {
+		let finishes = 0;
+		const element = await renderSitesStep( createEnrollment( {
+			/**
+			 * Provides the configured enrollment outcome.
+			 * @return Controlled enrollment outcome.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			addMany: () => Promise.resolve( { status: ProtectedSiteEnrollmentStatus.PERMISSION_DENIED } )
+		} ) );
+		element.addEventListener( OnboardingSitesFinishEventName, () => {
+			finishes += 1;
+		} );
+		await submitSite( element, 'example.com' );
+		control( element, '.finish-action' ).click();
+		await settle( element );
+		assert.equal( finishes, 0 );
+		assert.include( control( element, '.added-sites' ).textContent, 'example.com' );
+		assert.include( control( element, '.finish-error' ).textContent, 'browser access' );
+		assert.isFalse( ( control( element, '.finish-action' ) as HTMLButtonElement ).disabled );
+	} );
+
+	it( 'finishes without requesting browser access when no draft is selected', async () => {
+		let finishes = 0;
+		const element = await renderSitesStep( createEnrollment( {
+			/**
+			 * Provides the configured enrollment outcome.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			addMany: () => {
+				throw new Error( 'No batch is needed.' );
+			} } ), [ INSTAGRAM_SITE ] );
+		element.addEventListener( OnboardingSitesFinishEventName, () => {
+			finishes += 1;
+		} );
+		control( element, '.finish-action' ).click();
+		assert.equal( finishes, 1 );
+	} );
+
+	it( 'removes persisted sites through enrollment and reports retained browser access', async () => {
+		const element = await renderSitesStep( createEnrollment( {
+			/**
+			 * Provides the configured enrollment outcome.
+			 * @param site - Input forwarded by the component.
+			 * @return Controlled enrollment outcome.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			remove: ( site ) => Promise.resolve( {
+				status: ProtectedSiteEnrollmentStatus.REMOVED,
+				configuration: TestEmptyProtectionConfiguration,
+				site,
+				permissionReleaseStatus: SitePermissionReleaseStatus.RETAINED,
+			} ) } ), [ INSTAGRAM_SITE ] );
+		control( element, '.remove-action' ).click();
+		await settle( element );
+		assert.equal( element.shadowRoot?.querySelector( '.added-sites' ), null );
+		assert.equal( control( element, '.suggestion[data-site-id="instagram"]' ).getAttribute( 'aria-pressed' ), 'false' );
+		assert.include( control( element, '.removal-status' ).textContent, 'browser access could not be removed' );
+	} );
+
+	it( 'keeps a persisted site when its removal is rejected', async () => {
+		const element = await renderSitesStep( createEnrollment( {
+			/**
+			 * Provides the configured enrollment outcome.
+			 * @return Controlled enrollment outcome.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			remove: () => Promise.resolve( {
 				status: ProtectedSiteEnrollmentStatus.REJECTED,
 				reason: ProtectionConfigurationEditRejectionReason.SITE_NOT_FOUND,
-			}, TEST_COPY.saveError ],
-			[ {
-				status: ProtectedSiteEnrollmentStatus.PERMISSION_ERROR,
-			}, TEST_COPY.permissionRequestError ],
-			[ {
-				status: ProtectedSiteEnrollmentStatus.SAVE_ERROR,
-			}, TEST_COPY.saveError ],
+			} ) } ), [ INSTAGRAM_SITE ] );
+		control( element, '.remove-action' ).click();
+		await settle( element );
+		assert.include( control( element, '.added-sites' ).textContent, 'Instagram' );
+		assert.include( control( element, '.removal-status' ).textContent, 'could not be saved' );
+	} );
+
+	it( 'retranslates batch failures while retaining the selected websites', async () => {
+		const results: readonly ProtectedSiteBatchEnrollmentResult[] = [
+			{ status: ProtectedSiteEnrollmentStatus.PERMISSION_ERROR },
+			{ status: ProtectedSiteEnrollmentStatus.PERMISSION_RETAINED },
+			{ status: ProtectedSiteEnrollmentStatus.SAVE_ERROR },
+			{
+				status: ProtectedSiteEnrollmentStatus.REJECTED,
+				reason: ProtectionConfigurationEditRejectionReason.SITE_NOT_FOUND,
+			},
 		];
-
-		for ( const [ result, expectedMessage ] of cases ) {
-			const enrollment = new TestEnrollmentService( () => Promise.resolve( result ) );
+		for ( const result of results ) {
+			const enrollment = createEnrollment();
+			enrollment.addMany = () => Promise.resolve( result );
 			const element = await renderSitesStep( enrollment );
-			const input = await submitManualSite( element, 'example.com' );
-			const manualError = getShadowRoot( element ).querySelector( '.manual-error' );
-
-			assert.equal( manualError?.textContent.trim(), expectedMessage );
-			assert.equal( input.getAttribute( 'aria-invalid' ), 'true' );
-			assert.equal( input.value, 'example.com' );
+			await submitSite( element, 'example.com' );
+			control( element, '.finish-action' ).click();
+			await settle( element );
+			assert.isNotEmpty( control( element, '.finish-error' ).textContent.trim() );
+			element.copy = {
+				...element.copy,
+				permissionRequestError: 'Translated failure.',
+				permissionRetainedError: 'Translated failure.',
+				saveError: 'Translated failure.',
+			};
+			await element.updateComplete;
+			assert.equal( control( element, '.finish-error' ).textContent.trim(), 'Translated failure.' );
+			assert.include( control( element, '.added-sites' ).textContent, 'example.com' );
 		}
 	} );
 
-	it( 'shows an unexpected manual error when enrollment rejects', async () => {
-		const enrollment = new TestEnrollmentService( () => Promise.reject(
-			new Error( 'Controlled enrollment rejection.' ),
-		) );
-		const element = await renderSitesStep( enrollment );
-
-		await submitManualSite( element, 'example.com' );
-
-		assert.equal(
-			getShadowRoot( element ).querySelector( '.manual-error' )?.textContent.trim(),
-			TEST_COPY.unexpectedError,
-		);
+	it( 'contains unexpected batch and persisted-removal failures', async () => {
+		const enrollment = createEnrollment();
+		enrollment.addMany = () => Promise.reject( new Error( 'Batch failed.' ) );
+		enrollment.remove = () => Promise.reject( new Error( 'Removal failed.' ) );
+		const element = await renderSitesStep( enrollment, [ INSTAGRAM_SITE ] );
+		await submitSite( element, 'example.com' );
+		control( element, '.finish-action' ).click();
+		await settle( element );
+		assert.include( control( element, '.finish-error' ).textContent, 'Something went wrong' );
+		control( element, '.remove-action' ).click();
+		await settle( element );
+		assert.include( control( element, '.removal-status' ).textContent, 'could not be saved' );
+		assert.lengthOf( element.shadowRoot?.querySelectorAll( '.added-sites li' ) ?? [], 2 );
 	} );
 
-	it( 'ignores a manual submission when its expected address field is absent', async () => {
-		let callCount = 0;
-		const enrollment = new TestEnrollmentService( () => {
-			callCount += 1;
-
-			return Promise.resolve( createAddedResult() );
-		} );
-		const element = await renderSitesStep( enrollment );
-		const shadowRoot = getShadowRoot( element );
-		const form = shadowRoot.querySelector<HTMLFormElement>( '.manual-form' );
-
-		assert.instanceOf( form, HTMLFormElement );
-		shadowRoot.querySelector( '#onboarding-site-address' )?.remove();
-		form.dispatchEvent( new SubmitEvent( 'submit', { bubbles: true, cancelable: true } ) );
-
-		assert.equal( callCount, 0 );
+	it( 'removes persisted selections through their popular card', async () => {
+		const element = await renderSitesStep( createEnrollment(), [ INSTAGRAM_SITE ] );
+		control( element, '.suggestion[data-site-id="instagram"]' ).click();
+		await settle( element );
+		assert.equal( element.shadowRoot?.querySelector( '.added-sites' ), null );
+		assert.include( control( element, '.removal-status' ).textContent, 'Instagram was removed from your list.' );
 	} );
 
-	it( 'blocks manual enrollment and completion while another site is pending', async () => {
-		let callCount = 0;
-		let completionCount = 0;
-		let resolveEnrollment: ( result: ProtectedSiteEnrollmentResult ) => void = ignoreEnrollmentResolution;
-		const pendingEnrollment = new Promise<ProtectedSiteEnrollmentResult>( ( resolve ) => {
-			resolveEnrollment = resolve;
-		} );
-		const enrollment = new TestEnrollmentService( () => {
-			callCount += 1;
-
-			return pendingEnrollment;
-		} );
+	it( 'keeps unrelated drafts when another context protects a selected domain', async () => {
+		let requested: readonly string[] = [];
+		const enrollment = createEnrollment();
+		enrollment.addMany = ( sites ) => {
+			requested = sites;
+			return Promise.resolve( { status: ProtectedSiteEnrollmentStatus.PERMISSION_DENIED } );
+		};
 		const element = await renderSitesStep( enrollment );
-		const shadowRoot = getShadowRoot( element );
-		const instagram = shadowRoot.querySelector<HTMLButtonElement>( '.suggestion[data-site-id="instagram"]' );
-		const form = shadowRoot.querySelector<HTMLFormElement>( '.manual-form' );
-		const finish = shadowRoot.querySelector<HTMLButtonElement>( '.finish-action' );
-
-		element.addEventListener( OnboardingSitesFinishEventName, () => {
-			completionCount += 1;
-		} );
-		assert.instanceOf( instagram, HTMLButtonElement );
-		assert.instanceOf( form, HTMLFormElement );
-		assert.instanceOf( finish, HTMLButtonElement );
-		instagram.click();
+		await submitSite( element, 'instagram.com' );
+		await submitSite( element, 'example.com' );
+		element.protectedSites = [ INSTAGRAM_SITE ];
 		await element.updateComplete;
-		form.dispatchEvent( new SubmitEvent( 'submit', { bubbles: true, cancelable: true } ) );
-		finish.dispatchEvent( new MouseEvent( 'click', { bubbles: true } ) );
-
-		assert.equal( callCount, 1 );
-		assert.equal( completionCount, 0 );
-
-		resolveEnrollment( {
-			status: ProtectedSiteEnrollmentStatus.PERMISSION_DENIED,
-		} );
-		await pendingEnrollment;
+		assert.lengthOf( element.shadowRoot?.querySelectorAll( '.added-sites li' ) ?? [], 2 );
+		control( element, '.finish-action' ).click();
+		assert.deepEqual( requested, [ 'example.com' ] );
+		await settle( element );
 	} );
 
-	it( 'allows onboarding to finish without selecting any site', async () => {
-		const enrollment = new TestEnrollmentService( () => Promise.resolve( createAddedResult() ) );
+	it( 'serializes completion and removal while browser access is pending', async () => {
+		const pending = Promise.withResolvers<ProtectedSiteBatchEnrollmentResult>();
+		let calls = 0;
+		const enrollment = createEnrollment();
+		enrollment.addMany = () => {
+			calls += 1;
+			return pending.promise;
+		};
 		const element = await renderSitesStep( enrollment );
-		let completionCount = 0;
+		await submitSite( element, 'example.com' );
+		const finish = control( element, '.finish-action' );
+		finish.click();
+		finish.dispatchEvent( new MouseEvent( 'click', { bubbles: true } ) );
+		control( element, '.remove-action' ).dispatchEvent( new MouseEvent( 'click', { bubbles: true } ) );
+		control( element, '.suggestion[data-site-id="instagram"]' ).dispatchEvent( new MouseEvent( 'click', { bubbles: true } ) );
+		await submitSite( element, 'second.example.com' );
+		assert.equal( calls, 1 );
+		assert.lengthOf( element.shadowRoot?.querySelectorAll( '.added-sites li' ) ?? [], 1 );
+		pending.resolve( { status: ProtectedSiteEnrollmentStatus.PERMISSION_DENIED } );
+		await settle( element );
+	} );
 
-		element.addEventListener( OnboardingSitesFinishEventName, () => {
-			completionCount += 1;
-		} );
-		const finishButton = getShadowRoot( element ).querySelector( '.finish-action' );
+	it( 'keeps local drafts available when enrollment is unavailable', async () => {
+		const element = await renderSitesStep( createEnrollment(), [ INSTAGRAM_SITE ] );
+		element.enrollment = null;
+		await submitSite( element, 'example.com' );
+		const finish = control( element, '.finish-action' ) as HTMLButtonElement;
+		assert.isTrue( finish.disabled );
+		finish.dispatchEvent( new MouseEvent( 'click', { bubbles: true } ) );
+		control( element, '.suggestion[data-site-id="instagram"]' ).click();
+		await settle( element );
+		assert.lengthOf( element.shadowRoot?.querySelectorAll( '.added-sites li' ) ?? [], 2 );
+	} );
 
-		assert.instanceOf( finishButton, HTMLButtonElement );
-		finishButton.click();
-
-		assert.equal( completionCount, 1 );
+	it( 'ignores missing suggestion identifiers and missing address controls', async () => {
+		const element = await renderSitesStep();
+		const suggestion = control( element, '.suggestion' );
+		suggestion.dataset.siteId = 'missing';
+		suggestion.click();
+		control( element, '#onboarding-site-address' ).remove();
+		control( element, '.manual-form' ).dispatchEvent( new SubmitEvent( 'submit', { bubbles: true, cancelable: true } ) );
+		await element.updateComplete;
+		assert.equal( element.shadowRoot?.querySelector( '.added-sites' ), null );
 	} );
 } );

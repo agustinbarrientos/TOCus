@@ -11,6 +11,7 @@
 }
 
 fieldset {
+	min-width: 0;
 	margin: 0;
 	padding: 0;
 	border: 0;
@@ -20,6 +21,10 @@ legend {
 	@include typography.apply( 'label-large' );
 
 	padding: 0;
+}
+
+.controls {
+	container-type: inline-size;
 }
 
 .controls-section {
@@ -87,8 +92,9 @@ legend {
 		position: relative;
 		z-index: 1;
 		display: block;
+		min-width: 0;
 		padding: 0.3rem;
-		border: 1px solid var(--tocus-color-outline);
+		border: 1px solid color-mix(in srgb, var(--tocus-color-on-surface) 18%, transparent);
 		border-radius: var(--tocus-radius-medium);
 		background: var(--tocus-color-surface-container);
 		box-shadow: 0 0.35rem 0.9rem color-mix(in srgb, var(--tocus-color-shadow-depth) 10%, transparent);
@@ -119,11 +125,19 @@ legend {
 .theme-preview {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr);
+	grid-template-rows: auto minmax(0, 1fr);
 	width: 100%;
 	aspect-ratio: 4 / 3;
 	overflow: hidden;
-	border: 1px solid color-mix(in srgb, var(--tocus-color-outline) 68%, transparent);
+	border: 1px solid color-mix(in srgb, var(--tocus-color-on-surface) 12%, transparent);
 	border-radius: calc(var(--tocus-radius-medium) - 0.3rem);
+	color: #2a211d;
+	background: #f8f4ef;
+
+	&[data-preview-theme='dark'] {
+		color: #f8f1e9;
+		background: #211b18;
+	}
 
 	&--system {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -148,13 +162,14 @@ legend {
 		@include typography.apply( 'brand-small' );
 
 		display: flex;
+		grid-column: 1 / -1;
 		align-items: center;
 		gap: 0.25rem;
 		min-width: 0;
+		padding: clamp(0.4rem, 1.3vw, 0.75rem);
 
 		span:last-child {
-			overflow: hidden;
-			text-overflow: clip;
+			white-space: nowrap;
 		}
 	}
 
@@ -189,8 +204,8 @@ legend {
 .selection-mark {
 	position: absolute;
 	z-index: 2;
-	top: 0.45rem;
-	right: 0.45rem;
+	top: 0.85rem;
+	right: 0.85rem;
 	display: grid;
 	place-items: center;
 	width: 1.4rem;
@@ -278,6 +293,11 @@ legend {
 			box-shadow var(--tocus-transition-fast),
 			transform var(--tocus-transition-fast);
 
+		.selection-mark {
+			inset: 0;
+			margin: auto;
+		}
+
 		&[data-palette='brown'] {
 			background: var(--tocus-color-palette-preview-brown);
 		}
@@ -331,13 +351,18 @@ legend {
 	white-space: nowrap;
 }
 
-@media (width <= 32rem) {
+@container (width <= 32rem) {
 	.theme-options {
 		gap: var(--tocus-space-2);
 	}
 
 	.theme-option-surface {
 		padding: 0.2rem;
+	}
+
+	.theme-preview {
+		min-height: 6.5rem;
+		padding-top: 2rem;
 	}
 }
 

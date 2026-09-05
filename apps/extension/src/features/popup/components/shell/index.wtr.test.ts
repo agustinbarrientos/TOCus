@@ -1,5 +1,8 @@
 import { assert, expect, fixture, fixtureCleanup, html } from '@open-wc/testing';
 import { emulateMedia } from '@web/test-runner-commands';
+import onboardingStyles from '../../../../entrypoints/onboarding/styles.scss?inline';
+import optionsStyles from '../../../../entrypoints/options/styles.scss?inline';
+import popupStyles from '../../../../entrypoints/popup/styles.scss?inline';
 import { ProtectedSiteConfigurationSchema } from '../../../../domains/protection/types/protected-site-configuration';
 import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
 import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
@@ -155,12 +158,75 @@ async function createShell( projection: PopupProjection ): Promise<ComponentPopu
 }
 
 describe( 'tocus-f-popup-shell', () => {
+	let pageStyle: HTMLStyleElement;
+
+	beforeEach( () => {
+		pageStyle = document.createElement( 'style' );
+		pageStyle.textContent = popupStyles;
+		document.head.append( pageStyle );
+	} );
+
 	afterEach( () => {
 		fixtureCleanup();
+		pageStyle.remove();
 	} );
 
 	it( 'registers the exported component class', () => {
 		assert.equal( customElements.get( 'tocus-f-popup-shell' ), ComponentPopupShell );
+	} );
+
+	it( 'keeps compact typography at the browser root size without shrinking action targets', async () => {
+		const element = await createShell( MULTI_SCOPE_PROJECTION );
+		const shadowRoot = element.shadowRoot;
+
+		assert.instanceOf( shadowRoot, ShadowRoot );
+		assert.equal( getComputedStyle( document.documentElement ).fontSize, '16px' );
+		assert.equal( getComputedStyle( document.body ).fontSize, '14px' );
+
+		for ( const [ selector, fontSize ] of [
+			[ '.wordmark', '24px' ],
+			[ '.site-host', '12px' ],
+			[ '.site-status', '12px' ],
+			[ '.timing-identity strong', '14px' ],
+			[ '.timing-value strong', '16px' ],
+			[ '.manage-action', '14px' ],
+			[ '.settings-link', '14px' ],
+		] as const ) {
+			const target: HTMLElement | null = shadowRoot.querySelector( selector );
+
+			assert.instanceOf( target, HTMLElement );
+			assert.equal( getComputedStyle( target ).fontSize, fontSize, selector );
+		}
+
+		for ( const target of shadowRoot.querySelectorAll( '.manage-action, footer a' ) ) {
+			assert.isAtLeast( target.getBoundingClientRect().height, 44 );
+		}
+	} );
+
+	it( 'scales compact roles with the browser root font size', async () => {
+		const element = await createShell( MULTI_SCOPE_PROJECTION );
+		const wordmark = element.shadowRoot?.querySelector( '.wordmark' );
+		const originalFontSize = document.documentElement.style.fontSize;
+
+		assert.instanceOf( wordmark, HTMLElement );
+
+		try {
+			document.documentElement.style.fontSize = '20px';
+
+			assert.equal( getComputedStyle( document.body ).fontSize, '17.5px' );
+			assert.equal( getComputedStyle( wordmark ).fontSize, '30px' );
+		} finally {
+			document.documentElement.style.fontSize = originalFontSize;
+		}
+	} );
+
+	it( 'keeps onboarding and Settings at 115 percent with stable document roots', () => {
+		for ( const styles of [ onboardingStyles, optionsStyles ] ) {
+			pageStyle.textContent = styles;
+
+			assert.equal( getComputedStyle( document.documentElement ).fontSize, '16px' );
+			assert.equal( getComputedStyle( document.body ).fontSize, '16.1px' );
+		}
 	} );
 
 	it( 'renders current website identity and a one-click add action', async () => {

@@ -67,7 +67,7 @@ describe( 'theme color tokens', () => {
 
 		expect( enhancementIndex ).toBeGreaterThan( 0 );
 
-		const fallbackCss = css.slice( 0, enhancementIndex );
+		const fallbackCss = css.replaceAll( /@supports \(color: color-mix[^}]+\}/gu, '' );
 
 		expect( css ).not.toContain( 'light-dark(' );
 		expect( fallbackCss ).not.toContain( 'color-mix(' );
@@ -77,6 +77,16 @@ describe( 'theme color tokens', () => {
 
 		for ( const token of FALLBACK_COLOR_TOKENS ) {
 			expect( fallbackCss ).toContain( `${ token }:` );
+		}
+	} );
+
+	it.each( [ 'light', 'dark' ] )( 'keeps enhanced %s colors at the same specificity as explicit palettes', ( mode ) => {
+		for ( const palette of [ 'brown', 'green', 'blue', 'purple', 'pink', 'orange' ] ) {
+			const paletteSelector = palette === 'brown' ? '' : `[data-tocus-palette=${ palette }]`;
+			const selector = `:root[data-tocus-theme=${ mode }]${ paletteSelector }`;
+			const css = compileTokens();
+
+			expect( css ).toContain( `@supports (color: color-mix(in srgb, black, white)) {\n  ${ selector } {\n    --tocus-color-outline: color-mix(` );
 		}
 	} );
 

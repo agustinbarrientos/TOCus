@@ -170,6 +170,10 @@ $-palettes: (
 @mixin -apply-palette-with-fallbacks($palette, $mode) {
 	@include -apply-palette($palette, $mode);
 	@include -apply-derived-fallbacks($mode);
+
+	@supports (color: color-mix(in srgb, black, white)) {
+		@include -apply-enhanced-colors($mode);
+	}
 }
 
 @mixin -apply-enhanced-colors($mode) {
@@ -321,24 +325,4 @@ $-palettes: (
 
 #{-conditional-selector("[data-tocus-theme='dark'][data-tocus-palette='orange']")} {
 	@include -apply-palette-with-fallbacks($-orange-palette, dark);
-}
-
-@supports (color: color-mix(in srgb, black, white)) {
-	#{-conditional-selector()} {
-		@include -apply-enhanced-colors(light);
-	}
-
-	@media (prefers-color-scheme: dark) {
-		#{-conditional-selector(":not([data-tocus-theme='light'])")} {
-			@include -apply-enhanced-colors(dark);
-		}
-	}
-
-	#{-conditional-selector("[data-tocus-theme='light']")} {
-		@include -apply-enhanced-colors(light);
-	}
-
-	#{-conditional-selector("[data-tocus-theme='dark']")} {
-		@include -apply-enhanced-colors(dark);
-	}
 }

@@ -33,8 +33,8 @@ export function createOnboardingCopy( i18n: I18n ): Readonly<OnboardingShellCopy
 
 	return Object.freeze( {
 		introduction: i18n._( msg`Create a gentle pause before the websites you choose.` ),
-		privacyTitle: i18n._( msg`Private by design` ),
-		privacyDescription: i18n._( msg`Your choices and statistics stay on this device. TOCus never reads your browsing history.` ),
+		privacyTitle: i18n._( msg`100% private` ),
+		privacyDescription: i18n._( msg`TOCus works offline. Your data stays on this device and is never sent to servers.` ),
 		completionTitle: i18n._( msg`You're all set` ),
 		completionDescription: i18n._( msg`TOCus is ready. You can close this tab or continue in Settings.` ),
 		openSettingsLabel: i18n._( msg`Open Settings` ),

@@ -1,4 +1,14 @@
 import { type UnsuccessfulProtectedSiteEnrollmentResult } from '../../../protected-sites/services/protected-site-enrollment';
+import { type ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
+
+/**
+ * Focused row retained until its pending removal operation settles.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface OnboardingPendingSiteRemoval {
+	readonly site: ProtectedSiteConfiguration;
+	readonly index: number;
+}
 
 /**
  * Presentation-neutral marker for an unexpected onboarding enrollment failure.
@@ -42,6 +52,23 @@ export interface OnboardingSitesStepCopy {
 	saveError: string;
 	unexpectedError: string;
 	finishLabel: string;
+	finishHelp: string;
+	removeSiteLabel: string;
+	removalError: string;
+	/**
+	 * Formats one removed-site announcement.
+	 * @param name - Local site display name.
+	 * @return Localized removal status.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	formatRemovedAnnouncement( name: string ): string;
+	/**
+	 * Formats a removal whose browser access could not be released.
+	 * @param name - Local site display name.
+	 * @return Localized browser-access status.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	formatPermissionRetainedAnnouncement( name: string ): string;
 	/**
 	 * Formats the accessible action for one available suggestion.
 	 * @param siteName - Fixed site brand name.
@@ -92,7 +119,29 @@ export interface OnboardingSiteSubmitEvent extends SubmitEvent {
 }
 
 /**
+ * Native address input event from the manual site field.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface OnboardingSiteInputEvent extends Event {
+	readonly currentTarget: HTMLInputElement;
+}
+
+/**
+ * Native removal click whose current target is the selected site's action.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface OnboardingSiteRemovalClickEvent extends MouseEvent {
+	readonly currentTarget: HTMLButtonElement;
+}
+
+/**
  * Name of the composed event emitted when the user finishes onboarding.
  * @since 0.1.0 Initial implementation.
  */
 export const OnboardingSitesFinishEventName = 'tocus-onboarding-sites-finish';
+
+/**
+ * Name of the composed event carrying whether a website operation is pending.
+ * @since 0.1.0 Initial implementation.
+ */
+export const OnboardingSitesPendingChangeEventName = 'tocus-onboarding-sites-pending-change';

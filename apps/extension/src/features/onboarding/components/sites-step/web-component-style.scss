@@ -74,7 +74,7 @@ header {
 	min-width: 0;
 	min-height: 7.5rem;
 	padding: var(--tocus-space-3);
-	border: 1px solid var(--tocus-color-outline);
+	border: 1px solid color-mix(in srgb, var(--tocus-color-on-surface) 18%, transparent);
 	border-radius: var(--tocus-radius-medium);
 	background: color-mix(in srgb, var(--tocus-color-surface-lowest) 88%, transparent);
 	color: var(--tocus-color-on-surface);
@@ -137,14 +137,16 @@ header {
 		transform: translateY(-0.125rem);
 	}
 
+	&[aria-pressed='true'] {
+		border-color: var(--tocus-color-action);
+		outline: 2px solid var(--tocus-color-action);
+		outline-offset: -2px;
+		background: var(--tocus-color-surface-container);
+	}
+
 	&:focus-visible {
 		outline: 3px solid var(--tocus-color-focus-ring);
 		outline-offset: 2px;
-	}
-
-	&[aria-pressed='true'] {
-		border-color: var(--tocus-color-action);
-		background: var(--tocus-color-surface-container);
 	}
 
 	&:disabled {
@@ -154,10 +156,6 @@ header {
 		&[aria-pressed='true'] {
 			opacity: 1;
 		}
-	}
-
-	&[aria-busy='true'] .site-icon {
-		animation: site-pulse 1.2s ease-in-out infinite;
 	}
 }
 
@@ -218,6 +216,16 @@ header {
 			background: var(--tocus-color-surface-container);
 		}
 
+		&.filled-action {
+			border-color: var(--tocus-color-action);
+			background: var(--tocus-color-action);
+			color: var(--tocus-color-on-action);
+
+			&:hover:not(:disabled) {
+				filter: brightness(1.04);
+			}
+		}
+
 		&:focus-visible {
 			outline: 3px solid var(--tocus-color-focus-ring);
 			outline-offset: 2px;
@@ -225,15 +233,103 @@ header {
 	}
 }
 
+.added-sites {
+	display: grid;
+	gap: var(--tocus-space-3);
+	margin: var(--tocus-space-4) 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.added-site {
+	display: flex;
+	align-items: center;
+	gap: var(--tocus-space-3);
+	padding: var(--tocus-space-4);
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-medium);
+	background: var(--tocus-color-surface);
+
+	.site-icon {
+		display: grid;
+		place-items: center;
+		flex: 0 0 2.5rem;
+		width: 2.5rem;
+		height: 2.5rem;
+		border-radius: var(--tocus-radius-small);
+		background: var(--tocus-color-surface-container);
+		color: var(--tocus-color-action);
+
+		img {
+			width: 2rem;
+			height: 2rem;
+			object-fit: contain;
+		}
+	}
+
+	.monogram {
+		@include typography.apply( 'title-medium' );
+	}
+
+	.site-identity {
+		display: grid;
+		flex: 1;
+		gap: var(--tocus-space-1);
+		min-width: 0;
+		overflow-wrap: anywhere;
+
+		strong {
+			@include typography.apply( 'label-large' );
+		}
+
+		span {
+			@include typography.apply( 'body-small' );
+
+			color: var(--tocus-color-on-surface-muted);
+		}
+	}
+}
+
+.remove-action {
+	@include typography.apply( 'label-large' );
+
+	flex: 0 0 auto;
+	min-height: 2.75rem;
+	padding: var(--tocus-space-2) var(--tocus-space-3);
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-full);
+	background: transparent;
+	color: var(--tocus-color-action);
+	cursor: pointer;
+
+	&:hover:not(:disabled) {
+		background: var(--tocus-color-surface-container);
+	}
+
+	&:focus-visible {
+		outline: 3px solid var(--tocus-color-focus-ring);
+		outline-offset: 2px;
+	}
+}
+
 .field-help,
-.suggestion-error,
 .manual-error,
+.removal-status,
+.finish-error,
 .announcement {
 	@include typography.apply( 'body-small' );
 }
 
+.removal-status,
+.finish-error {
+	margin: var(--tocus-space-3) 0 0;
+
+	&:empty {
+		display: none;
+	}
+}
+
 .field-help,
-.suggestion-error,
 .manual-error {
 	margin: var(--tocus-space-2) 0 0;
 }
@@ -242,7 +338,6 @@ header {
 	color: var(--tocus-color-on-surface-muted);
 }
 
-.suggestion-error,
 .manual-error {
 	min-height: 1.25rem;
 }
@@ -277,6 +372,7 @@ header {
 }
 
 button:disabled,
+button[aria-disabled='true'],
 input:disabled {
 	cursor: wait;
 	opacity: 0.65;
@@ -290,17 +386,6 @@ input:disabled {
 	overflow: hidden;
 	clip-path: inset(50%);
 	white-space: nowrap;
-}
-
-@keyframes site-pulse {
-	0%,
-	100% {
-		transform: scale(1);
-	}
-
-	50% {
-		transform: scale(0.92);
-	}
 }
 
 @media (width <= 52rem) {
@@ -339,10 +424,6 @@ input:disabled {
 
 		&:hover:not(:disabled) {
 			transform: none;
-		}
-
-		&[aria-busy='true'] .site-icon {
-			animation: none;
 		}
 	}
 }

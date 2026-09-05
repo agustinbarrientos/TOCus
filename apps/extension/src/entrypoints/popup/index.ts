@@ -9,6 +9,7 @@ import { createSiteFaviconProvider } from '../../features/protected-sites/servic
 import { createSitePermissionManager } from '../../features/protected-sites/services/site-permission-manager';
 import { ComponentPopupShell } from '../../features/popup/components/shell';
 import { createCurrentTabReader } from '../../features/popup/services/current-tab-reader';
+import { createPopupEnrollmentClient } from '../../features/popup/services/popup-enrollment-client';
 import { bootstrapPopupPage } from '../../features/popup/services/popup-page';
 import { createPopupStatusClient } from '../../features/popup/services/popup-status-client';
 import {
@@ -33,18 +34,19 @@ const preferencesController = createPreferencesController( {
 	storageChanges: browser.storage.onChanged,
 	systemMotionPreference: window.matchMedia( '(prefers-reduced-motion: reduce)' ),
 } );
-const protection = createBrowserProtectionConfigurationEditor( {
-	area: browser.storage.local,
-	cryptography: crypto,
-	locks: navigator.locks,
-} );
-const enrollment = createProtectedSiteEnrollmentService( {
-	editor: protection.editor,
-	permissionManager: createSitePermissionManager( { permissions: browser.permissions } ),
-} );
+const enrollment = import.meta.env.CHROME
+	? createPopupEnrollmentClient( { runtime: browser.runtime } )
+	: createProtectedSiteEnrollmentService( {
+		editor: createBrowserProtectionConfigurationEditor( {
+			area: browser.storage.local,
+			cryptography: crypto,
+			locks: navigator.locks,
+		} ).editor,
+		permissionManager: createSitePermissionManager( { permissions: browser.permissions } ),
+	} );
 
 void bootstrapPopupPage( {
-	currentTabReader: createCurrentTabReader( { tabs: browser.tabs } ),
+	currentTabReader: createCurrentTabReader( { runtime: browser.runtime, tabs: browser.tabs } ),
 	document,
 	enrollment,
 	fallbackLocalization: createEnglishLocalizationBundle(),

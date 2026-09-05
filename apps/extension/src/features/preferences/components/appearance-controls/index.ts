@@ -151,16 +151,12 @@ export class ComponentAppearanceControls extends LitElement {
 	/**
 	 * Renders one miniature light or dark TOCus surface.
 	 * @param theme - Concrete light or dark theme represented by the pane.
-	 * @return Branded miniature theme pane.
+	 * @return Miniature theme content pane.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	private renderThemePane( theme: typeof ThemeMode.LIGHT | typeof ThemeMode.DARK ): TemplateResult {
 		return html`
 			<span class="theme-preview-pane" data-preview-theme=${ theme }>
-				<span class="theme-preview-brand">
-					<span class="theme-preview-icon">${ unsafeSVG( iconMarkup ) }</span>
-					<span>TOCus</span>
-				</span>
 				<span class="theme-preview-line theme-preview-line--wide"></span>
 				<span class="theme-preview-line"></span>
 			</span>
@@ -189,7 +185,15 @@ export class ComponentAppearanceControls extends LitElement {
 					@change=${ this.handleChange }
 				>
 				<span class="theme-option-surface">
-					<span class="theme-preview ${ theme === ThemeMode.SYSTEM ? 'theme-preview--system' : '' }" aria-hidden="true">
+					<span
+						class="theme-preview ${ theme === ThemeMode.SYSTEM ? 'theme-preview--system' : '' }"
+						data-preview-theme=${ theme === ThemeMode.LIGHT ? ThemeMode.LIGHT : ThemeMode.DARK }
+						aria-hidden="true"
+					>
+						<span class="theme-preview-brand">
+							<span class="theme-preview-icon">${ unsafeSVG( iconMarkup ) }</span>
+							<span>TOCus</span>
+						</span>
 						${ theme === ThemeMode.SYSTEM
 							? html`${ this.renderThemePane( ThemeMode.DARK ) }${ this.renderThemePane( ThemeMode.LIGHT ) }`
 							: this.renderThemePane( theme ) }

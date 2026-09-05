@@ -85,10 +85,12 @@ msgstr "{name} access was restored."
 msgid "{name} was added to your list."
 msgstr "{name} was added to your list."
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "{name} was removed from your list."
 msgstr "{name} was removed from your list."
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "{name} was removed, but its browser access could not be removed automatically."
 msgstr "{name} was removed, but its browser access could not be removed automatically."
@@ -104,6 +106,10 @@ msgstr "{siteName} added"
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "{siteName} was added to your list."
 msgstr "{siteName} was added to your list."
+
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "100% private"
+msgstr "100% private"
 
 #. Short extension description shown by the browser and extension store.
 #: apps/extension/src/localization/utils/create-browser-locale-messages/index.ts
@@ -156,15 +162,18 @@ msgstr "Active timing"
 msgid "Add {siteName}"
 msgstr "Add {siteName}"
 
-#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
-#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Add a pause here"
 msgstr "Add a pause here"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Add another site"
 msgstr "Add another site"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Add site"
+msgstr "Add site"
 
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "Add the first site you want TOCus to gently interrupt."
@@ -755,10 +764,6 @@ msgstr "Português (Brasil)"
 msgid "Português (Portugal)"
 msgstr "Português (Portugal)"
 
-#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
-msgid "Private by design"
-msgstr "Private by design"
-
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Purple"
@@ -784,6 +789,7 @@ msgstr "Remove"
 msgid "Remove {name}?"
 msgstr "Remove {name}?"
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Remove site"
 msgstr "Remove site"
@@ -1181,6 +1187,10 @@ msgstr "TOCus will keep using this language until you change it."
 msgid "TOCus will use it everywhere. You can change it later in Settings."
 msgstr "TOCus will use it everywhere. You can change it later in Settings."
 
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
+msgid "TOCus works offline. Your data stays on this device and is never sent to servers."
+msgstr "TOCus works offline. Your data stays on this device and is never sent to servers."
+
 #: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "TOCus: {title}"
 msgstr "TOCus: {title}"
@@ -1373,6 +1383,11 @@ msgstr "Your browser could not request access for that site. Try again."
 msgid "Your browser currently selects {name}."
 msgstr "Your browser currently selects {name}."
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Your browser will ask for access to the selected websites when you finish."
+msgstr "Your browser will ask for access to the selected websites when you finish."
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Your changes could not be saved. Nothing was replaced."
 msgstr "Your changes could not be saved. Nothing was replaced."
@@ -1380,10 +1395,6 @@ msgstr "Your changes could not be saved. Nothing was replaced."
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Your choice could not be saved. Try again."
 msgstr "Your choice could not be saved. Try again."
-
-#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
-msgid "Your choices and statistics stay on this device. TOCus never reads your browsing history."
-msgstr "Your choices and statistics stay on this device. TOCus never reads your browsing history."
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Your language could not be saved. TOCus returned to your previous language."

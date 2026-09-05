@@ -74,7 +74,7 @@ export function createProtectedSitesCopy(
 		introduction: i18n._( msg`Choose the websites where a calm pause can help you return to your intentions.` ),
 		addressLabel: i18n._( msg`Website address` ),
 		addressPlaceholder: i18n._( msg`example.com` ),
-		addSite: i18n._( msg`Add a pause here` ),
+		addSite: i18n._( msg`Add site` ),
 		addingSite: i18n._( msg`Adding...` ),
 		addressHelp: i18n._( msg`Enter a website address or domain. TOCus includes its subdomains by default.` ),
 		behaviorLegend: i18n._( msg`How should this site behave?` ),

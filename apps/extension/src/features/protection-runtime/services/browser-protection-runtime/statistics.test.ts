@@ -210,6 +210,7 @@ describe( 'createBrowserProtectionRuntime statistics integration', () => {
 			tabId: 7,
 			url: 'https://unprotected.test/',
 		} );
+		browser.tabs = [ { id: 7, incognito: false, url: 'https://unprotected.test/' } ];
 		await runtime.handleNavigation( {
 			frameId: 0,
 			phase: ProtectionRuntimeNavigationPhase.COMMITTED,

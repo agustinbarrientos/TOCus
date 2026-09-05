@@ -1,10 +1,7 @@
 import { type Language } from '../../../../domains/preferences/types';
 import { ProtectionConfigurationEditRejectionReason } from '../../../../domains/protection/services/protection-configuration-editor';
 import { type LocalizationBundle } from '../../../../localization';
-import {
-	ProtectedSiteEnrollmentStatus,
-	type ProtectedSiteEnrollmentResult,
-} from '../../../protected-sites/services/protected-site-enrollment';
+import { ProtectedSiteEnrollmentStatus } from '../../../protected-sites/services/protected-site-enrollment';
 import {
 	PopupAddSiteRequestEventName,
 	PopupOperationError,
@@ -18,6 +15,7 @@ import {
 	PopupTimerPhase,
 	type PopupProjection,
 } from '../../types/popup-projection';
+import { type PopupSiteEnrollmentResult } from '../../types/site-enrollment';
 import { type PopupPageOptions } from './types';
 
 const COUNTDOWN_INTERVAL_MILLISECONDS = 1_000;
@@ -75,7 +73,7 @@ function getCurrentIdentityHost( projection: PopupProjection ): string | null {
  * @since 0.1.0 Initial implementation.
  */
 function getEnrollmentError(
-	result: ProtectedSiteEnrollmentResult,
+	result: PopupSiteEnrollmentResult,
 ): PopupOperationErrorValue | null {
 	if ( result.status === ProtectedSiteEnrollmentStatus.ADDED ) {
 		return null;
@@ -198,7 +196,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function handleCountdownExpiry(): void {
-		void refreshProjection( false );
+		void refreshProjection( true );
 	}
 
 	/**
@@ -334,7 +332,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function completeEnrollment(
-		request: Promise<ProtectedSiteEnrollmentResult>,
+		request: Promise<PopupSiteEnrollmentResult>,
 	): Promise<void> {
 		try {
 			const result = await request;

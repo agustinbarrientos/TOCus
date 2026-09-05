@@ -309,8 +309,8 @@ export function createProtectionConfigurationEditor(
 	}
 
 	/**
-	 * Adds one hostname or HTTP(S) URL with shared or independent behavior.
-	 * @param siteInput - Unknown user-entered hostname or URL.
+	 * Adds unique hostnames or HTTP(S) URLs with shared or independent behavior atomically.
+	 * @param siteInputs - User-entered hostnames or URLs.
 	 * @param independent - Whether the site receives its own scope.
 	 * @param beforePersist - Optional verification performed immediately before persistence.
 	 * @param finalize - Optional effect completed before mutation coordination is released.
@@ -318,7 +318,7 @@ export function createProtectionConfigurationEditor(
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function performAdd(
-		siteInput: unknown,
+		siteInputs: readonly unknown[],
 		independent: boolean,
 		beforePersist: ProtectionConfigurationEditPrePersist | undefined,
 		finalize: ProtectionConfigurationEditFinalizer | undefined,
@@ -343,22 +343,34 @@ export function createProtectionConfigurationEditor(
 			);
 		}
 
-		const canonicalSite = canonicalizeProtectedSite( siteInput, scopeId );
+		const additions = new Map<string, ProtectedSiteConfiguration>();
 
-		if ( canonicalSite.status === ProtectedSiteCanonicalizationStatus.REJECTED ) {
-			return finalizeResult(
-				createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_SITE ),
-				configuration,
-				finalize,
-			);
+		for ( const siteInput of siteInputs ) {
+			const canonicalSite = canonicalizeProtectedSite( siteInput, scopeId );
+
+			if ( canonicalSite.status === ProtectedSiteCanonicalizationStatus.REJECTED ) {
+				return finalizeResult(
+					createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_SITE ),
+					configuration,
+					finalize,
+				);
+			}
+
+			if ( ! additions.has( canonicalSite.rule.host ) ) {
+				additions.set( canonicalSite.rule.host, {
+					identityHost: canonicalSite.identityHost,
+					rule: canonicalSite.rule,
+				} );
+			}
+		}
+
+		if ( additions.size === 0 ) {
+			return finalizeResult( createUpdatedResult( configuration ), configuration, finalize );
 		}
 
 		const updatedSites = ProtectedSiteConfigurationSetSchema.safeParse( [
 			...configuration.sites,
-			{
-				identityHost: canonicalSite.identityHost,
-				rule: canonicalSite.rule,
-			},
+			...additions.values(),
 		] );
 
 		if ( ! updatedSites.success ) {
@@ -413,7 +425,23 @@ export function createProtectionConfigurationEditor(
 		beforePersist?: ProtectionConfigurationEditPrePersist,
 		finalize?: ProtectionConfigurationEditFinalizer,
 	): Promise<ProtectionConfigurationEditResult> {
-		return serializeMutation( () => performAdd( siteInput, independent, beforePersist, finalize ) );
+		return serializeMutation( () => performAdd( [ siteInput ], independent, beforePersist, finalize ) );
+	}
+
+	/**
+	 * Queues one atomic addition of shared protected sites.
+	 * @param siteInputs - User-entered hostnames or URLs.
+	 * @param beforePersist - Optional verification immediately before persistence.
+	 * @param finalize - Optional effect completed before mutation coordination is released.
+	 * @return Serialized updated configuration or a stable rejection.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function addMany(
+		siteInputs: readonly string[],
+		beforePersist?: ProtectionConfigurationEditPrePersist,
+		finalize?: ProtectionConfigurationEditFinalizer,
+	): Promise<ProtectionConfigurationEditResult> {
+		return serializeMutation( () => performAdd( siteInputs, false, beforePersist, finalize ) );
 	}
 
 	/**
@@ -709,7 +737,7 @@ export function createProtectionConfigurationEditor(
 		return serializeMutation( () => performUpdateTiming( timingConfigurationInput ) );
 	}
 
-	return { add, load, remove, update, updateSchedule, updateTiming };
+	return { add, addMany, load, remove, update, updateSchedule, updateTiming };
 }
 
 export * from './types';

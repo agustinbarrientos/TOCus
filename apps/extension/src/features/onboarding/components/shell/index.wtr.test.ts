@@ -88,8 +88,8 @@ function formatAddedAnnouncement( siteName: string ): string {
  */
 const TEST_COPY: Readonly<OnboardingShellCopy> = {
 	introduction: 'Create a gentle pause before the websites you choose.',
-	privacyTitle: 'Private by design',
-	privacyDescription: 'Your choices and statistics stay on this device. TOCus never reads your browsing history.',
+	privacyTitle: '100% private',
+	privacyDescription: 'TOCus works offline. Your data stays on this device and is never sent to servers.',
 	progressLabel: 'Setup progress',
 	stepNames: {
 		language: 'Language',
@@ -149,6 +149,7 @@ const TEST_COPY: Readonly<OnboardingShellCopy> = {
 		continueLabel: 'Continue',
 	},
 	sites: {
+		...TestEnglishLocalizationBundle.onboarding.sites,
 		title: 'Choose your protected sites',
 		introduction: 'Pick suggestions or add a website yourself. You can change this later.',
 		suggestionsLegend: 'Popular choices',
@@ -159,7 +160,7 @@ const TEST_COPY: Readonly<OnboardingShellCopy> = {
 		addressLabel: 'Website address',
 		addressPlaceholder: 'example.com',
 		addressHelp: 'Enter a domain or an http or https address.',
-		addSiteLabel: 'Add a pause here',
+		addSiteLabel: 'Add site',
 		addingSiteLabel: 'Adding site',
 		invalidSiteError: 'Enter a valid website address.',
 		alreadyProtectedError: 'That website is already protected.',
@@ -268,7 +269,7 @@ async function renderShell(
 			.language=${ Language.ENGLISH }
 			.theme=${ ThemeMode.SYSTEM }
 			.palette=${ Palette.BROWN }
-			.protectedRuleHosts=${ [ 'instagram.com' ] }
+			.protectedSites=${ [] }
 			.suggestions=${ OnboardingSiteSuggestions }
 			.synchronizeLanguage=${ synchronizeLanguage }
 		></tocus-f-onboarding-shell>
@@ -308,6 +309,11 @@ describe( 'tocus-f-onboarding-shell', () => {
 		assert.equal( customElements.get( 'tocus-f-onboarding-shell' ), ComponentOnboardingShell );
 		assert.instanceOf( shadowRoot.querySelector( 'tocus-f-onboarding-language-step' ), HTMLElement );
 		assert.include( shadowRoot.querySelector( '.privacy-card' )?.textContent, TEST_COPY.privacyDescription );
+		const privacyDescription = shadowRoot.querySelector( '.privacy-card p' );
+
+		assert.instanceOf( privacyDescription, HTMLElement );
+		const privacyStyle = getComputedStyle( privacyDescription );
+		assert.closeTo( parseFloat( privacyStyle.lineHeight ) / parseFloat( privacyStyle.fontSize ), 1.6, 0.01 );
 		assert.instanceOf( shadowRoot.querySelector( '.privacy-mark svg' ), SVGElement );
 		assert.equal( shadowRoot.querySelector( '.privacy-mark svg' )?.getAttribute( 'viewBox' ), '0 0 640 640' );
 		assert.equal( shadowRoot.querySelector( '.welcome-label' ), null );
@@ -381,7 +387,11 @@ describe( 'tocus-f-onboarding-shell', () => {
 		await settle();
 		await element.updateComplete;
 
-		assert.deepEqual( editor.updates, [ { language: Language.SPANISH_VOS } ] );
+		assert.deepEqual( editor.updates, [ {
+			language: Language.SPANISH_VOS,
+			theme: ThemeMode.SYSTEM,
+			palette: Palette.BROWN,
+		} ] );
 		assert.instanceOf( shadowRoot.querySelector( 'tocus-f-onboarding-appearance-step' ), HTMLElement );
 	} );
 
@@ -586,7 +596,11 @@ describe( 'tocus-f-onboarding-shell', () => {
 		assert.equal( element.getAttribute( 'data-tocus-theme' ), ThemeMode.DARK );
 		assert.equal( element.getAttribute( 'data-tocus-palette' ), Palette.GREEN );
 		assert.equal( preview.mode, InterruptionScreenMode.BREATHING );
-		assert.deepEqual( editor.updates, [ { language: Language.ENGLISH } ] );
+		assert.deepEqual( editor.updates, [ {
+			language: Language.ENGLISH,
+			theme: ThemeMode.SYSTEM,
+			palette: Palette.BROWN,
+		} ] );
 		await expect( element ).to.be.accessible();
 		appearanceStep.dispatchEvent( new CustomEvent( 'tocus-onboarding-appearance-continue', {
 			bubbles: true,
@@ -606,7 +620,7 @@ describe( 'tocus-f-onboarding-shell', () => {
 		const sitesStep = shadowRoot.querySelector( 'tocus-f-onboarding-sites-step' );
 
 		assert.instanceOf( sitesStep, HTMLElement );
-		assert.deepEqual( sitesStep.protectedRuleHosts, [ 'instagram.com' ] );
+		assert.deepEqual( sitesStep.protectedSites, [] );
 		assert.equal( shadowRoot.querySelector( 'tocus-f-interruption-screen' ), null );
 		assert.isFalse(
 			shadowRoot.querySelector( '.onboarding-layout' )?.classList.contains(
@@ -664,6 +678,12 @@ describe( 'tocus-f-onboarding-shell', () => {
 			assert.equal( browserTab.parentNode, tabStrip );
 			assert.equal( browserAddress.parentNode, toolbar );
 			assert.equal( browserViewport.previousElementSibling, browserChrome );
+			assert.closeTo(
+				browserWindow.getBoundingClientRect().width / browserWindow.getBoundingClientRect().height,
+				16 / 10,
+				0.01,
+			);
+			assert.isAtLeast( browserWindow.getBoundingClientRect().width, 320 );
 			assert.equal( getComputedStyle( preview ).position, 'fixed' );
 			assert.closeTo( preview.getBoundingClientRect().left, 16, 0.5 );
 			assert.closeTo( window.innerHeight - preview.getBoundingClientRect().bottom, 16, 0.5 );
@@ -678,6 +698,14 @@ describe( 'tocus-f-onboarding-shell', () => {
 				preview.getBoundingClientRect().right,
 				setupCard.getBoundingClientRect().left,
 			);
+
+			for ( const width of [ 1_024, 1_152, 1_280 ] ) {
+				await setViewport( { height: 1_000, width } );
+				assert.isAtMost(
+					preview.getBoundingClientRect().right,
+					setupCard.getBoundingClientRect().left,
+				);
+			}
 
 			await setViewport( { height: 1_600, width: 420 } );
 
@@ -705,8 +733,8 @@ describe( 'tocus-f-onboarding-shell', () => {
 		}
 	} );
 
-	it( 'moves the preview below settings in a short reflow viewport', async () => {
-		await setViewport( { height: 256, width: 320 } );
+	it( 'keeps every scrolled appearance control clear of the fixed preview on compact viewports', async () => {
+		await setViewport( { height: 900, width: 420 } );
 		await emulateMedia( { colorScheme: 'light', forcedColors: 'none' } );
 
 		try {
@@ -725,15 +753,46 @@ describe( 'tocus-f-onboarding-shell', () => {
 			await element.updateComplete;
 
 			const preview = shadowRoot.querySelector( '.pause-preview' );
-			const setupCard = shadowRoot.querySelector( '.setup-card' );
+			const main = shadowRoot.querySelector( 'main' );
+			const appearanceStep = shadowRoot.querySelector( 'tocus-f-onboarding-appearance-step' );
 
 			assert.instanceOf( preview, HTMLElement );
+			assert.instanceOf( main, HTMLElement );
+			assert.instanceOf( appearanceStep, HTMLElement );
+			const continueButton = appearanceStep.shadowRoot?.querySelector( 'button[type="submit"]' );
+
+			assert.instanceOf( continueButton, HTMLButtonElement );
+			for ( const viewport of [
+				{ height: 900, width: 420 },
+				{ height: 800, width: 420 },
+				{ height: 420, width: 800 },
+			] ) {
+				await setViewport( viewport );
+				assert.equal( getComputedStyle( preview ).position, 'fixed' );
+				assert.closeTo( window.innerHeight - preview.getBoundingClientRect().bottom, 16, 0.5 );
+				assert.isAtLeast( main.clientHeight, 100 );
+
+				for ( const progress of [ 0, 0.5, 1 ] ) {
+					main.scrollTop = ( main.scrollHeight - main.clientHeight ) * progress;
+					const mainBounds: DOMRect = main.getBoundingClientRect();
+					const previewBounds = preview.getBoundingClientRect();
+
+					assert.isTrue( mainBounds.bottom <= previewBounds.top || mainBounds.left >= previewBounds.right );
+				}
+
+				const mainBounds = main.getBoundingClientRect();
+				const buttonBounds = continueButton.getBoundingClientRect();
+
+				assert.isAtLeast( buttonBounds.top, mainBounds.top );
+				assert.isAtMost( buttonBounds.bottom, mainBounds.bottom );
+			}
+
+			await setViewport( { height: 256, width: 320 } );
+			const setupCard = shadowRoot.querySelector( '.setup-card' );
+
 			assert.instanceOf( setupCard, HTMLElement );
 			assert.equal( getComputedStyle( preview ).position, 'absolute' );
-			assert.isAtMost(
-				setupCard.getBoundingClientRect().bottom,
-				preview.getBoundingClientRect().top,
-			);
+			assert.isAtMost( setupCard.getBoundingClientRect().bottom, preview.getBoundingClientRect().top );
 		} finally {
 			await setViewport( { height: 600, width: 800 } );
 			await emulateMedia( { colorScheme: 'light', forcedColors: 'none' } );

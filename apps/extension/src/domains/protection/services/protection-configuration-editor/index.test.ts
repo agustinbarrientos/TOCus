@@ -11,6 +11,7 @@ import {
 	ProtectionMeasurementRevisionSchema,
 } from '../../types/protection-value';
 import {
+	ProtectionConfigurationDocumentSchema,
 	type ProtectedSiteConfiguration,
 	type ProtectionConfigurationDocument,
 } from '../../types/protected-site-configuration';
@@ -365,6 +366,21 @@ function createEditor(
 }
 
 describe( 'createProtectionConfigurationEditor', () => {
+	it( 'deduplicates a shared batch and rotates its measurement revision once for the atomic write', async () => {
+		const revisionFactory = vi.fn().mockReturnValue( 'revision_batch' );
+		const { editor, storage } = createEditor( { ...TestEmptyProtectionConfiguration }, revisionFactory );
+		const result = await editor.addMany( [ 'www.youtube.com', 'reddit.com', 'm.youtube.com' ] );
+
+		expect( result.status ).toBe( ProtectionConfigurationEditStatus.UPDATED );
+		expect( storage.writes ).toHaveLength( 1 );
+		expect( ProtectionConfigurationDocumentSchema.parse( storage.writes[ 0 ] ).sites.map(
+			( site ) => site.identityHost,
+		) ).toEqual( [
+			'www.youtube.com', 'reddit.com',
+		] );
+		expect( revisionFactory ).toHaveBeenCalledOnce();
+	} );
+
 	it( 'loads current configuration without altering it', async () => {
 		const { editor, storage } = createEditor();
 

@@ -18,6 +18,10 @@ import { type ToolbarBadgeCopy } from '../../utils/toolbar-badge-projection';
  * @since 0.1.0 Initial implementation.
  */
 const backgroundMocks = vi.hoisted( () => ( {
+	createBrowserProtectionConfigurationEditor: vi.fn().mockReturnValue( { editor: {} } ),
+	createProtectedSiteEnrollmentService: vi.fn().mockReturnValue( { add: vi.fn() } ),
+	createPopupEnrollmentController: vi.fn(),
+	startPopupEnrollment: vi.fn(),
 	createBrowserProtectionAdapter: vi.fn(),
 	createBrowserProtectionRuntime: vi.fn<( options: BrowserProtectionRuntimeOptions ) => unknown>(),
 	createPopupBackgroundController: vi.fn<( options: PopupBackgroundControllerOptions ) => unknown>(),
@@ -39,6 +43,18 @@ const backgroundMocks = vi.hoisted( () => ( {
 	startProtectionController: vi.fn(),
 	startPopupController: vi.fn(),
 	startToolbarLanguage: vi.fn<( refreshToolbarBadge: ToolbarBadgeRefresh ) => void>(),
+} ) );
+
+vi.mock( '../../../../domains/protection/services/browser-protection-configuration-editor', () => ( {
+	createBrowserProtectionConfigurationEditor: backgroundMocks.createBrowserProtectionConfigurationEditor,
+} ) );
+
+vi.mock( '../../../protected-sites/services/protected-site-enrollment', () => ( {
+	createProtectedSiteEnrollmentService: backgroundMocks.createProtectedSiteEnrollmentService,
+} ) );
+
+vi.mock( '../../../popup/services/popup-enrollment-controller', () => ( {
+	createPopupEnrollmentController: backgroundMocks.createPopupEnrollmentController,
 } ) );
 
 vi.mock( '../../../../domains/preferences/services', () => ( {
@@ -100,12 +116,19 @@ describe( 'startProtectionBackgroundApplication', () => {
 
 	afterEach( () => {
 		vi.restoreAllMocks();
+		vi.unstubAllEnvs();
+		vi.unstubAllGlobals();
 	} );
 
-	it( 'constructs the browser-backed runtime and starts its synchronous controllers', async () => {
+	it.each( [ true, false ] )( 'constructs the browser-backed runtime with Chrome enrollment ownership: %s', async ( isChrome ) => {
+		vi.stubEnv( 'CHROME', isChrome ? 'true' : '' );
+		const locks = {};
+		vi.stubGlobal( 'navigator', { locks } );
 		const preferencesStorage = { load: vi.fn(), save: vi.fn() };
 		const protectionStorage = { load: vi.fn(), save: vi.fn() };
 		const configurationStorage = { load: vi.fn(), save: vi.fn() };
+		const protectionEditor = {};
+		const enrollment = { add: vi.fn() };
 		const coordinator = { dispatch: vi.fn() };
 		const browserAdapter = { browserAdapter: true };
 		const statisticsStorage = { statisticsStorage: true };
@@ -150,8 +173,34 @@ describe( 'startProtectionBackgroundApplication', () => {
 		backgroundMocks.createBrowserProtectionRuntime.mockReturnValue( runtime );
 		backgroundMocks.createProtectionBackgroundController.mockReturnValue( protectionController );
 		backgroundMocks.createPopupBackgroundController.mockReturnValue( popupController );
+		backgroundMocks.createPopupEnrollmentController.mockReturnValue( {
+			start: backgroundMocks.startPopupEnrollment,
+		} );
+		backgroundMocks.createBrowserProtectionConfigurationEditor.mockReturnValue( { editor: protectionEditor } );
+		backgroundMocks.createProtectedSiteEnrollmentService.mockReturnValue( enrollment );
 
 		startProtectionBackgroundApplication( { browser: fakeBrowser } );
+
+		if ( isChrome ) {
+			expect( backgroundMocks.createBrowserProtectionConfigurationEditor ).toHaveBeenCalledWith( {
+				area: fakeBrowser.storage.local,
+				cryptography: crypto,
+				locks,
+			} );
+			expect( backgroundMocks.createProtectedSiteEnrollmentService ).toHaveBeenCalledWith( {
+				editor: protectionEditor,
+				permissionManager: { filterConfiguration: backgroundMocks.filterConfiguration },
+			} );
+			expect( backgroundMocks.createPopupEnrollmentController ).toHaveBeenCalledWith( {
+				enrollment,
+				popupPageUrl: fakeBrowser.runtime.getURL( '/popup.html' ),
+				runtime: fakeBrowser.runtime,
+			} );
+			expect( backgroundMocks.startPopupEnrollment ).toHaveBeenCalledOnce();
+		} else {
+			expect( backgroundMocks.createBrowserProtectionConfigurationEditor ).not.toHaveBeenCalled();
+			expect( backgroundMocks.createPopupEnrollmentController ).not.toHaveBeenCalled();
+		}
 
 		expect( backgroundMocks.openOnInstall ).toHaveBeenCalledWith( { browser: fakeBrowser } );
 		expect( backgroundMocks.createPreferencesStorageService ).toHaveBeenCalledWith( {

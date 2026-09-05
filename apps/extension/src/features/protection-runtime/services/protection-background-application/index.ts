@@ -1,4 +1,5 @@
 import { createPreferencesStorageService } from '../../../../domains/preferences/services';
+import { createBrowserProtectionConfigurationEditor } from '../../../../domains/protection/services/browser-protection-configuration-editor';
 import { resolveLanguage } from '../../../../domains/preferences/utils';
 import {
 	createProtectionConfigurationStorageService,
@@ -11,9 +12,11 @@ import {
 } from '../../../../domains/statistics';
 import { registerOnboardingOpenOnInstall } from '../../../onboarding/services/open-on-install';
 import { createSitePermissionManager } from '../../../protected-sites/services/site-permission-manager';
+import { createProtectedSiteEnrollmentService } from '../../../protected-sites/services/protected-site-enrollment';
 import { createStatisticsRuntime } from '../../../statistics/services/statistics-runtime';
 import { createLocalizedToolbarCopy } from '../../../../localization/utils/create-localized-toolbar-copy';
 import { createPopupBackgroundController } from '../../../popup/services/popup-background-controller';
+import { createPopupEnrollmentController } from '../../../popup/services/popup-enrollment-controller';
 import { createBrowserProtectionAdapter } from '../browser-protection-adapter';
 import { createBrowserProtectionRuntime } from '../browser-protection-runtime';
 import { createProtectionBackgroundController } from '../protection-background-controller';
@@ -81,6 +84,22 @@ export function startProtectionBackgroundApplication(
 	const permissionManager = createSitePermissionManager( {
 		permissions: options.browser.permissions,
 	} );
+	if ( import.meta.env.CHROME ) {
+		const protection = createBrowserProtectionConfigurationEditor( {
+			area: options.browser.storage.local,
+			cryptography: crypto,
+			locks: navigator.locks,
+		} );
+		const enrollment = createProtectedSiteEnrollmentService( {
+			editor: protection.editor,
+			permissionManager,
+		} );
+		createPopupEnrollmentController( {
+			enrollment,
+			popupPageUrl: options.browser.runtime.getURL( '/popup.html' ),
+			runtime: options.browser.runtime,
+		} ).start();
+	}
 	const browserAdapter = createBrowserProtectionAdapter( options.browser );
 	const statisticsStorage = createStatisticsStorageService( {
 		area: options.browser.storage.local,

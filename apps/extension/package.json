@@ -20,6 +20,7 @@
 	"dependencies": {
 		"@lingui/core": "6.6.0",
 		"@tocus/theme": "workspace:*",
+		"@webcomponents/custom-elements": "1.6.0",
 		"lit": "3.3.3",
 		"tldts": "7.4.11",
 		"zod": "4.5.4"
@@ -36,6 +37,7 @@
 		"esbuild": "0.28.2",
 		"lit-analyzer": "2.0.3",
 		"playwright": "1.62.1",
+		"sharp": "0.35.4",
 		"typescript": "6.0.3",
 		"vite": "8.2.2",
 		"wxt": "0.21.4"

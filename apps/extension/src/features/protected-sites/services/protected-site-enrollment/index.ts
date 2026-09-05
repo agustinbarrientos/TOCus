@@ -22,7 +22,9 @@ import {
 	SitePermissionRequestStatus,
 } from '../site-permission-manager';
 import {
+	ProtectedSiteBatchInputsSchema,
 	ProtectedSiteEnrollmentStatus,
+	type ProtectedSiteBatchEnrollmentResult,
 	type ProtectedSiteEnrollmentResult,
 	type ProtectedSiteEnrollmentService,
 	type ProtectedSiteEnrollmentServiceOptions,
@@ -237,6 +239,118 @@ export function createProtectedSiteEnrollmentService(
 	}
 
 	/**
+	 * Enrolls unique shared-site rules with one browser request and one coordinated save.
+	 * @param siteInputs - User-entered hostnames or HTTP(S) URLs.
+	 * @return Successful batch enrollment or a stable recoverable failure.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function addMany( siteInputs: readonly string[] ): Promise<ProtectedSiteBatchEnrollmentResult> {
+		const inputs = ProtectedSiteBatchInputsSchema.safeParse( siteInputs );
+
+		if ( ! inputs.success ) {
+			return {
+				status: ProtectedSiteEnrollmentStatus.REJECTED,
+				reason: ProtectionConfigurationEditRejectionReason.INVALID_SITE,
+			};
+		}
+
+		const canonicalSites = new Map<string, ProtectedSiteConfiguration>();
+
+		for ( const siteInput of inputs.data ) {
+			const site = canonicalizeProtectedSite( siteInput, DefaultProtectionScopeId );
+
+			if ( site.status === ProtectedSiteCanonicalizationStatus.REJECTED ) {
+				return {
+					status: ProtectedSiteEnrollmentStatus.REJECTED,
+					reason: ProtectionConfigurationEditRejectionReason.INVALID_SITE,
+				};
+			}
+
+			if ( ! canonicalSites.has( site.rule.host ) ) {
+				canonicalSites.set( site.rule.host, { identityHost: site.identityHost, rule: site.rule } );
+			}
+		}
+
+		const sites = [ ...canonicalSites.values() ];
+		const rules = sites.map( ( site ) => site.rule );
+		const permissionResult = sites.length === 0
+			? null
+			: await options.permissionManager.requestMany( rules );
+
+		if ( permissionResult !== null && permissionResult.status !== SitePermissionRequestStatus.GRANTED ) {
+			return {
+				status: permissionResult.status === SitePermissionRequestStatus.DENIED
+					? ProtectedSiteEnrollmentStatus.PERMISSION_DENIED
+					: ProtectedSiteEnrollmentStatus.PERMISSION_ERROR,
+			};
+		}
+
+		const settlementState = { finalized: false, permissionRetained: false, verificationFailed: false };
+
+		/**
+		 * Verifies every selected rule while configuration mutation coordination is held.
+		 * @return Promise resolved only when every rule remains accessible.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		async function verifyPermissions(): Promise<void> {
+			const grants = await Promise.all(
+				rules.map( ( rule ) => options.permissionManager.hasAccess( rule ) ),
+			);
+
+			if ( grants.some( ( granted ) => ! granted ) ) {
+				settlementState.verificationFailed = true;
+				throw new Error( 'Browser access changed before protected-site persistence.' );
+			}
+		}
+
+		/**
+		 * Reconciles newly acquired access before the configuration mutation lock is released.
+		 * @param settlement - Authoritative batch edit result and configuration.
+		 * @return Promise resolved after permission compensation completes.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		const finalize: ProtectionConfigurationEditFinalizer = async ( settlement ): Promise<void> => {
+			settlementState.finalized = true;
+
+			if (
+				permissionResult === null ||
+				settlement.result?.status === ProtectionConfigurationEditStatus.UPDATED
+			) {
+				return;
+			}
+
+			settlementState.permissionRetained = await options.permissionManager.releaseNewAccess(
+				rules,
+				permissionResult.previousGrant,
+				settlement.configuration,
+			) !== SitePermissionReleaseStatus.RELEASED;
+		};
+
+		try {
+			const result = await options.editor.addMany(
+				sites.map( ( site ) => site.identityHost ), verifyPermissions, finalize,
+			);
+
+			if ( settlementState.permissionRetained ) {
+				return { status: ProtectedSiteEnrollmentStatus.PERMISSION_RETAINED };
+			}
+
+			return result.status === ProtectionConfigurationEditStatus.REJECTED
+				? result
+				: { status: ProtectedSiteEnrollmentStatus.ADDED, configuration: result.configuration, sites };
+		} catch {
+			return {
+				status: settlementState.permissionRetained ||
+					( permissionResult !== null && ! settlementState.finalized )
+					? ProtectedSiteEnrollmentStatus.PERMISSION_RETAINED
+					: settlementState.verificationFailed
+						? ProtectedSiteEnrollmentStatus.PERMISSION_ERROR
+						: ProtectedSiteEnrollmentStatus.SAVE_ERROR,
+			};
+		}
+	}
+
+	/**
 	 * Removes one protected site and reconciles its browser access inside configuration coordination.
 	 * @param site - Protected-site configuration selected for removal.
 	 * @return Successful removal and permission outcome, or a stable rejection.
@@ -284,7 +398,7 @@ export function createProtectedSiteEnrollmentService(
 			};
 	}
 
-	return { add, remove };
+	return { add, addMany, remove };
 }
 
 export * from './types';
