@@ -10,6 +10,25 @@ const INVALID_CURRENT_TAB_COLLECTIONS: ReadonlyArray<ReadonlyArray<CurrentTabRea
 ];
 
 describe( 'createCurrentTabReader', () => {
+	it( 'reads a redacted interruption tab from its live extension context and forgets removed contexts', async () => {
+		const interruptionPageUrl = 'chrome-extension://extension-id/interruption.html';
+		const getContexts = vi.fn().mockResolvedValueOnce( [ {
+			contextType: 'TAB',
+			documentUrl: interruptionPageUrl,
+			frameId: 0,
+			incognito: false,
+			tabId: 7,
+		} ] ).mockResolvedValueOnce( [] );
+		const reader = createCurrentTabReader( {
+			runtime: { getContexts, getURL: vi.fn().mockReturnValue( interruptionPageUrl ) },
+			tabs: { query: vi.fn().mockResolvedValue( [ { id: 7, incognito: false } ] ) },
+		} );
+
+		await expect( reader.read() ).resolves.toEqual( { id: 7, incognito: false, url: interruptionPageUrl } );
+		await expect( reader.read() ).resolves.toBeNull();
+		expect( getContexts ).toHaveBeenCalledTimes( 2 );
+	} );
+
 	it( 'reads only the active tab in the current window', async () => {
 		const query = vi.fn().mockResolvedValue( [ {
 			id: 7,

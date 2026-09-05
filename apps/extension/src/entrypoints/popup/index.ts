@@ -46,7 +46,7 @@ const enrollment = import.meta.env.CHROME
 	} );
 
 void bootstrapPopupPage( {
-	currentTabReader: createCurrentTabReader( { tabs: browser.tabs } ),
+	currentTabReader: createCurrentTabReader( { runtime: browser.runtime, tabs: browser.tabs } ),
 	document,
 	enrollment,
 	fallbackLocalization: createEnglishLocalizationBundle(),

@@ -138,6 +138,7 @@ describe( 'popup entrypoint', () => {
 		await import( './index' );
 
 		expect( entrypointMocks.createCurrentTabReader ).toHaveBeenCalledWith( {
+			runtime: entrypointMocks.browser.runtime,
 			tabs: entrypointMocks.browser.tabs,
 		} );
 		expect( entrypointMocks.createPopupStatusClient ).toHaveBeenCalledWith( {

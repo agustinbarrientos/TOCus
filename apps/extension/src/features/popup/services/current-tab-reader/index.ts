@@ -1,3 +1,4 @@
+import { enrichExtensionTabUrls } from '../../../../shared/services/extension-tab-context';
 import { PopupCurrentTabContextSchema, type PopupCurrentTabContext } from '../../types/current-tab-context';
 import {
 	type CurrentTabReader,
@@ -19,7 +20,8 @@ export function createCurrentTabReader( browser: CurrentTabReaderBrowser ): Curr
 		 */
 		async read(): Promise<PopupCurrentTabContext | null> {
 			try {
-				const tab = ( await browser.tabs.query( { active: true, currentWindow: true } ) )[ 0 ];
+				const tabs = await browser.tabs.query( { active: true, currentWindow: true } );
+				const [ tab ] = await enrichExtensionTabUrls( tabs, browser.runtime );
 
 				if ( tab === undefined ) {
 					return null;
