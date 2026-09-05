@@ -323,7 +323,7 @@ describe( 'tocus-f-settings-shell', () => {
 				current: destination.getAttribute( 'aria-current' ),
 			} ) ),
 			[
-				{ label: 'Protected sites', href: '#protected-sites', current: 'page' },
+				{ label: 'Websites', href: '#protected-sites', current: 'page' },
 				{ label: 'Schedule', href: '#schedule', current: null },
 				{ label: 'Timing', href: '#timing', current: null },
 				{ label: 'Appearance', href: '#appearance', current: null },
@@ -363,7 +363,7 @@ describe( 'tocus-f-settings-shell', () => {
 		);
 	} );
 
-	it( 'forwards local configuration dependencies to the Protected sites screen', async () => {
+	it( 'forwards local configuration dependencies to the Websites screen', async () => {
 		const element = await renderShell( SettingsPlatform.FIREFOX );
 		const protectedSitesCopy = { ...TestEnglishLocalizationBundle.protectedSites, title: 'Localized sites' };
 		const protectedSiteItemCopy = { ...TestEnglishLocalizationBundle.protectedSiteItem, edit: 'Localized edit' };
@@ -375,7 +375,7 @@ describe( 'tocus-f-settings-shell', () => {
 
 		assert.instanceOf( screen, ComponentProtectedSitesScreen );
 		if ( ! ( screen instanceof ComponentProtectedSitesScreen ) ) {
-			throw new Error( 'Expected the Protected sites screen to render.' );
+			throw new Error( 'Expected the Websites screen to render.' );
 		}
 
 		assert.equal( screen.editor, EDITOR );
@@ -550,6 +550,50 @@ describe( 'tocus-f-settings-shell', () => {
 		assert.equal( getComputedStyle( layout ).gridTemplateColumns.split( ' ' ).length, 2 );
 		assert.equal( getComputedStyle( navigation ).borderRightWidth, '1px' );
 		assert.equal( getComputedStyle( navigation ).borderBottomWidth, '0px' );
+	} );
+
+	it( 'keeps Schedule and Timing at the same content width', async () => {
+		await setViewport( { height: 900, width: 1_280 } );
+
+		try {
+			const element = await renderShell();
+			const destinations = element.shadowRoot?.querySelectorAll<HTMLAnchorElement>( 'nav a' );
+
+			destinations?.item( 1 ).click();
+			await settleShell( element );
+			const scheduleScreen = element.shadowRoot?.querySelector( 'tocus-f-schedule-screen' );
+
+			assert.instanceOf( scheduleScreen, ComponentScheduleScreen );
+			if ( ! ( scheduleScreen instanceof ComponentScheduleScreen ) ) {
+				throw new TypeError( 'Expected the Schedule settings screen to render.' );
+			}
+
+			const scheduleMain = scheduleScreen.shadowRoot?.querySelector( 'main' );
+			assert.instanceOf( scheduleMain, HTMLElement );
+			if ( ! ( scheduleMain instanceof HTMLElement ) ) {
+				throw new TypeError( 'Expected the Schedule settings content to render.' );
+			}
+			const scheduleWidth = scheduleMain.getBoundingClientRect().width;
+
+			destinations?.item( 2 ).click();
+			await settleShell( element );
+			const timingScreen = element.shadowRoot?.querySelector( 'tocus-f-timing-screen' );
+
+			assert.instanceOf( timingScreen, ComponentTimingScreen );
+			if ( ! ( timingScreen instanceof ComponentTimingScreen ) ) {
+				throw new TypeError( 'Expected the Timing settings screen to render.' );
+			}
+
+			const timingMain = timingScreen.shadowRoot?.querySelector( 'main' );
+			assert.instanceOf( timingMain, HTMLElement );
+			if ( ! ( timingMain instanceof HTMLElement ) ) {
+				throw new TypeError( 'Expected the Timing settings content to render.' );
+			}
+
+			assert.equal( timingMain.getBoundingClientRect().width, scheduleWidth );
+		} finally {
+			await setViewport( { height: 600, width: 800 } );
+		}
 	} );
 
 	it( 'moves navigation above the screen at narrow options-page widths', async () => {

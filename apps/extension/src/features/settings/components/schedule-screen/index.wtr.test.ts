@@ -353,7 +353,7 @@ describe( 'tocus-f-schedule-screen', () => {
 
 		assert.equal( customElements.get( 'tocus-f-schedule-screen' ), ComponentScheduleScreen );
 		assert.equal( getRequiredElement( element, 'h1', Element ).textContent.trim(), 'Schedule' );
-		assert.include( getRequiredElement( element, '.scope-summary', Element ).textContent, 'Shared protection' );
+		assert.include( getRequiredElement( element, '.scope-summary', Element ).textContent, 'Shared timing' );
 		assert.isTrue( getRequiredElement(
 			element,
 			'input[name="schedule-mode"][value="always"]',
@@ -468,7 +468,7 @@ describe( 'tocus-f-schedule-screen', () => {
 
 		assert.deepEqual(
 			Array.from( scopeSelect.options ).map( ( option ) => option.textContent.trim() ),
-			[ 'Shared protection', 'ChatGPT (chatgpt.com)' ],
+			[ 'Shared timing', 'ChatGPT (chatgpt.com)' ],
 		);
 
 		scopeSelect.value = INDEPENDENT_SCOPE_ID;
@@ -507,7 +507,7 @@ describe( 'tocus-f-schedule-screen', () => {
 
 		assert.deepEqual(
 			Array.from( options ).map( ( option ) => option.textContent.trim() ),
-			[ 'Shared protection', 'YouTube (youtube.com)', 'ChatGPT (chatgpt.com)' ],
+			[ 'Shared timing', 'YouTube (youtube.com)', 'ChatGPT (chatgpt.com)' ],
 		);
 	} );
 

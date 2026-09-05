@@ -54,7 +54,7 @@ import {
 /**
  * Resolves one settings URL hash to a supported destination.
  * @param hash - Current window location hash.
- * @return Matching settings destination or Protected sites as the safe default.
+ * @return Matching settings destination or Websites as the safe default.
  * @since 0.1.0 Initial implementation.
  */
 function resolveSettingsDestination( hash: string ): SettingsDestinationValue {
@@ -89,7 +89,7 @@ export class ComponentSettingsShell extends LitElement {
 	static override styles = css`${ unsafeCSS( styles ) }`;
 
 	/**
-	 * Domain editor used by the active Protected sites screen.
+	 * Domain editor used by the active Websites screen.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@property( { attribute: false } )
@@ -103,7 +103,7 @@ export class ComponentSettingsShell extends LitElement {
 	accessor faviconProvider: SiteFaviconProvider | null = null;
 
 	/**
-	 * Browser permission manager used by the active Protected sites screen.
+	 * Browser permission manager used by the active Websites screen.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	@property( { attribute: false } )
