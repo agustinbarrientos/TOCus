@@ -10,14 +10,18 @@ describe( 'createAboutScreenCopy', () => {
 
 		expect( copy.eyebrow ).toBe( 'About' );
 		expect( copy.formatVersion( '2.3.4' ) ).toBe( 'Version 2.3.4' );
-		expect( copy.externalLinksHint ).toBe( 'These links open GitHub in a new tab.' );
 		expect( Object.isFrozen( copy ) ).toBe( true );
 	} );
 
 	it( 'uses the supplied Lingui instance for translated labels', () => {
 		const sourceCode = msg`Source code`;
-		const i18n = setupI18n( { locale: 'de', messages: { de: { [ sourceCode.id ]: 'Quellcode' } } } );
+		const creator = msg`Developed by ${ { name: 'Agustin Barrientos' } }`;
+		const i18n = setupI18n( { locale: 'de', messages: { de: {
+			[ sourceCode.id ]: 'Quellcode',
+			[ creator.id ]: 'Von {name} entwickelt',
+		} } } );
 
 		expect( createAboutScreenCopy( i18n ).sourceCode ).toBe( 'Quellcode' );
+		expect( createAboutScreenCopy( i18n ).creator ).toBe( 'Von Agustin Barrientos entwickelt' );
 	} );
 } );

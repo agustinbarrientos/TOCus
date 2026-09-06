@@ -4,12 +4,19 @@
  */
 export interface AboutScreenCopy {
 	eyebrow: string;
+	storyTitle: string;
+	creator: string;
 	summary: string;
+	privacyTitle: string;
+	privacyDescription: string;
 	linksTitle: string;
 	linksDescription: string;
+	forkDescription: string;
 	sourceCode: string;
+	suggestChanges: string;
 	license: string;
 	contribute: string;
+	fork: string;
 	externalLinksHint: string;
 	/**
 	 * Formats the installed extension version.
