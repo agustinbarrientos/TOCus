@@ -3,6 +3,7 @@ import {
 	ProtectionStateType,
 	type AllowanceProtectionState,
 	type ProtectionStateTarget,
+	type ReadyProtectionState,
 	type WaitingProtectionState,
 } from '../../../../domains/protection/types/protection-state';
 import { PageIdSchema, type PageId } from '../../../../domains/protection/types/protection-value';
@@ -49,7 +50,7 @@ export function findRuntimeParticipantContext(
 	for ( const state of Object.values( statesByScope ) ) {
 		const participants = state.type === ProtectionStateType.WAITING
 			? state.participants
-			: state.type === ProtectionStateType.ALLOWANCE
+			: state.type === ProtectionStateType.ALLOWANCE || state.type === ProtectionStateType.READY
 				? state.readyParticipants
 				: [];
 		const participant = participants.find(
@@ -65,17 +66,17 @@ export function findRuntimeParticipantContext(
 }
 
 /**
- * Creates a transaction target for one Waiting or Allowance state.
+ * Creates a transaction target for one Waiting, Ready, or Allowance state.
  * @param state - Current non-idle protection state.
  * @return State identity accepted by departure events.
  * @since 0.1.0 Initial implementation.
  */
 export function createRuntimeStateTarget(
-	state: WaitingProtectionState | AllowanceProtectionState,
+	state: WaitingProtectionState | ReadyProtectionState | AllowanceProtectionState,
 ): ProtectionStateTarget {
 	return state.type === ProtectionStateType.WAITING
 		? { stateType: ProtectionStateType.WAITING, waitId: state.waitId }
-		: { stateType: ProtectionStateType.ALLOWANCE, allowanceId: state.allowanceId };
+		: { stateType: state.type, allowanceId: state.allowanceId };
 }
 
 export { type ProtectionRuntimeParticipantContext } from './types';
