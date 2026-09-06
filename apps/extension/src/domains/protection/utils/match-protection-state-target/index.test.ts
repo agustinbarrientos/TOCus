@@ -7,10 +7,18 @@ import {
 	createAllowanceState,
 	createIdleState,
 	createWaitingState,
+	createReadyState,
 } from '../../types/__fixtures__/protection-state';
 import { protectionStateMatchesTarget } from './index';
 
 describe( 'protectionStateMatchesTarget', () => {
+	it( 'matches Ready identity without accepting an already running allowance target', () => {
+		const state = createReadyState();
+		expect( protectionStateMatchesTarget( state, ProtectionStateTargetSchema.parse( { stateType: ProtectionStateType.READY, allowanceId: 'allowance-a' } ) ) ).toBe( true );
+		expect( protectionStateMatchesTarget( state, ProtectionStateTargetSchema.parse( { stateType: ProtectionStateType.READY, allowanceId: 'allowance-stale' } ) ) ).toBe( false );
+		expect( protectionStateMatchesTarget( state, ProtectionStateTargetSchema.parse( { stateType: ProtectionStateType.ALLOWANCE, allowanceId: 'allowance-a' } ) ) ).toBe( false );
+	} );
+
 	it( 'matches only the current Waiting transaction target', () => {
 		const state = createWaitingState();
 

@@ -10,6 +10,8 @@ import {
 import {
 	ProtectionStateSchema,
 	ProtectionStateType,
+	ReadyProtectionStateSchema,
+	type ReadyProtectionState,
 	type AllowanceProtectionState,
 	type IdleProtectionState,
 	type WaitingProtectionState,
@@ -155,4 +157,22 @@ export function createAllowanceState(): AllowanceProtectionState {
 	}
 
 	return state;
+}
+
+/**
+ * Creates a completed pause awaiting its first entry.
+ * @return A validated Ready state with one navigation participant.
+ * @since 0.1.0 Initial implementation.
+ */
+export function createReadyState(): ReadyProtectionState {
+	return ReadyProtectionStateSchema.parse( {
+		type: ProtectionStateType.READY,
+		scopeId: 'scope-default',
+		allowanceId: 'allowance-a',
+		completedWaitId: 'wait-a',
+		capturedAllowanceDurationMilliseconds: 300_000,
+		completionStatisticsEligible: true,
+		readyParticipants: [ createNavigationParticipant() ],
+		ladder: createDailyLadder( 1 ),
+	} );
 }
