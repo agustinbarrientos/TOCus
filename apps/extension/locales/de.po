@@ -137,6 +137,11 @@ msgstr "Eine weiche Kugel führt deine Atmung."
 msgid "A still pause with no breathing cue."
 msgstr "Eine ruhige Pause ohne Atemhinweis."
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "About"
+msgstr "Über TOCus"
+
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "About {duration}"
 msgstr "Etwa {duration}"
@@ -144,6 +149,10 @@ msgstr "Etwa {duration}"
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Access required"
 msgstr "Zugriff erforderlich"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Access to your selected websites lets TOCus show the pause. You choose which websites to allow."
+msgstr "Mit dem Zugriff auf deine ausgewählten Websites kann TOCus die Pause anzeigen. Du entscheidest, welche Websites du freigibst."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Accessibility"
@@ -193,6 +202,10 @@ msgstr "{siteName} wird hinzugefügt..."
 msgid "Adding..."
 msgstr "Wird hinzugefügt..."
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "All recorded counts and time totals will be deleted. This cannot be undone."
+msgstr "Alle erfassten Zähler und Gesamtzeiten werden gelöscht. Das lässt sich nicht rückgängig machen."
+
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "All the time"
 msgstr "Jederzeit"
@@ -200,6 +213,10 @@ msgstr "Jederzeit"
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "All time"
 msgstr "Gesamt"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "All TOCus data reset. Opening setup..."
+msgstr "Alle TOCus-Daten wurden zurückgesetzt. Die Einrichtung wird geöffnet..."
 
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Allow access"
@@ -216,6 +233,10 @@ msgstr "Gewährte Besuchsfenster"
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Allowing..."
 msgstr "Zugriff wird erlaubt..."
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "An active pause may temporarily keep its destination address so you can return to the website."
+msgstr "Eine aktive Pause kann ihre Zieladresse vorübergehend speichern, damit du zur Website zurückkehren kannst."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "An end time earlier than its start continues into the next day."
@@ -295,6 +316,11 @@ msgstr "Browserzugriff erforderlich"
 msgid "Browser access to show the pause on this website is required. Nothing was saved."
 msgstr "Der Browserzugriff ist erforderlich, um die Pause auf dieser Website anzuzeigen. Es wurde nichts gespeichert."
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Built in the open"
+msgstr "Offen entwickelt"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Cancel"
@@ -348,6 +374,18 @@ msgstr "Wähle aus, wann TOCus aktiv sein soll. Die Zeiten richten sich nach der
 msgid "Choose your language"
 msgstr "Wähle deine Sprache"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Chrome can supply cached website icons. TOCus does not contact an icon service."
+msgstr "Chrome kann zwischengespeicherte Website-Symbole bereitstellen. TOCus kontaktiert keinen Symbol-Dienst."
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Clear your recorded counts and time totals. Your websites and settings stay the same."
+msgstr "Lösche die erfassten Zähler und Gesamtzeiten. Deine Websites und Einstellungen bleiben erhalten."
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Clicking the toolbar icon gives TOCus temporary access to the current website."
+msgstr "Ein Klick auf das Symbol in der Symbolleiste gibt TOCus vorübergehend Zugriff auf die aktuelle Website."
+
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Color"
 msgstr "Farbe"
@@ -369,6 +407,10 @@ msgstr "Wenn du eine Wartezeit abschließt, bleiben deine Websites so lange verf
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
 msgid "Continue"
 msgstr "Fortfahren"
+
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Contribute"
+msgstr "Mitwirken"
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Create a gentle pause before the websites you choose."
@@ -483,6 +525,10 @@ msgstr "Darstellung des Geräts übernehmen."
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
 msgid "Français"
 msgstr "Français"
+
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Free and open source. Your settings and statistics stay on this device."
+msgstr "Kostenlos und quelloffen. Deine Einstellungen und Statistiken bleiben auf diesem Gerät."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Friday"
@@ -610,6 +656,14 @@ msgstr "Websites werden geladen..."
 msgid "Local data"
 msgstr "Lokale Daten"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Local data controls are unavailable right now."
+msgstr "Die Funktionen für lokale Daten sind gerade nicht verfügbar."
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Local storage saves your choices. Scripts and browser rules show the pause. Alarms keep the timing up to date."
+msgstr "Der lokale Speicher sichert deine Auswahl. Skripte und Browserregeln zeigen die Pause. Alarme halten die Zeiten aktuell."
+
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Make TOCus yours"
 msgstr "Mach TOCus zu deinem"
@@ -627,9 +681,17 @@ msgstr "Maximale Wartezeit"
 msgid "Maximum wait must be at least as long as the initial wait."
 msgstr "Die maximale Wartezeit muss mindestens so lang wie die anfängliche Wartezeit sein."
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "MIT license"
+msgstr "MIT-Lizenz"
+
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Monday"
 msgstr "Montag"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Navigation access notices website changes as they happen, not your saved browsing history."
+msgstr "Der Navigationszugriff erkennt Website-Wechsel in Echtzeit, ohne deinen gespeicherten Browserverlauf zu lesen."
 
 #. Popup label for the duration of the next required pause.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
@@ -764,6 +826,11 @@ msgstr "Português (Brasil)"
 msgid "Português (Portugal)"
 msgstr "Português (Portugal)"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Privacy and local data"
+msgstr "Datenschutz und lokale Daten"
+
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Purple"
@@ -772,6 +839,10 @@ msgstr "Violett"
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Quiet pause"
 msgstr "Stille Pause"
+
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Read the code, explore the license, or help improve TOCus."
+msgstr "Lies den Code, sieh dir die Lizenz an oder hilf, TOCus zu verbessern."
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Reconsidered visits"
@@ -789,6 +860,10 @@ msgstr "Entfernen"
 msgid "Remove {name}?"
 msgstr "{name} entfernen?"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Remove all TOCus data and set it up again."
+msgstr "Lösche alle TOCus-Daten und richte TOCus neu ein."
+
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Remove site"
@@ -802,6 +877,15 @@ msgstr "Zeitfenster {position} entfernen"
 msgid "Remove window"
 msgstr "Zeitfenster entfernen"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Reset all TOCus data"
+msgstr "Alle TOCus-Daten zurücksetzen"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Reset all TOCus data?"
+msgstr "Alle TOCus-Daten zurücksetzen?"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Reset statistics"
 msgstr "Statistiken zurücksetzen"
@@ -810,6 +894,11 @@ msgstr "Statistiken zurücksetzen"
 msgid "Reset statistics?"
 msgstr "Statistiken zurücksetzen?"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Reset your statistics?"
+msgstr "Deine Statistiken zurücksetzen?"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Resetting..."
 msgstr "Wird zurückgesetzt..."
@@ -903,6 +992,11 @@ msgstr "Seit deinem Start hast du dir {focusedPauseTime} für dich genommen."
 msgid "Something went wrong while adding that site. Try again."
 msgstr "Beim Hinzufügen dieser Website ist etwas schiefgegangen. Versuche es erneut."
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.test.ts
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Source code"
+msgstr "Quellcode"
+
 #. Label printed inside the keyboard-key visual for the space bar.
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Space"
@@ -917,6 +1011,10 @@ msgstr "Start"
 msgid "Start and end time must be different."
 msgstr "Start- und Endzeit müssen verschieden sein."
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Start fresh"
+msgstr "Neu anfangen"
+
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
@@ -930,6 +1028,14 @@ msgstr "Statistiken sind nicht verfügbar"
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Statistics could not be reset"
 msgstr "Statistiken konnten nicht zurückgesetzt werden"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Statistics keep counts and durations, not page content or web addresses."
+msgstr "Statistiken speichern Zähler und Zeitspannen, keine Seiteninhalte oder Webadressen."
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Statistics reset. Your websites and settings are unchanged."
+msgstr "Statistiken zurückgesetzt. Deine Websites und Einstellungen sind unverändert."
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Statistics were reset. Your totals now start from zero."
@@ -983,6 +1089,10 @@ msgstr "Der Website-Name ist ungültig."
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Theme"
 msgstr "Design"
+
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "These links open GitHub in a new tab."
+msgstr "Diese Links öffnen GitHub in einem neuen Tab."
 
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "These sites share one wait ladder and allowance."
@@ -1108,6 +1218,10 @@ msgstr "TOCus konnte für diese Website keine eigenen Zeiten erstellen."
 msgid "TOCus could not finish opening"
 msgstr "TOCus konnte nicht vollständig gestartet werden"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "TOCus could not finish the reset. Try again to complete it."
+msgstr "TOCus konnte das Zurücksetzen nicht abschließen. Versuche es erneut, um es abzuschließen."
+
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "TOCus could not load local appearance settings. Nothing was changed."
 msgstr "TOCus konnte die lokalen Darstellungseinstellungen nicht laden. Es wurde nichts geändert."
@@ -1200,6 +1314,7 @@ msgstr "TOCus: {title}"
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
@@ -1278,6 +1393,10 @@ msgstr "B<1m"
 msgid "V0m"
 msgstr "B0m"
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Version {version}"
+msgstr "Version {version}"
+
 #. Short popup label beside a countdown for an active website allowance.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Visit window"
@@ -1343,6 +1462,10 @@ msgstr "Willkommen bei TOCus"
 msgid "Wellbeing"
 msgstr "Wohlbefinden"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "What stays on your device"
+msgstr "Was auf deinem Gerät bleibt"
+
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "When should TOCus be active?"
 msgstr "Wann soll TOCus aktiv sein?"
@@ -1358,6 +1481,14 @@ msgstr "Welche portugiesische Variante soll TOCus verwenden?"
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
 msgid "Which Spanish should TOCus use?"
 msgstr "Welche spanische Variante soll TOCus verwenden?"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Why TOCus needs browser access"
+msgstr "Warum TOCus Browserzugriff braucht"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Without website access, TOCus cannot pause that website. You can change access in your browser's extension settings."
+msgstr "Ohne Website-Zugriff kann TOCus dort keine Pause anzeigen. Du kannst den Zugriff in den Erweiterungseinstellungen deines Browsers ändern."
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "You can change these choices and fine-tune timing or schedules any time in Settings."
@@ -1395,6 +1526,10 @@ msgstr "Deine Änderungen konnten nicht gespeichert werden. Es wurde nichts erse
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Your choice could not be saved. Try again."
 msgstr "Deine Auswahl konnte nicht gespeichert werden. Versuche es erneut."
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Your data stays on this device. No account, servers, or tracking."
+msgstr "Deine Daten bleiben auf diesem Gerät. Kein Konto, keine Server, kein Tracking."
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Your language could not be saved. TOCus returned to your previous language."
@@ -1457,9 +1592,17 @@ msgstr "Deine Website-Liste hat sich geändert. Versuche es erneut, bevor du die
 msgid "Your website list needs attention"
 msgstr "Deine Website-Liste erfordert deine Aufmerksamkeit"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Your website list, shared or separate timing, schedules, preferences, and statistics."
+msgstr "Deine Website-Liste, gemeinsame oder getrennte Zeiten, Zeitpläne, Einstellungen und Statistiken."
+
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Your websites and settings are unchanged. Try again."
 msgstr "Deine Websites und Einstellungen wurden nicht geändert. Versuche es erneut."
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Your websites, groups, schedules, timing, preferences, active pauses, and statistics will be deleted. Website access will be removed and setup will reopen. This cannot be undone."
+msgstr "Deine Websites, Gruppen, Zeitpläne, Zeiten, Einstellungen, aktiven Pausen und Statistiken werden gelöscht. Der Website-Zugriff wird entfernt und die Einrichtung wird erneut geöffnet. Das lässt sich nicht rückgängig machen."
 
 #. Language autonym. Keep the language name written in Russian.
 #. Language-menu autonym. Keep this language name written in Russian.
