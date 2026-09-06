@@ -73,6 +73,15 @@ export type ProtectionClockDeadlines = ReadonlyArray<number>;
  */
 export interface ProtectionRuntimeBrowser {
 	/**
+	 * Restores tab audio outside the documents still held by an interruption.
+	 * @param heldTabIds - Tabs whose preserved pages remain interrupted.
+	 * @param requireSuccess - Whether full reset must report failed audio cleanup.
+	 * @return Completion of best-effort owned mute restoration.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	restoreTabAudioExcept: ( heldTabIds: ReadonlySet<number>, requireSuccess?: boolean ) => Promise<void>;
+
+	/**
 	 * Dismisses an interruption page that has no retained destination.
 	 * @param tabId - Browser tab displaying the interruption.
 	 * @return Promise resolved after browser-native dismissal is accepted or unavailable.

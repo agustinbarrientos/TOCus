@@ -10,6 +10,7 @@ import {
 	type ProtectedPagePresentationStatus,
 } from '../../types/protected-page-message';
 import { type ToolbarBadgeProjection } from '../../utils/toolbar-badge-projection';
+import { type TabAudioController } from '../tab-audio-controller';
 import {
 	type ProtectionClockDeadlines,
 	type ProtectionRuntimeBrowser,
@@ -88,11 +89,13 @@ async function isolateToolbarOperationFailure(
 /**
  * Creates the browser-facing adapter used by the protection runtime.
  * @param browserApi - Narrow injected browser operations.
+ * @param tabAudio - Session-aware ownership of interruption mute changes.
  * @return Browser effects consumed by the protection runtime.
  * @since 0.1.0 Initial implementation.
  */
 export function createBrowserProtectionAdapter(
 	browserApi: BrowserProtectionAdapterApi,
+	tabAudio: TabAudioController,
 ): ProtectionRuntimeBrowser {
 	/**
 	 * Creates the stable name for one exact protection-clock deadline.
@@ -294,18 +297,28 @@ export function createBrowserProtectionAdapter(
 		requireSuccess = false,
 	): Promise<void> {
 		const message = ProtectedPageMessageSchema.parse( input );
+		let newlyPresentedInterruption = false;
 
 		if ( requiresProtectedPageInjection( message ) ) {
 			const status = await getProtectedPagePresentation( tabId );
+			newlyPresentedInterruption = message.type === ProtectedPageMessageType.PRESENT_INTERRUPTION_LAYER &&
+				status?.interruptionLayerPresented !== true;
 
 			if ( status === null ) {
 				await injectProtectedPagePresentation( tabId );
 			}
 		}
 
+		if ( newlyPresentedInterruption ) {
+			await tabAudio.mute( tabId );
+		}
+
 		try {
 			await browserApi.tabs.sendMessage( tabId, message );
 		} catch ( error ) {
+			if ( message.type === ProtectedPageMessageType.PRESENT_INTERRUPTION_LAYER ) {
+				await tabAudio.restore( tabId );
+			}
 			if (
 				! requiresProtectedPageInjection( message ) &&
 				( ! requireSuccess || await isAbsentRemovalTarget( tabId, error ) )
@@ -314,6 +327,10 @@ export function createBrowserProtectionAdapter(
 			}
 
 			throw error;
+		} finally {
+			if ( message.type === ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER ) {
+				await tabAudio.restore( tabId );
+			}
 		}
 	}
 
@@ -326,6 +343,7 @@ export function createBrowserProtectionAdapter(
 	 */
 	async function navigateTab( tabId: number, url: string ): Promise<void> {
 		await browserApi.tabs.update( tabId, { url } );
+		await tabAudio.restore( tabId );
 	}
 
 	/**
@@ -335,6 +353,7 @@ export function createBrowserProtectionAdapter(
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function dismissInterruption( tabId: number ): Promise<void> {
+		await tabAudio.restore( tabId );
 		if ( browserApi.tabs.goBack === undefined ) {
 			await browserApi.tabs.update( tabId, { url: 'about:blank' } );
 			return;
@@ -378,6 +397,7 @@ export function createBrowserProtectionAdapter(
 	}
 
 	return {
+		restoreTabAudioExcept: tabAudio.restoreExcept,
 		synchronizeProtectionClock,
 		replaceNavigationRules,
 		getFocusedTabId,
