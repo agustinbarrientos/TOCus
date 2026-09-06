@@ -5,6 +5,9 @@ import { fileURLToPath } from 'node:url';
 import { chromium, type BrowserContext, type Worker } from 'playwright';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { type ExtensionManifest, type ExtensionWorkerGlobal } from './types';
+import { DefaultPreferencesDocument } from '../../../src/domains/preferences/types';
+import { TestEmptyProtectionConfiguration } from '../../../src/domains/protection/types/__fixtures__';
+import { createMockStatisticsDocument } from '../../../src/domains/statistics/types/__fixtures__/statistics-document';
 
 describe( 'packaged Chrome protection', () => {
 	let directory: string | undefined;
@@ -126,4 +129,58 @@ describe( 'packaged Chrome protection', () => {
 			await page.close();
 		}
 	}, 25_000 );
+
+	test( 'resets packaged local data through Settings and reopens onboarding without requesting access', async () => {
+		if ( directory === undefined ) {
+			throw new Error( 'The disposable extension directory is unavailable.' );
+		}
+		const extensionPath = join( directory, 'reset-extension' );
+		await cp( fileURLToPath( new URL( '../../../.output/chrome-mv3/', import.meta.url ) ), extensionPath, { recursive: true } );
+		const resetContext = await chromium.launchPersistentContext( join( directory, 'reset-profile' ), {
+			channel: 'chromium',
+			headless: true,
+			args: [ `--disable-extensions-except=${ extensionPath }`, `--load-extension=${ extensionPath }` ],
+		} );
+		try {
+			const resetWorker = resetContext.serviceWorkers()[ 0 ] ?? await resetContext.waitForEvent( 'serviceworker' );
+			const optionsUrl = await resetWorker.evaluate( async ( seed ) => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				await chrome.storage.local.set( seed );
+				return chrome.runtime.getURL( '/options.html#privacy' );
+			}, {
+				'tocus.preferences.v1': { ...DefaultPreferencesDocument, palette: 'purple', language: 'en' },
+				'tocus.protection.configuration.v1': TestEmptyProtectionConfiguration,
+				'tocus.statistics.v1': createMockStatisticsDocument(),
+			} );
+			const settings = await resetContext.newPage();
+			await settings.goto( optionsUrl );
+			const resetButton = settings.getByRole( 'button', { name: 'Reset all TOCus data', exact: true } );
+			await resetButton.click();
+			await settings.getByRole( 'heading', { name: 'Reset all TOCus data?' } ).waitFor();
+			await settings.getByLabel( 'Reset all TOCus data?' ).getByRole( 'button', { name: 'Reset all TOCus data', exact: true } ).click();
+			const expectedGeneration: unknown = expect.any( String );
+			await expect.poll( () => resetWorker.evaluate( async () => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				const values: Record<string, unknown> = await chrome.storage.local.get( null );
+				return values[ 'tocus.local-data.generation.v1' ];
+			} ) ).toEqual( { generation: expectedGeneration, pending: false, needsOnboarding: false } );
+			const stored = await resetWorker.evaluate( async () => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				return {
+					local: await chrome.storage.local.get( null ),
+					grants: await chrome.permissions.getAll(),
+					rules: await chrome.declarativeNetRequest.getDynamicRules(),
+				};
+			} );
+			expect( stored.local ).not.toHaveProperty( 'tocus.preferences.v1' );
+			expect( stored.local ).not.toHaveProperty( 'tocus.protection.configuration.v1' );
+			expect( stored.local ).not.toHaveProperty( 'tocus.statistics.v1' );
+			expect( stored.grants.origins ?? [] ).toEqual( [] );
+			expect( stored.grants.permissions ).not.toContain( 'webNavigation' );
+			expect( stored.rules ).toEqual( [] );
+			expect( resetContext.pages().filter( ( page ) => page.url().endsWith( '/onboarding.html' ) ).length ).toBeGreaterThan( 0 );
+		} finally {
+			await resetContext.close();
+		}
+	}, 15_000 );
 } );
