@@ -25,6 +25,38 @@ import {
 import { handleProgressCheckpoint } from './index';
 
 describe( 'progress-checkpoint transition', () => {
+	it( 'starts automatic private entry without emitting ordinary completion or grant statistics', () => {
+		const result = handleProgressCheckpoint( createWaitingState(), createProgressCheckpoint( 10_000, {
+			statisticsEligible: false,
+			timingConfiguration: { ...TestTimingConfiguration, completionAction: CompletionAction.OPEN_AUTOMATICALLY },
+			automaticCompletionObservation: createFreshObservation(),
+		} ) );
+		expect( result.state ).toMatchObject( {
+			type: ProtectionStateType.ALLOWANCE,
+			startedAtEpochMilliseconds: TestInstant,
+			expiresAtEpochMilliseconds: TestInstant + 300_000,
+		} );
+		expect( result.facts ).toEqual( [] );
+	} );
+
+	it( 'retains a completed pause without starting or granting its captured allowance', () => {
+		const result = handleProgressCheckpoint( createWaitingState(), createProgressCheckpoint( 10_000 ) );
+
+		expect( result.state ).toMatchObject( {
+			type: 'ready',
+			allowanceId: 'allowance-a',
+			completedWaitId: 'wait-a',
+			capturedAllowanceDurationMilliseconds: 300_000,
+			completionStatisticsEligible: true,
+		} );
+		expect( result.state ).not.toHaveProperty( 'startedAtEpochMilliseconds' );
+		expect( result.state ).not.toHaveProperty( 'expiresAtEpochMilliseconds' );
+		expect( result.facts.map( ( fact ) => fact.type ) ).toEqual( [
+			ProtectionFactType.PAUSE_TIME,
+			ProtectionFactType.COMPLETED_WAIT,
+		] );
+	} );
+
 	it( 'accepts exactly one validated progress-checkpoint event branch', () => {
 		expectTypeOf( handleProgressCheckpoint )
 			.parameter( 1 )
@@ -91,7 +123,7 @@ describe( 'progress-checkpoint transition', () => {
 			createProgressCheckpoint( 10_000, { statisticsEligible: false } ),
 		);
 
-		expect( result.state.type ).toBe( ProtectionStateType.ALLOWANCE );
+		expect( result.state.type ).toBe( ProtectionStateType.READY );
 		expect( result.facts ).toEqual( [] );
 	} );
 
@@ -106,7 +138,7 @@ describe( 'progress-checkpoint transition', () => {
 			createProgressCheckpoint( 10_000, { statisticsEligible: true } ),
 		);
 
-		expect( result.state.type ).toBe( ProtectionStateType.ALLOWANCE );
+		expect( result.state.type ).toBe( ProtectionStateType.READY );
 		expect( result.facts.map( ( fact ) => fact.type ) ).toEqual( [ ProtectionFactType.PAUSE_TIME ] );
 	} );
 
@@ -164,7 +196,7 @@ describe( 'progress-checkpoint transition', () => {
 		state.confirmedFocusedDurationMilliseconds = 8_000;
 		const result = handleProgressCheckpoint( state, createProgressCheckpoint( 13_000 ) );
 
-		expect( result.state.type ).toBe( 'allowance' );
+		expect( result.state.type ).toBe( ProtectionStateType.READY );
 		expect( result.facts[ 0 ] ).toEqual( {
 			type: ProtectionFactType.PAUSE_TIME,
 			factId: 'pause-time_13-scope-default_6-wait-a_1-1_5-13000',
@@ -179,11 +211,10 @@ describe( 'progress-checkpoint transition', () => {
 		expect( result.facts.map( ( fact ) => fact.type ) ).toEqual( [
 			ProtectionFactType.PAUSE_TIME,
 			ProtectionFactType.COMPLETED_WAIT,
-			ProtectionFactType.ALLOWANCE_GRANTED,
 		] );
 	} );
 
-	it( 'atomically advances the ladder, creates allowance, presents Ready, and emits completion facts', () => {
+	it( 'atomically advances the ladder, captures allowance, presents Ready, and emits completion facts', () => {
 		const state = createWaitingState();
 		state.ladder = createDailyLadder( 7 );
 		const event = createProgressCheckpoint( 10_000, {
@@ -197,12 +228,12 @@ describe( 'progress-checkpoint transition', () => {
 
 		expect( handleProgressCheckpoint( state, event ) ).toEqual( {
 			state: {
-				type: ProtectionStateType.ALLOWANCE,
+				type: ProtectionStateType.READY,
 				scopeId: 'scope-default',
 				allowanceId: 'allowance-a',
 				completedWaitId: 'wait-a',
-				startedAtEpochMilliseconds: TestInstant + 42,
-				expiresAtEpochMilliseconds: TestInstant + 60_042,
+				capturedAllowanceDurationMilliseconds: 60_000,
+				completionStatisticsEligible: true,
 				readyParticipants: state.participants,
 				ladder: { completedWaits: 1, greatestObservedLocalDate: '2026-09-01' },
 			},
@@ -232,15 +263,6 @@ describe( 'progress-checkpoint transition', () => {
 					capturedWaitDurationMilliseconds: 10_000,
 					completedAtEpochMilliseconds: TestInstant + 42,
 					completionLocalDate: '2026-09-01',
-				},
-				{
-					type: ProtectionFactType.ALLOWANCE_GRANTED,
-					factId: 'allowance-granted_13-scope-default_11-allowance-a',
-					scopeId: 'scope-default',
-					allowanceId: 'allowance-a',
-					startedAtEpochMilliseconds: TestInstant + 42,
-					expiresAtEpochMilliseconds: TestInstant + 60_042,
-					allowanceDurationMilliseconds: 60_000,
 				},
 			],
 		} );
@@ -393,7 +415,7 @@ describe( 'progress-checkpoint transition', () => {
 		const result = handleProgressCheckpoint( state, event );
 
 		expect( result.state ).toMatchObject( {
-			type: ProtectionStateType.ALLOWANCE,
+			type: ProtectionStateType.READY,
 			readyParticipants: state.participants,
 		} );
 		expect( result.decisions ).toEqual( [ {
