@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
+import { ProtectionStorageKey } from '../../../../domains/protection/services/protection-storage';
+import { createAllowanceStorageEnvelope } from '../../utils/allowance-interval-change/__fixtures__';
 import {
 	InterruptionContinueRequestEventName,
 	InterruptionRetryRequestEventName,
@@ -26,6 +28,8 @@ import {
 	type InterruptionPageScheduler,
 	type InterruptionPageScreen,
 	type InterruptionPageVisibility,
+	type InterruptionPageStorageChangeListener,
+	type InterruptionPageStorageChange,
 } from './types';
 
 /**
@@ -360,6 +364,7 @@ class MemoryInterruptionPageVisibility implements InterruptionPageVisibility {
  * @since 0.1.0 Initial implementation.
  */
 interface InterruptionPageControllerFixture {
+	storageChanges: MemoryInterruptionStorageChanges;
 	clock: MemoryInterruptionPageClock;
 	controller: InterruptionPageController;
 	documentTarget: EventTarget;
@@ -369,6 +374,45 @@ interface InterruptionPageControllerFixture {
 	screen: MemoryInterruptionPageScreen;
 	visibility: MemoryInterruptionPageVisibility;
 	windowTarget: EventTarget;
+}
+
+/**
+ * Browser storage event source retaining controller listeners.
+ * @since 0.1.0 Initial implementation.
+ */
+class MemoryInterruptionStorageChanges {
+	/** Registered browser storage event callbacks. */
+	readonly listeners = new Set<InterruptionPageStorageChangeListener>();
+
+	/**
+	 * Registers one listener.
+	 * @param listener - Storage event callback.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	addListener( listener: InterruptionPageStorageChangeListener ): void {
+		this.listeners.add( listener );
+	}
+
+	/**
+	 * Removes one listener.
+	 * @param listener - Storage event callback.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	removeListener( listener: InterruptionPageStorageChangeListener ): void {
+		this.listeners.delete( listener );
+	}
+
+	/**
+	 * Delivers a browser event to current listeners.
+	 * @param changes - Changed storage keys.
+	 * @param area - Browser storage area name.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	emit( changes: Record<string, InterruptionPageStorageChange>, area = 'local' ): void {
+		for ( const listener of this.listeners ) {
+			listener( changes, area );
+		}
+	}
 }
 
 /**
@@ -390,6 +434,7 @@ function createControllerFixture(
 	const screen = new MemoryInterruptionPageScreen();
 	const visibility = new MemoryInterruptionPageVisibility();
 	const windowTarget = new EventTarget();
+	const storageChanges = new MemoryInterruptionStorageChanges();
 	const options: InterruptionPageControllerOptions = {
 		clock,
 		documentTarget,
@@ -398,11 +443,13 @@ function createControllerFixture(
 		runtime,
 		scheduler,
 		screen,
+		storageChanges,
 		visibility,
 		windowTarget,
 	};
 
 	return {
+		storageChanges,
 		clock,
 		controller: createInterruptionPageController( options ),
 		documentTarget,
@@ -458,6 +505,129 @@ function settleControllerRequests(): Promise<void> {
 }
 
 describe( 'createInterruptionPageController', () => {
+	it( 'ignores unrelated and identical storage writes while Ready and removes its listener on stop', async () => {
+		const fixture = createControllerFixture( [
+			{ state: InterruptionPageResponseState.READY, allowanceExpiresAtEpochMilliseconds: null },
+		] );
+		await fixture.controller.start();
+		const pending = createAllowanceStorageEnvelope();
+		const changed = { ...pending, snapshotId: '00000000-0000-4000-8000-000000000002' };
+		fixture.storageChanges.emit( { [ ProtectionStorageKey.DURABLE ]: { oldValue: pending, newValue: changed } } );
+		fixture.storageChanges.emit( { [ ProtectionStorageKey.DURABLE ]: { oldValue: pending, newValue: changed } }, 'session' );
+		fixture.storageChanges.emit( { [ ProtectionStorageKey.SESSION ]: { newValue: changed } } );
+		fixture.storageChanges.emit( { preferences: { newValue: {} } } );
+		fixture.storageChanges.emit( { [ ProtectionStorageKey.DURABLE ]: { oldValue: {}, newValue: {} } } );
+		await settleControllerRequests();
+		expect( fixture.runtime.requests ).toHaveLength( 1 );
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.READY );
+		expect( fixture.scheduler.getTimeoutDelaysMilliseconds() ).toEqual( [] );
+		const listeners = [ ...fixture.storageChanges.listeners ];
+		fixture.controller.stop();
+		expect( fixture.storageChanges.listeners.size ).toBe( 0 );
+		for ( const listener of listeners ) {
+			listener( { [ ProtectionStorageKey.DURABLE ]: {
+				oldValue: pending,
+				newValue: createAllowanceStorageEnvelope( {
+					allowanceId: 'allowance-a', startedAtEpochMilliseconds: 600_000, expiresAtEpochMilliseconds: 900_000,
+				} ),
+			} }, 'local' );
+		}
+		await settleControllerRequests();
+		expect( fixture.runtime.requests ).toHaveLength( 1 );
+	} );
+
+	it( 'does not send storage synchronization requests while the page is Waiting', async () => {
+		const fixture = createControllerFixture( [ {
+			state: InterruptionPageResponseState.WAITING,
+			capturedWaitDurationMilliseconds: 10_000,
+			focusedProgressMilliseconds: 0,
+			progressing: false,
+		} ] );
+		await fixture.controller.start();
+		fixture.storageChanges.emit( { [ ProtectionStorageKey.DURABLE ]: {
+			oldValue: createAllowanceStorageEnvelope(),
+			newValue: createAllowanceStorageEnvelope( {
+				allowanceId: 'allowance-a', startedAtEpochMilliseconds: 600_000, expiresAtEpochMilliseconds: 900_000,
+			} ),
+		} } );
+		await settleControllerRequests();
+		expect( fixture.runtime.requests ).toHaveLength( 1 );
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.WAITING );
+	} );
+
+	it( 'refreshes immediately when another context removes a running allowance and ignores its synchronization write', async () => {
+		const fixture = createControllerFixture( [
+			{ state: InterruptionPageResponseState.READY, allowanceExpiresAtEpochMilliseconds: 900_000 },
+			{ state: InterruptionPageResponseState.READY_EXPIRED },
+		] );
+		await fixture.controller.start();
+		const running = createAllowanceStorageEnvelope( {
+			allowanceId: 'allowance-a', startedAtEpochMilliseconds: 600_000, expiresAtEpochMilliseconds: 900_000,
+		} );
+		const sendMessage = fixture.runtime.sendMessage.bind( fixture.runtime );
+		fixture.runtime.sendMessage = ( request ) => {
+			fixture.storageChanges.emit( {
+				[ ProtectionStorageKey.DURABLE ]: { oldValue: running, newValue: running },
+			} );
+			return sendMessage( request );
+		};
+		fixture.storageChanges.emit( { [ ProtectionStorageKey.DURABLE ]: {
+			oldValue: running, newValue: createAllowanceStorageEnvelope(),
+		} } );
+		await settleControllerRequests();
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.READY_EXPIRED );
+		expect( fixture.scheduler.getTimeoutDelaysMilliseconds() ).toEqual( [] );
+		expect( fixture.runtime.requests ).toHaveLength( 2 );
+	} );
+
+	it( 'refreshes a Ready response when shared entry changed during its in-flight request', async () => {
+		const deferred = Promise.withResolvers<unknown>();
+		const fixture = createControllerFixture( [
+			deferred.promise,
+			{ state: InterruptionPageResponseState.READY, allowanceExpiresAtEpochMilliseconds: 900_000 },
+		] );
+		const start = fixture.controller.start();
+		fixture.clock.epochMilliseconds = 600_000;
+		fixture.storageChanges.emit( { [ ProtectionStorageKey.DURABLE ]: {
+			oldValue: createAllowanceStorageEnvelope(),
+			newValue: createAllowanceStorageEnvelope( {
+				allowanceId: 'allowance-shared', startedAtEpochMilliseconds: 600_000, expiresAtEpochMilliseconds: 900_000,
+			} ),
+		} } );
+		expect( fixture.runtime.requests ).toHaveLength( 1 );
+		deferred.resolve( { state: InterruptionPageResponseState.READY, allowanceExpiresAtEpochMilliseconds: null } );
+		await start;
+		await settleControllerRequests();
+		expect( fixture.runtime.requests.map( ( request ) => request.type ) ).toEqual( [
+			InterruptionPageRequestType.CONNECT, InterruptionPageRequestType.SYNCHRONIZE,
+		] );
+		expect( fixture.scheduler.getTimeoutDelaysMilliseconds() ).toEqual( [ 300_000 ] );
+	} );
+
+	it( 'learns a shared allowance start without attention changes and expires the remaining Ready page', async () => {
+		const fixture = createControllerFixture( [
+			{ state: InterruptionPageResponseState.READY, allowanceExpiresAtEpochMilliseconds: null },
+			{ state: InterruptionPageResponseState.READY, allowanceExpiresAtEpochMilliseconds: 900_000 },
+			{ state: InterruptionPageResponseState.READY_EXPIRED },
+		] );
+		await fixture.controller.start();
+		fixture.clock.epochMilliseconds = 600_000;
+		fixture.storageChanges.emit( { [ ProtectionStorageKey.DURABLE ]: {
+			oldValue: createAllowanceStorageEnvelope(),
+			newValue: createAllowanceStorageEnvelope( {
+				allowanceId: 'allowance-shared', startedAtEpochMilliseconds: 600_000, expiresAtEpochMilliseconds: 900_000,
+			} ),
+		} } );
+		await settleControllerRequests();
+		expect( fixture.scheduler.getTimeoutDelaysMilliseconds() ).toEqual( [ 300_000 ] );
+		expect( fixture.runtime.requests.at( -1 )?.type ).toBe( InterruptionPageRequestType.SYNCHRONIZE );
+		fixture.clock.epochMilliseconds = 900_000;
+		fixture.scheduler.runTimeouts();
+		await settleControllerRequests();
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.READY_EXPIRED );
+		expect( fixture.scheduler.getTimeoutDelaysMilliseconds() ).toEqual( [] );
+	} );
+
 	it( 'reports initial and changed authoritative states without repeating Waiting checkpoints', async () => {
 		const onPresentationStateChange = vi.fn();
 		const fixture = createControllerFixture( [
@@ -923,6 +1093,50 @@ describe( 'createInterruptionPageController', () => {
 			progressClock.disconnect();
 			fixture.controller.stop();
 		}
+	} );
+
+	it( 'keeps a completed pause ready without consuming visit time before Continue', async () => {
+		const fixture = createControllerFixture( [ {
+			state: InterruptionPageResponseState.READY,
+			allowanceExpiresAtEpochMilliseconds: null,
+		}, {
+			state: InterruptionPageResponseState.READY,
+			allowanceExpiresAtEpochMilliseconds: null,
+		} ] );
+
+		await fixture.controller.start();
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.READY );
+		expect( fixture.scheduler.getTimeoutDelaysMilliseconds() ).toEqual( [] );
+		expect( fixture.scheduler.getDelaysMilliseconds() ).toEqual( [] );
+
+		fixture.clock.epochMilliseconds = 600_000;
+		fixture.scheduler.runTimeouts();
+		await settleControllerRequests();
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.READY );
+		expect( fixture.runtime.requests ).toHaveLength( 1 );
+
+		fixture.screen.dispatchEvent( new Event( InterruptionContinueRequestEventName ) );
+		await settleControllerRequests();
+		expect( fixture.runtime.requests.at( -1 )?.type ).toBe( InterruptionPageRequestType.CONTINUE );
+		fixture.controller.stop();
+	} );
+
+	it( 'clears an obsolete expiry when the current pause has not started a visit', async () => {
+		const fixture = createControllerFixture( [ {
+			state: InterruptionPageResponseState.READY,
+			allowanceExpiresAtEpochMilliseconds: 300_000,
+		}, {
+			state: InterruptionPageResponseState.READY,
+			allowanceExpiresAtEpochMilliseconds: null,
+		} ] );
+
+		await fixture.controller.start();
+		expect( fixture.scheduler.getTimeoutDelaysMilliseconds() ).toEqual( [ 300_000 ] );
+		fixture.windowTarget.dispatchEvent( new Event( 'focus' ) );
+		await settleControllerRequests();
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.READY );
+		expect( fixture.scheduler.getTimeoutDelaysMilliseconds() ).toEqual( [] );
+		fixture.controller.stop();
 	} );
 
 	it( 'synchronizes exactly when a Ready allowance expires without recurring polling', async () => {

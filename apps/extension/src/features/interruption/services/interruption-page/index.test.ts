@@ -287,6 +287,7 @@ describe( 'interruption page service', () => {
 		if ( options === undefined ) {
 			throw new TypeError( 'Expected interruption page controller options.' );
 		}
+		expect( options.storageChanges ).toBe( pageMocks.storageChanges );
 
 		expect( options.documentTarget ).toBe( documentTarget );
 		expect( options.motionPreference ).toBe( pageMocks.preferencesController );
