@@ -27,6 +27,7 @@ import {
 } from '../../utils/runtime-page-context';
 import { createAllowanceExpiryReconciler } from '../allowance-expiry-reconciler';
 import { createBrowserProtectionProjector } from '../browser-protection-projector';
+import { type ProtectionContinuationContext } from '../protection-page-projector/types';
 import { createInterruptionRequestHandler } from '../interruption-request-handler';
 import { createProtectionFocusReconciler } from '../protection-focus-reconciler';
 import { createProtectionNavigationHandler } from '../protection-navigation-handler';
@@ -390,12 +391,14 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * Applies a coordinator result or disables browser protection after rejected persistence.
 	 * @param result - Coordinator dispatch result.
 	 * @param configuration - Current validated local configuration or unavailable marker.
+	 * @param continuedParticipant - Optional identity from a freshly validated entry request.
 	 * @return Promise resolved after supported browser effects are applied.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function applyDispatchResult(
 		result: ProtectionCoordinatorDispatchResult,
 		configuration: ProtectionConfigurationDocument | null,
+		continuedParticipant?: ProtectionContinuationContext,
 	): Promise<void> {
 		if ( result.status === ProtectionCoordinatorDispatchStatus.REJECTED ) {
 			available = false;
@@ -403,7 +406,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 			latestConfiguration = null;
 		}
 
-		return projector.applyDispatchResult( result, configuration );
+		return projector.applyDispatchResult( result, configuration, continuedParticipant );
 	}
 
 	/**

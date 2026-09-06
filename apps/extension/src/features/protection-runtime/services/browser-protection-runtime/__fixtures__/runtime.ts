@@ -11,6 +11,7 @@ import {
 	type ProtectionConfigurationDocument,
 } from '../../../../../domains/protection/types/protected-site-configuration';
 import { DefaultProtectionScopeId } from '../../../../../domains/protection/types/protection-value';
+import { ProtectionStateType } from '../../../../../domains/protection/types/protection-state';
 import {
 	type ToolbarBadgeCopy,
 	type ToolbarBadgeProjection,
@@ -295,6 +296,20 @@ export class MemoryConfigurationStorage implements ProtectionConfigurationStorag
  * @since 0.1.0 Initial implementation.
  */
 export class MemoryRuntimeBrowser implements ProtectionRuntimeBrowser {
+	/** Tab identities whose existing audio mute is retained by authoritative injected pauses. */
+	heldAudioTabIds: ReadonlySet<number> = new Set();
+
+	/**
+	 * Restores owned audio except for the injected participants still retained by protection.
+	 * @param heldTabIds - Tab identities whose current mute must remain held.
+	 * @return Resolved audio restoration operation.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	restoreTabAudioExcept = ( heldTabIds: ReadonlySet<number> ): Promise<void> => {
+		this.heldAudioTabIds = new Set( heldTabIds );
+		return Promise.resolve();
+	};
+
 	/**
 	 * Latest toolbar badge projection.
 	 * @since 0.1.0 Initial implementation.
@@ -584,6 +599,23 @@ export function completeFocusedPause(
 }
 
 /**
+ * Reads the running visit interval after an accepted Continue request.
+ * @param runtime - Browser protection runtime under test.
+ * @return Expiry instant of the default scope's active allowance.
+ * @throws {Error} When no active allowance exists.
+ * @since 0.1.0 Initial implementation.
+ */
+export async function readActiveAllowanceExpiry( runtime: BrowserProtectionRuntime ): Promise<number> {
+	const state = ( await runtime.readSnapshot() )?.statesByScope[ DefaultProtectionScopeId ];
+
+	if ( state?.type !== ProtectionStateType.ALLOWANCE ) {
+		throw new Error( 'Expected an active visit allowance.' );
+	}
+
+	return state.expiresAtEpochMilliseconds;
+}
+
+/**
  * Advances one protected page from its first visit through allowance expiry.
  * @param runtime - Browser protection runtime under test.
  * @param now - Mutable wall-clock holder.
@@ -609,7 +641,7 @@ export async function presentAllowanceExpiryInterruption(
 		type: InterruptionPageRequestType.CONTINUE,
 		documentVisible: true,
 	}, tabId, true );
-	now.value = ready.allowanceExpiresAtEpochMilliseconds;
+	now.value = await readActiveAllowanceExpiry( runtime );
 	await runtime.handleClockTick();
 }
 
