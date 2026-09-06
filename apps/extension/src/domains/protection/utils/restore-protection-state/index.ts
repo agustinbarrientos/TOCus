@@ -1,4 +1,4 @@
-import { ProtectionScopeIdSchema } from '../../types/protection-value';
+import { AllowanceIdSchema, ProtectionScopeIdSchema } from '../../types/protection-value';
 import {
 	ProtectionDecisionType,
 	type ProtectionDecision,
@@ -138,7 +138,7 @@ export function restoreProtectionState( input: unknown ): RestoreProtectionState
 				? continuousSessionState.scopes[ scopeId ]
 				: undefined;
 
-		if ( durableScope.allowance === undefined ) {
+		if ( durableScope.allowance === undefined && durableScope.ready === undefined ) {
 			if ( sessionScope?.type === StoredProtectionScopeStateType.WAITING ) {
 				if ( sessionScope.ownerEpoch === Number.MAX_SAFE_INTEGER ) {
 					decisions.push(
@@ -186,6 +186,7 @@ export function restoreProtectionState( input: unknown ): RestoreProtectionState
 		}
 
 		if (
+			durableScope.allowance !== undefined &&
 			parsedInput.nowEpochMilliseconds >= durableScope.allowance.expiresAtEpochMilliseconds &&
 			continuousSessionState === null
 		) {
@@ -197,34 +198,47 @@ export function restoreProtectionState( input: unknown ): RestoreProtectionState
 			continue;
 		}
 
+		const allowanceId = AllowanceIdSchema.parse(
+			durableScope.ready?.allowanceId ?? durableScope.allowance?.allowanceId,
+		);
 		const storedReadyScope =
 			sessionScope?.type === StoredProtectionScopeStateType.READY &&
-			sessionScope.allowanceId === durableScope.allowance.allowanceId
+			sessionScope.allowanceId === allowanceId &&
+			( durableScope.ready === undefined ||
+				sessionScope.completedWaitId === durableScope.ready.completedWaitId )
 				? sessionScope
 				: null;
 		const storedReadyParticipants = storedReadyScope?.participants
 			.slice()
 			.sort( compareStoredParticipants ) ?? [];
-		let allowanceState = ProtectionStateSchema.parse( {
+		let allowanceState = ProtectionStateSchema.parse( durableScope.ready !== undefined ? {
+			type: ProtectionStateType.READY,
+			scopeId,
+			...durableScope.ready,
+			readyParticipants: storedReadyParticipants.map( restoreParticipant ),
+			ladder: durableScope.ladder,
+		} : {
 			type: ProtectionStateType.ALLOWANCE,
 			scopeId,
-			allowanceId: durableScope.allowance.allowanceId,
+			allowanceId,
 			completedWaitId: storedReadyScope?.completedWaitId ?? null,
-			startedAtEpochMilliseconds: durableScope.allowance.startedAtEpochMilliseconds,
-			expiresAtEpochMilliseconds: durableScope.allowance.expiresAtEpochMilliseconds,
+			startedAtEpochMilliseconds: durableScope.allowance?.startedAtEpochMilliseconds,
+			expiresAtEpochMilliseconds: durableScope.allowance?.expiresAtEpochMilliseconds,
 			readyParticipants: storedReadyParticipants.map( restoreParticipant ),
 			ladder: durableScope.ladder,
 		} );
 
 		if (
 			parsedInput.mode === ProtectionStateRestoreMode.CONTINUED_SESSION &&
-			parsedInput.nowEpochMilliseconds < durableScope.allowance.expiresAtEpochMilliseconds
+			( durableScope.ready !== undefined ||
+				( durableScope.allowance !== undefined &&
+					parsedInput.nowEpochMilliseconds < durableScope.allowance.expiresAtEpochMilliseconds ) )
 		) {
 			for ( const participant of storedReadyParticipants ) {
 				const readyObservation = parsedInput.readyObservations.find(
 					( candidate ) =>
 						candidate.scopeId === scopeId &&
-						candidate.allowanceId === durableScope.allowance?.allowanceId &&
+						candidate.allowanceId === allowanceId &&
 						candidate.observation.participantId === participant.participantId &&
 						candidate.observation.pageId === participant.pageId,
 				);
@@ -232,7 +246,7 @@ export function restoreProtectionState( input: unknown ): RestoreProtectionState
 				if ( readyObservation === undefined ) {
 					requirements.push( {
 						scopeId,
-						allowanceId: durableScope.allowance.allowanceId,
+						allowanceId,
 						participantId: participant.participantId,
 						pageId: participant.pageId,
 						reason: ProtectionStateReconciliationRequirementReason.OBSERVATION_UNAVAILABLE,
@@ -243,12 +257,13 @@ export function restoreProtectionState( input: unknown ): RestoreProtectionState
 				const transition = transitionProtectionState( allowanceState, {
 					type: ProtectionEventType.READY_RECONCILIATION,
 					scopeId,
-					allowanceId: durableScope.allowance.allowanceId,
+					allowanceId,
 					nowEpochMilliseconds: parsedInput.nowEpochMilliseconds,
 					observation: readyObservation.observation,
 				} );
 				const participantRemains =
-					transition.state.type === ProtectionStateType.ALLOWANCE &&
+					( transition.state.type === ProtectionStateType.ALLOWANCE ||
+						transition.state.type === ProtectionStateType.READY ) &&
 					transition.state.readyParticipants.some(
 						( readyParticipant ) => readyParticipant.participantId === participant.participantId,
 					);
@@ -274,7 +289,7 @@ export function restoreProtectionState( input: unknown ): RestoreProtectionState
 
 				requirements.push( {
 					scopeId,
-					allowanceId: durableScope.allowance.allowanceId,
+					allowanceId,
 					participantId: participant.participantId,
 					pageId: participant.pageId,
 					reason: ProtectionStateReconciliationRequirementReason.OBSERVATION_REJECTED,

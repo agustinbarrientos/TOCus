@@ -17,6 +17,96 @@ import {
 	parseStoredProtectionState,
 } from '../parse-stored-protection-state';
 import { prepareStoredProtectionState } from '../prepare-stored-protection-state';
+import { createReadyState } from '../../types/__fixtures__/protection-state';
+import { createFreshObservation } from '../../types/__fixtures__/protection-event';
+
+describe( 'pending allowance restoration', () => {
+	it.each( [
+		{ observation: null, reason: ProtectionStateReconciliationRequirementReason.OBSERVATION_UNAVAILABLE },
+		{
+			observation: createFreshObservation( 'participant-a', 'page-a', 'https://example.com/changed' ),
+			reason: ProtectionStateReconciliationRequirementReason.OBSERVATION_REJECTED,
+		},
+	] )( 'retains pending access while reconciliation needs $reason', ( { observation, reason } ) => {
+		const state = { ...createReadyState(), completionStatisticsEligible: false };
+		const stored = prepareStoredProtectionState( {
+			statesByScope: { 'scope-default': state },
+			sessionContinuityId: 'session-a',
+			statisticsDelivery: { status: 'complete', outbox: [] },
+		} );
+		const result = restoreProtectionState( {
+			mode: ProtectionStateRestoreMode.CONTINUED_SESSION,
+			parsedState: parseStoredProtectionState( stored ),
+			nowEpochMilliseconds: 1_800_009_000_000,
+			sessionContinuityId: 'session-a',
+			readyObservations: observation === null ? [] : [ {
+				scopeId: state.scopeId, allowanceId: state.allowanceId, observation,
+			} ],
+		} );
+		expect( result.statesByScope[ 'scope-default' ] ).toEqual( {
+			...state, readyParticipants: [ { ...state.readyParticipants[ 0 ], focusEligible: false } ],
+		} );
+		expect( result.status ).toBe( ProtectionStateRestoreStatus.RECONCILIATION_REQUIRED );
+		expect( result.requirements ).toEqual( [ {
+			scopeId: 'scope-default', allowanceId: 'allowance-a', participantId: 'participant-a', pageId: 'page-a', reason,
+		} ] );
+		expect( result.facts ).toEqual( [] );
+	} );
+
+	it( 'drops stale session participants without losing the durable pending pause or statistics eligibility', () => {
+		const state = createReadyState();
+		const stored = prepareStoredProtectionState( {
+			statesByScope: { 'scope-default': state },
+			sessionContinuityId: 'session-a',
+			statisticsDelivery: { status: 'complete', outbox: [] },
+		} );
+		const sessionScope = stored.session.scopes[ 'scope-default' ];
+		if ( sessionScope === undefined ) {
+			throw new Error( 'Expected stored Ready participants.' );
+		}
+		Object.assign( sessionScope, { completedWaitId: 'wait-stale' } );
+		const result = restoreProtectionState( {
+			mode: ProtectionStateRestoreMode.CONTINUED_SESSION,
+			parsedState: parseStoredProtectionState( stored ),
+			nowEpochMilliseconds: 1_800_009_000_000,
+			sessionContinuityId: 'session-a',
+			readyObservations: [],
+		} );
+		expect( result.statesByScope[ 'scope-default' ] ).toEqual( { ...state, readyParticipants: [] } );
+		expect( result.requirements ).toEqual( [] );
+		expect( result.facts ).toEqual( [] );
+	} );
+
+	it.each( [ ProtectionStateRestoreMode.NEW_SESSION, ProtectionStateRestoreMode.CONTINUED_SESSION ] )( 'restores a completed pause without creating an active allowance in %s', ( mode ) => {
+		const state = createReadyState();
+		const stored = prepareStoredProtectionState( {
+			statesByScope: { 'scope-default': state },
+			sessionContinuityId: 'session-a',
+			statisticsDelivery: { status: 'complete', outbox: [] },
+		} );
+		const result = restoreProtectionState( {
+			mode,
+			parsedState: parseStoredProtectionState( stored ),
+			nowEpochMilliseconds: 1_800_009_000_000,
+			...( mode === ProtectionStateRestoreMode.CONTINUED_SESSION ? {
+				sessionContinuityId: 'session-a',
+				readyObservations: [ {
+					scopeId: state.scopeId,
+					allowanceId: state.allowanceId,
+					observation: createFreshObservation(),
+				} ],
+			} : {} ),
+		} );
+		expect( result.statesByScope[ 'scope-default' ] ).toEqual( {
+			...state,
+			readyParticipants: mode === ProtectionStateRestoreMode.NEW_SESSION
+				? []
+				: [ { ...state.readyParticipants[ 0 ], focusEligible: false } ],
+		} );
+		expect( result.facts ).toEqual( [] );
+		expect( result.status ).toBe( ProtectionStateRestoreStatus.RESTORED );
+	} );
+} );
 import {
 	StoredProtectionParticipantOrigin,
 } from '../../types/stored-protection-participant';

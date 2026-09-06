@@ -77,6 +77,18 @@ export function prepareStoredProtectionState( input: unknown ): StoredProtection
 		( [ leftScopeId ], [ rightScopeId ] ) => compareLexically( leftScopeId, rightScopeId ),
 	);
 	const durableScopes = Object.fromEntries( sortedStates.map( ( [ scopeId, state ] ) => {
+		if ( state.type === ProtectionStateType.READY ) {
+			return [ scopeId, {
+				ladder: state.ladder,
+				ready: {
+					allowanceId: state.allowanceId,
+					completedWaitId: state.completedWaitId,
+					capturedAllowanceDurationMilliseconds: state.capturedAllowanceDurationMilliseconds,
+					completionStatisticsEligible: state.completionStatisticsEligible,
+				},
+			} ];
+		}
+
 		if ( state.type === ProtectionStateType.ALLOWANCE ) {
 			return [
 				scopeId,
@@ -111,7 +123,10 @@ export function prepareStoredProtectionState( input: unknown ): StoredProtection
 			continue;
 		}
 
-		if ( state.type === ProtectionStateType.ALLOWANCE && state.readyParticipants.length > 0 ) {
+		if (
+			( state.type === ProtectionStateType.ALLOWANCE || state.type === ProtectionStateType.READY ) &&
+			state.readyParticipants.length > 0
+		) {
 			sessionScopes.set( scopeId, {
 				type: StoredProtectionScopeStateType.READY,
 				allowanceId: state.allowanceId,
