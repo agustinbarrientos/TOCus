@@ -70,11 +70,12 @@ h1 {
 	@include typography.apply( 'body-large' );
 
 	max-width: 38rem;
-	margin: var(--tocus-space-4) 0 0;
+	margin: var(--tocus-space-2) 0 0;
 	color: var(--tocus-color-on-surface-muted);
 }
 
 section {
+	margin-top: var(--tocus-space-6);
 	padding-top: var(--tocus-space-6);
 	border-top: 1px solid var(--tocus-color-outline);
 }
@@ -92,36 +93,46 @@ h2 {
 	color: var(--tocus-color-on-surface-muted);
 }
 
-ul {
+.links {
 	display: grid;
 	gap: var(--tocus-space-2);
 	margin: 0;
 	padding: 0;
 	list-style: none;
+
+	a {
+		display: flex;
+		align-items: center;
+		min-height: 3rem;
+		padding: var(--tocus-space-3) var(--tocus-space-4);
+		border: 1px solid var(--tocus-color-outline);
+		border-radius: var(--tocus-radius-small);
+		background: var(--tocus-color-surface);
+
+		&:hover {
+			background: var(--tocus-color-surface-container);
+		}
+	}
 }
 
 a {
 	@include typography.apply( 'label-large' );
 
-	display: flex;
-	align-items: center;
-	min-height: 3rem;
-	padding: var(--tocus-space-3) var(--tocus-space-4);
-	border: 1px solid var(--tocus-color-outline);
-	border-radius: var(--tocus-radius-small);
-	background: var(--tocus-color-surface);
 	color: var(--tocus-color-action);
 	text-decoration-thickness: 1px;
 	text-underline-offset: 0.2em;
-
-	&:hover {
-		background: var(--tocus-color-surface-container);
-	}
 
 	&:focus-visible {
 		outline: 3px solid var(--tocus-color-focus-ring);
 		outline-offset: 2px;
 	}
+}
+
+.creator {
+	display: inline-flex;
+	align-items: center;
+	min-height: 2.75rem;
+	margin-top: var(--tocus-space-2);
 }
 
 .external-hint {

@@ -31,7 +31,6 @@ describe( 'tocus-f-about-screen', () => {
 		assert.equal( element.shadowRoot?.querySelector( 'h1' )?.textContent, 'TOCus' );
 		assert.include( element.shadowRoot?.textContent, 'Version 2.3.4' );
 		assert.exists( element.shadowRoot?.querySelector( '[aria-hidden="true"] svg' ) );
-		assert.include( element.shadowRoot.textContent, 'Free and open source. Your settings and statistics stay on this device.' );
 		await expect( element ).to.be.accessible();
 	} );
 
@@ -56,23 +55,26 @@ describe( 'tocus-f-about-screen', () => {
 		assert.equal( getComputedStyle( icon ).color, 'rgb(180, 160, 210)' );
 	} );
 
-	it( 'offers only explicit source, license, and contribution links', async () => {
+	it( 'links the creator and contribution actions to their explicit destinations', async () => {
 		const element = await fixture<ComponentAboutScreen>( html`
 			<tocus-f-about-screen .copy=${ ABOUT_COPY }></tocus-f-about-screen>
 		` );
 		const links = Array.from( element.shadowRoot?.querySelectorAll<HTMLAnchorElement>( 'a' ) ?? [] );
 
 		assert.deepEqual( links.map( ( link ) => [ link.textContent.trim(), link.href ] ), [
+			[ 'Developed by Agustin Barrientos', 'https://agustinbarrientos.com/about/?utm_source=tocus&utm_medium=extension&utm_campaign=about' ],
 			[ 'Source code', 'https://github.com/agustinbarrientos/TOCus' ],
-			[ 'MIT license', 'https://github.com/agustinbarrientos/TOCus/blob/main/LICENSE' ],
+			[ 'Suggest improvements', 'https://github.com/agustinbarrientos/TOCus/issues/new?template=feature_request.yml' ],
 			[ 'Contribute', 'https://github.com/agustinbarrientos/TOCus/blob/main/CONTRIBUTING.md' ],
+			[ 'Fork the project', 'https://github.com/agustinbarrientos/TOCus/fork' ],
+			[ 'MIT license', 'https://github.com/agustinbarrientos/TOCus/blob/main/LICENSE' ],
 		] );
 		for ( const link of links ) {
 			assert.equal( link.target, '_blank' );
 			assert.isTrue( link.relList.contains( 'noopener' ) );
 			assert.isTrue( link.relList.contains( 'noreferrer' ) );
 		}
-		assert.include( element.shadowRoot?.textContent, 'These links open GitHub in a new tab.' );
+		assert.include( element.shadowRoot?.textContent, 'External links connect to their websites only when you choose to open them.' );
 	} );
 
 	it( 'replaces visible copy without recreating the screen', async () => {
@@ -83,8 +85,8 @@ describe( 'tocus-f-about-screen', () => {
 		element.copy = { ...ABOUT_COPY, sourceCode: 'Quellcode', linksTitle: 'Gemeinsam entwickelt' };
 		await element.updateComplete;
 
-		assert.equal( element.shadowRoot?.querySelector( 'a' )?.textContent.trim(), 'Quellcode' );
-		assert.equal( element.shadowRoot?.querySelector( 'h2' )?.textContent, 'Gemeinsam entwickelt' );
+		assert.equal( element.shadowRoot?.querySelector( 'a[href="https://github.com/agustinbarrientos/TOCus"]' )?.textContent.trim(), 'Quellcode' );
+		assert.equal( element.shadowRoot?.querySelector( '#links-title' )?.textContent, 'Gemeinsam entwickelt' );
 	} );
 
 	it( 'keeps links keyboard reachable in a predictable order', async () => {
@@ -92,12 +94,12 @@ describe( 'tocus-f-about-screen', () => {
 			<tocus-f-about-screen .copy=${ ABOUT_COPY }></tocus-f-about-screen>
 		` );
 		const links = Array.from( element.shadowRoot?.querySelectorAll<HTMLAnchorElement>( 'a' ) ?? [] );
-		assert.lengthOf( links, 3 );
+		assert.lengthOf( links, 6 );
 		links[ 0 ]?.focus();
-		await sendKeys( { press: 'Tab' } );
-		assert.equal( element.shadowRoot?.activeElement, links[ 1 ] );
-		await sendKeys( { press: 'Tab' } );
-		assert.equal( element.shadowRoot?.activeElement, links[ 2 ] );
+		for ( const link of links.slice( 1 ) ) {
+			await sendKeys( { press: 'Tab' } );
+			assert.equal( element.shadowRoot?.activeElement, link );
+		}
 	} );
 
 	it( 'keeps narrow forced-color links readable and usable', async () => {
