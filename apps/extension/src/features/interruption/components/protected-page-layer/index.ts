@@ -45,6 +45,7 @@ function getDeepestActiveElement(): HTMLElement | null {
  * @element tocus-f-protected-page-layer
  * @attr warning-remaining-seconds - Final allowance seconds remaining, or no warning when omitted.
  * @attr interruption-layer-presented - Whether the modal interruption is currently shown.
+ * @cssprop {length} [--tocus-size-unit=16px] - Typography and geometry baseline independent of the protected document root.
  * Emits the bubbling `tocus-protected-page-layer-dismissed` event after native layer dismissal.
  * @summary Isolated protected-page warning and interruption presentation.
  * @since 0.1.0 Initial implementation.
