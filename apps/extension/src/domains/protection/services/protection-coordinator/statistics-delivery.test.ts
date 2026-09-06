@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
 	createDeparture,
 	createProgressCheckpoint,
+	createReadyContinuation,
+	createFreshObservation,
 	createVisitAttempt,
 	TestInstant,
 } from '../../types/__fixtures__/protection-event';
@@ -287,6 +289,12 @@ describe( 'protection coordinator statistics delivery', () => {
 			} ),
 			'revision_completion',
 		);
+		const entryResult = await coordinator.dispatch(
+			() => createReadyContinuation( createFreshObservation( 'participant-b', 'page-b', 'https://example.com/page-b' ), {
+				nowEpochMilliseconds: TestInstant + 900_000,
+			} ),
+			'revision_entry',
+		);
 		const delivery = await coordinator.getStatisticsDelivery();
 
 		expect( departureResult.facts ).toMatchObject( [ {
@@ -295,8 +303,8 @@ describe( 'protection coordinator statistics delivery', () => {
 		expect( completionResult.facts.map( ( fact ) => fact.type ) ).toEqual( [
 			ProtectionFactType.PAUSE_TIME,
 			ProtectionFactType.COMPLETED_WAIT,
-			ProtectionFactType.ALLOWANCE_GRANTED,
 		] );
+		expect( entryResult.facts.map( ( fact ) => fact.type ) ).toEqual( [ ProtectionFactType.ALLOWANCE_GRANTED ] );
 		expect( delivery ).toEqual( {
 			status: StoredProtectionStatisticsDeliveryStatus.COMPLETE,
 			outbox: [
@@ -313,6 +321,13 @@ describe( 'protection coordinator statistics delivery', () => {
 					measurementRevision: 'revision_completion',
 					observedAtEpochMilliseconds: TestInstant,
 					facts: completionResult.facts,
+				},
+				{
+					batchId: 'batch_3',
+					scopeId: 'scope-default',
+					measurementRevision: 'revision_entry',
+					observedAtEpochMilliseconds: TestInstant + 900_000,
+					facts: entryResult.facts,
 				},
 			],
 		} );

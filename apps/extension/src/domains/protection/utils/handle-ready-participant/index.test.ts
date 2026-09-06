@@ -1,4 +1,5 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
+import { ZodError } from 'zod';
 import { ProtectionDecisionType } from '../../types/protection-decision';
 import type {
 	ReadyContinuationEvent,
@@ -9,6 +10,7 @@ import {
 	createFreshObservation,
 	createReadyContinuation,
 	createReadyReconciliation,
+	createProgressCheckpoint,
 } from '../../types/__fixtures__/protection-event';
 import { type ProtectionState } from '../../types/protection-state';
 import { ProtectedUrlMatchStatus } from '../../types/protected-url-match';
@@ -17,7 +19,10 @@ import {
 	createAllowanceExpiryParticipant,
 	createAllowanceState,
 	createIdleState,
+	createWaitingState,
+	createReadyState,
 } from '../../types/__fixtures__/protection-state';
+import { handleProgressCheckpoint } from '../handle-progress-checkpoint';
 import { handleReadyParticipant } from './index';
 
 /**
@@ -39,6 +44,95 @@ function freezeDeeply<Value>( value: Value ): Value {
 }
 
 describe( 'handleReadyParticipant', () => {
+	it( 'rejects an allowance interval that would overflow the supported timestamp range', () => {
+		const state = { ...createReadyState(), completionStatisticsEligible: false };
+		const event = createReadyContinuation( undefined, { nowEpochMilliseconds: Number.MAX_SAFE_INTEGER } );
+		expect( () => handleReadyParticipant( state, event ) ).toThrow( ZodError );
+		expect( state.readyParticipants ).toHaveLength( 1 );
+	} );
+
+	it( 'lets later participants share the first entry interval without another grant or ladder advance', () => {
+		const state = createReadyState();
+		state.readyParticipants.push( createAllowanceExpiryParticipant( 'participant-b', 'page-b', false, 1 ) );
+		const first = handleReadyParticipant( state, createReadyContinuation( undefined, {
+			nowEpochMilliseconds: TestInstant + 500_000,
+		} ) );
+		const second = handleReadyParticipant( first.state, createReadyContinuation(
+			createFreshObservation( 'participant-b', 'page-b', null ),
+			{ nowEpochMilliseconds: TestInstant + 550_000 },
+		) );
+		expect( second.state ).toEqual( { ...first.state, readyParticipants: [] } );
+		expect( second.facts ).toEqual( [] );
+		expect( second.state.ladder ).toEqual( state.ladder );
+		expect( second.decisions ).toEqual( [ { type: ProtectionDecisionType.DISMISS_INTERRUPTION, participantId: 'participant-b', pageId: 'page-b' } ] );
+	} );
+
+	it( 'starts private completion access without producing a public allowance grant', () => {
+		const state = { ...createReadyState(), completionStatisticsEligible: false };
+		const result = handleReadyParticipant( state, createReadyContinuation() );
+		expect( result.state.type ).toBe( 'allowance' );
+		expect( result.facts ).toEqual( [] );
+	} );
+
+	it( 'reconciles a pending participant after the captured duration without starting access', () => {
+		const state = createReadyState();
+		const result = handleReadyParticipant( state, createReadyReconciliation( undefined, {
+			nowEpochMilliseconds: TestInstant + 9_000_000,
+		} ) );
+		expect( result.state ).toEqual( state );
+		expect( result.decisions ).toEqual( [ { type: ProtectionDecisionType.PRESENT_READY, participantId: 'participant-a', pageId: 'page-a', allowanceId: 'allowance-a' } ] );
+		expect( result.facts ).toEqual( [] );
+	} );
+
+	it.each( [
+		createReadyContinuation( undefined, { allowanceId: 'stale' } ),
+		createReadyContinuation( createFreshObservation( 'participant-stale' ) ),
+		createReadyContinuation( createFreshObservation( 'participant-a', 'page-stale' ) ),
+		createReadyContinuation( createFreshObservation( 'participant-a', 'page-a', 'https://example.com/other' ) ),
+	] )( 'rejects stale pending continuation identities and destinations', ( event ) => {
+		const state = createReadyState();
+		expect( handleReadyParticipant( state, event ) ).toEqual( { state, decisions: [], facts: [] } );
+	} );
+
+	it.each( [ createReadyContinuation, createReadyReconciliation ] )( 'releases a pending participant whose destination is no longer protected without granting access', ( createEvent ) => {
+		const state = createReadyState();
+		const result = handleReadyParticipant( state, createEvent( createFreshObservation(
+			'participant-a', 'page-a', 'https://example.com/page-a', { match: { status: ProtectedUrlMatchStatus.UNPROTECTED } },
+		) ) );
+		expect( result.state ).toEqual( { ...state, readyParticipants: [] } );
+		expect( result.decisions ).toEqual( [ { type: ProtectionDecisionType.RELEASE_NAVIGATION, participantId: 'participant-a', pageId: 'page-a', retainedDestination: 'https://example.com/page-a' } ] );
+		expect( result.facts ).toEqual( [] );
+	} );
+
+	it( 'starts the entire captured allowance on first entry after an indefinite Ready period', () => {
+		const pending = handleProgressCheckpoint( createWaitingState(), createProgressCheckpoint( 10_000 ) );
+		const event = createReadyContinuation( undefined, { nowEpochMilliseconds: TestInstant + 9_000_000 } );
+		const result = handleReadyParticipant( pending.state, event );
+
+		expect( result.state ).toEqual( {
+			type: 'allowance',
+			scopeId: 'scope-default',
+			allowanceId: 'allowance-a',
+			completedWaitId: 'wait-a',
+			startedAtEpochMilliseconds: TestInstant + 9_000_000,
+			expiresAtEpochMilliseconds: TestInstant + 9_300_000,
+			readyParticipants: [],
+			ladder: pending.state.ladder,
+		} );
+		expect( result.facts ).toEqual( [ {
+			type: 'allowance-granted',
+			factId: 'allowance-granted_13-scope-default_11-allowance-a',
+			scopeId: 'scope-default',
+			allowanceId: 'allowance-a',
+			startedAtEpochMilliseconds: TestInstant + 9_000_000,
+			expiresAtEpochMilliseconds: TestInstant + 9_300_000,
+			allowanceDurationMilliseconds: 300_000,
+		} ] );
+		expect( handleReadyParticipant( result.state, event ) ).toEqual( {
+			state: result.state, decisions: [], facts: [],
+		} );
+	} );
+
 	it( 'accepts the exact parsed Ready event union', () => {
 		expectTypeOf( handleReadyParticipant )
 			.parameter( 1 )
