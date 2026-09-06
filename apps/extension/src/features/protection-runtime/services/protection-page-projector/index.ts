@@ -143,6 +143,7 @@ export function createProtectionPageProjector(
 	 * @param decision - Persisted protection decision.
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @param statesByScope - Current authoritative protection state.
+	 * @param continuedParticipant - Optional identity whose entry was accepted by a running allowance.
 	 * @return Promise resolved after a supported page effect or no operation.
 	 * @since 0.1.0 Initial implementation.
 	 */
@@ -150,15 +151,22 @@ export function createProtectionPageProjector(
 		decision: ProtectionDecision,
 		configuration: Parameters<ProtectionPageProjector[ 'applyDecisions' ]>[ 1 ],
 		statesByScope: ProtectionCoordinatorStateSnapshot | null,
+		continuedParticipant?: Parameters<ProtectionPageProjector[ 'applyDecisions' ]>[ 3 ],
 	): Promise<void> {
 		switch ( decision.type ) {
-			case ProtectionDecisionType.PRESENT_WAITING: {
-				const tabs = await options.browser.listTabs();
+			case ProtectionDecisionType.PRESENT_WAITING:
+			case ProtectionDecisionType.PRESENT_READY: {
 				const tabId = getRuntimeTabId( decision.pageId );
-				const tab = tabs.find( ( candidate ) => candidate.id === tabId );
 				const context = tabId === null || statesByScope === null
 					? null
 					: findRuntimeParticipantContext( statesByScope, tabId );
+
+				if ( decision.type === ProtectionDecisionType.PRESENT_READY && context === null ) {
+					break;
+				}
+
+				const tabs = await options.browser.listTabs();
+				const tab = tabs.find( ( candidate ) => candidate.id === tabId );
 
 				if (
 					tabId !== null &&
@@ -174,39 +182,6 @@ export function createProtectionPageProjector(
 
 					await applyPageEffect( operation, tabId, ( currentTab ) =>
 						matchesParticipantSource( currentTab, decision, configuration, statesByScope ) );
-				}
-				break;
-			}
-
-			case ProtectionDecisionType.PRESENT_READY: {
-				const tabId = getRuntimeTabId( decision.pageId );
-				const context = tabId === null || statesByScope === null
-					? null
-					: findRuntimeParticipantContext( statesByScope, tabId );
-
-				if (
-					tabId === null ||
-					context?.participant.origin !== ProtectionParticipantOrigin.ALLOWANCE_EXPIRY
-				) {
-					break;
-				}
-
-				const tabs = await options.browser.listTabs();
-				const tab = tabs.find( ( candidate ) => candidate.id === tabId );
-
-				if ( tab !== undefined && matchesParticipantSource( tab, decision, configuration, statesByScope ) ) {
-					await applyPageEffect(
-						options.browser.updateProtectedPagePresentation( tabId, {
-							type: ProtectedPageMessageType.PRESENT_INTERRUPTION_LAYER,
-						} ),
-						tabId,
-						( currentTab ) => matchesParticipantSource(
-							currentTab,
-							decision,
-							configuration,
-							statesByScope,
-						),
-					);
 				}
 				break;
 			}
@@ -242,6 +217,10 @@ export function createProtectionPageProjector(
 						await applyPageEffect(
 							options.browser.updateProtectedPagePresentation( tabId, {
 								type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER,
+								...( continuedParticipant?.participantId === decision.participantId &&
+									continuedParticipant.pageId === decision.pageId
+									? { resumePlayback: true }
+									: {} ),
 							} ),
 							tabId,
 							( currentTab ) => matchesProtectedSource( currentTab, configuration ),
@@ -401,6 +380,7 @@ export function createProtectionPageProjector(
 	 * @param decisions - Persisted protection decisions.
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @param statesByScope - Current authoritative state snapshot or unavailable marker.
+	 * @param continuedParticipant - Optional identity whose entry was accepted by a running allowance.
 	 * @return Promise resolved after supported page effects are applied.
 	 * @since 0.1.0 Initial implementation.
 	 */
@@ -408,9 +388,10 @@ export function createProtectionPageProjector(
 		decisions: Parameters<ProtectionPageProjector[ 'applyDecisions' ]>[ 0 ],
 		configuration: Parameters<ProtectionPageProjector[ 'applyDecisions' ]>[ 1 ],
 		statesByScope: Parameters<ProtectionPageProjector[ 'applyDecisions' ]>[ 2 ],
+		continuedParticipant?: Parameters<ProtectionPageProjector[ 'applyDecisions' ]>[ 3 ],
 	): Promise<void> {
 		for ( const decision of decisions ) {
-			await applyPageDecision( decision, configuration, statesByScope );
+			await applyPageDecision( decision, configuration, statesByScope, continuedParticipant );
 		}
 	}
 

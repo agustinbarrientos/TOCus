@@ -166,6 +166,8 @@ export type PresentInterruptionLayerMessage = z.infer<typeof PresentInterruption
  */
 export const RemoveInterruptionLayerMessageSchema = z.object( {
 	type: z.enum( [ ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER ] ),
+	/** Whether an accepted Continue authorizes restoring playback owned by this pause. */
+	resumePlayback: z.boolean().optional(),
 } ).strict();
 
 /**
