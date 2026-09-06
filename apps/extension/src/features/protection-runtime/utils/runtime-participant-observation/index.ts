@@ -21,6 +21,7 @@ import { getRuntimeTabId } from '../runtime-page-context';
  * @param configuration - Current validated protection configuration.
  * @param nowEpochMilliseconds - Current wall-clock time.
  * @param timeZone - Current IANA time-zone identifier.
+ * @param matchingDestination - Fresh live URL for scope matching, or the retained navigation destination.
  * @return Current destination, match, and schedule observation.
  * @since 0.1.0 Initial implementation.
  */
@@ -29,11 +30,12 @@ export function createFreshRuntimeObservation(
 	configuration: ProtectionConfigurationDocument,
 	nowEpochMilliseconds: number,
 	timeZone: string,
+	matchingDestination: string | null = participant.retainedDestination,
 ): FreshParticipantObservation {
-	const match = participant.retainedDestination === null
+	const match = matchingDestination === null
 		? { status: ProtectedUrlMatchStatus.UNPROTECTED } as const
 		: matchProtectedUrl(
-			participant.retainedDestination,
+			matchingDestination,
 			configuration.sites.map( ( site ) => site.rule ),
 		);
 	const schedule = match.status === ProtectedUrlMatchStatus.PROTECTED
