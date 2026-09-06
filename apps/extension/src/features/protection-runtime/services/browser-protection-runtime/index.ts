@@ -12,7 +12,10 @@ import {
 	ProtectionCoordinatorDispatchStatus,
 	type ProtectionCoordinatorDispatchResult,
 } from '../../../../domains/protection/services/protection-coordinator';
-import { type StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
+import {
+	StatisticsProjectionStatus,
+	type StatisticsProjection,
+} from '../../../../domains/statistics/types/statistics-projection';
 import { evaluateSchedule } from '../../../../domains/protection/utils/schedule-evaluator';
 import {
 	InterruptionPageResponseSchema,
@@ -24,6 +27,7 @@ import {
 } from '../../utils/runtime-page-context';
 import { createAllowanceExpiryReconciler } from '../allowance-expiry-reconciler';
 import { createBrowserProtectionProjector } from '../browser-protection-projector';
+import { type ProtectionContinuationContext } from '../protection-page-projector/types';
 import { createInterruptionRequestHandler } from '../interruption-request-handler';
 import { createProtectionFocusReconciler } from '../protection-focus-reconciler';
 import { createProtectionNavigationHandler } from '../protection-navigation-handler';
@@ -80,6 +84,9 @@ function createUnavailablePageResponse(): InterruptionPageResponse {
  */
 export function createBrowserProtectionRuntime( options: BrowserProtectionRuntimeOptions ): BrowserProtectionRuntime {
 	let operationQueue: Promise<void> = Promise.resolve();
+	let suspended = options.initiallySuspended ?? false;
+	let dataResetGeneration = 0;
+	const observationGenerations = new WeakMap<Promise<BrowserProtectionStatisticsObservation>, number | null>();
 	let available = false;
 	let latestPersistedConfiguration: ProtectionConfigurationDocument | null = null;
 	let latestConfiguration: ProtectionConfigurationDocument | null = null;
@@ -89,6 +96,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 		coordinator: options.coordinator,
 		now: options.now,
 		statisticsRuntime: options.statisticsRuntime,
+		initiallySuspended: suspended,
 	} );
 	const projector = createBrowserProtectionProjector( {
 		browser: options.browser,
@@ -177,7 +185,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * @return Promise for the operation result.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	function enqueue<T>( operation: () => Promise<T> ): Promise<T> {
+	function enqueueOperation<T>( operation: () => Promise<T> ): Promise<T> {
 		const result = operationQueue.then( operation, operation );
 
 		operationQueue = result.then( () => undefined, () => undefined );
@@ -186,9 +194,75 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	}
 
 	/**
+	 * Drops work from before a reset and returns unavailable results during suspension.
+	 * @param operation - Deferred runtime operation.
+	 * @param suspendedResult - Unavailable result for work invalidated by a reset.
+	 * @return Promise for the current-generation operation result.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function enqueue<T>( operation: () => Promise<T>, suspendedResult: T ): Promise<T> {
+		const generation = dataResetGeneration;
+
+		if ( suspended ) {
+			return Promise.resolve( suspendedResult );
+		}
+
+		return enqueueOperation( async () => {
+			if ( generation !== dataResetGeneration ) {
+				return suspendedResult;
+			}
+
+			const result = await operation();
+
+			return generation !== dataResetGeneration ? suspendedResult : result;
+		} );
+	}
+
+	/**
+	 * Stops ingress synchronously, drains started writes, and releases browser effects.
+	 * @return Promise resolved after cleanup, retaining persisted state for safe retries.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function suspendForDataReset(): Promise<void> {
+		suspended = true;
+		dataResetGeneration += 1;
+		const statisticsDrain = statisticsBridge.suspendForDataReset();
+
+		return enqueueOperation( async () => {
+			await statisticsDrain;
+			available = false;
+			latestPersistedConfiguration = null;
+			latestConfiguration = null;
+			const storedParticipants = await options.coordinator.getStates() === null
+				? await options.coordinator.readParticipantsForDataReset()
+				: [];
+
+			await projector.failOpen( { storedParticipants, requireCompleteCleanup: true } );
+		} );
+	}
+
+	/**
+	 * Forgets drained runtime authorities without writing and permits a later start.
+	 * @return Promise resolved once the next start can restore fresh persisted state.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function resumeAfterDataReset(): Promise<void> {
+		return enqueueOperation( async () => {
+			await options.coordinator.forgetForDataReset();
+			options.statisticsRuntime.forgetForDataReset();
+			available = false;
+			latestPersistedConfiguration = null;
+			latestConfiguration = null;
+			statisticsBridge.resumeAfterDataReset();
+			suspended = false;
+		} );
+	}
+
+	/**
 	 * Serializes one browser operation and always records its final observable state.
 	 * @param operation - Deferred browser operation.
 	 * @param observationMode - Relationship between this operation and browser focus state.
+	 * @param suspendedResult - Unavailable result for work invalidated by a reset.
 	 * @param navigation - Optional top-level navigation observed by the operation.
 	 * @param capturedObservation - Browser inputs already captured at event ingress.
 	 * @return Promise for the browser operation result.
@@ -197,11 +271,17 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	function enqueueObserved<T>(
 		operation: () => Promise<T>,
 		observationMode: Parameters<BrowserProtectionRuntime[ 'captureStatisticsObservation' ]>[ 0 ],
+		suspendedResult: T,
 		navigation?: Parameters<BrowserProtectionRuntime[ 'handleNavigation' ]>[ 0 ],
 		capturedObservation?: Promise<BrowserProtectionStatisticsObservation>,
 	): Promise<T> {
 		const browserObservation = capturedObservation ??
-			statisticsBridge.captureObservation( observationMode, navigation );
+			captureStatisticsObservation( observationMode, navigation );
+		const capturedGeneration = observationGenerations.get( browserObservation );
+
+		if ( capturedGeneration !== undefined && capturedGeneration !== dataResetGeneration ) {
+			return Promise.resolve( suspendedResult );
+		}
 
 		return enqueue( async () => {
 			let fulfilled = false;
@@ -217,7 +297,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 					browserObservation,
 				);
 			}
-		} );
+		}, suspendedResult );
 	}
 
 	/**
@@ -311,12 +391,14 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * Applies a coordinator result or disables browser protection after rejected persistence.
 	 * @param result - Coordinator dispatch result.
 	 * @param configuration - Current validated local configuration or unavailable marker.
+	 * @param continuedParticipant - Optional identity from a freshly validated entry request.
 	 * @return Promise resolved after supported browser effects are applied.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function applyDispatchResult(
 		result: ProtectionCoordinatorDispatchResult,
 		configuration: ProtectionConfigurationDocument | null,
+		continuedParticipant?: ProtectionContinuationContext,
 	): Promise<void> {
 		if ( result.status === ProtectionCoordinatorDispatchStatus.REJECTED ) {
 			available = false;
@@ -324,7 +406,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 			latestConfiguration = null;
 		}
 
-		return projector.applyDispatchResult( result, configuration );
+		return projector.applyDispatchResult( result, configuration, continuedParticipant );
 	}
 
 	/**
@@ -425,7 +507,10 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 		navigation?: Parameters<BrowserProtectionRuntime[ 'captureStatisticsObservation' ]>[ 1 ],
 		focusEvent?: Parameters<BrowserProtectionRuntime[ 'captureStatisticsObservation' ]>[ 2 ],
 	): ReturnType<BrowserProtectionRuntime[ 'captureStatisticsObservation' ]> {
-		return statisticsBridge.captureObservation( mode, navigation, focusEvent );
+		const observation = statisticsBridge.captureObservation( mode, navigation, focusEvent );
+
+		observationGenerations.set( observation, suspended ? null : dataResetGeneration );
+		return observation;
 	}
 
 	/**
@@ -440,6 +525,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 		return enqueueObserved(
 			initializeOperation,
 			StatisticsFocusObservationMode.STARTUP,
+			undefined,
 			undefined,
 			statisticsObservation,
 		);
@@ -457,6 +543,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 		return enqueueObserved(
 			failOpenOperation,
 			StatisticsFocusObservationMode.BOUNDARY,
+			undefined,
 			undefined,
 			statisticsObservation,
 		);
@@ -477,7 +564,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function resetStatistics(): Promise<StatisticsProjection> {
-		return enqueue( () => statisticsBridge.resetStatistics() );
+		return enqueue( () => statisticsBridge.resetStatistics(), { status: StatisticsProjectionStatus.UNAVAILABLE } );
 	}
 
 	/**
@@ -495,7 +582,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 			if ( available ) {
 				await navigationHandler.handle( navigation );
 			}
-		}, StatisticsFocusObservationMode.BOUNDARY, navigation, statisticsObservation );
+		}, StatisticsFocusObservationMode.BOUNDARY, undefined, navigation, statisticsObservation );
 	}
 
 	/**
@@ -519,7 +606,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 			}
 
 			return interruptionRequestHandler.handle( input, senderTabId, protectionEligible );
-		}, StatisticsFocusObservationMode.BOUNDARY, undefined, statisticsObservation );
+		}, StatisticsFocusObservationMode.BOUNDARY, createUnavailablePageResponse(), undefined, statisticsObservation );
 	}
 
 	/**
@@ -551,7 +638,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 				configuration,
 			);
 			await projector.reconcile( configuration );
-		}, StatisticsFocusObservationMode.BOUNDARY, undefined, statisticsObservation );
+		}, StatisticsFocusObservationMode.BOUNDARY, undefined, undefined, statisticsObservation );
 	}
 
 	/**
@@ -567,7 +654,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 			if ( available ) {
 				await focusReconciler.reconcile();
 			}
-		}, StatisticsFocusObservationMode.BOUNDARY, undefined, statisticsObservation );
+		}, StatisticsFocusObservationMode.BOUNDARY, undefined, undefined, statisticsObservation );
 	}
 
 	/**
@@ -582,6 +669,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 		return enqueueObserved(
 			reconcileOperation,
 			StatisticsFocusObservationMode.SAMPLE,
+			undefined,
 			undefined,
 			statisticsObservation,
 		);
@@ -602,7 +690,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 				latestConfiguration,
 				await options.coordinator.getStates(),
 			);
-		} );
+		}, undefined );
 	}
 
 	/**
@@ -629,7 +717,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 				capturedAtEpochMilliseconds: options.now(),
 				timeZone: options.getTimeZone(),
 			};
-		} );
+		}, null );
 	}
 
 	/**
@@ -645,11 +733,14 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 			initializeOperation,
 			StatisticsFocusObservationMode.BOUNDARY,
 			undefined,
+			undefined,
 			statisticsObservation,
 		);
 	}
 
 	return {
+		suspendForDataReset,
+		resumeAfterDataReset,
 		captureStatisticsObservation,
 		failOpen,
 		readStatistics,

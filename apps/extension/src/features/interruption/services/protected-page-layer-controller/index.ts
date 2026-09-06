@@ -5,6 +5,7 @@ import {
 	type ProtectedPagePresentationStatus,
 	type SynchronizeAllowanceExpiryGuardMessage,
 } from '../../../protection-runtime/types/protected-page-message';
+import { type MediaPlaybackController } from '../media-playback-controller';
 import {
 	type ProtectedPageLayerController,
 	type ProtectedPageLayerControllerOptions,
@@ -32,6 +33,7 @@ export function createProtectedPageLayerController(
 	let warningIntervalHandle: number | null = null;
 	let interruptionControllerStarted = false;
 	let interruptionPresentationGeneration = 0;
+	let playbackController: MediaPlaybackController | null = null;
 
 	/**
 	 * Stops warning refreshes and clears the quiet warning presentation.
@@ -384,9 +386,7 @@ export function createProtectedPageLayerController(
 			return;
 		}
 
-		interruptionControllerStarted = false;
-		options.interruptionController.stop();
-		options.view.interruptionLayerPresented = false;
+		removeInterruptionLayer( false );
 	}
 
 	/**
@@ -421,6 +421,8 @@ export function createProtectedPageLayerController(
 		interruptionPresentationGeneration += 1;
 		const generation = interruptionPresentationGeneration;
 
+		playbackController = options.createPlaybackController();
+		playbackController.pause();
 		interruptionControllerStarted = true;
 		options.view.interruptionLayerPresented = true;
 		void startInterruptionController( generation );
@@ -428,9 +430,10 @@ export function createProtectedPageLayerController(
 
 	/**
 	 * Stops authoritative synchronization and uncovers the preserved live document.
+	 * @param resumePlayback - Whether an explicit entry request authorizes restoring prior video playback.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	function removeInterruptionLayer(): void {
+	function removeInterruptionLayer( resumePlayback: boolean ): void {
 		if ( ! interruptionControllerStarted ) {
 			return;
 		}
@@ -439,6 +442,11 @@ export function createProtectedPageLayerController(
 		interruptionControllerStarted = false;
 		options.interruptionController.stop();
 		options.view.interruptionLayerPresented = false;
+		if ( resumePlayback ) {
+			void playbackController?.resume();
+		}
+		playbackController?.stop();
+		playbackController = null;
 	}
 
 	/**
@@ -495,7 +503,7 @@ export function createProtectedPageLayerController(
 				return Promise.resolve( undefined );
 
 			case ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER:
-				removeInterruptionLayer();
+				removeInterruptionLayer( result.data.resumePlayback === true );
 				return Promise.resolve( undefined );
 		}
 	}
@@ -506,7 +514,7 @@ export function createProtectedPageLayerController(
 	 */
 	function stop(): void {
 		clearAllowanceExpiryGuard();
-		removeInterruptionLayer();
+		removeInterruptionLayer( false );
 	}
 
 	return { handleMessage, stop };

@@ -8,6 +8,8 @@ import type { ProtectedSiteListCopy } from '../../../features/protected-sites/co
 import type { ProtectedSitesScreenCopy } from '../../../features/protected-sites/components/screen/types';
 import type { ToolbarBadgeCopy } from '../../../features/protection-runtime/utils/toolbar-badge-projection/types';
 import type { AppearanceScreenCopy } from '../../../features/settings/components/appearance-screen/types';
+import type { AboutScreenCopy } from '../../../features/settings/components/about-screen/types';
+import type { PrivacyScreenCopy } from '../../../features/settings/components/privacy-screen/types';
 import type { LanguageScreenCopy } from '../../../features/settings/components/language-screen/types';
 import type { ScheduleScreenCopy } from '../../../features/settings/components/schedule-screen/types';
 import type { SettingsShellCopy } from '../../../features/settings/components/shell/types';
@@ -37,6 +39,8 @@ export interface LocalizationBundle {
 	onboarding: Readonly<OnboardingShellCopy>;
 	popup: Readonly<PopupShellCopy>;
 	settingsShell: Readonly<SettingsShellCopy>;
+	aboutCopy: Readonly<AboutScreenCopy>;
+	privacyCopy: Readonly<PrivacyScreenCopy>;
 	languageScreen: Readonly<LanguageScreenCopy>;
 	appearance: Readonly<AppearanceScreenCopy>;
 	schedule: Readonly<ScheduleScreenCopy>;

@@ -10,10 +10,26 @@ import {
 	createDailyLadder,
 	createIdleState,
 	createWaitingState,
+	createReadyState,
 } from '../../types/__fixtures__/protection-state';
 import { handleScheduleReevaluation } from './index';
 
 describe( 'schedule-reevaluation transition', () => {
+	it( 'withdraws a pending allowance when the schedule deactivates', () => {
+		const state = createReadyState();
+		const result = handleScheduleReevaluation( state, createScheduleReevaluation(
+			{ status: ScheduleEvaluationStatus.INACTIVE },
+			{ target: { stateType: ProtectionStateType.READY, allowanceId: state.allowanceId } },
+		) );
+		expect( result.state ).toEqual( {
+			type: ProtectionStateType.IDLE,
+			scopeId: state.scopeId,
+			ladder: state.ladder,
+		} );
+		expect( result.decisions ).toEqual( [ { type: ProtectionDecisionType.RELEASE_NAVIGATION, participantId: 'participant-a', pageId: 'page-a', retainedDestination: 'https://example.com/page-a' } ] );
+		expect( result.facts ).toEqual( [] );
+	} );
+
 	it( 'accepts exactly one validated schedule-reevaluation event branch', () => {
 		expectTypeOf( handleScheduleReevaluation )
 			.parameter( 1 )

@@ -15,6 +15,7 @@ import {
 	createIdleState,
 	createNavigationParticipant,
 	createWaitingState,
+	createReadyState,
 } from '../../types/__fixtures__/protection-state';
 import { handleParticipantDeparture } from './index';
 
@@ -42,6 +43,16 @@ const ExcludedDepartureCauses = [
 const AllDepartureCauses = Object.values( DepartureCause );
 
 describe( 'participant-departure transition', () => {
+	it( 'retains the completed pause after its final participant leaves without counting reconsideration', () => {
+		const state = createReadyState();
+		const event = createDeparture( DepartureCause.ACTIVE_SESSION_TAB_CLOSE, 'participant-a', 'page-a', {
+			target: { stateType: ProtectionStateType.READY, allowanceId: state.allowanceId },
+		} );
+		const result = handleParticipantDeparture( state, event );
+		expect( result ).toEqual( { state: { ...state, readyParticipants: [] }, decisions: [], facts: [] } );
+		expect( handleParticipantDeparture( result.state, event ) ).toEqual( result );
+	} );
+
 	it( 'accepts exactly one validated participant-departure event branch', () => {
 		expectTypeOf( handleParticipantDeparture )
 			.parameter( 1 )

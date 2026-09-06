@@ -1,5 +1,6 @@
 @use 'sass:map';
 @use 'sass:math';
+@use '../sizing';
 
 $-roles: (
 	'display-large': (
@@ -126,7 +127,7 @@ $-roles: (
 			@each $property, $value in $properties {
 				@if $property == font-size or $property == line-height or $property == letter-spacing {
 					@if not math.is-unitless( $value ) {
-						$value: $value * $scale;
+						$value: sizing.size(math.div($value, 1rem) * $scale);
 					}
 				}
 

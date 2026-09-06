@@ -200,6 +200,10 @@ class MemoryProtectedSitesScreen {
  * @since 0.1.0 Initial implementation.
  */
 class MemorySettingsShell implements SettingsPageShell {
+	aboutCopy = TestEnglishLocalizationBundle.aboutCopy;
+
+	aboutVersion = '';
+
 	appearanceCopy = TestEnglishLocalizationBundle.appearance;
 
 	browserLanguage = Language.ENGLISH;
@@ -222,6 +226,10 @@ class MemorySettingsShell implements SettingsPageShell {
 
 	preferencesSource: SettingsPageShell[ 'preferencesSource' ] = null;
 
+	privacyActions: SettingsPageShell[ 'privacyActions' ] = null;
+
+	privacyCopy = TestEnglishLocalizationBundle.privacyCopy;
+
 	protectedSiteItemCopy = TestEnglishLocalizationBundle.protectedSiteItem;
 
 	protectedSitesCopy = TestEnglishLocalizationBundle.protectedSites;
@@ -231,6 +239,8 @@ class MemorySettingsShell implements SettingsPageShell {
 	statisticsCopy = TestEnglishLocalizationBundle.statistics;
 
 	statisticsSource: SettingsPageShell[ 'statisticsSource' ] = null;
+
+	supportsCachedFavicons = false;
 
 	timingCopy = TestEnglishLocalizationBundle.timing;
 
@@ -281,6 +291,7 @@ function createOptions( overrides: Partial<SettingsPageOptions> = {} ): Settings
 		},
 		storageChanges: new MemorySettingsStorageChanges(),
 		supportsCachedFavicons: true,
+		version: '2.3.4',
 		...overrides,
 	};
 }
@@ -329,7 +340,12 @@ describe( 'startSettingsPage', () => {
 		expect( shell.preferencesEditor ).not.toBeNull();
 		expect( shell.preferencesPreview ).toBe( shell.preferencesSource );
 		expect( shell.statisticsSource ).not.toBeNull();
+		expect( shell.privacyActions ).not.toBeNull();
+		expect( shell.aboutVersion ).toBe( '2.3.4' );
+		expect( shell.supportsCachedFavicons ).toBe( true );
 		expect( shell.copy ).toBe( TestEnglishLocalizationBundle.settingsShell );
+		expect( shell.aboutCopy ).toBe( TestEnglishLocalizationBundle.aboutCopy );
+		expect( shell.privacyCopy ).toBe( TestEnglishLocalizationBundle.privacyCopy );
 		expect( shell.appearanceCopy ).toBe( TestEnglishLocalizationBundle.appearance );
 		expect( shell.languageCopy ).toBe( TestEnglishLocalizationBundle.languageScreen );
 		expect( shell.protectedSitesCopy ).toBe( TestEnglishLocalizationBundle.protectedSites );
@@ -349,12 +365,35 @@ describe( 'startSettingsPage', () => {
 
 		await startSettingsPage( createOptions( { loadLocalization, shell, storageChanges } ) );
 		loadLocalization.mockClear();
+		const localizedBundle = {
+			...TestEnglishLocalizationBundle,
+			aboutCopy: { ...TestEnglishLocalizationBundle.aboutCopy, eyebrow: 'About localized' },
+			privacyCopy: { ...TestEnglishLocalizationBundle.privacyCopy, title: 'Privacy localized' },
+		};
+		loadLocalization.mockResolvedValue( localizedBundle );
 		storageChanges.emitLanguage( Language.JAPANESE );
 		await vi.waitFor( () => {
 			expect( loadLocalization ).toHaveBeenCalledWith( Language.JAPANESE );
 		} );
 
 		expect( shell.copy ).toBe( TestEnglishLocalizationBundle.settingsShell );
+		expect( shell.aboutCopy ).toBe( localizedBundle.aboutCopy );
+		expect( shell.privacyCopy ).toBe( localizedBundle.privacyCopy );
+	} );
+
+	it( 'sends confirmed privacy resets through the supplied runtime only', async () => {
+		const sendMessage = vi.fn().mockResolvedValue( true );
+		const shell = new MemorySettingsShell();
+
+		await startSettingsPage( createOptions( {
+			shell,
+			runtime: { sendMessage },
+			supportsCachedFavicons: false,
+		} ) );
+		expect( sendMessage ).not.toHaveBeenCalled();
+		expect( shell.supportsCachedFavicons ).toBe( false );
+		await expect( shell.privacyActions?.resetAllData() ).resolves.toBe( true );
+		expect( sendMessage ).toHaveBeenCalledExactlyOnceWith( { type: 'reset-all-data' } );
 	} );
 
 	it( 'refreshes protected-site access only after relevant permission changes', async () => {

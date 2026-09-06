@@ -70,6 +70,12 @@ export interface StatisticsSessionStorageServiceOptions {
  */
 export interface StatisticsSessionStorageService {
 	/**
+	 * Forgets the cached focus epoch without persistence after pending observations have drained.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	forgetFocusEpoch(): void;
+
+	/**
 	 * Removes only live focus work while preserving any validated frozen interval.
 	 * @return Remaining pending-only document, or null when no frozen work remains.
 	 * @throws {Error} When the browser storage read, write, or removal rejects.

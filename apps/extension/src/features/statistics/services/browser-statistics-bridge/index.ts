@@ -53,6 +53,29 @@ export function createBrowserStatisticsBridge(
 ): BrowserStatisticsBridge {
 	let focusBoundaryGeneration = 0;
 	let operationQueue: Promise<void> = Promise.resolve();
+	let suspended = options.initiallySuspended ?? false;
+	let dataResetGeneration = 0;
+	const pendingFocusWrites = new Set<Promise<void>>();
+
+	/**
+	 * Stops new observations and drains every already-started persistence operation.
+	 * @return Promise resolved after statistics and focus writes settle.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function suspendForDataReset(): Promise<void> {
+		suspended = true;
+		dataResetGeneration += 1;
+		focusBoundaryGeneration += 1;
+		await Promise.all( [ operationQueue, ...pendingFocusWrites ] );
+	}
+
+	/**
+	 * Reopens observation intake after persistence and cached authorities have been reset.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function resumeAfterDataReset(): void {
+		suspended = false;
+	}
 
 	/**
 	 * Returns a trustworthy current wall-clock value.
@@ -114,11 +137,26 @@ export function createBrowserStatisticsBridge(
 	/**
 	 * Serializes one statistics operation without poisoning later work after rejection.
 	 * @param operation - Deferred statistics operation.
-	 * @return Promise for the statistics operation result.
+	 * @param suspendedResult - Result returned when a reset invalidates the operation.
+	 * @return Promise for the statistics operation result or the suspended result.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	function enqueue<T>( operation: () => Promise<T> ): Promise<T> {
-		const result = operationQueue.then( operation, operation );
+	function enqueue<T>( operation: () => Promise<T>, suspendedResult: T ): Promise<T> {
+		const generation = dataResetGeneration;
+
+		if ( suspended ) {
+			return Promise.resolve( suspendedResult );
+		}
+
+		const result = operationQueue.then( async () => {
+			if ( generation !== dataResetGeneration ) {
+				return suspendedResult;
+			}
+
+			const value = await operation();
+
+			return generation !== dataResetGeneration ? suspendedResult : value;
+		} );
 
 		operationQueue = result.then( () => undefined, () => undefined );
 
@@ -152,6 +190,10 @@ export function createBrowserStatisticsBridge(
 		navigation?: Parameters<BrowserStatisticsBridge[ 'captureObservation' ]>[ 1 ],
 		focusEvent?: Parameters<BrowserStatisticsBridge[ 'captureObservation' ]>[ 2 ],
 	): Promise<BrowserProtectionStatisticsObservation> {
+		if ( suspended ) {
+			return { observedAtEpochMilliseconds: null, focusObservation: null, focusEpochTransition: null };
+		}
+
 		const generation = mode === StatisticsFocusObservationMode.BOUNDARY
 			? ++focusBoundaryGeneration
 			: focusBoundaryGeneration;
@@ -163,6 +205,10 @@ export function createBrowserStatisticsBridge(
 		} catch {
 			focusEpochTransitionPromise = Promise.resolve( null );
 		}
+		const focusWrite = focusEpochTransitionPromise.then( () => undefined, () => undefined );
+
+		pendingFocusWrites.add( focusWrite );
+		void focusWrite.then( () => pendingFocusWrites.delete( focusWrite ) );
 
 		let browserFocusPromise: Promise<readonly [
 			number | null,
@@ -284,11 +330,15 @@ export function createBrowserStatisticsBridge(
 		configuration: ProtectionConfigurationDocument | null,
 		browserObservation: Promise<BrowserProtectionStatisticsObservation>,
 	): void {
+		if ( suspended ) {
+			return;
+		}
+
 		try {
 			const boundary = options.coordinator.getStatisticsDeliveryBoundary();
 			const observation = completeCheckpoint( configuration, browserObservation );
 
-			void enqueue( () => reconcileObservation( configuration, boundary, observation ) );
+			void enqueue( () => reconcileObservation( configuration, boundary, observation ), undefined );
 		} catch {
 			// Observational scheduling must never replace a completed protection result.
 		}
@@ -304,6 +354,7 @@ export function createBrowserStatisticsBridge(
 			() => runOperation(
 				() => options.statisticsRuntime.reconcileConfiguration( rawConfiguration ),
 			),
+			undefined,
 		);
 	}
 
@@ -316,6 +367,7 @@ export function createBrowserStatisticsBridge(
 			() => runOperation(
 				() => options.statisticsRuntime.discardFocusMeasurement(),
 			),
+			undefined,
 		);
 	}
 
@@ -443,7 +495,7 @@ export function createBrowserStatisticsBridge(
 			}
 
 			return getProjection();
-		} );
+		}, createUnavailableStatisticsProjection() );
 	}
 
 	/**
@@ -466,10 +518,12 @@ export function createBrowserStatisticsBridge(
 			}
 
 			return getProjection();
-		} );
+		}, createUnavailableStatisticsProjection() );
 	}
 
 	return {
+		suspendForDataReset,
+		resumeAfterDataReset,
 		captureObservation,
 		discardFocusMeasurement,
 		observeProtectionOperation,

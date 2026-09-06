@@ -262,14 +262,16 @@ export function createProtectionConfigurationEditor(
 	 * Completes one optional effect after a coordinated pre-persist or persistence operation rejects.
 	 * @param configuration - Configuration loaded before the failed mutation operation.
 	 * @param finalize - Optional settlement effect.
+	 * @param error - Original pre-persist or persistence failure.
 	 * @return Promise resolved after the effect completes.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function finalizeFailedMutation(
-		configuration: ProtectionConfigurationDocument,
+		configuration: ProtectionConfigurationDocument | null,
 		finalize: ProtectionConfigurationEditFinalizer | undefined,
+		error: unknown,
 	): Promise<void> {
-		await finalize?.( { configuration, result: null } );
+		await finalize?.( { configuration, result: null, error } );
 	}
 
 	/**
@@ -324,6 +326,13 @@ export function createProtectionConfigurationEditor(
 		finalize: ProtectionConfigurationEditFinalizer | undefined,
 	): Promise<ProtectionConfigurationEditResult> {
 		const configuration = await options.storage.load();
+
+		try {
+			await options.validateAddition?.();
+		} catch ( error ) {
+			await finalizeFailedMutation( configuration, finalize, error );
+			throw error;
+		}
 
 		if ( configuration === null ) {
 			return finalizeResult(
@@ -402,7 +411,7 @@ export function createProtectionConfigurationEditor(
 			await beforePersist?.( result.configuration );
 			await options.storage.save( result.configuration );
 		} catch ( error ) {
-			await finalizeFailedMutation( configuration, finalize );
+			await finalizeFailedMutation( configuration, finalize, error );
 
 			throw error;
 		}

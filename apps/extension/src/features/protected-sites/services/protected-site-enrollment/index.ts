@@ -30,6 +30,7 @@ import {
 	type ProtectedSiteEnrollmentServiceOptions,
 	type ProtectedSiteRemovalResult,
 } from './types';
+import { LocalDataResetError } from '../../../../domains/local-data/services/local-data-generation';
 
 /**
  * Checks whether an authoritative configuration still requires one rule's browser access.
@@ -183,6 +184,13 @@ export function createProtectedSiteEnrollmentService(
 				return;
 			}
 
+			if ( settlement.error instanceof LocalDataResetError ) {
+				permissionRetained = await options.permissionManager.releaseNewAccess(
+					[ canonicalRule ], {}, settlement.configuration,
+				) !== SitePermissionReleaseStatus.RELEASED;
+				return;
+			}
+
 			permissionRetained = await reconcilePermissionAfterFailure(
 				options,
 				canonicalRule,
@@ -321,7 +329,7 @@ export function createProtectedSiteEnrollmentService(
 
 			settlementState.permissionRetained = await options.permissionManager.releaseNewAccess(
 				rules,
-				permissionResult.previousGrant,
+				settlement.error instanceof LocalDataResetError ? {} : permissionResult.previousGrant,
 				settlement.configuration,
 			) !== SitePermissionReleaseStatus.RELEASED;
 		};

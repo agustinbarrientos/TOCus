@@ -39,7 +39,7 @@ function findRequiredParticipant(
 	const state = statesByScope[ requirement.scopeId ];
 
 	if (
-		state?.type !== ProtectionStateType.ALLOWANCE ||
+		( state?.type !== ProtectionStateType.ALLOWANCE && state?.type !== ProtectionStateType.READY ) ||
 		state.allowanceId !== requirement.allowanceId
 	) {
 		return null;
@@ -55,19 +55,25 @@ function findRequiredParticipant(
 /**
  * Creates a fail-open departure for one unresolved restored participant.
  * @param requirement - Persisted Ready participant identity requiring reconciliation.
+ * @param statesByScope - Current states held by the coordinator dispatch barrier.
  * @param observedAtEpochMilliseconds - Current wall-clock time.
  * @return Participant departure event targeting the restored allowance transaction.
  * @since 0.1.0 Initial implementation.
  */
 function createRecoveryDeparture(
 	requirement: ProtectionStateReconciliationRequirement,
+	statesByScope: ProtectionCoordinatorStateSnapshot,
 	observedAtEpochMilliseconds: number,
 ): ParticipantDepartureEvent {
+	const state = statesByScope[ requirement.scopeId ];
+
 	return {
 		type: ProtectionEventType.PARTICIPANT_DEPARTURE,
 		scopeId: requirement.scopeId,
 		target: {
-			stateType: ProtectionStateType.ALLOWANCE,
+			stateType: state?.type === ProtectionStateType.READY
+				? ProtectionStateType.READY
+				: ProtectionStateType.ALLOWANCE,
 			allowanceId: requirement.allowanceId,
 		},
 		participantId: requirement.participantId,
@@ -179,7 +185,7 @@ export function createProtectionRuntimeRestorer(
 				return event;
 			}
 
-			return createRecoveryDeparture( requirement, nowEpochMilliseconds );
+			return createRecoveryDeparture( requirement, statesByScope, nowEpochMilliseconds );
 		} );
 
 		await options.applyDispatchResult( result, configuration );

@@ -178,13 +178,13 @@ describe( 'tocus-f-interruption-screen', () => {
 		);
 		const shadowRoot = getShadowRoot( element );
 		const scene = getRequiredElement( element, '.scene' );
-		const directRegions = Array.from( scene.children ).map( ( child ) => child.tagName );
+		const directRegions = Array.from( scene.querySelectorAll( ':scope > :not([aria-hidden="true"])' ) ).map( ( child ) => child.tagName );
 		const sphere = shadowRoot.querySelector( 'tocus-f-breathing-sphere' );
 		const brandIcon = shadowRoot.querySelector( '.brand svg' );
 		const remaining = getRequiredElement( element, '.remaining' );
 		const bounds = element.getBoundingClientRect();
 		const sceneBounds = scene.getBoundingClientRect();
-		const bloomStyle = getComputedStyle( scene, '::before' );
+		const bloomStyle = getComputedStyle( getRequiredElement( element, '.bloom' ), '::before' );
 		const radialGradientCount = ( bloomStyle.backgroundImage.match( /radial-gradient/gu ) ?? [] ).length;
 
 		assert.deepEqual( directRegions, [ 'HEADER', 'MAIN', 'FOOTER' ] );
@@ -238,7 +238,7 @@ describe( 'tocus-f-interruption-screen', () => {
 		const sceneBounds = scene.getBoundingClientRect();
 		const sphereBounds = sphereShell.getBoundingClientRect();
 		const cueBounds = getRequiredElement( element, '.cue' ).getBoundingClientRect();
-		const directRegions = Array.from( scene.children ).map( ( child ) => child.tagName );
+		const directRegions = Array.from( scene.querySelectorAll( ':scope > :not([aria-hidden="true"])' ) ).map( ( child ) => child.tagName );
 
 		assert.isTrue( element.preview );
 		assert.isTrue( element.hasAttribute( 'preview' ) );
@@ -303,7 +303,7 @@ describe( 'tocus-f-interruption-screen', () => {
 		` );
 		const scene = getRequiredElement( element, '.scene' );
 		const sphere = getShadowRoot( element ).querySelector( 'tocus-f-breathing-sphere' );
-		const restingStyle = getComputedStyle( scene, '::before' );
+		const restingStyle = getComputedStyle( getRequiredElement( element, '.bloom' ), '::before' );
 		const restingOpacity = restingStyle.opacity;
 		const restingTransform = restingStyle.transform;
 
@@ -317,7 +317,7 @@ describe( 'tocus-f-interruption-screen', () => {
 		element.focusedProgressMilliseconds = 2_000;
 		await element.updateComplete;
 
-		const breathingStyle = getComputedStyle( scene, '::before' );
+		const breathingStyle = getComputedStyle( getRequiredElement( element, '.bloom' ), '::before' );
 
 		assert.approximately( sphere.breathProgress, 0.5, 1e-12 );
 		assert.approximately(

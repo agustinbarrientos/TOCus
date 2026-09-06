@@ -2,6 +2,8 @@ import { setupI18n, type Messages } from '@lingui/core';
 import { type Language as LanguageValue } from '../../../domains/preferences/types';
 import { getLanguageTag } from '../../../domains/preferences/utils/resolve-language';
 import { createAppearanceCopy } from '../create-appearance-copy';
+import { createAboutScreenCopy } from '../create-about-screen-copy';
+import { createPrivacyScreenCopy } from '../create-privacy-screen-copy';
 import { createDocumentCopy } from '../create-document-copy';
 import { createInterruptionCopy } from '../create-interruption-copy';
 import { createLanguageScreenCopy } from '../create-language-screen-copy';
@@ -46,6 +48,8 @@ export function createLocalizationBundle(
 		onboarding: createOnboardingCopy( i18n ),
 		popup: createPopupCopy( i18n ),
 		settingsShell: createSettingsShellCopy( i18n ),
+		aboutCopy: createAboutScreenCopy( i18n ),
+		privacyCopy: createPrivacyScreenCopy( i18n ),
 		languageScreen: createLanguageScreenCopy( i18n ),
 		appearance: createAppearanceCopy( i18n ),
 		schedule: createScheduleCopy( i18n, formatters ),

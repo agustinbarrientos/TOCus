@@ -103,6 +103,14 @@ export class MemoryStatisticsStorage implements StatisticsStorageService {
  */
 export class MemoryStatisticsSessionStorage implements StatisticsSessionStorageService {
 	/**
+	 * Forgets the deterministic cached focus identity without changing measurement persistence.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	forgetFocusEpoch(): void {
+		this.focusEpochId = StatisticsFocusEpochIdSchema.parse( 'focus_epoch_reset' );
+	}
+
+	/**
 	 * Session documents accepted by persistence.
 	 * @since 0.1.0 Initial implementation.
 	 */

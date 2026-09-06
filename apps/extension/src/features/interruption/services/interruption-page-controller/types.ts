@@ -1,5 +1,50 @@
 import { type InterruptionScreenState } from '../../components/screen/types';
 import { type InterruptionPageRequest } from '../../../protection-runtime/types/runtime-message';
+import { z } from 'zod';
+
+/**
+ * Validates the values carried by one browser storage-key change.
+ * @since 0.1.0 Initial implementation.
+ */
+export const InterruptionPageStorageChangeSchema = z.object( {
+	oldValue: z.unknown().optional(),
+	newValue: z.unknown().optional(),
+} ).strict();
+
+/**
+ * Values carried by one browser storage-key change.
+ * @since 0.1.0 Initial implementation.
+ */
+export type InterruptionPageStorageChange = z.infer<typeof InterruptionPageStorageChangeSchema>;
+
+/**
+ * Listener receiving browser storage-area changes.
+ * @since 0.1.0 Initial implementation.
+ */
+export type InterruptionPageStorageChangeListener = (
+	changes: Readonly<Record<string, InterruptionPageStorageChange>>,
+	areaName: string,
+) => void;
+
+/**
+ * Browser storage event source used to refresh shared allowance state.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface InterruptionPageStorageChangeSource {
+	/**
+	 * Starts delivering browser storage events to one listener.
+	 * @param listener - Storage event callback.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	addListener( listener: InterruptionPageStorageChangeListener ): void;
+
+	/**
+	 * Stops delivering browser storage events to one listener.
+	 * @param listener - Previously registered callback.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	removeListener( listener: InterruptionPageStorageChangeListener ): void;
+}
 
 /**
  * Minimal interruption-screen surface coordinated by the extension page.
@@ -171,6 +216,9 @@ export interface InterruptionPageControllerOptions {
 
 	/** Interruption presentation controlled by runtime responses. */
 	screen: InterruptionPageScreen;
+
+	/** Shared durable allowance change events. */
+	storageChanges: InterruptionPageStorageChangeSource;
 
 	/** Current document and browser-window visibility projection. */
 	visibility: InterruptionPageVisibility;

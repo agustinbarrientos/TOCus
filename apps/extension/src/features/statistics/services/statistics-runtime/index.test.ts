@@ -21,6 +21,30 @@ import {
 } from './__fixtures__';
 
 describe( 'statistics runtime initialization and fact delivery', () => {
+	it( 'forgets cached totals and focus work without writing before loading replacement storage', async () => {
+		const harness = createRuntimeHarness( createDelivery(
+			StoredProtectionStatisticsDeliveryStatus.COMPLETE, [ createReconsideredBatch( 'batch_reset' ) ],
+		) );
+		await reconcileRuntime( harness.runtime );
+		await harness.runtime.drainProtectionFacts();
+		expect( harness.runtime.getSnapshot().projection ).toMatchObject( { reconsideredVisitCount: 1 } );
+		await harness.storage.save( createStatisticsDocument() );
+		const writeCount = harness.storage.savedDocuments.length;
+		const sessionWriteCount = harness.sessionStorage.savedDocuments.length;
+		const removedCount = harness.sessionStorage.removedDocuments.length;
+
+		harness.runtime.forgetForDataReset();
+		expect( harness.runtime.getSnapshot() ).toEqual( {
+			deliveryStatus: null, focusMeasurementEnabled: false, projection: { status: 'unavailable' },
+		} );
+		expect( harness.storage.savedDocuments ).toHaveLength( writeCount );
+		expect( harness.sessionStorage.savedDocuments ).toHaveLength( sessionWriteCount );
+		expect( harness.sessionStorage.removedDocuments ).toHaveLength( removedCount );
+		await reconcileRuntime( harness.runtime );
+		await harness.runtime.drainProtectionFacts();
+		expect( harness.runtime.getSnapshot().projection ).toMatchObject( { reconsideredVisitCount: 0 } );
+	} );
+
 	it( 'persists raw configuration revision reconciliation before enabling drain', async () => {
 		const harness = createRuntimeHarness();
 

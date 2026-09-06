@@ -1,7 +1,10 @@
 @use '@tocus/theme/tokens.scss' with ( $selector: ':host' );
 @use '@tocus/theme/typography' as typography;
+@use '@tocus/theme/sizing';
 
 :host {
+	--tocus-size-unit: 16px;
+
 	all: initial;
 	color-scheme: light dark;
 }
@@ -51,9 +54,9 @@ tocus-f-interruption-screen {
 
 	position: fixed;
 	z-index: 2147483647;
-	inset-block-end: max(1.5rem, env(safe-area-inset-bottom));
+	inset-block-end: max(sizing.size(1.5), env(safe-area-inset-bottom));
 	inset-inline-start: 50%;
-	max-width: min(28rem, calc(100vw - 2rem));
+	max-width: min(sizing.size(28), calc(100vw - sizing.size(2)));
 	margin: 0;
 	padding: var(--tocus-space-3) var(--tocus-space-5);
 	border: 1px solid var(--tocus-color-glass-border);
@@ -64,7 +67,7 @@ tocus-f-interruption-screen {
 	pointer-events: none;
 	text-align: center;
 	transform: translateX(-50%);
-	backdrop-filter: blur(1rem);
+	backdrop-filter: blur(sizing.size(1));
 }
 
 .visually-hidden {

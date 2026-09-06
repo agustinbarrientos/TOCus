@@ -13,6 +13,7 @@ export function createInertStatisticsRuntime(): StatisticsRuntimeDouble {
 	const focusEpochId = StatisticsFocusEpochIdSchema.parse( 'focus_epoch_current' );
 
 	return {
+		forgetForDataReset: vi.fn(),
 		beginFocusObservation: vi.fn().mockImplementation( (
 			mode: Parameters<StatisticsRuntime[ 'beginFocusObservation' ]>[ 0 ],
 		) => Promise.resolve( {

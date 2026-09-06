@@ -4,8 +4,6 @@ All notable changes to TOCus will be documented in this file.
 
 ## 0.1.0 - Alpha
 
-_In development._
-
 ### Added
 
 - Established the initial Chrome, Firefox, and Safari extension foundation with WXT and Lit.
@@ -25,6 +23,8 @@ _In development._
 - Added first-install language, appearance, and website setup with local draft selections, a removable website list, bundled suggestion icons, and one permission request for the selected websites when setup finishes.
 - Added clickable onboarding steps with completed checkmarks and retained choices when revisiting earlier steps.
 - Added local-only statistics for estimated time reclaimed, focused pause time, reconsidered visits, completed waits, and allowances granted, with all-time interruption summaries and a reset that leaves protection settings untouched.
+- Added Privacy and local data settings with separate confirmed statistics and full-data resets, website-access revocation, interrupted-reset recovery, and a return to onboarding.
+- Added About settings with the installed version, MIT license, source code, and contribution links.
 - Added the initial project website, contribution guidance, and public project documentation.
 
 ### Changed
@@ -43,3 +43,7 @@ _In development._
 - Ignored delayed navigation events that no longer describe the current page, preventing an old blank tab from dismissing a new pause.
 - Initialized the protected-page interface in Chrome's isolated script environment with bundled Custom Elements support.
 - Kept rem-based typography from applying the size increase twice on extension pages.
+- Kept pause-screen text and controls readable independently of the selected website's font sizing.
+- Clipped the breathing gradient without introducing unwanted scrolling or hiding content on short screens.
+- Started visit time on Continue, Space, or automatic entry instead of consuming it while the completed pause awaits entry.
+- Muted interrupted tabs while preserving prior mute choices, and paused native videos on YouTube, Netflix, Twitch, HBO Max, Prime Video, and Disney+ until entry without reloading the page or autoplaying videos that were already paused.

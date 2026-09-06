@@ -22,10 +22,6 @@ msgstr "Более спокойный момент перед следующим
 msgid "Deutsch"
 msgstr "Deutsch"
 
-#: apps/website/src/localization/index.ts
-msgid "Early development"
-msgstr "Ранняя разработка"
-
 #. Language-menu autonym. Keep this language name written in English.
 #: apps/website/src/localization/index.ts
 msgid "English"
@@ -70,16 +66,16 @@ msgid "Português (Portugal)"
 msgstr "Português (Portugal)"
 
 #: apps/website/src/localization/index.ts
-msgid "TOCus is an open-source browser extension in early development."
-msgstr "TOCus — браузерное расширение с открытым исходным кодом на раннем этапе разработки."
+msgid "TOCus adds a gentle breathing pause before the websites you choose, helping you browse more intentionally."
+msgstr "TOCus добавляет короткую паузу для дыхания перед выбранными сайтами, помогая пользоваться интернетом осознаннее."
 
 #: apps/website/src/localization/index.ts
-msgid "TOCus is in early development, exploring a simple pause that supports more intentional browsing."
-msgstr "TOCus находится на раннем этапе разработки и исследует простую паузу, которая помогает просматривать сайты более осознанно."
+msgid "TOCus is an open-source browser extension."
+msgstr "TOCus — расширение для браузера с открытым исходным кодом."
 
 #: apps/website/src/localization/index.ts
-msgid "TOCus v1 is local-only: no account, TOCus server, telemetry or product analytics, browsing-history analysis, or network requests for core operation."
-msgstr "TOCus v1 работает только локально: без учётной записи и сервера TOCus, без телеметрии и продуктовой аналитики, без анализа истории браузера и без сетевых запросов для основных функций."
+msgid "TOCus works entirely on your device and will stay that way. No accounts, servers, tracking, browsing-history analysis, or external network requests."
+msgstr "TOCus полностью работает на твоём устройстве, и так будет всегда. Без аккаунтов, серверов, отслеживания, анализа истории браузера или внешних сетевых запросов."
 
 #: apps/website/src/localization/index.ts
 msgid "Website language"

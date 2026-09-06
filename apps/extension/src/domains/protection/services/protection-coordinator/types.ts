@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { ProtectionDecisionSchema } from '../../types/protection-decision';
 import { ProtectionFactSchema } from '../../types/protection-fact';
 import { type ProtectionState } from '../../types/protection-state';
+import { type StoredProtectionParticipant } from '../../types/stored-protection-participant';
 import { type StoredProtectionStatisticsDelivery } from '../../types/stored-protection-statistics-delivery';
 import {
 	EpochMillisecondsSchema,
@@ -262,6 +263,20 @@ export interface ProtectionCoordinatorOptions {
  * @since 0.1.0 Initial implementation.
  */
 export interface ProtectionCoordinator {
+	/**
+	 * Forgets cached state and delivery after earlier operations settle without writing storage.
+	 * @return Promise resolved when subsequent reads are unavailable until initialization.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	forgetForDataReset(): Promise<void>;
+
+	/**
+	 * Reads validated stored participants for reset cleanup without normal restoration or persistence.
+	 * @return Retained session destinations, or an empty collection for absent or malformed session state.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	readParticipantsForDataReset(): Promise<ReadonlyArray<StoredProtectionParticipant>>;
+
 	/**
 	 * Acknowledges and durably removes one exact head statistics-delivery batch.
 	 * @param batchId - Unknown candidate head batch identifier.

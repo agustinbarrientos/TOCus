@@ -54,6 +54,8 @@ export interface BrowserProtectionStatisticsObservation {
  * @since 0.1.0 Initial implementation.
  */
 export interface BrowserStatisticsBridgeOptions {
+	/** Whether observations wait for local data recovery before any persistence. */
+	initiallySuspended?: boolean;
 	browser: Pick<ProtectionRuntimeBrowser, 'getFocusedTabId' | 'listTabs'>;
 	configurationStorage: Pick<ProtectionConfigurationStorageService, 'load'>;
 	coordinator: Pick<
@@ -87,6 +89,19 @@ export interface BrowserStatisticsBridgeOptions {
  * @since 0.1.0 Initial implementation.
  */
 export interface BrowserStatisticsBridge {
+	/**
+	 * Stops ingress persistence synchronously and drains started statistics and focus writes.
+	 * @return Promise resolved when storage is safe for local data removal.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	suspendForDataReset(): Promise<void>;
+
+	/**
+	 * Reopens observation intake after drained authorities and persistence have been reset.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	resumeAfterDataReset(): void;
+
 	/**
 	 * Captures browser focus and time before a protection queue can delay one event.
 	 * @param mode - Relationship between this observation and browser focus state.

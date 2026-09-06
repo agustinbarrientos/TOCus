@@ -47,6 +47,8 @@ import {
 	type StatisticsSource,
 } from '../../../statistics/components/settings-screen';
 import { ComponentAppearanceScreen } from '../appearance-screen';
+import { ComponentAboutScreen } from '../about-screen';
+import { ComponentPrivacyScreen, type PrivacyDataActions } from '../privacy-screen';
 import { type PreferencesPreview } from '../appearance-screen/types';
 import { ComponentLanguageScreen } from '../language-screen';
 import { ComponentScheduleScreen } from '../schedule-screen';
@@ -169,7 +171,32 @@ const SETTINGS_VISUAL_DESTINATIONS = [
 	SettingsDestination.SCHEDULE,
 	SettingsDestination.STATISTICS,
 	SettingsDestination.TIMING,
+	SettingsDestination.PRIVACY,
+	SettingsDestination.ABOUT,
 ] as const;
+
+/**
+ * Successful local reset boundary used by Settings visual fixtures.
+ * @since 0.1.0 Initial implementation.
+ */
+const PRIVACY_ACTIONS: PrivacyDataActions = {
+	/**
+	 * Accepts a statistics reset in the visual fixture.
+	 * @return Successful local reset result.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	resetStatistics(): Promise<boolean> {
+		return Promise.resolve( true );
+	},
+	/**
+	 * Accepts a full reset in the visual fixture.
+	 * @return Successful local reset result.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	resetAllData(): Promise<boolean> {
+		return Promise.resolve( true );
+	},
+};
 /**
  * Explicit appearances rendered by settings visual tests.
  * @since 0.1.0 Initial implementation.
@@ -560,6 +587,8 @@ async function renderSettingsState( state: SettingsVisualState ): Promise<Compon
 	const shell = await fixture<ComponentSettingsShell>( html`
 		<tocus-f-settings-shell
 			.copy=${ TestEnglishLocalizationBundle.settingsShell }
+			.aboutCopy=${ TestEnglishLocalizationBundle.aboutCopy }
+			.privacyCopy=${ TestEnglishLocalizationBundle.privacyCopy }
 			.appearanceCopy=${ TestEnglishLocalizationBundle.appearance }
 			.languageCopy=${ TestEnglishLocalizationBundle.languageScreen }
 			.protectedSitesCopy=${ TestEnglishLocalizationBundle.protectedSites }
@@ -615,6 +644,12 @@ async function settleSettingsDestination(
 	let screen: Element | null | undefined;
 
 	switch ( destination ) {
+		case SettingsDestination.ABOUT:
+			screen = shell.shadowRoot?.querySelector( 'tocus-f-about-screen' );
+			break;
+		case SettingsDestination.PRIVACY:
+			screen = shell.shadowRoot?.querySelector( 'tocus-f-privacy-screen' );
+			break;
 		case SettingsDestination.APPEARANCE:
 			screen = shell.shadowRoot?.querySelector( 'tocus-f-appearance-screen' );
 			break;
@@ -632,6 +667,8 @@ async function settleSettingsDestination(
 	}
 
 	assert.isTrue(
+		screen instanceof ComponentAboutScreen ||
+		screen instanceof ComponentPrivacyScreen ||
 		screen instanceof ComponentAppearanceScreen ||
 		screen instanceof ComponentLanguageScreen ||
 		screen instanceof ComponentScheduleScreen ||
@@ -639,6 +676,8 @@ async function settleSettingsDestination(
 		screen instanceof ComponentTimingScreen,
 	);
 	if (
+		! ( screen instanceof ComponentAboutScreen ) &&
+		! ( screen instanceof ComponentPrivacyScreen ) &&
 		! ( screen instanceof ComponentAppearanceScreen ) &&
 		! ( screen instanceof ComponentLanguageScreen ) &&
 		! ( screen instanceof ComponentScheduleScreen ) &&
@@ -673,6 +712,8 @@ async function renderSettingsDestination(
 	const shell = await fixture<ComponentSettingsShell>( html`
 		<tocus-f-settings-shell
 			.copy=${ TestEnglishLocalizationBundle.settingsShell }
+			.aboutCopy=${ TestEnglishLocalizationBundle.aboutCopy }
+			.privacyCopy=${ TestEnglishLocalizationBundle.privacyCopy }
 			.appearanceCopy=${ TestEnglishLocalizationBundle.appearance }
 			.languageCopy=${ TestEnglishLocalizationBundle.languageScreen }
 			.protectedSitesCopy=${ TestEnglishLocalizationBundle.protectedSites }
@@ -687,6 +728,9 @@ async function renderSettingsDestination(
 			.preferencesEditor=${ PREFERENCES_EDITOR }
 			.preferencesPreview=${ PREFERENCES_PREVIEW }
 			.statisticsSource=${ STATISTICS_SOURCE }
+			.aboutVersion=${ '0.1.0' }
+			.privacyActions=${ PRIVACY_ACTIONS }
+			.supportsCachedFavicons=${ true }
 		></tocus-f-settings-shell>
 	` );
 

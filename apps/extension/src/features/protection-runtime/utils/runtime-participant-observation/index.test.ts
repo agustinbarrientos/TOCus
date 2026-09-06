@@ -46,6 +46,22 @@ const PARTICIPANT = {
 };
 
 describe( 'createFreshRuntimeObservation', () => {
+	it( 'matches a preserved live page without retaining its URL as a destination', () => {
+		const observation = createFreshRuntimeObservation(
+			{ ...PARTICIPANT, origin: 'allowance-expiry', retainedDestination: null },
+			CONFIGURATION,
+			Date.UTC( 2026, 8, 2, 12 ),
+			'UTC',
+			'https://example.com/unfinished-form',
+		);
+
+		expect( observation ).toMatchObject( {
+			observedDestination: null,
+			match: { status: 'protected', rule: CONFIGURATION.sites[ 0 ]?.rule },
+			schedule: { status: 'active' },
+		} );
+	} );
+
 	it( 'evaluates the matched scope schedule without exposing another destination', () => {
 		const observation = createFreshRuntimeObservation(
 			PARTICIPANT,

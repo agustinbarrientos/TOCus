@@ -73,6 +73,15 @@ export type ProtectionClockDeadlines = ReadonlyArray<number>;
  */
 export interface ProtectionRuntimeBrowser {
 	/**
+	 * Restores tab audio outside the documents still held by an interruption.
+	 * @param heldTabIds - Tabs whose preserved pages remain interrupted.
+	 * @param requireSuccess - Whether full reset must report failed audio cleanup.
+	 * @return Completion of best-effort owned mute restoration.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	restoreTabAudioExcept: ( heldTabIds: ReadonlySet<number>, requireSuccess?: boolean ) => Promise<void>;
+
+	/**
 	 * Dismisses an interruption page that has no retained destination.
 	 * @param tabId - Browser tab displaying the interruption.
 	 * @return Promise resolved after browser-native dismissal is accepted or unavailable.
@@ -131,16 +140,22 @@ export interface ProtectionRuntimeBrowser {
 	 * Applies one warning or interruption-layer command to a protected page.
 	 * @param tabId - Browser tab containing the protected page.
 	 * @param message - Validated protected-page command.
+	 * @param requireSuccess - Whether reset cleanup must report unverified removal failures.
 	 * @return Promise resolved after the page accepts the command or an absent removal is ignored.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	updateProtectedPagePresentation: ( tabId: number, message: ProtectedPageMessage ) => Promise<void>;
+	updateProtectedPagePresentation: (
+		tabId: number,
+		message: ProtectedPageMessage,
+		requireSuccess?: boolean,
+	) => Promise<void>;
 
 	/**
 	 * Applies one browser-neutral projection to the global toolbar badge.
 	 * @param projection - Compact text, accessible title, and semantic phase.
+	 * @param requireSuccess - Whether reset cleanup must report failed toolbar writes.
 	 * @return Promise resolved after the toolbar update.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	updateToolbarBadge: ( projection: ToolbarBadgeProjection ) => Promise<void>;
+	updateToolbarBadge: ( projection: ToolbarBadgeProjection, requireSuccess?: boolean ) => Promise<void>;
 }

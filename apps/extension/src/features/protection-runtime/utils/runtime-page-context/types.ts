@@ -1,6 +1,7 @@
 import { type ProtectionParticipant } from '../../../../domains/protection/types/protection-participant';
 import {
 	type AllowanceProtectionState,
+	type ReadyProtectionState,
 	type WaitingProtectionState,
 } from '../../../../domains/protection/types/protection-state';
 
@@ -10,5 +11,5 @@ import {
  */
 export interface ProtectionRuntimeParticipantContext {
 	participant: ProtectionParticipant;
-	state: WaitingProtectionState | AllowanceProtectionState;
+	state: WaitingProtectionState | ReadyProtectionState | AllowanceProtectionState;
 }

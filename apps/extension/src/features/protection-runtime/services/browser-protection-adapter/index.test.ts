@@ -7,6 +7,7 @@ import {
 	ProtectedPageMessageType,
 } from '../../types/protected-page-message';
 import { createBrowserProtectionAdapter, ProtectionClockAlarmNamePrefix } from './index';
+import { type TabAudioController } from '../tab-audio-controller';
 import {
 	type BrowserProtectionAdapterApi,
 	type BrowserProtectionToolbarAction,
@@ -81,10 +82,117 @@ function createBrowserApi(): BrowserProtectionAdapterApi {
 	};
 }
 
+/**
+ * Creates observable audio effects for the browser adapter.
+ * @return Isolated tab audio operations.
+ * @since 0.1.0 Initial implementation.
+ */
+function createTabAudioController(): TabAudioController {
+	return {
+		mute: vi.fn().mockResolvedValue( undefined ),
+		restore: vi.fn().mockResolvedValue( undefined ),
+		restoreExcept: vi.fn().mockResolvedValue( undefined ),
+		observeMuteChange: vi.fn().mockResolvedValue( undefined ),
+	};
+}
+
 describe( 'createBrowserProtectionAdapter', () => {
+	it( 'mutes before showing an interruption and restores after accepted removal', async () => {
+		const browserApi = createBrowserApi();
+		const audio = createTabAudioController();
+		const adapter = createBrowserProtectionAdapter( browserApi, audio );
+		vi.mocked( browserApi.tabs.sendMessage ).mockResolvedValue( {
+			allowanceWarningId: null,
+			interruptionLayerPresented: false,
+		} );
+
+		await adapter.updateProtectedPagePresentation( 7, {
+			type: ProtectedPageMessageType.PRESENT_INTERRUPTION_LAYER,
+		} );
+		expect( audio.mute ).toHaveBeenCalledWith( 7 );
+		expect( vi.mocked( audio.mute ).mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+			vi.mocked( browserApi.tabs.sendMessage ).mock.invocationCallOrder[ 1 ] ?? 0,
+		);
+		expect( audio.restore ).not.toHaveBeenCalled();
+
+		await adapter.updateProtectedPagePresentation( 7, {
+			type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER,
+			resumePlayback: true,
+		} );
+		expect( audio.restore ).toHaveBeenCalledWith( 7 );
+		expect( browserApi.tabs.sendMessage ).toHaveBeenLastCalledWith( 7, {
+			type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER,
+			resumePlayback: true,
+		} );
+	} );
+
+	it( 'restores audio when presentation fails after muting', async () => {
+		const browserApi = createBrowserApi();
+		const audio = createTabAudioController();
+		const adapter = createBrowserProtectionAdapter( browserApi, audio );
+		vi.mocked( browserApi.tabs.sendMessage )
+			.mockResolvedValueOnce( { allowanceWarningId: null, interruptionLayerPresented: false } )
+			.mockRejectedValueOnce( new Error( 'Tab closed' ) );
+
+		await expect( adapter.updateProtectedPagePresentation( 7, {
+			type: ProtectedPageMessageType.PRESENT_INTERRUPTION_LAYER,
+		} ) ).rejects.toThrow( 'Tab closed' );
+		expect( audio.mute ).toHaveBeenCalledWith( 7 );
+		expect( audio.restore ).toHaveBeenCalledWith( 7 );
+	} );
+
+	it( 'does not replace a later mute choice when refreshing an already visible pause', async () => {
+		const browserApi = createBrowserApi();
+		const audio = createTabAudioController();
+		const adapter = createBrowserProtectionAdapter( browserApi, audio );
+		vi.mocked( browserApi.tabs.sendMessage ).mockResolvedValue( {
+			allowanceWarningId: null,
+			interruptionLayerPresented: true,
+		} );
+
+		await adapter.updateProtectedPagePresentation( 7, {
+			type: ProtectedPageMessageType.PRESENT_INTERRUPTION_LAYER,
+		} );
+		expect( audio.mute ).not.toHaveBeenCalled();
+		expect( audio.restore ).not.toHaveBeenCalled();
+	} );
+
+	it( 'restores audio when the removed document no longer has a message listener', async () => {
+		const browserApi = createBrowserApi();
+		const audio = createTabAudioController();
+		const adapter = createBrowserProtectionAdapter( browserApi, audio );
+		vi.mocked( browserApi.tabs.sendMessage ).mockRejectedValue( new Error( 'Could not establish connection. Receiving end does not exist.' ) );
+
+		await adapter.updateProtectedPagePresentation( 7, {
+			type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER,
+		}, true );
+		expect( audio.restore ).toHaveBeenCalledWith( 7 );
+	} );
+
+	it( 'preserves held-tab ownership when reconciling stale audio', async () => {
+		const browserApi = createBrowserApi();
+		const audio = createTabAudioController();
+		const adapter = createBrowserProtectionAdapter( browserApi, audio );
+		const held = new Set( [ 7, 9 ] );
+
+		await adapter.restoreTabAudioExcept( held );
+		expect( audio.restoreExcept ).toHaveBeenCalledWith( held );
+	} );
+
+	it( 'restores audio when leaving a standalone interruption', async () => {
+		const browserApi = createBrowserApi();
+		const audio = createTabAudioController();
+		const adapter = createBrowserProtectionAdapter( browserApi, audio );
+
+		await adapter.navigateTab( 7, 'https://example.com' );
+		await adapter.dismissInterruption( 9 );
+		expect( audio.restore ).toHaveBeenCalledWith( 7 );
+		expect( audio.restore ).toHaveBeenCalledWith( 9 );
+	} );
+
 	it( 'schedules each missing semantic protection-clock alarm independently', async () => {
 		const browserApi = createBrowserApi();
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await adapter.synchronizeProtectionClock( [
 			1_788_368_460_000,
@@ -114,7 +222,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 			name: `${ ProtectionClockAlarmNamePrefix }1788368405000`,
 			scheduledTime: 1_788_368_435_000,
 		} ] );
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await adapter.synchronizeProtectionClock( [ 1_788_368_405_000 ] );
 
@@ -150,7 +258,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 				scheduledTime: 1_788_368_400_000,
 			},
 		] );
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await adapter.synchronizeProtectionClock( [] );
 
@@ -167,7 +275,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 		];
 		const nextRules = [ createRule( ProtectionNavigationRuleIdStart + 1 ) ];
 		vi.mocked( browserApi.declarativeNetRequest.getDynamicRules ).mockResolvedValue( currentRules );
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await adapter.replaceNavigationRules( nextRules );
 
@@ -181,7 +289,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 	it( 'returns the active tab only when its browser window is focused', async () => {
 		const browserApi = createBrowserApi();
 		vi.mocked( browserApi.tabs.query ).mockResolvedValue( [ { id: 17, url: 'https://example.com/' } ] );
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await expect( adapter.getFocusedTabId() ).resolves.toBe( 17 );
 		expect( browserApi.tabs.query ).toHaveBeenCalledWith( {
@@ -196,7 +304,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 			focused: false,
 			id: 4,
 		} );
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await expect( adapter.getFocusedTabId() ).resolves.toBeNull();
 		expect( browserApi.windows.getLastFocused ).toHaveBeenCalledOnce();
@@ -206,7 +314,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 	it( 'reports no focused tab when the focused window has no live identifier', async () => {
 		const browserApi = createBrowserApi();
 		vi.mocked( browserApi.windows.getLastFocused ).mockResolvedValue( { focused: true } );
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await expect( adapter.getFocusedTabId() ).resolves.toBeNull();
 		expect( browserApi.windows.getLastFocused ).toHaveBeenCalledOnce();
@@ -215,7 +323,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 
 	it( 'reports no focused tab when a focused window has no active tab', async () => {
 		const browserApi = createBrowserApi();
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await expect( adapter.getFocusedTabId() ).resolves.toBeNull();
 		expect( browserApi.tabs.query ).toHaveBeenCalledWith( {
@@ -238,7 +346,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 			{ id: 9, incognito: true },
 			{ id: 10 },
 		] );
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await expect( adapter.listTabs() ).resolves.toEqual( [
 			{
@@ -266,7 +374,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 		} ] ).mockResolvedValueOnce( [] );
 		browserApi.runtime = { getContexts, getURL: vi.fn().mockReturnValue( interruptionPageUrl ) };
 		vi.mocked( browserApi.tabs.query ).mockResolvedValue( [ { id: 7, incognito: false, windowId: 3 } ] );
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await expect( adapter.listTabs() ).resolves.toEqual( [ {
 			id: 7,
@@ -280,7 +388,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 
 	it( 'navigates the requested tab to its retained destination', async () => {
 		const browserApi = createBrowserApi();
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await adapter.navigateTab( 12, 'https://example.com/retained?source=local' );
 
@@ -292,7 +400,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 	it( 'dismisses an interruption through browser-native back navigation when available', async () => {
 		const browserApi = createBrowserApi();
 		browserApi.tabs.goBack = vi.fn().mockResolvedValue( undefined );
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await adapter.dismissInterruption( 12 );
 
@@ -305,7 +413,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 			allowanceWarningId: 'allowance_1',
 			interruptionLayerPresented: true,
 		} );
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await expect( adapter.getProtectedPagePresentation( 12 ) ).resolves.toEqual( {
 			allowanceWarningId: 'allowance_1',
@@ -329,7 +437,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 			vi.mocked( browserApi.tabs.sendMessage ).mockResolvedValue( response );
 		}
 
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await expect( adapter.getProtectedPagePresentation( 12 ) ).resolves.toBeNull();
 	} );
@@ -339,7 +447,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 		vi.mocked( browserApi.tabs.sendMessage )
 			.mockRejectedValueOnce( new Error( 'No receiver.' ) )
 			.mockResolvedValueOnce( undefined );
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 		const message = {
 			type: ProtectedPageMessageType.PRESENT_ALLOWANCE_WARNING,
 			allowanceId: AllowanceIdSchema.parse( 'allowance_1' ),
@@ -364,7 +472,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 		vi.mocked( browserApi.tabs.sendMessage )
 			.mockRejectedValueOnce( new Error( 'No receiver.' ) )
 			.mockResolvedValueOnce( undefined );
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 		const message = {
 			type: ProtectedPageMessageType.SYNCHRONIZE_ALLOWANCE_EXPIRY_GUARD,
 			allowanceId: AllowanceIdSchema.parse( 'allowance_1' ),
@@ -388,7 +496,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 			.mockRejectedValueOnce( new Error( 'No receiver.' ) )
 			.mockResolvedValueOnce( undefined );
 		vi.mocked( browserApi.scripting.insertCSS ).mockRejectedValue( new Error( 'CSS unavailable.' ) );
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await expect( adapter.updateProtectedPagePresentation( 12, {
 			type: ProtectedPageMessageType.PRESENT_INTERRUPTION_LAYER,
@@ -402,7 +510,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 		const browserApi = createBrowserApi();
 		vi.mocked( browserApi.tabs.sendMessage ).mockRejectedValueOnce( new Error( 'No receiver.' ) );
 		vi.mocked( browserApi.scripting.executeScript ).mockRejectedValue( new Error( 'Injection denied.' ) );
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await expect( adapter.updateProtectedPagePresentation( 12, {
 			type: ProtectedPageMessageType.PRESENT_INTERRUPTION_LAYER,
@@ -418,7 +526,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 				interruptionLayerPresented: false,
 			} )
 			.mockRejectedValueOnce( new Error( 'Page moved after the status check.' ) );
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await expect( adapter.updateProtectedPagePresentation( 12, {
 			type: ProtectedPageMessageType.PRESENT_INTERRUPTION_LAYER,
@@ -430,7 +538,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 	it( 'does not inject anything when removing an absent protected-page presentation', async () => {
 		const browserApi = createBrowserApi();
 		vi.mocked( browserApi.tabs.sendMessage ).mockRejectedValue( new Error( 'No receiver.' ) );
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await expect( adapter.updateProtectedPagePresentation( 12, {
 			type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER,
@@ -439,9 +547,43 @@ describe( 'createBrowserProtectionAdapter', () => {
 		expect( browserApi.scripting.insertCSS ).not.toHaveBeenCalled();
 	} );
 
+	it.each( [
+		new Error( 'Protected-page delivery failed.' ),
+		'unstructured delivery failure',
+		new Error( 'No tab with id: 12.' ),
+	] )( 'reports strict removal failure when a live target remains: %j', async ( failure ) => {
+		const browserApi = createBrowserApi();
+		vi.mocked( browserApi.tabs.query ).mockResolvedValue( [ { id: 12 } ] );
+		vi.mocked( browserApi.tabs.sendMessage ).mockRejectedValueOnce( failure );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
+
+		await expect( adapter.updateProtectedPagePresentation( 12, {
+			type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER,
+		}, true ) ).rejects.toBe( failure );
+		expect( browserApi.scripting.executeScript ).not.toHaveBeenCalled();
+		await expect( adapter.updateProtectedPagePresentation( 12, {
+			type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER,
+		}, true ) ).resolves.toBeUndefined();
+	} );
+
+	it.each( [
+		'Could not establish connection. Receiving end does not exist.',
+		'No tab with id: 12.',
+		'Invalid tab ID: 12',
+	] )( 'accepts strict removal when the browser reports an absent target: %s', async ( message ) => {
+		const browserApi = createBrowserApi();
+		vi.mocked( browserApi.tabs.sendMessage ).mockRejectedValue( new Error( message ) );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
+
+		await expect( adapter.updateProtectedPagePresentation( 12, {
+			type: ProtectedPageMessageType.REMOVE_ALLOWANCE_EXPIRY_GUARD,
+		}, true ) ).resolves.toBeUndefined();
+		expect( browserApi.scripting.executeScript ).not.toHaveBeenCalled();
+	} );
+
 	it( 'falls back to a blank local tab when browser-native history is unavailable', async () => {
 		const browserApi = createBrowserApi();
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await expect( adapter.dismissInterruption( 12 ) ).resolves.toBeUndefined();
 		expect( browserApi.tabs.update ).toHaveBeenCalledWith( 12, { url: 'about:blank' } );
@@ -450,7 +592,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 	it( 'falls back to a blank local tab when browser-native history rejects', async () => {
 		const browserApi = createBrowserApi();
 		browserApi.tabs.goBack = vi.fn().mockRejectedValue( new Error( 'No previous page.' ) );
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await expect( adapter.dismissInterruption( 12 ) ).resolves.toBeUndefined();
 		expect( browserApi.tabs.update ).toHaveBeenCalledWith( 12, { url: 'about:blank' } );
@@ -460,7 +602,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 		const browserApi = createBrowserApi();
 		const manifestV2Action = createToolbarAction();
 		browserApi.browserAction = manifestV2Action;
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await adapter.updateToolbarBadge( {
 			phase: ToolbarBadgePhase.WAITING,
@@ -483,7 +625,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 		const manifestV2Action = createToolbarAction();
 		browserApi.action = undefined;
 		browserApi.browserAction = manifestV2Action;
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await adapter.updateToolbarBadge( {
 			phase: ToolbarBadgePhase.ALLOWANCE,
@@ -530,7 +672,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 				return Promise.resolve();
 			},
 		};
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await expect( adapter.updateToolbarBadge( {
 			phase: ToolbarBadgePhase.WAITING,
@@ -540,12 +682,34 @@ describe( 'createBrowserProtectionAdapter', () => {
 		expect( completedOperations ).toEqual( [ 'title' ] );
 	} );
 
+	it.each( [ 'setBadgeText', 'setBadgeBackgroundColor', 'setTitle' ] as const )(
+		'reports %s failure when reset requires complete toolbar cleanup',
+		async ( method ) => {
+			const browserApi = createBrowserApi();
+			const toolbarAction = createToolbarAction();
+			browserApi.action = toolbarAction;
+			vi.mocked( toolbarAction[ method ] ).mockRejectedValueOnce( new Error( 'Toolbar cleanup failed.' ) );
+			const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
+
+			await expect( adapter.updateToolbarBadge( {
+				phase: ToolbarBadgePhase.INACTIVE,
+				text: '',
+				title: 'Protection inactive',
+			}, true ) ).rejects.toThrow( 'Toolbar cleanup failed.' );
+			await expect( adapter.updateToolbarBadge( {
+				phase: ToolbarBadgePhase.INACTIVE,
+				text: '',
+				title: 'Protection inactive',
+			}, true ) ).resolves.toBeUndefined();
+		},
+	);
+
 	it( 'keeps badge text and title usable when a browser ignores badge colors', async () => {
 		const browserApi = createBrowserApi();
 		const toolbarAction = createToolbarAction();
 		vi.mocked( toolbarAction.setBadgeBackgroundColor ).mockRejectedValue( new Error( 'Badge color unavailable.' ) );
 		browserApi.action = toolbarAction;
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await expect( adapter.updateToolbarBadge( {
 			phase: ToolbarBadgePhase.ALLOWANCE,
@@ -562,7 +726,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 		const browserApi = createBrowserApi();
 		browserApi.action = undefined;
 		browserApi.browserAction = undefined;
-		const adapter = createBrowserProtectionAdapter( browserApi );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
 
 		await expect( adapter.updateToolbarBadge( {
 			phase: ToolbarBadgePhase.INACTIVE,

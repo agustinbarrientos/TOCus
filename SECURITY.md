@@ -1,6 +1,6 @@
 # Security Policy
 
-TOCus is early in development and does not yet have a stable release. Security fixes currently target the latest code on the `main` branch. This policy will be updated when supported releases are published.
+Security fixes currently target the latest code on the `main` branch.
 
 ## Report a vulnerability privately
 
@@ -20,7 +20,7 @@ Remove credentials, private URLs, browsing history, and other personal data from
 
 ## What to expect
 
-A maintainer will review the report, clarify details when needed, and coordinate remediation and disclosure through the advisory. TOCus is a volunteer, early-stage project and cannot promise a fixed response or resolution time, but reports will be handled as promptly and carefully as possible.
+A maintainer will review the report, clarify details when needed, and coordinate remediation and disclosure through the advisory. TOCus is a volunteer project and cannot promise a fixed response or resolution time, but reports will be handled as promptly and carefully as possible.
 
 Please avoid accessing other people's data, disrupting services, or using social engineering while researching a report.
 

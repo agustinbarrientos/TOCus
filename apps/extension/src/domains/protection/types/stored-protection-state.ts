@@ -78,13 +78,39 @@ export const StoredProtectionAllowanceSchema = z.object( {
 export type StoredProtectionAllowance = z.infer<typeof StoredProtectionAllowanceSchema>;
 
 /**
+ * Validates a completed pause whose captured allowance has not started.
+ * @since 0.1.0 Initial implementation.
+ */
+export const StoredPendingProtectionAllowanceSchema = z.object( {
+	allowanceId: AllowanceIdSchema,
+	completedWaitId: WaitIdSchema,
+	capturedAllowanceDurationMilliseconds: AllowanceDurationMillisecondsSchema,
+	completionStatisticsEligible: z.boolean().default( false ),
+} ).strict();
+
+/**
+ * Durable completed pause awaiting the first accepted entry.
+ * @since 0.1.0 Initial implementation.
+ */
+export type StoredPendingProtectionAllowance = z.infer<typeof StoredPendingProtectionAllowanceSchema>;
+
+/**
  * Validates durable state retained for one protection scope.
  * @since 0.1.0 Initial implementation.
  */
 export const StoredDurableProtectionScopeStateSchema = z.object( {
 	ladder: DailyLadderSchema,
 	allowance: StoredProtectionAllowanceSchema.optional(),
-} ).strict();
+	ready: StoredPendingProtectionAllowanceSchema.optional(),
+} ).strict().superRefine( ( state, context ) => {
+	if ( state.allowance !== undefined && state.ready !== undefined ) {
+		context.addIssue( {
+			code: 'custom',
+			message: 'A scope cannot retain both a pending and a running allowance.',
+			path: [ 'ready' ],
+		} );
+	}
+} );
 
 /**
  * Durable state retained for one protection scope.

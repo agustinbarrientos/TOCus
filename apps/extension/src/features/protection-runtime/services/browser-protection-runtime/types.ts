@@ -40,6 +40,8 @@ export interface BrowserProtectionRuntimeSnapshot {
  * @since 0.1.0 Initial implementation.
  */
 export interface BrowserProtectionRuntimeOptions {
+	/** Suppresses runtime ingress until reset recovery explicitly resumes and starts protection. */
+	initiallySuspended?: boolean;
 	browser: ProtectionRuntimeBrowser;
 	configurationStorage: ProtectionConfigurationStorageService;
 	coordinator: ProtectionCoordinator;
@@ -86,6 +88,23 @@ export interface BrowserProtectionRuntimeOptions {
  * @since 0.1.0 Initial implementation.
  */
 export interface BrowserProtectionRuntime {
+	/**
+	 * Stops new work synchronously, drains started writes, and releases browser effects.
+	 * Remains suspended after failure; repeated calls safely retry browser cleanup.
+	 * @return Promise resolved before the caller may remove persisted local data.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	suspendForDataReset(): Promise<void>;
+
+	/**
+	 * Invalidates drained cached state without writing, then permits new operations.
+	 * Call after successful suspension and data removal, or after suspended startup recovery.
+	 * Does not start protection; the caller must subsequently call start.
+	 * @return Promise resolved once a later start can load fresh persisted state.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	resumeAfterDataReset(): Promise<void>;
+
 	/**
 	 * Captures browser focus and time before a controller queue can delay one event.
 	 * @param mode - Relationship between this observation and browser focus state.

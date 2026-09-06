@@ -23,6 +23,7 @@ import { WaitDurationMillisecondsSchema } from './wait-duration';
 export const ProtectionStateType = {
 	IDLE: 'idle',
 	WAITING: 'waiting',
+	READY: 'ready',
 	ALLOWANCE: 'allowance',
 } as const;
 
@@ -69,16 +70,32 @@ export const AllowanceProtectionStateTargetSchema = z.object( {
 export type AllowanceProtectionStateTarget = z.infer<typeof AllowanceProtectionStateTargetSchema>;
 
 /**
- * Validates a transaction target for Waiting or Allowance state.
+ * Validates a transaction target identifying a completed pause awaiting entry.
+ * @since 0.1.0 Initial implementation.
+ */
+export const ReadyProtectionStateTargetSchema = z.object( {
+	stateType: z.enum( [ ProtectionStateType.READY ] ),
+	allowanceId: AllowanceIdSchema,
+} ).strict();
+
+/**
+ * Transaction target identifying a completed pause awaiting entry.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ReadyProtectionStateTarget = z.infer<typeof ReadyProtectionStateTargetSchema>;
+
+/**
+ * Validates a transaction target for Waiting, Ready, or Allowance state.
  * @since 0.1.0 Initial implementation.
  */
 export const ProtectionStateTargetSchema = z.discriminatedUnion( 'stateType', [
 	WaitingProtectionStateTargetSchema,
+	ReadyProtectionStateTargetSchema,
 	AllowanceProtectionStateTargetSchema,
 ] );
 
 /**
- * Transaction target for Waiting or Allowance state.
+ * Transaction target for Waiting, Ready, or Allowance state.
  * @since 0.1.0 Initial implementation.
  */
 export type ProtectionStateTarget = z.infer<typeof ProtectionStateTargetSchema>;
@@ -239,6 +256,29 @@ export const WaitingProtectionStateSchema = z.object( {
 export type WaitingProtectionState = z.infer<typeof WaitingProtectionStateSchema>;
 
 /**
+ * Validates a completed pause whose allowance starts at the first accepted entry.
+ * @since 0.1.0 Initial implementation.
+ */
+export const ReadyProtectionStateSchema = z.object( {
+	type: z.enum( [ ProtectionStateType.READY ] ),
+	scopeId: ProtectionScopeIdSchema,
+	allowanceId: AllowanceIdSchema,
+	completedWaitId: WaitIdSchema,
+	capturedAllowanceDurationMilliseconds: AllowanceDurationMillisecondsSchema,
+	readyParticipants: z.array( ProtectionParticipantSchema ),
+	completionStatisticsEligible: z.boolean().default( false ),
+	ladder: DailyLadderSchema,
+} ).strict().superRefine( ( state, context ) => {
+	refineParticipantUniqueness( state.readyParticipants, context, 'Ready', 'readyParticipants' );
+} );
+
+/**
+ * Completed pause retaining its allowance duration without a running interval.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ReadyProtectionState = z.infer<typeof ReadyProtectionStateSchema>;
+
+/**
  * Validates an allowance protection state and its participant invariants.
  * @since 0.1.0 Initial implementation.
  */
@@ -281,17 +321,18 @@ export const AllowanceProtectionStateSchema = z.object( {
 export type AllowanceProtectionState = z.infer<typeof AllowanceProtectionStateSchema>;
 
 /**
- * Validates exactly one Idle, Waiting, or Allowance state for a protection scope.
+ * Validates exactly one Idle, Waiting, Ready, or Allowance state for a protection scope.
  * @since 0.1.0 Initial implementation.
  */
 export const ProtectionStateSchema = z.discriminatedUnion( 'type', [
 	IdleProtectionStateSchema,
 	WaitingProtectionStateSchema,
+	ReadyProtectionStateSchema,
 	AllowanceProtectionStateSchema,
 ] );
 
 /**
- * Exactly one Idle, Waiting, or Allowance state for a protection scope.
+ * Exactly one Idle, Waiting, Ready, or Allowance state for a protection scope.
  * @since 0.1.0 Initial implementation.
  */
 export type ProtectionState = z.infer<typeof ProtectionStateSchema>;

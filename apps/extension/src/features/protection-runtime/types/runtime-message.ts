@@ -204,7 +204,7 @@ export type WaitingInterruptionPageResponse = z.infer<typeof WaitingInterruption
  */
 export const ReadyInterruptionPageResponseSchema = z.object( {
 	state: z.enum( [ InterruptionPageResponseState.READY ] ),
-	allowanceExpiresAtEpochMilliseconds: EpochMillisecondsSchema,
+	allowanceExpiresAtEpochMilliseconds: EpochMillisecondsSchema.nullable(),
 } ).strict();
 
 /**

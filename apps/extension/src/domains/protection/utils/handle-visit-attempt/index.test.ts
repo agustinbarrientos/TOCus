@@ -16,10 +16,39 @@ import {
 	createIdleState,
 	createNavigationParticipant,
 	createWaitingState,
+	createReadyState,
 } from '../../types/__fixtures__/protection-state';
 import { handleVisitAttempt } from './index';
 
 describe( 'visit-attempt transition', () => {
+	it( 'withdraws a pending allowance and releases every participant on an inactive visit', () => {
+		const state = createReadyState();
+		const result = handleVisitAttempt( state, createVisitAttempt( 'participant-b', 'page-b', true, {
+			schedule: { status: ScheduleEvaluationStatus.INACTIVE },
+		} ) );
+		expect( result.state ).toEqual( {
+			type: ProtectionStateType.IDLE,
+			scopeId: state.scopeId,
+			ladder: state.ladder,
+		} );
+		expect( result.decisions ).toMatchObject( [ { participantId: 'participant-a' }, { participantId: 'participant-b' } ] );
+		expect( result.facts ).toEqual( [] );
+	} );
+
+	it( 'joins an indefinitely pending pause without starting an allowance or another wait', () => {
+		const state = createReadyState();
+		const result = handleVisitAttempt( state, createVisitAttempt( 'participant-b', 'page-b', true, {
+			nowEpochMilliseconds: TestInstant + 9_000_000,
+		} ) );
+
+		expect( result ).toEqual( {
+			state: { ...state, readyParticipants: [ ...state.readyParticipants, createNavigationParticipant( 'participant-b', 'page-b', true, 1 ) ] },
+			decisions: [ { type: ProtectionDecisionType.PRESENT_READY, participantId: 'participant-b', pageId: 'page-b', allowanceId: 'allowance-a' } ],
+			facts: [],
+		} );
+		expect( handleVisitAttempt( result.state, createVisitAttempt( 'participant-b', 'page-b' ) ).state ).toEqual( result.state );
+	} );
+
 	it( 'accepts exactly one validated visit-attempt event branch', () => {
 		expectTypeOf( handleVisitAttempt ).parameter( 1 ).toEqualTypeOf<VisitAttemptEvent>();
 	} );

@@ -19,8 +19,10 @@ export type SettingsPlatform = typeof SettingsPlatform[ keyof typeof SettingsPla
  * @since 0.1.0 Initial implementation.
  */
 export const SettingsDestination = {
+	ABOUT: 'about',
 	APPEARANCE: 'appearance',
 	LANGUAGE: 'language',
+	PRIVACY: 'privacy',
 	PROTECTED_SITES: 'protected-sites',
 	SCHEDULE: 'schedule',
 	STATISTICS: 'statistics',
@@ -39,8 +41,10 @@ export type SettingsDestination = typeof SettingsDestination[ keyof typeof Setti
  */
 export interface SettingsShellCopy {
 	navigationLabel: string;
+	about: string;
 	appearance: string;
 	language: string;
+	privacy: string;
 	protectedSites: string;
 	schedule: string;
 	statistics: string;

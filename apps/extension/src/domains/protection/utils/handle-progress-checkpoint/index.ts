@@ -25,12 +25,12 @@ import { advanceDailyLadder } from '../daily-ladder-progression';
 import { protectionMatchProtectsScope } from '../match-protection-scope';
 
 /**
- * Atomically completes one accepted wait and creates its allowance transaction.
+ * Completes one accepted wait and captures its allowance until entry is accepted.
  * @param state - Current validated Waiting state whose accepted progress reached its duration.
  * @param event - Validated checkpoint carrying completion observations and allowance identity.
  * @param pauseTimeFact - Accepted public progress fact, or null when the checkpoint is private.
  * @param completionStatisticsEligible - Whether every accepted progress segment may enter ordinary statistics.
- * @return The new Allowance state with Ready or automatic-action decisions and completion facts.
+ * @return Ready state or an automatically started allowance, with presentation decisions and accepted statistics.
  * @since 0.1.0 Initial implementation.
  */
 function completeWait(
@@ -39,10 +39,6 @@ function completeWait(
 	pauseTimeFact: PauseTimeFact | null,
 	completionStatisticsEligible: boolean,
 ): ProtectionTransitionResult {
-	const startedAtEpochMilliseconds = event.observedAtEpochMilliseconds;
-	const expiresAtEpochMilliseconds = EpochMillisecondsSchema.parse(
-		startedAtEpochMilliseconds + event.timingConfiguration.allowanceMilliseconds,
-	);
 	const ladder = advanceDailyLadder( state.ladder, event.completionLocalDate );
 	const decisions: ProtectionDecision[] = [];
 	const readyParticipants: ProtectionParticipant[] = [];
@@ -86,17 +82,38 @@ function completeWait(
 				scopeId: state.scopeId,
 				waitId: state.waitId,
 				capturedWaitDurationMilliseconds: state.capturedWaitDurationMilliseconds,
-				completedAtEpochMilliseconds: startedAtEpochMilliseconds,
+				completedAtEpochMilliseconds: event.observedAtEpochMilliseconds,
 				completionLocalDate: event.completionLocalDate,
 			} ),
-			createAllowanceGrantedFact( {
-				scopeId: state.scopeId,
-				allowanceId: event.allowanceId,
-				startedAtEpochMilliseconds,
-				expiresAtEpochMilliseconds,
-				allowanceDurationMilliseconds: event.timingConfiguration.allowanceMilliseconds,
-			} ),
 		);
+	}
+
+	if ( readyParticipants.length === state.participants.length ) {
+		return createTransitionResult( {
+			type: ProtectionStateType.READY,
+			scopeId: state.scopeId,
+			allowanceId: event.allowanceId,
+			completedWaitId: state.waitId,
+			capturedAllowanceDurationMilliseconds: event.timingConfiguration.allowanceMilliseconds,
+			completionStatisticsEligible,
+			readyParticipants,
+			ladder,
+		}, decisions, facts );
+	}
+
+	const startedAtEpochMilliseconds = event.observedAtEpochMilliseconds;
+	const expiresAtEpochMilliseconds = EpochMillisecondsSchema.parse(
+		startedAtEpochMilliseconds + event.timingConfiguration.allowanceMilliseconds,
+	);
+
+	if ( completionStatisticsEligible ) {
+		facts.push( createAllowanceGrantedFact( {
+			scopeId: state.scopeId,
+			allowanceId: event.allowanceId,
+			startedAtEpochMilliseconds,
+			expiresAtEpochMilliseconds,
+			allowanceDurationMilliseconds: event.timingConfiguration.allowanceMilliseconds,
+		} ) );
 	}
 
 	return createTransitionResult( {

@@ -24,6 +24,7 @@ import {
 	completeFocusedPause,
 	createRuntime,
 	presentAllowanceExpiryInterruption,
+	readActiveAllowanceExpiry,
 } from './__fixtures__';
 import { createInertStatisticsRuntime } from './__fixtures__/statistics-runtime';
 
@@ -566,15 +567,11 @@ describe( 'createBrowserProtectionRuntime', () => {
 
 		expect( ready ).toEqual( {
 			state: InterruptionPageResponseState.READY,
-			allowanceExpiresAtEpochMilliseconds: now.value + 300_000,
+			allowanceExpiresAtEpochMilliseconds: null,
 		} );
-		expect( browser.rules ).toEqual( [] );
-		expect( browser.badge ).toMatchObject( { text: 'V5m', title: 'TOCus: Visit window: 5 minutes remaining' } );
-		expect( browser.protectionClockDeadlines ).toEqual( [
-			now.value + 60_000,
-			now.value + 290_000,
-			now.value + 300_000,
-		] );
+		expect( browser.rules ).toHaveLength( 1 );
+		expect( browser.badge ).toMatchObject( { text: '' } );
+		expect( browser.protectionClockDeadlines ).toEqual( [] );
 
 		await runtime.handlePageRequest( {
 			type: InterruptionPageRequestType.CONTINUE,
@@ -592,6 +589,13 @@ describe( 'createBrowserProtectionRuntime', () => {
 			},
 		] );
 		expect( ( await coordinator.getStates() )?.scope_default?.type ).toBe( ProtectionStateType.ALLOWANCE );
+		expect( browser.rules ).toEqual( [] );
+		expect( browser.badge ).toMatchObject( { text: 'V5m', title: 'TOCus: Visit window: 5 minutes remaining' } );
+		expect( browser.protectionClockDeadlines ).toEqual( [
+			now.value + 60_000,
+			now.value + 290_000,
+			now.value + 300_000,
+		] );
 	} );
 
 	it( 'ignores subframes and leaves scheduled-out navigation unprotected', async () => {
@@ -919,7 +923,7 @@ describe( 'createBrowserProtectionRuntime', () => {
 			type: InterruptionPageRequestType.CONTINUE,
 			documentVisible: true,
 		}, 7, true );
-		now.value = ready.allowanceExpiresAtEpochMilliseconds;
+		now.value = await readActiveAllowanceExpiry( runtime );
 		await runtime.handleClockTick();
 
 		expect( await runtime.handlePageRequest( {
@@ -941,7 +945,7 @@ describe( 'createBrowserProtectionRuntime', () => {
 		} );
 		expect( browser.protectedPageUpdates ).toContainEqual( {
 			tabId: 7,
-			message: { type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER },
+			message: { type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER, resumePlayback: true },
 		} );
 		expect( browser.dismissedTabs ).toEqual( [] );
 	} );
@@ -1044,7 +1048,7 @@ describe( 'createBrowserProtectionRuntime', () => {
 			incognito: false,
 			url: 'https://another.test/feed',
 		} );
-		now.value = ready.allowanceExpiresAtEpochMilliseconds;
+		now.value = await readActiveAllowanceExpiry( runtime );
 		await runtime.handleClockTick();
 
 		browser.focusedTabId = 8;
@@ -1083,7 +1087,7 @@ describe( 'createBrowserProtectionRuntime', () => {
 			type: InterruptionPageRequestType.CONTINUE,
 			documentVisible: true,
 		}, 7, true );
-		now.value = ready.allowanceExpiresAtEpochMilliseconds;
+		now.value = await readActiveAllowanceExpiry( runtime );
 
 		await runtime.handleFocusChanged();
 
@@ -1264,6 +1268,10 @@ describe( 'createBrowserProtectionRuntime', () => {
 		await runtime.start();
 		await runtime.handleNavigation( { tabId: 7, frameId: 0, url: 'https://example.com/' } );
 		await completeFocusedPause( runtime, 7 );
+		await runtime.handlePageRequest( {
+			type: InterruptionPageRequestType.CONTINUE,
+			documentVisible: true,
+		}, 7, true );
 
 		await runtime.handleFocusChanged();
 

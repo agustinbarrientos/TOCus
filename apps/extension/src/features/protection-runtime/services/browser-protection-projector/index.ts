@@ -4,6 +4,7 @@ import {
 } from '../../../../domains/protection/services/protection-coordinator';
 import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
+import { ProtectionParticipantOrigin } from '../../../../domains/protection/types/protection-participant';
 import { AllowanceWarningDurationMilliseconds } from '../../../../domains/protection/types/allowance-warning';
 import { getNextScheduleTransitionDeadline } from '../../../../domains/protection/utils/schedule-evaluator';
 import {
@@ -11,6 +12,8 @@ import {
 	ToolbarBadgePhase,
 } from '../../utils/toolbar-badge-projection';
 import { type ProtectionClockDeadlines } from '../../types/browser-runtime';
+import { ProtectedPageMessageType } from '../../types/protected-page-message';
+import { getRuntimeTabId } from '../../utils/runtime-page-context';
 import { createAllowanceWarningReconciler } from '../allowance-warning-reconciler';
 import { createNavigationRuleReconciler } from '../navigation-rule-reconciler';
 import { createProtectionPageProjector } from '../protection-page-projector';
@@ -202,6 +205,25 @@ export function createBrowserProtectionProjector(
 		const scheduleTransitionDeadline = statesByScope === null
 			? null
 			: getScheduleTransitionDeadline( configuration, nowEpochMilliseconds, timeZone );
+		const heldTabIds = new Set<number>();
+
+		if ( configuration !== null && statesByScope !== null ) {
+			for ( const state of Object.values( statesByScope ) ) {
+				const participants = state.type === ProtectionStateType.WAITING
+					? state.participants
+					: state.type === ProtectionStateType.READY || state.type === ProtectionStateType.ALLOWANCE
+						? state.readyParticipants
+						: [];
+
+				for ( const participant of participants ) {
+					const tabId = getRuntimeTabId( participant.pageId );
+
+					if ( participant.origin === ProtectionParticipantOrigin.ALLOWANCE_EXPIRY && tabId !== null ) {
+						heldTabIds.add( tabId );
+					}
+				}
+			}
+		}
 
 		await Promise.allSettled( [
 			options.browser.synchronizeProtectionClock( getProtectionClockDeadlines(
@@ -210,6 +232,7 @@ export function createBrowserProtectionProjector(
 				scheduleTransitionDeadline,
 			) ),
 			refreshFocusEffects( configuration, statesByScope ),
+			options.browser.restoreTabAudioExcept( heldTabIds ),
 		] );
 	}
 
@@ -246,35 +269,64 @@ export function createBrowserProtectionProjector(
 	 * Applies persisted page decisions after dynamic redirects reflect authoritative state.
 	 * @param decisions - Persisted protection decisions.
 	 * @param configuration - Current validated local configuration or unavailable marker.
+	 * @param continuedParticipant - Optional identity from a freshly validated entry request.
 	 * @return Promise resolved after page effects succeed and ancillary attempts settle.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function applyDecisions(
 		decisions: Parameters<BrowserProtectionProjector[ 'applyDecisions' ]>[ 0 ],
 		configuration: Parameters<BrowserProtectionProjector[ 'applyDecisions' ]>[ 1 ],
+		continuedParticipant?: Parameters<BrowserProtectionProjector[ 'applyDecisions' ]>[ 2 ],
 	): Promise<void> {
 		const statesByScope = await options.coordinator.getStates();
+		const continuedState = continuedParticipant === undefined
+			? undefined
+			: statesByScope?.[ continuedParticipant.scopeId ];
+		const acceptedContinuation = continuedState?.type === ProtectionStateType.ALLOWANCE &&
+			continuedState.allowanceId === continuedParticipant?.allowanceId &&
+			options.now() < continuedState.expiresAtEpochMilliseconds
+			? continuedParticipant
+			: undefined;
 
 		await navigationRuleReconciler.reconcile( configuration, statesByScope );
-		await pageProjector.applyDecisions( decisions, configuration, statesByScope );
+		await pageProjector.applyDecisions( decisions, configuration, statesByScope, acceptedContinuation );
 		await refreshAncillaryEffects( configuration, statesByScope );
 	}
 
 	/**
-	 * Attempts to remove every browser effect owned by runtime protection.
-	 * @return Promise resolved after redirect removal succeeds and ancillary attempts settle.
+	 * Removes allowance timers and warnings without swallowing reset cleanup failures.
+	 * @return Promise resolved after every live document accepts removal or has no listener.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	async function failOpen(): Promise<void> {
+	async function clearAllowanceGuards(): Promise<void> {
+		const tabs = await options.browser.listTabs();
+
+		await Promise.all( tabs.map( ( tab ) => options.browser.updateProtectedPagePresentation( tab.id, {
+			type: ProtectedPageMessageType.REMOVE_ALLOWANCE_EXPIRY_GUARD,
+		}, true ) ) );
+	}
+
+	/**
+	 * Attempts to remove every browser effect owned by runtime protection.
+	 * @param cleanup - Optional retained destinations and reset-specific cleanup requirements.
+	 * @return Promise resolved after required effects succeed and all cleanup attempts settle.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function failOpen(
+		cleanup: Parameters<BrowserProtectionProjector[ 'failOpen' ]>[ 0 ] = {},
+	): Promise<void> {
 		const statesByScope = await options.coordinator.getStates();
 		const results = await Promise.allSettled( [
 			options.browser.replaceNavigationRules( [] ),
 			options.browser.synchronizeProtectionClock( [] ),
 			options.browser.updateToolbarBadge( createToolbarBadgeProjection( {
 				phase: ToolbarBadgePhase.INACTIVE,
-			}, options.toolbarBadgeCopy ) ),
-			pageProjector.releaseInjectedInterruptions(),
-			allowanceWarningReconciler.reconcile( null, statesByScope ),
+			}, options.toolbarBadgeCopy ), cleanup.requireCompleteCleanup ),
+			pageProjector.releaseInjectedInterruptions( cleanup.requireCompleteCleanup ),
+			cleanup.requireCompleteCleanup === true
+				? clearAllowanceGuards()
+				: allowanceWarningReconciler.reconcile( null, statesByScope ),
+			options.browser.restoreTabAudioExcept( new Set(), cleanup.requireCompleteCleanup ),
 		] );
 		const [ navigationRuleResult, , , injectedReleaseResult ] = results;
 
@@ -285,7 +337,7 @@ export function createBrowserProtectionProjector(
 		}
 
 		const [ pageReleaseResult ] = await Promise.allSettled( [
-			pageProjector.releaseInterruptionPages( statesByScope ),
+			pageProjector.releaseInterruptionPages( statesByScope, cleanup.storedParticipants ),
 		] );
 
 		if ( pageReleaseResult.status === 'rejected' ) {
@@ -295,25 +347,35 @@ export function createBrowserProtectionProjector(
 		if ( injectedReleaseResult.status === 'rejected' ) {
 			throw injectedReleaseResult.reason;
 		}
+
+		if ( cleanup.requireCompleteCleanup === true ) {
+			const failedEffect = results.find( ( result ) => result.status === 'rejected' );
+
+			if ( failedEffect !== undefined ) {
+				throw new Error( 'Failed to clear protection browser effects.', { cause: failedEffect.reason } );
+			}
+		}
 	}
 
 	/**
 	 * Applies one persisted coordinator result or fails open after rejected persistence.
 	 * @param result - Persisted coordinator dispatch result.
 	 * @param configuration - Current validated local configuration or unavailable marker.
+	 * @param continuedParticipant - Optional identity from a freshly validated entry request.
 	 * @return Promise resolved after accepted effects or rejected after fail-open cleanup.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function applyDispatchResult(
 		result: Parameters<BrowserProtectionProjector[ 'applyDispatchResult' ]>[ 0 ],
 		configuration: Parameters<BrowserProtectionProjector[ 'applyDispatchResult' ]>[ 1 ],
+		continuedParticipant?: Parameters<BrowserProtectionProjector[ 'applyDispatchResult' ]>[ 2 ],
 	): Promise<void> {
 		if ( result.status === ProtectionCoordinatorDispatchStatus.REJECTED ) {
 			await failOpen();
 			throw new Error( `Protection state dispatch failed: ${ result.reason }.` );
 		}
 
-		await applyDecisions( result.decisions, configuration );
+		await applyDecisions( result.decisions, configuration, continuedParticipant );
 	}
 	return {
 		reconcile,

@@ -22,9 +22,11 @@ import {
 	type SitePermissionManager,
 } from '../../../protected-sites/services/site-permission-manager';
 import {
-	type StatisticsClientRuntime,
 	type StatisticsStorageChangeSource,
 } from '../../../statistics/services/statistics-client';
+import { type PrivacyDataRuntime } from '../privacy-data-actions/types';
+import { type AboutScreenCopy } from '../../components/about-screen/types';
+import { type PrivacyDataActions, type PrivacyScreenCopy } from '../../components/privacy-screen/types';
 import { type StatisticsSource } from '../../../statistics/components/settings-screen/types';
 import {
 	type AppearanceScreenCopy,
@@ -121,6 +123,10 @@ export interface SettingsPageShadowRoot {
  * @since 0.1.0 Initial implementation.
  */
 export interface SettingsPageShell {
+	/** Localized About destination copy. */
+	aboutCopy: Readonly<AboutScreenCopy>;
+	/** Installed extension version. */
+	aboutVersion: string;
 	/** Localized Appearance destination copy. */
 	appearanceCopy: Readonly<AppearanceScreenCopy>;
 	/** Supported browser-derived language. */
@@ -143,6 +149,10 @@ export interface SettingsPageShell {
 	preferencesPreview: PreferencesPreview | null;
 	/** Validated preferences source. */
 	preferencesSource: PreferencesSource | null;
+	/** Explicit background-owned data reset actions. */
+	privacyActions: PrivacyDataActions | null;
+	/** Localized Privacy destination copy. */
+	privacyCopy: Readonly<PrivacyScreenCopy>;
 	/** Localized protected-site item copy. */
 	protectedSiteItemCopy: Readonly<ProtectedSiteItemCopy>;
 	/** Localized Protected Sites destination copy. */
@@ -155,6 +165,8 @@ export interface SettingsPageShell {
 	statisticsCopy: Readonly<StatisticsSettingsScreenCopy>;
 	/** Authoritative local statistics source. */
 	statisticsSource: StatisticsSource | null;
+	/** Whether the browser declares cached-favicon access. */
+	supportsCachedFavicons: boolean;
 	/** Localized Timing destination copy. */
 	timingCopy: Readonly<TimingScreenCopy>;
 }
@@ -224,8 +236,8 @@ export interface SettingsPageOptions {
 	platform: SettingsPlatform;
 	/** Browser window supplying operating-system preferences. */
 	pageWindow: SettingsPageWindow;
-	/** Local extension messaging used by the statistics client. */
-	runtime: StatisticsClientRuntime;
+	/** Local extension messaging used by statistics and explicit data resets. */
+	runtime: PrivacyDataRuntime;
 	/** Settings shell receiving page dependencies and localized copy. */
 	shell: SettingsPageShell;
 	/** Shared extension-local storage area. */
@@ -234,4 +246,6 @@ export interface SettingsPageOptions {
 	storageChanges: PreferencesStorageChangeSource & StatisticsStorageChangeSource;
 	/** Whether cached browser favicons are available. */
 	supportsCachedFavicons: boolean;
+	/** Installed extension version from the browser manifest. */
+	version: string;
 }

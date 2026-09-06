@@ -143,6 +143,17 @@ class MemoryStatisticsSessionStorageArea implements StatisticsSessionStorageArea
 }
 
 describe( 'createStatisticsSessionStorageService', () => {
+	it( 'forgets a removed focus epoch without writing and creates a fresh epoch on next access', async () => {
+		const area = new MemoryStatisticsSessionStorageArea();
+		const storage = createTestStorage( area, [ 'focus_old', 'focus_fresh' ] );
+		await expect( storage.getOrCreateFocusEpoch() ).resolves.toBe( 'focus_old' );
+		await area.remove( StatisticsSessionStorageKey.FOCUS_EPOCH );
+
+		storage.forgetFocusEpoch();
+		expect( area.writtenValues ).toHaveLength( 1 );
+		await expect( storage.getOrCreateFocusEpoch() ).resolves.toBe( 'focus_fresh' );
+	} );
+
 	it( 'returns null without writing when session data is absent', async () => {
 		const area = new MemoryStatisticsSessionStorageArea();
 		const storage = createTestStorage( area );

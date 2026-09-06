@@ -4,6 +4,9 @@ import { Language } from '../../../../domains/preferences/types';
 import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import { TestInstant } from '../../../../domains/protection/types/__fixtures__/protection-event';
 import { type StatisticsRuntimeOptions } from '../../../statistics/services/statistics-runtime';
+import { type LocalDataResetOptions } from '../../../../domains/local-data/services/local-data-reset/types';
+import { type LocalDataResetControllerOptions } from '../../../settings/services/local-data-reset-controller/types';
+import { type PopupEnrollmentControllerOptions } from '../../../popup/services/popup-enrollment-controller/types';
 import { type BrowserProtectionRuntimeOptions } from '../browser-protection-runtime';
 import { type PopupBackgroundControllerOptions } from '../../../popup/services/popup-background-controller';
 import { type ProtectionBackgroundControllerOptions } from '../protection-background-controller';
@@ -20,7 +23,7 @@ import { type ToolbarBadgeCopy } from '../../utils/toolbar-badge-projection';
 const backgroundMocks = vi.hoisted( () => ( {
 	createBrowserProtectionConfigurationEditor: vi.fn().mockReturnValue( { editor: {} } ),
 	createProtectedSiteEnrollmentService: vi.fn().mockReturnValue( { add: vi.fn() } ),
-	createPopupEnrollmentController: vi.fn(),
+	createPopupEnrollmentController: vi.fn<( options: PopupEnrollmentControllerOptions ) => unknown>(),
 	startPopupEnrollment: vi.fn(),
 	createBrowserProtectionAdapter: vi.fn(),
 	createBrowserProtectionRuntime: vi.fn<( options: BrowserProtectionRuntimeOptions ) => unknown>(),
@@ -43,13 +46,34 @@ const backgroundMocks = vi.hoisted( () => ( {
 	startProtectionController: vi.fn(),
 	startPopupController: vi.fn(),
 	startToolbarLanguage: vi.fn<( refreshToolbarBadge: ToolbarBadgeRefresh ) => void>(),
+	createLocalDataReset: vi.fn<( options: LocalDataResetOptions ) => unknown>(),
+	createLocalDataResetController: vi.fn<( options: LocalDataResetControllerOptions ) => unknown>(),
+	revokeWebsiteAccess: vi.fn().mockResolvedValue( true ),
+	startResetController: vi.fn(),
+	createTabAudioController: vi.fn(),
+	observeMuteChange: vi.fn().mockResolvedValue( undefined ),
+	suspendForDataReset: vi.fn().mockResolvedValue( undefined ),
+	resumeAfterDataReset: vi.fn().mockResolvedValue( undefined ),
+} ) );
+
+vi.mock( '../../../../domains/local-data/services/local-data-reset', () => ( {
+	createLocalDataReset: backgroundMocks.createLocalDataReset,
+} ) );
+
+vi.mock( '../../../settings/services/local-data-reset-controller', () => ( {
+	createLocalDataResetController: backgroundMocks.createLocalDataResetController,
+} ) );
+
+vi.mock( '../../../settings/services/revoke-website-access', () => ( {
+	revokeWebsiteAccess: backgroundMocks.revokeWebsiteAccess,
 } ) );
 
 vi.mock( '../../../../domains/protection/services/browser-protection-configuration-editor', () => ( {
 	createBrowserProtectionConfigurationEditor: backgroundMocks.createBrowserProtectionConfigurationEditor,
 } ) );
 
-vi.mock( '../../../protected-sites/services/protected-site-enrollment', () => ( {
+vi.mock( '../../../protected-sites/services/protected-site-enrollment', async ( importOriginal ) => ( {
+	...await importOriginal<typeof import( '../../../protected-sites/services/protected-site-enrollment' )>(),
 	createProtectedSiteEnrollmentService: backgroundMocks.createProtectedSiteEnrollmentService,
 } ) );
 
@@ -86,6 +110,10 @@ vi.mock( '../../../statistics/services/statistics-runtime', () => ( {
 
 vi.mock( '../browser-protection-adapter', () => ( {
 	createBrowserProtectionAdapter: backgroundMocks.createBrowserProtectionAdapter,
+} ) );
+
+vi.mock( '../tab-audio-controller', () => ( {
+	createTabAudioController: backgroundMocks.createTabAudioController,
 } ) );
 
 vi.mock( '../browser-protection-runtime', () => ( {
@@ -131,6 +159,9 @@ describe( 'startProtectionBackgroundApplication', () => {
 		const enrollment = { add: vi.fn() };
 		const coordinator = { dispatch: vi.fn() };
 		const browserAdapter = { browserAdapter: true };
+		const tabAudio = { observeMuteChange: backgroundMocks.observeMuteChange };
+		backgroundMocks.createTabAudioController.mockReturnValue( tabAudio );
+		const registerTabUpdate = vi.spyOn( fakeBrowser.tabs.onUpdated, 'addListener' );
 		const statisticsStorage = { statisticsStorage: true };
 		const statisticsSessionStorage = { statisticsSessionStorage: true };
 		const statisticsRuntime = { statisticsRuntime: true };
@@ -148,6 +179,8 @@ describe( 'startProtectionBackgroundApplication', () => {
 		};
 		const runtime = {
 			refreshToolbarBadge: backgroundMocks.refreshToolbarBadge,
+			suspendForDataReset: backgroundMocks.suspendForDataReset,
+			resumeAfterDataReset: backgroundMocks.resumeAfterDataReset,
 		};
 		const protectionController = {
 			refresh: backgroundMocks.refreshProtection,
@@ -178,10 +211,43 @@ describe( 'startProtectionBackgroundApplication', () => {
 		} );
 		backgroundMocks.createBrowserProtectionConfigurationEditor.mockReturnValue( { editor: protectionEditor } );
 		backgroundMocks.createProtectedSiteEnrollmentService.mockReturnValue( enrollment );
+		const reset = { reset: vi.fn(), recover: vi.fn() };
+		backgroundMocks.createLocalDataReset.mockReturnValue( reset );
+		backgroundMocks.createLocalDataResetController.mockReturnValue( {
+			start: backgroundMocks.startResetController,
+		} );
 
 		startProtectionBackgroundApplication( { browser: fakeBrowser } );
 
+		expect( backgroundMocks.createTabAudioController ).toHaveBeenCalledWith( {
+			runtimeId: fakeBrowser.runtime.id,
+			tabs: fakeBrowser.tabs,
+			storage: fakeBrowser.storage.session,
+		} );
+		expect( backgroundMocks.createBrowserProtectionAdapter ).toHaveBeenCalledWith( fakeBrowser, tabAudio );
+		const observeAudio = registerTabUpdate.mock.calls[ 0 ]?.[ 0 ];
+		if ( observeAudio === undefined ) {
+			throw new TypeError( 'Expected tab audio observation.' );
+		}
+		const observedTab = await fakeBrowser.tabs.create( { url: 'https://example.com' } );
+		observeAudio( 7, { status: 'complete' }, observedTab );
+		expect( backgroundMocks.observeMuteChange ).not.toHaveBeenCalled();
+		const mutedInfo = { muted: false };
+		observeAudio( 7, { mutedInfo }, observedTab );
+		expect( backgroundMocks.observeMuteChange ).toHaveBeenCalledWith( 7, mutedInfo );
+
 		if ( isChrome ) {
+			expect( backgroundMocks.createBrowserProtectionConfigurationEditor ).not.toHaveBeenCalled();
+			expect( backgroundMocks.createProtectedSiteEnrollmentService ).not.toHaveBeenCalled();
+			const enrollmentOptions = backgroundMocks.createPopupEnrollmentController.mock.calls[ 0 ]?.[ 0 ];
+			if ( enrollmentOptions === undefined ) {
+				throw new TypeError( 'Expected popup enrollment options.' );
+			}
+			const firstResult = { status: 'save-error' as const };
+			enrollment.add.mockResolvedValueOnce( firstResult );
+			const firstAddition = enrollmentOptions.enrollment.add( 'github.com', false );
+			expect( enrollment.add ).toHaveBeenCalledWith( 'github.com', false );
+			await expect( firstAddition ).resolves.toBe( firstResult );
 			expect( backgroundMocks.createBrowserProtectionConfigurationEditor ).toHaveBeenCalledWith( {
 				area: fakeBrowser.storage.local,
 				cryptography: crypto,
@@ -192,11 +258,24 @@ describe( 'startProtectionBackgroundApplication', () => {
 				permissionManager: { filterConfiguration: backgroundMocks.filterConfiguration },
 			} );
 			expect( backgroundMocks.createPopupEnrollmentController ).toHaveBeenCalledWith( {
-				enrollment,
+				enrollment: enrollmentOptions.enrollment,
 				popupPageUrl: fakeBrowser.runtime.getURL( '/popup.html' ),
 				runtime: fakeBrowser.runtime,
 			} );
 			expect( backgroundMocks.startPopupEnrollment ).toHaveBeenCalledOnce();
+			const nextEditor = { editor: { fixture: 'next-generation' } };
+			const nextResult = { status: 'permission-denied' as const };
+			const nextEnrollment = { add: vi.fn().mockResolvedValue( nextResult ) };
+			backgroundMocks.createBrowserProtectionConfigurationEditor.mockReturnValueOnce( nextEditor );
+			backgroundMocks.createProtectedSiteEnrollmentService.mockReturnValueOnce( nextEnrollment );
+			const nextAddition = enrollmentOptions.enrollment.add( 'youtube.com', true );
+			expect( nextEnrollment.add ).toHaveBeenCalledWith( 'youtube.com', true );
+			await expect( nextAddition ).resolves.toBe( nextResult );
+			expect( backgroundMocks.createBrowserProtectionConfigurationEditor ).toHaveBeenCalledTimes( 2 );
+			expect( backgroundMocks.createProtectedSiteEnrollmentService ).toHaveBeenLastCalledWith( {
+				editor: nextEditor.editor,
+				permissionManager: { filterConfiguration: backgroundMocks.filterConfiguration },
+			} );
 		} else {
 			expect( backgroundMocks.createBrowserProtectionConfigurationEditor ).not.toHaveBeenCalled();
 			expect( backgroundMocks.createPopupEnrollmentController ).not.toHaveBeenCalled();
@@ -252,6 +331,7 @@ describe( 'startProtectionBackgroundApplication', () => {
 		}
 
 		expect( runtimeOptions.browser ).toBe( browserAdapter );
+		expect( runtimeOptions.initiallySuspended ).toBe( true );
 		expect( runtimeOptions.configurationStorage ).toBe( configurationStorage );
 		expect( runtimeOptions.coordinator ).toBe( coordinator );
 		expect( runtimeOptions.statisticsRuntime ).toBe( statisticsRuntime );
@@ -303,5 +383,48 @@ describe( 'startProtectionBackgroundApplication', () => {
 
 		await refreshToolbarBadge();
 		expect( backgroundMocks.refreshToolbarBadge ).toHaveBeenCalledOnce();
+
+		const resetOptions = backgroundMocks.createLocalDataReset.mock.calls[ 0 ]?.[ 0 ];
+		const resetControllerOptions = backgroundMocks.createLocalDataResetController.mock.calls[ 0 ]?.[ 0 ];
+		if ( resetOptions === undefined || resetControllerOptions === undefined ) {
+			throw new TypeError( 'Expected complete reset composition.' );
+		}
+		expect( resetOptions.localArea ).toBe( fakeBrowser.storage.local );
+		expect( resetOptions.sessionArea ).toBe( fakeBrowser.storage.session );
+		expect( resetOptions.locks ).toBe( locks );
+		expect( resetOptions.createGeneration() ).toEqual( expect.any( String ) );
+		await resetOptions.suspend();
+		expect( backgroundMocks.suspendForDataReset ).toHaveBeenCalledOnce();
+		await expect( resetOptions.revokeAccess() ).resolves.toBe( true );
+		expect( backgroundMocks.revokeWebsiteAccess ).toHaveBeenCalledExactlyOnceWith( fakeBrowser.permissions );
+		expect( resetControllerOptions.reset ).toBe( reset );
+		expect( resetControllerOptions.localArea ).toBe( fakeBrowser.storage.local );
+		expect( resetControllerOptions.onMessage ).toBe( fakeBrowser.runtime.onMessage );
+		expect( resetControllerOptions.optionsPageUrl ).toBe( fakeBrowser.runtime.getURL( '/options.html' ) );
+		expect( backgroundMocks.startResetController ).toHaveBeenCalledOnce();
+		const resetStartOrder = backgroundMocks.startResetController.mock.invocationCallOrder[ 0 ];
+		expect( resetStartOrder ).toBeGreaterThan(
+			backgroundMocks.startProtectionController.mock.invocationCallOrder[ 0 ] ?? 0,
+		);
+		expect( resetStartOrder ).toBeGreaterThan(
+			backgroundMocks.startPopupController.mock.invocationCallOrder[ 0 ] ?? 0,
+		);
+		expect( resetStartOrder ).toBeGreaterThan(
+			backgroundMocks.startToolbarLanguage.mock.invocationCallOrder[ 0 ] ?? 0,
+		);
+		const resume = Promise.withResolvers<undefined>();
+		backgroundMocks.resumeAfterDataReset.mockReturnValueOnce( resume.promise );
+		backgroundMocks.refreshProtection.mockClear();
+		const resumeOperation = resetControllerOptions.resume();
+		expect( backgroundMocks.resumeAfterDataReset ).toHaveBeenCalledOnce();
+		expect( backgroundMocks.refreshProtection ).not.toHaveBeenCalled();
+		resume.resolve( undefined );
+		await resumeOperation;
+		expect( backgroundMocks.refreshProtection ).toHaveBeenCalledOnce();
+		const createTab = vi.spyOn( fakeBrowser.tabs, 'create' );
+		await resetControllerOptions.openOnboarding();
+		expect( createTab ).toHaveBeenCalledExactlyOnceWith( {
+			url: fakeBrowser.runtime.getURL( '/onboarding.html' ),
+		} );
 	} );
 } );

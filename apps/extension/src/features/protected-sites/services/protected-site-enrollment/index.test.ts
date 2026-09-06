@@ -6,7 +6,10 @@ import {
 	type ProtectionConfigurationMutation,
 	type ProtectionConfigurationMutationCoordinator,
 } from '../../../../domains/protection/services/protection-configuration-editor';
-import { type ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
+import {
+	ProtectionConfigurationStorageKey,
+	type ProtectionConfigurationStorageService,
+} from '../../../../domains/protection/services/protection-configuration-storage';
 import {
 	TestEmptyProtectionConfiguration,
 	createTestProtectionMeasurementRevision,
@@ -40,6 +43,8 @@ import {
 	ProtectedSiteEnrollmentStatus,
 	type ProtectedSiteEnrollmentService,
 } from './types';
+import { createBrowserProtectionConfigurationEditor } from '../../../../domains/protection/services/browser-protection-configuration-editor';
+import { LocalDataGenerationStorageKey } from '../../../../domains/local-data/services/local-data-generation';
 
 /**
  * Empty protection configuration used by enrollment service tests.
@@ -501,6 +506,185 @@ function createService(
 }
 
 describe( 'createProtectedSiteEnrollmentService', () => {
+	it.each( [ false, true ] )( 'releases stale batch access while retaining fresh selections with unknown grants %s', async ( unknownGrant ) => {
+		const values: Record<string, unknown> = {};
+		const area = {
+			get: vi.fn( ( key: string ) => Promise.resolve(
+				Object.hasOwn( values, key ) ? { [ key ]: values[ key ] } : {},
+			) ),
+			set: vi.fn( ( update: Record<string, unknown> ) => {
+				Object.assign( values, update );
+				return Promise.resolve();
+			} ),
+		};
+		const permissions = new SharedPermissionStateApi();
+		const permissionManager = createSitePermissionManager( { permissions } );
+		const coordinate = createSharedMutationCoordinator();
+		const editorOptions = {
+			area,
+			cryptography: crypto,
+			locks: {
+				/**
+				 * Keeps old and fresh editors under the same mutation authority.
+				 * @param _name - Configuration lock identity.
+				 * @param mutation - Coordinated edit.
+				 * @return Serialized edit result.
+				 * @since 0.1.0 Initial implementation.
+				 */
+				request: ( _name: string, mutation: ProtectionConfigurationMutation ) => coordinate( mutation ),
+			},
+		};
+		const oldEditor = createBrowserProtectionConfigurationEditor( editorOptions ).editor;
+		const oldEnrollment = createProtectedSiteEnrollmentService( { editor: oldEditor, permissionManager } );
+		await expect( oldEnrollment.addMany( [ 'youtube.com', 'reddit.com' ] ) ).resolves.toMatchObject( {
+			status: ProtectedSiteEnrollmentStatus.ADDED,
+		} );
+		const consent = Promise.withResolvers<undefined>();
+		const grant = permissions.request.bind( permissions );
+		vi.spyOn( permissions, 'request' ).mockImplementationOnce( async ( descriptor ) => {
+			await consent.promise;
+			return grant( descriptor );
+		} );
+		if ( unknownGrant ) {
+			vi.spyOn( permissions, 'getAll' ).mockRejectedValueOnce( new Error( 'Snapshot unavailable.' ) );
+		}
+		const enrollment = oldEnrollment.addMany( [ 'youtube.com', 'reddit.com', 'github.com' ] );
+		Reflect.deleteProperty( values, ProtectionConfigurationStorageKey.CONFIGURATION );
+		values[ LocalDataGenerationStorageKey ] = { generation: 'fresh-onboarding', pending: false };
+		permissions.origins.clear();
+		permissions.permissions.clear();
+		const freshEditor = createBrowserProtectionConfigurationEditor( editorOptions ).editor;
+		const freshEnrollment = createProtectedSiteEnrollmentService( { editor: freshEditor, permissionManager } );
+		await expect( freshEnrollment.add( 'youtube.com', false ) ).resolves.toMatchObject( {
+			status: ProtectedSiteEnrollmentStatus.ADDED,
+		} );
+		const freshConfiguration = await freshEditor.load();
+		area.set.mockClear();
+		consent.resolve( undefined );
+
+		await enrollment;
+
+		expect( permissions.origins ).toEqual( new Set( [ '*://*.youtube.com/*' ] ) );
+		expect( permissions.permissions ).toEqual( new Set( [ 'webNavigation' ] ) );
+		await expect( freshEditor.load() ).resolves.toEqual( freshConfiguration );
+		expect( area.set ).not.toHaveBeenCalled();
+	} );
+
+	it.each( [
+		[ 'example.com', 'news.example.com', ProtectedSiteEnrollmentStatus.PERMISSION_RETAINED ],
+		[ 'user.github.io', 'github.io', ProtectedSiteEnrollmentStatus.SAVE_ERROR ],
+	] as const )( 'compensates stale %s access without removing overlapping fresh %s access', async ( staleSite, freshSite, status ) => {
+		const values: Record<string, unknown> = {};
+		const area = {
+			get: vi.fn( ( key: string ) => Promise.resolve(
+				Object.hasOwn( values, key ) ? { [ key ]: values[ key ] } : {},
+			) ),
+			set: vi.fn( ( update: Record<string, unknown> ) => {
+				Object.assign( values, update );
+				return Promise.resolve();
+			} ),
+		};
+		const editorOptions = {
+			area,
+			cryptography: crypto,
+			locks: {
+				/**
+				 * Executes an edit after its explicit permission barrier resolves.
+				 * @param _name - Configuration lock identity.
+				 * @param mutation - Coordinated edit.
+				 * @return Edit result.
+				 * @since 0.1.0 Initial implementation.
+				 */
+				request: ( _name: string, mutation: ProtectionConfigurationMutation ) => mutation(),
+			},
+		};
+		const oldEditor = createBrowserProtectionConfigurationEditor( editorOptions ).editor;
+		await oldEditor.load();
+		const permissions = new SharedPermissionStateApi();
+		const permissionManager = createSitePermissionManager( { permissions } );
+		const consent = Promise.withResolvers<undefined>();
+		const grant = permissions.request.bind( permissions );
+		vi.spyOn( permissions, 'request' ).mockImplementationOnce( async ( descriptor ) => {
+			await consent.promise;
+			return grant( descriptor );
+		} );
+		const oldEnrollment = createProtectedSiteEnrollmentService( { editor: oldEditor, permissionManager } );
+		const enrollment = oldEnrollment.add( staleSite, false );
+		values[ LocalDataGenerationStorageKey ] = { generation: 'fresh-overlap', pending: false };
+		permissions.origins.clear();
+		permissions.permissions.clear();
+		const freshRule: ProtectedSiteRule = {
+			host: freshSite,
+			includeSubdomains: true,
+			scopeId: DefaultProtectionScopeId,
+		};
+		const freshConfiguration = {
+			...EMPTY_CONFIGURATION,
+			sites: [ { identityHost: freshSite, rule: freshRule } ],
+		};
+		const freshServices = createBrowserProtectionConfigurationEditor( editorOptions );
+		await freshServices.storage.save( freshConfiguration );
+		await expect( permissionManager.request( freshRule ) ).resolves.toMatchObject( {
+			status: SitePermissionRequestStatus.GRANTED,
+		} );
+		const removal = vi.spyOn( permissions, 'remove' );
+		area.set.mockClear();
+		consent.resolve( undefined );
+
+		await expect( enrollment ).resolves.toEqual( { status } );
+
+		expect( removal ).not.toHaveBeenCalled();
+		expect( permissions.origins ).toEqual( new Set( [ `*://*.${ staleSite }/*`, `*://*.${ freshSite }/*` ] ) );
+		expect( permissions.permissions ).toEqual( new Set( [ 'webNavigation' ] ) );
+		await expect( freshServices.editor.load() ).resolves.toEqual( freshConfiguration );
+		expect( area.set ).not.toHaveBeenCalled();
+	} );
+
+	it.each( [ false, true ] )( 'releases late permission grants after full reset with batch enrollment %s', async ( batch ) => {
+		const values: Record<string, unknown> = {};
+		const area = {
+			get: vi.fn( ( key: string ) => Promise.resolve(
+				Object.hasOwn( values, key ) ? { [ key ]: values[ key ] } : {},
+			) ),
+			set: vi.fn().mockResolvedValue( undefined ),
+		};
+		const { editor } = createBrowserProtectionConfigurationEditor( {
+			area,
+			cryptography: { randomUUID: vi.fn().mockReturnValue( 'reset-race' ) },
+			locks: {
+				/**
+				 * Executes one coordinated test mutation.
+				 * @param _name - Existing configuration lock identity.
+				 * @param operation - Protected mutation.
+				 * @return Mutation result.
+				 * @since 0.1.0 Initial implementation.
+				 */
+				request: ( _name, operation ) => operation(),
+			},
+		} );
+		await editor.load();
+		const permissions = new SharedPermissionStateApi();
+		permissions.origins.add( '*://*.youtube.com/*' );
+		const consent = Promise.withResolvers<undefined>();
+		const grant = permissions.request.bind( permissions );
+		vi.spyOn( permissions, 'request' ).mockImplementation( async ( descriptor ) => {
+			await consent.promise;
+			return grant( descriptor );
+		} );
+		const service = createProtectedSiteEnrollmentService( {
+			editor,
+			permissionManager: createSitePermissionManager( { permissions } ),
+		} );
+		const enrollment = batch ? service.addMany( [ 'youtube.com', 'github.com' ] ) : service.add( 'github.com', false );
+		values[ LocalDataGenerationStorageKey ] = { generation: 'new-data', pending: false };
+		permissions.origins.clear();
+		permissions.permissions.clear();
+		consent.resolve( undefined );
+		await expect( enrollment ).resolves.toMatchObject( { status: ProtectedSiteEnrollmentStatus.SAVE_ERROR } );
+		expect( area.set ).not.toHaveBeenCalled();
+		expect( permissions.origins.size ).toBe( 0 );
+		expect( permissions.permissions.size ).toBe( 0 );
+	} );
 	it( 'requests selected batch origins once in the caller stack and saves their unique rules atomically', async () => {
 		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
 		const permissions = new SharedPermissionStateApi();

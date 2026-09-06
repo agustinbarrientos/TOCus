@@ -3,6 +3,7 @@ $selector: ':root' !default;
 @use 'sass:list';
 @use 'sass:map';
 @use 'sass:string';
+@use 'sizing';
 @use 'typography/tokens' with ( $selector: $selector );
 
 $-brown-palette: (
@@ -154,7 +155,7 @@ $-palettes: (
 		--tocus-color-action: var(--tocus-color-breathing-sphere-highlight);
 		--tocus-color-on-action: var(--tocus-color-shadow-depth);
 		--tocus-color-outline: var(--tocus-color-breathing-sphere-highlight);
-		--tocus-shadow-soft: 0 1.25rem 3.75rem rgb(0 0 0 / 36%);
+		--tocus-shadow-soft: 0 #{sizing.size(1.25)} #{sizing.size(3.75)} rgb(0 0 0 / 36%);
 	} @else {
 		--tocus-color-breathing-sphere-contour: var(--tocus-color-breathing-sphere-shadow);
 		--tocus-color-glass-border: var(--tocus-color-primary);
@@ -163,7 +164,7 @@ $-palettes: (
 		--tocus-color-action: var(--tocus-color-primary);
 		--tocus-color-on-action: var(--tocus-color-on-primary);
 		--tocus-color-outline: var(--tocus-color-primary);
-		--tocus-shadow-soft: 0 1.25rem 3.75rem rgb(0 0 0 / 18%);
+		--tocus-shadow-soft: 0 #{sizing.size(1.25)} #{sizing.size(3.75)} rgb(0 0 0 / 18%);
 	}
 }
 
@@ -183,12 +184,12 @@ $-palettes: (
 		--tocus-color-stage-glow: color-mix(in srgb, var(--tocus-color-breathing-sphere) 13%, transparent);
 		--tocus-color-glass-surface: color-mix(in srgb, var(--tocus-color-stage-middle) 76%, transparent);
 		--tocus-color-glass-border: color-mix(in srgb, var(--tocus-color-breathing-sphere-highlight) 16%, transparent);
-		--tocus-shadow-soft: 0 1.25rem 3.75rem color-mix(in srgb, var(--tocus-color-shadow-depth) 36%, transparent);
+		--tocus-shadow-soft: 0 #{sizing.size(1.25)} #{sizing.size(3.75)} color-mix(in srgb, var(--tocus-color-shadow-depth) 36%, transparent);
 	} @else {
 		--tocus-color-stage-glow: color-mix(in srgb, var(--tocus-color-breathing-sphere) 18%, transparent);
 		--tocus-color-glass-surface: color-mix(in srgb, var(--tocus-color-stage-start) 70%, transparent);
 		--tocus-color-glass-border: color-mix(in srgb, var(--tocus-color-primary) 18%, transparent);
-		--tocus-shadow-soft: 0 1.25rem 3.75rem color-mix(in srgb, var(--tocus-color-shadow-depth) 12%, transparent);
+		--tocus-shadow-soft: 0 #{sizing.size(1.25)} #{sizing.size(3.75)} color-mix(in srgb, var(--tocus-color-shadow-depth) 12%, transparent);
 	}
 }
 
@@ -199,18 +200,19 @@ $-palettes: (
 
 	--tocus-font-family-brand: 'Fredoka Variable', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif;
 	--tocus-font-family-body: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	--tocus-size-unit: 1rem;
 
-	--tocus-space-1: 0.25rem;
-	--tocus-space-2: 0.5rem;
-	--tocus-space-3: 0.75rem;
-	--tocus-space-4: 1rem;
-	--tocus-space-5: 1.5rem;
-	--tocus-space-6: 2rem;
-	--tocus-space-7: 3rem;
+	--tocus-space-1: #{sizing.size(0.25)};
+	--tocus-space-2: #{sizing.size(0.5)};
+	--tocus-space-3: #{sizing.size(0.75)};
+	--tocus-space-4: #{sizing.size(1)};
+	--tocus-space-5: #{sizing.size(1.5)};
+	--tocus-space-6: #{sizing.size(2)};
+	--tocus-space-7: #{sizing.size(3)};
 
-	--tocus-radius-small: 0.75rem;
-	--tocus-radius-medium: 1.25rem;
-	--tocus-radius-large: 2rem;
+	--tocus-radius-small: #{sizing.size(0.75)};
+	--tocus-radius-medium: #{sizing.size(1.25)};
+	--tocus-radius-large: #{sizing.size(2)};
 	--tocus-radius-full: 999px;
 
 	--tocus-transition-fast: 160ms ease;

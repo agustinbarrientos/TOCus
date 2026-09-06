@@ -210,6 +210,7 @@ export async function startInterruptionPage(): Promise<void> {
 			runtime,
 			scheduler: window,
 			screen: activeInterruptionScreen,
+			storageChanges: browser.storage.onChanged,
 			visibility,
 			windowTarget: window,
 		} );

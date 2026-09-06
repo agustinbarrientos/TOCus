@@ -13,7 +13,10 @@ import {
 import {
 	type InterruptionPageController,
 	type InterruptionPageControllerOptions,
+	type InterruptionPageStorageChange,
 } from './types';
+import { ProtectionStorageKey } from '../../../../domains/protection/services/protection-storage';
+import { hasAllowanceIntervalChange } from '../../utils/allowance-interval-change';
 
 /**
  * Interval between focused waiting-progress checkpoints.
@@ -39,6 +42,7 @@ export function createInterruptionPageController(
 	let observing = false;
 	let windowFocused = false;
 	let lifecycleGeneration = 0;
+	let allowanceChangeRevision = 0;
 
 	/**
 	 * Reports a newly applied authoritative major state without repeating timer checkpoints.
@@ -184,6 +188,7 @@ export function createInterruptionPageController(
 		generation: number,
 		recoverInitialFailure = false,
 	): Promise<void> {
+		const requestAllowanceRevision = allowanceChangeRevision;
 		let response = await requestResponse( request );
 
 		if ( ! observing || generation !== lifecycleGeneration ) {
@@ -207,6 +212,12 @@ export function createInterruptionPageController(
 		}
 
 		applyResponse( response );
+		if (
+			response.state === InterruptionPageResponseState.READY &&
+			requestAllowanceRevision !== allowanceChangeRevision
+		) {
+			handleSynchronizationRequest();
+		}
 	}
 
 	/**
@@ -317,6 +328,32 @@ export function createInterruptionPageController(
 	}
 
 	/**
+	 * Refreshes a mounted Ready page when shared running allowance intervals change.
+	 * @param changes - Old and new values indexed by browser storage key.
+	 * @param areaName - Browser storage area that changed.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function handleStorageChange(
+		changes: Readonly<Record<string, InterruptionPageStorageChange>>,
+		areaName: string,
+	): void {
+		const change = changes[ ProtectionStorageKey.DURABLE ];
+		if (
+			! observing ||
+			areaName !== 'local' ||
+			change === undefined ||
+			! hasAllowanceIntervalChange( change.oldValue, change.newValue )
+		) {
+			return;
+		}
+
+		allowanceChangeRevision += 1;
+		if ( options.screen.state === InterruptionScreenState.READY ) {
+			handleSynchronizationRequest();
+		}
+	}
+
+	/**
 	 * Pauses local checkpoints while document visibility is reconciled.
 	 * @since 0.1.0 Initial implementation.
 	 */
@@ -359,11 +396,15 @@ export function createInterruptionPageController(
 
 	/**
 	 * Replaces any existing Ready expiry timeout with the current authoritative boundary.
-	 * @param expiresAtEpochMilliseconds - Exact epoch time when the allowance ends.
+	 * @param expiresAtEpochMilliseconds - Exact allowance expiry, or null before the visit starts.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	function synchronizeReadyExpiryTimeout( expiresAtEpochMilliseconds: number ): void {
+	function synchronizeReadyExpiryTimeout( expiresAtEpochMilliseconds: number | null ): void {
 		stopReadyExpiryTimeout();
+		if ( expiresAtEpochMilliseconds === null ) {
+			return;
+		}
+
 		readyExpiryTimeoutHandle = options.scheduler.setTimeout(
 			handleReadyExpiry,
 			Math.max( 0, expiresAtEpochMilliseconds - options.clock.now() ),
@@ -428,6 +469,7 @@ export function createInterruptionPageController(
 		options.windowTarget.addEventListener( 'focus', handleWindowFocus );
 		options.screen.addEventListener( InterruptionContinueRequestEventName, handleContinueRequest );
 		options.screen.addEventListener( InterruptionRetryRequestEventName, handleRetryRequest );
+		options.storageChanges.addListener( handleStorageChange );
 		const submittedOperation = enqueueRequest( {
 			type: InterruptionPageRequestType.CONNECT,
 			documentVisible: options.visibility.isDocumentVisible(),
@@ -461,6 +503,7 @@ export function createInterruptionPageController(
 		options.windowTarget.removeEventListener( 'focus', handleWindowFocus );
 		options.screen.removeEventListener( InterruptionContinueRequestEventName, handleContinueRequest );
 		options.screen.removeEventListener( InterruptionRetryRequestEventName, handleRetryRequest );
+		options.storageChanges.removeListener( handleStorageChange );
 	}
 
 	return { start, stop };

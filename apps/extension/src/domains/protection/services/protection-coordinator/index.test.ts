@@ -330,6 +330,53 @@ function getLatestSavedState( storage: MemoryProtectionStorage ): StoredProtecti
 }
 
 describe( 'protection coordinator initialization', () => {
+	it( 'reads retained Ready participants for reset without restoring or persisting state', async () => {
+		const storage = new MemoryProtectionStorage( { session: Mock_StoredProtectionState_Session } );
+		const coordinator = createTestCoordinator( storage );
+
+		await expect( coordinator.readParticipantsForDataReset() )
+			.resolves.toEqual( [ Mock_StoredProtectionParticipant_Navigation ] );
+		expect( storage.savedStates ).toEqual( [] );
+		await expect( coordinator.getStates() ).resolves.toBeNull();
+		expect( coordinator.getSessionContinuityId() ).toBeNull();
+	} );
+
+	it.each( [ undefined, { invalid: true } ] )( 'ignores unavailable reset session state %j', async ( session ) => {
+		const storage = new MemoryProtectionStorage( { session } );
+		const coordinator = createTestCoordinator( storage );
+
+		await expect( coordinator.readParticipantsForDataReset() ).resolves.toEqual( [] );
+		expect( storage.savedStates ).toEqual( [] );
+	} );
+
+	it( 'reports reset snapshot read failures without creating replacement state', async () => {
+		const storage = new MemoryProtectionStorage();
+		storage.loadFailure = new Error( 'Storage read failed.' );
+		const coordinator = createTestCoordinator( storage );
+
+		await expect( coordinator.readParticipantsForDataReset() ).rejects.toThrow( 'Storage read failed.' );
+		expect( storage.savedStates ).toEqual( [] );
+	} );
+
+	it( 'forgets runtime authority after earlier writes settle without saving another snapshot', async () => {
+		const storage = new MemoryProtectionStorage();
+		const coordinator = createTestCoordinator( storage );
+		storage.saveStarted = new DeferredPromise();
+		const release = new DeferredPromise();
+		storage.saveBarrier = release.promise;
+		const initialization = coordinator.initialize( { nowEpochMilliseconds: TestInstant, readyObservations: [] } );
+		await storage.saveStarted.promise;
+		const forget = coordinator.forgetForDataReset();
+		release.resolve();
+		await Promise.all( [ initialization, forget ] );
+
+		expect( storage.savedStates ).toHaveLength( 1 );
+		await expect( coordinator.getStates() ).resolves.toBeNull();
+		await expect( coordinator.getStatisticsDelivery() ).resolves.toBeNull();
+		expect( coordinator.getSessionContinuityId() ).toBeNull();
+		expect( coordinator.getStatisticsDeliveryBoundary() ).toBeNull();
+	} );
+
 	it( 'returns no state snapshot before successful initialization', async () => {
 		const coordinator = createTestCoordinator( new MemoryProtectionStorage() );
 

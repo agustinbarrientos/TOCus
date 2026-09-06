@@ -332,7 +332,7 @@ describe( 'transitionProtectionState', () => {
 			createProgressCheckpoint( 10_000 ),
 		);
 
-		expect( completion.state.type ).toBe( ProtectionStateType.ALLOWANCE );
+		expect( completion.state.type ).toBe( ProtectionStateType.READY );
 		expect( replay ).toStrictEqual( {
 			state: completion.state,
 			decisions: [],

@@ -137,6 +137,11 @@ msgstr "やわらかな球体が呼吸を導きます。"
 msgid "A still pause with no breathing cue."
 msgstr "呼吸の案内がない、動きのない一時停止です。"
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "About"
+msgstr "TOCusについて"
+
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "About {duration}"
 msgstr "約 {duration}"
@@ -144,6 +149,10 @@ msgstr "約 {duration}"
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Access required"
 msgstr "アクセス権限が必要です"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Access to your selected websites lets TOCus show the pause. You choose which websites to allow."
+msgstr "選んだサイトへのアクセスを許可すると、TOCusが一時停止画面を表示できます。許可するサイトは自分で選べます。"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Accessibility"
@@ -193,6 +202,10 @@ msgstr "{siteName} を追加中..."
 msgid "Adding..."
 msgstr "追加しています..."
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "All recorded counts and time totals will be deleted. This cannot be undone."
+msgstr "記録された回数と合計時間はすべて削除されます。この操作は取り消せません。"
+
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "All the time"
 msgstr "常に"
@@ -200,6 +213,10 @@ msgstr "常に"
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "All time"
 msgstr "全期間"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "All TOCus data reset. Opening setup..."
+msgstr "TOCusのすべてのデータをリセットしました。初期設定を開いています..."
 
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Allow access"
@@ -216,6 +233,10 @@ msgstr "付与された利用可能時間"
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Allowing..."
 msgstr "アクセスを許可しています..."
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "An active pause may temporarily keep its destination address so you can return to the website."
+msgstr "一時停止中は、元のサイトに戻れるように移動先のアドレスを一時的に保存することがあります。"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "An end time earlier than its start continues into the next day."
@@ -295,6 +316,7 @@ msgstr "ブラウザーのアクセス権限が必要です"
 msgid "Browser access to show the pause on this website is required. Nothing was saved."
 msgstr "このウェブサイトで一時停止画面を表示するにはブラウザーのアクセス権限が必要です。何も保存されていません。"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Cancel"
@@ -348,6 +370,18 @@ msgstr "TOCus を有効にする時間を選んでください。時刻には、
 msgid "Choose your language"
 msgstr "言語を選ぶ"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Chrome can supply cached website icons. TOCus does not contact an icon service."
+msgstr "Chromeに保存されたサイトアイコンを利用できます。TOCusがアイコンサービスに接続することはありません。"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Clear your recorded counts and time totals. Your websites and settings stay the same."
+msgstr "記録された回数と合計時間を削除します。サイトの一覧と設定はそのまま残ります。"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Clicking the toolbar icon gives TOCus temporary access to the current website."
+msgstr "ツールバーのアイコンをクリックすると、TOCusが現在のサイトに一時的にアクセスできるようになります。"
+
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Color"
 msgstr "色"
@@ -369,6 +403,10 @@ msgstr "待機を完了すると、この時間だけウェブサイトを利用
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
 msgid "Continue"
 msgstr "続ける"
+
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Contribute"
+msgstr "開発に参加"
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Create a gentle pause before the websites you choose."
@@ -395,6 +433,11 @@ msgstr "曜日"
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
 msgid "Deutsch"
 msgstr "Deutsch"
+
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.test.ts
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Developed by {name}"
+msgstr "開発者：{name}"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Discard changes"
@@ -468,6 +511,10 @@ msgstr "取り戻した推定時間"
 msgid "example.com"
 msgstr "example.com"
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "External links connect to their websites only when you choose to open them."
+msgstr "外部リンクは、開くことを選んだときだけリンク先のウェブサイトに接続します。"
+
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Finish setup"
 msgstr "設定を完了"
@@ -476,6 +523,10 @@ msgstr "設定を完了"
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Follow your device appearance."
 msgstr "デバイスの外観設定に合わせます。"
+
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Fork the project"
+msgstr "プロジェクトをフォーク"
 
 #. Language autonym. Keep the language name written in French.
 #. Language-menu autonym. Keep this language name written in French.
@@ -610,6 +661,18 @@ msgstr "ウェブサイトを読み込んでいます..."
 msgid "Local data"
 msgstr "ローカルデータ"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Local data controls are unavailable right now."
+msgstr "現在、ローカルデータの操作は利用できません。"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Local storage saves your choices. Scripts and browser rules show the pause. Alarms keep the timing up to date."
+msgstr "選択した設定は端末内に保存されます。スクリプトとブラウザーのルールで一時停止画面を表示し、アラームで時間を管理します。"
+
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Made for a very interesting internet"
+msgstr "興味の尽きないインターネットのために"
+
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Make TOCus yours"
 msgstr "TOCus を自分好みに"
@@ -627,9 +690,17 @@ msgstr "最長の待ち時間"
 msgid "Maximum wait must be at least as long as the initial wait."
 msgstr "最長の待ち時間は、初回の待ち時間以上にしてください。"
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "MIT license"
+msgstr "MITライセンス"
+
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Monday"
 msgstr "月曜日"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Navigation access notices website changes as they happen, not your saved browsing history."
+msgstr "ナビゲーションへのアクセスは、サイトの切り替えをその場で検知するために使います。保存された閲覧履歴は読み取りません。"
 
 #. Popup label for the duration of the next required pause.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
@@ -661,6 +732,10 @@ msgstr "週間スケジュール"
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Open Settings"
 msgstr "設定を開く"
+
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Open source. Open to you."
+msgstr "コードを公開。参加も歓迎。"
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Open the requested site as soon as the wait ends."
@@ -764,6 +839,11 @@ msgstr "Português (Brasil)"
 msgid "Português (Portugal)"
 msgstr "Português (Portugal)"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Privacy and local data"
+msgstr "プライバシーとローカルデータ"
+
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Purple"
@@ -789,6 +869,10 @@ msgstr "削除"
 msgid "Remove {name}?"
 msgstr "{name} を削除しますか？"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Remove all TOCus data and set it up again."
+msgstr "TOCusのすべてのデータを削除し、最初から設定します。"
+
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Remove site"
@@ -802,6 +886,15 @@ msgstr "{position} 番目の時間帯を削除"
 msgid "Remove window"
 msgstr "時間帯を削除"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Reset all TOCus data"
+msgstr "TOCusの全データをリセット"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Reset all TOCus data?"
+msgstr "TOCusの全データをリセットしますか？"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Reset statistics"
 msgstr "統計をリセット"
@@ -810,6 +903,11 @@ msgstr "統計をリセット"
 msgid "Reset statistics?"
 msgstr "統計をリセットしますか？"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Reset your statistics?"
+msgstr "統計をリセットしますか？"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Resetting..."
 msgstr "リセットしています..."
@@ -903,6 +1001,11 @@ msgstr "使い始めてから、自分のために {focusedPauseTime} の時間�
 msgid "Something went wrong while adding that site. Try again."
 msgstr "サイトの追加中に問題が発生しました。もう一度お試しください。"
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.test.ts
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Source code"
+msgstr "ソースコード"
+
 #. Label printed inside the keyboard-key visual for the space bar.
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Space"
@@ -916,6 +1019,10 @@ msgstr "開始"
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Start and end time must be different."
 msgstr "開始時刻と終了時刻は異なる時刻にしてください。"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Start fresh"
+msgstr "最初からやり直す"
 
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
@@ -931,6 +1038,14 @@ msgstr "統計を利用できません"
 msgid "Statistics could not be reset"
 msgstr "統計をリセットできませんでした"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Statistics keep counts and durations, not page content or web addresses."
+msgstr "統計に保存するのは回数と時間だけです。ページの内容やウェブアドレスは保存しません。"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Statistics reset. Your websites and settings are unchanged."
+msgstr "統計をリセットしました。サイトの一覧と設定は変更していません。"
+
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Statistics were reset. Your totals now start from zero."
 msgstr "統計をリセットしました。合計はゼロから記録されます。"
@@ -942,6 +1057,10 @@ msgstr "状態を確認できません"
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Step {currentStep} of {totalSteps}: {stepName}"
 msgstr "ステップ {currentStep}/{totalSteps}: {stepName}"
+
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Suggest improvements"
+msgstr "改善を提案"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Sunday"
@@ -963,6 +1082,10 @@ msgstr "そのウェブサイトはすでにリストにあります。"
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "The first interruption of the day starts with this wait."
 msgstr "その日の最初の中断は、この待ち時間から始まります。"
+
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "The internet is full of wonderful things. Sometimes, they all want your attention at once. I built TOCus to help anyone who feels overwhelmed by it all: a gentle pause to breathe, step back, and choose what comes next."
+msgstr "インターネットには、すばらしいものがあふれています。時には、そのすべてが一度に気になってしまうこともあります。私は、そんな状況に圧倒されてしまう人の助けになればと思い、TOCusを作りました。ひと呼吸おいて、少し距離をとり、次に何をするかを選ぶための、やさしいひと休みです。"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "The local configuration could not be updated safely."
@@ -1108,6 +1231,10 @@ msgstr "TOCus はこのサイト用の個別の時間設定を作成できませ
 msgid "TOCus could not finish opening"
 msgstr "TOCus を完全に起動できませんでした"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "TOCus could not finish the reset. Try again to complete it."
+msgstr "TOCusのリセットを完了できませんでした。もう一度試して完了してください。"
+
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "TOCus could not load local appearance settings. Nothing was changed."
 msgstr "TOCus はローカルの外観設定を読み込めませんでした。何も変更されていません。"
@@ -1150,6 +1277,10 @@ msgstr "TOCus は読み取れないローカル設定を検出しました。設
 msgid "TOCus is active"
 msgstr "TOCus は有効です"
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "TOCus is free and open source on GitHub. You're welcome to inspect the code, suggest improvements, or contribute changes."
+msgstr "TOCusは無料のオープンソースソフトウェアで、GitHubで公開しています。コードの確認、改善の提案、コードの変更による貢献を歓迎します。"
+
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "TOCus is ready. You can close this tab or continue in Settings."
 msgstr "TOCus の準備ができました。このタブを閉じるか、設定を続けることができます。"
@@ -1170,6 +1301,10 @@ msgstr "そのウェブサイトで一時停止画面を表示するには、TOC
 #: apps/extension/src/localization/utils/create-protected-page-layer-copy/index.ts
 msgid "TOCus pause"
 msgstr "TOCus の一時停止"
+
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "TOCus runs locally in your browser and never contacts external servers. No accounts, tracking, or cloud connections. Once installed, it can even work on an intranet with external internet access disabled."
+msgstr "TOCusはブラウザー内でローカルに動作し、外部サーバーには一切接続しません。アカウント、トラッキング、クラウド接続はありません。インストール後は、外部インターネットへのアクセスが無効なイントラネットでも動作します。"
 
 #: apps/extension/src/localization/utils/create-document-copy/index.ts
 msgid "TOCus settings"
@@ -1200,6 +1335,7 @@ msgstr "TOCus：{title}"
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
@@ -1278,6 +1414,10 @@ msgstr "閲<1分"
 msgid "V0m"
 msgstr "閲0分"
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Version {version}"
+msgstr "バージョン {version}"
+
 #. Short popup label beside a countdown for an active website allowance.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Visit window"
@@ -1316,6 +1456,10 @@ msgstr "待ち時間は {initialWait} から始まります。待ち時間を完
 msgid "Waits start at {initialWait}. Each completed wait adds {waitIncrease} to the next wait, up to {maximumWait}. Completing a wait starts an allowance for {allowance} and shows a Continue button."
 msgstr "待ち時間は {initialWait} から始まります。待ち時間を完了するたびに次回の待ち時間へ {waitIncrease} が加算され、最大 {maximumWait} まで増えます。完了すると {allowance} の利用可能時間が始まり、「続ける」ボタンが表示されます。"
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Want more control over the code you run? Fork the project, inspect it, and build your own copy. You don't have to take anyone's word for how your data is handled."
+msgstr "実行するコードをもっと自分で管理したいですか？プロジェクトをフォークし、コードを確認して、自分でビルドすることもできます。データの扱いについて、誰かの言葉をそのまま信じる必要はありません。"
+
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Website address"
@@ -1343,6 +1487,10 @@ msgstr "TOCus へようこそ"
 msgid "Wellbeing"
 msgstr "ウェルビーイング"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "What stays on your device"
+msgstr "端末に保存されるもの"
+
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "When should TOCus be active?"
 msgstr "TOCus をいつ有効にしますか？"
@@ -1358,6 +1506,14 @@ msgstr "TOCus で使用するポルトガル語を選んでください"
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
 msgid "Which Spanish should TOCus use?"
 msgstr "TOCus で使用するスペイン語を選んでください"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Why TOCus needs browser access"
+msgstr "TOCusがブラウザーへのアクセスを必要とする理由"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Without website access, TOCus cannot pause that website. You can change access in your browser's extension settings."
+msgstr "サイトへのアクセスを許可しないと、そのサイトに一時停止画面を表示できません。アクセス許可はブラウザーの拡張機能の設定で変更できます。"
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "You can change these choices and fine-tune timing or schedules any time in Settings."
@@ -1395,6 +1551,14 @@ msgstr "変更を保存できませんでした。何も置き換えられてい
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Your choice could not be saved. Try again."
 msgstr "選択内容を保存できませんでした。もう一度お試しください。"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Your data stays on this device. No account, servers, or tracking."
+msgstr "データはこの端末に保存されます。アカウント、サーバー、追跡はありません。"
+
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Your data stays with you"
+msgstr "データはあなたの手元に"
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Your language could not be saved. TOCus returned to your previous language."
@@ -1457,9 +1621,17 @@ msgstr "ウェブサイトリストが変更されました。このサイトを
 msgid "Your website list needs attention"
 msgstr "ウェブサイトリストを確認してください"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Your website list, shared or separate timing, schedules, preferences, and statistics."
+msgstr "サイトの一覧、共有または個別の時間設定、スケジュール、各種設定、統計です。"
+
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Your websites and settings are unchanged. Try again."
 msgstr "ウェブサイトと設定は変更されていません。もう一度お試しください。"
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Your websites, groups, schedules, timing, preferences, active pauses, and statistics will be deleted. Website access will be removed and setup will reopen. This cannot be undone."
+msgstr "サイト、グループ、スケジュール、時間設定、各種設定、実行中の一時停止、統計が削除されます。サイトへのアクセス許可も削除され、初期設定が開きます。この操作は取り消せません。"
 
 #. Language autonym. Keep the language name written in Russian.
 #. Language-menu autonym. Keep this language name written in Russian.

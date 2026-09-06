@@ -126,7 +126,9 @@ function createHarness( now?: () => number ) {
 	const reconcileAllowanceExpiry = vi.fn().mockResolvedValue( undefined );
 	const scheduler = new ManualProtectedPageLayerScheduler();
 	const view = new MemoryProtectedPageLayerView();
+	const createPlaybackController = vi.fn( createPlaybackBoundary );
 	const options: ProtectedPageLayerControllerOptions = {
+		createPlaybackController,
 		clock: {
 			/**
 			 * Returns the mutable fixture time.
@@ -156,14 +158,103 @@ function createHarness( now?: () => number ) {
 	return {
 		clock,
 		controller: createProtectedPageLayerController( options ),
+		createPlaybackController,
 		lifecycle,
+		options,
 		reconcileAllowanceExpiry,
 		scheduler,
 		view,
 	};
 }
 
+/**
+ * Creates observable media lifecycle operations for presentation orchestration tests.
+ * @return Fresh playback lifecycle with independently observable operations.
+ * @since 0.1.0 Initial implementation.
+ */
+function createPlaybackBoundary() {
+	return {
+		pause: vi.fn(),
+		resume: vi.fn<() => Promise<void>>().mockResolvedValue( undefined ),
+		stop: vi.fn(),
+	};
+}
+
 describe( 'protected-page layer controller', () => {
+	it( 'pauses before presentation and does not resume when the layer is presented again', async () => {
+		const { controller, createPlaybackController, view } = createHarness();
+		const playback = createPlaybackBoundary();
+		playback.pause.mockImplementation( () => {
+			expect( view.interruptionLayerPresented ).toBe( false );
+		} );
+		createPlaybackController.mockReturnValue( playback );
+		await controller.handleMessage( { type: ProtectedPageMessageType.PRESENT_INTERRUPTION_LAYER } );
+		await controller.handleMessage( { type: ProtectedPageMessageType.PRESENT_INTERRUPTION_LAYER } );
+		expect( view.interruptionLayerPresented ).toBe( true );
+		expect( createPlaybackController ).toHaveBeenCalledOnce();
+		expect( playback.pause ).toHaveBeenCalledOnce();
+		expect( playback.resume ).not.toHaveBeenCalled();
+	} );
+
+	it( 'hides the layer before explicit playback restoration without waiting for the browser', async () => {
+		const { controller, createPlaybackController, view } = createHarness();
+		const playback = createPlaybackBoundary();
+		const { promise, resolve } = Promise.withResolvers<undefined>();
+		playback.resume.mockImplementation( () => {
+			expect( view.interruptionLayerPresented ).toBe( false );
+			return promise;
+		} );
+		createPlaybackController.mockReturnValue( playback );
+		await controller.handleMessage( { type: ProtectedPageMessageType.PRESENT_INTERRUPTION_LAYER } );
+		await expect( controller.handleMessage( {
+			type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER,
+			resumePlayback: true,
+		} ) ).resolves.toBeUndefined();
+		expect( playback.resume ).toHaveBeenCalledOnce();
+		expect( playback.stop ).toHaveBeenCalledOnce();
+		resolve( undefined );
+		await promise;
+	} );
+
+	it.each( [ false, undefined ] )( 'releases media without autoplay when resumePlayback is %s and supports another interruption', async ( resumePlayback ) => {
+		const { controller, createPlaybackController } = createHarness();
+		const first = createPlaybackBoundary();
+		const second = createPlaybackBoundary();
+		createPlaybackController.mockReturnValueOnce( first ).mockReturnValueOnce( second );
+		await controller.handleMessage( { type: ProtectedPageMessageType.PRESENT_INTERRUPTION_LAYER } );
+		await controller.handleMessage( {
+			type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER,
+			resumePlayback,
+		} );
+		expect( first.resume ).not.toHaveBeenCalled();
+		expect( first.stop ).toHaveBeenCalledOnce();
+		await controller.handleMessage( { type: ProtectedPageMessageType.PRESENT_INTERRUPTION_LAYER } );
+		expect( second.pause ).toHaveBeenCalledOnce();
+		await controller.handleMessage( {
+			type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER,
+			resumePlayback: true,
+		} );
+		expect( second.resume ).toHaveBeenCalledOnce();
+		expect( second.stop ).toHaveBeenCalledOnce();
+	} );
+
+	it( 'releases media after a failed wait connection and retries with a fresh playback lifecycle', async () => {
+		const { controller, createPlaybackController, options, view } = createHarness();
+		const first = createPlaybackBoundary();
+		const second = createPlaybackBoundary();
+		createPlaybackController.mockReturnValueOnce( first ).mockReturnValueOnce( second );
+		options.interruptionController.start = vi.fn().mockRejectedValueOnce( new Error( 'Disconnected' ) ).mockResolvedValue( undefined );
+		await controller.handleMessage( { type: ProtectedPageMessageType.PRESENT_INTERRUPTION_LAYER } );
+		await Promise.resolve();
+		expect( view.interruptionLayerPresented ).toBe( false );
+		expect( first.stop ).toHaveBeenCalledOnce();
+		expect( first.resume ).not.toHaveBeenCalled();
+		await controller.handleMessage( { type: ProtectedPageMessageType.PRESENT_INTERRUPTION_LAYER } );
+		expect( second.pause ).toHaveBeenCalledOnce();
+		controller.stop();
+		expect( second.stop ).toHaveBeenCalledOnce();
+		expect( second.resume ).not.toHaveBeenCalled();
+	} );
 	it( 'reports only local presentation state to the background', async () => {
 		const { controller } = createHarness();
 
@@ -701,6 +792,7 @@ describe( 'protected-page layer controller', () => {
 		const { view } = createHarness();
 		const { promise: startOperation, resolve: resolveStart } = Promise.withResolvers<undefined>();
 		const controller = createProtectedPageLayerController( {
+			createPlaybackController: createPlaybackBoundary,
 			clock: {
 				/**
 				 * Returns the fixed fixture time.
@@ -737,6 +829,7 @@ describe( 'protected-page layer controller', () => {
 
 		view.waitForInterruptionPresentation = vi.fn().mockReturnValue( presentationReady );
 		const controller = createProtectedPageLayerController( {
+			createPlaybackController: createPlaybackBoundary,
 			clock: {
 				/**
 				 * Returns the fixed fixture time.
@@ -775,6 +868,7 @@ describe( 'protected-page layer controller', () => {
 
 		view.waitForInterruptionPresentation = vi.fn().mockReturnValue( presentationReady );
 		const controller = createProtectedPageLayerController( {
+			createPlaybackController: createPlaybackBoundary,
 			clock: {
 				/**
 				 * Returns the fixed fixture time.
@@ -811,6 +905,7 @@ describe( 'protected-page layer controller', () => {
 
 		view.waitForInterruptionPresentation = vi.fn().mockReturnValue( presentationReady );
 		const controller = createProtectedPageLayerController( {
+			createPlaybackController: createPlaybackBoundary,
 			clock: {
 				/**
 				 * Returns the fixed fixture time.
@@ -855,6 +950,7 @@ describe( 'protected-page layer controller', () => {
 
 		const rejection = new Error( 'Runtime unavailable.' );
 		const failingController = createProtectedPageLayerController( {
+			createPlaybackController: createPlaybackBoundary,
 			clock: {
 				/**
 				 * Returns the fixed fixture time.

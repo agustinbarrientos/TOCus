@@ -3,6 +3,7 @@ import {
 	AllowanceProtectionStateSchema,
 	IdleProtectionStateSchema,
 	ProtectionStateType,
+	ReadyProtectionStateSchema,
 	WaitingProtectionStateSchema,
 } from '../../../../domains/protection/types/protection-state';
 import {
@@ -101,6 +102,25 @@ describe( 'runtime page context', () => {
 		expect( context?.participant.participantId ).toBe( 'participant_a' );
 		expect( createRuntimeStateTarget( ALLOWANCE_STATE ) ).toEqual( {
 			stateType: ProtectionStateType.ALLOWANCE,
+			allowanceId: 'allowance_a',
+		} );
+	} );
+
+	it( 'retains a completed pause without a running allowance and targets its Ready transaction', () => {
+		const state = ReadyProtectionStateSchema.parse( {
+			type: ProtectionStateType.READY,
+			scopeId: ALLOWANCE_STATE.scopeId,
+			allowanceId: ALLOWANCE_STATE.allowanceId,
+			completedWaitId: ALLOWANCE_STATE.completedWaitId,
+			capturedAllowanceDurationMilliseconds: 300_000,
+			completionStatisticsEligible: true,
+			readyParticipants: ALLOWANCE_STATE.readyParticipants,
+			ladder: ALLOWANCE_STATE.ladder,
+		} );
+
+		expect( findRuntimeParticipantContext( { scope_default: state }, 7 )?.participant.participantId ).toBe( 'participant_a' );
+		expect( createRuntimeStateTarget( state ) ).toEqual( {
+			stateType: ProtectionStateType.READY,
 			allowanceId: 'allowance_a',
 		} );
 	} );

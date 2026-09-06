@@ -14,8 +14,38 @@ import {
 	DurableStoredProtectionStateVersion,
 	SessionStoredProtectionStateVersion,
 	StoredProtectionScopeStateType,
+	StoredDurableProtectionScopeStateSchema,
 } from '../../types/stored-protection-state';
 import { prepareStoredProtectionState } from './index';
+import { createReadyState } from '../../types/__fixtures__/protection-state';
+
+describe( 'pending allowance persistence', () => {
+	it( 'rejects contradictory pending and running allowance records for the same scope', () => {
+		expect( StoredDurableProtectionScopeStateSchema.safeParse( {
+			ladder: createReadyState().ladder,
+			ready: { allowanceId: 'pending', completedWaitId: 'wait-a', capturedAllowanceDurationMilliseconds: 300_000, completionStatisticsEligible: true },
+			allowance: { allowanceId: 'running', startedAtEpochMilliseconds: 1_800_000_000_000, expiresAtEpochMilliseconds: 1_800_000_300_000 },
+		} ).success ).toBe( false );
+	} );
+
+	it.each( [ true, false ] )( 'retains the captured duration and statistics eligibility %s without an active interval', ( completionStatisticsEligible ) => {
+		const state = { ...createReadyState(), completionStatisticsEligible };
+		const stored = prepareStoredProtectionState( {
+			statesByScope: { 'scope-default': state },
+			sessionContinuityId: 'session-a',
+			statisticsDelivery: { status: StoredProtectionStatisticsDeliveryStatus.COMPLETE, outbox: [] },
+		} );
+		expect( stored.durable.scopes[ 'scope-default' ] ).toEqual( {
+			ladder: state.ladder,
+			ready: { allowanceId: 'allowance-a', completedWaitId: 'wait-a', capturedAllowanceDurationMilliseconds: 300_000, completionStatisticsEligible },
+		} );
+		expect( stored.session.scopes[ 'scope-default' ] ).toMatchObject( {
+			type: StoredProtectionScopeStateType.READY,
+			allowanceId: 'allowance-a',
+			participants: [ { participantId: 'participant-a' } ],
+		} );
+	} );
+} );
 
 /**
  * Fixed initial instant used by stored-state fixtures.

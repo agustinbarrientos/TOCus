@@ -12,6 +12,7 @@ import {
 	createAllowanceState,
 	createIdleState,
 	createNavigationParticipant,
+	createReadyState,
 	TestEmptyProtectionConfiguration,
 } from '../../../../domains/protection/types/__fixtures__';
 import {
@@ -21,6 +22,7 @@ import {
 	type ProtectionEvent,
 } from '../../../../domains/protection/types/protection-event';
 import { ProtectionDecisionType } from '../../../../domains/protection/types/protection-decision';
+import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
 import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
 import {
@@ -222,6 +224,50 @@ function createRestorerHarness(
 		restorer,
 	};
 }
+
+describe( 'pending Ready restoration', () => {
+	it( 'reconciles a completed pause before any visit interval exists', async () => {
+		const state = {
+			...createReadyState(),
+			scopeId: DefaultProtectionScopeId,
+			readyParticipants: [ READY_PARTICIPANT ],
+		};
+		const harness = createRestorerHarness(
+			createSuccessfulInitialization( ProtectionCoordinatorInitializationStatus.RECONCILIATION_REQUIRED ),
+			{ [ DefaultProtectionScopeId ]: state },
+			CONFIGURATION,
+			[ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ],
+		);
+
+		await harness.restorer.restore();
+
+		expect( harness.events ).toMatchObject( [ {
+			type: ProtectionEventType.READY_RECONCILIATION,
+			allowanceId: state.allowanceId,
+			observation: { participantId: READY_PARTICIPANT.participantId },
+		} ] );
+	} );
+
+	it( 'targets pending Ready when the restored browser page is gone', async () => {
+		const state = {
+			...createReadyState(),
+			scopeId: DefaultProtectionScopeId,
+			readyParticipants: [ READY_PARTICIPANT ],
+		};
+		const harness = createRestorerHarness(
+			createSuccessfulInitialization( ProtectionCoordinatorInitializationStatus.RECONCILIATION_REQUIRED ),
+			{ [ DefaultProtectionScopeId ]: state },
+		);
+
+		await harness.restorer.restore();
+
+		expect( harness.events ).toMatchObject( [ {
+			type: ProtectionEventType.PARTICIPANT_DEPARTURE,
+			target: { stateType: ProtectionStateType.READY, allowanceId: state.allowanceId },
+			cause: DepartureCause.BROWSER_ERROR_OR_RECOVERY,
+		} ] );
+	} );
+} );
 
 describe( 'createProtectionRuntimeRestorer', () => {
 	it( 'reports failed initialization without projecting untrusted state', async () => {

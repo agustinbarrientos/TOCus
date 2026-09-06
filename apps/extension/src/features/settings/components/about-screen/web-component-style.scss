@@ -1,0 +1,143 @@
+@use '@tocus/theme/typography' as typography;
+
+:host {
+	display: block;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+main {
+	width: min(100%, 44rem);
+	margin: 0 auto;
+	color: var(--tocus-color-on-surface);
+	overflow-wrap: anywhere;
+}
+
+header {
+	margin-bottom: var(--tocus-space-6);
+}
+
+.eyebrow {
+	@include typography.apply( 'label-large' );
+
+	margin: 0 0 var(--tocus-space-3);
+	color: var(--tocus-color-action);
+}
+
+.identity {
+	display: flex;
+	align-items: center;
+	gap: var(--tocus-space-3);
+}
+
+.brand-icon {
+	display: inline-flex;
+	flex: 0 0 auto;
+	width: 3rem;
+	height: 3rem;
+	color: var(--tocus-color-action);
+
+	svg {
+		width: 100%;
+		height: 100%;
+		color: inherit;
+	}
+}
+
+h1 {
+	@include typography.apply( 'headline-large' );
+
+	margin: 0;
+}
+
+.version {
+	@include typography.apply( 'label-medium' );
+
+	display: inline-block;
+	margin: var(--tocus-space-3) 0 0;
+	padding: var(--tocus-space-1) var(--tocus-space-3);
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-full);
+	background: var(--tocus-color-surface-container);
+	color: var(--tocus-color-on-surface-muted);
+}
+
+.summary {
+	@include typography.apply( 'body-large' );
+
+	max-width: 38rem;
+	margin: var(--tocus-space-2) 0 0;
+	color: var(--tocus-color-on-surface-muted);
+}
+
+section {
+	margin-top: var(--tocus-space-6);
+	padding-top: var(--tocus-space-6);
+	border-top: 1px solid var(--tocus-color-outline);
+}
+
+h2 {
+	@include typography.apply( 'title-large' );
+
+	margin: 0;
+}
+
+.description {
+	@include typography.apply( 'body-medium' );
+
+	margin: var(--tocus-space-2) 0 var(--tocus-space-5);
+	color: var(--tocus-color-on-surface-muted);
+}
+
+.links {
+	display: grid;
+	gap: var(--tocus-space-2);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	a {
+		display: flex;
+		align-items: center;
+		min-height: 3rem;
+		padding: var(--tocus-space-3) var(--tocus-space-4);
+		border: 1px solid var(--tocus-color-outline);
+		border-radius: var(--tocus-radius-small);
+		background: var(--tocus-color-surface);
+
+		&:hover {
+			background: var(--tocus-color-surface-container);
+		}
+	}
+}
+
+a {
+	@include typography.apply( 'label-large' );
+
+	color: var(--tocus-color-action);
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.2em;
+
+	&:focus-visible {
+		outline: 3px solid var(--tocus-color-focus-ring);
+		outline-offset: 2px;
+	}
+}
+
+.creator {
+	display: inline-flex;
+	align-items: center;
+	min-height: 2.75rem;
+	margin-top: var(--tocus-space-2);
+}
+
+.external-hint {
+	@include typography.apply( 'body-small' );
+
+	margin: var(--tocus-space-3) 0 0;
+	color: var(--tocus-color-on-surface-muted);
+}

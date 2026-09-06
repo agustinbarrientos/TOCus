@@ -1,4 +1,5 @@
 import { createPreferencesStorageService } from '../../../../domains/preferences/services';
+import { createLocalDataReset } from '../../../../domains/local-data/services/local-data-reset';
 import { createBrowserProtectionConfigurationEditor } from '../../../../domains/protection/services/browser-protection-configuration-editor';
 import { resolveLanguage } from '../../../../domains/preferences/utils';
 import {
@@ -12,7 +13,12 @@ import {
 } from '../../../../domains/statistics';
 import { registerOnboardingOpenOnInstall } from '../../../onboarding/services/open-on-install';
 import { createSitePermissionManager } from '../../../protected-sites/services/site-permission-manager';
-import { createProtectedSiteEnrollmentService } from '../../../protected-sites/services/protected-site-enrollment';
+import {
+	createProtectedSiteEnrollmentService,
+	type ProtectedSiteEnrollmentResult,
+} from '../../../protected-sites/services/protected-site-enrollment';
+import { createLocalDataResetController } from '../../../settings/services/local-data-reset-controller';
+import { revokeWebsiteAccess } from '../../../settings/services/revoke-website-access';
 import { createStatisticsRuntime } from '../../../statistics/services/statistics-runtime';
 import { createLocalizedToolbarCopy } from '../../../../localization/utils/create-localized-toolbar-copy';
 import { createPopupBackgroundController } from '../../../popup/services/popup-background-controller';
@@ -21,7 +27,8 @@ import { createBrowserProtectionAdapter } from '../browser-protection-adapter';
 import { createBrowserProtectionRuntime } from '../browser-protection-runtime';
 import { createProtectionBackgroundController } from '../protection-background-controller';
 import { createToolbarLanguageController } from '../toolbar-language-controller';
-import { type ProtectionBackgroundApplicationOptions } from './types';
+import { createTabAudioController } from '../tab-audio-controller';
+import { type ProtectionBackgroundApplicationOptions, type ProtectionBackgroundTabAudioChange } from './types';
 
 /**
  * Creates one collision-resistant runtime identifier fragment.
@@ -85,22 +92,52 @@ export function startProtectionBackgroundApplication(
 		permissions: options.browser.permissions,
 	} );
 	if ( import.meta.env.CHROME ) {
-		const protection = createBrowserProtectionConfigurationEditor( {
-			area: options.browser.storage.local,
-			cryptography: crypto,
-			locks: navigator.locks,
-		} );
-		const enrollment = createProtectedSiteEnrollmentService( {
-			editor: protection.editor,
-			permissionManager,
-		} );
+		/**
+		 * Creates one generation-scoped enrollment before synchronously requesting website access.
+		 * @param siteInput - Website selected through the popup.
+		 * @param independent - Whether the website receives separate timing.
+		 * @return Consent-aware persistence result.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		function addWebsite( siteInput: unknown, independent: boolean ): Promise<ProtectedSiteEnrollmentResult> {
+			const protection = createBrowserProtectionConfigurationEditor( {
+				area: options.browser.storage.local,
+				cryptography: crypto,
+				locks: navigator.locks,
+			} );
+			const enrollment = createProtectedSiteEnrollmentService( {
+				editor: protection.editor,
+				permissionManager,
+			} );
+			return enrollment.add( siteInput, independent );
+		}
+
 		createPopupEnrollmentController( {
-			enrollment,
+			enrollment: { add: addWebsite },
 			popupPageUrl: options.browser.runtime.getURL( '/popup.html' ),
 			runtime: options.browser.runtime,
 		} ).start();
 	}
-	const browserAdapter = createBrowserProtectionAdapter( options.browser );
+	const tabAudio = createTabAudioController( {
+		runtimeId: options.browser.runtime.id,
+		tabs: options.browser.tabs,
+		storage: options.browser.storage.session,
+	} );
+
+	/**
+	 * Observes native mute changes before ordinary tab reconciliation can restore audio.
+	 * @param tabId - Browser tab whose state changed.
+	 * @param change - Browser-reported properties that changed.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function observeTabAudio( tabId: number, change: ProtectionBackgroundTabAudioChange ): void {
+		if ( change.mutedInfo !== undefined ) {
+			void tabAudio.observeMuteChange( tabId, change.mutedInfo );
+		}
+	}
+
+	options.browser.tabs.onUpdated.addListener( observeTabAudio );
+	const browserAdapter = createBrowserProtectionAdapter( options.browser, tabAudio );
 	const statisticsStorage = createStatisticsStorageService( {
 		area: options.browser.storage.local,
 		createGenerationId: createStableId,
@@ -135,6 +172,7 @@ export function startProtectionBackgroundApplication(
 		coordinator,
 		filterConfiguration,
 		interruptionPageUrl,
+		initiallySuspended: true,
 		createStableId,
 		getTimeZone,
 		now: getCurrentTime,
@@ -187,9 +225,66 @@ export function startProtectionBackgroundApplication(
 		return runtime.refreshToolbarBadge();
 	}
 
+	/**
+	 * Removes website grants and optional live-navigation access through the browser.
+	 * @return Whether browser access was fully revoked.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function revokeAccess(): Promise<boolean> {
+		return revokeWebsiteAccess( options.browser.permissions );
+	}
+
+	/**
+	 * Stops runtime authorities before removing their durable state.
+	 * @return Completion of runtime suspension.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function suspendProtection(): Promise<void> {
+		return runtime.suspendForDataReset();
+	}
+
+	/**
+	 * Restarts runtime authorities before reconciling current browser capabilities.
+	 * @return Completion of clean runtime startup.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function resumeProtection(): Promise<void> {
+		await runtime.resumeAfterDataReset();
+		await protectionController.refresh();
+	}
+
+	/**
+	 * Opens the packaged onboarding page after a complete local reset.
+	 * @return Completion of browser tab creation.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function openOnboarding(): Promise<void> {
+		await options.browser.tabs.create( {
+			url: options.browser.runtime.getURL( '/onboarding.html' ),
+		} );
+	}
+
+	const reset = createLocalDataReset( {
+		localArea: options.browser.storage.local,
+		sessionArea: options.browser.storage.session,
+		locks: navigator.locks,
+		createGeneration: createStableId,
+		suspend: suspendProtection,
+		revokeAccess,
+	} );
+	const resetController = createLocalDataResetController( {
+		optionsPageUrl: options.browser.runtime.getURL( '/options.html' ),
+		localArea: options.browser.storage.local,
+		onMessage: options.browser.runtime.onMessage,
+		reset,
+		resume: resumeProtection,
+		openOnboarding,
+	} );
+
 	protectionController.start();
 	popupController.start();
 	toolbarLanguageController.start( refreshToolbarBadge );
+	resetController.start();
 }
 
 export * from './types';

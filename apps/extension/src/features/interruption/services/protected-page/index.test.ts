@@ -177,6 +177,11 @@ const pageMocks = vi.hoisted( () => {
 		createProtectedPageLayerController: vi.fn<(
 			options: ProtectedPageLayerControllerOptions,
 		) => ProtectedPageLayerController>(),
+		createMediaPlaybackController: vi.fn().mockImplementation( () => ( {
+			pause: vi.fn(),
+			resume: vi.fn().mockResolvedValue( undefined ),
+			stop: vi.fn(),
+		} ) ),
 		createPreferencesController: vi.fn().mockReturnValue( preferencesController ),
 		createPreferencesStorage: vi.fn().mockReturnValue( preferencesStorage ),
 		createStatisticsClient: vi.fn().mockReturnValue( statisticsClient ),
@@ -247,6 +252,9 @@ vi.mock( '../interruption-page-controller', () => ( {
 vi.mock( '../protected-page-layer-controller', () => ( {
 	createProtectedPageLayerController: pageMocks.createProtectedPageLayerController,
 } ) );
+vi.mock( '../media-playback-controller', () => ( {
+	createMediaPlaybackController: pageMocks.createMediaPlaybackController,
+} ) );
 vi.mock( '../../../statistics/services/statistics-client', () => ( {
 	createStatisticsClient: pageMocks.createStatisticsClient,
 } ) );
@@ -287,6 +295,7 @@ describe( 'protected page service', () => {
 		} );
 		const motionPreference = Object.assign( new EventTarget(), { matches: false } );
 		const windowTarget = Object.assign( new EventTarget(), {
+			location: { hostname: 'www.youtube.com', href: 'https://www.youtube.com/watch?v=one' },
 			clearInterval: vi.fn(),
 			clearTimeout: vi.fn(),
 			matchMedia: vi.fn().mockReturnValue( motionPreference ),
@@ -371,6 +380,7 @@ describe( 'protected page service', () => {
 		if ( interruptionOptions === undefined ) {
 			throw new TypeError( 'Expected interruption controller options.' );
 		}
+		expect( interruptionOptions.storageChanges ).toBe( pageMocks.storageChanges );
 
 		expect( interruptionOptions.clock.now() ).toBe( 120_000 );
 		const layer = pageMocks.append.mock.calls[ 0 ]?.[ 0 ];
@@ -436,6 +446,15 @@ describe( 'protected page service', () => {
 		if ( layerOptions === undefined ) {
 			throw new TypeError( 'Expected protected-page layer controller options.' );
 		}
+		expect( pageMocks.createMediaPlaybackController ).not.toHaveBeenCalled();
+		const firstPlayback = layerOptions.createPlaybackController();
+		const secondPlayback = layerOptions.createPlaybackController();
+		expect( firstPlayback ).not.toBe( secondPlayback );
+		expect( pageMocks.createMediaPlaybackController ).toHaveBeenCalledTimes( 2 );
+		expect( pageMocks.createMediaPlaybackController ).toHaveBeenLastCalledWith( {
+			document: documentTarget,
+			location: windowTarget.location,
+		} );
 
 		await layerOptions.reconcileAllowanceExpiry( AllowanceIdSchema.parse( 'allowance_1' ) );
 		expect( pageMocks.sendMessage ).toHaveBeenLastCalledWith( {

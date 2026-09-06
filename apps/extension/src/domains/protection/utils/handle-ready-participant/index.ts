@@ -10,6 +10,7 @@ import { ProtectionStateType, type ProtectionState } from '../../types/protectio
 import { type ProtectionTransitionResult } from '../../types/protection-transition-result';
 import { ScheduleEvaluationStatus } from '../../types/schedule-evaluation';
 import { createObservedParticipantActionDecision } from '../create-protection-decision';
+import { createAllowanceGrantedFact } from '../create-protection-fact';
 import { createTransitionResult } from '../create-protection-transition-result';
 import { protectionMatchProtectsScope } from '../match-protection-scope';
 
@@ -17,7 +18,7 @@ import { protectionMatchProtectsScope } from '../match-protection-scope';
  * Applies one explicit continuation or reconciliation observation to a Ready participant.
  * @param state - Current validated protection state for the event scope.
  * @param event - Validated Ready continuation or reconciliation event.
- * @return The next allowance state and the participant presentation decision, with no facts.
+ * @return Updated Ready or Allowance state, a participant decision, and a grant fact only on the first eligible entry.
  * @since 0.1.0 Initial implementation.
  */
 export function handleReadyParticipant(
@@ -25,10 +26,11 @@ export function handleReadyParticipant(
 	event: ReadyContinuationEvent | ReadyReconciliationEvent,
 ): ProtectionTransitionResult {
 	if (
-		state.type !== ProtectionStateType.ALLOWANCE ||
+		( state.type !== ProtectionStateType.ALLOWANCE && state.type !== ProtectionStateType.READY ) ||
 		state.scopeId !== event.scopeId ||
 		state.allowanceId !== event.allowanceId ||
-		event.nowEpochMilliseconds >= state.expiresAtEpochMilliseconds
+		( state.type === ProtectionStateType.ALLOWANCE &&
+			event.nowEpochMilliseconds >= state.expiresAtEpochMilliseconds )
 	) {
 		return createTransitionResult( state );
 	}
@@ -52,11 +54,10 @@ export function handleReadyParticipant(
 		return createTransitionResult( state );
 	}
 
-	if (
-		event.type === ProtectionEventType.READY_RECONCILIATION &&
-		event.observation.schedule.status === ScheduleEvaluationStatus.ACTIVE &&
-		protectionMatchProtectsScope( event.observation.match, state.scopeId )
-	) {
+	const protectionIsActive = event.observation.schedule.status === ScheduleEvaluationStatus.ACTIVE &&
+		protectionMatchProtectsScope( event.observation.match, state.scopeId );
+
+	if ( event.type === ProtectionEventType.READY_RECONCILIATION && protectionIsActive ) {
 		return createTransitionResult( state, [ {
 			type: ProtectionDecisionType.PRESENT_READY,
 			participantId: participant.participantId,
@@ -65,10 +66,31 @@ export function handleReadyParticipant(
 		} ] );
 	}
 
-	return createTransitionResult( {
-		...state,
-		readyParticipants: state.readyParticipants.filter(
-			( readyParticipant ) => readyParticipant.participantId !== participant.participantId,
-		),
-	}, [ actionDecision ] );
+	const readyParticipants = state.readyParticipants.filter(
+		( readyParticipant ) => readyParticipant.participantId !== participant.participantId,
+	);
+
+	if ( state.type === ProtectionStateType.READY && protectionIsActive ) {
+		const startedAtEpochMilliseconds = event.nowEpochMilliseconds;
+		const expiresAtEpochMilliseconds = startedAtEpochMilliseconds + state.capturedAllowanceDurationMilliseconds;
+
+		return createTransitionResult( {
+			type: ProtectionStateType.ALLOWANCE,
+			scopeId: state.scopeId,
+			allowanceId: state.allowanceId,
+			completedWaitId: state.completedWaitId,
+			startedAtEpochMilliseconds,
+			expiresAtEpochMilliseconds,
+			readyParticipants,
+			ladder: state.ladder,
+		}, [ actionDecision ], state.completionStatisticsEligible ? [ createAllowanceGrantedFact( {
+			scopeId: state.scopeId,
+			allowanceId: state.allowanceId,
+			startedAtEpochMilliseconds,
+			expiresAtEpochMilliseconds,
+			allowanceDurationMilliseconds: state.capturedAllowanceDurationMilliseconds,
+		} ) ] : [] );
+	}
+
+	return createTransitionResult( { ...state, readyParticipants }, [ actionDecision ] );
 }

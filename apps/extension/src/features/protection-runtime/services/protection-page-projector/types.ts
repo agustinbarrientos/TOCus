@@ -2,8 +2,24 @@ import { type ProtectionCoordinatorStateSnapshot } from '../../../../domains/pro
 import { type ProtectionDecision } from '../../../../domains/protection/types/protection-decision';
 import { type AllowanceExpiryProtectionParticipant } from '../../../../domains/protection/types/protection-participant';
 import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type RetainedNavigationDestination } from '../../../../domains/protection/types/protection-value';
+import { type AllowanceId, type PageId, type ParticipantId, type ProtectionScopeId, type RetainedNavigationDestination } from '../../../../domains/protection/types/protection-value';
+import { type StoredProtectionParticipant } from '../../../../domains/protection/types/stored-protection-participant';
 import { type ProtectionRuntimeBrowser } from '../../types/browser-runtime';
+
+/**
+ * Exact participant and allowance identity authorized by a fresh manual or automatic entry request.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface ProtectionContinuationContext {
+	/** Participant that requested entry. */
+	participantId: ParticipantId;
+	/** Document identity belonging to that participant. */
+	pageId: PageId;
+	/** Scope whose allowance must authorize entry. */
+	scopeId: ProtectionScopeId;
+	/** Reserved or running allowance selected by the request. */
+	allowanceId: AllowanceId;
+}
 
 /**
  * Dependencies used to project decisions into live browser pages.
@@ -33,6 +49,7 @@ export interface ProtectionPageProjector {
 	 * @param decisions - Persisted protection decisions.
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @param statesByScope - Current authoritative state snapshot or unavailable marker.
+	 * @param continuedParticipant - Optional participant whose entry is authorized by a running allowance.
 	 * @return Promise resolved after supported page effects are applied.
 	 * @since 0.1.0 Initial implementation.
 	 */
@@ -40,6 +57,7 @@ export interface ProtectionPageProjector {
 		decisions: ReadonlyArray<ProtectionDecision>,
 		configuration: ProtectionConfigurationDocument | null,
 		statesByScope: ProtectionCoordinatorStateSnapshot | null,
+		continuedParticipant?: ProtectionContinuationContext,
 	): Promise<void>;
 
 	/**
@@ -54,10 +72,11 @@ export interface ProtectionPageProjector {
 
 	/**
 	 * Removes injected interruptions from every live non-interruption tab without injecting listeners.
+	 * @param requireSuccess - Whether reset cleanup must report unverified removal failures.
 	 * @return Promise resolved after every best-effort removal command is accepted.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	releaseInjectedInterruptions: () => Promise<void>;
+	releaseInjectedInterruptions: ( requireSuccess?: boolean ) => Promise<void>;
 
 	/**
 	 * Releases one interruption presentation that no longer has authoritative runtime state.
@@ -70,11 +89,13 @@ export interface ProtectionPageProjector {
 	/**
 	 * Releases every live interruption page after redirect rules have been removed.
 	 * @param statesByScope - Current authoritative state snapshot or unavailable marker.
+	 * @param storedParticipants - Validated session participants retained for reset cleanup after worker restart.
 	 * @return Promise resolved after retained destinations and browser-native dismissals complete.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	releaseInterruptionPages: (
 		statesByScope: ProtectionCoordinatorStateSnapshot | null,
+		storedParticipants?: ReadonlyArray<StoredProtectionParticipant>,
 	) => Promise<void>;
 
 	/**
