@@ -4,8 +4,6 @@ All notable changes to TOCus will be documented in this file.
 
 ## 0.1.0 - Alpha
 
-_In development._
-
 ### Added
 
 - Established the initial Chrome, Firefox, and Safari extension foundation with WXT and Lit.
@@ -45,3 +43,7 @@ _In development._
 - Ignored delayed navigation events that no longer describe the current page, preventing an old blank tab from dismissing a new pause.
 - Initialized the protected-page interface in Chrome's isolated script environment with bundled Custom Elements support.
 - Kept rem-based typography from applying the size increase twice on extension pages.
+- Kept pause-screen text and controls readable independently of the selected website's font sizing.
+- Clipped the breathing gradient without introducing unwanted scrolling or hiding content on short screens.
+- Started visit time on Continue, Space, or automatic entry instead of consuming it while the completed pause awaits entry.
+- Muted interrupted tabs while preserving prior mute choices, and paused native videos on YouTube, Netflix, Twitch, HBO Max, Prime Video, and Disney+ until entry without reloading the page or autoplaying videos that were already paused.
