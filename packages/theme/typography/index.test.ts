@@ -11,22 +11,22 @@ const TYPOGRAPHY_PROPERTIES = [
 ] as const;
 
 const TYPOGRAPHY_ROLES = [
-	{ role: 'display-large', values: [ 'var(--tocus-font-family-brand)', '4.096875rem', '600', '4.6rem', '-0.01796875rem' ] },
-	{ role: 'display-medium', values: [ 'var(--tocus-font-family-brand)', '3.234375rem', '600', '3.7375rem', '0' ] },
-	{ role: 'display-small', values: [ 'var(--tocus-font-family-brand)', '2.5875rem', '600', '3.1625rem', '0' ] },
-	{ role: 'headline-large', values: [ 'var(--tocus-font-family-brand)', '2.3rem', '600', '2.875rem', '0' ] },
-	{ role: 'headline-medium', values: [ 'var(--tocus-font-family-brand)', '2.0125rem', '600', '2.5875rem', '0' ] },
-	{ role: 'headline-small', values: [ 'var(--tocus-font-family-brand)', '1.725rem', '600', '2.3rem', '0' ] },
-	{ role: 'brand-small', values: [ 'var(--tocus-font-family-brand)', '0.790625rem', '600', '1.15rem', '0' ] },
-	{ role: 'title-large', values: [ 'var(--tocus-font-family-body)', '1.58125rem', '400', '2.0125rem', '0' ] },
-	{ role: 'title-medium', values: [ 'var(--tocus-font-family-body)', '1.15rem', '500', '1.725rem', '0.01078125rem' ] },
-	{ role: 'title-small', values: [ 'var(--tocus-font-family-body)', '1.00625rem', '500', '1.4375rem', '0.0071875rem' ] },
-	{ role: 'body-large', values: [ 'var(--tocus-font-family-body)', '1.15rem', '400', '1.725rem', '0.0359375rem' ] },
-	{ role: 'body-medium', values: [ 'var(--tocus-font-family-body)', '1.00625rem', '400', '1.4375rem', '0.01796875rem' ] },
-	{ role: 'body-small', values: [ 'var(--tocus-font-family-body)', '0.8625rem', '400', '1.15rem', '0.02875rem' ] },
-	{ role: 'label-large', values: [ 'var(--tocus-font-family-body)', '1.00625rem', '500', '1.4375rem', '0.0071875rem' ] },
-	{ role: 'label-medium', values: [ 'var(--tocus-font-family-body)', '0.8625rem', '500', '1.15rem', '0.0359375rem' ] },
-	{ role: 'label-small', values: [ 'var(--tocus-font-family-body)', '0.790625rem', '500', '1.15rem', '0.0359375rem' ] },
+	{ role: 'display-large', values: [ 'var(--tocus-font-family-brand)', 'calc(var(--tocus-size-unit) * 4.096875)', '600', 'calc(var(--tocus-size-unit) * 4.6)', 'calc(var(--tocus-size-unit) * -0.01796875)' ] },
+	{ role: 'display-medium', values: [ 'var(--tocus-font-family-brand)', 'calc(var(--tocus-size-unit) * 3.234375)', '600', 'calc(var(--tocus-size-unit) * 3.7375)', '0' ] },
+	{ role: 'display-small', values: [ 'var(--tocus-font-family-brand)', 'calc(var(--tocus-size-unit) * 2.5875)', '600', 'calc(var(--tocus-size-unit) * 3.1625)', '0' ] },
+	{ role: 'headline-large', values: [ 'var(--tocus-font-family-brand)', 'calc(var(--tocus-size-unit) * 2.3)', '600', 'calc(var(--tocus-size-unit) * 2.875)', '0' ] },
+	{ role: 'headline-medium', values: [ 'var(--tocus-font-family-brand)', 'calc(var(--tocus-size-unit) * 2.0125)', '600', 'calc(var(--tocus-size-unit) * 2.5875)', '0' ] },
+	{ role: 'headline-small', values: [ 'var(--tocus-font-family-brand)', 'calc(var(--tocus-size-unit) * 1.725)', '600', 'calc(var(--tocus-size-unit) * 2.3)', '0' ] },
+	{ role: 'brand-small', values: [ 'var(--tocus-font-family-brand)', 'calc(var(--tocus-size-unit) * 0.790625)', '600', 'calc(var(--tocus-size-unit) * 1.15)', '0' ] },
+	{ role: 'title-large', values: [ 'var(--tocus-font-family-body)', 'calc(var(--tocus-size-unit) * 1.58125)', '400', 'calc(var(--tocus-size-unit) * 2.0125)', '0' ] },
+	{ role: 'title-medium', values: [ 'var(--tocus-font-family-body)', 'calc(var(--tocus-size-unit) * 1.15)', '500', 'calc(var(--tocus-size-unit) * 1.725)', 'calc(var(--tocus-size-unit) * 0.01078125)' ] },
+	{ role: 'title-small', values: [ 'var(--tocus-font-family-body)', 'calc(var(--tocus-size-unit) * 1.00625)', '500', 'calc(var(--tocus-size-unit) * 1.4375)', 'calc(var(--tocus-size-unit) * 0.0071875)' ] },
+	{ role: 'body-large', values: [ 'var(--tocus-font-family-body)', 'calc(var(--tocus-size-unit) * 1.15)', '400', 'calc(var(--tocus-size-unit) * 1.725)', 'calc(var(--tocus-size-unit) * 0.0359375)' ] },
+	{ role: 'body-medium', values: [ 'var(--tocus-font-family-body)', 'calc(var(--tocus-size-unit) * 1.00625)', '400', 'calc(var(--tocus-size-unit) * 1.4375)', 'calc(var(--tocus-size-unit) * 0.01796875)' ] },
+	{ role: 'body-small', values: [ 'var(--tocus-font-family-body)', 'calc(var(--tocus-size-unit) * 0.8625)', '400', 'calc(var(--tocus-size-unit) * 1.15)', 'calc(var(--tocus-size-unit) * 0.02875)' ] },
+	{ role: 'label-large', values: [ 'var(--tocus-font-family-body)', 'calc(var(--tocus-size-unit) * 1.00625)', '500', 'calc(var(--tocus-size-unit) * 1.4375)', 'calc(var(--tocus-size-unit) * 0.0071875)' ] },
+	{ role: 'label-medium', values: [ 'var(--tocus-font-family-body)', 'calc(var(--tocus-size-unit) * 0.8625)', '500', 'calc(var(--tocus-size-unit) * 1.15)', 'calc(var(--tocus-size-unit) * 0.0359375)' ] },
+	{ role: 'label-small', values: [ 'var(--tocus-font-family-body)', 'calc(var(--tocus-size-unit) * 0.790625)', '500', 'calc(var(--tocus-size-unit) * 1.15)', 'calc(var(--tocus-size-unit) * 0.0359375)' ] },
 ] as const;
 
 /**
@@ -127,12 +127,12 @@ $definitions: scale.definitions();`,
 @include typography.emit-tokens( '.compact', 1 );` );
 
 		expect( result.css ).toContain( '.compact {' );
-		expect( result.css ).toContain( '--tocus-typography-headline-small-font-size: 1.5rem;' );
-		expect( result.css ).toContain( '--tocus-typography-body-medium-font-size: 0.875rem;' );
-		expect( result.css ).toContain( '--tocus-typography-body-small-font-size: 0.75rem;' );
-		expect( result.css ).toContain( '--tocus-typography-title-medium-font-size: 1rem;' );
-		expect( result.css ).toContain( '--tocus-typography-body-medium-line-height: 1.25rem;' );
-		expect( result.css ).toContain( '--tocus-typography-body-medium-letter-spacing: 0.015625rem;' );
+		expect( result.css ).toContain( '--tocus-typography-headline-small-font-size: calc(var(--tocus-size-unit) * 1.5);' );
+		expect( result.css ).toContain( '--tocus-typography-body-medium-font-size: calc(var(--tocus-size-unit) * 0.875);' );
+		expect( result.css ).toContain( '--tocus-typography-body-small-font-size: calc(var(--tocus-size-unit) * 0.75);' );
+		expect( result.css ).toContain( '--tocus-typography-title-medium-font-size: calc(var(--tocus-size-unit) * 1);' );
+		expect( result.css ).toContain( '--tocus-typography-body-medium-line-height: calc(var(--tocus-size-unit) * 1.25);' );
+		expect( result.css ).toContain( '--tocus-typography-body-medium-letter-spacing: calc(var(--tocus-size-unit) * 0.015625);' );
 		expect( result.css ).toContain( '--tocus-typography-body-medium-font-weight: 400;' );
 	} );
 } );
