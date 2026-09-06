@@ -22,6 +22,7 @@ import {
 	parseStoredProtectionState,
 } from '../../utils/parse-stored-protection-state';
 import { prepareStoredProtectionState } from '../../utils/prepare-stored-protection-state';
+import { type StoredProtectionParticipant } from '../../types/stored-protection-participant';
 import {
 	ProtectionStateRestoreMode,
 	ProtectionStateRestoreStatus,
@@ -139,6 +140,35 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 		);
 
 		return result;
+	}
+
+	/**
+	 * Forgets authority after previous operations settle without changing persistence.
+	 * @return Promise resolved after every cached protection value is unavailable.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function forgetForDataReset(): Promise<void> {
+		return enqueue( () => {
+			statesByScope = null;
+			sessionContinuityId = null;
+			statisticsDelivery = null;
+			return Promise.resolve();
+		} );
+	}
+
+	/**
+	 * Reads validated retained destinations without restoring transitions or writing state.
+	 * @return Stored session participants, including expired or otherwise stale Ready participants.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function readParticipantsForDataReset(): Promise<ReadonlyArray<StoredProtectionParticipant>> {
+		return enqueue( async () => {
+			const parsedState = parseStoredProtectionState( await options.storage.load() );
+
+			return parsedState.session.status === StoredProtectionStateParseStatus.CURRENT
+				? Object.values( parsedState.session.state.scopes ).flatMap( ( scope ) => scope.participants )
+				: [];
+		} );
 	}
 
 	/**
@@ -523,6 +553,8 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	}
 
 	return {
+		forgetForDataReset,
+		readParticipantsForDataReset,
 		acknowledgeStatisticsDeliveryBatch,
 		completeStatisticsDeliveryReset,
 		dispatch,
