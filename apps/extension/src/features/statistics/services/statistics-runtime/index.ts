@@ -70,11 +70,27 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 		return options.coordinator.getSessionContinuityId();
 	}
 
-	const focusSession = createStatisticsFocusSession( {
+	let focusSession = createStatisticsFocusSession( {
 		storage: options.storage,
 		sessionStorage: options.sessionStorage,
 		getSessionContinuityId,
 	} );
+
+	/**
+	 * Forgets statistics and focus caches after their owner has drained pending operations.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function forgetForDataReset(): void {
+		configuration = null;
+		statisticsDocument = null;
+		deliveryStatus = null;
+		options.sessionStorage.forgetFocusEpoch();
+		focusSession = createStatisticsFocusSession( {
+			storage: options.storage,
+			sessionStorage: options.sessionStorage,
+			getSessionContinuityId,
+		} );
+	}
 
 	/**
 	 * Persists focus continuity before any asynchronous browser inspection begins.
@@ -393,6 +409,7 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 	}
 
 	return {
+		forgetForDataReset,
 		beginFocusObservation,
 		checkpoint,
 		discardFocusMeasurement,

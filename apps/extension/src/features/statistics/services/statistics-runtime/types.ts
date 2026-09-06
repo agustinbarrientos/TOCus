@@ -58,6 +58,12 @@ export interface StatisticsRuntimeSnapshot {
  */
 export interface StatisticsRuntime {
 	/**
+	 * Forgets cached statistics and focus work without persistence after all operations have drained.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	forgetForDataReset(): void;
+
+	/**
 	 * Persists focus continuity before any asynchronous browser inspection begins.
 	 * @param mode - Relationship between the observation and browser focus state.
 	 * @return Focus epoch context, or null when session persistence is unavailable.
