@@ -50,6 +50,8 @@ const backgroundMocks = vi.hoisted( () => ( {
 	createLocalDataResetController: vi.fn<( options: LocalDataResetControllerOptions ) => unknown>(),
 	revokeWebsiteAccess: vi.fn().mockResolvedValue( true ),
 	startResetController: vi.fn(),
+	createTabAudioController: vi.fn(),
+	observeMuteChange: vi.fn().mockResolvedValue( undefined ),
 	suspendForDataReset: vi.fn().mockResolvedValue( undefined ),
 	resumeAfterDataReset: vi.fn().mockResolvedValue( undefined ),
 } ) );
@@ -110,6 +112,10 @@ vi.mock( '../browser-protection-adapter', () => ( {
 	createBrowserProtectionAdapter: backgroundMocks.createBrowserProtectionAdapter,
 } ) );
 
+vi.mock( '../tab-audio-controller', () => ( {
+	createTabAudioController: backgroundMocks.createTabAudioController,
+} ) );
+
 vi.mock( '../browser-protection-runtime', () => ( {
 	createBrowserProtectionRuntime: backgroundMocks.createBrowserProtectionRuntime,
 } ) );
@@ -153,6 +159,9 @@ describe( 'startProtectionBackgroundApplication', () => {
 		const enrollment = { add: vi.fn() };
 		const coordinator = { dispatch: vi.fn() };
 		const browserAdapter = { browserAdapter: true };
+		const tabAudio = { observeMuteChange: backgroundMocks.observeMuteChange };
+		backgroundMocks.createTabAudioController.mockReturnValue( tabAudio );
+		const registerTabUpdate = vi.spyOn( fakeBrowser.tabs.onUpdated, 'addListener' );
 		const statisticsStorage = { statisticsStorage: true };
 		const statisticsSessionStorage = { statisticsSessionStorage: true };
 		const statisticsRuntime = { statisticsRuntime: true };
@@ -209,6 +218,23 @@ describe( 'startProtectionBackgroundApplication', () => {
 		} );
 
 		startProtectionBackgroundApplication( { browser: fakeBrowser } );
+
+		expect( backgroundMocks.createTabAudioController ).toHaveBeenCalledWith( {
+			runtimeId: fakeBrowser.runtime.id,
+			tabs: fakeBrowser.tabs,
+			storage: fakeBrowser.storage.session,
+		} );
+		expect( backgroundMocks.createBrowserProtectionAdapter ).toHaveBeenCalledWith( fakeBrowser, tabAudio );
+		const observeAudio = registerTabUpdate.mock.calls[ 0 ]?.[ 0 ];
+		if ( observeAudio === undefined ) {
+			throw new TypeError( 'Expected tab audio observation.' );
+		}
+		const observedTab = await fakeBrowser.tabs.create( { url: 'https://example.com' } );
+		observeAudio( 7, { status: 'complete' }, observedTab );
+		expect( backgroundMocks.observeMuteChange ).not.toHaveBeenCalled();
+		const mutedInfo = { muted: false };
+		observeAudio( 7, { mutedInfo }, observedTab );
+		expect( backgroundMocks.observeMuteChange ).toHaveBeenCalledWith( 7, mutedInfo );
 
 		if ( isChrome ) {
 			expect( backgroundMocks.createBrowserProtectionConfigurationEditor ).not.toHaveBeenCalled();

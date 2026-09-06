@@ -27,7 +27,8 @@ import { createBrowserProtectionAdapter } from '../browser-protection-adapter';
 import { createBrowserProtectionRuntime } from '../browser-protection-runtime';
 import { createProtectionBackgroundController } from '../protection-background-controller';
 import { createToolbarLanguageController } from '../toolbar-language-controller';
-import { type ProtectionBackgroundApplicationOptions } from './types';
+import { createTabAudioController } from '../tab-audio-controller';
+import { type ProtectionBackgroundApplicationOptions, type ProtectionBackgroundTabAudioChange } from './types';
 
 /**
  * Creates one collision-resistant runtime identifier fragment.
@@ -117,7 +118,26 @@ export function startProtectionBackgroundApplication(
 			runtime: options.browser.runtime,
 		} ).start();
 	}
-	const browserAdapter = createBrowserProtectionAdapter( options.browser );
+	const tabAudio = createTabAudioController( {
+		runtimeId: options.browser.runtime.id,
+		tabs: options.browser.tabs,
+		storage: options.browser.storage.session,
+	} );
+
+	/**
+	 * Observes native mute changes before ordinary tab reconciliation can restore audio.
+	 * @param tabId - Browser tab whose state changed.
+	 * @param change - Browser-reported properties that changed.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function observeTabAudio( tabId: number, change: ProtectionBackgroundTabAudioChange ): void {
+		if ( change.mutedInfo !== undefined ) {
+			void tabAudio.observeMuteChange( tabId, change.mutedInfo );
+		}
+	}
+
+	options.browser.tabs.onUpdated.addListener( observeTabAudio );
+	const browserAdapter = createBrowserProtectionAdapter( options.browser, tabAudio );
 	const statisticsStorage = createStatisticsStorageService( {
 		area: options.browser.storage.local,
 		createGenerationId: createStableId,
