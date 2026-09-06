@@ -22,10 +22,6 @@ msgstr "Un moment plus calme avant le prochain clic."
 msgid "Deutsch"
 msgstr "Deutsch"
 
-#: apps/website/src/localization/index.ts
-msgid "Early development"
-msgstr "Développement initial"
-
 #. Language-menu autonym. Keep this language name written in English.
 #: apps/website/src/localization/index.ts
 msgid "English"
@@ -70,16 +66,16 @@ msgid "Português (Portugal)"
 msgstr "Português (Portugal)"
 
 #: apps/website/src/localization/index.ts
-msgid "TOCus is an open-source browser extension in early development."
-msgstr "TOCus est une extension de navigateur open source en cours de développement."
+msgid "TOCus adds a gentle breathing pause before the websites you choose, helping you browse more intentionally."
+msgstr "TOCus ajoute une courte pause pour respirer avant les sites que tu choisis, pour t’aider à naviguer plus consciemment."
 
 #: apps/website/src/localization/index.ts
-msgid "TOCus is in early development, exploring a simple pause that supports more intentional browsing."
-msgstr "TOCus est en cours de développement et explore une pause simple pour favoriser une navigation plus intentionnelle."
+msgid "TOCus is an open-source browser extension."
+msgstr "TOCus est une extension de navigateur open source."
 
 #: apps/website/src/localization/index.ts
-msgid "TOCus v1 is local-only: no account, TOCus server, telemetry or product analytics, browsing-history analysis, or network requests for core operation."
-msgstr "TOCus v1 fonctionne uniquement en local : aucun compte ou serveur TOCus, aucune télémétrie ou analyse du produit, aucune analyse de l’historique de navigation et aucune requête réseau pour son fonctionnement principal."
+msgid "TOCus works entirely on your device and will stay that way. No accounts, servers, tracking, browsing-history analysis, or external network requests."
+msgstr "TOCus fonctionne entièrement sur ton appareil et cela ne changera pas. Aucun compte, serveur, suivi, analyse de l’historique de navigation ni requête réseau externe."
 
 #: apps/website/src/localization/index.ts
 msgid "Website language"
