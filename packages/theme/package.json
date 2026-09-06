@@ -7,6 +7,7 @@
 		"font.scss",
 		"index.scss",
 		"runtime-colors.ts",
+		"sizing.scss",
 		"tokens.scss",
 		"typography/*.scss"
 	],
@@ -15,6 +16,7 @@
 		"./font": "./font.scss",
 		"./index.scss": "./index.scss",
 		"./runtime-colors": "./runtime-colors.ts",
+		"./sizing": "./sizing.scss",
 		"./tokens.scss": "./tokens.scss",
 		"./typography": "./typography/index.scss"
 	},
