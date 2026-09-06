@@ -28,6 +28,10 @@ import {
 	createProtectedPageLayerController,
 	type ProtectedPageLayerController,
 } from '../protected-page-layer-controller';
+import {
+	createMediaPlaybackController,
+	type MediaPlaybackController,
+} from '../media-playback-controller';
 import { type ProtectedPageResponseSender } from './types';
 /**
  * Isolated-world key that prevents duplicate protected-page initialization.
@@ -75,6 +79,15 @@ async function reconcileAllowanceExpiry( allowanceId: AllowanceId ): Promise<voi
  */
 function getCurrentEpochMilliseconds(): number {
 	return Date.now();
+}
+
+/**
+ * Creates native playback ownership for one interruption in the current protected document.
+ * @return Fresh playback controller using the live page location.
+ * @since 0.1.0 Initial implementation.
+ */
+function createProtectedPagePlaybackController(): MediaPlaybackController {
+	return createMediaPlaybackController( { document, location: window.location } );
 }
 
 /**
@@ -194,11 +207,13 @@ async function initializeProtectedPageLayer(): Promise<void> {
 			runtime: { sendMessage: sendInterruptionPageRequest },
 			scheduler: window,
 			screen: interruptionScreen,
+			storageChanges: browser.storage.onChanged,
 			visibility,
 			windowTarget: window,
 		} );
 		layerController = createProtectedPageLayerController( {
 			clock: { now: getCurrentEpochMilliseconds },
+			createPlaybackController: createProtectedPagePlaybackController,
 			interruptionController,
 			reconcileAllowanceExpiry,
 			scheduler: window,
