@@ -324,6 +324,7 @@ export default {
 			'src/**/*.wtr.test.ts',
 			'src/**/__fixtures__/**/*.ts',
 			'src/localization/**/*.ts',
+			'src/domains/local-data/**/*.ts',
 			'src/domains/preferences/**/*.ts',
 			'src/domains/protection/services/protection-configuration-editor/**/*.ts',
 			'src/domains/protection/types/**/*.ts',

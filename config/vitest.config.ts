@@ -30,6 +30,7 @@ export default defineConfig( {
 				'apps/extension/config/vite/**/*.ts',
 				'apps/website/src/localization/**/*.ts',
 				'apps/extension/src/domains/preferences/**/*.ts',
+				'apps/extension/src/domains/local-data/**/*.ts',
 				'apps/extension/src/domains/protection/**/*.ts',
 				'apps/extension/src/domains/statistics/**/*.ts',
 				'apps/extension/src/localization/**/*.ts',
