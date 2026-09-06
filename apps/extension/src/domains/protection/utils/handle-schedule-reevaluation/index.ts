@@ -11,7 +11,7 @@ import { createTransitionResult } from '../create-protection-transition-result';
 import { protectionStateMatchesTarget } from '../match-protection-state-target';
 
 /**
- * Applies one current schedule observation to a Waiting or Allowance transaction.
+ * Applies one current schedule observation to a Waiting, Ready, or Allowance transaction.
  * @param state - Current validated protection state for the event scope.
  * @param event - Validated schedule-reevaluation event.
  * @return The unchanged active transaction or its atomic fail-open result.
@@ -33,7 +33,7 @@ export function handleScheduleReevaluation(
 		: state.readyParticipants;
 	const decisions: ProtectionDecision[] = participants.map( createFailOpenDecision );
 
-	if ( state.type === ProtectionStateType.WAITING ) {
+	if ( state.type === ProtectionStateType.WAITING || state.type === ProtectionStateType.READY ) {
 		return createTransitionResult( {
 			type: ProtectionStateType.IDLE,
 			scopeId: state.scopeId,
