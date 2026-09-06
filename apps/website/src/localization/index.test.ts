@@ -93,7 +93,7 @@ describe( 'website localization', () => {
 		const french = getWebsiteLocalization( 'fr' );
 
 		expect( french.catalog.metadata.description ).toBe(
-			'TOCus est une extension de navigateur open source en cours de d\u00e9veloppement.',
+			'TOCus est une extension de navigateur open source.',
 		);
 		expect( french.catalog.sourceLink ).toBe( 'Explorer le code source sur GitHub' );
 		expect( french.catalog.languageMenuLabel ).toBe( 'Langue du site' );

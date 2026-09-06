@@ -85,14 +85,13 @@ const WebsiteLanguageMetadataByLanguage: Readonly<Record<WebsiteLanguageValue, W
 function createWebsiteCatalog( i18n: I18n ): Readonly<WebsiteCatalog> {
 	return Object.freeze( {
 		metadata: Object.freeze( {
-			description: i18n._( msg`TOCus is an open-source browser extension in early development.` ),
+			description: i18n._( msg`TOCus is an open-source browser extension.` ),
 		} ),
-		status: i18n._( msg`Early development` ),
 		eyebrow: i18n._( msg`Open-source browser extension` ),
 		intro: i18n._( msg`A calmer moment before the next click.` ),
-		description: i18n._( msg`TOCus is in early development, exploring a simple pause that supports more intentional browsing.` ),
+		description: i18n._( msg`TOCus adds a gentle breathing pause before the websites you choose, helping you browse more intentionally.` ),
 		sourceLink: i18n._( msg`Explore the source on GitHub` ),
-		privacy: i18n._( msg`TOCus v1 is local-only: no account, TOCus server, telemetry or product analytics, browsing-history analysis, or network requests for core operation.` ),
+		privacy: i18n._( msg`TOCus works entirely on your device and will stay that way. No accounts, servers, tracking, browsing-history analysis, or external network requests.` ),
 		languageMenuLabel: i18n._( msg`Website language` ),
 		languageLabels: Object.freeze( {
 			[ WebsiteLanguage.ENGLISH ]: i18n._( msg( {

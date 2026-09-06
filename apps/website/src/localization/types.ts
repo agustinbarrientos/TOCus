@@ -35,7 +35,6 @@ export interface WebsiteMetadataCatalog {
  */
 export interface WebsiteCatalog {
 	metadata: WebsiteMetadataCatalog;
-	status: string;
 	eyebrow: string;
 	intro: string;
 	description: string;

@@ -62,17 +62,6 @@ footer {
 	color: var(--tocus-color-action);
 }
 
-.status {
-	@include typography.apply( 'label-medium' );
-
-	padding: var(--tocus-space-2) var(--tocus-space-3);
-	border: 1px solid var(--tocus-color-outline);
-	border-radius: var(--tocus-radius-full);
-	background: var(--tocus-color-surface-lowest);
-	color: var(--tocus-color-on-surface-muted);
-	text-transform: uppercase;
-}
-
 .language-menu {
 	position: relative;
 
