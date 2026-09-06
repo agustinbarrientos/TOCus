@@ -22,10 +22,6 @@ msgstr "Un momento más tranquilo antes del siguiente clic."
 msgid "Deutsch"
 msgstr "Deutsch"
 
-#: apps/website/src/localization/index.ts
-msgid "Early development"
-msgstr "Desarrollo inicial"
-
 #. Language-menu autonym. Keep this language name written in English.
 #: apps/website/src/localization/index.ts
 msgid "English"
@@ -70,16 +66,16 @@ msgid "Português (Portugal)"
 msgstr "Português (Portugal)"
 
 #: apps/website/src/localization/index.ts
-msgid "TOCus is an open-source browser extension in early development."
-msgstr "TOCus es una extensión de navegador de código abierto en desarrollo inicial."
+msgid "TOCus adds a gentle breathing pause before the websites you choose, helping you browse more intentionally."
+msgstr "TOCus añade una breve pausa para respirar antes de los sitios web que eliges, para ayudarte a navegar con más intención."
 
 #: apps/website/src/localization/index.ts
-msgid "TOCus is in early development, exploring a simple pause that supports more intentional browsing."
-msgstr "TOCus está en desarrollo inicial y explora una pausa sencilla que favorece una navegación más intencional."
+msgid "TOCus is an open-source browser extension."
+msgstr "TOCus es una extensión de navegador de código abierto."
 
 #: apps/website/src/localization/index.ts
-msgid "TOCus v1 is local-only: no account, TOCus server, telemetry or product analytics, browsing-history analysis, or network requests for core operation."
-msgstr "TOCus v1 funciona solo de forma local: no necesita una cuenta ni servidores de TOCus, y no usa telemetría, analítica de producto, análisis del historial de navegación ni solicitudes de red para su funcionamiento principal."
+msgid "TOCus works entirely on your device and will stay that way. No accounts, servers, tracking, browsing-history analysis, or external network requests."
+msgstr "TOCus funciona completamente en tu dispositivo y seguirá siendo así. Sin cuentas, servidores, seguimiento, análisis del historial de navegación ni solicitudes de red externas."
 
 #: apps/website/src/localization/index.ts
 msgid "Website language"

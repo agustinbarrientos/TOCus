@@ -316,10 +316,6 @@ msgstr "Se necesita acceso del navegador"
 msgid "Browser access to show the pause on this website is required. Nothing was saved."
 msgstr "Se necesita acceso al navegador para mostrar la pausa en este sitio. No se guardó nada."
 
-#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
-msgid "Built in the open"
-msgstr "Desarrollo abierto"
-
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
@@ -438,6 +434,11 @@ msgstr "Día"
 msgid "Deutsch"
 msgstr "Deutsch"
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.test.ts
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Developed by {name}"
+msgstr "Desarrollado por {name}"
+
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Discard changes"
 msgstr "Descartar cambios"
@@ -510,6 +511,10 @@ msgstr "Tiempo recuperado estimado"
 msgid "example.com"
 msgstr "example.com"
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "External links connect to their websites only when you choose to open them."
+msgstr "Los enlaces externos se conectan con sus sitios web solo cuando elegís abrirlos."
+
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Finish setup"
 msgstr "Finalizar configuración"
@@ -519,16 +524,16 @@ msgstr "Finalizar configuración"
 msgid "Follow your device appearance."
 msgstr "Seguí la apariencia de tu dispositivo."
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Fork the project"
+msgstr "Crear un fork del proyecto"
+
 #. Language autonym. Keep the language name written in French.
 #. Language-menu autonym. Keep this language name written in French.
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
 msgid "Français"
 msgstr "Français"
-
-#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
-msgid "Free and open source. Your settings and statistics stay on this device."
-msgstr "Gratis y de código abierto. Tus ajustes y estadísticas se guardan en este dispositivo."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Friday"
@@ -664,6 +669,10 @@ msgstr "Los controles de datos locales no están disponibles en este momento."
 msgid "Local storage saves your choices. Scripts and browser rules show the pause. Alarms keep the timing up to date."
 msgstr "El almacenamiento local guarda tus elecciones. Los scripts y las reglas del navegador muestran la pausa. Las alarmas mantienen los tiempos al día."
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Made for a very interesting internet"
+msgstr "Creado para un internet lleno de cosas interesantes"
+
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Make TOCus yours"
 msgstr "Hacé tuyo TOCus"
@@ -723,6 +732,10 @@ msgstr "Con un horario semanal"
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Open Settings"
 msgstr "Abrir Configuración"
+
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Open source. Open to you."
+msgstr "Código abierto. Abierto a vos."
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Open the requested site as soon as the wait ends."
@@ -839,10 +852,6 @@ msgstr "Violeta"
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Quiet pause"
 msgstr "Pausa tranquila"
-
-#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
-msgid "Read the code, explore the license, or help improve TOCus."
-msgstr "Leé el código, consultá la licencia o ayudá a mejorar TOCus."
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Reconsidered visits"
@@ -1049,6 +1058,10 @@ msgstr "Estado no disponible"
 msgid "Step {currentStep} of {totalSteps}: {stepName}"
 msgstr "Paso {currentStep} de {totalSteps}: {stepName}"
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Suggest improvements"
+msgstr "Proponer mejoras"
+
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Sunday"
 msgstr "Domingo"
@@ -1070,6 +1083,10 @@ msgstr "Ese sitio ya está en tu lista."
 msgid "The first interruption of the day starts with this wait."
 msgstr "La primera interrupción del día empieza con esta espera."
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "The internet is full of wonderful things. Sometimes, they all want your attention at once. I built TOCus to help anyone who feels overwhelmed by it all: a gentle pause to breathe, step back, and choose what comes next."
+msgstr "Internet está lleno de cosas maravillosas. A veces, todas reclaman tu atención a la vez. Creé TOCus para ayudar a cualquiera que se sienta abrumado por todo eso: una pausa suave para respirar, tomar distancia y elegir qué viene después."
+
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "The local configuration could not be updated safely."
 msgstr "No se pudo actualizar la configuración local de forma segura."
@@ -1089,10 +1106,6 @@ msgstr "El nombre del sitio no es válido."
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Theme"
 msgstr "Tema"
-
-#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
-msgid "These links open GitHub in a new tab."
-msgstr "Estos enlaces abren GitHub en una pestaña nueva."
 
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "These sites share one wait ladder and allowance."
@@ -1264,6 +1277,10 @@ msgstr "TOCus encontró una configuración local que no pudo leer. No la reempla
 msgid "TOCus is active"
 msgstr "TOCus está activo"
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "TOCus is free and open source on GitHub. You're welcome to inspect the code, suggest improvements, or contribute changes."
+msgstr "TOCus es gratuito y de código abierto en GitHub. Podés revisar el código, proponer mejoras o contribuir con cambios."
+
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "TOCus is ready. You can close this tab or continue in Settings."
 msgstr "TOCus está listo. Podés cerrar esta pestaña o continuar en Configuración."
@@ -1284,6 +1301,10 @@ msgstr "TOCus necesita acceso al navegador para mostrar la pausa en ese sitio. N
 #: apps/extension/src/localization/utils/create-protected-page-layer-copy/index.ts
 msgid "TOCus pause"
 msgstr "Pausa de TOCus"
+
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "TOCus runs locally in your browser and never contacts external servers. No accounts, tracking, or cloud connections. Once installed, it can even work on an intranet with external internet access disabled."
+msgstr "TOCus funciona de forma local en tu navegador y nunca se conecta a servidores externos. Sin cuentas, seguimiento ni conexiones a la nube. Una vez instalado, puede funcionar incluso en una intranet con el acceso a internet externo deshabilitado."
 
 #: apps/extension/src/localization/utils/create-document-copy/index.ts
 msgid "TOCus settings"
@@ -1435,6 +1456,10 @@ msgstr "Las esperas empiezan en {initialWait}. Cada espera completada suma {wait
 msgid "Waits start at {initialWait}. Each completed wait adds {waitIncrease} to the next wait, up to {maximumWait}. Completing a wait starts an allowance for {allowance} and shows a Continue button."
 msgstr "Las esperas empiezan en {initialWait}. Cada espera completada suma {waitIncrease} a la siguiente, hasta {maximumWait}. Al completar una espera, empieza un tiempo de acceso de {allowance} y aparece el botón Continuar."
 
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Want more control over the code you run? Fork the project, inspect it, and build your own copy. You don't have to take anyone's word for how your data is handled."
+msgstr "¿Querés tener más control sobre el código que ejecutás? Hacé un fork del proyecto, revisá el código y compilá tu propia versión. No tenés que confiar solo en lo que otros digan sobre cómo se manejan tus datos."
+
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Website address"
@@ -1530,6 +1555,10 @@ msgstr "No se pudo guardar tu elección. Volvé a intentarlo."
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "Your data stays on this device. No account, servers, or tracking."
 msgstr "Tus datos se guardan en este dispositivo. Sin cuentas, servidores ni seguimiento."
+
+#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
+msgid "Your data stays with you"
+msgstr "Tus datos se quedan con vos"
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Your language could not be saved. TOCus returned to your previous language."
