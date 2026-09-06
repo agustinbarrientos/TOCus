@@ -22,10 +22,6 @@ msgstr "次のクリックの前に、穏やかなひとときを。"
 msgid "Deutsch"
 msgstr "Deutsch"
 
-#: apps/website/src/localization/index.ts
-msgid "Early development"
-msgstr "開発初期段階"
-
 #. Language-menu autonym. Keep this language name written in English.
 #: apps/website/src/localization/index.ts
 msgid "English"
@@ -70,16 +66,16 @@ msgid "Português (Portugal)"
 msgstr "Português (Portugal)"
 
 #: apps/website/src/localization/index.ts
-msgid "TOCus is an open-source browser extension in early development."
-msgstr "TOCus は開発初期段階のオープンソースブラウザー拡張機能です。"
+msgid "TOCus adds a gentle breathing pause before the websites you choose, helping you browse more intentionally."
+msgstr "TOCusは選んだウェブサイトを開く前に穏やかな呼吸の時間を設け、何を見るかを意識して選べるようにします。"
 
 #: apps/website/src/localization/index.ts
-msgid "TOCus is in early development, exploring a simple pause that supports more intentional browsing."
-msgstr "TOCus は開発初期段階にあり、より意識的なブラウジングを支えるシンプルな間を探求しています。"
+msgid "TOCus is an open-source browser extension."
+msgstr "TOCusはオープンソースのブラウザー拡張機能です。"
 
 #: apps/website/src/localization/index.ts
-msgid "TOCus v1 is local-only: no account, TOCus server, telemetry or product analytics, browsing-history analysis, or network requests for core operation."
-msgstr "TOCus v1 は端末内だけで動作します。アカウントや TOCus のサーバー、テレメトリー、製品分析、閲覧履歴の分析は使用せず、基本機能のためのネットワーク通信も行いません。"
+msgid "TOCus works entirely on your device and will stay that way. No accounts, servers, tracking, browsing-history analysis, or external network requests."
+msgstr "TOCusはすべて端末内で動作し、今後も変わりません。アカウント、サーバー、トラッキング、閲覧履歴の分析、外部へのネットワーク通信は一切ありません。"
 
 #: apps/website/src/localization/index.ts
 msgid "Website language"
