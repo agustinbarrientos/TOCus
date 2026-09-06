@@ -11,6 +11,7 @@ import {
 	type BrowserProtectionConfigurationEditor,
 	type BrowserProtectionConfigurationEditorOptions,
 } from './types';
+import { createLocalDataMutationGuard } from '../../../local-data/services/local-data-generation';
 
 /**
  * Creates browser-backed protection editing with shared cross-context coordination.
@@ -22,6 +23,18 @@ export function createBrowserProtectionConfigurationEditor(
 	options: BrowserProtectionConfigurationEditorOptions,
 ): BrowserProtectionConfigurationEditor {
 	const storage = createProtectionConfigurationStorageService( { area: options.area } );
+	const assertCurrentGeneration = createLocalDataMutationGuard( options.area );
+
+	/**
+	 * Persists a configuration only while its editor belongs to the current installation data.
+	 * @param input - Candidate configuration validated by the storage service.
+	 * @return Promise resolved after guarded persistence.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function save( input: unknown ): Promise<void> {
+		await assertCurrentGeneration();
+		await storage.save( input );
+	}
 
 	/**
 	 * Creates one independent protection scope identifier.
@@ -54,10 +67,19 @@ export function createBrowserProtectionConfigurationEditor(
 	}
 
 	const editor = createProtectionConfigurationEditor( {
-		storage,
+		storage: {
+			/**
+			 * Reads the current persisted document without changing reset identity.
+			 * @return Current settings or a malformed-data marker.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			load: () => storage.load(),
+			save,
+		},
 		createIndependentScopeId,
 		createMeasurementRevision,
 		coordinateMutation,
+		validateAddition: assertCurrentGeneration,
 	} );
 
 	return { editor, storage };

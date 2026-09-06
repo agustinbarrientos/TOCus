@@ -3,6 +3,7 @@ import { DefaultProtectionScopeId } from '../../types/protection-value';
 import { ProtectionConfigurationStorageKey } from '../protection-configuration-storage';
 import { createBrowserProtectionConfigurationEditor } from './index';
 import { type BrowserProtectionConfigurationMutationLock } from './types';
+import { LocalDataGenerationStorageKey } from '../../../local-data/services/local-data-generation';
 
 /**
  * Records browser-lock requests while executing their protected mutations.
@@ -87,6 +88,29 @@ describe( 'createBrowserProtectionConfigurationEditor', () => {
 		await expect( services.editor.load() ).resolves.toHaveProperty(
 			`measurementRevisionsByScope.${ DefaultProtectionScopeId }`,
 		);
-		expect( area.get ).toHaveBeenCalledTimes( 2 );
+		expect(
+			area.get.mock.calls.filter( ( [ key ] ) => key === ProtectionConfigurationStorageKey.CONFIGURATION ),
+		).toHaveLength( 2 );
+	} );
+
+	it( 'rejects a delayed addition after reset while still finalizing its permission grant', async () => {
+		const values: Record<string, unknown> = {};
+		const area = {
+			get: vi.fn( ( key: string ) => Promise.resolve(
+				Object.hasOwn( values, key ) ? { [ key ]: values[ key ] } : {},
+			) ),
+			set: vi.fn().mockResolvedValue( undefined ),
+		};
+		const { editor } = createBrowserProtectionConfigurationEditor( {
+			area,
+			cryptography: { randomUUID: vi.fn().mockReturnValue( 'fixture-id' ) },
+			locks: new MemoryProtectionConfigurationMutationLock(),
+		} );
+		await editor.load();
+		values[ LocalDataGenerationStorageKey ] = { generation: 'reset', pending: false };
+		const finalize = vi.fn().mockResolvedValue( undefined );
+		await expect( editor.add( 'github.com', false, undefined, finalize ) ).rejects.toThrow( 'reset' );
+		expect( area.set ).not.toHaveBeenCalled();
+		expect( finalize ).toHaveBeenCalledWith( expect.objectContaining( { result: null } ) );
 	} );
 } );

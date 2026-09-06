@@ -90,6 +90,8 @@ export type ProtectionConfigurationEditResult =
  * @since 0.1.0 Initial implementation.
  */
 export interface ProtectionConfigurationEditSettlement {
+	/** Original authority, verification, or persistence failure needed for coordinated compensation. */
+	error?: unknown;
 	/** Latest configuration known inside the coordinated mutation, or null when stored data is malformed. */
 	configuration: ProtectionConfigurationDocument | null;
 	/** Edit result, or null when pre-persist verification or persistence failed before a result could be returned. */
@@ -158,6 +160,12 @@ export interface ProtectionConfigurationEditorOptions {
 	createIndependentScopeId: IndependentProtectionScopeIdFactory;
 	createMeasurementRevision: ProtectionMeasurementRevisionFactory;
 	coordinateMutation: ProtectionConfigurationMutationCoordinator;
+	/**
+	 * Validates addition authority after fresh storage is loaded and before any permission-settlement path.
+	 * @return Promise resolved while the pending addition still belongs to the current data generation.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	validateAddition?(): Promise<void>;
 }
 
 /**
