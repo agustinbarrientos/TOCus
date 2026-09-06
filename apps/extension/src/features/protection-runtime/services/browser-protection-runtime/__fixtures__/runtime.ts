@@ -477,6 +477,7 @@ export class MemoryRuntimeBrowser implements ProtectionRuntimeBrowser {
  * @param storage - Runtime state persistence shared across worker lifetimes.
  * @param toolbarBadgeCopy - Localized toolbar badge copy.
  * @param statisticsRuntime - Optional statistics observer under test.
+ * @param initiallySuspended - Whether startup waits for local data recovery.
  * @return Initialized browser protection runtime and its coordinator.
  * @since 0.1.0 Initial implementation.
  */
@@ -487,6 +488,7 @@ export function createRuntime(
 	storage: MemoryProtectionStorage = new MemoryProtectionStorage(),
 	toolbarBadgeCopy: ToolbarBadgeCopy = TestEnglishLocalizationBundle.toolbar,
 	statisticsRuntime: StatisticsRuntime = createInertStatisticsRuntime(),
+	initiallySuspended?: boolean,
 ): RuntimeTestHarness {
 	/**
 	 * Creates the deterministic test session identifier.
@@ -555,6 +557,7 @@ export function createRuntime(
 		now: getCurrentTime,
 		statisticsRuntime,
 		toolbarBadgeCopy,
+		...( initiallySuspended === undefined ? {} : { initiallySuspended } ),
 	} );
 
 	return { coordinator, runtime };

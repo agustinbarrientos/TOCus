@@ -178,6 +178,8 @@ function createRuntime(): RuntimeHarness {
 		failOpen,
 		readStatistics,
 		resetStatistics,
+		suspendForDataReset: vi.fn().mockResolvedValue( undefined ),
+		resumeAfterDataReset: vi.fn().mockResolvedValue( undefined ),
 	};
 
 	return {
