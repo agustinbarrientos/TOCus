@@ -17,7 +17,7 @@ import {
 } from './types';
 
 /**
- * Selects the active state represented by the current toolbar badge.
+ * Selects a focused pause or running timer represented by the current toolbar badge.
  * @param statesByScope - Current authoritative scope states.
  * @param configuration - Current local configuration.
  * @param tabs - Current browser tabs.
@@ -36,17 +36,13 @@ function selectToolbarState(
 	nowEpochMilliseconds: number,
 ): ProtectionState | number | null {
 	const configuredScopeIds = new Set( configuration.sites.map( ( site ) => site.rule.scopeId ) );
-	const activeStates = Object.values( statesByScope ).filter(
+	const presentationStates = Object.values( statesByScope ).filter(
 		( state ) => configuredScopeIds.has( state.scopeId ) && (
 			state.type === ProtectionStateType.WAITING ||
+			state.type === ProtectionStateType.READY ||
 			( state.type === ProtectionStateType.ALLOWANCE && nowEpochMilliseconds < state.expiresAtEpochMilliseconds )
 		),
 	);
-	const [ firstActiveState ] = activeStates;
-
-	if ( firstActiveState === undefined ) {
-		return null;
-	}
 
 	if ( focusedTabId !== null ) {
 		const participantContext = findRuntimeParticipantContext( statesByScope, focusedTabId );
@@ -60,11 +56,18 @@ function selectToolbarState(
 			: focusedUrl === undefined || focusedUrl === interruptionPageUrl
 				? participantContext?.state.scopeId ?? null
 				: null;
-		const focusedState = activeStates.find( ( state ) => state.scopeId === focusedScopeId );
+		const focusedState = presentationStates.find( ( state ) => state.scopeId === focusedScopeId );
 
 		if ( focusedState !== undefined ) {
 			return focusedState;
 		}
+	}
+
+	const activeStates = presentationStates.filter( ( state ) => state.type !== ProtectionStateType.READY );
+	const [ firstActiveState ] = activeStates;
+
+	if ( firstActiveState === undefined ) {
+		return null;
 	}
 
 	return activeStates.length === 1 ? firstActiveState : activeStates.length;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
+import { createReadyState, TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import {
 	AllowanceProtectionStateSchema,
@@ -201,6 +201,35 @@ function createFixtureCoordinator(
 }
 
 describe( 'createToolbarBadgeCoordinator', () => {
+	it( 'does not count pending Ready scopes as active timers on an unrelated tab', async () => {
+		const browser = new ToolbarBadgeBrowserFixture();
+		browser.focusedTabId = 99;
+		browser.tabs = [ { id: 99, url: 'https://unrelated.example/' } ];
+		const coordinator = createFixtureCoordinator( browser );
+
+		await coordinator.refresh( MULTI_SCOPE_CONFIGURATION, {
+			scope_default: { ...createReadyState(), scopeId: DefaultProtectionScopeId },
+			scope_secondary: { ...createReadyState(), scopeId: SECOND_SCOPE_ID },
+		} );
+
+		expect( browser.projection ).toMatchObject( { phase: 'inactive', text: '' } );
+	} );
+
+	it( 'selects the only running timer without counting an unfocused pending Ready scope', async () => {
+		const browser = new ToolbarBadgeBrowserFixture();
+		browser.nowEpochMilliseconds = ALLOWANCE_STATE.startedAtEpochMilliseconds;
+		browser.focusedTabId = 99;
+		browser.tabs = [ { id: 99, url: 'https://unrelated.example/' } ];
+		const coordinator = createFixtureCoordinator( browser );
+
+		await coordinator.refresh( MULTI_SCOPE_CONFIGURATION, {
+			scope_default: { ...createReadyState(), scopeId: DefaultProtectionScopeId },
+			scope_secondary: { ...ALLOWANCE_STATE, scopeId: SECOND_SCOPE_ID },
+		} );
+
+		expect( browser.projection ).toMatchObject( { phase: 'allowance', text: 'V5m' } );
+	} );
+
 	it( 'shows an unexpired global visit window and clears it exactly at expiry', async () => {
 		const browser = new ToolbarBadgeBrowserFixture();
 		browser.nowEpochMilliseconds = 1;
