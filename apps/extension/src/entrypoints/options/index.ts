@@ -32,4 +32,5 @@ void bootstrapSettingsPage( {
 	storageArea: browser.storage.local,
 	storageChanges: browser.storage.onChanged,
 	supportsCachedFavicons: import.meta.env.CHROME,
+	version: browser.runtime.getManifest().version,
 } );

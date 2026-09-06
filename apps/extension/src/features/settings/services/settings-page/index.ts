@@ -9,6 +9,7 @@ import {
 import { createSiteFaviconProvider } from '../../../protected-sites/services/site-favicon-provider';
 import { createSitePermissionManager } from '../../../protected-sites/services/site-permission-manager';
 import { createStatisticsClient } from '../../../statistics/services/statistics-client';
+import { createPrivacyDataActions } from '../privacy-data-actions';
 import {
 	type ProtectedSitesAccessRefresher,
 	type SettingsPageOptions,
@@ -74,6 +75,9 @@ export async function startSettingsPage( options: SettingsPageOptions ): Promise
 			storageChanges: options.storageChanges,
 		} );
 		options.shell.platform = options.platform;
+		options.shell.privacyActions = createPrivacyDataActions( { runtime: options.runtime } );
+		options.shell.supportsCachedFavicons = options.supportsCachedFavicons;
+		options.shell.aboutVersion = options.version;
 
 		/**
 		 * Reports whether one unknown value can refresh protected-site access state.
@@ -130,6 +134,8 @@ export async function startSettingsPage( options: SettingsPageOptions ): Promise
 			options.document.documentElement.setAttribute( 'lang', localization.languageTag );
 			options.document.title = localization.document.settingsTitle;
 			options.shell.copy = localization.settingsShell;
+			options.shell.aboutCopy = localization.aboutCopy;
+			options.shell.privacyCopy = localization.privacyCopy;
 			options.shell.appearanceCopy = localization.appearance;
 			options.shell.languageCopy = localization.languageScreen;
 			options.shell.protectedSitesCopy = localization.protectedSites;

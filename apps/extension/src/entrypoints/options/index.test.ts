@@ -23,7 +23,10 @@ const entrypointMocks = vi.hoisted( () => {
 		matchMedia: vi.fn().mockReturnValue( {} ),
 		permissions: {},
 		resolveLanguage: vi.fn().mockReturnValue( 'es-vos' ),
-		runtime: { getURL: vi.fn().mockReturnValue( 'chrome-extension://extension-id/' ) },
+		runtime: {
+			getURL: vi.fn().mockReturnValue( 'chrome-extension://extension-id/' ),
+			getManifest: vi.fn().mockReturnValue( { version: '2.3.4' } ),
+		},
 		bootstrapSettingsPage: vi.fn<( options: SettingsPageOptions ) => Promise<void>>(),
 		storageArea: {},
 		storageChanges: {},
@@ -114,6 +117,7 @@ describe( 'settings entrypoint', () => {
 		expect( options.platform ).toBe( SettingsPlatform.CHROME );
 		expect( options.supportsCachedFavicons ).toBeTruthy();
 		expect( options.extensionRootUrl ).toBe( 'chrome-extension://extension-id/' );
+		expect( options.version ).toBe( '2.3.4' );
 		expect( options.cryptography ).toBe( crypto );
 		expect( options.document ).toBe( documentTarget );
 		expect( options.pageWindow ).toBe( window );
