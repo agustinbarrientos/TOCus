@@ -7,6 +7,7 @@ import { type ProtectionDecision } from '../../../../domains/protection/types/pr
 import { type AllowanceExpiryProtectionParticipant } from '../../../../domains/protection/types/protection-participant';
 import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { type RetainedNavigationDestination } from '../../../../domains/protection/types/protection-value';
+import { type StoredProtectionParticipant } from '../../../../domains/protection/types/stored-protection-participant';
 import { type ToolbarBadgeCopy } from '../../utils/toolbar-badge-projection';
 import { type ProtectionRuntimeBrowser } from '../../types/browser-runtime';
 
@@ -40,6 +41,17 @@ export interface BrowserProtectionProjectorOptions {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	now: () => number;
+}
+
+/**
+ * Retained destinations and required cleanup guarantees for removing browser effects.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface BrowserProtectionFailOpenOptions {
+	/** Validated session participants retained after worker restart. */
+	storedParticipants?: ReadonlyArray<StoredProtectionParticipant>;
+	/** Whether every cleanup effect must succeed before local data can be deleted. */
+	requireCompleteCleanup?: boolean;
 }
 
 /**
@@ -135,8 +147,9 @@ export interface BrowserProtectionProjector {
 
 	/**
 	 * Attempts to remove every browser effect owned by runtime protection.
-	 * @return Promise resolved after redirect removal succeeds and ancillary attempts settle.
+	 * @param cleanup - Optional retained destinations and reset-specific cleanup requirements.
+	 * @return Promise resolved after required effects succeed and all cleanup attempts settle.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	failOpen(): Promise<void>;
+	failOpen( cleanup?: BrowserProtectionFailOpenOptions ): Promise<void>;
 }

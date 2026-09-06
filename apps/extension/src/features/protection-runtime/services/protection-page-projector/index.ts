@@ -353,27 +353,30 @@ export function createProtectionPageProjector(
 
 	/**
 	 * Removes injected interruptions from every live non-interruption tab without injecting listeners.
+	 * @param requireSuccess - Whether reset cleanup must report unverified removal failures.
 	 * @return Promise resolved after every best-effort removal command is accepted.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	async function releaseInjectedInterruptions(): Promise<void> {
+	async function releaseInjectedInterruptions( requireSuccess = false ): Promise<void> {
 		const tabs = await options.browser.listTabs();
 
 		await Promise.all( tabs
 			.filter( ( tab ) => ! isInterruptionTab( tab ) )
 			.map( ( tab ) => options.browser.updateProtectedPagePresentation( tab.id, {
 				type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER,
-			} ) ) );
+			}, requireSuccess ) ) );
 	}
 
 	/**
 	 * Releases every live interruption page after redirect rules have been removed.
 	 * @param statesByScope - Current authoritative state snapshot or unavailable marker.
+	 * @param storedParticipants - Validated session participants retained for reset cleanup after worker restart.
 	 * @return Promise resolved after retained destinations and browser-native dismissals complete.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function releaseInterruptionPages(
 		statesByScope: Parameters<ProtectionPageProjector[ 'releaseInterruptionPages' ]>[ 0 ],
+		storedParticipants: Parameters<ProtectionPageProjector[ 'releaseInterruptionPages' ]>[ 1 ] = [],
 	): Promise<void> {
 		const tabs = await options.browser.listTabs();
 		const interruptionTabs = tabs.filter( isInterruptionTab );
@@ -382,10 +385,13 @@ export function createProtectionPageProjector(
 			const context = statesByScope === null
 				? null
 				: findRuntimeParticipantContext( statesByScope, tab.id );
+			const storedParticipant = storedParticipants.find(
+				( participant ) => getRuntimeTabId( participant.pageId ) === tab.id,
+			);
 
 			return releaseObservedInterruptionPage(
 				tab,
-				context?.participant.retainedDestination ?? null,
+				context?.participant.retainedDestination ?? storedParticipant?.retainedDestination ?? null,
 			);
 		} ) );
 	}

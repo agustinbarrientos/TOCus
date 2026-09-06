@@ -11,6 +11,7 @@ import {
 	ToolbarBadgePhase,
 } from '../../utils/toolbar-badge-projection';
 import { type ProtectionClockDeadlines } from '../../types/browser-runtime';
+import { ProtectedPageMessageType } from '../../types/protected-page-message';
 import { createAllowanceWarningReconciler } from '../allowance-warning-reconciler';
 import { createNavigationRuleReconciler } from '../navigation-rule-reconciler';
 import { createProtectionPageProjector } from '../protection-page-projector';
@@ -261,20 +262,38 @@ export function createBrowserProtectionProjector(
 	}
 
 	/**
-	 * Attempts to remove every browser effect owned by runtime protection.
-	 * @return Promise resolved after redirect removal succeeds and ancillary attempts settle.
+	 * Removes allowance timers and warnings without swallowing reset cleanup failures.
+	 * @return Promise resolved after every live document accepts removal or has no listener.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	async function failOpen(): Promise<void> {
+	async function clearAllowanceGuards(): Promise<void> {
+		const tabs = await options.browser.listTabs();
+
+		await Promise.all( tabs.map( ( tab ) => options.browser.updateProtectedPagePresentation( tab.id, {
+			type: ProtectedPageMessageType.REMOVE_ALLOWANCE_EXPIRY_GUARD,
+		}, true ) ) );
+	}
+
+	/**
+	 * Attempts to remove every browser effect owned by runtime protection.
+	 * @param cleanup - Optional retained destinations and reset-specific cleanup requirements.
+	 * @return Promise resolved after required effects succeed and all cleanup attempts settle.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function failOpen(
+		cleanup: Parameters<BrowserProtectionProjector[ 'failOpen' ]>[ 0 ] = {},
+	): Promise<void> {
 		const statesByScope = await options.coordinator.getStates();
 		const results = await Promise.allSettled( [
 			options.browser.replaceNavigationRules( [] ),
 			options.browser.synchronizeProtectionClock( [] ),
 			options.browser.updateToolbarBadge( createToolbarBadgeProjection( {
 				phase: ToolbarBadgePhase.INACTIVE,
-			}, options.toolbarBadgeCopy ) ),
-			pageProjector.releaseInjectedInterruptions(),
-			allowanceWarningReconciler.reconcile( null, statesByScope ),
+			}, options.toolbarBadgeCopy ), cleanup.requireCompleteCleanup ),
+			pageProjector.releaseInjectedInterruptions( cleanup.requireCompleteCleanup ),
+			cleanup.requireCompleteCleanup === true
+				? clearAllowanceGuards()
+				: allowanceWarningReconciler.reconcile( null, statesByScope ),
 		] );
 		const [ navigationRuleResult, , , injectedReleaseResult ] = results;
 
@@ -285,7 +304,7 @@ export function createBrowserProtectionProjector(
 		}
 
 		const [ pageReleaseResult ] = await Promise.allSettled( [
-			pageProjector.releaseInterruptionPages( statesByScope ),
+			pageProjector.releaseInterruptionPages( statesByScope, cleanup.storedParticipants ),
 		] );
 
 		if ( pageReleaseResult.status === 'rejected' ) {
@@ -294,6 +313,14 @@ export function createBrowserProtectionProjector(
 
 		if ( injectedReleaseResult.status === 'rejected' ) {
 			throw injectedReleaseResult.reason;
+		}
+
+		if ( cleanup.requireCompleteCleanup === true ) {
+			const failedEffect = results.find( ( result ) => result.status === 'rejected' );
+
+			if ( failedEffect !== undefined ) {
+				throw new Error( 'Failed to clear protection browser effects.', { cause: failedEffect.reason } );
+			}
 		}
 	}
 
