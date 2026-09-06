@@ -297,6 +297,7 @@ function createCurrentSite(
 	const state = options.snapshot.statesByScope[ configuredSite.rule.scopeId ];
 	const nextWaitMilliseconds = access === PopupCurrentSiteAccess.GRANTED &&
 		schedule === PopupScheduleStatus.ACTIVE &&
+		state?.type !== ProtectionStateType.READY &&
 		( state === undefined || ! hasActiveTimer( state, options.snapshot.capturedAtEpochMilliseconds ) )
 		? resolveNextWaitMilliseconds( options, state )
 		: null;

@@ -361,6 +361,37 @@ describe( 'createPopupProjection', () => {
 		} );
 	} );
 
+	it( 'does not present a visit timer or another wait for a completed pause awaiting entry', () => {
+		const projection = createPopupProjection( {
+			currentTab: { id: 11, incognito: false, url: 'https://youtube.com/' },
+			interruptionPageUrl: INTERRUPTION_PAGE_URL,
+			snapshot: createSnapshot( {
+				[ DefaultProtectionScopeId ]: createState( {
+					type: ProtectionStateType.READY,
+					scopeId: DefaultProtectionScopeId,
+					allowanceId: 'allowance_pending',
+					completedWaitId: 'wait_completed',
+					capturedAllowanceDurationMilliseconds: 300_000,
+					readyParticipants: [],
+					completionStatisticsEligible: true,
+					ladder: {
+						completedWaits: 1,
+						greatestObservedLocalDate: '2027-01-15',
+					},
+				} ),
+			} ),
+		} );
+
+		expect( projection ).toMatchObject( {
+			status: PopupProjectionStatus.AVAILABLE,
+			activeScopes: [],
+			currentSite: {
+				status: PopupCurrentSiteStatus.PROTECTED,
+				nextWaitMilliseconds: null,
+			},
+		} );
+	} );
+
 	it( 'reports the next wait for an active idle website scope', () => {
 		const projection = createPopupProjection( {
 			currentTab: { id: 4, incognito: false, url: 'https://instagram.com/' },
