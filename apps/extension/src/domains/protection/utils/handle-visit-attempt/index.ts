@@ -82,7 +82,7 @@ function deactivateScopeForVisit(
 ): ProtectionTransitionResult {
 	const retainedParticipants = state.type === ProtectionStateType.WAITING
 		? state.participants
-		: state.type === ProtectionStateType.ALLOWANCE
+		: state.type === ProtectionStateType.ALLOWANCE || state.type === ProtectionStateType.READY
 			? state.readyParticipants
 			: [];
 	const decisions: ProtectionDecision[] = retainedParticipants.map( createFailOpenDecision );
@@ -98,7 +98,7 @@ function deactivateScopeForVisit(
 		decisions.push( createFailOpenDecision( incomingParticipant ) );
 	}
 
-	if ( state.type === ProtectionStateType.WAITING ) {
+	if ( state.type === ProtectionStateType.WAITING || state.type === ProtectionStateType.READY ) {
 		return createTransitionResult( {
 			type: ProtectionStateType.IDLE,
 			scopeId: state.scopeId,
@@ -144,11 +144,14 @@ export function handleVisitAttempt(
 		] );
 	}
 
-	if ( state.type === ProtectionStateType.WAITING ) {
-		const participantWithId = state.participants.find(
+	if ( state.type === ProtectionStateType.WAITING || state.type === ProtectionStateType.READY ) {
+		const currentParticipants = state.type === ProtectionStateType.WAITING
+			? state.participants
+			: state.readyParticipants;
+		const participantWithId = currentParticipants.find(
 			( participant ) => participant.participantId === event.participant.participantId,
 		);
-		const participantWithPage = state.participants.find(
+		const participantWithPage = currentParticipants.find(
 			( participant ) => participant.pageId === event.participant.pageId,
 		);
 
@@ -170,6 +173,15 @@ export function handleVisitAttempt(
 		}
 
 		if ( existingParticipant !== undefined ) {
+			if ( state.type === ProtectionStateType.READY ) {
+				return createTransitionResult( state, [ {
+					type: ProtectionDecisionType.PRESENT_READY,
+					participantId: existingParticipant.participantId,
+					pageId: existingParticipant.pageId,
+					allowanceId: state.allowanceId,
+				} ] );
+			}
+
 			return createTransitionResult( state, [ {
 				type: ProtectionDecisionType.PRESENT_WAITING,
 				participantId: existingParticipant.participantId,
@@ -178,7 +190,17 @@ export function handleVisitAttempt(
 			} ] );
 		}
 
-		const participants = appendVisitParticipant( state.participants, event.participant );
+		const participants = appendVisitParticipant( currentParticipants, event.participant );
+
+		if ( state.type === ProtectionStateType.READY ) {
+			return createTransitionResult( { ...state, readyParticipants: participants }, [ {
+				type: ProtectionDecisionType.PRESENT_READY,
+				participantId: event.participant.participantId,
+				pageId: event.participant.pageId,
+				allowanceId: state.allowanceId,
+			} ] );
+		}
+
 		const owner = selectOwner( participants );
 		const ownerParticipantId = owner?.participantId ?? null;
 		const ownershipChanged = ownerParticipantId !== state.ownerParticipantId;
