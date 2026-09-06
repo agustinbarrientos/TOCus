@@ -10,6 +10,7 @@ import { type RetainedNavigationDestination } from '../../../../domains/protecti
 import { type StoredProtectionParticipant } from '../../../../domains/protection/types/stored-protection-participant';
 import { type ToolbarBadgeCopy } from '../../utils/toolbar-badge-projection';
 import { type ProtectionRuntimeBrowser } from '../../types/browser-runtime';
+import { type ProtectionContinuationContext } from '../protection-page-projector/types';
 
 /**
  * Dependencies used to project authoritative protection state into browser effects.
@@ -101,24 +102,28 @@ export interface BrowserProtectionProjector {
 	 * Applies persisted page decisions after dynamic redirects reflect authoritative state.
 	 * @param decisions - Persisted protection decisions.
 	 * @param configuration - Current validated local configuration or unavailable marker.
+	 * @param continuedParticipant - Optional identity from a freshly validated entry request.
 	 * @return Promise resolved after page effects succeed and ancillary attempts settle.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	applyDecisions: (
 		decisions: ReadonlyArray<ProtectionDecision>,
 		configuration: ProtectionConfigurationDocument | null,
+		continuedParticipant?: ProtectionContinuationContext,
 	) => Promise<void>;
 
 	/**
 	 * Applies one persisted coordinator result or fails open after rejected persistence.
 	 * @param result - Persisted coordinator dispatch result.
 	 * @param configuration - Current validated local configuration or unavailable marker.
+	 * @param continuedParticipant - Optional identity from a freshly validated entry request.
 	 * @return Promise resolved after accepted effects or rejected after fail-open cleanup.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	applyDispatchResult(
 		result: ProtectionCoordinatorDispatchResult,
 		configuration: ProtectionConfigurationDocument | null,
+		continuedParticipant?: ProtectionContinuationContext,
 	): Promise<void>;
 
 	/**

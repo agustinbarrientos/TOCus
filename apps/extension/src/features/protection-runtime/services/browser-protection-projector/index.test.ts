@@ -7,6 +7,8 @@ import {
 } from '../../../../domains/protection/services/protection-coordinator';
 import {
 	createNavigationParticipant,
+	createIdleState,
+	createReadyState,
 	createWaitingState,
 	TestEmptyProtectionConfiguration,
 } from '../../../../domains/protection/types/__fixtures__';
@@ -109,6 +111,20 @@ class ProjectorCoordinatorFixture {
  * @since 0.1.0 Initial implementation.
  */
 class ProjectorBrowserFixture implements ProtectionRuntimeBrowser {
+	/** Tab identities whose currently owned audio mute should be retained. */
+	heldAudioTabIds: ReadonlySet<number> | null = null;
+
+	/**
+	 * Captures the authoritative set of injected pauses still holding tab audio.
+	 * @param heldTabIds - Tabs whose existing audio receipts must remain held.
+	 * @return Resolved restoration operation.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	restoreTabAudioExcept = ( heldTabIds: ReadonlySet<number> ): Promise<void> => {
+		this.heldAudioTabIds = new Set( heldTabIds );
+		return Promise.resolve();
+	};
+
 	/** Last global toolbar projection. */
 	badge: ToolbarBadgeProjection | null = null;
 
@@ -449,6 +465,182 @@ function createProjector(
 }
 
 describe( 'createBrowserProtectionProjector', () => {
+	it( 'preserves audio holds only for retained injected Waiting and Ready participants', async () => {
+		const browser = new ProjectorBrowserFixture();
+		const coordinator = new ProjectorCoordinatorFixture( {
+			...createWaitingSnapshot( [
+				createExpiryParticipant( 7 ),
+				createNavigationParticipant(),
+				{ ...createExpiryParticipant( 10 ), pageId: PageIdSchema.parse( 'page_without_tab_identity' ) },
+			] ),
+			scope_idle: createIdleState(),
+			scope_pending: { ...createReadyState(), readyParticipants: [ createExpiryParticipant( 8 ) ] },
+			scope_allowance: {
+				...createAllowanceState( DefaultProtectionScopeId, NOW_EPOCH_MILLISECONDS + 300_000 ),
+				readyParticipants: [ createExpiryParticipant( 9 ) ],
+			},
+		} );
+		const projector = createProjector( browser, coordinator );
+
+		await projector.reconcile( CONFIGURATION );
+
+		expect( browser.heldAudioTabIds ).toEqual( new Set( [ 7, 8, 9 ] ) );
+		coordinator.states = {
+			scope_default: createAllowanceState( DefaultProtectionScopeId, NOW_EPOCH_MILLISECONDS + 300_000 ),
+		};
+		await projector.reconcile( CONFIGURATION );
+		expect( browser.heldAudioTabIds ).toEqual( new Set() );
+	} );
+
+	it( 'restores every owned audio mute when configuration is unavailable or protection fails open', async () => {
+		const browser = new ProjectorBrowserFixture();
+		const coordinator = new ProjectorCoordinatorFixture(
+			createWaitingSnapshot( [ createExpiryParticipant( 7 ) ] ),
+		);
+		const projector = createProjector( browser, coordinator );
+
+		await projector.reconcile( null );
+		expect( browser.heldAudioTabIds ).toEqual( new Set() );
+		browser.heldAudioTabIds = null;
+		await projector.failOpen();
+		expect( browser.heldAudioTabIds ).toEqual( new Set() );
+	} );
+
+	it( 'authorizes playback only for the matching continued participant in the running allowance', async () => {
+		const browser = new ProjectorBrowserFixture();
+		browser.tabs = [ 7, 8 ].map( ( id ) => ( { id, incognito: false, url: 'https://example.com/' } ) );
+		const allowance = createAllowanceState( DefaultProtectionScopeId, NOW_EPOCH_MILLISECONDS + 300_000 );
+		const coordinator = new ProjectorCoordinatorFixture( { scope_default: allowance } );
+		const projector = createProjector( browser, coordinator );
+		const continued = createExpiryParticipant( 7 );
+
+		await projector.applyDispatchResult( {
+			status: ProtectionCoordinatorDispatchStatus.APPLIED,
+			decisions: [ 7, 8 ].map( ( id ) => ( {
+				type: ProtectionDecisionType.DISMISS_INTERRUPTION,
+				participantId: createExpiryParticipant( id ).participantId,
+				pageId: createExpiryParticipant( id ).pageId,
+			} ) ),
+			facts: [],
+		}, CONFIGURATION, {
+			participantId: continued.participantId,
+			pageId: continued.pageId,
+			scopeId: allowance.scopeId,
+			allowanceId: allowance.allowanceId,
+		} );
+
+		expect( browser.protectedPageUpdates.filter( ( update ) =>
+			update.message.type === ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER ) ).toEqual( [
+			{ tabId: 7, message: { type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER, resumePlayback: true } },
+			{ tabId: 8, message: { type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER } },
+		] );
+	} );
+
+	it.each( [
+		{ label: 'unavailable state', states: null },
+		{ label: 'missing scope', states: {} },
+		{ label: 'pending state', states: { scope_default: { ...createReadyState(), scopeId: DefaultProtectionScopeId } } },
+		{ label: 'expired interval', states: { scope_default: createAllowanceState( DefaultProtectionScopeId, NOW_EPOCH_MILLISECONDS ) } },
+		{ label: 'different allowance', states: { scope_default: {
+			...createAllowanceState( DefaultProtectionScopeId, NOW_EPOCH_MILLISECONDS + 300_000 ),
+			allowanceId: createReadyState().allowanceId,
+		} } },
+	] )( 'does not authorize playback for a Continue with $label', async ( { states } ) => {
+		const browser = new ProjectorBrowserFixture();
+		browser.tabs = [ { id: 7, incognito: false, url: 'https://example.com/' } ];
+		const allowance = createAllowanceState( DefaultProtectionScopeId, NOW_EPOCH_MILLISECONDS + 300_000 );
+		const participant = createExpiryParticipant( 7 );
+		const projector = createProjector( browser, new ProjectorCoordinatorFixture( states ) );
+
+		await projector.applyDispatchResult( {
+			status: ProtectionCoordinatorDispatchStatus.APPLIED,
+			decisions: [ {
+				type: ProtectionDecisionType.DISMISS_INTERRUPTION,
+				participantId: participant.participantId,
+				pageId: participant.pageId,
+			} ],
+			facts: [],
+		}, CONFIGURATION, {
+			participantId: participant.participantId,
+			pageId: participant.pageId,
+			scopeId: allowance.scopeId,
+			allowanceId: allowance.allowanceId,
+		} );
+
+		expect( browser.protectedPageUpdates ).toContainEqual( {
+			tabId: 7,
+			message: { type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER },
+		} );
+	} );
+
+	it( 'does not authorize playback for a dismissal of a different document belonging to the same participant', async () => {
+		const browser = new ProjectorBrowserFixture();
+		browser.tabs = [ { id: 7, incognito: false, url: 'https://example.com/' } ];
+		const allowance = createAllowanceState( DefaultProtectionScopeId, NOW_EPOCH_MILLISECONDS + 300_000 );
+		const participant = createExpiryParticipant( 7 );
+		const projector = createProjector( browser, new ProjectorCoordinatorFixture( { scope_default: allowance } ) );
+
+		await projector.applyDispatchResult( {
+			status: ProtectionCoordinatorDispatchStatus.APPLIED,
+			decisions: [ {
+				type: ProtectionDecisionType.DISMISS_INTERRUPTION,
+				participantId: participant.participantId,
+				pageId: participant.pageId,
+			} ],
+			facts: [],
+		}, CONFIGURATION, {
+			participantId: participant.participantId,
+			pageId: PageIdSchema.parse( 'page_tab_7_replaced' ),
+			scopeId: allowance.scopeId,
+			allowanceId: allowance.allowanceId,
+		} );
+
+		expect( browser.protectedPageUpdates ).toContainEqual( {
+			tabId: 7,
+			message: { type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER },
+		} );
+	} );
+
+	it( 'isolates audio restoration failures during ordinary ancillary reconciliation', async () => {
+		const browser = new ProjectorBrowserFixture();
+		vi.spyOn( browser, 'restoreTabAudioExcept' ).mockRejectedValue( new Error( 'Audio restoration unavailable.' ) );
+		const projector = createProjector( browser, new ProjectorCoordinatorFixture( null ) );
+
+		await expect( projector.reconcile( CONFIGURATION ) ).resolves.toBeUndefined();
+	} );
+
+	it( 'requires verified audio restoration during complete reset cleanup', async () => {
+		const browser = new ProjectorBrowserFixture();
+		const restoreAudio = vi.spyOn( browser, 'restoreTabAudioExcept' );
+		const projector = createProjector( browser, new ProjectorCoordinatorFixture( {} ) );
+
+		await projector.failOpen( { requireCompleteCleanup: true } );
+
+		expect( restoreAudio ).toHaveBeenCalledWith( new Set(), true );
+	} );
+
+	it( 'never authorizes playback when Continue produces no participant decision', async () => {
+		const browser = new ProjectorBrowserFixture();
+		browser.tabs = [ { id: 7, incognito: false, url: 'https://example.com/' } ];
+		const allowance = createAllowanceState( DefaultProtectionScopeId, NOW_EPOCH_MILLISECONDS + 300_000 );
+		const participant = createExpiryParticipant( 7 );
+		const projector = createProjector( browser, new ProjectorCoordinatorFixture( { scope_default: allowance } ) );
+
+		await projector.applyDispatchResult( {
+			status: ProtectionCoordinatorDispatchStatus.APPLIED,
+			decisions: [],
+			facts: [],
+		}, CONFIGURATION, {
+			participantId: participant.participantId,
+			pageId: participant.pageId,
+			scopeId: allowance.scopeId,
+			allowanceId: allowance.allowanceId,
+		} );
+
+		expect( browser.protectedPageUpdates.filter( ( update ) =>
+			update.message.type === ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER ) ).toEqual( [] );
+	} );
+
 	it( 'forwards orphaned interruption recovery to page projection', async () => {
 		const browser = new ProjectorBrowserFixture();
 		const projector = createProjector( browser, new ProjectorCoordinatorFixture( null ) );
@@ -1146,6 +1338,7 @@ describe( 'createBrowserProtectionProjector', () => {
 
 	it( 'fails open and rejects when durable dispatch is rejected', async () => {
 		const browser = new ProjectorBrowserFixture();
+		browser.tabs = [ { id: 7, incognito: false, url: 'https://example.com/' } ];
 		browser.rules = [ { id: 9 } as Parameters<ProtectionRuntimeBrowser[ 'replaceNavigationRules' ]>[ 0 ][ number ] ];
 		browser.protectionClockDeadlines = [ NOW_EPOCH_MILLISECONDS + 60_000 ];
 		const projector = createProjector( browser, new ProjectorCoordinatorFixture( {} ) );
@@ -1156,13 +1349,26 @@ describe( 'createBrowserProtectionProjector', () => {
 			facts: [],
 		};
 
-		await expect( projector.applyDispatchResult( result, CONFIGURATION ) ).rejects.toThrow(
+		const participant = createExpiryParticipant( 7 );
+		const allowance = createAllowanceState( DefaultProtectionScopeId, NOW_EPOCH_MILLISECONDS + 300_000 );
+
+		await expect( projector.applyDispatchResult( result, CONFIGURATION, {
+			participantId: participant.participantId,
+			pageId: participant.pageId,
+			scopeId: allowance.scopeId,
+			allowanceId: allowance.allowanceId,
+		} ) ).rejects.toThrow(
 			'Protection state dispatch failed: storage-write-failed.',
 		);
 
 		expect( browser.rules ).toEqual( [] );
 		expect( browser.protectionClockDeadlines ).toEqual( [] );
 		expect( browser.badge ).toMatchObject( { phase: ToolbarBadgePhase.INACTIVE } );
+		expect( browser.protectedPageUpdates ).toContainEqual( {
+			tabId: 7,
+			message: { type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER },
+		} );
+		expect( browser.heldAudioTabIds ).toEqual( new Set() );
 	} );
 
 	it( 'completes fail-open cleanup despite ancillary browser failures', async () => {
