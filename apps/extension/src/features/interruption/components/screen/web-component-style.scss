@@ -1,4 +1,5 @@
 @use '@tocus/theme/typography' as typography;
+@use '@tocus/theme/sizing';
 
 :host {
 	position: fixed;
@@ -23,7 +24,7 @@
 	position: relative;
 	isolation: isolate;
 	display: grid;
-	grid-template-rows: auto minmax(0, 1fr) auto;
+	grid-template-rows: auto minmax(min-content, 1fr) auto;
 	width: 100%;
 	height: 100%;
 	min-height: 100dvh;
@@ -34,6 +35,20 @@
 		var(--tocus-color-stage-middle) 59%,
 		var(--tocus-color-stage-end) 100%
 	);
+
+	&:focus-visible {
+		outline: sizing.size(0.1875) solid var(--tocus-color-focus-ring);
+		outline-offset: sizing.size(-0.3125);
+	}
+}
+
+/* Paint overflow is clipped independently from the scene's accessible content scrolling. */
+.bloom {
+	position: absolute;
+	z-index: -1;
+	inset: 0;
+	overflow: clip;
+	pointer-events: none;
 
 	&::before {
 		position: absolute;
@@ -51,11 +66,6 @@
 		content: '';
 		pointer-events: none;
 	}
-
-	&:focus-visible {
-		outline: 0.1875rem solid var(--tocus-color-focus-ring);
-		outline-offset: -0.3125rem;
-	}
 }
 
 header {
@@ -63,7 +73,7 @@ header {
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--tocus-space-4);
-	padding: clamp(1rem, 2.8vw, 2rem) clamp(1rem, 4vw, 3rem);
+	padding: clamp(sizing.size(1), 2.8vw, sizing.size(2)) clamp(sizing.size(1), 4vw, sizing.size(3));
 }
 
 .brand {
@@ -76,8 +86,8 @@ header {
 
 .brand-icon {
 	display: inline-flex;
-	width: 2rem;
-	height: 2rem;
+	width: sizing.size(2);
+	height: sizing.size(2);
 	flex: 0 0 auto;
 
 	svg {
@@ -94,7 +104,7 @@ header {
 .remaining {
 	@include typography.apply( 'body-large' );
 
-	max-width: min(50vw, 28rem);
+	max-width: min(50vw, sizing.size(28));
 	margin: 0;
 	padding: var(--tocus-space-2) var(--tocus-space-4);
 	border: 1px solid var(--tocus-color-glass-border);
@@ -103,13 +113,13 @@ header {
 	color: var(--tocus-color-on-stage-muted);
 	text-align: end;
 	overflow-wrap: anywhere;
-	backdrop-filter: blur(1rem);
+	backdrop-filter: blur(sizing.size(1));
 }
 
 main {
 	min-width: 0;
 	min-height: 0;
-	padding: 0 clamp(1rem, 4vw, 3rem);
+	padding: 0 clamp(sizing.size(1), 4vw, sizing.size(3));
 }
 
 .stage {
@@ -119,7 +129,7 @@ main {
 	grid-template-rows: auto minmax(0, 1fr);
 	width: 100%;
 	height: 100%;
-	min-height: 20rem;
+	min-height: sizing.size(20);
 	place-items: center;
 }
 
@@ -127,7 +137,7 @@ main {
 	@include typography.apply( 'headline-large' );
 
 	z-index: 1;
-	max-width: min(90vw, 48rem);
+	max-width: min(90vw, sizing.size(48));
 	margin: var(--tocus-space-3) 0 0;
 	color: var(--tocus-color-on-stage);
 	text-align: center;
@@ -137,9 +147,9 @@ main {
 .sphere-shell {
 	grid-column: 1;
 	grid-row: 2;
-	width: min(74vw, 44rem);
-	height: min(58vh, 36rem);
-	min-height: 15rem;
+	width: min(74vw, sizing.size(44));
+	height: min(58vh, sizing.size(36));
+	min-height: sizing.size(15);
 	transition:
 		opacity 450ms cubic-bezier(0.2, 0, 0, 1),
 		transform 450ms cubic-bezier(0.2, 0, 0, 1);
@@ -163,7 +173,7 @@ tocus-f-breathing-sphere {
 	display: grid;
 	place-content: center;
 	place-items: center;
-	max-width: min(90vw, 38rem);
+	max-width: min(90vw, sizing.size(38));
 	margin: auto;
 	text-align: center;
 	gap: var(--tocus-space-4);
@@ -173,13 +183,13 @@ tocus-f-breathing-sphere {
 .retry-button {
 	@include typography.apply( 'label-large' );
 
-	min-width: 10rem;
-	min-height: 3.5rem;
+	min-width: sizing.size(10);
+	min-height: sizing.size(3.5);
 	padding: var(--tocus-space-3) var(--tocus-space-6);
 	border: 0;
 	border-radius: var(--tocus-radius-full);
-	outline: 0.1875rem solid transparent;
-	outline-offset: 0.1875rem;
+	outline: sizing.size(0.1875) solid transparent;
+	outline-offset: sizing.size(0.1875);
 	background: var(--tocus-color-action);
 	box-shadow: var(--tocus-shadow-soft);
 	color: var(--tocus-color-on-action);
@@ -191,8 +201,8 @@ tocus-f-breathing-sphere {
 		transform var(--tocus-transition-fast);
 
 	&:hover:not(:disabled) {
-		box-shadow: 0 1.5rem 4.5rem var(--tocus-color-stage-glow);
-		transform: translateY(-0.0625rem);
+		box-shadow: 0 sizing.size(1.5) sizing.size(4.5) var(--tocus-color-stage-glow);
+		transform: translateY(sizing.size(-0.0625));
 	}
 
 	&:focus-visible {
@@ -200,7 +210,7 @@ tocus-f-breathing-sphere {
 	}
 
 	&:active:not(:disabled) {
-		transform: translateY(0.0625rem);
+		transform: translateY(sizing.size(0.0625));
 	}
 
 	&:disabled {
@@ -221,8 +231,8 @@ kbd {
 	@include typography.apply( 'label-medium' );
 
 	display: inline-flex;
-	min-width: 3.75rem;
-	min-height: 1.75rem;
+	min-width: sizing.size(3.75);
+	min-height: sizing.size(1.75);
 	align-items: center;
 	justify-content: center;
 	margin-inline: var(--tocus-space-1);
@@ -230,7 +240,7 @@ kbd {
 	border: 1px solid var(--tocus-color-glass-border);
 	border-radius: var(--tocus-radius-small);
 	background: var(--tocus-color-glass-surface);
-	box-shadow: 0 0.125rem 0 var(--tocus-color-glass-border);
+	box-shadow: 0 sizing.size(0.125) 0 var(--tocus-color-glass-border);
 	color: var(--tocus-color-on-stage);
 }
 
@@ -239,7 +249,7 @@ kbd {
 
 	position: absolute;
 	inset: 0;
-	width: min(90vw, 32rem);
+	width: min(90vw, sizing.size(32));
 	height: fit-content;
 	margin: auto;
 	padding: var(--tocus-space-6);
@@ -250,11 +260,11 @@ kbd {
 	color: var(--tocus-color-on-stage);
 	text-align: center;
 	overflow-wrap: anywhere;
-	backdrop-filter: blur(1rem);
+	backdrop-filter: blur(sizing.size(1));
 
 	&:focus-visible {
 		border-radius: var(--tocus-radius-medium);
-		outline: 0.1875rem solid var(--tocus-color-focus-ring);
+		outline: sizing.size(0.1875) solid var(--tocus-color-focus-ring);
 		outline-offset: var(--tocus-space-2);
 	}
 }
@@ -263,7 +273,7 @@ kbd {
 	z-index: 1;
 	display: grid;
 	grid-area: 1 / 1 / 3 / 2;
-	width: min(100%, 32rem);
+	width: min(100%, sizing.size(32));
 	height: fit-content;
 	margin-block: var(--tocus-space-4);
 	padding: var(--tocus-space-6);
@@ -274,13 +284,13 @@ kbd {
 	text-align: center;
 	place-items: center;
 	place-self: center;
-	backdrop-filter: blur(1rem);
+	backdrop-filter: blur(sizing.size(1));
 }
 
 .recovery-icon {
 	display: grid;
-	width: 3.5rem;
-	height: 3.5rem;
+	width: sizing.size(3.5);
+	height: sizing.size(3.5);
 	margin-block-end: var(--tocus-space-4);
 	border-radius: var(--tocus-radius-full);
 	background: var(--tocus-color-action);
@@ -288,8 +298,8 @@ kbd {
 	place-items: center;
 
 	svg {
-		width: 2rem;
-		height: 2rem;
+		width: sizing.size(2);
+		height: sizing.size(2);
 		color: inherit;
 	}
 }
@@ -313,22 +323,22 @@ kbd {
 footer {
 	@include typography.apply( 'body-small' );
 
-	max-width: min(92vw, 52rem);
+	max-width: min(92vw, sizing.size(52));
 	margin-inline: auto;
-	padding: var(--tocus-space-4) clamp(1rem, 4vw, 3rem) clamp(1rem, 2.8vw, 2rem);
+	padding: var(--tocus-space-4) clamp(sizing.size(1), 4vw, sizing.size(3)) clamp(sizing.size(1), 2.8vw, sizing.size(2));
 	color: var(--tocus-color-on-stage-muted);
 	text-align: center;
 	overflow-wrap: anywhere;
 }
 
 :host([preview]) {
-	--tocus-typography-headline-small-font-size: clamp(0.8625rem, 6.9cqh, 1.15rem);
+	--tocus-typography-headline-small-font-size: clamp(#{sizing.size(0.8625)}, 6.9cqh, #{sizing.size(1.15)});
 	--tocus-typography-headline-small-line-height: 1.15;
-	--tocus-typography-body-large-font-size: clamp(0.71875rem, 5.175cqh, 0.92rem);
+	--tocus-typography-body-large-font-size: clamp(#{sizing.size(0.71875)}, 5.175cqh, #{sizing.size(0.92)});
 	--tocus-typography-body-large-line-height: 1.2;
-	--tocus-typography-headline-large-font-size: clamp(0.92rem, 6.9cqh, 1.3225rem);
+	--tocus-typography-headline-large-font-size: clamp(#{sizing.size(0.92)}, 6.9cqh, #{sizing.size(1.3225)});
 	--tocus-typography-headline-large-line-height: 1.15;
-	--tocus-typography-body-small-font-size: clamp(0.6325rem, 4.37cqh, 0.805rem);
+	--tocus-typography-body-small-font-size: clamp(#{sizing.size(0.6325)}, 4.37cqh, #{sizing.size(0.805)});
 	--tocus-typography-body-small-line-height: 1.25;
 
 	position: absolute;
@@ -339,22 +349,23 @@ footer {
 	container-type: size;
 
 	.scene {
+		grid-template-rows: auto minmax(0, 1fr) auto;
 		min-height: 0;
 		overflow: hidden;
 	}
 
 	header {
-		gap: 0.5rem;
-		padding: clamp(0.5rem, 4cqh, 0.75rem) clamp(0.625rem, 4cqw, 1rem);
+		gap: sizing.size(0.5);
+		padding: clamp(sizing.size(0.5), 4cqh, sizing.size(0.75)) clamp(sizing.size(0.625), 4cqw, sizing.size(1));
 	}
 
 	.brand {
-		gap: 0.4rem;
+		gap: sizing.size(0.4);
 	}
 
 	.brand-icon {
-		width: clamp(1rem, 7cqh, 1.35rem);
-		height: clamp(1rem, 7cqh, 1.35rem);
+		width: clamp(sizing.size(1), 7cqh, sizing.size(1.35));
+		height: clamp(sizing.size(1), 7cqh, sizing.size(1.35));
 	}
 
 	.wordmark {
@@ -364,12 +375,12 @@ footer {
 	.remaining {
 		flex: 0 0 auto;
 		max-width: 58%;
-		padding: 0.25rem 0.55rem;
+		padding: sizing.size(0.25) sizing.size(0.55);
 		white-space: nowrap;
 	}
 
 	main {
-		padding-inline: clamp(0.5rem, 4cqw, 1rem);
+		padding-inline: clamp(sizing.size(0.5), 4cqw, sizing.size(1));
 	}
 
 	.stage {
@@ -378,27 +389,27 @@ footer {
 
 	.cue {
 		max-width: 90%;
-		margin-top: 0.25rem;
+		margin-top: sizing.size(0.25);
 	}
 
 	.sphere-shell {
-		width: min(86cqw, 16rem);
+		width: min(86cqw, sizing.size(16));
 		height: 100%;
 		min-height: 0;
-		max-height: min(58cqh, 10rem);
+		max-height: min(58cqh, sizing.size(10));
 	}
 
 	footer {
 		max-width: 100%;
-		padding: 0.4rem clamp(0.625rem, 4cqw, 1rem) clamp(0.5rem, 4cqh, 0.75rem);
+		padding: sizing.size(0.4) clamp(sizing.size(0.625), 4cqw, sizing.size(1)) clamp(sizing.size(0.5), 4cqh, sizing.size(0.75));
 	}
 }
 
 .visually-hidden {
 	position: absolute;
-	width: 0.0625rem;
-	height: 0.0625rem;
-	margin: -0.0625rem;
+	width: sizing.size(0.0625);
+	height: sizing.size(0.0625);
+	margin: sizing.size(-0.0625);
 	padding: 0;
 	overflow: hidden;
 	clip-path: inset(50%);
@@ -418,8 +429,8 @@ footer {
 	}
 
 	.sphere-shell {
-		width: min(92vw, 32rem);
-		height: min(55vh, 28rem);
+		width: min(92vw, sizing.size(32));
+		height: min(55vh, sizing.size(28));
 	}
 }
 
@@ -441,10 +452,10 @@ footer {
 	.scene {
 		background: Canvas;
 		color: CanvasText;
+	}
 
-		&::before {
-			display: none;
-		}
+	.bloom {
+		display: none;
 	}
 
 	tocus-f-breathing-sphere {
@@ -472,7 +483,7 @@ footer {
 
 	.continue-button,
 	.retry-button {
-		border: 0.125rem solid ButtonText;
+		border: sizing.size(0.125) solid ButtonText;
 		outline-color: transparent;
 		background: ButtonFace;
 		box-shadow: none;
@@ -484,7 +495,7 @@ footer {
 	}
 
 	.recovery-icon {
-		border: 0.125rem solid CanvasText;
+		border: sizing.size(0.125) solid CanvasText;
 		background: Canvas;
 		color: CanvasText;
 	}

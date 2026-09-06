@@ -453,6 +453,7 @@ export class ComponentInterruptionScreen extends LitElement {
 				} ) }
 				tabindex=${ ifDefined( waiting || ( unavailable && this.recovering ) ? 0 : undefined ) }
 			>
+				<div class="bloom" aria-hidden="true"></div>
 				<header>
 					<div class="brand" aria-label="TOCus">
 						<span class="brand-icon" aria-hidden="true">${ unsafeSVG( iconMarkup ) }</span>
