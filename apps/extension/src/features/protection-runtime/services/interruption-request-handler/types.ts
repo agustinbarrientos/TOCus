@@ -4,6 +4,7 @@ import { type DepartureCause } from '../../../../domains/protection/types/protec
 import { type InterruptionPageResponse } from '../../types/runtime-message';
 import { type ProtectionRuntimeParticipantContext } from '../../utils/runtime-page-context';
 import { type ProtectionRuntimeBrowser } from '../../types/browser-runtime';
+import { type ProtectionContinuationContext } from '../protection-page-projector/types';
 
 /**
  * Dependencies used to handle interruption-page requests.
@@ -11,19 +12,21 @@ import { type ProtectionRuntimeBrowser } from '../../types/browser-runtime';
  */
 export interface InterruptionRequestHandlerOptions {
 	/** Browser focus observation required for waiting ownership. */
-	browser: Pick<ProtectionRuntimeBrowser, 'getFocusedTabId'>;
+	browser: Pick<ProtectionRuntimeBrowser, 'getFocusedTabId' | 'listTabs'>;
 	/** Serialized protection-state coordinator. */
 	coordinator: Pick<ProtectionCoordinator, 'dispatch' | 'getStates'>;
 	/**
 	 * Applies one persisted domain result to browser projections.
 	 * @param result - Persisted coordinator result.
 	 * @param configuration - Current validated configuration.
+	 * @param continuedParticipant - Optional identity from a freshly validated entry request.
 	 * @return Promise resolved after browser effects are current.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	applyDispatchResult(
 		result: ProtectionCoordinatorDispatchResult,
 		configuration: ProtectionConfigurationDocument,
+		continuedParticipant?: ProtectionContinuationContext,
 	): Promise<void>;
 	/**
 	 * Creates one fresh runtime identifier fragment.

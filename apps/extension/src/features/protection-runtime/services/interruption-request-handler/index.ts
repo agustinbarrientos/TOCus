@@ -1,9 +1,15 @@
 import {
 	DepartureCause,
 	ProtectionEventType,
+	type FreshParticipantObservation,
 } from '../../../../domains/protection/types/protection-event';
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
-import { AllowanceIdSchema } from '../../../../domains/protection/types/protection-value';
+import { ProtectionParticipantOrigin } from '../../../../domains/protection/types/protection-participant';
+import { AllowanceIdSchema, type AllowanceId } from '../../../../domains/protection/types/protection-value';
+import { CompletionAction } from '../../../../domains/protection/types/completion-action';
+import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
+import { protectionMatchProtectsScope } from '../../../../domains/protection/utils/match-protection-scope';
+import { type ProtectionContinuationContext } from '../protection-page-projector/types';
 import {
 	InterruptionPageRequestSchema,
 	InterruptionPageRequestType,
@@ -24,6 +30,30 @@ import {
 } from './types';
 
 /**
+ * Identifies one requested entry only while its fresh observation still protects the same scope.
+ * @param context - Current participant and protection state.
+ * @param allowanceId - Reserved allowance expected to authorize the entry.
+ * @param observation - Fresh URL and schedule observation used by the domain event.
+ * @return Exact entry identity, or undefined when the observation does not authorize entry.
+ * @since 0.1.0 Initial implementation.
+ */
+function createContinuationContext(
+	context: ProtectionRuntimeParticipantContext,
+	allowanceId: AllowanceId,
+	observation: FreshParticipantObservation,
+): ProtectionContinuationContext | undefined {
+	return observation.schedule.status === ScheduleEvaluationStatus.ACTIVE &&
+		protectionMatchProtectsScope( observation.match, context.state.scopeId )
+		? {
+			participantId: context.participant.participantId,
+			pageId: context.participant.pageId,
+			scopeId: context.state.scopeId,
+			allowanceId,
+		}
+		: undefined;
+}
+
+/**
  * Creates authoritative interruption-page request handling.
  * @param options - State, browser, clock, and projection dependencies.
  * @return Interruption request and focus operations.
@@ -32,6 +62,23 @@ import {
 export function createInterruptionRequestHandler(
 	options: InterruptionRequestHandlerOptions,
 ): InterruptionRequestHandler {
+	/**
+	 * Reads the current URL used to validate a participant's protection scope.
+	 * @param context - Current interruption participant and transaction.
+	 * @return Retained navigation URL or freshly observed ordinary live-page URL.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function readMatchingDestination( context: ProtectionRuntimeParticipantContext ): Promise<string | null> {
+		if ( context.participant.origin === ProtectionParticipantOrigin.NAVIGATION ) {
+			return context.participant.retainedDestination;
+		}
+
+		const tabId = getRuntimeTabId( context.participant.pageId );
+		const tab = ( await options.browser.listTabs() ).find( ( candidate ) => candidate.id === tabId );
+
+		return tab?.incognito === false ? tab.pendingUrl ?? tab.url ?? null : null;
+	}
+
 	/**
 	 * Creates the current interruption-page projection for one sender tab.
 	 * @param tabId - Browser-provided sender tab identifier.
@@ -50,6 +97,13 @@ export function createInterruptionRequestHandler(
 				progressing:
 					context.state.ownerParticipantId === context.participant.participantId &&
 					context.participant.focusEligible,
+			} );
+		}
+
+		if ( context?.state.type === ProtectionStateType.READY ) {
+			return InterruptionPageResponseSchema.parse( {
+				state: InterruptionPageResponseState.READY,
+				allowanceExpiresAtEpochMilliseconds: null,
 			} );
 		}
 
@@ -150,8 +204,17 @@ export function createInterruptionRequestHandler(
 		);
 		const cumulativeCheckpointMilliseconds = waitingState.checkpointHighWaterMilliseconds +
 			unconfirmedDurationMilliseconds;
+		const matchingDestination = await readMatchingDestination( context );
 		const nowEpochMilliseconds = options.now();
 		const timeZone = options.getTimeZone();
+		const allowanceId = AllowanceIdSchema.parse( `allowance_${ options.createStableId() }` );
+		const automaticCompletionObservation = createFreshRuntimeObservation(
+			context.participant,
+			configuration,
+			nowEpochMilliseconds,
+			timeZone,
+			matchingDestination,
+		);
 		const measurementRevision = Object.hasOwn(
 			configuration.measurementRevisionsByScope,
 			waitingState.scopeId,
@@ -167,18 +230,21 @@ export function createInterruptionRequestHandler(
 			cumulativeCheckpointMilliseconds,
 			observedAtEpochMilliseconds: nowEpochMilliseconds,
 			completionLocalDate: createRuntimeLocalDate( nowEpochMilliseconds, timeZone ),
-			allowanceId: AllowanceIdSchema.parse( `allowance_${ options.createStableId() }` ),
+			allowanceId,
 			timingConfiguration: configuration.timingConfiguration,
 			statisticsEligible,
-			automaticCompletionObservation: createFreshRuntimeObservation(
-				context.participant,
-				configuration,
-				nowEpochMilliseconds,
-				timeZone,
-			),
+			automaticCompletionObservation,
 		} ), measurementRevision );
 
-		await options.applyDispatchResult( result, configuration );
+		if ( configuration.timingConfiguration.completionAction === CompletionAction.OPEN_AUTOMATICALLY ) {
+			await options.applyDispatchResult(
+				result,
+				configuration,
+				createContinuationContext( context, allowanceId, automaticCompletionObservation ),
+			);
+		} else {
+			await options.applyDispatchResult( result, configuration );
+		}
 
 		return true;
 	}
@@ -194,26 +260,40 @@ export function createInterruptionRequestHandler(
 		context: ProtectionRuntimeParticipantContext,
 		configuration: Parameters<InterruptionRequestHandler[ 'synchronizeParticipantFocus' ]>[ 2 ],
 	): Promise<boolean> {
-		if ( context.state.type !== ProtectionStateType.ALLOWANCE ) {
+		if (
+			context.state.type !== ProtectionStateType.ALLOWANCE &&
+			context.state.type !== ProtectionStateType.READY
+		) {
 			return false;
 		}
 
 		const allowanceState = context.state;
+		const matchingDestination = await readMatchingDestination( context );
 		const nowEpochMilliseconds = options.now();
+		const observation = createFreshRuntimeObservation(
+			context.participant,
+			configuration,
+			nowEpochMilliseconds,
+			options.getTimeZone(),
+			matchingDestination,
+		);
+		const measurementRevision = Object.hasOwn(
+			configuration.measurementRevisionsByScope,
+			allowanceState.scopeId,
+		)
+			? configuration.measurementRevisionsByScope[ allowanceState.scopeId ]
+			: undefined;
 		const result = await options.coordinator.dispatch( () => ( {
 			type: ProtectionEventType.READY_CONTINUATION,
 			scopeId: allowanceState.scopeId,
 			allowanceId: allowanceState.allowanceId,
 			nowEpochMilliseconds,
-			observation: createFreshRuntimeObservation(
-				context.participant,
-				configuration,
-				nowEpochMilliseconds,
-				options.getTimeZone(),
-			),
-		} ) );
+			observation,
+		} ), measurementRevision );
 
-		await options.applyDispatchResult( result, configuration );
+		const continuedParticipant = createContinuationContext( context, allowanceState.allowanceId, observation );
+
+		await options.applyDispatchResult( result, configuration, continuedParticipant );
 
 		return true;
 	}

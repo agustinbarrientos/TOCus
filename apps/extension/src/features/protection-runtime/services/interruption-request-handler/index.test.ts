@@ -7,7 +7,9 @@ import {
 } from '../../../../domains/protection/services/protection-coordinator';
 import {
 	createAllowanceState,
+	createAllowanceExpiryParticipant,
 	createNavigationParticipant,
+	createReadyState,
 	createWaitingState,
 	TestEmptyProtectionConfiguration,
 } from '../../../../domains/protection/types/__fixtures__';
@@ -18,6 +20,7 @@ import {
 	type ProtectionEvent,
 } from '../../../../domains/protection/types/protection-event';
 import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import { CompletionAction } from '../../../../domains/protection/types/completion-action';
 import {
 	type AllowanceProtectionState,
 	type WaitingProtectionState,
@@ -169,6 +172,7 @@ function createHandlerHarness(
 		return APPLIED_RESULT;
 	} );
 	const getFocusedTabId = vi.fn<ProtectionRuntimeBrowser[ 'getFocusedTabId' ]>().mockResolvedValue( 7 );
+	const listTabs = vi.fn<ProtectionRuntimeBrowser[ 'listTabs' ]>().mockResolvedValue( [] );
 	const applyDispatchResult = vi
 		.fn<InterruptionRequestHandlerOptions[ 'applyDispatchResult' ]>()
 		.mockResolvedValue( undefined );
@@ -200,7 +204,7 @@ function createHandlerHarness(
 		.fn<InterruptionRequestHandlerOptions[ 'reconcileUnavailableConfiguration' ]>()
 		.mockResolvedValue( undefined );
 	const handler = createInterruptionRequestHandler( {
-		browser: { getFocusedTabId },
+		browser: { getFocusedTabId, listTabs },
 		coordinator: { dispatch, getStates },
 		applyDispatchResult,
 		createStableId,
@@ -224,6 +228,7 @@ function createHandlerHarness(
 		handler,
 		loadConfiguration,
 		reconcileExpiredAllowances,
+		listTabs,
 		reconcileUnavailableConfiguration,
 		releaseInterruptionPresentation,
 		refreshToolbarBadge,
@@ -354,6 +359,114 @@ describe( 'interruption request validation', () => {
 } );
 
 describe( 'interruption page projections', () => {
+	it.each( [
+		[ 'committed URL', { id: 7, incognito: false, url: 'https://example.com/live' }, 'protected' ],
+		[ 'pending URL', {
+			id: 7,
+			incognito: false,
+			url: 'https://unprotected.test/',
+			pendingUrl: 'https://example.com/pending',
+		}, 'protected' ],
+		[ 'missing URL', { id: 7, incognito: false }, 'unprotected' ],
+		[ 'private tab', { id: 7, incognito: true, url: 'https://example.com/private' }, 'unprotected' ],
+		[ 'missing tab', { id: 8, incognito: false, url: 'https://example.com/other' }, 'unprotected' ],
+	] )( 'uses the %s to recheck an injected Continue without retaining the page address', async (
+		_label,
+		tab,
+		matchStatus,
+	) => {
+		const state = {
+			...createReadyState(),
+			scopeId: DefaultProtectionScopeId,
+			readyParticipants: [ createAllowanceExpiryParticipant( 'participant_ready', 'page_tab_7_ready', true, 0 ) ],
+		};
+		const harness = createHandlerHarness( { [ DefaultProtectionScopeId ]: state } );
+		harness.listTabs.mockResolvedValue( [ tab ] );
+
+		await harness.handler.handle( {
+			type: InterruptionPageRequestType.CONTINUE,
+			documentVisible: true,
+		}, 7, true );
+
+		expect( harness.events ).toMatchObject( [ {
+			type: ProtectionEventType.READY_CONTINUATION,
+			observation: { observedDestination: null, match: { status: matchStatus } },
+		} ] );
+		expect( harness.applyDispatchResult.mock.calls[ 0 ]?.[ 2 ] ).toEqual( matchStatus === 'protected'
+			? {
+				participantId: 'participant_ready',
+				pageId: 'page_tab_7_ready',
+				scopeId: state.scopeId,
+				allowanceId: state.allowanceId,
+			}
+			: undefined );
+	} );
+
+	it( 'continues stale scope reconciliation without using another scope measurement revision', async () => {
+		const state = {
+			...createReadyState(),
+			readyParticipants: createTestAllowanceState().readyParticipants,
+		};
+		const harness = createHandlerHarness( { [ state.scopeId ]: state } );
+
+		await harness.handler.handle( {
+			type: InterruptionPageRequestType.CONTINUE,
+			documentVisible: true,
+		}, 7, true );
+
+		expect( harness.events ).toMatchObject( [ {
+			type: ProtectionEventType.READY_CONTINUATION,
+			scopeId: state.scopeId,
+		} ] );
+		expect( harness.dispatch ).toHaveBeenCalledWith( expect.any( Function ), undefined );
+		expect( harness.applyDispatchResult.mock.calls[ 0 ]?.[ 2 ] ).toBeUndefined();
+	} );
+
+	it( 'keeps a completed pause Ready without starting an expiry clock', async () => {
+		const state = {
+			...createReadyState(),
+			scopeId: DefaultProtectionScopeId,
+			readyParticipants: createTestAllowanceState().readyParticipants,
+		};
+		const harness = createHandlerHarness( { [ DefaultProtectionScopeId ]: state } );
+
+		await expect( harness.handler.handle( {
+			type: InterruptionPageRequestType.SYNCHRONIZE,
+			documentVisible: true,
+		}, 7, true ) ).resolves.toEqual( {
+			state: InterruptionPageResponseState.READY,
+			allowanceExpiresAtEpochMilliseconds: null,
+		} );
+		expect( harness.events ).toEqual( [] );
+		expect( harness.releaseInterruptionPresentation ).not.toHaveBeenCalled();
+	} );
+
+	it( 'dispatches pending Continue with the current measurement revision', async () => {
+		const state = {
+			...createReadyState(),
+			scopeId: DefaultProtectionScopeId,
+			readyParticipants: createTestAllowanceState().readyParticipants,
+		};
+		const harness = createHandlerHarness( { [ DefaultProtectionScopeId ]: state } );
+
+		await harness.handler.handle( {
+			type: InterruptionPageRequestType.CONTINUE,
+			documentVisible: true,
+		}, 7, true );
+
+		expect( harness.events ).toMatchObject( [ {
+			type: ProtectionEventType.READY_CONTINUATION,
+			scopeId: DefaultProtectionScopeId,
+			allowanceId: state.allowanceId,
+			nowEpochMilliseconds: NOW_EPOCH_MILLISECONDS,
+			observation: { participantId: 'participant_ready', pageId: 'page_tab_7_ready' },
+		} ] );
+		expect( harness.dispatch ).toHaveBeenCalledWith(
+			expect.any( Function ),
+			CONFIGURATION.measurementRevisionsByScope[ DefaultProtectionScopeId ],
+		);
+	} );
+
 	it( 'returns progressing Waiting state for the focused owner', async () => {
 		const waitingState = createTestWaitingState();
 		const states = { [ DefaultProtectionScopeId ]: waitingState };
@@ -539,6 +652,36 @@ describe( 'Waiting focus synchronization', () => {
 } );
 
 describe( 'interruption page actions', () => {
+	it.each( [ CompletionAction.SHOW_CONTINUE, CompletionAction.OPEN_AUTOMATICALLY ] )(
+		'carries only the validated injected participant identity from Continue in %s mode',
+		async ( completionAction ) => {
+			const participant = createAllowanceExpiryParticipant( 'participant_ready', 'page_tab_7_ready', true, 0 );
+			const ready = {
+				...createReadyState(),
+				scopeId: DefaultProtectionScopeId,
+				readyParticipants: [ participant ],
+			};
+			const configuration = {
+				...CONFIGURATION,
+				timingConfiguration: { ...CONFIGURATION.timingConfiguration, completionAction },
+			};
+			const harness = createHandlerHarness( { [ DefaultProtectionScopeId ]: ready }, configuration );
+			harness.listTabs.mockResolvedValue( [ { id: 7, incognito: false, url: 'https://example.com/' } ] );
+
+			await harness.handler.handle( {
+				type: InterruptionPageRequestType.CONTINUE,
+				documentVisible: true,
+			}, 7, true );
+
+			expect( harness.applyDispatchResult ).toHaveBeenCalledWith( APPLIED_RESULT, configuration, {
+				participantId: participant.participantId,
+				pageId: participant.pageId,
+				scopeId: ready.scopeId,
+				allowanceId: ready.allowanceId,
+			} );
+		},
+	);
+
 	it( 'does not checkpoint a Waiting participant that is not the owner', async () => {
 		const waitingState = createNonOwnerWaitingState();
 		const harness = createHandlerHarness( { [ DefaultProtectionScopeId ]: waitingState } );
@@ -649,7 +792,12 @@ describe( 'interruption page actions', () => {
 				schedule: { status: 'active' },
 			},
 		} );
-		expect( harness.applyDispatchResult ).toHaveBeenCalledWith( APPLIED_RESULT, CONFIGURATION );
+		expect( harness.applyDispatchResult ).toHaveBeenCalledWith( APPLIED_RESULT, CONFIGURATION, {
+			participantId: 'participant_ready',
+			pageId: 'page_tab_7_ready',
+			scopeId: allowanceState.scopeId,
+			allowanceId: allowanceState.allowanceId,
+		} );
 		expect( harness.refreshToolbarBadge ).not.toHaveBeenCalled();
 	} );
 
