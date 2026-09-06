@@ -334,6 +334,7 @@ export default {
 			'src/features/protected-sites/utils/**/*.ts',
 			'src/features/interruption/services/focused-progress-clock/**/*.ts',
 			'src/features/interruption/utils/breathing-motion/**/*.ts',
+			'src/features/interruption/utils/playback-site-catalog/**/*.ts',
 			'src/features/interruption/utils/breathing-sphere-geometry/**/*.ts',
 			'src/features/preferences/services/preferences-controller/**/*.ts',
 			'src/features/popup/types/**/*.ts',
