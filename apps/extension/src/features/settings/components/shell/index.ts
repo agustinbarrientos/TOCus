@@ -25,6 +25,10 @@ import {
 	type ProtectedSiteItemCopy,
 } from '../../../protected-sites/components/site-item/types';
 import '../appearance-screen';
+import '../about-screen';
+import { type AboutScreenCopy } from '../about-screen/types';
+import '../privacy-screen';
+import { type PrivacyDataActions, type PrivacyScreenCopy } from '../privacy-screen/types';
 import {
 	type AppearanceScreenCopy,
 	type PreferencesPreview,
@@ -59,10 +63,14 @@ import {
  */
 function resolveSettingsDestination( hash: string ): SettingsDestinationValue {
 	switch ( hash ) {
+		case `#${ SettingsDestination.ABOUT }`:
+			return SettingsDestination.ABOUT;
 		case `#${ SettingsDestination.APPEARANCE }`:
 			return SettingsDestination.APPEARANCE;
 		case `#${ SettingsDestination.LANGUAGE }`:
 			return SettingsDestination.LANGUAGE;
+		case `#${ SettingsDestination.PRIVACY }`:
+			return SettingsDestination.PRIVACY;
 		case `#${ SettingsDestination.SCHEDULE }`:
 			return SettingsDestination.SCHEDULE;
 		case `#${ SettingsDestination.STATISTICS }`:
@@ -145,6 +153,27 @@ export class ComponentSettingsShell extends LitElement {
 	accessor statisticsSource: StatisticsSource | null = null;
 
 	/**
+	 * Explicit data reset operations owned by the background runtime.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor privacyActions: PrivacyDataActions | null = null;
+
+	/**
+	 * Whether the browser declares cached-favicon access.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor supportsCachedFavicons = false;
+
+	/**
+	 * Installed extension version supplied to the About destination.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor aboutVersion = '';
+
+	/**
 	 * Browser family whose native settings conventions the shell follows.
 	 * @since 0.1.0 Initial implementation.
 	 */
@@ -157,6 +186,20 @@ export class ComponentSettingsShell extends LitElement {
 	 */
 	@property( { attribute: false } )
 	accessor copy!: Readonly<SettingsShellCopy>;
+
+	/**
+	 * Complete localized messages rendered by the About destination.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor aboutCopy!: Readonly<AboutScreenCopy>;
+
+	/**
+	 * Complete localized messages rendered by the Privacy destination.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	@property( { attribute: false } )
+	accessor privacyCopy!: Readonly<PrivacyScreenCopy>;
 
 	/**
 	 * Complete localized messages rendered by the Appearance destination.
@@ -248,6 +291,21 @@ export class ComponentSettingsShell extends LitElement {
 	 */
 	private renderDestination(): TemplateResult {
 		switch ( this.destination ) {
+			case SettingsDestination.ABOUT:
+				return html`
+					<tocus-f-about-screen
+						.copy=${ this.aboutCopy }
+						.version=${ this.aboutVersion }
+					></tocus-f-about-screen>
+				`;
+			case SettingsDestination.PRIVACY:
+				return html`
+					<tocus-f-privacy-screen
+						.copy=${ this.privacyCopy }
+						.actions=${ this.privacyActions }
+						.supportsCachedFavicons=${ this.supportsCachedFavicons }
+					></tocus-f-privacy-screen>
+				`;
 			case SettingsDestination.APPEARANCE:
 				return html`
 					<tocus-f-appearance-screen
@@ -309,6 +367,8 @@ export class ComponentSettingsShell extends LitElement {
 	protected override render(): TemplateResult {
 		if ( ! isLocalizationReady(
 			this.copy,
+			this.aboutCopy,
+			this.privacyCopy,
 			this.appearanceCopy,
 			this.languageCopy,
 			this.protectedSitesCopy,
@@ -363,6 +423,18 @@ export class ComponentSettingsShell extends LitElement {
 								this.destination === SettingsDestination.STATISTICS ? 'page' : undefined,
 							) }
 						>${ this.copy.statistics }</a>
+						<a
+							href="#privacy"
+							aria-current=${ ifDefined(
+								this.destination === SettingsDestination.PRIVACY ? 'page' : undefined,
+							) }
+						>${ this.copy.privacy }</a>
+						<a
+							href="#about"
+							aria-current=${ ifDefined(
+								this.destination === SettingsDestination.ABOUT ? 'page' : undefined,
+							) }
+						>${ this.copy.about }</a>
 					</nav>
 				</aside>
 				<div class="content" id=${ this.destination }>

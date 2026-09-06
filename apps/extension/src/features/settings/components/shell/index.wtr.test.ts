@@ -29,6 +29,8 @@ import {
 import { ComponentProtectedSitesScreen } from '../../../protected-sites/components/screen';
 import { ComponentStatisticsSettingsScreen } from '../../../statistics/components/settings-screen';
 import { ComponentAppearanceScreen } from '../appearance-screen';
+import { ComponentAboutScreen } from '../about-screen';
+import { ComponentPrivacyScreen } from '../privacy-screen';
 import {
 	type AppearancePreferencesChangeListener,
 	type PreferencesPreview,
@@ -269,17 +271,21 @@ const PERMISSION_MANAGER: SitePermissionManager = {
 /**
  * Renders one settings shell with complete screen dependencies.
  * @param platform - Browser family whose native conventions should be reflected.
+ * @param hash - Direct destination hash supplied when opening Settings.
  * @return Rendered settings shell.
  * @since 0.1.0 Initial implementation.
  */
 async function renderShell(
 	platform: SettingsPlatformValue = SettingsPlatform.CHROME,
+	hash = '',
 ): Promise<ComponentSettingsShell> {
-	window.history.replaceState( null, '', window.location.pathname );
+	window.history.replaceState( null, '', `${ window.location.pathname }${ hash }` );
 
 	return fixture<ComponentSettingsShell>( html`
 		<tocus-f-settings-shell
 			.copy=${ TestEnglishLocalizationBundle.settingsShell }
+			.aboutCopy=${ TestEnglishLocalizationBundle.aboutCopy }
+			.privacyCopy=${ TestEnglishLocalizationBundle.privacyCopy }
 			.appearanceCopy=${ TestEnglishLocalizationBundle.appearance }
 			.languageCopy=${ TestEnglishLocalizationBundle.languageScreen }
 			.protectedSitesCopy=${ TestEnglishLocalizationBundle.protectedSites }
@@ -344,6 +350,8 @@ describe( 'tocus-f-settings-shell', () => {
 				{ label: 'Appearance', href: '#appearance', current: null },
 				{ label: 'Language', href: '#language', current: null },
 				{ label: 'Statistics', href: '#statistics', current: null },
+				{ label: 'Privacy and local data', href: '#privacy', current: null },
+				{ label: 'About', href: '#about', current: null },
 			],
 		);
 	} );
@@ -358,6 +366,8 @@ describe( 'tocus-f-settings-shell', () => {
 			appearance: 'Localized appearance',
 			language: 'Localized language',
 			statistics: 'Localized statistics',
+			privacy: 'Localized privacy',
+			about: 'Localized about',
 		};
 		await element.updateComplete;
 		const navigation = element.shadowRoot?.querySelector( 'nav' );
@@ -374,6 +384,8 @@ describe( 'tocus-f-settings-shell', () => {
 				'Localized appearance',
 				'Localized language',
 				'Localized statistics',
+				'Localized privacy',
+				'Localized about',
 			],
 		);
 	} );
@@ -414,7 +426,7 @@ describe( 'tocus-f-settings-shell', () => {
 		element.languageCopy = languageCopy;
 		await element.updateComplete;
 		const destinations = element.shadowRoot?.querySelectorAll<HTMLAnchorElement>( 'nav a' );
-		assert.equal( destinations?.length, 6 );
+		assert.equal( destinations?.length, 8 );
 
 		destinations?.item( 1 ).click();
 		await settleShell( element );
@@ -514,6 +526,8 @@ describe( 'tocus-f-settings-shell', () => {
 		const element = await fixture<ComponentSettingsShell>( html`
 			<tocus-f-settings-shell
 			.copy=${ TestEnglishLocalizationBundle.settingsShell }
+			.aboutCopy=${ TestEnglishLocalizationBundle.aboutCopy }
+			.privacyCopy=${ TestEnglishLocalizationBundle.privacyCopy }
 			.appearanceCopy=${ TestEnglishLocalizationBundle.appearance }
 			.languageCopy=${ TestEnglishLocalizationBundle.languageScreen }
 			.protectedSitesCopy=${ TestEnglishLocalizationBundle.protectedSites }
@@ -541,6 +555,74 @@ describe( 'tocus-f-settings-shell', () => {
 			element.shadowRoot?.querySelector( 'a[href="#statistics"]' )?.getAttribute( 'aria-current' ),
 			'page',
 		);
+	} );
+
+	it( 'opens About with its installed version and live localized copy', async () => {
+		const element = await renderShell();
+		element.aboutVersion = '2.3.4';
+		element.shadowRoot?.querySelector<HTMLAnchorElement>( 'a[href="#about"]' )?.click();
+		await settleShell( element );
+		const screen = element.shadowRoot?.querySelector( 'tocus-f-about-screen' );
+
+		assert.instanceOf( screen, ComponentAboutScreen );
+		if ( ! ( screen instanceof ComponentAboutScreen ) ) {
+			throw new TypeError( 'Expected the About screen.' );
+		}
+		assert.equal( screen.version, '2.3.4' );
+		element.aboutCopy = { ...TestEnglishLocalizationBundle.aboutCopy, eyebrow: 'Acerca de' };
+		await element.updateComplete;
+		await screen.updateComplete;
+		assert.include( screen.shadowRoot?.textContent, 'Acerca de' );
+		assert.equal( element.shadowRoot?.querySelector( '[aria-current="page"]' )?.getAttribute( 'href' ), '#about' );
+		await expect( element ).to.be.accessible();
+	} );
+
+	it( 'restores a directly opened About or Privacy destination from the URL', async () => {
+		const about = await renderShell( SettingsPlatform.CHROME, '#about' );
+		assert.instanceOf( about.shadowRoot?.querySelector( 'tocus-f-about-screen' ), ComponentAboutScreen );
+		about.remove();
+		const privacy = await renderShell( SettingsPlatform.CHROME, '#privacy' );
+		assert.instanceOf( privacy.shadowRoot?.querySelector( 'tocus-f-privacy-screen' ), ComponentPrivacyScreen );
+	} );
+
+	it( 'opens Privacy with scoped actions and browser-specific permission copy', async () => {
+		const element = await renderShell();
+		const actions = {
+			/**
+			 * Accepts a statistics reset in the shell fixture.
+			 * @return Successful fixture result.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			resetStatistics(): Promise<boolean> {
+				return Promise.resolve( true );
+			},
+			/**
+			 * Accepts a full data reset in the shell fixture.
+			 * @return Successful fixture result.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			resetAllData(): Promise<boolean> {
+				return Promise.resolve( true );
+			},
+		};
+		element.privacyActions = actions;
+		element.supportsCachedFavicons = true;
+		element.shadowRoot?.querySelector<HTMLAnchorElement>( 'a[href="#privacy"]' )?.click();
+		await settleShell( element );
+		const screen = element.shadowRoot?.querySelector( 'tocus-f-privacy-screen' );
+
+		assert.instanceOf( screen, ComponentPrivacyScreen );
+		if ( ! ( screen instanceof ComponentPrivacyScreen ) ) {
+			throw new TypeError( 'Expected the Privacy screen.' );
+		}
+		assert.equal( screen.actions, actions );
+		assert.isTrue( screen.supportsCachedFavicons );
+		element.privacyCopy = { ...TestEnglishLocalizationBundle.privacyCopy, title: 'Privacidad' };
+		await element.updateComplete;
+		await screen.updateComplete;
+		assert.equal( screen.shadowRoot?.querySelector( 'h1' )?.textContent, 'Privacidad' );
+		assert.equal( element.shadowRoot?.querySelector( '[aria-current="page"]' )?.getAttribute( 'href' ), '#privacy' );
+		await expect( element ).to.be.accessible();
 	} );
 
 	it( 'uses a sidebar at wide options-page widths', async () => {
@@ -635,31 +717,31 @@ describe( 'tocus-f-settings-shell', () => {
 		assert.equal( getComputedStyle( navigation ).borderBottomWidth, '1px' );
 	} );
 
-	it( 'contains all six destinations in a reachable narrow navigation scroller', async () => {
+	it( 'contains all eight destinations in a reachable narrow navigation scroller', async () => {
 		await setViewport( { height: 700, width: 420 } );
 
 		try {
 			const element = await renderShell( SettingsPlatform.SAFARI );
 			const layout = element.shadowRoot?.querySelector<HTMLElement>( '.settings-layout' );
 			const navigation = element.shadowRoot?.querySelector<HTMLElement>( 'nav' );
-			const statistics = element.shadowRoot?.querySelector<HTMLAnchorElement>( 'a[href="#statistics"]' );
+			const about = element.shadowRoot?.querySelector<HTMLAnchorElement>( 'a[href="#about"]' );
 
 			assert.instanceOf( layout, HTMLElement );
 			assert.instanceOf( navigation, HTMLElement );
-			assert.instanceOf( statistics, HTMLAnchorElement );
+			assert.instanceOf( about, HTMLAnchorElement );
 			if (
 				! ( layout instanceof HTMLElement ) ||
 				! ( navigation instanceof HTMLElement ) ||
-				! ( statistics instanceof HTMLAnchorElement )
+				! ( about instanceof HTMLAnchorElement )
 			) {
-				throw new TypeError( 'Expected the complete narrow Statistics navigation.' );
+				throw new TypeError( 'Expected the complete narrow About navigation.' );
 			}
 
 			assert.isAtMost( layout.scrollWidth, layout.clientWidth );
 			assert.isAbove( navigation.scrollWidth, navigation.clientWidth );
 			navigation.scrollLeft = navigation.scrollWidth;
-			statistics.focus();
-			assert.equal( element.shadowRoot?.activeElement, statistics );
+			about.focus();
+			assert.equal( element.shadowRoot?.activeElement, about );
 		} finally {
 			await setViewport( { height: 600, width: 800 } );
 		}
