@@ -1,6 +1,8 @@
 import { assert, fixture, html } from '@open-wc/testing';
+import { setupI18n } from '@lingui/core';
 import { emulateMedia, setViewport } from '@web/test-runner-commands';
 import { visualDiff } from '@web/test-runner-visual-regression';
+import { messages as germanMessages } from '../../../../../locales/de.po';
 import { Palette, ThemeMode } from '../../../../domains/preferences/types';
 import { createTestI18n } from '../../../../localization/__fixtures__';
 import { createAboutScreenCopy } from '../../../../localization/utils/create-about-screen-copy';
@@ -79,17 +81,8 @@ describe( 'tocus-f-about-screen visual', () => {
 
 	it( 'wraps extended translated copy at a narrow width', async () => {
 		await configureAppearance( ThemeMode.LIGHT, Palette.GREEN, 320 );
-		const element = await renderAboutScreen( {
-			...ABOUT_COPY,
-			eyebrow: '\u00dcber TOCus',
-			summary: 'Kostenlos und quelloffen. Ihre Einstellungen und Statistiken bleiben ausschlie\u00dflich auf diesem Ger\u00e4t gespeichert.',
-			linksTitle: 'Gemeinsam und offen entwickelt',
-			linksDescription: 'Lesen Sie den Quellcode und die Lizenz oder helfen Sie dabei, TOCus gemeinsam weiterzuentwickeln.',
-			sourceCode: 'Quellcode ansehen',
-			license: 'MIT-Lizenz lesen',
-			contribute: 'Zur Weiterentwicklung beitragen',
-			externalLinksHint: 'Diese Links \u00f6ffnen GitHub in einem neuen Browser-Tab.',
-		} );
+		const i18n = setupI18n( { locale: 'de', messages: { de: germanMessages } } );
+		const element = await renderAboutScreen( createAboutScreenCopy( i18n ) );
 
 		await visualDiff( element, 'about-screen-german-narrow' );
 	} );
