@@ -10,6 +10,7 @@ import {
 	type BrowserPreferencesEditor,
 	type BrowserPreferencesEditorOptions,
 } from './types';
+import { createLocalDataMutationGuard } from '../../../local-data/services/local-data-generation';
 
 /**
  * Creates browser-backed preferences editing with shared cross-context coordination.
@@ -21,6 +22,18 @@ export function createBrowserPreferencesEditor(
 	options: BrowserPreferencesEditorOptions,
 ): BrowserPreferencesEditor {
 	const storage = createPreferencesStorageService( { area: options.area } );
+	const assertCurrentGeneration = createLocalDataMutationGuard( options.area );
+
+	/**
+	 * Persists preferences only while their editor belongs to the current installation data.
+	 * @param input - Candidate preferences validated by the storage service.
+	 * @return Promise resolved after guarded persistence.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function save( input: unknown ): Promise<void> {
+		await assertCurrentGeneration();
+		await storage.save( input );
+	}
 
 	/**
 	 * Runs one preferences mutation under its stable cross-context lock.
@@ -36,7 +49,15 @@ export function createBrowserPreferencesEditor(
 	}
 
 	const editor = createPreferencesEditor( {
-		storage,
+		storage: {
+			/**
+			 * Reads the current persisted document without changing reset identity.
+			 * @return Current settings or a malformed-data marker.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			load: () => storage.load(),
+			save,
+		},
 		coordinateMutation,
 	} );
 

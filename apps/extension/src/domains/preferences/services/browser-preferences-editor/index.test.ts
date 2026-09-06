@@ -8,6 +8,7 @@ import {
 } from '../preferences-storage';
 import { createBrowserPreferencesEditor } from './index';
 import { type BrowserPreferencesMutationLock } from './types';
+import { LocalDataGenerationStorageKey } from '../../../local-data/services/local-data-generation';
 
 /**
  * Records browser-lock requests while executing their protected mutations.
@@ -68,6 +69,23 @@ describe( 'createBrowserPreferencesEditor', () => {
 
 		await expect( services.storage.load() ).resolves.toEqual( DefaultPreferencesDocument );
 		await expect( services.editor.load() ).resolves.toEqual( DefaultPreferencesDocument );
-		expect( area.get ).toHaveBeenCalledTimes( 2 );
+		expect(
+			area.get.mock.calls.filter( ( [ key ] ) => key === PreferencesStorageKey.PREFERENCES ),
+		).toHaveLength( 2 );
+	} );
+
+	it( 'rejects stale preference saves after another page resets all data', async () => {
+		const values: Record<string, unknown> = {};
+		const area = {
+			get: vi.fn( ( key: string ) => Promise.resolve(
+				Object.hasOwn( values, key ) ? { [ key ]: values[ key ] } : {},
+			) ),
+			set: vi.fn().mockResolvedValue( undefined ),
+		};
+		const { editor } = createBrowserPreferencesEditor( { area, locks: new MemoryPreferencesMutationLock() } );
+		await editor.load();
+		values[ LocalDataGenerationStorageKey ] = { generation: 'reset', pending: false };
+		await expect( editor.update( { palette: Palette.GREEN } ) ).rejects.toThrow( 'reset' );
+		expect( area.set ).not.toHaveBeenCalled();
 	} );
 } );
