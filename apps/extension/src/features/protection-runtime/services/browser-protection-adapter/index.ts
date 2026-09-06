@@ -68,14 +68,20 @@ function getToolbarAction( browserApi: BrowserProtectionAdapterApi ): BrowserPro
 /**
  * Runs one nonessential toolbar operation without exposing browser-specific failures to navigation.
  * @param operation - Deferred toolbar operation that may fail synchronously or asynchronously.
+ * @param requireSuccess - Whether reset cleanup must report a failed toolbar write.
  * @return Promise resolved after the operation succeeds or its failure is isolated.
  * @since 0.1.0 Initial implementation.
  */
-async function isolateToolbarOperationFailure( operation: () => Promise<void> | void ): Promise<void> {
+async function isolateToolbarOperationFailure(
+	operation: () => Promise<void> | void,
+	requireSuccess: boolean,
+): Promise<void> {
 	try {
 		await operation();
-	} catch {
-		return;
+	} catch ( error ) {
+		if ( requireSuccess ) {
+			throw error;
+		}
 	}
 }
 
@@ -247,15 +253,45 @@ export function createBrowserProtectionAdapter(
 	}
 
 	/**
+	 * Verifies that a failed removal no longer has an injected listener or live tab target.
+	 * @param tabId - Browser tab targeted by cleanup.
+	 * @param error - Native message-delivery failure.
+	 * @return Whether one recognized absence can safely complete reset cleanup.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function isAbsentRemovalTarget( tabId: number, error: unknown ): Promise<boolean> {
+		if ( ! ( error instanceof Error ) ) {
+			return false;
+		}
+
+		if ( error.message === 'Could not establish connection. Receiving end does not exist.' ) {
+			return true;
+		}
+
+		if (
+			error.message !== `No tab with id: ${ String( tabId ) }.` &&
+			error.message !== `Invalid tab ID: ${ String( tabId ) }`
+		) {
+			return false;
+		}
+
+		const tabs = await browserApi.tabs.query( {} );
+
+		return ! tabs.some( ( tab ) => tab.id === tabId );
+	}
+
+	/**
 	 * Applies one warning or interruption-layer command to a protected page.
 	 * @param tabId - Browser tab containing the protected page.
 	 * @param input - Protected-page command awaiting boundary validation.
+	 * @param requireSuccess - Whether reset cleanup must report unverified delivery failures.
 	 * @return Promise resolved after presentation or an absent removal is ignored.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function updateProtectedPagePresentation(
 		tabId: number,
 		input: ProtectedPageMessage,
+		requireSuccess = false,
 	): Promise<void> {
 		const message = ProtectedPageMessageSchema.parse( input );
 
@@ -270,7 +306,10 @@ export function createBrowserProtectionAdapter(
 		try {
 			await browserApi.tabs.sendMessage( tabId, message );
 		} catch ( error ) {
-			if ( ! requiresProtectedPageInjection( message ) ) {
+			if (
+				! requiresProtectedPageInjection( message ) &&
+				( ! requireSuccess || await isAbsentRemovalTarget( tabId, error ) )
+			) {
 				return;
 			}
 
@@ -311,11 +350,13 @@ export function createBrowserProtectionAdapter(
 	/**
 	 * Applies one semantic projection to the global browser action API.
 	 * @param projection - Compact text, accessible title, and semantic phase.
+	 * @param requireSuccess - Whether reset cleanup must report a failed toolbar write.
 	 * @return Promise resolved after every independent toolbar update is attempted.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function updateToolbarBadge(
 		projection: ToolbarBadgeProjection,
+		requireSuccess = false,
 	): Promise<void> {
 		const toolbarAction = getToolbarAction( browserApi );
 
@@ -326,13 +367,13 @@ export function createBrowserProtectionAdapter(
 		await Promise.all( [
 			isolateToolbarOperationFailure( () => toolbarAction.setBadgeText( {
 				text: projection.text,
-			} ) ),
+			} ), requireSuccess ),
 			isolateToolbarOperationFailure( () => toolbarAction.setBadgeBackgroundColor( {
 				color: ToolbarBadgeBackgroundColor,
-			} ) ),
+			} ), requireSuccess ),
 			isolateToolbarOperationFailure( () => toolbarAction.setTitle( {
 				title: projection.title,
-			} ) ),
+			} ), requireSuccess ),
 		] );
 	}
 

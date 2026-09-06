@@ -131,16 +131,22 @@ export interface ProtectionRuntimeBrowser {
 	 * Applies one warning or interruption-layer command to a protected page.
 	 * @param tabId - Browser tab containing the protected page.
 	 * @param message - Validated protected-page command.
+	 * @param requireSuccess - Whether reset cleanup must report unverified removal failures.
 	 * @return Promise resolved after the page accepts the command or an absent removal is ignored.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	updateProtectedPagePresentation: ( tabId: number, message: ProtectedPageMessage ) => Promise<void>;
+	updateProtectedPagePresentation: (
+		tabId: number,
+		message: ProtectedPageMessage,
+		requireSuccess?: boolean,
+	) => Promise<void>;
 
 	/**
 	 * Applies one browser-neutral projection to the global toolbar badge.
 	 * @param projection - Compact text, accessible title, and semantic phase.
+	 * @param requireSuccess - Whether reset cleanup must report failed toolbar writes.
 	 * @return Promise resolved after the toolbar update.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	updateToolbarBadge: ( projection: ToolbarBadgeProjection ) => Promise<void>;
+	updateToolbarBadge: ( projection: ToolbarBadgeProjection, requireSuccess?: boolean ) => Promise<void>;
 }

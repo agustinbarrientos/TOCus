@@ -439,6 +439,40 @@ describe( 'createBrowserProtectionAdapter', () => {
 		expect( browserApi.scripting.insertCSS ).not.toHaveBeenCalled();
 	} );
 
+	it.each( [
+		new Error( 'Protected-page delivery failed.' ),
+		'unstructured delivery failure',
+		new Error( 'No tab with id: 12.' ),
+	] )( 'reports strict removal failure when a live target remains: %j', async ( failure ) => {
+		const browserApi = createBrowserApi();
+		vi.mocked( browserApi.tabs.query ).mockResolvedValue( [ { id: 12 } ] );
+		vi.mocked( browserApi.tabs.sendMessage ).mockRejectedValueOnce( failure );
+		const adapter = createBrowserProtectionAdapter( browserApi );
+
+		await expect( adapter.updateProtectedPagePresentation( 12, {
+			type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER,
+		}, true ) ).rejects.toBe( failure );
+		expect( browserApi.scripting.executeScript ).not.toHaveBeenCalled();
+		await expect( adapter.updateProtectedPagePresentation( 12, {
+			type: ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER,
+		}, true ) ).resolves.toBeUndefined();
+	} );
+
+	it.each( [
+		'Could not establish connection. Receiving end does not exist.',
+		'No tab with id: 12.',
+		'Invalid tab ID: 12',
+	] )( 'accepts strict removal when the browser reports an absent target: %s', async ( message ) => {
+		const browserApi = createBrowserApi();
+		vi.mocked( browserApi.tabs.sendMessage ).mockRejectedValue( new Error( message ) );
+		const adapter = createBrowserProtectionAdapter( browserApi );
+
+		await expect( adapter.updateProtectedPagePresentation( 12, {
+			type: ProtectedPageMessageType.REMOVE_ALLOWANCE_EXPIRY_GUARD,
+		}, true ) ).resolves.toBeUndefined();
+		expect( browserApi.scripting.executeScript ).not.toHaveBeenCalled();
+	} );
+
 	it( 'falls back to a blank local tab when browser-native history is unavailable', async () => {
 		const browserApi = createBrowserApi();
 		const adapter = createBrowserProtectionAdapter( browserApi );
@@ -539,6 +573,28 @@ describe( 'createBrowserProtectionAdapter', () => {
 		} ) ).resolves.toBeUndefined();
 		expect( completedOperations ).toEqual( [ 'title' ] );
 	} );
+
+	it.each( [ 'setBadgeText', 'setBadgeBackgroundColor', 'setTitle' ] as const )(
+		'reports %s failure when reset requires complete toolbar cleanup',
+		async ( method ) => {
+			const browserApi = createBrowserApi();
+			const toolbarAction = createToolbarAction();
+			browserApi.action = toolbarAction;
+			vi.mocked( toolbarAction[ method ] ).mockRejectedValueOnce( new Error( 'Toolbar cleanup failed.' ) );
+			const adapter = createBrowserProtectionAdapter( browserApi );
+
+			await expect( adapter.updateToolbarBadge( {
+				phase: ToolbarBadgePhase.INACTIVE,
+				text: '',
+				title: 'Protection inactive',
+			}, true ) ).rejects.toThrow( 'Toolbar cleanup failed.' );
+			await expect( adapter.updateToolbarBadge( {
+				phase: ToolbarBadgePhase.INACTIVE,
+				text: '',
+				title: 'Protection inactive',
+			}, true ) ).resolves.toBeUndefined();
+		},
+	);
 
 	it( 'keeps badge text and title usable when a browser ignores badge colors', async () => {
 		const browserApi = createBrowserApi();
