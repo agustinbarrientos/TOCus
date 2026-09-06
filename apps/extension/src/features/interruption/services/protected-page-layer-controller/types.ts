@@ -1,6 +1,7 @@
 import { type AllowanceId } from '../../../../domains/protection/types/protection-value';
 import { type ProtectedPagePresentationStatus } from '../../../protection-runtime/types/protected-page-message';
 import { type InterruptionPageController } from '../interruption-page-controller';
+import { type MediaPlaybackController } from '../media-playback-controller';
 
 /**
  * Epoch clock used to derive the local final allowance countdown.
@@ -76,6 +77,12 @@ export interface ProtectedPageLayerView {
  * @since 0.1.0 Initial implementation.
  */
 export interface ProtectedPageLayerControllerOptions {
+	/**
+	 * Creates one playback lifecycle for each interruption presentation.
+	 * @return Fresh native video playback lifecycle.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	createPlaybackController(): MediaPlaybackController;
 	/** Epoch clock used for exact warning expiry. */
 	clock: ProtectedPageLayerClock;
 	/** Existing authoritative wait controller reused inside the modal layer. */
