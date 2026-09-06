@@ -25,6 +25,8 @@ _In development._
 - Added first-install language, appearance, and website setup with local draft selections, a removable website list, bundled suggestion icons, and one permission request for the selected websites when setup finishes.
 - Added clickable onboarding steps with completed checkmarks and retained choices when revisiting earlier steps.
 - Added local-only statistics for estimated time reclaimed, focused pause time, reconsidered visits, completed waits, and allowances granted, with all-time interruption summaries and a reset that leaves protection settings untouched.
+- Added Privacy and local data settings with separate confirmed statistics and full-data resets, website-access revocation, interrupted-reset recovery, and a return to onboarding.
+- Added About settings with the installed version, MIT license, source code, and contribution links.
 - Added the initial project website, contribution guidance, and public project documentation.
 
 ### Changed
