@@ -29,6 +29,14 @@ export function createStatisticsSessionStorageService(
 	let focusEpochQueue: Promise<void> = Promise.resolve();
 
 	/**
+	 * Forgets the cached focus epoch after its owner has drained pending observations.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function forgetFocusEpoch(): void {
+		focusEpochId = null;
+	}
+
+	/**
 	 * Serializes one focus epoch operation without poisoning the queue after rejection.
 	 * @param operation - Deferred focus epoch operation.
 	 * @return Promise for the operation result.
@@ -221,6 +229,7 @@ export function createStatisticsSessionStorageService(
 	}
 
 	return {
+		forgetFocusEpoch,
 		discardFocusAnchor,
 		getOrCreateFocusEpoch,
 		load,
