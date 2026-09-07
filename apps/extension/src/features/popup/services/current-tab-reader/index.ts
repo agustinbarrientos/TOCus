@@ -1,8 +1,8 @@
 import { enrichExtensionTabUrls } from '../../../../shared/services/extension-tab-context';
 import { PopupCurrentTabContextSchema, type PopupCurrentTabContext } from '../../types/current-tab-context';
-import {
-	type CurrentTabReader,
-	type CurrentTabReaderBrowser,
+import type {
+	CurrentTabReader,
+	CurrentTabReaderBrowser,
 } from './types';
 
 /**

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createCurrentTabReader } from './index';
-import { type CurrentTabReaderBrowserTab } from './types';
+import type { CurrentTabReaderBrowserTab } from './types';
 
 const INVALID_CURRENT_TAB_COLLECTIONS: ReadonlyArray<ReadonlyArray<CurrentTabReaderBrowserTab>> = [
 	[],
