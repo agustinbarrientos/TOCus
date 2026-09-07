@@ -1,5 +1,5 @@
 import { createBrowserPreferencesEditor } from '../../../../domains/preferences/services/browser-preferences-editor';
-import { type Language } from '../../../../domains/preferences/types';
+import type { Language } from '../../../../domains/preferences/types';
 import { createBrowserProtectionConfigurationEditor } from '../../../../domains/protection/services/browser-protection-configuration-editor';
 import {
 	createPreferencesController,
@@ -10,11 +10,10 @@ import { createSiteFaviconProvider } from '../../../protected-sites/services/sit
 import { createSitePermissionManager } from '../../../protected-sites/services/site-permission-manager';
 import { createStatisticsClient } from '../../../statistics/services/statistics-client';
 import { createPrivacyDataActions } from '../privacy-data-actions';
-import {
-	type ProtectedSitesAccessRefresher,
-	type SettingsPageOptions,
-	type SettingsPermissionChange,
-	type SettingsPermissionChangeListener,
+import type {
+	SettingsPageOptions,
+	SettingsPermissionChange,
+	SettingsPermissionChangeListener,
 } from './types';
 
 /**
@@ -80,21 +79,6 @@ export async function startSettingsPage( options: SettingsPageOptions ): Promise
 		options.shell.aboutVersion = options.version;
 
 		/**
-		 * Reports whether one unknown value can refresh protected-site access state.
-		 * @param candidate - Candidate rendered settings destination.
-		 * @return Whether the candidate exposes an access refresh operation.
-		 * @since 0.1.0 Initial implementation.
-		 */
-		function isProtectedSitesAccessRefresher(
-			candidate: unknown,
-		): candidate is ProtectedSitesAccessRefresher {
-			return typeof candidate === 'object' &&
-				candidate !== null &&
-				'refreshAccessState' in candidate &&
-				typeof candidate.refreshAccessState === 'function';
-		}
-
-		/**
 		 * Refreshes visible Protected Sites access after a relevant browser grant changes.
 		 * @param change - Named and origin permissions added to or removed from the extension.
 		 * @since 0.1.0 Initial implementation.
@@ -107,13 +91,7 @@ export async function startSettingsPage( options: SettingsPageOptions ): Promise
 				return;
 			}
 
-			const protectedSitesScreen = options.shell.shadowRoot?.querySelector(
-				'tocus-f-protected-sites-screen',
-			);
-
-			if ( isProtectedSitesAccessRefresher( protectedSitesScreen ) ) {
-				void protectedSitesScreen.refreshAccessState();
-			}
+			void options.shell.refreshAccessState().catch( () => null );
 		}
 
 		/**

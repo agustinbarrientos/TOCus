@@ -8,11 +8,11 @@ import {
 import { PreferencesStorageKey } from '../../../../domains/preferences/services/preferences-storage';
 import { SettingsPlatform } from '../../components/shell/types';
 import { startSettingsPage } from './index';
-import {
-	type SettingsPageOptions,
-	type SettingsPageShell,
-	type SettingsPermissionChange,
-	type SettingsPermissionChangeListener,
+import type {
+	SettingsPageOptions,
+	SettingsPageShell,
+	SettingsPermissionChange,
+	SettingsPermissionChangeListener,
 } from './types';
 
 /**
@@ -192,7 +192,7 @@ class ImmediateSettingsMutationLock {
  */
 class MemoryProtectedSitesScreen {
 	/** Refreshes current browser access for visible protected sites. */
-	readonly refreshAccessState = vi.fn().mockResolvedValue( new Map() );
+	readonly refreshAccessState = vi.fn<SettingsPageShell[ 'refreshAccessState' ]>().mockResolvedValue( new Map() );
 }
 
 /**
@@ -247,15 +247,7 @@ class MemorySettingsShell implements SettingsPageShell {
 	/** Rendered protected-sites destination exposed through the shell root. */
 	readonly protectedSitesScreen = new MemoryProtectedSitesScreen();
 
-	/** Minimal shadow-root query boundary used by permission refresh. */
-	readonly shadowRoot = {
-		/**
-		 * Returns the rendered Protected Sites screen.
-		 * @return Observable Protected Sites screen.
-		 * @since 0.1.0 Initial implementation.
-		 */
-		querySelector: (): unknown => this.protectedSitesScreen,
-	};
+	readonly refreshAccessState = () => this.protectedSitesScreen.refreshAccessState();
 }
 
 /**
@@ -408,6 +400,19 @@ describe( 'startSettingsPage', () => {
 		permissions.emitAdded( { permissions: [ 'webNavigation' ] } );
 		permissions.emitRemoved( { origins: [ '*://*.example.com/*' ] } );
 		expect( shell.protectedSitesScreen.refreshAccessState ).toHaveBeenCalledTimes( 2 );
+	} );
+
+	it( 'contains a failed access refresh without detaching the permission observer', async () => {
+		const permissions = new MemorySettingsPermissions();
+		const shell = new MemorySettingsShell();
+		shell.protectedSitesScreen.refreshAccessState.mockRejectedValueOnce( new Error( 'Access unavailable' ) );
+		await startSettingsPage( createOptions( { permissions, shell } ) );
+		permissions.emitAdded( { permissions: [ 'webNavigation' ] } );
+		await Promise.resolve();
+		permissions.emitRemoved( { origins: [ '*://*.example.com/*' ] } );
+		await Promise.resolve();
+		expect( shell.protectedSitesScreen.refreshAccessState ).toHaveBeenCalledTimes( 2 );
+		expect( permissions.addedListener ).not.toBeNull();
 	} );
 
 	it( 'releases page observers and reveals settings when startup fails', async () => {
