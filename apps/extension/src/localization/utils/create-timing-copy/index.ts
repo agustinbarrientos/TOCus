@@ -1,10 +1,10 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import {
 	CompletionAction,
 	type CompletionAction as CompletionActionValue,
 } from '../../../domains/protection/types/completion-action';
-import { type TimingScreenCopy } from '../../../features/settings/components/timing-screen/types';
+import type { TimingScreenCopy } from '../../../features/settings/components/timing-screen/types';
 import {
 	DurationUnit,
 	formatDurationUnit,
@@ -55,33 +55,42 @@ export function createTimingCopy( i18n: I18n ): Readonly<TimingScreenCopy> {
 		completionAction: CompletionActionValue,
 	): string {
 		const initialWait = formatSecondsOption( initialWaitSeconds );
+		const allowance = formatMinutesOption( allowanceMinutes );
+		if ( waitIncreaseSeconds === 0 ) {
+			return completionAction === CompletionAction.OPEN_AUTOMATICALLY
+				? i18n._(
+					msg`Waits stay at ${ { initialWait } }. When the site opens automatically after the wait, an allowance starts for ${ { allowance } }.`,
+				)
+				: i18n._(
+					msg`Waits stay at ${ { initialWait } }. After the wait, choosing Continue starts an allowance for ${ { allowance } }.`,
+				);
+		}
 		const waitIncrease = formatSecondsOption( waitIncreaseSeconds );
 		const maximumWait = formatSecondsOption( maximumWaitSeconds );
-		const allowance = formatMinutesOption( allowanceMinutes );
 
 		return completionAction === CompletionAction.OPEN_AUTOMATICALLY
 			? i18n._(
-				msg`Waits start at ${ { initialWait } }. Each completed wait adds ${ { waitIncrease } } to the next wait, up to ${ { maximumWait } }. Completing a wait starts an allowance for ${ { allowance } } and opens the site automatically.`,
+				msg`Waits start at ${ { initialWait } }. Each completed wait adds ${ { waitIncrease } } to the next wait, up to ${ { maximumWait } }. When the site opens automatically after the wait, an allowance starts for ${ { allowance } }.`,
 			)
 			: i18n._(
-				msg`Waits start at ${ { initialWait } }. Each completed wait adds ${ { waitIncrease } } to the next wait, up to ${ { maximumWait } }. Completing a wait starts an allowance for ${ { allowance } } and shows a Continue button.`,
+				msg`Waits start at ${ { initialWait } }. Each completed wait adds ${ { waitIncrease } } to the next wait, up to ${ { maximumWait } }. After the wait, choosing Continue starts an allowance for ${ { allowance } }.`,
 			);
 	}
 
 	return Object.freeze( {
 		eyebrow: i18n._( msg`Pause setup` ),
-		title: i18n._( msg`Timing` ),
+		title: i18n._( msg`Pause timing` ),
 		introduction: i18n._( msg`Set one calm timing pattern for every website on your list.` ),
 		formLabel: i18n._( msg`Global timing` ),
 		initialWaitLabel: i18n._( msg`Initial wait` ),
 		initialWaitHelp: i18n._( msg`The first interruption of the day starts with this wait.` ),
 		waitIncreaseLabel: i18n._( msg`Wait increase` ),
 		waitIncreaseHelp: i18n._( msg`Each completed wait adds this amount to the next wait that day.` ),
+		noWaitIncrease: i18n._( msg`0 (no increase)` ),
 		maximumWaitLabel: i18n._( msg`Maximum wait` ),
-		maximumWaitHelp: i18n._( msg`Choose a maximum that is at least as long as the initial wait.` ),
-		maximumWaitError: i18n._( msg`Maximum wait must be at least as long as the initial wait.` ),
+		maximumWaitHelp: i18n._( msg`The wait will not grow beyond this duration.` ),
 		allowanceLabel: i18n._( msg`Allowance` ),
-		allowanceHelp: i18n._( msg`Completing a wait keeps your websites available for this long.` ),
+		allowanceHelp: i18n._( msg`This time starts when you choose Continue or the site opens automatically.` ),
 		completionActionLegend: i18n._( msg`When the wait finishes` ),
 		showContinueLabel: i18n._( msg`Show a Continue button` ),
 		showContinueDescription: i18n._( msg`Wait for an explicit choice before opening the site.` ),
@@ -94,14 +103,15 @@ export function createTimingCopy( i18n: I18n ): Readonly<TimingScreenCopy> {
 		loadErrorTitle: i18n._( msg`Timing settings could not load` ),
 		loadErrorDescription: i18n._( msg`TOCus could not load local timing settings. Nothing was changed.` ),
 		retry: i18n._( msg`Try again` ),
-		saveTiming: i18n._( msg`Save timing` ),
-		savingTiming: i18n._( msg`Saving...` ),
+		save: i18n._( msg`Save` ),
+		discard: i18n._( msg`Discard` ),
+		saving: i18n._( msg`Saving...` ),
 		saveError: i18n._( msg`Timing settings could not be saved. Your choices are still here.` ),
 		invalidConfigurationError: i18n._( msg`Your timing data changed. Retry before saving these choices.` ),
 		invalidTimingConfigurationError: i18n._(
 			msg`These timing choices are not valid. Review them before saving.`,
 		),
-		savedAnnouncement: i18n._( msg`Timing settings were saved.` ),
+		saved: i18n._( msg`Changes saved.` ),
 		formatSecondsOption,
 		formatMinutesOption,
 		formatSummary,

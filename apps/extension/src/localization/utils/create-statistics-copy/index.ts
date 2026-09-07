@@ -1,7 +1,7 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
-import { type StatisticsSettingsScreenCopy } from '../../../features/statistics/components/settings-screen/types';
-import { type LocalizationFormatters } from '../create-localization-formatters';
+import type { StatisticsSettingsScreenCopy } from '../../../features/statistics/components/settings-screen/types';
+import type { LocalizationFormatters } from '../create-localization-formatters';
 import {
 	formatMinuteDuration,
 	MILLISECONDS_PER_MINUTE,

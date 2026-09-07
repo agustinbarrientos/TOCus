@@ -1,7 +1,7 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
-import { type WellbeingSummaryCopy } from '../../../features/statistics/utils/format-wellbeing-summary/types';
-import { type LocalizationFormatters } from '../create-localization-formatters';
+import type { WellbeingSummaryCopy } from '../../../features/statistics/utils/format-wellbeing-summary/types';
+import type { LocalizationFormatters } from '../create-localization-formatters';
 import {
 	DurationUnit,
 	formatDurationUnit,
