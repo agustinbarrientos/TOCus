@@ -1,6 +1,6 @@
-import {
-	type ManualInterruptionScreenEnvironment,
-	type ScheduledInterruptionScreenCallback,
+import type {
+	ManualInterruptionScreenEnvironment,
+	ScheduledInterruptionScreenCallback,
 } from './types';
 
 /**
