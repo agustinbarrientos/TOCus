@@ -9,5 +9,8 @@ describe( 'createAppearanceCopy', () => {
 		expect( copy.title ).toBe( 'Appearance' );
 		expect( copy.paletteLabels.brown ).toBe( 'Brown' );
 		expect( copy.themeOptions.system.label ).toBe( 'System' );
+		expect( copy.save ).toBe( 'Save' );
+		expect( copy.discard ).toBe( 'Discard' );
+		expect( copy.saving ).toBe( 'Saving...' );
 	} );
 } );

@@ -1,7 +1,7 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import { Palette, ThemeMode } from '../../../domains/preferences/types';
-import { type OnboardingAppearanceStepCopy } from '../../../features/onboarding/components/appearance-step/types';
+import type { OnboardingAppearanceStepCopy } from '../../../features/onboarding/components/appearance-step/types';
 
 /**
  * Creates localized onboarding Appearance-step copy.

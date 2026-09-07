@@ -1,7 +1,7 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import { Palette, PauseMode, ThemeMode } from '../../../domains/preferences/types';
-import { type AppearanceScreenCopy } from '../../../features/settings/components/appearance-screen/types';
+import type { AppearanceScreenCopy } from '../../../features/settings/components/appearance-screen/types';
 
 /**
  * Creates localized Appearance-screen copy.
@@ -65,6 +65,9 @@ export function createAppearanceCopy( i18n: I18n ): Readonly<AppearanceScreenCop
 		restoreDefaultsError: i18n._( msg`TOCus could not restore your personalization defaults. Nothing was changed.` ),
 		retry: i18n._( msg`Try again` ),
 		saveError: i18n._( msg`Your appearance could not be saved. Your choice is still shown here.` ),
+		save: i18n._( msg`Save` ),
+		saving: i18n._( msg`Saving...` ),
+		discard: i18n._( msg`Discard` ),
 		savedAnnouncement: i18n._( msg`Appearance saved.` ),
 		restoredAnnouncement: i18n._( msg`Personalization defaults restored.` ),
 	} );
