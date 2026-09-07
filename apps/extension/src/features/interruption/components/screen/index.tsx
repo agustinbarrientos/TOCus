@@ -1,16 +1,8 @@
-import iconMarkup from '@tocus/theme/icon.svg?raw';
-import {
-	LitElement,
-	css,
-	html,
-	unsafeCSS,
-	type PropertyValues,
-	type TemplateResult,
-} from 'lit';
-import { customElement, property } from 'lit/decorators.js';
-import { ifDefined } from 'lit/directives/if-defined.js';
-import { styleMap } from 'lit/directives/style-map.js';
-import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
+import type { ReactNode } from 'react';
+import { PresentationElement } from '../../utils/presentation-element';
+import type { PresentationChanges } from '../../utils/presentation-element/types';
+import { observePresentationAppearance } from '../../utils/presentation-appearance';
+import { ScreenView } from './view';
 import { isLocalizationReady } from '../../../../localization/utils/is-localization-ready';
 import {
 	createFocusedProgressClock,
@@ -19,8 +11,6 @@ import {
 	type FocusedProgressClockInput,
 	type FocusedProgressClockTransition as FocusedProgressClockTransitionValue,
 } from '../../services/focused-progress-clock';
-import { getBreathingMotionFrame, BreathingMotionPhase } from '../../utils/breathing-motion';
-import '../breathing-sphere';
 import styles from './web-component-style.scss?inline';
 import {
 	InterruptionContinueRequestEventName,
@@ -34,7 +24,6 @@ import {
 } from './types';
 
 const DEFAULT_WAIT_DURATION_MILLISECONDS = 10_000;
-const SHORTCUT_KEY_PLACEHOLDER = '{key}';
 const INTERACTIVE_SHORTCUT_TARGETS = [
 	'a[href]',
 	'button',
@@ -79,24 +68,6 @@ const DefaultInterruptionScreenEnvironment: InterruptionScreenEnvironment = {
 };
 
 /**
- * Splits one complete shortcut template around its keycap placeholder.
- * @param template - Complete localized shortcut message.
- * @return Text before and after the keycap.
- */
-function splitShortcutTemplate( template: string ): readonly [ string, string ] {
-	const placeholderIndex = template.indexOf( SHORTCUT_KEY_PLACEHOLDER );
-
-	if ( placeholderIndex === -1 ) {
-		return [ `${ template } `, '' ];
-	}
-
-	return [
-		template.slice( 0, placeholderIndex ),
-		template.slice( placeholderIndex + SHORTCUT_KEY_PLACEHOLDER.length ),
-	];
-}
-
-/**
  * Determines whether a global shortcut originated from interactive content.
  * @param event - Keyboard event considered for the global Continue shortcut.
  * @return Whether native interaction must retain ownership of the event.
@@ -124,86 +95,299 @@ function hasInteractiveShortcutTarget( event: KeyboardEvent ): boolean {
  * @summary Accessible full-viewport interruption presentation.
  * @since 0.1.0 Initial implementation.
  */
-@customElement( 'tocus-f-interruption-screen' )
-export class ComponentInterruptionScreen extends LitElement {
-	static override styles = css`${ unsafeCSS( styles ) }`;
+export class ComponentInterruptionScreen extends PresentationElement {
+	/**
+	 * Current state input supplied by the presentation owner.
+	 * @return Current state input supplied by the presentation owner.
+	 */
+	get state(): InterruptionScreenState {
+		return this.stateInput;
+	}
 
 	/**
-	 * Authoritative presentation state supplied by the owning page controller.
-	 * @since 0.1.0 Initial implementation.
+	 * Applies the next state controller input.
+	 * @param value - New presentation input, committed with the other writes in this batch.
 	 */
-	@property( { reflect: true } )
-	accessor state: InterruptionScreenState = InterruptionScreenState.WAITING;
+	set state( value: InterruptionScreenState ) {
+		const previous = this.stateInput;
+		if ( Object.is( previous, value ) ) {
+			return;
+		}
+		this.stateInput = value;
+		this.setAttribute( 'state', value );
+		this.requestUpdate( 'state', previous );
+	}
+
+	private stateInput: InterruptionScreenState = InterruptionScreenState.WAITING;
 
 	/**
-	 * Selected breathing or Quiet presentation mode.
-	 * @since 0.1.0 Initial implementation.
+	 * Current mode input supplied by the presentation owner.
+	 * @return Current mode input supplied by the presentation owner.
 	 */
-	@property( { reflect: true } )
-	accessor mode: InterruptionScreenMode = InterruptionScreenMode.BREATHING;
+	get mode(): InterruptionScreenMode {
+		return this.modeInput;
+	}
 
 	/**
-	 * Captured wait duration represented by the screen.
-	 * @since 0.1.0 Initial implementation.
+	 * Applies the next mode controller input.
+	 * @param value - New presentation input, committed with the other writes in this batch.
 	 */
-	@property( { attribute: 'wait-duration-milliseconds', type: Number } )
-	accessor waitDurationMilliseconds = DEFAULT_WAIT_DURATION_MILLISECONDS;
+	set mode( value: InterruptionScreenMode ) {
+		const previous = this.modeInput;
+		if ( Object.is( previous, value ) ) {
+			return;
+		}
+		this.modeInput = value;
+		this.setAttribute( 'mode', value );
+		this.requestUpdate( 'mode', previous );
+	}
+
+	private modeInput: InterruptionScreenMode = InterruptionScreenMode.BREATHING;
 
 	/**
-	 * Latest authoritative focused progress received from the presentation owner.
-	 * @since 0.1.0 Initial implementation.
+	 * Current wait duration milliseconds input supplied by the presentation owner.
+	 * @return Current wait duration milliseconds input supplied by the presentation owner.
 	 */
-	@property( { attribute: 'focused-progress-milliseconds', type: Number } )
-	accessor focusedProgressMilliseconds = 0;
+	get waitDurationMilliseconds(): number {
+		return this.waitDurationMillisecondsInput;
+	}
 
 	/**
-	 * Whether the presentation owner currently permits local interpolation.
-	 * @since 0.1.0 Initial implementation.
+	 * Applies the next wait duration milliseconds controller input.
+	 * @param value - New presentation input, committed with the other writes in this batch.
 	 */
-	@property( { reflect: true, type: Boolean } )
-	accessor progressing = false;
+	set waitDurationMilliseconds( value: number ) {
+		const previous = this.waitDurationMillisecondsInput;
+		if ( Object.is( previous, value ) ) {
+			return;
+		}
+		this.waitDurationMillisecondsInput = value;
+		this.requestUpdate( 'waitDurationMilliseconds', previous );
+	}
+
+	private waitDurationMillisecondsInput: number = DEFAULT_WAIT_DURATION_MILLISECONDS;
 
 	/**
-	 * Whether continuous visual motion is disabled.
-	 * @since 0.1.0 Initial implementation.
+	 * Current focused progress milliseconds input supplied by the presentation owner.
+	 * @return Current focused progress milliseconds input supplied by the presentation owner.
 	 */
-	@property( { attribute: 'reduced-motion', reflect: true, type: Boolean } )
-	accessor reducedMotion = false;
+	get focusedProgressMilliseconds(): number {
+		return this.focusedProgressMillisecondsInput;
+	}
 
 	/**
-	 * Whether this screen fills a bounded preview and loops its presentation clock.
-	 * @since 0.1.0 Initial implementation.
+	 * Applies the next focused progress milliseconds controller input.
+	 * @param value - New presentation input, committed with the other writes in this batch.
 	 */
-	@property( { reflect: true, type: Boolean } )
-	accessor preview = false;
+	set focusedProgressMilliseconds( value: number ) {
+		const previous = this.focusedProgressMillisecondsInput;
+		if ( Object.is( previous, value ) ) {
+			return;
+		}
+		this.focusedProgressMillisecondsInput = value;
+		this.requestUpdate( 'focusedProgressMilliseconds', previous );
+	}
+
+	private focusedProgressMillisecondsInput: number = 0;
 
 	/**
-	 * Whether the owning controller is currently attempting recovery.
-	 * @since 0.1.0 Initial implementation.
+	 * Current progressing input supplied by the presentation owner.
+	 * @return Current progressing input supplied by the presentation owner.
 	 */
-	@property( { reflect: true, type: Boolean } )
-	accessor recovering = false;
+	get progressing(): boolean {
+		return this.progressingInput;
+	}
 
 	/**
-	 * Whether Ready may react to the page-level Space shortcut.
-	 * @since 0.1.0 Initial implementation.
+	 * Applies the next progressing controller input.
+	 * @param value - New presentation input, committed with the other writes in this batch.
 	 */
-	@property( { attribute: false } )
-	accessor continueShortcutEnabled = true;
+	set progressing( value: boolean ) {
+		const previous = this.progressingInput;
+		if ( Object.is( previous, value ) ) {
+			return;
+		}
+		this.progressingInput = value;
+		this.toggleAttribute( 'progressing', value );
+		this.requestUpdate( 'progressing', previous );
+	}
+
+	private progressingInput: boolean = false;
 
 	/**
-	 * Complete localized messages rendered by the screen.
-	 * @since 0.1.0 Initial implementation.
+	 * Current reduced motion input supplied by the presentation owner.
+	 * @return Current reduced motion input supplied by the presentation owner.
 	 */
-	@property( { attribute: false } )
-	accessor copy!: Readonly<InterruptionScreenCopy>;
+	get reducedMotion(): boolean {
+		return this.reducedMotionInput;
+	}
 
 	/**
-	 * Complete localized all-time wellbeing sentence shown in the footer.
-	 * @since 0.1.0 Initial implementation.
+	 * Applies the next reduced motion controller input.
+	 * @param value - New presentation input, committed with the other writes in this batch.
 	 */
-	@property( { attribute: 'wellbeing-summary' } )
-	accessor wellbeingSummary = '';
+	set reducedMotion( value: boolean ) {
+		const previous = this.reducedMotionInput;
+		if ( Object.is( previous, value ) ) {
+			return;
+		}
+		this.reducedMotionInput = value;
+		this.toggleAttribute( 'reduced-motion', value );
+		this.requestUpdate( 'reducedMotion', previous );
+	}
+
+	private reducedMotionInput: boolean = false;
+
+	/**
+	 * Current preview input supplied by the presentation owner.
+	 * @return Current preview input supplied by the presentation owner.
+	 */
+	get preview(): boolean {
+		return this.previewInput;
+	}
+
+	/**
+	 * Applies the next preview controller input.
+	 * @param value - New presentation input, committed with the other writes in this batch.
+	 */
+	set preview( value: boolean ) {
+		const previous = this.previewInput;
+		if ( Object.is( previous, value ) ) {
+			return;
+		}
+		this.previewInput = value;
+		this.toggleAttribute( 'preview', value );
+		this.requestUpdate( 'preview', previous );
+	}
+
+	private previewInput: boolean = false;
+
+	/**
+	 * Current recovering input supplied by the presentation owner.
+	 * @return Current recovering input supplied by the presentation owner.
+	 */
+	get recovering(): boolean {
+		return this.recoveringInput;
+	}
+
+	/**
+	 * Applies the next recovering controller input.
+	 * @param value - New presentation input, committed with the other writes in this batch.
+	 */
+	set recovering( value: boolean ) {
+		const previous = this.recoveringInput;
+		if ( Object.is( previous, value ) ) {
+			return;
+		}
+		this.recoveringInput = value;
+		this.toggleAttribute( 'recovering', value );
+		this.requestUpdate( 'recovering', previous );
+	}
+
+	private recoveringInput: boolean = false;
+
+	/**
+	 * Current continue shortcut enabled input supplied by the presentation owner.
+	 * @return Current continue shortcut enabled input supplied by the presentation owner.
+	 */
+	get continueShortcutEnabled(): boolean {
+		return this.continueShortcutEnabledInput;
+	}
+
+	/**
+	 * Applies the next continue shortcut enabled controller input.
+	 * @param value - New presentation input, committed with the other writes in this batch.
+	 */
+	set continueShortcutEnabled( value: boolean ) {
+		const previous = this.continueShortcutEnabledInput;
+		if ( Object.is( previous, value ) ) {
+			return;
+		}
+		this.continueShortcutEnabledInput = value;
+		this.requestUpdate( 'continueShortcutEnabled', previous );
+	}
+
+	private continueShortcutEnabledInput: boolean = true;
+
+	/**
+	 * Current copy input supplied by the presentation owner.
+	 * @return Current copy input supplied by the presentation owner.
+	 */
+	get copy(): Readonly<InterruptionScreenCopy> {
+		return this.copyInput;
+	}
+
+	/**
+	 * Applies the next copy controller input.
+	 * @param value - New presentation input, committed with the other writes in this batch.
+	 */
+	set copy( value: Readonly<InterruptionScreenCopy> ) {
+		const previous = this.copyInput;
+		if ( Object.is( previous, value ) ) {
+			return;
+		}
+		this.copyInput = value;
+		this.requestUpdate( 'copy', previous );
+	}
+
+	private copyInput!: Readonly<InterruptionScreenCopy>;
+
+	/**
+	 * Current wellbeing summary input supplied by the presentation owner.
+	 * @return Current wellbeing summary input supplied by the presentation owner.
+	 */
+	get wellbeingSummary(): string {
+		return this.wellbeingSummaryInput;
+	}
+
+	/**
+	 * Applies the next wellbeing summary controller input.
+	 * @param value - New presentation input, committed with the other writes in this batch.
+	 */
+	set wellbeingSummary( value: string ) {
+		const previous = this.wellbeingSummaryInput;
+		if ( Object.is( previous, value ) ) {
+			return;
+		}
+		this.wellbeingSummaryInput = value;
+		this.requestUpdate( 'wellbeingSummary', previous );
+	}
+
+	private wellbeingSummaryInput: string = '';
+
+	private releaseAppearance: ( () => void ) | null = null;
+
+	/**
+	 * Controller attributes supported by the presentation boundary.
+	 * @return Controller attributes supported by the presentation boundary.
+	 */
+	static get observedAttributes(): string[] {
+		return [ 'state', 'mode', 'wait-duration-milliseconds', 'focused-progress-milliseconds',
+			'progressing', 'reduced-motion', 'preview', 'recovering', 'wellbeing-summary' ];
+	}
+
+	/**
+	 * Projects native attributes into typed controller sInput.
+	 * @param name - Changed attribute.
+	 * @param previous - Value before the change.
+	 * @param value - New value or null after removal.
+	 */
+	attributeChangedCallback( name: string, previous: string | null, value: string | null ): void {
+		if ( previous === value ) {
+			return;
+		}
+		switch ( name ) {
+			case 'state': this.state = Object.values( InterruptionScreenState ).find( ( state ) => state === value ) ?? InterruptionScreenState.WAITING; break;
+			case 'mode': this.mode = Object.values( InterruptionScreenMode ).find( ( mode ) => mode === value ) ?? InterruptionScreenMode.BREATHING; break;
+			case 'wait-duration-milliseconds': this.waitDurationMilliseconds = Number( value ); break;
+			case 'focused-progress-milliseconds': this.focusedProgressMilliseconds = Number( value ); break;
+			case 'progressing': this.progressing = value !== null; break;
+			case 'reduced-motion': this.reducedMotion = value !== null; break;
+			case 'preview': this.preview = value !== null; break;
+			case 'recovering': this.recovering = value !== null; break;
+			case 'wellbeing-summary': this.wellbeingSummary = value ?? ''; break;
+		}
+	}
 
 	private announcement = '';
 
@@ -224,7 +408,7 @@ export class ComponentInterruptionScreen extends LitElement {
 	constructor(
 		environment: InterruptionScreenEnvironment = DefaultInterruptionScreenEnvironment,
 	) {
-		super();
+		super( styles );
 		this.environment = environment;
 		this.progressClock = createFocusedProgressClock( {
 			onProgress: this.handleClockProgress,
@@ -254,6 +438,7 @@ export class ComponentInterruptionScreen extends LitElement {
 		}
 
 		event.preventDefault();
+		event.stopPropagation();
 		this.requestContinue();
 	};
 
@@ -286,7 +471,11 @@ export class ComponentInterruptionScreen extends LitElement {
 	override connectedCallback(): void {
 		super.connectedCallback();
 		this.focusedState = null;
-		window.addEventListener( 'keydown', this.handleGlobalKeydown );
+		this.releaseAppearance?.();
+		this.releaseAppearance = observePresentationAppearance( this, () => {
+			this.requestUpdate();
+		} );
+		window.addEventListener( 'keydown', this.handleGlobalKeydown, { capture: true } );
 		window.addEventListener( 'blur', this.handleAttentionChange );
 		window.addEventListener( 'focus', this.handleAttentionChange );
 		document.addEventListener( 'visibilitychange', this.handleAttentionChange );
@@ -300,7 +489,9 @@ export class ComponentInterruptionScreen extends LitElement {
 	 */
 	override disconnectedCallback(): void {
 		this.progressClock.disconnect();
-		window.removeEventListener( 'keydown', this.handleGlobalKeydown );
+		this.releaseAppearance?.();
+		this.releaseAppearance = null;
+		window.removeEventListener( 'keydown', this.handleGlobalKeydown, { capture: true } );
 		window.removeEventListener( 'blur', this.handleAttentionChange );
 		window.removeEventListener( 'focus', this.handleAttentionChange );
 		document.removeEventListener( 'visibilitychange', this.handleAttentionChange );
@@ -321,7 +512,7 @@ export class ComponentInterruptionScreen extends LitElement {
 	 * @param changedProperties - Reactive properties changed for this update.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	protected override willUpdate( changedProperties: PropertyValues<this> ): void {
+	private prepareUpdate( changedProperties: PresentationChanges ): void {
 		if (
 			isLocalizationReady( this.copy ) &&
 			(
@@ -377,7 +568,7 @@ export class ComponentInterruptionScreen extends LitElement {
 	 * @param changedProperties - Reactive properties changed for this update.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	protected override updated( changedProperties: PropertyValues<this> ): void {
+	protected override afterRender( changedProperties: PresentationChanges ): void {
 		if ( ! isLocalizationReady( this.copy ) ) {
 			return;
 		}
@@ -413,81 +604,21 @@ export class ComponentInterruptionScreen extends LitElement {
 	}
 
 	/**
-	 * Renders the complete full-viewport scene.
-	 * @return Interruption-screen template.
+	 * Commits the authoritative adapter snapshot to the shared React scene.
+	 * @param changes - Inputs changed together in this controller projection.
+	 * @return React scene, or no content until localization is ready.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	protected override render(): TemplateResult {
+	protected override renderPresentation( changes: PresentationChanges ): ReactNode {
+		this.prepareUpdate( changes );
 		if ( ! isLocalizationReady( this.copy ) ) {
-			return html``;
+			return null;
 		}
-		const waiting = this.state === InterruptionScreenState.WAITING;
-		const ready = this.state === InterruptionScreenState.READY;
-		const expired = this.state === InterruptionScreenState.READY_EXPIRED;
-		const unavailable = this.state === InterruptionScreenState.UNAVAILABLE;
-		const progressMilliseconds = this.progressClock.getProgressMilliseconds();
-		const motionFrame = getBreathingMotionFrame(
-			progressMilliseconds,
-			this.waitDurationMilliseconds,
-			this.reducedMotion,
-		);
-		const remainingSeconds = Math.ceil( motionFrame.remainingMilliseconds / 1_000 );
-		const cue = this.mode === InterruptionScreenMode.QUIET
-			? this.copy.takeAMoment
-			: motionFrame.phase === BreathingMotionPhase.INHALE
-				? this.copy.breatheIn
-				: this.copy.breatheOut;
-		const sphereStill = this.mode === InterruptionScreenMode.QUIET || this.reducedMotion || ! waiting;
-		const breathProgress = sphereStill ? 0 : motionFrame.breathProgress;
-		const sphereAlternative = sphereStill
-			? this.copy.stillSphereAlternative
-			: this.copy.sphereAlternative;
-
-		return html`
-			<div
-				class="scene"
-				style=${ styleMap( {
-					'--tocus-breath-bloom-opacity': String( 0.72 + breathProgress * 0.28 ),
-					'--tocus-breath-bloom-scale': String( 0.82 + breathProgress * 0.18 ),
-					'--tocus-breath-progress': String( breathProgress ),
-				} ) }
-				tabindex=${ ifDefined( waiting || ( unavailable && this.recovering ) ? 0 : undefined ) }
-			>
-				<div class="bloom" aria-hidden="true"></div>
-				<header>
-					<div class="brand" aria-label="TOCus">
-						<span class="brand-icon" aria-hidden="true">${ unsafeSVG( iconMarkup ) }</span>
-						<span class="wordmark">TOCus</span>
-					</div>
-					${ waiting
-						? html`<p class="remaining">${ this.copy.formatRemainingTime( remainingSeconds ) }</p>`
-						: null }
-				</header>
-				<main>
-					<section class="stage" aria-labelledby=${ ifDefined( waiting ? 'breathing-cue' : undefined ) }>
-						${ waiting ? html`<h1 class="cue" id="breathing-cue">${ cue }</h1>` : null }
-						<div class="sphere-shell">
-							<tocus-f-breathing-sphere
-								.breathProgress=${ breathProgress }
-								.still=${ sphereStill }
-							></tocus-f-breathing-sphere>
-							${ waiting
-								? html`<span class="sphere-alternative visually-hidden">${ sphereAlternative }</span>`
-								: null }
-						</div>
-						${ ready ? this.renderReadyAction() : null }
-						${ expired
-							? html`<p class="status-message" tabindex="-1">${ this.copy.readyExpiredMessage }</p>`
-							: null }
-						${ unavailable
-							? this.renderRecoveryAction()
-							: null }
-					</section>
-				</main>
-				<footer>${ this.wellbeingSummary }</footer>
-			</div>
-			<p class="visually-hidden" aria-atomic="true" aria-live="polite">${ this.announcement }</p>
-		`;
+		return <ScreenView host={this} shadowRoot={this.renderRoot} copy={this.copy} state={this.state} mode={this.mode}
+			progressMilliseconds={this.progressClock.getProgressMilliseconds()}
+			waitDurationMilliseconds={this.waitDurationMilliseconds} reducedMotion={this.reducedMotion}
+			recovering={this.recovering} wellbeingSummary={this.wellbeingSummary} announcement={this.announcement}
+			onContinue={this.requestContinue} onRetry={this.requestRetry} />;
 	}
 
 	/**
@@ -590,52 +721,6 @@ export class ComponentInterruptionScreen extends LitElement {
 	}
 
 	/**
-	 * Renders the centered Ready action and localized keycap hint.
-	 * @return Ready action template.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	private renderReadyAction(): TemplateResult {
-		const [ beforeKey, afterKey ] = splitShortcutTemplate( this.copy.continueShortcut );
-
-		return html`
-			<div class="ready-action">
-				<button class="continue-button" type="button" @click=${ this.requestContinue }>
-					${ this.copy.continueLabel }
-				</button>
-				<p class="shortcut">${ beforeKey }<kbd>${ this.copy.spaceKeyLabel }</kbd>${ afterKey }</p>
-			</div>
-		`;
-	}
-
-	/**
-	 * Renders the branded recovery action shown after automatic recovery fails.
-	 * @return Unavailable recovery template.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	private renderRecoveryAction(): TemplateResult {
-		return html`
-			<section
-				class="recovery-card"
-				aria-busy=${ ifDefined( this.recovering ? 'true' : undefined ) }
-				aria-describedby="recovery-message"
-				aria-labelledby="recovery-title"
-			>
-				<span class="recovery-icon" aria-hidden="true">${ unsafeSVG( iconMarkup ) }</span>
-				<h1 class="recovery-title" id="recovery-title">${ this.copy.unavailableTitle }</h1>
-				<p class="recovery-message" id="recovery-message">${ this.copy.unavailableMessage }</p>
-				<button
-					class="retry-button"
-					type="button"
-					?disabled=${ this.recovering }
-					@click=${ this.requestRetry }
-				>
-					${ this.recovering ? this.copy.retryingLabel : this.copy.retryLabel }
-				</button>
-			</section>
-		`;
-	}
-
-	/**
 	 * Focuses one stable control or status without moving the viewport.
 	 * @param selector - Selector of the focus target in the shadow tree.
 	 * @since 0.1.0 Initial implementation.
@@ -688,12 +773,4 @@ export {
 	type InterruptionScreenEnvironment,
 } from './types';
 
-declare global {
-	/**
-	 * Maps the interruption-screen tag name to its element class.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	interface HTMLElementTagNameMap {
-		'tocus-f-interruption-screen': ComponentInterruptionScreen;
-	}
-}
+customElements.define( 'tocus-f-interruption-screen', ComponentInterruptionScreen );

@@ -1,4 +1,43 @@
 import type { FocusedProgressClockTiming } from '../../services/focused-progress-clock/types';
+import type { ComponentInterruptionScreen } from '.';
+import type { CSSProperties } from 'react';
+
+/**
+ * Continuous artwork values applied only to the owned scene.
+ * @since 0.1.0
+ */
+export interface SceneStyle extends CSSProperties {
+	'--tocus-breath-bloom-opacity': string;
+	'--tocus-breath-bloom-scale': string;
+	'--tocus-breath-progress': string;
+}
+
+/**
+ * Immutable React presentation supplied by the controller-facing adapter.
+ * @since 0.1.0
+ */
+export interface ScreenViewProps {
+	host: HTMLElement;
+	shadowRoot: ShadowRoot;
+	copy: Readonly<InterruptionScreenCopy>;
+	state: InterruptionScreenState;
+	mode: InterruptionScreenMode;
+	progressMilliseconds: number;
+	waitDurationMilliseconds: number;
+	reducedMotion: boolean;
+	recovering: boolean;
+	wellbeingSummary: string;
+	announcement: string;
+	onContinue: () => void;
+	onRetry: () => void;
+}
+
+declare global {
+	/** Controller-facing native pause tag retained during the presentation migration. */
+	interface HTMLElementTagNameMap {
+		'tocus-f-interruption-screen': ComponentInterruptionScreen;
+	}
+}
 import {
 	PauseMode,
 	type PauseMode as PauseModeValue,
