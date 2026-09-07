@@ -7,16 +7,16 @@ import {
 	PreferencesStorageKey,
 	parseStoredPreferences,
 } from '../../../../domains/preferences/services/preferences-storage';
-import {
-	type ToolbarBadgeCopy,
-	type ToolbarBadgeCopyResult,
-	type ToolbarBadgeDurationUnit,
+import type {
+	ToolbarBadgeCopy,
+	ToolbarBadgeCopyResult,
+	ToolbarBadgeDurationUnit,
 } from '../../utils/toolbar-badge-projection';
-import {
-	type ToolbarBadgeRefresh,
-	type ToolbarLanguageController,
-	type ToolbarLanguageControllerOptions,
-	type ToolbarLanguageStorageChanges,
+import type {
+	ToolbarBadgeRefresh,
+	ToolbarLanguageController,
+	ToolbarLanguageControllerOptions,
+	ToolbarLanguageStorageChanges,
 } from './types';
 
 /**

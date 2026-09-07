@@ -1,4 +1,4 @@
-import { type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
 import {
 	ProtectionStateType,
 	type AllowanceProtectionState,
@@ -7,7 +7,7 @@ import {
 	type WaitingProtectionState,
 } from '../../../../domains/protection/types/protection-state';
 import { PageIdSchema, type PageId } from '../../../../domains/protection/types/protection-value';
-import { type ProtectionRuntimeParticipantContext } from './types';
+import type { ProtectionRuntimeParticipantContext } from './types';
 
 const PAGE_ID_PREFIX = 'page_tab_';
 const PAGE_ID_PATTERN = /^page_tab_(\d+)_/u;
