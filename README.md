@@ -32,8 +32,9 @@ Settings includes **Privacy and local data**, where you can review local storage
 
 ## Stack
 
-- [WXT](https://wxt.dev/) and [Lit](https://lit.dev/) for the browser extension
-- [Astro](https://astro.build/) for the project website
+- [WXT](https://wxt.dev/) and [React](https://react.dev/) for the browser extension
+- [Mantine](https://mantine.dev/) with shared TOCus theme tokens for controls across the extension and website
+- [Astro](https://astro.build/) with React islands for the project website
 - pnpm workspaces and [Turborepo](https://turbo.build/repo)
 - TypeScript, Vitest, and ESLint
 
@@ -65,7 +66,7 @@ pnpm dev
 | Command                                | Purpose                                                     |
 | -------------------------------------- | ----------------------------------------------------------- |
 | `pnpm dev`                             | Run workspace development tasks in parallel                 |
-| `pnpm setup:browsers`                  | Install the pinned Chromium build used by browser tests     |
+| `pnpm setup:browsers`                  | Install pinned Chromium, Firefox and WebKit builds          |
 | `pnpm build`                           | Build all workspaces                                        |
 | `pnpm build:firefox`                   | Build the extension for Firefox                             |
 | `pnpm build:safari`                    | Build the extension for Safari                              |
@@ -75,9 +76,8 @@ pnpm dev
 | `pnpm test`                            | Run unit coverage, build-contract, and browser tests        |
 | `pnpm test:unit`                       | Run unit tests with protection coverage thresholds          |
 | `pnpm test:build-contract`             | Build all browser targets and validate generated artifacts  |
-| `pnpm test:browser`                    | Run covered component and accessibility browser tests       |
-| `pnpm test:visual`                     | Run local visual-regression comparisons                     |
-| `pnpm test:visual:update-screenshots`  | Review and update local visual-regression baselines         |
+| `pnpm test:browser`                    | Run native media/Canvas coverage and all presentation tests |
+| `pnpm test:ui`                         | Run shared controls and extension UI in all three engines  |
 | `pnpm check`                           | Run linting, type checks, and tests                         |
 
 ## Repository structure
@@ -85,10 +85,11 @@ pnpm dev
 ```text
 .
 |-- apps/
-|   |-- extension/       # WXT + Lit browser extension and extension-owned tests
-|   `-- website/         # Astro project website
+|   |-- extension/       # WXT + React browser extension and extension-owned tests
+|   `-- website/         # Astro website with React islands
 |-- packages/
-|   `-- theme/           # Shared icon and design tokens
+|   |-- theme/           # Shared icons and design tokens
+|   `-- ui/              # Shared Mantine theme, provider and UI compositions
 `-- eslint.config.js     # Repository lint configuration
 ```
 
