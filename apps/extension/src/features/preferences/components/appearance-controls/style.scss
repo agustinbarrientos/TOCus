@@ -1,0 +1,254 @@
+@use '@tocus/theme/typography' as typography;
+
+[data-tocus-ui] {
+	.preferences-appearance-controls {
+		gap: 2rem;
+		container-type: inline-size;
+	}
+
+	.preferences-appearance-controls > :last-child .preferences-section-label {
+		display: flex;
+		align-items: center;
+
+		&::after {
+			flex: 1;
+			border-top: 1px solid var(--tocus-color-divider);
+			content: '';
+		}
+	}
+
+	.preferences-appearance-controls .preferences-section-label {
+		@include typography.apply('label-large');
+
+		display: block;
+	}
+
+	.preferences-appearance-controls .preferences-section-description {
+		@include typography.apply('body-small');
+
+		margin-top: 2.5rem;
+	}
+
+	.preferences-theme-options {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1rem;
+		margin-top: var(--tocus-space-3);
+	}
+
+	.preferences-theme-card {
+		display: grid;
+		gap: var(--tocus-space-2);
+		padding: 0;
+		min-width: 0;
+		text-align: center;
+	}
+
+	.preferences-theme-card > strong {
+		@include typography.apply('label-large');
+
+		display: block;
+		position: relative;
+		z-index: 1;
+	}
+
+	.preferences-theme-frame {
+		position: relative;
+		min-width: 0;
+		z-index: 1;
+		padding: 0.3rem;
+	}
+
+	.preferences-theme-preview {
+		position: relative;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-rows: auto minmax(0, 1fr);
+		aspect-ratio: 4 / 3;
+		width: 100%;
+		border: 1px solid color-mix(in srgb, var(--tocus-color-on-surface) 12%, transparent);
+		border-radius: calc(var(--tocus-radius-medium) - 0.3rem);
+		background: #f8f4ef;
+		color: #2a211d;
+		overflow: hidden;
+	}
+
+	.preferences-theme-preview[data-preview-theme='dark'],
+	.preferences-theme-preview[data-preview-theme='system'],
+	.preferences-preview-lines[data-preview-theme='dark'] {
+		background: #211b18;
+		color: #f8f1e9;
+	}
+
+	.preferences-theme-preview[data-preview-theme='system'] {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.preferences-theme-preview .tocus-brand {
+		grid-column: 1 / -1;
+		padding: clamp(0.4rem, 1.3vw, 0.75rem);
+		color: inherit;
+	}
+
+	.preferences-preview-lines {
+		display: flex;
+		flex-direction: column;
+		gap: clamp(0.2rem, 1vw, 0.45rem);
+		padding: clamp(0.4rem, 1.3vw, 0.75rem);
+		background: #f8f4ef;
+		color: #2a211d;
+	}
+
+	.preferences-preview-lines span {
+		height: clamp(0.18rem, 0.6vw, 0.3rem);
+		width: 62%;
+		border-radius: 1rem;
+		background: currentcolor;
+		opacity: 0.16;
+	}
+
+	.preferences-preview-lines span:first-child {
+		width: 88%;
+		margin-top: auto;
+	}
+
+	.preferences-choice-indicator {
+		position: absolute;
+		top: 0.85rem;
+		right: 0.85rem;
+		width: 1.4rem;
+		height: 1.4rem;
+	}
+
+	.preferences-theme-card:not([data-checked]) .preferences-choice-indicator,
+	.preferences-palette-card:not([data-checked]) .preferences-palette-indicator {
+		visibility: hidden;
+	}
+
+	.preferences-palette-card {
+		display: grid;
+		place-items: center;
+		width: 2.75rem;
+		height: 2.75rem;
+	}
+
+	.preferences-palette-swatch {
+		display: grid;
+		place-items: center;
+		width: 2.2rem;
+		height: 2.2rem;
+	}
+
+	.preferences-palette-options {
+		gap: var(--tocus-space-3);
+		margin-top: var(--tocus-space-3);
+	}
+
+	.preferences-appearance-controls > :last-child:not(:has(.preferences-section-description)) .preferences-palette-options {
+		margin-top: 2.75rem;
+	}
+
+
+	.preferences-palette-card[data-palette='brown'] {
+		--tocus-choice-background: var(--tocus-color-palette-preview-brown);
+	}
+
+	.preferences-palette-card[data-palette='green'] {
+		--tocus-choice-background: var(--tocus-color-palette-preview-green);
+	}
+
+	.preferences-palette-card[data-palette='blue'] {
+		--tocus-choice-background: var(--tocus-color-palette-preview-blue);
+	}
+
+	.preferences-palette-card[data-palette='purple'] {
+		--tocus-choice-background: var(--tocus-color-palette-preview-purple);
+	}
+
+	.preferences-palette-card[data-palette='pink'] {
+		--tocus-choice-background: var(--tocus-color-palette-preview-pink);
+	}
+
+	.preferences-palette-card[data-palette='orange'] {
+		--tocus-choice-background: var(--tocus-color-palette-preview-orange);
+	}
+
+	.preferences-language-options {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: var(--tocus-space-3);
+		margin-top: var(--tocus-space-3);
+	}
+
+	.preferences-language-section-label {
+		@include typography.apply('label-large');
+
+		display: block;
+	}
+
+	.preferences-language-card {
+		display: grid;
+		place-items: center;
+		min-height: 5.25rem;
+		padding: var(--tocus-space-4);
+	}
+
+	.preferences-language-label {
+		@include typography.apply('title-small');
+
+		position: relative;
+		text-align: center;
+	}
+
+	.preferences-language-variants {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	@media (width <= 44rem) {
+		.preferences-language-options {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@container (width <= 32rem) {
+		.preferences-theme-options {
+			gap: 0.5rem;
+		}
+
+		.preferences-theme-frame { padding: 0.2rem; }
+
+		.preferences-theme-preview {
+			min-height: 6.5rem;
+			padding-top: 2rem;
+		}
+	}
+
+	@media (forced-colors: active) {
+		.preferences-palette-options {
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
+		.preferences-palette-card {
+			grid-template-columns: auto minmax(0, 1fr);
+			place-items: center start;
+			gap: var(--tocus-space-2);
+			width: auto;
+			height: auto;
+			min-height: 2.75rem;
+		}
+
+		.preferences-palette-label {
+			@include typography.apply('label-medium');
+
+			position: static;
+			width: auto;
+			height: auto;
+			margin: 0;
+			overflow: visible;
+			clip-path: none;
+			white-space: normal;
+		}
+	}
+
+}
