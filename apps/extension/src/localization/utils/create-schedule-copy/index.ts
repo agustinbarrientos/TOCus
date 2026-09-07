@@ -1,8 +1,8 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
-import { type Weekday } from '../../../domains/protection/types/protection-schedule';
-import { type ScheduleScreenCopy } from '../../../features/settings/components/schedule-screen/types';
-import { type LocalizationFormatters } from '../create-localization-formatters';
+import type { Weekday } from '../../../domains/protection/types/protection-schedule';
+import type { ScheduleScreenCopy } from '../../../features/settings/components/schedule-screen/types';
+import type { LocalizationFormatters } from '../create-localization-formatters';
 
 /**
  * Creates localized Schedule-screen copy.
@@ -85,8 +85,8 @@ export function createScheduleCopy(
 		eyebrow: i18n._( msg`Pause setup` ),
 		title: i18n._( msg`Schedule` ),
 		introduction: i18n._( msg`Choose when TOCus is active. Times use this device's current time zone.` ),
-		appliesToLabel: i18n._( msg`Applies to` ),
-		sharedScope: i18n._( msg`Shared timing` ),
+		appliesToLabel: i18n._( msg`Schedule for` ),
+		sharedScope: i18n._( msg`Websites using the same timer` ),
 		formatIndependentScopeLabel,
 		compareNames,
 		formatWeekday,
@@ -113,9 +113,9 @@ export function createScheduleCopy(
 		startTimeRequiredError: i18n._( msg`Choose a start time.` ),
 		endTimeRequiredError: i18n._( msg`Choose an end time.` ),
 		equalTimeError: i18n._( msg`Start and end time must be different.` ),
-		dirtyScopeNotice: i18n._( msg`Save or discard these changes before choosing another scope.` ),
-		discard: i18n._( msg`Discard changes` ),
-		save: i18n._( msg`Save schedule` ),
+		dirtyScopeNotice: i18n._( msg`Save or discard your changes before choosing other websites.` ),
+		discard: i18n._( msg`Discard` ),
+		save: i18n._( msg`Save` ),
 		saving: i18n._( msg`Saving...` ),
 		loading: i18n._( msg`Loading schedule...` ),
 		malformedDataTitle: i18n._( msg`Your local settings need attention` ),

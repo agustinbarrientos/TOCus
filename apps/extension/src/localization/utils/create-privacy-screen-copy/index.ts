@@ -1,6 +1,6 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
-import { type PrivacyScreenCopy } from '../../../features/settings/components/privacy-screen/types';
+import type { PrivacyScreenCopy } from '../../../features/settings/components/privacy-screen/types';
 
 /**
  * Creates localized explanations and confirmation messages for local data controls.
