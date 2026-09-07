@@ -1,7 +1,7 @@
-import {
-	type AllowanceId,
-	type ProtectionMeasurementRevision,
-	type ProtectionScopeId,
+import type {
+	AllowanceId,
+	ProtectionMeasurementRevision,
+	ProtectionScopeId,
 } from '../../protection/types/protection-value';
 
 /**

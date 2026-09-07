@@ -1,5 +1,5 @@
-import { type StatisticsSessionDocument } from '../../types/statistics-session';
-import { type StatisticsFocusEpochId } from '../../types/statistics-value';
+import type { StatisticsSessionDocument } from '../../types/statistics-session';
+import type { StatisticsFocusEpochId } from '../../types/statistics-value';
 
 /**
  * Stable key for the current session statistics document.

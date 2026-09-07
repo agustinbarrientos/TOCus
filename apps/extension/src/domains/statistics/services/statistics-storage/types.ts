@@ -1,4 +1,4 @@
-import { type StatisticsDocument } from '../../types/statistics-document';
+import type { StatisticsDocument } from '../../types/statistics-document';
 
 /**
  * Stable key for the current local statistics document.
