@@ -1,5 +1,5 @@
-import { type StatisticsDocument } from '../../types/statistics-document';
-import { type RecordFocusedIntervalOperation } from '../../types/statistics-operation';
+import type { StatisticsDocument } from '../../types/statistics-document';
+import type { RecordFocusedIntervalOperation } from '../../types/statistics-operation';
 import { addStatisticsValues } from '../add-statistics-values';
 
 /**

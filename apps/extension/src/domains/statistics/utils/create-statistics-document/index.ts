@@ -6,7 +6,7 @@ import {
 	type StatisticsTotals,
 } from '../../types/statistics-document';
 import { StatisticsGenerationIdSchema } from '../../types/statistics-value';
-import { type ProtectionMeasurementRevision } from '../../../protection/types/protection-value';
+import type { ProtectionMeasurementRevision } from '../../../protection/types/protection-value';
 
 /**
  * Creates a fresh set of zero-valued scope totals.

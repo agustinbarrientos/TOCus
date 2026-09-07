@@ -4,9 +4,9 @@ import {
 	type PauseTimeFact,
 	type ProtectionFact,
 } from '../../../protection/types/protection-fact';
-import { type ProtectionMeasurementRevision } from '../../../protection/types/protection-value';
-import { type StatisticsDocument, type ScopeStatistics } from '../../types/statistics-document';
-import { type ApplyStatisticsFactBatchOperation } from '../../types/statistics-operation';
+import type { ProtectionMeasurementRevision } from '../../../protection/types/protection-value';
+import type { StatisticsDocument, ScopeStatistics } from '../../types/statistics-document';
+import type { ApplyStatisticsFactBatchOperation } from '../../types/statistics-operation';
 import { addStatisticsValues } from '../add-statistics-values';
 import { createEmptyScopeStatistics } from '../create-statistics-document';
 import { finalizeExpiredStatisticsAllowance } from '../finalize-statistics-allowance';

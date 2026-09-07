@@ -1,5 +1,5 @@
-import { type ScopeStatistics } from '../../types/statistics-document';
-import { type FinalizeActiveAllowanceOperation } from '../../types/statistics-operation';
+import type { ScopeStatistics } from '../../types/statistics-document';
+import type { FinalizeActiveAllowanceOperation } from '../../types/statistics-operation';
 
 /**
  * Converts an expired active allowance into the latest baseline.
