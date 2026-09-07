@@ -2,8 +2,8 @@ import {
 	ProtectionConfigurationDocumentSchema,
 	type ProtectionConfigurationDocument,
 } from '../../../../domains/protection/types/protected-site-configuration';
-import {
-	type SessionContinuityId,
+import type {
+	SessionContinuityId,
 } from '../../../../domains/protection/types/protection-value';
 import {
 	StoredProtectionStatisticsDeliveryStatus,
@@ -12,21 +12,21 @@ import {
 import {
 	StatisticsOperationType,
 } from '../../../../domains/statistics/types/statistics-operation';
-import {
-	type StatisticsDocument,
+import type {
+	StatisticsDocument,
 } from '../../../../domains/statistics/types/statistics-document';
 import { createStatisticsDocument } from '../../../../domains/statistics/utils/create-statistics-document';
 import { projectStatistics } from '../../../../domains/statistics/utils/project-statistics';
 import { reduceStatistics } from '../../../../domains/statistics/utils/reduce-statistics';
-import {
-	type ProtectionCoordinatorStatisticsDeliveryBoundary,
+import type {
+	ProtectionCoordinatorStatisticsDeliveryBoundary,
 } from '../../../../domains/protection/services/protection-coordinator';
 import { createStatisticsFocusSession } from '../statistics-focus-session';
-import {
-	type StatisticsRuntime,
-	type StatisticsCheckpointObservation,
-	type StatisticsRuntimeOptions,
-	type StatisticsRuntimeSnapshot,
+import type {
+	StatisticsRuntime,
+	StatisticsCheckpointObservation,
+	StatisticsRuntimeOptions,
+	StatisticsRuntimeSnapshot,
 } from './types';
 
 /**
