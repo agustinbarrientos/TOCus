@@ -746,7 +746,81 @@ export function createProtectionConfigurationEditor(
 		return serializeMutation( () => performUpdateTiming( timingConfigurationInput ) );
 	}
 
-	return { add, addMany, load, remove, update, updateSchedule, updateTiming };
+	/**
+	 * Replaces one whole website draft under the existing mutation lock.
+	 * @param expectedSites - Complete website baseline observed by the page.
+	 * @param nextSites - Complete validated draft to commit.
+	 * @param beforePersist - Permission verification before the single write.
+	 * @param finalize - Permission settlement before releasing coordination.
+	 * @return Authoritative update or rejection without partial writes.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function replaceSites(
+		expectedSites: unknown,
+		nextSites: unknown,
+		beforePersist?: ProtectionConfigurationEditPrePersist,
+		finalize?: ProtectionConfigurationEditFinalizer,
+	): Promise<ProtectionConfigurationEditResult> {
+		const expected = ProtectedSiteConfigurationSetSchema.safeParse( expectedSites );
+		const next = ProtectedSiteConfigurationSetSchema.safeParse( nextSites );
+		return serializeMutation( async () => {
+			const configuration = await options.storage.load();
+			try {
+				await options.validateAddition?.();
+			} catch ( error ) {
+				await finalizeFailedMutation( configuration, finalize, error );
+				throw error;
+			}
+			if ( configuration === null || ! expected.success || ! next.success ) {
+				return finalizeResult(
+					createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION ),
+					configuration,
+					finalize,
+				);
+			}
+			if ( JSON.stringify( expected.data ) !== JSON.stringify( configuration.sites ) ) {
+				return finalizeResult(
+					createRejectedResult( ProtectionConfigurationEditRejectionReason.SITES_CHANGED ),
+					configuration,
+					finalize,
+				);
+			}
+			if ( JSON.stringify( next.data ) === JSON.stringify( configuration.sites ) ) {
+				return finalizeResult( createUpdatedResult( configuration ), configuration, finalize );
+			}
+			const rotatedScopeIds = new Set<ProtectionScopeId>();
+			for ( const site of [ ...configuration.sites, ...next.data ] ) {
+				const previous = configuration.sites.find(
+					( candidate ) => candidate.identityHost === site.identityHost,
+				);
+				const replacement = next.data.find( ( candidate ) => candidate.identityHost === site.identityHost );
+				if ( JSON.stringify( previous?.rule ) !== JSON.stringify( replacement?.rule ) ) {
+					rotatedScopeIds.add( site.rule.scopeId );
+				}
+			}
+			const result = createMembershipUpdatedResult( configuration, next.data, rotatedScopeIds, options );
+			if ( result === null ) {
+				return finalizeResult(
+					createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION ),
+					configuration,
+					finalize,
+				);
+			}
+			try {
+				await beforePersist?.( result.configuration );
+				await options.storage.save( result.configuration );
+			} catch ( error ) {
+				await finalizeFailedMutation( configuration, finalize, error );
+				throw error;
+			}
+			return finalizeResult( result, result.configuration, finalize );
+		} );
+	}
+
+	return {
+		add, addMany, load, remove, update, updateSchedule, updateTiming, replaceSites,
+		createIndependentScopeId: options.createIndependentScopeId,
+	};
 }
 
 export * from './types';

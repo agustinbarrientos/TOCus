@@ -1,10 +1,10 @@
 import { z } from 'zod';
-import {
-	type ProtectedSiteConfiguration,
-	type ProtectionConfigurationDocument,
+import type {
+	ProtectedSiteConfiguration,
+	ProtectionConfigurationDocument,
 } from '../../types/protected-site-configuration';
-import { type ProtectionMeasurementRevisionFactory } from '../../types/protection-value';
-import { type ProtectionConfigurationStorageService } from '../protection-configuration-storage';
+import type { ProtectionMeasurementRevisionFactory } from '../../types/protection-value';
+import type { ProtectionConfigurationStorageService } from '../protection-configuration-storage';
 
 /**
  * Stable outcomes returned by protected-site configuration edits.
@@ -41,6 +41,7 @@ export const ProtectionConfigurationEditRejectionReason = {
 	INVALID_TIMING_CONFIGURATION: 'invalid-timing-configuration',
 	SCOPE_NOT_FOUND: 'scope-not-found',
 	SITE_NOT_FOUND: 'site-not-found',
+	SITES_CHANGED: 'sites-changed',
 } as const;
 
 /**
@@ -173,6 +174,15 @@ export interface ProtectionConfigurationEditorOptions {
  * @since 0.1.0 Initial implementation.
  */
 export interface ProtectionConfigurationEditor {
+	/** Creates a stable independent scope for a local draft without reading or writing storage. */
+	createIndependentScopeId: IndependentProtectionScopeIdFactory;
+	/** Replaces the complete site set only while its baseline still matches authoritative storage. */
+	replaceSites(
+		expectedSites: unknown,
+		nextSites: unknown,
+		beforePersist?: ProtectionConfigurationEditPrePersist,
+		finalize?: ProtectionConfigurationEditFinalizer,
+	): Promise<ProtectionConfigurationEditResult>;
 	/**
 	 * Loads the current protected-site configuration without altering malformed data.
 	 * @return Current configuration, an empty document, or null for malformed data.
