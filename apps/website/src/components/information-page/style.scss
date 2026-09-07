@@ -1,0 +1,137 @@
+@use '@tocus/theme/typography' as typography;
+
+.information-shell {
+	.information-site-header {
+		border-bottom: 1px solid var(--tocus-color-outline);
+	}
+
+	.information-brand-link {
+		border-radius: var(--tocus-radius-small);
+		text-decoration: none;
+	}
+
+	.information-footer nav {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem 1.5rem;
+	}
+
+	.information-page {
+		width: min(100%, 47rem);
+		margin-inline: auto;
+		padding-block: clamp(3.5rem, 8vw, 7rem);
+
+		.information-page-introduction {
+			padding-bottom: clamp(3rem, 7vw, 5rem);
+			border-bottom: 1px solid var(--tocus-color-outline);
+		}
+
+		.information-page-eyebrow {
+			@include typography.apply('label-large');
+
+			margin-bottom: 1rem;
+			color: var(--tocus-color-action);
+			text-transform: uppercase;
+		}
+
+		h1 {
+			@include typography.apply('display-large');
+
+			max-width: 15ch;
+		}
+
+		.information-page-lede {
+			@include typography.apply('headline-small');
+
+			max-width: 42ch;
+			margin-top: 1.75rem;
+			color: var(--tocus-color-on-surface-muted);
+		}
+
+		.information-page-reviewed {
+			@include typography.apply('body-medium');
+
+			margin-top: 1.25rem;
+			color: var(--tocus-color-on-surface-muted);
+		}
+
+		section {
+			padding-block: clamp(2.5rem, 6vw, 4rem);
+			border-bottom: 1px solid var(--tocus-color-outline);
+		}
+
+		section:last-child {
+			border-bottom: 0;
+		}
+
+		h2 {
+			@include typography.apply('headline-large');
+
+			max-width: 25ch;
+			margin-bottom: 1.5rem;
+		}
+
+		p,
+		li {
+			max-width: 68ch;
+		}
+
+		p + p {
+			margin-top: 1.25rem;
+		}
+
+		ol {
+			display: grid;
+			gap: 1.25rem;
+			margin: 0;
+			padding-inline-start: 1.4rem;
+		}
+
+		.tocus-external-link {
+			display: inline;
+
+			.tocus-icon {
+				display: inline-block;
+				width: 0.8em;
+				height: 0.8em;
+				margin-inline-start: 0.3em;
+				vertical-align: 0;
+			}
+		}
+	}
+
+	.information-footer {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 2rem;
+
+		.information-author {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.65rem;
+			white-space: nowrap;
+		}
+
+		img {
+			border-radius: 50%;
+		}
+	}
+}
+
+@media (width <= 42rem) {
+	.information-shell {
+		.information-footer {
+			align-items: flex-start;
+			flex-direction: column;
+		}
+
+		.information-page h1 {
+			@include typography.apply('display-small');
+		}
+
+		.information-footer .information-author {
+			white-space: normal;
+		}
+	}
+}

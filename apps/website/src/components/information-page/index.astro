@@ -1,0 +1,25 @@
+---
+import '@tocus/ui/styles.scss';
+import '../../styles/global.scss';
+import './style.scss';
+import InformationPage from './page';
+import { InformationPageMetadata, type InformationPageProperties as Props } from './types';
+
+const { document } = Astro.props;
+const metadata = InformationPageMetadata[ document ];
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="color-scheme" content="light" />
+		<meta name="description" content={metadata.description} />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<title>{metadata.title}</title>
+	</head>
+	<body>
+		<InformationPage {document} client:load />
+	</body>
+</html>
