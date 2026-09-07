@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { type StatisticsRuntimeRequest } from '../../../statistics/types/runtime-message';
+import type { StatisticsRuntimeRequest } from '../../../statistics/types/runtime-message';
 
 /**
  * Explicit full-reset request accepted only from the settings page.
