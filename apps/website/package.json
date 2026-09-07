@@ -11,10 +11,10 @@
 	"dependencies": {
 		"@lingui/core": "6.6.0",
 		"@tocus/theme": "workspace:*",
-		"astro": "7.2.9"
+		"astro": "7.3.1"
 	},
 	"devDependencies": {
 		"@astrojs/check": "0.9.10",
-		"typescript": "6.0.3"
+		"typescript": "7.0.2"
 	}
 }
