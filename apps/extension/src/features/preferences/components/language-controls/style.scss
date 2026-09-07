@@ -1,0 +1,13 @@
+@use '@tocus/theme/typography' as typography;
+
+[data-tocus-ui] .preferences-language-field-label {
+	@include typography.apply('label-large');
+
+	display: block;
+	margin-bottom: var(--tocus-space-2);
+	text-align: start;
+}
+
+[data-tocus-ui] .preferences-language-description {
+	@include typography.apply('body-medium');
+}
