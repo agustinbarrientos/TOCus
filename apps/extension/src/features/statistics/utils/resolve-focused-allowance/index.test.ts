@@ -14,7 +14,7 @@ import {
 	StatisticsDocumentVersion,
 } from '../../../../domains/statistics/types/statistics-document';
 import { resolveFocusedAllowance } from './index';
-import { type ResolveFocusedAllowanceInput } from './types';
+import type { ResolveFocusedAllowanceInput } from './types';
 
 /**
  * Current instant shared by focused-allowance resolver tests.
