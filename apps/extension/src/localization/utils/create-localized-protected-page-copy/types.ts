@@ -1,5 +1,5 @@
-import { type Language } from '../../../domains/preferences/types';
-import { type LocalizationBundle } from '../create-localization-bundle/types';
+import type { Language } from '../../../domains/preferences/types';
+import type { LocalizationBundle } from '../create-localization-bundle/types';
 
 /**
  * Synchronous localization projection required by an injected protected page.

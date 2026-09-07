@@ -1,12 +1,12 @@
 import { setupI18n } from '@lingui/core';
 import { messagesByLanguage } from 'virtual:tocus/protected-page-localization';
-import { type Language as LanguageValue } from '../../../domains/preferences/types';
+import type { Language as LanguageValue } from '../../../domains/preferences/types';
 import { getLanguageTag } from '../../../domains/preferences/utils/resolve-language';
 import { createInterruptionCopy } from '../create-interruption-copy';
 import { createLocalizationFormatters } from '../create-localization-formatters';
 import { createProtectedPageLayerCopy } from '../create-protected-page-layer-copy';
 import { createWellbeingCopy } from '../create-wellbeing-copy';
-import { type ProtectedPageLocalizationBundle } from './types';
+import type { ProtectedPageLocalizationBundle } from './types';
 
 /**
  * Creates synchronous protected-page copy from the selected compiled messages.

@@ -2,7 +2,7 @@ import { Language, type Language as LanguageValue } from '../../../domains/prefe
 import { messages as englishMessages } from '../../../../locales/en.po';
 import { createLocalizationBundle, type LocalizationBundle } from '../../utils/create-localization-bundle';
 import { loadLocalizationMessages } from '../load-localization-messages';
-import { type LocalizationMessagesLoader } from './types';
+import type { LocalizationMessagesLoader } from './types';
 
 /**
  * Creates a complete English bundle from the statically packaged source catalog.
