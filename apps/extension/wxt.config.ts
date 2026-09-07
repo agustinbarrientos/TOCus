@@ -26,8 +26,10 @@ export default defineConfig( {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	vite: () => ( {
-		...createLocalizationViteConfig(),
+		plugins: createLocalizationViteConfig().plugins,
 		build: {
+			// Chromium cannot reuse module preloads across extension resource worlds.
+			modulePreload: false,
 			rolldownOptions: {
 				optimization: {
 					// Inlining duplicates the public-suffix label table at each lookup site.
@@ -37,7 +39,7 @@ export default defineConfig( {
 		},
 	} ),
 	imports: false,
-	modules: [ '@wxt-dev/auto-icons' ],
+	modules: [ '@wxt-dev/auto-icons', '@wxt-dev/module-react' ],
 	autoIcons: {
 		baseIconPath: '../../../packages/theme/assets/icon.svg',
 		developmentIndicator: false,
