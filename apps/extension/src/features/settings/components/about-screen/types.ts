@@ -1,3 +1,4 @@
+
 /**
  * Localized messages displayed by the About settings screen.
  * @since 0.1.0 Initial implementation.
@@ -25,4 +26,14 @@ export interface AboutScreenCopy {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	formatVersion( version: string ): string;
+}
+
+
+/**
+ * User-opened project resource from the canonical About content.
+ * @since 0.1.0
+ */
+export interface ProjectLinkProps {
+	label: string;
+	href: string;
 }
