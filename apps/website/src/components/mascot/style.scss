@@ -1,0 +1,15 @@
+.mascot {
+	position: relative;
+	mix-blend-mode: multiply;
+
+	// Feather the generated image's off-white outer margin into the page paper.
+	mask-image: linear-gradient(to right, transparent, #000 3%, #000 97%, transparent),
+		linear-gradient(to bottom, transparent, #000 3%, #000 97%, transparent);
+	mask-composite: intersect;
+
+	img {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+}
