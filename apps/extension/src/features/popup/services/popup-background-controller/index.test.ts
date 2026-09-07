@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
-import { PopupProjectionStatus } from '../../types/popup-projection';
+import { PopupCurrentSiteStatus, PopupProjectionStatus } from '../../types/popup-projection';
 import { PopupRuntimeRequestType } from '../../types/runtime-message';
 import { createPopupBackgroundController } from './index';
-import {
-	type PopupBackgroundMessageListener,
-	type PopupBackgroundMessageSender,
-	type PopupBackgroundSendResponse,
+import type {
+	PopupBackgroundMessageListener,
+	PopupBackgroundMessageSender,
+	PopupBackgroundSendResponse,
 } from './types';
 
 const POPUP_PAGE_URL = 'chrome-extension://extension-id/popup.html';
@@ -198,7 +198,7 @@ describe( 'createPopupBackgroundController', () => {
 		expect( sendResponse.mock.calls[ 0 ]?.[ 0 ] ).toMatchObject( {
 			status: PopupProjectionStatus.AVAILABLE,
 			currentSite: {
-				status: 'unprotected',
+				status: PopupCurrentSiteStatus.UNPROTECTED,
 				identityHost: 'calm-place.test',
 			},
 		} );
@@ -245,7 +245,7 @@ describe( 'createPopupBackgroundController', () => {
 		expect( sendResponse.mock.calls[ 0 ]?.[ 0 ] ).toMatchObject( {
 			status: PopupProjectionStatus.AVAILABLE,
 			currentSite: {
-				status: 'unprotected',
+				status: PopupCurrentSiteStatus.UNPROTECTED,
 				identityHost: 'calm-place.test',
 			},
 		} );

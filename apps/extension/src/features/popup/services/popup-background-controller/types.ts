@@ -1,7 +1,7 @@
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type Browser } from 'wxt/browser';
-import { type BrowserProtectionRuntimeSnapshot } from '../../../protection-runtime/services/browser-protection-runtime';
-import { type PopupProjection } from '../../types/popup-projection';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { Browser } from 'wxt/browser';
+import type { BrowserProtectionRuntimeSnapshot } from '../../../protection-runtime/services/browser-protection-runtime';
+import type { PopupProjection } from '../../types/popup-projection';
 
 /**
  * Browser event source used to register one popup message listener.
