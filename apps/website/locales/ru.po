@@ -14,13 +14,101 @@ msgstr ""
 "Plural-Forms: \n"
 
 #: apps/website/src/localization/index.ts
-msgid "A calmer moment before the next click."
-msgstr "Более спокойный момент перед следующим кликом."
+msgid "100% private."
+msgstr "100% конфиденциально."
+
+#: apps/website/src/localization/index.ts
+msgid "10s pause"
+msgstr "Пауза 10 с"
+
+#: apps/website/src/localization/index.ts
+msgid "5m browsing"
+msgstr "Просмотр 5 мин"
+
+#: apps/website/src/localization/index.ts
+msgid "A preview of the breathing pause."
+msgstr "Предварительный просмотр дыхательной паузы."
+
+#: apps/website/src/localization/index.ts
+msgid "A short pause before the websites you choose."
+msgstr "Короткая пауза перед выбранными сайтами."
+
+#: apps/website/src/localization/index.ts
+msgid "A smiling capybara peeking over the browser"
+msgstr "Улыбающаяся капибара выглядывает из-за окна браузера"
+
+#: apps/website/src/localization/index.ts
+msgid "Add a pause to your browser."
+msgstr "Добавьте паузу в браузер."
+
+#: apps/website/src/localization/index.ts
+msgid "Also available on"
+msgstr "Также доступно для"
+
+#: apps/website/src/localization/index.ts
+msgid "Appearance"
+msgstr "Оформление"
+
+#: apps/website/src/localization/index.ts
+msgid "Breathe"
+msgstr "Дышите"
+
+#: apps/website/src/localization/index.ts
+msgid "Breathe in"
+msgstr "Вдохните"
+
+#: apps/website/src/localization/index.ts
+msgid "Browse"
+msgstr "Просмотр"
+
+#: apps/website/src/localization/index.ts
+msgid "Browse for five minutes"
+msgstr "Просматривайте сайт пять минут"
+
+#: apps/website/src/localization/index.ts
+msgid "By default, the next pause comes five minutes after you select Continue."
+msgstr "По умолчанию следующая пауза начнётся через пять минут после выбора «Продолжить»."
+
+#: apps/website/src/localization/index.ts
+msgid "Choose sites"
+msgstr "Выберите сайты"
+
+#: apps/website/src/localization/index.ts
+msgid "Choose the websites to pause."
+msgstr "Выберите сайты для паузы."
+
+#: apps/website/src/localization/index.ts
+msgid "Choose your wait, browsing time, and schedule."
+msgstr "Настройте ожидание, время просмотра и расписание."
+
+#: apps/website/src/localization/index.ts
+msgid "Coming soon"
+msgstr "Скоро"
+
+#: apps/website/src/localization/index.ts
+msgid "Continue"
+msgstr "Продолжить"
+
+#: apps/website/src/localization/index.ts
+msgid "Continue after the pause"
+msgstr "Продолжите после паузы"
 
 #. Language-menu autonym. Keep this language name written in German.
 #: apps/website/src/localization/index.ts
 msgid "Deutsch"
 msgstr "Deutsch"
+
+#: apps/website/src/localization/index.ts
+msgid "Different sites, different timing"
+msgstr "Разные сайты — разные настройки времени"
+
+#: apps/website/src/localization/index.ts
+msgid "Download for"
+msgstr "Скачать для"
+
+#: apps/website/src/localization/index.ts
+msgid "Download TOCus"
+msgstr "Скачать TOCus"
 
 #. Language-menu autonym. Keep this language name written in English.
 #: apps/website/src/localization/index.ts
@@ -38,13 +126,49 @@ msgid "Español (vos)"
 msgstr "Español (vos)"
 
 #: apps/website/src/localization/index.ts
+msgid "Example data"
+msgstr "Пример данных"
+
+#: apps/website/src/localization/index.ts
+msgid "Example timing"
+msgstr "Пример настроек времени"
+
+#: apps/website/src/localization/index.ts
 msgid "Explore the source on GitHub"
 msgstr "Посмотреть исходный код на GitHub"
+
+#: apps/website/src/localization/index.ts
+msgid "Follow the breathing guide. Your browsing time has not started yet."
+msgstr "Следуйте подсказкам для дыхания. Время просмотра ещё не началось."
+
+#: apps/website/src/localization/index.ts
+msgid "For anyone who needs a moment away from everything online."
+msgstr "Для всех, кому нужно ненадолго отвлечься от всего в интернете."
 
 #. Language-menu autonym. Keep this language name written in French.
 #: apps/website/src/localization/index.ts
 msgid "Français"
 msgstr "Français"
+
+#: apps/website/src/localization/index.ts
+msgid "Free and open source"
+msgstr "Бесплатно и с открытым исходным кодом"
+
+#: apps/website/src/localization/index.ts
+msgid "Free and open source."
+msgstr "Бесплатно и с открытым кодом."
+
+#: apps/website/src/localization/index.ts
+msgid "Give any website its own wait and schedule."
+msgstr "Задайте для любого сайта своё время ожидания и расписание."
+
+#: apps/website/src/localization/index.ts
+msgid "How it works"
+msgstr "Как это работает"
+
+#: apps/website/src/localization/index.ts
+msgid "How TOCus works."
+msgstr "Как работает TOCus."
 
 #. Language-menu autonym. Keep this language name written in Italian.
 #: apps/website/src/localization/index.ts
@@ -52,8 +176,60 @@ msgid "Italiano"
 msgstr "Italiano"
 
 #: apps/website/src/localization/index.ts
+msgid "Made by"
+msgstr "Автор"
+
+#: apps/website/src/localization/index.ts
+msgid "Meet the creator"
+msgstr "Об авторе"
+
+#: apps/website/src/localization/index.ts
+msgid "No account. No tracking."
+msgstr "Без аккаунта. Без отслеживания."
+
+#: apps/website/src/localization/index.ts
+msgid "No accounts."
+msgstr "Без учётных записей."
+
+#: apps/website/src/localization/index.ts
+msgid "No external calls."
+msgstr "Без внешних запросов."
+
+#: apps/website/src/localization/index.ts
+msgid "No tracking."
+msgstr "Без отслеживания."
+
+#: apps/website/src/localization/index.ts
+msgid "On supported sites, playing videos pause and resume when you continue."
+msgstr "На поддерживаемых сайтах видео ставится на паузу и возобновляется, когда вы продолжаете."
+
+#: apps/website/src/localization/index.ts
+msgid "Only when you want"
+msgstr "Только когда вы хотите"
+
+#: apps/website/src/localization/index.ts
+msgid "Open a site"
+msgstr "Открыть сайт"
+
+#: apps/website/src/localization/index.ts
+msgid "Open a website you added to TOCus."
+msgstr "Откройте сайт, который вы добавили в TOCus."
+
+#: apps/website/src/localization/index.ts
 msgid "Open-source browser extension"
 msgstr "Браузерное расширение с открытым исходным кодом"
+
+#: apps/website/src/localization/index.ts
+msgid "Pause and browsing time"
+msgstr "Время паузы и просмотра"
+
+#: apps/website/src/localization/index.ts
+msgid "Pause before you scroll."
+msgstr "Сделайте паузу, прежде чем листать дальше."
+
+#: apps/website/src/localization/index.ts
+msgid "Pauses taken. Visits reconsidered."
+msgstr "Сделанные паузы. Пересмотренные посещения."
 
 #. Language-menu autonym for Brazilian Portuguese. Keep this language name written in Portuguese.
 #: apps/website/src/localization/index.ts
@@ -66,20 +242,92 @@ msgid "Português (Portugal)"
 msgstr "Português (Portugal)"
 
 #: apps/website/src/localization/index.ts
-msgid "TOCus adds a gentle breathing pause before the websites you choose, helping you browse more intentionally."
-msgstr "TOCus добавляет короткую паузу для дыхания перед выбранными сайтами, помогая пользоваться интернетом осознаннее."
+msgid "Privacy"
+msgstr "Конфиденциальность"
+
+#: apps/website/src/localization/index.ts
+msgid "Read the code, suggest changes, or make it your own."
+msgstr "Изучите код, предложите изменения или адаптируйте его под себя."
+
+#: apps/website/src/localization/index.ts
+msgid "Read the privacy policy"
+msgstr "Прочитать политику конфиденциальности"
+
+#: apps/website/src/localization/index.ts
+msgid "See your progress."
+msgstr "Следите за результатами."
+
+#: apps/website/src/localization/index.ts
+msgid "Select the sites where you want a pause."
+msgstr "Выберите сайты, где нужна пауза."
+
+#: apps/website/src/localization/index.ts
+msgid "Set the days and hours TOCus is active."
+msgstr "Задайте дни и часы работы TOCus."
+
+#: apps/website/src/localization/index.ts
+msgid "Set the pause to fit your day."
+msgstr "Настройте паузу под свой день."
+
+#: apps/website/src/localization/index.ts
+msgid "Settings and statistics stay in your browser. TOCus works without an internet connection."
+msgstr "Настройки и статистика остаются в вашем браузере. TOCus работает без подключения к интернету."
+
+#: apps/website/src/localization/index.ts
+msgid "Six palettes with light, dark, or system appearance. Turn off breathing guidance or use reduced motion."
+msgstr "Шесть палитр со светлой, тёмной или системной темой. Можно отключить дыхательные подсказки или уменьшить движение."
+
+#: apps/website/src/localization/index.ts
+msgid "Skip to content"
+msgstr "Перейти к содержимому"
+
+#: apps/website/src/localization/index.ts
+msgid "Support"
+msgstr "Поддержка"
+
+#: apps/website/src/localization/index.ts
+msgid "Take a moment before you continue."
+msgstr "Сделайте паузу перед тем, как продолжить."
+
+#: apps/website/src/localization/index.ts
+msgid "Time left"
+msgstr "Осталось времени"
+
+#: apps/website/src/localization/index.ts
+msgid "TOCus adds a breathing pause to the websites you choose."
+msgstr "TOCus добавляет паузу для дыхания на выбранных вами сайтах."
 
 #: apps/website/src/localization/index.ts
 msgid "TOCus is an open-source browser extension."
 msgstr "TOCus — расширение для браузера с открытым исходным кодом."
 
 #: apps/website/src/localization/index.ts
-msgid "TOCus works entirely on your device and will stay that way. No accounts, servers, tracking, browsing-history analysis, or external network requests."
-msgstr "TOCus полностью работает на твоём устройстве, и так будет всегда. Без аккаунтов, серверов, отслеживания, анализа истории браузера или внешних сетевых запросов."
+msgid "View the source"
+msgstr "Посмотреть исходный код"
+
+#: apps/website/src/localization/index.ts
+msgid "Visit a website"
+msgstr "Откройте сайт"
+
+#: apps/website/src/localization/index.ts
+msgid "Website added"
+msgstr "Сайт добавлен"
 
 #: apps/website/src/localization/index.ts
 msgid "Website language"
 msgstr "Язык сайта"
+
+#: apps/website/src/localization/index.ts
+msgid "When the wait ends, select Continue to open the website, or close the tab."
+msgstr "Когда ожидание закончится, выберите «Продолжить», чтобы открыть сайт, или закройте вкладку."
+
+#: apps/website/src/localization/index.ts
+msgid "Your data stays on your device."
+msgstr "Данные остаются на вашем устройстве."
+
+#: apps/website/src/localization/index.ts
+msgid "Your video pauses, too."
+msgstr "Ваше видео тоже на паузе."
 
 #. Language-menu autonym. Keep this language name written in Russian.
 #: apps/website/src/localization/index.ts
