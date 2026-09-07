@@ -1,11 +1,11 @@
-import { LitElement, css, html, unsafeCSS, type TemplateResult } from 'lit';
-import { customElement, property, query } from 'lit/decorators.js';
+import type { ReactNode } from 'react';
+import { PresentationElement } from '../../utils/presentation-element';
 import {
 	readBreathingSphereColors,
 	renderBreathingSphereFrame,
 	resizeBreathingSphereCanvas,
 } from '../../utils/breathing-sphere-renderer';
-import { type BreathingSphereColors } from '../../utils/breathing-sphere-renderer/types';
+import type { BreathingSphereColors } from '../../utils/breathing-sphere-renderer/types';
 import styles from './web-component-style.scss?inline';
 
 /**
@@ -16,29 +16,100 @@ import styles from './web-component-style.scss?inline';
  * @summary Responsive decorative Breathing Sphere Canvas.
  * @since 0.1.0 Initial implementation.
  */
-@customElement( 'tocus-f-breathing-sphere' )
-export class ComponentBreathingSphere extends LitElement {
-	static override styles = css`${ unsafeCSS( styles ) }`;
+export class ComponentBreathingSphere extends PresentationElement {
+	/**
+	 * Current breath progress input supplied by the presentation owner.
+	 * @return Current breath progress input supplied by the presentation owner.
+	 */
+	get breathProgress(): number {
+		return this.breathProgressInput;
+	}
 
 	/**
-	 * Normalized Natural breathing progress from the owning screen.
-	 * @since 0.1.0 Initial implementation.
+	 * Applies the next breath progress controller input.
+	 * @param value - New presentation input, committed with the other writes in this batch.
 	 */
-	@property( { attribute: 'breath-progress', type: Number } )
-	accessor breathProgress = 0;
+	set breathProgress( value: number ) {
+		const previous = this.breathProgressInput;
+		if ( Object.is( previous, value ) ) {
+			return;
+		}
+		this.breathProgressInput = value;
+		this.requestUpdate( 'breathProgress', previous );
+	}
+
+	private breathProgressInput: number = 0;
 
 	/**
-	 * Whether the sphere must remain still for Quiet pause or reduced motion.
-	 * @since 0.1.0 Initial implementation.
+	 * Current still input supplied by the presentation owner.
+	 * @return Current still input supplied by the presentation owner.
 	 */
-	@property( { reflect: true, type: Boolean } )
-	accessor still = false;
+	get still(): boolean {
+		return this.stillInput;
+	}
 
-	@query( 'canvas' )
-	private accessor canvasElement!: HTMLCanvasElement;
+	/**
+	 * Applies the next still controller input.
+	 * @param value - New presentation input, committed with the other writes in this batch.
+	 */
+	set still( value: boolean ) {
+		const previous = this.stillInput;
+		if ( Object.is( previous, value ) ) {
+			return;
+		}
+		this.stillInput = value;
+		this.toggleAttribute( 'still', value );
+		this.requestUpdate( 'still', previous );
+	}
 
-	@query( '.color-probe' )
-	private accessor colorProbe!: HTMLSpanElement;
+	private stillInput: boolean = false;
+
+	/**
+	 * Public attributes accepted by the controller-facing canvas adapter.
+	 * @return Public attributes accepted by the controller-facing canvas adapter.
+	 */
+	static get observedAttributes(): string[] {
+		return [ 'breath-progress', 'still' ];
+	}
+
+	/** Creates the decorative React canvas mount. */
+	constructor() {
+		super( styles );
+	}
+
+	/**
+	 * Projects native attributes to typed presentation sInput.
+	 * @param name - Changed public attribute.
+	 * @param previous - Previous attribute text.
+	 * @param value - New attribute text or null after removal.
+	 */
+	attributeChangedCallback( name: string, previous: string | null, value: string | null ): void {
+		if ( previous === value ) {
+			return;
+		}
+		if ( name === 'still' ) {
+			this.still = value !== null;
+		}
+		if ( name === 'breath-progress' ) {
+			this.breathProgress = Number( value );
+		}
+	}
+
+	/**
+	 * React-owned canvas, available after its first commit.
+	 * @return React-owned canvas, available after its first commit.
+	 */
+	private get canvasElement(): HTMLCanvasElement | null {
+		return this.renderRoot.querySelector( 'canvas' );
+	}
+
+	/**
+	 * Inherited color probe, available after its first commit.
+	 * @return Inherited color probe, available after its first commit.
+	 */
+	private get colorProbe(): HTMLSpanElement | null {
+		return this.renderRoot.querySelector( '.color-probe' );
+	}
 
 	private appearanceObserver: MutationObserver | null = null;
 
@@ -97,10 +168,10 @@ export class ComponentBreathingSphere extends LitElement {
 	}
 
 	/**
-	 * Redraws when presentation inputs change.
+	 * Redraws when presentation sInput change.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	protected override updated(): void {
+	protected override afterRender(): void {
 		if ( ! this.isConnected ) {
 			return;
 		}
@@ -113,8 +184,8 @@ export class ComponentBreathingSphere extends LitElement {
 	 * @return Breathing Sphere template.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	protected override render(): TemplateResult {
-		return html`<canvas aria-hidden="true"></canvas><span class="color-probe" aria-hidden="true"></span>`;
+	protected override renderPresentation(): ReactNode {
+		return <><canvas aria-hidden="true" /><span className="color-probe" aria-hidden="true" /></>;
 	}
 
 	/**
@@ -143,7 +214,9 @@ export class ComponentBreathingSphere extends LitElement {
 		this.resizeObserver = new ResizeObserver( () => {
 			this.draw();
 		} );
-		this.resizeObserver.observe( this.canvasElement );
+		if ( this.canvasElement !== null ) {
+			this.resizeObserver.observe( this.canvasElement );
+		}
 
 		this.colorSchemeQuery = window.matchMedia( '(prefers-color-scheme: dark)' );
 		this.colorSchemeQuery.addEventListener( 'change', this.handleColorSchemeChange );
@@ -154,6 +227,9 @@ export class ComponentBreathingSphere extends LitElement {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	private draw(): void {
+		if ( this.canvasElement === null || this.colorProbe === null ) {
+			return;
+		}
 		resizeBreathingSphereCanvas( this.canvasElement );
 		this.colors ??= readBreathingSphereColors( this.colorProbe );
 		renderBreathingSphereFrame( {
@@ -165,12 +241,4 @@ export class ComponentBreathingSphere extends LitElement {
 	}
 }
 
-declare global {
-	/**
-	 * Maps the Breathing Sphere tag name to its element class.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	interface HTMLElementTagNameMap {
-		'tocus-f-breathing-sphere': ComponentBreathingSphere;
-	}
-}
+customElements.define( 'tocus-f-breathing-sphere', ComponentBreathingSphere );
