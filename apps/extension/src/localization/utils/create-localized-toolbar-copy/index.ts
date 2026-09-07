@@ -1,8 +1,8 @@
 import { setupI18n } from '@lingui/core';
 import { messagesByLanguage } from 'virtual:tocus/toolbar-localization';
-import { type Language as LanguageValue } from '../../../domains/preferences/types';
+import type { Language as LanguageValue } from '../../../domains/preferences/types';
 import { getLanguageTag } from '../../../domains/preferences/utils/resolve-language';
-import { type LocalizationBundle } from '../create-localization-bundle/types';
+import type { LocalizationBundle } from '../create-localization-bundle/types';
 import { createLocalizationFormatters } from '../create-localization-formatters';
 import { createToolbarCopy } from '../create-toolbar-copy';
 

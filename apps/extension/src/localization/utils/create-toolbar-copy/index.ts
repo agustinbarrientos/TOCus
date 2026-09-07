@@ -1,11 +1,11 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg, plural } from '@lingui/core/macro';
 import {
 	ToolbarBadgeDurationUnit,
 	type ToolbarBadgeCopy,
 	type ToolbarBadgeCopyResult,
 } from '../../../features/protection-runtime/utils/toolbar-badge-projection/types';
-import { type LocalizationFormatters } from '../create-localization-formatters';
+import type { LocalizationFormatters } from '../create-localization-formatters';
 
 /**
  * Largest complete active-scope count that fits the toolbar badge.
@@ -46,12 +46,12 @@ export function createToolbarCopy(
 		const count = formatters.number.format( amount );
 		const text = usesMinutes
 			? i18n._( msg( {
-				comment: 'Compact toolbar badge. P means pause and m means minutes; keep it very short.',
-				message: `P${ count }m`,
+				comment: 'Compact toolbar badge duration. m means minutes; keep it very short.',
+				message: `${ count }m`,
 			} ) )
 			: i18n._( msg( {
-				comment: 'Compact toolbar badge. P means pause and s means seconds; keep it very short.',
-				message: `P${ count }s`,
+				comment: 'Compact toolbar badge duration. s means seconds; keep it very short.',
+				message: `${ count }s`,
 			} ) );
 
 		if ( amount === 0 ) {
@@ -90,39 +90,44 @@ export function createToolbarCopy(
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function formatAllowance( amount: number, unit: ToolbarBadgeDurationUnit ): ToolbarBadgeCopyResult {
+		const usesMinutes = unit === ToolbarBadgeDurationUnit.MINUTE;
+		const count = formatters.number.format( amount );
+		const text = usesMinutes
+			? i18n._( msg( {
+				comment: 'Compact toolbar badge duration. m means minutes; keep it very short.',
+				message: `${ count }m`,
+			} ) )
+			: i18n._( msg( {
+				comment: 'Compact toolbar badge duration. s means seconds; keep it very short.',
+				message: `${ count }s`,
+			} ) );
+
 		if ( amount === 0 ) {
 			return Object.freeze( {
-				text: i18n._( msg( {
-					comment: 'Compact toolbar badge. V means visit window and m means minutes; keep it very short.',
-					message: 'V0m',
-				} ) ),
+				text,
 				title: i18n._( msg`Visit window: complete` ),
 			} );
 		}
 
-		if ( unit === ToolbarBadgeDurationUnit.LESS_THAN_MINUTE ) {
-			return Object.freeze( {
-				text: i18n._( msg( {
-					comment: 'Compact toolbar badge. V means visit window and m means minutes; keep it very short.',
-					message: 'V<1m',
-				} ) ),
-				title: i18n._( msg`Visit window: less than 1 minute remaining` ),
-			} );
-		}
-		const count = formatters.number.format( amount );
-
-		return Object.freeze( {
-			text: i18n._( msg( {
-				comment: 'Compact toolbar badge. V means visit window and m means minutes; keep it very short.',
-				message: `V${ count }m`,
-			} ) ),
-			title: i18n._( msg( {
+		const title = usesMinutes
+			? i18n._( msg( {
 				comment: 'Browser toolbar tooltip while a protected-site visit window has whole minutes remaining.',
 				message: plural( { count: amount }, {
 					one: 'Visit window: # minute remaining',
 					other: 'Visit window: # minutes remaining',
 				} ),
-			} ) ),
+			} ) )
+			: i18n._( msg( {
+				comment: 'Browser toolbar tooltip during the final seconds of a protected-site visit window.',
+				message: plural( { count: amount }, {
+					one: 'Visit window: # second remaining',
+					other: 'Visit window: # seconds remaining',
+				} ),
+			} ) );
+
+		return Object.freeze( {
+			text,
+			title,
 		} );
 	}
 
