@@ -163,6 +163,7 @@ export type ProtectionClockRequest = z.infer<typeof ProtectionClockRequestSchema
  * @since 0.1.0 Initial implementation.
  */
 export const InterruptionPageResponseState = {
+	RELEASED: 'released',
 	READY: 'ready',
 	READY_EXPIRED: 'ready-expired',
 	UNAVAILABLE: 'unavailable',
@@ -242,10 +243,25 @@ export const UnavailableInterruptionPageResponseSchema = z.object( {
 export type UnavailableInterruptionPageResponse = z.infer<typeof UnavailableInterruptionPageResponseSchema>;
 
 /**
+ * Validates an acknowledgement that the participant's interruption was released.
+ * @since 0.1.0 Initial implementation.
+ */
+export const ReleasedInterruptionPageResponseSchema = z.object( {
+	state: z.enum( [ InterruptionPageResponseState.RELEASED ] ),
+} ).strict();
+
+/**
+ * Acknowledgement that the participant's interruption was released.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ReleasedInterruptionPageResponse = z.infer<typeof ReleasedInterruptionPageResponseSchema>;
+
+/**
  * Validates every response returned to an interruption page.
  * @since 0.1.0 Initial implementation.
  */
 export const InterruptionPageResponseSchema = z.discriminatedUnion( 'state', [
+	ReleasedInterruptionPageResponseSchema,
 	WaitingInterruptionPageResponseSchema,
 	ReadyInterruptionPageResponseSchema,
 	ReadyExpiredInterruptionPageResponseSchema,
