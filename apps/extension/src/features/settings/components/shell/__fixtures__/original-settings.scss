@@ -1,0 +1,27 @@
+.original-settings-document {
+	// The archived WTR document retained the browser's native 8px body margin.
+	// Matching the paint origin matters even when an element screenshot crops it away.
+	margin: 8px;
+}
+
+.original-settings-isolated {
+	// The original component host was transparent over the document's native Canvas.
+	> [data-tocus-ui] { background: transparent; }
+	.settings-layout { background: transparent; }
+
+	.settings-layout {
+		display: block;
+		min-height: 0;
+	}
+	.settings-navigation { display: none; }
+	.settings-content { padding: 0; }
+}
+
+.original-settings-privacy {
+	box-sizing: border-box;
+
+	> [data-tocus-ui] {
+		padding: 24px;
+		background: var(--tocus-color-surface-lowest);
+	}
+}
