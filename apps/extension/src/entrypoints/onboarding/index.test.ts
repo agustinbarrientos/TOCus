@@ -1,5 +1,6 @@
+import { Language } from '../../domains/preferences/types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { type OnboardingPageOptions } from '../../features/onboarding/services/onboarding-page/types';
+import type { OnboardingPageOptions } from '../../features/onboarding/services/onboarding-page/types';
 
 /**
  * Hoisted dependencies used by onboarding entrypoint composition tests.
@@ -29,6 +30,7 @@ const entrypointMocks = vi.hoisted( () => {
 } );
 
 vi.mock( '@tocus/theme/index.scss', () => ( {} ) );
+vi.mock( '@tocus/ui/styles.scss', () => ( {} ) );
 vi.mock( './styles.scss', () => ( {} ) );
 vi.mock( 'wxt/browser', () => ( {
 	browser: {
@@ -44,8 +46,8 @@ vi.mock( 'wxt/browser', () => ( {
 vi.mock( '../../domains/preferences/utils', () => ( {
 	resolveLanguage: entrypointMocks.resolveLanguage,
 } ) );
-vi.mock( '../../features/onboarding/components/shell', () => ( {
-	ComponentOnboardingShell: entrypointMocks.ComponentOnboardingShell,
+vi.mock( '../../features/onboarding/services/onboarding-presentation', () => ( {
+	mountOnboarding: vi.fn( ( container: unknown ) => container ),
 } ) );
 vi.mock( '../../features/onboarding/services/onboarding-page', () => ( {
 	bootstrapOnboardingPage: entrypointMocks.bootstrapOnboardingPage,
@@ -80,7 +82,7 @@ describe( 'onboarding entrypoint', () => {
 				setAttribute: vi.fn(),
 				style: { removeProperty },
 			},
-			querySelector: vi.fn().mockReturnValue( shell ),
+			getElementById: vi.fn().mockReturnValue( shell ),
 			title: 'TOCus',
 		};
 
@@ -95,7 +97,7 @@ describe( 'onboarding entrypoint', () => {
 		}
 
 		expect( options.shell ).toBe( shell );
-		expect( options.browserLanguage ).toBe( 'es-vos' );
+		expect( options.browserLanguage ).toBe( Language.SPANISH_VOS );
 		expect( options.loadLocalization ).toBe( entrypointMocks.loadLocalizationBundle );
 		expect( options.cryptography ).toBe( crypto );
 		expect( options.document ).toBe( documentTarget );
@@ -106,7 +108,7 @@ describe( 'onboarding entrypoint', () => {
 	} );
 
 	it( 'fails clearly when the onboarding shell is missing', async () => {
-		vi.stubGlobal( 'document', { querySelector: vi.fn().mockReturnValue( null ) } );
+		vi.stubGlobal( 'document', { getElementById: vi.fn().mockReturnValue( null ) } );
 
 		await expect( import( './index' ) ).rejects.toThrow(
 			'Expected the onboarding page to contain the onboarding shell.',
