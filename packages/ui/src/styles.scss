@@ -1,0 +1,721 @@
+@use 'sass:meta';
+@use '@tocus/theme/tokens.scss' with ($selector: '[data-tocus-ui]');
+@use '@tocus/theme/font';
+@use '@tocus/theme/typography' as typography;
+@include typography.emit-tokens('[data-tocus-ui][data-tocus-compact="true"]', 1);
+
+[data-tocus-ui] {
+	@include meta.load-css('@mantine/core/styles.css');
+
+	--tocus-color-info-surface: var(--tocus-color-surface-container);
+	--tocus-color-on-info: var(--tocus-color-on-surface);
+	--tocus-color-info-border: var(--tocus-color-divider);
+	--tocus-size-unit: 1rem;
+
+	box-sizing: border-box;
+	font-family: var(--tocus-font-family-body);
+	font-size: calc(1rem * var(--mantine-scale, 1.15));
+	line-height: 1.55;
+	color: var(--tocus-color-on-surface);
+	background: var(--tocus-color-surface);
+	color-scheme: light;
+
+	&[data-tocus-theme='dark'] { color-scheme: dark; }
+	&[data-tocus-transparent='true'] { background: transparent; }
+	*, *::before, *::after { box-sizing: border-box; }
+
+	h1, h2, h3, h4 {
+		font-family: var(--tocus-font-family-brand);
+		font-weight: 600;
+		line-height: 1.2;
+	}
+
+	a {
+		color: var(--tocus-color-action);
+		text-underline-offset: 0.2em;
+	}
+	button, input, textarea { font-family: inherit; }
+
+	.tocus-focus:focus-visible, .mantine-Input-input:focus-visible,
+	:where(a, input, button, [tabindex]:not([tabindex='-1'])):focus-visible {
+		outline: 3px solid var(--tocus-color-focus-ring);
+		outline-offset: 2px;
+	}
+	.mantine-Input-input:focus-within { border-color: var(--tocus-color-focus-ring); }
+	.mantine-InputWrapper-label { @include typography.apply('label-large'); }
+	.mantine-InputWrapper-root { @include typography.apply('body-medium'); }
+	:where(h1, h2, h3, h4, h5, h6)[tabindex='-1']:focus { outline: none; }
+
+	.mantine-Combobox-option[data-combobox-selected] {
+		background: var(--tocus-color-action);
+		color: var(--tocus-color-on-action);
+	}
+
+	.mantine-Combobox-option[data-combobox-active], .mantine-Combobox-option:hover {
+		background: var(--tocus-color-surface-container);
+		color: var(--tocus-color-on-surface);
+	}
+
+	.mantine-Alert-root, .mantine-Alert-message {
+		@include typography.apply('body-medium');
+
+		opacity: 1;
+	}
+
+	.mantine-Alert-icon .tocus-icon {
+		width: 1.25em;
+		height: 1.25em;
+	}
+
+	.tocus-native-notice {
+		position: static;
+		display: flex;
+		align-items: flex-start;
+		gap: var(--tocus-space-3);
+		margin: 0;
+		overflow: visible;
+
+		.tocus-native-notice-icon {
+			flex: 0 0 1.25em;
+			width: 1.25em;
+			height: 1.25em;
+			margin-top: 0.125em;
+		}
+	}
+
+	.tocus-notice-compact, .tocus-notice-compact .mantine-Alert-message {
+		@include typography.apply('body-small');
+
+		color: var(--tocus-color-on-surface-muted);
+	}
+
+	.tocus-notice-recovery { --tocus-notice-icon-gap: 0; }
+
+	.mantine-Badge-root {
+		@include typography.apply('label-medium');
+
+		height: auto;
+		padding: var(--tocus-space-1) var(--tocus-space-3);
+		text-transform: none;
+		background: var(--tocus-color-surface-container);
+		color: var(--tocus-color-on-surface-muted);
+		border: 0;
+	}
+
+	.mantine-Avatar-root {
+		background: var(--tocus-color-surface-container);
+	}
+
+	.mantine-Avatar-placeholder {
+		background: transparent;
+		color: var(--tocus-color-on-surface);
+	}
+
+	// Native website marks did not establish a positioned painting context; image and fallback slots remain installed.
+	.tocus-native-avatar.mantine-Avatar-root { position: static; }
+
+	// Text-only native actions preserve their original flat paint structure without disturbing section or loader layout.
+	.tocus-native-button.mantine-Button-root:not([data-loading], :has(.mantine-Button-section)) {
+		position: static;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: visible;
+
+		// The inactive loading overlay otherwise resolves against an ancestor after the root becomes static.
+		&::before { content: none; }
+
+		.mantine-Button-inner,
+		.mantine-Button-label { display: contents; }
+	}
+
+	// Only explicitly native fields may omit the containing block; real public sections still require it.
+	:is(.tocus-native-field.mantine-Input-wrapper, .tocus-native-field .mantine-Input-wrapper) {
+		&:not(:has(> .mantine-Input-section, > .mantine-Input-bottomSection)) { position: static; }
+	}
+
+	// Native range painting preserves the original browser track and thumb rasterization.
+	.tocus-native-range {
+		display: contents;
+
+		.mantine-Input-input {
+			display: inline-block;
+			width: 100%;
+			height: 2rem;
+			min-height: 0;
+			margin: var(--tocus-space-2) 0 0;
+			padding: 0;
+			border: 0;
+			border-radius: 0;
+			appearance: none;
+			background: transparent;
+			color: var(--tocus-color-action);
+			cursor: pointer;
+
+			&::-webkit-slider-runnable-track {
+				height: 0.5rem;
+				border: 1px solid var(--tocus-color-divider);
+				border-radius: 999px;
+				background: linear-gradient(to right,
+					var(--tocus-color-action) 0 var(--tocus-range-fill),
+					var(--tocus-color-surface-container) var(--tocus-range-fill) 100%);
+			}
+
+			&::-webkit-slider-thumb {
+				width: 1.5rem;
+				height: 1.5rem;
+				margin-top: -0.5625rem;
+				border: 2px solid var(--tocus-color-action);
+				border-radius: 50%;
+				appearance: none;
+				background: var(--tocus-color-surface-lowest);
+				box-shadow: 0 1px 3px color-mix(in srgb, var(--tocus-color-shadow-depth) 30%, transparent);
+			}
+
+			&::-moz-range-track {
+				height: 0.5rem;
+				border: 1px solid var(--tocus-color-divider);
+				border-radius: 999px;
+				background: var(--tocus-color-surface-container);
+			}
+
+			&::-moz-range-progress {
+				height: 0.5rem;
+				border-radius: 999px;
+				background: var(--tocus-color-action);
+			}
+
+			&::-moz-range-thumb {
+				width: 1.5rem;
+				height: 1.5rem;
+				border: 2px solid var(--tocus-color-action);
+				border-radius: 50%;
+				background: var(--tocus-color-surface-lowest);
+				box-shadow: 0 1px 3px color-mix(in srgb, var(--tocus-color-shadow-depth) 30%, transparent);
+			}
+
+			&:focus-visible {
+				outline: 2px solid var(--tocus-color-focus-ring);
+				outline-offset: 2px;
+			}
+
+			&:disabled {
+				opacity: 0.6;
+				cursor: default;
+			}
+		}
+	}
+
+	.mantine-Slider-root:not([data-orientation='vertical']) {
+		height: 2rem;
+		padding-inline: 13px;
+		justify-content: center;
+
+		.mantine-Slider-trackContainer { height: 100%; }
+		.mantine-Slider-track { height: 0.5rem; }
+		.mantine-Slider-track::before { inset-inline: -13px; }
+
+		.mantine-Slider-bar:not([data-inverted]) {
+			inset-inline: -13px;
+			width: auto;
+			background: linear-gradient(to right,
+				var(--tocus-color-action) calc(var(--slider-bar-width) - 2 * var(--slider-size)),
+				var(--tocus-color-surface-container) calc(var(--slider-bar-width) - 2 * var(--slider-size)));
+		}
+	}
+
+	.mantine-Button-root:disabled, .mantine-Button-root[data-disabled] {
+		opacity: 0.6;
+		background: var(--button-bg);
+		color: var(--button-color);
+		border: var(--button-bd);
+	}
+
+	.mantine-Button-root {
+		@include typography.apply('label-large');
+	}
+
+	.mantine-Button-root[data-variant='filled']:hover:not(:disabled, [data-disabled]) {
+		border-color: var(--tocus-button-hover-border);
+	}
+
+	.tocus-action-raised {
+		box-shadow: 0 0.75rem 1.5rem color-mix(in srgb, var(--tocus-color-shadow-depth) 16%, transparent);
+		&:focus-visible { outline-offset: 3px; }
+	}
+
+	.tocus-action-soft {
+		box-shadow: var(--tocus-shadow-soft);
+		&:focus-visible { outline-offset: 3px; }
+	}
+
+	.mantine-Slider-track::before {
+		border: 1px solid var(--tocus-color-divider);
+		background: var(--tocus-color-surface-container);
+	}
+	.mantine-Slider-bar { border: 1px solid var(--tocus-color-divider); }
+
+	.mantine-Slider-markLabel {
+		@include typography.apply('body-small');
+
+		color: var(--tocus-color-on-surface-muted);
+	}
+
+	.mantine-NavLink-root {
+		border-radius: var(--tocus-radius-full);
+		padding: 12px 16px;
+
+		&[data-active] {
+			background: var(--tocus-color-surface-container);
+			color: var(--tocus-color-action);
+		}
+	}
+
+	.mantine-NavLink-label {
+		@include typography.apply('label-large');
+
+		display: block;
+	}
+	.mantine-NavLink-section[data-position='left'] { margin-inline-end: 12px; }
+
+	.mantine-NavLink-section .tocus-icon {
+		width: 1.25rem;
+		height: 1.25rem;
+	}
+
+	.mantine-Stepper-stepIcon {
+		border: 1px solid var(--tocus-color-divider);
+		background: var(--tocus-color-surface);
+		color: var(--tocus-color-on-surface-muted);
+
+		&[data-progress], &[data-completed] {
+			border-color: var(--tocus-color-action);
+			background: var(--tocus-color-action);
+			color: var(--tocus-color-on-action);
+		}
+	}
+	.mantine-Stepper-stepCompletedIcon { color: var(--tocus-color-on-action); }
+
+	.mantine-Stepper-stepIcon:has(.tocus-icon) {
+		border-color: transparent;
+		background: transparent;
+		color: var(--tocus-color-action);
+
+		.mantine-Stepper-stepCompletedIcon { color: inherit; }
+	}
+	.mantine-Stepper-step:disabled { opacity: 1; }
+
+	.tocus-choice-card {
+		border: 1px solid var(--tocus-color-divider);
+		background: var(--tocus-choice-background, transparent);
+		color: var(--tocus-color-on-surface);
+		cursor: pointer;
+
+		&:hover:not([data-disabled]) {
+			background: var(--tocus-choice-background, var(--tocus-color-surface-container));
+		}
+
+		&[data-checked], &:has(.mantine-Radio-radio:checked) {
+			border-color: var(--tocus-color-action);
+			box-shadow: inset 0 0 0 1px var(--tocus-color-action);
+			background: var(--tocus-choice-background, var(--tocus-color-surface-container));
+		}
+
+		&[data-disabled] {
+			cursor: not-allowed;
+			color: var(--tocus-color-on-surface-muted);
+		}
+	}
+
+	.tocus-choice-card.tocus-choice-preview {
+		border: 0;
+		background: transparent;
+		box-shadow: none;
+		color: inherit;
+
+		.tocus-choice-frame {
+			border: 1px solid color-mix(in srgb, var(--tocus-color-on-surface) 18%, transparent);
+			border-radius: var(--tocus-radius-medium);
+			background: var(--tocus-color-surface-container);
+			box-shadow: 0 0.35rem 0.9rem color-mix(in srgb, var(--tocus-color-shadow-depth) 10%, transparent);
+		}
+
+		&[data-checked] .tocus-choice-frame {
+			border-color: var(--tocus-color-action);
+			box-shadow: 0 0 0 0.15rem var(--tocus-color-action),
+				0 0.8rem 1.7rem color-mix(in srgb, var(--tocus-color-shadow-depth) 18%, transparent);
+		}
+	}
+
+	.tocus-choice-card.tocus-choice-language {
+		@include typography.apply('title-small');
+
+		border-color: var(--tocus-color-outline);
+		border-radius: var(--tocus-radius-medium);
+		background: color-mix(in srgb, var(--tocus-color-surface) 78%, transparent);
+
+		&[data-checked] {
+			border-color: var(--tocus-color-action);
+			background: var(--tocus-color-surface-container);
+			box-shadow: 0 0 0 1px color-mix(in srgb, var(--tocus-color-action) 18%, transparent);
+		}
+	}
+
+	.tocus-choice-card.tocus-choice-swatch {
+		border: 0;
+		background: transparent;
+		box-shadow: none;
+		color: inherit;
+	}
+
+	.tocus-choice-clay {
+		position: relative;
+		color: inherit;
+		background: var(--tocus-choice-background);
+		border: 1px solid color-mix(in srgb, currentcolor 22%, transparent);
+		border-radius: 0.72rem;
+		box-shadow: inset 0 0.28rem 0.55rem rgb(255 255 255 / 26%), 0 0.35rem 0.7rem rgb(0 0 0 / 12%);
+
+	}
+
+	.tocus-choice-card[data-checked] > .tocus-choice-clay {
+		border-color: var(--tocus-color-on-surface);
+		box-shadow: 0 0 0 0.16rem var(--tocus-color-surface), 0 0 0 0.3rem var(--tocus-color-action),
+			inset 0 0.28rem 0.55rem rgb(255 255 255 / 26%),
+			0 0.5rem 0.9rem color-mix(in srgb, var(--tocus-color-shadow-depth) 18%, transparent);
+	}
+
+	.tocus-selection-mark {
+		display: grid;
+		place-items: center;
+		z-index: 2;
+		border: 0;
+		border-radius: 50%;
+		background: var(--tocus-color-action);
+		color: var(--tocus-color-on-action);
+		width: 1.4rem;
+		height: 1.4rem;
+		min-width: 0;
+		min-height: 0;
+		transform: scale(1);
+
+		svg { display: none; }
+
+		&::before {
+			width: 0.58rem;
+			height: 0.3rem;
+			border-bottom: 0.12rem solid currentcolor;
+			border-left: 0.12rem solid currentcolor;
+			content: '';
+			transform: translateY(-0.08rem) rotate(-45deg);
+		}
+	}
+	.tocus-choice-clay .tocus-selection-mark { transform: scale(0.72); }
+
+	.tocus-page {
+		width: min(100%, var(--tocus-settings-content-width));
+		margin-inline: auto;
+		padding: clamp(1rem, 4vw, 3rem);
+	}
+	.tocus-page-header { margin-block-end: var(--tocus-space-6); }
+	.tocus-page-header h1 { margin-block: 0 var(--tocus-space-3); }
+	.tocus-page-header p { color: var(--tocus-color-on-surface-muted); }
+
+	.tocus-preferences-header {
+		margin-bottom: var(--tocus-space-6);
+
+		h1 { margin: 0; }
+
+		p {
+			@include typography.apply('body-large');
+
+			max-width: 40rem;
+			margin: var(--tocus-space-3) 0 0;
+			color: var(--tocus-color-on-surface-muted);
+		}
+	}
+	.tocus-preferences-language-header p { max-width: 38rem; }
+	.tocus-preferences-sites-header p { max-width: 44rem; }
+	.tocus-preferences-appearance-actions { --tocus-action-height: 3.0625rem; }
+
+	.tocus-preferences-error {
+		min-height: 1.25rem;
+		margin: var(--tocus-space-4) 0 0;
+	}
+
+	.tocus-preferences-actions {
+		display: flex;
+		justify-content: flex-end;
+		margin-top: var(--tocus-space-4);
+		padding: 0;
+
+		button { min-width: 8rem; }
+	}
+
+	.tocus-section {
+		display: grid;
+		gap: var(--tocus-space-5);
+		padding-block: var(--tocus-space-5);
+	}
+	.tocus-section + .tocus-section { border-top: 1px solid var(--tocus-color-divider); }
+
+	.tocus-form-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--tocus-space-3);
+		padding-block: var(--tocus-space-5);
+	}
+	.tocus-form-actions.tocus-preferences-actions { padding: 0; }
+
+	@media (width <= 28rem) {
+		.tocus-form-actions:not(.tocus-preferences-actions) > .mantine-Button-root { flex: 1 1 auto; }
+	}
+
+	.tocus-choice-row {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		gap: var(--tocus-space-3);
+		align-items: start;
+		padding: calc(var(--tocus-space-3) - 1px);
+		min-height: 4.5rem;
+		border-radius: var(--tocus-radius-small);
+	}
+	.tocus-choice-row > .mantine-RadioIndicator-indicator { margin-top: 4px; }
+
+	.tocus-choice-radio {
+		position: relative;
+		min-height: 4.5rem;
+		padding: calc(var(--tocus-space-3) - 1px);
+		border-radius: var(--tocus-radius-small);
+
+		.mantine-Radio-inner {
+			z-index: 1;
+			width: 1.125rem;
+			height: 1.125rem;
+			margin-top: 4px;
+			flex-shrink: 0;
+		}
+
+		.mantine-Radio-radio {
+			appearance: auto;
+			width: 1.125rem;
+			height: 1.125rem;
+			accent-color: var(--tocus-color-action);
+		}
+		.mantine-Radio-icon { display: none; }
+		.mantine-Radio-labelWrapper { padding-inline-start: var(--tocus-space-3); }
+
+		.mantine-Radio-label {
+			@include typography.apply('label-large');
+
+			padding: 0;
+
+			&::before {
+				content: '';
+				position: absolute;
+				inset: 0;
+			}
+		}
+
+		.mantine-Radio-description {
+			@include typography.apply('body-medium');
+
+			padding: 0;
+			margin-top: var(--tocus-space-1);
+			color: var(--tocus-color-on-surface-muted);
+		}
+	}
+
+	.tocus-native-checkbox {
+		.mantine-Checkbox-inner {
+			position: static;
+			margin-top: var(--tocus-space-1);
+		}
+		.mantine-Checkbox-labelWrapper { padding-inline-start: var(--tocus-space-3); }
+		.mantine-Checkbox-label, .mantine-Checkbox-description { padding: 0; }
+
+		.mantine-Checkbox-inner, .mantine-Checkbox-input {
+			width: 1.25rem;
+			height: 1.25rem;
+		}
+
+		.mantine-Checkbox-input {
+			appearance: auto;
+			accent-color: var(--tocus-color-action);
+		}
+		.mantine-Checkbox-icon { display: none; }
+		.mantine-Checkbox-label { @include typography.apply('label-large'); }
+
+		.mantine-Checkbox-description {
+			@include typography.apply('body-small');
+
+			margin-top: var(--tocus-space-1);
+			color: var(--tocus-color-on-surface-muted);
+		}
+	}
+
+	.tocus-choice-copy {
+		@include typography.apply('body-medium');
+
+		> span, > strong {
+			@include typography.apply('label-large');
+
+			display: block;
+		}
+
+		> p, > small {
+			@include typography.apply('body-medium');
+
+			display: block;
+			margin: var(--tocus-space-1) 0 0;
+			color: var(--tocus-color-on-surface-muted);
+		}
+	}
+	.tocus-choice-row .tocus-choice-copy > p { margin: var(--tocus-space-1) 0 0; }
+
+	.mantine-Input-input:not(textarea) {
+		@include typography.apply('body-medium');
+
+		height: 3rem;
+		border-radius: var(--tocus-radius-small);
+	}
+
+	.mantine-Input-input[type='time'] {
+		height: auto;
+		padding-block: var(--tocus-space-3);
+	}
+
+	.mantine-RadioIndicator-indicator:not(.tocus-selection-mark) {
+		width: 1.125rem;
+		height: 1.125rem;
+		min-width: 1.125rem;
+		min-height: 1.125rem;
+		border-width: 1px;
+		border-color: var(--tocus-color-divider);
+		background: transparent;
+
+		&[data-checked] { border-color: var(--tocus-color-action); }
+
+		&[data-checked] > svg {
+			width: 0.5rem;
+			height: 0.5rem;
+			color: var(--tocus-color-action);
+		}
+	}
+
+	.tocus-info {
+		padding: var(--tocus-space-4);
+		background: var(--tocus-color-info-surface);
+		border-radius: var(--tocus-radius-small);
+	}
+
+	.tocus-external-link {
+		@include typography.apply('label-large');
+
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5em;
+		min-height: 2.75rem;
+	}
+
+	.tocus-navigation-link {
+		color: var(--tocus-color-on-surface-muted);
+		text-decoration: none;
+
+		&:hover {
+			background: color-mix(in srgb, var(--tocus-color-action) 7%, transparent);
+			color: var(--tocus-color-action);
+			text-decoration: none;
+		}
+
+		&:focus-visible {
+			outline-offset: -0.25rem;
+			z-index: 1;
+		}
+	}
+
+	.tocus-external-link .tocus-icon {
+		width: 0.875em;
+		height: 0.875em;
+	}
+
+	.tocus-icon {
+		display: inline-flex;
+		width: 1em;
+		height: 1em;
+		flex-shrink: 0;
+	}
+
+	.tocus-icon svg {
+		width: 100%;
+		height: 100%;
+		color: inherit;
+		fill: currentcolor;
+	}
+
+	.tocus-brand {
+		@include typography.apply('headline-small');
+
+		display: inline-flex;
+		align-items: center;
+		gap: 0.75rem;
+		color: var(--tocus-color-action);
+	}
+
+	.tocus-brand-icon, .tocus-brand-icon svg {
+		display: block;
+		width: 2rem;
+		height: 2rem;
+		color: var(--tocus-color-action);
+	}
+	.tocus-brand-icon svg { color: inherit; }
+
+	.tocus-brand[data-brand-size='large'] {
+		color: var(--tocus-color-on-stage);
+
+		.tocus-brand-icon, .tocus-brand-icon svg {
+			width: 2.5rem;
+			height: 2.5rem;
+		}
+	}
+
+	.tocus-brand[data-brand-size='hero'] {
+		@include typography.apply('headline-medium');
+
+		gap: 1.5rem;
+		color: var(--tocus-color-on-surface);
+
+		.tocus-brand-icon, .tocus-brand-icon svg {
+			width: 3rem;
+			height: 3rem;
+		}
+	}
+
+	.tocus-brand[data-brand-size='miniature'] {
+		@include typography.apply('brand-small');
+
+		gap: 0.25rem;
+
+		.tocus-brand-icon, .tocus-brand-icon svg {
+			width: clamp(0.55rem, 1.8vw, 0.9rem);
+			height: clamp(0.55rem, 1.8vw, 0.9rem);
+			color: inherit;
+		}
+	}
+
+	&[data-tocus-reduced-motion='true'] *, &[data-tocus-reduced-motion='true'] *::before, &[data-tocus-reduced-motion='true'] *::after {
+		animation: none !important;
+		transition: none !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+@media (forced-colors: active) {
+	[data-tocus-ui] {
+		button, input, [role='slider'], .mantine-Alert-root { border: 1px solid ButtonText; }
+		:focus-visible { outline: 3px solid Highlight; }
+		.mantine-Checkbox-input:checked, .mantine-Radio-radio:checked { background: Highlight; }
+		.mantine-Slider-bar { background: Highlight; }
+		.tocus-choice-card[data-checked] { outline: 2px solid Highlight; }
+	}
+}
