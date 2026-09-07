@@ -1,4 +1,4 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import {
 	OnboardingLanguageFamily,
