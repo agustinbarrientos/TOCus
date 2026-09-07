@@ -2,16 +2,16 @@ import {
 	ProtectionDecisionType,
 	type ProtectionDecision,
 } from '../../types/protection-decision';
-import { type VisitAttemptEvent } from '../../types/protection-event';
-import {
-	type ProtectionParticipant,
-	type VisitAttemptParticipant,
+import type { VisitAttemptEvent } from '../../types/protection-event';
+import type {
+	ProtectionParticipant,
+	VisitAttemptParticipant,
 } from '../../types/protection-participant';
 import {
 	ProtectionStateType,
 	type ProtectionState,
 } from '../../types/protection-state';
-import { type ProtectionTransitionResult } from '../../types/protection-transition-result';
+import type { ProtectionTransitionResult } from '../../types/protection-transition-result';
 import { ScheduleEvaluationStatus } from '../../types/schedule-evaluation';
 import { abandonWaitingState } from '../abandon-waiting-state';
 import { createFailOpenDecision } from '../create-protection-decision';

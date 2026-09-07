@@ -1,7 +1,7 @@
 import {
 	ProtectionStateType,
 } from '../../types/protection-state';
-import { type ProtectionParticipant } from '../../types/protection-participant';
+import type { ProtectionParticipant } from '../../types/protection-participant';
 import {
 	StoredProtectionParticipantSchema,
 	StoredProtectionParticipantOriginByProtectionParticipantOrigin,
