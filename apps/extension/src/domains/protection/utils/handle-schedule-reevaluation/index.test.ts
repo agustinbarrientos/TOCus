@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import { ProtectionDecisionType } from '../../types/protection-decision';
-import { type ScheduleReevaluationEvent } from '../../types/protection-event';
+import type { ScheduleReevaluationEvent } from '../../types/protection-event';
 import { createScheduleReevaluation } from '../../types/__fixtures__/protection-event';
 import { ProtectionStateType } from '../../types/protection-state';
 import { ScheduleEvaluationStatus } from '../../types/schedule-evaluation';

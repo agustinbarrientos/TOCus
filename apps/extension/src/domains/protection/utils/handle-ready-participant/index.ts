@@ -7,7 +7,7 @@ import {
 	type ReadyReconciliationEvent,
 } from '../../types/protection-event';
 import { ProtectionStateType, type ProtectionState } from '../../types/protection-state';
-import { type ProtectionTransitionResult } from '../../types/protection-transition-result';
+import type { ProtectionTransitionResult } from '../../types/protection-transition-result';
 import { ScheduleEvaluationStatus } from '../../types/schedule-evaluation';
 import { createObservedParticipantActionDecision } from '../create-protection-decision';
 import { createAllowanceGrantedFact } from '../create-protection-fact';
