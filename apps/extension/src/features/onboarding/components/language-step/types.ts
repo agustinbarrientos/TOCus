@@ -1,4 +1,4 @@
-import { type Language } from '../../../../domains/preferences/types';
+import type { Language } from '../../../../domains/preferences/types';
 
 /**
  * Stable language families shown before regional or conversational variants.
