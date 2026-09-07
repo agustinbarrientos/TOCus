@@ -1,0 +1,248 @@
+@use '@tocus/theme/typography' as typography;
+
+.popup-view {
+	width: 100%;
+	min-width: 18rem;
+	background:
+		radial-gradient(circle at 100% 0, color-mix(in srgb, var(--tocus-color-stage-glow) 26%, transparent), transparent 42%),
+		var(--tocus-color-surface-lowest);
+	color: var(--tocus-color-on-surface);
+}
+
+.popup-header {
+	display: flex;
+	align-items: center;
+	min-height: 3.5rem;
+	padding: var(--tocus-space-3) var(--tocus-space-5);
+	border-bottom: 1px solid color-mix(in srgb, var(--tocus-color-outline) 72%, transparent);
+	background: color-mix(in srgb, var(--tocus-color-surface-lowest) 88%, transparent);
+	backdrop-filter: blur(0.75rem);
+
+	.tocus-brand {
+		@include typography.apply('headline-small');
+
+		gap: var(--tocus-space-2);
+		color: var(--tocus-color-action);
+	}
+
+	.tocus-brand-icon, .tocus-brand-icon svg {
+		width: 1.65rem;
+		height: 1.65rem;
+	}
+}
+
+.popup-content {
+	display: grid;
+	gap: var(--tocus-space-3);
+	padding: var(--tocus-space-4);
+}
+
+.popup-view .popup-website-card, .popup-view .popup-unavailable {
+	border: 1px solid color-mix(in srgb, var(--tocus-color-outline) 76%, transparent);
+	border-radius: var(--tocus-radius-large);
+	background: color-mix(in srgb, var(--tocus-color-surface-container) 94%, transparent);
+	box-shadow:
+		0 0.125rem 0.25rem color-mix(in srgb, var(--tocus-color-shadow-depth) 9%, transparent),
+		0 0.7rem 1.8rem color-mix(in srgb, var(--tocus-color-shadow-depth) 7%, transparent);
+}
+
+.popup-view .popup-website-card {
+	position: relative;
+	overflow: hidden;
+	padding: var(--tocus-space-4);
+
+	&::before {
+		position: absolute;
+		inset: 0 0 auto;
+		height: 5rem;
+		background: radial-gradient(ellipse at 82% 0, color-mix(in srgb, var(--tocus-color-stage-glow) 32%, transparent), transparent 70%);
+		content: '';
+		pointer-events: none;
+	}
+}
+
+.popup-view .popup-eyebrow {
+	@include typography.apply('label-medium');
+
+	position: relative;
+	margin: 0 0 var(--tocus-space-3);
+	color: var(--tocus-color-on-surface-muted);
+	text-transform: uppercase;
+}
+
+.popup-site-overview {
+	position: relative;
+}
+
+.popup-view .popup-site-mark {
+	display: grid;
+	place-items: center;
+	flex: 0 0 auto;
+	border: 1px solid color-mix(in srgb, var(--tocus-color-glass-border) 82%, transparent);
+	border-radius: var(--tocus-radius-medium);
+	background:
+		radial-gradient(circle at 32% 24%, var(--tocus-color-breathing-sphere-highlight), transparent 38%),
+		linear-gradient(145deg, var(--tocus-color-breathing-sphere), var(--tocus-color-stage-middle));
+	box-shadow:
+		inset 0 0.0625rem 0 color-mix(in srgb, var(--tocus-color-on-stage) 42%, transparent),
+		0 0.3rem 0.8rem color-mix(in srgb, var(--tocus-color-shadow-depth) 16%, transparent);
+	color: var(--tocus-color-on-stage);
+
+	img {
+		width: 1.5rem;
+		height: 1.5rem;
+		object-fit: contain;
+		margin: auto;
+	}
+
+	.popup-site-placeholder {
+		@include typography.apply('headline-small');
+
+		background: transparent;
+		color: inherit;
+	}
+}
+
+.popup-identity {
+	min-width: 0;
+	flex: 1;
+}
+
+.popup-view .popup-site-name {
+	@include typography.apply('headline-small');
+
+	margin: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.popup-view .popup-site-host {
+	@include typography.apply('body-small');
+
+	margin: 0.1rem 0 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: var(--tocus-color-on-surface-muted);
+}
+
+.popup-view .popup-site-status {
+	@include typography.apply('label-medium');
+
+	margin-top: var(--tocus-space-3);
+	color: var(--tocus-color-on-surface-muted);
+}
+
+.popup-view .primary-action, .popup-view .manage-action {
+	--tocus-action-height: auto;
+
+	min-height: 2.75rem;
+	margin-top: var(--tocus-space-4);
+	padding: 0.65rem var(--tocus-space-4);
+}
+
+.popup-view .manage-action {
+	position: static;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.popup-view .popup-unavailable {
+	display: grid;
+	justify-items: center;
+	padding: var(--tocus-space-6) var(--tocus-space-5);
+	text-align: center;
+
+	h1 {
+		@include typography.apply('headline-small');
+
+		margin: var(--tocus-space-3) 0 0;
+	}
+
+	p {
+		@include typography.apply('body-small');
+
+		max-width: 17rem;
+		margin: var(--tocus-space-2) 0 0;
+		color: var(--tocus-color-on-surface-muted);
+	}
+
+	.primary-action { width: 100%; }
+}
+
+.popup-unavailable-mark {
+	display: grid;
+	width: 3rem;
+	height: 3rem;
+	place-items: center;
+	border-radius: var(--tocus-radius-large);
+	background: color-mix(in srgb, var(--tocus-color-action) 12%, transparent);
+	color: var(--tocus-color-action);
+
+	.tocus-icon {
+		width: 1.75rem;
+		height: 1.75rem;
+	}
+}
+
+.popup-view .primary-action span, .popup-view .manage-action span {
+	height: auto;
+	white-space: normal;
+}
+
+.popup-view .primary-action {
+	box-shadow: 0 0.35rem 0.9rem color-mix(in srgb, var(--tocus-color-action) 24%, transparent);
+}
+
+.popup-time {
+	position: relative;
+	display: grid;
+	justify-items: center;
+	gap: var(--tocus-space-1);
+	margin-top: var(--tocus-space-5);
+	padding-block: var(--tocus-space-2);
+	text-align: center;
+}
+
+.popup-view .popup-time-label {
+	@include typography.apply('label-medium');
+
+	color: var(--tocus-color-on-surface-muted);
+}
+
+.popup-view .popup-countdown {
+	@include typography.apply('display-medium');
+
+	color: var(--tocus-color-action);
+	font-variant-numeric: tabular-nums;
+}
+
+.popup-view .popup-footer {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	border-top: 1px solid color-mix(in srgb, var(--tocus-color-outline) 72%, transparent);
+	background: color-mix(in srgb, var(--tocus-color-surface-lowest) 88%, transparent);
+
+	a {
+		@include typography.apply('label-large');
+
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--tocus-space-2);
+		min-height: 3.25rem;
+		height: auto;
+		padding: var(--tocus-space-2);
+		border: 0;
+		border-radius: 0;
+	}
+
+	a + a { border-left: 1px solid color-mix(in srgb, var(--tocus-color-outline) 72%, transparent); }
+
+	.tocus-icon {
+		width: 1.125rem;
+		height: 1.125rem;
+	}
+}
