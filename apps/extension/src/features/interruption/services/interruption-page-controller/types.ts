@@ -1,5 +1,5 @@
-import { type InterruptionScreenState } from '../../components/screen/types';
-import { type InterruptionPageRequest } from '../../../protection-runtime/types/runtime-message';
+import type { InterruptionScreenState } from '../../components/screen/types';
+import type { InterruptionPageRequest } from '../../../protection-runtime/types/runtime-message';
 import { z } from 'zod';
 
 /**

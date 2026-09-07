@@ -10,10 +10,10 @@ import {
 	InterruptionRetryRequestEventName,
 	InterruptionScreenState,
 } from '../../components/screen/types';
-import {
-	type InterruptionPageController,
-	type InterruptionPageControllerOptions,
-	type InterruptionPageStorageChange,
+import type {
+	InterruptionPageController,
+	InterruptionPageControllerOptions,
+	InterruptionPageStorageChange,
 } from './types';
 import { ProtectionStorageKey } from '../../../../domains/protection/services/protection-storage';
 import { hasAllowanceIntervalChange } from '../../utils/allowance-interval-change';
@@ -112,6 +112,8 @@ export function createInterruptionPageController(
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function showUnavailable(): void {
+		pendingRequest = null;
+		pendingRequestRecoversInitialFailure = false;
 		stopReadyExpiryTimeout();
 		options.screen.progressing = false;
 		options.screen.recovering = false;
@@ -127,6 +129,17 @@ export function createInterruptionPageController(
 	 */
 	function applyResponse( response: InterruptionPageResponse ): void {
 		options.screen.recovering = false;
+
+		if ( response.state === InterruptionPageResponseState.RELEASED ) {
+			options.screen.progressing = false;
+			stop();
+			return;
+		}
+
+		if ( response.state === InterruptionPageResponseState.UNAVAILABLE ) {
+			showUnavailable();
+			return;
+		}
 
 		if ( response.state === InterruptionPageResponseState.WAITING ) {
 			stopReadyExpiryTimeout();
@@ -150,9 +163,7 @@ export function createInterruptionPageController(
 		}
 
 		stopReadyExpiryTimeout();
-		options.screen.state = response.state === InterruptionPageResponseState.READY_EXPIRED
-			? InterruptionScreenState.READY_EXPIRED
-			: InterruptionScreenState.UNAVAILABLE;
+		options.screen.state = InterruptionScreenState.READY_EXPIRED;
 		synchronizeCheckpointInterval();
 		reportPresentationStateChange();
 	}
@@ -324,6 +335,10 @@ export function createInterruptionPageController(
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function handleSynchronizationRequest(): void {
+		if ( options.screen.state === InterruptionScreenState.UNAVAILABLE ) {
+			return;
+		}
+
 		void enqueueRequest( createSynchronizationRequest() );
 	}
 

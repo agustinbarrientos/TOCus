@@ -1,5 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 import { ProtectionStorageKey } from '../../../../domains/protection/services/protection-storage';
+import { CompletionAction } from '../../../../domains/protection/types/completion-action';
+import {
+	EXAMPLE_CONFIGURATION,
+	MemoryConfigurationStorage,
+	MemoryRuntimeBrowser,
+	completeFocusedPause,
+	createRuntime,
+} from '../../../protection-runtime/services/browser-protection-runtime/__fixtures__';
 import { createAllowanceStorageEnvelope } from '../../utils/allowance-interval-change/__fixtures__';
 import {
 	InterruptionContinueRequestEventName,
@@ -19,17 +27,17 @@ import {
 	type FocusedProgressClockTiming,
 } from '../focused-progress-clock';
 import { createInterruptionPageController } from './index';
-import {
-	type InterruptionPageController,
-	type InterruptionPageClock,
-	type InterruptionPageControllerOptions,
-	type InterruptionPageMotionPreference,
-	type InterruptionPageRuntime,
-	type InterruptionPageScheduler,
-	type InterruptionPageScreen,
-	type InterruptionPageVisibility,
-	type InterruptionPageStorageChangeListener,
-	type InterruptionPageStorageChange,
+import type {
+	InterruptionPageController,
+	InterruptionPageClock,
+	InterruptionPageControllerOptions,
+	InterruptionPageMotionPreference,
+	InterruptionPageRuntime,
+	InterruptionPageScheduler,
+	InterruptionPageScreen,
+	InterruptionPageVisibility,
+	InterruptionPageStorageChangeListener,
+	InterruptionPageStorageChange,
 } from './types';
 
 /**
@@ -1640,6 +1648,150 @@ describe( 'createInterruptionPageController', () => {
 		fixture.motionPreference.setMatches( true );
 
 		expect( fixture.screen.reducedMotion ).toBe( false );
+	} );
+
+	it.each( [ false, true ] )( 'keeps a slow destination navigation calm with automatic entry=%s', async ( automatic ) => {
+		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
+		const browser = new MemoryRuntimeBrowser();
+		const configuration = {
+			...EXAMPLE_CONFIGURATION,
+			timingConfiguration: {
+				...EXAMPLE_CONFIGURATION.timingConfiguration,
+				completionAction: automatic ? CompletionAction.OPEN_AUTOMATICALLY : CompletionAction.SHOW_CONTINUE,
+			},
+		};
+		const { runtime } = createRuntime( now, new MemoryConfigurationStorage( configuration ), browser );
+		await runtime.start();
+		await runtime.handleNavigation( { tabId: 7, frameId: 0, url: 'https://example.com/' } );
+		if ( ! automatic ) {
+			await completeFocusedPause( runtime, 7 );
+		}
+
+		const states: InterruptionScreenStateValue[] = [];
+		const fixture = createControllerFixture( [], ( state ) => states.push( state ) );
+		const sendMessage = vi.spyOn( fixture.runtime, 'sendMessage' )
+			.mockImplementation( ( request ) => runtime.handlePageRequest( request, 7, true ) );
+		await fixture.controller.start();
+		const navigationAccepted = Promise.withResolvers<undefined>();
+		browser.navigateTab = async ( tabId, url ) => {
+			browser.tabs = browser.tabs.map( ( tab ) => tab.id === tabId ? { ...tab, pendingUrl: url } : tab );
+			await navigationAccepted.promise;
+		};
+
+		if ( automatic ) {
+			fixture.screen.displayedFocusedProgressMilliseconds = 10_000;
+			fixture.scheduler.runIntervals();
+		} else {
+			fixture.screen.dispatchEvent( new Event( InterruptionContinueRequestEventName ) );
+		}
+		await settleControllerRequests();
+		fixture.windowTarget.dispatchEvent( new Event( 'focus' ) );
+		navigationAccepted.resolve( undefined );
+		await settleControllerRequests();
+		fixture.windowTarget.dispatchEvent( new Event( 'blur' ) );
+		await settleControllerRequests();
+
+		expect( browser.tabs[ 0 ] ).toMatchObject( {
+			url: 'chrome-extension://extension-id/interruption.html',
+			pendingUrl: 'https://example.com/',
+		} );
+		expect( states ).toEqual( [ automatic ? InterruptionScreenState.WAITING : InterruptionScreenState.READY ] );
+		expect( fixture.screen.progressing ).toBe( false );
+		expect( sendMessage ).toHaveBeenCalledTimes( 2 );
+		fixture.controller.stop();
+	} );
+
+	it.each( [
+		{ state: InterruptionPageResponseState.UNAVAILABLE },
+		null,
+		new Error( 'Entry transport failed.' ),
+	] )( 'discards queued attention after entry fails and waits for explicit recovery: %j', async ( failure ) => {
+		const continuation = Promise.withResolvers<unknown>();
+		const ready = { state: InterruptionPageResponseState.READY, allowanceExpiresAtEpochMilliseconds: null };
+		const fixture = createControllerFixture( [ ready, continuation.promise, ready ] );
+		await fixture.controller.start();
+		fixture.screen.dispatchEvent( new Event( InterruptionContinueRequestEventName ) );
+		fixture.windowTarget.dispatchEvent( new Event( 'focus' ) );
+		fixture.windowTarget.dispatchEvent( new Event( 'blur' ) );
+		if ( failure instanceof Error ) {
+			continuation.reject( failure );
+		} else {
+			continuation.resolve( failure );
+		}
+		await settleControllerRequests();
+		expect( fixture.runtime.requests.map( ( request ) => request.type ) ).toEqual( [
+			InterruptionPageRequestType.CONNECT, InterruptionPageRequestType.CONTINUE,
+		] );
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.UNAVAILABLE );
+		fixture.windowTarget.dispatchEvent( new Event( 'focus' ) );
+		fixture.documentTarget.dispatchEvent( new Event( 'visibilitychange' ) );
+		fixture.windowTarget.dispatchEvent( new Event( 'blur' ) );
+		await settleControllerRequests();
+		expect( fixture.runtime.requests ).toHaveLength( 2 );
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.UNAVAILABLE );
+		fixture.screen.dispatchEvent( new Event( InterruptionRetryRequestEventName ) );
+		await settleControllerRequests();
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.READY );
+		expect( fixture.runtime.requests.at( -1 )?.type ).toBe( InterruptionPageRequestType.RECOVER );
+		fixture.controller.stop();
+	} );
+
+	it( 'retains Ready and discards queued synchronization after accepted entry', async () => {
+		const continuation = Promise.withResolvers<unknown>();
+		const states: InterruptionScreenStateValue[] = [];
+		const fixture = createControllerFixture( [
+			{ state: InterruptionPageResponseState.READY, allowanceExpiresAtEpochMilliseconds: null },
+			continuation.promise,
+			{ state: InterruptionPageResponseState.UNAVAILABLE },
+		], ( state ) => states.push( state ) );
+
+		await fixture.controller.start();
+		fixture.screen.dispatchEvent( new Event( InterruptionContinueRequestEventName ) );
+		fixture.storageChanges.emit( { [ ProtectionStorageKey.DURABLE ]: {
+			oldValue: createAllowanceStorageEnvelope(),
+			newValue: createAllowanceStorageEnvelope( {
+				allowanceId: 'allowance-a', startedAtEpochMilliseconds: 600_000, expiresAtEpochMilliseconds: 900_000,
+			} ),
+		} } );
+		fixture.windowTarget.dispatchEvent( new Event( 'focus' ) );
+		continuation.resolve( { state: InterruptionPageResponseState.RELEASED } );
+		await settleControllerRequests();
+		fixture.documentTarget.dispatchEvent( new Event( 'visibilitychange' ) );
+		fixture.windowTarget.dispatchEvent( new Event( 'blur' ) );
+		fixture.screen.dispatchEvent( new Event( InterruptionContinueRequestEventName ) );
+		await settleControllerRequests();
+
+		expect( states ).toEqual( [ InterruptionScreenState.READY ] );
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.READY );
+		expect( fixture.runtime.requests.map( ( request ) => request.type ) ).toEqual( [
+			InterruptionPageRequestType.CONNECT, InterruptionPageRequestType.CONTINUE,
+		] );
+	} );
+
+	it( 'stops focused checkpoints after accepted automatic entry and permits a later pause', async () => {
+		const waitingResponse = {
+			state: InterruptionPageResponseState.WAITING,
+			capturedWaitDurationMilliseconds: 10_000,
+			focusedProgressMilliseconds: 0,
+			progressing: true,
+		};
+		const fixture = createControllerFixture( [
+			waitingResponse, { state: InterruptionPageResponseState.RELEASED }, waitingResponse,
+		] );
+
+		await fixture.controller.start();
+		fixture.scheduler.runIntervals();
+		await settleControllerRequests();
+		fixture.scheduler.runIntervals();
+		await settleControllerRequests();
+
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.WAITING );
+		expect( fixture.screen.progressing ).toBe( false );
+		expect( fixture.runtime.requests ).toHaveLength( 2 );
+		await fixture.controller.start();
+		expect( fixture.screen.progressing ).toBe( true );
+		expect( fixture.runtime.requests.at( -1 )?.type ).toBe( InterruptionPageRequestType.CONNECT );
+		fixture.controller.stop();
 	} );
 
 	it( 'forwards Continue and adopts the returned non-actionable state', async () => {
