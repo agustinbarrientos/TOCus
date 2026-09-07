@@ -1,8 +1,8 @@
-import {
-	type Palette,
-	type ThemeMode,
+import type {
+	Palette,
+	ThemeMode,
 } from '../../../../domains/preferences/types';
-import { type AppearanceControlsCopy } from '../../../preferences/components/appearance-controls/types';
+import type { AppearanceControlsCopy } from '../../../preferences/components/appearance-controls/types';
 
 /**
  * Complete localizable messages rendered by the onboarding Appearance step.
