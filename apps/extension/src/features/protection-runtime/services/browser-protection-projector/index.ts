@@ -2,7 +2,7 @@ import {
 	ProtectionCoordinatorDispatchStatus,
 	type ProtectionCoordinatorStateSnapshot,
 } from '../../../../domains/protection/services/protection-coordinator';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
 import { ProtectionParticipantOrigin } from '../../../../domains/protection/types/protection-participant';
 import { AllowanceWarningDurationMilliseconds } from '../../../../domains/protection/types/allowance-warning';
@@ -11,19 +11,21 @@ import {
 	createToolbarBadgeProjection,
 	ToolbarBadgePhase,
 } from '../../utils/toolbar-badge-projection';
-import { type ProtectionClockDeadlines } from '../../types/browser-runtime';
+import type { ProtectionClockDeadlines } from '../../types/browser-runtime';
 import { ProtectedPageMessageType } from '../../types/protected-page-message';
 import { getRuntimeTabId } from '../../utils/runtime-page-context';
 import { createAllowanceWarningReconciler } from '../allowance-warning-reconciler';
 import { createNavigationRuleReconciler } from '../navigation-rule-reconciler';
 import { createProtectionPageProjector } from '../protection-page-projector';
 import { createToolbarBadgeCoordinator } from '../toolbar-badge-coordinator';
-import {
-	type BrowserProtectionProjector,
-	type BrowserProtectionProjectorOptions,
+import type {
+	BrowserProtectionProjector,
+	BrowserProtectionProjectorOptions,
 } from './types';
 
+const MILLISECONDS_PER_SECOND = 1_000;
 const MILLISECONDS_PER_MINUTE = 60_000;
+const SECONDS_COUNTDOWN_THRESHOLD_MILLISECONDS = 30_000;
 
 /**
  * Selects the next instant when the rounded visit-window badge changes.
@@ -38,11 +40,16 @@ function getNextAllowanceBadgeDeadline(
 ): number {
 	const remainingMilliseconds = expiresAtEpochMilliseconds - nowEpochMilliseconds;
 
-	if ( remainingMilliseconds <= MILLISECONDS_PER_MINUTE ) {
-		return expiresAtEpochMilliseconds;
+	if ( remainingMilliseconds <= SECONDS_COUNTDOWN_THRESHOLD_MILLISECONDS ) {
+		const visibleSeconds = Math.ceil( remainingMilliseconds / MILLISECONDS_PER_SECOND );
+
+		return expiresAtEpochMilliseconds - ( visibleSeconds - 1 ) * MILLISECONDS_PER_SECOND;
 	}
 
 	const visibleMinutes = Math.ceil( remainingMilliseconds / MILLISECONDS_PER_MINUTE );
+	if ( visibleMinutes === 1 ) {
+		return expiresAtEpochMilliseconds - SECONDS_COUNTDOWN_THRESHOLD_MILLISECONDS;
+	}
 
 	return expiresAtEpochMilliseconds - ( visibleMinutes - 1 ) * MILLISECONDS_PER_MINUTE;
 }

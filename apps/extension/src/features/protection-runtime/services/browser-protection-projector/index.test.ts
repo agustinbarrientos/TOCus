@@ -1,3 +1,4 @@
+import { Weekday } from '../../../../domains/protection/types/protection-schedule';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
 	ProtectionCoordinatorDispatchStatus,
@@ -17,7 +18,7 @@ import {
 	ProtectionDecisionType,
 	type ProtectionDecision,
 } from '../../../../domains/protection/types/protection-decision';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import {
 	AllowanceProtectionStateSchema,
 	type AllowanceProtectionState,
@@ -44,13 +45,13 @@ import {
 	type ToolbarBadgeProjection,
 } from '../../utils/toolbar-badge-projection';
 import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
-import {
-	type ProtectionClockDeadlines,
-	type ProtectionRuntimeBrowser,
-	type ProtectionRuntimeTab,
+import type {
+	ProtectionClockDeadlines,
+	ProtectionRuntimeBrowser,
+	ProtectionRuntimeTab,
 } from '../../types/browser-runtime';
 import { createBrowserProtectionProjector } from './index';
-import { type BrowserProtectionProjector } from './types';
+import type { BrowserProtectionProjector } from './types';
 
 /**
  * Extension-owned interruption URL used by browser-effect fixtures.
@@ -666,6 +667,7 @@ describe( 'createBrowserProtectionProjector', () => {
 
 		expect( browser.rules ).toEqual( [] );
 		expect( browser.protectionClockDeadlines ).toEqual( [
+			nearerExpiry - 30_000,
 			nearerExpiry - 10_000,
 			nearerExpiry,
 			NOW_EPOCH_MILLISECONDS + 60_000,
@@ -674,7 +676,7 @@ describe( 'createBrowserProtectionProjector', () => {
 		] );
 		expect( browser.badge ).toMatchObject( {
 			phase: ToolbarBadgePhase.ALLOWANCE,
-			text: 'V5m',
+			text: '5m',
 		} );
 	} );
 
@@ -686,7 +688,7 @@ describe( 'createBrowserProtectionProjector', () => {
 			schedulesByScope: {
 				[ DefaultProtectionScopeId ]: {
 					mode: 'custom',
-					windows: [ { weekday: 'Thursday', startMinute: 17, endMinute: 18 } ],
+					windows: [ { weekday: Weekday.THURSDAY, startMinute: 17, endMinute: 18 } ],
 				},
 			},
 		};
@@ -716,7 +718,7 @@ describe( 'createBrowserProtectionProjector', () => {
 			schedulesByScope: {
 				[ DefaultProtectionScopeId ]: {
 					mode: 'custom',
-					windows: [ { weekday: 'Thursday', startMinute: 17, endMinute: 18 } ],
+					windows: [ { weekday: Weekday.THURSDAY, startMinute: 17, endMinute: 18 } ],
 				},
 			},
 		};
@@ -751,7 +753,7 @@ describe( 'createBrowserProtectionProjector', () => {
 		] );
 	} );
 
-	it( 'schedules exact expiry after the final warning boundary has started', async () => {
+	it( 'schedules the next second and exact expiry after the warning has started', async () => {
 		const browser = new ProjectorBrowserFixture();
 		const expiry = NOW_EPOCH_MILLISECONDS + 5_000;
 		const coordinator = new ProjectorCoordinatorFixture( {
@@ -761,12 +763,15 @@ describe( 'createBrowserProtectionProjector', () => {
 
 		await projector.reconcile( CONFIGURATION );
 
-		expect( browser.protectionClockDeadlines ).toEqual( [ expiry ] );
+		expect( browser.protectionClockDeadlines ).toEqual( [
+			NOW_EPOCH_MILLISECONDS + 1_000,
+			expiry,
+		] );
 	} );
 
-	it( 'uses the warning and expiry deadlines throughout the final allowance minute', async () => {
+	it( 'enters the per-second badge cadence at thirty seconds remaining', async () => {
 		const browser = new ProjectorBrowserFixture();
-		const expiry = NOW_EPOCH_MILLISECONDS + 60_000;
+		const expiry = NOW_EPOCH_MILLISECONDS + 30_000;
 		const coordinator = new ProjectorCoordinatorFixture( {
 			scope_default: createAllowanceState( DefaultProtectionScopeId, expiry ),
 		} );
@@ -775,6 +780,24 @@ describe( 'createBrowserProtectionProjector', () => {
 		await projector.reconcile( CONFIGURATION );
 
 		expect( browser.protectionClockDeadlines ).toEqual( [
+			NOW_EPOCH_MILLISECONDS + 1_000,
+			expiry - 10_000,
+			expiry,
+		] );
+	} );
+
+	it( 'schedules the thirty-second boundary while one rounded minute remains', async () => {
+		const browser = new ProjectorBrowserFixture();
+		const expiry = NOW_EPOCH_MILLISECONDS + 31_000;
+		const coordinator = new ProjectorCoordinatorFixture( {
+			scope_default: createAllowanceState( DefaultProtectionScopeId, expiry ),
+		} );
+		const projector = createProjector( browser, coordinator );
+
+		await projector.reconcile( CONFIGURATION );
+
+		expect( browser.protectionClockDeadlines ).toEqual( [
+			NOW_EPOCH_MILLISECONDS + 1_000,
 			expiry - 10_000,
 			expiry,
 		] );
@@ -1589,7 +1612,7 @@ describe( 'createBrowserProtectionProjector', () => {
 
 		expect( browser.badge ).toMatchObject( {
 			phase: ToolbarBadgePhase.ALLOWANCE,
-			text: 'V2m',
+			text: '2m',
 		} );
 	} );
 
@@ -1635,7 +1658,7 @@ describe( 'createBrowserProtectionProjector', () => {
 		] ) );
 		expect( browser.badge ).toMatchObject( {
 			phase: ToolbarBadgePhase.ALLOWANCE,
-			text: 'V2m',
+			text: '2m',
 		} );
 	} );
 
