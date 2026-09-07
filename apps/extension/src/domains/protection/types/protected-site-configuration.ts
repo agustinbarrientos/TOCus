@@ -17,7 +17,7 @@ import { TimingConfigurationSchema } from './timing-configuration';
  * Current protected-site configuration document version.
  * @since 0.1.0 Initial implementation.
  */
-export const ProtectionConfigurationDocumentVersion = 3;
+export const ProtectionConfigurationDocumentVersion = 4;
 
 /**
  * Validates editable protected-site display-name input, including an empty cleared value.
