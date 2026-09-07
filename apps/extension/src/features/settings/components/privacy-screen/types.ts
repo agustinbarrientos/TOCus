@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 /**
  * Destructive local data operations available from Settings.
  * @since 0.1.0 Initial implementation.
@@ -67,4 +68,20 @@ export interface PrivacyScreenCopy {
 	statisticsSuccess: string;
 	allSuccess: string;
 	unavailable: string;
+}
+
+
+
+
+/**
+ * Localized description and trigger for one destructive data operation.
+ * @since 0.1.0
+ */
+export interface ResetSectionProps {
+	title: string;
+	description: string;
+	label: string;
+	disabled: boolean;
+	onRequest: () => void;
+	children?: ReactNode;
 }

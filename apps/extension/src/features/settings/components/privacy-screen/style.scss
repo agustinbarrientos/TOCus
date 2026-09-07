@@ -1,0 +1,19 @@
+@use '@tocus/theme/typography' as typography;
+
+[data-tocus-ui] .settings-page {
+	.settings-privacy-reset:last-of-type { padding-bottom: 0; }
+	.settings-privacy-feedback { margin-top: var(--tocus-space-4); }
+	.settings-privacy-error { margin-top: var(--tocus-space-2); }
+
+	.settings-privacy-permissions ul {
+		display: grid;
+		gap: var(--tocus-space-3);
+		padding-inline-start: var(--tocus-space-5);
+	}
+
+	.settings-privacy-permissions li {
+		@include typography.apply('body-medium');
+
+		color: var(--tocus-color-on-surface-muted);
+	}
+}
