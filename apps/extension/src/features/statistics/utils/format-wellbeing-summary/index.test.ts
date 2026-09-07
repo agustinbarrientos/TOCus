@@ -2,9 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
 	StatisticsProjectionStatus,
 	type StatisticsProjection,
+	type AvailableStatisticsProjection,
 } from '../../../../domains/statistics/types/statistics-projection';
 import { formatWellbeingSummary } from './index';
-import { type WellbeingSummaryValues } from './types';
+import type { WellbeingSummaryValues } from './types';
 import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 
 /**
@@ -44,7 +45,7 @@ function formatTestSummary( values: WellbeingSummaryValues ): string {
  * @since 0.1.0 Initial implementation.
  */
 function createProjection(
-	overrides: Partial<Extract<StatisticsProjection, { status: 'available' }>> = {},
+	overrides: Partial<AvailableStatisticsProjection> = {},
 ): StatisticsProjection {
 	return {
 		status: StatisticsProjectionStatus.AVAILABLE,
