@@ -1,4 +1,4 @@
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import {
 	AllowanceExpiryCandidateSource,
 	type AllowanceExpiryCandidate,
@@ -8,7 +8,7 @@ import {
 	ProtectionParticipantOrigin,
 	type ProtectionParticipant,
 } from '../../../../domains/protection/types/protection-participant';
-import { type AllowanceProtectionState } from '../../../../domains/protection/types/protection-state';
+import type { AllowanceProtectionState } from '../../../../domains/protection/types/protection-state';
 import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
 import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
 import { evaluateSchedule } from '../../../../domains/protection/utils/schedule-evaluator';

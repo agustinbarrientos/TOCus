@@ -1,5 +1,5 @@
-import { type Browser } from 'wxt/browser';
-import { type ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
+import type { Browser } from 'wxt/browser';
+import type { ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
 
 const INTERRUPTION_EXTENSION_PATH = '/interruption.html';
 const NAVIGATION_RULE_PRIORITY = 1;
