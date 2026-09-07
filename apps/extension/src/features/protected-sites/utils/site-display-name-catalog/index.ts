@@ -1,5 +1,5 @@
 import { parse } from 'tldts';
-import { type ProtectedSiteDisplayName } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectedSiteDisplayName } from '../../../../domains/protection/types/protected-site-configuration';
 import {
 	CanonicalHostSchema,
 	type CanonicalHost,

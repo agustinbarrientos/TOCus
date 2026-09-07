@@ -1,3 +1,4 @@
+import { ProtectedSiteCanonicalizationStatus } from '../../../../domains/protection/utils/protected-site-canonicalizer/types';
 import { describe, expect, it } from 'vitest';
 import { canonicalizeProtectedSite } from '../../../../domains/protection/utils/protected-site-canonicalizer';
 import siteDisplayNameCatalogSource from './catalog.json';
@@ -33,7 +34,7 @@ describe( 'site display-name popularity coverage', () => {
 		for ( const host of hosts ) {
 			const canonicalSite = canonicalizeProtectedSite( host, COVERAGE_SCOPE_ID );
 
-			if ( canonicalSite.status === 'rejected' ) {
+			if ( canonicalSite.status === ProtectedSiteCanonicalizationStatus.REJECTED ) {
 				unsupportedHosts.push( host );
 				continue;
 			}
