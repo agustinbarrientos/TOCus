@@ -33,11 +33,6 @@ msgstr "{count, plural, zero {# secondi} one {# secondo} two {# secondi} few {# 
 msgid "{count, plural, one {# timer active} other {# timers active}}"
 msgstr "{count, plural, one {# timer attivo} other {# timer attivi}}"
 
-#. Number of websites using one shared active timing scope.
-#: apps/extension/src/localization/utils/create-popup-copy/index.ts
-msgid "{count, plural, one {# website} other {# websites}}"
-msgstr "{count, plural, one {# sito web} other {# siti web}}"
-
 #. Compact countdown shown during a focused pause. The letter s means seconds.
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "{count, plural, one {#s remaining} other {#s remaining}}"
@@ -58,6 +53,11 @@ msgstr "{count, plural, zero {Pausa: # secondi rimanenti} one {Pausa: # secondo 
 msgid "{count, plural, one {Visit window: # minute remaining} other {Visit window: # minutes remaining}}"
 msgstr "{count, plural, zero {Finestra di visita: # minuti rimanenti} one {Finestra di visita: # minuto rimanente} two {Finestra di visita: # minuti rimanenti} few {Finestra di visita: # minuti rimanenti} many {Finestra di visita: # minuti rimanenti} other {Finestra di visita: # minuti rimanenti}}"
 
+#. Browser toolbar tooltip during the final seconds of a protected-site visit window.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "{count, plural, one {Visit window: # second remaining} other {Visit window: # seconds remaining}}"
+msgstr "{count, plural, zero {Finestra di visita: # secondi rimanenti} one {Finestra di visita: # secondo rimanente} two {Finestra di visita: # secondi rimanenti} few {Finestra di visita: # secondi rimanenti} many {Finestra di visita: # secondi rimanenti} other {Finestra di visita: # secondi rimanenti}}"
+
 #. Warning shown shortly before an active protected-site visit window ends.
 #: apps/extension/src/localization/utils/create-protected-page-layer-copy/index.ts
 msgid "{count, plural, one {Your visit window ends in # second.} other {Your visit window ends in # seconds.}}"
@@ -72,6 +72,18 @@ msgstr "{count}+"
 #: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "{count}×"
 msgstr "{count}×"
+
+#. Compact toolbar badge duration. m means minutes; keep it very short.
+#. Compact toolbar badge duration. m means minutes; keep it very short.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "{count}m"
+msgstr "{count}m"
+
+#. Compact toolbar badge duration. s means seconds; keep it very short.
+#. Compact toolbar badge duration. s means seconds; keep it very short.
+#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
+msgid "{count}s"
+msgstr "{count}s"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "{name} ({domain})"
@@ -106,6 +118,10 @@ msgstr "{siteName} aggiunto"
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "{siteName} was added to your list."
 msgstr "{siteName} è stato aggiunto al tuo elenco."
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "0 (no increase)"
+msgstr "0 (nessun aumento)"
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "100% private"
@@ -162,18 +178,9 @@ msgstr "Accessibilità"
 msgid "Active time windows"
 msgstr "Fasce orarie attive"
 
-#. Popup heading above all timing scopes with a currently running timer.
-#: apps/extension/src/localization/utils/create-popup-copy/index.ts
-msgid "Active timing"
-msgstr "Tempi attivi"
-
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Add {siteName}"
 msgstr "Aggiungi {siteName}"
-
-#: apps/extension/src/localization/utils/create-popup-copy/index.ts
-msgid "Add a pause here"
-msgstr "Aggiungi una pausa qui"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Add another site"
@@ -261,10 +268,6 @@ msgstr "Aspetto salvato."
 msgid "Appearance settings could not load"
 msgstr "Impossibile caricare le impostazioni dell'aspetto"
 
-#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Applies to"
-msgstr "Si applica a"
-
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Blue"
@@ -322,13 +325,13 @@ msgstr "Per mostrare la pausa su questo sito web è necessario l'accesso del bro
 msgid "Cancel"
 msgstr "Annulla"
 
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Changes saved."
+msgstr "Modifiche salvate."
+
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Check the schedule and try again."
 msgstr "Controlla la programmazione e riprova."
-
-#: apps/extension/src/localization/utils/create-timing-copy/index.ts
-msgid "Choose a maximum that is at least as long as the initial wait."
-msgstr "Scegli un massimo pari o superiore all'attesa iniziale."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Choose a start time."
@@ -394,10 +397,6 @@ msgstr "Palette di colori"
 msgid "Completed waits"
 msgstr "Attese completate"
 
-#: apps/extension/src/localization/utils/create-timing-copy/index.ts
-msgid "Completing a wait keeps your websites available for this long."
-msgstr "Completare un'attesa mantiene disponibili i tuoi siti web per questa durata."
-
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
@@ -413,7 +412,6 @@ msgid "Create a gentle pause before the websites you choose."
 msgstr "Crea una pausa delicata prima dei siti che scegli."
 
 #. Heading above the current browser website in the extension popup.
-#. Popup timing-scope label when the scope belongs to the current website.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Current website"
 msgstr "Sito web attuale"
@@ -439,21 +437,34 @@ msgstr "Deutsch"
 msgid "Developed by {name}"
 msgstr "Sviluppato da {name}"
 
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Discard changes"
-msgstr "Annulla modifiche"
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Discard"
+msgstr "Scarta"
+
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Discard unsaved changes?"
+msgstr "Scartare le modifiche non salvate?"
 
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Display name"
 msgstr "Nome visualizzato"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Done"
+msgstr "Fatto"
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Each completed wait adds this amount to the next wait that day."
 msgstr "Ogni attesa completata aggiunge questo intervallo all'attesa successiva della giornata."
 
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
-msgid "Each of these sites keeps its own wait ladder and allowance."
-msgstr "Ciascuno di questi siti mantiene una propria sequenza di attese e finestra di visita."
+msgid "Each website has its own timer."
+msgstr "Ogni sito web ha il proprio timer."
 
 #. Label for the end-time field of a scheduled protection window.
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -620,6 +631,10 @@ msgstr "Lingua salvata."
 msgid "Language settings could not load"
 msgstr "Impossibile caricare le impostazioni della lingua"
 
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Leaving this page will discard your unsaved changes."
+msgstr "Uscendo da questa pagina perderai le modifiche non salvate."
+
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Less than 1 minute"
 msgstr "Meno di 1 minuto"
@@ -686,10 +701,6 @@ msgstr "Gestisci questo sito web"
 msgid "Maximum wait"
 msgstr "Attesa massima"
 
-#: apps/extension/src/localization/utils/create-timing-copy/index.ts
-msgid "Maximum wait must be at least as long as the initial wait."
-msgstr "L'attesa massima deve essere pari o superiore all'attesa iniziale."
-
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "MIT license"
 msgstr "Licenza MIT"
@@ -701,16 +712,6 @@ msgstr "Lunedì"
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "Navigation access notices website changes as they happen, not your saved browsing history."
 msgstr "L'accesso alla navigazione rileva i cambi di sito in tempo reale, senza consultare la cronologia salvata."
-
-#. Popup label for the duration of the next required pause.
-#: apps/extension/src/localization/utils/create-popup-copy/index.ts
-msgid "Next pause"
-msgstr "Prossima pausa"
-
-#. Popup status when the current website is not on the user's TOCus list.
-#: apps/extension/src/localization/utils/create-popup-copy/index.ts
-msgid "No pause here"
-msgstr "Nessuna pausa qui"
 
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "No websites yet"
@@ -728,6 +729,11 @@ msgstr "Non attivo al momento"
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "On a weekly schedule"
 msgstr "Con programmazione settimanale"
+
+#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "One timer for these websites"
+msgstr "Un timer per questi siti"
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Open Settings"
@@ -754,21 +760,6 @@ msgstr "Oppure premi {key}"
 msgid "Orange"
 msgstr "Arancione"
 
-#. Compact toolbar badge. P means pause and m means minutes; keep it very short.
-#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
-msgid "P{count}m"
-msgstr "P{count}m"
-
-#. Compact toolbar badge. P means pause and s means seconds; keep it very short.
-#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
-msgid "P{count}s"
-msgstr "P{count}s"
-
-#. Short popup label beside a countdown for an active timed pause.
-#: apps/extension/src/localization/utils/create-popup-copy/index.ts
-msgid "Pause"
-msgstr "Pausa"
-
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Pause behavior"
 msgstr "Comportamento della pausa"
@@ -784,9 +775,18 @@ msgstr "Pausa in corso"
 msgid "Pause setup"
 msgstr "Configurazione della pausa"
 
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Pause site"
+msgstr "Metti in pausa il sito"
+
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Pause style"
 msgstr "Stile della pausa"
+
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Pause timing"
+msgstr "Tempi di pausa"
 
 #: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "Pause: complete"
@@ -921,22 +921,24 @@ msgstr "Ripristina impostazioni predefinite di personalizzazione"
 msgid "Saturday"
 msgstr "Sabato"
 
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Save"
+msgstr "Salva"
+
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Save changes"
 msgstr "Salva modifiche"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Save or discard these changes before choosing another scope."
-msgstr "Salva o annulla queste modifiche prima di scegliere un altro ambito."
+msgid "Save or discard your changes before choosing other websites."
+msgstr "Salva o scarta le modifiche prima di scegliere altri siti."
 
-#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Save schedule"
-msgstr "Salva programmazione"
-
-#: apps/extension/src/localization/utils/create-timing-copy/index.ts
-msgid "Save timing"
-msgstr "Salva tempi"
-
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
@@ -951,6 +953,10 @@ msgstr "Programmazione"
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Schedule could not load"
 msgstr "Impossibile caricare la programmazione"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Schedule for"
+msgstr "Orario per"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Schedule saved."
@@ -974,13 +980,6 @@ msgstr "Avanzamento della configurazione"
 msgid "Shared"
 msgstr "Condivisa"
 
-#: apps/extension/src/localization/utils/create-popup-copy/index.ts
-#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
-#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Shared timing"
-msgstr "Tempi condivisi"
-
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Show a Continue button"
 msgstr "Mostra un pulsante Continua"
@@ -996,6 +995,11 @@ msgstr "Da quando hai iniziato, hai recuperato circa {estimatedReclaimedTime} pe
 #: apps/extension/src/localization/utils/create-wellbeing-copy/index.ts
 msgid "Since you started, you've taken {focusedPauseTime} for yourself."
 msgstr "Da quando hai iniziato, hai dedicato {focusedPauseTime} al tuo benessere."
+
+#. Popup status when the current website is not on the user's TOCus list.
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Site not on the list"
+msgstr "Il sito non è nell'elenco"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Something went wrong while adding that site. Try again."
@@ -1054,6 +1058,10 @@ msgstr "Le statistiche sono state reimpostate. Ora i totali ripartono da zero."
 msgid "Status unavailable"
 msgstr "Stato non disponibile"
 
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Stay"
+msgstr "Resta"
+
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Step {currentStep} of {totalSteps}: {stepName}"
 msgstr "Passaggio {currentStep} di {totalSteps}: {stepName}"
@@ -1099,6 +1107,10 @@ msgstr "Non è stato possibile salvare la programmazione. Le impostazioni non so
 msgid "The selected palette colors the complete pause experience."
 msgstr "La palette selezionata colora l'intera esperienza di pausa."
 
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "The wait will not grow beyond this duration."
+msgstr "L'attesa non supererà questa durata."
+
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "The website name is not valid."
 msgstr "Il nome del sito web non è valido."
@@ -1107,13 +1119,13 @@ msgstr "Il nome del sito web non è valido."
 msgid "Theme"
 msgstr "Tema"
 
-#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
-msgid "These sites share one wait ladder and allowance."
-msgstr "Questi siti condividono una sequenza di attese e una finestra di visita."
-
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "These timing choices are not valid. Review them before saving."
 msgstr "Queste scelte dei tempi non sono valide. Controllale prima di salvare."
+
+#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
+msgid "These websites use the same timer."
+msgstr "Questi siti web usano lo stesso timer."
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 #: apps/extension/src/localization/utils/create-wellbeing-copy/index.ts
@@ -1131,6 +1143,10 @@ msgstr "Questo sito è stato modificato altrove. Ricarica le impostazioni e ripr
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "This site was not saved, but TOCus may still have browser access to it. Add it again to finish setup, or remove that access from your browser's extension settings."
 msgstr "Questo sito non è stato salvato, ma TOCus potrebbe avere ancora accesso tramite il browser. Aggiungilo di nuovo per completare la configurazione oppure rimuovi l'accesso dalle impostazioni delle estensioni del browser."
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "This time starts when you choose Continue or the site opens automatically."
+msgstr "Questo tempo inizia quando scegli Continua o il sito si apre automaticamente."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "This timing group is no longer available. Reload the page and try again."
@@ -1165,6 +1181,11 @@ msgstr "Questo sito web non è più nel tuo elenco."
 msgid "Thursday"
 msgstr "Giovedì"
 
+#. Popup label above the remaining time for the current website.
+#: apps/extension/src/localization/utils/create-popup-copy/index.ts
+msgid "Time left"
+msgstr "Tempo rimanente"
+
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Time window {position}"
 msgstr "Fascia oraria {position}"
@@ -1172,11 +1193,6 @@ msgstr "Fascia oraria {position}"
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Time you took to pause"
 msgstr "Tempo dedicato alla pausa"
-
-#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
-#: apps/extension/src/localization/utils/create-timing-copy/index.ts
-msgid "Timing"
-msgstr "Tempi"
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Timing settings could not be saved. Your choices are still here."
@@ -1189,10 +1205,6 @@ msgstr "Impossibile caricare le impostazioni dei tempi"
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Timing settings need your attention"
 msgstr "Le impostazioni dei tempi richiedono attenzione"
-
-#: apps/extension/src/localization/utils/create-timing-copy/index.ts
-msgid "Timing settings were saved."
-msgstr "Impostazioni dei tempi salvate."
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Timing summary"
@@ -1314,10 +1326,6 @@ msgstr "Impostazioni di TOCus"
 msgid "TOCus still could not restore this pause."
 msgstr "TOCus non è ancora riuscito a ripristinare questa pausa."
 
-#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
-msgid "TOCus will keep using this language until you change it."
-msgstr "TOCus continuerà a usare questa lingua finché non la cambierai."
-
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
 msgid "TOCus will use it everywhere. You can change it later in Settings."
 msgstr "TOCus userà questa lingua ovunque. Puoi cambiarla in seguito nelle Impostazioni."
@@ -1399,42 +1407,13 @@ msgstr "Usa una propria sequenza di attese, finestra di visita e programmazione.
 msgid "Uses the shared wait, allowance, and schedule."
 msgstr "Usa la sequenza di attese, la finestra di visita e la programmazione condivise."
 
-#. Compact toolbar badge. V means visit window and m means minutes; keep it very short.
-#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
-msgid "V{count}m"
-msgstr "V{count}m"
-
-#. Compact toolbar badge. V means visit window and m means minutes; keep it very short.
-#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
-msgid "V<1m"
-msgstr "V<1m"
-
-#. Compact toolbar badge. V means visit window and m means minutes; keep it very short.
-#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
-msgid "V0m"
-msgstr "V0m"
-
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "Version {version}"
 msgstr "Versione {version}"
 
-#. Short popup label beside a countdown for an active website allowance.
-#: apps/extension/src/localization/utils/create-popup-copy/index.ts
-msgid "Visit window"
-msgstr "Finestra di visita"
-
-#. Popup status while a timed website allowance is currently open.
-#: apps/extension/src/localization/utils/create-popup-copy/index.ts
-msgid "Visit window open"
-msgstr "Finestra di visita aperta"
-
 #: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "Visit window: complete"
 msgstr "Finestra di visita: completata"
-
-#: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
-msgid "Visit window: less than 1 minute remaining"
-msgstr "Finestra di visita: meno di 1 minuto rimanente"
 
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
 msgid "Vos"
@@ -1449,12 +1428,20 @@ msgid "Wait increase"
 msgstr "Aumento dell'attesa"
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
-msgid "Waits start at {initialWait}. Each completed wait adds {waitIncrease} to the next wait, up to {maximumWait}. Completing a wait starts an allowance for {allowance} and opens the site automatically."
-msgstr "Le attese iniziano da {initialWait}. Ogni attesa completata aggiunge {waitIncrease} all'attesa successiva, fino a {maximumWait}. Completare un'attesa avvia una finestra di visita di {allowance} e apre il sito automaticamente."
+msgid "Waits start at {initialWait}. Each completed wait adds {waitIncrease} to the next wait, up to {maximumWait}. After the wait, choosing Continue starts an allowance for {allowance}."
+msgstr "Le attese iniziano da {initialWait}. Ogni attesa completata aggiunge {waitIncrease} all'attesa successiva, fino a {maximumWait}. Dopo l'attesa, scegliere Continua avvia una finestra di visita di {allowance}."
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
-msgid "Waits start at {initialWait}. Each completed wait adds {waitIncrease} to the next wait, up to {maximumWait}. Completing a wait starts an allowance for {allowance} and shows a Continue button."
-msgstr "Le attese iniziano da {initialWait}. Ogni attesa completata aggiunge {waitIncrease} all'attesa successiva, fino a {maximumWait}. Completare un'attesa avvia una finestra di visita di {allowance} e mostra un pulsante Continua."
+msgid "Waits start at {initialWait}. Each completed wait adds {waitIncrease} to the next wait, up to {maximumWait}. When the site opens automatically after the wait, an allowance starts for {allowance}."
+msgstr "Le attese iniziano da {initialWait}. Ogni attesa completata aggiunge {waitIncrease} all'attesa successiva, fino a {maximumWait}. Quando il sito si apre automaticamente dopo l'attesa, inizia una finestra di visita di {allowance}."
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Waits stay at {initialWait}. After the wait, choosing Continue starts an allowance for {allowance}."
+msgstr "Le attese restano a {initialWait}. Dopo l'attesa, scegliere Continua avvia una finestra di visita di {allowance}."
+
+#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+msgid "Waits stay at {initialWait}. When the site opens automatically after the wait, an allowance starts for {allowance}."
+msgstr "Le attese restano a {initialWait}. Quando il sito si apre automaticamente dopo l'attesa, inizia una finestra di visita di {allowance}."
 
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "Want more control over the code you run? Fork the project, inspect it, and build your own copy. You don't have to take anyone's word for how your data is handled."
@@ -1465,6 +1452,10 @@ msgstr "Vuoi più controllo sul codice che esegui? Crea un fork del progetto, es
 msgid "Website address"
 msgstr "Indirizzo del sito web"
 
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Website changes saved."
+msgstr "Modifiche ai siti salvate."
+
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
@@ -1474,6 +1465,10 @@ msgstr "Siti web"
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Websites could not load"
 msgstr "Impossibile caricare i siti web"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Websites using the same timer"
+msgstr "Siti che usano lo stesso timer"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Wednesday"
@@ -1561,8 +1556,8 @@ msgid "Your data stays with you"
 msgstr "I tuoi dati restano con te"
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
-msgid "Your language could not be saved. TOCus returned to your previous language."
-msgstr "Non è stato possibile salvare la lingua. TOCus è tornato alla lingua precedente."
+msgid "Your language could not be saved. Your choice is still shown here."
+msgstr "Non è stato possibile salvare la lingua. La tua scelta è ancora visibile qui."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
@@ -1612,6 +1607,14 @@ msgstr "I dati dei tempi sono cambiati. Riprova prima di salvare queste scelte."
 #: apps/extension/src/localization/utils/create-protected-page-layer-copy/index.ts
 msgid "Your visit window is ending soon."
 msgstr "La finestra di visita sta per terminare."
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Your website changes were saved, but some unused browser access could not be removed."
+msgstr "Le modifiche sono state salvate, ma non è stato possibile rimuovere alcuni accessi del browser non più utilizzati."
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Your website list changed elsewhere. Discard your draft and reopen Websites before trying again."
+msgstr "L'elenco dei siti è cambiato in un'altra finestra. Scarta le modifiche e riapri Siti prima di riprovare."
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Your website list changed. Retry before adding this site."
