@@ -1,7 +1,7 @@
-import {
-	type BreathingSphereContourPointInput,
-	type BreathingSpherePointInput,
-	type CartesianPoint,
+import type {
+	BreathingSphereContourPointInput,
+	BreathingSpherePointInput,
+	CartesianPoint,
 } from './types';
 
 /**

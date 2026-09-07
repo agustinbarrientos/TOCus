@@ -1,3 +1,4 @@
+import { StoredProtectionStatisticsDeliveryStatus } from '../../../../../domains/protection/types/stored-protection-statistics-delivery';
 import { ProtectionStorageEnvelopeSchema } from '../../../../../domains/protection/services/protection-storage';
 import { StoredDurableProtectionStateSchema } from '../../../../../domains/protection/types/stored-protection-state';
 
@@ -12,7 +13,7 @@ export function createAllowanceStorageEnvelope( allowance: Record<string, unknow
 		snapshotId: '00000000-0000-4000-8000-000000000001',
 		document: StoredDurableProtectionStateSchema.parse( {
 			schemaVersion: 2,
-			statisticsDelivery: { status: 'complete', outbox: [] },
+			statisticsDelivery: { status: StoredProtectionStatisticsDeliveryStatus.COMPLETE, outbox: [] },
 			scopes: {
 				'scope-default': {
 					ladder: { completedWaits: 1, greatestObservedLocalDate: '2026-09-05' },
