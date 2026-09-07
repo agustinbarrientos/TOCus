@@ -1,7 +1,7 @@
-import { type Mock } from 'vitest';
-import {
-	type BrowserProtectionRuntime,
-	type BrowserProtectionStatisticsObservation,
+import type { Mock } from 'vitest';
+import type {
+	BrowserProtectionRuntime,
+	BrowserProtectionStatisticsObservation,
 } from '../../browser-protection-runtime';
 
 /**

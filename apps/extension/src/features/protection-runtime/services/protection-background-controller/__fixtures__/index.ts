@@ -1,19 +1,20 @@
+import { InterruptionPageResponseState } from '../../../types/runtime-message';
 import { vi } from 'vitest';
-import {
-	type BrowserProtectionRuntime,
-	type BrowserProtectionStatisticsObservation,
+import type {
+	BrowserProtectionRuntime,
+	BrowserProtectionStatisticsObservation,
 } from '../../browser-protection-runtime';
 import { createProtectionBackgroundController } from '../index';
-import {
-	type ProtectionBackgroundBrowser,
-	type ProtectionBackgroundNavigationDetails,
-	type ProtectionBackgroundSendResponse,
+import type {
+	ProtectionBackgroundBrowser,
+	ProtectionBackgroundNavigationDetails,
+	ProtectionBackgroundSendResponse,
 } from '../types';
 import { StatisticsProjectionStatus } from '../../../../../domains/statistics/types/statistics-projection';
-import {
-	type RuntimeHarness,
-	type TestMessageSender,
-	type TestPermissionChange,
+import type {
+	RuntimeHarness,
+	TestMessageSender,
+	TestPermissionChange,
 } from './types';
 
 /**
@@ -150,7 +151,7 @@ function createRuntime(): RuntimeHarness {
 	} );
 	const start = vi.fn().mockResolvedValue( undefined );
 	const handleNavigation = vi.fn().mockResolvedValue( undefined );
-	const handlePageRequest = vi.fn().mockResolvedValue( { state: 'unavailable' } );
+	const handlePageRequest = vi.fn().mockResolvedValue( { state: InterruptionPageResponseState.UNAVAILABLE } );
 	const handleTabRemoved = vi.fn().mockResolvedValue( undefined );
 	const handleFocusChanged = vi.fn().mockResolvedValue( undefined );
 	const handleClockTick = vi.fn().mockResolvedValue( undefined );

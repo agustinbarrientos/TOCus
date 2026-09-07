@@ -17,7 +17,7 @@ import {
 	StatisticsRuntimeRequestSchema,
 	StatisticsRuntimeRequestType,
 } from '../../../statistics/types/runtime-message';
-import { type BrowserProtectionFocusEventIdentity } from '../../../statistics/services/browser-statistics-bridge';
+import type { BrowserProtectionFocusEventIdentity } from '../../../statistics/services/browser-statistics-bridge';
 import { StatisticsFocusObservationMode } from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
 import {
 	ProtectionBackgroundAlarmName,
