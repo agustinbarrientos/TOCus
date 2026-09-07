@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url';
+import react from '@astrojs/react';
 import babel from '@rolldown/plugin-babel';
 import { lingui, linguiTransformerBabelPreset } from '@lingui/vite-plugin';
 import { defineConfig } from 'astro/config';
@@ -15,6 +16,7 @@ const linguiConfigPath = fileURLToPath( new URL( '../../lingui.config.ts', impor
  */
 export default defineConfig( {
 	output: 'static',
+	integrations: [ react() ],
 	vite: {
 		plugins: [
 			...lingui( { configPath: linguiConfigPath } ),
