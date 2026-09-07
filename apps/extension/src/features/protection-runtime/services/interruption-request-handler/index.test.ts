@@ -1,3 +1,5 @@
+import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
+import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
 import { describe, expect, it, vi } from 'vitest';
 import {
 	ProtectionCoordinatorDispatchStatus,
@@ -19,20 +21,21 @@ import {
 	ProtectionEventType,
 	type ProtectionEvent,
 } from '../../../../domains/protection/types/protection-event';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { CompletionAction } from '../../../../domains/protection/types/completion-action';
-import {
-	type AllowanceProtectionState,
-	type WaitingProtectionState,
+import { ProtectionDecisionSchema, ProtectionDecisionType } from '../../../../domains/protection/types/protection-decision';
+import type {
+	AllowanceProtectionState,
+	WaitingProtectionState,
 } from '../../../../domains/protection/types/protection-state';
 import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
 import {
 	InterruptionPageRequestType,
 	InterruptionPageResponseState,
 } from '../../types/runtime-message';
-import { type ProtectionRuntimeBrowser } from '../../types/browser-runtime';
+import type { ProtectionRuntimeBrowser } from '../../types/browser-runtime';
 import { createInterruptionRequestHandler } from './index';
-import { type InterruptionRequestHandlerOptions } from './types';
+import type { InterruptionRequestHandlerOptions } from './types';
 
 /**
  * Fixed wall-clock instant used by interruption-request fixtures.
@@ -772,6 +775,48 @@ describe( 'interruption page actions', () => {
 		expect( harness.dispatch ).not.toHaveBeenCalled();
 	} );
 
+	it.each( [
+		{ participantId: 'participant_other', pageId: 'page_tab_7_ready' },
+		{ participantId: 'participant_ready', pageId: 'page_tab_8_other' },
+	] )( 'does not acknowledge another participant release: %j', async ( identity ) => {
+		const allowanceState = createTestAllowanceState();
+		const harness = createHandlerHarness( { [ DefaultProtectionScopeId ]: allowanceState } );
+		harness.dispatch.mockResolvedValue( {
+			...APPLIED_RESULT,
+			decisions: [ ProtectionDecisionSchema.parse( {
+				type: ProtectionDecisionType.DISMISS_INTERRUPTION,
+				...identity,
+			} ) ],
+		} );
+
+		await expect( harness.handler.handle( {
+			type: InterruptionPageRequestType.CONTINUE,
+			documentVisible: true,
+		}, 7, true ) ).resolves.toEqual( {
+			state: InterruptionPageResponseState.READY,
+			allowanceExpiresAtEpochMilliseconds: allowanceState.expiresAtEpochMilliseconds,
+		} );
+	} );
+
+	it( 'does not acknowledge a release whose browser projection fails', async () => {
+		const allowanceState = createTestAllowanceState();
+		const harness = createHandlerHarness( { [ DefaultProtectionScopeId ]: allowanceState } );
+		harness.dispatch.mockResolvedValue( {
+			...APPLIED_RESULT,
+			decisions: [ ProtectionDecisionSchema.parse( {
+				type: ProtectionDecisionType.DISMISS_INTERRUPTION,
+				participantId: 'participant_ready',
+				pageId: 'page_tab_7_ready',
+			} ) ],
+		} );
+		harness.applyDispatchResult.mockRejectedValue( new Error( 'Browser release failed.' ) );
+
+		await expect( harness.handler.handle( {
+			type: InterruptionPageRequestType.CONTINUE,
+			documentVisible: true,
+		}, 7, true ) ).rejects.toThrow( 'Browser release failed.' );
+	} );
+
 	it( 'releases a Ready participant after explicit Continue', async () => {
 		const allowanceState = createTestAllowanceState();
 		const harness = createHandlerHarness( { [ DefaultProtectionScopeId ]: allowanceState } );
@@ -788,8 +833,8 @@ describe( 'interruption page actions', () => {
 			nowEpochMilliseconds: NOW_EPOCH_MILLISECONDS,
 			observation: {
 				observedDestination: 'https://example.com/ready',
-				match: { status: 'protected' },
-				schedule: { status: 'active' },
+				match: { status: ProtectedUrlMatchStatus.PROTECTED },
+				schedule: { status: ScheduleEvaluationStatus.ACTIVE },
 			},
 		} );
 		expect( harness.applyDispatchResult ).toHaveBeenCalledWith( APPLIED_RESULT, CONFIGURATION, {

@@ -4,12 +4,17 @@ import {
 	type FreshParticipantObservation,
 } from '../../../../domains/protection/types/protection-event';
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
+import { ProtectionDecisionType } from '../../../../domains/protection/types/protection-decision';
+import {
+	ProtectionCoordinatorDispatchStatus,
+	type ProtectionCoordinatorDispatchResult,
+} from '../../../../domains/protection/services/protection-coordinator';
 import { ProtectionParticipantOrigin } from '../../../../domains/protection/types/protection-participant';
 import { AllowanceIdSchema, type AllowanceId } from '../../../../domains/protection/types/protection-value';
 import { CompletionAction } from '../../../../domains/protection/types/completion-action';
 import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
 import { protectionMatchProtectsScope } from '../../../../domains/protection/utils/match-protection-scope';
-import { type ProtectionContinuationContext } from '../protection-page-projector/types';
+import type { ProtectionContinuationContext } from '../protection-page-projector/types';
 import {
 	InterruptionPageRequestSchema,
 	InterruptionPageRequestType,
@@ -24,10 +29,28 @@ import {
 	getRuntimeTabId,
 	type ProtectionRuntimeParticipantContext,
 } from '../../utils/runtime-page-context';
-import {
-	type InterruptionRequestHandler,
-	type InterruptionRequestHandlerOptions,
+import type {
+	InterruptionRequestHandler,
+	InterruptionRequestHandlerOptions,
 } from './types';
+
+/**
+ * Identifies an applied release decision for the exact requesting participant.
+ * @param result - Coordinator result whose browser projection has settled.
+ * @param context - Participant retained when the request began.
+ * @return Whether the request released this interruption.
+ * @since 0.1.0 Initial implementation.
+ */
+function hasParticipantReleaseDecision(
+	result: ProtectionCoordinatorDispatchResult | null,
+	context: ProtectionRuntimeParticipantContext,
+): boolean {
+	return result?.status === ProtectionCoordinatorDispatchStatus.APPLIED && result.decisions.some( ( decision ) =>
+		( decision.type === ProtectionDecisionType.RELEASE_NAVIGATION ||
+			decision.type === ProtectionDecisionType.DISMISS_INTERRUPTION ) &&
+		decision.participantId === context.participant.participantId &&
+		decision.pageId === context.participant.pageId );
+}
 
 /**
  * Identifies one requested entry only while its fresh observation still protects the same scope.
@@ -181,7 +204,7 @@ export function createInterruptionRequestHandler(
 	 * @param displayedFocusedDurationMilliseconds - Locally displayed total focused progress.
 	 * @param statisticsEligible - Whether the current sender is explicitly outside private browsing.
 	 * @param configuration - Current validated local configuration.
-	 * @return Whether a browser projection was applied after progress reconciliation.
+	 * @return Projected coordinator result, or null when no checkpoint was dispatched.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function checkpointWaitingParticipant(
@@ -189,12 +212,12 @@ export function createInterruptionRequestHandler(
 		displayedFocusedDurationMilliseconds: number,
 		statisticsEligible: boolean,
 		configuration: Parameters<InterruptionRequestHandler[ 'synchronizeParticipantFocus' ]>[ 2 ],
-	): Promise<boolean> {
+	): Promise<ProtectionCoordinatorDispatchResult | null> {
 		if (
 			context.state.type !== ProtectionStateType.WAITING ||
 			context.state.ownerParticipantId !== context.participant.participantId
 		) {
-			return false;
+			return null;
 		}
 
 		const waitingState = context.state;
@@ -246,25 +269,25 @@ export function createInterruptionRequestHandler(
 			await options.applyDispatchResult( result, configuration );
 		}
 
-		return true;
+		return result;
 	}
 
 	/**
 	 * Applies a Ready participant's explicit Continue intent.
 	 * @param context - Current Ready participant context.
 	 * @param configuration - Current validated local configuration.
-	 * @return Whether a browser projection was applied after continuation.
+	 * @return Projected coordinator result, or null when continuation was not dispatched.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function continueReadyParticipant(
 		context: ProtectionRuntimeParticipantContext,
 		configuration: Parameters<InterruptionRequestHandler[ 'synchronizeParticipantFocus' ]>[ 2 ],
-	): Promise<boolean> {
+	): Promise<ProtectionCoordinatorDispatchResult | null> {
 		if (
 			context.state.type !== ProtectionStateType.ALLOWANCE &&
 			context.state.type !== ProtectionStateType.READY
 		) {
-			return false;
+			return null;
 		}
 
 		const allowanceState = context.state;
@@ -295,7 +318,7 @@ export function createInterruptionRequestHandler(
 
 		await options.applyDispatchResult( result, configuration, continuedParticipant );
 
-		return true;
+		return result;
 	}
 
 	/**
@@ -343,6 +366,7 @@ export function createInterruptionRequestHandler(
 		let statesByScope = await options.coordinator.getStates();
 		let context = statesByScope === null ? null : findRuntimeParticipantContext( statesByScope, senderTabId );
 		let browserProjectionApplied = false;
+		let participantReleased = false;
 
 		if ( context === null ) {
 			const response = await createPageResponse( senderTabId );
@@ -361,12 +385,14 @@ export function createInterruptionRequestHandler(
 		}
 
 		if ( request.data.type === InterruptionPageRequestType.CHECKPOINT ) {
-			browserProjectionApplied = await checkpointWaitingParticipant(
+			const checkpointResult = await checkpointWaitingParticipant(
 				context,
 				request.data.displayedFocusedDurationMilliseconds,
 				true,
 				configuration,
 			);
+			browserProjectionApplied = checkpointResult !== null;
+			participantReleased = hasParticipantReleaseDecision( checkpointResult, context );
 			statesByScope = await options.coordinator.getStates();
 			context = statesByScope === null ? null : findRuntimeParticipantContext( statesByScope, senderTabId );
 		}
@@ -386,9 +412,10 @@ export function createInterruptionRequestHandler(
 			context = statesByScope === null ? null : findRuntimeParticipantContext( statesByScope, senderTabId );
 
 			if ( context !== null ) {
-				const continuationProjectionApplied = await continueReadyParticipant( context, configuration );
+				const continuationResult = await continueReadyParticipant( context, configuration );
 
-				browserProjectionApplied = continuationProjectionApplied || browserProjectionApplied;
+				browserProjectionApplied = continuationResult !== null || browserProjectionApplied;
+				participantReleased = hasParticipantReleaseDecision( continuationResult, context );
 			}
 		}
 
@@ -396,7 +423,9 @@ export function createInterruptionRequestHandler(
 			await options.refreshToolbarBadge( configuration, await options.coordinator.getStates() );
 		}
 
-		return createPageResponse( senderTabId );
+		return participantReleased
+			? InterruptionPageResponseSchema.parse( { state: InterruptionPageResponseState.RELEASED } )
+			: createPageResponse( senderTabId );
 	}
 
 	return { handle, synchronizeParticipantFocus };
