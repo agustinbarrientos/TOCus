@@ -1,5 +1,5 @@
 import { ToolbarBadgeBackgroundColor } from '@tocus/theme/runtime-colors';
-import { type Browser } from 'wxt/browser';
+import type { Browser } from 'wxt/browser';
 import { enrichExtensionTabUrls } from '../../../../shared/services/extension-tab-context';
 import { isProtectionNavigationRuleId } from '../../utils/protection-navigation-rules';
 import {
@@ -9,16 +9,16 @@ import {
 	type ProtectedPageMessage,
 	type ProtectedPagePresentationStatus,
 } from '../../types/protected-page-message';
-import { type ToolbarBadgeProjection } from '../../utils/toolbar-badge-projection';
-import { type TabAudioController } from '../tab-audio-controller';
-import {
-	type ProtectionClockDeadlines,
-	type ProtectionRuntimeBrowser,
-	type ProtectionRuntimeTab,
+import type { ToolbarBadgeProjection } from '../../utils/toolbar-badge-projection';
+import type { TabAudioController } from '../tab-audio-controller';
+import type {
+	ProtectionClockDeadlines,
+	ProtectionRuntimeBrowser,
+	ProtectionRuntimeTab,
 } from '../../types/browser-runtime';
-import {
-	type BrowserProtectionAdapterApi,
-	type BrowserProtectionToolbarAction,
+import type {
+	BrowserProtectionAdapterApi,
+	BrowserProtectionToolbarAction,
 } from './types';
 
 /**
