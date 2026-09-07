@@ -12,9 +12,9 @@ import { matchProtectedUrl } from '../../../../domains/protection/utils/protecte
 import { createReadyRuntimeExpiryCandidates } from '../../utils/runtime-participant-observation';
 import { createRuntimeLocalDate } from '../../utils/runtime-local-date';
 import { createRuntimePageId, getRuntimeTabId } from '../../utils/runtime-page-context';
-import {
-	type AllowanceExpiryReconciler,
-	type AllowanceExpiryReconcilerOptions,
+import type {
+	AllowanceExpiryReconciler,
+	AllowanceExpiryReconcilerOptions,
 } from './types';
 
 /**

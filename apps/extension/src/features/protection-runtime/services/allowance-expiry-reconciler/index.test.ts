@@ -18,8 +18,8 @@ import {
 	ProtectionEventType,
 	type ProtectionEvent,
 } from '../../../../domains/protection/types/protection-event';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type AllowanceProtectionState } from '../../../../domains/protection/types/protection-state';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import { ProtectionStateType, type AllowanceProtectionState } from '../../../../domains/protection/types/protection-state';
 import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
 import {
 	DefaultProtectionScopeId,
@@ -28,9 +28,9 @@ import {
 } from '../../../../domains/protection/types/protection-value';
 import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
 import { transitionProtectionState } from '../../../../domains/protection/utils/transition-protection-state';
-import { type ProtectionRuntimeBrowser, type ProtectionRuntimeTab } from '../../types/browser-runtime';
+import type { ProtectionRuntimeBrowser, ProtectionRuntimeTab } from '../../types/browser-runtime';
 import { createAllowanceExpiryReconciler } from './index';
-import { type AllowanceExpiryReconcilerOptions } from './types';
+import type { AllowanceExpiryReconcilerOptions } from './types';
 
 /**
  * Fixed wall-clock instant used by allowance-expiry fixtures.
@@ -272,7 +272,7 @@ describe( 'createAllowanceExpiryReconciler', () => {
 
 		const transition = transitionProtectionState( expiredAllowance, event );
 
-		expect( transition.state.type ).toBe( 'idle' );
+		expect( transition.state.type ).toBe( ProtectionStateType.IDLE );
 		expect( transition.facts ).toEqual( [] );
 	} );
 
@@ -430,13 +430,13 @@ describe( 'createAllowanceExpiryReconciler', () => {
 				pageId: 'page_tab_9_expiry',
 				observedDestination: null,
 				focusEligible: true,
-				match: { status: 'protected', rule: CONFIGURATION.sites[ 0 ]?.rule },
+				match: { status: ProtectedUrlMatchStatus.PROTECTED, rule: CONFIGURATION.sites[ 0 ]?.rule },
 			} ],
 		} );
 		const transition = transitionProtectionState( expiredAllowance, expiryEvent );
 
 		expect( transition.state ).toMatchObject( {
-			type: 'waiting',
+			type: ProtectionStateType.WAITING,
 			participants: [ {
 				origin: 'allowance-expiry',
 				participantId: 'participant_expiry',
@@ -485,7 +485,7 @@ describe( 'createAllowanceExpiryReconciler', () => {
 				participantId: 'participant_expiry',
 				observedDestination: null,
 				focusEligible: false,
-				match: { status: 'unprotected' },
+				match: { status: ProtectedUrlMatchStatus.UNPROTECTED },
 			} ],
 		} );
 	} );
