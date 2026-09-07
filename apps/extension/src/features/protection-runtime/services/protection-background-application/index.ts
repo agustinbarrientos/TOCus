@@ -28,7 +28,7 @@ import { createBrowserProtectionRuntime } from '../browser-protection-runtime';
 import { createProtectionBackgroundController } from '../protection-background-controller';
 import { createToolbarLanguageController } from '../toolbar-language-controller';
 import { createTabAudioController } from '../tab-audio-controller';
-import { type ProtectionBackgroundApplicationOptions, type ProtectionBackgroundTabAudioChange } from './types';
+import type { ProtectionBackgroundApplicationOptions, ProtectionBackgroundTabAudioChange } from './types';
 
 /**
  * Creates one collision-resistant runtime identifier fragment.
