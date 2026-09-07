@@ -1,6 +1,6 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
-import { type BrowserLocaleMessages } from './types';
+import type { BrowserLocaleMessages } from './types';
 
 /**
  * Projects canonical extension metadata into the browser localization format.

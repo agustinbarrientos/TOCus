@@ -1,6 +1,6 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
-import { type AboutScreenCopy } from '../../../features/settings/components/about-screen/types';
+import type { AboutScreenCopy } from '../../../features/settings/components/about-screen/types';
 
 /**
  * Creates localized About-screen copy and version formatting.

@@ -49,22 +49,50 @@ describe( 'createLocalizationBundle', () => {
 	} );
 
 	it.each( [
-		[ Language.ENGLISH, 'Current website', 'TOCus is active', '2 websites' ],
-		[ Language.SPANISH_TU, 'Sitio web actual', 'TOCus está activo', '2 sitios web' ],
-		[ Language.SPANISH_VOS, 'Sitio actual', 'TOCus está activo', '2 sitios' ],
-		[ Language.PORTUGUESE_BRAZIL, 'Site atual', 'O TOCus está ativo', '2 sites' ],
-		[ Language.PORTUGUESE_PORTUGAL, 'Site atual', 'O TOCus está ativo', '2 sites' ],
-		[ Language.ITALIAN, 'Sito web attuale', 'TOCus è attivo', '2 siti web' ],
-		[ Language.FRENCH, 'Site actuel', 'TOCus est actif', '2 sites' ],
-		[ Language.GERMAN, 'Aktuelle Website', 'TOCus ist aktiv', '2 Websites' ],
-		[ Language.JAPANESE, '現在のウェブサイト', 'TOCus は有効です', '2 件のウェブサイト' ],
-		[ Language.RUSSIAN, 'Текущий сайт', 'TOCus активен', '2 сайта' ],
-	] )( 'loads translated popup copy for %s', async ( language, currentWebsite, activeStatus, websiteCount ) => {
+		[ Language.ENGLISH, 'Current website', 'TOCus is active' ],
+		[ Language.SPANISH_TU, 'Sitio web actual', 'TOCus está activo' ],
+		[ Language.SPANISH_VOS, 'Sitio actual', 'TOCus está activo' ],
+		[ Language.PORTUGUESE_BRAZIL, 'Site atual', 'O TOCus está ativo' ],
+		[ Language.PORTUGUESE_PORTUGAL, 'Site atual', 'O TOCus está ativo' ],
+		[ Language.ITALIAN, 'Sito web attuale', 'TOCus è attivo' ],
+		[ Language.FRENCH, 'Site actuel', 'TOCus est actif' ],
+		[ Language.GERMAN, 'Aktuelle Website', 'TOCus ist aktiv' ],
+		[ Language.JAPANESE, '現在のウェブサイト', 'TOCus は有効です' ],
+		[ Language.RUSSIAN, 'Текущий сайт', 'TOCus активен' ],
+	] )( 'loads translated popup copy for %s', async ( language, currentWebsite, activeStatus ) => {
 		const bundle = await loadLocalizationBundle( language );
 
 		expect( bundle.popup.currentWebsite ).toBe( currentWebsite );
 		expect( bundle.popup.tocusActive ).toBe( activeStatus );
-		expect( bundle.popup.formatWebsiteCount( 2 ) ).toBe( websiteCount );
+	} );
+
+	it.each( [
+		[ Language.SPANISH_TU, 'Tiempo de pausas', 'Un temporizador para estos sitios', 'Pausar sitio', 'Tiempo restante', 'Sitios que usan el mismo temporizador' ],
+		[ Language.SPANISH_VOS, 'Tiempo de pausas', 'Un temporizador para estos sitios', 'Pausar sitio', 'Tiempo restante', 'Sitios que usan el mismo temporizador' ],
+		[ Language.PORTUGUESE_BRAZIL, 'Tempo das pausas', 'Um temporizador para estes sites', 'Pausar site', 'Tempo restante', 'Sites que usam o mesmo temporizador' ],
+		[ Language.PORTUGUESE_PORTUGAL, 'Duração das pausas', 'Um temporizador para estes sites', 'Pausar site', 'Tempo restante', 'Sites que usam o mesmo temporizador' ],
+		[ Language.ITALIAN, 'Tempi di pausa', 'Un timer per questi siti', 'Metti in pausa il sito', 'Tempo rimanente', 'Siti che usano lo stesso timer' ],
+		[ Language.FRENCH, 'Temps de pause', 'Un minuteur pour ces sites', 'Mettre le site en pause', 'Temps restant', 'Sites utilisant le même minuteur' ],
+		[ Language.GERMAN, 'Pausenzeiten', 'Ein Timer für diese Websites', 'Website pausieren', 'Verbleibende Zeit', 'Websites mit demselben Timer' ],
+		[ Language.JAPANESE, '一時停止の時間設定', 'これらのウェブサイト用の1つのタイマー', 'サイトを一時停止', '残り時間', '同じタイマーを使うウェブサイト' ],
+		[ Language.RUSSIAN, 'Время пауз', 'Один таймер для этих сайтов', 'Приостановить сайт', 'Оставшееся время', 'Сайты с общим таймером' ],
+	] )( 'loads the revised timing and popup labels for %s', async (
+		language,
+		pauseTiming,
+		sharedTimer,
+		pauseSite,
+		timeLeft,
+		sharedSchedule,
+	) => {
+		const bundle = await loadLocalizationBundle( language );
+
+		expect( bundle.settingsShell.timing ).toBe( pauseTiming );
+		expect( bundle.timing.title ).toBe( pauseTiming );
+		expect( bundle.schedule.sharedScope ).toBe( sharedSchedule );
+		expect( bundle.protectedSites.sharedBehavior ).toBe( sharedTimer );
+		expect( bundle.protectedSiteList.sharedGroupTitle ).toBe( sharedTimer );
+		expect( bundle.popup.pauseSite ).toBe( pauseSite );
+		expect( bundle.popup.timeLeft ).toBe( timeLeft );
 	} );
 
 	it( 'provides every production copy slice and the pending local copy contracts', async () => {
@@ -72,16 +100,19 @@ describe( 'createLocalizationBundle', () => {
 
 		expect( bundle.document.settingsTitle ).toBe( 'TOCus settings' );
 		expect( bundle.popup.currentWebsite ).toBe( 'Current website' );
-		expect( bundle.popup.addPauseHere ).toBe( 'Add a pause here' );
+		expect( bundle.popup.pauseSite ).toBe( 'Pause site' );
 		expect( bundle.settingsShell.navigationLabel ).toBe( 'Settings' );
 		expect( bundle.aboutCopy.formatVersion( '2.3.4' ) ).toBe( 'Version 2.3.4' );
 		expect( bundle.privacyCopy.title ).toBe( 'Privacy and local data' );
 		expect( bundle.languageScreen.languageLabel ).toBe( 'TOCus language' );
 		expect( bundle.appearance.themeOptions.system.label ).toBe( 'System' );
-		expect( bundle.schedule.sharedScope ).toBe( 'Shared timing' );
+		expect( bundle.settingsShell.timing ).toBe( 'Pause timing' );
+		expect( bundle.schedule.sharedScope ).toBe( 'Websites using the same timer' );
+		expect( bundle.timing.title ).toBe( 'Pause timing' );
 		expect( bundle.timing.initialWaitLabel ).toBe( 'Initial wait' );
 		expect( bundle.protectedSites.emptyTitle ).toBe( 'No websites yet' );
-		expect( bundle.protectedSiteList.sharedGroupTitle ).toBe( 'Shared timing' );
+		expect( bundle.protectedSites.sharedBehavior ).toBe( 'One timer for these websites' );
+		expect( bundle.protectedSiteList.sharedGroupTitle ).toBe( 'One timer for these websites' );
 		expect( bundle.protectedSiteItem.accessRequired ).toBe( 'Access required' );
 		expect( bundle.statistics.allTimeTitle ).toBe( 'All time' );
 		expect( bundle.interruption.takeAMoment ).toBe( 'Take a moment' );
@@ -159,10 +190,10 @@ describe( 'createLocalizationBundle', () => {
 		const bundle = await loadLocalizationBundle( Language.ENGLISH );
 
 		expect( bundle.timing.formatSummary( 5, 10, 60, 5, CompletionAction.SHOW_CONTINUE ) ).toBe(
-			'Waits start at 5 seconds. Each completed wait adds 10 seconds to the next wait, up to 60 seconds. Completing a wait starts an allowance for 5 minutes and shows a Continue button.',
+			'Waits start at 5 seconds. Each completed wait adds 10 seconds to the next wait, up to 60 seconds. After the wait, choosing Continue starts an allowance for 5 minutes.',
 		);
 		expect( bundle.timing.formatSummary( 5, 10, 60, 1, CompletionAction.OPEN_AUTOMATICALLY ) ).toBe(
-			'Waits start at 5 seconds. Each completed wait adds 10 seconds to the next wait, up to 60 seconds. Completing a wait starts an allowance for 1 minute and opens the site automatically.',
+			'Waits start at 5 seconds. Each completed wait adds 10 seconds to the next wait, up to 60 seconds. When the site opens automatically after the wait, an allowance starts for 1 minute.',
 		);
 	} );
 
@@ -198,19 +229,19 @@ describe( 'createLocalizationBundle', () => {
 		expect( multipleIndicator ).toBe( '99+' );
 
 		expect( bundle.toolbar.formatWaiting( 0, ToolbarBadgeDurationUnit.SECOND ) ).toEqual( {
-			text: 'P0s',
+			text: '0s',
 			title: 'Pause: complete',
 		} );
 		expect( bundle.toolbar.formatWaiting( 2, ToolbarBadgeDurationUnit.MINUTE ) ).toEqual( {
-			text: 'P2m',
+			text: '2m',
 			title: 'Pause: 2 minutes remaining',
 		} );
-		expect( bundle.toolbar.formatAllowance( 1, ToolbarBadgeDurationUnit.LESS_THAN_MINUTE ) ).toEqual( {
-			text: 'V<1m',
-			title: 'Visit window: less than 1 minute remaining',
+		expect( bundle.toolbar.formatAllowance( 30, ToolbarBadgeDurationUnit.SECOND ) ).toEqual( {
+			text: '30s',
+			title: 'Visit window: 30 seconds remaining',
 		} );
-		expect( bundle.toolbar.formatAllowance( 0, ToolbarBadgeDurationUnit.LESS_THAN_MINUTE ) ).toEqual( {
-			text: 'V0m',
+		expect( bundle.toolbar.formatAllowance( 0, ToolbarBadgeDurationUnit.SECOND ) ).toEqual( {
+			text: '0s',
 			title: 'Visit window: complete',
 		} );
 		expect( bundle.toolbar.formatMultipleActive( 120, multipleIndicator ) ).toEqual( {
@@ -228,6 +259,18 @@ describe( 'createLocalizationBundle', () => {
 		expect( japanese.toolbar.formatMultipleIndicator( 120 ) ).toBe( '99\u4ef6+' );
 		expect( russian.toolbar.formatMultipleIndicator( 2 ) ).toBe( '2\u00d7' );
 		expect( russian.toolbar.formatMultipleIndicator( 120 ) ).toBe( '99+' );
+		expect( russian.toolbar.formatAllowance( 1, ToolbarBadgeDurationUnit.SECOND ) ).toEqual( {
+			text: '1s',
+			title: 'Период доступа: осталась 1 секунда',
+		} );
+		expect( russian.toolbar.formatAllowance( 2, ToolbarBadgeDurationUnit.SECOND ) ).toEqual( {
+			text: '2s',
+			title: 'Период доступа: осталось 2 секунды',
+		} );
+		expect( russian.toolbar.formatAllowance( 5, ToolbarBadgeDurationUnit.SECOND ) ).toEqual( {
+			text: '5s',
+			title: 'Период доступа: осталось 5 секунд',
+		} );
 	} );
 
 	it.each( [

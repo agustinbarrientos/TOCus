@@ -1,6 +1,6 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
-import { type DocumentCopy } from '../create-localization-bundle/types';
+import type { DocumentCopy } from '../create-localization-bundle/types';
 
 /**
  * Creates localized browser-document titles owned by extension pages.
