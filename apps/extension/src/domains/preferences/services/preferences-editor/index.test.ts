@@ -8,7 +8,7 @@ import {
 	ThemeMode,
 	type PreferencesDocument,
 } from '../../types';
-import { type PreferencesStorageService } from '../preferences-storage';
+import type { PreferencesStorageService } from '../preferences-storage';
 import {
 	createPreferencesEditor,
 	type PreferencesMutation,

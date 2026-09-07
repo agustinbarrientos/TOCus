@@ -1,6 +1,6 @@
 import type { z } from 'zod';
 import { PreferencesDocumentSchema, type PreferencesDocument } from '../../types';
-import { type PreferencesStorageService } from '../preferences-storage';
+import type { PreferencesStorageService } from '../preferences-storage';
 
 /**
  * Validates one nonempty update to editable preference fields.
