@@ -13,12 +13,15 @@ import {
 } from '../../types/protection-value';
 import {
 	DefaultTimingConfiguration,
+	TimingConfigurationSchema,
 	type TimingConfiguration,
 } from '../../types/timing-configuration';
 import {
 	ProtectionConfigurationStorageKey,
 	VersionOneProtectionConfigurationDocumentSchema,
+	VersionThreeProtectionConfigurationDocumentSchema,
 	VersionTwoProtectionConfigurationDocumentSchema,
+	type HistoricalTimingConfiguration,
 	type ProtectionConfigurationStorageService,
 	type ProtectionConfigurationStorageServiceOptions,
 } from './types';
@@ -50,6 +53,7 @@ function createInitialMeasurementRevisions(
  * @param sites - Validated protected-site configurations to retain.
  * @param timingConfiguration - Validated global timing configuration to retain.
  * @param schedulesByScope - Validated normalized schedules to retain.
+ * @param measurementRevisionsByScope - Validated measurement revisions to retain or create.
  * @return Current configuration or null when the migrated fields violate current invariants.
  * @since 0.1.0 Initial implementation.
  */
@@ -57,16 +61,40 @@ function migrateConfiguration(
 	sites: ProtectionConfigurationDocument[ 'sites' ],
 	timingConfiguration: TimingConfiguration,
 	schedulesByScope: ProtectionScopeScheduleMap,
+	measurementRevisionsByScope = createInitialMeasurementRevisions( sites ),
 ): ProtectionConfigurationDocument | null {
 	const configuration = ProtectionConfigurationDocumentSchema.safeParse( {
 		schemaVersion: ProtectionConfigurationDocumentVersion,
 		sites,
 		timingConfiguration,
 		schedulesByScope,
-		measurementRevisionsByScope: createInitialMeasurementRevisions( sites ),
+		measurementRevisionsByScope,
 	} );
 
 	return configuration.success ? configuration.data : null;
+}
+
+/**
+ * Maps fully validated historical timing onto the version-four control contract.
+ * @param timingConfiguration - Complete validated historical timing.
+ * @return Timing constrained to the version-four controls.
+ * @since 0.1.0 Initial implementation.
+ */
+function migrateHistoricalTimingConfiguration(
+	timingConfiguration: HistoricalTimingConfiguration,
+): TimingConfiguration {
+	return TimingConfigurationSchema.parse( {
+		...timingConfiguration,
+		initialWaitMilliseconds: Math.min( timingConfiguration.initialWaitMilliseconds, 30_000 ),
+		ladderIncreaseMilliseconds: Math.min( timingConfiguration.ladderIncreaseMilliseconds, 5_000 ),
+		maximumWaitMilliseconds: Math.ceil(
+			Math.max( timingConfiguration.maximumWaitMilliseconds, 30_000 ) / 30_000,
+		) * 30_000,
+		allowanceMilliseconds: Math.min(
+			Math.max( timingConfiguration.allowanceMilliseconds, 120_000 ),
+			1_200_000,
+		),
+	} );
 }
 
 /**
@@ -121,11 +149,27 @@ export function createProtectionConfigurationStorageService(
 		const versionTwoConfiguration = VersionTwoProtectionConfigurationDocumentSchema.safeParse(
 			storedConfiguration,
 		);
+		const versionThreeConfiguration = VersionThreeProtectionConfigurationDocumentSchema.safeParse(
+			storedConfiguration,
+		);
+
+		if ( versionThreeConfiguration.success ) {
+			return migrateConfiguration(
+				versionThreeConfiguration.data.sites,
+				migrateHistoricalTimingConfiguration(
+					versionThreeConfiguration.data.timingConfiguration,
+				),
+				versionThreeConfiguration.data.schedulesByScope,
+				versionThreeConfiguration.data.measurementRevisionsByScope,
+			);
+		}
 
 		if ( versionTwoConfiguration.success ) {
 			return migrateConfiguration(
 				versionTwoConfiguration.data.sites,
-				versionTwoConfiguration.data.timingConfiguration,
+				migrateHistoricalTimingConfiguration(
+					versionTwoConfiguration.data.timingConfiguration,
+				),
 				versionTwoConfiguration.data.schedulesByScope,
 			);
 		}

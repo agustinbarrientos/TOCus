@@ -45,9 +45,21 @@ const VERSION_TWO_CONFIGURATION = {
  */
 const CURRENT_CONFIGURATION = {
 	...VERSION_TWO_CONFIGURATION,
-	schemaVersion: 3,
+	schemaVersion: 4,
 	measurementRevisionsByScope: {
 		scope_default: 'revision_initial_scope_default',
+	},
+};
+
+/**
+ * Persisted configuration from before the timing-control contract was narrowed.
+ * @since 0.1.0 Initial implementation.
+ */
+const VERSION_THREE_CONFIGURATION = {
+	...CURRENT_CONFIGURATION,
+	schemaVersion: 3,
+	measurementRevisionsByScope: {
+		scope_default: 'revision_existing_custom',
 	},
 };
 
@@ -94,12 +106,164 @@ class MemoryProtectionConfigurationStorageArea implements ProtectionConfiguratio
 }
 
 describe( 'createProtectionConfigurationStorageService', () => {
+	it.each( [ 2, 3 ] )( 'strictly migrates complete version %i timing without writing storage', async ( schemaVersion ) => {
+		const previousIncreases = [ 0, 1_000, 2_000, 3_000, 4_000, 5_000, 10_000, 60_000 ];
+
+		for ( const ladderIncreaseMilliseconds of previousIncreases ) {
+			const storedConfiguration = {
+				...( schemaVersion === 2 ? VERSION_TWO_CONFIGURATION : VERSION_THREE_CONFIGURATION ),
+				timingConfiguration: {
+					...DefaultTimingConfiguration,
+					initialWaitMilliseconds: 35_000,
+					maximumWaitMilliseconds: 45_000,
+					allowanceMilliseconds: 60_000,
+					ladderIncreaseMilliseconds,
+				},
+			};
+			const area = new MemoryProtectionConfigurationStorageArea( {
+				[ ProtectionConfigurationStorageKey.CONFIGURATION ]: storedConfiguration,
+			} );
+			const storage = createProtectionConfigurationStorageService( { area } );
+
+			await expect( storage.load() ).resolves.toEqual( {
+				...CURRENT_CONFIGURATION,
+				...( schemaVersion === 3 ? { measurementRevisionsByScope: { scope_default: 'revision_existing_custom' } } : {} ),
+				timingConfiguration: {
+					...storedConfiguration.timingConfiguration,
+					initialWaitMilliseconds: 30_000,
+					maximumWaitMilliseconds: 60_000,
+					allowanceMilliseconds: 120_000,
+					ladderIncreaseMilliseconds: Math.min( ladderIncreaseMilliseconds, 5_000 ),
+				},
+			} );
+			expect( area.writtenValues ).toEqual( [] );
+			expect( storedConfiguration.timingConfiguration.ladderIncreaseMilliseconds )
+				.toBe( ladderIncreaseMilliseconds );
+		}
+	} );
+
+	it( 'applies every timing boundary mapping to a valid version-three document', async () => {
+		const area = new MemoryProtectionConfigurationStorageArea( {
+			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: {
+				...VERSION_THREE_CONFIGURATION,
+				timingConfiguration: {
+					...DefaultTimingConfiguration,
+					initialWaitMilliseconds: 10_000,
+					maximumWaitMilliseconds: 10_000,
+					allowanceMilliseconds: 60 * 60_000,
+					ladderIncreaseMilliseconds: 60_000,
+				},
+			},
+		} );
+
+		await expect( createProtectionConfigurationStorageService( { area } ).load() )
+			.resolves.toEqual( {
+				...CURRENT_CONFIGURATION,
+				measurementRevisionsByScope: { scope_default: 'revision_existing_custom' },
+				timingConfiguration: {
+					...DefaultTimingConfiguration,
+					maximumWaitMilliseconds: 30_000,
+					allowanceMilliseconds: 20 * 60_000,
+				},
+			} );
+		expect( area.writtenValues ).toEqual( [] );
+	} );
+
+	it.each( [ 0, 1_000, 2_000, 3_000, 4_000, 5_000 ] )( 'round-trips a current increase of %i milliseconds', async ( ladderIncreaseMilliseconds ) => {
+		const area = new MemoryProtectionConfigurationStorageArea();
+		const storage = createProtectionConfigurationStorageService( { area } );
+		const configuration = {
+			...CURRENT_CONFIGURATION,
+			timingConfiguration: { ...DefaultTimingConfiguration, ladderIncreaseMilliseconds },
+		};
+
+		await storage.save( configuration );
+		await expect( storage.load() ).resolves.toEqual( configuration );
+	} );
+
+	it.each( [ 6_000, 10_001, 60_001, 65_000, -1_000, 1_001, '10000' ] )( 'does not normalize malformed persisted increase %s', async ( ladderIncreaseMilliseconds ) => {
+		const area = new MemoryProtectionConfigurationStorageArea( {
+			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: {
+				...CURRENT_CONFIGURATION,
+				timingConfiguration: { ...DefaultTimingConfiguration, ladderIncreaseMilliseconds },
+			},
+		} );
+
+		await expect( createProtectionConfigurationStorageService( { area } ).load() ).resolves.toBeNull();
+		expect( area.writtenValues ).toEqual( [] );
+	} );
+
+	it.each( [
+		{ initialWaitMilliseconds: 10_001 },
+		{ initialWaitMilliseconds: 65_000 },
+		{ maximumWaitMilliseconds: 10_001 },
+		{ maximumWaitMilliseconds: 65_000 },
+		{ allowanceMilliseconds: 60_001 },
+		{ allowanceMilliseconds: 3_660_000 },
+		{ ladderIncreaseMilliseconds: 6_000 },
+		{ ladderIncreaseMilliseconds: 65_000 },
+	] )( 'does not clamp malformed version-three timing %#', async ( timingOverrides ) => {
+		const area = new MemoryProtectionConfigurationStorageArea( {
+			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: {
+				...VERSION_THREE_CONFIGURATION,
+				timingConfiguration: {
+					...VERSION_THREE_CONFIGURATION.timingConfiguration,
+					...timingOverrides,
+				},
+			},
+		} );
+
+		await expect( createProtectionConfigurationStorageService( { area } ).load() ).resolves.toBeNull();
+		expect( area.writtenValues ).toEqual( [] );
+	} );
+
+	it( 'rejects a previously permitted increase on a new save', async () => {
+		const area = new MemoryProtectionConfigurationStorageArea();
+
+		await expect( createProtectionConfigurationStorageService( { area } ).save( {
+			...CURRENT_CONFIGURATION,
+			timingConfiguration: { ...DefaultTimingConfiguration, ladderIncreaseMilliseconds: 10_000 },
+		} ) ).rejects.toThrow();
+		expect( area.writtenValues ).toEqual( [] );
+	} );
+
+	it.each( [
+		{ schemaVersion: 4 },
+		{ extra: 'unknown-field' },
+		{ sites: null },
+		{ measurementRevisionsByScope: {} },
+	] )( 'still validates the full previous-increase document %#', async ( overrides ) => {
+		const area = new MemoryProtectionConfigurationStorageArea( {
+			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: {
+				...VERSION_THREE_CONFIGURATION,
+				timingConfiguration: { ...DefaultTimingConfiguration, ladderIncreaseMilliseconds: 10_000 },
+				...overrides,
+			},
+		} );
+
+		await expect( createProtectionConfigurationStorageService( { area } ).load() ).resolves.toBeNull();
+		expect( area.writtenValues ).toEqual( [] );
+	} );
+
+	it.each( [
+		{ ...VERSION_TWO_CONFIGURATION, remoteSync: true },
+		{ ...VERSION_THREE_CONFIGURATION, remoteSync: true },
+		{ ...VERSION_THREE_CONFIGURATION, measurementRevisionsByScope: {} },
+	] )( 'rejects incomplete or extended legacy document %# before migration', async ( configuration ) => {
+		const area = new MemoryProtectionConfigurationStorageArea( {
+			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: configuration,
+		} );
+
+		await expect( createProtectionConfigurationStorageService( { area } ).load() ).resolves.toBeNull();
+		expect( area.writtenValues ).toEqual( [] );
+	} );
+
 	it( 'returns an empty current document when no configuration exists', async () => {
 		const area = new MemoryProtectionConfigurationStorageArea();
 		const storage = createProtectionConfigurationStorageService( { area } );
 
 		await expect( storage.load() ).resolves.toEqual( {
-			schemaVersion: 3,
+			schemaVersion: 4,
 			sites: [],
 			timingConfiguration: DefaultTimingConfiguration,
 			schedulesByScope: {
@@ -181,7 +345,7 @@ describe( 'createProtectionConfigurationStorageService', () => {
 	it.each( [
 		{
 			label: 'future document version',
-			configuration: { ...CURRENT_CONFIGURATION, schemaVersion: 4 },
+			configuration: { ...CURRENT_CONFIGURATION, schemaVersion: 5 },
 		},
 		{
 			label: 'version-one document with an unknown field',
@@ -251,7 +415,7 @@ describe( 'createProtectionConfigurationStorageService', () => {
 
 	it( 'stores the exact identity host separately from its broader protection rule', async () => {
 		const configuration = {
-			schemaVersion: 3,
+			schemaVersion: 4,
 			sites: [ {
 				identityHost: 'mail.google.com',
 				rule: {
@@ -300,7 +464,7 @@ describe( 'createProtectionConfigurationStorageService', () => {
 	} );
 
 	it.each( [
-		{ ...CURRENT_CONFIGURATION, schemaVersion: 4 },
+		{ ...CURRENT_CONFIGURATION, schemaVersion: 5 },
 		{
 			...CURRENT_CONFIGURATION,
 			sites: [ {
