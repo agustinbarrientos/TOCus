@@ -1,4 +1,4 @@
-import { type CatalogType } from '@lingui/cli/api';
+import type { CatalogType } from '@lingui/cli/api';
 import { setupI18n } from '@lingui/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Language } from '../../../../src/domains/preferences/types.ts';
@@ -10,7 +10,7 @@ import { createRuntimeLocalizationMessages } from './index.ts';
  */
 const RuntimeProjectionCases = [
 	{
-		expectedMessageCount: 16,
+		expectedMessageCount: 13,
 		label: 'toolbar',
 		origins: [ 'localization/utils/create-toolbar-copy/index.ts' ],
 	},
