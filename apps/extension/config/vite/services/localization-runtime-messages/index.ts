@@ -1,8 +1,8 @@
 import { createRuntimeLocalizationMessages } from '../../../localization/services/create-runtime-localization-messages/index.ts';
 import { serializeRuntimeLocalizationMessages } from '../../../localization/utils/serialize-runtime-localization-messages/index.ts';
-import {
-	type LocalizationRuntimeMessagesPlugin,
-	type LocalizationRuntimeMessagesPluginOptions,
+import type {
+	LocalizationRuntimeMessagesPlugin,
+	LocalizationRuntimeMessagesPluginOptions,
 } from './types.ts';
 
 /**

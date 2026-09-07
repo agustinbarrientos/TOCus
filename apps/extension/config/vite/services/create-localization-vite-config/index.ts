@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import babel from '@rolldown/plugin-babel';
 import { lingui, linguiTransformerBabelPreset } from '@lingui/vite-plugin';
 import { createLocalizationRuntimeMessagesPlugin } from '../localization-runtime-messages/index.ts';
-import { type LocalizationViteConfig } from './types.ts';
+import type { LocalizationViteConfig } from './types.ts';
 
 /**
  * Absolute path to the repository shared Lingui configuration.

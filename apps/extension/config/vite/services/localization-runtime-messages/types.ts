@@ -1,4 +1,4 @@
-import { type RuntimeLocalizationMessages } from '../../../localization/services/create-runtime-localization-messages/types.ts';
+import type { RuntimeLocalizationMessages } from '../../../localization/services/create-runtime-localization-messages/types.ts';
 
 /**
  * Creates runtime messages for selected localization source modules.
