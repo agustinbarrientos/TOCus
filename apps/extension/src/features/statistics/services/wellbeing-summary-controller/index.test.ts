@@ -4,8 +4,8 @@ import {
 	type StatisticsProjection,
 } from '../../../../domains/statistics/types/statistics-projection';
 import { createWellbeingSummaryController } from './index';
-import { type WellbeingSummaryTarget } from './types';
-import { type WellbeingSummaryValues } from '../../utils/format-wellbeing-summary/types';
+import type { WellbeingSummaryTarget } from './types';
+import type { WellbeingSummaryValues } from '../../utils/format-wellbeing-summary/types';
 import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 
 /**

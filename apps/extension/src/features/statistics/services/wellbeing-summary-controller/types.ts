@@ -1,5 +1,5 @@
-import { type StatisticsChangeSource } from '../statistics-client/types';
-import { type WellbeingSummaryCopy } from '../../utils/format-wellbeing-summary/types';
+import type { StatisticsChangeSource } from '../statistics-client/types';
+import type { WellbeingSummaryCopy } from '../../utils/format-wellbeing-summary/types';
 
 /**
  * Interruption presentation that receives one complete wellbeing footer.
