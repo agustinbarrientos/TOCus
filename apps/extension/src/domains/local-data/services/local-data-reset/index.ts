@@ -9,7 +9,7 @@ import {
 	readLocalDataGeneration,
 	type LocalDataGeneration,
 } from '../local-data-generation';
-import { type LocalDataReset, type LocalDataResetOptions } from './types';
+import type { LocalDataReset, LocalDataResetOptions } from './types';
 
 /**
  * Coordinates explicit full deletion with settings writers and recoverable browser cleanup.

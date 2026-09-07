@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createLocalDataReset } from './index';
 import { LocalDataGenerationStorageKey } from '../local-data-generation';
-import { type LocalDataResetOptions } from './types';
+import type { LocalDataResetOptions } from './types';
 
 /**
  * Creates isolated storage and lifecycle boundaries for reset behavior.

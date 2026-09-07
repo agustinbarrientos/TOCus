@@ -1,4 +1,4 @@
-import { type LocalDataGenerationArea } from '../local-data-generation';
+import type { LocalDataGenerationArea } from '../local-data-generation';
 
 /**
  * Extension-owned persistence operations used by explicit full reset.
