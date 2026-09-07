@@ -1,4 +1,4 @@
-import { type LocalizationFormatters } from './types';
+import type { LocalizationFormatters } from './types';
 
 /**
  * Creates reusable ECMA-402 formatters for one selected language.

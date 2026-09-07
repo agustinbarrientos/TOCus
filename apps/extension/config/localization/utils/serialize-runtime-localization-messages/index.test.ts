@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Language } from '../../../../src/domains/preferences/types.ts';
-import { type RuntimeLocalizationMessages } from '../../services/create-runtime-localization-messages/types.ts';
+import type { RuntimeLocalizationMessages } from '../../services/create-runtime-localization-messages/types.ts';
 import { serializeRuntimeLocalizationMessages } from './index.ts';
 
 describe( 'serializeRuntimeLocalizationMessages', () => {

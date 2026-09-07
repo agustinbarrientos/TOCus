@@ -1,4 +1,4 @@
-import { type RuntimeLocalizationMessages } from '../../services/create-runtime-localization-messages/types.ts';
+import type { RuntimeLocalizationMessages } from '../../services/create-runtime-localization-messages/types.ts';
 
 /**
  * Serializes one locale map as an immutable virtual JavaScript module.
