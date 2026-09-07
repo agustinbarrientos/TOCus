@@ -1,3 +1,5 @@
+import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
+import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
 import { describe, expect, it, vi } from 'vitest';
 import {
 	ProtectionCoordinatorDispatchStatus,
@@ -23,8 +25,8 @@ import {
 } from '../../../../domains/protection/types/protection-event';
 import { ProtectionDecisionType } from '../../../../domains/protection/types/protection-decision';
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
 import {
 	AllowanceIdSchema,
 	DefaultProtectionScopeId,
@@ -33,7 +35,7 @@ import {
 } from '../../../../domains/protection/types/protection-value';
 import { ProtectionStateReconciliationRequirementReason } from '../../../../domains/protection/utils/restore-protection-state';
 import { createProtectionRuntimeRestorer } from './index';
-import { type ProtectionRuntimeRestorerOptions } from './types';
+import type { ProtectionRuntimeRestorerOptions } from './types';
 
 /**
  * Fixed wall-clock instant used by restoration fixtures.
@@ -329,8 +331,8 @@ describe( 'createProtectionRuntimeRestorer', () => {
 				participantId: READY_PARTICIPANT.participantId,
 				pageId: READY_PARTICIPANT.pageId,
 				observedDestination: READY_PARTICIPANT.retainedDestination,
-				match: { status: 'protected', rule: CONFIGURATION.sites[ 0 ]?.rule },
-				schedule: { status: 'active' },
+				match: { status: ProtectedUrlMatchStatus.PROTECTED, rule: CONFIGURATION.sites[ 0 ]?.rule },
+				schedule: { status: ScheduleEvaluationStatus.ACTIVE },
 			},
 		} ] );
 		expect( harness.applyDispatchResult ).toHaveBeenCalledWith( APPLIED_RESULT, CONFIGURATION );
@@ -362,8 +364,8 @@ describe( 'createProtectionRuntimeRestorer', () => {
 				participantId: EXPIRY_READY_PARTICIPANT.participantId,
 				pageId: EXPIRY_READY_PARTICIPANT.pageId,
 				observedDestination: null,
-				match: { status: 'protected', rule: CONFIGURATION.sites[ 0 ]?.rule },
-				schedule: { status: 'active' },
+				match: { status: ProtectedUrlMatchStatus.PROTECTED, rule: CONFIGURATION.sites[ 0 ]?.rule },
+				schedule: { status: ScheduleEvaluationStatus.ACTIVE },
 			},
 		} ] );
 		expect( harness.applyDispatchResult ).toHaveBeenCalledWith( APPLIED_RESULT, CONFIGURATION );
@@ -480,7 +482,7 @@ describe( 'createProtectionRuntimeRestorer', () => {
 			throw new Error( 'Expected one Ready reconciliation event.' );
 		}
 
-		expect( event.observation.schedule ).toEqual( { status: 'inactive' } );
+		expect( event.observation.schedule ).toEqual( { status: ScheduleEvaluationStatus.INACTIVE } );
 	} );
 
 	it.each( [

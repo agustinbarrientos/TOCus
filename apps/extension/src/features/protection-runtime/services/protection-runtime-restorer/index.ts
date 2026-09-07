@@ -13,17 +13,17 @@ import {
 	ProtectionParticipantOrigin,
 	type ProtectionParticipant,
 } from '../../../../domains/protection/types/protection-participant';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
 import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
 import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
 import { evaluateSchedule } from '../../../../domains/protection/utils/schedule-evaluator';
 import { matchProtectedUrl } from '../../../../domains/protection/utils/protected-url-matcher';
-import { type ProtectionStateReconciliationRequirement } from '../../../../domains/protection/utils/restore-protection-state';
+import type { ProtectionStateReconciliationRequirement } from '../../../../domains/protection/utils/restore-protection-state';
 import { createFreshRuntimeObservation } from '../../utils/runtime-participant-observation';
 import { getRuntimeTabId } from '../../utils/runtime-page-context';
-import { type ProtectionRuntimeTab } from '../../types/browser-runtime';
-import { type ProtectionRuntimeRestorer, type ProtectionRuntimeRestorerOptions } from './types';
+import type { ProtectionRuntimeTab } from '../../types/browser-runtime';
+import type { ProtectionRuntimeRestorer, ProtectionRuntimeRestorerOptions } from './types';
 
 /**
  * Finds the exact current Ready participant named by one restoration requirement.
