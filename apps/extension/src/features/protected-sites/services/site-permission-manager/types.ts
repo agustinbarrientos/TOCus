@@ -1,6 +1,6 @@
-import { type Browser } from 'wxt/browser';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
+import type { Browser } from 'wxt/browser';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
 
 /**
  * Permission request passed to the browser permissions API.
