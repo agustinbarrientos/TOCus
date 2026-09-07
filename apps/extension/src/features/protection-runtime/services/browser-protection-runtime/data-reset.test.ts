@@ -1,7 +1,8 @@
+import { StatisticsProjectionStatus } from '../../../../domains/statistics/types/statistics-projection';
 import { describe, expect, it, vi } from 'vitest';
 import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import { StatisticsFocusObservationMode } from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
-import { InterruptionPageRequestType } from '../../types/runtime-message';
+import { InterruptionPageResponseState, InterruptionPageRequestType } from '../../types/runtime-message';
 import { ProtectedPageMessageType } from '../../types/protected-page-message';
 import {
 	DeferredPromise,
@@ -33,8 +34,9 @@ describe( 'browser protection runtime local data reset', () => {
 		await runtime.start();
 		await runtime.handleConfigurationChanged();
 		await runtime.failOpen();
-		await expect( runtime.readStatistics() ).resolves.toEqual( { status: 'unavailable' } );
-		await expect( runtime.resetStatistics() ).resolves.toEqual( { status: 'unavailable' } );
+		await expect( runtime.readStatistics() ).resolves.toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
+		await expect( runtime.resetStatistics() ).resolves
+			.toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
 		await expect( runtime.captureStatisticsObservation( StatisticsFocusObservationMode.BOUNDARY ) )
 			.resolves.toEqual( {
 				observedAtEpochMilliseconds: null, focusObservation: null, focusEpochTransition: null,
@@ -127,7 +129,7 @@ describe( 'browser protection runtime local data reset', () => {
 		release.resolve();
 		await Promise.all( [ current, queued, suspension ] );
 
-		await expect( page ).resolves.toEqual( { state: 'unavailable' } );
+		await expect( page ).resolves.toEqual( { state: InterruptionPageResponseState.UNAVAILABLE } );
 		await expect( coordinator.getStates() ).resolves.toEqual( {} );
 		expect( browser.navigations ).toEqual( [] );
 		expect( browser.rules ).toEqual( [] );
@@ -164,15 +166,16 @@ describe( 'browser protection runtime local data reset', () => {
 		const suspension = runtime.suspendForDataReset().then( () => {
 			suspended = true;
 		} );
-		await expect( runtime.readStatistics() ).resolves.toEqual( { status: 'unavailable' } );
-		await expect( runtime.resetStatistics() ).resolves.toEqual( { status: 'unavailable' } );
+		await expect( runtime.readStatistics() ).resolves.toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
+		await expect( runtime.resetStatistics() ).resolves
+			.toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
 		releaseRead.resolve();
 		await waitForQueuedWork();
 		expect( suspended ).toBe( false );
 		releaseFocus.resolve();
 		await Promise.all( [ observation, suspension ] );
-		await expect( read ).resolves.toEqual( { status: 'unavailable' } );
-		await expect( queuedRead ).resolves.toEqual( { status: 'unavailable' } );
+		await expect( read ).resolves.toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
+		await expect( queuedRead ).resolves.toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
 	} );
 
 	it( 'keeps intake suspended after cleanup failure and retries cleanup safely', async () => {

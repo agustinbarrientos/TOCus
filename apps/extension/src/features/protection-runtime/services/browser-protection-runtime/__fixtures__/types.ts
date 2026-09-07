@@ -1,7 +1,7 @@
-import { type Mock } from 'vitest';
-import { type ProtectionCoordinator } from '../../../../../domains/protection';
-import { type StatisticsRuntime } from '../../../../statistics/services/statistics-runtime';
-import { type BrowserProtectionRuntime } from '../types';
+import type { Mock } from 'vitest';
+import type { ProtectionCoordinator } from '../../../../../domains/protection';
+import type { StatisticsRuntime } from '../../../../statistics/services/statistics-runtime';
+import type { BrowserProtectionRuntime } from '../types';
 
 /**
  * Mutable wall-clock holder used by runtime integration tests.

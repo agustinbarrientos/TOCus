@@ -1,22 +1,22 @@
-import { type ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
-import {
-	type ProtectionCoordinator,
-	type ProtectionCoordinatorStateSnapshot,
+import type { ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
+import type {
+	ProtectionCoordinator,
+	ProtectionCoordinatorStateSnapshot,
 } from '../../../../domains/protection/services/protection-coordinator';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type InterruptionPageResponse } from '../../types/runtime-message';
-import {
-	type ProtectionRuntimeBrowser,
-	type ProtectionRuntimeNavigation,
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { InterruptionPageResponse } from '../../types/runtime-message';
+import type {
+	ProtectionRuntimeBrowser,
+	ProtectionRuntimeNavigation,
 } from '../../types/browser-runtime';
-import { type ToolbarBadgeCopy } from '../../utils/toolbar-badge-projection';
-import { type StatisticsRuntime } from '../../../statistics/services/statistics-runtime';
-import {
-	type BrowserProtectionFocusEventIdentity,
-	type BrowserProtectionStatisticsObservation,
+import type { ToolbarBadgeCopy } from '../../utils/toolbar-badge-projection';
+import type { StatisticsRuntime } from '../../../statistics/services/statistics-runtime';
+import type {
+	BrowserProtectionFocusEventIdentity,
+	BrowserProtectionStatisticsObservation,
 } from '../../../statistics/services/browser-statistics-bridge';
-import { type StatisticsFocusObservationMode } from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
-import { type StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
+import type { StatisticsFocusObservationMode } from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
+import type { StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
 
 /**
  * Detached protection state used only inside the trusted background process.

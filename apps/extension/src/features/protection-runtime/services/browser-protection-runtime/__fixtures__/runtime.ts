@@ -1,10 +1,10 @@
-import { type Browser } from 'wxt/browser';
+import type { Browser } from 'wxt/browser';
 import {
 	createProtectionCoordinator,
 	type LoadedProtectionState,
 	type ProtectionStorageService,
 } from '../../../../../domains/protection';
-import { type ProtectionConfigurationStorageService } from '../../../../../domains/protection/services/protection-configuration-storage';
+import type { ProtectionConfigurationStorageService } from '../../../../../domains/protection/services/protection-configuration-storage';
 import { TestEmptyProtectionConfiguration } from '../../../../../domains/protection/types/__fixtures__';
 import {
 	ProtectionConfigurationDocumentSchema,
@@ -12,9 +12,9 @@ import {
 } from '../../../../../domains/protection/types/protected-site-configuration';
 import { DefaultProtectionScopeId } from '../../../../../domains/protection/types/protection-value';
 import { ProtectionStateType } from '../../../../../domains/protection/types/protection-state';
-import {
-	type ToolbarBadgeCopy,
-	type ToolbarBadgeProjection,
+import type {
+	ToolbarBadgeCopy,
+	ToolbarBadgeProjection,
 } from '../../../utils/toolbar-badge-projection';
 import { TestEnglishLocalizationBundle } from '../../../../../localization/__fixtures__';
 import {
@@ -28,15 +28,15 @@ import {
 	type ProtectedPagePresentationStatus,
 } from '../../../types/protected-page-message';
 import { createBrowserProtectionRuntime } from '../index';
-import { type BrowserProtectionRuntime } from '../types';
-import {
-	type ProtectionClockDeadlines,
-	type ProtectionRuntimeBrowser,
-	type ProtectionRuntimeTab,
+import type { BrowserProtectionRuntime } from '../types';
+import type {
+	ProtectionClockDeadlines,
+	ProtectionRuntimeBrowser,
+	ProtectionRuntimeTab,
 } from '../../../types/browser-runtime';
-import { type StatisticsRuntime } from '../../../../statistics/services/statistics-runtime';
+import type { StatisticsRuntime } from '../../../../statistics/services/statistics-runtime';
 import { createInertStatisticsRuntime } from './statistics-runtime';
-import { type MutableClock, type RuntimeTestHarness } from './types';
+import type { MutableClock, RuntimeTestHarness } from './types';
 
 /**
  * Promise whose completion is controlled by one runtime integration test.
