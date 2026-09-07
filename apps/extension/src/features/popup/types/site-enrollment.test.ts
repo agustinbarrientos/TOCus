@@ -1,3 +1,4 @@
+import { ProtectedSiteEnrollmentStatus } from '../../protected-sites/services/protected-site-enrollment/types';
 import { describe, expect, it } from 'vitest';
 import {
 	PopupSiteEnrollmentRequestSchema,
@@ -13,6 +14,7 @@ describe( 'popup website enrollment contracts', () => {
 			independent: false,
 		};
 		expect( PopupSiteEnrollmentRequestSchema.parse( request ) ).toEqual( request );
-		expect( PopupSiteEnrollmentResultSchema.parse( { status: 'added' } ) ).toEqual( { status: 'added' } );
+		expect( PopupSiteEnrollmentResultSchema.parse( { status: ProtectedSiteEnrollmentStatus.ADDED } ) )
+			.toEqual( { status: ProtectedSiteEnrollmentStatus.ADDED } );
 	} );
 } );

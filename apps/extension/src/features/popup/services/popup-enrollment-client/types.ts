@@ -1,6 +1,6 @@
-import {
-	type PopupSiteEnrollmentRequest,
-	type PopupSiteEnrollmentResult,
+import type {
+	PopupSiteEnrollmentRequest,
+	PopupSiteEnrollmentResult,
 } from '../../types/site-enrollment';
 
 /**
