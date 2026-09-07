@@ -1,17 +1,17 @@
-import { type Language } from '../../../../domains/preferences/types';
-import { type LocalizationBundle } from '../../../../localization';
-import {
-	type PreferencesAppearanceTarget,
-	type PreferencesLanguageChangeListener,
+import type { Language } from '../../../../domains/preferences/types';
+import type { LocalizationBundle } from '../../../../localization';
+import type {
+	PreferencesAppearanceTarget,
+	PreferencesLanguageChangeListener,
 } from '../../../preferences/services/preferences-controller';
-import {
-	type SiteFaviconProvider,
-	type SiteFaviconSource,
+import type {
+	SiteFaviconProvider,
+	SiteFaviconSource,
 } from '../../../protected-sites/services/site-favicon-provider';
-import { type PopupShellCopy, type PopupOperationError } from '../../components/shell/types';
-import { type PopupCurrentTabContext } from '../../types/current-tab-context';
-import { type PopupProjection } from '../../types/popup-projection';
-import { type PopupSiteEnrollmentResult } from '../../types/site-enrollment';
+import type { PopupShellCopy, PopupOperationError } from '../../components/shell/types';
+import type { PopupCurrentTabContext } from '../../types/current-tab-context';
+import type { PopupProjection } from '../../types/popup-projection';
+import type { PopupSiteEnrollmentResult } from '../../types/site-enrollment';
 
 /**
  * Reads the current popup invocation's minimal active-tab context.
