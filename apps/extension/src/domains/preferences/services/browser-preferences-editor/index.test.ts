@@ -7,7 +7,7 @@ import {
 	PreferencesStorageKey,
 } from '../preferences-storage';
 import { createBrowserPreferencesEditor } from './index';
-import { type BrowserPreferencesMutationLock } from './types';
+import type { BrowserPreferencesMutationLock } from './types';
 import { LocalDataGenerationStorageKey } from '../../../local-data/services/local-data-generation';
 
 /**

@@ -6,9 +6,9 @@ import {
 	PreferencesStorageKey,
 	createPreferencesStorageService,
 } from '../preferences-storage';
-import {
-	type BrowserPreferencesEditor,
-	type BrowserPreferencesEditorOptions,
+import type {
+	BrowserPreferencesEditor,
+	BrowserPreferencesEditorOptions,
 } from './types';
 import { createLocalDataMutationGuard } from '../../../local-data/services/local-data-generation';
 
