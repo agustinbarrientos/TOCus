@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { access, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { type CatalogType } from '@lingui/cli/api';
+import type { CatalogType } from '@lingui/cli/api';
 import { formatter } from '@lingui/format-po';
 import { describe, expect, test } from 'vitest';
 
@@ -11,6 +11,17 @@ const safariManifestUrl = new URL( '../../.output/safari-mv2/manifest.json', imp
 const chromeOutputUrl = new URL( '../../.output/chrome-mv3/', import.meta.url );
 const firefoxOutputUrl = new URL( '../../.output/firefox-mv2/', import.meta.url );
 const safariOutputUrl = new URL( '../../.output/safari-mv2/', import.meta.url );
+
+test.each( [ 'popup', 'options', 'onboarding', 'interruption' ] )(
+	'loads %s modules normally without incompatible extension preload hints', async ( page ) => {
+		for ( const output of [ chromeOutputUrl, firefoxOutputUrl, safariOutputUrl ] ) {
+			const html = await readFile( new URL( `${ page }.html`, output ), 'utf8' );
+			expect( html ).toMatch( /<script[^>]+type="module"[^>]+src="[^"]+"/u );
+			expect( html ).toMatch( /<link[^>]+rel="stylesheet"/u );
+			expect( html ).not.toMatch( /<link[^>]+rel="modulepreload"/u );
+		}
+	},
+);
 const themeIconUrl = new URL( '../../../../packages/theme/assets/icon.svg', import.meta.url );
 const expectedExtensionIcons = {
 	16: 'icons/16.png',
@@ -108,6 +119,12 @@ const settingsOnlyMessage = 'Choose the language TOCus uses across the extension
  * @since 0.1.0 Initial implementation.
  */
 const maximumClassicRuntimeBytes = 450_000;
+/**
+ * Bounds the injected React/Mantine renderer, including its isolated library CSS.
+ * Background scripts retain the smaller engine-only budget above.
+ * @since 0.1.0 React presentation migration.
+ */
+const maximumProtectedPageBytes = 1_000_000;
 const pngSignature = Buffer.from( [ 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a ] );
 
 /**
@@ -262,7 +279,7 @@ async function expectPopupComposition( outputUrl: URL ): Promise<void> {
 	const moduleSource = moduleScript?.[ 1 ];
 
 	expectPreferencesBootstrap( popupHtml );
-	expect( popupHtml ).toContain( '<tocus-f-popup-shell>' );
+	expect( popupHtml ).toContain( '<div id="app"></div>' );
 	expect( moduleSource ).toBeDefined();
 
 	if ( moduleSource === undefined ) {
@@ -271,7 +288,7 @@ async function expectPopupComposition( outputUrl: URL ): Promise<void> {
 
 	const moduleCode = await readOutputFile( outputUrl, moduleSource.replace( /^\//u, '' ) );
 
-	expect( moduleCode ).toContain( 'tocus-f-popup-shell' );
+	expect( moduleCode ).toMatch( /getElementById\([`"']app[`"']\)/u );
 }
 
 /**
@@ -286,7 +303,7 @@ async function expectOptionsComposition( outputUrl: URL ): Promise<void> {
 	const moduleSource = moduleScript?.[ 1 ];
 
 	expectPreferencesBootstrap( optionsHtml );
-	expect( optionsHtml ).toContain( '<tocus-f-settings-shell>' );
+	expect( optionsHtml ).toContain( '<div id="settings-root"></div>' );
 	expect( moduleSource ).toBeDefined();
 
 	if ( moduleSource === undefined ) {
@@ -295,7 +312,7 @@ async function expectOptionsComposition( outputUrl: URL ): Promise<void> {
 
 	const moduleCode = await readOutputFile( outputUrl, moduleSource.replace( /^\//u, '' ) );
 
-	expect( moduleCode ).toContain( 'tocus-f-settings-shell' );
+	expect( moduleCode ).toMatch( /getElementById\([`"']settings-root[`"']\)/u );
 }
 
 /**
@@ -310,7 +327,7 @@ async function expectOnboardingComposition( outputUrl: URL ): Promise<void> {
 	const moduleSource = moduleScript?.[ 1 ];
 
 	expectPreferencesBootstrap( onboardingHtml );
-	expect( onboardingHtml ).toContain( '<tocus-f-onboarding-shell>' );
+	expect( onboardingHtml ).toContain( '<div id="app"></div>' );
 	expect( moduleSource ).toBeDefined();
 
 	if ( moduleSource === undefined ) {
@@ -320,7 +337,7 @@ async function expectOnboardingComposition( outputUrl: URL ): Promise<void> {
 	const moduleCode = await readOutputFile( outputUrl, moduleSource.replace( /^\//u, '' ) );
 	const iconDataUrls = moduleCode.match( /data:image\/svg\+xml,[^`]+/gu ) ?? [];
 
-	expect( moduleCode ).toContain( 'tocus-f-onboarding-shell' );
+	expect( moduleCode ).toMatch( /getElementById\([`"']app[`"']\)/u );
 	expect( iconDataUrls ).toHaveLength( expectedOnboardingSiteNames.length );
 	expect( new Set( iconDataUrls ).size ).toBe( expectedOnboardingSiteNames.length );
 
@@ -395,7 +412,9 @@ async function expectClassicRuntimeLocalization(
 
 	expect( source ).not.toContain( 'import(' );
 	expect( source ).not.toContain( settingsOnlyMessage );
-	expect( contents.byteLength ).toBeLessThanOrEqual( maximumClassicRuntimeBytes );
+	expect( contents.byteLength ).toBeLessThanOrEqual(
+		filePath === 'protected-page.js' ? maximumProtectedPageBytes : maximumClassicRuntimeBytes,
+	);
 }
 
 /**
