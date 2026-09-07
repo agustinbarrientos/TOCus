@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { StatisticsStorageKey } from '../../../../domains/statistics/services/statistics-storage';
 import { StatisticsProjectionStatus } from '../../../../domains/statistics/types/statistics-projection';
-import { type StatisticsRuntimeRequest } from '../../types/runtime-message';
+import type { StatisticsRuntimeRequest } from '../../types/runtime-message';
 import { createStatisticsClient } from './index';
 
 /**

@@ -1,5 +1,5 @@
-import { type StatisticsRuntimeRequest } from '../../types/runtime-message';
-import { type StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
+import type { StatisticsRuntimeRequest } from '../../types/runtime-message';
+import type { StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
 
 /**
  * Read-only authoritative statistics projection source.

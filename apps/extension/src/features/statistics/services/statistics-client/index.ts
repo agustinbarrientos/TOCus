@@ -10,11 +10,11 @@ import {
 	type StatisticsRuntimeRequest,
 	StatisticsRuntimeRequestType,
 } from '../../types/runtime-message';
-import {
-	type StatisticsClient,
-	type StatisticsChangeListener,
-	type StatisticsClientOptions,
-	type StatisticsStorageChangeListener,
+import type {
+	StatisticsClient,
+	StatisticsChangeListener,
+	StatisticsClientOptions,
+	StatisticsStorageChangeListener,
 } from './types';
 
 /**
