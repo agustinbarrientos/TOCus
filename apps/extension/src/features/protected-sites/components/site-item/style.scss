@@ -1,0 +1,75 @@
+@use '@tocus/theme/typography' as typography;
+
+.settings-site-item {
+	padding: var(--tocus-space-5);
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-medium);
+	background: var(--tocus-color-surface);
+	list-style: none;
+}
+
+[data-tocus-ui] .settings-page .settings-site-identity {
+	flex: 1;
+	min-width: 0;
+	overflow-wrap: anywhere;
+	h2 { @include typography.apply('title-medium'); margin: 0; }
+	p { @include typography.apply('body-small'); margin-top: var(--tocus-space-1); }
+}
+
+[data-tocus-ui] .settings-page .settings-site-boundary {
+	@include typography.apply('body-small');
+
+	margin: var(--tocus-space-3) 0 0 calc(2.75rem + var(--tocus-space-3));
+}
+
+.settings-site-row { gap: var(--tocus-space-3); }
+
+.settings-site-monogram { @include typography.apply('title-medium'); }
+
+.settings-site-access { margin-top: var(--tocus-space-4); }
+
+.settings-site-editor {
+	display: block;
+	margin-top: var(--tocus-space-5);
+	padding-top: var(--tocus-space-5);
+	border-top: 1px solid var(--tocus-color-outline);
+	> label { @include typography.apply('label-large'); display: block; }
+	> .settings-behavior-control { margin-top: var(--tocus-space-5); }
+}
+
+.settings-site-feedback { margin-top: var(--tocus-space-4); }
+
+.settings-site-name-control {
+	gap: var(--tocus-space-3);
+	margin-top: var(--tocus-space-2);
+
+	> :first-child {
+		flex: 1;
+		min-width: 0;
+	}
+}
+
+.settings-site-editor-footer { margin-top: var(--tocus-space-5); }
+
+[data-tocus-ui] .settings-site-edit-actions { gap: var(--tocus-space-2); }
+
+.settings-site-editor .settings-behavior-label { padding-inline: 2px; }
+
+@media (width <= 38rem) {
+	.settings-site-row {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr) auto;
+
+		> button {
+			grid-row: 1 / span 2;
+			grid-column: 3;
+		}
+	}
+	.settings-site-scope { grid-column: 2; }
+	[data-tocus-ui] .settings-page .settings-site-boundary { margin-left: 0; }
+
+	.settings-site-name-control, .settings-site-editor-footer {
+		align-items: stretch;
+		flex-direction: column;
+	}
+}
