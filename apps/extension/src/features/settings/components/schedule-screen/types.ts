@@ -1,5 +1,5 @@
-import { type ProtectionScopeId } from '../../../../domains/protection/types/protection-value';
-import { type Weekday } from '../../../../domains/protection/types/protection-schedule';
+import type { ProtectionScopeId } from '../../../../domains/protection/types/protection-value';
+import type { Weekday } from '../../../../domains/protection/types/protection-schedule';
 
 /**
  * Stable local-configuration loading states for the Schedule screen.
