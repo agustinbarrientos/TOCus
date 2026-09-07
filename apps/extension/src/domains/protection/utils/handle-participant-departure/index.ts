@@ -3,13 +3,13 @@ import {
 	QualifyingDepartureCauseSchema,
 	type ParticipantDepartureEvent,
 } from '../../types/protection-event';
-import { type ProtectionFact } from '../../types/protection-fact';
+import type { ProtectionFact } from '../../types/protection-fact';
 import { ProtectionParticipantOrigin } from '../../types/protection-participant';
 import {
 	ProtectionStateType,
 	type ProtectionState,
 } from '../../types/protection-state';
-import { type ProtectionTransitionResult } from '../../types/protection-transition-result';
+import type { ProtectionTransitionResult } from '../../types/protection-transition-result';
 import { abandonWaitingState } from '../abandon-waiting-state';
 import { createReconsideredVisitFact } from '../create-protection-fact';
 import { createTransitionResult } from '../create-protection-transition-result';

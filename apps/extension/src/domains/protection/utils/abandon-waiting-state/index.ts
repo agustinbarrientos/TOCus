@@ -1,10 +1,10 @@
-import { type ProtectionFact } from '../../types/protection-fact';
-import { type ProtectionParticipant } from '../../types/protection-participant';
+import type { ProtectionFact } from '../../types/protection-fact';
+import type { ProtectionParticipant } from '../../types/protection-participant';
 import {
 	ProtectionStateType,
 	type WaitingProtectionState,
 } from '../../types/protection-state';
-import { type ProtectionTransitionResult } from '../../types/protection-transition-result';
+import type { ProtectionTransitionResult } from '../../types/protection-transition-result';
 import { createFailOpenDecision } from '../create-protection-decision';
 import { createTransitionResult } from '../create-protection-transition-result';
 

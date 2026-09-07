@@ -1,11 +1,12 @@
+import { ProtectedUrlMatchStatus } from '../../types/protected-url-match';
 import {
 	AllowanceExpiryCandidateSource,
 	type AllowanceExpiryEvent,
 	type LivePageAllowanceExpiryCandidate,
 	type ReadyAllowanceExpiryCandidate,
 } from '../../types/protection-event';
-import { type ProtectionParticipant } from '../../types/protection-participant';
-import { type CanonicalAllowanceExpiryCandidates } from './types';
+import type { ProtectionParticipant } from '../../types/protection-participant';
+import type { CanonicalAllowanceExpiryCandidates } from './types';
 
 /**
  * Checks whether two validated URL-match observations contain identical status-specific details.
@@ -22,18 +23,18 @@ function protectedUrlMatchesAreEqual(
 		return false;
 	}
 
-	if ( left.status === 'protected' ) {
-		return right.status === 'protected' &&
+	if ( left.status === ProtectedUrlMatchStatus.PROTECTED ) {
+		return right.status === ProtectedUrlMatchStatus.PROTECTED &&
 			left.rule.host === right.rule.host &&
 			left.rule.includeSubdomains === right.rule.includeSubdomains &&
 			left.rule.scopeId === right.rule.scopeId;
 	}
 
-	if ( left.status === 'unsupported' ) {
-		return right.status === 'unsupported' && left.reason === right.reason;
+	if ( left.status === ProtectedUrlMatchStatus.UNSUPPORTED ) {
+		return right.status === ProtectedUrlMatchStatus.UNSUPPORTED && left.reason === right.reason;
 	}
 
-	return right.status === 'unprotected';
+	return right.status === ProtectedUrlMatchStatus.UNPROTECTED;
 }
 
 /**
