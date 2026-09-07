@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { DefaultProtectionScopeId } from '../../types/protection-value';
 import { ProtectionConfigurationStorageKey } from '../protection-configuration-storage';
 import { createBrowserProtectionConfigurationEditor } from './index';
-import { type BrowserProtectionConfigurationMutationLock } from './types';
+import type { BrowserProtectionConfigurationMutationLock } from './types';
 import { LocalDataGenerationStorageKey } from '../../../local-data/services/local-data-generation';
 
 /**

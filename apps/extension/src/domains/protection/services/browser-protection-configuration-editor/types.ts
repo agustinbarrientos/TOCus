@@ -1,11 +1,11 @@
-import {
-	type ProtectionConfigurationEditResult,
-	type ProtectionConfigurationEditor,
-	type ProtectionConfigurationMutation,
+import type {
+	ProtectionConfigurationEditResult,
+	ProtectionConfigurationEditor,
+	ProtectionConfigurationMutation,
 } from '../protection-configuration-editor';
-import {
-	type ProtectionConfigurationStorageArea,
-	type ProtectionConfigurationStorageService,
+import type {
+	ProtectionConfigurationStorageArea,
+	ProtectionConfigurationStorageService,
 } from '../protection-configuration-storage';
 
 /**
