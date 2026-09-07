@@ -1,6 +1,6 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
-import { type ProtectedSiteItemCopy } from '../../../features/protected-sites/components/site-item/types';
+import type { ProtectedSiteItemCopy } from '../../../features/protected-sites/components/site-item/types';
 
 /**
  * Creates localized protected-site item copy.
@@ -33,6 +33,7 @@ export function createProtectedSiteItemCopy( i18n: I18n ): Readonly<ProtectedSit
 	}
 
 	return Object.freeze( {
+		done: i18n._( msg`Done` ),
 		accessRequired: i18n._( msg`Access required` ),
 		allowAccess: i18n._( msg`Allow access` ),
 		allowingAccess: i18n._( msg`Allowing...` ),

@@ -1,6 +1,6 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg, plural } from '@lingui/core/macro';
-import { type InterruptionScreenCopy } from '../../../features/interruption/components/screen/types';
+import type { InterruptionScreenCopy } from '../../../features/interruption/components/screen/types';
 
 /**
  * Creates localized interruption-screen copy.
