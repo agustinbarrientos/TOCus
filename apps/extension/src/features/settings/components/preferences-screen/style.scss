@@ -1,0 +1,30 @@
+@use '@tocus/theme/typography' as typography;
+
+.settings-preferences-pause {
+	margin-top: var(--tocus-space-6);
+
+	.settings-behavior-label {
+		display: flex;
+		align-items: center;
+
+		&::after {
+			flex: 1;
+			border-top: 1px solid var(--tocus-color-divider);
+			content: '';
+		}
+	}
+	.settings-behavior-choices { margin-top: calc(var(--tocus-space-6) + var(--tocus-space-3)); }
+}
+
+.settings-preferences-accessibility {
+	margin: var(--tocus-space-6) 0 0;
+	padding: var(--tocus-space-6) 0 0;
+	border: 0;
+	border-top: 1px solid var(--tocus-color-divider);
+	legend { @include typography.apply('label-large'); padding: 0; }
+
+	> .tocus-native-checkbox {
+		min-height: 2.75rem;
+		margin-top: var(--tocus-space-3);
+	}
+}
