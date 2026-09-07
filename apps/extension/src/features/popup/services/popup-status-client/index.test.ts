@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { PopupProjectionStatus } from '../../types/popup-projection';
+import { PopupCurrentSiteStatus, PopupProjectionStatus } from '../../types/popup-projection';
 import { PopupRuntimeRequestType, type PopupRuntimeRequest } from '../../types/runtime-message';
 import { createPopupStatusClient } from './index';
 
@@ -12,7 +12,7 @@ const CURRENT_TAB = Object.freeze( {
 const AVAILABLE_PROJECTION = Object.freeze( {
 	status: PopupProjectionStatus.AVAILABLE,
 	capturedAtEpochMilliseconds: 1_800_000_000_000,
-	currentSite: { status: 'unprotected', identityHost: 'example.com' },
+	currentSite: { status: PopupCurrentSiteStatus.UNPROTECTED, identityHost: 'example.com' },
 	activeScopes: [],
 } as const );
 
