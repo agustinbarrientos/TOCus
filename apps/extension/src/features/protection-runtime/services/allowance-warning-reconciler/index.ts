@@ -1,7 +1,7 @@
 import { AllowanceWarningDecisionType } from '../../../../domains/protection/types/allowance-warning';
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
 import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
-import { type NormalizedSchedule } from '../../../../domains/protection/types/protection-schedule';
+import type { NormalizedSchedule } from '../../../../domains/protection/types/protection-schedule';
 import {
 	calculateAllowanceWarningInterval,
 	type AllowanceWarningInterval,
@@ -9,16 +9,16 @@ import {
 import { evaluateSchedule } from '../../../../domains/protection/utils/schedule-evaluator';
 import { matchProtectedUrl } from '../../../../domains/protection/utils/protected-url-matcher';
 import { selectAllowanceWarningDecision } from '../../../../domains/protection/utils/select-allowance-warning-decision';
-import { type ProtectionRuntimeTab } from '../../types/browser-runtime';
+import type { ProtectionRuntimeTab } from '../../types/browser-runtime';
 import {
 	ProtectedPageMessageType,
 	type ProtectedPageMessage,
 	type ProtectedPagePresentationStatus,
 } from '../../types/protected-page-message';
 import { createRuntimePageId } from '../../utils/runtime-page-context';
-import {
-	type AllowanceWarningReconciler,
-	type AllowanceWarningReconcilerOptions,
+import type {
+	AllowanceWarningReconciler,
+	AllowanceWarningReconcilerOptions,
 } from './types';
 
 /**

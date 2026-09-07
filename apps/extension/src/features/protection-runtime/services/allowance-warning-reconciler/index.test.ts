@@ -1,6 +1,7 @@
+import { Weekday } from '../../../../domains/protection/types/protection-schedule';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import {
 	AllowanceProtectionStateSchema,
 	ProtectionStateType,
@@ -14,7 +15,7 @@ import {
 	type ProtectedPageMessage,
 	type ProtectedPagePresentationStatus,
 } from '../../types/protected-page-message';
-import { type ProtectionRuntimeTab } from '../../types/browser-runtime';
+import type { ProtectionRuntimeTab } from '../../types/browser-runtime';
 import {
 	createAllowanceWarningReconciler,
 	type AllowanceWarningReconciler,
@@ -169,7 +170,7 @@ describe( 'createAllowanceWarningReconciler', () => {
 			schedulesByScope: {
 				[ DefaultProtectionScopeId ]: {
 					mode: 'custom',
-					windows: [ { weekday: 'Thursday', startMinute: 0, endMinute: 5 } ],
+					windows: [ { weekday: Weekday.THURSDAY, startMinute: 0, endMinute: 5 } ],
 				},
 			},
 		};
@@ -202,7 +203,7 @@ describe( 'createAllowanceWarningReconciler', () => {
 			schedulesByScope: {
 				[ DefaultProtectionScopeId ]: {
 					mode: 'custom',
-					windows: [ { weekday: 'Thursday', startMinute: 5, endMinute: 6 } ],
+					windows: [ { weekday: Weekday.THURSDAY, startMinute: 5, endMinute: 6 } ],
 				},
 			},
 		};
@@ -246,7 +247,7 @@ describe( 'createAllowanceWarningReconciler', () => {
 			schedulesByScope: {
 				[ DefaultProtectionScopeId ]: {
 					mode: 'custom',
-					windows: [ { weekday: 'Friday', startMinute: 0, endMinute: 60 } ],
+					windows: [ { weekday: Weekday.FRIDAY, startMinute: 0, endMinute: 60 } ],
 				},
 			},
 		};
@@ -285,7 +286,7 @@ describe( 'createAllowanceWarningReconciler', () => {
 			schedulesByScope: {
 				[ DefaultProtectionScopeId ]: {
 					mode: 'custom',
-					windows: [ { weekday: 'Friday', startMinute: 0, endMinute: 60 } ],
+					windows: [ { weekday: Weekday.FRIDAY, startMinute: 0, endMinute: 60 } ],
 				},
 			},
 		};
