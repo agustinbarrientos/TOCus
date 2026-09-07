@@ -19,7 +19,7 @@ import {
 	type ProtectedSiteConfiguration,
 	type ProtectionConfigurationDocument,
 } from '../../../../domains/protection/types/protected-site-configuration';
-import { type ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
+import type { ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
 import { DefaultProtectionSchedule } from '../../../../domains/protection/types/protection-schedule';
 import {
 	DefaultProtectionScopeId,
@@ -44,7 +44,7 @@ import {
 	type ProtectedSiteEnrollmentService,
 } from './types';
 import { createBrowserProtectionConfigurationEditor } from '../../../../domains/protection/services/browser-protection-configuration-editor';
-import { LocalDataGenerationStorageKey } from '../../../../domains/local-data/services/local-data-generation';
+import { LocalDataGenerationStorageKey, LocalDataResetError } from '../../../../domains/local-data/services/local-data-generation';
 
 /**
  * Empty protection configuration used by enrollment service tests.
@@ -506,6 +506,204 @@ function createService(
 }
 
 describe( 'createProtectedSiteEnrollmentService', () => {
+	it.each( [
+		{ baseline: null, draft: [ EXAMPLE_SITE ] },
+		{ baseline: [], draft: null },
+	] )( 'rejects malformed draft inputs before requesting access: %j', async ( input ) => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		const manager = new MemoryEnrollmentPermissionManager();
+		const result = await createService( storage, manager ).saveDraft( input.baseline, input.draft );
+		expect( result ).toEqual( {
+			status: ProtectedSiteEnrollmentStatus.REJECTED,
+			reason: ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION,
+		} );
+		expect( manager.requestedRules ).toEqual( [] );
+		expect( storage.writes ).toBe( 0 );
+	} );
+
+	it( 'saves a name-only draft without requesting or releasing browser access', async () => {
+		const storage = new MemoryEnrollmentStorage( POPULATED_CONFIGURATION );
+		const manager = new MemoryEnrollmentPermissionManager();
+		const release = vi.spyOn( manager, 'releaseNewAccess' );
+		const result = await createService( storage, manager ).saveDraft(
+			[ EXAMPLE_SITE ], [ { ...EXAMPLE_SITE, displayNameOverride: 'Reading' } ],
+		);
+		expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.SAVED );
+		expect( storage.configuration.sites[ 0 ]?.displayNameOverride ).toBe( 'Reading' );
+		expect( storage.writes ).toBe( 1 );
+		expect( manager.requestedRules ).toEqual( [] );
+		expect( release ).not.toHaveBeenCalled();
+	} );
+
+	it( 'rejects a stale removal-only draft without attempting browser cleanup', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		const manager = new MemoryEnrollmentPermissionManager();
+		const release = vi.spyOn( manager, 'releaseNewAccess' );
+		const result = await createService( storage, manager ).saveDraft( [ EXAMPLE_SITE ], [] );
+		expect( result ).toEqual( {
+			status: ProtectedSiteEnrollmentStatus.REJECTED,
+			reason: ProtectionConfigurationEditRejectionReason.SITES_CHANGED,
+		} );
+		expect( storage.writes ).toBe( 0 );
+		expect( manager.requestedRules ).toEqual( [] );
+		expect( release ).not.toHaveBeenCalled();
+	} );
+
+	it( 'keeps the draft unsaved when the browser reports a permission request error', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		const manager = new MemoryEnrollmentPermissionManager();
+		manager.requestResult = { status: SitePermissionRequestStatus.ERROR };
+		const result = await createService( storage, manager ).saveDraft( [], [ EXAMPLE_SITE ] );
+		expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.PERMISSION_ERROR );
+		expect( storage.writes ).toBe( 0 );
+	} );
+
+	it( 'rejects a draft when newly granted access is revoked before persistence', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		const manager = new MemoryEnrollmentPermissionManager();
+		manager.hasAccessResult = false;
+		const result = await createService( storage, manager ).saveDraft( [], [ EXAMPLE_SITE ] );
+		expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.PERMISSION_ERROR );
+		expect( storage.writes ).toBe( 0 );
+		expect( storage.configuration.sites ).toEqual( [] );
+	} );
+
+	it( 'reports a successful removal save when obsolete-permission cleanup throws', async () => {
+		const storage = new MemoryEnrollmentStorage( POPULATED_CONFIGURATION );
+		const manager = new MemoryEnrollmentPermissionManager();
+		manager.releaseNewAccess = () => Promise.reject( new Error( 'Browser cleanup unavailable' ) );
+		const result = await createService( storage, manager ).saveDraft( [ EXAMPLE_SITE ], [] );
+		expect( result ).toMatchObject( {
+			status: ProtectedSiteEnrollmentStatus.SAVED,
+			permissionReleaseStatus: SitePermissionReleaseStatus.ERROR,
+			configuration: { sites: [] },
+		} );
+		expect( storage.writes ).toBe( 1 );
+		expect( storage.configuration.sites ).toEqual( [] );
+	} );
+
+	it( 'reports retained access if compensation throws after rejecting a stale draft', async () => {
+		const storage = new MemoryEnrollmentStorage( POPULATED_CONFIGURATION );
+		const manager = new MemoryEnrollmentPermissionManager();
+		manager.releaseNewAccess = () => Promise.reject( new Error( 'Browser cleanup unavailable' ) );
+		const result = await createService( storage, manager ).saveDraft( [], [ EXAMPLE_SITE ] );
+		expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.PERMISSION_RETAINED );
+		expect( storage.writes ).toBe( 0 );
+		expect( storage.configuration.sites ).toEqual( [ EXAMPLE_SITE ] );
+	} );
+
+	it( 'reports retained access if compensation throws after failed persistence', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		storage.rejectSaves = true;
+		const manager = new MemoryEnrollmentPermissionManager();
+		manager.releaseNewAccess = () => Promise.reject( new Error( 'Browser cleanup unavailable' ) );
+		const result = await createService( storage, manager ).saveDraft( [], [ EXAMPLE_SITE ] );
+		expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.PERMISSION_RETAINED );
+		expect( storage.writes ).toBe( 0 );
+		expect( storage.configuration.sites ).toEqual( [] );
+	} );
+
+	it( 'retains access when failed storage reads prevent an authoritative compensation decision', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		storage.rejectLoads = true;
+		const manager = new MemoryEnrollmentPermissionManager();
+		const release = vi.spyOn( manager, 'releaseNewAccess' );
+		const result = await createService( storage, manager ).saveDraft( [], [ EXAMPLE_SITE ] );
+		expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.PERMISSION_RETAINED );
+		expect( storage.writes ).toBe( 0 );
+		expect( release ).not.toHaveBeenCalled();
+	} );
+
+	it( 'preserves preexisting browser access when a draft is rejected after a data reset', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		const permissions = new SharedPermissionStateApi();
+		const service = createProtectedSiteEnrollmentService( {
+			editor: createProtectionConfigurationEditor( {
+				storage, createIndependentScopeId,
+				createMeasurementRevision: createTestProtectionMeasurementRevision,
+				coordinateMutation: coordinateMutationDirectly,
+				/**
+				 * Rejects this old page after the user's data reset.
+				 * @return Rejected generation validation.
+				 * @since 0.1.0 Initial implementation.
+				 */
+				validateAddition: () => Promise.reject( new LocalDataResetError() ),
+			} ),
+			permissionManager: createSitePermissionManager( { permissions } ),
+		} );
+		const result = await service.saveDraft( [], [ EXAMPLE_SITE, {
+			identityHost: 'youtube.com',
+			rule: { host: 'youtube.com', includeSubdomains: true, scopeId: DefaultProtectionScopeId },
+		} ] );
+		expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.SAVE_ERROR );
+		expect( storage.writes ).toBe( 0 );
+		expect( [ ...permissions.origins ] ).toEqual( [ '*://*.example.com/*' ] );
+		expect( permissions.permissions.has( 'webNavigation' ) ).toBe( true );
+	} );
+	it( 'rejects stale drafts and compensates new permissions against the latest saved sites', async () => {
+		const storage = new MemoryEnrollmentStorage( POPULATED_CONFIGURATION );
+		const permissions = new SharedPermissionStateApi();
+		const service = createService( storage, createSitePermissionManager( { permissions } ) );
+		const result = await service.saveDraft( [], [ EXAMPLE_SITE, { identityHost: 'youtube.com', rule: { host: 'youtube.com', includeSubdomains: true, scopeId: DefaultProtectionScopeId } } ] );
+		expect( result ).toEqual( {
+			status: ProtectedSiteEnrollmentStatus.REJECTED,
+			reason: ProtectionConfigurationEditRejectionReason.SITES_CHANGED,
+		} );
+		expect( storage.writes ).toBe( 0 );
+		expect( [ ...permissions.origins ] ).toEqual( [ '*://*.example.com/*' ] );
+	} );
+
+	it( 'returns a permission error without writes when the draft request throws', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		const manager = new MemoryEnrollmentPermissionManager();
+		manager.requestMany = () => {
+			throw new Error( 'Browser unavailable' );
+		};
+		expect( ( await createService( storage, manager ).saveDraft( [], [ EXAMPLE_SITE ] ) ).status )
+			.toBe( ProtectedSiteEnrollmentStatus.PERMISSION_ERROR );
+		expect( storage.writes ).toBe( 0 );
+	} );
+	it( 'requests all draft additions synchronously and commits additions edits and removals once', async () => {
+		const storage = new MemoryEnrollmentStorage( POPULATED_CONFIGURATION );
+		const permissions = new SharedPermissionStateApi();
+		const request = vi.spyOn( permissions, 'request' );
+		const service = createService( storage, createSitePermissionManager( { permissions } ) );
+		const nextSites = [ 'youtube.com', 'instagram.com' ].map( ( host ) => ( {
+			identityHost: host, rule: { host, includeSubdomains: true, scopeId: DefaultProtectionScopeId },
+		} ) );
+		const pending = service.saveDraft( [ EXAMPLE_SITE ], nextSites );
+		expect( request ).toHaveBeenCalledTimes( 1 );
+		expect( request ).toHaveBeenCalledWith( { permissions: [ 'webNavigation' ], origins: [ '*://*.youtube.com/*', '*://*.instagram.com/*' ] } );
+		expect( storage.writes ).toBe( 0 );
+		expect( permissions.origins.has( '*://*.example.com/*' ) ).toBe( true );
+		expect( ( await pending ).status ).toBe( ProtectedSiteEnrollmentStatus.SAVED );
+		expect( storage.writes ).toBe( 1 );
+		expect( storage.configuration.sites ).toEqual( nextSites );
+		expect( permissions.origins.has( '*://*.example.com/*' ) ).toBe( false );
+	} );
+
+	it( 'keeps the complete draft out of storage when permission is denied', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		const manager = new MemoryEnrollmentPermissionManager();
+		manager.requestResult = { status: SitePermissionRequestStatus.DENIED };
+		const result = await createService( storage, manager ).saveDraft( [], [ EXAMPLE_SITE ] );
+		expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.PERMISSION_DENIED );
+		expect( storage.writes ).toBe( 0 );
+		expect( storage.configuration.sites ).toEqual( [] );
+	} );
+
+	it( 'compensates only new origins after a failed draft save', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		storage.rejectSaves = true;
+		const permissions = new SharedPermissionStateApi();
+		const nextSites = [ EXAMPLE_SITE, { identityHost: 'youtube.com', rule: { host: 'youtube.com', includeSubdomains: true, scopeId: DefaultProtectionScopeId } } ];
+		const service = createService( storage, createSitePermissionManager( { permissions } ) );
+		const result = await service.saveDraft( [], nextSites );
+		expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.SAVE_ERROR );
+		expect( storage.writes ).toBe( 0 );
+		expect( [ ...permissions.origins ] ).toEqual( [ '*://*.example.com/*' ] );
+		expect( permissions.permissions.has( 'webNavigation' ) ).toBe( true );
+	} );
 	it.each( [ false, true ] )( 'releases stale batch access while retaining fresh selections with unknown grants %s', async ( unknownGrant ) => {
 		const values: Record<string, unknown> = {};
 		const area = {

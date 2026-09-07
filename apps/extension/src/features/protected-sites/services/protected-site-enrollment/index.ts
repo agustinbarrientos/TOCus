@@ -7,10 +7,11 @@ import {
 } from '../../../../domains/protection/services/protection-configuration-editor';
 import {
 	ProtectedSiteConfigurationSchema,
+	ProtectedSiteConfigurationSetSchema,
 	type ProtectedSiteConfiguration,
 	type ProtectionConfigurationDocument,
 } from '../../../../domains/protection/types/protected-site-configuration';
-import { type ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
+import type { ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
 import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
 import {
 	ProtectedSiteCanonicalizationStatus,
@@ -29,6 +30,8 @@ import {
 	type ProtectedSiteEnrollmentService,
 	type ProtectedSiteEnrollmentServiceOptions,
 	type ProtectedSiteRemovalResult,
+	type ProtectedSiteDraftSaveResult,
+	type ProtectedSiteDraftSettlementState,
 } from './types';
 import { LocalDataResetError } from '../../../../domains/local-data/services/local-data-generation';
 
@@ -406,7 +409,101 @@ export function createProtectedSiteEnrollmentService(
 			};
 	}
 
-	return { add, addMany, remove };
+	/**
+	 * Commits one complete website draft after one synchronous browser permission request.
+	 * @param expectedSites - Authoritative baseline observed when the draft started.
+	 * @param nextSites - Complete candidate website set.
+	 * @return Saved configuration or a recoverable failure preserving the caller's draft.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function saveDraft( expectedSites: unknown, nextSites: unknown ): Promise<ProtectedSiteDraftSaveResult> {
+		const expected = ProtectedSiteConfigurationSetSchema.safeParse( expectedSites );
+		const next = ProtectedSiteConfigurationSetSchema.safeParse( nextSites );
+		if ( ! expected.success || ! next.success ) {
+			return {
+				status: ProtectedSiteEnrollmentStatus.REJECTED,
+				reason: ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION,
+			};
+		}
+		const additions = next.data.filter( ( site ) => ! expected.data.some( ( previous ) =>
+			previous.rule.host === site.rule.host && previous.rule.includeSubdomains === site.rule.includeSubdomains,
+		) ).map( ( site ) => site.rule );
+		const removals = expected.data.filter( ( site ) => ! next.data.some( ( candidate ) =>
+			candidate.rule.host === site.rule.host && candidate.rule.includeSubdomains === site.rule.includeSubdomains,
+		) ).map( ( site ) => site.rule );
+		let permissionResult;
+		try {
+			// Nothing asynchronous may precede this call: Save owns the browser user gesture.
+			permissionResult = additions.length === 0 ? null : await options.permissionManager.requestMany( additions );
+		} catch {
+			return { status: ProtectedSiteEnrollmentStatus.PERMISSION_ERROR };
+		}
+		if ( permissionResult !== null && permissionResult.status !== SitePermissionRequestStatus.GRANTED ) {
+			return { status: permissionResult.status === SitePermissionRequestStatus.DENIED
+				? ProtectedSiteEnrollmentStatus.PERMISSION_DENIED : ProtectedSiteEnrollmentStatus.PERMISSION_ERROR };
+		}
+		const state: ProtectedSiteDraftSettlementState = {
+			finalized: false, verificationFailed: false, retained: false,
+			releaseStatus: SitePermissionReleaseStatus.RELEASED,
+		};
+		/** Verifies grants while the configuration lock is held. */
+		async function verifyPermissions(): Promise<void> {
+			try {
+				const grants = await Promise.all(
+					additions.map( ( rule ) => options.permissionManager.hasAccess( rule ) ),
+				);
+				if ( grants.some( ( granted ) => ! granted ) ) {
+					throw new Error( 'Browser access changed before protected-site persistence.' );
+				}
+			} catch ( error ) {
+				state.verificationFailed = true;
+				throw error;
+			}
+		}
+		/**
+		 * Settles grants against fresh authority before the mutation lock is released.
+		 * @param settlement - Authoritative coordinated mutation outcome.
+		 */
+		const finalize: ProtectionConfigurationEditFinalizer = async ( settlement ) => {
+			state.finalized = true;
+			try {
+				if ( settlement.result?.status === ProtectionConfigurationEditStatus.UPDATED ) {
+					if ( removals.length > 0 ) {
+						state.releaseStatus = await options.permissionManager.releaseNewAccess(
+							removals, {}, settlement.configuration,
+						);
+					}
+				} else if ( permissionResult !== null ) {
+					state.retained = await options.permissionManager.releaseNewAccess(
+						additions,
+						permissionResult.previousGrant,
+						settlement.configuration,
+					) !== SitePermissionReleaseStatus.RELEASED;
+				}
+			} catch {
+				state.releaseStatus = SitePermissionReleaseStatus.ERROR;
+				state.retained = settlement.result?.status !== ProtectionConfigurationEditStatus.UPDATED;
+			}
+		};
+		try {
+			const result = await options.editor.replaceSites( expected.data, next.data, verifyPermissions, finalize );
+			if ( state.retained ) {
+				return { status: ProtectedSiteEnrollmentStatus.PERMISSION_RETAINED };
+			}
+			return result.status === ProtectionConfigurationEditStatus.REJECTED ? result : {
+				status: ProtectedSiteEnrollmentStatus.SAVED,
+				configuration: result.configuration,
+				permissionReleaseStatus: state.releaseStatus,
+			};
+		} catch {
+			return { status: state.retained || ( permissionResult !== null && ! state.finalized )
+				? ProtectedSiteEnrollmentStatus.PERMISSION_RETAINED
+				: state.verificationFailed
+					? ProtectedSiteEnrollmentStatus.PERMISSION_ERROR : ProtectedSiteEnrollmentStatus.SAVE_ERROR };
+		}
+	}
+
+	return { add, addMany, remove, saveDraft };
 }
 
 export * from './types';
