@@ -1,6 +1,7 @@
+import { WebsiteLanguage } from './types';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { type CatalogType } from '@lingui/cli/api';
+import type { CatalogType } from '@lingui/cli/api';
 import { formatter } from '@lingui/format-po';
 import { describe, expect, it } from 'vitest';
 import {
@@ -25,6 +26,55 @@ const WebsiteCatalogLocales = Object.freeze( [
 	'ja',
 	'ru',
 ] );
+
+/**
+ * Product-story fields consumed directly by the website experience.
+ * @since 0.1.0 Initial implementation.
+ */
+const WebsiteProductStoryFields = Object.freeze( [
+	'getExtension',
+	'howLink',
+	'alsoAvailable',
+	'chooseLabel',
+	'visitLabel',
+	'pauseLabel',
+	'continueLabel',
+	'browseLabel',
+	'visitTitle',
+	'visitDescription',
+	'browseTitle',
+	'browseDescription',
+	'timingPause',
+	'timingBrowse',
+	'exampleTiming',
+	'comingSoon',
+	'downloadTitle',
+	'downloadDescription',
+	'downloadFor',
+	'freeLabel',
+	'mascotAlt',
+	'demoLabel',
+	'demoSiteSelected',
+	'statisticsTitle',
+	'statisticsDescription',
+	'exampleData',
+	'mediaTitle',
+	'mediaDescription',
+	'sitesTitle',
+	'sitesDescription',
+	'demoTimeLeft',
+	'privacyLink',
+	'supportLink',
+	'madeBy',
+	'creatorStory',
+	'privacyShort',
+	'privacyAccounts',
+	'privacyTracking',
+	'privacyCalls',
+	'privacyLocal',
+	'readPrivacy',
+	'sourceShort',
+] as const );
 
 /**
  * PO formatter used to inspect translator-authored source files.
@@ -56,41 +106,41 @@ describe( 'website localization', () => {
 		const localizations = getWebsiteLocalizations();
 
 		expect( localizations.map( ( localization ) => localization.language ) ).toEqual( [
-			'en',
-			'es-tu',
-			'es-vos',
-			'pt-BR',
-			'pt-PT',
-			'it',
-			'fr',
-			'de',
-			'ja',
-			'ru',
+			WebsiteLanguage.ENGLISH,
+			WebsiteLanguage.SPANISH_TU,
+			WebsiteLanguage.SPANISH_VOS,
+			WebsiteLanguage.PORTUGUESE_BRAZIL,
+			WebsiteLanguage.PORTUGUESE_PORTUGAL,
+			WebsiteLanguage.ITALIAN,
+			WebsiteLanguage.FRENCH,
+			WebsiteLanguage.GERMAN,
+			WebsiteLanguage.JAPANESE,
+			WebsiteLanguage.RUSSIAN,
 		] );
 		expect( localizations ).toHaveLength( WebsiteLanguages.length );
 	} );
 
 	it( 'maps regional variants to distinct static routes and language tags', () => {
-		expect( getWebsiteLocalization( 'es-tu' ) ).toMatchObject( {
+		expect( getWebsiteLocalization( WebsiteLanguage.SPANISH_TU ) ).toMatchObject( {
 			languageTag: 'es',
 			path: '/es/',
 		} );
-		expect( getWebsiteLocalization( 'es-vos' ) ).toMatchObject( {
+		expect( getWebsiteLocalization( WebsiteLanguage.SPANISH_VOS ) ).toMatchObject( {
 			languageTag: 'es-AR',
 			path: '/es-ar/',
 		} );
-		expect( getWebsiteLocalization( 'pt-BR' ) ).toMatchObject( {
+		expect( getWebsiteLocalization( WebsiteLanguage.PORTUGUESE_BRAZIL ) ).toMatchObject( {
 			languageTag: 'pt-BR',
 			path: '/pt-br/',
 		} );
-		expect( getWebsiteLocalization( 'pt-PT' ) ).toMatchObject( {
+		expect( getWebsiteLocalization( WebsiteLanguage.PORTUGUESE_PORTUGAL ) ).toMatchObject( {
 			languageTag: 'pt-PT',
 			path: '/pt-pt/',
 		} );
 	} );
 
 	it( 'returns translated metadata and visible copy from the selected catalog', () => {
-		const french = getWebsiteLocalization( 'fr' );
+		const french = getWebsiteLocalization( WebsiteLanguage.FRENCH );
 
 		expect( french.catalog.metadata.description ).toBe(
 			'TOCus est une extension de navigateur open source.',
@@ -100,7 +150,7 @@ describe( 'website localization', () => {
 	} );
 
 	it( 'provides every language-navigation autonym through localized website copy', () => {
-		const english = getWebsiteLocalization( 'en' );
+		const english = getWebsiteLocalization( WebsiteLanguage.ENGLISH );
 
 		expect( english.catalog.languageLabels ).toEqual( {
 			'en': 'English',
@@ -116,8 +166,98 @@ describe( 'website localization', () => {
 		} );
 	} );
 
+	it( 'provides localized product-story actions and status copy for every website language', () => {
+		const english = getWebsiteLocalization( WebsiteLanguage.ENGLISH );
+
+		for ( const localization of getWebsiteLocalizations() ) {
+			for ( const field of WebsiteProductStoryFields ) {
+				const value = localization.catalog[ field ];
+
+				expect( value, `${ localization.language }:${ field }` ).toEqual( expect.any( String ) );
+				expect( value.trim(), `${ localization.language }:${ field }` ).not.toBe( '' );
+			}
+
+			if ( localization.language !== WebsiteLanguage.ENGLISH ) {
+				expect( localization.catalog.visitDescription ).not.toBe( english.catalog.visitDescription );
+			}
+		}
+
+		expect( getWebsiteLocalization( WebsiteLanguage.SPANISH_TU ).catalog.chooseTitle ).not.toBe(
+			getWebsiteLocalization( WebsiteLanguage.SPANISH_VOS ).catalog.chooseTitle,
+		);
+		expect( getWebsiteLocalization( WebsiteLanguage.PORTUGUESE_BRAZIL ).catalog.chooseTitle ).not.toBe(
+			getWebsiteLocalization( WebsiteLanguage.PORTUGUESE_PORTUGAL ).catalog.chooseTitle,
+		);
+	} );
+
+	it( 'keeps concise claims aligned with local product behavior', () => {
+		const { catalog } = getWebsiteLocalization( WebsiteLanguage.ENGLISH );
+
+		expect( catalog.intro.length ).toBeLessThanOrEqual( 32 );
+		expect( catalog.description.length ).toBeLessThanOrEqual( 64 );
+		expect( catalog.pauseDescription ).toMatch( /\bnot started\b/iu );
+		expect( catalog.continueDescription ).toMatch( /\bContinue\b/u );
+		expect( catalog.browseDescription ).toMatch( /\bContinue\b/u );
+		expect( catalog.statisticsDescription ).not.toMatch( /\b(?:actual|estimated|reclaimed|saved)\b/iu );
+		expect( catalog.privacy ).toMatch( /\bwithout an internet connection\b/iu );
+		expect( [
+			catalog.privacyAccounts,
+			catalog.privacyTracking,
+			catalog.privacyCalls,
+			catalog.privacyLocal,
+		] ).toHaveLength( 4 );
+		for ( const value of Object.values( catalog ) ) {
+			if ( typeof value === 'string' ) {
+				expect( value ).not.toMatch( /\bprotect(?:ed|ion)?\b/iu );
+			}
+		}
+	} );
+
+	it( 'explains each step from choosing a website to starting the browsing interval', () => {
+		const { catalog } = getWebsiteLocalization( WebsiteLanguage.ENGLISH );
+		const chapterLabels = [
+			catalog.chooseLabel,
+			catalog.visitLabel,
+			catalog.pauseLabel,
+			catalog.continueLabel,
+			catalog.browseLabel,
+		];
+
+		expect( chapterLabels ).toHaveLength( 5 );
+		expect( new Set( chapterLabels ).size ).toBe( chapterLabels.length );
+		expect( catalog.pauseDescription ).toMatch( /\bnot started\b/iu );
+		expect( catalog.continueDescription ).toMatch( /\bContinue\b/u );
+		expect( catalog.browseDescription ).toMatch( /\bContinue\b/u );
+		for ( const field of [ 'seeItInAction', 'demoAppearance', 'demoTiming', 'demoEntered', 'demoReplay', 'demoStart', 'demoSiteTitle', 'demoNextPause' ] ) {
+			expect( catalog ).not.toHaveProperty( field );
+		}
+	} );
+
+	it( 'translates every new feature and demo label without English fallbacks', () => {
+		const english = getWebsiteLocalization( WebsiteLanguage.ENGLISH ).catalog;
+		const fields = [
+			'statisticsTitle', 'statisticsDescription', 'exampleData', 'mediaTitle',
+			'mediaDescription', 'sitesTitle', 'sitesDescription', 'demoSiteSelected',
+			'demoTimeLeft', 'getExtension', 'howLink', 'alsoAvailable', 'visitTitle',
+			'visitDescription', 'pauseDescription', 'continueTitle', 'continueDescription',
+			'browseTitle', 'browseDescription', 'chooseLabel', 'visitLabel', 'pauseLabel',
+			'continueLabel', 'browseLabel', 'timingPause', 'timingBrowse', 'exampleTiming',
+			'privacyAccounts', 'privacyTracking', 'privacyCalls', 'privacyLocal', 'downloadFor',
+			'readPrivacy',
+		] as const;
+
+		for ( const { language, catalog } of getWebsiteLocalizations() ) {
+			for ( const field of fields ) {
+				expect( catalog[ field ], `${ language }:${ field }` ).toEqual( expect.any( String ) );
+				if ( language !== WebsiteLanguage.ENGLISH ) {
+					expect( catalog[ field ], `${ language }:${ field }` ).not.toBe( english[ field ] );
+				}
+			}
+		}
+	} );
+
 	it( 'keeps every translated website catalog structurally complete and nonempty', () => {
-		const englishKeys = Object.keys( getWebsiteLocalization( 'en' ).catalog ).sort();
+		const englishKeys = Object.keys( getWebsiteLocalization( WebsiteLanguage.ENGLISH ).catalog ).sort();
 
 		for ( const localization of getWebsiteLocalizations() ) {
 			expect( Object.keys( localization.catalog ).sort() ).toEqual( englishKeys );
