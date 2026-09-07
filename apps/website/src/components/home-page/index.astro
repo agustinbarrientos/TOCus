@@ -1,10 +1,13 @@
 ---
-import '@tocus/theme/index.scss';
+import '@tocus/ui/styles.scss';
 import '../../styles/global.scss';
+import HomePage from './page';
 import { type LocalizedHomePageProperties as Props } from '../../localization';
+import { loadLocalizationMessages } from '../../../../extension/src/localization/services/load-localization-messages';
 
 const { localization, localizations } = Astro.props;
 const { catalog } = localization;
+const demoMessages = await loadLocalizationMessages( localization.language );
 ---
 
 <!doctype html>
@@ -12,56 +15,21 @@ const { catalog } = localization;
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<meta name="color-scheme" content="light dark" />
+		<meta name="color-scheme" content="light" />
 		<meta name="description" content={catalog.metadata.description} />
-		<title>TOCus</title>
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content={`TOCus · ${catalog.intro}`} />
+		<meta property="og:description" content={catalog.description} />
+		<meta property="og:image" content="/images/mascot-peek.webp" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<title>{`TOCus — ${catalog.intro}`}</title>
 		<link rel="alternate" hreflang="x-default" href="/" />
 		{localizations.map( ( option ) => (
 			<link rel="alternate" hreflang={option.languageTag} href={option.path} />
 		) )}
 	</head>
 	<body>
-		<div class="page-shell">
-			<header class="site-header">
-				<p class="wordmark">TOCus</p>
-				<div class="header-actions">
-					<nav class="language-navigation" aria-label={catalog.languageMenuLabel}>
-						<details class="language-menu">
-							<summary>{catalog.languageLabels[localization.language]}</summary>
-							<ul>
-								{localizations.map( ( option ) => (
-									<li>
-										<a
-											href={option.path}
-											lang={option.languageTag}
-											aria-current={option.language === localization.language ? 'page' : undefined}
-										>
-											{catalog.languageLabels[option.language]}
-										</a>
-									</li>
-								) )}
-							</ul>
-						</details>
-					</nav>
-				</div>
-			</header>
-
-			<main>
-				<article class="hero" aria-labelledby="page-title">
-					<p class="eyebrow">{catalog.eyebrow}</p>
-					<h1 id="page-title">TOCus</h1>
-					<p class="intro">{catalog.intro}</p>
-					<p class="description">{catalog.description}</p>
-					<a class="source-link" href="https://github.com/agustinbarrientos/TOCus">
-						{catalog.sourceLink}
-						<span aria-hidden="true">&#8599;</span>
-					</a>
-				</article>
-			</main>
-
-			<footer>
-				<p>{catalog.privacy}</p>
-			</footer>
-		</div>
+		<HomePage localization={localization} localizations={localizations} demoMessages={demoMessages} client:load />
 	</body>
 </html>
