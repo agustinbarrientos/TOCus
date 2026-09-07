@@ -2,9 +2,9 @@ import {
 	LocalDataGenerationStorageKey,
 	readLocalDataGeneration,
 } from '../../../../domains/local-data/services/local-data-generation';
-import { type ProtectionBackgroundMessageListener } from '../../../protection-runtime/services/protection-background-controller';
+import type { ProtectionBackgroundMessageListener } from '../../../protection-runtime/services/protection-background-controller';
 import { ResetAllDataRequestSchema } from '../privacy-data-actions';
-import { type LocalDataResetController, type LocalDataResetControllerOptions } from './types';
+import type { LocalDataResetController, LocalDataResetControllerOptions } from './types';
 
 /**
  * Owns authenticated full reset and incomplete-reset recovery in the background.
