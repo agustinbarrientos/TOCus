@@ -1,3 +1,4 @@
+import { ProtectedSiteCanonicalizationStatus } from './types';
 import { describe, expect, it } from 'vitest';
 import {
 	ProtectedSiteCanonicalizationResultSchema,
@@ -132,7 +133,7 @@ describe( 'canonicalizeProtectedSite', () => {
 			includeSubdomains,
 		} ) => {
 			expect( canonicalizeProtectedSite( input, DEFAULT_SCOPE_ID ) ).toEqual( {
-				status: 'accepted',
+				status: ProtectedSiteCanonicalizationStatus.ACCEPTED,
 				identityHost,
 				rule: {
 					host,
@@ -144,7 +145,7 @@ describe( 'canonicalizeProtectedSite', () => {
 
 		it( 'keeps the supplied scope identifier authoritative', () => {
 			expect( canonicalizeProtectedSite( 'www.example.com', INDEPENDENT_SCOPE_ID ) ).toEqual( {
-				status: 'accepted',
+				status: ProtectedSiteCanonicalizationStatus.ACCEPTED,
 				identityHost: 'www.example.com',
 				rule: {
 					host: 'example.com',
@@ -158,7 +159,7 @@ describe( 'canonicalizeProtectedSite', () => {
 	describe( 'rejected protected sites', () => {
 		it.each( [ 'com', 'co.uk', 'github.io' ] )( 'rejects the bare public or private suffix %s', ( input ) => {
 			expect( canonicalizeProtectedSite( input, DEFAULT_SCOPE_ID ) ).toEqual( {
-				status: 'rejected',
+				status: ProtectedSiteCanonicalizationStatus.REJECTED,
 				reason: 'public-suffix',
 			} );
 		} );
@@ -173,7 +174,7 @@ describe( 'canonicalizeProtectedSite', () => {
 			'   ',
 		] )( 'rejects the non-site input %j', ( input ) => {
 			expect( canonicalizeProtectedSite( input, DEFAULT_SCOPE_ID ) ).toEqual( {
-				status: 'rejected',
+				status: ProtectedSiteCanonicalizationStatus.REJECTED,
 				reason: 'invalid-input',
 			} );
 		} );
@@ -194,7 +195,7 @@ describe( 'canonicalizeProtectedSite', () => {
 			'https://\uD800.com',
 		] )( 'rejects the malformed site %s without treating it as a hostname', ( input ) => {
 			expect( canonicalizeProtectedSite( input, DEFAULT_SCOPE_ID ) ).toEqual( {
-				status: 'rejected',
+				status: ProtectedSiteCanonicalizationStatus.REJECTED,
 				reason: 'malformed-input',
 			} );
 		} );
@@ -213,7 +214,7 @@ describe( 'canonicalizeProtectedSite', () => {
 			'view-source:https://example.com',
 		] )( 'distinguishes the browser-controlled scheme in %s', ( input ) => {
 			expect( canonicalizeProtectedSite( input, DEFAULT_SCOPE_ID ) ).toEqual( {
-				status: 'rejected',
+				status: ProtectedSiteCanonicalizationStatus.REJECTED,
 				reason: 'browser-controlled-scheme',
 			} );
 		} );
@@ -226,7 +227,7 @@ describe( 'canonicalizeProtectedSite', () => {
 			'custom:resource',
 		] )( 'distinguishes the unsupported scheme in %s', ( input ) => {
 			expect( canonicalizeProtectedSite( input, DEFAULT_SCOPE_ID ) ).toEqual( {
-				status: 'rejected',
+				status: ProtectedSiteCanonicalizationStatus.REJECTED,
 				reason: 'unsupported-scheme',
 			} );
 		} );
@@ -235,7 +236,7 @@ describe( 'canonicalizeProtectedSite', () => {
 			'rejects the invalid scope identifier %j',
 			( scopeId ) => {
 				expect( canonicalizeProtectedSite( 'example.com', scopeId ) ).toEqual( {
-					status: 'rejected',
+					status: ProtectedSiteCanonicalizationStatus.REJECTED,
 					reason: 'invalid-scope-id',
 				} );
 			},

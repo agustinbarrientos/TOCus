@@ -1,3 +1,4 @@
+import { ScheduleEvaluationStatus } from '../../types/schedule-evaluation';
 import { ZodError } from 'zod';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { evaluateSchedule, getNextScheduleTransitionDeadline } from './index';
@@ -33,7 +34,7 @@ afterEach( () => {
 describe( 'evaluateSchedule', () => {
 	describe( 'Always schedules and public-boundary validation', () => {
 		it( 'returns active for a valid Always schedule', () => {
-			expect( evaluateSchedule( { mode: 'always' }, 0, 'UTC' ) ).toEqual( { status: 'active' } );
+			expect( evaluateSchedule( { mode: 'always' }, 0, 'UTC' ) ).toEqual( { status: ScheduleEvaluationStatus.ACTIVE } );
 		} );
 
 		it( 'validates the instant before taking the Always shortcut', () => {
@@ -42,7 +43,7 @@ describe( 'evaluateSchedule', () => {
 
 		it( 'validates the time zone before taking the Always shortcut', () => {
 			expect( evaluateSchedule( { mode: 'always' }, 0, 'Not/A_Zone' ) ).toEqual( {
-				status: 'error',
+				status: ScheduleEvaluationStatus.ERROR,
 				reason: 'invalid-time-zone',
 			} );
 		} );
@@ -63,19 +64,19 @@ describe( 'evaluateSchedule', () => {
 		};
 
 		it( 'is inactive one millisecond before the start minute', () => {
-			expect( evaluateSchedule( schedule, MONDAY_UTC_BEFORE_1000, 'UTC' ) ).toEqual( { status: 'inactive' } );
+			expect( evaluateSchedule( schedule, MONDAY_UTC_BEFORE_1000, 'UTC' ) ).toEqual( { status: ScheduleEvaluationStatus.INACTIVE } );
 		} );
 
 		it( 'includes the exact start instant', () => {
-			expect( evaluateSchedule( schedule, MONDAY_UTC_1000, 'UTC' ) ).toEqual( { status: 'active' } );
+			expect( evaluateSchedule( schedule, MONDAY_UTC_1000, 'UTC' ) ).toEqual( { status: ScheduleEvaluationStatus.ACTIVE } );
 		} );
 
 		it( 'remains active through the final millisecond before the end minute', () => {
-			expect( evaluateSchedule( schedule, MONDAY_UTC_BEFORE_1100, 'UTC' ) ).toEqual( { status: 'active' } );
+			expect( evaluateSchedule( schedule, MONDAY_UTC_BEFORE_1100, 'UTC' ) ).toEqual( { status: ScheduleEvaluationStatus.ACTIVE } );
 		} );
 
 		it( 'excludes the exact end instant', () => {
-			expect( evaluateSchedule( schedule, MONDAY_UTC_1100, 'UTC' ) ).toEqual( { status: 'inactive' } );
+			expect( evaluateSchedule( schedule, MONDAY_UTC_1100, 'UTC' ) ).toEqual( { status: ScheduleEvaluationStatus.INACTIVE } );
 		} );
 	} );
 
@@ -89,18 +90,18 @@ describe( 'evaluateSchedule', () => {
 		};
 
 		it( 'evaluates the Sunday portion of an overnight range', () => {
-			expect( evaluateSchedule( schedule, SUNDAY_UTC_2330, 'UTC' ) ).toEqual( { status: 'active' } );
+			expect( evaluateSchedule( schedule, SUNDAY_UTC_2330, 'UTC' ) ).toEqual( { status: ScheduleEvaluationStatus.ACTIVE } );
 		} );
 
 		it( 'evaluates the Monday portion after Sunday rollover', () => {
 			expect( evaluateSchedule( schedule, MONDAY_UTC_0030_AFTER_SUNDAY, 'UTC' ) ).toEqual( {
-				status: 'active',
+				status: ScheduleEvaluationStatus.ACTIVE,
 			} );
 		} );
 
 		it( 'uses an exclusive end after Sunday rollover', () => {
 			expect( evaluateSchedule( schedule, MONDAY_UTC_0100_AFTER_SUNDAY, 'UTC' ) ).toEqual( {
-				status: 'inactive',
+				status: ScheduleEvaluationStatus.INACTIVE,
 			} );
 		} );
 
@@ -110,8 +111,8 @@ describe( 'evaluateSchedule', () => {
 				windows: [ { weekday: 'Monday', startMinute: 0, endMinute: 1_440 } ],
 			};
 
-			expect( evaluateSchedule( fullMonday, MONDAY_UTC_END_OF_DAY, 'UTC' ) ).toEqual( { status: 'active' } );
-			expect( evaluateSchedule( fullMonday, TUESDAY_UTC_MIDNIGHT, 'UTC' ) ).toEqual( { status: 'inactive' } );
+			expect( evaluateSchedule( fullMonday, MONDAY_UTC_END_OF_DAY, 'UTC' ) ).toEqual( { status: ScheduleEvaluationStatus.ACTIVE } );
+			expect( evaluateSchedule( fullMonday, TUESDAY_UTC_MIDNIGHT, 'UTC' ) ).toEqual( { status: ScheduleEvaluationStatus.INACTIVE } );
 		} );
 	} );
 
@@ -127,10 +128,10 @@ describe( 'evaluateSchedule', () => {
 			};
 
 			expect( evaluateSchedule( mondaySchedule, MONDAY_MIDNIGHT_NEW_YORK, 'America/New_York' ) ).toEqual( {
-				status: 'active',
+				status: ScheduleEvaluationStatus.ACTIVE,
 			} );
 			expect( evaluateSchedule( sundaySchedule, MONDAY_MIDNIGHT_NEW_YORK, 'America/New_York' ) ).toEqual( {
-				status: 'inactive',
+				status: ScheduleEvaluationStatus.INACTIVE,
 			} );
 		} );
 
@@ -152,7 +153,7 @@ describe( 'evaluateSchedule', () => {
 				windows: [ { weekday: 'Monday', startMinute: 0, endMinute: 1 } ],
 			};
 
-			expect( evaluateSchedule( schedule, 1_704_067_200_000, 'UTC' ) ).toEqual( { status: 'active' } );
+			expect( evaluateSchedule( schedule, 1_704_067_200_000, 'UTC' ) ).toEqual( { status: ScheduleEvaluationStatus.ACTIVE } );
 			expect( formatterSpy ).toHaveBeenCalledWith( 'en-US-u-ca-iso8601-nu-latn', {
 				calendar: 'iso8601',
 				numberingSystem: 'latn',
@@ -170,12 +171,12 @@ describe( 'evaluateSchedule', () => {
 				windows: [ { weekday: 'Monday', startMinute: 540, endMinute: 600 } ],
 			};
 
-			expect( evaluateSchedule( schedule, MONDAY_UTC_0030, 'Asia/Tokyo' ) ).toEqual( { status: 'active' } );
-			expect( evaluateSchedule( schedule, MONDAY_UTC_0030, 'UTC' ) ).toEqual( { status: 'inactive' } );
+			expect( evaluateSchedule( schedule, MONDAY_UTC_0030, 'Asia/Tokyo' ) ).toEqual( { status: ScheduleEvaluationStatus.ACTIVE } );
+			expect( evaluateSchedule( schedule, MONDAY_UTC_0030, 'UTC' ) ).toEqual( { status: ScheduleEvaluationStatus.INACTIVE } );
 			expect( evaluateSchedule( schedule, MONDAY_UTC_0030, 'America/Los_Angeles' ) ).toEqual( {
-				status: 'inactive',
+				status: ScheduleEvaluationStatus.INACTIVE,
 			} );
-			expect( evaluateSchedule( schedule, MONDAY_UTC_0030, 'Asia/Tokyo' ) ).toEqual( { status: 'active' } );
+			expect( evaluateSchedule( schedule, MONDAY_UTC_0030, 'Asia/Tokyo' ) ).toEqual( { status: ScheduleEvaluationStatus.ACTIVE } );
 		} );
 	} );
 
@@ -187,10 +188,10 @@ describe( 'evaluateSchedule', () => {
 			};
 
 			expect( evaluateSchedule( schedule, SPRING_FORWARD_BEFORE_GAP, 'America/New_York' ) ).toEqual( {
-				status: 'inactive',
+				status: ScheduleEvaluationStatus.INACTIVE,
 			} );
 			expect( evaluateSchedule( schedule, SPRING_FORWARD_AFTER_GAP, 'America/New_York' ) ).toEqual( {
-				status: 'active',
+				status: ScheduleEvaluationStatus.ACTIVE,
 			} );
 		} );
 
@@ -201,10 +202,10 @@ describe( 'evaluateSchedule', () => {
 			};
 
 			expect( evaluateSchedule( schedule, SPRING_FORWARD_BEFORE_GAP, 'America/New_York' ) ).toEqual( {
-				status: 'active',
+				status: ScheduleEvaluationStatus.ACTIVE,
 			} );
 			expect( evaluateSchedule( schedule, SPRING_FORWARD_AFTER_GAP, 'America/New_York' ) ).toEqual( {
-				status: 'inactive',
+				status: ScheduleEvaluationStatus.INACTIVE,
 			} );
 		} );
 
@@ -215,13 +216,13 @@ describe( 'evaluateSchedule', () => {
 			};
 
 			expect( evaluateSchedule( schedule, SPRING_FORWARD_BEFORE_GAP, 'America/New_York' ) ).toEqual( {
-				status: 'inactive',
+				status: ScheduleEvaluationStatus.INACTIVE,
 			} );
 			expect( evaluateSchedule( schedule, SPRING_FORWARD_AFTER_GAP, 'America/New_York' ) ).toEqual( {
-				status: 'inactive',
+				status: ScheduleEvaluationStatus.INACTIVE,
 			} );
 			expect( evaluateSchedule( schedule, SPRING_FORWARD_0330, 'America/New_York' ) ).toEqual( {
-				status: 'inactive',
+				status: ScheduleEvaluationStatus.INACTIVE,
 			} );
 		} );
 
@@ -232,10 +233,10 @@ describe( 'evaluateSchedule', () => {
 			};
 
 			expect( evaluateSchedule( schedule, FALL_BACK_FIRST_0115, 'America/New_York' ) ).toEqual( {
-				status: 'active',
+				status: ScheduleEvaluationStatus.ACTIVE,
 			} );
 			expect( evaluateSchedule( schedule, FALL_BACK_SECOND_0115, 'America/New_York' ) ).toEqual( {
-				status: 'active',
+				status: ScheduleEvaluationStatus.ACTIVE,
 			} );
 		} );
 
@@ -246,13 +247,13 @@ describe( 'evaluateSchedule', () => {
 			};
 
 			expect( evaluateSchedule( schedule, FALL_BACK_FIRST_0130, 'America/New_York' ) ).toEqual( {
-				status: 'inactive',
+				status: ScheduleEvaluationStatus.INACTIVE,
 			} );
 			expect( evaluateSchedule( schedule, FALL_BACK_SECOND_0130, 'America/New_York' ) ).toEqual( {
-				status: 'inactive',
+				status: ScheduleEvaluationStatus.INACTIVE,
 			} );
 			expect( evaluateSchedule( schedule, FALL_BACK_0200, 'America/New_York' ) ).toEqual( {
-				status: 'inactive',
+				status: ScheduleEvaluationStatus.INACTIVE,
 			} );
 		} );
 	} );
@@ -307,7 +308,7 @@ describe( 'evaluateSchedule', () => {
 
 		it( 'accepts the final epoch representable by Date', () => {
 			expect( evaluateSchedule( { mode: 'always' }, MAXIMUM_DATE_EPOCH_MILLISECONDS, 'UTC' ) ).toEqual( {
-				status: 'active',
+				status: ScheduleEvaluationStatus.ACTIVE,
 			} );
 		} );
 
@@ -317,7 +318,7 @@ describe( 'evaluateSchedule', () => {
 				windows: [ { weekday: 'Thursday', startMinute: 0, endMinute: 1 } ],
 			};
 
-			expect( evaluateSchedule( schedule, -0, 'UTC' ) ).toEqual( { status: 'active' } );
+			expect( evaluateSchedule( schedule, -0, 'UTC' ) ).toEqual( { status: ScheduleEvaluationStatus.ACTIVE } );
 		} );
 	} );
 
@@ -333,13 +334,13 @@ describe( 'evaluateSchedule', () => {
 			{ label: 'negative fixed offset', timeZone: '-05:30' },
 		] )( 'returns the stable typed error for a $label time zone', ( { timeZone } ) => {
 			expect( evaluateSchedule( { mode: 'always' }, 0, timeZone ) ).toEqual( {
-				status: 'error',
+				status: ScheduleEvaluationStatus.ERROR,
 				reason: 'invalid-time-zone',
 			} );
 		} );
 
 		it( 'accepts a named IANA fixed-offset zone', () => {
-			expect( evaluateSchedule( { mode: 'always' }, 0, 'Etc/GMT-1' ) ).toEqual( { status: 'active' } );
+			expect( evaluateSchedule( { mode: 'always' }, 0, 'Etc/GMT-1' ) ).toEqual( { status: ScheduleEvaluationStatus.ACTIVE } );
 		} );
 	} );
 
