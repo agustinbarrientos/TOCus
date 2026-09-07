@@ -27,17 +27,17 @@ import {
 } from '../../utils/runtime-page-context';
 import { createAllowanceExpiryReconciler } from '../allowance-expiry-reconciler';
 import { createBrowserProtectionProjector } from '../browser-protection-projector';
-import { type ProtectionContinuationContext } from '../protection-page-projector/types';
+import type { ProtectionContinuationContext } from '../protection-page-projector/types';
 import { createInterruptionRequestHandler } from '../interruption-request-handler';
 import { createProtectionFocusReconciler } from '../protection-focus-reconciler';
 import { createProtectionNavigationHandler } from '../protection-navigation-handler';
 import { createProtectionParticipantReconciler } from '../protection-participant-reconciler';
 import { createProtectionRuntimeRestorer } from '../protection-runtime-restorer';
-import {
-	type BrowserProtectionRuntime,
-	type BrowserProtectionRuntimeOptions,
-	type BrowserProtectionRuntimeSnapshot,
-	type BrowserProtectionStatisticsObservation,
+import type {
+	BrowserProtectionRuntime,
+	BrowserProtectionRuntimeOptions,
+	BrowserProtectionRuntimeSnapshot,
+	BrowserProtectionStatisticsObservation,
 } from './types';
 import { createBrowserStatisticsBridge } from '../../../statistics/services/browser-statistics-bridge';
 import {

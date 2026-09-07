@@ -1,3 +1,5 @@
+import { ToolbarBadgePhase } from '../../utils/toolbar-badge-projection/types';
+import { Weekday } from '../../../../domains/protection/types/protection-schedule';
 import { describe, expect, it, vi } from 'vitest';
 import { createIdleState, TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import { ProtectionConfigurationDocumentSchema } from '../../../../domains/protection/types/protected-site-configuration';
@@ -6,7 +8,7 @@ import {
 	PageIdSchema,
 	ParticipantIdSchema,
 } from '../../../../domains/protection/types/protection-value';
-import { type ToolbarBadgeCopy } from '../../utils/toolbar-badge-projection';
+import type { ToolbarBadgeCopy } from '../../utils/toolbar-badge-projection';
 import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import {
 	InterruptionPageRequestType,
@@ -446,7 +448,7 @@ describe( 'createBrowserProtectionRuntime', () => {
 		await runtime.start();
 
 		expect( browser.badge ).toEqual( {
-			phase: 'inactive',
+			phase: ToolbarBadgePhase.INACTIVE,
 			text: '',
 			title: 'TOCus localizado',
 		} );
@@ -472,7 +474,7 @@ describe( 'createBrowserProtectionRuntime', () => {
 		await runtime.refreshToolbarBadge();
 
 		expect( browser.badge ).toEqual( {
-			phase: 'inactive',
+			phase: ToolbarBadgePhase.INACTIVE,
 			text: '',
 			title: 'TOCus localizado',
 		} );
@@ -557,7 +559,7 @@ describe( 'createBrowserProtectionRuntime', () => {
 			focusedProgressMilliseconds: 0,
 			progressing: true,
 		} );
-		expect( browser.badge ).toMatchObject( { text: 'P10s', title: 'TOCus: Pause: 10 seconds remaining' } );
+		expect( browser.badge ).toMatchObject( { text: '10s', title: 'TOCus: Pause: 10 seconds remaining' } );
 
 		const ready = await runtime.handlePageRequest( {
 			type: InterruptionPageRequestType.CHECKPOINT,
@@ -590,7 +592,7 @@ describe( 'createBrowserProtectionRuntime', () => {
 		] );
 		expect( ( await coordinator.getStates() )?.scope_default?.type ).toBe( ProtectionStateType.ALLOWANCE );
 		expect( browser.rules ).toEqual( [] );
-		expect( browser.badge ).toMatchObject( { text: 'V5m', title: 'TOCus: Visit window: 5 minutes remaining' } );
+		expect( browser.badge ).toMatchObject( { text: '5m', title: 'TOCus: Visit window: 5 minutes remaining' } );
 		expect( browser.protectionClockDeadlines ).toEqual( [
 			now.value + 60_000,
 			now.value + 290_000,
@@ -605,7 +607,7 @@ describe( 'createBrowserProtectionRuntime', () => {
 			...EXAMPLE_CONFIGURATION,
 			schedulesByScope: {
 				scope_default: { mode: 'custom', windows: [ {
-					weekday: 'Monday',
+					weekday: Weekday.MONDAY,
 					startMinute: 0,
 					endMinute: 1,
 				} ] },
@@ -814,7 +816,7 @@ describe( 'createBrowserProtectionRuntime', () => {
 
 		expect( states?.scope_default?.type ).toBe( ProtectionStateType.ALLOWANCE );
 		expect( states?.scope_independent?.type ).toBe( ProtectionStateType.WAITING );
-		expect( browser.badge ).toMatchObject( { text: 'P10s' } );
+		expect( browser.badge ).toMatchObject( { text: '10s' } );
 	} );
 
 	it( 'pauses focused progress while the browser application is not focused', async () => {
@@ -1275,7 +1277,7 @@ describe( 'createBrowserProtectionRuntime', () => {
 
 		await runtime.handleFocusChanged();
 
-		expect( browser.badge ).toMatchObject( { text: 'V5m' } );
+		expect( browser.badge ).toMatchObject( { text: '5m' } );
 	} );
 
 	it( 'pauses a participant when its tab disappears between focus observations', async () => {
@@ -1358,7 +1360,7 @@ describe( 'createBrowserProtectionRuntime', () => {
 		await runtime.handleFocusChanged();
 		getStates.mockRestore();
 
-		expect( browser.badge ).toMatchObject( { text: 'P10s' } );
+		expect( browser.badge ).toMatchObject( { text: '10s' } );
 	} );
 
 	it( 'removes browser projections when focus reconciliation cannot validate configuration', async () => {

@@ -1,3 +1,4 @@
+import { ToolbarBadgePhase } from '../../utils/toolbar-badge-projection/types';
 import { describe, expect, it } from 'vitest';
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
 import { CompletionAction } from '../../../../domains/protection/types/completion-action';
@@ -18,6 +19,44 @@ import {
 } from './__fixtures__';
 
 describe( 'pending completed pause', () => {
+	it.each( [
+		{ overlay: false, automatic: false },
+		{ overlay: false, automatic: true },
+		{ overlay: true, automatic: false },
+		{ overlay: true, automatic: true },
+	] )( 'acknowledges accepted entry with overlay=$overlay and automatic=$automatic', async ( { overlay, automatic } ) => {
+		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
+		const browser = new MemoryRuntimeBrowser();
+		const configurationStorage = new MemoryConfigurationStorage( EXAMPLE_CONFIGURATION );
+		const { coordinator, runtime } = createRuntime( now, configurationStorage, browser );
+
+		if ( overlay ) {
+			await presentAllowanceExpiryInterruption( runtime, now );
+		} else {
+			await runtime.start();
+			await runtime.handleNavigation( { tabId: 7, frameId: 0, url: 'https://example.com/' } );
+		}
+
+		configurationStorage.configuration = {
+			...EXAMPLE_CONFIGURATION,
+			timingConfiguration: {
+				...EXAMPLE_CONFIGURATION.timingConfiguration,
+				completionAction: automatic ? CompletionAction.OPEN_AUTOMATICALLY : CompletionAction.SHOW_CONTINUE,
+			},
+		};
+		const checkpointResponse = await completeFocusedPause( runtime, 7, overlay ? 15_000 : 10_000 );
+		const response = automatic ? checkpointResponse : await runtime.handlePageRequest( {
+			type: InterruptionPageRequestType.CONTINUE,
+			documentVisible: true,
+		}, 7, true );
+
+		expect( response ).toEqual( { state: InterruptionPageResponseState.RELEASED } );
+		expect( ( await coordinator.getStates() )?.scope_default ).toMatchObject( {
+			type: ProtectionStateType.ALLOWANCE,
+			readyParticipants: [],
+		} );
+	} );
+
 	it( 'waits beyond the full visit duration before Continue starts the entire allowance', async () => {
 		const startedAt = Date.UTC( 2026, 8, 2, 12 );
 		const now = { value: startedAt };
@@ -46,7 +85,7 @@ describe( 'pending completed pause', () => {
 		} );
 		expect( ( await coordinator.getStates() )?.scope_default?.type ).toBe( ProtectionStateType.READY );
 		expect( browser.rules ).not.toEqual( [] );
-		expect( browser.badge ).toMatchObject( { phase: 'inactive', text: '' } );
+		expect( browser.badge ).toMatchObject( { phase: ToolbarBadgePhase.INACTIVE, text: '' } );
 		expect( browser.protectionClockDeadlines ).toEqual( [] );
 		expect( browser.navigations ).toEqual( [ { tabId: 7, url: 'chrome-extension://extension-id/interruption.html' } ] );
 
@@ -184,11 +223,11 @@ describe( 'pending completed pause', () => {
 			type: InterruptionPageRequestType.CONTINUE,
 			documentVisible: true,
 		}, 8, true );
-		expect( browser.badge ).toMatchObject( { text: 'V5m' } );
+		expect( browser.badge ).toMatchObject( { text: '5m' } );
 		browser.focusedTabId = 7;
 		await runtime.handleFocusChanged();
 
-		expect( browser.badge ).toMatchObject( { phase: 'inactive', text: '' } );
+		expect( browser.badge ).toMatchObject( { phase: ToolbarBadgePhase.INACTIVE, text: '' } );
 	} );
 
 	it( 'releases a pending page when its configured scope is removed', async () => {
