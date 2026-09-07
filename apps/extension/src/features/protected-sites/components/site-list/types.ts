@@ -1,6 +1,22 @@
-import { type ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
-import { type SiteFaviconSource } from '../../services/site-favicon-provider';
-import { type SiteDisplayIdentity } from '../../utils/site-display-name-resolver';
+import type { ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
+import type { SiteFaviconSource } from '../../services/site-favicon-provider';
+import type { SiteDisplayIdentity } from '../../utils/site-display-name-resolver';
+import type { ReactNode } from 'react';
+
+/**
+ * Domain-backed list presentation independent of page-level or item-level edit ownership.
+ * @since 0.1.0
+ */
+export interface WebsiteListProps {
+	copy: ProtectedSiteListCopy;
+	sites: ReadonlyArray<ProtectedSiteConfiguration>;
+	/**
+	 * Presents one keyed list item through its actual owning editor boundary.
+	 * @param site - Configuration belonging to the current shared or independent group.
+	 * @return Keyed website row.
+	 */
+	renderItem( site: ProtectedSiteConfiguration ): ReactNode;
+}
 
 /**
  * Protected site with its fully resolved local presentation.

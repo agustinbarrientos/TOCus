@@ -1,0 +1,33 @@
+@use '@tocus/theme/typography' as typography;
+
+.settings-site-list {
+	display: grid;
+	gap: var(--tocus-space-3);
+	padding: 0;
+	margin: var(--tocus-space-3) 0 0;
+	list-style: none;
+}
+
+.settings-site-groups {
+	display: grid;
+	gap: var(--tocus-space-7);
+	margin-top: var(--tocus-space-7);
+	&:has(.settings-sites-empty) { margin-top: var(--tocus-space-5); }
+}
+
+[data-tocus-ui] .settings-page .settings-site-group {
+	margin-top: var(--tocus-space-6);
+	padding-bottom: 0;
+	h2 { margin-bottom: 0; }
+	> p { @include typography.apply('body-small'); margin-top: var(--tocus-space-1); }
+}
+
+[data-tocus-ui] .settings-page .settings-sites-empty {
+	padding: var(--tocus-space-6);
+	border: 1px dashed var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-medium);
+	background: color-mix(in srgb, var(--tocus-color-surface) 72%, transparent);
+	text-align: center;
+	h2 { @include typography.apply('title-medium'); }
+	p { @include typography.apply('body-small'); margin-top: var(--tocus-space-2); }
+}
