@@ -3,7 +3,7 @@ import { HBO_MAX_PLAYBACK_RULES } from './hbo-max';
 import { NETFLIX_PLAYBACK_RULES } from './netflix';
 import { PRIME_VIDEO_PLAYBACK_RULES } from './prime-video';
 import { TWITCH_PLAYBACK_RULES } from './twitch';
-import { type PlaybackSiteRule } from './types';
+import type { PlaybackSiteRule } from './types';
 import { YOUTUBE_PLAYBACK_RULES } from './youtube';
 
 /**
