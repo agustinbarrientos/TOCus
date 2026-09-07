@@ -1,4 +1,4 @@
-import { type Messages } from '@lingui/core';
+import type { Messages } from '@lingui/core';
 import { Language, type Language as LanguageValue } from '../../../domains/preferences/types';
 import { messages as englishMessages } from '../../../../locales/en.po';
 
