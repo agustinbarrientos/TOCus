@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import { CompletionAction } from '../../types/completion-action';
 import { ProtectionDecisionType } from '../../types/protection-decision';
-import { type ProgressCheckpointEvent } from '../../types/protection-event';
+import type { ProgressCheckpointEvent } from '../../types/protection-event';
 import {
 	TestInstant,
 	TestTimingConfiguration,
@@ -43,7 +43,7 @@ describe( 'progress-checkpoint transition', () => {
 		const result = handleProgressCheckpoint( createWaitingState(), createProgressCheckpoint( 10_000 ) );
 
 		expect( result.state ).toMatchObject( {
-			type: 'ready',
+			type: ProtectionStateType.READY,
 			allowanceId: 'allowance-a',
 			completedWaitId: 'wait-a',
 			capturedAllowanceDurationMilliseconds: 300_000,
@@ -222,7 +222,7 @@ describe( 'progress-checkpoint transition', () => {
 			completionLocalDate: '2026-09-01',
 			timingConfiguration: {
 				...TestTimingConfiguration,
-				allowanceMilliseconds: 60_000,
+				allowanceMilliseconds: 120_000,
 			},
 		} );
 
@@ -232,7 +232,7 @@ describe( 'progress-checkpoint transition', () => {
 				scopeId: 'scope-default',
 				allowanceId: 'allowance-a',
 				completedWaitId: 'wait-a',
-				capturedAllowanceDurationMilliseconds: 60_000,
+				capturedAllowanceDurationMilliseconds: 120_000,
 				completionStatisticsEligible: true,
 				readyParticipants: state.participants,
 				ladder: { completedWaits: 1, greatestObservedLocalDate: '2026-09-01' },

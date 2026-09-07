@@ -1,10 +1,10 @@
 import { ProtectionDecisionType } from '../../types/protection-decision';
-import { type ParticipantFocusChangeEvent } from '../../types/protection-event';
+import type { ParticipantFocusChangeEvent } from '../../types/protection-event';
 import {
 	ProtectionStateType,
 	type ProtectionState,
 } from '../../types/protection-state';
-import { type ProtectionTransitionResult } from '../../types/protection-transition-result';
+import type { ProtectionTransitionResult } from '../../types/protection-transition-result';
 import { abandonWaitingState } from '../abandon-waiting-state';
 import { createTransitionResult } from '../create-protection-transition-result';
 import { selectOwner } from '../select-protection-owner';

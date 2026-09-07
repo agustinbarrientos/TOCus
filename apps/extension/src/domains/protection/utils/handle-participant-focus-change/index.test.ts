@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import { ProtectionDecisionType } from '../../types/protection-decision';
-import { type ParticipantFocusChangeEvent } from '../../types/protection-event';
+import type { ParticipantFocusChangeEvent } from '../../types/protection-event';
 import { createFocusChange } from '../../types/__fixtures__/protection-event';
 import { ProtectionParticipantOrigin } from '../../types/protection-participant';
 import { ProtectionStateType } from '../../types/protection-state';
