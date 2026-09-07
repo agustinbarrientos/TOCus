@@ -1,3 +1,5 @@
+import type { PopupPageShell } from '../../services/popup-page/types';
+
 /**
  * Stable enrollment errors rendered by the popup.
  * @since 0.1.0 Initial implementation.
@@ -35,13 +37,11 @@ export interface PopupShellCopy {
 	/** Label above the current website identity. */
 	currentWebsite: string;
 	/** Status shown when the current website is not on the user's list. */
-	noPauseHere: string;
+	siteNotOnList: string;
 	/** Status shown when the current website is configured and idle. */
 	tocusActive: string;
 	/** Status shown while the current website's pause is progressing. */
 	pauseInProgress: string;
-	/** Status shown while the current website's visit window is open. */
-	visitWindowOpen: string;
 	/** Status shown while the current website's schedule is inactive. */
 	offRightNow: string;
 	/** Status shown when a configured website no longer has browser access. */
@@ -52,20 +52,10 @@ export interface PopupShellCopy {
 	unsupportedPage: string;
 	/** Message shown when active-tab metadata is unavailable. */
 	currentWebsiteUnavailable: string;
-	/** Label for an idle scope's next pause duration. */
-	nextPause: string;
-	/** Heading above currently active timing scopes. */
-	activeTiming: string;
-	/** Name of the default shared timing scope. */
-	sharedTiming: string;
-	/** Accessible marker for the current website's active scope. */
-	currentScope: string;
-	/** Label for a focused pause timer. */
-	pause: string;
-	/** Label for a wall-clock visit-window timer. */
-	visitWindow: string;
+	/** Label above the current website's remaining time. */
+	timeLeft: string;
 	/** Action that enrolls the current website. */
-	addPauseHere: string;
+	pauseSite: string;
 	/** Pending label while the current website is being enrolled. */
 	addingPause: string;
 	/** Action that opens the current website's settings. */
@@ -97,18 +87,38 @@ export interface PopupShellCopy {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	formatCountdown( milliseconds: number ): string;
+}
+
+/**
+ * Controller-owned popup fields and focus operations, excluding its event transport.
+ * @since 0.1.0
+ */
+export type PopupState = Omit<PopupPageShell, keyof EventTarget>;
+
+/**
+ * Immutable presentation snapshot paired with the synchronous controller event port.
+ * @since 0.1.0
+ */
+export interface PopupViewProperties {
+	/** Latest controller snapshot. */
+	state: Readonly<PopupState>;
+	/** Mutable controller port used to reject duplicate enrollment gestures. */
+	port: PopupPageShell;
+}
+
+/**
+ * Explicit user actions forwarded to the existing popup controller.
+ * @since 0.1.0
+ */
+export interface PopupActions {
 	/**
-	 * Formats one next-pause duration as a localized whole-second value.
-	 * @param milliseconds - Next pause duration in milliseconds.
-	 * @return Localized duration.
-	 * @since 0.1.0 Initial implementation.
+	 * Requests enrollment synchronously while preserving browser user activation.
+	 * @since 0.1.0
 	 */
-	formatNextPause( milliseconds: number ): string;
+	onAddSite: () => void;
 	/**
-	 * Formats the number of websites using one shared scope.
-	 * @param count - Positive website count.
-	 * @return Localized website count.
-	 * @since 0.1.0 Initial implementation.
+	 * Requests recovery of the authoritative background status.
+	 * @since 0.1.0
 	 */
-	formatWebsiteCount( count: number ): string;
+	onRetry: () => void;
 }
