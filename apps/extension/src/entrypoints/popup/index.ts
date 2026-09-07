@@ -1,4 +1,5 @@
 import '@tocus/theme/index.scss';
+import '@tocus/ui/styles.scss';
 import { browser } from 'wxt/browser';
 import { createPreferencesStorageService } from '../../domains/preferences/services/preferences-storage';
 import { resolveLanguage } from '../../domains/preferences/utils';
@@ -7,7 +8,7 @@ import { createPreferencesController } from '../../features/preferences/services
 import { createProtectedSiteEnrollmentService } from '../../features/protected-sites/services/protected-site-enrollment';
 import { createSiteFaviconProvider } from '../../features/protected-sites/services/site-favicon-provider';
 import { createSitePermissionManager } from '../../features/protected-sites/services/site-permission-manager';
-import { ComponentPopupShell } from '../../features/popup/components/shell';
+import { mountPopup } from '../../features/popup/services/popup-presentation';
 import { createCurrentTabReader } from '../../features/popup/services/current-tab-reader';
 import { createPopupEnrollmentClient } from '../../features/popup/services/popup-enrollment-client';
 import { bootstrapPopupPage } from '../../features/popup/services/popup-page';
@@ -18,11 +19,12 @@ import {
 } from '../../localization';
 import './styles.scss';
 
-const popupShell = document.querySelector( 'tocus-f-popup-shell' );
+const popupContainer = document.getElementById( 'app' );
 
-if ( ! ( popupShell instanceof ComponentPopupShell ) ) {
+if ( popupContainer === null ) {
 	throw new TypeError( 'Expected the popup page to contain the popup shell.' );
 }
+const popupShell = mountPopup( popupContainer );
 
 const preferencesStorage = createPreferencesStorageService( {
 	area: browser.storage.local,

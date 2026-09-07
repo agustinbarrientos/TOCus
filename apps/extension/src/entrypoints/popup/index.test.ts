@@ -1,15 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const entrypointMocks = vi.hoisted( () => {
-	/**
-	 * Popup shell constructor used by the entrypoint boundary test.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	class TestPopupShell {
-		readonly testMarker = true;
-	}
-
-	const shell = new TestPopupShell();
+const entrypointMocks = await vi.hoisted( async () => {
+	const { Language: HoistedLanguage } = await import( '../../domains/preferences/types' );
+	const shell = { testMarker: true };
+	const container = { id: 'app' };
 	const preferencesStorage = {};
 	const preferencesController = {};
 	const protectionEditor = {};
@@ -40,7 +34,7 @@ const entrypointMocks = vi.hoisted( () => {
 			editor: protectionEditor,
 		} ),
 		createCurrentTabReader: vi.fn().mockReturnValue( currentTabReader ),
-		createEnglishLocalizationBundle: vi.fn().mockReturnValue( { language: 'en' } ),
+		createEnglishLocalizationBundle: vi.fn().mockReturnValue( { language: HoistedLanguage.ENGLISH } ),
 		createPreferencesController: vi.fn().mockReturnValue( preferencesController ),
 		createPreferencesStorageService: vi.fn().mockReturnValue( preferencesStorage ),
 		createProtectedSiteEnrollmentService: vi.fn().mockReturnValue( enrollment ),
@@ -49,22 +43,24 @@ const entrypointMocks = vi.hoisted( () => {
 		createSitePermissionManager: vi.fn().mockReturnValue( { permissions: true } ),
 		createPopupStatusClient: vi.fn().mockReturnValue( statusClient ),
 		currentTabReader,
-		document: { querySelector: vi.fn().mockReturnValue( shell ) },
+		container,
+		document: { getElementById: vi.fn().mockReturnValue( container ) },
 		enrollment,
 		enrollmentClient,
 		faviconProvider,
 		loadLocalizationBundle: vi.fn(),
+		mountPopup: vi.fn().mockReturnValue( shell ),
 		preferencesController,
 		preferencesStorage,
 		protectionEditor,
 		resolveLanguage: vi.fn().mockReturnValue( 'es-vos' ),
 		shell,
 		statusClient,
-		TestPopupShell,
 	};
 } );
 
 vi.mock( '@tocus/theme/index.scss', () => ( {} ) );
+vi.mock( '@tocus/ui/styles.scss', () => ( {} ) );
 vi.mock( './styles.scss', () => ( {} ) );
 vi.mock( 'wxt/browser', () => ( { browser: entrypointMocks.browser } ) );
 vi.mock( '../../domains/preferences/services/preferences-storage', () => ( {
@@ -89,8 +85,8 @@ vi.mock( '../../features/protected-sites/services/site-favicon-provider', () => 
 vi.mock( '../../features/protected-sites/services/site-permission-manager', () => ( {
 	createSitePermissionManager: entrypointMocks.createSitePermissionManager,
 } ) );
-vi.mock( '../../features/popup/components/shell', () => ( {
-	ComponentPopupShell: entrypointMocks.TestPopupShell,
+vi.mock( '../../features/popup/services/popup-presentation', () => ( {
+	mountPopup: entrypointMocks.mountPopup,
 } ) );
 vi.mock( '../../features/popup/services/current-tab-reader', () => ( {
 	createCurrentTabReader: entrypointMocks.createCurrentTabReader,
@@ -114,7 +110,7 @@ describe( 'popup entrypoint', () => {
 		vi.resetModules();
 		vi.clearAllMocks();
 		vi.stubEnv( 'CHROME', '' );
-		entrypointMocks.document.querySelector.mockReturnValue( entrypointMocks.shell );
+		entrypointMocks.document.getElementById.mockReturnValue( entrypointMocks.container );
 	} );
 
 	afterEach( () => {
@@ -136,6 +132,9 @@ describe( 'popup entrypoint', () => {
 		vi.stubGlobal( 'crypto', {} );
 
 		await import( './index' );
+
+		expect( entrypointMocks.document.getElementById ).toHaveBeenCalledExactlyOnceWith( 'app' );
+		expect( entrypointMocks.mountPopup ).toHaveBeenCalledExactlyOnceWith( entrypointMocks.container );
 
 		expect( entrypointMocks.createCurrentTabReader ).toHaveBeenCalledWith( {
 			runtime: entrypointMocks.browser.runtime,
@@ -185,12 +184,13 @@ describe( 'popup entrypoint', () => {
 	} );
 
 	it( 'fails clearly when the popup shell is missing', async () => {
-		entrypointMocks.document.querySelector.mockReturnValueOnce( null );
+		entrypointMocks.document.getElementById.mockReturnValueOnce( null );
 		vi.stubGlobal( 'document', entrypointMocks.document );
 
 		await expect( import( './index' ) ).rejects.toThrow(
 			'Expected the popup page to contain the popup shell.',
 		);
 		expect( entrypointMocks.bootstrapPopupPage ).not.toHaveBeenCalled();
+		expect( entrypointMocks.mountPopup ).not.toHaveBeenCalled();
 	} );
 } );
