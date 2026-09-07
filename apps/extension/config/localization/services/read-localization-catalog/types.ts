@@ -1,4 +1,4 @@
-import { type CatalogType } from '@lingui/cli/api';
+import type { CatalogType } from '@lingui/cli/api';
 
 /**
  * Reads one canonical extension localization catalog.
