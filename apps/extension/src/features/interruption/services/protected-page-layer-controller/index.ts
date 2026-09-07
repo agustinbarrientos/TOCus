@@ -5,10 +5,10 @@ import {
 	type ProtectedPagePresentationStatus,
 	type SynchronizeAllowanceExpiryGuardMessage,
 } from '../../../protection-runtime/types/protected-page-message';
-import { type MediaPlaybackController } from '../media-playback-controller';
-import {
-	type ProtectedPageLayerController,
-	type ProtectedPageLayerControllerOptions,
+import type { MediaPlaybackController } from '../media-playback-controller';
+import type {
+	ProtectedPageLayerController,
+	ProtectedPageLayerControllerOptions,
 } from './types';
 
 const WARNING_REFRESH_INTERVAL_MILLISECONDS = 1_000;
