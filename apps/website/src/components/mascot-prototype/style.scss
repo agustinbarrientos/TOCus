@@ -1,0 +1,156 @@
+@use '@tocus/theme/typography' as typography;
+
+html:has(.mascot-lab) {
+	background: #fcfaf6;
+}
+
+body:has(.mascot-lab) {
+	margin: 0;
+}
+
+.mascot-lab {
+	@include typography.apply('body-medium');
+
+	width: min(78rem, calc(100% - 4rem));
+	margin: 0 auto;
+	padding-block: 2.4rem;
+	color: #3b3026;
+
+	h1, h2, p { margin: 0; }
+
+	&-intro {
+		position: relative;
+		padding-block: 0.5rem 2rem;
+		padding-right: 6rem;
+
+		h1 {
+			@include typography.apply('headline-large');
+
+			margin-block: 0.65rem;
+		}
+
+		> p:last-child { max-width: 48rem; }
+	}
+
+	&-back {
+		@include typography.apply('title-medium');
+
+		position: absolute;
+		top: 0.5rem;
+		right: 0;
+		color: inherit;
+		text-underline-offset: 0.2em;
+	}
+
+	&-comparison {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 2rem;
+	}
+
+	&-panel-heading {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding-block: 0.65rem;
+
+		h2 { @include typography.apply('title-small'); }
+
+		span {
+			@include typography.apply('label-small');
+
+			color: #756553;
+		}
+	}
+
+	&-reference, .mascot-prototype-stage {
+		position: relative;
+		height: min(64svh, 47rem);
+		overflow: hidden;
+		background: #fff0d8;
+		border-radius: 0.4rem;
+	}
+
+	&-reference img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+	}
+
+	&-caption {
+		@include typography.apply('body-small');
+
+		padding-top: 0.8rem;
+		color: #756553;
+	}
+
+	&-reference-caption { padding-top: 1.15rem; }
+
+	&-notes {
+		@include typography.apply('body-small');
+
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 2rem;
+		margin-top: 2rem;
+		padding-top: 1.5rem;
+		border-top: 1px solid #e0d7ca;
+	}
+}
+
+.mascot-prototype {
+	canvas {
+		display: block;
+		width: 100%;
+		height: 100%;
+	}
+
+	&-status {
+		position: absolute;
+		inset: 0;
+		display: grid;
+		align-content: center;
+		padding: 3rem;
+		background: #fff0d8;
+		text-align: center;
+	}
+
+	&-controls {
+		display: flex;
+		align-items: center;
+		gap: 1.5rem;
+		padding-top: 1.1rem;
+	}
+
+	&-turn {
+		flex: 1;
+		min-width: 5rem;
+
+		&-label {
+			@include typography.apply('label-small');
+
+			display: flex;
+			justify-content: space-between;
+			gap: 1rem;
+			margin-bottom: 0.25rem;
+		}
+	}
+}
+
+@media (width <= 700px) {
+	.mascot-lab {
+		width: calc(100% - 2rem);
+		padding-block: 1.5rem;
+
+		&-intro { padding-right: 3.4rem; }
+
+		&-comparison, &-notes {
+			grid-template-columns: 1fr;
+			gap: 2rem;
+		}
+		&-reference, .mascot-prototype-stage { height: min(70svh, 37rem); }
+		&-notes { gap: 1rem; }
+	}
+}
