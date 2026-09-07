@@ -1,17 +1,11 @@
-import {
-	LitElement,
-	css,
-	html,
-	unsafeCSS,
-	type PropertyValues,
-	type TemplateResult,
-} from 'lit';
-import { customElement, property, query } from 'lit/decorators.js';
+import { createElement, type ReactNode } from 'react';
+import { PresentationElement } from '../../utils/presentation-element';
+import type { PresentationChanges } from '../../utils/presentation-element/types';
 import { isLocalizationReady } from '../../../../localization/utils/is-localization-ready';
 import '../screen';
-import { type ComponentInterruptionScreen } from '../screen';
-import {
-	type InterruptionScreenCopy,
+import type { ComponentInterruptionScreen } from '../screen';
+import type {
+	InterruptionScreenCopy,
 } from '../screen/types';
 import styles from './web-component-style.scss?inline';
 import {
@@ -50,54 +44,150 @@ function getDeepestActiveElement(): HTMLElement | null {
  * @summary Isolated protected-page warning and interruption presentation.
  * @since 0.1.0 Initial implementation.
  */
-@customElement( 'tocus-f-protected-page-layer' )
-export class ComponentProtectedPageLayer extends LitElement {
-	static override styles = css`${ unsafeCSS( styles ) }`;
+export class ComponentProtectedPageLayer extends PresentationElement {
 
-	static override shadowRootOptions: ShadowRootInit = {
-		...LitElement.shadowRootOptions,
-		mode: 'closed',
-	};
-
-	/**
-	 * Whether the on-demand entrypoint requires this owned host to repair unexpected removal.
-	 * @since 0.1.0 Initial implementation.
-	 */
+	/** Repairs unexpected host removal only when the on-demand entrypoint owns it. */
 	connectionGuardEnabled = false;
 
 	/**
-	 * Whole allowance seconds displayed by the quiet warning, or null while hidden.
-	 * @since 0.1.0 Initial implementation.
+	 * Current warning remaining seconds input supplied by the presentation owner.
+	 * @return Current warning remaining seconds input supplied by the presentation owner.
 	 */
-	@property( { attribute: 'warning-remaining-seconds', type: Number } )
-	accessor warningRemainingSeconds: number | null = null;
+	get warningRemainingSeconds(): number | null {
+		return this.warningRemainingSecondsInput;
+	}
 
 	/**
-	 * Whether the modal interruption layer must cover the live document.
-	 * @since 0.1.0 Initial implementation.
+	 * Applies the next warning remaining seconds controller input.
+	 * @param value - New presentation input, committed with the other writes in this batch.
 	 */
-	@property( { attribute: 'interruption-layer-presented', reflect: true, type: Boolean } )
-	accessor interruptionLayerPresented = false;
+	set warningRemainingSeconds( value: number | null ) {
+		const previous = this.warningRemainingSecondsInput;
+		if ( Object.is( previous, value ) ) {
+			return;
+		}
+		this.warningRemainingSecondsInput = value;
+		this.requestUpdate( 'warningRemainingSeconds', previous );
+	}
+
+	private warningRemainingSecondsInput: number | null = null;
 
 	/**
-	 * Complete localized protected-page presentation messages.
-	 * @since 0.1.0 Initial implementation.
+	 * Current interruption layer presented input supplied by the presentation owner.
+	 * @return Current interruption layer presented input supplied by the presentation owner.
 	 */
-	@property( { attribute: false } )
-	accessor copy!: Readonly<ProtectedPageLayerCopy>;
+	get interruptionLayerPresented(): boolean {
+		return this.interruptionLayerPresentedInput;
+	}
 
 	/**
-	 * Complete localized messages forwarded to the interruption screen.
-	 * @since 0.1.0 Initial implementation.
+	 * Applies the next interruption layer presented controller input.
+	 * @param value - New presentation input, committed with the other writes in this batch.
 	 */
-	@property( { attribute: false } )
-	accessor interruptionCopy!: Readonly<InterruptionScreenCopy>;
+	set interruptionLayerPresented( value: boolean ) {
+		const previous = this.interruptionLayerPresentedInput;
+		if ( Object.is( previous, value ) ) {
+			return;
+		}
+		this.interruptionLayerPresentedInput = value;
+		this.toggleAttribute( 'interruption-layer-presented', value );
+		this.requestUpdate( 'interruptionLayerPresented', previous );
+	}
 
-	@query( 'dialog' )
-	private accessor dialogElement!: HTMLDialogElement | null;
+	private interruptionLayerPresentedInput: boolean = false;
 
-	@query( 'tocus-f-interruption-screen' )
-	private accessor interruptionScreen!: ComponentInterruptionScreen | null;
+	/**
+	 * Current copy input supplied by the presentation owner.
+	 * @return Current copy input supplied by the presentation owner.
+	 */
+	get copy(): Readonly<ProtectedPageLayerCopy> {
+		return this.copyInput;
+	}
+
+	/**
+	 * Applies the next copy controller input.
+	 * @param value - New presentation input, committed with the other writes in this batch.
+	 */
+	set copy( value: Readonly<ProtectedPageLayerCopy> ) {
+		const previous = this.copyInput;
+		if ( Object.is( previous, value ) ) {
+			return;
+		}
+		this.copyInput = value;
+		this.requestUpdate( 'copy', previous );
+	}
+
+	private copyInput!: Readonly<ProtectedPageLayerCopy>;
+
+	/**
+	 * Current interruption copy input supplied by the presentation owner.
+	 * @return Current interruption copy input supplied by the presentation owner.
+	 */
+	get interruptionCopy(): Readonly<InterruptionScreenCopy> {
+		return this.interruptionCopyInput;
+	}
+
+	/**
+	 * Applies the next interruption copy controller input.
+	 * @param value - New presentation input, committed with the other writes in this batch.
+	 */
+	set interruptionCopy( value: Readonly<InterruptionScreenCopy> ) {
+		const previous = this.interruptionCopyInput;
+		if ( Object.is( previous, value ) ) {
+			return;
+		}
+		this.interruptionCopyInput = value;
+		this.requestUpdate( 'interruptionCopy', previous );
+	}
+
+	private interruptionCopyInput!: Readonly<InterruptionScreenCopy>;
+
+	/** Creates the closed, native top-layer boundary retained by the content script. */
+	constructor() {
+		super( styles, 'closed' );
+	}
+
+	/**
+	 * Public presentation attributes.
+	 * @return Public presentation attributes.
+	 */
+	static get observedAttributes(): string[] {
+		return [ 'warning-remaining-seconds', 'interruption-layer-presented' ];
+	}
+
+	/**
+	 * Synchronizes native attributes with controller sInput.
+	 * @param name - Changed attribute.
+	 * @param previous - Previous attribute text.
+	 * @param value - Current attribute text or null after removal.
+	 */
+	attributeChangedCallback( name: string, previous: string | null, value: string | null ): void {
+		if ( previous === value ) {
+			return;
+		}
+		if ( name === 'warning-remaining-seconds' ) {
+			this.warningRemainingSeconds = value === null ? null : Number( value );
+		}
+		if ( name === 'interruption-layer-presented' ) {
+			this.interruptionLayerPresented = value !== null;
+		}
+	}
+
+	/**
+	 * Native modal owned by this closed shadow tree.
+	 * @return Native modal owned by this closed shadow tree.
+	 */
+	private get dialogElement(): HTMLDialogElement | null {
+		return this.renderRoot.querySelector( 'dialog' );
+	}
+
+	/**
+	 * Screen adapter owned by the native modal, absent until localized copy is available.
+	 * @return Screen adapter owned by the native modal, absent until localized copy is available.
+	 */
+	private get interruptionScreen(): ComponentInterruptionScreen | null {
+		return this.renderRoot.querySelector( 'tocus-f-interruption-screen' );
+	}
 
 	private previouslyFocusedElement: HTMLElement | null = null;
 
@@ -116,7 +206,7 @@ export class ComponentProtectedPageLayer extends LitElement {
 	 * @param event - Native dialog cancellation request.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	private readonly handleDialogCancel = ( event: Event ): void => {
+	private readonly handleDialogCancel = ( event: React.SyntheticEvent<HTMLDialogElement> ): void => {
 		event.preventDefault();
 	};
 
@@ -206,7 +296,7 @@ export class ComponentProtectedPageLayer extends LitElement {
 	 * @param changedProperties - Reactive properties changed for this update.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	protected override updated( changedProperties: PropertyValues<this> ): void {
+	protected override afterRender( changedProperties: PresentationChanges ): void {
 		if ( ! isLocalizationReady( this.copy, this.interruptionCopy ) ) {
 			return;
 		}
@@ -228,35 +318,21 @@ export class ComponentProtectedPageLayer extends LitElement {
 	 * @return Protected-page presentation template.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	protected override render(): TemplateResult {
+	protected override renderPresentation(): ReactNode {
 		if ( ! isLocalizationReady( this.copy, this.interruptionCopy ) ) {
-			return html``;
+			return null;
 		}
-		return html`
-			${ this.warningRemainingSeconds === null
-				? null
-				: html`
-					<p class="warning">
-						<span class="visually-hidden" role="status">
-							${ this.copy.allowanceWarningAnnouncement }
-						</span>
-						<span aria-hidden="true">
-							${ this.copy.formatAllowanceWarning( this.warningRemainingSeconds ) }
-						</span>
-					</p>
-				` }
-			<dialog
-				aria-label=${ this.copy.dialogLabel }
-				aria-modal="true"
-				@cancel=${ this.handleDialogCancel }
-				@close=${ this.handleDialogClose }
-			>
-				<tocus-f-interruption-screen
-					.copy=${ this.interruptionCopy }
-					.continueShortcutEnabled=${ this.interruptionLayerPresented }
-				></tocus-f-interruption-screen>
+		return <>
+			{this.warningRemainingSeconds !== null && <p className="warning">
+				<span className="visually-hidden" role="status">{this.copy.allowanceWarningAnnouncement}</span>
+				<span aria-hidden="true">{this.copy.formatAllowanceWarning( this.warningRemainingSeconds )}</span>
+			</p>}
+			<dialog aria-label={this.copy.dialogLabel} aria-modal="true"
+				onCancel={this.handleDialogCancel} onClose={this.handleDialogClose}>
+				{createElement( 'tocus-f-interruption-screen', { copy: this.interruptionCopy,
+					continueShortcutEnabled: this.interruptionLayerPresented } )}
 			</dialog>
-		`;
+		</>;
 	}
 
 	/**
@@ -312,14 +388,6 @@ export class ComponentProtectedPageLayer extends LitElement {
 	}
 }
 
-declare global {
-	/**
-	 * Maps the protected-page layer tag name to its element class.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	interface HTMLElementTagNameMap {
-		'tocus-f-protected-page-layer': ComponentProtectedPageLayer;
-	}
-}
+customElements.define( 'tocus-f-protected-page-layer', ComponentProtectedPageLayer );
 
 export * from './types';
