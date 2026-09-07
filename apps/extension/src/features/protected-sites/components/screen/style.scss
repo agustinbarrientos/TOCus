@@ -1,0 +1,25 @@
+.settings-site-address {
+	flex: 1;
+	min-width: 0;
+}
+
+.settings-site-add { margin-top: var(--tocus-space-2); }
+
+.settings-site-announcement { margin-top: 1em; }
+
+[data-tocus-ui] .settings-page .settings-site-form {
+	padding-bottom: 0;
+	#site-address-help { margin-top: var(--tocus-space-2); }
+
+	.settings-site-address-error {
+		min-height: 1.25rem;
+		margin-top: var(--tocus-space-1);
+		color: var(--tocus-color-on-error);
+	}
+	.settings-behavior-control { margin-top: var(--tocus-space-4); }
+	.settings-behavior-label { padding-inline: 2px; }
+}
+
+@media (width <= 30rem) {
+	.settings-site-form button { align-self: start; }
+}
