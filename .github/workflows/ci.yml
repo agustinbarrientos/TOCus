@@ -38,8 +38,40 @@ jobs:
             - name: Audit high-severity vulnerabilities
               run: pnpm audit --audit-level=high --ignore-registry-errors
 
-            - name: Install pinned Chromium
-              run: pnpm --filter @tocus/extension exec playwright install --with-deps chromium
+            - name: Install pinned browsers
+              run: pnpm --filter @tocus/extension exec playwright install --with-deps chromium firefox webkit
 
             - name: Run quality checks
               run: pnpm check
+
+    visual:
+        name: Reviewed React visuals
+        runs-on: macos-26
+        timeout-minutes: 20
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+              with:
+                  persist-credentials: false
+            - name: Set up Node.js and pnpm
+              uses: pnpm/setup@84cb39b217b10273981911c288cd62326dc7c6d2 # v2
+              with:
+                  runtime: node@24.20.0
+                  cache: true
+                  install: false
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+            - name: Install pinned screenshot browser
+              run: pnpm exec playwright install chromium
+            - name: Compare reviewed visual baselines
+              run: pnpm test:visual
+            - name: Preserve visual failure diagnostics
+              if: failure()
+              uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+              with:
+                  name: visual-failure-diagnostics
+                  path: |
+                      test-results/visual/
+                      playwright-report/visual/
+                  retention-days: 7
+                  if-no-files-found: ignore
