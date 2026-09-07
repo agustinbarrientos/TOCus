@@ -7,8 +7,8 @@ import {
 } from './types';
 
 const MILLISECONDS_PER_SECOND = 1_000;
-const MILLISECONDS_PER_MINUTE = 60_000;
 const SECONDS_PER_MINUTE = 60;
+const MAXIMUM_VISIBLE_SECONDS = 30;
 
 /**
  * Converts a potentially elapsed duration into a nonnegative whole-second countdown.
@@ -21,6 +21,21 @@ function getRemainingSeconds( remainingMilliseconds: number ): number {
 	}
 
 	return Math.max( 0, Math.ceil( remainingMilliseconds / MILLISECONDS_PER_SECOND ) );
+}
+
+/**
+ * Selects the compact amount and unit for one nonnegative countdown.
+ * @param remainingMilliseconds - Remaining duration reported by the runtime.
+ * @return Seconds through the final thirty seconds, otherwise rounded-up minutes.
+ */
+function getCompactDuration(
+	remainingMilliseconds: number,
+): readonly [ amount: number, unit: ToolbarBadgeDurationUnit ] {
+	const remainingSeconds = getRemainingSeconds( remainingMilliseconds );
+
+	return remainingSeconds > MAXIMUM_VISIBLE_SECONDS
+		? [ Math.ceil( remainingSeconds / SECONDS_PER_MINUTE ), ToolbarBadgeDurationUnit.MINUTE ]
+		: [ remainingSeconds, ToolbarBadgeDurationUnit.SECOND ];
 }
 
 /**
@@ -44,15 +59,7 @@ function createWaitingProjection(
 	remainingMilliseconds: number,
 	copy: ToolbarBadgeCopy,
 ): ToolbarBadgeProjection {
-	const remainingSeconds = getRemainingSeconds( remainingMilliseconds );
-	const usesMinutes = remainingMilliseconds >= MILLISECONDS_PER_MINUTE;
-	const amount = usesMinutes
-		? Math.ceil( remainingSeconds / SECONDS_PER_MINUTE )
-		: remainingSeconds;
-	const unit = usesMinutes
-		? ToolbarBadgeDurationUnit.MINUTE
-		: ToolbarBadgeDurationUnit.SECOND;
-
+	const [ amount, unit ] = getCompactDuration( remainingMilliseconds );
 	const formattedCopy = copy.formatWaiting( amount, unit );
 
 	return {
@@ -66,21 +73,13 @@ function createWaitingProjection(
  * Creates a compact projection for one active visit window.
  * @param remainingMilliseconds - Authoritative remaining visit-window duration.
  * @param copy - Localized toolbar copy.
- * @return Allowance badge projection using minutes when the interval is at least one minute.
+ * @return Allowance badge projection using seconds through the final thirty seconds.
  */
 function createAllowanceProjection(
 	remainingMilliseconds: number,
 	copy: ToolbarBadgeCopy,
 ): ToolbarBadgeProjection {
-	const remainingSeconds = getRemainingSeconds( remainingMilliseconds );
-	const usesMinutes = remainingMilliseconds > MILLISECONDS_PER_MINUTE;
-	const amount = usesMinutes
-		? Math.ceil( remainingSeconds / SECONDS_PER_MINUTE )
-		: Math.min( remainingSeconds, 1 );
-	const unit = usesMinutes
-		? ToolbarBadgeDurationUnit.MINUTE
-		: ToolbarBadgeDurationUnit.LESS_THAN_MINUTE;
-
+	const [ amount, unit ] = getCompactDuration( remainingMilliseconds );
 	const formattedCopy = copy.formatAllowance( amount, unit );
 
 	return {

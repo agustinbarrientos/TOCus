@@ -85,7 +85,6 @@ export interface ToolbarBadgeProjection {
  * @since 0.1.0 Initial implementation.
  */
 export const ToolbarBadgeDurationUnit = {
-	LESS_THAN_MINUTE: 'less-than-minute',
 	SECOND: 'second',
 	MINUTE: 'minute',
 } as const;
