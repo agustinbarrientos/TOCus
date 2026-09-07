@@ -8,12 +8,12 @@ import {
 	PreferencesStorageKey,
 	parseStoredPreferences,
 } from '../../../../domains/preferences/services/preferences-storage';
-import {
-	type PreferencesController,
-	type PreferencesControllerOptions,
-	type PreferencesChangeListener,
-	type PreferencesLanguageChangeListener,
-	type PreferencesStorageChanges,
+import type {
+	PreferencesController,
+	PreferencesControllerOptions,
+	PreferencesChangeListener,
+	PreferencesLanguageChangeListener,
+	PreferencesStorageChanges,
 } from './types';
 
 /**
@@ -113,7 +113,8 @@ export function createPreferencesController(
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function apply( nextPreferences: PreferencesDocument ): void {
-		applyStoredPreferences( nextPreferences );
+		projectionRevision += 1;
+		projectPreferences( nextPreferences );
 	}
 
 	/**
