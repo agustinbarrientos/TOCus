@@ -1,0 +1,30 @@
+@use '@tocus/theme/typography' as typography;
+
+.supported-services {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem 2rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.supported-services li {
+	@include typography.apply('title-large');
+
+	display: flex;
+	align-items: center;
+	gap: var(--tocus-space-3);
+	color: var(--tocus-color-action);
+}
+
+.supported-services li img {
+	width: var(--tocus-space-6);
+	height: var(--tocus-space-6);
+	object-fit: contain;
+	flex: 0 0 auto;
+}
+
+[data-tocus-theme='dark'] .supported-service-monochrome {
+	filter: invert(1);
+}
