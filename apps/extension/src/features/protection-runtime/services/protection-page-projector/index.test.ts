@@ -7,7 +7,7 @@ import {
 } from '../../../../domains/protection/types/__fixtures__';
 import { ProtectionDecisionType } from '../../../../domains/protection/types/protection-decision';
 import { ProtectionParticipantOrigin } from '../../../../domains/protection/types/protection-participant';
-import { type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
 import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
 import { ProtectedPageMessageType } from '../../types/protected-page-message';
 import { createProtectionPageProjector } from './index';

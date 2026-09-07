@@ -1,10 +1,10 @@
-import { type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
-import { type ProtectionDecision } from '../../../../domains/protection/types/protection-decision';
-import { type AllowanceExpiryProtectionParticipant } from '../../../../domains/protection/types/protection-participant';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type AllowanceId, type PageId, type ParticipantId, type ProtectionScopeId, type RetainedNavigationDestination } from '../../../../domains/protection/types/protection-value';
-import { type StoredProtectionParticipant } from '../../../../domains/protection/types/stored-protection-participant';
-import { type ProtectionRuntimeBrowser } from '../../types/browser-runtime';
+import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionDecision } from '../../../../domains/protection/types/protection-decision';
+import type { AllowanceExpiryProtectionParticipant } from '../../../../domains/protection/types/protection-participant';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { AllowanceId, PageId, ParticipantId, ProtectionScopeId, RetainedNavigationDestination } from '../../../../domains/protection/types/protection-value';
+import type { StoredProtectionParticipant } from '../../../../domains/protection/types/stored-protection-participant';
+import type { ProtectionRuntimeBrowser } from '../../types/browser-runtime';
 
 /**
  * Exact participant and allowance identity authorized by a fresh manual or automatic entry request.
