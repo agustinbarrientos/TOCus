@@ -1,4 +1,4 @@
-import { type ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
+import type { ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
 
 const ALL_URLS_PATTERN = '<all_urls>';
 const MATCH_PATTERN = /^(\*|https?):\/\/[^/]+\/\*$/;
