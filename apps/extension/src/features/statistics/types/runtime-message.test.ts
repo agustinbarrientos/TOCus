@@ -8,10 +8,10 @@ describe( 'StatisticsRuntimeRequestSchema', () => {
 	it( 'parses every supported statistics command', () => {
 		expect( StatisticsRuntimeRequestSchema.parse( {
 			type: StatisticsRuntimeRequestType.READ_STATISTICS,
-		} ) ).toEqual( { type: 'read-statistics' } );
+		} ) ).toEqual( { type: StatisticsRuntimeRequestType.READ_STATISTICS } );
 		expect( StatisticsRuntimeRequestSchema.parse( {
 			type: StatisticsRuntimeRequestType.RESET_STATISTICS,
-		} ) ).toEqual( { type: 'reset-statistics' } );
+		} ) ).toEqual( { type: StatisticsRuntimeRequestType.RESET_STATISTICS } );
 	} );
 
 	it.each( [
