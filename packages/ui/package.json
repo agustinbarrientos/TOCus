@@ -1,0 +1,29 @@
+{
+	"name": "@tocus/ui",
+	"private": true,
+	"type": "module",
+	"scripts": { "typecheck": "tsc --noEmit", "test:browser": "vitest run --config vitest.config.ts" },
+	"exports": {
+		".": "./src/index.ts",
+		"./types": "./src/types.ts",
+		"./styles": "./src/styles.scss",
+		"./styles.scss": "./src/styles.scss"
+	},
+	"dependencies": {
+		"@tocus/theme": "workspace:*",
+		"@mantine/core": "9.6.0",
+		"@mantine/hooks": "9.6.0"
+	},
+	"peerDependencies": { "react": "^19.2.0", "react-dom": "^19.2.0" },
+	"devDependencies": {
+		"@types/react": "19.2.18",
+		"@types/react-dom": "19.2.7",
+		"playwright": "1.62.1",
+		"react": "19.2.8",
+		"react-dom": "19.2.8",
+		"sass": "1.103.1",
+		"typescript": "6.0.3",
+		"vite": "8.2.2",
+		"vitest": "4.1.11"
+	}
+}
