@@ -11,20 +11,20 @@ import {
 	StatisticsProjectionStatus,
 	type StatisticsProjection,
 } from '../../../../domains/statistics/types/statistics-projection';
-import {
-	type StatisticsCheckpointObservation,
-	type StatisticsRuntime,
+import type {
+	StatisticsCheckpointObservation,
+	StatisticsRuntime,
 } from '../statistics-runtime';
-import { type ProtectionRuntimeTab } from '../../../protection-runtime/types/browser-runtime';
+import type { ProtectionRuntimeTab } from '../../../protection-runtime/types/browser-runtime';
 import {
 	StatisticsFocusObservationMode,
 	type StatisticsFocusObservationMode as StatisticsFocusObservationModeValue,
 } from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
-import {
-	type BrowserProtectionFocusEventIdentity,
-	type BrowserProtectionStatisticsObservation,
-	type BrowserStatisticsBridge,
-	type BrowserStatisticsBridgeOptions,
+import type {
+	BrowserProtectionFocusEventIdentity,
+	BrowserProtectionStatisticsObservation,
+	BrowserStatisticsBridge,
+	BrowserStatisticsBridgeOptions,
 } from './types';
 
 /**

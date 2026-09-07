@@ -1,14 +1,14 @@
-import { type ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
-import { type ProtectionCoordinator } from '../../../../domains/protection/services/protection-coordinator';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
-import {
-	type ProtectionRuntimeBrowser,
-	type ProtectionRuntimeNavigation,
-	type ProtectionRuntimeTab,
+import type { ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
+import type { ProtectionCoordinator } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
+import type {
+	ProtectionRuntimeBrowser,
+	ProtectionRuntimeNavigation,
+	ProtectionRuntimeTab,
 } from '../../../protection-runtime/types/browser-runtime';
-import { type StatisticsFocusObservationMode } from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
-import { type StatisticsRuntime } from '../statistics-runtime';
+import type { StatisticsFocusObservationMode } from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
+import type { StatisticsRuntime } from '../statistics-runtime';
 
 /**
  * Browser focus inputs captured when one protection event reaches the runtime.
