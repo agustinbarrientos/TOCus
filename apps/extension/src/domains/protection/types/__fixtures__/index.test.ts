@@ -44,6 +44,7 @@ import {
 	DefaultTimingConfiguration,
 	TimingConfigurationSchema,
 } from '../timing-configuration';
+import { WaitDurationMillisecondsSchema } from '../wait-duration';
 import {
 	DepartureCause,
 	ProtectionEventSchema,
@@ -123,13 +124,13 @@ describe( 'protection type fixtures', () => {
 	it( 'round-trips the current protection configuration fixture', () => {
 		expect( ProtectionConfigurationDocumentSchema.parse( {
 			...TestEmptyProtectionConfiguration,
-			schemaVersion: 3,
+			schemaVersion: 4,
 			measurementRevisionsByScope: {
 				scope_default: 'revision_initial_scope_default',
 			},
 		} ) ).toStrictEqual( {
 			...TestEmptyProtectionConfiguration,
-			schemaVersion: 3,
+			schemaVersion: 4,
 			measurementRevisionsByScope: {
 				scope_default: 'revision_initial_scope_default',
 			},
@@ -161,7 +162,7 @@ describe( 'protection contract custom rules', () => {
 	it( 'requires one measurement revision for every active protection scope', () => {
 		const currentConfiguration = {
 			...TestEmptyProtectionConfiguration,
-			schemaVersion: 3,
+			schemaVersion: 4,
 			measurementRevisionsByScope: {
 				scope_default: 'revision_initial_scope_default',
 			},
@@ -388,7 +389,7 @@ describe( 'protection contract custom rules', () => {
 	);
 
 	it.each( [ 60_000, 3_600_000 ] )(
-		'accepts the inclusive allowance-duration boundary %i',
+		'keeps the historical captured-allowance boundary %i readable',
 		( durationMilliseconds ) => {
 			const allowanceState = {
 				...createAllowanceState(),
@@ -550,4 +551,37 @@ describe( 'protection contract custom rules', () => {
 			.toStrictEqual( DefaultTimingConfiguration );
 		expect( Object.isFrozen( DefaultTimingConfiguration ) ).toBe( true );
 	} );
+
+	it( 'accepts the complete current timing-control boundary configuration', () => {
+		const configuration = {
+			...DefaultTimingConfiguration,
+			initialWaitMilliseconds: 30_000,
+			ladderIncreaseMilliseconds: 0,
+			maximumWaitMilliseconds: 120_000,
+			allowanceMilliseconds: 1_200_000,
+		};
+
+		expect( TimingConfigurationSchema.parse( configuration ) ).toStrictEqual( configuration );
+	} );
+
+	it.each( [
+		{ label: 'initial wait above thirty seconds', overrides: { initialWaitMilliseconds: 35_000 } },
+		{ label: 'maximum wait off the thirty-second grid', overrides: { maximumWaitMilliseconds: 45_000 } },
+		{ label: 'allowance below two minutes', overrides: { allowanceMilliseconds: 60_000 } },
+		{ label: 'allowance above twenty minutes', overrides: { allowanceMilliseconds: 1_260_000 } },
+		{ label: 'increase off the whole-second grid', overrides: { ladderIncreaseMilliseconds: 1_500 } },
+	] )( 'rejects timing configuration with $label', ( { overrides } ) => {
+		expect( TimingConfigurationSchema.safeParse( {
+			...DefaultTimingConfiguration,
+			...overrides,
+		} ).success ).toBe( false );
+	} );
+
+	it.each( Array.from( { length: 111 }, ( _, index ) => 10_000 + index * 1_000 ) )(
+		'accepts the captured whole-second wait %i',
+		( durationMilliseconds ) => {
+			expect( WaitDurationMillisecondsSchema.parse( durationMilliseconds ) )
+				.toBe( durationMilliseconds );
+		},
+	);
 } );

@@ -27,6 +27,8 @@ export const BreathingCycleSchema = z.object( {
 		totalDurationMilliseconds * BreathingInhaleProportion;
 	const expectedExhaleDurationMilliseconds =
 		totalDurationMilliseconds - expectedInhaleDurationMilliseconds;
+	// Reconstructing a fractional cycle total can introduce one floating-point rounding step.
+	const phaseRoundingTolerance = Number.EPSILON * totalDurationMilliseconds;
 
 	if ( totalDurationMilliseconds > BreathingCycleMaximumMilliseconds ) {
 		context.addIssue( {
@@ -37,8 +39,8 @@ export const BreathingCycleSchema = z.object( {
 	}
 
 	if (
-		cycle.inhaleDurationMilliseconds !== expectedInhaleDurationMilliseconds ||
-		cycle.exhaleDurationMilliseconds !== expectedExhaleDurationMilliseconds
+		Math.abs( cycle.inhaleDurationMilliseconds - expectedInhaleDurationMilliseconds ) > phaseRoundingTolerance ||
+		Math.abs( cycle.exhaleDurationMilliseconds - expectedExhaleDurationMilliseconds ) > phaseRoundingTolerance
 	) {
 		context.addIssue( {
 			code: 'custom',
@@ -60,7 +62,7 @@ export type BreathingCycle = z.infer<typeof BreathingCycleSchema>;
  */
 export const BreathingPlanSchema = z.object( {
 	durationMilliseconds: WaitDurationMillisecondsSchema,
-	cycles: z.array( BreathingCycleSchema ).min( 1 ).max( 6 ),
+	cycles: z.array( BreathingCycleSchema ).min( 1 ).max( 12 ),
 } ).strict().superRefine( ( plan, context ) => {
 	const expectedCycleCount = Math.ceil(
 		plan.durationMilliseconds / BreathingCycleMaximumMilliseconds,
