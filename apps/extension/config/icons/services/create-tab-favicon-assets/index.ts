@@ -1,7 +1,7 @@
 import { mkdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import sharp from 'sharp';
-import { type CopiedPublicFile } from 'wxt';
+import type { CopiedPublicFile } from 'wxt';
 
 /**
  * Generates contrasting tab icons from the canonical brand silhouette.
