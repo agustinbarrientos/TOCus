@@ -17,7 +17,7 @@ import {
 	type LocalizationBundle,
 } from '../../../../localization';
 import { createPreferencesController } from '../../../preferences/services/preferences-controller';
-import { type PreferencesStorageChanges } from '../../../preferences/services/preferences-controller/types';
+import type { PreferencesStorageChanges } from '../../../preferences/services/preferences-controller/types';
 import { createProtectedSiteEnrollmentService } from '../../../protected-sites/services/protected-site-enrollment';
 import { createSitePermissionManager } from '../../../protected-sites/services/site-permission-manager';
 import { OnboardingLanguageSelectEventName } from '../../components/language-step/types';
@@ -28,7 +28,7 @@ import {
 } from '../../components/shell/types';
 import { OnboardingSiteSuggestions } from '../../utils/site-suggestion-catalog';
 import { createOnboardingLocalizationCoordinator } from '../localization-coordinator';
-import { type OnboardingPageOptions } from './types';
+import type { OnboardingPageOptions } from './types';
 
 /**
  * Reveals onboarding after either successful startup or terminal recovery.

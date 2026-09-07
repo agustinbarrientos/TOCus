@@ -28,9 +28,9 @@ import {
 import { OnboardingLanguageSelectEventName } from '../../components/language-step/types';
 import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import { bootstrapOnboardingPage, startOnboardingPage } from './index';
-import {
-	type OnboardingPageOptions,
-	type OnboardingPageShell,
+import type {
+	OnboardingPageOptions,
+	OnboardingPageShell,
 } from './types';
 
 /**
@@ -509,7 +509,7 @@ describe( 'startOnboardingPage', () => {
 		const japaneseLocalization = {
 			...TestEnglishLocalizationBundle,
 			language: Language.JAPANESE,
-			languageTag: 'ja',
+			languageTag: Language.JAPANESE,
 			onboarding: {
 				...TestEnglishLocalizationBundle.onboarding,
 				introduction: 'Japanese onboarding',
@@ -584,7 +584,7 @@ describe( 'startOnboardingPage', () => {
 		selectedLocalization.resolve( {
 			...TestEnglishLocalizationBundle,
 			language: Language.JAPANESE,
-			languageTag: 'ja',
+			languageTag: Language.JAPANESE,
 		} );
 
 		await expect( synchronization ).resolves.toBe( true );

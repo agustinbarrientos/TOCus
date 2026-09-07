@@ -1,33 +1,33 @@
-import {
-	type BrowserPreferencesMutationLock,
+import type {
+	BrowserPreferencesMutationLock,
 } from '../../../../domains/preferences/services/browser-preferences-editor';
-import { type PreferencesEditor } from '../../../../domains/preferences/services/preferences-editor';
-import { type PreferencesStorageArea } from '../../../../domains/preferences/services/preferences-storage';
-import {
-	type Language,
-	type Palette,
-	type ThemeMode,
+import type { PreferencesEditor } from '../../../../domains/preferences/services/preferences-editor';
+import type { PreferencesStorageArea } from '../../../../domains/preferences/services/preferences-storage';
+import type {
+	Language,
+	Palette,
+	ThemeMode,
 } from '../../../../domains/preferences/types';
-import {
-	type BrowserProtectionConfigurationMutationLock,
-	type BrowserProtectionCryptography,
+import type {
+	BrowserProtectionConfigurationMutationLock,
+	BrowserProtectionCryptography,
 } from '../../../../domains/protection/services/browser-protection-configuration-editor';
-import { type ProtectionConfigurationStorageArea } from '../../../../domains/protection/services/protection-configuration-storage';
-import { type ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
-import { type InterruptionScreenCopy } from '../../../interruption/components/screen/types';
-import {
-	type PreferencesAppearanceTarget,
-	type PreferencesStorageChangeSource,
-	type PreferencesSystemMotionPreference,
+import type { ProtectionConfigurationStorageArea } from '../../../../domains/protection/services/protection-configuration-storage';
+import type { ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
+import type { InterruptionScreenCopy } from '../../../interruption/components/screen/types';
+import type {
+	PreferencesAppearanceTarget,
+	PreferencesStorageChangeSource,
+	PreferencesSystemMotionPreference,
 } from '../../../preferences/services/preferences-controller';
-import { type ProtectedSiteEnrollmentService } from '../../../protected-sites/services/protected-site-enrollment';
-import { type SitePermissionApi } from '../../../protected-sites/services/site-permission-manager';
-import {
-	type OnboardingLanguageSynchronizer,
-	type OnboardingShellCopy,
+import type { ProtectedSiteEnrollmentService } from '../../../protected-sites/services/protected-site-enrollment';
+import type { SitePermissionApi } from '../../../protected-sites/services/site-permission-manager';
+import type {
+	OnboardingLanguageSynchronizer,
+	OnboardingShellCopy,
 } from '../../components/shell/types';
-import { type OnboardingSiteSuggestion } from '../../utils/site-suggestion-catalog';
-import { type OnboardingLocalizationLoader } from '../localization-coordinator';
+import type { OnboardingSiteSuggestion } from '../../utils/site-suggestion-catalog';
+import type { OnboardingLocalizationLoader } from '../localization-coordinator';
 
 /**
  * Opens the extension Settings surface from onboarding.
