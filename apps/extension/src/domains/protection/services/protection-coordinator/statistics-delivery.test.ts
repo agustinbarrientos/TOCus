@@ -19,9 +19,9 @@ import {
 	type StoredDurableProtectionState,
 	type StoredProtectionState,
 } from '../../types/stored-protection-state';
-import {
-	type LoadedProtectionState,
-	type ProtectionStorageService,
+import type {
+	LoadedProtectionState,
+	ProtectionStorageService,
 } from '../protection-storage';
 import {
 	ProtectionCoordinatorDispatchStatus,
