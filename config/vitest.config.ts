@@ -9,8 +9,20 @@ export default defineConfig( {
 	test: {
 		coverage: {
 			exclude: [
+				// React lifecycle adapters run through the production UI in the three-engine browser suite.
+				// Keep the Node 100% gate on domain/runtime services and independently testable state utilities.
+				'apps/extension/src/features/onboarding/services/onboarding-flow/index.ts',
+				'apps/extension/src/features/onboarding/services/onboarding-sites/index.ts',
+				'apps/extension/src/features/onboarding/services/pending-operation/index.ts',
+				'apps/extension/src/features/settings/services/preferences-screen-state/index.ts',
+				'apps/extension/src/features/settings/services/schedule-screen-state/index.ts',
+				'apps/extension/src/features/settings/services/settings-draft/index.ts',
+				// Settings shell browser tests cover click, Back/Forward, and dirty-draft navigation.
+				'apps/extension/src/features/settings/services/settings-navigation/index.ts',
+				'apps/extension/src/features/statistics/services/settings-screen-state/index.ts',
 				'**/*.test.{ts,tsx}',
 				'**/__fixtures__/**',
+				'apps/extension/src/features/settings/utils/browser-test-harness/**',
 				'apps/extension/src/domains/preferences/index.ts',
 				'apps/extension/src/domains/preferences/services/index.ts',
 				'apps/extension/src/domains/preferences/utils/index.ts',
@@ -51,6 +63,8 @@ export default defineConfig( {
 				'apps/extension/src/features/onboarding/services/**/*.ts',
 				'apps/extension/src/features/onboarding/utils/site-suggestion-catalog/**/*.ts',
 				'apps/extension/src/features/settings/services/**/*.ts',
+				'apps/extension/src/features/settings/utils/**/*.ts',
+				'apps/extension/src/features/onboarding/utils/site-drafts/**/*.ts',
 				'apps/extension/src/features/interruption/services/interruption-page/**/*.ts',
 				'apps/extension/src/features/interruption/services/interruption-page-controller/**/*.ts',
 				'apps/extension/src/features/interruption/services/protected-page/**/*.ts',
@@ -83,9 +97,15 @@ export default defineConfig( {
 			{
 				plugins: createLocalizationViteConfig().plugins,
 				test: {
-					exclude: [ '**/node_modules/**', 'apps/**/src/**/*.wtr.test.{ts,tsx}' ],
+					css: true,
+					exclude: [
+						'**/node_modules/**', '**/*.wtr.test.{ts,tsx}', 'packages/ui/tests/**',
+						'**/*.browser.test.{ts,tsx}', '**/browser.test.{ts,tsx}',
+					],
 					name: 'unit',
 					include: [
+						'tests/visual/**/*.test.ts',
+						'config/**/*.test.mjs',
 						'apps/extension/config/**/*.test.{ts,mjs}',
 						'apps/**/src/**/*.test.{ts,tsx}',
 						'packages/**/*.test.{ts,tsx}',
@@ -95,7 +115,7 @@ export default defineConfig( {
 			{
 				test: {
 					name: 'build-contract',
-					include: [ 'apps/extension/tests/build/**/*.{test,spec}.{ts,tsx,mjs}' ],
+					include: [ 'apps/{extension,website}/tests/build/**/*.{test,spec}.{ts,tsx,mjs}' ],
 				},
 			},
 		],
