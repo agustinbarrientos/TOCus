@@ -5,15 +5,15 @@ import {
 	createWaitingState,
 	TestEmptyProtectionConfiguration,
 } from '../../../../domains/protection/types/__fixtures__';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type ProtectionParticipant } from '../../../../domains/protection/types/protection-participant';
-import { type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionParticipant } from '../../../../domains/protection/types/protection-participant';
+import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
 import {
 	ProtectionMeasurementRevisionSchema,
 	ProtectionScopeIdSchema,
 } from '../../../../domains/protection/types/protection-value';
 import { createProtectionFocusReconciler } from './index';
-import { type ProtectionFocusReconcilerOptions } from './types';
+import type { ProtectionFocusReconcilerOptions } from './types';
 
 /**
  * Extension-owned interruption page used by focus tests.

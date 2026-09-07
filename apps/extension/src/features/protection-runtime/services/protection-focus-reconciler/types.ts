@@ -1,7 +1,7 @@
-import { type ProtectionCoordinator, type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type ProtectionRuntimeBrowser } from '../../types/browser-runtime';
-import { type ProtectionRuntimeParticipantContext } from '../../utils/runtime-page-context';
+import type { ProtectionCoordinator, ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionRuntimeBrowser } from '../../types/browser-runtime';
+import type { ProtectionRuntimeParticipantContext } from '../../utils/runtime-page-context';
 
 /**
  * Dependencies used to reconcile browser focus with Waiting participants.

@@ -1,15 +1,15 @@
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
 import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
 import { matchProtectedUrl } from '../../../../domains/protection/utils/protected-url-matcher';
-import { type ProtectionRuntimeTab } from '../../types/browser-runtime';
+import type { ProtectionRuntimeTab } from '../../types/browser-runtime';
 import {
 	findRuntimeParticipantContext,
 	getRuntimeTabId,
 	type ProtectionRuntimeParticipantContext,
 } from '../../utils/runtime-page-context';
-import {
-	type ProtectionFocusReconciler,
-	type ProtectionFocusReconcilerOptions,
+import type {
+	ProtectionFocusReconciler,
+	ProtectionFocusReconcilerOptions,
 } from './types';
 
 /**
