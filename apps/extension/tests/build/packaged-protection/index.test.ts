@@ -2,9 +2,9 @@ import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { chromium, type BrowserContext, type Worker } from 'playwright';
+import { chromium, type BrowserContext, type Route, type Worker } from 'playwright';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { type ExtensionManifest, type ExtensionWorkerGlobal } from './types';
+import type { ExtensionManifest, ExtensionWorkerGlobal } from './types';
 import { DefaultPreferencesDocument } from '../../../src/domains/preferences/types';
 import { TestEmptyProtectionConfiguration } from '../../../src/domains/protection/types/__fixtures__';
 import { StoredDurableProtectionStateSchema, type StoredDurableProtectionState } from '../../../src/domains/protection/types/stored-protection-state';
@@ -76,6 +76,7 @@ describe( 'packaged Chrome protection', () => {
 			args: [ `--disable-extensions-except=${ extensionPath }`, `--load-extension=${ extensionPath }` ],
 		} );
 		worker = context.serviceWorkers()[ 0 ] ?? await context.waitForEvent( 'serviceworker' );
+		await context.route( /^https?:\/\//u, ( route ) => route.abort() );
 		await context.route( 'https://example.test/**', ( route ) => route.fulfill( {
 			contentType: 'text/html',
 			body: '<!doctype html><html lang="en"><title>Example website</title><body><h1>Destination loaded</h1><input aria-label="Unfinished work" value="Keep this text"></body></html>',
@@ -86,6 +87,40 @@ describe( 'packaged Chrome protection', () => {
 		await context?.close();
 		if ( directory !== undefined ) {
 			await rm( directory, { recursive: true, force: true } );
+		}
+	} );
+
+	test.each( [ 'popup.html', 'options.html', 'onboarding.html' ] )( 'opens packaged %s without preload-world warnings or script errors', async ( entry ) => {
+		if ( context === undefined ) {
+			throw new Error( 'The disposable browser is unavailable.' );
+		}
+		const page = await context.newPage();
+		const failures: string[] = [];
+		const log = await context.newCDPSession( page );
+		await log.send( 'Log.enable' );
+		log.on( 'Log.entryAdded', ( { entry: browserLog } ) => {
+			if ( /preload|cross-world/iu.test( browserLog.text ) && [ 'warning', 'error' ].includes( browserLog.level ) ) {
+				failures.push( browserLog.text );
+			}
+		} );
+		page.on( 'pageerror', ( error ) => failures.push( error.message ) );
+		page.on( 'console', ( message ) => {
+			if ( /preload|cross-world/iu.test( message.text() ) && [ 'warning', 'error' ].includes( message.type() ) ) {
+				failures.push( message.text() );
+			}
+		} );
+		try {
+			const url = await worker.evaluate( ( path ) => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				return chrome.runtime.getURL( `/${ path }` );
+			}, entry );
+			await page.goto( url );
+			await page.getByText( 'TOCus', { exact: true } ).first().waitFor();
+			await page.waitForTimeout( 500 );
+			expect( await page.locator( 'link[rel="modulepreload"]' ).count() ).toBe( 0 );
+			expect( failures ).toEqual( [] );
+		} finally {
+			await page.close();
 		}
 	} );
 
@@ -118,10 +153,36 @@ describe( 'packaged Chrome protection', () => {
 		}
 	} );
 
-	test( 'keeps a redacted pause tab alive and opens its destination after Continue', async () => {
+	test( 'keeps a redacted pause tab calm while its accepted destination remains pending', async () => {
 		if ( context === undefined ) {
 			throw new Error( 'The disposable browser is unavailable.' );
 		}
+		const destination = 'https://example.test/slow-entry';
+		let releaseDestination: ( () => void ) | undefined;
+		const destinationBarrier = new Promise<void>( ( resolve ) => {
+			releaseDestination = resolve;
+		} );
+		let holdDestination = false;
+		let destinationWasRequested = false;
+		/**
+		 * Keeps the accepted destination request pending until the Ready screen is verified.
+		 * @param route - Synthetic destination request intercepted by Playwright.
+		 * @return Promise resolved after the synthetic destination is fulfilled.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		async function handleDestination( route: Route ): Promise<void> {
+			if ( holdDestination ) {
+				destinationWasRequested = true;
+				await destinationBarrier;
+			}
+
+			await route.fulfill( {
+				contentType: 'text/html',
+				body: '<!doctype html><html lang="en"><title>Example website</title><body><h1>Destination loaded</h1></body></html>',
+			} );
+		}
+
+		await context.route( destination, handleDestination );
 		await worker.evaluate( async () => {
 			const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
 
@@ -141,9 +202,14 @@ describe( 'packaged Chrome protection', () => {
 			return ( await chrome.declarativeNetRequest.getDynamicRules() ).length;
 		} ) ).toBeGreaterThan( 0 );
 		const page = await context.newPage();
+		const observedStates: string[] = [];
+
+		await page.exposeFunction( 'reportInterruptionState', ( state: string ) => {
+			observedStates.push( state );
+		} );
 
 		try {
-			await page.goto( 'https://example.test/' );
+			await page.goto( destination );
 			await page.waitForURL( '**/interruption.html' );
 			await page.bringToFront();
 			const pauseTab = await worker.evaluate( async () => {
@@ -166,10 +232,35 @@ describe( 'packaged Chrome protection', () => {
 				capturedAllowanceDurationMilliseconds: 300_000,
 			} );
 			expect( readyDocument.scopes.scope_default?.allowance ).toBeUndefined();
+			await page.evaluate( () => {
+				const screen = document.querySelector( 'tocus-f-interruption-screen' );
+
+				if ( screen === null ) {
+					throw new Error( 'The interruption screen is unavailable.' );
+				}
+				const reportState = ( globalThis as typeof globalThis & {
+					reportInterruptionState: ( state: string ) => void;
+				} ).reportInterruptionState;
+				/** Reports one rendered interruption state to the test process. */
+				const reportCurrentState = (): void => {
+					reportState( screen.getAttribute( 'state' ) ?? '' );
+				};
+
+				reportCurrentState();
+				new MutationObserver( reportCurrentState ).observe( screen, {
+					attributeFilter: [ 'state' ],
+					attributes: true,
+				} );
+			} );
 			const entryRequestedAt = Date.now();
 
-			await continueButton.click();
-			await page.waitForURL( 'https://example.test/', { timeout: 5_000 } );
+			holdDestination = true;
+			await continueButton.click( { noWaitAfter: true } );
+			await expect.poll( () => destinationWasRequested, { timeout: 5_000 } ).toBe( true );
+			await page.waitForTimeout( 2_000 );
+			expect( observedStates ).toEqual( [ 'ready' ] );
+			releaseDestination?.();
+			await page.waitForURL( destination, { timeout: 5_000 } );
 			expect( await page.getByRole( 'heading', { name: 'Destination loaded' } ).isVisible() ).toBe( true );
 			const allowanceDocument = await readDurableState( worker );
 			const allowance = allowanceDocument.scopes.scope_default?.allowance;
@@ -181,11 +272,13 @@ describe( 'packaged Chrome protection', () => {
 				( allowance?.startedAtEpochMilliseconds ?? 0 ) + 300_000,
 			);
 		} finally {
+			releaseDestination?.();
+			await context.unroute( destination, handleDestination );
 			await page.close();
 		}
 	}, 25_000 );
 
-	/* Native one-minute expiry is verified locally to keep CI duration bounded. */
+	/* Native two-minute expiry is verified locally to keep CI duration bounded. */
 	test.skipIf( process.env.CI === 'true' )( 'holds tab audio through expiry and Ready, then restores playback after Continue without reloading', async () => {
 		if ( context === undefined ) {
 			throw new Error( 'The disposable browser is unavailable.' );
@@ -194,9 +287,9 @@ describe( 'packaged Chrome protection', () => {
 			const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
 			await chrome.storage.local.set( {
 				'tocus.protection.configuration.v1': {
-					schemaVersion: 3,
+					schemaVersion: 4,
 					sites: [ { identityHost: 'example.test', rule: { host: 'example.test', includeSubdomains: true, scopeId: 'scope_audio' } } ],
-					timingConfiguration: { initialWaitMilliseconds: 10000, ladderIncreaseMilliseconds: 5000, maximumWaitMilliseconds: 10000, allowanceMilliseconds: 60000, completionAction: 'show-continue' },
+					timingConfiguration: { initialWaitMilliseconds: 10000, ladderIncreaseMilliseconds: 0, maximumWaitMilliseconds: 30000, allowanceMilliseconds: 120000, completionAction: 'show-continue' },
 					schedulesByScope: { scope_default: { mode: 'always' }, scope_audio: { mode: 'always' } },
 					measurementRevisionsByScope: { scope_default: 'revision_packaged', scope_audio: 'revision_packaged_audio' },
 				},
@@ -222,7 +315,7 @@ describe( 'packaged Chrome protection', () => {
 			expect( allowance ).toBeDefined();
 			expect(
 				( allowance?.expiresAtEpochMilliseconds ?? 0 ) - ( allowance?.startedAtEpochMilliseconds ?? 0 ),
-			).toBe( 60_000 );
+			).toBe( 120_000 );
 			await page.getByRole( 'textbox', { name: 'Unfinished work' } ).fill( 'Preserve my current work' );
 			await page.evaluate( () => {
 				document.body.dataset.documentIdentity = 'original-audio-document';
@@ -232,7 +325,7 @@ describe( 'packaged Chrome protection', () => {
 			await expect.poll( async () => {
 				const { nodes } = await accessibility.send( 'Accessibility.getFullAXTree' );
 				return nodes.some( ( node ) => ! node.ignored && node.role?.value === 'dialog' );
-			}, { timeout: 65_000 } ).toBe( true );
+			}, { timeout: 125_000 } ).toBe( true );
 			await expect.poll( () => readTabMuted( worker, destination ) ).toBe( true );
 			const waitingTree = await accessibility.send( 'Accessibility.getFullAXTree' );
 			expect( waitingTree.nodes.some( ( node ) => ! node.ignored && node.role?.value === 'button' && node.name?.value === 'Continue' ) ).toBe( false );
@@ -257,7 +350,7 @@ describe( 'packaged Chrome protection', () => {
 		} finally {
 			await page.close();
 		}
-	}, 100_000 );
+	}, 165_000 );
 
 	test( 'resets packaged local data through Settings and reopens onboarding without requesting access', async () => {
 		if ( directory === undefined ) {

@@ -1,4 +1,4 @@
-import { type WxtBrowser } from 'wxt/browser';
+import type { WxtBrowser } from 'wxt/browser';
 
 /**
  * Extension APIs available inside the packaged Chrome service worker.
