@@ -1,8 +1,8 @@
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type ProtectionCoordinator, type ProtectionCoordinatorDispatchResult } from '../../../../domains/protection/services/protection-coordinator';
-import { type DepartureCause } from '../../../../domains/protection/types/protection-event';
-import { type BrowserProtectionProjector } from '../browser-protection-projector/types';
-import { type ProtectionRuntimeBrowser } from '../../types/browser-runtime';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionCoordinator, ProtectionCoordinatorDispatchResult } from '../../../../domains/protection/services/protection-coordinator';
+import type { DepartureCause } from '../../../../domains/protection/types/protection-event';
+import type { BrowserProtectionProjector } from '../browser-protection-projector/types';
+import type { ProtectionRuntimeBrowser } from '../../types/browser-runtime';
 
 /**
  * Dependencies used to reconcile browser-backed protection participants.

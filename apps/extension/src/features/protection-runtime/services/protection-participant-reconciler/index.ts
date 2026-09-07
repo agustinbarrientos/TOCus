@@ -1,4 +1,4 @@
-import { type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
 import { DepartureCause, ProtectionEventType } from '../../../../domains/protection/types/protection-event';
 import { ProtectionParticipantOrigin } from '../../../../domains/protection/types/protection-participant';
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
@@ -10,10 +10,10 @@ import {
 	getRuntimeTabId,
 	type ProtectionRuntimeParticipantContext,
 } from '../../utils/runtime-page-context';
-import { type ProtectionRuntimeTab } from '../../types/browser-runtime';
-import {
-	type ProtectionParticipantReconciler,
-	type ProtectionParticipantReconcilerOptions,
+import type { ProtectionRuntimeTab } from '../../types/browser-runtime';
+import type {
+	ProtectionParticipantReconciler,
+	ProtectionParticipantReconcilerOptions,
 } from './types';
 
 /**

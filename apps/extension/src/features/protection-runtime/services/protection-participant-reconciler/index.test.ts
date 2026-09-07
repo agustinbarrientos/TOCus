@@ -13,15 +13,15 @@ import {
 	createWaitingState,
 	TestEmptyProtectionConfiguration,
 } from '../../../../domains/protection/types/__fixtures__';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { DepartureCause } from '../../../../domains/protection/types/protection-event';
 import {
 	ProtectionMeasurementRevisionSchema,
 	ProtectionScopeIdSchema,
 } from '../../../../domains/protection/types/protection-value';
-import { type ProtectionRuntimeTab } from '../../types/browser-runtime';
+import type { ProtectionRuntimeTab } from '../../types/browser-runtime';
 import { createProtectionParticipantReconciler } from './index';
-import { type ProtectionParticipantReconciler } from './types';
+import type { ProtectionParticipantReconciler } from './types';
 
 /**
  * Extension-owned interruption page used by participant reconciliation tests.
