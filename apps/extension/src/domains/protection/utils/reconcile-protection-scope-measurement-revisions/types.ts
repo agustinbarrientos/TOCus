@@ -1,10 +1,10 @@
-import {
-	type ProtectedSiteConfigurationSet,
-	type ProtectionScopeMeasurementRevisionMap,
+import type {
+	ProtectedSiteConfigurationSet,
+	ProtectionScopeMeasurementRevisionMap,
 } from '../../types/protected-site-configuration';
-import {
-	type ProtectionMeasurementRevisionFactory,
-	type ProtectionScopeId,
+import type {
+	ProtectionMeasurementRevisionFactory,
+	ProtectionScopeId,
 } from '../../types/protection-value';
 
 /**

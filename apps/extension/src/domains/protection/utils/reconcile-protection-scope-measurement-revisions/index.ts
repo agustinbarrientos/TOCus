@@ -9,7 +9,7 @@ import {
 	type ProtectionMeasurementRevision,
 	type ProtectionScopeId,
 } from '../../types/protection-value';
-import { type ReconcileProtectionScopeMeasurementRevisionsOptions } from './types';
+import type { ReconcileProtectionScopeMeasurementRevisionsOptions } from './types';
 
 /**
  * Collects every active protection scope from one protected-site set.
