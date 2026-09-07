@@ -53,7 +53,7 @@ function createSite( identityHost: string, host: string, scopeId: string ) {
  */
 function createConfiguration( inactiveDefaultSchedule = false ): ProtectionConfigurationDocument {
 	return ProtectionConfigurationDocumentSchema.parse( {
-		schemaVersion: 3,
+		schemaVersion: 4,
 		sites: [
 			createSite( 'www.instagram.com', 'instagram.com', DefaultProtectionScopeId ),
 			createSite( 'youtube.com', 'youtube.com', DefaultProtectionScopeId ),

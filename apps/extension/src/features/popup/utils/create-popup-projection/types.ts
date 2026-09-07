@@ -1,11 +1,11 @@
-import { type ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
 import type {
 	ProtectionState,
 	ProtectionStateType,
 } from '../../../../domains/protection/types/protection-state';
-import { type ProtectionScopeId } from '../../../../domains/protection/types/protection-value';
-import { type BrowserProtectionRuntimeSnapshot } from '../../../protection-runtime/services/browser-protection-runtime';
-import { type PopupCurrentTabContext } from '../../types/current-tab-context';
+import type { ProtectionScopeId } from '../../../../domains/protection/types/protection-value';
+import type { BrowserProtectionRuntimeSnapshot } from '../../../protection-runtime/services/browser-protection-runtime';
+import type { PopupCurrentTabContext } from '../../types/current-tab-context';
 
 /**
  * Inputs required to create one deterministic popup projection.

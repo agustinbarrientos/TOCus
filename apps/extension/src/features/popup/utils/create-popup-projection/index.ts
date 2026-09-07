@@ -32,13 +32,13 @@ import {
 	type PopupCurrentSite,
 	type PopupProjection,
 } from '../../types/popup-projection';
-import {
-	type CreatePopupProjectionAvailableOptions,
-	type CreatePopupProjectionCurrentTabOptions,
-	type CreatePopupProjectionOptions,
-	type PopupActiveProtectionState,
-	type PopupProjectionScopeEntry,
-	type PopupWaitingProtectionState,
+import type {
+	CreatePopupProjectionAvailableOptions,
+	CreatePopupProjectionCurrentTabOptions,
+	CreatePopupProjectionOptions,
+	PopupActiveProtectionState,
+	PopupProjectionScopeEntry,
+	PopupWaitingProtectionState,
 } from './types';
 
 /**
