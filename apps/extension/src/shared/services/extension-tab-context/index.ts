@@ -1,4 +1,4 @@
-import { type ExtensionTabContextRuntime, type ExtensionTabContextTab } from './types';
+import type { ExtensionTabContextRuntime, ExtensionTabContextTab } from './types';
 
 /**
  * Reports whether a queried tab has the identity required for a redacted URL lookup.
