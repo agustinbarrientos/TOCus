@@ -342,14 +342,14 @@ describe( 'transitionProtectionState', () => {
 
 	it( 'covers the closed event discriminator vocabulary', () => {
 		expect( Object.values( ProtectionEventType ) ).toStrictEqual( [
-			'visit-attempt',
-			'participant-focus-change',
-			'progress-checkpoint',
-			'participant-departure',
-			'schedule-reevaluation',
-			'ready-continuation',
-			'ready-reconciliation',
-			'allowance-expiry',
+			ProtectionEventType.VISIT_ATTEMPT,
+			ProtectionEventType.PARTICIPANT_FOCUS_CHANGE,
+			ProtectionEventType.PROGRESS_CHECKPOINT,
+			ProtectionEventType.PARTICIPANT_DEPARTURE,
+			ProtectionEventType.SCHEDULE_REEVALUATION,
+			ProtectionEventType.READY_CONTINUATION,
+			ProtectionEventType.READY_RECONCILIATION,
+			ProtectionEventType.ALLOWANCE_EXPIRY,
 		] );
 	} );
 } );
