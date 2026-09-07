@@ -1,3 +1,4 @@
+import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
 import { describe, expect, it, vi } from 'vitest';
 import {
 	ProtectionCoordinatorDispatchStatus,
@@ -11,14 +12,14 @@ import {
 	createWaitingState,
 	TestEmptyProtectionConfiguration,
 } from '../../../../domains/protection/types/__fixtures__';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { DepartureCause } from '../../../../domains/protection/types/protection-event';
 import {
 	ProtectionMeasurementRevisionSchema,
 	ProtectionScopeIdSchema,
 } from '../../../../domains/protection/types/protection-value';
 import { createProtectionNavigationHandler } from './index';
-import { type ProtectionNavigationHandler } from './types';
+import type { ProtectionNavigationHandler } from './types';
 import { ProtectionRuntimeNavigationPhase } from '../../types/browser-runtime';
 
 /**
@@ -168,7 +169,7 @@ function createHarness( states: ProtectionCoordinatorStateSnapshot | null ): Nav
 			.mockReturnValueOnce( 'page' )
 			.mockReturnValueOnce( 'wait' ),
 		departTab,
-		evaluateScopeSchedule: vi.fn().mockReturnValue( { status: 'active' } ),
+		evaluateScopeSchedule: vi.fn().mockReturnValue( { status: ScheduleEvaluationStatus.ACTIVE } ),
 		getTimeZone: vi.fn().mockReturnValue( 'America/New_York' ),
 		loadConfiguration: vi.fn().mockResolvedValue( CONFIGURATION ),
 		now: vi.fn().mockReturnValue( Date.UTC( 2026, 8, 2, 12 ) ),

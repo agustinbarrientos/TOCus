@@ -1,8 +1,8 @@
-import { type ProtectionCoordinator, type ProtectionCoordinatorDispatchResult } from '../../../../domains/protection/services/protection-coordinator';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type DepartureCause } from '../../../../domains/protection/types/protection-event';
-import { type ScheduleEvaluationResult } from '../../../../domains/protection/types/schedule-evaluation';
-import { type ProtectionRuntimeBrowser, type ProtectionRuntimeNavigation } from '../../types/browser-runtime';
+import type { ProtectionCoordinator, ProtectionCoordinatorDispatchResult } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { DepartureCause } from '../../../../domains/protection/types/protection-event';
+import type { ScheduleEvaluationResult } from '../../../../domains/protection/types/schedule-evaluation';
+import type { ProtectionRuntimeBrowser, ProtectionRuntimeNavigation } from '../../types/browser-runtime';
 
 /**
  * Dependencies used to reconcile observed browser navigation.

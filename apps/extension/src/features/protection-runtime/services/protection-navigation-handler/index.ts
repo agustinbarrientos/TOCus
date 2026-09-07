@@ -10,9 +10,9 @@ import {
 	createRuntimePageId,
 	findRuntimeParticipantContext,
 } from '../../utils/runtime-page-context';
-import {
-	type ProtectionNavigationHandler,
-	type ProtectionNavigationHandlerOptions,
+import type {
+	ProtectionNavigationHandler,
+	ProtectionNavigationHandlerOptions,
 } from './types';
 import { ProtectionRuntimeNavigationPhase } from '../../types/browser-runtime';
 
