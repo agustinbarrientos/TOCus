@@ -1,8 +1,8 @@
-import {
-	type StatisticsFocusEpochRotation,
-	type StatisticsSessionStorageService,
+import type {
+	StatisticsFocusEpochRotation,
+	StatisticsSessionStorageService,
 } from '../../../../../domains/statistics/services/statistics-session-storage';
-import { type StatisticsStorageService } from '../../../../../domains/statistics/services/statistics-storage';
+import type { StatisticsStorageService } from '../../../../../domains/statistics/services/statistics-storage';
 import {
 	StatisticsDocumentSchema,
 	type StatisticsDocument,

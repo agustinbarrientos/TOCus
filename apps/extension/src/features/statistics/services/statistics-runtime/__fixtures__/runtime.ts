@@ -1,21 +1,21 @@
-import {
-	type ProtectionCoordinatorStateSnapshot,
-	type ProtectionCoordinatorStatisticsDeliverySnapshot,
+import type {
+	ProtectionCoordinatorStateSnapshot,
+	ProtectionCoordinatorStatisticsDeliverySnapshot,
 } from '../../../../../domains/protection/services/protection-coordinator';
-import { type ProtectionConfigurationDocument } from '../../../../../domains/protection/types/protected-site-configuration';
-import {
-	type SessionContinuityId,
+import type { ProtectionConfigurationDocument } from '../../../../../domains/protection/types/protected-site-configuration';
+import type {
+	SessionContinuityId,
 } from '../../../../../domains/protection/types/protection-value';
 import { StoredProtectionStatisticsDeliveryStatus } from '../../../../../domains/protection/types/stored-protection-statistics-delivery';
-import { type StatisticsDocument } from '../../../../../domains/statistics/types/statistics-document';
-import { type StatisticsSessionDocument } from '../../../../../domains/statistics/types/statistics-session';
+import type { StatisticsDocument } from '../../../../../domains/statistics/types/statistics-document';
+import type { StatisticsSessionDocument } from '../../../../../domains/statistics/types/statistics-session';
 import {
 	StatisticsFocusObservationMode,
 	type StatisticsFocusEpochTransition,
 } from '../../../../../domains/statistics/utils/prepare-statistics-checkpoint';
-import {
-	type ProtectionRuntimeNavigation,
-	type ProtectionRuntimeTab,
+import type {
+	ProtectionRuntimeNavigation,
+	ProtectionRuntimeTab,
 } from '../../../../protection-runtime/types/browser-runtime';
 import {
 	createStatisticsRuntime,

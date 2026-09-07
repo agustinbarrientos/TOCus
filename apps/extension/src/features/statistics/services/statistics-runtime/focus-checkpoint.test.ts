@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createWaitingState } from '../../../../domains/protection/types/__fixtures__';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { SessionContinuityIdSchema } from '../../../../domains/protection/types/protection-value';
 import { StoredProtectionStatisticsDeliveryStatus } from '../../../../domains/protection/types/stored-protection-statistics-delivery';
 import { StatisticsDocumentSchema } from '../../../../domains/statistics/types/statistics-document';

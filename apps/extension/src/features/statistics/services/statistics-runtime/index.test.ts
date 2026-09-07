@@ -35,7 +35,8 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 
 		harness.runtime.forgetForDataReset();
 		expect( harness.runtime.getSnapshot() ).toEqual( {
-			deliveryStatus: null, focusMeasurementEnabled: false, projection: { status: 'unavailable' },
+			deliveryStatus: null, focusMeasurementEnabled: false,
+			projection: { status: StatisticsProjectionStatus.UNAVAILABLE },
 		} );
 		expect( harness.storage.savedDocuments ).toHaveLength( writeCount );
 		expect( harness.sessionStorage.savedDocuments ).toHaveLength( sessionWriteCount );
