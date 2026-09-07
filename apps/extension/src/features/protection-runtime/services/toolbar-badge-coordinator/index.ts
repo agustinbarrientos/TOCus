@@ -1,5 +1,5 @@
-import { type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { ProtectionStateType, type ProtectionState } from '../../../../domains/protection/types/protection-state';
 import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
 import { matchProtectedUrl } from '../../../../domains/protection/utils/protected-url-matcher';
@@ -10,10 +10,10 @@ import {
 	type ToolbarBadgeProjection,
 } from '../../utils/toolbar-badge-projection';
 import { findRuntimeParticipantContext } from '../../utils/runtime-page-context';
-import {
-	type ToolbarBadgeCoordinator,
-	type ToolbarBadgeCoordinatorOptions,
-	type ToolbarBadgeTab,
+import type {
+	ToolbarBadgeCoordinator,
+	ToolbarBadgeCoordinatorOptions,
+	ToolbarBadgeTab,
 } from './types';
 
 /**

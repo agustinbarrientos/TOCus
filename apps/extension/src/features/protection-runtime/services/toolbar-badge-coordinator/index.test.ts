@@ -1,6 +1,7 @@
+import { ToolbarBadgePhase } from '../../utils/toolbar-badge-projection/types';
 import { describe, expect, it } from 'vitest';
 import { createReadyState, TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import {
 	AllowanceProtectionStateSchema,
 	ProtectionStateType,
@@ -11,9 +12,9 @@ import {
 	ProtectionMeasurementRevisionSchema,
 	ProtectionScopeIdSchema,
 } from '../../../../domains/protection/types/protection-value';
-import {
-	type ToolbarBadgeCopy,
-	type ToolbarBadgeProjection,
+import type {
+	ToolbarBadgeCopy,
+	ToolbarBadgeProjection,
 } from '../../utils/toolbar-badge-projection';
 import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 import {
@@ -212,7 +213,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			scope_secondary: { ...createReadyState(), scopeId: SECOND_SCOPE_ID },
 		} );
 
-		expect( browser.projection ).toMatchObject( { phase: 'inactive', text: '' } );
+		expect( browser.projection ).toMatchObject( { phase: ToolbarBadgePhase.INACTIVE, text: '' } );
 	} );
 
 	it( 'selects the only running timer without counting an unfocused pending Ready scope', async () => {
@@ -227,7 +228,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			scope_secondary: { ...ALLOWANCE_STATE, scopeId: SECOND_SCOPE_ID },
 		} );
 
-		expect( browser.projection ).toMatchObject( { phase: 'allowance', text: 'V5m' } );
+		expect( browser.projection ).toMatchObject( { phase: ToolbarBadgePhase.ALLOWANCE, text: '5m' } );
 	} );
 
 	it( 'shows an unexpired global visit window and clears it exactly at expiry', async () => {
@@ -238,15 +239,15 @@ describe( 'createToolbarBadgeCoordinator', () => {
 		await coordinator.refresh( CONFIGURATION, { scope_default: ALLOWANCE_STATE } );
 
 		expect( browser.projection ).toMatchObject( {
-			phase: 'allowance',
-			text: 'V5m',
+			phase: ToolbarBadgePhase.ALLOWANCE,
+			text: '5m',
 		} );
 
 		browser.nowEpochMilliseconds = ALLOWANCE_STATE.expiresAtEpochMilliseconds;
 		await coordinator.refresh( CONFIGURATION, { scope_default: ALLOWANCE_STATE } );
 
 		expect( browser.projection ).toMatchObject( {
-			phase: 'inactive',
+			phase: ToolbarBadgePhase.INACTIVE,
 			text: '',
 		} );
 	} );
@@ -267,7 +268,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			scope_secondary: focusedSecondaryState,
 		} );
 
-		expect( browser.projection ).toMatchObject( { text: 'P5s' } );
+		expect( browser.projection ).toMatchObject( { text: '5s' } );
 	} );
 
 	it( 'prefers the focused pending navigation URL when selecting a protected scope', async () => {
@@ -290,7 +291,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			scope_secondary: focusedSecondaryState,
 		} );
 
-		expect( browser.projection ).toMatchObject( { text: 'P5s' } );
+		expect( browser.projection ).toMatchObject( { text: '5s' } );
 	} );
 
 	it( 'prefers a fresh protected pending URL over a retained participant from another scope', async () => {
@@ -313,7 +314,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			scope_secondary: focusedSecondaryState,
 		} );
 
-		expect( browser.projection ).toMatchObject( { text: 'P5s' } );
+		expect( browser.projection ).toMatchObject( { text: '5s' } );
 	} );
 
 	it( 'does not use a retained participant after the focused tab reaches an unrelated URL', async () => {
@@ -344,7 +345,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 			scope_secondary: SECOND_WAITING_STATE,
 		} );
 
-		expect( browser.projection ).toMatchObject( { text: 'P8s' } );
+		expect( browser.projection ).toMatchObject( { text: '8s' } );
 	} );
 
 	it.each( [
@@ -393,7 +394,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 		const browser = new ToolbarBadgeBrowserFixture();
 		testCase.configure( browser );
 		browser.projection = {
-			phase: 'waiting',
+			phase: ToolbarBadgePhase.WAITING,
 			text: 'P1s',
 			title: 'Stale badge',
 		};
@@ -415,7 +416,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 
 		await coordinator.refresh( CONFIGURATION, { scope_default: WAITING_STATE } );
 
-		expect( browser.projection ).toMatchObject( { text: 'P8s' } );
+		expect( browser.projection ).toMatchObject( { text: '8s' } );
 	} );
 
 	it.each( [
@@ -427,7 +428,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 
 		await coordinator.refresh( input.configuration, input.statesByScope );
 
-		expect( browser.projection ).toMatchObject( { phase: 'inactive', text: '' } );
+		expect( browser.projection ).toMatchObject( { phase: ToolbarBadgePhase.INACTIVE, text: '' } );
 	} );
 
 	it( 'projects toolbar copy supplied by the selected locale', async () => {
@@ -541,7 +542,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 
 		await coordinator.refresh( CONFIGURATION, { scope_default: WAITING_STATE } );
 
-		expect( projection ).toMatchObject( { text: 'P8s' } );
+		expect( projection ).toMatchObject( { text: '8s' } );
 		expect( updateCount ).toBe( 1 );
 	} );
 
@@ -668,7 +669,7 @@ describe( 'createToolbarBadgeCoordinator', () => {
 
 		await coordinator.refresh( CONFIGURATION, { scope_default: WAITING_STATE } );
 
-		expect( projection ).toMatchObject( { text: 'P8s' } );
+		expect( projection ).toMatchObject( { text: '8s' } );
 	} );
 
 	it( 'shows a multiple marker when several scopes are active without a focused match', async () => {
