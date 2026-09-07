@@ -1,4 +1,4 @@
-import { type WxtBrowser } from 'wxt/browser';
+import type { WxtBrowser } from 'wxt/browser';
 
 /**
  * Browser-local storage keys owned by onboarding installation recovery.
