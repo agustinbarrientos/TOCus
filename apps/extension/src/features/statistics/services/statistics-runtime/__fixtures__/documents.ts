@@ -103,6 +103,7 @@ export function createStatisticsDocument(
  * @param scopeId - Exact batch scope.
  * @param measurementRevision - Revision captured with the fact.
  * @param observedAtEpochMilliseconds - Shared batch observation time.
+ * @param allowanceDurationMilliseconds - Configured duration captured with the reconsidered visit.
  * @return Valid protection-fact batch.
  * @since 0.1.0 Initial implementation.
  */
@@ -111,6 +112,7 @@ export function createReconsideredBatch(
 	scopeId = 'scope_default',
 	measurementRevision = 'revision_current',
 	observedAtEpochMilliseconds = TEST_NOW_EPOCH_MILLISECONDS,
+	allowanceDurationMilliseconds = 300_000,
 ) {
 	return ProtectionFactBatchSchema.parse( {
 		batchId,
@@ -123,6 +125,7 @@ export function createReconsideredBatch(
 			scopeId,
 			waitId: `wait_${ batchId }`,
 			participantId: `participant_${ batchId }`,
+			allowanceDurationMilliseconds,
 			departureCause: 'active-session-tab-close',
 			observedAtEpochMilliseconds,
 		} ],
@@ -289,6 +292,7 @@ export function createPendingSession(
 		scopeId,
 		measurementRevision,
 		allowanceId,
+		siteHost: 'example.com',
 	};
 
 	return StatisticsSessionDocumentSchema.parse( {

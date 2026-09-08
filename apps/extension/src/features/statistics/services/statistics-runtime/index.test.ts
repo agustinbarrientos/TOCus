@@ -27,7 +27,10 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 		) );
 		await reconcileRuntime( harness.runtime );
 		await harness.runtime.drainProtectionFacts();
-		expect( harness.runtime.getSnapshot().projection ).toMatchObject( { reconsideredVisitCount: 1 } );
+		expect( harness.runtime.getSnapshot().projection ).toMatchObject( {
+			estimatedReclaimedMilliseconds: 300_000,
+			reconsideredVisitCount: 1,
+		} );
 		await harness.storage.save( createStatisticsDocument() );
 		const writeCount = harness.storage.savedDocuments.length;
 		const sessionWriteCount = harness.sessionStorage.savedDocuments.length;
@@ -43,7 +46,10 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 		expect( harness.sessionStorage.removedDocuments ).toHaveLength( removedCount );
 		await reconcileRuntime( harness.runtime );
 		await harness.runtime.drainProtectionFacts();
-		expect( harness.runtime.getSnapshot().projection ).toMatchObject( { reconsideredVisitCount: 0 } );
+		expect( harness.runtime.getSnapshot().projection ).toMatchObject( {
+			estimatedReclaimedMilliseconds: 0,
+			reconsideredVisitCount: 0,
+		} );
 	} );
 
 	it( 'persists raw configuration revision reconciliation before enabling drain', async () => {
@@ -83,10 +89,6 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 						allowanceGrantedCount: 15,
 					},
 					currentMeasurementRevision: 'revision_removed',
-					latestBaseline: {
-						measurementRevision: 'revision_removed',
-						focusedUseMilliseconds: 120_000,
-					},
 				},
 			},
 		} );
@@ -108,7 +110,7 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 
 		expect( restartedHarness.runtime.getSnapshot().projection ).toMatchObject( {
 			status: StatisticsProjectionStatus.AVAILABLE,
-			estimatedReclaimedMilliseconds: 6_162_000,
+			estimatedReclaimedMilliseconds: 6_342_000,
 			focusedPauseMilliseconds: 42_000,
 			reconsideredVisitCount: 21,
 			completedWaitCount: 15,
@@ -146,7 +148,7 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 
 		expect( restartedHarness.runtime.getSnapshot().projection ).toMatchObject( {
 			status: StatisticsProjectionStatus.AVAILABLE,
-			estimatedReclaimedMilliseconds: 6_162_000,
+			estimatedReclaimedMilliseconds: 6_342_000,
 			focusedPauseMilliseconds: 42_000,
 			reconsideredVisitCount: 21,
 			completedWaitCount: 15,
@@ -154,7 +156,7 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 		} );
 		expect( restartedHarness.storage.savedDocuments.at( -1 )?.scopes ).toMatchObject( {
 			scope_removed: {
-				totals: { estimatedReclaimedMilliseconds: 6_120_000 },
+				totals: { estimatedReclaimedMilliseconds: 6_300_000 },
 			},
 			scope_readded: {
 				totals: { estimatedReclaimedMilliseconds: 0 },
@@ -163,7 +165,7 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 		} );
 	} );
 
-	it( 'values a queued shared-scope fact after its measurement revision rotates', async () => {
+	it( 'uses the captured duration for a queued fact after its measurement revision rotates', async () => {
 		const historicalDocument = StatisticsDocumentSchema.parse( {
 			...createStatisticsDocument( 'scope_default', 'revision_before_rotation' ),
 			scopes: {
@@ -176,10 +178,6 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 						allowanceGrantedCount: 0,
 					},
 					currentMeasurementRevision: 'revision_before_rotation',
-					latestBaseline: {
-						measurementRevision: 'revision_before_rotation',
-						focusedUseMilliseconds: 180_000,
-					},
 				},
 			},
 		} );
@@ -189,6 +187,8 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 					'batch_before_rotation',
 					'scope_default',
 					'revision_before_rotation',
+					TEST_NOW_EPOCH_MILLISECONDS,
+					180_000,
 				),
 			] ),
 			historicalDocument,
@@ -204,10 +204,7 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 		} );
 		expect( harness.storage.savedDocuments.at( -1 )?.scopes.scope_default ).toMatchObject( {
 			currentMeasurementRevision: 'revision_current',
-			latestBaseline: {
-				measurementRevision: 'revision_before_rotation',
-				focusedUseMilliseconds: 180_000,
-			},
+			totals: { estimatedReclaimedMilliseconds: 3_180_000 },
 		} );
 	} );
 
@@ -409,7 +406,7 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 		expect( harness.runtime.getSnapshot() ).toMatchObject( {
 			deliveryStatus: StoredProtectionStatisticsDeliveryStatus.COMPLETE,
 			focusMeasurementEnabled: false,
-			projection: { reconsideredVisitCount: 1 },
+			projection: { estimatedReclaimedMilliseconds: 300_000, reconsideredVisitCount: 1 },
 		} );
 	} );
 
@@ -455,9 +452,17 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 			'local:batch_replacement',
 			'ack:batch_replacement',
 		] );
+		expect( harness.storage.savedDocuments[ 1 ]?.scopes.scope_default?.activeAllowance )
+			.toMatchObject( {
+				allowanceId: 'allowance_current',
+				confirmedFocusedUseMilliseconds: 100_000,
+			} );
 		expect( harness.storage.savedDocuments.at( -1 )?.scopes.scope_default ).toMatchObject( {
-			latestBaseline: { focusedUseMilliseconds: 100_000 },
-			activeAllowance: { allowanceId: 'allowance_replacement' },
+			totals: { estimatedReclaimedMilliseconds: 0 },
+			activeAllowance: {
+				allowanceId: 'allowance_replacement',
+				confirmedFocusedUseMilliseconds: 0,
+			},
 		} );
 	} );
 
@@ -479,6 +484,7 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 		] );
 		expect( harness.runtime.getSnapshot().projection ).toMatchObject( {
 			status: StatisticsProjectionStatus.AVAILABLE,
+			estimatedReclaimedMilliseconds: 600_000,
 			reconsideredVisitCount: 2,
 		} );
 	} );
@@ -504,6 +510,7 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 		) );
 		expect( harness.runtime.getSnapshot().projection ).toMatchObject( {
 			status: StatisticsProjectionStatus.AVAILABLE,
+			estimatedReclaimedMilliseconds: 300_000,
 			reconsideredVisitCount: 1,
 		} );
 
@@ -512,6 +519,7 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 		} );
 		expect( harness.runtime.getSnapshot().projection ).toMatchObject( {
 			status: StatisticsProjectionStatus.AVAILABLE,
+			estimatedReclaimedMilliseconds: 600_000,
 			reconsideredVisitCount: 2,
 		} );
 	} );
@@ -613,12 +621,13 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 			projection: { status: StatisticsProjectionStatus.UNAVAILABLE },
 		} );
 		expect( harness.storage.savedDocuments.at( -1 )?.scopes.scope_default?.totals )
-			.toMatchObject( { reconsideredVisitCount: 1 } );
+			.toMatchObject( { estimatedReclaimedMilliseconds: 300_000, reconsideredVisitCount: 1 } );
 		expect( harness.trace.slice( -2 ) ).toEqual( [ 'local:batch_1', 'ack:batch_1' ] );
 
 		harness.coordinator.acknowledgementFailure = null;
 		await harness.runtime.drainProtectionFacts();
 		expect( harness.runtime.getSnapshot().projection ).toMatchObject( {
+			estimatedReclaimedMilliseconds: 600_000,
 			reconsideredVisitCount: 2,
 		} );
 		expect( harness.trace.slice( -4 ) ).toEqual( [
