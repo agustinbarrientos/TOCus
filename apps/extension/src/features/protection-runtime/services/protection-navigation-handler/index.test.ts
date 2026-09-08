@@ -586,7 +586,7 @@ describe( 'createProtectionNavigationHandler', () => {
 		} ] );
 	} );
 
-	it( 'attributes a reconsidered navigation after restoration to the matched rule host', async () => {
+	it( 'counts the configured visit time for a reconsidered navigation after restoration', async () => {
 		const harness = createHarness( {} );
 
 		await harness.handler.handle( {
@@ -624,12 +624,13 @@ describe( 'createProtectionNavigationHandler', () => {
 			participantId: state.participants[ 0 ].participantId,
 			pageId: state.participants[ 0 ].pageId,
 			cause: DepartureCause.BACK,
+			allowanceDurationMilliseconds: 300_000,
 			observedAtEpochMilliseconds: Date.UTC( 2026, 8, 2, 12, 2 ),
 		} );
 
 		expect( departed.facts ).toMatchObject( [ {
 			type: ProtectionFactType.RECONSIDERED_VISIT,
-			siteHost: 'example.com',
+			allowanceDurationMilliseconds: 300_000,
 		} ] );
 	} );
 

@@ -80,6 +80,7 @@ function createRecoveryDeparture(
 		participantId: requirement.participantId,
 		pageId: requirement.pageId,
 		cause: DepartureCause.BROWSER_ERROR_OR_RECOVERY,
+		allowanceDurationMilliseconds: null,
 		observedAtEpochMilliseconds,
 	};
 }
