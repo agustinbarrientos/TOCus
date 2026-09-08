@@ -510,10 +510,6 @@ msgid "Español (vos)"
 msgstr "Español (vos)"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Estimated browsing time avoided on your selected websites, based on your prior focused use."
-msgstr "Estimated browsing time avoided on your selected websites, based on your prior focused use."
-
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Estimated time reclaimed"
 msgstr "Estimated time reclaimed"
 
@@ -985,8 +981,8 @@ msgid "Show a Continue button"
 msgstr "Show a Continue button"
 
 #: apps/extension/src/localization/utils/create-wellbeing-copy/index.ts
-msgid "Since you started, you've given yourself about {estimatedReclaimedTime} back and taken {focusedPauseTime} for yourself."
-msgstr "Since you started, you've given yourself about {estimatedReclaimedTime} back and taken {focusedPauseTime} for yourself."
+msgid "Since you started, you've given yourself about {estimatedReclaimedTime} back, including {focusedPauseTime} spent pausing."
+msgstr "Since you started, you've given yourself about {estimatedReclaimedTime} back, including {focusedPauseTime} spent pausing."
 
 #: apps/extension/src/localization/utils/create-wellbeing-copy/index.ts
 msgid "Since you started, you've given yourself about {estimatedReclaimedTime} back."
@@ -1185,6 +1181,10 @@ msgstr "Thursday"
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Time left"
 msgstr "Time left"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Time spent pausing plus estimated browsing time avoided, based on your longest visit to each site."
+msgstr "Time spent pausing plus estimated browsing time avoided, based on your longest visit to each site."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Time window {position}"

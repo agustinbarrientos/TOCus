@@ -12,7 +12,7 @@ describe( 'createStatisticsCopy', () => {
 		expect( copy.formatEstimatedDuration( 3_600_000 ) ).toBe( 'About 1 hour' );
 		expect( copy.formatCount( 1_234 ) ).toBe( '1,234' );
 		expect( copy.estimationDescription ).toBe(
-			'Estimated browsing time avoided on your selected websites, based on your prior focused use.',
+			'Time spent pausing plus estimated browsing time avoided, based on your longest visit to each site.',
 		);
 	} );
 } );
