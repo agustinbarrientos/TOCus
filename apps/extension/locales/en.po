@@ -264,6 +264,10 @@ msgstr "Appearance saved."
 msgid "Appearance settings could not load"
 msgstr "Appearance settings could not load"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Approximately {duration}"
+msgstr "Approximately {duration}"
+
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Blue"
@@ -701,10 +705,6 @@ msgstr "MIT license"
 msgid "Monday"
 msgstr "Monday"
 
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "More than {duration}"
-msgstr "More than {duration}"
-
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "Navigation access notices website changes as they happen, not your saved browsing history."
 msgstr "Navigation access notices website changes as they happen, not your saved browsing history."
@@ -712,10 +712,6 @@ msgstr "Navigation access notices website changes as they happen, not your saved
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "No websites yet"
 msgstr "No websites yet"
-
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Not enough history yet"
-msgstr "Not enough history yet"
 
 #. Popup status when the current website schedule is inactive at this moment.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
@@ -1183,8 +1179,8 @@ msgid "Time left"
 msgstr "Time left"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Time spent pausing plus estimated browsing time avoided, based on your longest visit to each site."
-msgstr "Time spent pausing plus estimated browsing time avoided, based on your longest visit to each site."
+msgid "Time spent pausing plus estimated browsing time avoided, based on your configured visit time."
+msgstr "Time spent pausing plus estimated browsing time avoided, based on your configured visit time."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Time window {position}"
