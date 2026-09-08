@@ -6,6 +6,7 @@ describe( 'reduceStatistics', () => {
 	it( 'validates documents and operations at the public boundary', () => {
 		expect( () => reduceStatistics( {}, { type: 'reset' } ) ).toThrow();
 		expect( () => reduceStatistics( createMockStatisticsDocument(), {
+			siteHost: 'example.com',
 			type: 'record-focused-interval',
 			generationId: 'generation_1',
 			scopeId: 'scope_default',
@@ -37,6 +38,7 @@ describe( 'reduceStatistics', () => {
 			},
 		} );
 		const withFocusedUse = reduceStatistics( withAllowance, {
+			siteHost: 'example.com',
 			type: 'record-focused-interval',
 			generationId: 'generation_1',
 			scopeId: 'scope_default',
