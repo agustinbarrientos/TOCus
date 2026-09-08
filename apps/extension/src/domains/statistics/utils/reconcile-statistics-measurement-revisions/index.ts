@@ -23,6 +23,9 @@ function reconcileScopeStatistics(
 			...( scope.latestBaseline === undefined
 				? {}
 				: { latestBaseline: scope.latestBaseline } ),
+			...( scope.longestVisitsBySite === undefined
+				? {}
+				: { longestVisitsBySite: scope.longestVisitsBySite } ),
 		};
 	}
 
@@ -39,6 +42,9 @@ function reconcileScopeStatistics(
 		...( scope.latestBaseline === undefined
 			? {}
 			: { latestBaseline: scope.latestBaseline } ),
+		...( scope.longestVisitsBySite === undefined
+			? {}
+			: { longestVisitsBySite: scope.longestVisitsBySite } ),
 	};
 }
 

@@ -7,6 +7,42 @@ import {
 } from './index';
 
 describe( 'finalizeExpiredStatisticsAllowance', () => {
+	it.each( [ 0, 10_000, 300_000, 360_000 ] )( 'retains the longest per-site visit after a %i ms visit', ( focusedUseMilliseconds ) => {
+		const fixture = createMockActiveScopeStatistics();
+		if ( fixture.activeAllowance === undefined ) {
+			throw new Error( 'Expected an active allowance fixture.' );
+		}
+		const scope = {
+			...fixture,
+			longestVisitsBySite: { 'youtube.com': 300_000, 'github.com': 120_000 },
+			activeAllowance: {
+				...fixture.activeAllowance,
+				expiresAtEpochMilliseconds: 460_000,
+				accountedThroughEpochMilliseconds: 460_000,
+				confirmedFocusedUseMilliseconds: focusedUseMilliseconds,
+				focusedUseBySite: { 'youtube.com': focusedUseMilliseconds },
+			},
+		};
+
+		expect( finalizeExpiredStatisticsAllowance( scope, 460_000 ) ).toMatchObject( {
+			longestVisitsBySite: {
+				'youtube.com': focusedUseMilliseconds === 360_000 ? 360_000 : 300_000,
+				'github.com': 120_000,
+			},
+		} );
+	} );
+
+	it( 'keeps existing site maxima when a legacy allowance has no site attribution', () => {
+		const scope = {
+			...createMockActiveScopeStatistics(),
+			longestVisitsBySite: { 'youtube.com': 300_000 },
+		};
+
+		expect( finalizeExpiredStatisticsAllowance( scope, 400_000 ) ).toMatchObject( {
+			longestVisitsBySite: { 'youtube.com': 300_000 },
+		} );
+	} );
+
 	it( 'keeps an active allowance before its expiry', () => {
 		const scope = createMockActiveScopeStatistics();
 
