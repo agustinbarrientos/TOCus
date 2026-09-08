@@ -22,9 +22,8 @@ for ( const language of languages ) {
 				: 'Escolha o seu idioma';
 		await expect( page.getByRole( 'heading', { name: localizedHeading, exact: true } ) ).toBeVisible();
 		await compareRegionalPage( page, `onboarding-language-${ language.name }` );
-		await page.locator( 'form button[type="submit"]' ).click();
+		await freezePreview( page, () => page.locator( 'form button[type="submit"]' ).click() );
 		await page.locator( '.preferences-theme-card' ).first().waitFor();
-		await freezePreview( page );
 		await compareRegionalPage( page, `onboarding-appearance-${ language.name }`, false );
 		await page.setViewportSize( { width: 420, height: 900 } );
 		// The restored phone layout scrolls settings above a reserved floating preview.

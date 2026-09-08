@@ -56,18 +56,41 @@ export async function setAppearance( page: Page, appearance: VisualAppearance ):
 }
 
 /**
- * Freezes only the preview's supported focused-progress projection, retaining its actual Canvas renderer.
- * @param page - Onboarding Appearance page containing the production preview element.
+ * Freezes the preview on insertion, before its default-running clock can paint an intermediate frame.
+ * @param page - Onboarding Language page before the preview mounts.
+ * @param showPreview - Real user action that mounts the production Appearance preview.
  * @return Completion after a deterministic still frame renders.
  * @since 0.1.0
  */
-export async function freezePreview( page: Page ): Promise<void> {
-	await page.locator( 'tocus-f-interruption-screen' ).evaluate( async ( element: ComponentInterruptionScreen ) => {
-		element.progressing = false;
-		element.focusedProgressMilliseconds = 0;
-		element.reducedMotion = true;
-		await element.updateComplete;
+export async function freezePreview( page: Page, showPreview: () => Promise<void> ): Promise<void> {
+	const observer = await page.evaluateHandle( () => {
+		const observer = new MutationObserver( () => {
+			const element = document.querySelector<ComponentInterruptionScreen>( 'tocus-f-interruption-screen' );
+			if ( ! element ) {
+				return;
+			}
+			observer.disconnect();
+			element.progressing = false;
+			element.focusedProgressMilliseconds = 0;
+			element.reducedMotion = true;
+		} );
+		observer.observe( document.body, { childList: true, subtree: true } );
+		return observer;
 	} );
+	try {
+		await showPreview();
+		await page.locator( 'tocus-f-interruption-screen' ).evaluate( async ( element: ComponentInterruptionScreen ) => {
+			await element.updateComplete;
+			if ( element.progressing || element.focusedProgressMilliseconds !== 0 || ! element.reducedMotion ) {
+				throw new Error( 'The regional preview must be frozen at zero before capture.' );
+			}
+		} );
+	} finally {
+		await observer.evaluate( ( value ) => {
+			value.disconnect();
+		} );
+		await observer.dispose();
+	}
 }
 
 /**
