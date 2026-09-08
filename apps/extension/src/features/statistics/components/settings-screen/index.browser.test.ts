@@ -2,10 +2,64 @@ import { SettingsDestination } from '../../../settings/services/settings-navigat
 import { describe, expect, it } from 'vitest';
 import { chromium, firefox, webkit } from 'playwright';
 import { createSettingsBrowserHarness } from '../../../settings/utils/browser-test-harness';
+import { Language } from '../../../../domains/preferences/types';
 
 describe.each( [ [ 'Chromium', chromium ], [ 'Firefox', firefox ], [ 'WebKit', webkit ] ] as const )(
 	'%s local statistics', ( _name, engine ) => {
 		const { open, setting } = createSettingsBrowserHarness( engine );
+
+		it( 'preserves readable estimate text when the user enlarges the base font', async () => {
+			const page = await open( SettingsDestination.STATISTICS );
+			await page.setViewportSize( { width: 320, height: 844 } );
+			const amount = page.locator( '.settings-metrics > div:first-child dd' );
+			await amount.waitFor();
+			const before = await amount.evaluate( ( element ) => parseFloat( getComputedStyle( element ).fontSize ) );
+			await page.evaluate( () => {
+				document.documentElement.style.fontSize = '200%';
+			} );
+			const after = await amount.evaluate( ( element ) => parseFloat( getComputedStyle( element ).fontSize ) );
+			expect( after ).toBeGreaterThan( before * 1.8 );
+			await page.close();
+		} );
+
+		it.each( [
+			[ Language.ENGLISH, 'Approximately' ],
+			[ Language.SPANISH_VOS, 'Aproximadamente' ],
+			[ Language.PORTUGUESE_BRAZIL, 'Aproximadamente' ],
+		] )( 'keeps the %s estimate words intact on narrow screens', async ( language, firstWord ) => {
+			const page = await open( SettingsDestination.STATISTICS );
+			const url = new URL( page.url() );
+			url.searchParams.set( 'language', language );
+			await page.goto( url.href );
+			const amount = page.locator( '.settings-metrics > div:first-child dd' );
+			await expect.poll( () => amount.textContent() ).toMatch( new RegExp( `^${ firstWord } ` ) );
+			await page.evaluate( () => document.fonts.ready );
+			for ( const width of [ 320, 360, 390 ] ) {
+				await page.setViewportSize( { width, height: 844 } );
+				const layout = await amount.evaluate( ( element, firstWord ) => {
+					const node = element.firstChild;
+					if ( ! ( node instanceof Text ) ) {
+						throw new TypeError( 'The metric amount must contain its localized text.' );
+					}
+					const range = document.createRange();
+					range.setStart( node, 0 );
+					range.setEnd( node, firstWord.length );
+					const lines = [ ...range.getClientRects() ];
+					const bounds = element.getBoundingClientRect();
+					return {
+						wordLines: new Set( lines.map( ( line ) => line.top ) ).size,
+						wordFits: lines.every( ( line ) => line.left >= bounds.left && line.right <= bounds.right ),
+						pageFits: document.documentElement.scrollWidth <= window.innerWidth,
+						fontSize: getComputedStyle( element ).fontSize,
+						availableWidth: bounds.width,
+					};
+				}, firstWord );
+				expect( layout, `${ language } at ${ String( width ) }px: ${ JSON.stringify( layout ) }` ).toMatchObject( {
+					wordLines: 1, wordFits: true, pageFits: true,
+				} );
+			}
+			await page.close();
+		} );
 
 		it( 'emphasizes reclaimed time above four supporting metric cards', async () => {
 			const page = await open( SettingsDestination.STATISTICS );
@@ -42,7 +96,7 @@ describe.each( [ [ 'Chromium', chromium ], [ 'Firefox', firefox ], [ 'WebKit', w
 				'Completed waits', 'Allowances granted',
 			] );
 			expect( await metrics.locator( 'dd' ).allTextContents() ).toEqual( [
-				'More than 1 minute', '1 minute', '2', '3', '4',
+				'Approximately 11 minutes', '1 minute', '2', '3', '4',
 			] );
 			await page.setViewportSize( { width: 390, height: 844 } );
 			expect( await metrics.evaluate( ( element ) =>
@@ -61,8 +115,9 @@ describe.each( [ [ 'Chromium', chromium ], [ 'Firefox', firefox ], [ 'WebKit', w
 			await dialog.getByRole( 'button', { name: 'Reset statistics', exact: true } ).click();
 			await page.locator( '.mantine-Alert-root[role="status"]' ).waitFor();
 			expect( await metrics.locator( 'dd' ).allTextContents() ).toEqual( [
-				'Not enough history yet', '0 minutes', '0', '0', '0',
+				'Approximately 0 minutes', '0 minutes', '0', '0', '0',
 			] );
+			expect( await page.locator( '.settings-statistics-empty' ).textContent() ).toBe( 'This is a moment just for you.' );
 			await page.close();
 		}, 20000 );
 

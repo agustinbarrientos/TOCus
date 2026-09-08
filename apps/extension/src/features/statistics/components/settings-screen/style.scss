@@ -17,10 +17,20 @@
 	}
 
 	> div:first-child {
+		--tocus-statistics-featured-font-size: var(--tocus-typography-headline-large-font-size);
+
+		container-type: inline-size;
 		grid-column: 1 / -1;
 		border-color: var(--tocus-color-outline);
 		background: color-mix(in srgb, var(--tocus-color-action) 8%, var(--tocus-color-surface));
-		dd { @include typography.apply('headline-large'); color: var(--tocus-color-action); }
+
+		dd {
+			--tocus-typography-headline-large-font-size: min(var(--tocus-statistics-featured-font-size), 11cqi);
+
+			@include typography.apply('headline-large');
+
+			color: var(--tocus-color-action);
+		}
 	}
 
 	dt { @include typography.apply('label-large'); color: var(--tocus-color-on-surface-muted); }

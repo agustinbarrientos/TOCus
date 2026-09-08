@@ -19,7 +19,7 @@ import {
 import {
 	TestEmptyProtectionConfiguration,
 } from '../../../../../domains/protection/types/__fixtures__';
-import { Language, Palette, PauseMode, ThemeMode,
+import { Language, LanguageSchema, Palette, PauseMode, ThemeMode,
 	DefaultPreferencesDocument,
 	PreferencesDocumentSchema,
 } from '../../../../../domains/preferences/types';
@@ -43,8 +43,11 @@ const original = params.get( 'original' ) ?? '';
 if ( original && params.has( 'isolated' ) ) {
 	document.body.classList.add( 'original-settings-document' );
 }
-const copy = original.includes( 'about-screen-german' )
-	? await loadLocalizationBundle( Language.GERMAN ) : createEnglishLocalizationBundle();
+const language = LanguageSchema.parse( params.get( 'language' )
+	?? ( original.includes( 'about-screen-german' ) ? Language.GERMAN : Language.ENGLISH ) );
+const copy = language === Language.ENGLISH
+	? createEnglishLocalizationBundle() : await loadLocalizationBundle( language );
+document.documentElement.lang = copy.languageTag;
 let configuration = { ...TestEmptyProtectionConfiguration };
 let preferences = { ...DefaultPreferencesDocument };
 const listeners = new Set<AppearancePreferencesChangeListener>();
@@ -324,18 +327,18 @@ shell.permissionManager = {
 
 let statistics: AvailableStatisticsProjection = {
 	status: StatisticsProjectionStatus.AVAILABLE,
-	estimatedReclaimedMilliseconds: 60000,
-	focusedPauseMilliseconds: 60000,
+	estimatedReclaimedMilliseconds: ( 2 * 5 + 1 ) * 60_000,
+	focusedPauseMilliseconds: 60_000,
 	reconsideredVisitCount: 2,
 	completedWaitCount: 3,
 	allowanceGrantedCount: 4,
 };
 if ( original ) {
-	statistics = { ...statistics, estimatedReclaimedMilliseconds: 12420000,
+	statistics = { ...statistics, estimatedReclaimedMilliseconds: ( 18 * 5 + 27 ) * 60_000,
 		focusedPauseMilliseconds: 1620000, reconsideredVisitCount: 18,
 		completedWaitCount: 24, allowanceGrantedCount: 11 };
 	if ( original.includes( 'empty' ) ) {
-		statistics = { ...statistics, estimatedReclaimedMilliseconds: null, focusedPauseMilliseconds: 0,
+		statistics = { ...statistics, estimatedReclaimedMilliseconds: 0, focusedPauseMilliseconds: 0,
 			reconsideredVisitCount: 0, completedWaitCount: 0, allowanceGrantedCount: 0 };
 	}
 	controls.unavailableStatistics = original.includes( 'statistics' ) && original.includes( 'unavailable' );
@@ -365,7 +368,7 @@ shell.statisticsSource = {
 		}
 		statistics = {
 			...statistics,
-			estimatedReclaimedMilliseconds: null,
+			estimatedReclaimedMilliseconds: 0,
 			focusedPauseMilliseconds: 0,
 			reconsideredVisitCount: 0,
 			completedWaitCount: 0,

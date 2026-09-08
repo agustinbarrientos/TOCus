@@ -65,7 +65,6 @@ export interface StatisticsSettingsScreenCopy {
 	completedWaitsLabel: string;
 	allowancesGrantedLabel: string;
 	estimationDescription: string;
-	notEnoughHistory: string;
 	emptyMessage: string;
 	loading: string;
 	unavailableTitle: string;
@@ -85,7 +84,7 @@ export interface StatisticsSettingsScreenCopy {
 	/**
 	 * Formats one estimated reclaimed-time value.
 	 * @param milliseconds - Non-negative estimated duration in milliseconds.
-	 * @return Localized estimate using completed minutes without rounding up.
+	 * @return Localized approximation rounded to the nearest minute, or an explicit subminute duration.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	formatEstimatedDuration( milliseconds: number ): string;
