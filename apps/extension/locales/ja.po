@@ -510,10 +510,6 @@ msgid "Español (vos)"
 msgstr "Español (vos)"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Estimated browsing time avoided on your selected websites, based on your prior focused use."
-msgstr "選択したウェブサイトの閲覧を避けられた推定時間です。過去にアクティブに利用した時間に基づいています。"
-
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Estimated time reclaimed"
 msgstr "取り戻した推定時間"
 
@@ -985,8 +981,8 @@ msgid "Show a Continue button"
 msgstr "「続ける」ボタンを表示"
 
 #: apps/extension/src/localization/utils/create-wellbeing-copy/index.ts
-msgid "Since you started, you've given yourself about {estimatedReclaimedTime} back and taken {focusedPauseTime} for yourself."
-msgstr "使い始めてから、約 {estimatedReclaimedTime} を自分のために取り戻し、{focusedPauseTime} の時間を自分のために取りました。"
+msgid "Since you started, you've given yourself about {estimatedReclaimedTime} back, including {focusedPauseTime} spent pausing."
+msgstr "使い始めてから、自分のために約 {estimatedReclaimedTime} を取り戻しました。この時間には、一時停止に使った {focusedPauseTime} も含まれています。"
 
 #: apps/extension/src/localization/utils/create-wellbeing-copy/index.ts
 msgid "Since you started, you've given yourself about {estimatedReclaimedTime} back."
@@ -1185,6 +1181,10 @@ msgstr "木曜日"
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Time left"
 msgstr "残り時間"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Time spent pausing plus estimated browsing time avoided, based on your longest visit to each site."
+msgstr "一時停止に使った時間と、各サイトでの最長の閲覧時間に基づいて推定した、閲覧を避けられた時間の合計です。"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Time window {position}"
