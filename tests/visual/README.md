@@ -10,6 +10,8 @@ On September 8, 2026, the project owner approved including recorded pause time i
 
 The website reuses this production Statistics explanation. Its nine full-page references also reflect the corrected text in English, Argentine Spanish, Brazilian Portuguese and European Portuguese, including the English dark-browser capture. Longer translations wrap naturally and move the following sections by one line. The eleven story and language-menu references remain unchanged; no fixture-only legacy wording or comparison tolerance was added.
 
+Later on September 8, the project owner requested the global "More than {duration}" label in all ten languages. Seven populated Statistics references and the same nine website full-page references now use that label. The English narrow website headline wraps onto two lines and moves the following content by 41 pixels; the other fifteen captures retain their dimensions. Zero and subminute values retain explicit zero/less-than wording, and estimates use completed minutes without rounding up. The empty Statistics reference, all other scenarios, and comparison rules remain unchanged. These captures use production translations, not fixture-only legacy text.
+
 ## Approved edge-rasterization allowance
 
 Chromium can produce one-level RGB differences along rounded edges depending on prior component captures. This was reproduced in the archived renderer as well as the migrated fixture. On September 7, 2026, the project owner approved tolerating this tiny edge variance without replacing any original images.
