@@ -17,15 +17,6 @@ function reconcileScopeStatistics(
 	if ( measurementRevision === undefined ) {
 		return {
 			totals: scope.totals,
-			...( scope.hasFinalizedBaseline === true
-				? { hasFinalizedBaseline: true }
-				: {} ),
-			...( scope.latestBaseline === undefined
-				? {}
-				: { latestBaseline: scope.latestBaseline } ),
-			...( scope.longestVisitsBySite === undefined
-				? {}
-				: { longestVisitsBySite: scope.longestVisitsBySite } ),
 		};
 	}
 
@@ -35,16 +26,7 @@ function reconcileScopeStatistics(
 
 	return {
 		totals: scope.totals,
-		...( scope.hasFinalizedBaseline === true
-			? { hasFinalizedBaseline: true }
-			: {} ),
 		currentMeasurementRevision: measurementRevision,
-		...( scope.latestBaseline === undefined
-			? {}
-			: { latestBaseline: scope.latestBaseline } ),
-		...( scope.longestVisitsBySite === undefined
-			? {}
-			: { longestVisitsBySite: scope.longestVisitsBySite } ),
 	};
 }
 

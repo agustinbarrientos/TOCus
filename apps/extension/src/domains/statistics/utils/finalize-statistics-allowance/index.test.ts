@@ -7,40 +7,30 @@ import {
 } from './index';
 
 describe( 'finalizeExpiredStatisticsAllowance', () => {
-	it.each( [ 0, 10_000, 300_000, 360_000 ] )( 'retains the longest per-site visit after a %i ms visit', ( focusedUseMilliseconds ) => {
+	it.each( [ 0, 10_000, 300_000, 360_000 ] )( 'clears measurement after a %i ms visit without changing totals', ( focusedUseMilliseconds ) => {
 		const fixture = createMockActiveScopeStatistics();
 		if ( fixture.activeAllowance === undefined ) {
 			throw new Error( 'Expected an active allowance fixture.' );
 		}
 		const scope = {
 			...fixture,
-			longestVisitsBySite: { 'youtube.com': 300_000, 'github.com': 120_000 },
 			activeAllowance: {
 				...fixture.activeAllowance,
 				expiresAtEpochMilliseconds: 460_000,
 				accountedThroughEpochMilliseconds: 460_000,
 				confirmedFocusedUseMilliseconds: focusedUseMilliseconds,
-				focusedUseBySite: { 'youtube.com': focusedUseMilliseconds },
 			},
 		};
 
-		expect( finalizeExpiredStatisticsAllowance( scope, 460_000 ) ).toMatchObject( {
-			longestVisitsBySite: {
-				'youtube.com': focusedUseMilliseconds === 360_000 ? 360_000 : 300_000,
-				'github.com': 120_000,
-			},
+		expect( finalizeExpiredStatisticsAllowance( scope, 460_000 ) ).toEqual( {
+			totals: scope.totals,
+			currentMeasurementRevision: 'revision_1',
 		} );
 	} );
 
-	it( 'keeps existing site maxima when a legacy allowance has no site attribution', () => {
-		const scope = {
-			...createMockActiveScopeStatistics(),
-			longestVisitsBySite: { 'youtube.com': 300_000 },
-		};
-
-		expect( finalizeExpiredStatisticsAllowance( scope, 400_000 ) ).toMatchObject( {
-			longestVisitsBySite: { 'youtube.com': 300_000 },
-		} );
+	it( 'does not change a scope after its allowance has already been finalized', () => {
+		const scope = finalizeExpiredStatisticsAllowance( createMockActiveScopeStatistics(), 400_000 );
+		expect( finalizeExpiredStatisticsAllowance( scope, 500_000 ) ).toBe( scope );
 	} );
 
 	it( 'keeps an active allowance before its expiry', () => {
@@ -49,17 +39,12 @@ describe( 'finalizeExpiredStatisticsAllowance', () => {
 		expect( finalizeExpiredStatisticsAllowance( scope, 399_999 ) ).toBe( scope );
 	} );
 
-	it( 'finalizes an expired allowance including a zero-use baseline', () => {
+	it( 'finalizes an expired allowance with no recorded use', () => {
 		const scope = createMockActiveScopeStatistics();
 
 		expect( finalizeExpiredStatisticsAllowance( scope, 400_000 ) ).toEqual( {
 			totals: scope.totals,
-			hasFinalizedBaseline: true,
 			currentMeasurementRevision: 'revision_1',
-			latestBaseline: {
-				measurementRevision: 'revision_1',
-				focusedUseMilliseconds: 0,
-			},
 		} );
 		expect( Object.hasOwn(
 			finalizeExpiredStatisticsAllowance( scope, 400_000 ),
@@ -82,12 +67,7 @@ describe( 'finalizeMatchingStatisticsAllowance', () => {
 
 		expect( finalizeMatchingStatisticsAllowance( scope, operation ) ).toEqual( {
 			totals: scope.totals,
-			hasFinalizedBaseline: true,
 			currentMeasurementRevision: 'revision_1',
-			latestBaseline: {
-				measurementRevision: 'revision_1',
-				focusedUseMilliseconds: 0,
-			},
 		} );
 	} );
 
