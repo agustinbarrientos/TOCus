@@ -255,6 +255,7 @@ export function createFocusSession(
 			scopeId,
 			measurementRevision,
 			allowanceId,
+			siteHost: 'example.com',
 			focusedAtEpochMilliseconds,
 		},
 	} );

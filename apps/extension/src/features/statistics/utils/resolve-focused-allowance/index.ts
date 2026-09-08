@@ -95,6 +95,7 @@ export function resolveFocusedAllowance(
 		scopeId,
 		measurementRevision,
 		allowanceId: state.allowanceId,
+		siteHost: match.rule.host,
 	};
 }
 
