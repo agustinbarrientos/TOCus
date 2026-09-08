@@ -59,6 +59,7 @@ function prepareStoredParticipant( participant: ProtectionParticipant ): StoredP
 		participantId: participant.participantId,
 		pageId: participant.pageId,
 		retainedDestination: participant.retainedDestination,
+		...( 'siteHost' in participant ? { siteHost: participant.siteHost } : {} ),
 		statisticsEligible: participant.statisticsEligible,
 		joinSequence: participant.joinSequence,
 	} );

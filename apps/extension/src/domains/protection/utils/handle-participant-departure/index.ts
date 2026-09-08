@@ -57,6 +57,7 @@ export function handleParticipantDeparture(
 				scopeId: state.scopeId,
 				waitId: state.waitId,
 				participantId: departingParticipant.participantId,
+				...( departingParticipant.siteHost === undefined ? {} : { siteHost: departingParticipant.siteHost } ),
 				departureCause: qualifyingCause.data,
 				observedAtEpochMilliseconds: event.observedAtEpochMilliseconds,
 			} ) );

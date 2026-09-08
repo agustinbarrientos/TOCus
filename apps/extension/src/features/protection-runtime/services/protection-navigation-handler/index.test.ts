@@ -8,12 +8,20 @@ import {
 } from '../../../../domains/protection/services/protection-coordinator';
 import {
 	createAllowanceExpiryParticipant,
+	createIdleState,
 	createNavigationParticipant,
 	createWaitingState,
 	TestEmptyProtectionConfiguration,
 } from '../../../../domains/protection/types/__fixtures__';
 import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { DepartureCause } from '../../../../domains/protection/types/protection-event';
+import { DepartureCause, ProtectionEventType } from '../../../../domains/protection/types/protection-event';
+import { ProtectionFactType } from '../../../../domains/protection/types/protection-fact';
+import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
+import { StoredProtectionStatisticsDeliveryStatus } from '../../../../domains/protection/types/stored-protection-statistics-delivery';
+import { parseStoredProtectionState } from '../../../../domains/protection/utils/parse-stored-protection-state';
+import { prepareStoredProtectionState } from '../../../../domains/protection/utils/prepare-stored-protection-state';
+import { ProtectionStateRestoreMode, restoreProtectionState } from '../../../../domains/protection/utils/restore-protection-state';
+import { transitionProtectionState } from '../../../../domains/protection/utils/transition-protection-state';
 import {
 	ProtectionMeasurementRevisionSchema,
 	ProtectionScopeIdSchema,
@@ -571,6 +579,53 @@ describe( 'createProtectionNavigationHandler', () => {
 		expect( harness.coordinator.events ).toMatchObject( [ {
 			type: 'visit-attempt',
 			participant: { statisticsEligible: true },
+		} ] );
+	} );
+
+	it( 'attributes a reconsidered navigation after restoration to the matched rule host', async () => {
+		const harness = createHarness( {} );
+
+		await harness.handler.handle( {
+			tabId: 7,
+			frameId: 0,
+			url: 'https://news.example.com/private/feed?query=personal#latest',
+		} );
+
+		const waiting = transitionProtectionState( createIdleState(), harness.coordinator.events[ 0 ] );
+		const stored = prepareStoredProtectionState( {
+			statesByScope: { [ DEFAULT_SCOPE_ID ]: waiting.state },
+			sessionContinuityId: 'session-a',
+			statisticsDelivery: {
+				status: StoredProtectionStatisticsDeliveryStatus.COMPLETE,
+				outbox: [],
+			},
+		} );
+		const restored = restoreProtectionState( {
+			mode: ProtectionStateRestoreMode.CONTINUED_SESSION,
+			parsedState: parseStoredProtectionState( JSON.parse( JSON.stringify( stored ) ) ),
+			nowEpochMilliseconds: Date.UTC( 2026, 8, 2, 12, 1 ),
+			sessionContinuityId: 'session-a',
+			readyObservations: [],
+		} );
+		const state = restored.statesByScope[ DEFAULT_SCOPE_ID ];
+
+		if ( state?.type !== ProtectionStateType.WAITING || state.participants[ 0 ] === undefined ) {
+			throw new Error( 'Expected a restored navigation participant.' );
+		}
+
+		const departed = transitionProtectionState( state, {
+			type: ProtectionEventType.PARTICIPANT_DEPARTURE,
+			scopeId: DEFAULT_SCOPE_ID,
+			target: { stateType: ProtectionStateType.WAITING, waitId: state.waitId },
+			participantId: state.participants[ 0 ].participantId,
+			pageId: state.participants[ 0 ].pageId,
+			cause: DepartureCause.BACK,
+			observedAtEpochMilliseconds: Date.UTC( 2026, 8, 2, 12, 2 ),
+		} );
+
+		expect( departed.facts ).toMatchObject( [ {
+			type: ProtectionFactType.RECONSIDERED_VISIT,
+			siteHost: 'example.com',
 		} ] );
 	} );
 
