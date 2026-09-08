@@ -22,11 +22,11 @@ import {
 } from './types';
 
 /**
- * Tests whether one focus anchor identifies the currently observed allowance.
+ * Tests whether one focus anchor identifies the currently observed allowance and protected site.
  * @param anchor - Prior compatible focus anchor.
  * @param input - Current checkpoint inputs.
  * @param statisticsDocument - Validated current local statistics.
- * @return True when both sides identify the same active allowance and generation.
+ * @return True when both sides identify the same active allowance, generation, and protected site.
  * @since 0.1.0 Initial implementation.
  */
 function focusAnchorMatchesCurrentAllowance(
@@ -38,7 +38,8 @@ function focusAnchorMatchesCurrentAllowance(
 		anchor.generationId === statisticsDocument.generationId &&
 		anchor.scopeId === input.focusedAllowance.scopeId &&
 		anchor.measurementRevision === input.focusedAllowance.measurementRevision &&
-		anchor.allowanceId === input.focusedAllowance.allowanceId;
+		anchor.allowanceId === input.focusedAllowance.allowanceId &&
+		anchor.siteHost === input.focusedAllowance.siteHost;
 }
 
 /**
@@ -166,6 +167,7 @@ function createPendingInterval(
 			scopeId: focusAnchor.scopeId,
 			measurementRevision: focusAnchor.measurementRevision,
 			allowanceId: focusAnchor.allowanceId,
+			...( focusAnchor.siteHost === undefined ? {} : { siteHost: focusAnchor.siteHost } ),
 			startedAtEpochMilliseconds: focusAnchor.focusedAtEpochMilliseconds,
 			endedAtEpochMilliseconds: nowEpochMilliseconds,
 		};
