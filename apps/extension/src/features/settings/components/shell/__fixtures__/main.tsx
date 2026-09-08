@@ -324,7 +324,7 @@ shell.permissionManager = {
 
 let statistics: AvailableStatisticsProjection = {
 	status: StatisticsProjectionStatus.AVAILABLE,
-	estimatedReclaimedMilliseconds: null,
+	estimatedReclaimedMilliseconds: 60000,
 	focusedPauseMilliseconds: 60000,
 	reconsideredVisitCount: 2,
 	completedWaitCount: 3,
@@ -365,6 +365,7 @@ shell.statisticsSource = {
 		}
 		statistics = {
 			...statistics,
+			estimatedReclaimedMilliseconds: null,
 			focusedPauseMilliseconds: 0,
 			reconsideredVisitCount: 0,
 			completedWaitCount: 0,

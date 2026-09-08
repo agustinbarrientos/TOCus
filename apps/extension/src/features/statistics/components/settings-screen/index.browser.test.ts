@@ -42,7 +42,7 @@ describe.each( [ [ 'Chromium', chromium ], [ 'Firefox', firefox ], [ 'WebKit', w
 				'Completed waits', 'Allowances granted',
 			] );
 			expect( await metrics.locator( 'dd' ).allTextContents() ).toEqual( [
-				'Not enough history yet', '1 minute', '2', '3', '4',
+				'About 1 minute', '1 minute', '2', '3', '4',
 			] );
 			await page.setViewportSize( { width: 390, height: 844 } );
 			expect( await metrics.evaluate( ( element ) =>
