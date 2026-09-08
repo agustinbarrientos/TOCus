@@ -22,7 +22,13 @@ declare function expect<T>(value: T): { toBe(expected: unknown): void };
 function lint( code, dependencies = {} ) {
 	const filename = `${ process.cwd() }/tocus-lint-fixture.tsx`;
 	const files = new Map( [ [ filename, code ], ...Object.entries( dependencies ) ] );
-	const options = { jsx: ts.JsxEmit.ReactJSX, strict: true, moduleResolution: ts.ModuleResolutionKind.Bundler };
+	const options = {
+		jsx: ts.JsxEmit.ReactJSX,
+		// Keep real Array and Pick semantics without reparsing browser libraries for every fixture.
+		lib: [ 'lib.es5.d.ts' ],
+		strict: true,
+		moduleResolution: ts.ModuleResolutionKind.Bundler,
+	};
 	const host = ts.createCompilerHost( options );
 	const readSource = host.getSourceFile;
 	const fileExists = host.fileExists;
@@ -150,6 +156,13 @@ type Keys = Pick<{ first: string; second: string }, 'first' | 'second'>;
 interface Selected extends Pick<{ first: string; second: string }, 'first' | 'second'> {}
 type Optional = string | null;
 ` ) ).toEqual( [] );
+	} );
+
+	it( 'checks owned domains through standard-library mapped types', () => {
+		expect( lint( `${ declaration }
+type Selected = Pick<{ state: Status; ignored: string }, 'state'>;
+const selected: Selected = { state: 'ready' };
+` ) ).toEqual( [ expect.objectContaining( { messageId: 'reference', severity: 2 } ) ] );
 	} );
 
 	it( 'keeps unknown protocol data available for validation tests', () => {
