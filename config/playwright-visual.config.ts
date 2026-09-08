@@ -26,11 +26,7 @@ export default defineConfig( {
 		[ '../tests/visual/originals/audit/index.ts' ],
 		[ 'html', { outputFolder: `playwright-report/visual/${ runId }`, open: 'never' } ],
 	],
-	expect: { toHaveScreenshot: {
-		animations: 'disabled', caret: 'hide', maxDiffPixels: 0, threshold: 0,
-		// Full-page capture/comparison takes about two seconds on CI; allow the built-in stable-image check to finish.
-		timeout: 15000,
-	} },
+	expect: { toHaveScreenshot: { animations: 'disabled', caret: 'hide', maxDiffPixels: 0, threshold: 0 } },
 	use: {
 		browserName: 'chromium',
 		viewport: { width: 1440, height: 1000 },
