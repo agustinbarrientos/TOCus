@@ -158,10 +158,6 @@ msgstr "Неподвижная пауза без подсказок для ды�
 msgid "About"
 msgstr "О TOCus"
 
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "About {duration}"
-msgstr "Около {duration}"
-
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Access required"
 msgstr "Требуется доступ"
@@ -704,6 +700,10 @@ msgstr "Лицензия MIT"
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Monday"
 msgstr "Понедельник"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "More than {duration}"
+msgstr "Больше чем {duration}"
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "Navigation access notices website changes as they happen, not your saved browsing history."

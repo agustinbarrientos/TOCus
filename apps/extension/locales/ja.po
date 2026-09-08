@@ -158,10 +158,6 @@ msgstr "呼吸の案内がない、動きのない一時停止です。"
 msgid "About"
 msgstr "TOCusについて"
 
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "About {duration}"
-msgstr "約 {duration}"
-
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Access required"
 msgstr "アクセス権限が必要です"
@@ -704,6 +700,10 @@ msgstr "MITライセンス"
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Monday"
 msgstr "月曜日"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "More than {duration}"
+msgstr "{duration}超"
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "Navigation access notices website changes as they happen, not your saved browsing history."
