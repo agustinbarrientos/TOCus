@@ -19,10 +19,6 @@ const VALID_STATISTICS_DOCUMENT = {
 				allowanceGrantedCount: 1,
 			},
 			currentMeasurementRevision: 'revision_1',
-			latestBaseline: {
-				measurementRevision: 'revision_1',
-				focusedUseMilliseconds: 2_000,
-			},
 			activeAllowance: {
 				allowanceId: 'allowance_1',
 				measurementRevision: 'revision_1',
@@ -36,7 +32,7 @@ const VALID_STATISTICS_DOCUMENT = {
 };
 
 describe( 'StatisticsDocumentSchema', () => {
-	it( 'rejects attributed site time exceeding actual confirmed foreground use', () => {
+	it( 'rejects removed per-site focused use instead of accepting old persistence', () => {
 		const scope = VALID_STATISTICS_DOCUMENT.scopes.scope_default;
 		expect( StatisticsDocumentSchema.safeParse( {
 			...VALID_STATISTICS_DOCUMENT,
@@ -45,7 +41,7 @@ describe( 'StatisticsDocumentSchema', () => {
 					...scope,
 					activeAllowance: {
 						...scope.activeAllowance,
-						focusedUseBySite: { 'youtube.com': 3_000, 'github.com': 1_001 },
+						focusedUseBySite: { 'youtube.com': 3_000 },
 					},
 				},
 			},
@@ -53,106 +49,41 @@ describe( 'StatisticsDocumentSchema', () => {
 	} );
 
 	it.each( [
-		{ 'https://youtube.com/watch?v=private': 300_000 },
-		{ 'youtube.com': -1 },
-		{ 'youtube.com': 0.5 },
-		{ 'youtube.com': 3_600_001 },
-	] )( 'rejects invalid per-site visit aggregates %#', ( longestVisitsBySite ) => {
+		{ hasFinalizedBaseline: true },
+		{ hasFinalizedBaseline: false },
+		{ latestBaseline: { measurementRevision: 'revision_1', focusedUseMilliseconds: 2_000 } },
+		{ longestVisitsBySite: { 'youtube.com': 300_000 } },
+		{ latestBaseline: undefined },
+	] )( 'rejects removed baseline and visit-history fields %#', ( removedFields ) => {
 		expect( StatisticsDocumentSchema.safeParse( {
 			...VALID_STATISTICS_DOCUMENT,
 			scopes: {
-				scope_default: { ...VALID_STATISTICS_DOCUMENT.scopes.scope_default, longestVisitsBySite },
+				scope_default: { ...VALID_STATISTICS_DOCUMENT.scopes.scope_default, ...removedFields },
 			},
 		} ).success ).toBe( false );
 	} );
 
-	it( 'retains per-site longest visits and current focused use without page addresses', () => {
-		const scope = VALID_STATISTICS_DOCUMENT.scopes.scope_default;
-		const input = {
-			...VALID_STATISTICS_DOCUMENT,
-			scopes: {
-				scope_default: {
-					...scope,
-					longestVisitsBySite: { 'youtube.com': 300_000, constructor: 10_000 },
-					activeAllowance: {
-						...scope.activeAllowance,
-						focusedUseBySite: { 'youtube.com': 3_000, constructor: 1_000 },
-					},
-				},
-			},
-		};
-		const result = StatisticsDocumentSchema.safeParse( input );
-
-		expect( result.success ).toBe( true );
-		if ( result.success ) {
-			expect( result.data.scopes.scope_default ).toMatchObject( input.scopes.scope_default );
-		}
-	} );
-
 	it( 'parses a valid statistics document', () => {
-		expect( StatisticsDocumentSchema.parse( VALID_STATISTICS_DOCUMENT ) ).toEqual( {
-			...VALID_STATISTICS_DOCUMENT,
-			scopes: {
-				scope_default: {
-					...VALID_STATISTICS_DOCUMENT.scopes.scope_default,
-					hasFinalizedBaseline: true,
-				},
-			},
-		} );
+		expect( StatisticsDocumentSchema.parse( VALID_STATISTICS_DOCUMENT ) ).toEqual(
+			VALID_STATISTICS_DOCUMENT,
+		);
 	} );
 
-	it( 'preserves an aggregate finalized-baseline marker without a current baseline', () => {
+	it( 'retains totals for an inactive scope', () => {
 		const scope = VALID_STATISTICS_DOCUMENT.scopes.scope_default;
 		const result = StatisticsDocumentSchema.parse( {
 			...VALID_STATISTICS_DOCUMENT,
 			scopes: {
 				scope_default: {
 					totals: scope.totals,
-					hasFinalizedBaseline: true,
 				},
 			},
 		} );
 
 		expect( result.scopes.scope_default ).toEqual( {
 			totals: scope.totals,
-			hasFinalizedBaseline: true,
 		} );
 	} );
-
-	it( 'omits a false aggregate finalized-baseline marker', () => {
-		const scope = VALID_STATISTICS_DOCUMENT.scopes.scope_default;
-		const result = StatisticsDocumentSchema.parse( {
-			...VALID_STATISTICS_DOCUMENT,
-			scopes: {
-				scope_default: {
-					totals: scope.totals,
-					hasFinalizedBaseline: false,
-				},
-			},
-		} );
-
-		expect( Object.hasOwn(
-			result.scopes.scope_default ?? {},
-			'hasFinalizedBaseline',
-		) ).toBe( false );
-	} );
-
-	it.each( [ 'true', 1, null ] )(
-		'rejects the invalid aggregate finalized-baseline marker %#',
-		( hasFinalizedBaseline ) => {
-			const scope = VALID_STATISTICS_DOCUMENT.scopes.scope_default;
-
-			expect( StatisticsDocumentSchema.safeParse( {
-				...VALID_STATISTICS_DOCUMENT,
-				scopes: {
-					scope_default: {
-						totals: scope.totals,
-						hasFinalizedBaseline,
-					},
-				},
-			} ).success ).toBe( false );
-		},
-	);
 
 	it( 'rejects an unsupported document version', () => {
 		const result = StatisticsDocumentSchema.safeParse( {
@@ -266,74 +197,6 @@ describe( 'StatisticsDocumentSchema', () => {
 		expect( result.success ).toBe( false );
 	} );
 
-	it( 'retains a finalized baseline from an earlier measurement revision', () => {
-		const result = StatisticsDocumentSchema.safeParse( {
-			...VALID_STATISTICS_DOCUMENT,
-			scopes: {
-				scope_default: {
-					...VALID_STATISTICS_DOCUMENT.scopes.scope_default,
-					latestBaseline: {
-						measurementRevision: 'revision_old',
-						focusedUseMilliseconds: 2_000,
-					},
-				},
-			},
-		} );
-
-		expect( result.success ).toBe( true );
-	} );
-
-	it( 'rejects a baseline beyond the maximum possible allowance', () => {
-		const result = StatisticsDocumentSchema.safeParse( {
-			...VALID_STATISTICS_DOCUMENT,
-			scopes: {
-				scope_default: {
-					...VALID_STATISTICS_DOCUMENT.scopes.scope_default,
-					latestBaseline: {
-						measurementRevision: 'revision_1',
-						focusedUseMilliseconds: 3_600_001,
-					},
-				},
-			},
-		} );
-
-		expect( result.success ).toBe( false );
-	} );
-
-	it.each( [ 0, 30_001, 3_600_000 ] )(
-		'accepts the possible finalized baseline %i',
-		( focusedUseMilliseconds ) => {
-			const result = StatisticsDocumentSchema.safeParse( {
-				...VALID_STATISTICS_DOCUMENT,
-				scopes: {
-					scope_default: {
-						...VALID_STATISTICS_DOCUMENT.scopes.scope_default,
-						latestBaseline: {
-							measurementRevision: 'revision_1',
-							focusedUseMilliseconds,
-						},
-					},
-				},
-			} );
-
-			expect( result.success ).toBe( true );
-		},
-	);
-
-	it( 'retains a finalized baseline for an inactive scope', () => {
-		const result = StatisticsDocumentSchema.safeParse( {
-			...VALID_STATISTICS_DOCUMENT,
-			scopes: {
-				scope_default: {
-					totals: VALID_STATISTICS_DOCUMENT.scopes.scope_default.totals,
-					latestBaseline: VALID_STATISTICS_DOCUMENT.scopes.scope_default.latestBaseline,
-				},
-			},
-		} );
-
-		expect( result.success ).toBe( true );
-	} );
-
 	it( 'rejects an active allowance retained by an inactive scope', () => {
 		const result = StatisticsDocumentSchema.safeParse( {
 			...VALID_STATISTICS_DOCUMENT,
@@ -372,7 +235,6 @@ describe( 'StatisticsDocumentSchema', () => {
 				scope_default: {
 					totals: VALID_STATISTICS_DOCUMENT.scopes.scope_default.totals,
 					currentMeasurementRevision: undefined,
-					latestBaseline: undefined,
 					activeAllowance: undefined,
 				},
 			},
@@ -380,7 +242,6 @@ describe( 'StatisticsDocumentSchema', () => {
 		const scope = result.scopes.scope_default;
 
 		expect( Object.hasOwn( scope ?? {}, 'currentMeasurementRevision' ) ).toBe( false );
-		expect( Object.hasOwn( scope ?? {}, 'latestBaseline' ) ).toBe( false );
 		expect( Object.hasOwn( scope ?? {}, 'activeAllowance' ) ).toBe( false );
 	} );
 
@@ -394,10 +255,7 @@ describe( 'StatisticsDocumentSchema', () => {
 			} );
 
 			expect( Object.hasOwn( result.scopes, scopeId ) ).toBe( true );
-			expect( result.scopes[ scopeId ] ).toEqual( {
-				...scope,
-				hasFinalizedBaseline: true,
-			} );
+			expect( result.scopes[ scopeId ] ).toEqual( scope );
 		},
 	);
 

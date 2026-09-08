@@ -126,7 +126,7 @@ describe( 'createStatisticsStorageService', () => {
 			scopes: {
 				scope_default: {
 					...scope,
-					latestBaseline: undefined,
+					currentMeasurementRevision: undefined,
 					activeAllowance: undefined,
 				},
 			},
@@ -139,7 +139,7 @@ describe( 'createStatisticsStorageService', () => {
 			? writtenDocument.scopes.scope_default
 			: null;
 
-		expect( Object.hasOwn( writtenScope ?? {}, 'latestBaseline' ) ).toBe( false );
+		expect( Object.hasOwn( writtenScope ?? {}, 'currentMeasurementRevision' ) ).toBe( false );
 		expect( Object.hasOwn( writtenScope ?? {}, 'activeAllowance' ) ).toBe( false );
 	} );
 
@@ -149,6 +149,28 @@ describe( 'createStatisticsStorageService', () => {
 	] )( 'returns null without writing for malformed or future persistence', async ( document ) => {
 		const area = new MemoryStatisticsStorageArea( {
 			[ StatisticsStorageKey.STATISTICS ]: document,
+		} );
+		const storage = createStatisticsStorageService( {
+			area,
+			createGenerationId: createTestGenerationId,
+		} );
+
+		await expect( storage.load() ).resolves.toBeNull();
+		expect( area.writtenValues ).toEqual( [] );
+	} );
+
+	it( 'returns null without rewriting a document containing removed visit history', async () => {
+		const document = createMockStatisticsDocument();
+		const area = new MemoryStatisticsStorageArea( {
+			[ StatisticsStorageKey.STATISTICS ]: {
+				...document,
+				scopes: {
+					scope_default: {
+						...document.scopes.scope_default,
+						longestVisitsBySite: { 'youtube.com': 300_000 },
+					},
+				},
+			},
 		} );
 		const storage = createStatisticsStorageService( {
 			area,

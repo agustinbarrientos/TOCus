@@ -1,8 +1,5 @@
 import { z, type RefinementCtx } from 'zod';
-import {
-	AllowanceDurationMaximumMilliseconds,
-	AllowanceDurationMillisecondsSchema,
-} from '../../protection/types/allowance-duration';
+import { AllowanceDurationMillisecondsSchema } from '../../protection/types/allowance-duration';
 import {
 	AllowanceIdSchema,
 	ProtectionFactBatchIdSchema,
@@ -13,7 +10,6 @@ import {
 	StatisticsGenerationIdSchema,
 	StatisticsNonNegativeSafeIntegerSchema,
 } from './statistics-value';
-import { SiteVisitDurationsSchema } from './site-visit-durations';
 
 /**
  * Current local statistics document version.
@@ -49,23 +45,6 @@ export const StatisticsTotalsSchema = z.object( {
 export type StatisticsTotals = z.infer<typeof StatisticsTotalsSchema>;
 
 /**
- * Validates the latest finalized allowance-use baseline for one scope revision.
- * @since 0.1.0 Initial implementation.
- */
-export const StatisticsBaselineSchema = z.object( {
-	measurementRevision: ProtectionMeasurementRevisionSchema,
-	focusedUseMilliseconds: StatisticsNonNegativeSafeIntegerSchema.max(
-		AllowanceDurationMaximumMilliseconds,
-	),
-} ).strict();
-
-/**
- * Latest finalized allowance-use baseline for one scope revision.
- * @since 0.1.0 Initial implementation.
- */
-export type StatisticsBaseline = z.infer<typeof StatisticsBaselineSchema>;
-
-/**
  * Validates the unrefined shape of one active allowance measurement.
  * @since 0.1.0 Initial implementation.
  */
@@ -76,7 +55,6 @@ const ActiveAllowanceMeasurementFieldsSchema = z.object( {
 	expiresAtEpochMilliseconds: StatisticsNonNegativeSafeIntegerSchema,
 	confirmedFocusedUseMilliseconds: StatisticsNonNegativeSafeIntegerSchema,
 	accountedThroughEpochMilliseconds: StatisticsNonNegativeSafeIntegerSchema,
-	focusedUseBySite: SiteVisitDurationsSchema.optional(),
 } ).strict();
 
 /**
@@ -129,16 +107,6 @@ function refineActiveAllowanceMeasurement(
 			path: [ 'confirmedFocusedUseMilliseconds' ],
 		} );
 	}
-
-	const attributedUseMilliseconds = Object.values( measurement.focusedUseBySite ?? {} )
-		.reduce( ( total, duration ) => total + duration, 0 );
-	if ( attributedUseMilliseconds > measurement.confirmedFocusedUseMilliseconds ) {
-		context.addIssue( {
-			code: 'custom',
-			message: 'Per-site use cannot exceed confirmed focused use.',
-			path: [ 'focusedUseBySite' ],
-		} );
-	}
 }
 
 /**
@@ -161,10 +129,7 @@ export type ActiveAllowanceMeasurement = z.infer<typeof ActiveAllowanceMeasureme
  */
 const ScopeStatisticsFieldsSchema = z.object( {
 	totals: StatisticsTotalsSchema,
-	hasFinalizedBaseline: z.boolean().optional(),
 	currentMeasurementRevision: ProtectionMeasurementRevisionSchema.optional(),
-	latestBaseline: StatisticsBaselineSchema.optional(),
-	longestVisitsBySite: SiteVisitDurationsSchema.optional(),
 	activeAllowance: ActiveAllowanceMeasurementSchema.optional(),
 } ).strict();
 
@@ -217,18 +182,9 @@ function refineScopeStatistics(
 function canonicalizeScopeStatistics( scope: ScopeStatisticsFields ): ScopeStatisticsFields {
 	return {
 		totals: scope.totals,
-		...( scope.hasFinalizedBaseline === true || scope.latestBaseline !== undefined
-			? { hasFinalizedBaseline: true }
-			: {} ),
 		...( scope.currentMeasurementRevision === undefined
 			? {}
 			: { currentMeasurementRevision: scope.currentMeasurementRevision } ),
-		...( scope.latestBaseline === undefined
-			? {}
-			: { latestBaseline: scope.latestBaseline } ),
-		...( scope.longestVisitsBySite === undefined
-			? {}
-			: { longestVisitsBySite: scope.longestVisitsBySite } ),
 		...( scope.activeAllowance === undefined
 			? {}
 			: { activeAllowance: scope.activeAllowance } ),
