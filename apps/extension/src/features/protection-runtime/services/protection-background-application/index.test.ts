@@ -1,20 +1,21 @@
+import { ProtectedSiteEnrollmentStatus } from '../../../protected-sites/services/protected-site-enrollment/types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fakeBrowser } from 'wxt/testing/fake-browser';
 import { Language } from '../../../../domains/preferences/types';
 import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import { TestInstant } from '../../../../domains/protection/types/__fixtures__/protection-event';
-import { type StatisticsRuntimeOptions } from '../../../statistics/services/statistics-runtime';
-import { type LocalDataResetOptions } from '../../../../domains/local-data/services/local-data-reset/types';
-import { type LocalDataResetControllerOptions } from '../../../settings/services/local-data-reset-controller/types';
-import { type PopupEnrollmentControllerOptions } from '../../../popup/services/popup-enrollment-controller/types';
-import { type BrowserProtectionRuntimeOptions } from '../browser-protection-runtime';
-import { type PopupBackgroundControllerOptions } from '../../../popup/services/popup-background-controller';
-import { type ProtectionBackgroundControllerOptions } from '../protection-background-controller';
-import {
-	type ToolbarBadgeRefresh,
-	type ToolbarLanguageControllerOptions,
+import type { StatisticsRuntimeOptions } from '../../../statistics/services/statistics-runtime';
+import type { LocalDataResetOptions } from '../../../../domains/local-data/services/local-data-reset/types';
+import type { LocalDataResetControllerOptions } from '../../../settings/services/local-data-reset-controller/types';
+import type { PopupEnrollmentControllerOptions } from '../../../popup/services/popup-enrollment-controller/types';
+import type { BrowserProtectionRuntimeOptions } from '../browser-protection-runtime';
+import type { PopupBackgroundControllerOptions } from '../../../popup/services/popup-background-controller';
+import type { ProtectionBackgroundControllerOptions } from '../protection-background-controller';
+import type {
+	ToolbarBadgeRefresh,
+	ToolbarLanguageControllerOptions,
 } from '../toolbar-language-controller';
-import { type ToolbarBadgeCopy } from '../../utils/toolbar-badge-projection';
+import type { ToolbarBadgeCopy } from '../../utils/toolbar-badge-projection';
 
 /**
  * Constructor and startup doubles for the background application composition.
@@ -243,7 +244,7 @@ describe( 'startProtectionBackgroundApplication', () => {
 			if ( enrollmentOptions === undefined ) {
 				throw new TypeError( 'Expected popup enrollment options.' );
 			}
-			const firstResult = { status: 'save-error' as const };
+			const firstResult = { status: ProtectedSiteEnrollmentStatus.SAVE_ERROR };
 			enrollment.add.mockResolvedValueOnce( firstResult );
 			const firstAddition = enrollmentOptions.enrollment.add( 'github.com', false );
 			expect( enrollment.add ).toHaveBeenCalledWith( 'github.com', false );
@@ -264,7 +265,7 @@ describe( 'startProtectionBackgroundApplication', () => {
 			} );
 			expect( backgroundMocks.startPopupEnrollment ).toHaveBeenCalledOnce();
 			const nextEditor = { editor: { fixture: 'next-generation' } };
-			const nextResult = { status: 'permission-denied' as const };
+			const nextResult = { status: ProtectedSiteEnrollmentStatus.PERMISSION_DENIED };
 			const nextEnrollment = { add: vi.fn().mockResolvedValue( nextResult ) };
 			backgroundMocks.createBrowserProtectionConfigurationEditor.mockReturnValueOnce( nextEditor );
 			backgroundMocks.createProtectedSiteEnrollmentService.mockReturnValueOnce( nextEnrollment );
@@ -336,7 +337,7 @@ describe( 'startProtectionBackgroundApplication', () => {
 		expect( runtimeOptions.coordinator ).toBe( coordinator );
 		expect( runtimeOptions.statisticsRuntime ).toBe( statisticsRuntime );
 		expect( runtimeOptions.toolbarBadgeCopy ).toBe( toolbarCopy );
-		expect( runtimeOptions.interruptionPageUrl ).toContain( 'interruption.html' );
+		expect( runtimeOptions.interruptionPageUrl ).toContain( 'pause.html' );
 		expect( runtimeOptions.createStableId() ).toEqual( expect.any( String ) );
 		expect( runtimeOptions.now() ).toBe( TestInstant );
 		expect( runtimeOptions.getTimeZone() ).toEqual( expect.any( String ) );

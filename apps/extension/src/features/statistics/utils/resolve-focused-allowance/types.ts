@@ -1,9 +1,9 @@
-import { type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type StatisticsDocument } from '../../../../domains/statistics/types/statistics-document';
-import {
-	type ProtectionRuntimeNavigation,
-	type ProtectionRuntimeTab,
+import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { StatisticsDocument } from '../../../../domains/statistics/types/statistics-document';
+import type {
+	ProtectionRuntimeNavigation,
+	ProtectionRuntimeTab,
 } from '../../../protection-runtime/types/browser-runtime';
 
 /**

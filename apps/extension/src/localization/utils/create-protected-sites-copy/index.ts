@@ -1,7 +1,7 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
-import { type ProtectedSitesScreenCopy } from '../../../features/protected-sites/components/screen/types';
-import { type LocalizationFormatters } from '../create-localization-formatters';
+import type { ProtectedSitesScreenCopy } from '../../../features/protected-sites/components/screen/types';
+import type { LocalizationFormatters } from '../create-localization-formatters';
 import { createProtectedSiteListCopy } from '../create-protected-site-list-copy';
 
 /**
@@ -69,6 +69,11 @@ export function createProtectedSitesCopy(
 
 	return Object.freeze( {
 		...listCopy,
+		save: i18n._( msg`Save` ),
+		discard: i18n._( msg`Discard` ),
+		saved: i18n._( msg`Website changes saved.` ),
+		savedWithRetainedAccess: i18n._( msg`Your website changes were saved, but some unused browser access could not be removed.` ),
+		configurationChangedError: i18n._( msg`Your website list changed elsewhere. Discard your draft and reopen Websites before trying again.` ),
 		eyebrow: i18n._( msg`Pause setup` ),
 		title: i18n._( msg`Websites` ),
 		introduction: i18n._( msg`Choose the websites where a calm pause can help you return to your intentions.` ),
@@ -78,7 +83,7 @@ export function createProtectedSitesCopy(
 		addingSite: i18n._( msg`Adding...` ),
 		addressHelp: i18n._( msg`Enter a website address or domain. TOCus includes its subdomains by default.` ),
 		behaviorLegend: i18n._( msg`How should this site behave?` ),
-		sharedBehavior: i18n._( msg`Shared timing` ),
+		sharedBehavior: i18n._( msg`One timer for these websites` ),
 		sharedBehaviorDescription: i18n._( msg`Use the same wait and allowance as your other websites.` ),
 		independentBehavior: i18n._( msg`Give this website its own timing` ),
 		independentBehaviorDescription: i18n._( msg`Give this site its own wait and allowance.` ),

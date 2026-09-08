@@ -9,6 +9,10 @@ describe( 'createLanguageScreenCopy', () => {
 
 		expect( copy.title ).toBe( 'Language' );
 		expect( copy.formatBrowserLanguageDescription( 'English' ) ).toBe( 'Your browser currently selects English.' );
+		expect( copy.save ).toBe( 'Save' );
+		expect( copy.discard ).toBe( 'Discard' );
+		expect( copy.saving ).toBe( 'Saving...' );
+		expect( copy ).not.toHaveProperty( 'explicitLanguageDescription' );
 	} );
 
 	it( 'creates every language option label through the localized copy contract', () => {

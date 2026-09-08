@@ -6,7 +6,7 @@ import {
 	type NormalizedSchedule,
 } from '../../types/protection-schedule';
 import { DefaultProtectionScopeId, ProtectionScopeIdSchema } from '../../types/protection-value';
-import { type ProtectedSiteConfigurationSet } from '../../types/protected-site-configuration';
+import type { ProtectedSiteConfigurationSet } from '../../types/protected-site-configuration';
 
 /**
  * Independent protection scope used by schedule reconciliation fixtures.

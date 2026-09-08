@@ -1,8 +1,8 @@
 import { browser } from 'wxt/browser';
 import { createPreferencesStorageService } from '../../../../domains/preferences/services';
-import { type Language } from '../../../../domains/preferences/types';
+import type { Language } from '../../../../domains/preferences/types';
 import { resolveLanguage } from '../../../../domains/preferences/utils';
-import { type AllowanceId } from '../../../../domains/protection/types/protection-value';
+import type { AllowanceId } from '../../../../domains/protection/types/protection-value';
 import { createLocalizedProtectedPageCopy } from '../../../../localization/utils/create-localized-protected-page-copy';
 import {
 	createPreferencesController,
@@ -32,7 +32,7 @@ import {
 	createMediaPlaybackController,
 	type MediaPlaybackController,
 } from '../media-playback-controller';
-import { type ProtectedPageResponseSender } from './types';
+import type { ProtectedPageResponseSender } from './types';
 /**
  * Isolated-world key that prevents duplicate protected-page initialization.
  * @since 0.1.0 Initial implementation.

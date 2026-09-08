@@ -1,5 +1,17 @@
-import { assert, oneEvent } from '@open-wc/testing';
+import { assert } from '@esm-bundle/chai';
 import { createMediaPlaybackController, type MediaPlaybackController } from '.';
+
+/**
+ * Waits for one native media event without a renderer or custom-element fixture library.
+ * @param target - Native media element being exercised.
+ * @param name - Browser event expected by the scenario.
+ * @return The first matching event.
+ */
+function oneEvent( target: EventTarget, name: string ): Promise<Event> {
+	return new Promise( ( resolve ) => {
+		target.addEventListener( name, resolve, { once: true } );
+	} );
+}
 
 /**
  * Native media elements released after each browser scenario.

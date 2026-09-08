@@ -1,20 +1,21 @@
+import { InterruptionPageResponseState } from '../../../protection-runtime/types/runtime-message';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AllowanceIdSchema } from '../../../../domains/protection/types/protection-value';
 import { Language } from '../../../../domains/preferences/types';
-import {
-	type InterruptionPageController,
-	type InterruptionPageControllerOptions,
+import type {
+	InterruptionPageController,
+	InterruptionPageControllerOptions,
 } from '../interruption-page-controller/types';
-import {
-	type ProtectedPageLayerController,
-	type ProtectedPageLayerControllerOptions,
+import type {
+	ProtectedPageLayerController,
+	ProtectedPageLayerControllerOptions,
 } from '../protected-page-layer-controller/types';
 import { InterruptionScreenState } from '../../components/screen/types';
-import {
-	type PreferencesChangeListener,
-	type PreferencesLanguageChangeListener,
+import type {
+	PreferencesChangeListener,
+	PreferencesLanguageChangeListener,
 } from '../../../preferences/services/preferences-controller/types';
-import { type ProtectedPageMessage } from '../../../protection-runtime/types/protected-page-message';
+import type { ProtectedPageMessage } from '../../../protection-runtime/types/protected-page-message';
 
 /**
  * Isolated-world initialization key used by the protected-page service.
@@ -37,7 +38,8 @@ type ProtectedPageMessageListener = (
  * @return Hoisted protected-page service doubles.
  * @since 0.1.0 Initial implementation.
  */
-const pageMocks = vi.hoisted( () => {
+const pageMocks = await vi.hoisted( async () => {
+	const { Language: HoistedLanguage } = await import( '../../../../domains/preferences/types' );
 	/**
 	 * Minimal nested interruption screen used to observe localized footer copy.
 	 * @since 0.1.0 Initial implementation.
@@ -125,13 +127,13 @@ const pageMocks = vi.hoisted( () => {
 
 	const initialLocalization = {
 		interruption: { value: 'Localized interruption copy' },
-		languageTag: 'fr',
+		languageTag: HoistedLanguage.FRENCH,
 		protectedPageLayer: { value: 'Localized protected-page copy' },
 		wellbeing: { neutral: 'Localized neutral footer' },
 	};
 	const liveLocalization = {
 		interruption: { value: 'Live interruption copy' },
-		languageTag: 'ja',
+		languageTag: HoistedLanguage.JAPANESE,
 		protectedPageLayer: { value: 'Live protected-page copy' },
 		wellbeing: { neutral: 'Live neutral footer' },
 	};
@@ -147,7 +149,7 @@ const pageMocks = vi.hoisted( () => {
 		),
 		addPreferencesChangeListener: vi.fn<( listener: PreferencesChangeListener ) => void>(),
 		apply: vi.fn(),
-		language: 'fr',
+		language: HoistedLanguage.FRENCH,
 		matches: false,
 		removeLanguageChangeListener: vi.fn<( listener: PreferencesLanguageChangeListener ) => void>(),
 		removePreferencesChangeListener: vi.fn<( listener: PreferencesChangeListener ) => void>(),
@@ -317,7 +319,7 @@ describe( 'protected page service', () => {
 			layer.connected = true;
 		} );
 		pageMocks.handleMessage.mockResolvedValue( undefined );
-		pageMocks.sendMessage.mockResolvedValue( { state: 'waiting' } );
+		pageMocks.sendMessage.mockResolvedValue( { state: InterruptionPageResponseState.WAITING } );
 		pageMocks.createInterruptionPageController.mockReturnValue( interruptionController );
 		pageMocks.createProtectedPageLayerController.mockReturnValue( layerController );
 		pageMocks.wellbeingSummaryController.refresh.mockReturnValue(
@@ -467,7 +469,7 @@ describe( 'protected page service', () => {
 		} as const;
 
 		await expect( interruptionOptions.runtime.sendMessage( request ) ).resolves.toEqual( {
-			state: 'waiting',
+			state: InterruptionPageResponseState.WAITING,
 		} );
 		expect( pageMocks.sendMessage ).toHaveBeenCalledWith( request );
 

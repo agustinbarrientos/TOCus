@@ -1,7 +1,7 @@
-import { type Language } from '../../../../domains/preferences/types';
-import { type OnboardingAppearanceStepCopy } from '../appearance-step/types';
-import { type OnboardingLanguageStepCopy } from '../language-step/types';
-import { type OnboardingSitesStepCopy } from '../sites-step/types';
+import type { Language } from '../../../../domains/preferences/types';
+import type { OnboardingAppearanceStepCopy } from '../appearance-step/types';
+import type { OnboardingLanguageStepCopy } from '../language-step/types';
+import type { OnboardingSitesStepCopy } from '../sites-step/types';
 
 /**
  * Stable steps shown by onboarding in approved product order.

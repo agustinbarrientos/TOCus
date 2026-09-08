@@ -7,11 +7,11 @@ describe( 'createPopupCopy', () => {
 		const copy = createPopupCopy( createTestI18n() );
 
 		expect( copy.currentWebsite ).toBe( 'Current website' );
-		expect( copy.noPauseHere ).toBe( 'No pause here' );
+		expect( copy.siteNotOnList ).toBe( 'Site not on the list' );
 		expect( copy.tocusActive ).toBe( 'TOCus is active' );
-		expect( copy.addPauseHere ).toBe( 'Add a pause here' );
+		expect( copy.pauseSite ).toBe( 'Pause site' );
 		expect( copy.manageWebsite ).toBe( 'Manage this website' );
-		expect( copy.sharedTiming ).toBe( 'Shared timing' );
+		expect( copy.timeLeft ).toBe( 'Time left' );
 		expect( copy.statistics ).toBe( 'Statistics' );
 		expect( copy.settings ).toBe( 'Settings' );
 		expect( copy.retrying ).toBe( 'Trying again...' );
@@ -19,15 +19,12 @@ describe( 'createPopupCopy', () => {
 			.toBe( 'This website could not be saved. Its browser access may still be active.' );
 	} );
 
-	it( 'formats countdowns, next waits, and shared website counts', () => {
+	it( 'formats nonnegative localized countdowns', () => {
 		const copy = createPopupCopy( createTestI18n() );
 
 		expect( copy.formatCountdown( 8_000 ) ).toBe( '0:08' );
 		expect( copy.formatCountdown( 240_000 ) ).toBe( '4:00' );
 		expect( copy.formatCountdown( Number.NaN ) ).toBe( '0:00' );
 		expect( copy.formatCountdown( -1_000 ) ).toBe( '0:00' );
-		expect( copy.formatNextPause( 10_000 ) ).toBe( '10 seconds' );
-		expect( copy.formatWebsiteCount( 1 ) ).toBe( '1 website' );
-		expect( copy.formatWebsiteCount( 3 ) ).toBe( '3 websites' );
 	} );
 } );

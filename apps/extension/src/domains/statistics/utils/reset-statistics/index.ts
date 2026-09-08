@@ -1,5 +1,5 @@
-import { type ScopeStatistics, type StatisticsDocument } from '../../types/statistics-document';
-import { type ResetStatisticsOperation } from '../../types/statistics-operation';
+import type { ScopeStatistics, StatisticsDocument } from '../../types/statistics-document';
+import type { ResetStatisticsOperation } from '../../types/statistics-operation';
 import { createEmptyScopeStatistics } from '../create-statistics-document';
 
 /**

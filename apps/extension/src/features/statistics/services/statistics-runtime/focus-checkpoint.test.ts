@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createWaitingState } from '../../../../domains/protection/types/__fixtures__';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { SessionContinuityIdSchema } from '../../../../domains/protection/types/protection-value';
 import { StoredProtectionStatisticsDeliveryStatus } from '../../../../domains/protection/types/stored-protection-statistics-delivery';
 import { StatisticsDocumentSchema } from '../../../../domains/statistics/types/statistics-document';
@@ -307,6 +307,7 @@ describe( 'statistics runtime focus checkpointing', () => {
 				scopeId: 'scope_default',
 				measurementRevision: 'revision_current',
 				allowanceId: 'allowance_current',
+				siteHost: 'example.com',
 				sessionContinuityId: TEST_SESSION_CONTINUITY_ID,
 				focusEpochId: TEST_FOCUS_EPOCH_ID,
 				focusedAtEpochMilliseconds: TEST_NOW_EPOCH_MILLISECONDS,
@@ -316,6 +317,7 @@ describe( 'statistics runtime focus checkpointing', () => {
 				scopeId: 'scope_default',
 				measurementRevision: 'revision_current',
 				allowanceId: 'allowance_current',
+				siteHost: 'example.com',
 				startedAtEpochMilliseconds: anchorTime,
 				endedAtEpochMilliseconds: TEST_NOW_EPOCH_MILLISECONDS,
 			},
@@ -333,6 +335,7 @@ describe( 'statistics runtime focus checkpointing', () => {
 				scopeId: 'scope_default',
 				measurementRevision: 'revision_current',
 				allowanceId: 'allowance_current',
+				siteHost: 'example.com',
 				sessionContinuityId: TEST_SESSION_CONTINUITY_ID,
 				focusEpochId: TEST_FOCUS_EPOCH_ID,
 				focusedAtEpochMilliseconds: TEST_NOW_EPOCH_MILLISECONDS,

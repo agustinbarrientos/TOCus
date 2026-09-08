@@ -36,7 +36,7 @@ describe( 'createProtectionNavigationRules', () => {
 				action: {
 					type: 'redirect',
 					redirect: {
-						extensionPath: '/interruption.html',
+						extensionPath: '/pause.html',
 					},
 				},
 				condition: {
@@ -61,7 +61,7 @@ describe( 'createProtectionNavigationRules', () => {
 				action: {
 					type: 'redirect',
 					redirect: {
-						extensionPath: '/interruption.html',
+						extensionPath: '/pause.html',
 					},
 				},
 				condition: {
@@ -75,7 +75,7 @@ describe( 'createProtectionNavigationRules', () => {
 				action: {
 					type: 'redirect',
 					redirect: {
-						extensionPath: '/interruption.html',
+						extensionPath: '/pause.html',
 					},
 				},
 				condition: {

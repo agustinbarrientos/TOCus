@@ -1,4 +1,4 @@
-import { type TabAudioController, type TabAudioControllerOptions, type TabAudioMutedInfo } from './types';
+import type { TabAudioController, TabAudioControllerOptions, TabAudioMutedInfo } from './types';
 
 /**
  * Session key containing identifiers of tabs muted from an initially unmuted state.

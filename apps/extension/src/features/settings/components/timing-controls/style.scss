@@ -1,0 +1,32 @@
+@use '@tocus/theme/typography' as typography;
+
+[data-tocus-ui] .settings-page .settings-timing-range {
+	margin-bottom: var(--tocus-space-6);
+	label, output { @include typography.apply('label-large'); }
+
+	output {
+		min-width: 6.5rem;
+		padding: var(--tocus-space-1) var(--tocus-space-3);
+		border-radius: var(--tocus-radius-small);
+		background: var(--tocus-color-action);
+		color: var(--tocus-color-on-action);
+		text-align: center;
+	}
+	> p { margin-top: var(--tocus-space-2); }
+}
+
+.settings-timing-ticks {
+	@include typography.apply('body-small');
+
+	display: flex;
+	justify-content: space-between;
+	gap: var(--tocus-space-3);
+	margin-top: calc(var(--tocus-space-1) * -1);
+	color: var(--tocus-color-on-surface-muted);
+}
+
+[data-tocus-ui] .settings-page .settings-timing-summary {
+	margin-top: var(--tocus-space-6);
+	padding-bottom: 0;
+	h2 { margin-bottom: var(--tocus-space-2); }
+}

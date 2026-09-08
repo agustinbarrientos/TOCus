@@ -1,4 +1,4 @@
-import { type InterruptionScreenEnvironment } from '../types';
+import type { InterruptionScreenEnvironment } from '../types';
 
 /**
  * Callback and due time retained by one deterministic interruption-screen timeout.

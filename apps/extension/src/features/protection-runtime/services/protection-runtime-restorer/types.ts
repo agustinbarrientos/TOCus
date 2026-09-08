@@ -1,10 +1,10 @@
-import {
-	type ProtectionCoordinator,
-	type ProtectionCoordinatorDispatchResult,
+import type {
+	ProtectionCoordinator,
+	ProtectionCoordinatorDispatchResult,
 } from '../../../../domains/protection/services/protection-coordinator';
-import { type ProtectionDecision } from '../../../../domains/protection/types/protection-decision';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type ProtectionRuntimeTab } from '../../types/browser-runtime';
+import type { ProtectionDecision } from '../../../../domains/protection/types/protection-decision';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionRuntimeTab } from '../../types/browser-runtime';
 
 /**
  * Dependencies used to restore protection runtime state after background startup.

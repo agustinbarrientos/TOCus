@@ -1,4 +1,5 @@
-import { type ExtensionTabContextRuntime, type ExtensionTabContextTab } from './types';
+import type { ExtensionTabContextRuntime, ExtensionTabContextTab } from './types';
+import { InterruptionDocumentPath, isInterruptionDocumentUrl } from '../../utils/interruption-document-url';
 
 /**
  * Reports whether a queried tab has the identity required for a redacted URL lookup.
@@ -28,7 +29,7 @@ export async function enrichExtensionTabUrls<T extends ExtensionTabContextTab>(
 	}
 
 	try {
-		const interruptionPageUrl = runtime.getURL( '/interruption.html' );
+		const interruptionPageUrl = runtime.getURL( InterruptionDocumentPath.CURRENT );
 		const contexts = await runtime.getContexts( { contextTypes: [ 'TAB' ] } );
 
 		return tabs.map( ( tab ) => {
@@ -36,13 +37,13 @@ export async function enrichExtensionTabUrls<T extends ExtensionTabContextTab>(
 				return tab;
 			}
 
-			const hasInterruptionContext = contexts.some( ( context ) =>
+			const interruptionContext = contexts.find( ( context ) =>
 				context.contextType === 'TAB' && context.frameId === 0 &&
 				context.tabId === tab.id && context.incognito === tab.incognito &&
-				context.documentUrl === interruptionPageUrl,
+				isInterruptionDocumentUrl( context.documentUrl, interruptionPageUrl ),
 			);
 
-			return hasInterruptionContext ? { ...tab, url: interruptionPageUrl } : tab;
+			return interruptionContext ? { ...tab, url: interruptionContext.documentUrl } : tab;
 		} );
 	} catch {
 		return tabs;

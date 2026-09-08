@@ -3,15 +3,15 @@ import {
 	ProtectionDecisionType,
 	type ProtectionDecision,
 } from '../../types/protection-decision';
-import { type ProgressCheckpointEvent } from '../../types/protection-event';
-import { type PauseTimeFact, type ProtectionFact } from '../../types/protection-fact';
-import { type ProtectionParticipant } from '../../types/protection-participant';
+import type { ProgressCheckpointEvent } from '../../types/protection-event';
+import type { PauseTimeFact, ProtectionFact } from '../../types/protection-fact';
+import type { ProtectionParticipant } from '../../types/protection-participant';
 import {
 	ProtectionStateType,
 	type ProtectionState,
 	type WaitingProtectionState,
 } from '../../types/protection-state';
-import { type ProtectionTransitionResult } from '../../types/protection-transition-result';
+import type { ProtectionTransitionResult } from '../../types/protection-transition-result';
 import { EpochMillisecondsSchema } from '../../types/protection-value';
 import { ScheduleEvaluationStatus } from '../../types/schedule-evaluation';
 import { createObservedParticipantActionDecision } from '../create-protection-decision';

@@ -1,9 +1,9 @@
 import type { z } from 'zod';
 import { DurationMillisecondsSchema } from './protection-value';
 
-const FIVE_SECONDS_MILLISECONDS = 5_000;
+const ONE_SECOND_MILLISECONDS = 1_000;
 const TEN_SECONDS_MILLISECONDS = 10_000;
-const SIXTY_SECONDS_MILLISECONDS = 60_000;
+const ONE_HUNDRED_TWENTY_SECONDS_MILLISECONDS = 120_000;
 
 /**
  * Validates a captured wait duration in milliseconds.
@@ -11,8 +11,8 @@ const SIXTY_SECONDS_MILLISECONDS = 60_000;
  */
 export const WaitDurationMillisecondsSchema = DurationMillisecondsSchema
 	.min( TEN_SECONDS_MILLISECONDS )
-	.max( SIXTY_SECONDS_MILLISECONDS )
-	.multipleOf( FIVE_SECONDS_MILLISECONDS );
+	.max( ONE_HUNDRED_TWENTY_SECONDS_MILLISECONDS )
+	.multipleOf( ONE_SECOND_MILLISECONDS );
 
 /**
  * Captured wait duration in milliseconds.

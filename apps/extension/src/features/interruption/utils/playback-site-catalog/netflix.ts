@@ -1,4 +1,4 @@
-import { type PlaybackSiteRule } from './types';
+import type { PlaybackSiteRule } from './types';
 
 /**
  * Native video control boundaries for Netflix.

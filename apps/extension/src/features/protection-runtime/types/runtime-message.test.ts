@@ -14,21 +14,21 @@ describe( 'InterruptionPageRequestSchema', () => {
 			type: InterruptionPageRequestType.CONNECT,
 			documentVisible: true,
 		} ) ).toEqual( {
-			type: 'connect',
+			type: InterruptionPageRequestType.CONNECT,
 			documentVisible: true,
 		} );
 		expect( InterruptionPageRequestSchema.parse( {
 			type: InterruptionPageRequestType.SYNCHRONIZE,
 			documentVisible: false,
 		} ) ).toEqual( {
-			type: 'synchronize',
+			type: InterruptionPageRequestType.SYNCHRONIZE,
 			documentVisible: false,
 		} );
 		expect( InterruptionPageRequestSchema.parse( {
 			type: InterruptionPageRequestType.RECOVER,
 			documentVisible: true,
 		} ) ).toEqual( {
-			type: 'recover',
+			type: InterruptionPageRequestType.RECOVER,
 			documentVisible: true,
 		} );
 	} );
@@ -39,7 +39,7 @@ describe( 'InterruptionPageRequestSchema', () => {
 			documentVisible: true,
 			displayedFocusedDurationMilliseconds: 4_250,
 		} ) ).toMatchObject( {
-			type: 'checkpoint',
+			type: InterruptionPageRequestType.CHECKPOINT,
 			displayedFocusedDurationMilliseconds: 4_250,
 		} );
 	} );
@@ -75,12 +75,12 @@ describe( 'InterruptionPageResponseSchema', () => {
 			capturedWaitDurationMilliseconds: 10_000,
 			focusedProgressMilliseconds: 3_000,
 			progressing: true,
-		} ) ).toMatchObject( { state: 'waiting', progressing: true } );
+		} ) ).toMatchObject( { state: InterruptionPageResponseState.WAITING, progressing: true } );
 		expect( InterruptionPageResponseSchema.parse( {
 			state: InterruptionPageResponseState.READY,
 			allowanceExpiresAtEpochMilliseconds: 300_000,
 		} ) ).toEqual( {
-			state: 'ready',
+			state: InterruptionPageResponseState.READY,
 			allowanceExpiresAtEpochMilliseconds: 300_000,
 		} );
 	} );
@@ -88,6 +88,6 @@ describe( 'InterruptionPageResponseSchema', () => {
 	it( 'accepts an unavailable page without exposing a retained destination', () => {
 		expect( InterruptionPageResponseSchema.parse( {
 			state: InterruptionPageResponseState.UNAVAILABLE,
-		} ) ).toEqual( { state: 'unavailable' } );
+		} ) ).toEqual( { state: InterruptionPageResponseState.UNAVAILABLE } );
 	} );
 } );

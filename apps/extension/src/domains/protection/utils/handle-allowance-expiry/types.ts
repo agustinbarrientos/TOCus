@@ -1,5 +1,5 @@
-import { type ProtectionDecision } from '../../types/protection-decision';
-import { type ProtectionParticipant } from '../../types/protection-participant';
+import type { ProtectionDecision } from '../../types/protection-decision';
+import type { ProtectionParticipant } from '../../types/protection-participant';
 
 /**
  * Protected Ready participants and fail-open decisions projected from fresh observations.

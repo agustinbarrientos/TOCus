@@ -1,4 +1,4 @@
-import { type ProtectionScopeId } from '../../types/protection-value';
+import type { ProtectionScopeId } from '../../types/protection-value';
 import {
 	ProtectedUrlMatchStatus,
 	type ProtectedUrlMatchResult,

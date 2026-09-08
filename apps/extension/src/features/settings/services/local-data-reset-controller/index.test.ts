@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createLocalDataResetController } from './index';
 import { LocalDataGenerationStorageKey } from '../../../../domains/local-data/services/local-data-generation';
-import { type ProtectionBackgroundMessageListener } from '../../../protection-runtime/services/protection-background-controller';
+import type { ProtectionBackgroundMessageListener } from '../../../protection-runtime/services/protection-background-controller';
 
 /**
  * Creates an isolated background reset boundary with observable message ownership.

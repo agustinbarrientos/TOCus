@@ -1,5 +1,5 @@
-import { type UnsuccessfulProtectedSiteEnrollmentResult } from '../../../protected-sites/services/protected-site-enrollment';
-import { type ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
+import type { UnsuccessfulProtectedSiteEnrollmentResult } from '../../../protected-sites/services/protected-site-enrollment';
+import type { ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
 
 /**
  * Focused row retained until its pending removal operation settles.

@@ -1,4 +1,4 @@
-import { type RetainedNavigationDestination } from '../../types/protection-value';
+import type { RetainedNavigationDestination } from '../../types/protection-value';
 import {
 	ProtectionDecisionSchema,
 	ProtectionDecisionType,

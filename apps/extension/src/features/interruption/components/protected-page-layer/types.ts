@@ -1,3 +1,12 @@
+import type { ComponentProtectedPageLayer } from '.';
+
+declare global {
+	/** Native tag for the extension-owned closed shadow boundary. */
+	interface HTMLElementTagNameMap {
+		'tocus-f-protected-page-layer': ComponentProtectedPageLayer;
+	}
+}
+
 /**
  * Name of the plain event emitted after the protected-page interruption layer closes.
  * @since 0.1.0 Initial implementation.

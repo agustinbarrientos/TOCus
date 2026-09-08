@@ -1,5 +1,5 @@
-import { type CatalogType } from '@lingui/cli/api';
-import { type Messages } from '@lingui/core';
+import type { CatalogType } from '@lingui/cli/api';
+import type { Messages } from '@lingui/core';
 import { compileMessageOrThrow } from '@lingui/message-utils/compileMessage';
 import { Language } from '../../../../src/domains/preferences/types.ts';
 import {
@@ -7,9 +7,9 @@ import {
 	type ExtensionCatalog,
 } from '../../utils/catalog-locales/index.ts';
 import { readLocalizationCatalog } from '../read-localization-catalog/index.ts';
-import {
-	type CreateRuntimeLocalizationMessagesOptions,
-	type RuntimeLocalizationMessages,
+import type {
+	CreateRuntimeLocalizationMessagesOptions,
+	RuntimeLocalizationMessages,
 } from './types.ts';
 
 /**

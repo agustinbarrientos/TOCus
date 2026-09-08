@@ -1,3 +1,4 @@
+import { StatisticsProjectionStatus } from '../../../../domains/statistics/types/statistics-projection';
 import { describe, expect, it, vi } from 'vitest';
 import { createPrivacyDataActions } from './index';
 
@@ -23,7 +24,9 @@ describe( 'privacy data actions', () => {
 	} );
 
 	it( 'uses the existing statistics authority without requesting full deletion', async () => {
-		const runtime = { sendMessage: vi.fn().mockResolvedValue( { status: 'unavailable' } ) };
+		const runtime = {
+			sendMessage: vi.fn().mockResolvedValue( { status: StatisticsProjectionStatus.UNAVAILABLE } ),
+		};
 		await expect( createPrivacyDataActions( { runtime } ).resetStatistics() ).resolves.toBe( false );
 		expect( runtime.sendMessage ).toHaveBeenCalledWith( { type: 'reset-statistics' } );
 	} );

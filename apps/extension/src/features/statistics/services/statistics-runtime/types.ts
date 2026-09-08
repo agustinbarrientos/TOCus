@@ -1,17 +1,17 @@
-import {
-	type ProtectionCoordinator,
-	type ProtectionCoordinatorStatisticsDeliveryBoundary,
+import type {
+	ProtectionCoordinator,
+	ProtectionCoordinatorStatisticsDeliveryBoundary,
 } from '../../../../domains/protection/services/protection-coordinator';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type StoredProtectionStatisticsDeliveryStatus } from '../../../../domains/protection/types/stored-protection-statistics-delivery';
-import { type StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
-import { type StatisticsSessionStorageService } from '../../../../domains/statistics/services/statistics-session-storage';
-import { type StatisticsStorageService } from '../../../../domains/statistics/services/statistics-storage';
-import {
-	type StatisticsFocusEpochTransition,
-	type StatisticsFocusObservationMode,
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { StoredProtectionStatisticsDeliveryStatus } from '../../../../domains/protection/types/stored-protection-statistics-delivery';
+import type { StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
+import type { StatisticsSessionStorageService } from '../../../../domains/statistics/services/statistics-session-storage';
+import type { StatisticsStorageService } from '../../../../domains/statistics/services/statistics-storage';
+import type {
+	StatisticsFocusEpochTransition,
+	StatisticsFocusObservationMode,
 } from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
-import { type StatisticsCheckpointObservation } from '../statistics-focus-session';
+import type { StatisticsCheckpointObservation } from '../statistics-focus-session';
 
 export type {
 	StatisticsCheckpointFocusObservation,

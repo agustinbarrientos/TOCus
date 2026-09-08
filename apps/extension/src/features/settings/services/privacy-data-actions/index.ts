@@ -1,7 +1,7 @@
 import { StatisticsProjectionStatus } from '../../../../domains/statistics/types/statistics-projection';
 import { createStatisticsClient } from '../../../statistics/services/statistics-client';
-import { type PrivacyDataActions } from '../../components/privacy-screen/types';
-import { type PrivacyDataActionsOptions } from './types';
+import type { PrivacyDataActions } from '../../components/privacy-screen/types';
+import type { PrivacyDataActionsOptions } from './types';
 
 /**
  * Keeps confirmed privacy actions in the background independently of the settings page lifetime.

@@ -1,20 +1,96 @@
-@use '@tocus/theme/typography' as typography;
-
-:root {
-	background: var(--tocus-color-surface-lowest);
-	color: var(--tocus-color-on-surface);
-	font-synthesis: none;
-}
-
-* {
-	box-sizing: border-box;
-}
-
 body {
-	@include typography.apply( 'body-medium' );
-
-	min-width: 20rem;
-	min-height: 100vh;
 	margin: 0;
+	min-width: 20rem;
+}
+
+.settings-layout {
+	display: grid;
+	min-height: 100dvh;
+	align-content: start;
+	grid-template-columns: 16.5rem minmax(0, 1fr);
 	background: var(--tocus-color-surface-lowest);
+}
+
+.settings-navigation {
+	position: sticky;
+	top: 0;
+	align-self: start;
+	display: flex;
+	flex-direction: column;
+	gap: var(--tocus-space-6);
+	height: 100dvh;
+	padding: var(--tocus-space-5) var(--tocus-space-4);
+	border-right: 1px solid var(--tocus-color-outline);
+	background: var(--tocus-color-surface);
+}
+
+.settings-navigation .tocus-brand {
+	padding-inline: var(--tocus-space-3);
+}
+
+.settings-navigation .tocus-brand-icon {
+	width: 2rem;
+	height: 2rem;
+}
+
+.settings-navigation nav {
+	display: grid;
+	gap: var(--tocus-space-1);
+}
+
+.settings-content {
+	width: 100%;
+	min-width: 0;
+	padding: clamp(2rem, 5vw, 4.5rem);
+}
+
+
+.settings-schedule-window {
+	display: grid;
+	grid-template-columns: 1.2fr 0.9fr 0.9fr auto;
+	align-items: start;
+	gap: var(--tocus-space-3);
+	margin: 0;
+	padding: var(--tocus-space-3);
+	border: 0;
+	min-width: 0;
+	border-radius: var(--tocus-radius-small);
+	background: var(--tocus-color-surface-container);
+}
+
+
+@media (width <= 48rem) {
+	.settings-layout {
+	grid-template-columns: minmax(0, 1fr);
+}
+
+	.settings-navigation {
+	z-index: 1;
+	flex-direction: row;
+	align-items: center;
+	gap: var(--tocus-space-4);
+	height: auto;
+	padding: var(--tocus-space-3) var(--tocus-space-4);
+	border-right: 0;
+	border-bottom: 1px solid var(--tocus-color-outline);
+}
+
+	.settings-navigation nav {
+	grid-auto-flow: column;
+	overflow-x: auto;
+	min-width: 0;
+	white-space: nowrap;
+}
+
+	.settings-content {
+	padding: var(--tocus-space-5) var(--tocus-space-4) var(--tocus-space-7);
+}
+
+	.settings-navigation .tocus-brand { padding-inline: 0; }
+
+	.settings-navigation .tocus-brand-icon {
+		width: 1.75rem;
+		height: 1.75rem;
+	}
+	.settings-schedule-window { grid-template-columns: minmax(0, 1fr); }
 }

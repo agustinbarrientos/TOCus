@@ -23,7 +23,7 @@ import {
 } from '../../types/protection-schedule';
 import { CompletionAction } from '../../types/completion-action';
 import { ProtectionScopeIdSchema } from '../../types/protection-value';
-import { type ProtectionConfigurationStorageService } from '../protection-configuration-storage';
+import type { ProtectionConfigurationStorageService } from '../protection-configuration-storage';
 
 /**
  * Primary protected-site fixture used by editor tests.
@@ -366,6 +366,72 @@ function createEditor(
 }
 
 describe( 'createProtectionConfigurationEditor', () => {
+	it( 'keeps the saved site set when a draft cannot allocate its membership revision', async () => {
+		const { editor, storage } = createEditor( CONFIGURATION_WITH_SITE, () => 'invalid revision' );
+		const result = await editor.replaceSites( [ CONFIGURED_SITE ], [] );
+		expect( result ).toEqual( {
+			status: ProtectionConfigurationEditStatus.REJECTED,
+			reason: ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION,
+		} );
+		expect( storage.writes ).toHaveLength( 0 );
+		expect( ( await editor.load() )?.sites ).toEqual( [ CONFIGURED_SITE ] );
+	} );
+	it( 'keeps measurement revisions for a name-only draft and performs no write for an unchanged draft', async () => {
+		const factory = vi.fn().mockReturnValue( 'revision_unexpected' );
+		const { editor, storage } = createEditor( CONFIGURATION_WITH_SITE, factory );
+		await editor.replaceSites( [ CONFIGURED_SITE ], [ CONFIGURED_SITE ] );
+		expect( storage.writes ).toHaveLength( 0 );
+		await editor.replaceSites( [ CONFIGURED_SITE ], [ { ...CONFIGURED_SITE, displayNameOverride: 'My photos' } ] );
+		expect( storage.writes ).toHaveLength( 1 );
+		expect( ( await editor.load() )?.measurementRevisionsByScope )
+			.toEqual( CONFIGURATION_WITH_SITE.measurementRevisionsByScope );
+		expect( factory ).not.toHaveBeenCalled();
+	} );
+
+	it( 'reconciles scopes once for a combined addition edit and removal', async () => {
+		const revisionFactory = vi.fn().mockReturnValueOnce( 'revision_shared_next' ).mockReturnValueOnce( 'revision_independent_next' );
+		const { editor, storage } = createEditor(
+			{ ...CONFIGURATION_WITH_SITE, sites: [ CONFIGURED_SITE, CONFIGURED_SECOND_SITE ] }, revisionFactory,
+		);
+		const scopeId = ProtectionScopeIdSchema.parse( editor.createIndependentScopeId() );
+		const nextSites = [ { ...CONFIGURED_SITE, displayNameOverride: 'Photos', rule: { ...CONFIGURED_SITE.rule, scopeId } }, {
+			identityHost: 'example.com', rule: { host: 'example.com', includeSubdomains: true, scopeId: DefaultProtectionScopeId },
+		} ];
+		await editor.replaceSites( [ CONFIGURED_SITE, CONFIGURED_SECOND_SITE ], nextSites );
+		expect( storage.writes ).toHaveLength( 1 );
+		expect( ( await editor.load() )?.sites ).toEqual( nextSites );
+		expect( ( await editor.load() )?.schedulesByScope[ scopeId ] ).toEqual( DefaultProtectionSchedule );
+		expect( revisionFactory ).toHaveBeenCalledTimes( 2 );
+	} );
+	it( 'replaces a complete draft with one write and preserves unrelated latest timing', async () => {
+		const { editor, storage } = createEditor( CONFIGURATION_WITH_SITE );
+		const nextTiming = { ...CONFIGURATION_WITH_SITE.timingConfiguration, initialWaitMilliseconds: 20_000 };
+		await editor.updateTiming( nextTiming );
+		storage.writes.length = 0;
+		const result = await editor.replaceSites( [ CONFIGURED_SITE ], [ CONFIGURED_SECOND_SITE ] );
+		expect( result.status ).toBe( ProtectionConfigurationEditStatus.UPDATED );
+		expect( storage.writes ).toHaveLength( 1 );
+		expect( await editor.load() ).toMatchObject( {
+			sites: [ CONFIGURED_SECOND_SITE ], timingConfiguration: nextTiming,
+		} );
+	} );
+
+	it( 'rejects a stale website baseline without overwriting a concurrent site edit', async () => {
+		const { editor, storage } = createEditor( CONFIGURATION_WITH_SITE );
+		await editor.update( CONFIGURED_SITE.identityHost, 'A newer name', false );
+		storage.writes.length = 0;
+		const result = await editor.replaceSites( [ CONFIGURED_SITE ], [] );
+		expect( result.status ).toBe( ProtectionConfigurationEditStatus.REJECTED );
+		expect( storage.writes ).toHaveLength( 0 );
+		expect( ( await editor.load() )?.sites[ 0 ]?.displayNameOverride ).toBe( 'A newer name' );
+	} );
+
+	it( 'rejects overlapping complete drafts without writes', async () => {
+		const { editor, storage } = createEditor( CONFIGURATION_WITH_SITE );
+		expect( ( await editor.replaceSites( [ CONFIGURED_SITE ], [ CONFIGURED_SITE, CONFIGURED_SITE ] ) ).status )
+			.toBe( ProtectionConfigurationEditStatus.REJECTED );
+		expect( storage.writes ).toHaveLength( 0 );
+	} );
 	it( 'deduplicates a shared batch and rotates its measurement revision once for the atomic write', async () => {
 		const revisionFactory = vi.fn().mockReturnValue( 'revision_batch' );
 		const { editor, storage } = createEditor( { ...TestEmptyProtectionConfiguration }, revisionFactory );
@@ -496,15 +562,15 @@ describe( 'createProtectionConfigurationEditor', () => {
 		await editor.updateTiming( {
 			...CONFIGURATION_WITH_SITE.timingConfiguration,
 			initialWaitMilliseconds: 15_000,
-			ladderIncreaseMilliseconds: 10_000,
-			maximumWaitMilliseconds: 45_000,
+			ladderIncreaseMilliseconds: 3_000,
+			maximumWaitMilliseconds: 60_000,
 			completionAction: CompletionAction.OPEN_AUTOMATICALLY,
 		} );
 		await editor.updateTiming( {
 			...CONFIGURATION_WITH_SITE.timingConfiguration,
 			initialWaitMilliseconds: 15_000,
-			ladderIncreaseMilliseconds: 10_000,
-			maximumWaitMilliseconds: 45_000,
+			ladderIncreaseMilliseconds: 3_000,
+			maximumWaitMilliseconds: 60_000,
 			completionAction: CompletionAction.OPEN_AUTOMATICALLY,
 		} );
 
@@ -1048,8 +1114,8 @@ describe( 'createProtectionConfigurationEditor', () => {
 		const { editor, storage } = createEditor();
 		const timingConfiguration = {
 			initialWaitMilliseconds: 20_000,
-			ladderIncreaseMilliseconds: 10_000,
-			maximumWaitMilliseconds: 45_000,
+			ladderIncreaseMilliseconds: 3_000,
+			maximumWaitMilliseconds: 60_000,
 			allowanceMilliseconds: 12 * 60_000,
 			completionAction: CompletionAction.OPEN_AUTOMATICALLY,
 		};

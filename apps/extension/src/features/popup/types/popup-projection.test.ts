@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PopupProjectionSchema } from './popup-projection';
+import { PopupProjectionStatus, PopupTimerPhase, PopupScopeKind, PopupScheduleStatus, PopupCurrentSiteAccess, PopupCurrentSiteStatus, PopupProjectionSchema } from './popup-projection';
 
 const SITE = Object.freeze( {
 	identityHost: 'example.com',
@@ -10,14 +10,14 @@ const SITE = Object.freeze( {
 	},
 } as const );
 const BASE_PROJECTION = Object.freeze( {
-	status: 'available',
+	status: PopupProjectionStatus.AVAILABLE,
 	capturedAtEpochMilliseconds: 1_800_000_000_000,
 	currentSite: {
-		status: 'protected',
+		status: PopupCurrentSiteStatus.PROTECTED,
 		site: SITE,
 		scopeId: 'scope_default',
-		access: 'granted',
-		schedule: 'active',
+		access: PopupCurrentSiteAccess.GRANTED,
+		schedule: PopupScheduleStatus.ACTIVE,
 		nextWaitMilliseconds: 10_000,
 	},
 	activeScopes: [],
@@ -33,12 +33,12 @@ describe( 'PopupProjectionSchema', () => {
 			...BASE_PROJECTION,
 			activeScopes: [ {
 				scopeId: 'scope_other',
-				kind: 'independent',
+				kind: PopupScopeKind.INDEPENDENT,
 				site: {
 					...SITE,
 					rule: { ...SITE.rule, scopeId: 'scope_other' },
 				},
-				phase: 'waiting',
+				phase: PopupTimerPhase.WAITING,
 				remainingMilliseconds: 5_000,
 				siteCount: 1,
 				isCurrentScope: false,
@@ -51,12 +51,12 @@ describe( 'PopupProjectionSchema', () => {
 	it( 'rejects duplicate active scope identifiers', () => {
 		const activeScope = {
 			scopeId: 'scope_other',
-			kind: 'independent',
+			kind: PopupScopeKind.INDEPENDENT,
 			site: {
 				...SITE,
 				rule: { ...SITE.rule, scopeId: 'scope_other' },
 			},
-			phase: 'waiting',
+			phase: PopupTimerPhase.WAITING,
 			remainingMilliseconds: 5_000,
 			siteCount: 1,
 			isCurrentScope: false,
@@ -78,9 +78,9 @@ describe( 'PopupProjectionSchema', () => {
 			},
 			activeScopes: [ {
 				scopeId: 'scope_default',
-				kind: 'shared',
+				kind: PopupScopeKind.SHARED,
 				site: null,
-				phase: 'waiting',
+				phase: PopupTimerPhase.WAITING,
 				remainingMilliseconds: 5_000,
 				siteCount: 1,
 				isCurrentScope: false,
@@ -90,12 +90,12 @@ describe( 'PopupProjectionSchema', () => {
 			...BASE_PROJECTION,
 			activeScopes: [ {
 				scopeId: 'scope_other',
-				kind: 'independent',
+				kind: PopupScopeKind.INDEPENDENT,
 				site: {
 					...SITE,
 					rule: { ...SITE.rule, scopeId: 'scope_other' },
 				},
-				phase: 'waiting',
+				phase: PopupTimerPhase.WAITING,
 				remainingMilliseconds: 5_000,
 				siteCount: 1,
 				isCurrentScope: true,
@@ -110,9 +110,9 @@ describe( 'PopupProjectionSchema', () => {
 			...BASE_PROJECTION,
 			activeScopes: [ {
 				scopeId: 'scope_default',
-				kind: 'shared',
+				kind: PopupScopeKind.SHARED,
 				site: null,
-				phase: 'waiting',
+				phase: PopupTimerPhase.WAITING,
 				remainingMilliseconds: 5_000,
 				siteCount: 1,
 				isCurrentScope: true,
@@ -129,12 +129,12 @@ describe( 'PopupProjectionSchema', () => {
 				...BASE_PROJECTION,
 				activeScopes: [ {
 					scopeId: 'scope_other',
-					kind: 'independent',
+					kind: PopupScopeKind.INDEPENDENT,
 					site: {
 						...SITE,
 						rule: { ...SITE.rule, scopeId: 'scope_other' },
 					},
-					phase: 'allowance',
+					phase: PopupTimerPhase.ALLOWANCE,
 					expiresAtEpochMilliseconds,
 					siteCount: 1,
 					isCurrentScope: false,
@@ -154,23 +154,23 @@ describe( 'PopupProjectionSchema', () => {
 			...BASE_PROJECTION,
 			currentSite: {
 				...BASE_PROJECTION.currentSite,
-				access: 'missing',
+				access: PopupCurrentSiteAccess.MISSING,
 			},
 		},
 		{
 			...BASE_PROJECTION,
 			currentSite: {
 				...BASE_PROJECTION.currentSite,
-				schedule: 'inactive',
+				schedule: PopupScheduleStatus.INACTIVE,
 			},
 		},
 		{
 			...BASE_PROJECTION,
 			activeScopes: [ {
 				scopeId: 'scope_other',
-				kind: 'independent',
+				kind: PopupScopeKind.INDEPENDENT,
 				site: SITE,
-				phase: 'waiting',
+				phase: PopupTimerPhase.WAITING,
 				remainingMilliseconds: 5_000,
 				siteCount: 1,
 				isCurrentScope: false,
@@ -180,9 +180,9 @@ describe( 'PopupProjectionSchema', () => {
 			...BASE_PROJECTION,
 			activeScopes: [ {
 				scopeId: 'scope_other',
-				kind: 'independent',
+				kind: PopupScopeKind.INDEPENDENT,
 				site: SITE,
-				phase: 'allowance',
+				phase: PopupTimerPhase.ALLOWANCE,
 				expiresAtEpochMilliseconds: 1_800_000_020_000,
 				siteCount: 1,
 				isCurrentScope: false,
@@ -198,9 +198,9 @@ describe( 'PopupProjectionSchema', () => {
 			...BASE_PROJECTION,
 			activeScopes: [ {
 				scopeId: 'scope_default',
-				kind: 'shared',
+				kind: PopupScopeKind.SHARED,
 				site: null,
-				phase: 'allowance',
+				phase: PopupTimerPhase.ALLOWANCE,
 				expiresAtEpochMilliseconds: -1,
 				siteCount: 1,
 				isCurrentScope: true,

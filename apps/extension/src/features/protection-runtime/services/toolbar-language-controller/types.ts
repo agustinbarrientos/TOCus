@@ -1,6 +1,6 @@
-import { type PreferencesStorageService } from '../../../../domains/preferences/services/preferences-storage';
-import { type Language } from '../../../../domains/preferences/types';
-import { type ToolbarBadgeCopy } from '../../utils/toolbar-badge-projection';
+import type { PreferencesStorageService } from '../../../../domains/preferences/services/preferences-storage';
+import type { Language } from '../../../../domains/preferences/types';
+import type { ToolbarBadgeCopy } from '../../utils/toolbar-badge-projection';
 
 /**
  * Creates localized toolbar copy for one effective language.

@@ -1,10 +1,10 @@
-import { type CatalogType } from '@lingui/cli/api';
-import { type ResolvedPublicFile } from 'wxt';
+import type { CatalogType } from '@lingui/cli/api';
+import type { ResolvedPublicFile } from 'wxt';
 import { readLocalizationCatalog } from '../read-localization-catalog/index.ts';
 import { ExtensionCatalogs } from '../../utils/catalog-locales/index.ts';
-import {
-	type BrowserLocaleAsset,
-	type CreateBrowserLocaleAssetsOptions,
+import type {
+	BrowserLocaleAsset,
+	CreateBrowserLocaleAssetsOptions,
 } from './types.ts';
 
 /**

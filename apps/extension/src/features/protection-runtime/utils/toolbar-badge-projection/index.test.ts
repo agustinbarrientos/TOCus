@@ -83,7 +83,7 @@ describe( 'createToolbarBadgeProjection', () => {
 			...TestEnglishLocalizationBundle.toolbar,
 			formatWaiting: formatLocalizedCopy,
 		} ) ).toEqual( {
-			phase: 'waiting',
+			phase: ToolbarBadgePhase.WAITING,
 			text: 'E8s',
 			title: 'TOCus: Espera: quedan 8 segundos',
 		} );
@@ -93,45 +93,49 @@ describe( 'createToolbarBadgeProjection', () => {
 		expect( createToolbarBadgeProjection( {
 			phase: ToolbarBadgePhase.INACTIVE,
 		}, TestEnglishLocalizationBundle.toolbar ) ).toEqual( {
-			phase: 'inactive',
+			phase: ToolbarBadgePhase.INACTIVE,
 			text: '',
 			title: 'TOCus',
 		} );
 	} );
 
 	it.each( [
-		{ remainingMilliseconds: 8_000, text: 'P8s', title: 'TOCus: Pause: 8 seconds remaining' },
-		{ remainingMilliseconds: 8_001, text: 'P9s', title: 'TOCus: Pause: 9 seconds remaining' },
-		{ remainingMilliseconds: 1, text: 'P1s', title: 'TOCus: Pause: 1 second remaining' },
-		{ remainingMilliseconds: 59_000, text: 'P59s', title: 'TOCus: Pause: 59 seconds remaining' },
-		{ remainingMilliseconds: 60_000, text: 'P1m', title: 'TOCus: Pause: 1 minute remaining' },
-		{ remainingMilliseconds: 60_001, text: 'P2m', title: 'TOCus: Pause: 2 minutes remaining' },
-		{ remainingMilliseconds: 100_000, text: 'P2m', title: 'TOCus: Pause: 2 minutes remaining' },
-		{ remainingMilliseconds: -500, text: 'P0s', title: 'TOCus: Pause: complete' },
+		{ remainingMilliseconds: 8_000, text: '8s', title: 'TOCus: Pause: 8 seconds remaining' },
+		{ remainingMilliseconds: 8_001, text: '9s', title: 'TOCus: Pause: 9 seconds remaining' },
+		{ remainingMilliseconds: 1, text: '1s', title: 'TOCus: Pause: 1 second remaining' },
+		{ remainingMilliseconds: 30_000, text: '30s', title: 'TOCus: Pause: 30 seconds remaining' },
+		{ remainingMilliseconds: 30_001, text: '1m', title: 'TOCus: Pause: 1 minute remaining' },
+		{ remainingMilliseconds: 31_000, text: '1m', title: 'TOCus: Pause: 1 minute remaining' },
+		{ remainingMilliseconds: 60_000, text: '1m', title: 'TOCus: Pause: 1 minute remaining' },
+		{ remainingMilliseconds: 60_001, text: '2m', title: 'TOCus: Pause: 2 minutes remaining' },
+		{ remainingMilliseconds: 100_000, text: '2m', title: 'TOCus: Pause: 2 minutes remaining' },
+		{ remainingMilliseconds: -500, text: '0s', title: 'TOCus: Pause: complete' },
 	] )( 'projects a safe Waiting countdown for $remainingMilliseconds milliseconds', ( expectation ) => {
 		expect( createToolbarBadgeProjection( {
 			phase: ToolbarBadgePhase.WAITING,
 			remainingMilliseconds: expectation.remainingMilliseconds,
 		}, TestEnglishLocalizationBundle.toolbar ) ).toEqual( {
-			phase: 'waiting',
+			phase: ToolbarBadgePhase.WAITING,
 			text: expectation.text,
 			title: expectation.title,
 		} );
 	} );
 
 	it.each( [
-		{ remainingMilliseconds: 300_000, text: 'V5m', title: 'TOCus: Visit window: 5 minutes remaining' },
-		{ remainingMilliseconds: 60_001, text: 'V2m', title: 'TOCus: Visit window: 2 minutes remaining' },
-		{ remainingMilliseconds: 60_000, text: 'V<1m', title: 'TOCus: Visit window: less than 1 minute remaining' },
-		{ remainingMilliseconds: 59_001, text: 'V<1m', title: 'TOCus: Visit window: less than 1 minute remaining' },
-		{ remainingMilliseconds: 1, text: 'V<1m', title: 'TOCus: Visit window: less than 1 minute remaining' },
-		{ remainingMilliseconds: -500, text: 'V0m', title: 'TOCus: Visit window: complete' },
+		{ remainingMilliseconds: 300_000, text: '5m', title: 'TOCus: Visit window: 5 minutes remaining' },
+		{ remainingMilliseconds: 60_001, text: '2m', title: 'TOCus: Visit window: 2 minutes remaining' },
+		{ remainingMilliseconds: 31_000, text: '1m', title: 'TOCus: Visit window: 1 minute remaining' },
+		{ remainingMilliseconds: 30_001, text: '1m', title: 'TOCus: Visit window: 1 minute remaining' },
+		{ remainingMilliseconds: 30_000, text: '30s', title: 'TOCus: Visit window: 30 seconds remaining' },
+		{ remainingMilliseconds: 29_000, text: '29s', title: 'TOCus: Visit window: 29 seconds remaining' },
+		{ remainingMilliseconds: 1, text: '1s', title: 'TOCus: Visit window: 1 second remaining' },
+		{ remainingMilliseconds: -500, text: '0s', title: 'TOCus: Visit window: complete' },
 	] )( 'projects a safe Allowance countdown for $remainingMilliseconds milliseconds', ( expectation ) => {
 		expect( createToolbarBadgeProjection( {
 			phase: ToolbarBadgePhase.ALLOWANCE,
 			remainingMilliseconds: expectation.remainingMilliseconds,
 		}, TestEnglishLocalizationBundle.toolbar ) ).toEqual( {
-			phase: 'allowance',
+			phase: ToolbarBadgePhase.ALLOWANCE,
 			text: expectation.text,
 			title: expectation.title,
 		} );
@@ -146,7 +150,7 @@ describe( 'createToolbarBadgeProjection', () => {
 			activeScopeCount: expectation.activeScopeCount,
 			phase: ToolbarBadgePhase.MULTIPLE_ACTIVE,
 		}, TestEnglishLocalizationBundle.toolbar ) ).toEqual( {
-			phase: 'multiple-active',
+			phase: ToolbarBadgePhase.MULTIPLE_ACTIVE,
 			text: expectation.text,
 			title: expectation.title,
 		} );

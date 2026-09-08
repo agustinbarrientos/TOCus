@@ -13,15 +13,15 @@ import {
 	createWaitingState,
 	TestEmptyProtectionConfiguration,
 } from '../../../../domains/protection/types/__fixtures__';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { DepartureCause } from '../../../../domains/protection/types/protection-event';
 import {
 	ProtectionMeasurementRevisionSchema,
 	ProtectionScopeIdSchema,
 } from '../../../../domains/protection/types/protection-value';
-import { type ProtectionRuntimeTab } from '../../types/browser-runtime';
+import type { ProtectionRuntimeTab } from '../../types/browser-runtime';
 import { createProtectionParticipantReconciler } from './index';
-import { type ProtectionParticipantReconciler } from './types';
+import type { ProtectionParticipantReconciler } from './types';
 
 /**
  * Extension-owned interruption page used by participant reconciliation tests.
@@ -127,12 +127,14 @@ interface ParticipantReconcilerHarness {
  * Creates one participant reconciler with deterministic browser and projection boundaries.
  * @param states - Current authoritative protection states.
  * @param tabs - Current browser-tab observations.
+ * @param interruptionPageUrl - Configured interruption document URL.
  * @return Reconciler, coordinator fixture, and release spy.
  * @since 0.1.0 Initial implementation.
  */
 function createHarness(
 	states: ProtectionCoordinatorStateSnapshot,
 	tabs: ReadonlyArray<ProtectionRuntimeTab>,
+	interruptionPageUrl = INTERRUPTION_PAGE_URL,
 ): ParticipantReconcilerHarness {
 	const coordinator = new ParticipantCoordinatorFixture( states );
 	const releaseInjectedInterruption = vi.fn().mockResolvedValue( undefined );
@@ -172,7 +174,7 @@ function createHarness(
 		reconciler: createProtectionParticipantReconciler( {
 			browser: { listTabs },
 			coordinator,
-			interruptionPageUrl: INTERRUPTION_PAGE_URL,
+			interruptionPageUrl,
 			applyDispatchResult,
 			releaseInjectedInterruption,
 			releaseNavigationIfInterrupted,
@@ -210,26 +212,29 @@ describe( 'createProtectionParticipantReconciler', () => {
 		expect( harness.releaseInjectedInterruption ).not.toHaveBeenCalled();
 	} );
 
-	it( 'retains a navigation participant while its interruption page and scope remain current', async () => {
-		const waiting = createWaitingState();
-		waiting.participants = [ createNavigationParticipant(
-			'participant-a',
-			'page_tab_7_alpha',
-			true,
-			0,
-			'https://example.com/',
-		) ];
-		const harness = createHarness(
-			{ 'scope-default': waiting },
-			[ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ],
-		);
+	it.each( [ INTERRUPTION_PAGE_URL, 'chrome-extension://extension-id/pause.html' ] )(
+		'retains a navigation participant on a live interruption page with %s configured', async ( interruptionPageUrl ) => {
+			const waiting = createWaitingState();
+			waiting.participants = [ createNavigationParticipant(
+				'participant-a',
+				'page_tab_7_alpha',
+				true,
+				0,
+				'https://example.com/',
+			) ];
+			const harness = createHarness(
+				{ 'scope-default': waiting },
+				[ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ],
+				interruptionPageUrl,
+			);
 
-		await harness.reconciler.reconcile( CONFIGURATION );
+			await harness.reconciler.reconcile( CONFIGURATION );
 
-		expect( harness.coordinator.events ).toEqual( [] );
-		expect( harness.releaseInjectedInterruption ).not.toHaveBeenCalled();
-		expect( harness.releaseNavigationIfInterrupted ).not.toHaveBeenCalled();
-	} );
+			expect( harness.coordinator.events ).toEqual( [] );
+			expect( harness.releaseInjectedInterruption ).not.toHaveBeenCalled();
+			expect( harness.releaseNavigationIfInterrupted ).not.toHaveBeenCalled();
+		},
+	);
 
 	it( 'releases a navigation participant that has already left the interruption page', async () => {
 		const waiting = createWaitingState();
@@ -275,23 +280,26 @@ describe( 'createProtectionParticipantReconciler', () => {
 		expect( harness.coordinator.events ).toEqual( [] );
 	} );
 
-	it( 'retains an allowance-expiry participant while its interruption page remains current', async () => {
-		const waiting = createWaitingState();
-		waiting.participants = [ createAllowanceExpiryParticipant(
-			'participant-a',
-			'page_tab_7_alpha',
-			true,
-			0,
-		) ];
-		const harness = createHarness(
-			{ 'scope-default': waiting },
-			[ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ],
-		);
+	it.each( [ INTERRUPTION_PAGE_URL, 'chrome-extension://extension-id/pause.html' ] )(
+		'retains an allowance-expiry participant on a live interruption page with %s configured', async ( interruptionPageUrl ) => {
+			const waiting = createWaitingState();
+			waiting.participants = [ createAllowanceExpiryParticipant(
+				'participant-a',
+				'page_tab_7_alpha',
+				true,
+				0,
+			) ];
+			const harness = createHarness(
+				{ 'scope-default': waiting },
+				[ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ],
+				interruptionPageUrl,
+			);
 
-		await harness.reconciler.reconcile( CONFIGURATION );
+			await harness.reconciler.reconcile( CONFIGURATION );
 
-		expect( harness.coordinator.events ).toEqual( [] );
-	} );
+			expect( harness.coordinator.events ).toEqual( [] );
+		},
+	);
 
 	it( 'classifies missing and moved participant tabs as browser recovery', async () => {
 		const waiting = createWaitingState();

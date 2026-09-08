@@ -53,7 +53,7 @@ function createSite( identityHost: string, host: string, scopeId: string ) {
  */
 function createConfiguration( inactiveDefaultSchedule = false ): ProtectionConfigurationDocument {
 	return ProtectionConfigurationDocumentSchema.parse( {
-		schemaVersion: 3,
+		schemaVersion: 4,
 		sites: [
 			createSite( 'www.instagram.com', 'instagram.com', DefaultProtectionScopeId ),
 			createSite( 'youtube.com', 'youtube.com', DefaultProtectionScopeId ),
@@ -548,10 +548,13 @@ describe( 'createPopupProjection', () => {
 		} );
 	} );
 
-	it( 'recovers the intended website from an interruption-page participant', () => {
+	it.each( [
+		'chrome-extension://extension-id/pause.html',
+		'chrome-extension://extension-id/interruption.html',
+	] )( 'recovers the intended website from the interruption participant at %s', ( documentUrl ) => {
 		const projection = createPopupProjection( {
-			currentTab: { id: 11, incognito: false, url: INTERRUPTION_PAGE_URL },
-			interruptionPageUrl: INTERRUPTION_PAGE_URL,
+			currentTab: { id: 11, incognito: false, url: documentUrl },
+			interruptionPageUrl: 'chrome-extension://extension-id/pause.html',
 			snapshot: createSnapshot( {
 				[ DefaultProtectionScopeId ]: createWaitingState(
 					DefaultProtectionScopeId,

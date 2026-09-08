@@ -1,24 +1,25 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
+import { InterruptionPageResponseState,
 	InterruptionPageRequestType,
 	type InterruptionPageRequest,
 } from '../../../protection-runtime/types/runtime-message';
 import { InterruptionScreenState } from '../../components/screen/types';
-import {
-	type InterruptionPageController,
-	type InterruptionPageControllerOptions,
+import type {
+	InterruptionPageController,
+	InterruptionPageControllerOptions,
 } from '../interruption-page-controller/types';
 import { Language } from '../../../../domains/preferences/types';
-import {
-	type PreferencesChangeListener,
-	type PreferencesLanguageChangeListener,
+import type {
+	PreferencesChangeListener,
+	PreferencesLanguageChangeListener,
 } from '../../../preferences/services/preferences-controller/types';
 
 /**
  * Hoisted dependencies used by interruption page tests.
  * @since 0.1.0 Initial implementation.
  */
-const pageMocks = vi.hoisted( () => {
+const pageMocks = await vi.hoisted( async () => {
+	const { Language: HoistedLanguage, LanguageSchema } = await import( '../../../../domains/preferences/types' );
 	/**
 	 * Minimal interruption screen used to verify page composition.
 	 * @since 0.1.0 Initial implementation.
@@ -43,13 +44,13 @@ const pageMocks = vi.hoisted( () => {
 	const initialLocalization = {
 		document: { interruptionTitle: 'Localized interruption title' },
 		interruption: { value: 'Localized interruption copy' },
-		languageTag: 'fr',
+		languageTag: HoistedLanguage.FRENCH,
 		wellbeing: { neutral: 'Localized neutral footer' },
 	};
 	const liveLocalization = {
 		document: { interruptionTitle: 'Live interruption title' },
 		interruption: { value: 'Live interruption copy' },
-		languageTag: 'ja',
+		languageTag: HoistedLanguage.JAPANESE,
 		wellbeing: { neutral: 'Live neutral footer' },
 	};
 	const languageChangeListener: { value: PreferencesLanguageChangeListener | null } = {
@@ -64,7 +65,7 @@ const pageMocks = vi.hoisted( () => {
 		),
 		addPreferencesChangeListener: vi.fn<( listener: PreferencesChangeListener ) => void>(),
 		apply: vi.fn(),
-		language: 'fr',
+		language: LanguageSchema.parse( HoistedLanguage.FRENCH ),
 		matches: false,
 		removeLanguageChangeListener: vi.fn(),
 		removePreferencesChangeListener: vi.fn(),
@@ -174,11 +175,11 @@ describe( 'interruption page service', () => {
 		vi.clearAllMocks();
 		pageMocks.languageChangeListener.value = null;
 		pageMocks.loadLocalizationBundle.mockImplementation( ( language ) =>
-			Promise.resolve( language === 'ja'
+			Promise.resolve( language === Language.JAPANESE
 				? pageMocks.liveLocalization
 				: pageMocks.initialLocalization ),
 		);
-		pageMocks.preferencesController.language = 'fr';
+		pageMocks.preferencesController.language = Language.FRENCH;
 		vi.spyOn( Date, 'now' ).mockReturnValue( 100_000 );
 	} );
 
@@ -224,7 +225,7 @@ describe( 'interruption page service', () => {
 		pageMocks.preferencesController.start.mockReturnValueOnce( new Promise<void>( ( resolve ) => {
 			completePreferencesStart = resolve;
 		} ) );
-		pageMocks.sendMessage.mockResolvedValue( { state: 'unavailable' } );
+		pageMocks.sendMessage.mockResolvedValue( { state: InterruptionPageResponseState.UNAVAILABLE } );
 
 		const { startInterruptionPage } = await import( './index' );
 		const startPage = startInterruptionPage();
@@ -300,7 +301,7 @@ describe( 'interruption page service', () => {
 		await expect( options.runtime.sendMessage( {
 			type: InterruptionPageRequestType.SYNCHRONIZE,
 			documentVisible: true,
-		} ) ).resolves.toEqual( { state: 'unavailable' } );
+		} ) ).resolves.toEqual( { state: InterruptionPageResponseState.UNAVAILABLE } );
 		expect( pageMocks.sendMessage ).toHaveBeenCalledWith( {
 			type: InterruptionPageRequestType.SYNCHRONIZE,
 			documentVisible: true,

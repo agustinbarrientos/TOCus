@@ -2,9 +2,9 @@ import eslint from '@eslint/js';
 import astro from 'eslint-plugin-astro';
 import jsdoc from 'eslint-plugin-jsdoc';
 import lingui from 'eslint-plugin-lingui';
-import lit from 'eslint-plugin-lit';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import preferConstantObjects from './config/eslint/rules/prefer-constant-objects/index.js';
 
 const javascriptFiles = [ '**/*.{js,mjs,cjs}' ];
 const typescriptFiles = [ '**/*.{ts,tsx}' ];
@@ -40,7 +40,7 @@ const typedConfigs = tseslint.configs.strictTypeChecked.map( ( config ) => ( {
 } ) );
 
 /**
- * Defines the repository's JavaScript, TypeScript, documentation, Lit, and Astro linting contract.
+ * Defines the repository's JavaScript, TypeScript, documentation and Astro linting contract.
  * @since 0.1.0 Initial implementation.
  */
 export default tseslint.config(
@@ -155,6 +155,17 @@ export default tseslint.config(
 	...typedConfigs,
 	{
 		files: typescriptFiles,
+		plugins: { tocus: { rules: { 'prefer-constant-objects': preferConstantObjects } } },
+		rules: { 'tocus/prefer-constant-objects': 'error' },
+	},
+	{
+		files: typescriptFiles,
+		rules: {
+			'@typescript-eslint/no-import-type-side-effects': 'error',
+		},
+	},
+	{
+		files: typescriptFiles,
 		ignores: testFiles,
 		rules: {
 			'@typescript-eslint/consistent-type-assertions': [ 'error', { assertionStyle: 'never' } ],
@@ -164,6 +175,23 @@ export default tseslint.config(
 				{
 					message: 'Define structured contracts in a canonical domain type file or executable leaf types.ts.',
 					selector: 'TSTypeLiteral',
+				},
+			],
+		},
+	},
+	{
+		files: [ 'apps/**/src/**/index.{ts,tsx}', 'packages/**/src/**/index.{ts,tsx}' ],
+		ignores: testFiles,
+		rules: {
+			'no-restricted-syntax': [
+				'error',
+				{
+					selector: 'TSTypeLiteral',
+					message: 'Define structured contracts in the owning types.ts file, not the implementation.',
+				},
+				{
+					selector: 'TSInterfaceDeclaration, TSTypeAliasDeclaration, TSEnumDeclaration',
+					message: 'Keep contracts in the owning types.ts file; index files implement behavior or re-export types.',
 				},
 			],
 		},
@@ -237,10 +265,6 @@ export default tseslint.config(
 				},
 			],
 		},
-	},
-	{
-		...lit.configs[ 'flat/recommended' ],
-		files: [ 'apps/extension/src/**/*.ts' ],
 	},
 	{
 		files: [ 'apps/extension/src/**/components/**/index.ts' ],

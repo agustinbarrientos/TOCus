@@ -1,6 +1,6 @@
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type ProtectionCoordinator, type ProtectionCoordinatorDispatchResult } from '../../../../domains/protection/services/protection-coordinator';
-import { type ProtectionRuntimeBrowser } from '../../types/browser-runtime';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionCoordinator, ProtectionCoordinatorDispatchResult } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionRuntimeBrowser } from '../../types/browser-runtime';
 
 /**
  * Dependencies used to reconcile elapsed visit allowances.

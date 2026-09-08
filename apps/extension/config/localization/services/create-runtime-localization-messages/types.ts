@@ -1,6 +1,6 @@
-import { type Messages } from '@lingui/core';
-import { type Language } from '../../../../src/domains/preferences/types.ts';
-import { type LocalizationCatalogReader } from '../read-localization-catalog/types.ts';
+import type { Messages } from '@lingui/core';
+import type { Language } from '../../../../src/domains/preferences/types.ts';
+import type { LocalizationCatalogReader } from '../read-localization-catalog/types.ts';
 
 /**
  * Compiled Lingui messages indexed by extension preference language.

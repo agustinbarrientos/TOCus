@@ -1,3 +1,4 @@
+import { ProtectableUrlNormalizationStatus } from './types';
 import { describe, expect, it } from 'vitest';
 import { CanonicalHostSchema } from '../../types/protected-site-rule';
 import { normalizeProtectableUrl } from './index';
@@ -26,9 +27,9 @@ describe( 'normalizeProtectableUrl', () => {
 		] )( 'normalizes $input to $host', ( { input, host } ) => {
 			const result = normalizeProtectableUrl( input );
 
-			expect( result.status ).toBe( 'normalized' );
+			expect( result.status ).toBe( ProtectableUrlNormalizationStatus.NORMALIZED );
 
-			if ( result.status === 'normalized' ) {
+			if ( result.status === ProtectableUrlNormalizationStatus.NORMALIZED ) {
 				expect( result.host ).toBe( host );
 				expect( result.url.hostname ).toBe( host );
 			}
@@ -50,7 +51,7 @@ describe( 'normalizeProtectableUrl', () => {
 			'view-source:https://example.com',
 		] )( 'classifies the browser-controlled scheme in %s', ( input ) => {
 			expect( normalizeProtectableUrl( input ) ).toEqual( {
-				status: 'rejected',
+				status: ProtectableUrlNormalizationStatus.REJECTED,
 				reason: 'browser-controlled-scheme',
 			} );
 		} );
@@ -63,7 +64,7 @@ describe( 'normalizeProtectableUrl', () => {
 			'custom:resource',
 		] )( 'classifies the unsupported scheme in %s', ( input ) => {
 			expect( normalizeProtectableUrl( input ) ).toEqual( {
-				status: 'rejected',
+				status: ProtectableUrlNormalizationStatus.REJECTED,
 				reason: 'unsupported-scheme',
 			} );
 		} );
@@ -85,7 +86,7 @@ describe( 'normalizeProtectableUrl', () => {
 			'https://\uD800.com',
 		] )( 'classifies the malformed URL %j', ( input ) => {
 			expect( normalizeProtectableUrl( input ) ).toEqual( {
-				status: 'rejected',
+				status: ProtectableUrlNormalizationStatus.REJECTED,
 				reason: 'malformed-input',
 			} );
 		} );

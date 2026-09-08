@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import { ProtectionDecisionSchema } from '../../types/protection-decision';
 import { ProtectionFactSchema } from '../../types/protection-fact';
-import { type ProtectionState } from '../../types/protection-state';
-import { type StoredProtectionParticipant } from '../../types/stored-protection-participant';
-import { type StoredProtectionStatisticsDelivery } from '../../types/stored-protection-statistics-delivery';
+import type { ProtectionState } from '../../types/protection-state';
+import type { StoredProtectionParticipant } from '../../types/stored-protection-participant';
+import type { StoredProtectionStatisticsDelivery } from '../../types/stored-protection-statistics-delivery';
 import {
 	EpochMillisecondsSchema,
 	type SessionContinuityId,
@@ -12,7 +12,7 @@ import {
 	ProtectionStateReconciliationRequirementSchema,
 	ReadyProtectionStateRestoreObservationSchema,
 } from '../../utils/restore-protection-state';
-import { type ProtectionStorageService } from '../protection-storage';
+import type { ProtectionStorageService } from '../protection-storage';
 
 /**
  * Outcomes of protection coordinator initialization.

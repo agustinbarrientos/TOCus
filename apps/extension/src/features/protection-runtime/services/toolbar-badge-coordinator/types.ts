@@ -1,8 +1,8 @@
-import { type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import {
-	type ToolbarBadgeCopy,
-	type ToolbarBadgeProjection,
+import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type {
+	ToolbarBadgeCopy,
+	ToolbarBadgeProjection,
 } from '../../utils/toolbar-badge-projection';
 
 /**

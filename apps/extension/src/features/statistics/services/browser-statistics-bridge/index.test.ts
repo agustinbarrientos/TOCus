@@ -21,17 +21,17 @@ import {
 	type StatisticsProjection,
 } from '../../../../domains/statistics/types/statistics-projection';
 import { StatisticsFocusEpochIdSchema } from '../../../../domains/statistics/types/statistics-value';
-import {
-	type ProtectionRuntimeBrowser,
-	type ProtectionRuntimeTab,
+import type {
+	ProtectionRuntimeBrowser,
+	ProtectionRuntimeTab,
 } from '../../../protection-runtime/types/browser-runtime';
-import {
-	type StatisticsCheckpointObservation,
-	type StatisticsRuntime,
+import type {
+	StatisticsCheckpointObservation,
+	StatisticsRuntime,
 } from '../statistics-runtime';
 import { StatisticsFocusObservationMode } from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
 import { createBrowserStatisticsBridge } from './index';
-import { type BrowserStatisticsBridge } from './types';
+import type { BrowserStatisticsBridge } from './types';
 
 /**
  * Single-site configuration used by bridge tests.

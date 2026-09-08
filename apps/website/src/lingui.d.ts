@@ -1,5 +1,5 @@
 declare module '*.po' {
-	import { type Messages } from '@lingui/core';
+	import type { Messages } from '@lingui/core';
 
 	/**
 	 * Compiled Lingui messages exported by the Vite catalog loader.

@@ -1,0 +1,118 @@
+@use '../../styles/type';
+
+.timing-illustration {
+	margin: 0 0 2.5rem;
+
+	figcaption {
+		@include type.apply('body-large', $size: 0.9rem);
+
+		margin-top: 1.5rem;
+		color: var(--tocus-color-on-surface-muted);
+	}
+}
+
+.timing-sequence {
+	position: relative;
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr 1.6fr;
+	gap: 1rem;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+
+	&::before {
+		position: absolute;
+		top: 2.5rem;
+		left: 10%;
+		right: 10%;
+		height: 1px;
+		background: var(--tocus-website-rule);
+		content: '';
+	}
+
+	li {
+		position: relative;
+		display: grid;
+		justify-items: center;
+		align-content: start;
+		gap: 1.2rem;
+		text-align: center;
+	}
+
+	strong {
+		@include type.apply('headline-small', $size: clamp(1.2rem, 2vw, 1.75rem),
+			$line-height: var(--tocus-typography-body-large-line-height),
+			$weight: 500, $spacing: -0.02em);
+	}
+}
+
+.timing-symbol {
+	display: grid;
+	place-items: center;
+	width: 5rem;
+	height: 5rem;
+	background: var(--tocus-website-paper);
+
+	.tocus-icon {
+		width: 2.8rem;
+		height: 2.8rem;
+		color: var(--tocus-website-clay);
+	}
+}
+
+.timing-sphere {
+	display: block;
+	width: 3.7rem;
+	aspect-ratio: 1;
+	border-radius: 50%;
+	background: radial-gradient(circle at 33% 28%, #e9b47f, #b86f46 62%, #7a4634);
+	box-shadow: 0 0 0 0.4rem #b86f4614, 0 0 0 0.8rem #b86f460a;
+}
+
+.timing-window {
+	position: relative;
+	width: 100%;
+
+	&::before, span {
+		position: absolute;
+		height: 1.8rem;
+		border-radius: 1rem;
+	}
+
+	&::before {
+		inset-inline: 0;
+		background: #efddca;
+		content: '';
+	}
+
+	span {
+		left: 0;
+		width: 78%;
+		background: var(--tocus-website-clay);
+	}
+}
+
+@media (width <= 48rem) {
+	.timing-sequence {
+		grid-template-columns: 1fr;
+		gap: 1.75rem;
+
+		&::before {
+			inset: 2rem auto 2rem 2.5rem;
+			width: 1px;
+			height: auto;
+		}
+
+		li {
+			grid-template-columns: 5rem 1fr;
+			place-items: center start;
+			gap: 1.25rem;
+			text-align: left;
+		}
+	}
+
+	.timing-window {
+		width: 5rem;
+		border: 0.75rem solid var(--tocus-website-paper);
+	}
+}

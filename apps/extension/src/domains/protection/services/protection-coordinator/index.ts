@@ -22,7 +22,7 @@ import {
 	parseStoredProtectionState,
 } from '../../utils/parse-stored-protection-state';
 import { prepareStoredProtectionState } from '../../utils/prepare-stored-protection-state';
-import { type StoredProtectionParticipant } from '../../types/stored-protection-participant';
+import type { StoredProtectionParticipant } from '../../types/stored-protection-participant';
 import {
 	ProtectionStateRestoreMode,
 	ProtectionStateRestoreStatus,

@@ -1,16 +1,18 @@
 import '@tocus/theme/index.scss';
+import '@tocus/ui/styles.scss';
 import { browser } from 'wxt/browser';
 import { resolveLanguage } from '../../domains/preferences/utils';
-import { ComponentOnboardingShell } from '../../features/onboarding/components/shell';
+import { mountOnboarding } from '../../features/onboarding/services/onboarding-presentation';
 import { bootstrapOnboardingPage } from '../../features/onboarding/services/onboarding-page';
 import { loadLocalizationBundle } from '../../localization';
 import './styles.scss';
 
-const onboardingShell = document.querySelector( 'tocus-f-onboarding-shell' );
+const container = document.getElementById( 'app' );
 
-if ( ! ( onboardingShell instanceof ComponentOnboardingShell ) ) {
+if ( ! container ) {
 	throw new TypeError( 'Expected the onboarding page to contain the onboarding shell.' );
 }
+const onboardingShell = mountOnboarding( container );
 
 /**
  * Opens the browser-managed extension Settings page.

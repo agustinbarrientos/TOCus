@@ -4,6 +4,7 @@
 	"type": "module",
 	"files": [
 		"assets",
+		"controls.scss",
 		"font.scss",
 		"index.scss",
 		"runtime-colors.ts",
@@ -12,11 +13,14 @@
 		"typography/*.scss"
 	],
 	"exports": {
+		"./controls": "./controls.scss",
 		"./icon.svg": "./assets/icon.svg",
+		"./icons/*.svg": "./assets/icons/*.svg",
 		"./font": "./font.scss",
 		"./index.scss": "./index.scss",
 		"./runtime-colors": "./runtime-colors.ts",
 		"./sizing": "./sizing.scss",
+		"./tokens": "./tokens.scss",
 		"./tokens.scss": "./tokens.scss",
 		"./typography": "./typography/index.scss"
 	},

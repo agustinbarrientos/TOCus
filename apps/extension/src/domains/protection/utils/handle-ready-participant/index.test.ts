@@ -1,3 +1,4 @@
+import { ProtectionFactType } from '../../types/protection-fact';
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import { ZodError } from 'zod';
 import { ProtectionDecisionType } from '../../types/protection-decision';
@@ -12,7 +13,7 @@ import {
 	createReadyReconciliation,
 	createProgressCheckpoint,
 } from '../../types/__fixtures__/protection-event';
-import { type ProtectionState } from '../../types/protection-state';
+import { ProtectionStateType, type ProtectionState } from '../../types/protection-state';
 import { ProtectedUrlMatchStatus } from '../../types/protected-url-match';
 import { ScheduleEvaluationStatus } from '../../types/schedule-evaluation';
 import {
@@ -70,7 +71,7 @@ describe( 'handleReadyParticipant', () => {
 	it( 'starts private completion access without producing a public allowance grant', () => {
 		const state = { ...createReadyState(), completionStatisticsEligible: false };
 		const result = handleReadyParticipant( state, createReadyContinuation() );
-		expect( result.state.type ).toBe( 'allowance' );
+		expect( result.state.type ).toBe( ProtectionStateType.ALLOWANCE );
 		expect( result.facts ).toEqual( [] );
 	} );
 
@@ -110,7 +111,7 @@ describe( 'handleReadyParticipant', () => {
 		const result = handleReadyParticipant( pending.state, event );
 
 		expect( result.state ).toEqual( {
-			type: 'allowance',
+			type: ProtectionStateType.ALLOWANCE,
 			scopeId: 'scope-default',
 			allowanceId: 'allowance-a',
 			completedWaitId: 'wait-a',
@@ -120,7 +121,7 @@ describe( 'handleReadyParticipant', () => {
 			ladder: pending.state.ladder,
 		} );
 		expect( result.facts ).toEqual( [ {
-			type: 'allowance-granted',
+			type: ProtectionFactType.ALLOWANCE_GRANTED,
 			factId: 'allowance-granted_13-scope-default_11-allowance-a',
 			scopeId: 'scope-default',
 			allowanceId: 'allowance-a',

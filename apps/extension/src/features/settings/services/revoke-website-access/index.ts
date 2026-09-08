@@ -1,4 +1,4 @@
-import { type WebsiteAccessRevocationApi } from './types';
+import type { WebsiteAccessRevocationApi } from './types';
 
 /**
  * Revokes every actual website grant and optional live-navigation capability, including orphaned grants.

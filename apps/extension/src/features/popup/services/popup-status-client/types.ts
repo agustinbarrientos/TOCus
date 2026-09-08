@@ -1,6 +1,6 @@
-import { type PopupProjection } from '../../types/popup-projection';
-import { type PopupCurrentTabContext } from '../../types/current-tab-context';
-import { type PopupRuntimeRequest } from '../../types/runtime-message';
+import type { PopupProjection } from '../../types/popup-projection';
+import type { PopupCurrentTabContext } from '../../types/current-tab-context';
+import type { PopupRuntimeRequest } from '../../types/runtime-message';
 
 /**
  * Local runtime message transport used by the popup status client.

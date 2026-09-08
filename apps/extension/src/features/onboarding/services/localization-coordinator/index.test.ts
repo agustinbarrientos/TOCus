@@ -19,7 +19,7 @@ describe( 'createOnboardingLocalizationCoordinator', () => {
 		const japaneseBundle = {
 			...TestEnglishLocalizationBundle,
 			language: Language.JAPANESE,
-			languageTag: 'ja',
+			languageTag: Language.JAPANESE,
 		};
 
 		japanese.resolve( japaneseBundle );

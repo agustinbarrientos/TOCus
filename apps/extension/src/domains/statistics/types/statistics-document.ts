@@ -13,6 +13,7 @@ import {
 	StatisticsGenerationIdSchema,
 	StatisticsNonNegativeSafeIntegerSchema,
 } from './statistics-value';
+import { SiteVisitDurationsSchema } from './site-visit-durations';
 
 /**
  * Current local statistics document version.
@@ -75,6 +76,7 @@ const ActiveAllowanceMeasurementFieldsSchema = z.object( {
 	expiresAtEpochMilliseconds: StatisticsNonNegativeSafeIntegerSchema,
 	confirmedFocusedUseMilliseconds: StatisticsNonNegativeSafeIntegerSchema,
 	accountedThroughEpochMilliseconds: StatisticsNonNegativeSafeIntegerSchema,
+	focusedUseBySite: SiteVisitDurationsSchema.optional(),
 } ).strict();
 
 /**
@@ -127,6 +129,16 @@ function refineActiveAllowanceMeasurement(
 			path: [ 'confirmedFocusedUseMilliseconds' ],
 		} );
 	}
+
+	const attributedUseMilliseconds = Object.values( measurement.focusedUseBySite ?? {} )
+		.reduce( ( total, duration ) => total + duration, 0 );
+	if ( attributedUseMilliseconds > measurement.confirmedFocusedUseMilliseconds ) {
+		context.addIssue( {
+			code: 'custom',
+			message: 'Per-site use cannot exceed confirmed focused use.',
+			path: [ 'focusedUseBySite' ],
+		} );
+	}
 }
 
 /**
@@ -152,6 +164,7 @@ const ScopeStatisticsFieldsSchema = z.object( {
 	hasFinalizedBaseline: z.boolean().optional(),
 	currentMeasurementRevision: ProtectionMeasurementRevisionSchema.optional(),
 	latestBaseline: StatisticsBaselineSchema.optional(),
+	longestVisitsBySite: SiteVisitDurationsSchema.optional(),
 	activeAllowance: ActiveAllowanceMeasurementSchema.optional(),
 } ).strict();
 
@@ -213,6 +226,9 @@ function canonicalizeScopeStatistics( scope: ScopeStatisticsFields ): ScopeStati
 		...( scope.latestBaseline === undefined
 			? {}
 			: { latestBaseline: scope.latestBaseline } ),
+		...( scope.longestVisitsBySite === undefined
+			? {}
+			: { longestVisitsBySite: scope.longestVisitsBySite } ),
 		...( scope.activeAllowance === undefined
 			? {}
 			: { activeAllowance: scope.activeAllowance } ),

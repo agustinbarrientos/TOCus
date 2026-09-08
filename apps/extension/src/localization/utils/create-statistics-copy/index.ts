@@ -1,7 +1,7 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
-import { type StatisticsSettingsScreenCopy } from '../../../features/statistics/components/settings-screen/types';
-import { type LocalizationFormatters } from '../create-localization-formatters';
+import type { StatisticsSettingsScreenCopy } from '../../../features/statistics/components/settings-screen/types';
+import type { LocalizationFormatters } from '../create-localization-formatters';
 import {
 	formatMinuteDuration,
 	MILLISECONDS_PER_MINUTE,
@@ -37,17 +37,23 @@ export function createStatisticsCopy(
 	}
 
 	/**
-	 * Formats one approximate reclaimed-time duration.
+	 * Formats a reclaimed-time estimate without rounding up its completed minutes.
 	 * @param milliseconds - Nonnegative estimated duration in milliseconds.
-	 * @return Localized approximate duration.
+	 * @return Localized estimate with a more-than label, or a zero/subminute duration.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function formatEstimatedDuration( milliseconds: number ): string {
-		const duration = formatDuration( milliseconds );
+		if ( milliseconds < MILLISECONDS_PER_MINUTE ) {
+			return formatDuration( milliseconds );
+		}
 
-		return milliseconds > 0 && milliseconds < MILLISECONDS_PER_MINUTE
-			? duration
-			: i18n._( msg`About ${ { duration } }` );
+		const duration = formatMinuteDuration(
+			i18n,
+			Math.floor( milliseconds / MILLISECONDS_PER_MINUTE ),
+			formatters,
+		);
+
+		return i18n._( msg`More than ${ { duration } }` );
 	}
 
 	/**
@@ -72,7 +78,7 @@ export function createStatisticsCopy(
 		reconsideredVisitsLabel: i18n._( msg`Reconsidered visits` ),
 		completedWaitsLabel: i18n._( msg`Completed waits` ),
 		allowancesGrantedLabel: i18n._( msg`Allowances granted` ),
-		estimationDescription: i18n._( msg`Estimated browsing time avoided on your selected websites, based on your prior focused use.` ),
+		estimationDescription: i18n._( msg`Time spent pausing plus estimated browsing time avoided, based on your longest visit to each site.` ),
 		notEnoughHistory: i18n._( msg`Not enough history yet` ),
 		emptyMessage: i18n._( msg`This is a moment just for you.` ),
 		loading: i18n._( msg`Loading statistics...` ),

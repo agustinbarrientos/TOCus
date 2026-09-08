@@ -1,8 +1,8 @@
-import { type ProtectionParticipant } from '../../../../domains/protection/types/protection-participant';
-import {
-	type AllowanceProtectionState,
-	type ReadyProtectionState,
-	type WaitingProtectionState,
+import type { ProtectionParticipant } from '../../../../domains/protection/types/protection-participant';
+import type {
+	AllowanceProtectionState,
+	ReadyProtectionState,
+	WaitingProtectionState,
 } from '../../../../domains/protection/types/protection-state';
 
 /**

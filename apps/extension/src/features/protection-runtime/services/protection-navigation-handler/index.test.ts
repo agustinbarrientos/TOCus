@@ -1,3 +1,4 @@
+import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
 import { describe, expect, it, vi } from 'vitest';
 import {
 	ProtectionCoordinatorDispatchStatus,
@@ -7,18 +8,26 @@ import {
 } from '../../../../domains/protection/services/protection-coordinator';
 import {
 	createAllowanceExpiryParticipant,
+	createIdleState,
 	createNavigationParticipant,
 	createWaitingState,
 	TestEmptyProtectionConfiguration,
 } from '../../../../domains/protection/types/__fixtures__';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { DepartureCause } from '../../../../domains/protection/types/protection-event';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import { DepartureCause, ProtectionEventType } from '../../../../domains/protection/types/protection-event';
+import { ProtectionFactType } from '../../../../domains/protection/types/protection-fact';
+import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
+import { StoredProtectionStatisticsDeliveryStatus } from '../../../../domains/protection/types/stored-protection-statistics-delivery';
+import { parseStoredProtectionState } from '../../../../domains/protection/utils/parse-stored-protection-state';
+import { prepareStoredProtectionState } from '../../../../domains/protection/utils/prepare-stored-protection-state';
+import { ProtectionStateRestoreMode, restoreProtectionState } from '../../../../domains/protection/utils/restore-protection-state';
+import { transitionProtectionState } from '../../../../domains/protection/utils/transition-protection-state';
 import {
 	ProtectionMeasurementRevisionSchema,
 	ProtectionScopeIdSchema,
 } from '../../../../domains/protection/types/protection-value';
 import { createProtectionNavigationHandler } from './index';
-import { type ProtectionNavigationHandler } from './types';
+import type { ProtectionNavigationHandler } from './types';
 import { ProtectionRuntimeNavigationPhase } from '../../types/browser-runtime';
 
 /**
@@ -143,10 +152,14 @@ interface NavigationHandlerHarness {
 /**
  * Creates a focused navigation handler around deterministic dependencies.
  * @param states - Current authoritative protection states.
+ * @param interruptionPageUrl - Configured interruption document URL.
  * @return Navigation handler, coordinator, and effect spies.
  * @since 0.1.0 Initial implementation.
  */
-function createHarness( states: ProtectionCoordinatorStateSnapshot | null ): NavigationHandlerHarness {
+function createHarness(
+	states: ProtectionCoordinatorStateSnapshot | null,
+	interruptionPageUrl = INTERRUPTION_PAGE_URL,
+): NavigationHandlerHarness {
 	const coordinator = new NavigationCoordinatorFixture( states );
 	const departTab = vi.fn().mockImplementation( () => {
 		coordinator.states = {};
@@ -161,14 +174,14 @@ function createHarness( states: ProtectionCoordinatorStateSnapshot | null ): Nav
 			listTabs,
 		},
 		coordinator,
-		interruptionPageUrl: INTERRUPTION_PAGE_URL,
+		interruptionPageUrl,
 		applyDispatchResult: vi.fn().mockResolvedValue( undefined ),
 		createStableId: vi.fn()
 			.mockReturnValueOnce( 'participant' )
 			.mockReturnValueOnce( 'page' )
 			.mockReturnValueOnce( 'wait' ),
 		departTab,
-		evaluateScopeSchedule: vi.fn().mockReturnValue( { status: 'active' } ),
+		evaluateScopeSchedule: vi.fn().mockReturnValue( { status: ScheduleEvaluationStatus.ACTIVE } ),
 		getTimeZone: vi.fn().mockReturnValue( 'America/New_York' ),
 		loadConfiguration: vi.fn().mockResolvedValue( CONFIGURATION ),
 		now: vi.fn().mockReturnValue( Date.UTC( 2026, 8, 2, 12 ) ),
@@ -573,6 +586,53 @@ describe( 'createProtectionNavigationHandler', () => {
 		} ] );
 	} );
 
+	it( 'attributes a reconsidered navigation after restoration to the matched rule host', async () => {
+		const harness = createHarness( {} );
+
+		await harness.handler.handle( {
+			tabId: 7,
+			frameId: 0,
+			url: 'https://news.example.com/private/feed?query=personal#latest',
+		} );
+
+		const waiting = transitionProtectionState( createIdleState(), harness.coordinator.events[ 0 ] );
+		const stored = prepareStoredProtectionState( {
+			statesByScope: { [ DEFAULT_SCOPE_ID ]: waiting.state },
+			sessionContinuityId: 'session-a',
+			statisticsDelivery: {
+				status: StoredProtectionStatisticsDeliveryStatus.COMPLETE,
+				outbox: [],
+			},
+		} );
+		const restored = restoreProtectionState( {
+			mode: ProtectionStateRestoreMode.CONTINUED_SESSION,
+			parsedState: parseStoredProtectionState( JSON.parse( JSON.stringify( stored ) ) ),
+			nowEpochMilliseconds: Date.UTC( 2026, 8, 2, 12, 1 ),
+			sessionContinuityId: 'session-a',
+			readyObservations: [],
+		} );
+		const state = restored.statesByScope[ DEFAULT_SCOPE_ID ];
+
+		if ( state?.type !== ProtectionStateType.WAITING || state.participants[ 0 ] === undefined ) {
+			throw new Error( 'Expected a restored navigation participant.' );
+		}
+
+		const departed = transitionProtectionState( state, {
+			type: ProtectionEventType.PARTICIPANT_DEPARTURE,
+			scopeId: DEFAULT_SCOPE_ID,
+			target: { stateType: ProtectionStateType.WAITING, waitId: state.waitId },
+			participantId: state.participants[ 0 ].participantId,
+			pageId: state.participants[ 0 ].pageId,
+			cause: DepartureCause.BACK,
+			observedAtEpochMilliseconds: Date.UTC( 2026, 8, 2, 12, 2 ),
+		} );
+
+		expect( departed.facts ).toMatchObject( [ {
+			type: ProtectionFactType.RECONSIDERED_VISIT,
+			siteHost: 'example.com',
+		} ] );
+	} );
+
 	it.each( [
 		[ 'a private navigation', [ { id: 7, incognito: true } ] ],
 		[ 'a navigation with unknown privacy', [ { id: 7 } ] ],
@@ -796,32 +856,52 @@ describe( 'createProtectionNavigationHandler', () => {
 		expect( harness.coordinator.events ).toEqual( [] );
 	} );
 
-	it( 'replaces a pending protected destination after the extension redirect commits', async () => {
-		const harness = createHarness( createNavigationWaitingSnapshot() );
+	it.each( [ INTERRUPTION_PAGE_URL, 'chrome-extension://extension-id/pause.html' ] )(
+		'replaces a pending protected destination after an interruption redirect with %s configured', async ( interruptionPageUrl ) => {
+			const harness = createHarness( createNavigationWaitingSnapshot(), interruptionPageUrl );
 
-		await harness.handler.handle( {
-			frameId: 0,
-			phase: ProtectionRuntimeNavigationPhase.BEFORE_NAVIGATE,
-			tabId: 7,
-			url: 'https://independent.test/',
-		} );
-		await harness.handler.handle( {
-			frameId: 0,
-			phase: ProtectionRuntimeNavigationPhase.COMMITTED,
-			tabId: 7,
-			transitionQualifiers: [ 'server_redirect' ],
-			transitionType: 'typed',
-			url: INTERRUPTION_PAGE_URL,
-		} );
+			await harness.handler.handle( {
+				frameId: 0,
+				phase: ProtectionRuntimeNavigationPhase.BEFORE_NAVIGATE,
+				tabId: 7,
+				url: 'https://independent.test/',
+			} );
+			await harness.handler.handle( {
+				frameId: 0,
+				phase: ProtectionRuntimeNavigationPhase.COMMITTED,
+				tabId: 7,
+				transitionQualifiers: [ 'server_redirect' ],
+				transitionType: 'typed',
+				url: INTERRUPTION_PAGE_URL,
+			} );
 
-		expect( harness.departTab ).toHaveBeenCalledWith(
-			7,
-			DepartureCause.REDIRECT,
-			CONFIGURATION,
-		);
-		expect( harness.coordinator.events ).toMatchObject( [ {
-			type: 'visit-attempt',
-			scopeId: INDEPENDENT_SCOPE_ID,
-		} ] );
-	} );
+			expect( harness.departTab ).toHaveBeenCalledWith(
+				7,
+				DepartureCause.REDIRECT,
+				CONFIGURATION,
+			);
+			expect( harness.coordinator.events ).toMatchObject( [ {
+				type: 'visit-attempt',
+				scopeId: INDEPENDENT_SCOPE_ID,
+				participant: { retainedDestination: 'https://independent.test/' },
+			} ] );
+		},
+	);
+
+	it.each( [ INTERRUPTION_PAGE_URL, 'chrome-extension://extension-id/pause.html' ] )(
+		'ignores an independent interruption page commit to %s', async ( url ) => {
+			const harness = createHarness( createNavigationWaitingSnapshot(), 'chrome-extension://extension-id/pause.html' );
+
+			await harness.handler.handle( {
+				frameId: 0,
+				phase: ProtectionRuntimeNavigationPhase.COMMITTED,
+				tabId: 7,
+				url,
+			} );
+
+			expect( harness.departTab ).not.toHaveBeenCalled();
+			expect( harness.coordinator.events ).toEqual( [] );
+			expect( harness.releaseNavigationIfInterrupted ).not.toHaveBeenCalled();
+		},
+	);
 } );

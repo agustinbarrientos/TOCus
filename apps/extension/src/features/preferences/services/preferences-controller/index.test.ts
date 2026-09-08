@@ -441,16 +441,22 @@ describe( 'createPreferencesController', () => {
 
 	it( 'projects an immediate valid preview without persisting it', async () => {
 		const fixture = createFixture();
+		const listener = vi.fn();
 
 		await fixture.controller.start();
+		fixture.controller.addPreferencesChangeListener( listener );
 		fixture.controller.apply( createPreferences( {
+			language: Language.JAPANESE,
 			theme: ThemeMode.LIGHT,
 			palette: Palette.PINK,
 		} ) );
 
+		expect( fixture.controller.language ).toBe( Language.JAPANESE );
+		expect( fixture.attributes.get( 'lang' ) ).toBe( 'ja' );
 		expect( fixture.attributes.get( 'data-tocus-theme' ) ).toBe( ThemeMode.LIGHT );
 		expect( fixture.attributes.get( 'data-tocus-palette' ) ).toBe( Palette.PINK );
 		expect( fixture.storage.save ).not.toHaveBeenCalled();
+		expect( listener ).not.toHaveBeenCalled();
 	} );
 
 	it( 'stops reacting after disconnection', async () => {

@@ -2,9 +2,9 @@ import { ProtectionStateType } from '../../../../domains/protection/types/protec
 import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
 import { evaluateSchedule } from '../../../../domains/protection/utils/schedule-evaluator';
 import { createProtectionNavigationRules } from '../../utils/protection-navigation-rules';
-import {
-	type NavigationRuleReconciler,
-	type NavigationRuleReconcilerOptions,
+import type {
+	NavigationRuleReconciler,
+	NavigationRuleReconcilerOptions,
 } from './types';
 
 /**

@@ -1,13 +1,29 @@
 @use '@tocus/theme/typography' as typography;
+@use '@tocus/theme/controls' as controls;
 @use '@tocus/theme/sizing';
+@use '@tocus/ui/styles';
 
 :host {
+	--tocus-size-unit: 16px;
+
 	position: fixed;
 	inset: 0;
 	display: block;
 	min-width: 0;
 	overflow: hidden;
 	color: var(--tocus-color-on-stage);
+}
+
+/* The owned provider fills the native boundary without adding a second surface. */
+[data-tocus-ui],
+.tocus-provider-content {
+	height: 100%;
+	min-height: 0;
+	background: transparent;
+}
+
+[data-tocus-ui] {
+	--tocus-size-unit: 16px;
 }
 
 *,
@@ -37,8 +53,7 @@
 	);
 
 	&:focus-visible {
-		outline: sizing.size(0.1875) solid var(--tocus-color-focus-ring);
-		outline-offset: sizing.size(-0.3125);
+		@include controls.focus-ring( $width: sizing.size(0.1875), $offset: sizing.size(-0.3125) );
 	}
 }
 
@@ -133,7 +148,7 @@ main {
 	place-items: center;
 }
 
-.cue {
+[data-tocus-ui] .cue {
 	@include typography.apply( 'headline-large' );
 
 	z-index: 1;
@@ -181,47 +196,24 @@ tocus-f-breathing-sphere {
 
 .continue-button,
 .retry-button {
-	@include typography.apply( 'label-large' );
-
 	min-width: sizing.size(10);
+	max-width: 100%;
 	min-height: sizing.size(3.5);
-	padding: var(--tocus-space-3) var(--tocus-space-6);
-	border: 0;
-	border-radius: var(--tocus-radius-full);
-	outline: sizing.size(0.1875) solid transparent;
-	outline-offset: sizing.size(0.1875);
-	background: var(--tocus-color-action);
-	box-shadow: var(--tocus-shadow-soft);
-	color: var(--tocus-color-on-action);
-	cursor: pointer;
+	height: auto;
 	overflow-wrap: anywhere;
 	white-space: normal;
-	transition:
-		box-shadow var(--tocus-transition-fast),
-		transform var(--tocus-transition-fast);
+}
 
-	&:hover:not(:disabled) {
-		box-shadow: 0 sizing.size(1.5) sizing.size(4.5) var(--tocus-color-stage-glow);
-		transform: translateY(sizing.size(-0.0625));
-	}
-
-	&:focus-visible {
-		outline-color: var(--tocus-color-focus-ring);
-	}
-
-	&:active:not(:disabled) {
-		transform: translateY(sizing.size(0.0625));
-	}
-
-	&:disabled {
-		opacity: 0.72;
-		cursor: progress;
-	}
+[data-tocus-ui] .pause-action-label {
+	height: auto;
+	white-space: normal;
 }
 
 .shortcut {
 	@include typography.apply( 'body-medium' );
 
+	// Keep the keycap above the preceding packaged button's positioned shadow.
+	position: relative;
 	margin: 0;
 	color: var(--tocus-color-on-stage-muted);
 	overflow-wrap: anywhere;
@@ -263,9 +255,9 @@ kbd {
 	backdrop-filter: blur(sizing.size(1));
 
 	&:focus-visible {
+		@include controls.focus-ring( $width: sizing.size(0.1875), $offset: var(--tocus-space-2) );
+
 		border-radius: var(--tocus-radius-medium);
-		outline: sizing.size(0.1875) solid var(--tocus-color-focus-ring);
-		outline-offset: var(--tocus-space-2);
 	}
 }
 
@@ -304,7 +296,7 @@ kbd {
 	}
 }
 
-.recovery-title {
+[data-tocus-ui] .recovery-title {
 	@include typography.apply( 'headline-small' );
 
 	margin: 0;
@@ -331,7 +323,8 @@ footer {
 	overflow-wrap: anywhere;
 }
 
-:host([preview]) {
+:host([preview]),
+:host([preview]) [data-tocus-ui] {
 	--tocus-typography-headline-small-font-size: clamp(#{sizing.size(0.8625)}, 6.9cqh, #{sizing.size(1.15)});
 	--tocus-typography-headline-small-line-height: 1.15;
 	--tocus-typography-body-large-font-size: clamp(#{sizing.size(0.71875)}, 5.175cqh, #{sizing.size(0.92)});
@@ -340,7 +333,9 @@ footer {
 	--tocus-typography-headline-large-line-height: 1.15;
 	--tocus-typography-body-small-font-size: clamp(#{sizing.size(0.6325)}, 4.37cqh, #{sizing.size(0.805)});
 	--tocus-typography-body-small-line-height: 1.25;
+}
 
+:host([preview]) {
 	position: absolute;
 	inset: 0;
 	width: 100%;
@@ -435,16 +430,12 @@ footer {
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.sphere-shell,
-	.continue-button,
-	.retry-button {
+	.sphere-shell {
 		transition: none;
 	}
 }
 
-:host([reduced-motion]) .sphere-shell,
-:host([reduced-motion]) .continue-button,
-:host([reduced-motion]) .retry-button {
+:host([reduced-motion]) .sphere-shell {
 	transition: none;
 }
 
@@ -479,19 +470,6 @@ footer {
 		border-color: CanvasText;
 		background: Canvas;
 		color: CanvasText;
-	}
-
-	.continue-button,
-	.retry-button {
-		border: sizing.size(0.125) solid ButtonText;
-		outline-color: transparent;
-		background: ButtonFace;
-		box-shadow: none;
-		color: ButtonText;
-
-		&:focus-visible {
-			outline-color: Highlight;
-		}
 	}
 
 	.recovery-icon {

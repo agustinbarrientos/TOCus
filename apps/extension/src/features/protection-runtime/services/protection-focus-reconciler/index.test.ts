@@ -5,15 +5,15 @@ import {
 	createWaitingState,
 	TestEmptyProtectionConfiguration,
 } from '../../../../domains/protection/types/__fixtures__';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type ProtectionParticipant } from '../../../../domains/protection/types/protection-participant';
-import { type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionParticipant } from '../../../../domains/protection/types/protection-participant';
+import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
 import {
 	ProtectionMeasurementRevisionSchema,
 	ProtectionScopeIdSchema,
 } from '../../../../domains/protection/types/protection-value';
 import { createProtectionFocusReconciler } from './index';
-import { type ProtectionFocusReconcilerOptions } from './types';
+import type { ProtectionFocusReconcilerOptions } from './types';
 
 /**
  * Extension-owned interruption page used by focus tests.
@@ -67,42 +67,44 @@ function createSnapshot(
 }
 
 describe( 'createProtectionFocusReconciler', () => {
-	it( 'synchronizes a navigation participant while its interruption page remains live', async () => {
-		const states = createSnapshot( createNavigationParticipant(
-			'participant-navigation',
-			'page_tab_7_navigation',
-			true,
-			0,
-			'https://example.com/',
-		) );
-		const synchronizeParticipantFocus = vi.fn<
+	it.each( [ INTERRUPTION_PAGE_URL, 'chrome-extension://extension-id/pause.html' ] )(
+		'synchronizes a navigation participant on a live interruption page with %s configured', async ( interruptionPageUrl ) => {
+			const states = createSnapshot( createNavigationParticipant(
+				'participant-navigation',
+				'page_tab_7_navigation',
+				true,
+				0,
+				'https://example.com/',
+			) );
+			const synchronizeParticipantFocus = vi.fn<
 			ProtectionFocusReconcilerOptions[ 'synchronizeParticipantFocus' ]
 		>().mockResolvedValue( undefined );
-		const refreshFocusEffects = vi.fn<
+			const refreshFocusEffects = vi.fn<
 			ProtectionFocusReconcilerOptions[ 'refreshFocusEffects' ]
 		>().mockResolvedValue( undefined );
-		const reconciler = createProtectionFocusReconciler( {
-			browser: { listTabs: vi.fn().mockResolvedValue( [ { id: 7, url: INTERRUPTION_PAGE_URL } ] ) },
-			coordinator: { getStates: vi.fn().mockResolvedValue( states ) },
-			interruptionPageUrl: INTERRUPTION_PAGE_URL,
-			loadConfiguration: vi.fn().mockResolvedValue( CONFIGURATION ),
-			reconcileExpiredAllowances: vi.fn().mockResolvedValue( undefined ),
-			reconcileParticipants: vi.fn().mockResolvedValue( undefined ),
-			reconcileSchedules: vi.fn().mockResolvedValue( undefined ),
-			reconcileUnavailableConfiguration: vi.fn().mockResolvedValue( undefined ),
-			refreshFocusEffects,
-			synchronizeParticipantFocus,
-		} );
+			const reconciler = createProtectionFocusReconciler( {
+				browser: { listTabs: vi.fn().mockResolvedValue( [ { id: 7, url: INTERRUPTION_PAGE_URL } ] ) },
+				coordinator: { getStates: vi.fn().mockResolvedValue( states ) },
+				interruptionPageUrl,
+				loadConfiguration: vi.fn().mockResolvedValue( CONFIGURATION ),
+				reconcileExpiredAllowances: vi.fn().mockResolvedValue( undefined ),
+				reconcileParticipants: vi.fn().mockResolvedValue( undefined ),
+				reconcileSchedules: vi.fn().mockResolvedValue( undefined ),
+				reconcileUnavailableConfiguration: vi.fn().mockResolvedValue( undefined ),
+				refreshFocusEffects,
+				synchronizeParticipantFocus,
+			} );
 
-		await reconciler.reconcile();
+			await reconciler.reconcile();
 
-		const call = synchronizeParticipantFocus.mock.calls[ 0 ];
+			const call = synchronizeParticipantFocus.mock.calls[ 0 ];
 
-		expect( call?.[ 0 ].participant.participantId ).toBe( 'participant-navigation' );
-		expect( call?.[ 1 ] ).toBe( true );
-		expect( call?.[ 2 ] ).toBe( CONFIGURATION );
-		expect( refreshFocusEffects ).toHaveBeenCalledWith( CONFIGURATION, states );
-	} );
+			expect( call?.[ 0 ].participant.participantId ).toBe( 'participant-navigation' );
+			expect( call?.[ 1 ] ).toBe( true );
+			expect( call?.[ 2 ] ).toBe( CONFIGURATION );
+			expect( refreshFocusEffects ).toHaveBeenCalledWith( CONFIGURATION, states );
+		},
+	);
 
 	it( 'keeps an allowance-expiry participant available on a protected page in its scope', async () => {
 		const states = createSnapshot( createAllowanceExpiryParticipant(

@@ -1,5 +1,6 @@
+import { ProtectionRuntimeNavigationPhase } from '../../types/browser-runtime';
 import { describe, expect, it, vi } from 'vitest';
-import {
+import { InterruptionPageResponseState,
 	InterruptionPageRequestType,
 	ProtectionClockRequestType,
 	type InterruptionPageResponse,
@@ -148,7 +149,7 @@ describe( 'createProtectionBackgroundController', () => {
 		expect( harness.captureStatisticsObservation.mock.calls ).toEqual( [
 			[ StatisticsFocusObservationMode.BOUNDARY, {
 				...navigation,
-				phase: 'before-navigate',
+				phase: ProtectionRuntimeNavigationPhase.BEFORE_NAVIGATE,
 			} ],
 			[ StatisticsFocusObservationMode.BOUNDARY ],
 			[ StatisticsFocusObservationMode.BOUNDARY ],
@@ -243,7 +244,7 @@ describe( 'createProtectionBackgroundController', () => {
 		expect( harness.handleNavigation ).toHaveBeenCalledWith(
 			{
 				frameId: 0,
-				phase: 'before-navigate',
+				phase: ProtectionRuntimeNavigationPhase.BEFORE_NAVIGATE,
 				tabId: 7,
 				url: 'https://example.com/',
 			},
@@ -320,7 +321,7 @@ describe( 'createProtectionBackgroundController', () => {
 		} );
 		expect( harness.handleNavigation ).toHaveBeenCalledWith( {
 			...navigation,
-			phase: 'before-navigate',
+			phase: ProtectionRuntimeNavigationPhase.BEFORE_NAVIGATE,
 		}, expect.any( Promise ) );
 	} );
 
@@ -343,7 +344,7 @@ describe( 'createProtectionBackgroundController', () => {
 		} );
 		expect( harness.handleNavigation ).toHaveBeenCalledWith( {
 			...navigation,
-			phase: 'committed',
+			phase: ProtectionRuntimeNavigationPhase.COMMITTED,
 		}, expect.any( Promise ) );
 	} );
 
@@ -364,7 +365,7 @@ describe( 'createProtectionBackgroundController', () => {
 		} );
 		expect( harness.handleNavigation ).toHaveBeenCalledWith( {
 			...navigation,
-			phase: 'error-occurred',
+			phase: ProtectionRuntimeNavigationPhase.ERROR_OCCURRED,
 		}, expect.any( Promise ) );
 	} );
 
@@ -386,7 +387,7 @@ describe( 'createProtectionBackgroundController', () => {
 			1,
 			{
 				...historyNavigation,
-				phase: 'history-state-updated',
+				phase: ProtectionRuntimeNavigationPhase.HISTORY_STATE_UPDATED,
 			},
 			expect.any( Promise ),
 		);
@@ -394,24 +395,27 @@ describe( 'createProtectionBackgroundController', () => {
 			2,
 			{
 				...referenceNavigation,
-				phase: 'reference-fragment-updated',
+				phase: ProtectionRuntimeNavigationPhase.REFERENCE_FRAGMENT_UPDATED,
 			},
 			expect.any( Promise ),
 		);
 	} );
 
 	it.each( [
-		[ 'Chrome', 'chrome-extension://extension-id/interruption.html' ],
-		[ 'Firefox', 'moz-extension://runtime-uuid/interruption.html' ],
-		[ 'Safari', 'safari-web-extension://extension-id/interruption.html' ],
-	] )( 'claims the exact top-level %s interruption page URL', async ( _browser, interruptionPageUrl ) => {
+		[ 'Chrome', 'chrome-extension://extension-id/pause.html', 'chrome-extension://extension-id/pause.html' ],
+		[ 'legacy Chrome', 'chrome-extension://extension-id/pause.html', 'chrome-extension://extension-id/interruption.html' ],
+		[ 'Firefox', 'moz-extension://runtime-uuid/pause.html', 'moz-extension://runtime-uuid/pause.html' ],
+		[ 'legacy Firefox', 'moz-extension://runtime-uuid/pause.html', 'moz-extension://runtime-uuid/interruption.html' ],
+		[ 'Safari', 'safari-web-extension://extension-id/pause.html', 'safari-web-extension://extension-id/pause.html' ],
+		[ 'legacy Safari', 'safari-web-extension://extension-id/pause.html', 'safari-web-extension://extension-id/interruption.html' ],
+	] )( 'authenticates Continue from the top-level %s interruption document', async ( _browser, interruptionPageUrl, documentUrl ) => {
 		const harness = createHarness();
-		const response: InterruptionPageResponse = { state: 'unavailable' };
+		const response: InterruptionPageResponse = { state: InterruptionPageResponseState.UNAVAILABLE };
 		const sendResponse = vi.fn();
 		const controller = createProtectionBackgroundController( {
 			browser: harness.browser,
 			interruptionPageUrl,
-			optionsPageUrl: interruptionPageUrl.replace( 'interruption.html', 'options.html' ),
+			optionsPageUrl: interruptionPageUrl.replace( 'pause.html', 'options.html' ),
 			runtime: harness.runtime,
 		} );
 
@@ -419,18 +423,18 @@ describe( 'createProtectionBackgroundController', () => {
 		controller.start();
 
 		expect( harness.message.emit( {
-			type: 'connect',
+			type: 'continue',
 			documentVisible: true,
 		}, {
 			frameId: 0,
 			tab: { id: 7, incognito: false },
-			url: interruptionPageUrl,
+			url: documentUrl,
 		}, sendResponse ) ).toBe( true );
 		await vi.waitFor( () => {
 			expect( sendResponse ).toHaveBeenCalledWith( response );
 		} );
 		expect( harness.handlePageRequest ).toHaveBeenCalledWith( {
-			type: 'connect',
+			type: 'continue',
 			documentVisible: true,
 		}, 7, true, expect.any( Promise ) );
 	} );
@@ -443,7 +447,7 @@ describe( 'createProtectionBackgroundController', () => {
 		incognito,
 	) => {
 		const harness = createHarness();
-		const response: InterruptionPageResponse = { state: 'unavailable' };
+		const response: InterruptionPageResponse = { state: InterruptionPageResponseState.UNAVAILABLE };
 		const sendResponse = vi.fn();
 
 		harness.handlePageRequest.mockResolvedValue( response );
@@ -471,7 +475,7 @@ describe( 'createProtectionBackgroundController', () => {
 
 	it( 'restarts the permitted runtime before routing explicit recovery', async () => {
 		const harness = createHarness();
-		const response: InterruptionPageResponse = { state: 'unavailable' };
+		const response: InterruptionPageResponse = { state: InterruptionPageResponseState.UNAVAILABLE };
 		const sendResponse = vi.fn();
 
 		harness.handlePageRequest.mockResolvedValue( response );
@@ -599,7 +603,7 @@ describe( 'createProtectionBackgroundController', () => {
 		'https://example.com/path',
 	] )( 'claims the packaged top-level protected-page controller at %s', async ( senderUrl ) => {
 		const harness = createHarness();
-		const response: InterruptionPageResponse = { state: 'unavailable' };
+		const response: InterruptionPageResponse = { state: InterruptionPageResponseState.UNAVAILABLE };
 		const sendResponse = vi.fn();
 
 		harness.handlePageRequest.mockResolvedValue( response );
@@ -724,7 +728,7 @@ describe( 'createProtectionBackgroundController', () => {
 				type: 'synchronize',
 				documentVisible: true,
 			}, null, false, expect.any( Promise ) );
-			expect( sendResponse ).toHaveBeenCalledWith( { state: 'unavailable' } );
+			expect( sendResponse ).toHaveBeenCalledWith( { state: InterruptionPageResponseState.UNAVAILABLE } );
 			expect( harness.failOpen ).toHaveBeenCalledOnce();
 		} );
 	} );

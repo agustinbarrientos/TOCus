@@ -3,14 +3,14 @@ import {
 	PopupProjectionStatus,
 	type PopupProjection,
 } from '../../types/popup-projection';
-import { type PopupCurrentTabContext } from '../../types/current-tab-context';
+import type { PopupCurrentTabContext } from '../../types/current-tab-context';
 import {
 	PopupRuntimeRequestType,
 	type PopupRuntimeRequest,
 } from '../../types/runtime-message';
-import {
-	type PopupStatusClient,
-	type PopupStatusClientOptions,
+import type {
+	PopupStatusClient,
+	PopupStatusClientOptions,
 } from './types';
 
 /**

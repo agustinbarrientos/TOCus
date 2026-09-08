@@ -1,4 +1,5 @@
-import { type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
 import {
 	ProtectionDecisionType,
 	type ProtectionDecision,
@@ -12,9 +13,9 @@ import {
 import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
 import { matchProtectedUrl } from '../../../../domains/protection/utils/protected-url-matcher';
 import { ProtectedPageMessageType } from '../../types/protected-page-message';
-import { type ProtectionRuntimeTab } from '../../types/browser-runtime';
+import type { ProtectionRuntimeTab } from '../../types/browser-runtime';
 import { findRuntimeParticipantContext, getRuntimeTabId } from '../../utils/runtime-page-context';
-import { type ProtectionPageProjector, type ProtectionPageProjectorOptions } from './types';
+import type { ProtectionPageProjector, ProtectionPageProjectorOptions } from './types';
 
 /**
  * Creates live-page projection for authoritative protection decisions.
@@ -42,7 +43,7 @@ export function createProtectionPageProjector(
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function isInterruptionTab( tab: ProtectionRuntimeTab ): boolean {
-		return getObservedTabUrl( tab ) === options.interruptionPageUrl;
+		return isInterruptionDocumentUrl( getObservedTabUrl( tab ), options.interruptionPageUrl );
 	}
 
 	/**

@@ -1,0 +1,16 @@
+@use '../../../../packages/theme/typography' as typography;
+
+body { margin: 8px; }
+#root { max-width: 100%; }
+
+#root > [data-tocus-ui] {
+	color: inherit;
+}
+
+.original-step { color: var(--tocus-color-on-surface); }
+
+.original-notices {
+	padding: 24px;
+	background: var(--tocus-color-surface-lowest);
+	color: var(--tocus-color-on-surface);
+}

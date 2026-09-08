@@ -2,8 +2,8 @@ import {
 	StatisticsProjectionStatus,
 	type StatisticsProjection,
 } from '../../../../domains/statistics/types/statistics-projection';
-import {
-	type WellbeingSummaryCopy,
+import type {
+	WellbeingSummaryCopy,
 } from './types';
 
 /**

@@ -1,6 +1,6 @@
-import { type ProtectedSiteEnrollmentService } from '../../../protected-sites/services/protected-site-enrollment';
-import { type PopupSiteEnrollmentResult } from '../../types/site-enrollment';
-import { type PopupBackgroundEvent, type PopupBackgroundMessageSender } from '../popup-background-controller';
+import type { ProtectedSiteEnrollmentService } from '../../../protected-sites/services/protected-site-enrollment';
+import type { PopupSiteEnrollmentResult } from '../../types/site-enrollment';
+import type { PopupBackgroundEvent, PopupBackgroundMessageSender } from '../popup-background-controller';
 
 /**
  * Delivers a minimal enrollment result to a popup that may already be closed.

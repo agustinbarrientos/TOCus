@@ -1,0 +1,31 @@
+@use '@tocus/theme/typography' as typography;
+
+[data-tocus-ui] .settings-page .settings-inline-confirmation {
+	margin-top: var(--tocus-space-4);
+	border: 2px solid var(--tocus-color-divider);
+	background: var(--tocus-color-surface);
+	h3 { @include typography.apply('title-medium'); margin-bottom: var(--tocus-space-2); }
+	p { @include typography.apply('body-small'); margin: 0; }
+	.tocus-form-actions { padding: var(--tocus-space-6) 0 0; }
+	.tocus-focus:focus-visible { outline-offset: 2px; }
+
+	&[data-minimal] {
+		margin-top: var(--tocus-space-5);
+		padding-top: var(--tocus-space-5);
+		border-top-width: 1px;
+		border-top-color: var(--tocus-color-outline);
+		p { @include typography.apply('body-medium'); margin-bottom: var(--tocus-space-4); }
+
+		.tocus-form-actions {
+			gap: var(--tocus-space-2);
+			padding-top: var(--tocus-space-4);
+		}
+	}
+}
+
+@media (width <= 28rem) {
+	[data-tocus-ui] .settings-page .settings-inline-confirmation .tocus-form-actions {
+		align-items: stretch;
+		flex-direction: column;
+	}
+}

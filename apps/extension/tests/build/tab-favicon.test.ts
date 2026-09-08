@@ -9,9 +9,20 @@ const outputs = [ 'chrome-mv3', 'firefox-mv2', 'safari-mv2' ] as const;
 /**
  * Extension documents that can appear in a browser tab.
  */
-const documents = [ 'onboarding', 'options', 'interruption', 'popup' ] as const;
+const documents = [ 'onboarding', 'options', 'popup' ] as const;
 
 describe( 'packaged tab favicons', () => {
+	test.each( outputs )( 'does not advertise an icon from the %s pause documents into website redirect chains', async ( output ) => {
+		for ( const document of [ 'interruption', 'pause' ] ) {
+			const html = await readFile(
+				new URL( `../../.output/${ output }/${ document }.html`, import.meta.url ),
+				'utf8',
+			);
+
+			expect( html.match( /<link\b[^>]*\brel="icon"[^>]*>/gu ) ?? [], document ).toHaveLength( 0 );
+		}
+	} );
+
 	test.each( outputs )( 'declares a local tab favicon for every %s document', async ( output ) => {
 		for ( const document of documents ) {
 			const html = await readFile(

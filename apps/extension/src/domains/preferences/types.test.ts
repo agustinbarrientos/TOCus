@@ -13,9 +13,9 @@ describe( 'PreferencesDocumentSchema', () => {
 	it( 'accepts the frozen default preferences document', () => {
 		expect( PreferencesDocumentSchema.parse( DefaultPreferencesDocument ) ).toEqual( {
 			schemaVersion: 2,
-			theme: 'system',
-			palette: 'brown',
-			pauseMode: 'breathing',
+			theme: ThemeMode.SYSTEM,
+			palette: Palette.BROWN,
+			pauseMode: PauseMode.BREATHING,
 			reducedMotion: false,
 			language: null,
 		} );

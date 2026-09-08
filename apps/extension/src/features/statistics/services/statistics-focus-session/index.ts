@@ -1,5 +1,5 @@
 import { ProtectionConfigurationDocumentSchema } from '../../../../domains/protection/types/protected-site-configuration';
-import { type StatisticsDocument } from '../../../../domains/statistics/types/statistics-document';
+import type { StatisticsDocument } from '../../../../domains/statistics/types/statistics-document';
 import {
 	StatisticsSessionDocumentSchema,
 	type StatisticsSessionDocument,
@@ -12,11 +12,11 @@ import {
 	type StatisticsFocusObservationMode as StatisticsFocusObservationModeValue,
 } from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
 import { resolveFocusedAllowance } from '../../utils/resolve-focused-allowance';
-import {
-	type StatisticsFocusReplayResult,
-	type StatisticsFocusSession,
-	type StatisticsFocusSessionOptions,
-	type StatisticsFocusCheckpointInput,
+import type {
+	StatisticsFocusReplayResult,
+	StatisticsFocusSession,
+	StatisticsFocusSessionOptions,
+	StatisticsFocusCheckpointInput,
 } from './types';
 
 /**

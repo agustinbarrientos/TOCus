@@ -1,8 +1,8 @@
-import { type SessionContinuityId } from '../../../protection/types/protection-value';
-import { type FocusedAllowanceIdentity } from '../../types/focused-allowance';
-import { type StatisticsDocument } from '../../types/statistics-document';
-import { type StatisticsSessionDocument } from '../../types/statistics-session';
-import { type StatisticsFocusEpochId } from '../../types/statistics-value';
+import type { SessionContinuityId } from '../../../protection/types/protection-value';
+import type { FocusedAllowanceIdentity } from '../../types/focused-allowance';
+import type { StatisticsDocument } from '../../types/statistics-document';
+import type { StatisticsSessionDocument } from '../../types/statistics-session';
+import type { StatisticsFocusEpochId } from '../../types/statistics-value';
 
 /**
  * Longest interval that can be attributed to continuously observed browser focus.

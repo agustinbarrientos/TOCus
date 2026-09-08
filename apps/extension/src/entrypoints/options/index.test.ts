@@ -1,23 +1,19 @@
+import { Language } from '../../domains/preferences/types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SettingsPlatform } from '../../features/settings/components/shell/types';
-import { type SettingsPageOptions } from '../../features/settings/services/settings-page/types';
+import type { SettingsPageOptions } from '../../features/settings/services/settings-page/types';
 
 /**
  * Hoisted dependencies used by settings entrypoint composition tests.
  * @since 0.1.0 Initial implementation.
  */
 const entrypointMocks = vi.hoisted( () => {
-	/**
-	 * Minimal settings shell recognized by the composition root.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	class TestSettingsShell {
-		/** Stable fixture marker preventing an empty test class. */
-		readonly fixture = true;
-	}
+	const shell = { fixture: true };
 
 	return {
-		ComponentSettingsShell: TestSettingsShell,
+		container: { id: 'settings-root' },
+		shell,
+		mountSettings: vi.fn().mockReturnValue( shell ),
 		getUILanguage: vi.fn().mockReturnValue( 'es-AR' ),
 		loadLocalizationBundle: vi.fn(),
 		matchMedia: vi.fn().mockReturnValue( {} ),
@@ -33,7 +29,7 @@ const entrypointMocks = vi.hoisted( () => {
 	};
 } );
 
-vi.mock( '@tocus/theme/index.scss', () => ( {} ) );
+vi.mock( '@tocus/ui/styles.scss', () => ( {} ) );
 vi.mock( './styles.scss', () => ( {} ) );
 vi.mock( 'wxt/browser', () => ( {
 	browser: {
@@ -49,8 +45,8 @@ vi.mock( 'wxt/browser', () => ( {
 vi.mock( '../../domains/preferences/utils', () => ( {
 	resolveLanguage: entrypointMocks.resolveLanguage,
 } ) );
-vi.mock( '../../features/settings/components/shell', () => ( {
-	ComponentSettingsShell: entrypointMocks.ComponentSettingsShell,
+vi.mock( '../../features/settings/services/settings-presentation', () => ( {
+	mountSettings: entrypointMocks.mountSettings,
 } ) );
 vi.mock( '../../features/settings/services/settings-page', () => ( {
 	bootstrapSettingsPage: entrypointMocks.bootstrapSettingsPage,
@@ -91,14 +87,13 @@ describe( 'settings entrypoint', () => {
 	} );
 
 	it( 'starts Chrome settings with browser and document dependencies', async () => {
-		const shell = new entrypointMocks.ComponentSettingsShell();
 		const removeProperty = vi.fn();
 		const documentTarget = {
 			documentElement: {
 				setAttribute: vi.fn(),
 				style: { removeProperty },
 			},
-			querySelector: vi.fn().mockReturnValue( shell ),
+			getElementById: vi.fn().mockReturnValue( entrypointMocks.container ),
 			title: 'TOCus',
 		};
 
@@ -112,8 +107,10 @@ describe( 'settings entrypoint', () => {
 			throw new TypeError( 'Expected settings page options.' );
 		}
 
-		expect( options.shell ).toBe( shell );
-		expect( options.browserLanguage ).toBe( 'es-vos' );
+		expect( documentTarget.getElementById ).toHaveBeenCalledWith( 'settings-root' );
+		expect( entrypointMocks.mountSettings ).toHaveBeenCalledWith( entrypointMocks.container );
+		expect( options.shell ).toBe( entrypointMocks.shell );
+		expect( options.browserLanguage ).toBe( Language.SPANISH_VOS );
 		expect( options.platform ).toBe( SettingsPlatform.CHROME );
 		expect( options.supportsCachedFavicons ).toBeTruthy();
 		expect( options.extensionRootUrl ).toBe( 'chrome-extension://extension-id/' );
@@ -127,7 +124,7 @@ describe( 'settings entrypoint', () => {
 	it( 'selects the Firefox settings platform', async () => {
 		vi.stubGlobal( 'document', {
 			documentElement: { style: { removeProperty: vi.fn() } },
-			querySelector: vi.fn().mockReturnValue( new entrypointMocks.ComponentSettingsShell() ),
+			getElementById: vi.fn().mockReturnValue( entrypointMocks.container ),
 		} );
 
 		await importSettingsEntrypoint( { CHROME: '', FIREFOX: 'true', SAFARI: '' } );
@@ -139,7 +136,7 @@ describe( 'settings entrypoint', () => {
 	it( 'selects the Safari settings platform', async () => {
 		vi.stubGlobal( 'document', {
 			documentElement: { style: { removeProperty: vi.fn() } },
-			querySelector: vi.fn().mockReturnValue( new entrypointMocks.ComponentSettingsShell() ),
+			getElementById: vi.fn().mockReturnValue( entrypointMocks.container ),
 		} );
 
 		await importSettingsEntrypoint( { CHROME: '', FIREFOX: '', SAFARI: 'true' } );
@@ -149,11 +146,12 @@ describe( 'settings entrypoint', () => {
 	} );
 
 	it( 'fails clearly when the settings shell is missing', async () => {
-		vi.stubGlobal( 'document', { querySelector: vi.fn().mockReturnValue( null ) } );
+		vi.stubGlobal( 'document', { getElementById: vi.fn().mockReturnValue( null ) } );
 
 		await expect( importSettingsEntrypoint() ).rejects.toThrow(
 			'Expected the options page to contain the settings shell.',
 		);
 		expect( entrypointMocks.bootstrapSettingsPage ).not.toHaveBeenCalled();
+		expect( entrypointMocks.mountSettings ).not.toHaveBeenCalled();
 	} );
 } );

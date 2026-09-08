@@ -1,8 +1,8 @@
-import { type PreferencesStorageService } from '../../../../domains/preferences/services/preferences-storage';
-import {
-	type Language,
-	type PauseMode,
-	type PreferencesDocument,
+import type { PreferencesStorageService } from '../../../../domains/preferences/services/preferences-storage';
+import type {
+	Language,
+	PauseMode,
+	PreferencesDocument,
 } from '../../../../domains/preferences/types';
 
 /**

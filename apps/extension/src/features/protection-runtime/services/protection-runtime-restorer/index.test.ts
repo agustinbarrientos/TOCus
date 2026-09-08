@@ -1,3 +1,5 @@
+import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
+import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
 import { describe, expect, it, vi } from 'vitest';
 import {
 	ProtectionCoordinatorDispatchStatus,
@@ -23,8 +25,8 @@ import {
 } from '../../../../domains/protection/types/protection-event';
 import { ProtectionDecisionType } from '../../../../domains/protection/types/protection-decision';
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
 import {
 	AllowanceIdSchema,
 	DefaultProtectionScopeId,
@@ -33,7 +35,7 @@ import {
 } from '../../../../domains/protection/types/protection-value';
 import { ProtectionStateReconciliationRequirementReason } from '../../../../domains/protection/utils/restore-protection-state';
 import { createProtectionRuntimeRestorer } from './index';
-import { type ProtectionRuntimeRestorerOptions } from './types';
+import type { ProtectionRuntimeRestorerOptions } from './types';
 
 /**
  * Fixed wall-clock instant used by restoration fixtures.
@@ -166,6 +168,7 @@ function createSuccessfulInitialization(
  * @param dispatchStatesByScope - Current states supplied while preparing reconciliation events.
  * @param configuration - Current validated local configuration or unavailable marker.
  * @param tabs - Current browser tab observations.
+ * @param interruptionPageUrl - Current packaged interruption document URL.
  * @return Restorer and observable dependency doubles.
  * @since 0.1.0 Initial implementation.
  */
@@ -174,6 +177,7 @@ function createRestorerHarness(
 	dispatchStatesByScope: ProtectionCoordinatorStateSnapshot = {},
 	configuration: ProtectionConfigurationDocument | null = CONFIGURATION,
 	tabs: ReadonlyArray<{ id: number; incognito?: boolean; url?: string }> = [],
+	interruptionPageUrl = INTERRUPTION_PAGE_URL,
 ) {
 	const events: ProtectionEvent[] = [];
 	const initialize = vi.fn<ProtectionCoordinator[ 'initialize' ]>().mockResolvedValue( initialization );
@@ -204,7 +208,7 @@ function createRestorerHarness(
 		.mockReturnValue( 'UTC' );
 	const restorer = createProtectionRuntimeRestorer( {
 		coordinator: { dispatch, initialize },
-		interruptionPageUrl: INTERRUPTION_PAGE_URL,
+		interruptionPageUrl,
 		applyDecisions,
 		applyDispatchResult,
 		getTimeZone,
@@ -226,7 +230,10 @@ function createRestorerHarness(
 }
 
 describe( 'pending Ready restoration', () => {
-	it( 'reconciles a completed pause before any visit interval exists', async () => {
+	it.each( [
+		'chrome-extension://extension-id/pause.html',
+		'chrome-extension://extension-id/interruption.html',
+	] )( 'restores the completed pause at %s before any visit interval exists', async ( documentUrl ) => {
 		const state = {
 			...createReadyState(),
 			scopeId: DefaultProtectionScopeId,
@@ -236,7 +243,8 @@ describe( 'pending Ready restoration', () => {
 			createSuccessfulInitialization( ProtectionCoordinatorInitializationStatus.RECONCILIATION_REQUIRED ),
 			{ [ DefaultProtectionScopeId ]: state },
 			CONFIGURATION,
-			[ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ],
+			[ { id: 7, incognito: false, url: documentUrl } ],
+			'chrome-extension://extension-id/pause.html',
 		);
 
 		await harness.restorer.restore();
@@ -329,8 +337,8 @@ describe( 'createProtectionRuntimeRestorer', () => {
 				participantId: READY_PARTICIPANT.participantId,
 				pageId: READY_PARTICIPANT.pageId,
 				observedDestination: READY_PARTICIPANT.retainedDestination,
-				match: { status: 'protected', rule: CONFIGURATION.sites[ 0 ]?.rule },
-				schedule: { status: 'active' },
+				match: { status: ProtectedUrlMatchStatus.PROTECTED, rule: CONFIGURATION.sites[ 0 ]?.rule },
+				schedule: { status: ScheduleEvaluationStatus.ACTIVE },
 			},
 		} ] );
 		expect( harness.applyDispatchResult ).toHaveBeenCalledWith( APPLIED_RESULT, CONFIGURATION );
@@ -362,8 +370,8 @@ describe( 'createProtectionRuntimeRestorer', () => {
 				participantId: EXPIRY_READY_PARTICIPANT.participantId,
 				pageId: EXPIRY_READY_PARTICIPANT.pageId,
 				observedDestination: null,
-				match: { status: 'protected', rule: CONFIGURATION.sites[ 0 ]?.rule },
-				schedule: { status: 'active' },
+				match: { status: ProtectedUrlMatchStatus.PROTECTED, rule: CONFIGURATION.sites[ 0 ]?.rule },
+				schedule: { status: ScheduleEvaluationStatus.ACTIVE },
 			},
 		} ] );
 		expect( harness.applyDispatchResult ).toHaveBeenCalledWith( APPLIED_RESULT, CONFIGURATION );
@@ -480,7 +488,7 @@ describe( 'createProtectionRuntimeRestorer', () => {
 			throw new Error( 'Expected one Ready reconciliation event.' );
 		}
 
-		expect( event.observation.schedule ).toEqual( { status: 'inactive' } );
+		expect( event.observation.schedule ).toEqual( { status: ScheduleEvaluationStatus.INACTIVE } );
 	} );
 
 	it.each( [

@@ -1,5 +1,5 @@
 declare module '*.po' {
-	import { type Messages } from '@lingui/core';
+	import type { Messages } from '@lingui/core';
 
 	/**
 	 * Compiled Lingui messages exported by the Vite catalog loader.
@@ -9,7 +9,7 @@ declare module '*.po' {
 }
 
 declare module 'virtual:tocus/protected-page-localization' {
-	import { type Messages } from '@lingui/core';
+	import type { Messages } from '@lingui/core';
 
 	/**
 	 * Compiled protected-page messages indexed by every supported language.
@@ -36,7 +36,7 @@ declare module 'virtual:tocus/protected-page-localization' {
 }
 
 declare module 'virtual:tocus/toolbar-localization' {
-	import { type Messages } from '@lingui/core';
+	import type { Messages } from '@lingui/core';
 
 	/**
 	 * Compiled toolbar messages indexed by every supported language.

@@ -1,3 +1,5 @@
+import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
+import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
 import { describe, expect, it } from 'vitest';
 import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import { AllowanceExpiryCandidateSource } from '../../../../domains/protection/types/protection-event';
@@ -57,8 +59,8 @@ describe( 'createFreshRuntimeObservation', () => {
 
 		expect( observation ).toMatchObject( {
 			observedDestination: null,
-			match: { status: 'protected', rule: CONFIGURATION.sites[ 0 ]?.rule },
-			schedule: { status: 'active' },
+			match: { status: ProtectedUrlMatchStatus.PROTECTED, rule: CONFIGURATION.sites[ 0 ]?.rule },
+			schedule: { status: ScheduleEvaluationStatus.ACTIVE },
 		} );
 	} );
 
@@ -74,8 +76,8 @@ describe( 'createFreshRuntimeObservation', () => {
 			participantId: PARTICIPANT.participantId,
 			pageId: PARTICIPANT.pageId,
 			observedDestination: PARTICIPANT.retainedDestination,
-			match: { status: 'protected' },
-			schedule: { status: 'active' },
+			match: { status: ProtectedUrlMatchStatus.PROTECTED },
+			schedule: { status: ScheduleEvaluationStatus.ACTIVE },
 		} );
 	} );
 
@@ -89,8 +91,8 @@ describe( 'createFreshRuntimeObservation', () => {
 
 		expect( observation ).toMatchObject( {
 			observedDestination: null,
-			match: { status: 'unprotected' },
-			schedule: { status: 'inactive' },
+			match: { status: ProtectedUrlMatchStatus.UNPROTECTED },
+			schedule: { status: ScheduleEvaluationStatus.INACTIVE },
 		} );
 	} );
 } );
@@ -131,7 +133,7 @@ describe( 'createReadyRuntimeExpiryCandidates', () => {
 				pageId: PARTICIPANT.pageId,
 				observedDestination: PARTICIPANT.retainedDestination,
 				focusEligible: false,
-				match: { status: 'protected', rule: CONFIGURATION.sites[ 0 ]?.rule },
+				match: { status: ProtectedUrlMatchStatus.PROTECTED, rule: CONFIGURATION.sites[ 0 ]?.rule },
 			},
 			{
 				source: AllowanceExpiryCandidateSource.READY_PARTICIPANT,
@@ -139,7 +141,7 @@ describe( 'createReadyRuntimeExpiryCandidates', () => {
 				pageId: 'page_tab_8_two',
 				observedDestination: PARTICIPANT.retainedDestination,
 				focusEligible: true,
-				match: { status: 'protected', rule: CONFIGURATION.sites[ 0 ]?.rule },
+				match: { status: ProtectedUrlMatchStatus.PROTECTED, rule: CONFIGURATION.sites[ 0 ]?.rule },
 			},
 		] );
 	} );
@@ -172,7 +174,7 @@ describe( 'createReadyRuntimeExpiryCandidates', () => {
 		) ).toEqual( [
 			expect.objectContaining( {
 				focusEligible: true,
-				match: { status: 'protected', rule: CONFIGURATION.sites[ 0 ]?.rule },
+				match: { status: ProtectedUrlMatchStatus.PROTECTED, rule: CONFIGURATION.sites[ 0 ]?.rule },
 				observedDestination: null,
 			} ),
 		] );
@@ -206,7 +208,7 @@ describe( 'createReadyRuntimeExpiryCandidates', () => {
 		) ).toEqual( [
 			expect.objectContaining( {
 				focusEligible: false,
-				match: { status: 'unprotected' },
+				match: { status: ProtectedUrlMatchStatus.UNPROTECTED },
 				observedDestination: null,
 			} ),
 		] );

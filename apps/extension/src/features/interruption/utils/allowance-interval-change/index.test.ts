@@ -1,3 +1,4 @@
+import { StoredProtectionStatisticsDeliveryStatus } from '../../../../domains/protection/types/stored-protection-statistics-delivery';
 import { describe, expect, it } from 'vitest';
 import { createAllowanceStorageEnvelope } from './__fixtures__';
 import { hasAllowanceIntervalChange } from './index';
@@ -40,7 +41,7 @@ describe( 'hasAllowanceIntervalChange', () => {
 			snapshotId: '00000000-0000-4000-8000-000000000002',
 			document: {
 				schemaVersion: 2,
-				statisticsDelivery: { status: 'incomplete', outbox: [] },
+				statisticsDelivery: { status: StoredProtectionStatisticsDeliveryStatus.INCOMPLETE, outbox: [] },
 				scopes: {
 					'scope-default': {
 						ladder: { completedWaits: 2, greatestObservedLocalDate: '2026-09-06' },
@@ -60,7 +61,7 @@ describe( 'hasAllowanceIntervalChange', () => {
 			...original,
 			document: {
 				schemaVersion: 2,
-				statisticsDelivery: { status: 'complete', outbox: [] },
+				statisticsDelivery: { status: StoredProtectionStatisticsDeliveryStatus.COMPLETE, outbox: [] },
 				scopes: { 'scope-other': {
 					ladder: { completedWaits: 1, greatestObservedLocalDate: '2026-09-05' },
 					allowance: RUNNING_ALLOWANCE,

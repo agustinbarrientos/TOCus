@@ -1,5 +1,5 @@
-import { type Browser, type WxtBrowser } from 'wxt/browser';
-import { type ExtensionTabContextRuntime } from '../../../../shared/services/extension-tab-context';
+import type { Browser, WxtBrowser } from 'wxt/browser';
+import type { ExtensionTabContextRuntime } from '../../../../shared/services/extension-tab-context';
 
 /**
  * Exact one-shot alarm deadline accepted by the browser.

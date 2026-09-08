@@ -1,0 +1,7 @@
+{
+  "prompt": "Use case: precise-object-edit\nAsset type: final website hero character asset\nInput image: Image 1 is the edit target.\nPrimary request: Change only the background. Replace the entire gray-and-white checkerboard with a perfectly uniform, featureless PURE WHITE #FFFFFF backdrop.\nSubject invariants: preserve the honey-orange clay capybara exactly—same identity, proportions, slight friendly head tilt, direct gaze, gentle smile, ears, brown muzzle, glossy black eyes, warm tactile clay texture, lighting, and both paws aligned at the same horizontal edge height. Preserve the straight lower crop immediately below the paws.\nComposition/framing: keep the current centered close-up framing and all subject pixels; character only.\nConstraints: every corner pixel and every background pixel outside the capybara must be exact solid #FFFFFF with no checkerboard, gradient, texture, vignette, shadow, off-white tint, gray matte, or environment. Clean antialiased subject edges suitable for CSS mix-blend-mode: multiply on a light cream webpage.\nAvoid: checkerboard of any kind, transparency preview pattern, browser, browser edge, website UI, text, logo, icons, watermark, extra objects, extra limbs, changed pose.",
+  "tool": "built-in image_gen",
+  "encoding": { "format": "webp", "quality": 92, "width": 1254, "height": 1254 },
+  "createdAt": "2026-09-07T19:21:46Z",
+  "source": "/Users/agus/.codex/generated_images/01a07d2a-cac5-7122-8b62-650e488f345f/exec-00bbad4e-9e07-46d7-8781-51d645fc9ec8.png"
+}

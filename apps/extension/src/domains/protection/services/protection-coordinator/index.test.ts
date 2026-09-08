@@ -1,3 +1,4 @@
+import { ProtectionStateReconciliationRequirementReason } from '../../utils/restore-protection-state/types';
 import { describe, expect, it } from 'vitest';
 import {
 	createAllowanceExpiry,
@@ -553,7 +554,7 @@ describe( 'protection coordinator initialization', () => {
 			allowanceId: 'allowance-a',
 			participantId: 'participant-a',
 			pageId: 'page-a',
-			reason: 'observation-unavailable',
+			reason: ProtectionStateReconciliationRequirementReason.OBSERVATION_UNAVAILABLE,
 		} ] );
 	} );
 

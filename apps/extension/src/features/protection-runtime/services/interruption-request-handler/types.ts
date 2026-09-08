@@ -1,10 +1,10 @@
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type ProtectionCoordinator, type ProtectionCoordinatorDispatchResult, type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
-import { type DepartureCause } from '../../../../domains/protection/types/protection-event';
-import { type InterruptionPageResponse } from '../../types/runtime-message';
-import { type ProtectionRuntimeParticipantContext } from '../../utils/runtime-page-context';
-import { type ProtectionRuntimeBrowser } from '../../types/browser-runtime';
-import { type ProtectionContinuationContext } from '../protection-page-projector/types';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionCoordinator, ProtectionCoordinatorDispatchResult, ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import type { DepartureCause } from '../../../../domains/protection/types/protection-event';
+import type { InterruptionPageResponse } from '../../types/runtime-message';
+import type { ProtectionRuntimeParticipantContext } from '../../utils/runtime-page-context';
+import type { ProtectionRuntimeBrowser } from '../../types/browser-runtime';
+import type { ProtectionContinuationContext } from '../protection-page-projector/types';
 
 /**
  * Dependencies used to handle interruption-page requests.

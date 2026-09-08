@@ -1,4 +1,4 @@
-import { type CompletionAction as CompletionActionValue } from '../../../../domains/protection/types/completion-action';
+import type { CompletionAction as CompletionActionValue } from '../../../../domains/protection/types/completion-action';
 
 /**
  * Stable loading states rendered by the Timing settings screen.
@@ -57,9 +57,9 @@ export interface TimingScreenCopy {
 	initialWaitHelp: string;
 	waitIncreaseLabel: string;
 	waitIncreaseHelp: string;
+	noWaitIncrease: string;
 	maximumWaitLabel: string;
 	maximumWaitHelp: string;
-	maximumWaitError: string;
 	allowanceLabel: string;
 	allowanceHelp: string;
 	completionActionLegend: string;
@@ -74,12 +74,13 @@ export interface TimingScreenCopy {
 	loadErrorTitle: string;
 	loadErrorDescription: string;
 	retry: string;
-	saveTiming: string;
-	savingTiming: string;
+	save: string;
+	discard: string;
+	saving: string;
 	saveError: string;
 	invalidConfigurationError: string;
 	invalidTimingConfigurationError: string;
-	savedAnnouncement: string;
+	saved: string;
 	/**
 	 * Formats one whole-second native option.
 	 * @param seconds - Allowed whole-second duration.

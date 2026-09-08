@@ -2,10 +2,10 @@ import {
 	ProtectionDecisionType,
 	type ProtectionDecision,
 } from '../../types/protection-decision';
-import {
-	type AllowanceExpiryEvent,
-	type LivePageAllowanceExpiryCandidate,
-	type ReadyAllowanceExpiryCandidate,
+import type {
+	AllowanceExpiryEvent,
+	LivePageAllowanceExpiryCandidate,
+	ReadyAllowanceExpiryCandidate,
 } from '../../types/protection-event';
 import {
 	ProtectionParticipantOrigin,
@@ -16,7 +16,7 @@ import {
 	type AllowanceProtectionState,
 	type ProtectionState,
 } from '../../types/protection-state';
-import { type ProtectionTransitionResult } from '../../types/protection-transition-result';
+import type { ProtectionTransitionResult } from '../../types/protection-transition-result';
 import { ScheduleEvaluationStatus } from '../../types/schedule-evaluation';
 import { canonicalizeAllowanceExpiryCandidates } from '../canonicalize-allowance-expiry-candidates';
 import {
@@ -28,7 +28,7 @@ import { synchronizeDailyLadder } from '../daily-ladder-progression';
 import { protectionMatchProtectsScope } from '../match-protection-scope';
 import { selectOwner } from '../select-protection-owner';
 import { getNextWaitDuration } from '../wait-duration-calculator';
-import { type ReadyCandidateProjection } from './types';
+import type { ReadyCandidateProjection } from './types';
 
 /**
  * Revalidates current Ready destinations and projects their fresh expiry observations.

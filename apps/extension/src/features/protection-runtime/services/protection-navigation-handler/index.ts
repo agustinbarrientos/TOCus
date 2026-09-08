@@ -3,16 +3,18 @@ import { ProtectionParticipantOrigin } from '../../../../domains/protection/type
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
 import { ParticipantIdSchema, WaitIdSchema } from '../../../../domains/protection/types/protection-value';
 import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
+import type { CanonicalHost } from '../../../../domains/protection/types/protected-site-rule';
 import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
 import { matchProtectedUrl } from '../../../../domains/protection/utils/protected-url-matcher';
+import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
 import { createRuntimeLocalDate } from '../../utils/runtime-local-date';
 import {
 	createRuntimePageId,
 	findRuntimeParticipantContext,
 } from '../../utils/runtime-page-context';
-import {
-	type ProtectionNavigationHandler,
-	type ProtectionNavigationHandlerOptions,
+import type {
+	ProtectionNavigationHandler,
+	ProtectionNavigationHandlerOptions,
 } from './types';
 import { ProtectionRuntimeNavigationPhase } from '../../types/browser-runtime';
 
@@ -147,6 +149,7 @@ export function createProtectionNavigationHandler(
 	 * @param destination - Exact retained HTTP(S) navigation destination.
 	 * @param configuration - Current validated local configuration.
 	 * @param scopeId - Matched protection scope.
+	 * @param siteHost - Matched protected rule host used for site-specific attribution.
 	 * @return Promise resolved after the visit transaction and browser effects.
 	 * @since 0.1.0 Initial implementation.
 	 */
@@ -155,6 +158,7 @@ export function createProtectionNavigationHandler(
 		destination: string,
 		configuration: Parameters<ProtectionNavigationHandlerOptions[ 'reconcileSchedules' ]>[ 0 ],
 		scopeId: string,
+		siteHost: CanonicalHost,
 	): Promise<void> {
 		const focusedTabId = await options.browser.getFocusedTabId();
 		const nowEpochMilliseconds = options.now();
@@ -167,6 +171,7 @@ export function createProtectionNavigationHandler(
 				participantId: ParticipantIdSchema.parse( `participant_${ options.createStableId() }` ),
 				pageId: createRuntimePageId( tabId, options.createStableId() ),
 				retainedDestination: destination,
+				siteHost,
 				focusEligible: focusedTabId === tabId,
 				statisticsEligible: true,
 			},
@@ -200,14 +205,15 @@ export function createProtectionNavigationHandler(
 		const pendingDestination = isOutcome
 			? pendingDestinationsByTabId.get( navigation.tabId )
 			: undefined;
+		const isInterruptionNavigation = isInterruptionDocumentUrl( navigation.url, options.interruptionPageUrl );
 		const resolvesPendingInterruption =
 			pendingDestination !== undefined &&
-			navigation.url === options.interruptionPageUrl;
+			isInterruptionNavigation;
 
 		if (
 			navigation.frameId !== 0 ||
 			navigation.tabId < 0 ||
-			( navigation.url === options.interruptionPageUrl && ! resolvesPendingInterruption )
+			( isInterruptionNavigation && ! resolvesPendingInterruption )
 		) {
 			return;
 		}
@@ -356,7 +362,7 @@ export function createProtectionNavigationHandler(
 			return;
 		}
 
-		await dispatchVisitAttempt( navigation.tabId, destination, configuration, match.rule.scopeId );
+		await dispatchVisitAttempt( navigation.tabId, destination, configuration, match.rule.scopeId, match.rule.host );
 	}
 
 	return { handle };

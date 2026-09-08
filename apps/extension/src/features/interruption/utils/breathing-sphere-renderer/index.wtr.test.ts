@@ -1,4 +1,4 @@
-import { assert, fixture, html } from '@open-wc/testing';
+import { assert } from '@esm-bundle/chai';
 import { emulateMedia } from '@web/test-runner-commands';
 import {
 	readBreathingSphereColors,
@@ -14,29 +14,26 @@ interface RendererFixture {
 	colorProbe: HTMLSpanElement;
 }
 
+/** Native fixture roots released between Canvas renderer scenarios. */
+const containers: HTMLElement[] = [];
+
 /**
  * Creates a real responsive Canvas and inherited-color probe.
  * @param width - Displayed Canvas width.
  * @param height - Displayed Canvas height.
  * @return Renderer fixture attached to the test document.
  */
-async function createRendererFixture( width: number, height: number ): Promise<RendererFixture> {
-	const container = await fixture<HTMLElement>( html`
-		<div>
-			<canvas style="display: block; width: ${ width }px; height: ${ height }px;"></canvas>
-			<span></span>
-		</div>
-	` );
-	const canvas = container.querySelector( 'canvas' );
-	const colorProbe = container.querySelector( 'span' );
-
-	assert.instanceOf( canvas, HTMLCanvasElement );
-	assert.instanceOf( colorProbe, HTMLSpanElement );
-	if ( ! ( canvas instanceof HTMLCanvasElement ) || ! ( colorProbe instanceof HTMLSpanElement ) ) {
-		throw new Error( 'Expected a Canvas and color probe in the renderer fixture.' );
-	}
-
-	return { canvas, colorProbe };
+function createRendererFixture( width: number, height: number ): Promise<RendererFixture> {
+	const container = document.createElement( 'div' );
+	const canvas = document.createElement( 'canvas' );
+	const colorProbe = document.createElement( 'span' );
+	canvas.style.display = 'block';
+	canvas.style.width = `${ String( width ) }px`;
+	canvas.style.height = `${ String( height ) }px`;
+	container.append( canvas, colorProbe );
+	document.body.append( container );
+	containers.push( container );
+	return Promise.resolve( { canvas, colorProbe } );
 }
 
 /**
@@ -80,6 +77,9 @@ describe( 'breathing-sphere renderer', () => {
 	} );
 
 	afterEach( () => {
+		containers.splice( 0 ).forEach( ( container ) => {
+			container.remove();
+		} );
 		document.documentElement.removeAttribute( 'data-tocus-palette' );
 		document.documentElement.removeAttribute( 'data-tocus-theme' );
 	} );

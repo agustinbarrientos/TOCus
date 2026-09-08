@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { type CatalogType } from '@lingui/cli/api';
+import type { CatalogType } from '@lingui/cli/api';
 import { formatter } from '@lingui/format-po';
 
 /**

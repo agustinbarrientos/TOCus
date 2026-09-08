@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { CanonicalHostSchema } from './protected-site-rule';
 import {
 	JoinSequenceSchema,
 	PageIdSchema,
@@ -36,6 +37,8 @@ export const NavigationProtectionParticipantSchema = z.object( {
 	participantId: ParticipantIdSchema,
 	pageId: PageIdSchema,
 	retainedDestination: RetainedNavigationDestinationSchema,
+	/** Matched protected rule host, absent for participants retained before site attribution. */
+	siteHost: CanonicalHostSchema.optional(),
 	focusEligible: z.boolean(),
 	statisticsEligible: z.boolean().default( false ),
 	joinSequence: JoinSequenceSchema,
@@ -93,6 +96,8 @@ export const VisitAttemptParticipantSchema = z.object( {
 	participantId: ParticipantIdSchema,
 	pageId: PageIdSchema,
 	retainedDestination: RetainedNavigationDestinationSchema,
+	/** Matched protected rule host, absent for legacy visit attempts. */
+	siteHost: CanonicalHostSchema.optional(),
 	focusEligible: z.boolean(),
 	statisticsEligible: z.boolean().default( false ),
 } ).strict();

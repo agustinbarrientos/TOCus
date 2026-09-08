@@ -15,7 +15,7 @@ function createUnavailableProjection(): StatisticsProjection {
 }
 
 /**
- * Projects the five approved global all-time statistics values.
+ * Projects all-time statistics, including focused pause time in the reclaimed-time total.
  * @param input - Unknown persisted statistics document.
  * @return Available aggregate values, or an unavailable projection for unsafe persistence.
  * @since 0.1.0 Initial implementation.
@@ -61,6 +61,12 @@ export function projectStatistics( input: unknown ): StatisticsProjection {
 				hasFinalizedBaseline = true;
 			}
 		}
+
+		// Stored estimates contain avoided browsing only; include pause time once at the read boundary.
+		estimatedReclaimedMilliseconds = addStatisticsValues(
+			estimatedReclaimedMilliseconds,
+			focusedPauseMilliseconds,
+		);
 	} catch {
 		return createUnavailableProjection();
 	}

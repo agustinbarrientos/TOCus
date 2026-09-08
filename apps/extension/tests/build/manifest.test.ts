@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { access, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { type CatalogType } from '@lingui/cli/api';
+import type { CatalogType } from '@lingui/cli/api';
 import { formatter } from '@lingui/format-po';
 import { describe, expect, test } from 'vitest';
 
@@ -11,6 +11,17 @@ const safariManifestUrl = new URL( '../../.output/safari-mv2/manifest.json', imp
 const chromeOutputUrl = new URL( '../../.output/chrome-mv3/', import.meta.url );
 const firefoxOutputUrl = new URL( '../../.output/firefox-mv2/', import.meta.url );
 const safariOutputUrl = new URL( '../../.output/safari-mv2/', import.meta.url );
+
+test.each( [ 'popup', 'options', 'onboarding', 'interruption', 'pause' ] )(
+	'loads %s modules normally without incompatible extension preload hints', async ( page ) => {
+		for ( const output of [ chromeOutputUrl, firefoxOutputUrl, safariOutputUrl ] ) {
+			const html = await readFile( new URL( `${ page }.html`, output ), 'utf8' );
+			expect( html ).toMatch( /<script[^>]+type="module"[^>]+src="[^"]+"/u );
+			expect( html ).toMatch( /<link[^>]+rel="stylesheet"/u );
+			expect( html ).not.toMatch( /<link[^>]+rel="modulepreload"/u );
+		}
+	},
+);
 const themeIconUrl = new URL( '../../../../packages/theme/assets/icon.svg', import.meta.url );
 const expectedExtensionIcons = {
 	16: 'icons/16.png',
@@ -26,12 +37,12 @@ const expectedExtensionIcons = {
 	512: 'icons/512.png',
 } as const;
 const expectedToolbarIcons = {
-	16: 'icons/16.png',
-	19: 'icons/19.png',
-	24: 'icons/24.png',
-	32: 'icons/32.png',
-	38: 'icons/38.png',
-	64: 'icons/64.png',
+	16: 'icons/toolbar-16.png',
+	19: 'icons/toolbar-19.png',
+	24: 'icons/toolbar-24.png',
+	32: 'icons/toolbar-32.png',
+	38: 'icons/toolbar-38.png',
+	64: 'icons/toolbar-64.png',
 } as const;
 const expectedProtectedPageFontResources = [
 	'assets/protected-page-font.woff2',
@@ -40,6 +51,7 @@ const expectedProtectedPageFontResources = [
 ] as const;
 const expectedProtectedPageResources = [
 	...expectedProtectedPageFontResources,
+	'pause.html',
 	'interruption.html',
 ] as const;
 const expectedProtectedPageMatches = [
@@ -108,6 +120,12 @@ const settingsOnlyMessage = 'Choose the language TOCus uses across the extension
  * @since 0.1.0 Initial implementation.
  */
 const maximumClassicRuntimeBytes = 450_000;
+/**
+ * Bounds the injected React/Mantine renderer, including its isolated library CSS.
+ * Background scripts retain the smaller engine-only budget above.
+ * @since 0.1.0 React presentation migration.
+ */
+const maximumProtectedPageBytes = 1_000_000;
 const pngSignature = Buffer.from( [ 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a ] );
 
 /**
@@ -262,7 +280,7 @@ async function expectPopupComposition( outputUrl: URL ): Promise<void> {
 	const moduleSource = moduleScript?.[ 1 ];
 
 	expectPreferencesBootstrap( popupHtml );
-	expect( popupHtml ).toContain( '<tocus-f-popup-shell>' );
+	expect( popupHtml ).toContain( '<div id="app"></div>' );
 	expect( moduleSource ).toBeDefined();
 
 	if ( moduleSource === undefined ) {
@@ -271,7 +289,7 @@ async function expectPopupComposition( outputUrl: URL ): Promise<void> {
 
 	const moduleCode = await readOutputFile( outputUrl, moduleSource.replace( /^\//u, '' ) );
 
-	expect( moduleCode ).toContain( 'tocus-f-popup-shell' );
+	expect( moduleCode ).toMatch( /getElementById\([`"']app[`"']\)/u );
 }
 
 /**
@@ -286,7 +304,7 @@ async function expectOptionsComposition( outputUrl: URL ): Promise<void> {
 	const moduleSource = moduleScript?.[ 1 ];
 
 	expectPreferencesBootstrap( optionsHtml );
-	expect( optionsHtml ).toContain( '<tocus-f-settings-shell>' );
+	expect( optionsHtml ).toContain( '<div id="settings-root"></div>' );
 	expect( moduleSource ).toBeDefined();
 
 	if ( moduleSource === undefined ) {
@@ -295,7 +313,7 @@ async function expectOptionsComposition( outputUrl: URL ): Promise<void> {
 
 	const moduleCode = await readOutputFile( outputUrl, moduleSource.replace( /^\//u, '' ) );
 
-	expect( moduleCode ).toContain( 'tocus-f-settings-shell' );
+	expect( moduleCode ).toMatch( /getElementById\([`"']settings-root[`"']\)/u );
 }
 
 /**
@@ -310,7 +328,7 @@ async function expectOnboardingComposition( outputUrl: URL ): Promise<void> {
 	const moduleSource = moduleScript?.[ 1 ];
 
 	expectPreferencesBootstrap( onboardingHtml );
-	expect( onboardingHtml ).toContain( '<tocus-f-onboarding-shell>' );
+	expect( onboardingHtml ).toContain( '<div id="app"></div>' );
 	expect( moduleSource ).toBeDefined();
 
 	if ( moduleSource === undefined ) {
@@ -320,7 +338,7 @@ async function expectOnboardingComposition( outputUrl: URL ): Promise<void> {
 	const moduleCode = await readOutputFile( outputUrl, moduleSource.replace( /^\//u, '' ) );
 	const iconDataUrls = moduleCode.match( /data:image\/svg\+xml,[^`]+/gu ) ?? [];
 
-	expect( moduleCode ).toContain( 'tocus-f-onboarding-shell' );
+	expect( moduleCode ).toMatch( /getElementById\([`"']app[`"']\)/u );
 	expect( iconDataUrls ).toHaveLength( expectedOnboardingSiteNames.length );
 	expect( new Set( iconDataUrls ).size ).toBe( expectedOnboardingSiteNames.length );
 
@@ -332,24 +350,27 @@ async function expectOnboardingComposition( outputUrl: URL ): Promise<void> {
 /**
  * Verifies that the generated interruption page loads its approved screen component.
  * @param outputUrl - Browser output-directory URL.
+ * @param document - Current or upgrade-compatible interruption document.
  * @return Promise resolved after all interruption-page composition assertions pass.
  */
-async function expectInterruptionComposition( outputUrl: URL ): Promise<void> {
-	const interruptionHtml = await readOutputFile( outputUrl, 'interruption.html' );
-	const moduleScript = interruptionHtml.match( /<script\s[^>]*type="module"[^>]*src="([^"]+)"/u );
-	const moduleSource = moduleScript?.[ 1 ];
+async function expectInterruptionComposition( outputUrl: URL, document: string ): Promise<void> {
+	const interruptionHtml = await readOutputFile( outputUrl, document );
+	const moduleScripts = [ ...interruptionHtml.matchAll( /<script\s[^>]*type="module"[^>]*src="([^"]+)"/gu ) ];
 
 	expectPreferencesBootstrap( interruptionHtml );
 	expect( interruptionHtml ).toContain( '<tocus-f-interruption-screen>' );
-	expect( moduleSource ).toBeDefined();
+	expect( moduleScripts.length ).toBeGreaterThan( 0 );
+	// Both pause entrypoints share their bootstrap; the bundler may emit its dependencies first.
+	const moduleCode = await Promise.all( moduleScripts.map( ( match ) => {
+		const source = match[ 1 ];
 
-	if ( moduleSource === undefined ) {
-		throw new Error( 'The generated interruption page is missing its module script.' );
-	}
+		if ( source === undefined ) {
+			throw new Error( 'The generated interruption page has a module script without a source.' );
+		}
+		return readOutputFile( outputUrl, source.replace( /^\//u, '' ) );
+	} ) );
 
-	const moduleCode = await readOutputFile( outputUrl, moduleSource.replace( /^\//u, '' ) );
-
-	expect( moduleCode ).toContain( 'tocus-f-interruption-screen' );
+	expect( moduleCode.join( '\n' ) ).toContain( 'tocus-f-interruption-screen' );
 }
 
 /**
@@ -395,7 +416,9 @@ async function expectClassicRuntimeLocalization(
 
 	expect( source ).not.toContain( 'import(' );
 	expect( source ).not.toContain( settingsOnlyMessage );
-	expect( contents.byteLength ).toBeLessThanOrEqual( maximumClassicRuntimeBytes );
+	expect( contents.byteLength ).toBeLessThanOrEqual(
+		filePath === 'protected-page.js' ? maximumProtectedPageBytes : maximumClassicRuntimeBytes,
+	);
 }
 
 /**
@@ -587,7 +610,8 @@ describe( 'extension build manifest', () => {
 		[ 'Firefox', firefoxOutputUrl ],
 		[ 'Safari', safariOutputUrl ],
 	] )( 'connects the generated %s interruption page to its screen', async ( _browser, outputUrl ) => {
-		await expectInterruptionComposition( outputUrl );
+		await expectInterruptionComposition( outputUrl, 'pause.html' );
+		await expectInterruptionComposition( outputUrl, 'interruption.html' );
 	} );
 
 	test.each( [

@@ -1,48 +1,48 @@
-import {
-	type BrowserPreferencesMutationLock,
+import type {
+	BrowserPreferencesMutationLock,
 } from '../../../../domains/preferences/services/browser-preferences-editor';
-import { type PreferencesEditor } from '../../../../domains/preferences/services/preferences-editor';
-import { type PreferencesStorageArea } from '../../../../domains/preferences/services/preferences-storage';
-import { type Language } from '../../../../domains/preferences/types';
-import {
-	type BrowserProtectionConfigurationMutationLock,
-	type BrowserProtectionCryptography,
+import type { PreferencesEditor } from '../../../../domains/preferences/services/preferences-editor';
+import type { PreferencesStorageArea } from '../../../../domains/preferences/services/preferences-storage';
+import type { Language } from '../../../../domains/preferences/types';
+import type {
+	BrowserProtectionConfigurationMutationLock,
+	BrowserProtectionCryptography,
 } from '../../../../domains/protection/services/browser-protection-configuration-editor';
-import { type ProtectionConfigurationEditor } from '../../../../domains/protection/services/protection-configuration-editor';
-import { type ProtectionConfigurationStorageArea } from '../../../../domains/protection/services/protection-configuration-storage';
-import { type LocalizationBundle } from '../../../../localization';
-import {
-	type PreferencesAppearanceTarget,
-	type PreferencesStorageChangeSource,
-	type PreferencesSystemMotionPreference,
+import type { ProtectionConfigurationEditor } from '../../../../domains/protection/services/protection-configuration-editor';
+import type { ProtectionConfigurationStorageArea } from '../../../../domains/protection/services/protection-configuration-storage';
+import type { LocalizationBundle } from '../../../../localization';
+import type {
+	PreferencesAppearanceTarget,
+	PreferencesStorageChangeSource,
+	PreferencesSystemMotionPreference,
 } from '../../../preferences/services/preferences-controller';
-import { type SiteFaviconProvider } from '../../../protected-sites/services/site-favicon-provider';
-import {
-	type SitePermissionApi,
-	type SitePermissionManager,
+import type { SiteFaviconProvider } from '../../../protected-sites/services/site-favicon-provider';
+import type {
+	SitePermissionApi,
+	SitePermissionManager,
 } from '../../../protected-sites/services/site-permission-manager';
-import {
-	type StatisticsStorageChangeSource,
+import type {
+	StatisticsStorageChangeSource,
 } from '../../../statistics/services/statistics-client';
-import { type PrivacyDataRuntime } from '../privacy-data-actions/types';
-import { type AboutScreenCopy } from '../../components/about-screen/types';
-import { type PrivacyDataActions, type PrivacyScreenCopy } from '../../components/privacy-screen/types';
-import { type StatisticsSource } from '../../../statistics/components/settings-screen/types';
-import {
-	type AppearanceScreenCopy,
-	type PreferencesPreview,
-	type PreferencesSource,
+import type { PrivacyDataRuntime } from '../privacy-data-actions/types';
+import type { AboutScreenCopy } from '../../components/about-screen/types';
+import type { PrivacyDataActions, PrivacyScreenCopy } from '../../components/privacy-screen/types';
+import type { StatisticsSource } from '../../../statistics/components/settings-screen/types';
+import type {
+	AppearanceScreenCopy,
+	PreferencesPreview,
+	PreferencesSource,
 } from '../../components/appearance-screen/types';
-import { type LanguageScreenCopy } from '../../components/language-screen/types';
-import { type ScheduleScreenCopy } from '../../components/schedule-screen/types';
-import {
-	type SettingsPlatform,
-	type SettingsShellCopy,
+import type { LanguageScreenCopy } from '../../components/language-screen/types';
+import type { ScheduleScreenCopy } from '../../components/schedule-screen/types';
+import type {
+	SettingsPlatform,
+	SettingsShellCopy,
 } from '../../components/shell/types';
-import { type TimingScreenCopy } from '../../components/timing-screen/types';
-import { type ProtectedSiteItemCopy } from '../../../protected-sites/components/site-item/types';
-import { type ProtectedSitesScreenCopy } from '../../../protected-sites/components/screen/types';
-import { type StatisticsSettingsScreenCopy } from '../../../statistics/components/settings-screen/types';
+import type { TimingScreenCopy } from '../../components/timing-screen/types';
+import type { ProtectedSiteItemCopy } from '../../../protected-sites/components/site-item/types';
+import type { ProtectedSitesScreenCopy } from '../../../protected-sites/components/screen/types';
+import type { StatisticsSettingsScreenCopy } from '../../../statistics/components/settings-screen/types';
 
 /**
  * Browser permission change relevant to settings access refresh.
@@ -105,24 +105,10 @@ export interface ProtectedSitesAccessRefresher {
 }
 
 /**
- * Minimal shadow root used to locate the active Protected Sites destination.
- * @since 0.1.0 Initial implementation.
- */
-export interface SettingsPageShadowRoot {
-	/**
-	 * Finds one rendered settings descendant.
-	 * @param selectors - CSS selector to match.
-	 * @return Matching value or null.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	querySelector( selectors: string ): unknown;
-}
-
-/**
  * Settings shell properties coordinated by the page service.
  * @since 0.1.0 Initial implementation.
  */
-export interface SettingsPageShell {
+export interface SettingsPageShell extends ProtectedSitesAccessRefresher {
 	/** Localized About destination copy. */
 	aboutCopy: Readonly<AboutScreenCopy>;
 	/** Installed extension version. */
@@ -159,8 +145,6 @@ export interface SettingsPageShell {
 	protectedSitesCopy: Readonly<ProtectedSitesScreenCopy>;
 	/** Localized Schedule destination copy. */
 	scheduleCopy: Readonly<ScheduleScreenCopy>;
-	/** Rendered settings descendants. */
-	readonly shadowRoot: SettingsPageShadowRoot | null;
 	/** Localized Statistics destination copy. */
 	statisticsCopy: Readonly<StatisticsSettingsScreenCopy>;
 	/** Authoritative local statistics source. */

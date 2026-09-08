@@ -8,13 +8,13 @@ import {
 	PopupRuntimeRequestType,
 	type PopupRuntimeRequest,
 } from '../../types/runtime-message';
-import { type BrowserProtectionRuntimeSnapshot } from '../../../protection-runtime/services/browser-protection-runtime';
+import type { BrowserProtectionRuntimeSnapshot } from '../../../protection-runtime/services/browser-protection-runtime';
 import { createPopupProjection } from '../../utils/create-popup-projection';
-import {
-	type PopupBackgroundController,
-	type PopupBackgroundControllerOptions,
-	type PopupBackgroundMessageSender,
-	type PopupBackgroundSendResponse,
+import type {
+	PopupBackgroundController,
+	PopupBackgroundControllerOptions,
+	PopupBackgroundMessageSender,
+	PopupBackgroundSendResponse,
 } from './types';
 
 const NAVIGATION_PERMISSION = 'webNavigation';

@@ -4,7 +4,7 @@ import {
 	getBreathingSpherePoint,
 	getBreathingSphereRadius,
 } from '../breathing-sphere-geometry';
-import { type BreathingSphereColors, type BreathingSphereFrameInput } from './types';
+import type { BreathingSphereColors, BreathingSphereFrameInput } from './types';
 
 const PATH_POINT_COUNT = 96;
 const MAXIMUM_DEVICE_PIXEL_RATIO = 2;

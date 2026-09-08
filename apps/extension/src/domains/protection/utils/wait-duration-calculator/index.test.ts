@@ -18,7 +18,7 @@ const VALID_DAILY_LADDER = Object.freeze( {
 
 describe( 'timing configuration', () => {
 	describe( 'valid grids and boundaries', () => {
-		it.each( [ 10_000, 15_000, 20_000, 25_000, 30_000, 35_000, 40_000, 45_000, 50_000, 55_000, 60_000 ] )(
+		it.each( [ 10_000, 15_000, 20_000, 25_000, 30_000 ] )(
 			'accepts an initial wait of %i milliseconds',
 			( initialWaitMilliseconds ) => {
 				expect(
@@ -33,7 +33,7 @@ describe( 'timing configuration', () => {
 			},
 		);
 
-		it.each( [ 5_000, 10_000, 15_000, 20_000, 25_000, 30_000, 35_000, 40_000, 45_000, 50_000, 55_000, 60_000 ] )(
+		it.each( [ 0, 1_000, 2_000, 3_000, 4_000, 5_000 ] )(
 			'accepts a ladder increase of %i milliseconds',
 			( ladderIncreaseMilliseconds ) => {
 				expect(
@@ -51,7 +51,7 @@ describe( 'timing configuration', () => {
 			},
 		);
 
-		it.each( [ 10_000, 15_000, 20_000, 25_000, 30_000, 35_000, 40_000, 45_000, 50_000, 55_000, 60_000 ] )(
+		it.each( [ 30_000, 60_000, 90_000, 120_000 ] )(
 			'accepts a maximum wait of %i milliseconds',
 			( maximumWaitMilliseconds ) => {
 				expect(
@@ -69,7 +69,7 @@ describe( 'timing configuration', () => {
 			},
 		);
 
-		it.each( [ 10_000, 15_000, 20_000, 25_000, 30_000, 35_000, 40_000, 45_000, 50_000, 55_000, 60_000 ] )(
+		it.each( [ 30_000 ] )(
 			'accepts a maximum equal to an initial wait of %i milliseconds',
 			( waitMilliseconds ) => {
 				expect(
@@ -88,7 +88,7 @@ describe( 'timing configuration', () => {
 			},
 		);
 
-		it.each( Array.from( { length: 60 }, ( _, index ) => ( index + 1 ) * 60_000 ) )(
+		it.each( Array.from( { length: 19 }, ( _, index ) => ( index + 2 ) * 60_000 ) )(
 			'accepts a whole-minute allowance of %i milliseconds',
 			( allowanceMilliseconds ) => {
 				expect(
@@ -122,19 +122,22 @@ describe( 'timing configuration', () => {
 	describe( 'invalid values and relationships', () => {
 		it.each( [
 			{ label: 'initial wait below the minimum', overrides: { initialWaitMilliseconds: 5_000 } },
-			{ label: 'initial wait above the maximum', overrides: { initialWaitMilliseconds: 65_000 } },
+			{ label: 'initial wait above the maximum', overrides: { initialWaitMilliseconds: 35_000 } },
 			{ label: 'initial wait off the five-second grid', overrides: { initialWaitMilliseconds: 10_001 } },
+			{ label: 'initial wait on only the one-second grid', overrides: { initialWaitMilliseconds: 11_000 } },
 			{ label: 'fractional initial wait', overrides: { initialWaitMilliseconds: 10_000.5 } },
-			{ label: 'ladder increase below the minimum', overrides: { ladderIncreaseMilliseconds: 0 } },
-			{ label: 'ladder increase above the maximum', overrides: { ladderIncreaseMilliseconds: 65_000 } },
-			{ label: 'ladder increase off the five-second grid', overrides: { ladderIncreaseMilliseconds: 5_001 } },
+			{ label: 'ladder increase below the minimum', overrides: { ladderIncreaseMilliseconds: -1_000 } },
+			{ label: 'ladder increase above the maximum', overrides: { ladderIncreaseMilliseconds: 6_000 } },
+			{ label: 'previously permitted ladder increase in a new configuration', overrides: { ladderIncreaseMilliseconds: 10_000 } },
+			{ label: 'ladder increase off the one-second grid', overrides: { ladderIncreaseMilliseconds: 1_001 } },
 			{ label: 'fractional ladder increase', overrides: { ladderIncreaseMilliseconds: 5_000.5 } },
-			{ label: 'maximum wait below the minimum', overrides: { maximumWaitMilliseconds: 5_000 } },
-			{ label: 'maximum wait above the hard cap', overrides: { maximumWaitMilliseconds: 65_000 } },
-			{ label: 'maximum wait off the five-second grid', overrides: { maximumWaitMilliseconds: 59_999 } },
+			{ label: 'maximum wait below the minimum', overrides: { maximumWaitMilliseconds: 10_000 } },
+			{ label: 'maximum wait above the hard cap', overrides: { maximumWaitMilliseconds: 150_000 } },
+			{ label: 'maximum wait off the thirty-second grid', overrides: { maximumWaitMilliseconds: 45_000 } },
+			{ label: 'maximum wait on only the one-second grid', overrides: { maximumWaitMilliseconds: 61_000 } },
 			{ label: 'fractional maximum wait', overrides: { maximumWaitMilliseconds: 60_000.5 } },
-			{ label: 'allowance below one minute', overrides: { allowanceMilliseconds: 0 } },
-			{ label: 'allowance above sixty minutes', overrides: { allowanceMilliseconds: 3_660_000 } },
+			{ label: 'allowance below two minutes', overrides: { allowanceMilliseconds: 60_000 } },
+			{ label: 'allowance above twenty minutes', overrides: { allowanceMilliseconds: 1_260_000 } },
 			{ label: 'allowance off the whole-minute grid', overrides: { allowanceMilliseconds: 300_001 } },
 			{ label: 'fractional allowance', overrides: { allowanceMilliseconds: 300_000.5 } },
 			{ label: 'unknown completion action', overrides: { completionAction: 'skip' } },
@@ -145,21 +148,6 @@ describe( 'timing configuration', () => {
 					{
 						...VALID_TIMING_CONFIGURATION,
 						...overrides,
-					},
-					VALID_DAILY_LADDER,
-				),
-			).toThrow( ZodError );
-		} );
-
-		it.each( [
-			{ initialWaitMilliseconds: 15_000, maximumWaitMilliseconds: 10_000 },
-			{ initialWaitMilliseconds: 60_000, maximumWaitMilliseconds: 55_000 },
-		] )( 'rejects a maximum below the initial wait %#', ( relationship ) => {
-			expect( () =>
-				getNextWaitDuration(
-					{
-						...VALID_TIMING_CONFIGURATION,
-						...relationship,
 					},
 					VALID_DAILY_LADDER,
 				),
@@ -187,6 +175,13 @@ describe( 'timing configuration', () => {
 
 describe( 'getNextWaitDuration', () => {
 	describe( 'daily progression and cap behavior', () => {
+		it.each( [ 0, 1, 10, 1_000 ] )( 'keeps the initial wait after %i completions with no increase', ( completedWaits ) => {
+			expect( getNextWaitDuration( {
+				...VALID_TIMING_CONFIGURATION,
+				ladderIncreaseMilliseconds: 0,
+			}, { ...VALID_DAILY_LADDER, completedWaits } ) ).toBe( 10_000 );
+		} );
+
 		it.each( [
 			{ completedWaits: 0, expected: 10_000 },
 			{ completedWaits: 1, expected: 15_000 },
@@ -206,17 +201,21 @@ describe( 'getNextWaitDuration', () => {
 
 		it.each( [
 			{ completedWaits: 0, expected: 20_000 },
-			{ completedWaits: 1, expected: 35_000 },
-			{ completedWaits: 2, expected: 50_000 },
-			{ completedWaits: 3, expected: 50_000 },
+			{ completedWaits: 1, expected: 23_000 },
+			{ completedWaits: 2, expected: 26_000 },
+			{ completedWaits: 9, expected: 47_000 },
+			{ completedWaits: 10, expected: 50_000 },
+			{ completedWaits: 11, expected: 53_000 },
+			{ completedWaits: 14, expected: 60_000 },
+			{ completedWaits: 15, expected: 60_000 },
 		] )( 'applies a custom timing formula after $completedWaits completions', ( { completedWaits, expected } ) => {
 			expect(
 				getNextWaitDuration(
 					{
 						initialWaitMilliseconds: 20_000,
-						ladderIncreaseMilliseconds: 15_000,
-						maximumWaitMilliseconds: 50_000,
-						allowanceMilliseconds: 60_000,
+						ladderIncreaseMilliseconds: 3_000,
+						maximumWaitMilliseconds: 60_000,
+						allowanceMilliseconds: 120_000,
 						completionAction: 'open-automatically',
 					},
 					{

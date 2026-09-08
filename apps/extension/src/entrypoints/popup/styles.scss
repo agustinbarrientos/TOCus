@@ -1,3 +1,4 @@
+@use '@tocus/theme/tokens';
 @use '@tocus/theme/typography' as typography;
 @include typography.emit-tokens( ':root', 1 );
 

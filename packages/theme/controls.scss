@@ -1,0 +1,5 @@
+/* Native pause/dialog focus uses the same token as the shared Mantine theme. */
+@mixin focus-ring($width: 3px, $offset: 2px) {
+	outline: $width solid var(--tocus-color-focus-ring);
+	outline-offset: $offset;
+}

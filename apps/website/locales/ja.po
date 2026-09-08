@@ -14,13 +14,101 @@ msgstr ""
 "Plural-Forms: \n"
 
 #: apps/website/src/localization/index.ts
-msgid "A calmer moment before the next click."
-msgstr "次のクリックの前に、穏やかなひとときを。"
+msgid "100% private."
+msgstr "100%プライベート。"
+
+#: apps/website/src/localization/index.ts
+msgid "10s pause"
+msgstr "10秒の一時停止"
+
+#: apps/website/src/localization/index.ts
+msgid "5m browsing"
+msgstr "5分のブラウジング"
+
+#: apps/website/src/localization/index.ts
+msgid "A preview of the breathing pause."
+msgstr "呼吸のための一時停止のプレビュー。"
+
+#: apps/website/src/localization/index.ts
+msgid "A short pause before the websites you choose."
+msgstr "選んだサイトを開く前に、短い休憩を。"
+
+#: apps/website/src/localization/index.ts
+msgid "A smiling capybara peeking over the browser"
+msgstr "ブラウザーの上から顔をのぞかせる、笑顔のカピバラ"
+
+#: apps/website/src/localization/index.ts
+msgid "Add a pause to your browser."
+msgstr "ブラウザーにひと呼吸を加えましょう。"
+
+#: apps/website/src/localization/index.ts
+msgid "Also available on"
+msgstr "こちらのブラウザでも利用可能"
+
+#: apps/website/src/localization/index.ts
+msgid "Appearance"
+msgstr "外観"
+
+#: apps/website/src/localization/index.ts
+msgid "Breathe"
+msgstr "呼吸する"
+
+#: apps/website/src/localization/index.ts
+msgid "Breathe in"
+msgstr "息を吸って"
+
+#: apps/website/src/localization/index.ts
+msgid "Browse"
+msgstr "閲覧する"
+
+#: apps/website/src/localization/index.ts
+msgid "Browse for five minutes"
+msgstr "5分間閲覧"
+
+#: apps/website/src/localization/index.ts
+msgid "By default, the next pause comes five minutes after you select Continue."
+msgstr "初期設定では「続ける」を選んでから5分後に次の休憩が始まります。"
+
+#: apps/website/src/localization/index.ts
+msgid "Choose sites"
+msgstr "サイトを選ぶ"
+
+#: apps/website/src/localization/index.ts
+msgid "Choose the websites to pause."
+msgstr "一時停止するウェブサイトを選びます。"
+
+#: apps/website/src/localization/index.ts
+msgid "Choose your wait, browsing time, and schedule."
+msgstr "待ち時間、閲覧時間、スケジュールを選びます。"
+
+#: apps/website/src/localization/index.ts
+msgid "Coming soon"
+msgstr "近日公開"
+
+#: apps/website/src/localization/index.ts
+msgid "Continue"
+msgstr "続ける"
+
+#: apps/website/src/localization/index.ts
+msgid "Continue after the pause"
+msgstr "休憩後に続ける"
 
 #. Language-menu autonym. Keep this language name written in German.
 #: apps/website/src/localization/index.ts
 msgid "Deutsch"
 msgstr "Deutsch"
+
+#: apps/website/src/localization/index.ts
+msgid "Different sites, different timing"
+msgstr "サイトごとに異なる時間設定"
+
+#: apps/website/src/localization/index.ts
+msgid "Download for"
+msgstr "ダウンロード："
+
+#: apps/website/src/localization/index.ts
+msgid "Download TOCus"
+msgstr "TOCusをダウンロード"
 
 #. Language-menu autonym. Keep this language name written in English.
 #: apps/website/src/localization/index.ts
@@ -38,13 +126,49 @@ msgid "Español (vos)"
 msgstr "Español (vos)"
 
 #: apps/website/src/localization/index.ts
+msgid "Example data"
+msgstr "サンプルデータ"
+
+#: apps/website/src/localization/index.ts
+msgid "Example timing"
+msgstr "時間設定の例"
+
+#: apps/website/src/localization/index.ts
 msgid "Explore the source on GitHub"
 msgstr "GitHub でソースコードを見る"
+
+#: apps/website/src/localization/index.ts
+msgid "Follow the breathing guide. Your browsing time has not started yet."
+msgstr "呼吸ガイドに従ってください。閲覧時間はまだ始まっていません。"
+
+#: apps/website/src/localization/index.ts
+msgid "For anyone who needs a moment away from everything online."
+msgstr "オンラインから少し離れる時間が必要なすべての人へ。"
 
 #. Language-menu autonym. Keep this language name written in French.
 #: apps/website/src/localization/index.ts
 msgid "Français"
 msgstr "Français"
+
+#: apps/website/src/localization/index.ts
+msgid "Free and open source"
+msgstr "無料・オープンソース"
+
+#: apps/website/src/localization/index.ts
+msgid "Free and open source."
+msgstr "無料でオープンソース。"
+
+#: apps/website/src/localization/index.ts
+msgid "Give any website its own wait and schedule."
+msgstr "各ウェブサイトに個別の待ち時間とスケジュールを設定できます。"
+
+#: apps/website/src/localization/index.ts
+msgid "How it works"
+msgstr "使い方"
+
+#: apps/website/src/localization/index.ts
+msgid "How TOCus works."
+msgstr "TOCusの使い方。"
 
 #. Language-menu autonym. Keep this language name written in Italian.
 #: apps/website/src/localization/index.ts
@@ -52,8 +176,60 @@ msgid "Italiano"
 msgstr "Italiano"
 
 #: apps/website/src/localization/index.ts
+msgid "Made by"
+msgstr "制作"
+
+#: apps/website/src/localization/index.ts
+msgid "Meet the creator"
+msgstr "開発者について"
+
+#: apps/website/src/localization/index.ts
+msgid "No account. No tracking."
+msgstr "アカウント不要。追跡なし。"
+
+#: apps/website/src/localization/index.ts
+msgid "No accounts."
+msgstr "アカウント不要。"
+
+#: apps/website/src/localization/index.ts
+msgid "No external calls."
+msgstr "外部通信なし。"
+
+#: apps/website/src/localization/index.ts
+msgid "No tracking."
+msgstr "トラッキングなし。"
+
+#: apps/website/src/localization/index.ts
+msgid "On supported sites, playing videos pause and resume when you continue."
+msgstr "対応サイトでは、再生中の動画が一時停止し、続けると再開します。"
+
+#: apps/website/src/localization/index.ts
+msgid "Only when you want"
+msgstr "必要なときだけ"
+
+#: apps/website/src/localization/index.ts
+msgid "Open a site"
+msgstr "サイトを開く"
+
+#: apps/website/src/localization/index.ts
+msgid "Open a website you added to TOCus."
+msgstr "TOCusに追加したウェブサイトを開きます。"
+
+#: apps/website/src/localization/index.ts
 msgid "Open-source browser extension"
 msgstr "オープンソースのブラウザー拡張機能"
+
+#: apps/website/src/localization/index.ts
+msgid "Pause and browsing time"
+msgstr "休憩と閲覧の時間"
+
+#: apps/website/src/localization/index.ts
+msgid "Pause before you scroll."
+msgstr "スクロールする前に、ひと呼吸。"
+
+#: apps/website/src/localization/index.ts
+msgid "Pauses taken. Visits reconsidered."
+msgstr "一時停止の回数。見直した訪問。"
 
 #. Language-menu autonym for Brazilian Portuguese. Keep this language name written in Portuguese.
 #: apps/website/src/localization/index.ts
@@ -66,20 +242,92 @@ msgid "Português (Portugal)"
 msgstr "Português (Portugal)"
 
 #: apps/website/src/localization/index.ts
-msgid "TOCus adds a gentle breathing pause before the websites you choose, helping you browse more intentionally."
-msgstr "TOCusは選んだウェブサイトを開く前に穏やかな呼吸の時間を設け、何を見るかを意識して選べるようにします。"
+msgid "Privacy"
+msgstr "プライバシー"
+
+#: apps/website/src/localization/index.ts
+msgid "Read the code, suggest changes, or make it your own."
+msgstr "コードを読み、変更を提案し、自分好みにできます。"
+
+#: apps/website/src/localization/index.ts
+msgid "Read the privacy policy"
+msgstr "プライバシーポリシーを読む"
+
+#: apps/website/src/localization/index.ts
+msgid "See your progress."
+msgstr "これまでの記録を確認。"
+
+#: apps/website/src/localization/index.ts
+msgid "Select the sites where you want a pause."
+msgstr "一時停止したいサイトを選びます。"
+
+#: apps/website/src/localization/index.ts
+msgid "Set the days and hours TOCus is active."
+msgstr "TOCusを有効にする曜日と時間を設定します。"
+
+#: apps/website/src/localization/index.ts
+msgid "Set the pause to fit your day."
+msgstr "一時停止を一日の流れに合わせましょう。"
+
+#: apps/website/src/localization/index.ts
+msgid "Settings and statistics stay in your browser. TOCus works without an internet connection."
+msgstr "設定と統計情報はブラウザー内に保存されます。TOCusはインターネット接続なしで動作します。"
+
+#: apps/website/src/localization/index.ts
+msgid "Six palettes with light, dark, or system appearance. Turn off breathing guidance or use reduced motion."
+msgstr "6種類の配色と、ライト、ダーク、システム設定に合わせた外観。呼吸ガイドをオフにしたり、動きを減らしたりできます。"
+
+#: apps/website/src/localization/index.ts
+msgid "Skip to content"
+msgstr "本文へ移動"
+
+#: apps/website/src/localization/index.ts
+msgid "Support"
+msgstr "サポート"
+
+#: apps/website/src/localization/index.ts
+msgid "Take a moment before you continue."
+msgstr "続ける前に、ひと呼吸。"
+
+#: apps/website/src/localization/index.ts
+msgid "Time left"
+msgstr "残り時間"
+
+#: apps/website/src/localization/index.ts
+msgid "TOCus adds a breathing pause to the websites you choose."
+msgstr "TOCusは選んだウェブサイトに呼吸のための一時停止を加えます。"
 
 #: apps/website/src/localization/index.ts
 msgid "TOCus is an open-source browser extension."
 msgstr "TOCusはオープンソースのブラウザー拡張機能です。"
 
 #: apps/website/src/localization/index.ts
-msgid "TOCus works entirely on your device and will stay that way. No accounts, servers, tracking, browsing-history analysis, or external network requests."
-msgstr "TOCusはすべて端末内で動作し、今後も変わりません。アカウント、サーバー、トラッキング、閲覧履歴の分析、外部へのネットワーク通信は一切ありません。"
+msgid "View the source"
+msgstr "ソースを見る"
+
+#: apps/website/src/localization/index.ts
+msgid "Visit a website"
+msgstr "ウェブサイトにアクセス"
+
+#: apps/website/src/localization/index.ts
+msgid "Website added"
+msgstr "ウェブサイトを追加しました"
 
 #: apps/website/src/localization/index.ts
 msgid "Website language"
 msgstr "ウェブサイトの言語"
+
+#: apps/website/src/localization/index.ts
+msgid "When the wait ends, select Continue to open the website, or close the tab."
+msgstr "待ち時間が終わったら「続ける」を選んでウェブサイトを開くか、タブを閉じます。"
+
+#: apps/website/src/localization/index.ts
+msgid "Your data stays on your device."
+msgstr "データはお使いの端末内に保存。"
+
+#: apps/website/src/localization/index.ts
+msgid "Your video pauses, too."
+msgstr "動画も一緒に一時停止。"
 
 #. Language-menu autonym. Keep this language name written in Russian.
 #: apps/website/src/localization/index.ts

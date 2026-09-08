@@ -1,7 +1,7 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import { Language } from '../../../domains/preferences/types';
-import { type LanguageScreenCopy } from '../../../features/settings/components/language-screen/types';
+import type { LanguageScreenCopy } from '../../../features/settings/components/language-screen/types';
 
 /**
  * Creates localized Language-screen copy.
@@ -69,7 +69,6 @@ export function createLanguageScreenCopy( i18n: I18n ): Readonly<LanguageScreenC
 			} ) ),
 		} ),
 		browserLanguageOption: i18n._( msg`Use browser language` ),
-		explicitLanguageDescription: i18n._( msg`TOCus will keep using this language until you change it.` ),
 		loading: i18n._( msg`Loading language settings...` ),
 		malformedDataTitle: i18n._( msg`Personalization settings need your attention` ),
 		malformedDataDescription: i18n._(
@@ -80,7 +79,10 @@ export function createLanguageScreenCopy( i18n: I18n ): Readonly<LanguageScreenC
 		retry: i18n._( msg`Try again` ),
 		restoreDefaults: i18n._( msg`Restore personalization defaults` ),
 		restoreDefaultsError: i18n._( msg`TOCus could not restore your personalization defaults. Nothing was changed.` ),
-		saveError: i18n._( msg`Your language could not be saved. TOCus returned to your previous language.` ),
+		saveError: i18n._( msg`Your language could not be saved. Your choice is still shown here.` ),
+		save: i18n._( msg`Save` ),
+		saving: i18n._( msg`Saving...` ),
+		discard: i18n._( msg`Discard` ),
 		savedAnnouncement: i18n._( msg`Language saved.` ),
 		restoredAnnouncement: i18n._( msg`Personalization defaults restored.` ),
 		formatBrowserLanguageDescription,

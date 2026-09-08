@@ -6,7 +6,7 @@ import {
 	evaluateSchedule,
 	getNextScheduleTransitionDeadline,
 } from '../schedule-evaluator';
-import { type AllowanceWarningInterval } from './types';
+import type { AllowanceWarningInterval } from './types';
 
 /**
  * Calculates the schedule-active portion of one allowance's final warning window.

@@ -36,6 +36,59 @@ const VALID_STATISTICS_DOCUMENT = {
 };
 
 describe( 'StatisticsDocumentSchema', () => {
+	it( 'rejects attributed site time exceeding actual confirmed foreground use', () => {
+		const scope = VALID_STATISTICS_DOCUMENT.scopes.scope_default;
+		expect( StatisticsDocumentSchema.safeParse( {
+			...VALID_STATISTICS_DOCUMENT,
+			scopes: {
+				scope_default: {
+					...scope,
+					activeAllowance: {
+						...scope.activeAllowance,
+						focusedUseBySite: { 'youtube.com': 3_000, 'github.com': 1_001 },
+					},
+				},
+			},
+		} ).success ).toBe( false );
+	} );
+
+	it.each( [
+		{ 'https://youtube.com/watch?v=private': 300_000 },
+		{ 'youtube.com': -1 },
+		{ 'youtube.com': 0.5 },
+		{ 'youtube.com': 3_600_001 },
+	] )( 'rejects invalid per-site visit aggregates %#', ( longestVisitsBySite ) => {
+		expect( StatisticsDocumentSchema.safeParse( {
+			...VALID_STATISTICS_DOCUMENT,
+			scopes: {
+				scope_default: { ...VALID_STATISTICS_DOCUMENT.scopes.scope_default, longestVisitsBySite },
+			},
+		} ).success ).toBe( false );
+	} );
+
+	it( 'retains per-site longest visits and current focused use without page addresses', () => {
+		const scope = VALID_STATISTICS_DOCUMENT.scopes.scope_default;
+		const input = {
+			...VALID_STATISTICS_DOCUMENT,
+			scopes: {
+				scope_default: {
+					...scope,
+					longestVisitsBySite: { 'youtube.com': 300_000, constructor: 10_000 },
+					activeAllowance: {
+						...scope.activeAllowance,
+						focusedUseBySite: { 'youtube.com': 3_000, constructor: 1_000 },
+					},
+				},
+			},
+		};
+		const result = StatisticsDocumentSchema.safeParse( input );
+
+		expect( result.success ).toBe( true );
+		if ( result.success ) {
+			expect( result.data.scopes.scope_default ).toMatchObject( input.scopes.scope_default );
+		}
+	} );
+
 	it( 'parses a valid statistics document', () => {
 		expect( StatisticsDocumentSchema.parse( VALID_STATISTICS_DOCUMENT ) ).toEqual( {
 			...VALID_STATISTICS_DOCUMENT,

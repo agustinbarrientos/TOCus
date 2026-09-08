@@ -1,17 +1,19 @@
-import '@tocus/theme/index.scss';
+import '@tocus/ui/styles.scss';
 import { browser } from 'wxt/browser';
 import { resolveLanguage } from '../../domains/preferences/utils';
-import { ComponentSettingsShell } from '../../features/settings/components/shell';
+import { mountSettings } from '../../features/settings/services/settings-presentation';
 import { SettingsPlatform } from '../../features/settings/components/shell/types';
 import { bootstrapSettingsPage } from '../../features/settings/services/settings-page';
 import { loadLocalizationBundle } from '../../localization';
 import './styles.scss';
 
-const settingsShell = document.querySelector( 'tocus-f-settings-shell' );
+const settingsContainer = document.getElementById( 'settings-root' );
 
-if ( ! ( settingsShell instanceof ComponentSettingsShell ) ) {
+if ( settingsContainer === null ) {
 	throw new TypeError( 'Expected the options page to contain the settings shell.' );
 }
+
+const settingsShell = mountSettings( settingsContainer );
 
 void bootstrapSettingsPage( {
 	browserLanguage: resolveLanguage( browser.i18n.getUILanguage() ),

@@ -1,10 +1,10 @@
-import { type ProtectionDecision } from '../../types/protection-decision';
-import { type ScheduleReevaluationEvent } from '../../types/protection-event';
+import type { ProtectionDecision } from '../../types/protection-decision';
+import type { ScheduleReevaluationEvent } from '../../types/protection-event';
 import {
 	ProtectionStateType,
 	type ProtectionState,
 } from '../../types/protection-state';
-import { type ProtectionTransitionResult } from '../../types/protection-transition-result';
+import type { ProtectionTransitionResult } from '../../types/protection-transition-result';
 import { ScheduleEvaluationStatus } from '../../types/schedule-evaluation';
 import { createFailOpenDecision } from '../create-protection-decision';
 import { createTransitionResult } from '../create-protection-transition-result';

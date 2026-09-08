@@ -1,0 +1,61 @@
+@use '@tocus/theme/typography' as typography;
+
+.settings-schedule-scope {
+	display: grid;
+	grid-template-columns: minmax(8rem, 0.35fr) minmax(12rem, 1fr);
+	align-items: center;
+	gap: var(--tocus-space-4);
+	> label { @include typography.apply('label-large'); }
+}
+
+.settings-schedule-form > :not(:first-child, .tocus-form-actions) { margin-top: var(--tocus-space-6); }
+
+.settings-schedule-form {
+	.settings-behavior-label { padding-inline: 2px; }
+
+	.settings-behavior-choices {
+		gap: var(--tocus-space-3);
+		margin-top: var(--tocus-space-3);
+	}
+}
+
+[data-tocus-ui] .settings-page .settings-schedule-windows {
+	h2 {
+		@include typography.apply('label-large');
+
+		margin-bottom: var(--tocus-space-1);
+		padding-inline: 2px;
+	}
+	> p { @include typography.apply('body-small'); margin-bottom: var(--tocus-space-4); }
+}
+
+.settings-schedule-add { align-self: start; }
+
+[data-tocus-ui] .settings-page .settings-schedule-dirty {
+	@include typography.apply('body-small');
+
+	min-height: 1.25rem;
+	margin-top: var(--tocus-space-3);
+}
+
+.settings-schedule-field {
+	display: grid;
+	gap: var(--tocus-space-1);
+	label { @include typography.apply('label-large'); }
+}
+
+.settings-schedule-error {
+	@include typography.apply('body-small');
+
+	min-height: 1rem;
+	margin-top: var(--tocus-space-2);
+}
+
+.settings-schedule-remove {
+	align-self: center;
+	margin-top: 1.25rem;
+}
+
+@media (width <= 48rem) {
+	.settings-schedule-scope { grid-template-columns: minmax(0, 1fr); }
+}

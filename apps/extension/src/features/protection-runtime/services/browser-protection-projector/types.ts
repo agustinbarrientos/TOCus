@@ -1,16 +1,16 @@
-import {
-	type ProtectionCoordinator,
-	type ProtectionCoordinatorDispatchResult,
-	type ProtectionCoordinatorStateSnapshot,
+import type {
+	ProtectionCoordinator,
+	ProtectionCoordinatorDispatchResult,
+	ProtectionCoordinatorStateSnapshot,
 } from '../../../../domains/protection/services/protection-coordinator';
-import { type ProtectionDecision } from '../../../../domains/protection/types/protection-decision';
-import { type AllowanceExpiryProtectionParticipant } from '../../../../domains/protection/types/protection-participant';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type RetainedNavigationDestination } from '../../../../domains/protection/types/protection-value';
-import { type StoredProtectionParticipant } from '../../../../domains/protection/types/stored-protection-participant';
-import { type ToolbarBadgeCopy } from '../../utils/toolbar-badge-projection';
-import { type ProtectionRuntimeBrowser } from '../../types/browser-runtime';
-import { type ProtectionContinuationContext } from '../protection-page-projector/types';
+import type { ProtectionDecision } from '../../../../domains/protection/types/protection-decision';
+import type { AllowanceExpiryProtectionParticipant } from '../../../../domains/protection/types/protection-participant';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { RetainedNavigationDestination } from '../../../../domains/protection/types/protection-value';
+import type { StoredProtectionParticipant } from '../../../../domains/protection/types/stored-protection-participant';
+import type { ToolbarBadgeCopy } from '../../utils/toolbar-badge-projection';
+import type { ProtectionRuntimeBrowser } from '../../types/browser-runtime';
+import type { ProtectionContinuationContext } from '../protection-page-projector/types';
 
 /**
  * Dependencies used to project authoritative protection state into browser effects.

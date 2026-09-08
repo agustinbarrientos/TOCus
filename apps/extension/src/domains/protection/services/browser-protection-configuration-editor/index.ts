@@ -7,9 +7,9 @@ import {
 	ProtectionConfigurationStorageKey,
 	createProtectionConfigurationStorageService,
 } from '../protection-configuration-storage';
-import {
-	type BrowserProtectionConfigurationEditor,
-	type BrowserProtectionConfigurationEditorOptions,
+import type {
+	BrowserProtectionConfigurationEditor,
+	BrowserProtectionConfigurationEditorOptions,
 } from './types';
 import { createLocalDataMutationGuard } from '../../../local-data/services/local-data-generation';
 

@@ -5,9 +5,9 @@ import {
 	PopupSiteEnrollmentResultSchema,
 	type PopupSiteEnrollmentResult,
 } from '../../types/site-enrollment';
-import {
-	type PopupEnrollmentClient,
-	type PopupEnrollmentClientOptions,
+import type {
+	PopupEnrollmentClient,
+	PopupEnrollmentClientOptions,
 } from './types';
 
 /**

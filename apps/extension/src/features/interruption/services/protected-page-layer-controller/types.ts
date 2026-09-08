@@ -1,7 +1,7 @@
-import { type AllowanceId } from '../../../../domains/protection/types/protection-value';
-import { type ProtectedPagePresentationStatus } from '../../../protection-runtime/types/protected-page-message';
-import { type InterruptionPageController } from '../interruption-page-controller';
-import { type MediaPlaybackController } from '../media-playback-controller';
+import type { AllowanceId } from '../../../../domains/protection/types/protection-value';
+import type { ProtectedPagePresentationStatus } from '../../../protection-runtime/types/protected-page-message';
+import type { InterruptionPageController } from '../interruption-page-controller';
+import type { MediaPlaybackController } from '../media-playback-controller';
 
 /**
  * Epoch clock used to derive the local final allowance countdown.

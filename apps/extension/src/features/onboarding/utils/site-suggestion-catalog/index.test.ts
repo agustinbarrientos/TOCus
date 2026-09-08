@@ -1,3 +1,4 @@
+import { OnboardingSiteSuggestionId } from './types';
 import { readdir, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -9,21 +10,21 @@ import {
 import { OnboardingSiteSuggestions } from './index';
 
 const ExpectedSuggestions = [
-	{ id: 'youtube', displayName: 'YouTube', siteInput: 'www.youtube.com', ruleHost: 'youtube.com' },
-	{ id: 'reddit', displayName: 'Reddit', siteInput: 'www.reddit.com', ruleHost: 'reddit.com' },
-	{ id: 'x', displayName: 'X', siteInput: 'x.com', ruleHost: 'x.com' },
-	{ id: 'instagram', displayName: 'Instagram', siteInput: 'www.instagram.com', ruleHost: 'instagram.com' },
-	{ id: 'facebook', displayName: 'Facebook', siteInput: 'www.facebook.com', ruleHost: 'facebook.com' },
-	{ id: 'tiktok', displayName: 'TikTok', siteInput: 'www.tiktok.com', ruleHost: 'tiktok.com' },
-	{ id: 'netflix', displayName: 'Netflix', siteInput: 'www.netflix.com', ruleHost: 'netflix.com' },
-	{ id: 'twitch', displayName: 'Twitch', siteInput: 'www.twitch.tv', ruleHost: 'twitch.tv' },
-	{ id: 'discord', displayName: 'Discord', siteInput: 'discord.com', ruleHost: 'discord.com' },
-	{ id: 'whatsapp', displayName: 'WhatsApp', siteInput: 'web.whatsapp.com', ruleHost: 'whatsapp.com' },
-	{ id: 'pinterest', displayName: 'Pinterest', siteInput: 'www.pinterest.com', ruleHost: 'pinterest.com' },
-	{ id: 'linkedin', displayName: 'LinkedIn', siteInput: 'www.linkedin.com', ruleHost: 'linkedin.com' },
-	{ id: 'spotify', displayName: 'Spotify', siteInput: 'open.spotify.com', ruleHost: 'spotify.com' },
-	{ id: 'chess', displayName: 'Chess.com', siteInput: 'www.chess.com', ruleHost: 'chess.com' },
-	{ id: 'threads', displayName: 'Threads', siteInput: 'www.threads.com', ruleHost: 'threads.com' },
+	{ id: OnboardingSiteSuggestionId.YOUTUBE, displayName: 'YouTube', siteInput: 'www.youtube.com', ruleHost: 'youtube.com' },
+	{ id: OnboardingSiteSuggestionId.REDDIT, displayName: 'Reddit', siteInput: 'www.reddit.com', ruleHost: 'reddit.com' },
+	{ id: OnboardingSiteSuggestionId.X, displayName: 'X', siteInput: 'x.com', ruleHost: 'x.com' },
+	{ id: OnboardingSiteSuggestionId.INSTAGRAM, displayName: 'Instagram', siteInput: 'www.instagram.com', ruleHost: 'instagram.com' },
+	{ id: OnboardingSiteSuggestionId.FACEBOOK, displayName: 'Facebook', siteInput: 'www.facebook.com', ruleHost: 'facebook.com' },
+	{ id: OnboardingSiteSuggestionId.TIKTOK, displayName: 'TikTok', siteInput: 'www.tiktok.com', ruleHost: 'tiktok.com' },
+	{ id: OnboardingSiteSuggestionId.NETFLIX, displayName: 'Netflix', siteInput: 'www.netflix.com', ruleHost: 'netflix.com' },
+	{ id: OnboardingSiteSuggestionId.TWITCH, displayName: 'Twitch', siteInput: 'www.twitch.tv', ruleHost: 'twitch.tv' },
+	{ id: OnboardingSiteSuggestionId.DISCORD, displayName: 'Discord', siteInput: 'discord.com', ruleHost: 'discord.com' },
+	{ id: OnboardingSiteSuggestionId.WHATSAPP, displayName: 'WhatsApp', siteInput: 'web.whatsapp.com', ruleHost: 'whatsapp.com' },
+	{ id: OnboardingSiteSuggestionId.PINTEREST, displayName: 'Pinterest', siteInput: 'www.pinterest.com', ruleHost: 'pinterest.com' },
+	{ id: OnboardingSiteSuggestionId.LINKEDIN, displayName: 'LinkedIn', siteInput: 'www.linkedin.com', ruleHost: 'linkedin.com' },
+	{ id: OnboardingSiteSuggestionId.SPOTIFY, displayName: 'Spotify', siteInput: 'open.spotify.com', ruleHost: 'spotify.com' },
+	{ id: OnboardingSiteSuggestionId.CHESS, displayName: 'Chess.com', siteInput: 'www.chess.com', ruleHost: 'chess.com' },
+	{ id: OnboardingSiteSuggestionId.THREADS, displayName: 'Threads', siteInput: 'www.threads.com', ruleHost: 'threads.com' },
 ] as const;
 
 describe( 'OnboardingSiteSuggestions', () => {

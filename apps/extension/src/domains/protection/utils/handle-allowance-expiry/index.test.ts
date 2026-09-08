@@ -659,7 +659,7 @@ describe( 'handleAllowanceExpiry', () => {
 		const event = createAllowanceExpiry( [ createLiveExpiryCandidate() ], undefined, {
 			timingConfiguration: {
 				...TestTimingConfiguration,
-				initialWaitMilliseconds: 60_000,
+				initialWaitMilliseconds: 30_000,
 				maximumWaitMilliseconds: 60_000,
 			},
 		} );
@@ -670,7 +670,7 @@ describe( 'handleAllowanceExpiry', () => {
 		if ( first.state.type !== ProtectionStateType.WAITING ) {
 			throw new Error( 'Expected a Waiting result.' );
 		}
-		expect( first.state.capturedWaitDurationMilliseconds ).toBe( 60_000 );
+		expect( first.state.capturedWaitDurationMilliseconds ).toBe( 30_000 );
 		expect( handleAllowanceExpiry( first.state, replay ) ).toEqual( {
 			state: first.state,
 			decisions: [],

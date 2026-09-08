@@ -1,7 +1,7 @@
-import { type Browser } from 'wxt/browser';
-import { type InterruptionPageResponse } from '../../types/runtime-message';
-import { type BrowserProtectionRuntime } from '../browser-protection-runtime';
-import { type StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
+import type { Browser } from 'wxt/browser';
+import type { InterruptionPageResponse } from '../../types/runtime-message';
+import type { BrowserProtectionRuntime } from '../browser-protection-runtime';
+import type { StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
 
 /**
  * Stable background alarms owned by protection runtime coordination.

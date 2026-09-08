@@ -1,8 +1,8 @@
 import { isPlaybackSite } from '../../utils/playback-site-catalog';
-import {
-	type MediaPlaybackController,
-	type MediaPlaybackControllerOptions,
-	type MediaPlaybackSnapshot,
+import type {
+	MediaPlaybackController,
+	MediaPlaybackControllerOptions,
+	MediaPlaybackSnapshot,
 } from './types';
 
 /**

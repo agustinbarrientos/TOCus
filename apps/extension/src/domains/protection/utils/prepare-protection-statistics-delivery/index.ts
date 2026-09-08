@@ -13,7 +13,7 @@ import {
 	ProtectionFactBatchIdSchema,
 	ProtectionMeasurementRevisionSchema,
 } from '../../types/protection-value';
-import { type PrepareStatisticsDeliveryForTransitionInput } from './types';
+import type { PrepareStatisticsDeliveryForTransitionInput } from './types';
 
 /**
  * Returns one fact's observation time regardless of its kind-specific field name.

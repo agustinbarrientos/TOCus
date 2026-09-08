@@ -20,7 +20,7 @@ export function createTestProtectionMeasurementRevision(): string {
  */
 export const TestEmptyProtectionConfiguration = Object.freeze(
 	ProtectionConfigurationDocumentSchema.parse( {
-		schemaVersion: 3,
+		schemaVersion: 4,
 		sites: [],
 		timingConfiguration: DefaultTimingConfiguration,
 		schedulesByScope: {

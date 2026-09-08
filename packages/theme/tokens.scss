@@ -146,8 +146,20 @@ $-palettes: (
 	--tocus-color-glass-surface: var(--tocus-color-surface);
 	--tocus-color-surface-lowest: var(--tocus-color-stage-start);
 	--tocus-color-on-surface: var(--tocus-color-on-stage);
+	--tocus-color-divider: var(--tocus-color-on-surface-muted);
 
 	@if $mode == dark {
+		--tocus-color-success-surface: #123826;
+		--tocus-color-on-success: #c4f4d8;
+		--tocus-color-success-border: #72c695;
+		--tocus-color-error-surface: #421b1b;
+		--tocus-color-on-error: #ffd4d1;
+		--tocus-color-warning-surface: #392b12;
+		--tocus-color-on-warning: #ffe0a3;
+		--tocus-color-warning-border: #d8ad52;
+		--tocus-color-danger: #ffb4ab;
+		--tocus-color-on-danger: #410002;
+		--tocus-color-danger-hover: #ffd0ca;
 		--tocus-color-breathing-sphere-contour: var(--tocus-color-breathing-sphere-highlight);
 		--tocus-color-glass-border: var(--tocus-color-breathing-sphere-highlight);
 		--tocus-color-focus-ring: var(--tocus-color-breathing-sphere-highlight);
@@ -157,6 +169,17 @@ $-palettes: (
 		--tocus-color-outline: var(--tocus-color-breathing-sphere-highlight);
 		--tocus-shadow-soft: 0 #{sizing.size(1.25)} #{sizing.size(3.75)} rgb(0 0 0 / 36%);
 	} @else {
+		--tocus-color-success-surface: #e8f6ed;
+		--tocus-color-on-success: #185632;
+		--tocus-color-success-border: #398655;
+		--tocus-color-error-surface: #fff1f0;
+		--tocus-color-on-error: #a61b1b;
+		--tocus-color-warning-surface: #fff7df;
+		--tocus-color-on-warning: #694400;
+		--tocus-color-warning-border: #9b6700;
+		--tocus-color-danger: #b42318;
+		--tocus-color-on-danger: #fff;
+		--tocus-color-danger-hover: #8e1b12;
 		--tocus-color-breathing-sphere-contour: var(--tocus-color-breathing-sphere-shadow);
 		--tocus-color-glass-border: var(--tocus-color-primary);
 		--tocus-color-focus-ring: var(--tocus-color-primary);
@@ -179,6 +202,7 @@ $-palettes: (
 
 @mixin -apply-enhanced-colors($mode) {
 	--tocus-color-outline: color-mix(in srgb, var(--tocus-color-primary) 28%, var(--tocus-color-surface));
+	--tocus-color-divider: color-mix(in srgb, var(--tocus-color-on-surface-muted) 65%, var(--tocus-color-surface));
 
 	@if $mode == dark {
 		--tocus-color-stage-glow: color-mix(in srgb, var(--tocus-color-breathing-sphere) 13%, transparent);
@@ -200,6 +224,7 @@ $-palettes: (
 
 	--tocus-font-family-brand: 'Fredoka Variable', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif;
 	--tocus-font-family-body: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	--tocus-settings-content-width: 58rem;
 	--tocus-size-unit: 1rem;
 
 	--tocus-space-1: #{sizing.size(0.25)};

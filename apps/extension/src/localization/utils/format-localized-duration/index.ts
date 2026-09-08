@@ -1,6 +1,6 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg, plural } from '@lingui/core/macro';
-import { type LocalizationFormatters } from '../create-localization-formatters';
+import type { LocalizationFormatters } from '../create-localization-formatters';
 import { DurationUnit, type DurationUnit as DurationUnitValue } from './types';
 
 /**

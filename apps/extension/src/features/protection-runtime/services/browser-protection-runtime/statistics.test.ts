@@ -1,3 +1,4 @@
+import { StatisticsProjectionStatus } from '../../../../domains/statistics/types/statistics-projection';
 import { describe, expect, it, vi } from 'vitest';
 import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import { ProtectionConfigurationDocumentSchema } from '../../../../domains/protection/types/protected-site-configuration';
@@ -7,7 +8,7 @@ import { StoredProtectionStatisticsDeliveryStatus } from '../../../../domains/pr
 import { StatisticsFocusObservationMode } from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
 import { ProtectionRuntimeNavigationPhase } from '../../types/browser-runtime';
 import { InterruptionPageRequestType } from '../../types/runtime-message';
-import { type StatisticsCheckpointObservation } from '../../../statistics/services/statistics-runtime';
+import type { StatisticsCheckpointObservation } from '../../../statistics/services/statistics-runtime';
 import {
 	DeferredPromise,
 	EXAMPLE_CONFIGURATION,
@@ -134,7 +135,8 @@ describe( 'createBrowserProtectionRuntime statistics integration', () => {
 		await runtime.readStatistics();
 		statisticsRuntime.reset.mockClear();
 
-		await expect( runtime.resetStatistics() ).resolves.toEqual( { status: 'unavailable' } );
+		await expect( runtime.resetStatistics() ).resolves
+			.toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
 		expect( statisticsRuntime.reset ).toHaveBeenCalledOnce();
 	} );
 

@@ -1,5 +1,5 @@
 import { setupI18n, type Messages } from '@lingui/core';
-import { type Language as LanguageValue } from '../../../domains/preferences/types';
+import type { Language as LanguageValue } from '../../../domains/preferences/types';
 import { getLanguageTag } from '../../../domains/preferences/utils/resolve-language';
 import { createAppearanceCopy } from '../create-appearance-copy';
 import { createAboutScreenCopy } from '../create-about-screen-copy';
@@ -20,7 +20,7 @@ import { createStatisticsCopy } from '../create-statistics-copy';
 import { createTimingCopy } from '../create-timing-copy';
 import { createToolbarCopy } from '../create-toolbar-copy';
 import { createWellbeingCopy } from '../create-wellbeing-copy';
-import { type LocalizationBundle } from './types';
+import type { LocalizationBundle } from './types';
 
 /**
  * Builds the complete typed copy bundle for one effective preference language.

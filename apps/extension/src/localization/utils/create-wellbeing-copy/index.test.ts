@@ -11,6 +11,8 @@ describe( 'createWellbeingCopy', () => {
 		expect( copy.formatSummary( { estimatedReclaimedTime: null, focusedPauseTime: null } ) ).toBe( copy.neutral );
 		expect( copy.formatSummary( { estimatedReclaimedTime: null, focusedPauseTime: '4 minutes' } ) ).toContain( '4 minutes' );
 		expect( copy.formatSummary( { estimatedReclaimedTime: '9 minutes', focusedPauseTime: null } ) ).toContain( '9 minutes' );
-		expect( copy.formatSummary( { estimatedReclaimedTime: '9 minutes', focusedPauseTime: '4 minutes' } ) ).toContain( '9 minutes' );
+		expect( copy.formatSummary( { estimatedReclaimedTime: '9 minutes', focusedPauseTime: '4 minutes' } ) ).toBe(
+			"Since you started, you've given yourself about 9 minutes back, including 4 minutes spent pausing.",
+		);
 	} );
 } );

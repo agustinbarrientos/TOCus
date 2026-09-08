@@ -35,7 +35,8 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 
 		harness.runtime.forgetForDataReset();
 		expect( harness.runtime.getSnapshot() ).toEqual( {
-			deliveryStatus: null, focusMeasurementEnabled: false, projection: { status: 'unavailable' },
+			deliveryStatus: null, focusMeasurementEnabled: false,
+			projection: { status: StatisticsProjectionStatus.UNAVAILABLE },
 		} );
 		expect( harness.storage.savedDocuments ).toHaveLength( writeCount );
 		expect( harness.sessionStorage.savedDocuments ).toHaveLength( sessionWriteCount );
@@ -107,7 +108,7 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 
 		expect( restartedHarness.runtime.getSnapshot().projection ).toMatchObject( {
 			status: StatisticsProjectionStatus.AVAILABLE,
-			estimatedReclaimedMilliseconds: 6_120_000,
+			estimatedReclaimedMilliseconds: 6_162_000,
 			focusedPauseMilliseconds: 42_000,
 			reconsideredVisitCount: 21,
 			completedWaitCount: 15,
@@ -145,7 +146,7 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 
 		expect( restartedHarness.runtime.getSnapshot().projection ).toMatchObject( {
 			status: StatisticsProjectionStatus.AVAILABLE,
-			estimatedReclaimedMilliseconds: 6_120_000,
+			estimatedReclaimedMilliseconds: 6_162_000,
 			focusedPauseMilliseconds: 42_000,
 			reconsideredVisitCount: 21,
 			completedWaitCount: 15,

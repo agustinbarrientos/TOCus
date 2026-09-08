@@ -1,5 +1,5 @@
-import { type WxtBrowser } from 'wxt/browser';
-import { type TabAudioMutedInfo } from '../tab-audio-controller';
+import type { WxtBrowser } from 'wxt/browser';
+import type { TabAudioMutedInfo } from '../tab-audio-controller';
 
 /**
  * Native tab updates relevant to interruption audio ownership.

@@ -1,3 +1,5 @@
+import type { InterruptionDocumentPath } from '../../utils/interruption-document-url/types';
+
 /**
  * Browser tab fields required to match a live extension document.
  * @since 0.1.0 Initial implementation.
@@ -58,5 +60,5 @@ export interface ExtensionTabContextRuntime {
 	 * @return Exact extension-owned interruption URL.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	getURL: ( path: '/interruption.html' ) => string;
+	getURL: ( path: InterruptionDocumentPath ) => string;
 }

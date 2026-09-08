@@ -1,9 +1,9 @@
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
 import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
 import { matchProtectedUrl } from '../../../../domains/protection/utils/protected-url-matcher';
-import { type FocusedAllowanceIdentity } from '../../../../domains/statistics/types/focused-allowance';
+import type { FocusedAllowanceIdentity } from '../../../../domains/statistics/types/focused-allowance';
 import { getRuntimeTabId } from '../../../protection-runtime/utils/runtime-page-context';
-import { type ResolveFocusedAllowanceInput } from './types';
+import type { ResolveFocusedAllowanceInput } from './types';
 
 /**
  * Selects the effective URL for one focused tab observation.
@@ -95,6 +95,7 @@ export function resolveFocusedAllowance(
 		scopeId,
 		measurementRevision,
 		allowanceId: state.allowanceId,
+		siteHost: match.rule.host,
 	};
 }
 

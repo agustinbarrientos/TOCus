@@ -1,5 +1,5 @@
-import { type LocalDataReset, type LocalDataResetArea } from '../../../../domains/local-data/services/local-data-reset';
-import { type ProtectionBackgroundMessageListener } from '../../../protection-runtime/services/protection-background-controller';
+import type { LocalDataReset, LocalDataResetArea } from '../../../../domains/local-data/services/local-data-reset';
+import type { ProtectionBackgroundMessageListener } from '../../../protection-runtime/services/protection-background-controller';
 
 /**
  * Synchronous extension message listener registration.

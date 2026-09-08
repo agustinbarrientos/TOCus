@@ -1,6 +1,6 @@
 import { browser } from 'wxt/browser';
 import { createPreferencesStorageService } from '../../../../domains/preferences/services';
-import { type Language } from '../../../../domains/preferences/types';
+import type { Language } from '../../../../domains/preferences/types';
 import { resolveLanguage } from '../../../../domains/preferences/utils';
 import { loadLocalizationBundle } from '../../../../localization';
 import {
@@ -8,7 +8,7 @@ import {
 	type PreferencesController,
 	type PreferencesLanguageChangeListener,
 } from '../../../preferences/services/preferences-controller';
-import { type InterruptionPageRequest } from '../../../protection-runtime/types/runtime-message';
+import type { InterruptionPageRequest } from '../../../protection-runtime/types/runtime-message';
 import { createStatisticsClient } from '../../../statistics/services/statistics-client';
 import {
 	createWellbeingSummaryController,

@@ -1,5 +1,5 @@
 import { Language } from '../../../../src/domains/preferences/types.ts';
-import { type ExtensionCatalog } from './types.ts';
+import type { ExtensionCatalog } from './types.ts';
 
 /**
  * Canonical extension PO catalogs and their runtime locale mappings.

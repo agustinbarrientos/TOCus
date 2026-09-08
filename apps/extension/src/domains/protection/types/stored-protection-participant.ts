@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { CanonicalHostSchema } from './protected-site-rule';
 import {
 	JoinSequenceSchema,
 	PageIdSchema,
@@ -58,6 +59,8 @@ const StoredNavigationProtectionParticipantSchema = z.object( {
 	participantId: ParticipantIdSchema,
 	pageId: PageIdSchema,
 	retainedDestination: RetainedNavigationDestinationSchema,
+	/** Matched protected rule host, absent for participants stored before site attribution. */
+	siteHost: CanonicalHostSchema.optional(),
 	statisticsEligible: z.boolean().default( false ),
 	joinSequence: JoinSequenceSchema,
 } ).strict();

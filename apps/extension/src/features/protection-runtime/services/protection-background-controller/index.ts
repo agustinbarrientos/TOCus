@@ -1,4 +1,5 @@
 import { ProtectionConfigurationStorageKey } from '../../../../domains/protection/services/protection-configuration-storage';
+import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
 import {
 	InterruptionPageRequestSchema,
 	InterruptionPageRequestType,
@@ -17,7 +18,7 @@ import {
 	StatisticsRuntimeRequestSchema,
 	StatisticsRuntimeRequestType,
 } from '../../../statistics/types/runtime-message';
-import { type BrowserProtectionFocusEventIdentity } from '../../../statistics/services/browser-statistics-bridge';
+import type { BrowserProtectionFocusEventIdentity } from '../../../statistics/services/browser-statistics-bridge';
 import { StatisticsFocusObservationMode } from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
 import {
 	ProtectionBackgroundAlarmName,
@@ -129,7 +130,7 @@ function isAuthenticatedPageRequestSender(
 		return false;
 	}
 
-	if ( sender.url === interruptionPageUrl ) {
+	if ( isInterruptionDocumentUrl( sender.url, interruptionPageUrl ) ) {
 		return true;
 	}
 

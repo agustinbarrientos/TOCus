@@ -2,9 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
 	StatisticsProjectionStatus,
 	type StatisticsProjection,
+	type AvailableStatisticsProjection,
 } from '../../../../domains/statistics/types/statistics-projection';
 import { formatWellbeingSummary } from './index';
-import { type WellbeingSummaryValues } from './types';
+import type { WellbeingSummaryValues } from './types';
 import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 
 /**
@@ -44,7 +45,7 @@ function formatTestSummary( values: WellbeingSummaryValues ): string {
  * @since 0.1.0 Initial implementation.
  */
 function createProjection(
-	overrides: Partial<Extract<StatisticsProjection, { status: 'available' }>> = {},
+	overrides: Partial<AvailableStatisticsProjection> = {},
 ): StatisticsProjection {
 	return {
 		status: StatisticsProjectionStatus.AVAILABLE,
@@ -84,14 +85,14 @@ describe( 'format wellbeing summary', () => {
 		) ).toBe( "Since you started, you've given yourself about 3 hours, 24 minutes back." );
 	} );
 
-	it( 'combines reclaimed and neutral all-time pause time in one human sentence', () => {
+	it( 'describes all-time pause time as included in reclaimed time', () => {
 		expect( formatTestWellbeingSummary(
 			createProjection( {
 				estimatedReclaimedMilliseconds: ( 3 * 60 + 24 ) * 60_000,
 				focusedPauseMilliseconds: 18 * 60_000,
 			} ),
 		) ).toBe(
-			"Since you started, you've given yourself about 3 hours, 24 minutes back and taken 18 minutes for yourself.",
+			"Since you started, you've given yourself about 3 hours, 24 minutes back, including 18 minutes spent pausing.",
 		);
 	} );
 

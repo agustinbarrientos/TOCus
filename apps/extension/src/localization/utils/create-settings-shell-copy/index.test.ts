@@ -8,7 +8,11 @@ describe( 'createSettingsShellCopy', () => {
 
 		expect( copy.navigationLabel ).toBe( 'Settings' );
 		expect( copy.protectedSites ).toBe( 'Websites' );
+		expect( copy.timing ).toBe( 'Pause timing' );
 		expect( copy.privacy ).toBe( 'Privacy and local data' );
 		expect( copy.about ).toBe( 'About' );
+		expect( copy.unsavedChangesTitle ).toBe( 'Discard unsaved changes?' );
+		expect( copy.stay ).toBe( 'Stay' );
+		expect( copy.discard ).toBe( 'Discard' );
 	} );
 } );

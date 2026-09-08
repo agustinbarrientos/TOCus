@@ -21,9 +21,9 @@ import {
 	PopupTimerPhase,
 	type PopupProjection,
 } from '../../types/popup-projection';
-import { type PopupSiteEnrollmentResult } from '../../types/site-enrollment';
+import type { PopupSiteEnrollmentResult } from '../../types/site-enrollment';
 import { bootstrapPopupPage, startPopupPage } from './index';
-import { type PopupPageOptions } from './types';
+import type { PopupPageOptions } from './types';
 
 const CURRENT_TAB = Object.freeze( {
 	id: 17,
@@ -164,7 +164,7 @@ function createHarness( initialProjection: PopupProjection = UNPROTECTED_PROJECT
 		...localization,
 		document: { ...localization.document, popupTitle: 'Japanese popup' },
 		language: Language.JAPANESE,
-		languageTag: 'ja',
+		languageTag: Language.JAPANESE,
 	};
 	let languageListener: ( ( language: Language ) => void ) | null = null;
 	const shell = new TestPopupShell();

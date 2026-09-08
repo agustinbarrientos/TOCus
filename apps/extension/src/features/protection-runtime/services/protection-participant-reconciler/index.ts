@@ -1,19 +1,20 @@
-import { type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
 import { DepartureCause, ProtectionEventType } from '../../../../domains/protection/types/protection-event';
 import { ProtectionParticipantOrigin } from '../../../../domains/protection/types/protection-participant';
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
 import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
 import { matchProtectedUrl } from '../../../../domains/protection/utils/protected-url-matcher';
+import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
 import {
 	createRuntimeStateTarget,
 	findRuntimeParticipantContext,
 	getRuntimeTabId,
 	type ProtectionRuntimeParticipantContext,
 } from '../../utils/runtime-page-context';
-import { type ProtectionRuntimeTab } from '../../types/browser-runtime';
-import {
-	type ProtectionParticipantReconciler,
-	type ProtectionParticipantReconcilerOptions,
+import type { ProtectionRuntimeTab } from '../../types/browser-runtime';
+import type {
+	ProtectionParticipantReconciler,
+	ProtectionParticipantReconcilerOptions,
 } from './types';
 
 /**
@@ -113,12 +114,12 @@ function getParticipantInvalidationCause(
 	const observedUrl = getObservedTabUrl( tab );
 
 	if ( context.participant.origin === ProtectionParticipantOrigin.NAVIGATION ) {
-		return observedUrl === interruptionPageUrl
+		return isInterruptionDocumentUrl( observedUrl, interruptionPageUrl )
 			? null
 			: DepartureCause.BROWSER_ERROR_OR_RECOVERY;
 	}
 
-	return observedUrl === interruptionPageUrl ||
+	return isInterruptionDocumentUrl( observedUrl, interruptionPageUrl ) ||
 		( observedUrl !== undefined && matchesParticipantScope( observedUrl, context, configuration ) )
 		? null
 		: DepartureCause.BROWSER_ERROR_OR_RECOVERY;

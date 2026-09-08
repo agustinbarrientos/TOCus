@@ -1,3 +1,4 @@
+import { ScheduleMode } from '../../types/protection-schedule';
 import { ZodError } from 'zod';
 import { describe, expect, it } from 'vitest';
 import { normalizeSchedule } from './index';
@@ -5,7 +6,7 @@ import { normalizeSchedule } from './index';
 describe( 'normalizeSchedule', () => {
 	describe( 'Always schedules', () => {
 		it( 'normalizes Always without adding custom state', () => {
-			expect( normalizeSchedule( { mode: 'always' } ) ).toEqual( { mode: 'always' } );
+			expect( normalizeSchedule( { mode: 'always' } ) ).toEqual( { mode: ScheduleMode.ALWAYS } );
 		} );
 	} );
 
@@ -33,7 +34,7 @@ describe( 'normalizeSchedule', () => {
 			},
 		] )( 'accepts $label', ( { window, expected } ) => {
 			expect( normalizeSchedule( { mode: 'custom', windows: [ window ] } ) ).toEqual( {
-				mode: 'custom',
+				mode: ScheduleMode.CUSTOM,
 				windows: expected,
 			} );
 		} );
@@ -45,7 +46,7 @@ describe( 'normalizeSchedule', () => {
 					windows: [ { weekday: 'Monday', startMinute: -0, endMinute: 1 } ],
 				} ),
 			).toEqual( {
-				mode: 'custom',
+				mode: ScheduleMode.CUSTOM,
 				windows: [ { weekday: 'Monday', startMinute: 0, endMinute: 1 } ],
 			} );
 		} );
@@ -57,7 +58,7 @@ describe( 'normalizeSchedule', () => {
 					windows: [ { weekday: 'Monday', startMinute: 1, endMinute: -0 } ],
 				} ),
 			).toEqual( {
-				mode: 'custom',
+				mode: ScheduleMode.CUSTOM,
 				windows: [ { weekday: 'Monday', startMinute: 1, endMinute: 1_440 } ],
 			} );
 		} );
@@ -130,7 +131,7 @@ describe( 'normalizeSchedule', () => {
 					windows: [ { weekday: 'Monday', startMinute: 1_380, endMinute: 90 } ],
 				} ),
 			).toEqual( {
-				mode: 'custom',
+				mode: ScheduleMode.CUSTOM,
 				windows: [
 					{ weekday: 'Monday', startMinute: 1_380, endMinute: 1_440 },
 					{ weekday: 'Tuesday', startMinute: 0, endMinute: 90 },
@@ -145,7 +146,7 @@ describe( 'normalizeSchedule', () => {
 					windows: [ { weekday: 'Sunday', startMinute: 1_380, endMinute: 60 } ],
 				} ),
 			).toEqual( {
-				mode: 'custom',
+				mode: ScheduleMode.CUSTOM,
 				windows: [
 					{ weekday: 'Monday', startMinute: 0, endMinute: 60 },
 					{ weekday: 'Sunday', startMinute: 1_380, endMinute: 1_440 },
@@ -160,7 +161,7 @@ describe( 'normalizeSchedule', () => {
 					windows: [ { weekday: 'Sunday', startMinute: 1_380, endMinute: 0 } ],
 				} ),
 			).toEqual( {
-				mode: 'custom',
+				mode: ScheduleMode.CUSTOM,
 				windows: [ { weekday: 'Sunday', startMinute: 1_380, endMinute: 1_440 } ],
 			} );
 		} );
@@ -179,7 +180,7 @@ describe( 'normalizeSchedule', () => {
 					],
 				} ),
 			).toEqual( {
-				mode: 'custom',
+				mode: ScheduleMode.CUSTOM,
 				windows: [
 					{ weekday: 'Monday', startMinute: 60, endMinute: 120 },
 					{ weekday: 'Monday', startMinute: 720, endMinute: 780 },
@@ -200,7 +201,7 @@ describe( 'normalizeSchedule', () => {
 					],
 				} ),
 			).toEqual( {
-				mode: 'custom',
+				mode: ScheduleMode.CUSTOM,
 				windows: [ { weekday: 'Monday', startMinute: 60, endMinute: 300 } ],
 			} );
 		} );
@@ -215,7 +216,7 @@ describe( 'normalizeSchedule', () => {
 					],
 				} ),
 			).toEqual( {
-				mode: 'custom',
+				mode: ScheduleMode.CUSTOM,
 				windows: [ { weekday: 'Monday', startMinute: 60, endMinute: 240 } ],
 			} );
 		} );
@@ -230,7 +231,7 @@ describe( 'normalizeSchedule', () => {
 					],
 				} ),
 			).toEqual( {
-				mode: 'custom',
+				mode: ScheduleMode.CUSTOM,
 				windows: [ { weekday: 'Monday', startMinute: 60, endMinute: 180 } ],
 			} );
 		} );
@@ -246,7 +247,7 @@ describe( 'normalizeSchedule', () => {
 					],
 				} ),
 			).toEqual( {
-				mode: 'custom',
+				mode: ScheduleMode.CUSTOM,
 				windows: [ { weekday: 'Monday', startMinute: 60, endMinute: 360 } ],
 			} );
 		} );
@@ -269,7 +270,7 @@ describe( 'normalizeSchedule', () => {
 			] },
 		] )( 'produces the same canonical result for permutation %#', ( { windows } ) => {
 			expect( normalizeSchedule( { mode: 'custom', windows } ) ).toEqual( {
-				mode: 'custom',
+				mode: ScheduleMode.CUSTOM,
 				windows: [ { weekday: 'Monday', startMinute: 60, endMinute: 300 } ],
 			} );
 		} );
@@ -284,7 +285,7 @@ describe( 'normalizeSchedule', () => {
 					],
 				} ),
 			).toEqual( {
-				mode: 'custom',
+				mode: ScheduleMode.CUSTOM,
 				windows: [
 					{ weekday: 'Monday', startMinute: 1_380, endMinute: 1_440 },
 					{ weekday: 'Tuesday', startMinute: 0, endMinute: 120 },

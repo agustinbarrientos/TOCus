@@ -1,8 +1,9 @@
-import { type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { ProtectionStateType, type ProtectionState } from '../../../../domains/protection/types/protection-state';
 import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
 import { matchProtectedUrl } from '../../../../domains/protection/utils/protected-url-matcher';
+import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
 import {
 	createToolbarBadgeProjection,
 	ToolbarBadgePhase,
@@ -10,10 +11,10 @@ import {
 	type ToolbarBadgeProjection,
 } from '../../utils/toolbar-badge-projection';
 import { findRuntimeParticipantContext } from '../../utils/runtime-page-context';
-import {
-	type ToolbarBadgeCoordinator,
-	type ToolbarBadgeCoordinatorOptions,
-	type ToolbarBadgeTab,
+import type {
+	ToolbarBadgeCoordinator,
+	ToolbarBadgeCoordinatorOptions,
+	ToolbarBadgeTab,
 } from './types';
 
 /**
@@ -53,7 +54,7 @@ function selectToolbarState(
 			: matchProtectedUrl( focusedUrl, configuration.sites.map( ( site ) => site.rule ) );
 		const focusedScopeId = match?.status === ProtectedUrlMatchStatus.PROTECTED
 			? match.rule.scopeId
-			: focusedUrl === undefined || focusedUrl === interruptionPageUrl
+			: focusedUrl === undefined || isInterruptionDocumentUrl( focusedUrl, interruptionPageUrl )
 				? participantContext?.state.scopeId ?? null
 				: null;
 		const focusedState = presentationStates.find( ( state ) => state.scopeId === focusedScopeId );

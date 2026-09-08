@@ -118,6 +118,12 @@ export interface AppearanceScreenCopy extends AppearanceControlsCopy {
 	retry: string;
 	/** Preference persistence failure. */
 	saveError: string;
+	/** Saves the current appearance draft. */
+	save: string;
+	/** Label shown while an appearance save is pending. */
+	saving: string;
+	/** Restores the authoritative appearance preferences. */
+	discard: string;
 	/** Preference persistence success announcement. */
 	savedAnnouncement: string;
 	/** Malformed-data recovery success announcement. */

@@ -15,6 +15,21 @@ describe( 'enrichExtensionTabUrls', () => {
 		vi.clearAllMocks();
 	} );
 
+	it.each( [ '/pause.html', '/interruption.html' ] )( 'preserves the actual %s URL while identifying redacted pause tabs after an upgrade', async ( path ) => {
+		const documentUrl = `chrome-extension://extension-id${ path }`;
+		const tabs = [ { id: 7, incognito: false } ];
+		const runtime = {
+			getContexts: vi.fn().mockResolvedValue( [ { ...INTERRUPTION_CONTEXT, documentUrl } ] ),
+			getURL: vi.fn().mockReturnValue( 'chrome-extension://extension-id/pause.html' ),
+		};
+
+		await expect( enrichExtensionTabUrls( tabs, runtime ) ).resolves.toEqual( [ {
+			id: 7,
+			incognito: false,
+			url: documentUrl,
+		} ] );
+	} );
+
 	it( 'enriches only queried tabs from exact top-level interruption contexts without mutating input', async () => {
 		const tabs = Object.freeze( [ Object.freeze( { id: 7, incognito: false, windowId: 3 } ) ] );
 		const runtime = {
@@ -30,7 +45,7 @@ describe( 'enrichExtensionTabUrls', () => {
 		} ] );
 		expect( tabs ).toEqual( [ { id: 7, incognito: false, windowId: 3 } ] );
 		expect( runtime.getContexts ).toHaveBeenCalledExactlyOnceWith( { contextTypes: [ 'TAB' ] } );
-		expect( runtime.getURL ).toHaveBeenCalledExactlyOnceWith( '/interruption.html' );
+		expect( runtime.getURL ).toHaveBeenCalledExactlyOnceWith( '/pause.html' );
 	} );
 
 	it.each( [

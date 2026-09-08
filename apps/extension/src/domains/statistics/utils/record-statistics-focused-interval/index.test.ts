@@ -21,6 +21,30 @@ function createFocusedIntervalOperation() {
 }
 
 describe( 'recordStatisticsFocusedInterval', () => {
+	it( 'combines navigation intervals for one site without charging a second site or replay twice', () => {
+		let document = createMockActiveStatisticsDocument();
+		for ( const [ siteHost, start, end ] of [
+			[ 'youtube.com', 100_000, 160_000 ],
+			[ 'youtube.com', 160_000, 220_000 ],
+			[ 'github.com', 220_000, 250_000 ],
+			[ 'youtube.com', 250_000, 450_000 ],
+		] as const ) {
+			const operation = {
+				...createFocusedIntervalOperation(),
+				siteHost,
+				startedAtEpochMilliseconds: start,
+				endedAtEpochMilliseconds: end,
+			};
+			document = recordStatisticsFocusedInterval( document, operation );
+			expect( recordStatisticsFocusedInterval( document, operation ) ).toEqual( document );
+		}
+
+		expect( document.scopes.scope_default?.activeAllowance ).toMatchObject( {
+			confirmedFocusedUseMilliseconds: 300_000,
+			focusedUseBySite: { 'youtube.com': 270_000, 'github.com': 30_000 },
+		} );
+	} );
+
 	it( 'records only the unaccounted overlap within the allowance', () => {
 		const document = createMockActiveStatisticsDocument();
 		const scope = document.scopes.scope_default;

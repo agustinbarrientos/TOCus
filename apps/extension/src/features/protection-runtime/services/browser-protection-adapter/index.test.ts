@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { type Browser } from 'wxt/browser';
+import type { Browser } from 'wxt/browser';
 import { AllowanceIdSchema } from '../../../../domains/protection/types/protection-value';
 import { ProtectionNavigationRuleIdStart } from '../../utils/protection-navigation-rules';
 import { ToolbarBadgePhase } from '../../utils/toolbar-badge-projection';
@@ -7,10 +7,10 @@ import {
 	ProtectedPageMessageType,
 } from '../../types/protected-page-message';
 import { createBrowserProtectionAdapter, ProtectionClockAlarmNamePrefix } from './index';
-import { type TabAudioController } from '../tab-audio-controller';
-import {
-	type BrowserProtectionAdapterApi,
-	type BrowserProtectionToolbarAction,
+import type { TabAudioController } from '../tab-audio-controller';
+import type {
+	BrowserProtectionAdapterApi,
+	BrowserProtectionToolbarAction,
 } from './types';
 
 /**

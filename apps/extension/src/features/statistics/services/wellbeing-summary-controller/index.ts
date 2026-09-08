@@ -3,10 +3,10 @@ import {
 	type StatisticsProjection,
 } from '../../../../domains/statistics/types/statistics-projection';
 import { formatWellbeingSummary } from '../../utils/format-wellbeing-summary';
-import { type WellbeingSummaryCopy } from '../../utils/format-wellbeing-summary/types';
-import {
-	type WellbeingSummaryController,
-	type WellbeingSummaryControllerOptions,
+import type { WellbeingSummaryCopy } from '../../utils/format-wellbeing-summary/types';
+import type {
+	WellbeingSummaryController,
+	WellbeingSummaryControllerOptions,
 } from './types';
 
 /**

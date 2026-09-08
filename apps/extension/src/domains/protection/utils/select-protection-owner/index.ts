@@ -1,4 +1,4 @@
-import { type ProtectionParticipant } from '../../types/protection-participant';
+import type { ProtectionParticipant } from '../../types/protection-participant';
 
 /**
  * Selects the deterministic focused owner from a participant collection.

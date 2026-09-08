@@ -1,0 +1,4 @@
+/* Fixture counters are not product UI; all product content remains unmasked. */
+body > output[data-testid='requests'] {
+	display: none;
+}

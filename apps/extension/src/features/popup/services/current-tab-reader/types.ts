@@ -1,5 +1,5 @@
-import { type ExtensionTabContextRuntime } from '../../../../shared/services/extension-tab-context';
-import { type PopupCurrentTabContext } from '../../types/current-tab-context';
+import type { ExtensionTabContextRuntime } from '../../../../shared/services/extension-tab-context';
+import type { PopupCurrentTabContext } from '../../types/current-tab-context';
 
 /**
  * Browser tab fields inspected by the popup after an activeTab grant.

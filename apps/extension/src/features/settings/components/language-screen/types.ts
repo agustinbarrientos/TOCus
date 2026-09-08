@@ -1,6 +1,6 @@
-import {
-	type Language as LanguageValue,
-	type PreferencesDocument,
+import type {
+	Language as LanguageValue,
+	PreferencesDocument,
 } from '../../../../domains/preferences/types';
 
 /**
@@ -83,7 +83,6 @@ export interface LanguageScreenCopy {
 	languageLabel: string;
 	languageLabels: Readonly<Record<LanguageValue, string>>;
 	browserLanguageOption: string;
-	explicitLanguageDescription: string;
 	loading: string;
 	malformedDataTitle: string;
 	malformedDataDescription: string;
@@ -93,6 +92,9 @@ export interface LanguageScreenCopy {
 	restoreDefaults: string;
 	restoreDefaultsError: string;
 	saveError: string;
+	save: string;
+	saving: string;
+	discard: string;
 	savedAnnouncement: string;
 	restoredAnnouncement: string;
 	/**

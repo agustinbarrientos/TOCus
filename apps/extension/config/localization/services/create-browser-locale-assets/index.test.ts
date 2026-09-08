@@ -1,6 +1,6 @@
-import { type CatalogType } from '@lingui/cli/api';
+import type { CatalogType } from '@lingui/cli/api';
 import { describe, expect, it, vi } from 'vitest';
-import { type ResolvedPublicFile } from 'wxt';
+import type { ResolvedPublicFile } from 'wxt';
 import {
 	addBrowserLocaleAssets,
 	createBrowserLocaleAssets,

@@ -1,5 +1,8 @@
-import { type StatisticsChangeSource } from '../../services/statistics-client/types';
-import { type StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
+import type {
+	AvailableStatisticsProjection,
+} from '../../../../domains/statistics/types/statistics-projection';
+import type { StatisticsChangeSource } from '../../services/statistics-client/types';
+import type { StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
 
 /**
  * Stable loading states rendered by the Statistics settings screen.
@@ -82,7 +85,7 @@ export interface StatisticsSettingsScreenCopy {
 	/**
 	 * Formats one estimated reclaimed-time value.
 	 * @param milliseconds - Non-negative estimated duration in milliseconds.
-	 * @return Human-readable approximate duration.
+	 * @return Localized estimate using completed minutes without rounding up.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	formatEstimatedDuration( milliseconds: number ): string;
@@ -100,4 +103,14 @@ export interface StatisticsSettingsScreenCopy {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	formatCount( count: number ): string;
+}
+
+
+/**
+ * Validated metrics and localized formatters for the all-time summary.
+ * @since 0.1.0
+ */
+export interface StatisticsSummaryProps {
+	copy: StatisticsSettingsScreenCopy;
+	projection: AvailableStatisticsProjection;
 }

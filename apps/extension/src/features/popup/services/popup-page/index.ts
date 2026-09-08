@@ -1,6 +1,6 @@
-import { type Language } from '../../../../domains/preferences/types';
+import type { Language } from '../../../../domains/preferences/types';
 import { ProtectionConfigurationEditRejectionReason } from '../../../../domains/protection/services/protection-configuration-editor';
-import { type LocalizationBundle } from '../../../../localization';
+import type { LocalizationBundle } from '../../../../localization';
 import { ProtectedSiteEnrollmentStatus } from '../../../protected-sites/services/protected-site-enrollment';
 import {
 	PopupAddSiteRequestEventName,
@@ -8,15 +8,15 @@ import {
 	type PopupOperationError as PopupOperationErrorValue,
 	PopupRetryRequestEventName,
 } from '../../components/shell/types';
-import { type PopupCurrentTabContext } from '../../types/current-tab-context';
+import type { PopupCurrentTabContext } from '../../types/current-tab-context';
 import {
 	PopupCurrentSiteStatus,
 	PopupProjectionStatus,
 	PopupTimerPhase,
 	type PopupProjection,
 } from '../../types/popup-projection';
-import { type PopupSiteEnrollmentResult } from '../../types/site-enrollment';
-import { type PopupPageOptions } from './types';
+import type { PopupSiteEnrollmentResult } from '../../types/site-enrollment';
+import type { PopupPageOptions } from './types';
 
 const COUNTDOWN_INTERVAL_MILLISECONDS = 1_000;
 

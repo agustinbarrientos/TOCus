@@ -1,4 +1,4 @@
-import { type WxtViteConfig } from 'wxt';
+import type { WxtViteConfig } from 'wxt';
 
 /**
  * Vite localization configuration with its plugin pipeline guaranteed.

@@ -1,4 +1,10 @@
-import { type ProtectedSiteListCopy } from '../site-list/types';
+import type {
+	ProtectedSiteConfiguration,
+} from '../../../../domains/protection/types/protected-site-configuration';
+import type {
+	EditableSettingsScreenProps,
+} from '../../../settings/components/page/types';
+import type { ProtectedSiteListCopy } from '../site-list/types';
 
 /**
  * Stable loading states rendered by the Protected Sites screen.
@@ -24,7 +30,6 @@ export type ProtectedSitesScreenLoadStatus =
  */
 export const ProtectedSitesScreenAnnouncementKind = {
 	ACCESS_RESTORED: 'access-restored',
-	ADDED: 'added',
 	PERMISSION_RETAINED: 'permission-retained',
 	REMOVED: 'removed',
 	UPDATED: 'updated',
@@ -56,10 +61,23 @@ export interface ProtectedSitesAddSubmitEvent extends SubmitEvent {
 }
 
 /**
+ * Address input event whose current target is the field owning the listener.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface ProtectedSitesAddressInputEvent extends Event {
+	readonly currentTarget: HTMLInputElement;
+}
+
+/**
  * Localizable messages rendered by the Protected Sites screen.
  * @since 0.1.0 Initial implementation.
  */
 export interface ProtectedSitesScreenCopy extends ProtectedSiteListCopy {
+	save: string;
+	discard: string;
+	saved: string;
+	savedWithRetainedAccess: string;
+	configurationChangedError: string;
 	eyebrow: string;
 	title: string;
 	introduction: string;
@@ -125,3 +143,30 @@ export interface ProtectedSitesScreenCopy extends ProtectedSiteListCopy {
 	 */
 	formatAccessRestoredAnnouncement( name: string ): string;
 }
+
+
+/**
+ * Explicit visible-site permission refresh boundary used by the page service.
+ * @since 0.1.0
+ */
+export type AccessRefresh = () => Promise<ReadonlyMap<string, boolean> | null>;
+
+
+/**
+ * Editable websites destination with a service-facing access refresh registration.
+ * @since 0.1.0
+ */
+export interface WebsitesScreenProps extends EditableSettingsScreenProps {
+	accessRef: RefObject<AccessRefresh>;
+}
+
+
+/**
+ * Complete staged site set and unfinished address input, both guarded during navigation.
+ * @since 0.1.0
+ */
+export interface WebsitesDraft {
+	sites: ProtectedSiteConfiguration[];
+	address: string;
+}
+import type { RefObject } from 'react';

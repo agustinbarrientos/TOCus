@@ -28,7 +28,9 @@ export type StatisticsProjectionStatus = z.infer<typeof StatisticsProjectionStat
  */
 export const AvailableStatisticsProjectionSchema = z.object( {
 	status: z.enum( [ StatisticsProjectionStatus.AVAILABLE ] ),
+	/** Focused pause time plus estimated browsing avoided; null until either contribution is known. */
 	estimatedReclaimedMilliseconds: StatisticsNonNegativeSafeIntegerSchema.nullable(),
+	/** Recorded focused pause time, already included in the reclaimed-time total. */
 	focusedPauseMilliseconds: StatisticsNonNegativeSafeIntegerSchema,
 	reconsideredVisitCount: StatisticsNonNegativeSafeIntegerSchema,
 	completedWaitCount: StatisticsNonNegativeSafeIntegerSchema,

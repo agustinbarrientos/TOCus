@@ -1,3 +1,4 @@
+import { ProtectionConfigurationEditRejectionReason } from '../../../../domains/protection/services/protection-configuration-editor/types';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createBrowserProtectionConfigurationEditor, type BrowserProtectionConfigurationMutationLock } from '../../../../domains/protection/services/browser-protection-configuration-editor';
 import { ProtectionConfigurationStorageKey } from '../../../../domains/protection/services/protection-configuration-storage';
@@ -5,7 +6,7 @@ import { createProtectedSiteEnrollmentService, ProtectedSiteEnrollmentStatus } f
 import { createSitePermissionManager } from '../../../protected-sites/services/site-permission-manager';
 import { PopupSiteEnrollmentRequestType } from '../../types/site-enrollment';
 import { createPopupEnrollmentController } from './index';
-import { type PopupEnrollmentMessageListener } from './types';
+import type { PopupEnrollmentMessageListener } from './types';
 
 const POPUP_PAGE_URL = 'chrome-extension://extension-id/popup.html';
 const REQUEST = {
@@ -160,7 +161,10 @@ describe( 'createPopupEnrollmentController', () => {
 		const respond = vi.fn();
 		harness.deliver( { ...REQUEST, siteInput: 'not a website' }, { url: POPUP_PAGE_URL }, respond );
 		await vi.waitFor( () => {
-			expect( respond ).toHaveBeenCalledWith( { status: 'rejected', reason: 'invalid-site' } );
+			expect( respond ).toHaveBeenCalledWith( {
+				status: ProtectedSiteEnrollmentStatus.REJECTED,
+				reason: ProtectionConfigurationEditRejectionReason.INVALID_SITE,
+			} );
 		} );
 		expect( harness.request ).not.toHaveBeenCalled();
 	} );

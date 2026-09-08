@@ -1,7 +1,7 @@
-import { type PreferencesEditor } from '../preferences-editor';
-import {
-	type PreferencesStorageArea,
-	type PreferencesStorageService,
+import type { PreferencesEditor } from '../preferences-editor';
+import type {
+	PreferencesStorageArea,
+	PreferencesStorageService,
 } from '../preferences-storage';
 
 /**

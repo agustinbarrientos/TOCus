@@ -1,8 +1,11 @@
 import { join } from 'node:path';
 import { defineConfig } from 'wxt';
+import { ToolbarIcons } from './config/icons/constants/index.ts';
 import { createTabFaviconAssets } from './config/icons/services/create-tab-favicon-assets/index.ts';
+import { createToolbarIconAssets } from './config/icons/services/create-toolbar-icon-assets/index.ts';
 import { addBrowserLocaleAssets } from './config/localization/services/create-browser-locale-assets/index.ts';
 import { createLocalizationViteConfig } from './config/vite/services/create-localization-vite-config/index.ts';
+import { InterruptionDocumentPath } from './src/shared/utils/interruption-document-url/types.ts';
 
 const PROTECTED_PAGE_MATCHES = [
 	'http://*/*',
@@ -12,7 +15,8 @@ const PROTECTED_PAGE_RESOURCES = [
 	'assets/protected-page-font.woff2',
 	'assets/protected-page-font2.woff2',
 	'assets/protected-page-font3.woff2',
-	'interruption.html',
+	InterruptionDocumentPath.CURRENT.slice( 1 ),
+	InterruptionDocumentPath.LEGACY.slice( 1 ),
 ];
 /**
  * Configures extension metadata and browser build behavior.
@@ -26,8 +30,10 @@ export default defineConfig( {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	vite: () => ( {
-		...createLocalizationViteConfig(),
+		plugins: createLocalizationViteConfig().plugins,
 		build: {
+			// Chromium cannot reuse module preloads across extension resource worlds.
+			modulePreload: false,
 			rolldownOptions: {
 				optimization: {
 					// Inlining duplicates the public-suffix label table at each lookup site.
@@ -37,7 +43,7 @@ export default defineConfig( {
 		},
 	} ),
 	imports: false,
-	modules: [ '@wxt-dev/auto-icons' ],
+	modules: [ '@wxt-dev/auto-icons', '@wxt-dev/module-react' ],
 	autoIcons: {
 		baseIconPath: '../../../packages/theme/assets/icon.svg',
 		developmentIndicator: false,
@@ -54,6 +60,7 @@ export default defineConfig( {
 		'build:publicAssets': async ( wxt, files ) => {
 			await addBrowserLocaleAssets( wxt, files );
 			files.push( ...await createTabFaviconAssets( join( wxt.config.wxtDir, 'tab-favicons' ) ) );
+			files.push( ...await createToolbarIconAssets( join( wxt.config.wxtDir, 'toolbar-icons' ) ) );
 		},
 	},
 	/**
@@ -64,6 +71,7 @@ export default defineConfig( {
 	 */
 	manifest: ( context ) => ( {
 		default_locale: 'en',
+		[ context.manifestVersion === 2 ? 'browser_action' : 'action' ]: { default_icon: ToolbarIcons },
 		name: '__MSG_extensionName__',
 		description: '__MSG_extensionDescription__',
 		...( context.browser === 'safari' ? {} : { incognito: 'not_allowed' as const } ),

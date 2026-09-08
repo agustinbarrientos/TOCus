@@ -1,6 +1,6 @@
-import { type StatisticsDocument, type ScopeStatistics } from '../../types/statistics-document';
-import { type ReconcileMeasurementRevisionsOperation } from '../../types/statistics-operation';
-import { type ProtectionMeasurementRevision } from '../../../protection/types/protection-value';
+import type { StatisticsDocument, ScopeStatistics } from '../../types/statistics-document';
+import type { ReconcileMeasurementRevisionsOperation } from '../../types/statistics-operation';
+import type { ProtectionMeasurementRevision } from '../../../protection/types/protection-value';
 import { createEmptyScopeStatistics } from '../create-statistics-document';
 
 /**
@@ -23,6 +23,9 @@ function reconcileScopeStatistics(
 			...( scope.latestBaseline === undefined
 				? {}
 				: { latestBaseline: scope.latestBaseline } ),
+			...( scope.longestVisitsBySite === undefined
+				? {}
+				: { longestVisitsBySite: scope.longestVisitsBySite } ),
 		};
 	}
 
@@ -39,6 +42,9 @@ function reconcileScopeStatistics(
 		...( scope.latestBaseline === undefined
 			? {}
 			: { latestBaseline: scope.latestBaseline } ),
+		...( scope.longestVisitsBySite === undefined
+			? {}
+			: { longestVisitsBySite: scope.longestVisitsBySite } ),
 	};
 }
 

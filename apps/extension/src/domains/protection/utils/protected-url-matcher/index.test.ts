@@ -1,3 +1,4 @@
+import { ProtectedUrlMatchStatus } from '../../types/protected-url-match';
 import { describe, expect, it } from 'vitest';
 import { ProtectedSiteRuleSetSchema } from '../../types/protected-site-rule';
 import { matchProtectedUrl } from './index';
@@ -21,7 +22,7 @@ describe( 'matchProtectedUrl', () => {
 			'https:news.example.com',
 		] )( 'matches the exact host or a label-boundary descendant for %s', ( input ) => {
 			expect( matchProtectedUrl( input, [ defaultRule ] ) ).toEqual( {
-				status: 'protected',
+				status: ProtectedUrlMatchStatus.PROTECTED,
 				rule: defaultRule,
 			} );
 		} );
@@ -34,11 +35,11 @@ describe( 'matchProtectedUrl', () => {
 			};
 
 			expect( matchProtectedUrl( 'https://b\u00fccher.de', [ rule ] ) ).toEqual( {
-				status: 'protected',
+				status: ProtectedUrlMatchStatus.PROTECTED,
 				rule,
 			} );
 			expect( matchProtectedUrl( 'https://xn--bcher-kva.de', [ rule ] ) ).toEqual( {
-				status: 'protected',
+				status: ProtectedUrlMatchStatus.PROTECTED,
 				rule,
 			} );
 		} );
@@ -53,7 +54,7 @@ describe( 'matchProtectedUrl', () => {
 					},
 				] ),
 			).toEqual( {
-				status: 'protected',
+				status: ProtectedUrlMatchStatus.PROTECTED,
 				rule: {
 					host: 'www.example.com',
 					includeSubdomains: true,
@@ -71,7 +72,7 @@ describe( 'matchProtectedUrl', () => {
 						scopeId: DEFAULT_SCOPE_ID,
 					},
 				] ),
-			).toEqual( { status: 'unprotected' } );
+			).toEqual( { status: ProtectedUrlMatchStatus.UNPROTECTED } );
 		} );
 
 		it( 'matches a stored range without reclassifying it through the current suffix list', () => {
@@ -82,7 +83,7 @@ describe( 'matchProtectedUrl', () => {
 			};
 
 			expect( matchProtectedUrl( 'https://example.co.uk', [ rule ] ) ).toEqual( {
-				status: 'protected',
+				status: ProtectedUrlMatchStatus.PROTECTED,
 				rule,
 			} );
 		} );
@@ -95,11 +96,11 @@ describe( 'matchProtectedUrl', () => {
 			};
 
 			expect( matchProtectedUrl( 'https://child.alice.github.io', [ rule ] ) ).toEqual( {
-				status: 'protected',
+				status: ProtectedUrlMatchStatus.PROTECTED,
 				rule,
 			} );
 			expect( matchProtectedUrl( 'https://bob.github.io', [ rule ] ) ).toEqual( {
-				status: 'unprotected',
+				status: ProtectedUrlMatchStatus.UNPROTECTED,
 			} );
 		} );
 
@@ -114,7 +115,7 @@ describe( 'matchProtectedUrl', () => {
 			];
 
 			expect( matchProtectedUrl( 'https://news.example.net', rules ) ).toEqual( {
-				status: 'protected',
+				status: ProtectedUrlMatchStatus.PROTECTED,
 				rule: rules[ 1 ],
 			} );
 		} );
@@ -132,18 +133,18 @@ describe( 'matchProtectedUrl', () => {
 			};
 
 			expect( matchProtectedUrl( 'http://0x7f000001', [ ipv4Rule ] ) ).toEqual( {
-				status: 'protected',
+				status: ProtectedUrlMatchStatus.PROTECTED,
 				rule: ipv4Rule,
 			} );
 			expect( matchProtectedUrl( 'http://127.0.0.2', [ ipv4Rule ] ) ).toEqual( {
-				status: 'unprotected',
+				status: ProtectedUrlMatchStatus.UNPROTECTED,
 			} );
 			expect( matchProtectedUrl( 'http://[0:0:0:0:0:0:0:1]', [ ipv6Rule ] ) ).toEqual( {
-				status: 'protected',
+				status: ProtectedUrlMatchStatus.PROTECTED,
 				rule: ipv6Rule,
 			} );
 			expect( matchProtectedUrl( 'http://[::2]', [ ipv6Rule ] ) ).toEqual( {
-				status: 'unprotected',
+				status: ProtectedUrlMatchStatus.UNPROTECTED,
 			} );
 		} );
 
@@ -155,7 +156,7 @@ describe( 'matchProtectedUrl', () => {
 			};
 
 			expect( matchProtectedUrl( 'https://a.dev.internal', [ rule ] ) ).toEqual( {
-				status: 'protected',
+				status: ProtectedUrlMatchStatus.PROTECTED,
 				rule,
 			} );
 		} );
@@ -168,7 +169,7 @@ describe( 'matchProtectedUrl', () => {
 			'https://example.net',
 		] )( 'rejects the boundary attack or unrelated host %s', ( input ) => {
 			expect( matchProtectedUrl( input, [ defaultRule ] ) ).toEqual( {
-				status: 'unprotected',
+				status: ProtectedUrlMatchStatus.UNPROTECTED,
 			} );
 		} );
 
@@ -188,7 +189,7 @@ describe( 'matchProtectedUrl', () => {
 						scopeId: DEFAULT_SCOPE_ID,
 					},
 				] ),
-			).toEqual( { status: 'unprotected' } );
+			).toEqual( { status: ProtectedUrlMatchStatus.UNPROTECTED } );
 		} );
 	} );
 
@@ -207,7 +208,7 @@ describe( 'matchProtectedUrl', () => {
 			'view-source:https://example.com',
 		] )( 'classifies the browser-controlled scheme in %s', ( input ) => {
 			expect( matchProtectedUrl( input, [ defaultRule ] ) ).toEqual( {
-				status: 'unsupported',
+				status: ProtectedUrlMatchStatus.UNSUPPORTED,
 				reason: 'browser-controlled-scheme',
 			} );
 		} );
@@ -220,7 +221,7 @@ describe( 'matchProtectedUrl', () => {
 			'custom:resource',
 		] )( 'classifies the unsupported scheme in %s', ( input ) => {
 			expect( matchProtectedUrl( input, [ defaultRule ] ) ).toEqual( {
-				status: 'unsupported',
+				status: ProtectedUrlMatchStatus.UNSUPPORTED,
 				reason: 'unsupported-scheme',
 			} );
 		} );
@@ -242,7 +243,7 @@ describe( 'matchProtectedUrl', () => {
 			'https://\uD800.com',
 		] )( 'classifies the malformed navigation %j without throwing', ( input ) => {
 			expect( matchProtectedUrl( input, [ defaultRule ] ) ).toEqual( {
-				status: 'unsupported',
+				status: ProtectedUrlMatchStatus.UNSUPPORTED,
 				reason: 'malformed-input',
 			} );
 		} );
@@ -268,7 +269,7 @@ describe( 'matchProtectedUrl', () => {
 					},
 				] ),
 			).toEqual( {
-				status: 'unsupported',
+				status: ProtectedUrlMatchStatus.UNSUPPORTED,
 				reason: 'invalid-rule-set',
 			} );
 		} );
@@ -298,7 +299,7 @@ describe( 'matchProtectedUrl', () => {
 			expect( overlongHostname ).toHaveLength( 254 );
 			expect( ProtectedSiteRuleSetSchema.safeParse( rules ).success ).toBe( false );
 			expect( matchProtectedUrl( 'https://example.com', rules ) ).toEqual( {
-				status: 'unsupported',
+				status: ProtectedUrlMatchStatus.UNSUPPORTED,
 				reason: 'invalid-rule-set',
 			} );
 		} );
@@ -314,7 +315,7 @@ describe( 'matchProtectedUrl', () => {
 
 			expect( ProtectedSiteRuleSetSchema.safeParse( rules ).success ).toBe( false );
 			expect( matchProtectedUrl( 'https://example.com', rules ) ).toEqual( {
-				status: 'unsupported',
+				status: ProtectedUrlMatchStatus.UNSUPPORTED,
 				reason: 'invalid-rule-set',
 			} );
 		} );
@@ -336,7 +337,7 @@ describe( 'matchProtectedUrl', () => {
 			[ { host: '127.0.0.1', includeSubdomains: true, scopeId: DEFAULT_SCOPE_ID } ],
 		] )( 'rejects the invalid stored rule set %j', ( rules ) => {
 			expect( matchProtectedUrl( 'https://example.com', rules ) ).toEqual( {
-				status: 'unsupported',
+				status: ProtectedUrlMatchStatus.UNSUPPORTED,
 				reason: 'invalid-rule-set',
 			} );
 		} );
@@ -356,7 +357,7 @@ describe( 'matchProtectedUrl', () => {
 			},
 		] )( 'rejects duplicate canonical hosts before matching', ( { rules } ) => {
 			expect( matchProtectedUrl( 'https://example.com', rules ) ).toEqual( {
-				status: 'unsupported',
+				status: ProtectedUrlMatchStatus.UNSUPPORTED,
 				reason: 'invalid-rule-set',
 			} );
 		} );
@@ -392,7 +393,7 @@ describe( 'matchProtectedUrl', () => {
 			},
 		] )( 'rejects overlapping protected ranges for $label', ( { rules } ) => {
 			expect( matchProtectedUrl( 'https://child.example.com', rules ) ).toEqual( {
-				status: 'unsupported',
+				status: ProtectedUrlMatchStatus.UNSUPPORTED,
 				reason: 'invalid-rule-set',
 			} );
 		} );

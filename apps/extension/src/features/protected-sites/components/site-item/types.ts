@@ -1,9 +1,12 @@
-import {
-	type ProtectedSiteConfiguration,
-	type ProtectionConfigurationDocument,
+
+import type { ReactNode } from 'react';
+import type {
+	ProtectedSiteConfiguration,
+	ProtectionConfigurationDocument,
 } from '../../../../domains/protection/types/protected-site-configuration';
-import { type CanonicalHost } from '../../../../domains/protection/types/protected-site-rule';
-import { type SitePermissionReleaseStatus } from '../../services/site-permission-manager';
+import type { CanonicalHost } from '../../../../domains/protection/types/protected-site-rule';
+import type { SitePermissionReleaseStatus } from '../../services/site-permission-manager';
+import type { SiteItemEditorSnapshot } from '../../services/site-item-editor/types';
 
 /**
  * Stable event name emitted after one protected-site configuration change is persisted.
@@ -98,10 +101,19 @@ export interface ProtectedSiteEditSubmitEvent extends SubmitEvent {
 }
 
 /**
+ * Edit input event whose current target is the form owning the listener.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface ProtectedSiteEditInputEvent extends Event {
+	readonly currentTarget: HTMLFormElement;
+}
+
+/**
  * Localizable protected-site item messages.
  * @since 0.1.0 Initial implementation.
  */
 export interface ProtectedSiteItemCopy {
+	done: string;
 	accessRequired: string;
 	allowAccess: string;
 	allowingAccess: string;
@@ -139,4 +151,47 @@ export interface ProtectedSiteItemCopy {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	formatRemoveQuestion( name: string ): string;
+}
+/**
+ * Controlled page-draft changes emitted without persistence or permission side effects.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface ProtectedSiteDraftChangedEventDetail {
+	identityHost: string;
+	displayName?: string;
+	independent?: boolean;
+	removed?: boolean;
+}
+
+
+/**
+ * Controlled flat website row and its explicit edit/access actions.
+ * @since 0.1.0
+ */
+export interface WebsiteItemProps {
+	persistedEditing?: WebsiteItemPersistence;
+	confirmation?: ReactNode;
+	site: ProtectedSiteConfiguration;
+	copy: ProtectedSiteItemCopy;
+	favicon: string | null;
+	editing: boolean;
+	disabled: boolean;
+	accessRequired: boolean;
+	accessPending: boolean;
+	accessDisabled: boolean;
+	onEdit: () => void;
+	onDone?: () => void;
+	onGrant: () => void;
+	onRemove: () => void;
+	onChange: ( name: string, independent: boolean ) => void;
+}
+
+/**
+ * Optional item-owned transaction presentation supplied by the standalone binding.
+ * @since 0.1.0
+ */
+export interface WebsiteItemPersistence {
+	state: Readonly<SiteItemEditorSnapshot>;
+	save: () => void;
+	cancel: () => void;
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { type Browser } from 'wxt/browser';
+import type { Browser } from 'wxt/browser';
 import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import {
 	AllowanceProtectionStateSchema,
 	ProtectionStateType,

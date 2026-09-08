@@ -1,4 +1,4 @@
-import { type Language } from '../../../../src/domains/preferences/types.ts';
+import type { Language } from '../../../../src/domains/preferences/types.ts';
 
 /**
  * One canonical extension PO catalog and its runtime projections.

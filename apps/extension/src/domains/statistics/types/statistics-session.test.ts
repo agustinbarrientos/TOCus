@@ -36,6 +36,30 @@ describe( 'StatisticsSessionDocumentSchema', () => {
 		);
 	} );
 
+	it( 'retains separate canonical protected hosts for the anchor and frozen interval', () => {
+		const session = {
+			...VALID_STATISTICS_SESSION,
+			focusAnchor: { ...VALID_STATISTICS_SESSION.focusAnchor, siteHost: 'example.com' },
+			pendingInterval: { ...VALID_STATISTICS_SESSION.pendingInterval, siteHost: 'other.example' },
+		};
+
+		expect( StatisticsSessionDocumentSchema.parse( session ) ).toEqual( session );
+	} );
+
+	it.each( [ 'https://example.com/path', 'Example.com', 'example.com/path' ] )(
+		'rejects noncanonical site attribution %s',
+		( siteHost ) => {
+			expect( StatisticsSessionDocumentSchema.safeParse( {
+				...VALID_STATISTICS_SESSION,
+				focusAnchor: { ...VALID_STATISTICS_SESSION.focusAnchor, siteHost },
+			} ).success ).toBe( false );
+			expect( StatisticsSessionDocumentSchema.safeParse( {
+				...VALID_STATISTICS_SESSION,
+				pendingInterval: { ...VALID_STATISTICS_SESSION.pendingInterval, siteHost },
+			} ).success ).toBe( false );
+		},
+	);
+
 	it( 'rejects an unsupported session document version', () => {
 		expect( StatisticsSessionDocumentSchema.safeParse( {
 			...VALID_STATISTICS_SESSION,

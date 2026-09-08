@@ -7,7 +7,7 @@ import {
 } from '../../../../domains/protection/types/__fixtures__';
 import { ProtectionDecisionType } from '../../../../domains/protection/types/protection-decision';
 import { ProtectionParticipantOrigin } from '../../../../domains/protection/types/protection-participant';
-import { type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
 import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
 import { ProtectedPageMessageType } from '../../types/protected-page-message';
 import { createProtectionPageProjector } from './index';
@@ -19,6 +19,31 @@ import { createProtectionPageProjector } from './index';
 const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/interruption.html';
 
 describe( 'createProtectionPageProjector', () => {
+	it.each( [
+		'chrome-extension://extension-id/pause.html',
+		'chrome-extension://extension-id/interruption.html',
+	] )( 'releases the interruption document at %s to its retained destination', async ( documentUrl ) => {
+		const navigateTab = vi.fn().mockResolvedValue( undefined );
+		const projector = createProtectionPageProjector( {
+			browser: {
+				dismissInterruption: vi.fn().mockResolvedValue( undefined ),
+				getProtectedPagePresentation: vi.fn().mockResolvedValue( null ),
+				listTabs: vi.fn().mockResolvedValue( [ {
+					id: 21,
+					incognito: false,
+					url: documentUrl,
+				} ] ),
+				navigateTab,
+				updateProtectedPagePresentation: vi.fn().mockResolvedValue( undefined ),
+			},
+			interruptionPageUrl: 'chrome-extension://extension-id/pause.html',
+		} );
+
+		await projector.releaseNavigationIfInterrupted( 21, 'https://example.com/retained-destination' );
+
+		expect( navigateTab ).toHaveBeenCalledExactlyOnceWith( 21, 'https://example.com/retained-destination' );
+	} );
+
 	it( 'dismisses an orphaned standalone interruption page', async () => {
 		const dismissInterruption = vi.fn().mockResolvedValue( undefined );
 		const updateProtectedPagePresentation = vi.fn().mockResolvedValue( undefined );

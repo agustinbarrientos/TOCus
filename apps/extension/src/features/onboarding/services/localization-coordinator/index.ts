@@ -1,7 +1,7 @@
-import { type Language } from '../../../../domains/preferences/types';
-import {
-	type OnboardingLocalizationCoordinator,
-	type OnboardingLocalizationCoordinatorOptions,
+import type { Language } from '../../../../domains/preferences/types';
+import type {
+	OnboardingLocalizationCoordinator,
+	OnboardingLocalizationCoordinatorOptions,
 } from './types';
 
 /**

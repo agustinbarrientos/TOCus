@@ -1,0 +1,21 @@
+@use '@tocus/theme/typography' as typography;
+
+@mixin apply($role, $size: null, $line-height: null, $weight: null, $spacing: null) {
+	@if $size {
+		--tocus-typography-#{ $role }-font-size: #{ $size };
+	}
+
+	@if $line-height {
+		--tocus-typography-#{ $role }-line-height: #{ $line-height };
+	}
+
+	@if $weight {
+		--tocus-typography-#{ $role }-font-weight: #{ $weight };
+	}
+
+	@if $spacing {
+		--tocus-typography-#{ $role }-letter-spacing: #{ $spacing };
+	}
+
+	@include typography.apply($role);
+}

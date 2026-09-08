@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import { ProtectionDecisionType } from '../../types/protection-decision';
-import { type VisitAttemptEvent } from '../../types/protection-event';
+import type { VisitAttemptEvent } from '../../types/protection-event';
 import {
 	TestInstant,
 	TestTimingConfiguration,
@@ -271,7 +271,7 @@ describe( 'visit-attempt transition', () => {
 			waitId: 'ignored-wait',
 			timingConfiguration: {
 				...TestTimingConfiguration,
-				initialWaitMilliseconds: 60_000,
+				initialWaitMilliseconds: 30_000,
 			},
 		} );
 		const result = handleVisitAttempt( state, event );

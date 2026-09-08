@@ -1,4 +1,4 @@
-import { type PreferencesDocument } from '../../types';
+import type { PreferencesDocument } from '../../types';
 
 /**
  * Determines whether two complete preference projections contain the same persisted values.

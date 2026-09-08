@@ -6,10 +6,10 @@ import {
 import {
 	createProtectedPageLayerController,
 } from './index';
-import {
-	type ProtectedPageLayerControllerOptions,
-	type ProtectedPageLayerScheduler,
-	type ProtectedPageLayerView,
+import type {
+	ProtectedPageLayerControllerOptions,
+	ProtectedPageLayerScheduler,
+	ProtectedPageLayerView,
 } from './types';
 
 /** One deterministically scheduled timeout callback. */

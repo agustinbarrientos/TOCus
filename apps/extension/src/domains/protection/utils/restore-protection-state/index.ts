@@ -77,6 +77,7 @@ function restoreParticipant( participant: StoredProtectionParticipant ): Protect
 		participantId: participant.participantId,
 		pageId: participant.pageId,
 		retainedDestination: participant.retainedDestination,
+		...( 'siteHost' in participant ? { siteHost: participant.siteHost } : {} ),
 		focusEligible: false,
 		statisticsEligible: participant.statisticsEligible,
 		joinSequence: participant.joinSequence,

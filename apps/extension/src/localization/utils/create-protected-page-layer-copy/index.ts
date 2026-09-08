@@ -1,6 +1,6 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg, plural } from '@lingui/core/macro';
-import { type ProtectedPageLayerCopy } from '../../../features/interruption/components/protected-page-layer/types';
+import type { ProtectedPageLayerCopy } from '../../../features/interruption/components/protected-page-layer/types';
 
 /**
  * Creates localized protected-page layer copy.

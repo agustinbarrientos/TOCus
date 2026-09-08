@@ -1,8 +1,47 @@
 import { ZodError } from 'zod';
 import { describe, expect, it } from 'vitest';
 import { BreathingCycleSchema, BreathingPlanSchema, createBreathingPlan } from './index';
+import { getNextWaitDuration } from '../wait-duration-calculator';
+import { DefaultTimingConfiguration } from '../../types/timing-configuration';
+
+describe( 'one-second ladder breathing plans', () => {
+	it( 'creates two complete cycles for the eleven-second second wait', () => {
+		const duration = getNextWaitDuration( {
+			...DefaultTimingConfiguration,
+			ladderIncreaseMilliseconds: 1_000,
+		}, { completedWaits: 1, greatestObservedLocalDate: '2026-09-06' } );
+
+		expect( createBreathingPlan( duration ) ).toEqual( {
+			durationMilliseconds: 11_000,
+			cycles: [
+				{ inhaleDurationMilliseconds: 2_200, exhaleDurationMilliseconds: 3_300 },
+				{ inhaleDurationMilliseconds: 2_200, exhaleDurationMilliseconds: 3_300 },
+			],
+		} );
+	} );
+
+	it.each( Array.from( { length: 111 }, ( _, index ) => 10_000 + index * 1_000 ) )( 'builds a valid complete plan for a captured %i millisecond wait', ( durationMilliseconds ) => {
+		const plan = createBreathingPlan( durationMilliseconds );
+
+		expect( plan.durationMilliseconds ).toBe( durationMilliseconds );
+		const completeDuration = plan.cycles.reduce(
+			( total, cycle ) => total + cycle.inhaleDurationMilliseconds + cycle.exhaleDurationMilliseconds,
+			0,
+		);
+
+		expect( completeDuration ).toBeCloseTo( durationMilliseconds, 8 );
+		expect( BreathingPlanSchema.parse( plan ) ).toEqual( plan );
+	} );
+} );
 
 describe( 'breathing cycle schema', () => {
+	it( 'rejects a meaningful phase deviation even when the complete duration is unchanged', () => {
+		expect( () => BreathingCycleSchema.parse( {
+			inhaleDurationMilliseconds: 2_200.001,
+			exhaleDurationMilliseconds: 3_299.999,
+		} ) ).toThrow( ZodError );
+	} );
+
 	it( 'rejects a complete cycle whose combined duration exceeds ten seconds', () => {
 		expect( () =>
 			BreathingCycleSchema.parse( {
@@ -43,6 +82,7 @@ describe( 'createBreathingPlan', () => {
 			{ durationMilliseconds: 25_000, expectedCycles: 3 },
 			{ durationMilliseconds: 55_000, expectedCycles: 6 },
 			{ durationMilliseconds: 60_000, expectedCycles: 6 },
+			{ durationMilliseconds: 120_000, expectedCycles: 12 },
 		] )( 'uses $expectedCycles complete cycles for $durationMilliseconds milliseconds', ( {
 			durationMilliseconds,
 			expectedCycles,
@@ -190,8 +230,7 @@ describe( 'createBreathingPlan', () => {
 			9_999,
 			10_001,
 			15_000.5,
-			60_001,
-			65_000,
+			120_001,
 			Number.NaN,
 			Number.POSITIVE_INFINITY,
 			Number.NEGATIVE_INFINITY,

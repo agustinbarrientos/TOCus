@@ -1,0 +1,13 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"lib": ["ES2022", "DOM", "DOM.Iterable"],
+		"paths": {
+			"react": ["../../apps/extension/node_modules/@types/react"],
+			"react/*": ["../../apps/extension/node_modules/@types/react/*"],
+			"react-dom/*": ["../../apps/extension/node_modules/@types/react-dom/*"]
+		}
+	},
+	"include": ["./**/*.ts", "./**/*.tsx", "../../packages/ui/src/assets.d.ts", "../../apps/extension/src/types/lingui.d.ts"]
+}

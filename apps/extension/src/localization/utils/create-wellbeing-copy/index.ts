@@ -1,7 +1,7 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
-import { type WellbeingSummaryCopy } from '../../../features/statistics/utils/format-wellbeing-summary/types';
-import { type LocalizationFormatters } from '../create-localization-formatters';
+import type { WellbeingSummaryCopy } from '../../../features/statistics/utils/format-wellbeing-summary/types';
+import type { LocalizationFormatters } from '../create-localization-formatters';
 import {
 	DurationUnit,
 	formatDurationUnit,
@@ -62,7 +62,7 @@ export function createWellbeingCopy(
 			return i18n._( msg`Since you started, you've given yourself about ${ estimatedReclaimedTime } back.` );
 		}
 
-		return i18n._( msg`Since you started, you've given yourself about ${ estimatedReclaimedTime } back and taken ${ focusedPauseTime } for yourself.` );
+		return i18n._( msg`Since you started, you've given yourself about ${ estimatedReclaimedTime } back, including ${ focusedPauseTime } spent pausing.` );
 	}
 
 	return Object.freeze( {

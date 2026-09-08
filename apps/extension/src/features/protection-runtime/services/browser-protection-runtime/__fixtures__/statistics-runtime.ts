@@ -1,8 +1,9 @@
+import { StatisticsProjectionStatus } from '../../../../../domains/statistics/types/statistics-projection';
 import { vi } from 'vitest';
 import { StatisticsFocusEpochIdSchema } from '../../../../../domains/statistics/types/statistics-value';
 import { StatisticsFocusObservationMode } from '../../../../../domains/statistics/utils/prepare-statistics-checkpoint';
-import { type StatisticsRuntime } from '../../../../statistics/services/statistics-runtime';
-import { type StatisticsRuntimeDouble } from './types';
+import type { StatisticsRuntime } from '../../../../statistics/services/statistics-runtime';
+import type { StatisticsRuntimeDouble } from './types';
 
 /**
  * Creates an inert statistics runtime for protection-only integration scenarios.
@@ -29,7 +30,7 @@ export function createInertStatisticsRuntime(): StatisticsRuntimeDouble {
 		getSnapshot: vi.fn().mockReturnValue( {
 			deliveryStatus: null,
 			focusMeasurementEnabled: false,
-			projection: { status: 'unavailable' },
+			projection: { status: StatisticsProjectionStatus.UNAVAILABLE },
 		} ),
 		reconcileConfiguration: vi.fn().mockResolvedValue( undefined ),
 		reset: vi.fn().mockResolvedValue( true ),

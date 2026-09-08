@@ -1,15 +1,15 @@
 import { z } from 'zod';
-import {
-	type ProtectionConfigurationEditRejectionReason,
-	type ProtectionConfigurationEditor,
+import type {
+	ProtectionConfigurationEditRejectionReason,
+	ProtectionConfigurationEditor,
 } from '../../../../domains/protection/services/protection-configuration-editor';
-import {
-	type ProtectedSiteConfiguration,
-	type ProtectionConfigurationDocument,
+import type {
+	ProtectedSiteConfiguration,
+	ProtectionConfigurationDocument,
 } from '../../../../domains/protection/types/protected-site-configuration';
-import {
-	type SitePermissionManager,
-	type SitePermissionReleaseStatus,
+import type {
+	SitePermissionManager,
+	SitePermissionReleaseStatus,
 } from '../site-permission-manager';
 
 /**
@@ -30,6 +30,7 @@ export const ProtectedSiteEnrollmentStatus = {
 	REJECTED: 'rejected',
 	REMOVED: 'removed',
 	SAVE_ERROR: 'save-error',
+	SAVED: 'saved',
 } as const;
 
 /**
@@ -105,6 +106,33 @@ export type ProtectedSiteBatchEnrollmentResult =
 	AddedProtectedSiteBatchEnrollmentResult | UnsuccessfulProtectedSiteEnrollmentResult;
 
 /**
+ * Saved website draft including any obsolete access retained by the browser.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface SavedProtectedSiteDraftResult {
+	status: typeof ProtectedSiteEnrollmentStatus.SAVED;
+	configuration: ProtectionConfigurationDocument;
+	permissionReleaseStatus: SitePermissionReleaseStatus;
+}
+
+/**
+ * Result of committing a page draft.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ProtectedSiteDraftSaveResult = UnsuccessfulProtectedSiteEnrollmentResult | SavedProtectedSiteDraftResult;
+
+/**
+ * Mutable permission settlement tracked across the coordinated draft save.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface ProtectedSiteDraftSettlementState {
+	finalized: boolean;
+	verificationFailed: boolean;
+	retained: boolean;
+	releaseStatus: SitePermissionReleaseStatus;
+}
+
+/**
  * Successful protected-site removal with its permission cleanup outcome.
  * @since 0.1.0 Initial implementation.
  */
@@ -137,6 +165,8 @@ export interface ProtectedSiteEnrollmentServiceOptions {
  * @since 0.1.0 Initial implementation.
  */
 export interface ProtectedSiteEnrollmentService {
+	/** Requests new origins from the current gesture and persists one complete site draft. */
+	saveDraft( expectedSites: unknown, nextSites: unknown ): Promise<ProtectedSiteDraftSaveResult>;
 	/**
 	 * Adds one protected site after securing its required browser access.
 	 * @param siteInput - Unknown user-entered hostname or URL.

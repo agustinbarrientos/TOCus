@@ -1,6 +1,6 @@
-import { type I18n } from '@lingui/core';
+import type { I18n } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
-import { type OnboardingSitesStepCopy } from '../../../features/onboarding/components/sites-step/types';
+import type { OnboardingSitesStepCopy } from '../../../features/onboarding/components/sites-step/types';
 
 /**
  * Creates localized onboarding Sites-step copy.

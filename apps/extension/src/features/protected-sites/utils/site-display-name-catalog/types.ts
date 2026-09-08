@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { type ProtectedSiteDisplayName } from '../../../../domains/protection/types/protected-site-configuration';
-import { type CanonicalHost } from '../../../../domains/protection/types/protected-site-rule';
+import type { ProtectedSiteDisplayName } from '../../../../domains/protection/types/protected-site-configuration';
+import type { CanonicalHost } from '../../../../domains/protection/types/protected-site-rule';
 
 /**
  * Validates a catalog display name without silently trimming authored data.

@@ -1,9 +1,9 @@
-import { type Browser } from 'wxt/browser';
-import {
-	type ProtectedPageMessage,
-	type ProtectedPagePresentationStatus,
+import type { Browser } from 'wxt/browser';
+import type {
+	ProtectedPageMessage,
+	ProtectedPagePresentationStatus,
 } from './protected-page-message';
-import { type ToolbarBadgeProjection } from '../utils/toolbar-badge-projection';
+import type { ToolbarBadgeProjection } from '../utils/toolbar-badge-projection';
 
 /**
  * Observable phases of one top-level browser navigation.

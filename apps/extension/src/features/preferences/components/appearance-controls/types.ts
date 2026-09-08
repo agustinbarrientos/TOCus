@@ -1,6 +1,7 @@
-import {
-	type Palette,
-	type ThemeMode,
+
+import type {
+	Palette,
+	ThemeMode,
 } from '../../../../domains/preferences/types';
 
 /**
@@ -80,3 +81,16 @@ export interface AppearanceControlsInputEvent extends Event {
  * @since 0.1.0 Initial implementation.
  */
 export const AppearanceControlsChangeEventName = 'tocus-appearance-controls-change';
+
+
+/**
+ * Controlled reusable appearance presentation.
+ * @since 0.1.0
+ */
+export interface AppearanceControlsProps {
+	copy: AppearanceControlsCopy;
+	theme: ThemeMode;
+	palette: Palette;
+	disabled?: boolean;
+	onChange: ( update: AppearanceControlsUpdate ) => void;
+}

@@ -1,10 +1,10 @@
 import { ProtectedSiteEnrollmentStatus } from '../../../protected-sites/services/protected-site-enrollment';
 import { PopupSiteEnrollmentRequestSchema, type PopupSiteEnrollmentResult } from '../../types/site-enrollment';
-import {
-	type PopupEnrollmentController,
-	type PopupEnrollmentControllerOptions,
-	type PopupEnrollmentMessageListener,
-	type PopupEnrollmentSendResponse,
+import type {
+	PopupEnrollmentController,
+	PopupEnrollmentControllerOptions,
+	PopupEnrollmentMessageListener,
+	PopupEnrollmentSendResponse,
 } from './types';
 
 /**

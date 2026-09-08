@@ -9,12 +9,22 @@
 		"typecheck": "astro check"
 	},
 	"dependencies": {
+		"@astrojs/react": "6.0.5",
 		"@lingui/core": "6.6.0",
 		"@tocus/theme": "workspace:*",
-		"astro": "7.2.9"
+		"@tocus/ui": "workspace:*",
+		"astro": "7.2.9",
+		"gsap": "3.15.0",
+		"react": "19.2.8",
+		"react-dom": "19.2.8",
+		"three": "^0.185.1"
 	},
 	"devDependencies": {
 		"@astrojs/check": "0.9.10",
+		"@types/react": "19.2.18",
+		"@types/react-dom": "19.2.7",
+		"@types/three": "^0.185.4",
+		"playwright": "1.62.1",
 		"typescript": "6.0.3"
 	}
 }

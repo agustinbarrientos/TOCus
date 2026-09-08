@@ -1,5 +1,5 @@
-import { type GeneratedPublicFile } from 'wxt';
-import { type LocalizationCatalogReader } from '../read-localization-catalog/types.ts';
+import type { GeneratedPublicFile } from 'wxt';
+import type { LocalizationCatalogReader } from '../read-localization-catalog/types.ts';
 
 /**
  * Dependencies used to create browser-managed localization assets.

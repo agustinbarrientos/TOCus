@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { CanonicalHost } from '../../../protection/types/protected-site-rule';
 import {
 	AllowanceIdSchema,
 	ProtectionMeasurementRevisionSchema,
@@ -68,6 +69,7 @@ function createFocusEpochTransition(
  * @param pendingEndEpochMilliseconds - Optional frozen interval end.
  * @param sessionContinuityId - Browser-session continuity identifier.
  * @param focusEpochId - Persisted focus epoch identifier.
+ * @param siteHost - Optional protected-rule host retained by current focus work.
  * @return Valid session focus work.
  * @since 0.1.0 Initial implementation.
  */
@@ -76,12 +78,14 @@ function createSession(
 	pendingEndEpochMilliseconds?: number,
 	sessionContinuityId = TEST_SESSION_CONTINUITY_ID,
 	focusEpochId = TEST_FOCUS_EPOCH_ID,
+	siteHost?: CanonicalHost,
 ) {
 	const identity = {
 		generationId: 'generation_1',
 		scopeId: 'scope_default',
 		measurementRevision: 'revision_1',
 		allowanceId: 'allowance_1',
+		...( siteHost === undefined ? {} : { siteHost } ),
 	};
 
 	return StatisticsSessionDocumentSchema.parse( {
@@ -105,6 +109,128 @@ function createSession(
 }
 
 describe( 'prepare statistics checkpoint', () => {
+	it( 'keeps the protected-site host on the anchor and frozen interval', () => {
+		const prepared = prepareStatisticsCheckpoint( {
+			sessionContinuityId: TEST_SESSION_CONTINUITY_ID,
+			focusEpochTransition: createFocusEpochTransition(),
+			statisticsDocument: createMockActiveStatisticsDocument(),
+			statisticsSession: createSession(
+				150_000, undefined, TEST_SESSION_CONTINUITY_ID, TEST_FOCUS_EPOCH_ID, 'example.com',
+			),
+			focusedAllowance: { ...TEST_FOCUSED_ALLOWANCE, siteHost: 'example.com' },
+			focusedAtEpochMilliseconds: 200_000,
+			nowEpochMilliseconds: 200_000,
+		} );
+
+		expect( prepared.writeAheadSession?.pendingInterval ).toMatchObject( {
+			siteHost: 'example.com',
+			startedAtEpochMilliseconds: 150_000,
+			endedAtEpochMilliseconds: 200_000,
+		} );
+		expect( prepared.finalSession?.focusAnchor ).toMatchObject( {
+			siteHost: 'example.com',
+			focusedAtEpochMilliseconds: 200_000,
+		} );
+	} );
+
+	it.each( [ 'example.com', undefined ] )(
+		'does not charge a sample when the same allowance changes from site %s',
+		( siteHost ) => {
+			const document = createMockActiveStatisticsDocument();
+			const prepared = prepareStatisticsCheckpoint( {
+				sessionContinuityId: TEST_SESSION_CONTINUITY_ID,
+				focusEpochTransition: createFocusEpochTransition(),
+				statisticsDocument: document,
+				statisticsSession: createSession(
+					150_000, undefined, TEST_SESSION_CONTINUITY_ID, TEST_FOCUS_EPOCH_ID, siteHost,
+				),
+				focusedAllowance: { ...TEST_FOCUSED_ALLOWANCE, siteHost: 'other.example' },
+				focusedAtEpochMilliseconds: 200_000,
+				nowEpochMilliseconds: 200_000,
+			} );
+
+			expect( prepared.writeAheadSession ).toBeUndefined();
+			expect( prepared.statisticsDocument ).toEqual( document );
+			expect( prepared.finalSession?.focusAnchor ).toMatchObject( {
+				siteHost: 'other.example',
+				focusedAtEpochMilliseconds: 200_000,
+			} );
+		},
+	);
+
+	it( 'charges the old site through a boundary and replays it independently of the new site anchor', () => {
+		const document = createMockActiveStatisticsDocument();
+		const prepared = prepareStatisticsCheckpoint( {
+			sessionContinuityId: TEST_SESSION_CONTINUITY_ID,
+			focusEpochTransition: createFocusEpochTransition(
+				StatisticsFocusObservationMode.BOUNDARY,
+				TEST_FOCUS_EPOCH_ID,
+				TEST_NEXT_FOCUS_EPOCH_ID,
+			),
+			statisticsDocument: document,
+			statisticsSession: createSession(
+				150_000, undefined, TEST_SESSION_CONTINUITY_ID, TEST_FOCUS_EPOCH_ID, 'example.com',
+			),
+			focusedAllowance: { ...TEST_FOCUSED_ALLOWANCE, siteHost: 'other.example' },
+			focusedAtEpochMilliseconds: 230_000,
+			nowEpochMilliseconds: 200_000,
+		} );
+
+		expect( prepared.writeAheadSession?.pendingInterval ).toMatchObject( {
+			siteHost: 'example.com',
+			startedAtEpochMilliseconds: 150_000,
+			endedAtEpochMilliseconds: 200_000,
+		} );
+		expect( prepared.finalSession?.focusAnchor ).toMatchObject( {
+			siteHost: 'other.example',
+			focusEpochId: TEST_NEXT_FOCUS_EPOCH_ID,
+			focusedAtEpochMilliseconds: 230_000,
+		} );
+
+		if ( prepared.writeAheadSession === undefined ) {
+			throw new Error( 'Expected a frozen interval to replay.' );
+		}
+
+		const replayed = prepareStatisticsPendingReplay( {
+			statisticsDocument: document,
+			statisticsSession: prepared.writeAheadSession,
+		} );
+
+		expect( replayed.statisticsDocument ).toEqual( prepared.statisticsDocument );
+		expect( replayed.statisticsDocument.scopes.scope_default?.activeAllowance ).toMatchObject( {
+			confirmedFocusedUseMilliseconds: 50_000,
+			focusedUseBySite: { 'example.com': 50_000 },
+		} );
+		expect( replayed.statisticsSession ).toEqual( prepared.finalSession );
+
+		const replayedAgain = prepareStatisticsPendingReplay( {
+			statisticsDocument: replayed.statisticsDocument,
+			statisticsSession: prepared.writeAheadSession,
+		} );
+
+		expect( replayedAgain.statisticsDocument ).toEqual( replayed.statisticsDocument );
+	} );
+
+	it( 'replaces a startup anchor after a site change within the same allowance', () => {
+		const prepared = prepareStatisticsCheckpoint( {
+			sessionContinuityId: TEST_SESSION_CONTINUITY_ID,
+			focusEpochTransition: createFocusEpochTransition( StatisticsFocusObservationMode.STARTUP ),
+			statisticsDocument: createMockActiveStatisticsDocument(),
+			statisticsSession: createSession(
+				150_000, undefined, TEST_SESSION_CONTINUITY_ID, TEST_FOCUS_EPOCH_ID, 'example.com',
+			),
+			focusedAllowance: { ...TEST_FOCUSED_ALLOWANCE, siteHost: 'other.example' },
+			focusedAtEpochMilliseconds: 200_000,
+			nowEpochMilliseconds: 200_000,
+		} );
+
+		expect( prepared.writeAheadSession ).toBeUndefined();
+		expect( prepared.finalSession?.focusAnchor ).toMatchObject( {
+			siteHost: 'other.example',
+			focusedAtEpochMilliseconds: 200_000,
+		} );
+	} );
+
 	it( 'prepares a write-ahead interval, next anchor, and aggregated document', () => {
 		const prepared = prepareStatisticsCheckpoint( {
 			sessionContinuityId: TEST_SESSION_CONTINUITY_ID,

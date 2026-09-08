@@ -14,7 +14,7 @@ import {
 	StatisticsDocumentVersion,
 } from '../../../../domains/statistics/types/statistics-document';
 import { resolveFocusedAllowance } from './index';
-import { type ResolveFocusedAllowanceInput } from './types';
+import type { ResolveFocusedAllowanceInput } from './types';
 
 /**
  * Current instant shared by focused-allowance resolver tests.
@@ -115,6 +115,41 @@ describe( 'resolveFocusedAllowance', () => {
 			scopeId: 'scope-default',
 			measurementRevision: 'revision_scope_default',
 			allowanceId: 'allowance-a',
+			siteHost: 'example.com',
+		} );
+	} );
+
+	it.each( [
+		'https://example.com/other-path?query=private#fragment',
+		'https://news.example.com/article',
+	] )( 'attributes %s to its matching protected rule host', ( url ) => {
+		expect( resolveFocusedAllowance( createInput( {
+			tabs: [ { id: 7, incognito: false, url } ],
+		} ) ) ).toEqual( {
+			scopeId: 'scope-default',
+			measurementRevision: 'revision_scope_default',
+			allowanceId: 'allowance-a',
+			siteHost: 'example.com',
+		} );
+	} );
+
+	it( 'distinguishes protected sites sharing one allowance timer', () => {
+		const configuration = ProtectionConfigurationDocumentSchema.parse( {
+			...TEST_CONFIGURATION,
+			sites: [ ...TEST_CONFIGURATION.sites, {
+				identityHost: 'other.example',
+				rule: { host: 'other.example', includeSubdomains: true, scopeId: 'scope-default' },
+			} ],
+		} );
+
+		expect( resolveFocusedAllowance( createInput( {
+			configuration,
+			navigation: { frameId: 0, tabId: 7, url: 'https://news.other.example/article' },
+		} ) ) ).toEqual( {
+			scopeId: 'scope-default',
+			measurementRevision: 'revision_scope_default',
+			allowanceId: 'allowance-a',
+			siteHost: 'other.example',
 		} );
 	} );
 
@@ -228,6 +263,7 @@ describe( 'resolveFocusedAllowance', () => {
 			scopeId: 'scope-default',
 			measurementRevision: 'revision_scope_default',
 			allowanceId: 'allowance-a',
+			siteHost: 'example.com',
 		} );
 	} );
 
@@ -304,6 +340,7 @@ describe( 'resolveFocusedAllowance', () => {
 			scopeId,
 			measurementRevision: 'revision_prototype',
 			allowanceId: 'allowance-a',
+			siteHost: 'example.com',
 		} );
 	} );
 } );

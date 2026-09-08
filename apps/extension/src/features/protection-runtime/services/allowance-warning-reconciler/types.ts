@@ -1,6 +1,6 @@
-import { type ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
-import { type ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
-import { type ProtectionRuntimeBrowser } from '../../types/browser-runtime';
+import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
+import type { ProtectionRuntimeBrowser } from '../../types/browser-runtime';
 
 /**
  * Browser and clock dependencies used to reconcile allowance expiry guards and quiet warnings.

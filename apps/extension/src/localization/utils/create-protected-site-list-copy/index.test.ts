@@ -8,7 +8,9 @@ describe( 'createProtectedSiteListCopy', () => {
 		const copy = createProtectedSiteListCopy( createTestI18n(), createLocalizationFormatters( 'en' ) );
 
 		expect( copy.emptyTitle ).toBe( 'No websites yet' );
-		expect( copy.sharedGroupTitle ).toBe( 'Shared timing' );
+		expect( copy.sharedGroupTitle ).toBe( 'One timer for these websites' );
+		expect( copy.sharedGroupDescription ).toBe( 'These websites use the same timer.' );
+		expect( copy.independentGroupDescription ).toBe( 'Each website has its own timer.' );
 		expect( copy.compareNames( 'a', 'b' ) ).toBeLessThan( 0 );
 	} );
 } );

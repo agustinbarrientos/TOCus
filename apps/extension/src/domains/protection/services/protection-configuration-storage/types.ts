@@ -1,10 +1,73 @@
 import { z } from 'zod';
 import {
 	ProtectedSiteConfigurationSetSchema,
+	ProtectionScopeMeasurementRevisionMapSchema,
 	ProtectionScopeScheduleMapSchema,
 	type ProtectionConfigurationDocument,
 } from '../../types/protected-site-configuration';
-import { TimingConfigurationSchema } from '../../types/timing-configuration';
+import { AllowanceDurationMillisecondsSchema } from '../../types/allowance-duration';
+import { CompletionActionSchema } from '../../types/completion-action';
+import { DurationMillisecondsSchema } from '../../types/protection-value';
+
+const ONE_SECOND_MILLISECONDS = 1_000;
+const FIVE_SECONDS_MILLISECONDS = 5_000;
+const TEN_SECONDS_MILLISECONDS = 10_000;
+const SIXTY_SECONDS_MILLISECONDS = 60_000;
+
+/**
+ * Validates waits persisted before the version-four timing-control contract.
+ * @since 0.1.0 Initial implementation.
+ */
+const HistoricalWaitDurationMillisecondsSchema = DurationMillisecondsSchema
+	.min( TEN_SECONDS_MILLISECONDS )
+	.max( SIXTY_SECONDS_MILLISECONDS )
+	.multipleOf( FIVE_SECONDS_MILLISECONDS );
+
+/**
+ * Validates the original increase ladder persisted by versions two and three.
+ * @since 0.1.0 Initial implementation.
+ */
+const HistoricalLadderIncreaseMillisecondsSchema = DurationMillisecondsSchema
+	.min( TEN_SECONDS_MILLISECONDS )
+	.max( SIXTY_SECONDS_MILLISECONDS )
+	.multipleOf( FIVE_SECONDS_MILLISECONDS );
+
+/**
+ * Validates the interim increase ladder that version-three documents could persist.
+ * @since 0.1.0 Initial implementation.
+ */
+const InterimLadderIncreaseMillisecondsSchema = DurationMillisecondsSchema
+	.max( FIVE_SECONDS_MILLISECONDS )
+	.multipleOf( ONE_SECOND_MILLISECONDS );
+
+/**
+ * Validates timing persisted before the version-four control contract.
+ * @since 0.1.0 Initial implementation.
+ */
+export const HistoricalTimingConfigurationSchema = z.object( {
+	initialWaitMilliseconds: HistoricalWaitDurationMillisecondsSchema,
+	ladderIncreaseMilliseconds: z.union( [
+		InterimLadderIncreaseMillisecondsSchema,
+		HistoricalLadderIncreaseMillisecondsSchema,
+	] ),
+	maximumWaitMilliseconds: HistoricalWaitDurationMillisecondsSchema,
+	allowanceMilliseconds: AllowanceDurationMillisecondsSchema,
+	completionAction: CompletionActionSchema,
+} ).strict().superRefine( ( configuration, context ) => {
+	if ( configuration.maximumWaitMilliseconds < configuration.initialWaitMilliseconds ) {
+		context.addIssue( {
+			code: 'custom',
+			message: 'Maximum wait must be greater than or equal to the initial wait.',
+			path: [ 'maximumWaitMilliseconds' ],
+		} );
+	}
+} );
+
+/**
+ * Timing persisted before the version-four control contract.
+ * @since 0.1.0 Initial implementation.
+ */
+export type HistoricalTimingConfiguration = z.infer<typeof HistoricalTimingConfigurationSchema>;
 
 /**
  * Validates the complete configuration document used before schedules and timing were persisted.
@@ -22,8 +85,20 @@ export const VersionOneProtectionConfigurationDocumentSchema = z.object( {
 export const VersionTwoProtectionConfigurationDocumentSchema = z.object( {
 	schemaVersion: z.number().int().nonnegative().refine( ( version ) => version === 2 ),
 	sites: ProtectedSiteConfigurationSetSchema,
-	timingConfiguration: TimingConfigurationSchema,
+	timingConfiguration: HistoricalTimingConfigurationSchema,
 	schedulesByScope: ProtectionScopeScheduleMapSchema,
+} ).strict();
+
+/**
+ * Validates the complete configuration document used before timing controls were narrowed.
+ * @since 0.1.0 Initial implementation.
+ */
+export const VersionThreeProtectionConfigurationDocumentSchema = z.object( {
+	schemaVersion: z.number().int().nonnegative().refine( ( version ) => version === 3 ),
+	sites: ProtectedSiteConfigurationSetSchema,
+	timingConfiguration: HistoricalTimingConfigurationSchema,
+	schedulesByScope: ProtectionScopeScheduleMapSchema,
+	measurementRevisionsByScope: ProtectionScopeMeasurementRevisionMapSchema,
 } ).strict();
 
 /**

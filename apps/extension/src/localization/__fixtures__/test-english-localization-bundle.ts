@@ -1,4 +1,4 @@
-import { type Messages } from '@lingui/core';
+import type { Messages } from '@lingui/core';
 import { Language } from '../../domains/preferences/types';
 import { createLocalizationBundle } from '../utils/create-localization-bundle';
 
