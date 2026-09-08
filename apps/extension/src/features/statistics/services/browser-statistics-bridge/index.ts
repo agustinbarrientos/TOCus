@@ -6,6 +6,7 @@ import {
 	ProtectionConfigurationDocumentSchema,
 	type ProtectionConfigurationDocument,
 } from '../../../../domains/protection/types/protected-site-configuration';
+import { StoredProtectionStatisticsDeliveryStatus } from '../../../../domains/protection/types/stored-protection-statistics-delivery';
 import {
 	StatisticsProjectionSchema,
 	StatisticsProjectionStatus,
@@ -301,11 +302,11 @@ export function createBrowserStatisticsBridge(
 	}
 
 	/**
-	 * Drains durable facts before checkpointing the latest browser observation.
+	 * Preserves active focused use before facts can finalize it, then checkpoints delivered allowances.
 	 * @param configuration - Trusted configuration after the protection operation, or null after failure.
 	 * @param boundary - Durable fact prefix owned by the completed protection operation.
 	 * @param observation - Event-time focus observation captured before queueing.
-	 * @return Promise resolved after both isolated statistics boundaries.
+	 * @return Promise resolved after the isolated focus and fact-delivery boundaries.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function reconcileObservation(
@@ -313,6 +314,15 @@ export function createBrowserStatisticsBridge(
 		boundary: ProtectionCoordinatorStatisticsDeliveryBoundary | null,
 		observation: Promise<StatisticsCheckpointObservation>,
 	): Promise<void> {
+		await runOperation( async () => {
+			if (
+				options.statisticsRuntime.getSnapshot().focusMeasurementEnabled &&
+				( await options.coordinator.getStatisticsDelivery() )?.status ===
+					StoredProtectionStatisticsDeliveryStatus.COMPLETE
+			) {
+				await options.statisticsRuntime.checkpoint( configuration, await observation );
+			}
+		} );
 		await runOperation( () => options.statisticsRuntime.drainProtectionFacts( boundary ) );
 		await runOperation( async () => options.statisticsRuntime.checkpoint(
 			configuration,
