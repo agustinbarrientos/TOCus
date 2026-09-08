@@ -1,4 +1,5 @@
 import { z, type RefinementCtx } from 'zod';
+import { CanonicalHostSchema } from '../../protection/types/protected-site-rule';
 import { ProtectionFactBatchSchema } from '../../protection/types/protection-fact-batch';
 import {
 	AllowanceIdSchema,
@@ -123,6 +124,7 @@ const RecordFocusedIntervalOperationFieldsSchema = z.object( {
 	scopeId: ProtectionScopeIdSchema,
 	measurementRevision: ProtectionMeasurementRevisionSchema,
 	allowanceId: AllowanceIdSchema,
+	siteHost: CanonicalHostSchema.optional(),
 	startedAtEpochMilliseconds: StatisticsNonNegativeSafeIntegerSchema,
 	endedAtEpochMilliseconds: StatisticsNonNegativeSafeIntegerSchema,
 } ).strict();

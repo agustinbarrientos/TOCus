@@ -1,3 +1,4 @@
+import type { CanonicalHost } from '../../protection/types/protected-site-rule';
 import type {
 	AllowanceId,
 	ProtectionMeasurementRevision,
@@ -12,4 +13,9 @@ export interface FocusedAllowanceIdentity {
 	scopeId: ProtectionScopeId;
 	measurementRevision: ProtectionMeasurementRevision;
 	allowanceId: AllowanceId;
+	/**
+	 * Matched protected-rule host, omitted only for legacy focus identities.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	siteHost?: CanonicalHost;
 }

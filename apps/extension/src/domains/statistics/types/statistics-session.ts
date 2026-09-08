@@ -1,4 +1,5 @@
 import { z, type RefinementCtx } from 'zod';
+import { CanonicalHostSchema } from '../../protection/types/protected-site-rule';
 import {
 	AllowanceIdSchema,
 	ProtectionMeasurementRevisionSchema,
@@ -67,6 +68,7 @@ export const StatisticsSessionWorkIdentitySchema = z.object( {
 	scopeId: ProtectionScopeIdSchema,
 	measurementRevision: ProtectionMeasurementRevisionSchema,
 	allowanceId: AllowanceIdSchema,
+	siteHost: CanonicalHostSchema.optional(),
 } ).strict();
 
 /**
