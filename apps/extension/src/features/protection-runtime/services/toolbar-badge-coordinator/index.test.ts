@@ -184,17 +184,19 @@ class ToolbarBadgeBrowserFixture {
  * Creates a toolbar coordinator around one in-memory browser fixture.
  * @param browser - In-memory browser boundary.
  * @param copy - Optional localized toolbar copy.
+ * @param interruptionPageUrl - Configured interruption document URL.
  * @return Toolbar coordinator under test.
  * @since 0.1.0 Initial implementation.
  */
 function createFixtureCoordinator(
 	browser: ToolbarBadgeBrowserFixture,
 	copy: ToolbarBadgeCopy = TestEnglishLocalizationBundle.toolbar,
+	interruptionPageUrl = INTERRUPTION_PAGE_URL,
 ): ToolbarBadgeCoordinator {
 	return createToolbarBadgeCoordinator( {
 		copy,
 		getFocusedTabId: browser.getFocusedTabId,
-		interruptionPageUrl: INTERRUPTION_PAGE_URL,
+		interruptionPageUrl,
 		listTabs: browser.listTabs,
 		now: browser.now,
 		updateToolbarBadge: browser.updateToolbarBadge,
@@ -332,13 +334,14 @@ describe( 'createToolbarBadgeCoordinator', () => {
 	} );
 
 	it.each( [
-		{ tab: { id: 7, url: INTERRUPTION_PAGE_URL } },
-		{ tab: { id: 7 } },
+		{ tab: { id: 7, url: INTERRUPTION_PAGE_URL }, interruptionPageUrl: INTERRUPTION_PAGE_URL },
+		{ tab: { id: 7 }, interruptionPageUrl: INTERRUPTION_PAGE_URL },
+		{ tab: { id: 7, url: INTERRUPTION_PAGE_URL }, interruptionPageUrl: 'chrome-extension://extension-id/pause.html' },
 	] )( 'uses a retained participant when the focused tab is on or cannot expose the interruption page', async ( input ) => {
 		const browser = new ToolbarBadgeBrowserFixture();
 		browser.focusedTabId = 7;
 		browser.tabs = [ input.tab ];
-		const coordinator = createFixtureCoordinator( browser );
+		const coordinator = createFixtureCoordinator( browser, undefined, input.interruptionPageUrl );
 
 		await coordinator.refresh( MULTI_SCOPE_CONFIGURATION, {
 			scope_default: WAITING_STATE,

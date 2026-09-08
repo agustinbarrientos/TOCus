@@ -3,6 +3,7 @@ import type { ProtectionConfigurationDocument } from '../../../../domains/protec
 import { ProtectionStateType, type ProtectionState } from '../../../../domains/protection/types/protection-state';
 import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
 import { matchProtectedUrl } from '../../../../domains/protection/utils/protected-url-matcher';
+import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
 import {
 	createToolbarBadgeProjection,
 	ToolbarBadgePhase,
@@ -53,7 +54,7 @@ function selectToolbarState(
 			: matchProtectedUrl( focusedUrl, configuration.sites.map( ( site ) => site.rule ) );
 		const focusedScopeId = match?.status === ProtectedUrlMatchStatus.PROTECTED
 			? match.rule.scopeId
-			: focusedUrl === undefined || focusedUrl === interruptionPageUrl
+			: focusedUrl === undefined || isInterruptionDocumentUrl( focusedUrl, interruptionPageUrl )
 				? participantContext?.state.scopeId ?? null
 				: null;
 		const focusedState = presentationStates.find( ( state ) => state.scopeId === focusedScopeId );

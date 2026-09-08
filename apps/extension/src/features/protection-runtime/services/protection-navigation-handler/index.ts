@@ -6,6 +6,7 @@ import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/pr
 import type { CanonicalHost } from '../../../../domains/protection/types/protected-site-rule';
 import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
 import { matchProtectedUrl } from '../../../../domains/protection/utils/protected-url-matcher';
+import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
 import { createRuntimeLocalDate } from '../../utils/runtime-local-date';
 import {
 	createRuntimePageId,
@@ -204,14 +205,15 @@ export function createProtectionNavigationHandler(
 		const pendingDestination = isOutcome
 			? pendingDestinationsByTabId.get( navigation.tabId )
 			: undefined;
+		const isInterruptionNavigation = isInterruptionDocumentUrl( navigation.url, options.interruptionPageUrl );
 		const resolvesPendingInterruption =
 			pendingDestination !== undefined &&
-			navigation.url === options.interruptionPageUrl;
+			isInterruptionNavigation;
 
 		if (
 			navigation.frameId !== 0 ||
 			navigation.tabId < 0 ||
-			( navigation.url === options.interruptionPageUrl && ! resolvesPendingInterruption )
+			( isInterruptionNavigation && ! resolvesPendingInterruption )
 		) {
 			return;
 		}

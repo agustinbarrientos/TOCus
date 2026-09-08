@@ -152,10 +152,14 @@ interface NavigationHandlerHarness {
 /**
  * Creates a focused navigation handler around deterministic dependencies.
  * @param states - Current authoritative protection states.
+ * @param interruptionPageUrl - Configured interruption document URL.
  * @return Navigation handler, coordinator, and effect spies.
  * @since 0.1.0 Initial implementation.
  */
-function createHarness( states: ProtectionCoordinatorStateSnapshot | null ): NavigationHandlerHarness {
+function createHarness(
+	states: ProtectionCoordinatorStateSnapshot | null,
+	interruptionPageUrl = INTERRUPTION_PAGE_URL,
+): NavigationHandlerHarness {
 	const coordinator = new NavigationCoordinatorFixture( states );
 	const departTab = vi.fn().mockImplementation( () => {
 		coordinator.states = {};
@@ -170,7 +174,7 @@ function createHarness( states: ProtectionCoordinatorStateSnapshot | null ): Nav
 			listTabs,
 		},
 		coordinator,
-		interruptionPageUrl: INTERRUPTION_PAGE_URL,
+		interruptionPageUrl,
 		applyDispatchResult: vi.fn().mockResolvedValue( undefined ),
 		createStableId: vi.fn()
 			.mockReturnValueOnce( 'participant' )
@@ -852,32 +856,52 @@ describe( 'createProtectionNavigationHandler', () => {
 		expect( harness.coordinator.events ).toEqual( [] );
 	} );
 
-	it( 'replaces a pending protected destination after the extension redirect commits', async () => {
-		const harness = createHarness( createNavigationWaitingSnapshot() );
+	it.each( [ INTERRUPTION_PAGE_URL, 'chrome-extension://extension-id/pause.html' ] )(
+		'replaces a pending protected destination after an interruption redirect with %s configured', async ( interruptionPageUrl ) => {
+			const harness = createHarness( createNavigationWaitingSnapshot(), interruptionPageUrl );
 
-		await harness.handler.handle( {
-			frameId: 0,
-			phase: ProtectionRuntimeNavigationPhase.BEFORE_NAVIGATE,
-			tabId: 7,
-			url: 'https://independent.test/',
-		} );
-		await harness.handler.handle( {
-			frameId: 0,
-			phase: ProtectionRuntimeNavigationPhase.COMMITTED,
-			tabId: 7,
-			transitionQualifiers: [ 'server_redirect' ],
-			transitionType: 'typed',
-			url: INTERRUPTION_PAGE_URL,
-		} );
+			await harness.handler.handle( {
+				frameId: 0,
+				phase: ProtectionRuntimeNavigationPhase.BEFORE_NAVIGATE,
+				tabId: 7,
+				url: 'https://independent.test/',
+			} );
+			await harness.handler.handle( {
+				frameId: 0,
+				phase: ProtectionRuntimeNavigationPhase.COMMITTED,
+				tabId: 7,
+				transitionQualifiers: [ 'server_redirect' ],
+				transitionType: 'typed',
+				url: INTERRUPTION_PAGE_URL,
+			} );
 
-		expect( harness.departTab ).toHaveBeenCalledWith(
-			7,
-			DepartureCause.REDIRECT,
-			CONFIGURATION,
-		);
-		expect( harness.coordinator.events ).toMatchObject( [ {
-			type: 'visit-attempt',
-			scopeId: INDEPENDENT_SCOPE_ID,
-		} ] );
-	} );
+			expect( harness.departTab ).toHaveBeenCalledWith(
+				7,
+				DepartureCause.REDIRECT,
+				CONFIGURATION,
+			);
+			expect( harness.coordinator.events ).toMatchObject( [ {
+				type: 'visit-attempt',
+				scopeId: INDEPENDENT_SCOPE_ID,
+				participant: { retainedDestination: 'https://independent.test/' },
+			} ] );
+		},
+	);
+
+	it.each( [ INTERRUPTION_PAGE_URL, 'chrome-extension://extension-id/pause.html' ] )(
+		'ignores an independent interruption page commit to %s', async ( url ) => {
+			const harness = createHarness( createNavigationWaitingSnapshot(), 'chrome-extension://extension-id/pause.html' );
+
+			await harness.handler.handle( {
+				frameId: 0,
+				phase: ProtectionRuntimeNavigationPhase.COMMITTED,
+				tabId: 7,
+				url,
+			} );
+
+			expect( harness.departTab ).not.toHaveBeenCalled();
+			expect( harness.coordinator.events ).toEqual( [] );
+			expect( harness.releaseNavigationIfInterrupted ).not.toHaveBeenCalled();
+		},
+	);
 } );
