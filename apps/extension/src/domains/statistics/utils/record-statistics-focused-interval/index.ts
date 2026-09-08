@@ -43,13 +43,6 @@ export function recordStatisticsFocusedInterval(
 	}
 
 	const focusedIncrement = accountedThroughEpochMilliseconds - accountedFromEpochMilliseconds;
-	const focusedUseBySite = new Map( Object.entries( activeAllowance.focusedUseBySite ?? {} ) );
-	if ( operation.siteHost !== undefined ) {
-		focusedUseBySite.set( operation.siteHost, addStatisticsValues(
-			focusedUseBySite.get( operation.siteHost ) ?? 0,
-			focusedIncrement,
-		) );
-	}
 
 	return {
 		...document,
@@ -64,9 +57,6 @@ export function recordStatisticsFocusedInterval(
 						focusedIncrement,
 					),
 					accountedThroughEpochMilliseconds,
-					...( focusedUseBySite.size === 0
-						? {}
-						: { focusedUseBySite: Object.fromEntries( focusedUseBySite ) } ),
 				},
 			},
 		},

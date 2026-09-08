@@ -55,7 +55,7 @@ function createRuntimeBridge(
 }
 
 describe( 'browser statistics focus accounting', () => {
-	it.each( [ false, true ] )( 'counts final focused use before a post-expiry fact (acknowledgement retry: %s)', async ( retryAcknowledgement ) => {
+	it.each( [ false, true ] )( 'closes focus before valuing a post-expiry fact (acknowledgement retry: %s)', async ( retryAcknowledgement ) => {
 		const expiresAtEpochMilliseconds = TEST_NOW_EPOCH_MILLISECONDS + 180_000;
 		const batch = createReconsideredBatch(
 			'batch_after_expiry',
@@ -94,11 +94,16 @@ describe( 'browser statistics focus accounting', () => {
 			projection = await bridge.readStatistics();
 		}
 
-		expect( harness.storage.savedDocuments.at( -1 )?.scopes.scope_default?.latestBaseline )
-			.toMatchObject( { focusedUseMilliseconds: 60_000 } );
+		expect( harness.sessionStorage.savedDocuments.at( -1 )?.pendingInterval ).toMatchObject( {
+			allowanceId: 'allowance_current',
+			startedAtEpochMilliseconds: expiresAtEpochMilliseconds - 60_000,
+			endedAtEpochMilliseconds: expiresAtEpochMilliseconds + 1_000,
+		} );
+		expect( harness.storage.savedDocuments.at( -1 )?.scopes.scope_default?.activeAllowance )
+			.toBeUndefined();
 		expect( projection ).toMatchObject( {
 			status: StatisticsProjectionStatus.AVAILABLE,
-			estimatedReclaimedMilliseconds: 60_000,
+			estimatedReclaimedMilliseconds: 300_000,
 			reconsideredVisitCount: 1,
 		} );
 	} );
@@ -145,11 +150,18 @@ describe( 'browser statistics focus accounting', () => {
 
 		expect( await restartedBridge.readStatistics() ).toMatchObject( {
 			status: StatisticsProjectionStatus.AVAILABLE,
-			estimatedReclaimedMilliseconds: 60_000,
+			estimatedReclaimedMilliseconds: 300_000,
 			reconsideredVisitCount: 1,
 		} );
-		expect( harness.storage.savedDocuments.at( -1 )?.scopes.scope_default?.latestBaseline )
-			.toMatchObject( { focusedUseMilliseconds: 60_000 } );
+		expect( harness.storage.savedDocuments.map( ( document ) =>
+			document.scopes.scope_default?.activeAllowance,
+		) ).toContainEqual( expect.objectContaining( {
+			allowanceId: 'allowance_current',
+			confirmedFocusedUseMilliseconds: 60_000,
+			accountedThroughEpochMilliseconds: expiresAtEpochMilliseconds,
+		} ) );
+		expect( harness.storage.savedDocuments.at( -1 )?.scopes.scope_default?.activeAllowance )
+			.toBeUndefined();
 	} );
 
 	it( 'starts focus for a newly delivered allowance after accounting for the previous allowance', async () => {
@@ -180,6 +192,12 @@ describe( 'browser statistics focus accounting', () => {
 			bridge.captureObservation( StatisticsFocusObservationMode.BOUNDARY ),
 		);
 		await bridge.readStatistics();
+		expect( harness.sessionStorage.savedDocuments.map( ( document ) => document.pendingInterval ) )
+			.toContainEqual( expect.objectContaining( {
+				allowanceId: 'allowance_current',
+				startedAtEpochMilliseconds: expiresAtEpochMilliseconds - 60_000,
+				endedAtEpochMilliseconds: expiresAtEpochMilliseconds,
+			} ) );
 		harness.clock.nowEpochMilliseconds += 30_000;
 		bridge.observeProtectionOperation(
 			TEST_CONFIGURATION,
@@ -189,7 +207,7 @@ describe( 'browser statistics focus accounting', () => {
 
 		expect( harness.storage.savedDocuments.at( -1 )?.scopes.scope_default )
 			.toMatchObject( {
-				latestBaseline: { focusedUseMilliseconds: 60_000 },
+				totals: { estimatedReclaimedMilliseconds: 0 },
 				activeAllowance: {
 					allowanceId: 'allowance_next',
 					confirmedFocusedUseMilliseconds: 30_000,
