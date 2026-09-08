@@ -1,4 +1,5 @@
 import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
+import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
 import {
 	ProtectionDecisionType,
 	type ProtectionDecision,
@@ -42,7 +43,7 @@ export function createProtectionPageProjector(
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function isInterruptionTab( tab: ProtectionRuntimeTab ): boolean {
-		return getObservedTabUrl( tab ) === options.interruptionPageUrl;
+		return isInterruptionDocumentUrl( getObservedTabUrl( tab ), options.interruptionPageUrl );
 	}
 
 	/**
