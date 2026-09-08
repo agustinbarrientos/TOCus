@@ -158,10 +158,6 @@ msgstr "Une pause immobile sans indication de respiration."
 msgid "About"
 msgstr "À propos"
 
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "About {duration}"
-msgstr "Environ {duration}"
-
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Access required"
 msgstr "Accès requis"
@@ -704,6 +700,10 @@ msgstr "Licence MIT"
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Monday"
 msgstr "Lundi"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "More than {duration}"
+msgstr "Plus de {duration}"
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "Navigation access notices website changes as they happen, not your saved browsing history."
