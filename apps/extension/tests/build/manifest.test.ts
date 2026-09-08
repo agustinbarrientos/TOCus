@@ -12,7 +12,7 @@ const chromeOutputUrl = new URL( '../../.output/chrome-mv3/', import.meta.url );
 const firefoxOutputUrl = new URL( '../../.output/firefox-mv2/', import.meta.url );
 const safariOutputUrl = new URL( '../../.output/safari-mv2/', import.meta.url );
 
-test.each( [ 'popup', 'options', 'onboarding', 'interruption' ] )(
+test.each( [ 'popup', 'options', 'onboarding', 'interruption', 'pause' ] )(
 	'loads %s modules normally without incompatible extension preload hints', async ( page ) => {
 		for ( const output of [ chromeOutputUrl, firefoxOutputUrl, safariOutputUrl ] ) {
 			const html = await readFile( new URL( `${ page }.html`, output ), 'utf8' );
@@ -51,6 +51,7 @@ const expectedProtectedPageFontResources = [
 ] as const;
 const expectedProtectedPageResources = [
 	...expectedProtectedPageFontResources,
+	'pause.html',
 	'interruption.html',
 ] as const;
 const expectedProtectedPageMatches = [
@@ -349,24 +350,27 @@ async function expectOnboardingComposition( outputUrl: URL ): Promise<void> {
 /**
  * Verifies that the generated interruption page loads its approved screen component.
  * @param outputUrl - Browser output-directory URL.
+ * @param document - Current or upgrade-compatible interruption document.
  * @return Promise resolved after all interruption-page composition assertions pass.
  */
-async function expectInterruptionComposition( outputUrl: URL ): Promise<void> {
-	const interruptionHtml = await readOutputFile( outputUrl, 'interruption.html' );
-	const moduleScript = interruptionHtml.match( /<script\s[^>]*type="module"[^>]*src="([^"]+)"/u );
-	const moduleSource = moduleScript?.[ 1 ];
+async function expectInterruptionComposition( outputUrl: URL, document: string ): Promise<void> {
+	const interruptionHtml = await readOutputFile( outputUrl, document );
+	const moduleScripts = [ ...interruptionHtml.matchAll( /<script\s[^>]*type="module"[^>]*src="([^"]+)"/gu ) ];
 
 	expectPreferencesBootstrap( interruptionHtml );
 	expect( interruptionHtml ).toContain( '<tocus-f-interruption-screen>' );
-	expect( moduleSource ).toBeDefined();
+	expect( moduleScripts.length ).toBeGreaterThan( 0 );
+	// Both pause entrypoints share their bootstrap; the bundler may emit its dependencies first.
+	const moduleCode = await Promise.all( moduleScripts.map( ( match ) => {
+		const source = match[ 1 ];
 
-	if ( moduleSource === undefined ) {
-		throw new Error( 'The generated interruption page is missing its module script.' );
-	}
+		if ( source === undefined ) {
+			throw new Error( 'The generated interruption page has a module script without a source.' );
+		}
+		return readOutputFile( outputUrl, source.replace( /^\//u, '' ) );
+	} ) );
 
-	const moduleCode = await readOutputFile( outputUrl, moduleSource.replace( /^\//u, '' ) );
-
-	expect( moduleCode ).toContain( 'tocus-f-interruption-screen' );
+	expect( moduleCode.join( '\n' ) ).toContain( 'tocus-f-interruption-screen' );
 }
 
 /**
@@ -606,7 +610,8 @@ describe( 'extension build manifest', () => {
 		[ 'Firefox', firefoxOutputUrl ],
 		[ 'Safari', safariOutputUrl ],
 	] )( 'connects the generated %s interruption page to its screen', async ( _browser, outputUrl ) => {
-		await expectInterruptionComposition( outputUrl );
+		await expectInterruptionComposition( outputUrl, 'pause.html' );
+		await expectInterruptionComposition( outputUrl, 'interruption.html' );
 	} );
 
 	test.each( [

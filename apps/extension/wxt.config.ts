@@ -5,6 +5,7 @@ import { createTabFaviconAssets } from './config/icons/services/create-tab-favic
 import { createToolbarIconAssets } from './config/icons/services/create-toolbar-icon-assets/index.ts';
 import { addBrowserLocaleAssets } from './config/localization/services/create-browser-locale-assets/index.ts';
 import { createLocalizationViteConfig } from './config/vite/services/create-localization-vite-config/index.ts';
+import { InterruptionDocumentPath } from './src/shared/utils/interruption-document-url/types.ts';
 
 const PROTECTED_PAGE_MATCHES = [
 	'http://*/*',
@@ -14,7 +15,8 @@ const PROTECTED_PAGE_RESOURCES = [
 	'assets/protected-page-font.woff2',
 	'assets/protected-page-font2.woff2',
 	'assets/protected-page-font3.woff2',
-	'interruption.html',
+	InterruptionDocumentPath.CURRENT.slice( 1 ),
+	InterruptionDocumentPath.LEGACY.slice( 1 ),
 ];
 /**
  * Configures extension metadata and browser build behavior.
