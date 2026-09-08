@@ -21,8 +21,7 @@ export function formatWellbeingSummary(
 		return copy.neutral;
 	}
 
-	const estimatedReclaimedTime = projection.estimatedReclaimedMilliseconds === null ||
-		projection.estimatedReclaimedMilliseconds === 0
+	const estimatedReclaimedTime = projection.estimatedReclaimedMilliseconds === 0
 		? null
 		: copy.formatDuration( projection.estimatedReclaimedMilliseconds );
 	const focusedPauseTime = projection.focusedPauseMilliseconds === 0
