@@ -85,7 +85,7 @@ export interface StatisticsSettingsScreenCopy {
 	/**
 	 * Formats one estimated reclaimed-time value.
 	 * @param milliseconds - Non-negative estimated duration in milliseconds.
-	 * @return Human-readable approximate duration.
+	 * @return Localized estimate using completed minutes without rounding up.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	formatEstimatedDuration( milliseconds: number ): string;

@@ -37,17 +37,23 @@ export function createStatisticsCopy(
 	}
 
 	/**
-	 * Formats one approximate reclaimed-time duration.
+	 * Formats a reclaimed-time estimate without rounding up its completed minutes.
 	 * @param milliseconds - Nonnegative estimated duration in milliseconds.
-	 * @return Localized approximate duration.
+	 * @return Localized estimate with a more-than label, or a zero/subminute duration.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function formatEstimatedDuration( milliseconds: number ): string {
-		const duration = formatDuration( milliseconds );
+		if ( milliseconds < MILLISECONDS_PER_MINUTE ) {
+			return formatDuration( milliseconds );
+		}
 
-		return milliseconds > 0 && milliseconds < MILLISECONDS_PER_MINUTE
-			? duration
-			: i18n._( msg`About ${ { duration } }` );
+		const duration = formatMinuteDuration(
+			i18n,
+			Math.floor( milliseconds / MILLISECONDS_PER_MINUTE ),
+			formatters,
+		);
+
+		return i18n._( msg`More than ${ { duration } }` );
 	}
 
 	/**
