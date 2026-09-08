@@ -264,6 +264,10 @@ msgstr "Aparência guardada."
 msgid "Appearance settings could not load"
 msgstr "Não foi possível carregar as definições de aparência"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Approximately {duration}"
+msgstr "Aproximadamente {duration}"
+
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Blue"
@@ -701,10 +705,6 @@ msgstr "Licença MIT"
 msgid "Monday"
 msgstr "Segunda-feira"
 
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "More than {duration}"
-msgstr "Mais de {duration}"
-
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "Navigation access notices website changes as they happen, not your saved browsing history."
 msgstr "O acesso à navegação deteta mudanças de site quando ocorrem, sem consultar o seu histórico guardado."
@@ -712,10 +712,6 @@ msgstr "O acesso à navegação deteta mudanças de site quando ocorrem, sem con
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "No websites yet"
 msgstr "Ainda não há sites"
-
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Not enough history yet"
-msgstr "Ainda não existe histórico suficiente"
 
 #. Popup status when the current website schedule is inactive at this moment.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
@@ -1183,8 +1179,8 @@ msgid "Time left"
 msgstr "Tempo restante"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Time spent pausing plus estimated browsing time avoided, based on your longest visit to each site."
-msgstr "Tempo dedicado a pausas mais o tempo estimado de navegação evitado, com base na sua visita mais longa a cada site."
+msgid "Time spent pausing plus estimated browsing time avoided, based on your configured visit time."
+msgstr "Tempo dedicado a pausas mais o tempo estimado de navegação evitado, com base no tempo de visita configurado."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Time window {position}"
