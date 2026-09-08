@@ -108,7 +108,7 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 
 		expect( restartedHarness.runtime.getSnapshot().projection ).toMatchObject( {
 			status: StatisticsProjectionStatus.AVAILABLE,
-			estimatedReclaimedMilliseconds: 6_120_000,
+			estimatedReclaimedMilliseconds: 6_162_000,
 			focusedPauseMilliseconds: 42_000,
 			reconsideredVisitCount: 21,
 			completedWaitCount: 15,
@@ -146,7 +146,7 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 
 		expect( restartedHarness.runtime.getSnapshot().projection ).toMatchObject( {
 			status: StatisticsProjectionStatus.AVAILABLE,
-			estimatedReclaimedMilliseconds: 6_120_000,
+			estimatedReclaimedMilliseconds: 6_162_000,
 			focusedPauseMilliseconds: 42_000,
 			reconsideredVisitCount: 21,
 			completedWaitCount: 15,
