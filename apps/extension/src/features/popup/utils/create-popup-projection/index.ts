@@ -1,3 +1,4 @@
+import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
 import {
 	ProtectedSiteConfigurationSchema,
 	type ProtectionConfigurationDocument,
@@ -72,7 +73,7 @@ function findMatchingSite(
  * @since 0.1.0 Initial implementation.
  */
 function resolveCurrentUrl( options: CreatePopupProjectionCurrentTabOptions ): string {
-	if ( options.currentTab.url !== options.interruptionPageUrl ) {
+	if ( ! isInterruptionDocumentUrl( options.currentTab.url, options.interruptionPageUrl ) ) {
 		return options.currentTab.url;
 	}
 

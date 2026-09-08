@@ -1,3 +1,4 @@
+import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
 import {
 	ProtectionCoordinatorInitializationStatus,
 	type ProtectionCoordinatorStateSnapshot,
@@ -107,7 +108,7 @@ function createRestoredReadyObservation(
 	}
 
 	if ( participant.origin === ProtectionParticipantOrigin.NAVIGATION ) {
-		return tab.url === interruptionPageUrl
+		return isInterruptionDocumentUrl( tab.url, interruptionPageUrl )
 			? createFreshRuntimeObservation( participant, configuration, nowEpochMilliseconds, timeZone )
 			: null;
 	}

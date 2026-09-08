@@ -168,6 +168,7 @@ function createSuccessfulInitialization(
  * @param dispatchStatesByScope - Current states supplied while preparing reconciliation events.
  * @param configuration - Current validated local configuration or unavailable marker.
  * @param tabs - Current browser tab observations.
+ * @param interruptionPageUrl - Current packaged interruption document URL.
  * @return Restorer and observable dependency doubles.
  * @since 0.1.0 Initial implementation.
  */
@@ -176,6 +177,7 @@ function createRestorerHarness(
 	dispatchStatesByScope: ProtectionCoordinatorStateSnapshot = {},
 	configuration: ProtectionConfigurationDocument | null = CONFIGURATION,
 	tabs: ReadonlyArray<{ id: number; incognito?: boolean; url?: string }> = [],
+	interruptionPageUrl = INTERRUPTION_PAGE_URL,
 ) {
 	const events: ProtectionEvent[] = [];
 	const initialize = vi.fn<ProtectionCoordinator[ 'initialize' ]>().mockResolvedValue( initialization );
@@ -206,7 +208,7 @@ function createRestorerHarness(
 		.mockReturnValue( 'UTC' );
 	const restorer = createProtectionRuntimeRestorer( {
 		coordinator: { dispatch, initialize },
-		interruptionPageUrl: INTERRUPTION_PAGE_URL,
+		interruptionPageUrl,
 		applyDecisions,
 		applyDispatchResult,
 		getTimeZone,
@@ -228,7 +230,10 @@ function createRestorerHarness(
 }
 
 describe( 'pending Ready restoration', () => {
-	it( 'reconciles a completed pause before any visit interval exists', async () => {
+	it.each( [
+		'chrome-extension://extension-id/pause.html',
+		'chrome-extension://extension-id/interruption.html',
+	] )( 'restores the completed pause at %s before any visit interval exists', async ( documentUrl ) => {
 		const state = {
 			...createReadyState(),
 			scopeId: DefaultProtectionScopeId,
@@ -238,7 +243,8 @@ describe( 'pending Ready restoration', () => {
 			createSuccessfulInitialization( ProtectionCoordinatorInitializationStatus.RECONCILIATION_REQUIRED ),
 			{ [ DefaultProtectionScopeId ]: state },
 			CONFIGURATION,
-			[ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ],
+			[ { id: 7, incognito: false, url: documentUrl } ],
+			'chrome-extension://extension-id/pause.html',
 		);
 
 		await harness.restorer.restore();
