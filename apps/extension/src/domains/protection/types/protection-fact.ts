@@ -1,5 +1,4 @@
 import { z, type RefinementCtx } from 'zod';
-import { CanonicalHostSchema } from './protected-site-rule';
 import { AllowanceDurationMillisecondsSchema } from './allowance-duration';
 import {
 	AllowanceIdSchema,
@@ -114,8 +113,8 @@ export const ReconsideredVisitFactSchema = z.object( {
 	scopeId: ProtectionScopeIdSchema,
 	waitId: WaitIdSchema,
 	participantId: ParticipantIdSchema,
-	/** Matched protected rule host, absent for facts recorded before site attribution. */
-	siteHost: CanonicalHostSchema.optional(),
+	/** Configured visit time avoided by this departure, independent of prior browsing history. */
+	allowanceDurationMilliseconds: AllowanceDurationMillisecondsSchema,
 	departureCause: QualifyingDepartureCauseSchema,
 	observedAtEpochMilliseconds: EpochMillisecondsSchema,
 } ).strict();

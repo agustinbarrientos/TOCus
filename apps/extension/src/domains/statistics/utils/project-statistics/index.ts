@@ -32,7 +32,6 @@ export function projectStatistics( input: unknown ): StatisticsProjection {
 	let reconsideredVisitCount = 0;
 	let completedWaitCount = 0;
 	let allowanceGrantedCount = 0;
-	let hasFinalizedBaseline = false;
 
 	try {
 		for ( const scope of Object.values( result.data.scopes ) ) {
@@ -56,10 +55,6 @@ export function projectStatistics( input: unknown ): StatisticsProjection {
 				allowanceGrantedCount,
 				scope.totals.allowanceGrantedCount,
 			);
-
-			if ( scope.hasFinalizedBaseline === true ) {
-				hasFinalizedBaseline = true;
-			}
 		}
 
 		// Stored estimates contain avoided browsing only; include pause time once at the read boundary.
@@ -73,10 +68,7 @@ export function projectStatistics( input: unknown ): StatisticsProjection {
 
 	return {
 		status: StatisticsProjectionStatus.AVAILABLE,
-		estimatedReclaimedMilliseconds:
-			estimatedReclaimedMilliseconds > 0 || hasFinalizedBaseline
-				? estimatedReclaimedMilliseconds
-				: null,
+		estimatedReclaimedMilliseconds,
 		focusedPauseMilliseconds,
 		reconsideredVisitCount,
 		completedWaitCount,

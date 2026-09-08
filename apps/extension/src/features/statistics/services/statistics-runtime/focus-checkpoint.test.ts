@@ -248,6 +248,7 @@ describe( 'statistics runtime focus checkpointing', () => {
 		expect( harness.sessionStorage.savedDocuments[ 0 ] ).toEqual( {
 			schemaVersion: 1,
 			pendingInterval: {
+				siteHost: 'example.com',
 				generationId: 'generation_test',
 				scopeId: 'scope_default',
 				measurementRevision: 'revision_current',
@@ -423,7 +424,7 @@ describe( 'statistics runtime focus checkpointing', () => {
 		expect( harness.sessionStorage.removedDocuments ).toHaveLength( 1 );
 	} );
 
-	it( 'records final focused use when protection expires before checkpoint state is captured', async () => {
+	it( 'closes the final focus interval when protection expires before checkpoint state is captured', async () => {
 		const expiryAtEpochMilliseconds = TEST_NOW_EPOCH_MILLISECONDS + 180_000;
 		const harness = createRuntimeHarness(
 			createDelivery( StoredProtectionStatisticsDeliveryStatus.COMPLETE ),
@@ -452,9 +453,16 @@ describe( 'statistics runtime focus checkpointing', () => {
 			},
 		} );
 
-		expect(
-			harness.storage.savedDocuments.at( -1 )?.scopes.scope_default?.latestBaseline,
-		).toMatchObject( { focusedUseMilliseconds: 60_000 } );
+		expect( harness.sessionStorage.savedDocuments.at( -1 )?.pendingInterval ).toMatchObject( {
+			allowanceId: 'allowance_current',
+			startedAtEpochMilliseconds: expiryAtEpochMilliseconds - 60_000,
+			endedAtEpochMilliseconds: expiryAtEpochMilliseconds,
+		} );
+		expect( harness.storage.savedDocuments.at( -1 )?.scopes.scope_default?.activeAllowance )
+			.toBeUndefined();
+		expect( harness.runtime.getSnapshot().projection ).toMatchObject( {
+			estimatedReclaimedMilliseconds: 0,
+		} );
 		expect( harness.sessionStorage.removedDocuments ).toHaveLength( 1 );
 	} );
 
@@ -520,11 +528,11 @@ describe( 'statistics runtime focus checkpointing', () => {
 		expect( harness.storage.savedDocuments[ 1 ]?.scopes.scope_default?.activeAllowance )
 			.toMatchObject( { confirmedFocusedUseMilliseconds: 100_000 } );
 		expect( harness.storage.savedDocuments.at( -1 )?.scopes.scope_default ).toMatchObject( {
-			latestBaseline: {
-				measurementRevision: 'revision_current',
-				focusedUseMilliseconds: 100_000,
+			totals: { estimatedReclaimedMilliseconds: 0 },
+			activeAllowance: {
+				allowanceId: 'allowance_next',
+				confirmedFocusedUseMilliseconds: 0,
 			},
-			activeAllowance: { allowanceId: 'allowance_next' },
 		} );
 		expect( harness.runtime.getSnapshot() ).toEqual( {
 			deliveryStatus: StoredProtectionStatisticsDeliveryStatus.INCOMPLETE,
@@ -1001,10 +1009,12 @@ describe( 'statistics runtime focus checkpointing', () => {
 		expect( harness.storage.savedDocuments ).toHaveLength( 1 );
 		expect( harness.storage.savedDocuments[ 0 ]?.scopes ).toMatchObject( {
 			scope_default: {
-				latestBaseline: { focusedUseMilliseconds: 40_000 },
+				currentMeasurementRevision: 'revision_current',
+				totals: { estimatedReclaimedMilliseconds: 0 },
 			},
 			scope_other: {
-				latestBaseline: { focusedUseMilliseconds: 50_000 },
+				currentMeasurementRevision: 'revision_other',
+				totals: { estimatedReclaimedMilliseconds: 0 },
 			},
 		} );
 		expect( harness.storage.savedDocuments[ 0 ]?.scopes.scope_default?.activeAllowance )

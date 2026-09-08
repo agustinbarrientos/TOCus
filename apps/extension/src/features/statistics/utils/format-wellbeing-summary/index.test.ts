@@ -68,13 +68,13 @@ describe( 'format wellbeing summary', () => {
 		) ).toBe( 'This is a moment just for you.' );
 	} );
 
-	it( 'uses neutral all-time pause language before a reclaimed-time baseline exists', () => {
+	it( 'includes breathing time in the reclaimed estimate without reconsidered visits', () => {
 		expect( formatTestWellbeingSummary(
 			createProjection( {
-				estimatedReclaimedMilliseconds: null,
+				estimatedReclaimedMilliseconds: 18 * 60_000,
 				focusedPauseMilliseconds: 18 * 60_000,
 			} ),
-		) ).toBe( "Since you started, you've taken 18 minutes for yourself." );
+		) ).toBe( "Since you started, you've given yourself about 18 minutes back, including 18 minutes spent pausing." );
 	} );
 
 	it( 'describes reclaimed time honestly without a pause total', () => {

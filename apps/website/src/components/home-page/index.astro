@@ -2,6 +2,7 @@
 import '@tocus/ui/styles.scss';
 import '../../styles/global.scss';
 import HomePage from './page';
+import { StatisticsPreview } from '../statistics-preview';
 import { type LocalizedHomePageProperties as Props } from '../../localization';
 import { loadLocalizationMessages } from '../../../../extension/src/localization/services/load-localization-messages';
 
@@ -30,6 +31,9 @@ const demoMessages = await loadLocalizationMessages( localization.language );
 		) )}
 	</head>
 	<body>
-		<HomePage localization={localization} localizations={localizations} demoMessages={demoMessages} client:load />
+		<HomePage localization={localization} localizations={localizations} demoMessages={demoMessages} client:load>
+			<StatisticsPreview slot="statisticsPreview" languageTag={localization.languageTag}
+				messages={demoMessages} label={catalog.exampleData} />
+		</HomePage>
 	</body>
 </html>

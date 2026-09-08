@@ -9,10 +9,10 @@ import { createStatisticsCopy } from '../../../../extension/src/localization/uti
 import { createLocalizationFormatters } from '../../../../extension/src/localization/utils/create-localization-formatters';
 import type { StatisticsPreviewProps } from './types';
 
-/** Illustrative totals only, never read from visitors or the extension. */
+/** Illustrative totals: 12 reconsidered visits at five minutes each, plus eight minutes pausing. */
 const ExampleStatistics = Object.freeze( {
 	status: StatisticsProjectionStatus.AVAILABLE,
-	estimatedReclaimedMilliseconds: 42 * 60_000,
+	estimatedReclaimedMilliseconds: ( 12 * 5 + 8 ) * 60_000,
 	focusedPauseMilliseconds: 8 * 60_000,
 	reconsideredVisitCount: 12,
 	completedWaitCount: 24,

@@ -110,6 +110,8 @@ export async function comparePage( page: Page, name: string, fullPage = true ): 
 	expect( bounds.content, 'Page content must not overflow the screenshot viewport.' ).toBeLessThanOrEqual( bounds.viewport );
 	await expect( page ).toHaveScreenshot( `${ name }.png`, {
 		fullPage,
+		// Full-page capture/comparison takes about two seconds on CI; allow the built-in stable-image check to finish.
+		timeout: 15000,
 		stylePath: fileURLToPath( new URL( '../fixture-instrumentation.css', import.meta.url ) ),
 	} );
 }

@@ -45,6 +45,7 @@ function createReconsideredFact(
 ): Record<string, unknown> {
 	return {
 		type: 'reconsidered-visit',
+		allowanceDurationMilliseconds: 300_000,
 		factId,
 		scopeId,
 		waitId: `wait_${ factId }`,
@@ -86,19 +87,7 @@ function createBatchOperation(
 describe( 'applyStatisticsFactBatch', () => {
 	it( 'aggregates all approved facts and starts current allowance measurement', () => {
 		const observedAtEpochMilliseconds = 500_000;
-		const base = createMockStatisticsDocument();
-		const document = StatisticsDocumentSchema.parse( {
-			...base,
-			scopes: {
-				scope_default: {
-					...base.scopes.scope_default,
-					latestBaseline: {
-						measurementRevision: 'revision_1',
-						focusedUseMilliseconds: 120_000,
-					},
-				},
-			},
-		} );
+		const document = createMockStatisticsDocument();
 		const operation = createBatchOperation( 'batch_1', observedAtEpochMilliseconds, [
 			{
 				type: 'pause-time',
@@ -129,7 +118,7 @@ describe( 'applyStatisticsFactBatch', () => {
 		expect( result.scopes.scope_default ).toEqual( {
 			...document.scopes.scope_default,
 			totals: {
-				estimatedReclaimedMilliseconds: 120_000,
+				estimatedReclaimedMilliseconds: 300_000,
 				focusedPauseMilliseconds: 8_000,
 				reconsideredVisitCount: 1,
 				completedWaitCount: 1,
@@ -184,10 +173,9 @@ describe( 'applyStatisticsFactBatch', () => {
 		) );
 
 		expect( result.scopes.scope_default?.totals ).toMatchObject( {
-			estimatedReclaimedMilliseconds: 90_000,
+			estimatedReclaimedMilliseconds: 300_000,
 			reconsideredVisitCount: 1,
 		} );
-		expect( result.scopes.scope_default?.latestBaseline?.focusedUseMilliseconds ).toBe( 90_000 );
 		expect( Object.hasOwn( result.scopes.scope_default ?? {}, 'activeAllowance' ) ).toBe( false );
 	} );
 
@@ -226,7 +214,7 @@ describe( 'applyStatisticsFactBatch', () => {
 		const result = applyStatisticsFactBatch( document, operation );
 
 		expect( result.scopes.scope_default?.totals ).toMatchObject( {
-			estimatedReclaimedMilliseconds: 0,
+			estimatedReclaimedMilliseconds: 300_000,
 			focusedPauseMilliseconds: 5_000,
 			reconsideredVisitCount: 1,
 			completedWaitCount: 1,
@@ -245,7 +233,7 @@ describe( 'applyStatisticsFactBatch', () => {
 			[ createAllowanceFact( 'fact_next', 'allowance_2', 400_000 ) ],
 		) );
 
-		expect( result.scopes.scope_default?.latestBaseline?.focusedUseMilliseconds ).toBe( 0 );
+		expect( result.scopes.scope_default?.activeAllowance?.confirmedFocusedUseMilliseconds ).toBe( 0 );
 		expect( result.scopes.scope_default?.activeAllowance?.allowanceId ).toBe( 'allowance_2' );
 	} );
 
@@ -280,7 +268,7 @@ describe( 'applyStatisticsFactBatch', () => {
 
 		expect( result.scopes.scope_deleted ).toEqual( {
 			totals: {
-				estimatedReclaimedMilliseconds: 0,
+				estimatedReclaimedMilliseconds: 300_000,
 				focusedPauseMilliseconds: 0,
 				reconsideredVisitCount: 1,
 				completedWaitCount: 0,

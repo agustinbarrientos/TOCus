@@ -124,7 +124,7 @@ const RecordFocusedIntervalOperationFieldsSchema = z.object( {
 	scopeId: ProtectionScopeIdSchema,
 	measurementRevision: ProtectionMeasurementRevisionSchema,
 	allowanceId: AllowanceIdSchema,
-	siteHost: CanonicalHostSchema.optional(),
+	siteHost: CanonicalHostSchema,
 	startedAtEpochMilliseconds: StatisticsNonNegativeSafeIntegerSchema,
 	endedAtEpochMilliseconds: StatisticsNonNegativeSafeIntegerSchema,
 } ).strict();

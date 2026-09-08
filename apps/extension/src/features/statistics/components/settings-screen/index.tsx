@@ -32,13 +32,12 @@ import './style.scss';
 /**
  * Presents the five approved all-time metrics from a validated projection.
  * @param props - Canonical labels, formatters and authoritative totals.
- * @return Metric definition list with explicit estimation and insufficient-history guidance.
+ * @return Metric definition list with an explicit estimate and empty-state guidance.
  * @since 0.1.0
  */
 export function StatisticsSummary( props: StatisticsSummaryProps ) {
 	const { copy, projection } = props;
-	const estimated = projection.estimatedReclaimedMilliseconds === null ? copy.notEnoughHistory
-		: copy.formatEstimatedDuration( projection.estimatedReclaimedMilliseconds );
+	const estimated = copy.formatEstimatedDuration( projection.estimatedReclaimedMilliseconds );
 	const metrics = [
 		[ copy.estimatedReclaimedLabel, estimated ],
 		[ copy.focusedPauseLabel, copy.formatDuration( projection.focusedPauseMilliseconds ) ],
@@ -46,7 +45,7 @@ export function StatisticsSummary( props: StatisticsSummaryProps ) {
 		[ copy.completedWaitsLabel, copy.formatCount( projection.completedWaitCount ) ],
 		[ copy.allowancesGrantedLabel, copy.formatCount( projection.allowanceGrantedCount ) ],
 	];
-	const empty = ( projection.estimatedReclaimedMilliseconds ?? 0 ) === 0
+	const empty = projection.estimatedReclaimedMilliseconds === 0
 		&& projection.focusedPauseMilliseconds === 0 && projection.reconsideredVisitCount === 0
 		&& projection.completedWaitCount === 0 && projection.allowanceGrantedCount === 0;
 	return (

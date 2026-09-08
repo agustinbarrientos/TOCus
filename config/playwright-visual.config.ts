@@ -35,19 +35,16 @@ export default defineConfig( {
 		timezoneId: 'UTC',
 		colorScheme: 'light',
 		contextOptions: { reducedMotion: 'reduce' },
-		trace: 'retain-on-failure',
+		// DOM snapshot inspection can perturb Chromium's edge rasterization. Keep event and screenshot diagnostics without changing the pixels under test.
+		trace: { mode: 'retain-on-failure', snapshots: false, screenshots: true, sources: true },
 	},
 	projects: [
 		{
 			name: 'chromium-originals', testMatch: '**/originals/**/*.spec.ts',
-			// DOM snapshot inspection changes Chromium's glyph-edge painting. The original
-			// runner did not inspect DOM snapshots; retain event and screenshot diagnostics.
-			use: { trace: { mode: 'retain-on-failure', snapshots: false, screenshots: true, sources: true } },
 		},
 		{
 			name: 'chromium-onboarding', testMatch: '**/onboarding.spec.ts',
 			snapshotPathTemplate: '{testDir}/__snapshots__/chromium-macos26-arm64/{arg}{ext}',
-			use: { trace: { mode: 'retain-on-failure', snapshots: false, screenshots: true, sources: true } },
 		},
 		{
 			name: 'chromium-website', testMatch: '**/website.spec.ts',

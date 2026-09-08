@@ -77,7 +77,7 @@ describe( 'statistics runtime reset', () => {
 			focusMeasurementEnabled: true,
 			projection: {
 				status: StatisticsProjectionStatus.AVAILABLE,
-				estimatedReclaimedMilliseconds: null,
+				estimatedReclaimedMilliseconds: 0,
 				focusedPauseMilliseconds: 0,
 				reconsideredVisitCount: 0,
 				completedWaitCount: 0,

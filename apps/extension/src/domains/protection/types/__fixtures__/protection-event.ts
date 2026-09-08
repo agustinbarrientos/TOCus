@@ -359,6 +359,7 @@ export function createDeparture(
 		participantId,
 		pageId,
 		cause,
+		allowanceDurationMilliseconds: 300_000,
 		observedAtEpochMilliseconds: TestInstant,
 		...overrides,
 	} );

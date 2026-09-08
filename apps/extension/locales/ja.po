@@ -264,6 +264,10 @@ msgstr "外観を保存しました。"
 msgid "Appearance settings could not load"
 msgstr "外観設定を読み込めませんでした"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Approximately {duration}"
+msgstr "約{duration}"
+
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Blue"
@@ -701,10 +705,6 @@ msgstr "MITライセンス"
 msgid "Monday"
 msgstr "月曜日"
 
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "More than {duration}"
-msgstr "{duration}超"
-
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "Navigation access notices website changes as they happen, not your saved browsing history."
 msgstr "ナビゲーションへのアクセスは、サイトの切り替えをその場で検知するために使います。保存された閲覧履歴は読み取りません。"
@@ -712,10 +712,6 @@ msgstr "ナビゲーションへのアクセスは、サイトの切り替えを
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "No websites yet"
 msgstr "ウェブサイトはまだありません"
-
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Not enough history yet"
-msgstr "履歴がまだ十分ではありません"
 
 #. Popup status when the current website schedule is inactive at this moment.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
@@ -1183,8 +1179,8 @@ msgid "Time left"
 msgstr "残り時間"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Time spent pausing plus estimated browsing time avoided, based on your longest visit to each site."
-msgstr "一時停止に使った時間と、各サイトでの最長の閲覧時間に基づいて推定した、閲覧を避けられた時間の合計です。"
+msgid "Time spent pausing plus estimated browsing time avoided, based on your configured visit time."
+msgstr "一時停止に使った時間と、設定した閲覧時間に基づいて推定した、閲覧を避けられた時間の合計です。"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Time window {position}"

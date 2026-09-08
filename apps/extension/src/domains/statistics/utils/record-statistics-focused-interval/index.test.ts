@@ -10,6 +10,7 @@ import { recordStatisticsFocusedInterval } from './index';
  */
 function createFocusedIntervalOperation() {
 	return RecordFocusedIntervalOperationSchema.parse( {
+		siteHost: 'example.com',
 		type: 'record-focused-interval',
 		generationId: 'generation_1',
 		scopeId: 'scope_default',
@@ -21,7 +22,7 @@ function createFocusedIntervalOperation() {
 }
 
 describe( 'recordStatisticsFocusedInterval', () => {
-	it( 'combines navigation intervals for one site without charging a second site or replay twice', () => {
+	it( 'combines focused navigation intervals without counting any replay twice', () => {
 		let document = createMockActiveStatisticsDocument();
 		for ( const [ siteHost, start, end ] of [
 			[ 'youtube.com', 100_000, 160_000 ],
@@ -41,7 +42,7 @@ describe( 'recordStatisticsFocusedInterval', () => {
 
 		expect( document.scopes.scope_default?.activeAllowance ).toMatchObject( {
 			confirmedFocusedUseMilliseconds: 300_000,
-			focusedUseBySite: { 'youtube.com': 270_000, 'github.com': 30_000 },
+			accountedThroughEpochMilliseconds: 400_000,
 		} );
 	} );
 

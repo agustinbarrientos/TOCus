@@ -184,6 +184,22 @@ function createHarness(
 }
 
 describe( 'createProtectionParticipantReconciler', () => {
+	it.each( [ 120_000, 300_000, 1_200_000 ] )( 'uses the current %i ms configured visit time on departure', async ( allowanceMilliseconds ) => {
+		const waiting = createWaitingState();
+		waiting.participants = [ createNavigationParticipant(
+			'participant-a', 'page_tab_7_alpha', true, 0, 'https://example.com/',
+		) ];
+		const harness = createHarness( { 'scope-default': waiting }, [] );
+		await harness.reconciler.departTab( 7, DepartureCause.ACTIVE_SESSION_TAB_CLOSE, {
+			...CONFIGURATION,
+			timingConfiguration: { ...CONFIGURATION.timingConfiguration, allowanceMilliseconds },
+		} );
+
+		expect( harness.coordinator.events ).toEqual( [ expect.objectContaining( {
+			allowanceDurationMilliseconds: allowanceMilliseconds,
+		} ) ] );
+	} );
+
 	it( 'removes and releases a participant whose retained site leaves its scope', async () => {
 		const waiting = createWaitingState();
 		waiting.participants = [ createNavigationParticipant(

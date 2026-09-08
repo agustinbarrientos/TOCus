@@ -165,6 +165,7 @@ function createStoredFactBatch( index: number, scopeId = 'scope-default' ) {
 			waitId: 'wait-a',
 			participantId: 'participant-a',
 			departureCause: DepartureCause.ACTIVE_SESSION_TAB_CLOSE,
+			allowanceDurationMilliseconds: 300_000,
 			observedAtEpochMilliseconds: TestInstant,
 		} ],
 	};

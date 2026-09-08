@@ -52,6 +52,7 @@ const TEST_FACTS = ProtectionFactSchema.array().parse( [
 		waitId: 'wait_1',
 		participantId: 'participant_1',
 		departureCause: DepartureCause.ACTIVE_SESSION_TAB_CLOSE,
+		allowanceDurationMilliseconds: 300_000,
 		observedAtEpochMilliseconds: TEST_OBSERVATION_TIME,
 	},
 	{

@@ -94,6 +94,7 @@ describe( 'protection facts', () => {
 			waitId: 'wait_a',
 			participantId: 'participant',
 			departureCause: DepartureCause.BACK,
+			allowanceDurationMilliseconds: 300_000,
 			observedAtEpochMilliseconds: 1_800_000_000_000,
 		};
 		const secondInput = {
@@ -101,6 +102,7 @@ describe( 'protection facts', () => {
 			waitId: 'wait',
 			participantId: 'a_participant',
 			departureCause: DepartureCause.BACK,
+			allowanceDurationMilliseconds: 300_000,
 			observedAtEpochMilliseconds: 1_800_000_000_000,
 		};
 		const first = createReconsideredVisitFact( firstInput );
@@ -128,6 +130,7 @@ describe( 'protection facts', () => {
 			waitId: 'wait-a',
 			participantId: 'participant-a',
 			departureCause: DepartureCause.BACK,
+			allowanceDurationMilliseconds: 300_000,
 			observedAtEpochMilliseconds: 1_800_000_000_000,
 		};
 		const completedInput = {

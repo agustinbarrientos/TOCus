@@ -31,6 +31,7 @@ function createBatch( index: number, scopeId = 'scope_default' ) {
 			waitId: 'wait_1',
 			participantId: 'participant_1',
 			departureCause: 'active-session-tab-close',
+			allowanceDurationMilliseconds: 300_000,
 			observedAtEpochMilliseconds: TEST_OBSERVATION_TIME,
 		} ],
 	};

@@ -164,6 +164,7 @@ export function createProtectionParticipantReconciler(
 			participantId: context.participant.participantId,
 			pageId: context.participant.pageId,
 			cause,
+			allowanceDurationMilliseconds: configuration?.timingConfiguration.allowanceMilliseconds ?? null,
 			observedAtEpochMilliseconds: options.now(),
 		} ), measurementRevision );
 

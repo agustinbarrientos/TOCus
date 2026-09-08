@@ -71,13 +71,13 @@ class MemoryStatisticsSource {
 
 /**
  * Creates one available projection with the requested footer values.
- * @param estimatedReclaimedMilliseconds - Estimated reclaimed duration or missing baseline.
+ * @param estimatedReclaimedMilliseconds - Estimated reclaimed duration.
  * @param focusedPauseMilliseconds - Observed focused-pause duration.
  * @return Complete available statistics projection.
  * @since 0.1.0 Initial implementation.
  */
 function createProjection(
-	estimatedReclaimedMilliseconds: number | null,
+	estimatedReclaimedMilliseconds: number,
 	focusedPauseMilliseconds: number,
 ): StatisticsProjection {
 	return {

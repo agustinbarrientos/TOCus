@@ -273,6 +273,7 @@ describe( 'pending Ready restoration', () => {
 			type: ProtectionEventType.PARTICIPANT_DEPARTURE,
 			target: { stateType: ProtectionStateType.READY, allowanceId: state.allowanceId },
 			cause: DepartureCause.BROWSER_ERROR_OR_RECOVERY,
+			allowanceDurationMilliseconds: null,
 		} ] );
 	} );
 } );
@@ -562,6 +563,7 @@ describe( 'createProtectionRuntimeRestorer', () => {
 			participantId: READY_PARTICIPANT.participantId,
 			pageId: READY_PARTICIPANT.pageId,
 			cause: DepartureCause.BROWSER_ERROR_OR_RECOVERY,
+			allowanceDurationMilliseconds: null,
 			observedAtEpochMilliseconds: NOW_EPOCH_MILLISECONDS,
 		} ] );
 		expect( harness.applyDispatchResult ).toHaveBeenCalledWith( APPLIED_RESULT, testCase.configuration );

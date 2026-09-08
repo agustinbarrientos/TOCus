@@ -16,6 +16,7 @@ import { ScheduleEvaluationResultSchema } from './schedule-evaluation';
 import { VisitAttemptParticipantSchema } from './protection-participant';
 import { ProtectionStateTargetSchema } from './protection-state';
 import { TimingConfigurationSchema } from './timing-configuration';
+import { AllowanceDurationMillisecondsSchema } from './allowance-duration';
 
 /**
  * Validates a retained navigation destination or an explicit null value.
@@ -288,6 +289,8 @@ export const ParticipantDepartureEventSchema = z.object( {
 	participantId: ParticipantIdSchema,
 	pageId: PageIdSchema,
 	cause: DepartureCauseSchema,
+	/** Current configured visit time; null when configuration is unavailable during recovery. */
+	allowanceDurationMilliseconds: z.union( [ AllowanceDurationMillisecondsSchema, z.null() ] ),
 	observedAtEpochMilliseconds: EpochMillisecondsSchema,
 } ).strict();
 

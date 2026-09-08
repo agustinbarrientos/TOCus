@@ -23,6 +23,7 @@ describe( 'abandonWaitingState', () => {
 			waitId: state.waitId,
 			participantId: 'participant-departed',
 			departureCause: DepartureCause.BACK,
+			allowanceDurationMilliseconds: 300_000,
 			observedAtEpochMilliseconds: 1_800_000_000_000,
 		} );
 
@@ -52,6 +53,7 @@ describe( 'abandonWaitingState', () => {
 				waitId: 'wait-a',
 				participantId: 'participant-departed',
 				departureCause: DepartureCause.BACK,
+				allowanceDurationMilliseconds: 300_000,
 				observedAtEpochMilliseconds: 1_800_000_000_000,
 			} ],
 		} );

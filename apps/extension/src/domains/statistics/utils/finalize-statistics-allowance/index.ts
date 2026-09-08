@@ -2,7 +2,7 @@ import type { ScopeStatistics } from '../../types/statistics-document';
 import type { FinalizeActiveAllowanceOperation } from '../../types/statistics-operation';
 
 /**
- * Finalizes an allowance, retaining each site's longest measured visit and a legacy scope baseline.
+ * Clears an expired allowance measurement while preserving accumulated totals.
  * @param scope - Current scope statistics.
  * @param observedAtEpochMilliseconds - Current deterministic observation time.
  * @return Updated scope statistics, or the original scope before expiry.
@@ -21,20 +21,9 @@ export function finalizeExpiredStatisticsAllowance(
 		return scope;
 	}
 
-	const longestVisits = new Map( Object.entries( scope.longestVisitsBySite ?? {} ) );
-	for ( const [ siteHost, duration ] of Object.entries( activeAllowance.focusedUseBySite ?? {} ) ) {
-		longestVisits.set( siteHost, Math.max( longestVisits.get( siteHost ) ?? 0, duration ) );
-	}
-
 	return {
 		totals: scope.totals,
-		hasFinalizedBaseline: true,
 		currentMeasurementRevision: activeAllowance.measurementRevision,
-		...( longestVisits.size === 0 ? {} : { longestVisitsBySite: Object.fromEntries( longestVisits ) } ),
-		latestBaseline: {
-			measurementRevision: activeAllowance.measurementRevision,
-			focusedUseMilliseconds: activeAllowance.confirmedFocusedUseMilliseconds,
-		},
 	};
 }
 

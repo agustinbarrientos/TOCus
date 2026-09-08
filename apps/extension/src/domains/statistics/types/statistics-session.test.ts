@@ -11,6 +11,7 @@ import {
 const VALID_STATISTICS_SESSION = {
 	schemaVersion: 1,
 	focusAnchor: {
+		siteHost: 'example.com',
 		sessionContinuityId: 'session_current',
 		focusEpochId: 'focus_epoch_current',
 		generationId: 'generation_1',
@@ -20,6 +21,7 @@ const VALID_STATISTICS_SESSION = {
 		focusedAtEpochMilliseconds: 200_000,
 	},
 	pendingInterval: {
+		siteHost: 'example.com',
 		generationId: 'generation_1',
 		scopeId: 'scope_other',
 		measurementRevision: 'revision_other',
@@ -34,6 +36,15 @@ describe( 'StatisticsSessionDocumentSchema', () => {
 		expect( StatisticsSessionDocumentSchema.parse( VALID_STATISTICS_SESSION ) ).toEqual(
 			VALID_STATISTICS_SESSION,
 		);
+	} );
+
+	it.each( [ 'focusAnchor', 'pendingInterval' ] as const )( 'rejects %s without a protected-site identity', ( field ) => {
+		const work = { ...VALID_STATISTICS_SESSION[ field ] };
+		Reflect.deleteProperty( work, 'siteHost' );
+		expect( StatisticsSessionDocumentSchema.safeParse( {
+			...VALID_STATISTICS_SESSION,
+			[ field ]: work,
+		} ).success ).toBe( false );
 	} );
 
 	it( 'retains separate canonical protected hosts for the anchor and frozen interval', () => {

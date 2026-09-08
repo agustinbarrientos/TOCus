@@ -179,25 +179,25 @@ describe( 'createLocalizationBundle', () => {
 		expect( bundle.statistics.formatDuration( 0 ) ).toBe( '0 minutes' );
 		expect( bundle.statistics.formatDuration( 30_000 ) ).toBe( 'Less than 1 minute' );
 		expect( bundle.statistics.formatDuration( 3_900_000 ) ).toBe( '1 hour, 5 minutes' );
-		expect( bundle.statistics.formatEstimatedDuration( 0 ) ).toBe( '0 minutes' );
+		expect( bundle.statistics.formatEstimatedDuration( 0 ) ).toBe( 'Approximately 0 minutes' );
 		expect( bundle.statistics.formatEstimatedDuration( 30_000 ) ).toBe( 'Less than 1 minute' );
-		expect( bundle.statistics.formatEstimatedDuration( 3_600_000 ) ).toBe( 'More than 1 hour' );
+		expect( bundle.statistics.formatEstimatedDuration( 3_600_000 ) ).toBe( 'Approximately 1 hour' );
 		expect( bundle.wellbeing.formatDuration( 30_000 ) ).toBe( '30 seconds' );
 		expect( bundle.wellbeing.formatDuration( 3_900_000 ) ).toBe( '1 hour, 5 minutes' );
 	} );
 
 	it.each( [
-		[ Language.ENGLISH, 'More than 1 minute' ],
-		[ Language.SPANISH_TU, 'M\u00e1s de 1 minuto' ],
-		[ Language.SPANISH_VOS, 'M\u00e1s de 1 minuto' ],
-		[ Language.PORTUGUESE_BRAZIL, 'Mais de 1 minuto' ],
-		[ Language.PORTUGUESE_PORTUGAL, 'Mais de 1 minuto' ],
-		[ Language.ITALIAN, 'Pi\u00f9 di 1 minuto' ],
-		[ Language.FRENCH, 'Plus de 1 minute' ],
-		[ Language.GERMAN, 'Mehr als 1 Minute' ],
-		[ Language.JAPANESE, '1 \u5206\u8d85' ],
-		[ Language.RUSSIAN, '\u0411\u043e\u043b\u044c\u0448\u0435 \u0447\u0435\u043c 1 \u043c\u0438\u043d\u0443\u0442\u0430' ],
-	] )( 'formats the reclaimed-time lower bound through the %s catalog', async ( language, expected ) => {
+		[ Language.ENGLISH, 'Approximately 2 minutes' ],
+		[ Language.SPANISH_TU, 'Aproximadamente 2 minutos' ],
+		[ Language.SPANISH_VOS, 'Aproximadamente 2 minutos' ],
+		[ Language.PORTUGUESE_BRAZIL, 'Aproximadamente 2 minutos' ],
+		[ Language.PORTUGUESE_PORTUGAL, 'Aproximadamente 2 minutos' ],
+		[ Language.ITALIAN, 'Circa 2 minuti' ],
+		[ Language.FRENCH, 'Environ 2 minutes' ],
+		[ Language.GERMAN, 'Ungefähr 2 Minuten' ],
+		[ Language.JAPANESE, '約2 分' ],
+		[ Language.RUSSIAN, 'Примерно 2 минуты' ],
+	] )( 'formats the approximate reclaimed duration through the %s catalog', async ( language, expected ) => {
 		const bundle = await loadLocalizationBundle( language );
 
 		expect( bundle.statistics.formatEstimatedDuration( 100_000 ) ).toBe( expected );

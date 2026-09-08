@@ -43,6 +43,28 @@ const ExcludedDepartureCauses = [
 const AllDepartureCauses = Object.values( DepartureCause );
 
 describe( 'participant-departure transition', () => {
+	it.each( [ 120_000, 300_000, 1_200_000 ] )( 'captures the configured %i ms visit allowance when a pause is reconsidered', ( allowanceDurationMilliseconds ) => {
+		const result = handleParticipantDeparture( createWaitingState(), {
+			...createDeparture( DepartureCause.ACTIVE_SESSION_TAB_CLOSE ),
+			allowanceDurationMilliseconds,
+		} );
+
+		expect( result.facts ).toEqual( [ expect.objectContaining( {
+			type: ProtectionFactType.RECONSIDERED_VISIT,
+			allowanceDurationMilliseconds,
+		} ) ] );
+	} );
+
+	it( 'releases the pause without inventing an estimate when current timing is unavailable', () => {
+		const result = handleParticipantDeparture( createWaitingState(), {
+			...createDeparture( DepartureCause.ACTIVE_SESSION_TAB_CLOSE ),
+			allowanceDurationMilliseconds: null,
+		} );
+
+		expect( result.state.type ).toBe( ProtectionStateType.IDLE );
+		expect( result.facts ).toEqual( [] );
+	} );
+
 	it( 'retains the completed pause after its final participant leaves without counting reconsideration', () => {
 		const state = createReadyState();
 		const event = createDeparture( DepartureCause.ACTIVE_SESSION_TAB_CLOSE, 'participant-a', 'page-a', {
@@ -79,6 +101,7 @@ describe( 'participant-departure transition', () => {
 					waitId: 'wait-a',
 					participantId: 'participant-a',
 					departureCause: cause,
+					allowanceDurationMilliseconds: 300_000,
 					observedAtEpochMilliseconds: 1_800_000_000_000,
 				} ],
 			} );
@@ -163,6 +186,7 @@ describe( 'participant-departure transition', () => {
 				waitId: 'wait-a',
 				participantId: 'participant-a',
 				departureCause: DepartureCause.BACK,
+				allowanceDurationMilliseconds: 300_000,
 				observedAtEpochMilliseconds: 1_800_000_000_000,
 			} ],
 		} );
@@ -196,6 +220,7 @@ describe( 'participant-departure transition', () => {
 				waitId: 'wait-a',
 				participantId: 'participant-a',
 				departureCause: DepartureCause.BACK,
+				allowanceDurationMilliseconds: 300_000,
 				observedAtEpochMilliseconds: 1_800_000_000_000,
 			} ],
 		} );
@@ -224,6 +249,7 @@ describe( 'participant-departure transition', () => {
 				waitId: 'wait-a',
 				participantId: 'participant-b',
 				departureCause: DepartureCause.BACK,
+				allowanceDurationMilliseconds: 300_000,
 				observedAtEpochMilliseconds: 1_800_000_000_000,
 			} ],
 		} );

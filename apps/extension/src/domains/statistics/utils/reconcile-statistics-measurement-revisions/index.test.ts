@@ -16,10 +16,6 @@ describe( 'reconcileStatisticsMeasurementRevisions', () => {
 			scopes: {
 				scope_default: {
 					...createMockActiveScopeStatistics(),
-					latestBaseline: {
-						measurementRevision: 'revision_1',
-						focusedUseMilliseconds: 90_000,
-					},
 					totals: {
 						estimatedReclaimedMilliseconds: 1,
 						focusedPauseMilliseconds: 2,
@@ -51,9 +47,7 @@ describe( 'reconcileStatisticsMeasurementRevisions', () => {
 		expect( result.scopes ).toEqual( {
 			scope_default: {
 				totals: document.scopes.scope_default?.totals,
-				hasFinalizedBaseline: true,
 				currentMeasurementRevision: 'revision_2',
-				latestBaseline: document.scopes.scope_default?.latestBaseline,
 			},
 			scope_inactive: {
 				totals: document.scopes.scope_inactive?.totals,
@@ -101,10 +95,6 @@ describe( 'reconcileStatisticsMeasurementRevisions', () => {
 						allowanceGrantedCount: 15,
 					},
 					currentMeasurementRevision: 'revision_instagram',
-					latestBaseline: {
-						measurementRevision: 'revision_instagram',
-						focusedUseMilliseconds: 120_000,
-					},
 				},
 			},
 		} );
@@ -124,6 +114,7 @@ describe( 'reconcileStatisticsMeasurementRevisions', () => {
 					observedAtEpochMilliseconds,
 					facts: [ {
 						type: 'reconsidered-visit',
+						allowanceDurationMilliseconds: 120_000,
 						factId: 'fact_instagram',
 						scopeId: 'scope_instagram',
 						waitId: 'wait_instagram',
@@ -137,7 +128,6 @@ describe( 'reconcileStatisticsMeasurementRevisions', () => {
 
 		expect( result.scopes.scope_instagram ).toMatchObject( {
 			totals: document.scopes.scope_instagram?.totals,
-			latestBaseline: document.scopes.scope_instagram?.latestBaseline,
 		} );
 		expect( projectStatistics( resultAfterQueuedFact ) ).toMatchObject( {
 			status: 'available',
@@ -172,27 +162,14 @@ describe( 'reconcileStatisticsMeasurementRevisions', () => {
 			measurementRevisionsByScope: {},
 		},
 	] )( 'preserves known all-time zero when the $label', ( { measurementRevisionsByScope } ) => {
-		const document = StatisticsDocumentSchema.parse( {
-			...createMockStatisticsDocument(),
-			scopes: {
-				scope_default: {
-					...createMockStatisticsDocument().scopes.scope_default,
-					latestBaseline: {
-						measurementRevision: 'revision_1',
-						focusedUseMilliseconds: 0,
-					},
-				},
-			},
-		} );
+		const document = createMockStatisticsDocument();
 		const operation = ReconcileMeasurementRevisionsOperationSchema.parse( {
 			type: 'reconcile-measurement-revisions',
 			measurementRevisionsByScope,
 		} );
 		const result = reconcileStatisticsMeasurementRevisions( document, operation );
 
-		expect( result.scopes.scope_default ).toMatchObject( {
-			hasFinalizedBaseline: true,
-		} );
+		expect( result.scopes.scope_default?.totals ).toEqual( document.scopes.scope_default?.totals );
 		expect( projectStatistics( result ) ).toMatchObject( {
 			status: 'available',
 			estimatedReclaimedMilliseconds: 0,
