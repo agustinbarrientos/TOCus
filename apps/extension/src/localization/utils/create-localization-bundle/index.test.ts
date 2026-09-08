@@ -216,7 +216,7 @@ describe( 'createLocalizationBundle', () => {
 			estimatedReclaimedTime: '9 minutes',
 			focusedPauseTime: '4 minutes',
 		} ) ).toBe(
-			"Since you started, you've given yourself about 9 minutes back and taken 4 minutes for yourself.",
+			"Since you started, you've given yourself about 9 minutes back, including 4 minutes spent pausing.",
 		);
 	} );
 

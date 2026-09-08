@@ -62,7 +62,7 @@ export function createWellbeingCopy(
 			return i18n._( msg`Since you started, you've given yourself about ${ estimatedReclaimedTime } back.` );
 		}
 
-		return i18n._( msg`Since you started, you've given yourself about ${ estimatedReclaimedTime } back and taken ${ focusedPauseTime } for yourself.` );
+		return i18n._( msg`Since you started, you've given yourself about ${ estimatedReclaimedTime } back, including ${ focusedPauseTime } spent pausing.` );
 	}
 
 	return Object.freeze( {

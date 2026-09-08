@@ -85,14 +85,14 @@ describe( 'format wellbeing summary', () => {
 		) ).toBe( "Since you started, you've given yourself about 3 hours, 24 minutes back." );
 	} );
 
-	it( 'combines reclaimed and neutral all-time pause time in one human sentence', () => {
+	it( 'describes all-time pause time as included in reclaimed time', () => {
 		expect( formatTestWellbeingSummary(
 			createProjection( {
 				estimatedReclaimedMilliseconds: ( 3 * 60 + 24 ) * 60_000,
 				focusedPauseMilliseconds: 18 * 60_000,
 			} ),
 		) ).toBe(
-			"Since you started, you've given yourself about 3 hours, 24 minutes back and taken 18 minutes for yourself.",
+			"Since you started, you've given yourself about 3 hours, 24 minutes back, including 18 minutes spent pausing.",
 		);
 	} );
 

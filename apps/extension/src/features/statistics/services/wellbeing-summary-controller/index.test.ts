@@ -164,7 +164,7 @@ describe( 'wellbeing summary controller', () => {
 
 		expect( readStatistics ).toHaveBeenCalledOnce();
 		expect( target.wellbeingSummary ).toBe(
-			"Since you started, you've given yourself about 2 minutes back and taken 1 minute for yourself.",
+			"Since you started, you've given yourself about 2 minutes back, including 1 minute spent pausing.",
 		);
 	} );
 
@@ -202,13 +202,13 @@ describe( 'wellbeing summary controller', () => {
 		const firstRefresh = controller.refresh();
 		const secondRefresh = controller.refresh();
 
-		secondRead.resolve( createProjection( 0, 120_000 ) );
+		secondRead.resolve( createProjection( 120_000, 120_000 ) );
 		await secondRefresh;
-		firstRead.resolve( createProjection( 0, 60_000 ) );
+		firstRead.resolve( createProjection( 60_000, 60_000 ) );
 		await firstRefresh;
 
 		expect( target.wellbeingSummary ).toBe(
-			"Since you started, you've taken 2 minutes for yourself.",
+			"Since you started, you've given yourself about 2 minutes back, including 2 minutes spent pausing.",
 		);
 	} );
 
@@ -237,8 +237,8 @@ describe( 'wellbeing summary controller', () => {
 	it( 'refreshes a waiting footer when authoritative local statistics change', async () => {
 		const target = createTarget();
 		const readStatistics = vi.fn()
-			.mockResolvedValueOnce( createProjection( 0, 60_000 ) )
-			.mockResolvedValueOnce( createProjection( 120_000, 180_000 ) );
+			.mockResolvedValueOnce( createProjection( 60_000, 60_000 ) )
+			.mockResolvedValueOnce( createProjection( 300_000, 180_000 ) );
 		const source = new MemoryStatisticsSource( readStatistics );
 		const controller = createWellbeingSummaryController( {
 			copy: TestEnglishLocalizationBundle.wellbeing,
@@ -252,7 +252,7 @@ describe( 'wellbeing summary controller', () => {
 		source.emitChange();
 		await vi.waitFor( () => {
 			expect( target.wellbeingSummary ).toBe(
-				"Since you started, you've given yourself about 2 minutes back and taken 3 minutes for yourself.",
+				"Since you started, you've given yourself about 5 minutes back, including 3 minutes spent pausing.",
 			);
 		} );
 
