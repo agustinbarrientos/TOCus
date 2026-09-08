@@ -3,7 +3,9 @@ import {
 	type AllowanceGrantedFact,
 	type PauseTimeFact,
 	type ProtectionFact,
+	type ReconsideredVisitFact,
 } from '../../../protection/types/protection-fact';
+import type { CanonicalHost } from '../../../protection/types/protected-site-rule';
 import type { ProtectionMeasurementRevision } from '../../../protection/types/protection-value';
 import type { StatisticsDocument, ScopeStatistics } from '../../types/statistics-document';
 import type { ApplyStatisticsFactBatchOperation } from '../../types/statistics-operation';
@@ -38,18 +40,24 @@ function applyPauseTimeFact(
  * Applies one reconsidered-visit fact to scope totals.
  * @param scope - Current scope statistics.
  * @param measurementRevision - Revision captured with the fact.
+ * @param document - Historical site maxima, including sites moved between timers.
+ * @param fact - Qualifying departure with optional legacy-compatible site identity.
  * @return Updated scope statistics.
  * @since 0.1.0 Initial implementation.
  */
 function applyReconsideredVisitFact(
 	scope: ScopeStatistics,
 	measurementRevision: ProtectionMeasurementRevision,
+	document: StatisticsDocument,
+	fact: ReconsideredVisitFact,
 ): ScopeStatistics {
 	const baseline = scope.latestBaseline;
-	const reclaimedIncrement =
-		baseline?.measurementRevision === measurementRevision
+	// Old pending facts have no site identity. Do not assign their shared samples to new site-tagged facts.
+	const reclaimedIncrement = fact.siteHost === undefined
+		? baseline?.measurementRevision === measurementRevision
 			? baseline.focusedUseMilliseconds
-			: 0;
+			: 0
+		: longestRecordedSiteVisit( document, scope, fact.siteHost );
 
 	return {
 		...scope,
@@ -65,6 +73,29 @@ function applyReconsideredVisitFact(
 			),
 		},
 	};
+}
+
+/**
+ * Finds a site's maximum across retained timers, including a just-finalized current allowance.
+ * @param document - Historical aggregates, retained when a site changes timers.
+ * @param currentScope - Scope after finalization and any earlier facts in this batch.
+ * @param siteHost - Configured host; never a page address.
+ * @return Longest known visit, or zero without attributed history.
+ */
+function longestRecordedSiteVisit(
+	document: StatisticsDocument,
+	currentScope: ScopeStatistics,
+	siteHost: CanonicalHost,
+): number {
+	let longest = 0;
+	for ( const scope of [ currentScope, ...Object.values( document.scopes ) ] ) {
+		for ( const [ host, duration ] of Object.entries( scope.longestVisitsBySite ?? {} ) ) {
+			if ( host === siteHost ) {
+				longest = Math.max( longest, duration );
+			}
+		}
+	}
+	return longest;
 }
 
 /**
@@ -129,6 +160,7 @@ function applyAllowanceGrantedFact(
  * @param scope - Current scope statistics.
  * @param fact - Accepted protection fact.
  * @param measurementRevision - Revision captured with the fact.
+ * @param document - Retained per-site history across timer changes.
  * @return Updated scope statistics.
  * @since 0.1.0 Initial implementation.
  */
@@ -136,12 +168,13 @@ function applyStatisticsFact(
 	scope: ScopeStatistics,
 	fact: ProtectionFact,
 	measurementRevision: ProtectionMeasurementRevision,
+	document: StatisticsDocument,
 ): ScopeStatistics {
 	switch ( fact.type ) {
 		case ProtectionFactType.PAUSE_TIME:
 			return applyPauseTimeFact( scope, fact );
 		case ProtectionFactType.RECONSIDERED_VISIT:
-			return applyReconsideredVisitFact( scope, measurementRevision );
+			return applyReconsideredVisitFact( scope, measurementRevision, document, fact );
 		case ProtectionFactType.COMPLETED_WAIT:
 			return applyCompletedWaitFact( scope );
 		case ProtectionFactType.ALLOWANCE_GRANTED:
@@ -175,7 +208,7 @@ export function applyStatisticsFactBatch(
 	);
 
 	for ( const fact of batch.facts ) {
-		scope = applyStatisticsFact( scope, fact, batch.measurementRevision );
+		scope = applyStatisticsFact( scope, fact, batch.measurementRevision, document );
 	}
 
 	return {
