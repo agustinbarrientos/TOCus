@@ -34,6 +34,8 @@ Preserve event timing too. Some archived fixtures dispatched native events and a
 
 All visual traces retain events, sources and screenshots, but disable DOM snapshots. Controlled comparisons showed that DOM snapshot inspection itself changes a few Chromium glyph-edge and rounded-border samples. The archived runner did not perform that inspection, and repeated website captures matched their existing baselines when DOM snapshots were disabled. This does not disable screenshot capture or any pixel assertion.
 
+Website screenshot assertions allow 15 seconds for Playwright's stable-image comparison. Hosted traces measured roughly two seconds per full-page capture/comparison, exhausting the default five-second deadline before consecutive images settled. This changes only the screenshot deadline; original single-capture comparisons, functional test deadlines, zero differing-pixel limits, and reviewed PNGs remain unchanged.
+
 Caret suppression is conditional on real text-editing focus. Playwright's default `caret: 'hide'` writes inline styles to every input, including unfocused fields; independent paired captures reproduced a rounded-edge raster change from that unnecessary invalidation. The helper reads active focus, including nested open shadow roots, without changing focus, selection, styles or layout. Captures keep `caret: 'initial'` when no editable caret exists and retain suppression for focused text fields. This does not change the capture count, expected image bytes or pixel comparison.
 
 Failed CI runs retain expected/actual/diff images, HTML reports and traces in `visual-failure-diagnostics` for seven days. Inspect actual differences and repair their causes, without changing original expected PNGs.
