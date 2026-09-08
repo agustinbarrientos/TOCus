@@ -18,6 +18,7 @@ const VALID_BATCH = {
 			waitId: 'wait_1',
 			participantId: 'participant_1',
 			departureCause: 'active-session-tab-close',
+			allowanceDurationMilliseconds: 300_000,
 			observedAtEpochMilliseconds: 1_000,
 		},
 	],
@@ -39,6 +40,16 @@ describe( 'ProtectionFactBatchSchema', () => {
 
 		expect( result.success ).toBe( false );
 	} );
+
+	it.each( [ undefined, null, 0, 60_001, 3_660_000 ] )(
+		'rejects a reconsidered visit without a valid configured allowance: %s',
+		( allowanceDurationMilliseconds ) => {
+			expect( ProtectionFactBatchSchema.safeParse( {
+				...VALID_BATCH,
+				facts: [ { ...VALID_BATCH.facts[ 0 ], allowanceDurationMilliseconds } ],
+			} ).success ).toBe( false );
+		},
+	);
 
 	it( 'rejects duplicate fact identifiers', () => {
 		const result = ProtectionFactBatchSchema.safeParse( {
