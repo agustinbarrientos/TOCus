@@ -13,10 +13,10 @@ describe( 'projectStatistics', () => {
 		} ) ).toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
 	} );
 
-	it( 'projects exactly five empty all-time values without inventing an estimate', () => {
+	it( 'projects exactly five zero values before any visit or pause is recorded', () => {
 		expect( projectStatistics( createMockStatisticsDocument() ) ).toEqual( {
 			status: StatisticsProjectionStatus.AVAILABLE,
-			estimatedReclaimedMilliseconds: null,
+			estimatedReclaimedMilliseconds: 0,
 			focusedPauseMilliseconds: 0,
 			reconsideredVisitCount: 0,
 			completedWaitCount: 0,
@@ -24,21 +24,18 @@ describe( 'projectStatistics', () => {
 		} );
 	} );
 
-	it.each( [ 0, 120_000 ] )( 'projects numeric zero with a valid %i ms baseline', ( focusedUseMilliseconds ) => {
+	it( 'rejects persisted estimates with an obsolete visit-history baseline', () => {
 		const document = createMockStatisticsDocument();
 
-		document.scopes.scope_default = ScopeStatisticsSchema.parse( {
-			...document.scopes.scope_default,
-			latestBaseline: {
-				measurementRevision: 'revision_1',
-				focusedUseMilliseconds,
+		expect( projectStatistics( {
+			...document,
+			scopes: {
+				scope_default: {
+					...document.scopes.scope_default,
+					latestBaseline: { measurementRevision: 'revision_1', focusedUseMilliseconds: 120_000 },
+				},
 			},
-		} );
-
-		expect( projectStatistics( document ) ).toMatchObject( {
-			status: StatisticsProjectionStatus.AVAILABLE,
-			estimatedReclaimedMilliseconds: 0,
-		} );
+		} ) ).toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
 	} );
 
 	it( 'sums every per-scope all-time total', () => {
@@ -77,12 +74,11 @@ describe( 'projectStatistics', () => {
 		} );
 	} );
 
-	it.each( [ false, true ] )( 'includes recorded pause time with no reconsidered visits (finalized baseline: %s)', ( hasFinalizedBaseline ) => {
+	it( 'includes recorded pause time with no reconsidered visits', () => {
 		const document = StatisticsDocumentSchema.parse( {
 			...createMockStatisticsDocument(),
 			scopes: {
 				scope_default: {
-					hasFinalizedBaseline,
 					totals: {
 						estimatedReclaimedMilliseconds: 0,
 						focusedPauseMilliseconds: 120_000,
@@ -152,7 +148,7 @@ describe( 'projectStatistics', () => {
 		expect( projectStatistics( document ) ).toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
 	} );
 
-	it( 'preserves a positive historical estimate without a current baseline', () => {
+	it( 'preserves accumulated estimates when the measurement revision changes', () => {
 		const document = createMockStatisticsDocument();
 		const scope = document.scopes.scope_default;
 
@@ -174,7 +170,7 @@ describe( 'projectStatistics', () => {
 		} );
 	} );
 
-	it( 'projects known zero from a historical finalized-baseline marker', () => {
+	it( 'projects zero for a retained inactive scope with no visits', () => {
 		const document = createMockStatisticsDocument();
 		const scope = document.scopes.scope_default;
 
@@ -184,7 +180,6 @@ describe( 'projectStatistics', () => {
 
 		document.scopes.scope_default = ScopeStatisticsSchema.parse( {
 			totals: scope.totals,
-			hasFinalizedBaseline: true,
 		} );
 
 		expect( projectStatistics( document ) ).toMatchObject( {

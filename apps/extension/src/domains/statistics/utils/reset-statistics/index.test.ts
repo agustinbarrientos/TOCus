@@ -72,15 +72,18 @@ describe( 'resetStatistics', () => {
 		expect( () => resetStatistics( document, operation ) ).toThrow( RangeError );
 	} );
 
-	it( 'clears finalized-baseline provenance', () => {
+	it( 'projects numeric zero after clearing accumulated estimates and pauses', () => {
 		const document = StatisticsDocumentSchema.parse( {
 			...createMockStatisticsDocument(),
 			scopes: {
 				scope_default: {
 					...createMockStatisticsDocument().scopes.scope_default,
-					latestBaseline: {
-						measurementRevision: 'revision_1',
-						focusedUseMilliseconds: 0,
+					totals: {
+						estimatedReclaimedMilliseconds: 300_000,
+						focusedPauseMilliseconds: 20_000,
+						reconsideredVisitCount: 1,
+						completedWaitCount: 1,
+						allowanceGrantedCount: 1,
 					},
 				},
 			},
@@ -92,10 +95,11 @@ describe( 'resetStatistics', () => {
 		} );
 		const result = resetStatistics( document, operation );
 
-		expect( result.scopes.scope_default ).not.toHaveProperty( 'hasFinalizedBaseline' );
 		expect( projectStatistics( result ) ).toMatchObject( {
 			status: 'available',
-			estimatedReclaimedMilliseconds: null,
+			estimatedReclaimedMilliseconds: 0,
+			focusedPauseMilliseconds: 0,
+			reconsideredVisitCount: 0,
 		} );
 	} );
 
