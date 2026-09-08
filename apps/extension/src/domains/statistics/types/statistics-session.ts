@@ -68,7 +68,7 @@ export const StatisticsSessionWorkIdentitySchema = z.object( {
 	scopeId: ProtectionScopeIdSchema,
 	measurementRevision: ProtectionMeasurementRevisionSchema,
 	allowanceId: AllowanceIdSchema,
-	siteHost: CanonicalHostSchema.optional(),
+	siteHost: CanonicalHostSchema,
 } ).strict();
 
 /**

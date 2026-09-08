@@ -14,8 +14,8 @@ export interface FocusedAllowanceIdentity {
 	measurementRevision: ProtectionMeasurementRevision;
 	allowanceId: AllowanceId;
 	/**
-	 * Matched protected-rule host, omitted only for legacy focus identities.
+	 * Matched protected-rule host used to identify focus continuity.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	siteHost?: CanonicalHost;
+	siteHost: CanonicalHost;
 }

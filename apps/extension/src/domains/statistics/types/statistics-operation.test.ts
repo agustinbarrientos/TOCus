@@ -6,10 +6,10 @@ import {
 } from './statistics-operation';
 
 /**
- * Valid legacy focus interval without protected-site attribution.
+ * Focus interval without the required protected-site identity.
  * @since 0.1.0 Initial implementation.
  */
-const VALID_FOCUSED_INTERVAL = {
+const FOCUSED_INTERVAL_WITHOUT_SITE_HOST = {
 	type: StatisticsOperationType.RECORD_FOCUSED_INTERVAL,
 	generationId: 'generation_1',
 	scopeId: 'scope_default',
@@ -20,14 +20,14 @@ const VALID_FOCUSED_INTERVAL = {
 };
 
 describe( 'RecordFocusedIntervalOperationSchema', () => {
-	it( 'accepts intervals persisted before site attribution was available', () => {
-		expect( RecordFocusedIntervalOperationSchema.parse( VALID_FOCUSED_INTERVAL ) ).toEqual(
-			VALID_FOCUSED_INTERVAL,
-		);
+	it( 'rejects focused intervals without their protected-site identity', () => {
+		expect( RecordFocusedIntervalOperationSchema.safeParse(
+			FOCUSED_INTERVAL_WITHOUT_SITE_HOST,
+		).success ).toBe( false );
 	} );
 
 	it( 'retains the canonical protected-site host on a focused interval', () => {
-		const interval = { ...VALID_FOCUSED_INTERVAL, siteHost: 'example.com' };
+		const interval = { ...FOCUSED_INTERVAL_WITHOUT_SITE_HOST, siteHost: 'example.com' };
 
 		expect( RecordFocusedIntervalOperationSchema.parse( interval ) ).toEqual( interval );
 	} );
@@ -36,7 +36,7 @@ describe( 'RecordFocusedIntervalOperationSchema', () => {
 		'rejects noncanonical site attribution %s',
 		( siteHost ) => {
 			expect( RecordFocusedIntervalOperationSchema.safeParse( {
-				...VALID_FOCUSED_INTERVAL,
+				...FOCUSED_INTERVAL_WITHOUT_SITE_HOST,
 				siteHost,
 			} ).success ).toBe( false );
 		},
