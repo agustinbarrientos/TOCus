@@ -13,6 +13,7 @@ import {
 const VALID_SESSION_DOCUMENT = {
 	schemaVersion: 1,
 	focusAnchor: {
+		siteHost: 'example.com',
 		sessionContinuityId: 'session_current',
 		focusEpochId: 'focus_epoch_current',
 		generationId: 'generation_1',
@@ -271,6 +272,7 @@ describe( 'createStatisticsSessionStorageService', () => {
 
 	it( 'preserves a frozen interval while discarding its live focus anchor', async () => {
 		const pendingInterval = {
+			siteHost: 'example.com',
 			generationId: 'generation_1',
 			scopeId: 'scope_default',
 			measurementRevision: 'revision_1',
@@ -359,6 +361,7 @@ describe( 'createStatisticsSessionStorageService', () => {
 				? {
 					...VALID_SESSION_DOCUMENT,
 					pendingInterval: {
+						siteHost: 'example.com',
 						generationId: 'generation_1',
 						scopeId: 'scope_default',
 						measurementRevision: 'revision_1',

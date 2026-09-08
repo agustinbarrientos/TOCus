@@ -167,7 +167,7 @@ function createPendingInterval(
 			scopeId: focusAnchor.scopeId,
 			measurementRevision: focusAnchor.measurementRevision,
 			allowanceId: focusAnchor.allowanceId,
-			...( focusAnchor.siteHost === undefined ? {} : { siteHost: focusAnchor.siteHost } ),
+			siteHost: focusAnchor.siteHost,
 			startedAtEpochMilliseconds: focusAnchor.focusedAtEpochMilliseconds,
 			endedAtEpochMilliseconds: nowEpochMilliseconds,
 		};

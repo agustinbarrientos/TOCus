@@ -27,6 +27,7 @@ const TEST_FOCUSED_ALLOWANCE = {
 	scopeId: ProtectionScopeIdSchema.parse( 'scope_default' ),
 	measurementRevision: ProtectionMeasurementRevisionSchema.parse( 'revision_1' ),
 	allowanceId: AllowanceIdSchema.parse( 'allowance_1' ),
+	siteHost: 'example.com',
 };
 
 /**
@@ -69,7 +70,7 @@ function createFocusEpochTransition(
  * @param pendingEndEpochMilliseconds - Optional frozen interval end.
  * @param sessionContinuityId - Browser-session continuity identifier.
  * @param focusEpochId - Persisted focus epoch identifier.
- * @param siteHost - Optional protected-rule host retained by current focus work.
+ * @param siteHost - Protected-rule host retained by current focus work.
  * @return Valid session focus work.
  * @since 0.1.0 Initial implementation.
  */
@@ -78,14 +79,14 @@ function createSession(
 	pendingEndEpochMilliseconds?: number,
 	sessionContinuityId = TEST_SESSION_CONTINUITY_ID,
 	focusEpochId = TEST_FOCUS_EPOCH_ID,
-	siteHost?: CanonicalHost,
+	siteHost: CanonicalHost = TEST_FOCUSED_ALLOWANCE.siteHost,
 ) {
 	const identity = {
 		generationId: 'generation_1',
 		scopeId: 'scope_default',
 		measurementRevision: 'revision_1',
 		allowanceId: 'allowance_1',
-		...( siteHost === undefined ? {} : { siteHost } ),
+		siteHost,
 	};
 
 	return StatisticsSessionDocumentSchema.parse( {
@@ -133,7 +134,7 @@ describe( 'prepare statistics checkpoint', () => {
 		} );
 	} );
 
-	it.each( [ 'example.com', undefined ] )(
+	it.each( [ 'example.com', 'another.example' ] )(
 		'does not charge a sample when the same allowance changes from site %s',
 		( siteHost ) => {
 			const document = createMockActiveStatisticsDocument();
@@ -199,7 +200,6 @@ describe( 'prepare statistics checkpoint', () => {
 		expect( replayed.statisticsDocument ).toEqual( prepared.statisticsDocument );
 		expect( replayed.statisticsDocument.scopes.scope_default?.activeAllowance ).toMatchObject( {
 			confirmedFocusedUseMilliseconds: 50_000,
-			focusedUseBySite: { 'example.com': 50_000 },
 		} );
 		expect( replayed.statisticsSession ).toEqual( prepared.finalSession );
 

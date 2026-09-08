@@ -23,6 +23,7 @@ function createSessionDocument(): Record<string, unknown> {
 	return {
 		schemaVersion: 1,
 		focusAnchor: {
+			siteHost: 'example.com',
 			sessionContinuityId: TEST_SESSION_CONTINUITY_ID,
 			focusEpochId: TEST_FOCUS_EPOCH_ID,
 			generationId: 'generation_1',
@@ -110,6 +111,7 @@ describe( 'restoreStatisticsSession', () => {
 		const session = {
 			schemaVersion: 1,
 			pendingInterval: {
+				siteHost: 'example.com',
 				generationId: 'generation_1',
 				scopeId: 'scope_default',
 				measurementRevision: 'revision_1',
@@ -131,6 +133,7 @@ describe( 'restoreStatisticsSession', () => {
 		const session = {
 			schemaVersion: 1,
 			pendingInterval: {
+				siteHost: 'example.com',
 				generationId: 'generation_1',
 				scopeId: 'scope_default',
 				measurementRevision: 'revision_1',
@@ -152,6 +155,7 @@ describe( 'restoreStatisticsSession', () => {
 		const session = {
 			schemaVersion: 1,
 			focusAnchor: {
+				siteHost: 'example.com',
 				sessionContinuityId: TEST_SESSION_CONTINUITY_ID,
 				focusEpochId: TEST_FOCUS_EPOCH_ID,
 				generationId: 'generation_old',
@@ -161,6 +165,7 @@ describe( 'restoreStatisticsSession', () => {
 				focusedAtEpochMilliseconds: 200_000,
 			},
 			pendingInterval: {
+				siteHost: 'example.com',
 				generationId: 'generation_1',
 				scopeId: 'scope_default',
 				measurementRevision: 'revision_1',
@@ -187,6 +192,7 @@ describe( 'restoreStatisticsSession', () => {
 		expect( restoreStatisticsSession( {
 			...session,
 			pendingInterval: {
+				siteHost: 'example.com',
 				generationId: 'generation_old',
 				scopeId: 'scope_default',
 				measurementRevision: 'revision_1',
@@ -201,6 +207,7 @@ describe( 'restoreStatisticsSession', () => {
 		const session = {
 			schemaVersion: 1,
 			focusAnchor: {
+				siteHost: 'example.com',
 				sessionContinuityId: 'session_previous',
 				focusEpochId: TEST_FOCUS_EPOCH_ID,
 				generationId: 'generation_1',
@@ -210,6 +217,7 @@ describe( 'restoreStatisticsSession', () => {
 				focusedAtEpochMilliseconds: 200_000,
 			},
 			pendingInterval: {
+				siteHost: 'example.com',
 				generationId: 'generation_1',
 				scopeId: 'scope_default',
 				measurementRevision: 'revision_1',
