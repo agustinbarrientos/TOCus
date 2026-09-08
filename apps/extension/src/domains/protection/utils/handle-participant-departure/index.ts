@@ -51,13 +51,14 @@ export function handleParticipantDeparture(
 		if (
 			departingParticipant.origin === ProtectionParticipantOrigin.NAVIGATION &&
 			departingParticipant.statisticsEligible &&
+			event.allowanceDurationMilliseconds !== null &&
 			qualifyingCause.success
 		) {
 			facts.push( createReconsideredVisitFact( {
 				scopeId: state.scopeId,
 				waitId: state.waitId,
 				participantId: departingParticipant.participantId,
-				...( departingParticipant.siteHost === undefined ? {} : { siteHost: departingParticipant.siteHost } ),
+				allowanceDurationMilliseconds: event.allowanceDurationMilliseconds,
 				departureCause: qualifyingCause.data,
 				observedAtEpochMilliseconds: event.observedAtEpochMilliseconds,
 			} ) );
