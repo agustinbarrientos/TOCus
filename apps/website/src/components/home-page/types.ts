@@ -1,4 +1,5 @@
 import type { Messages } from '@lingui/core';
+import type { ReactNode } from 'react';
 import type { LocalizedHomePageProperties } from '../../localization';
 
 /**
@@ -7,4 +8,6 @@ import type { LocalizedHomePageProperties } from '../../localization';
  */
 export interface HomePageProps extends LocalizedHomePageProperties {
 	demoMessages: Messages;
+	/** Static Astro slot keeps the illustrative totals independent of browser Intl data. */
+	statisticsPreview?: ReactNode;
 }
