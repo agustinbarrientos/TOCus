@@ -37,23 +37,23 @@ export function createStatisticsCopy(
 	}
 
 	/**
-	 * Formats a reclaimed-time estimate without rounding up its completed minutes.
+	 * Formats a reclaimed-time estimate rounded to the nearest minute.
 	 * @param milliseconds - Nonnegative estimated duration in milliseconds.
-	 * @return Localized estimate with a more-than label, or a zero/subminute duration.
+	 * @return Localized approximation, or an explicit subminute duration.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function formatEstimatedDuration( milliseconds: number ): string {
-		if ( milliseconds < MILLISECONDS_PER_MINUTE ) {
+		if ( milliseconds > 0 && milliseconds < MILLISECONDS_PER_MINUTE ) {
 			return formatDuration( milliseconds );
 		}
 
 		const duration = formatMinuteDuration(
 			i18n,
-			Math.floor( milliseconds / MILLISECONDS_PER_MINUTE ),
+			Math.round( milliseconds / MILLISECONDS_PER_MINUTE ),
 			formatters,
 		);
 
-		return i18n._( msg`More than ${ { duration } }` );
+		return i18n._( msg`Approximately ${ { duration } }` );
 	}
 
 	/**
@@ -78,8 +78,7 @@ export function createStatisticsCopy(
 		reconsideredVisitsLabel: i18n._( msg`Reconsidered visits` ),
 		completedWaitsLabel: i18n._( msg`Completed waits` ),
 		allowancesGrantedLabel: i18n._( msg`Allowances granted` ),
-		estimationDescription: i18n._( msg`Time spent pausing plus estimated browsing time avoided, based on your longest visit to each site.` ),
-		notEnoughHistory: i18n._( msg`Not enough history yet` ),
+		estimationDescription: i18n._( msg`Time spent pausing plus estimated browsing time avoided, based on your configured visit time.` ),
 		emptyMessage: i18n._( msg`This is a moment just for you.` ),
 		loading: i18n._( msg`Loading statistics...` ),
 		unavailableTitle: i18n._( msg`Statistics are unavailable` ),
