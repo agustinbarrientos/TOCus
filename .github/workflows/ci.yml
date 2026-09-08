@@ -63,6 +63,8 @@ jobs:
               run: pnpm install --frozen-lockfile
             - name: Install pinned screenshot browser
               run: pnpm exec playwright install chromium
+            - name: Match reviewed macOS scrollbar appearance
+              run: defaults write NSGlobalDomain AppleShowScrollBars -string WhenScrolling
             - name: Compare reviewed visual baselines
               run: pnpm test:visual
             - name: Preserve visual failure diagnostics
