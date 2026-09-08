@@ -37,12 +37,12 @@ const expectedExtensionIcons = {
 	512: 'icons/512.png',
 } as const;
 const expectedToolbarIcons = {
-	16: 'icons/16.png',
-	19: 'icons/19.png',
-	24: 'icons/24.png',
-	32: 'icons/32.png',
-	38: 'icons/38.png',
-	64: 'icons/64.png',
+	16: 'icons/toolbar-16.png',
+	19: 'icons/toolbar-19.png',
+	24: 'icons/toolbar-24.png',
+	32: 'icons/toolbar-32.png',
+	38: 'icons/toolbar-38.png',
+	64: 'icons/toolbar-64.png',
 } as const;
 const expectedProtectedPageFontResources = [
 	'assets/protected-page-font.woff2',
