@@ -1,6 +1,7 @@
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
 import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
 import { matchProtectedUrl } from '../../../../domains/protection/utils/protected-url-matcher';
+import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
 import type { ProtectionRuntimeTab } from '../../types/browser-runtime';
 import {
 	findRuntimeParticipantContext,
@@ -29,7 +30,7 @@ function isParticipantPresentationAvailable(
 ): boolean {
 	const observedUrl = tab?.pendingUrl ?? tab?.url;
 
-	if ( observedUrl === interruptionPageUrl ) {
+	if ( isInterruptionDocumentUrl( observedUrl, interruptionPageUrl ) ) {
 		return true;
 	}
 
