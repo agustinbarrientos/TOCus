@@ -29,6 +29,7 @@ import { createProtectionBackgroundController } from '../protection-background-c
 import { createToolbarLanguageController } from '../toolbar-language-controller';
 import { createTabAudioController } from '../tab-audio-controller';
 import type { ProtectionBackgroundApplicationOptions, ProtectionBackgroundTabAudioChange } from './types';
+import { InterruptionDocumentPath } from '../../../../shared/utils/interruption-document-url';
 
 /**
  * Creates one collision-resistant runtime identifier fragment.
@@ -165,7 +166,7 @@ export function startProtectionBackgroundApplication(
 		return permissionManager.filterConfiguration( configuration );
 	}
 
-	const interruptionPageUrl = options.browser.runtime.getURL( '/interruption.html' );
+	const interruptionPageUrl = options.browser.runtime.getURL( InterruptionDocumentPath.CURRENT );
 	const runtime = createBrowserProtectionRuntime( {
 		browser: browserAdapter,
 		configurationStorage,

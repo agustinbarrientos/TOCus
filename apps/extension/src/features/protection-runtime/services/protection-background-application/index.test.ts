@@ -337,7 +337,7 @@ describe( 'startProtectionBackgroundApplication', () => {
 		expect( runtimeOptions.coordinator ).toBe( coordinator );
 		expect( runtimeOptions.statisticsRuntime ).toBe( statisticsRuntime );
 		expect( runtimeOptions.toolbarBadgeCopy ).toBe( toolbarCopy );
-		expect( runtimeOptions.interruptionPageUrl ).toContain( 'interruption.html' );
+		expect( runtimeOptions.interruptionPageUrl ).toContain( 'pause.html' );
 		expect( runtimeOptions.createStableId() ).toEqual( expect.any( String ) );
 		expect( runtimeOptions.now() ).toBe( TestInstant );
 		expect( runtimeOptions.getTimeZone() ).toEqual( expect.any( String ) );

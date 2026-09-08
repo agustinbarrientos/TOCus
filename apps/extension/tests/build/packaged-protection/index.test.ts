@@ -210,12 +210,12 @@ describe( 'packaged Chrome protection', () => {
 
 		try {
 			await page.goto( destination );
-			await page.waitForURL( '**/interruption.html' );
+			await page.waitForURL( '**/pause.html' );
 			await page.bringToFront();
 			const pauseTab = await worker.evaluate( async () => {
 				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
 				const contexts = await chrome.runtime.getContexts( { contextTypes: [ 'TAB' ] } );
-				const pauseContext = contexts.find( ( candidate ) => candidate.documentUrl === chrome.runtime.getURL( '/interruption.html' ) );
+				const pauseContext = contexts.find( ( candidate ) => candidate.documentUrl === chrome.runtime.getURL( '/pause.html' ) );
 
 				return ( await chrome.tabs.query( {} ) ).find( ( candidate ) => candidate.id === pauseContext?.tabId );
 			} );
@@ -305,7 +305,7 @@ describe( 'packaged Chrome protection', () => {
 
 		try {
 			await page.goto( destination );
-			await page.waitForURL( '**/interruption.html' );
+			await page.waitForURL( '**/pause.html' );
 			await page.bringToFront();
 			const continueButton = page.getByRole( 'button', { name: 'Continue', exact: true } );
 			await continueButton.waitFor( { state: 'visible', timeout: 15_000 } );
