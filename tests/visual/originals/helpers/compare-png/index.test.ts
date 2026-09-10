@@ -156,12 +156,79 @@ describe( 'bounded edge rasterization tolerance', () => {
 	} );
 
 	it.each( [
-		{ label: 'two RGB levels', channel: 0, value: 162 },
+		{ label: 'three RGB levels', channel: 0, value: 163 },
 		{ label: 'an alpha change', channel: 3, value: 254 },
 	] )( 'rejects $label even at an edge', ( { channel, value } ) => {
 		const changed = [ ...edge ];
 		changed[ 16 + channel ] = value;
 		expect( comparePngPixels( encode( 3, 3, edge ), encode( 3, 3, changed ), {
+			allowEdgeRasterization: true,
+		} ) ).toMatchObject( { differingPixels: 1, toleratedEdgePixels: 0 } );
+	} );
+
+	it.each( [ 0, 1, 2 ] )( 'accepts at most two RGB levels on a fixed edge in channel %i', ( channel ) => {
+		for ( const delta of [ -2, 2 ] ) {
+			const changed = [ ...edge ];
+			changed[ 16 + channel ] = 160 + delta;
+			const expected = encode( 3, 3, edge );
+			const actual = encode( 3, 3, changed );
+			expect( comparePngPixels( expected, actual ) )
+				.toMatchObject( { differingPixels: 1, toleratedEdgePixels: 0 } );
+			expect( comparePngPixels( expected, actual, { allowEdgeRasterization: true } ) ).toMatchObject( {
+				differingPixels: 1, toleratedEdgePixels: 1,
+			} );
+		}
+	} );
+
+	it( 'accepts the observed rounded-frame variance without changing its surrounding colors', () => {
+		// Recorded 3x4 neighborhood of the two differing samples, not an image mask or filename exception.
+		const pixels = [
+			242, 231, 221, 255, 211, 202, 195, 255, 249, 244, 237, 255,
+			224, 210, 196, 255, 230, 221, 215, 255, 249, 244, 237, 255,
+			181, 167, 157, 255, 244, 238, 232, 255, 249, 244, 237, 255,
+			198, 188, 180, 255, 249, 244, 237, 255, 250, 245, 238, 255,
+		];
+		const changed = [ ...pixels ];
+		changed[ 16 ] = 228;
+		changed[ 30 ] = 233;
+		expect( comparePngPixels( encode( 3, 4, pixels ), encode( 3, 4, changed ), {
+			allowEdgeRasterization: true,
+		} ) ).toMatchObject( { differingPixels: 2, toleratedEdgePixels: 2 } );
+	} );
+
+	it( 'rejects a small tint change across an entire gradient despite its blended pixels', () => {
+		const changed = edge.map( ( value, index ) => index % 4 === 3 ? value : value + 1 );
+		const comparison = comparePngPixels( encode( 3, 3, edge ), encode( 3, 3, changed ), {
+			allowEdgeRasterization: true,
+		} );
+		expect( comparison.differingPixels ).toBeGreaterThan( comparison.toleratedEdgePixels );
+	} );
+
+	it( 'retains adjacent one-level edge variance at a cropped image boundary', () => {
+		// Captured neighboring samples can vary together; exact anchors are not required by the approved policy.
+		const pixels = [
+			229, 219, 214, 255, 242, 236, 231, 255, 255, 253, 250, 255,
+			225, 214, 208, 255, 246, 240, 236, 255, 255, 253, 250, 255,
+			221, 208, 202, 255, 250, 245, 241, 255, 255, 253, 250, 255,
+		];
+		const changed = [
+			229, 218, 213, 255, 241, 235, 230, 255, 255, 253, 250, 255,
+			225, 213, 207, 255, 245, 240, 236, 255, 255, 253, 250, 255,
+			221, 208, 201, 255, 249, 245, 241, 255, 255, 253, 250, 255,
+		];
+		// The lower-left corner is a local minimum in this cropped fixture and must remain rejected.
+		for ( const [ left, right ] of [ [ pixels, changed ], [ changed, pixels ] ] as const ) {
+			expect( comparePngPixels( encode( 3, 3, left ), encode( 3, 3, right ), {
+				allowEdgeRasterization: true,
+			} ) ).toMatchObject( { differingPixels: 6, toleratedEdgePixels: 5 } );
+		}
+	} );
+
+	it( 'rejects a low-contrast neighborhood whose brightness span is only six', () => {
+		const pixels = [ 159, 159, 159, 255, 160, 160, 160, 255, 161, 161, 161, 255 ];
+		const changed = [ ...pixels ];
+		changed[ 4 ] = 162;
+		expect( comparePngPixels( encode( 3, 1, pixels ), encode( 3, 1, changed ), {
 			allowEdgeRasterization: true,
 		} ) ).toMatchObject( { differingPixels: 1, toleratedEdgePixels: 0 } );
 	} );
@@ -244,5 +311,117 @@ describe( 'bounded edge rasterization tolerance', () => {
 				allowEdgeRasterization: true,
 			} ) ).toMatchObject( { differingPixels: 1, toleratedEdgePixels: 0 } );
 		}
+	} );
+} );
+
+describe( 'edge allowance regression boundaries', () => {
+	it.each( [
+		{ span: 6, high: [ 161, 161, 161, 255 ], toleratedEdgePixels: 0 },
+		{ span: 7, high: [ 162, 161, 161, 255 ], toleratedEdgePixels: 1 },
+	] )( 'requires brightness span above six when the unchanged neighbors span $span', ( { high, toleratedEdgePixels } ) => {
+		// Both centers remain strictly between unchanged neighbors, isolating the contrast boundary.
+		const pixels = [ 159, 159, 159, 255, 160, 160, 160, 255, ...high ];
+		const changed = [ 159, 159, 159, 255, 162, 160, 160, 255, ...high ];
+		for ( const [ left, right ] of [ [ pixels, changed ], [ changed, pixels ] ] as const ) {
+			expect( comparePngPixels( encode( 3, 1, left ), encode( 3, 1, right ), {
+				allowEdgeRasterization: true,
+			} ) ).toMatchObject( { differingPixels: 1, toleratedEdgePixels } );
+		}
+	} );
+
+	it.each( [
+		{ channel: 0, delta: -3 }, { channel: 0, delta: 3 },
+		{ channel: 1, delta: -3 }, { channel: 1, delta: 3 },
+		{ channel: 2, delta: -3 }, { channel: 2, delta: 3 },
+	] )( 'rejects a $delta level edge change in RGB channel $channel', ( { channel, delta } ) => {
+		const pixels = [ 80, 80, 80, 255, 160, 160, 160, 255, 240, 240, 240, 255 ];
+		const changed = [ ...pixels ];
+		changed[ 4 + channel ] = 160 + delta;
+		expect( comparePngPixels( encode( 3, 1, pixels ), encode( 3, 1, changed ), {
+			allowEdgeRasterization: true,
+		} ) ).toMatchObject( { differingPixels: 1, toleratedEdgePixels: 0 } );
+	} );
+
+	it.each( [
+		{ label: 'darker', center: [ 158, 158, 158, 255 ] },
+		{ label: 'lighter', center: [ 162, 162, 162, 255 ] },
+		{ label: 'mixed', center: [ 158, 162, 158, 255 ] },
+	] )( 'accepts simultaneous two-level $label RGB variation on a fixed edge only when opted in', ( { center } ) => {
+		const expected = encode( 3, 1, [ 80, 80, 80, 255, 160, 160, 160, 255, 240, 240, 240, 255 ] );
+		const actual = encode( 3, 1, [ 80, 80, 80, 255, ...center, 240, 240, 240, 255 ] );
+		expect( comparePngPixels( expected, actual ) ).toMatchObject( { differingPixels: 1, toleratedEdgePixels: 0 } );
+		expect( comparePngPixels( expected, actual, { allowEdgeRasterization: true } ) ).toMatchObject( {
+			differingPixels: 1, toleratedEdgePixels: 1,
+		} );
+	} );
+
+	it.each( [
+		{
+			label: 'removing the glyph', differingPixels: 5,
+			actual: [
+				240, 240, 240, 240, 240,
+				240, 240, 240, 240, 240,
+				240, 240, 240, 240, 240,
+				240, 240, 240, 240, 240,
+				240, 240, 240, 240, 240,
+			],
+		},
+		{
+			label: 'changing one glyph stroke', differingPixels: 1,
+			actual: [
+				240, 240, 240, 240, 240,
+				240, 240, 80, 80, 240,
+				240, 240, 80, 240, 240,
+				240, 240, 80, 240, 240,
+				240, 240, 240, 240, 240,
+			],
+		},
+		{
+			label: 'moving the glyph one pixel right', differingPixels: 6,
+			actual: [
+				240, 240, 240, 240, 240,
+				240, 240, 80, 80, 80,
+				240, 240, 240, 80, 240,
+				240, 240, 240, 80, 240,
+				240, 240, 240, 240, 240,
+			],
+		},
+	] )( 'rejects $label in tiny text', ( { actual, differingPixels } ) => {
+		const glyph = [
+			240, 240, 240, 240, 240,
+			240, 80, 80, 80, 240,
+			240, 240, 80, 240, 240,
+			240, 240, 80, 240, 240,
+			240, 240, 240, 240, 240,
+		];
+		expect( comparePngPixels(
+			encode( 5, 5, glyph.flatMap( ( value ) => [ value, value, value, 255 ] ) ),
+			encode( 5, 5, actual.flatMap( ( value ) => [ value, value, value, 255 ] ) ),
+			{ allowEdgeRasterization: true },
+		) ).toMatchObject( { differingPixels, toleratedEdgePixels: 0 } );
+	} );
+
+	it.each( [ -2, 2 ] )( 'rejects a %i level RGB change in a flat fill, locally or across the whole surface', ( delta ) => {
+		const pixels = Array.from( { length: 9 }, () => [ 160, 160, 160, 255 ] ).flat();
+		const localChange = [ ...pixels ];
+		localChange.splice( 16, 3, 160 + delta, 160 + delta, 160 + delta );
+		const surfaceChange = Array.from( { length: 9 }, () => [ 160 + delta, 160 + delta, 160 + delta, 255 ] ).flat();
+		for ( const [ changed, differingPixels ] of [ [ localChange, 1 ], [ surfaceChange, 9 ] ] as const ) {
+			for ( const [ left, right ] of [ [ pixels, changed ], [ changed, pixels ] ] as const ) {
+				expect( comparePngPixels( encode( 3, 3, left ), encode( 3, 3, right ), {
+					allowEdgeRasterization: true,
+				} ) ).toMatchObject( { differingPixels, toleratedEdgePixels: 0 } );
+			}
+		}
+	} );
+
+	it( 'rejects mismatched dimensions with the same area even when the edge allowance is enabled', () => {
+		const pixels = Array.from( { length: 6 }, () => [ 160, 160, 160, 255 ] ).flat();
+		expect( comparePngPixels( encode( 3, 2, pixels ), encode( 2, 3, pixels ), {
+			allowEdgeRasterization: true,
+		} ) ).toEqual( {
+			expected: { width: 3, height: 2 }, actual: { width: 2, height: 3 },
+			differingPixels: 4, toleratedEdgePixels: 0,
+		} );
 	} );
 } );
