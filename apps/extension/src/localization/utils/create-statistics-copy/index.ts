@@ -39,11 +39,15 @@ export function createStatisticsCopy(
 	/**
 	 * Formats a reclaimed-time estimate rounded to the nearest minute.
 	 * @param milliseconds - Nonnegative estimated duration in milliseconds.
-	 * @return Localized approximation, or an explicit subminute duration.
+	 * @return Localized zero-estimate guidance, approximation, or explicit subminute duration.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function formatEstimatedDuration( milliseconds: number ): string {
-		if ( milliseconds > 0 && milliseconds < MILLISECONDS_PER_MINUTE ) {
+		if ( milliseconds === 0 ) {
+			return i18n._( msg`Not enough data yet` );
+		}
+
+		if ( milliseconds < MILLISECONDS_PER_MINUTE ) {
 			return formatDuration( milliseconds );
 		}
 
