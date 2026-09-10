@@ -5,7 +5,7 @@ import { expect, test } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
 import inventory from '../inventory.json' with { type: 'json' };
 import type { OriginalCaptureOptions, OriginalCase, OriginalClip, OriginalSnapshot } from './types';
-import { comparePngPixels } from './compare-png';
+import { compareScreenshot } from '../../helpers/compare-screenshot';
 import { hasFocusedTextCaret } from './focused-text-caret';
 
 /**
@@ -74,7 +74,7 @@ export function encloseOriginalClip( clip: OriginalClip ): OriginalClip {
 }
 
 /**
- * Compares original framing with only the approved one-level RGB edge allowance and preserves raw diagnostics.
+ * Compares original framing with the approved bounded RGB edge allowance and preserves raw diagnostics.
  * @param page - Real browser page after original scenario inputs settle.
  * @param path - Exact original screenshot path, including its PNG filename.
  * @param target - Original component capture target; omit for a viewport screenshot.
@@ -97,29 +97,7 @@ export async function compareOriginal(
 		const actual = target
 			? await target.screenshot( { caret } )
 			: await page.screenshot( { ...captureOptions, caret } );
-		const expected = readFileSync( fileURLToPath( new URL( `../../../../${ path }`, import.meta.url ) ) );
-		const comparison = comparePngPixels( expected, actual, { allowEdgeRasterization: true } );
-		const rejectedPixels = comparison.differingPixels - comparison.toleratedEdgePixels;
-		if ( comparison.differingPixels > 0 ) {
-			await Promise.all( [
-				test.info().attach( 'exact-rgba-expected', { body: expected, contentType: 'image/png' } ),
-				test.info().attach( 'exact-rgba-actual', { body: actual, contentType: 'image/png' } ),
-				test.info().attach( 'exact-rgba-comparison', {
-					body: JSON.stringify( comparison ), contentType: 'application/json',
-				} ),
-			] );
-		}
-		// The matcher gets only the allowance independently established by the raw RGBA guard,
-		// never a fixed per-image budget. Genuine failures retain its normal zero-tolerance diff.
-		expect( actual ).toMatchSnapshot( path.split( '/' ), {
-			threshold: 0, maxDiffPixels: rejectedPixels === 0 ? comparison.toleratedEdgePixels : 0,
-		} );
-		expect( rejectedPixels,
-			`RGBA comparison: ${ String( comparison.differingPixels ) } differing pixels, `
-			+ `${ String( comparison.toleratedEdgePixels ) } approved one-level edge pixels; `
-			+ `expected ${ String( comparison.expected.width ) }×${ String( comparison.expected.height ) }, `
-			+ `actual ${ String( comparison.actual.width ) }×${ String( comparison.actual.height ) }.`,
-		).toBe( 0 );
+		await compareScreenshot( actual, path.split( '/' ), { allowEdgeRasterization: true } );
 	} finally {
 		verifyOriginal( path );
 	}
