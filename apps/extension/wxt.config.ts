@@ -4,6 +4,7 @@ import { ToolbarIcons } from './config/icons/constants/index.ts';
 import { createTabFaviconAssets } from './config/icons/services/create-tab-favicon-assets/index.ts';
 import { createToolbarIconAssets } from './config/icons/services/create-toolbar-icon-assets/index.ts';
 import { addBrowserLocaleAssets } from './config/localization/services/create-browser-locale-assets/index.ts';
+import { configureProtectedPageFontAssets } from './config/vite/services/configure-protected-page-font-assets/index.ts';
 import { createLocalizationViteConfig } from './config/vite/services/create-localization-vite-config/index.ts';
 import { InterruptionDocumentPath } from './src/shared/utils/interruption-document-url/types.ts';
 
@@ -50,6 +51,7 @@ export default defineConfig( {
 		sizes: [ 16, 19, 24, 32, 38, 48, 64, 96, 128, 256, 512 ],
 	},
 	hooks: {
+		'vite:build:extendConfig': configureProtectedPageFontAssets,
 		/**
 		 * Creates local assets shared by the extension documents.
 		 * @param wxt - Active extension build context.
