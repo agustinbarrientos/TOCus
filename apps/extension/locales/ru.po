@@ -713,6 +713,10 @@ msgstr "Доступ к навигации позволяет замечать �
 msgid "No websites yet"
 msgstr "Сайтов пока нет"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Not enough data yet"
+msgstr "Пока недостаточно данных"
+
 #. Popup status when the current website schedule is inactive at this moment.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Off right now"
