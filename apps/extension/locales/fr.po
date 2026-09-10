@@ -713,6 +713,10 @@ msgstr "L'accès à la navigation détecte les changements de site en temps rée
 msgid "No websites yet"
 msgstr "Aucun site pour le moment"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Not enough data yet"
+msgstr "Pas encore assez de données"
+
 #. Popup status when the current website schedule is inactive at this moment.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Off right now"
