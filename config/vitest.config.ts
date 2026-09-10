@@ -115,6 +115,8 @@ export default defineConfig( {
 			{
 				test: {
 					name: 'build-contract',
+					// Browser contracts launch multiple native processes per worker, so CPU count overstates capacity.
+					maxWorkers: 2,
 					include: [ 'apps/{extension,website}/tests/build/**/*.{test,spec}.{ts,tsx,mjs}' ],
 				},
 			},
