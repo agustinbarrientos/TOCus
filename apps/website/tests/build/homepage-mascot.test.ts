@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { chromium, type Route } from 'playwright';
 import { describe, expect, test } from 'vitest';
+import { MotionPreference } from './types';
 
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 
@@ -21,17 +22,28 @@ async function serveAsset( route: Route ): Promise<void> {
 }
 
 describe( 'homepage raster mascot', () => {
-	for ( const viewport of [
-		{ width: 1440, height: 900 }, { width: 1280, height: 720 }, { width: 390, height: 844 },
+	for ( const { viewport, bodyFont } of [
+		{ viewport: { width: 1440, height: 900 } },
+		{ viewport: { width: 1280, height: 720 } },
+		{ viewport: { width: 390, height: 844 } },
+		{ viewport: { width: 1440, height: 900 }, bodyFont: 'sans-serif' },
+		{ viewport: { width: 1280, height: 720 }, bodyFont: 'sans-serif' },
 	] ) {
-		test( `${ String( viewport.width ) }: prominent artwork meets the browser without loading a model`, async () => {
+		test( `${ String( viewport.width ) } (${ bodyFont ?? 'system' }): prominent artwork meets the browser without loading a model`, async () => {
 			const browser = await chromium.launch();
 			try {
-				const page = await browser.newPage( { viewport } );
+				const page = await browser.newPage( {
+					viewport, reducedMotion: bodyFont ? MotionPreference.REDUCE : MotionPreference.NO_PREFERENCE,
+				} );
 				const requests: string[] = [];
 				page.on( 'request', ( request ) => requests.push( request.url() ) );
 				await page.route( '**/*', serveAsset );
 				await page.goto( 'http://website.test/' );
+				if ( bodyFont ) {
+					await page.locator( '[data-tocus-ui]' ).first().evaluate( ( element, font ) => {
+						( element as HTMLElement ).style.setProperty( '--tocus-font-family-body', font );
+					}, bodyFont );
+				}
 				await page.evaluate( () => document.fonts.ready );
 				const mascot = page.locator( '.hero-art img[data-mascot]' );
 				await mascot.evaluate( ( element ) => ( element as HTMLImageElement ).decode() );
