@@ -369,7 +369,7 @@
   },
   {
     "path": "apps/extension/src/features/statistics/components/settings-screen/__snapshots__/chromium/statistics-settings-screen-empty-light.png",
-    "sha256": "9b5be3ec3e45b78f603668b723a436d0eed982e59daa8bf9cfd357cb6cac875f"
+    "sha256": "d8e41053c10289ec4ecb0028a1b726be1c3795ac04a96b918fcebf2d91a7a9f2"
   },
   {
     "path": "apps/extension/src/features/statistics/components/settings-screen/__snapshots__/chromium/statistics-settings-screen-loading-light.png",
