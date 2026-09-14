@@ -10,6 +10,9 @@ export default defineConfig( {
 		'website/tests/build/interaction-contrast.test.ts',
 		'extension/tests/build/packaged-protection/index.test.ts',
 		'extension/tests/build/packaged-favicons/index.test.ts',
+		'website/tests/build/product-demo.test.ts',
+		'website/tests/build/story-motion.test.ts',
+		'website/tests/build/website-navigation.test.ts',
 	],
 	// Native browsers share the runner's CPU and memory; never overlap these journeys in CI.
 	workers: 1,
