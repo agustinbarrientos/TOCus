@@ -10,13 +10,17 @@ import {
 } from './types';
 
 describe( 'PreferencesDocumentSchema', () => {
+	it( 'rejects a persisted motion override instead of retaining legacy preferences', () => {
+		expect( PreferencesDocumentSchema.safeParse( {
+			...DefaultPreferencesDocument, reducedMotion: true,
+		} ).success ).toBe( false );
+	} );
 	it( 'accepts the frozen default preferences document', () => {
 		expect( PreferencesDocumentSchema.parse( DefaultPreferencesDocument ) ).toEqual( {
-			schemaVersion: 2,
+			schemaVersion: 3,
 			theme: ThemeMode.SYSTEM,
 			palette: Palette.BROWN,
 			pauseMode: PauseMode.BREATHING,
-			reducedMotion: false,
 			language: null,
 		} );
 		expect( Object.isFrozen( DefaultPreferencesDocument ) ).toBe( true );
@@ -40,7 +44,6 @@ describe( 'PreferencesDocumentSchema', () => {
 						theme,
 						palette,
 						pauseMode,
-						reducedMotion: true,
 					} ).success ).toBe( true );
 				}
 			}
