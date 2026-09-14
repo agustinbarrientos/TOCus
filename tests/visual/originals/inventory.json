@@ -33,11 +33,11 @@
   },
   {
     "path": "apps/extension/src/features/onboarding/components/appearance-step/__snapshots__/chromium/onboarding-appearance-step-brown-light.png",
-    "sha256": "bc20c885e87bb946036e2133328c99147110bd0c948c7499449bca535b639c65"
+    "sha256": "54bc69277bba2f1ef43ccf09cb148fd090ccdc00c69548a8b3c17e068c9b9f54"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/appearance-step/__snapshots__/chromium/onboarding-appearance-step-purple-dark-narrow.png",
-    "sha256": "b5eddd5571b71048e68ef9b9c445ce03168755d1dbf1259a0eafff5cca125abe"
+    "sha256": "4a9410046a41da1018dddc8d4528587a3dc6d655baec3feb7337c721a5f59ae1"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/language-step/__snapshots__/chromium/onboarding-language-step-english-light.png",
@@ -141,11 +141,11 @@
   },
   {
     "path": "apps/extension/src/features/preferences/components/appearance-controls/__snapshots__/chromium/appearance-controls-brown-light.png",
-    "sha256": "048d900fac1495ae82ba488db8bc0947355b1520d9b37ed8db782f9dd0965c60"
+    "sha256": "7fe30b27dc5b3af951c07da304efc40cde3b17ef6de12982f267facb55567072"
   },
   {
     "path": "apps/extension/src/features/preferences/components/appearance-controls/__snapshots__/chromium/appearance-controls-purple-dark-narrow.png",
-    "sha256": "0d319e0f353a8e69c89f9b13bae8bdefd41fa9ae59f3d9430cb273ebe5fe3eb6"
+    "sha256": "d2e0102f9249823d72857c8b4f8e8cd04ee9d9652b5f3055f2610ee1d2e79163"
   },
   {
     "path": "apps/extension/src/features/protected-sites/components/site-item/__snapshots__/chromium/protected-site-item-access-required-dark.png",
