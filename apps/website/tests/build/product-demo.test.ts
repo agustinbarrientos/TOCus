@@ -88,6 +88,11 @@ test.describe( 'the product story', () => {
 								const nextControlKey = process.platform === 'darwin' && engine === 'webkit'
 									? 'Alt+Tab' : 'Tab';
 								await page.keyboard.press( nextControlKey );
+								const chart = page.getByRole( 'application', { name: 'Last 30 days Estimated time reclaimed' } );
+								await expect( chart ).toBeFocused();
+								await page.keyboard.press( 'ArrowRight' );
+								await expect( page.locator( '.recharts-tooltip-wrapper' ) ).toBeVisible();
+								await page.keyboard.press( nextControlKey );
 								expect( await page.locator( '#privacy a' ).evaluate( ( element ) =>
 									element === document.activeElement,
 								) ).toBe( true );

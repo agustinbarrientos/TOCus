@@ -28,6 +28,11 @@ test.describe( 'localized statistics hydration', () => {
 				const clientPage = await clientContext.newPage();
 				const errors: string[] = [];
 				clientPage.on( 'pageerror', ( error ) => errors.push( error.message ) );
+				clientPage.on( 'console', ( message ) => {
+					if ( message.type() === 'error' && /hydration|hydrating|did not match|React error/i.test( message.text() ) ) {
+						errors.push( message.text() );
+					}
+				} );
 				for ( const route of PublicRoutes ) {
 					await engineTest.step( `Compare server and hydrated metrics for ${ route }`, async () => {
 						await Promise.all( [ serverPage, clientPage ].map(
@@ -39,6 +44,22 @@ test.describe( 'localized statistics hydration', () => {
 						expect( serverMetrics, route ).toHaveLength( 5 );
 						expect( serverMetrics.every( ( value ) => value.trim().length > 0 ), route ).toBe( true );
 						expect( clientMetrics, route ).toEqual( serverMetrics );
+						const serverDailyValues = await serverPage.locator( '.statistics-preview tbody td' ).allTextContents();
+						const [ , secondDailyValue = '' ] = serverDailyValues;
+						expect( serverDailyValues, route ).toHaveLength( 7 );
+						expect( secondDailyValue, route ).not.toBe( '' );
+						expect( await clientPage.locator( '.statistics-preview tbody td' ).allTextContents(), route ).toEqual( serverDailyValues );
+						const chart = clientPage.locator( '.statistics-preview' ).getByRole( 'application' );
+						await expect( chart ).toBeVisible();
+						const chartHeading = await clientPage.locator( '.statistics-preview .settings-statistics-daily h3' ).innerText();
+						const metricLabel = await clientPage.locator( '.statistics-preview thead th' ).nth( 1 ).innerText();
+						await expect( chart ).toHaveAccessibleName( `${ chartHeading } ${ metricLabel }` );
+						await chart.focus();
+						await chart.press( 'ArrowRight' );
+						const tooltip = clientPage.locator( '.statistics-preview .recharts-tooltip-wrapper' );
+						await expect( tooltip ).toBeVisible();
+						await expect( tooltip ).toContainText( '2026-09-09' );
+						await expect( tooltip ).toContainText( secondDailyValue );
 						expect( errors, route ).toEqual( [] );
 					} );
 				}

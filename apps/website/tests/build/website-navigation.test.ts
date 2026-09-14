@@ -113,7 +113,9 @@ test.describe( 'website navigation and statistics presentation', () => {
 		await statistics.waitFor( { timeout: 5000 } );
 		expect( await statistics.getByText( 'Example data', { exact: true } ).count() ).toBe( 1 );
 		expect( await statistics.locator( 'dt' ).count() ).toBe( 5 );
-		expect( await statistics.getByText( 'Estimated time reclaimed', { exact: true } ).count() ).toBe( 1 );
+		await expect( statistics.locator( 'dt' ).filter( { hasText: /^Estimated time reclaimed$/ } ) ).toHaveCount( 1 );
+		await expect( statistics.getByRole( 'columnheader', { name: 'Estimated time reclaimed', exact: true } ) )
+			.toHaveCount( 1 );
 		expect( await statistics.getByText( 'Reconsidered visits', { exact: true } ).count() ).toBe( 1 );
 		expect( await page.evaluate( () => ( { local: localStorage.length, session: sessionStorage.length } ) ) )
 			.toEqual( { local: 0, session: 0 } );
