@@ -11,7 +11,6 @@ describe( 'popup website enrollment contracts', () => {
 		const request = {
 			type: PopupSiteEnrollmentRequestType,
 			siteInput: 'https://github.com/',
-			independent: false,
 		};
 		expect( PopupSiteEnrollmentRequestSchema.parse( request ) ).toEqual( request );
 		expect( PopupSiteEnrollmentResultSchema.parse( { status: ProtectedSiteEnrollmentStatus.ADDED } ) )

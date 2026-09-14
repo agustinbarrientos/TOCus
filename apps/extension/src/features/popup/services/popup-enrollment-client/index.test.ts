@@ -8,18 +8,17 @@ import {
 import { createPopupEnrollmentClient } from './index';
 
 describe( 'createPopupEnrollmentClient', () => {
-	it.each( [ false, true ] )( 'sends enrollment synchronously with independent timing %s', async ( independent ) => {
+	it( 'sends enrollment synchronously without assigning a separate countdown', async () => {
 		const response = Promise.withResolvers<unknown>();
 		const sendMessage = vi.fn<( request: PopupSiteEnrollmentRequest ) => Promise<unknown>>()
 			.mockReturnValue( response.promise );
 		const client = createPopupEnrollmentClient( { runtime: { sendMessage } } );
 
-		const result = client.add( 'https://example.com/feed', independent );
+		const result = client.add( 'https://example.com/feed' );
 
 		expect( sendMessage ).toHaveBeenCalledExactlyOnceWith( {
 			type: PopupSiteEnrollmentRequestType,
 			siteInput: 'https://example.com/feed',
-			independent,
 		} );
 		response.resolve( { status: ProtectedSiteEnrollmentStatus.ADDED } );
 		await expect( result ).resolves.toEqual( { status: ProtectedSiteEnrollmentStatus.ADDED } );
@@ -29,7 +28,7 @@ describe( 'createPopupEnrollmentClient', () => {
 		const sendMessage = vi.fn().mockResolvedValue( { status: ProtectedSiteEnrollmentStatus.ADDED } );
 		const client = createPopupEnrollmentClient( { runtime: { sendMessage } } );
 
-		const result = client.add( input, false );
+		const result = client.add( input );
 
 		expect( sendMessage ).not.toHaveBeenCalled();
 		await expect( result ).resolves.toEqual( { status: ProtectedSiteEnrollmentStatus.SAVE_ERROR } );
@@ -50,7 +49,7 @@ describe( 'createPopupEnrollmentClient', () => {
 			sendMessage: vi.fn().mockResolvedValue( response ),
 		} } );
 
-		await expect( client.add( 'example.com', false ) ).resolves.toEqual( response );
+		await expect( client.add( 'example.com' ) ).resolves.toEqual( response );
 	} );
 
 	it.each( [
@@ -64,7 +63,7 @@ describe( 'createPopupEnrollmentClient', () => {
 			sendMessage: vi.fn().mockResolvedValue( response ),
 		} } );
 
-		await expect( client.add( 'example.com', false ) ).resolves.toEqual( {
+		await expect( client.add( 'example.com' ) ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.SAVE_ERROR,
 		} );
 	} );
@@ -74,7 +73,7 @@ describe( 'createPopupEnrollmentClient', () => {
 			sendMessage: vi.fn().mockRejectedValue( new Error( 'Background unavailable.' ) ),
 		} } );
 
-		await expect( client.add( 'example.com', false ) ).resolves.toEqual( {
+		await expect( client.add( 'example.com' ) ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.SAVE_ERROR,
 		} );
 	} );
@@ -86,7 +85,7 @@ describe( 'createPopupEnrollmentClient', () => {
 			} ),
 		} } );
 
-		await expect( client.add( 'example.com', false ) ).resolves.toEqual( {
+		await expect( client.add( 'example.com' ) ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.SAVE_ERROR,
 		} );
 	} );
