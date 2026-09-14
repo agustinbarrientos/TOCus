@@ -28,45 +28,51 @@ describe( 'homepage raster mascot', () => {
 		{ viewport: { width: 390, height: 844 } },
 		{ viewport: { width: 1440, height: 900 }, bodyFont: 'sans-serif' },
 		{ viewport: { width: 1280, height: 720 }, bodyFont: 'sans-serif' },
+		// A generic fixed-width face reliably exercises wider glyphs on every host, without a local font dependency.
+		{ viewport: { width: 1440, height: 900 }, bodyFont: 'monospace' },
+		{ viewport: { width: 1280, height: 720 }, bodyFont: 'monospace' },
 	] ) {
-		test( `${ String( viewport.width ) } (${ bodyFont ?? 'system' }): prominent artwork meets the browser without loading a model`, async () => {
-			const browser = await chromium.launch();
-			try {
-				const page = await browser.newPage( {
-					viewport, reducedMotion: bodyFont ? MotionPreference.REDUCE : MotionPreference.NO_PREFERENCE,
-				} );
-				const requests: string[] = [];
-				page.on( 'request', ( request ) => requests.push( request.url() ) );
-				await page.route( '**/*', serveAsset );
-				await page.goto( 'http://website.test/' );
-				if ( bodyFont ) {
-					await page.locator( '[data-tocus-ui]' ).first().evaluate( ( element, font ) => {
-						( element as HTMLElement ).style.setProperty( '--tocus-font-family-body', font );
-					}, bodyFont );
+		for ( const reducedMotion of Object.values( MotionPreference ) ) {
+			test( `${ String( viewport.width ) } (${ bodyFont ?? 'system' }, ${ reducedMotion }): prominent artwork meets the browser without loading a model`, async () => {
+				const browser = await chromium.launch();
+				try {
+					const page = await browser.newPage( {
+						viewport, reducedMotion,
+					} );
+					const requests: string[] = [];
+					page.on( 'request', ( request ) => requests.push( request.url() ) );
+					await page.route( '**/*', serveAsset );
+					await page.goto( 'http://website.test/' );
+					await page.locator( '.homepage[data-enhanced="true"]' ).waitFor();
+					if ( bodyFont ) {
+						await page.locator( '[data-tocus-ui]' ).first().evaluate( ( element, font ) => {
+							( element as HTMLElement ).style.setProperty( '--tocus-font-family-body', font );
+						}, bodyFont );
+					}
+					await page.evaluate( () => document.fonts.ready );
+					const mascot = page.locator( '.hero-art img[data-mascot]' );
+					await mascot.evaluate( ( element ) => ( element as HTMLImageElement ).decode() );
+					const image = await mascot.boundingBox();
+					const frame = await page.locator( '.product-demo-browser' ).boundingBox();
+					if ( ! image || ! frame ) {
+						throw new Error( 'The mascot and browser must both be rendered.' );
+					}
+					expect( requests.some( ( url ) => /\.(?:glb|gltf)(?:\?|$)/u.test( url ) ) ).toBe( false );
+					expect( await page.locator( '.hero-art canvas' ).count() ).toBe( 0 );
+					expect( image.width ).toBeGreaterThan( viewport.width * ( viewport.width < 600 ? 0.75 : 0.3 ) );
+					expect( Math.abs( image.x + image.width / 2 - viewport.width / 2 ) ).toBeLessThan( 2 );
+					expect( Math.abs( image.y + image.height - frame.y ) ).toBeLessThan( 45 );
+					expect( frame.y ).toBeLessThan( viewport.height );
+					await page.locator( '[data-story-chapter] button' ).first().click();
+					await expect.poll( () => mascot.isVisible() ).toBe( false );
+					expect( await mascot.getAttribute( 'alt' ) ).toBeTruthy();
+					expect( await page.evaluate( () =>
+						document.documentElement.scrollWidth <= window.innerWidth ) ).toBe( true );
+				} finally {
+					await browser.close();
 				}
-				await page.evaluate( () => document.fonts.ready );
-				const mascot = page.locator( '.hero-art img[data-mascot]' );
-				await mascot.evaluate( ( element ) => ( element as HTMLImageElement ).decode() );
-				const image = await mascot.boundingBox();
-				const frame = await page.locator( '.product-demo-browser' ).boundingBox();
-				if ( ! image || ! frame ) {
-					throw new Error( 'The mascot and browser must both be rendered.' );
-				}
-				expect( requests.some( ( url ) => /\.(?:glb|gltf)(?:\?|$)/u.test( url ) ) ).toBe( false );
-				expect( await page.locator( '.hero-art canvas' ).count() ).toBe( 0 );
-				expect( image.width ).toBeGreaterThan( viewport.width * ( viewport.width < 600 ? 0.75 : 0.3 ) );
-				expect( Math.abs( image.x + image.width / 2 - viewport.width / 2 ) ).toBeLessThan( 2 );
-				expect( Math.abs( image.y + image.height - frame.y ) ).toBeLessThan( 45 );
-				expect( frame.y ).toBeLessThan( viewport.height );
-				await page.locator( '[data-story-chapter] button' ).first().click();
-				await expect.poll( () => mascot.isVisible() ).toBe( false );
-				expect( await mascot.getAttribute( 'alt' ) ).toBeTruthy();
-				expect( await page.evaluate( () =>
-					document.documentElement.scrollWidth <= window.innerWidth ) ).toBe( true );
-			} finally {
-				await browser.close();
-			}
-		} );
+			} );
+		}
 	}
 
 	test( 'keeps the artwork and direct store links usable without JavaScript', async () => {
