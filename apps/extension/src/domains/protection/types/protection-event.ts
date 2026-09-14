@@ -292,6 +292,7 @@ export const ParticipantDepartureEventSchema = z.object( {
 	/** Current configured visit time; null when configuration is unavailable during recovery. */
 	allowanceDurationMilliseconds: z.union( [ AllowanceDurationMillisecondsSchema, z.null() ] ),
 	observedAtEpochMilliseconds: EpochMillisecondsSchema,
+	observedLocalDate: LocalDateSchema,
 } ).strict();
 
 /**
@@ -308,6 +309,8 @@ export const ScheduleReevaluationEventSchema = z.object( {
 	type: z.enum( [ ProtectionEventType.SCHEDULE_REEVALUATION ] ),
 	scopeId: ProtectionScopeIdSchema,
 	target: ProtectionStateTargetSchema,
+	participantId: ParticipantIdSchema,
+	pageId: PageIdSchema,
 	schedule: ScheduleEvaluationResultSchema,
 } ).strict();
 
@@ -326,6 +329,7 @@ export const ReadyContinuationEventSchema = z.object( {
 	scopeId: ProtectionScopeIdSchema,
 	allowanceId: AllowanceIdSchema,
 	nowEpochMilliseconds: EpochMillisecondsSchema,
+	observedLocalDate: LocalDateSchema,
 	observation: FreshParticipantObservationSchema,
 } ).strict();
 
