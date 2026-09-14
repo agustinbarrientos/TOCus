@@ -23,21 +23,22 @@ function PrivacyContent() {
 					TOCus has no account, advertising, or analytics. The extension keeps the information it needs in
 					your browser and does not transmit it to the developer.
 				</p>
-				<p className="information-page-reviewed">Last reviewed September 7, 2026.</p>
+				<p className="information-page-reviewed">Last reviewed September 14, 2026.</p>
 			</header>
 
 			<section id="extension-data" aria-labelledby="extension-data-title">
 				<h2 id="extension-data-title">What the extension keeps locally</h2>
 				<p>
-					TOCus saves your selected-site rules and labels, shared or separate timing choices, schedules, and
-					preferences such as appearance, motion, and language in extension-local browser storage. This
-					information makes your setup available after the browser restarts.
+					TOCus saves your selected-site rules and labels, shared pause timing, active schedules, and
+					appearance and language preferences in extension-local browser storage. This information makes
+					your setup available after the browser restarts. Motion follows your operating system.
 				</p>
 				<p>
 					Statistics are local counts and durations: completed pauses, reconsidered visits, granted visits,
-					focused pause time, and estimated reclaimed time. They do not contain page content or a history of
-					web addresses. TOCus also keeps limited timing and allowance state so an active pause can continue
-					reliably.
+					focused pause time, and estimated reclaimed time. Lifetime totals remain until you reset them;
+					daily totals cover the last 90 local calendar days. They do not contain page content or a history
+					of web addresses. TOCus also keeps limited timing and allowance state so an active pause can
+					continue reliably.
 				</p>
 				<p>
 					While a pause is active, its destination address or URL can be held temporarily in browser session
@@ -71,7 +72,7 @@ function PrivacyContent() {
 				<h2 id="deletion-title">Reset and deletion controls</h2>
 				<p>
 					Reset statistics deletes recorded counts and time totals while preserving your sites and settings.
-					Reset all TOCus data deletes sites, groups, schedules, timing, preferences, active pauses, and
+					Reset all TOCus data deletes sites, schedules, timing, preferences, active pauses, and
 					statistics, removes granted website access, and reopens setup.
 				</p>
 				<p>
@@ -145,8 +146,9 @@ function SupportContent() {
 						your browser.
 					</li>
 					<li>
-						<strong>Check timing.</strong>{' '}Check whether this website has its own timing or schedule, then
-						confirm you are editing the choices that apply to it.
+						<strong>Check timing and active hours.</strong>{' '}Pause timing applies to every website.
+						A website&apos;s custom schedule changes only its active days and hours; otherwise it follows
+						the main Schedule.
 					</li>
 					<li>
 						<strong>Reset only what you mean to clear.</strong>{' '}
