@@ -121,15 +121,15 @@
   },
   {
     "path": "apps/extension/src/features/popup/components/shell/__snapshots__/chromium/popup-shell-long-content-narrow.png",
-    "sha256": "40f6191897d0edf2e17dee190c9e010dcfda8482c5b7841aff86351401b6ad17"
+    "sha256": "476ecc174846f18bc0dd956a17dc223cc62d10502894ca27412609bbd0eb3d15"
   },
   {
     "path": "apps/extension/src/features/popup/components/shell/__snapshots__/chromium/popup-shell-manage-focus-green-light.png",
-    "sha256": "6a3d50ddb319f87ba929fe24b851942a6d78dd33a406165b24001220a10f34a5"
+    "sha256": "397994c195fe67aab1078e59c48924616f45edaca633b0006cbcfd078d73a558"
   },
   {
     "path": "apps/extension/src/features/popup/components/shell/__snapshots__/chromium/popup-shell-manage-hover-green-light.png",
-    "sha256": "eeea2c106ac8d22e471a1c86587410cc661625d4b97e2b95735f6f045ed52964"
+    "sha256": "89051d7cbe2aadb3a9328a027e2e35afa0aca88d575dd80ef817acccb899f786"
   },
   {
     "path": "apps/extension/src/features/popup/components/shell/__snapshots__/chromium/popup-shell-protected-idle.png",
