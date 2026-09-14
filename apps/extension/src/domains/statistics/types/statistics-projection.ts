@@ -1,5 +1,12 @@
 import { z } from 'zod';
 import { StatisticsNonNegativeSafeIntegerSchema } from './statistics-value';
+import { DailyStatisticsTotalsSchema } from './statistics-document';
+
+/**
+ * Maximum local calendar dates exposed by the daily graph.
+ * @since 0.1.0 Initial implementation.
+ */
+export const StatisticsProjectionDays = 30;
 
 /**
  * Availability states for the global all-time statistics projection.
@@ -35,6 +42,7 @@ export const AvailableStatisticsProjectionSchema = z.object( {
 	reconsideredVisitCount: StatisticsNonNegativeSafeIntegerSchema,
 	completedWaitCount: StatisticsNonNegativeSafeIntegerSchema,
 	allowanceGrantedCount: StatisticsNonNegativeSafeIntegerSchema,
+	dailyTotals: z.array( DailyStatisticsTotalsSchema ).max( StatisticsProjectionDays ),
 } ).strict();
 
 /**
