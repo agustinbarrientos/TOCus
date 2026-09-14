@@ -20,6 +20,7 @@ describe( 'createProtectionBackgroundController statistics messages', () => {
 			reconsideredVisitCount: 3,
 			completedWaitCount: 2,
 			allowanceGrantedCount: 2,
+			dailyTotals: [],
 		};
 		const readResponse = vi.fn();
 		const resetResponse = vi.fn();

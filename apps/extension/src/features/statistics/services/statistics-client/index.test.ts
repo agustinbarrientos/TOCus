@@ -64,6 +64,7 @@ class MemoryStorageChangeSource {
  */
 const AVAILABLE_STATISTICS_PROJECTION = Object.freeze( {
 	status: StatisticsProjectionStatus.AVAILABLE,
+	dailyTotals: [],
 	estimatedReclaimedMilliseconds: 1_200_000,
 	focusedPauseMilliseconds: 42_000,
 	reconsideredVisitCount: 4,
@@ -105,6 +106,7 @@ describe( 'createStatisticsClient', () => {
 		const sendMessage = vi.fn<( request: StatisticsRuntimeRequest ) => Promise<unknown>>()
 			.mockResolvedValue( {
 				status: StatisticsProjectionStatus.AVAILABLE,
+				dailyTotals: [],
 				focusedPauseMilliseconds: -1,
 			} );
 		const client = createStatisticsClient( { runtime: { sendMessage } } );

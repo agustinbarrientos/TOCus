@@ -55,6 +55,7 @@ const EXAMPLE_CONFIGURATION = ProtectionConfigurationDocumentSchema.parse( {
  */
 const AVAILABLE_PROJECTION: StatisticsProjection = {
 	status: StatisticsProjectionStatus.AVAILABLE,
+	dailyTotals: [],
 	estimatedReclaimedMilliseconds: 120_000,
 	focusedPauseMilliseconds: 8_000,
 	reconsideredVisitCount: 3,

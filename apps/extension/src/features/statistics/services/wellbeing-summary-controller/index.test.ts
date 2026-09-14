@@ -82,6 +82,7 @@ function createProjection(
 ): StatisticsProjection {
 	return {
 		status: StatisticsProjectionStatus.AVAILABLE,
+		dailyTotals: [],
 		estimatedReclaimedMilliseconds,
 		focusedPauseMilliseconds,
 		reconsideredVisitCount: 0,
