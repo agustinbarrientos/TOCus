@@ -26,17 +26,6 @@ export function createScheduleCopy(
 	} );
 
 	/**
-	 * Formats one independent protection scope.
-	 * @param name - Resolved local site name.
-	 * @param domain - Exact configured domain.
-	 * @return Complete localized scope label.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	function formatIndependentScopeLabel( name: string, domain: string ): string {
-		return i18n._( msg`${ { name } } (${ { domain } })` );
-	}
-
-	/**
 	 * Resolves one stable domain weekday to its localized label.
 	 * @param weekday - Stable weekday domain value.
 	 * @return Localized weekday label.
@@ -70,25 +59,8 @@ export function createScheduleCopy(
 		return i18n._( msg`Remove time window ${ { position: formattedPosition } }` );
 	}
 
-	/**
-	 * Compares two scope names using the selected language.
-	 * @param firstName - First scope name.
-	 * @param secondName - Second scope name.
-	 * @return Locale-sensitive collation result.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	function compareNames( firstName: string, secondName: string ): number {
-		return formatters.collator.compare( firstName, secondName );
-	}
-
 	return Object.freeze( {
-		eyebrow: i18n._( msg`Pause setup` ),
 		title: i18n._( msg`Schedule` ),
-		introduction: i18n._( msg`Choose when TOCus is active. Times use this device's current time zone.` ),
-		appliesToLabel: i18n._( msg`Schedule for` ),
-		sharedScope: i18n._( msg`Websites using the same timer` ),
-		formatIndependentScopeLabel,
-		compareNames,
 		formatWeekday,
 		formatWindowLabel,
 		formatRemoveWindowLabel,
@@ -98,7 +70,6 @@ export function createScheduleCopy(
 		customLabel: i18n._( msg`On a weekly schedule` ),
 		customDescription: i18n._( msg`Choose the days and times when TOCus should be active.` ),
 		windowsLegend: i18n._( msg`Active time windows` ),
-		windowsHelp: i18n._( msg`An end time earlier than its start continues into the next day.` ),
 		weekdayLabel: i18n._( msg`Day` ),
 		startTimeLabel: i18n._( msg( {
 			comment: 'Label for the start-time field of a scheduled protection window.',
@@ -113,7 +84,6 @@ export function createScheduleCopy(
 		startTimeRequiredError: i18n._( msg`Choose a start time.` ),
 		endTimeRequiredError: i18n._( msg`Choose an end time.` ),
 		equalTimeError: i18n._( msg`Start and end time must be different.` ),
-		dirtyScopeNotice: i18n._( msg`Save or discard your changes before choosing other websites.` ),
 		discard: i18n._( msg`Discard` ),
 		save: i18n._( msg`Save` ),
 		saving: i18n._( msg`Saving...` ),
