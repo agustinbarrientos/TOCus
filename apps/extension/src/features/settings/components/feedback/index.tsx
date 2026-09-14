@@ -19,9 +19,9 @@ export function Feedback( props: FeedbackProps ) {
 		<>
 			{ props.error && ( props.nativeError
 				? <NativeNotice className={ props.className ?? '' } role="alert" color="red"
-					icon={ IconName.EXCLAMATION } message={ props.error } />
+					icon={ IconName.CIRCLE_EXCLAMATION } message={ props.error } />
 				: <Alert className={ props.className } role="alert" color="red"
-					icon={ <Icon name={ IconName.EXCLAMATION } /> }>
+					icon={ <Icon name={ IconName.CIRCLE_EXCLAMATION } /> }>
 					{ props.error }
 				</Alert> ) }
 			{ props.success && <Alert className={ props.className } role="status" color="green"
