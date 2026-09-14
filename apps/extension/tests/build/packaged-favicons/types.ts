@@ -1,5 +1,4 @@
-import type { BrowserContext, Page, Worker } from 'playwright';
-import type { Server } from 'node:http';
+import type { BrowserContext, Page, Worker } from '@playwright/test';
 
 export type { ExtensionManifest, ExtensionWorkerGlobal } from '../packaged-protection/types';
 
@@ -10,16 +9,21 @@ export type { ExtensionManifest, ExtensionWorkerGlobal } from '../packaged-prote
 export interface FaviconTestFixture {
 	/** Persistent browser isolated from every user profile. */
 	context: BrowserContext;
-	/** Temporary installation and profile directory. */
-	directory: string;
 	/** Extension document that reads the browser's real favicon endpoint. */
 	reader: Page;
 	/** Packaged extension origin. */
 	extensionRoot: string;
 	/** Synthetic website served without external network access. */
 	siteUrl: string;
-	/** Loopback server serving the synthetic document and its distinct icon. */
-	server: Server;
 	/** Actual packaged background service worker. */
 	worker: Worker;
+}
+
+/**
+ * Test-scoped packaged browser owned by the browser contract runner.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface PackagedFaviconFixtures {
+	/** Disposable packaged installation with a real native favicon cache. */
+	favicon: FaviconTestFixture;
 }

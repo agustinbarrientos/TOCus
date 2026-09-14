@@ -121,6 +121,7 @@ export default defineConfig( {
 					exclude: [
 						'apps/website/tests/build/interaction-contrast.test.ts',
 						'apps/extension/tests/build/packaged-protection/index.test.ts',
+						'apps/extension/tests/build/packaged-favicons/index.test.ts',
 					],
 				},
 			},
