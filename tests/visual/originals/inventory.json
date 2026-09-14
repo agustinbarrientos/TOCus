@@ -165,11 +165,11 @@
   },
   {
     "path": "apps/extension/src/features/protected-sites/components/site-list/__snapshots__/chromium/protected-site-list-dark.png",
-    "sha256": "72ef40933f61abc300e057c8509dca5e879526d75997d6b7d9ff565801591c01"
+    "sha256": "c1eb8964b189e4ce295bc80ec9c706c2c1b974751d4346cd55bddb508443822b"
   },
   {
     "path": "apps/extension/src/features/protected-sites/components/site-list/__snapshots__/chromium/protected-site-list-light.png",
-    "sha256": "2f3fd6976c8524a715b1a4cabc93da57bacc1e1417decaab5a338f75eb2a5635"
+    "sha256": "4016819bab59d16898e8199db6e7f6e0ed93e9df58eb178708b32ec4923ae483"
   },
   {
     "path": "apps/extension/src/features/settings/components/about-screen/__snapshots__/chromium/about-screen-brown-light.png",
