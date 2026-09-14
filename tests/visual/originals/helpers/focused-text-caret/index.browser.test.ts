@@ -1,46 +1,24 @@
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { chromium, firefox, webkit } from '@playwright/test';
-import type { Browser, Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { hasFocusedTextCaret } from './index';
 
-describe.each( [
-	[ 'Chromium', chromium ],
-	[ 'Firefox', firefox ],
-	[ 'WebKit', webkit ],
-] as const )( '%s screenshot caret semantics', ( _name, engine ) => {
-	let browser: Browser;
-	let page: Page;
-
-	beforeAll( async () => {
-		browser = await engine.launch();
-	} );
-	beforeEach( async () => {
-		page = await browser.newPage();
-	} );
-	afterEach( async () => {
-		await page.close();
-	} );
-	afterAll( async () => {
-		await browser.close();
-	} );
-
-	it( 'does not hide carets when only an unfocused text field exists', async () => {
+test.describe( 'screenshot caret semantics', () => {
+	test( 'does not hide carets when only an unfocused text field exists', async ( { page } ) => {
 		await page.setContent( '<input value="Unfocused" style="caret-color: red">' );
 		expect( await page.evaluate( () => document.activeElement === document.body ) ).toBe( true );
 		expect( await page.evaluate( hasFocusedTextCaret ) ).toBe( false );
 		expect( await page.locator( 'input' ).getAttribute( 'style' ) ).toBe( 'caret-color: red' );
 	} );
 
-	it.each( [ 'text', 'search', 'email', 'url', 'tel', 'password', 'number' ] )(
-		'detects a focused writable %s input', async ( type ) => {
+	for ( const type of [ 'text', 'search', 'email', 'url', 'tel', 'password', 'number' ] ) {
+		test( `detects a focused writable ${ type } input`, async ( { page } ) => {
 			await page.setContent( `<input type="${ type }">` );
 			await page.locator( 'input' ).focus();
 			expect( await page.locator( 'input' ).evaluate( ( input ) => input === document.activeElement ) ).toBe( true );
 			expect( await page.evaluate( hasFocusedTextCaret ) ).toBe( true );
-		},
-	);
+		} );
+	}
 
-	it( 'detects a focused textarea and stops after focus moves to a button', async () => {
+	test( 'detects a focused textarea and stops after focus moves to a button', async ( { page } ) => {
 		await page.setContent( '<textarea>Editable</textarea><button>Done</button>' );
 		await page.locator( 'textarea' ).focus();
 		expect( await page.evaluate( hasFocusedTextCaret ) ).toBe( true );
@@ -48,23 +26,26 @@ describe.each( [
 		expect( await page.evaluate( hasFocusedTextCaret ) ).toBe( false );
 	} );
 
-	it.each( [ 'radio', 'range', 'checkbox', 'button', 'submit', 'reset' ] )(
-		'does not treat a focused %s input as a text caret', async ( type ) => {
+	for ( const type of [ 'radio', 'range', 'checkbox', 'button', 'submit', 'reset' ] ) {
+		test( `does not treat a focused ${ type } input as a text caret`, async ( { page } ) => {
 			await page.setContent( `<input type="${ type }">` );
 			await page.locator( 'input' ).focus();
 			expect( await page.locator( 'input' ).evaluate( ( input ) => input === document.activeElement ) ).toBe( true );
 			expect( await page.evaluate( hasFocusedTextCaret ) ).toBe( false );
-		},
-	);
+		} );
+	}
 
-	it.each( [ 'input', 'textarea' ] )( 'excludes a focused readonly %s', async ( tag ) => {
-		await page.setContent( `<${ tag } readonly></${ tag }>` );
-		await page.locator( tag ).focus();
-		expect( await page.locator( tag ).evaluate( ( element ) => element === document.activeElement ) ).toBe( true );
-		expect( await page.evaluate( hasFocusedTextCaret ) ).toBe( false );
-	} );
+	for ( const tag of [ 'input', 'textarea' ] ) {
+		test( `excludes a focused readonly ${ tag }`, async ( { page } ) => {
+			await page.setContent( `<${ tag } readonly></${ tag }>` );
+			await page.locator( tag ).focus();
+			expect( await page.locator( tag ).evaluate( ( element ) =>
+				element === document.activeElement ) ).toBe( true );
+			expect( await page.evaluate( hasFocusedTextCaret ) ).toBe( false );
+		} );
+	}
 
-	it( 'detects inherited contenteditable focus but excludes its noneditable island', async () => {
+	test( 'detects inherited contenteditable focus but excludes its noneditable island', async ( { page } ) => {
 		await page.setContent( '<div contenteditable="true"><span id="editable" tabindex="0">Edit</span>'
 			+ '<span id="readonly" contenteditable="false" tabindex="0">Read</span></div>' );
 		await page.locator( '#editable' ).focus();
@@ -73,7 +54,7 @@ describe.each( [
 		expect( await page.evaluate( hasFocusedTextCaret ) ).toBe( false );
 	} );
 
-	it( 'follows nested open shadow focus without modifying DOM or selection', async () => {
+	test( 'follows nested open shadow focus without modifying DOM or selection', async ( { page } ) => {
 		await page.setContent( '<div id="outer"></div>' );
 		await page.evaluate( () => {
 			const outer = document.getElementById( 'outer' );
