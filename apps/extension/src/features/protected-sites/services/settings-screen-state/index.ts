@@ -1,3 +1,6 @@
+import { DraftSaveResult } from '../../../settings/utils/draft-controller/types';
+import { createWebsiteDraft, serializeWebsiteDraft } from '../../utils/website-draft';
+import type { WebsitesDraft, WebsiteDetailsDraft } from '../../utils/website-draft/types';
 import { ProtectedSiteCanonicalizationStatus } from '../../../../domains/protection/utils/protected-site-canonicalizer/types';
 import { SitePermissionRequestStatus, SitePermissionReleaseStatus } from '../site-permission-manager/types';
 import { ProtectedSiteEnrollmentStatus } from '../protected-site-enrollment/types';
@@ -8,11 +11,9 @@ import {
 } from 'react';
 import {
 	DefaultProtectionScopeId,
-	ProtectionScopeIdSchema,
 } from '../../../../domains/protection/types/protection-value';
 import {
 	ProtectedSiteConfigurationSetSchema,
-	ProtectedSiteDisplayNameInputSchema,
 	type ProtectedSiteConfiguration,
 	type ProtectionConfigurationDocument,
 } from '../../../../domains/protection/types/protected-site-configuration';
@@ -32,7 +33,6 @@ import {
 	LoadState,
 } from '../../../settings/components/recovery/types';
 import type {
-	WebsitesDraft,
 	WebsitesScreenProps,
 } from '../../components/screen/types';
 
@@ -46,17 +46,16 @@ import type {
 export function useWebsitesState( props: WebsitesScreenProps ) {
 	const { shell, register, accessRef } = props;
 	const copy = shell.protectedSitesCopy;
-	const state = useDraft<WebsitesDraft>( { sites: [], address: '' }, register );
+	const state = useDraft<WebsitesDraft>( createWebsiteDraft( [] ), register, save );
 	const { draft, value, saving, error } = state;
 	const [ configuration, setConfiguration ] = useState<ProtectionConfigurationDocument | null>( null );
 	const [ status, setStatus ] = useState<LoadState>( LoadState.LOADING );
-	const [ independent, setIndependent ] = useState( false );
+	const [ validate, setValidate ] = useState( false );
 	const [ inputError, setInputError ] = useState<string | null>( null );
 	const [ access, setAccess ] = useState<ReadonlyMap<string, boolean>>( new Map() );
 	const [ pendingAccess, setPendingAccess ] = useState<string | null>( null );
 	const [ accessMessage, setAccessMessage ] = useState<string | null>( null );
 	const [ retained, setRetained ] = useState( false );
-	const scopeIds = useRef( new Map<string, string>() );
 	const generation = useRef( 0 );
 
 	/**
@@ -102,7 +101,7 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 			const config = await shell.editor?.load();
 			if ( config ) {
 				setConfiguration( config );
-				draft.adopt( { sites: config.sites, address: '' } );
+				draft.adopt( createWebsiteDraft( config.sites ) );
 				await refresh( config );
 				setStatus( LoadState.READY );
 			} else {
@@ -135,15 +134,7 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 		if ( ! shell.editor || saving ) {
 			return null;
 		}
-		const scopeInput = independent ? shell.editor.createIndependentScopeId() : DefaultProtectionScopeId;
-		const scope = ProtectionScopeIdSchema.safeParse( scopeInput );
-		const scopeConflict = scope.success && independent && ( scope.data === DefaultProtectionScopeId
-			|| value.sites.some( ( site ) => site.rule.scopeId === scope.data ) );
-		if ( ! scope.success || scopeConflict ) {
-			setInputError( 'invalid-scope-id' );
-			return null;
-		}
-		const canonical = canonicalizeProtectedSite( value.address, scope.data );
+		const canonical = canonicalizeProtectedSite( value.address, DefaultProtectionScopeId );
 		if ( canonical.status === ProtectedSiteCanonicalizationStatus.REJECTED ) {
 			setInputError( 'invalid-site' );
 			return null;
@@ -155,72 +146,74 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 			setInputError( 'already-protected' );
 			return null;
 		}
-		const next = { sites: sites.data, address: '' };
+		const next: WebsitesDraft = { ...value, sites: sites.data, address: '',
+			detailsByHost: { ...value.detailsByHost, [ canonical.identityHost ]: value.newSite },
+			newSite: { displayName: '', schedule: null } };
+		try {
+			serializeWebsiteDraft( next );
+		} catch {
+			setValidate( true );
+			setInputError( 'invalid-schedule' );
+			return null;
+		}
 		change( next );
-		setIndependent( false );
 		return next;
 	}
 
-	/** Requests browser access synchronously from Save before committing the complete site set. */
-	function save(): void {
+	/**
+	 * Requests browser access synchronously from Save before committing the complete site set.
+	 * @return Explicit persistence success or a retained invalid draft.
+	 */
+	function save(): Promise<DraftSaveResult> {
 		if ( ! configuration || ! shell.editor || ! shell.permissionManager || saving ) {
-			return;
+			return Promise.resolve( DraftSaveResult.FAILED );
 		}
-		if ( value.address.trim() && ! stage() ) {
-			return;
+		setValidate( true );
+		const candidate = value.address.trim() ? stage() : value;
+		if ( candidate === null ) {
+			return Promise.resolve( DraftSaveResult.FAILED );
+		}
+		if ( candidate.newSite.displayName.trim() || candidate.newSite.schedule !== null ) {
+			setInputError( 'invalid-site' );
+			return Promise.resolve( DraftSaveResult.FAILED );
+		}
+		try {
+			serializeWebsiteDraft( candidate );
+		} catch {
+			setInputError( 'invalid-schedule' );
+			return Promise.resolve( DraftSaveResult.FAILED );
 		}
 		const service = createProtectedSiteEnrollmentService( {
 			editor: shell.editor, permissionManager: shell.permissionManager,
 		} );
 		// No awaited work may precede saveDraft: Firefox requires the original Save gesture.
-		void draft.save( async ( next ) => {
-			const result = await service.saveDraft( configuration.sites, next.sites );
+		return draft.save( async ( next ) => {
+			const result = await service.saveDraft( configuration.sites, serializeWebsiteDraft( next ) );
 			if ( result.status !== ProtectedSiteEnrollmentStatus.SAVED ) {
 				throw new Error( result.status === ProtectedSiteEnrollmentStatus.REJECTED
 					? result.reason : result.status );
 			}
 			setConfiguration( result.configuration );
-			scopeIds.current.clear();
+			setValidate( false );
 			setRetained( result.permissionReleaseStatus !== SitePermissionReleaseStatus.RELEASED );
 			await refresh( result.configuration ).catch( () => null );
-			return { sites: result.configuration.sites, address: '' };
+			return createWebsiteDraft( result.configuration.sites );
 		} );
 	}
 
 	/**
-	 * Stages display-name and independent behavior changes without persistence.
+	 * Stages editable naming and active hours without changing countdown ownership.
 	 * @param site - Current row being edited.
-	 * @param name - Raw typed name, including spaces not yet followed by another character.
-	 * @param separate - Whether the site uses its own timer and schedule.
+	 * @param details - Complete controlled details, including incomplete schedule fields.
 	 */
-	function updateSite( site: ProtectedSiteConfiguration, name: string, separate: boolean ): void {
-		const displayName = ProtectedSiteDisplayNameInputSchema.safeParse( name );
-		if ( ! displayName.success ) {
-			setInputError( 'invalid-display-name' );
-			return;
-		}
-		let scope = site.rule.scopeId;
-		if ( ! separate ) {
-			if ( scope !== DefaultProtectionScopeId ) {
-				scopeIds.current.set( site.identityHost, scope );
-			}
-			scope = DefaultProtectionScopeId;
-		} else if ( scope === DefaultProtectionScopeId ) {
-			const candidateInput = scopeIds.current.get( site.identityHost )
-				?? shell.editor?.createIndependentScopeId();
-			const candidate = ProtectionScopeIdSchema.safeParse( candidateInput );
-			const conflict = candidate.success && ( candidate.data === DefaultProtectionScopeId
-				|| value.sites.some( ( other ) => other.rule.scopeId === candidate.data ) );
-			if ( ! candidate.success || conflict ) {
-				setInputError( 'invalid-scope-id' );
-				return;
-			}
-			scope = candidate.data;
-		}
-		const replacement = { identityHost: site.identityHost, rule: { ...site.rule, scopeId: scope },
-			...( displayName.data ? { displayNameOverride: name } : {} ) };
+	function updateSite( site: ProtectedSiteConfiguration, details: WebsiteDetailsDraft ): void {
+		const { displayNameOverride: previousName, ...withoutName } = site;
+		void previousName;
+		const replacement = { ...withoutName,
+			...( details.displayName.trim() ? { displayNameOverride: details.displayName } : {} ) };
 		change( { ...value,
 			sites: value.sites.map( ( other ) => other.identityHost === site.identityHost ? replacement : other ),
+			detailsByHost: { ...value.detailsByHost, [ site.identityHost ]: details },
 		} );
 	}
 
@@ -255,7 +248,7 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 
 	const errors: Record<string, string> = {
 		'invalid-site': copy.invalidSiteError, 'already-protected': copy.alreadyProtectedError,
-		'invalid-scope-id': copy.invalidScopeError, 'invalid-display-name': copy.invalidDisplayNameError,
+		'invalid-schedule': copy.invalidScheduleError, 'invalid-display-name': copy.invalidDisplayNameError,
 		'invalid-configuration': copy.invalidConfigurationError, 'site-not-found': copy.siteNotFoundError,
 		'sites-changed': copy.configurationChangedError, 'permission-denied': copy.permissionDeniedError,
 		'permission-error': copy.permissionRequestError, 'permission-retained': copy.permissionRetainedError,
@@ -264,7 +257,7 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 	const issue = inputError ?? error;
 	const addressError = inputError === 'invalid-site' || inputError === 'already-protected'
 		? errors[ inputError ] ?? copy.invalidSiteError : null;
-	return { ...state, configuration, status, independent, access, pendingAccess, accessMessage, retained,
+	return { ...state, configuration, status, validate, access, pendingAccess, accessMessage, retained,
 		addressError, errorMessage: issue && ! addressError ? errors[ issue ] ?? copy.saveError : null,
-		change, load, save, stage, updateSite, grant, setIndependent };
+		change, load, save, stage, updateSite, grant };
 }

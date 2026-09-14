@@ -30,8 +30,8 @@ import {
 	Recovery,
 } from '../../../settings/components/recovery';
 import {
-	SiteBehavior,
-} from '../site-behavior';
+	WebsiteDetails,
+} from '../website-details';
 import {
 	WebsiteItem,
 } from '../site-item';
@@ -59,7 +59,7 @@ export function Websites( props: WebsitesScreenProps ) {
 	const copy = shell.protectedSitesCopy;
 	const itemCopy = shell.protectedSiteItemCopy;
 	const state = useWebsitesState( props );
-	const { draft, value, status, saving, saved, independent, configuration, pendingAccess, access } = state;
+	const { draft, value, status, saving, saved, configuration, pendingAccess, access } = state;
 	const [ editing, setEditing ] = useState<string | null>( null );
 	const [ removing, setRemoving ] = useState<ProtectedSiteConfiguration | null>( null );
 	const disabled = saving || shell.permissionManager === null;
@@ -93,7 +93,14 @@ export function Websites( props: WebsitesScreenProps ) {
 	 * @return Keyed row with permission and inline editor callbacks.
 	 */
 	function renderSite( site: ProtectedSiteConfiguration ) {
+		if ( configuration === null ) {
+			return null;
+		}
 		return <WebsiteItem key={ site.identityHost } site={ site } copy={ itemCopy }
+			scheduleCopy={ shell.scheduleCopy } globalSchedule={ configuration.schedule }
+			{ ...( value.detailsByHost[ site.identityHost ] === undefined
+				? {} : { details: value.detailsByHost[ site.identityHost ] } ) }
+			validate={ state.validate }
 			confirmation={ renderRemoval( site ) }
 			favicon={ shell.faviconProvider?.getSource( site.identityHost ) ?? null }
 			editing={ editing === site.identityHost && removing?.identityHost !== site.identityHost }
@@ -113,18 +120,18 @@ export function Websites( props: WebsitesScreenProps ) {
 			onRemove={ () => {
 				setRemoving( site );
 			} }
-			onChange={ ( name, separate ) => {
-				state.updateSite( site, name, separate );
+			onChange={ ( details ) => {
+				state.updateSite( site, details );
 			} } />;
 	}
 
 	return (
-		<Page title={ copy.title } eyebrow={ copy.eyebrow } introduction={ copy.introduction }>
+		<Page title={ copy.title }>
 			<Recovery status={ status } copy={ copy } retry={ () => {
 				void state.load();
 			} } />
 			{ status === LoadState.READY && <>
-				<form className="settings-site-form tocus-section" onSubmit={ ( event ) => {
+				<form className="settings-site-form" onSubmit={ ( event ) => {
 					event.preventDefault(); state.stage();
 				} }>
 					<Stack gap={ 0 }>
@@ -132,7 +139,7 @@ export function Websites( props: WebsitesScreenProps ) {
 							<TextInput className="settings-site-address tocus-native-field" id="site-address" name="site-address"
 								classNames={ { input: 'settings-native-input' } }
 								aria-label={ copy.addressLabel } placeholder={ copy.addressPlaceholder } autoComplete="url"
-								aria-describedby="site-address-help site-address-error" value={ value.address } disabled={ disabled }
+								aria-describedby="site-address-error" value={ value.address } disabled={ disabled }
 								error={ state.addressError !== null }
 								onChange={ ( event ) => {
 									state.change( { ...value, address: event.currentTarget.value } );
@@ -140,19 +147,20 @@ export function Websites( props: WebsitesScreenProps ) {
 							<Button className="tocus-native-button" h="auto" type="submit" variant="outline"
 								disabled={ disabled }>{ copy.addSite }</Button>
 						</Group>
-						<p id="site-address-help">{ copy.addressHelp }</p>
 						<p id="site-address-error" className="settings-site-address-error"
 							role={ state.addressError ? 'alert' : undefined }>{ state.addressError }</p>
-						<SiteBehavior copy={ copy } independent={ independent } disabled={ saving }
-							name="new-site-behavior" onChange={ state.setIndependent } />
+						<WebsiteDetails idPrefix="new-site" copy={ copy } scheduleCopy={ shell.scheduleCopy }
+							value={ value.newSite } disabled={ disabled } validate={ state.validate }
+							onChange={ ( newSite ) => {
+								state.change( { ...value, newSite } );
+							} } />
 					</Stack>
 				</form>
-				<WebsiteList sites={ value.sites } copy={ copy } renderItem={ renderSite } />
+				<WebsiteList sites={ value.sites } copy={ copy } renderItem={ renderSite }
+					hasCustomSchedule={ ( site ) => value.detailsByHost[ site.identityHost ]?.schedule !== null } />
 				<DraftActions draft={ draft } copy={ { ...copy, saving: itemCopy.saving } } onSave={ state.save } />
-				<div className="settings-site-announcement">
-					<Feedback error={ state.errorMessage } success={ saved ? copy.saved : state.accessMessage } />
-					{ state.retained && <p role="status">{ copy.savedWithRetainedAccess }</p> }
-				</div>
+				<Feedback error={ state.errorMessage } success={ saved ? copy.saved : state.accessMessage } />
+				{ state.retained && <p role="status">{ copy.savedWithRetainedAccess }</p> }
 			</> }
 		</Page>
 	);
