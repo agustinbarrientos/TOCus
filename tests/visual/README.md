@@ -1,6 +1,6 @@
 # Immutable original screenshot comparisons
 
-The extension must match its 106 approved screenshots at the exact original component-owned paths and filenames. Expected PNGs are immutable except for the specifically approved Statistics text correction documented below. This includes approved images that were previously untracked. `tests/visual/originals/inventory.json` records every path and SHA-256 and is included in the repository for CI.
+The extension must match its 106 approved screenshots at the exact original component-owned paths and filenames. Expected PNGs are immutable except for the specifically approved Statistics corrections, supplied-icon replacements and Settings redesign documented below. This includes approved images that were previously untracked. `tests/visual/originals/inventory.json` records every path and SHA-256 and is included in the repository for CI.
 
 `pnpm test:visual` compares actual React/native fixtures against approved PNGs with `updateSnapshots: 'none'`. The original-image helper checks decoded dimensions and every RGBA pixel, with the narrowly bounded edge allowance below. Different PNG compression is harmless. Every run checks all reference file hashes. An unfiltered run requires exactly one registered case for every original path. Updating references to conceal regressions is prohibited. Failure artifacts remain in `test-results/visual/` and `playwright-report/visual/`.
 
@@ -19,6 +19,36 @@ The same eight extension Statistics references listed above were refreshed from 
 The corresponding nine website full-page references now use the same production copy and responsive heading, with an example total of 1 hour, 8 minutes from twelve five-minute reconsidered visits plus eight minutes pausing. Reviewed narrow captures keep the translated approximation word intact. The Spanish desktop explanation adds one line, increasing the PNG height by 28 pixels and shifting subsequent sections and their edge rasterization; the other eight page dimensions remain unchanged. The eleven story and language-menu references were not refreshed. The first English desktop capture also reproduced the preexisting twelve-pixel CTA-edge variance outside Statistics. One ordinary isolated diagnostic capture had no differences outside Statistics and supplied that reference; this does not establish that the intermittent variance is fixed. No pixels were masked or rewritten, and capture settings and exact comparison rules remain unchanged.
 
 The September 9 empty-state correction replaces only the zero reclaimed-time estimate with "Not enough data yet", translated in all ten languages. Positive estimates, subminute wording, and supporting zero counts are unchanged. The single empty Statistics reference was refreshed from its normal-run failure capture: dimensions remain 768 by 872 pixels, and every changed RGBA pixel lies within the estimate text at x25-438, y337-372. The other 105 extension references and all website references remain unchanged; no comparison rule, capture setting, or tolerance changed.
+
+## Approved Settings consistency redesign
+
+On September 14, 2026, the project owner approved consistent shared form styling, grouped Settings navigation, concise page headings, marked sliders with help tooltips, schedule-only website exceptions, compact website rows and daily Statistics. Unlike the original migration-restoration task, this request explicitly changes layout and content. Motion now follows the OS; fixtures no longer retain the removed preference or independent-timer behavior.
+
+Eighty-three original references were refreshed from visually reviewed normal-run failure captures. They preserve all 106 original paths and scenario names, including the historical removal-confirmation filename. The latter now exercises removal of a website with custom active hours. The twelve regional onboarding references reflect the same shared field labels, padded appearance choices and OS-motion control removal. The existing privacy badge, breadcrumbs and browser interaction coverage remain in place.
+
+Review covered light/dark, narrow layouts, translated labels, error/pending states, inline confirmations and the Settings shell. It found and fixed editor autofocus, unequal row-action spacing and redundant form padding before final captures. Daily chart labels use natural localized time units, with an accessible data table and keyboard tooltips tested separately. The new unsaved-navigation dialog has independent three-engine geometry and Save/Discard/Stay behavior tests. No screenshot scenario, comparator, threshold, hash check or update-flag rejection was removed or weakened.
+
+Ten website references were refreshed: the nine localized full-page captures and the narrow language-menu capture. They use the production daily chart and compact lifetime metrics, shared field styles, and corrected custom-schedule copy. Server-formatted metric/date labels remain identical after hydration. The ten story-chapter captures remain unchanged. No hero, mascot, navigation destination, capture setting or comparison threshold changed for this redesign.
+
+The September 14 popup-label correction removes the long-content fixture's outdated "and its timing" override. It now uses the production "Manage this website" translation. The single narrow long-content reference was reviewed and refreshed at its existing path: the button label fits on one line, reducing the capture height from 489 to 470 pixels at the same 288-pixel width. Other fixture content, snapshot scenarios and comparison rules remain unchanged.
+
+## Approved shared-alert refinement
+
+On September 14, 2026, the project owner approved replacing the alert stripe with a uniform outline, larger shared text, rounded corners and consistent spacing. Access and recovery notices now group icon and message together, align their actions, wrap on narrow screens, and preserve visible keyboard focus. Spacing accounts for parent layout gaps and does not double the space before actions or an open website editor.
+
+The shared alert no longer clips its own rounded border or keyboard focus. Nested confirmation actions use the same wrapping rules as the alert actions so long translations remain inside narrow containers.
+
+Fifteen references were refreshed from reviewed normal-run captures: two access-required site rows, two site-operation failures, three Privacy states, three Statistics recovery states, four shared notice palettes, and the Spanish onboarding access-denied state. All original paths and filenames remain; the other 91 original references and comparison settings are unchanged. Browser regressions cover success/error spacing, dialog and onboarding feedback, expanded confirmations, wrapped English/German actions and permission activation in all three engines. The shared notice fixture no longer overrides the production alert margins.
+
+## Approved supplied-icon replacements
+
+On September 14, 2026, the project owner supplied fifteen replacement SVGs for navigation, external links, privacy and error notices, select and disclosure arrows, and loading indicators. These assets are shared by the extension and website. The canonical filenames and constant names follow their actual shapes; the supplied secondary-path opacity and third-party notices remain intact.
+
+Seventy-two original extension references were refreshed from reviewed normal-run captures, retaining all 106 original paths and filenames. Decoded RGBA comparison confirmed identical dimensions and changes confined to the replaced glyphs, including the native select and disclosure markers. Text positions, wrapping, surfaces, controls and branding remain unchanged. Their inventory hashes reflect the approved artwork; the other 34 references retain their existing bytes.
+
+Twelve website references now contain the supplied external-link arrows, language icon or Browse pause glyph; the other eight remain unchanged. Nine regional onboarding references contain the supplied privacy icon; the three narrow Appearance captures remain unchanged. Every refreshed website and regional image retains its existing path, filename and dimensions. Shared control tests additionally verify loading artwork, reduced motion, keyboard operation and forced colors in Chromium, Firefox and WebKit. Disclosure tests compare native text line boxes at desktop and narrow widths in both open and closed states.
+
+This approval changes artwork only. No comparator, tolerance, capture settings, retries or update-flag restrictions were changed. Future baseline changes still require explicit approval and review of the actual differences.
 
 ## Approved edge-rasterization allowance
 
