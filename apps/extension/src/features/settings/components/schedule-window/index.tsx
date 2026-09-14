@@ -1,5 +1,7 @@
 import {
-	Button,
+	ActionIcon,
+	Icon,
+	IconName,
 	NativeSelect as SettingsSelect,
 	TextInput,
 } from '@tocus/ui';
@@ -13,6 +15,7 @@ import {
 import type {
 	ScheduleWindowControlProps,
 } from './types';
+import './style.scss';
 
 
 /**
@@ -23,7 +26,7 @@ import type {
  */
 export function ScheduleWindowControl( props: ScheduleWindowControlProps ) {
 	const { copy, window, index, disabled, validate } = props;
-	const windowId = String( window.id );
+	const windowId = `${ props.idPrefix }-${ String( window.id ) }`;
 	const errors = windowErrors( window, copy );
 	const weekdays = Object.values( Weekday ).map( ( weekday ) => ( {
 		value: weekday, label: copy.formatWeekday( weekday ),
@@ -63,8 +66,11 @@ export function ScheduleWindowControl( props: ScheduleWindowControlProps ) {
 					{ validate ? errors.end : null }
 				</small>
 			</div>
-			<Button className="settings-schedule-remove" variant="outline" aria-label={ copy.formatRemoveWindowLabel( index + 1 ) }
-				disabled={ disabled || ! props.removable } onClick={ props.onRemove }>{ copy.removeWindow }</Button>
+			{ props.removable && <ActionIcon className="settings-schedule-remove" variant="subtle"
+				aria-label={ copy.formatRemoveWindowLabel( index + 1 ) } disabled={ disabled }
+				onClick={ props.onRemove }>
+				<Icon name={ IconName.TRASH } />
+			</ActionIcon> }
 		</fieldset>
 	);
 }
