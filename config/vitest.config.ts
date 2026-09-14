@@ -120,6 +120,7 @@ export default defineConfig( {
 					// Native browser journeys belong to Playwright Test, not the Node artifact-validation pool.
 					exclude: [
 						'apps/website/tests/build/interaction-contrast.test.ts',
+						'apps/extension/tests/build/packaged-protection/index.test.ts',
 					],
 				},
 			},

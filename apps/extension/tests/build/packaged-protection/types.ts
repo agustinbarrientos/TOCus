@@ -1,4 +1,18 @@
 import type { WxtBrowser } from 'wxt/browser';
+import type { Worker } from '@playwright/test';
+
+/**
+ * Per-test packaged installation and its optional synthetic-site grant.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface ProtectionTestFixtures {
+	/** Whether the disposable installation pregrants the synthetic protected website. */
+	pregrantSite: boolean;
+	/** Ready service worker for this test's isolated installation. */
+	worker: Worker;
+	/** Absolute root of this test's packaged extension. */
+	extensionRoot: string;
+}
 
 /**
  * Extension APIs available inside the packaged Chrome service worker.

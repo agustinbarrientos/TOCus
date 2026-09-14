@@ -1,10 +1,6 @@
-import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { chromium, type BrowserContext, type Route, type Worker } from 'playwright';
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import type { ExtensionManifest, ExtensionWorkerGlobal } from './types';
+import type { Route, Worker } from '@playwright/test';
+import { expect, test } from './__fixtures__';
+import type { ExtensionWorkerGlobal } from './types';
 import { DefaultPreferencesDocument } from '../../../src/domains/preferences/types';
 import { TestEmptyProtectionConfiguration } from '../../../src/domains/protection/types/__fixtures__';
 import { StoredDurableProtectionStateSchema, type StoredDurableProtectionState } from '../../../src/domains/protection/types/stored-protection-state';
@@ -47,89 +43,37 @@ async function readTabMuted( worker: Worker, url: string ): Promise<boolean> {
 	}, url );
 }
 
-describe( 'packaged Chrome protection', () => {
-	let directory: string | undefined;
-	let context: BrowserContext | undefined;
-	let worker: Worker;
-	let extensionRoot: string;
-
-	beforeAll( async () => {
-		directory = await mkdtemp( join( tmpdir(), 'tocus-packaged-protection-' ) );
-		const extensionPath = join( directory, 'extension' );
-
-		await cp( fileURLToPath( new URL( '../../../.output/chrome-mv3/', import.meta.url ) ), extensionPath, { recursive: true } );
-		const manifestPath = join( extensionPath, 'manifest.json' );
-		const manifest = JSON.parse( await readFile( manifestPath, 'utf8' ) ) as ExtensionManifest;
-
-		expect( manifest.permissions ).not.toContain( 'tabs' );
-		expect( manifest.permissions ).not.toContain( 'history' );
-		expect( manifest.optional_permissions ).not.toContain( 'tabs' );
-		expect( manifest.optional_permissions ).not.toContain( 'history' );
-		// Pregrant one synthetic website in the disposable installation without changing packaged scripts.
-		manifest.permissions = [ ...manifest.permissions ?? [], ...manifest.optional_permissions ?? [] ];
-		manifest.host_permissions = [ '*://*.example.test/*' ];
-		delete manifest.optional_permissions;
-		await writeFile( manifestPath, JSON.stringify( manifest ) );
-
-		context = await chromium.launchPersistentContext( join( directory, 'profile' ), {
-			channel: 'chromium',
-			headless: true,
-			args: [ `--disable-extensions-except=${ extensionPath }`, `--load-extension=${ extensionPath }` ],
-		} );
-		worker = context.serviceWorkers()[ 0 ] ?? await context.waitForEvent( 'serviceworker' );
-		// The serviceworker event precedes its execution context becoming ready on a cold launch.
-		extensionRoot = await worker.evaluate( () => {
-			const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
-			return chrome.runtime.getURL( '/' );
-		} );
-		await context.route( /^https?:\/\//u, ( route ) => route.abort() );
-		await context.route( 'https://example.test/**', ( route ) => route.fulfill( {
-			contentType: 'text/html',
-			body: '<!doctype html><html lang="en"><title>Example website</title><body><h1>Destination loaded</h1><input aria-label="Unfinished work" value="Keep this text"></body></html>',
-		} ) );
-	}, 15_000 );
-
-	afterAll( async () => {
-		await context?.close();
-		if ( directory !== undefined ) {
-			await rm( directory, { recursive: true, force: true } );
-		}
-	} );
-
-	test.each( [ 'popup.html', 'options.html', 'onboarding.html' ] )( 'opens packaged %s without preload-world warnings or script errors', async ( entry ) => {
-		if ( context === undefined ) {
-			throw new Error( 'The disposable browser is unavailable.' );
-		}
-		const page = await context.newPage();
-		const failures: string[] = [];
-		const log = await context.newCDPSession( page );
-		await log.send( 'Log.enable' );
-		log.on( 'Log.entryAdded', ( { entry: browserLog } ) => {
-			if ( /preload|cross-world/iu.test( browserLog.text ) && [ 'warning', 'error' ].includes( browserLog.level ) ) {
-				failures.push( browserLog.text );
+test.describe( 'packaged Chrome protection', () => {
+	for ( const entry of [ 'popup.html', 'options.html', 'onboarding.html' ] ) {
+		test( `opens packaged ${ entry } without preload-world warnings or script errors`, async ( { context, extensionRoot } ) => {
+			const page = await context.newPage();
+			const failures: string[] = [];
+			const log = await context.newCDPSession( page );
+			await log.send( 'Log.enable' );
+			log.on( 'Log.entryAdded', ( { entry: browserLog } ) => {
+				if ( /preload|cross-world/iu.test( browserLog.text ) && [ 'warning', 'error' ].includes( browserLog.level ) ) {
+					failures.push( browserLog.text );
+				}
+			} );
+			page.on( 'pageerror', ( error ) => failures.push( error.message ) );
+			page.on( 'console', ( message ) => {
+				if ( /preload|cross-world/iu.test( message.text() ) && [ 'warning', 'error' ].includes( message.type() ) ) {
+					failures.push( message.text() );
+				}
+			} );
+			try {
+				await page.goto( new URL( entry, extensionRoot ).href );
+				await page.getByText( 'TOCus', { exact: true } ).first().waitFor();
+				await page.waitForTimeout( 500 );
+				expect( await page.locator( 'link[rel="modulepreload"]' ).count() ).toBe( 0 );
+				expect( failures ).toEqual( [] );
+			} finally {
+				await page.close();
 			}
 		} );
-		page.on( 'pageerror', ( error ) => failures.push( error.message ) );
-		page.on( 'console', ( message ) => {
-			if ( /preload|cross-world/iu.test( message.text() ) && [ 'warning', 'error' ].includes( message.type() ) ) {
-				failures.push( message.text() );
-			}
-		} );
-		try {
-			await page.goto( new URL( entry, extensionRoot ).href );
-			await page.getByText( 'TOCus', { exact: true } ).first().waitFor();
-			await page.waitForTimeout( 500 );
-			expect( await page.locator( 'link[rel="modulepreload"]' ).count() ).toBe( 0 );
-			expect( failures ).toEqual( [] );
-		} finally {
-			await page.close();
-		}
-	} );
+	}
 
-	test( 'initializes the isolated protected-page listener without changing the website', async () => {
-		if ( context === undefined ) {
-			throw new Error( 'The disposable browser is unavailable.' );
-		}
+	test( 'initializes the isolated protected-page listener without changing the website', async ( { context, worker } ) => {
 		const page = await context.newPage();
 
 		try {
@@ -155,10 +99,10 @@ describe( 'packaged Chrome protection', () => {
 		}
 	} );
 
-	test( 'keeps a redacted pause tab calm while its accepted destination remains pending', async () => {
-		if ( context === undefined ) {
-			throw new Error( 'The disposable browser is unavailable.' );
-		}
+	test( 'keeps a redacted pause tab calm while its accepted destination remains pending', async ( { context, worker, page } ) => {
+		// Phase limits total 70 seconds; allow ten for worker readiness and ten for orchestration.
+		// These are failure ceilings, not sleeps: the real wait remains ten seconds plus a two-second observation.
+		test.setTimeout( 90_000 );
 		const destination = 'https://example.test/slow-entry';
 		let releaseDestination: ( () => void ) | undefined;
 		const destinationBarrier = new Promise<void>( ( resolve ) => {
@@ -184,189 +128,200 @@ describe( 'packaged Chrome protection', () => {
 			} );
 		}
 
-		await context.route( destination, handleDestination );
-		await worker.evaluate( async () => {
-			const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
-
-			await chrome.storage.local.set( {
-				'tocus.protection.configuration.v1': {
-					schemaVersion: 3,
-					sites: [ { identityHost: 'example.test', rule: { host: 'example.test', includeSubdomains: true, scopeId: 'scope_default' } } ],
-					timingConfiguration: { initialWaitMilliseconds: 10000, ladderIncreaseMilliseconds: 5000, maximumWaitMilliseconds: 60000, allowanceMilliseconds: 300000, completionAction: 'show-continue' },
-					schedulesByScope: { scope_default: { mode: 'always' } },
-					measurementRevisionsByScope: { scope_default: 'revision_packaged' },
-				},
-			} );
-		} );
-		await expect.poll( () => worker.evaluate( async () => {
-			const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
-
-			return ( await chrome.declarativeNetRequest.getDynamicRules() ).length;
-		} ) ).toBeGreaterThan( 0 );
-		const page = await context.newPage();
-		const observedStates: string[] = [];
-
-		await page.exposeFunction( 'reportInterruptionState', ( state: string ) => {
-			observedStates.push( state );
-		} );
-
 		try {
-			await page.goto( destination );
-			await page.waitForURL( '**/pause.html' );
-			await page.bringToFront();
-			const pauseTab = await worker.evaluate( async () => {
-				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
-				const contexts = await chrome.runtime.getContexts( { contextTypes: [ 'TAB' ] } );
-				const pauseContext = contexts.find( ( candidate ) => candidate.documentUrl === chrome.runtime.getURL( '/pause.html' ) );
+			await context.route( destination, handleDestination );
+			await test.step( 'Configure the protected site and wait for its redirect rule', async () => {
+				await worker.evaluate( async () => {
+					const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
 
-				return ( await chrome.tabs.query( {} ) ).find( ( candidate ) => candidate.id === pauseContext?.tabId );
+					await chrome.storage.local.set( {
+						'tocus.protection.configuration.v1': {
+							schemaVersion: 4,
+							sites: [ { identityHost: 'example.test', rule: { host: 'example.test', includeSubdomains: true, scopeId: 'scope_default' } } ],
+							timingConfiguration: { initialWaitMilliseconds: 10000, ladderIncreaseMilliseconds: 5000, maximumWaitMilliseconds: 60000, allowanceMilliseconds: 300000, completionAction: 'show-continue' },
+							schedulesByScope: { scope_default: { mode: 'always' } },
+							measurementRevisionsByScope: { scope_default: 'revision_packaged' },
+						},
+					} );
+				} );
+				await expect.poll( () => worker.evaluate( async () => {
+					const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+
+					return chrome.declarativeNetRequest.getDynamicRules();
+				} ) ).toEqual( expect.arrayContaining( [ expect.objectContaining( {
+					action: { type: 'redirect', redirect: { extensionPath: '/pause.html' } },
+					condition: { urlFilter: '||example.test^', resourceTypes: [ 'main_frame' ] },
+				} ) ] ) );
+			}, { timeout: 10_000 } );
+			const observedStates: string[] = [];
+
+			await page.exposeFunction( 'reportInterruptionState', ( state: string ) => {
+				observedStates.push( state );
 			} );
 
-			expect( pauseTab ).toBeDefined();
-			expect( pauseTab?.url ).toBeUndefined();
-			expect( pauseTab?.pendingUrl ).toBeUndefined();
+			await test.step( 'Open the redacted pause with browser attention', async () => {
+				await page.goto( destination );
+				await page.waitForURL( '**/pause.html' );
+				await page.bringToFront();
+				await expect.poll( () => page.evaluate( () =>
+					document.hasFocus() && document.visibilityState === 'visible' ) )
+					.toBe( true );
+				const pauseTab = await worker.evaluate( async () => {
+					const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+					const contexts = await chrome.runtime.getContexts( { contextTypes: [ 'TAB' ] } );
+					const pauseContext = contexts.find( ( candidate ) => candidate.documentUrl === chrome.runtime.getURL( '/pause.html' ) );
+
+					return ( await chrome.tabs.query( {} ) ).find( ( candidate ) =>
+						candidate.id === pauseContext?.tabId );
+				} );
+
+				expect( pauseTab ).toBeDefined();
+				expect( pauseTab?.url ).toBeUndefined();
+				expect( pauseTab?.pendingUrl ).toBeUndefined();
+			}, { timeout: 10_000 } );
 			const continueButton = page.getByRole( 'button', { name: 'Continue', exact: true } );
 
-			await continueButton.waitFor( { state: 'visible', timeout: 15_000 } );
-			const readyDocument = await readDurableState( worker );
+			await test.step( 'Complete the real breathing wait without starting an allowance', async () => {
+				await expect( continueButton ).toBeVisible( { timeout: 15_000 } );
+				const readyDocument = await readDurableState( worker );
 
-			expect( readyDocument.scopes.scope_default?.ready ).toMatchObject( {
-				capturedAllowanceDurationMilliseconds: 300_000,
-			} );
-			expect( readyDocument.scopes.scope_default?.allowance ).toBeUndefined();
-			await page.evaluate( () => {
-				const screen = document.querySelector( 'tocus-f-interruption-screen' );
+				expect( readyDocument.scopes.scope_default?.ready ).toMatchObject( {
+					capturedAllowanceDurationMilliseconds: 300_000,
+				} );
+				expect( readyDocument.scopes.scope_default?.allowance ).toBeUndefined();
+			}, { timeout: 20_000 } );
+			await test.step( 'Observe the ready screen before entry', async () => {
+				await page.evaluate( () => {
+					const screen = document.querySelector( 'tocus-f-interruption-screen' );
 
-				if ( screen === null ) {
-					throw new Error( 'The interruption screen is unavailable.' );
-				}
-				const reportState = ( globalThis as typeof globalThis & {
+					if ( screen === null ) {
+						throw new Error( 'The interruption screen is unavailable.' );
+					}
+					const reportState = ( globalThis as typeof globalThis & {
 					reportInterruptionState: ( state: string ) => void;
 				} ).reportInterruptionState;
-				/** Reports one rendered interruption state to the test process. */
-				const reportCurrentState = (): void => {
-					reportState( screen.getAttribute( 'state' ) ?? '' );
-				};
+					/** Reports one rendered interruption state to the test process. */
+					const reportCurrentState = (): void => {
+						reportState( screen.getAttribute( 'state' ) ?? '' );
+					};
 
-				reportCurrentState();
-				new MutationObserver( reportCurrentState ).observe( screen, {
-					attributeFilter: [ 'state' ],
-					attributes: true,
+					reportCurrentState();
+					new MutationObserver( reportCurrentState ).observe( screen, {
+						attributeFilter: [ 'state' ],
+						attributes: true,
+					} );
 				} );
-			} );
+			}, { timeout: 5_000 } );
 			const entryRequestedAt = Date.now();
 
-			holdDestination = true;
-			await continueButton.click( { noWaitAfter: true } );
-			await expect.poll( () => destinationWasRequested, { timeout: 5_000 } ).toBe( true );
-			await page.waitForTimeout( 2_000 );
-			expect( observedStates ).toEqual( [ 'ready' ] );
-			releaseDestination?.();
-			await page.waitForURL( destination, { timeout: 5_000 } );
-			expect( await page.getByRole( 'heading', { name: 'Destination loaded' } ).isVisible() ).toBe( true );
-			const allowanceDocument = await readDurableState( worker );
-			const allowance = allowanceDocument.scopes.scope_default?.allowance;
+			await test.step( 'Accept entry while holding the destination request pending', async () => {
+				holdDestination = true;
+				await continueButton.click( { noWaitAfter: true, timeout: 5_000 } );
+				await expect.poll( () => destinationWasRequested, { timeout: 5_000 } ).toBe( true );
+			}, { timeout: 10_000 } );
+			await test.step( 'Keep the pause calm across the pending-navigation observation window', async () => {
+				// A negative temporal assertion: the former recovery flash appeared during this window.
+				await page.waitForTimeout( 2_000 );
+				expect( observedStates ).toEqual( [ 'ready' ] );
+			}, { timeout: 5_000 } );
+			await test.step( 'Release navigation and verify the granted allowance', async () => {
+				releaseDestination?.();
+				await page.waitForURL( destination, { timeout: 5_000 } );
+				await expect( page.getByRole( 'heading', { name: 'Destination loaded' } ) ).toBeVisible();
+				const allowanceDocument = await readDurableState( worker );
+				const allowance = allowanceDocument.scopes.scope_default?.allowance;
 
-			expect( allowanceDocument.scopes.scope_default?.ready ).toBeUndefined();
-			expect( allowance ).toBeDefined();
-			expect( allowance?.startedAtEpochMilliseconds ).toBeGreaterThanOrEqual( entryRequestedAt );
-			expect( allowance?.expiresAtEpochMilliseconds ).toBe(
-				( allowance?.startedAtEpochMilliseconds ?? 0 ) + 300_000,
-			);
+				expect( allowanceDocument.scopes.scope_default?.ready ).toBeUndefined();
+				expect( allowance ).toBeDefined();
+				expect( allowance?.startedAtEpochMilliseconds ).toBeGreaterThanOrEqual( entryRequestedAt );
+				expect( allowance?.expiresAtEpochMilliseconds ).toBe(
+					( allowance?.startedAtEpochMilliseconds ?? 0 ) + 300_000,
+				);
+			}, { timeout: 10_000 } );
 		} finally {
 			releaseDestination?.();
 			await context.unroute( destination, handleDestination );
-			await page.close();
 		}
-	}, 25_000 );
+	} );
 
 	/* Native two-minute expiry is verified locally to keep CI duration bounded. */
-	test.skipIf( process.env.CI === 'true' )( 'holds tab audio through expiry and Ready, then restores playback after Continue without reloading', async () => {
-		if ( context === undefined ) {
-			throw new Error( 'The disposable browser is unavailable.' );
-		}
-		await worker.evaluate( async () => {
-			const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
-			await chrome.storage.local.set( {
-				'tocus.protection.configuration.v1': {
-					schemaVersion: 4,
-					sites: [ { identityHost: 'example.test', rule: { host: 'example.test', includeSubdomains: true, scopeId: 'scope_audio' } } ],
-					timingConfiguration: { initialWaitMilliseconds: 10000, ladderIncreaseMilliseconds: 0, maximumWaitMilliseconds: 30000, allowanceMilliseconds: 120000, completionAction: 'show-continue' },
-					schedulesByScope: { scope_default: { mode: 'always' }, scope_audio: { mode: 'always' } },
-					measurementRevisionsByScope: { scope_default: 'revision_packaged', scope_audio: 'revision_packaged_audio' },
-				},
+	test.describe( 'real-time expiry', () => {
+		test.skip( process.env.CI === 'true', 'The real two-minute expiry remains covered locally.' );
+		test( 'holds tab audio through expiry and Ready, then restores playback after Continue without reloading', async ( { context, worker } ) => {
+			test.setTimeout( 165_000 );
+			await worker.evaluate( async () => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				await chrome.storage.local.set( {
+					'tocus.protection.configuration.v1': {
+						schemaVersion: 4,
+						sites: [ { identityHost: 'example.test', rule: { host: 'example.test', includeSubdomains: true, scopeId: 'scope_audio' } } ],
+						timingConfiguration: { initialWaitMilliseconds: 10000, ladderIncreaseMilliseconds: 0, maximumWaitMilliseconds: 30000, allowanceMilliseconds: 120000, completionAction: 'show-continue' },
+						schedulesByScope: { scope_default: { mode: 'always' }, scope_audio: { mode: 'always' } },
+						measurementRevisionsByScope: { scope_default: 'revision_packaged', scope_audio: 'revision_packaged_audio' },
+					},
+				} );
 			} );
+			await expect.poll( () => worker.evaluate( async () => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				return ( await chrome.declarativeNetRequest.getDynamicRules() ).length;
+			} ) ).toBeGreaterThan( 0 );
+			const page = await context.newPage();
+			const accessibility = await context.newCDPSession( page );
+			const destination = 'https://example.test/audio-state';
+
+			try {
+				await page.goto( destination );
+				await page.waitForURL( '**/pause.html' );
+				await page.bringToFront();
+				const continueButton = page.getByRole( 'button', { name: 'Continue', exact: true } );
+				await continueButton.waitFor( { state: 'visible', timeout: 15_000 } );
+				await continueButton.click();
+				await page.waitForURL( destination, { timeout: 5_000 } );
+				const allowance = ( await readDurableState( worker ) ).scopes.scope_audio?.allowance;
+				expect( allowance ).toBeDefined();
+				expect(
+					( allowance?.expiresAtEpochMilliseconds ?? 0 ) - ( allowance?.startedAtEpochMilliseconds ?? 0 ),
+				).toBe( 120_000 );
+				await page.getByRole( 'textbox', { name: 'Unfinished work' } ).fill( 'Preserve my current work' );
+				await page.evaluate( () => {
+					document.body.dataset.documentIdentity = 'original-audio-document';
+				} );
+				expect( await readTabMuted( worker, destination ) ).toBe( false );
+
+				await expect.poll( async () => {
+					const { nodes } = await accessibility.send( 'Accessibility.getFullAXTree' );
+					return nodes.some( ( node ) => ! node.ignored && node.role?.value === 'dialog' );
+				}, { timeout: 125_000 } ).toBe( true );
+				await expect.poll( () => readTabMuted( worker, destination ) ).toBe( true );
+				const waitingTree = await accessibility.send( 'Accessibility.getFullAXTree' );
+				expect( waitingTree.nodes.some( ( node ) => ! node.ignored && node.role?.value === 'button' && node.name?.value === 'Continue' ) ).toBe( false );
+				expect( page.url() ).toBe( destination );
+				expect( await page.getByRole( 'textbox', { name: 'Unfinished work', includeHidden: true } ).inputValue() ).toBe( 'Preserve my current work' );
+
+				await expect.poll( async () => {
+					const { nodes } = await accessibility.send( 'Accessibility.getFullAXTree' );
+					return nodes.some( ( node ) => ! node.ignored && node.role?.value === 'button' && node.name?.value === 'Continue' );
+				}, { timeout: 15_000 } ).toBe( true );
+				expect( await readTabMuted( worker, destination ) ).toBe( true );
+				expect( ( await readDurableState( worker ) ).scopes.scope_audio?.allowance ).toBeUndefined();
+				await page.keyboard.press( 'Space' );
+				await expect.poll( async () => {
+					const { nodes } = await accessibility.send( 'Accessibility.getFullAXTree' );
+					return nodes.some( ( node ) => ! node.ignored && node.role?.value === 'dialog' );
+				} ).toBe( false );
+				await expect.poll( () => readTabMuted( worker, destination ) ).toBe( false );
+				expect( page.url() ).toBe( destination );
+				expect( await page.getByRole( 'textbox', { name: 'Unfinished work' } ).inputValue() ).toBe( 'Preserve my current work' );
+				expect( await page.evaluate( () => document.body.dataset.documentIdentity ) ).toBe( 'original-audio-document' );
+			} finally {
+				await page.close();
+			}
 		} );
-		await expect.poll( () => worker.evaluate( async () => {
-			const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
-			return ( await chrome.declarativeNetRequest.getDynamicRules() ).length;
-		} ) ).toBeGreaterThan( 0 );
-		const page = await context.newPage();
-		const accessibility = await context.newCDPSession( page );
-		const destination = 'https://example.test/audio-state';
+	} );
 
-		try {
-			await page.goto( destination );
-			await page.waitForURL( '**/pause.html' );
-			await page.bringToFront();
-			const continueButton = page.getByRole( 'button', { name: 'Continue', exact: true } );
-			await continueButton.waitFor( { state: 'visible', timeout: 15_000 } );
-			await continueButton.click();
-			await page.waitForURL( destination, { timeout: 5_000 } );
-			const allowance = ( await readDurableState( worker ) ).scopes.scope_audio?.allowance;
-			expect( allowance ).toBeDefined();
-			expect(
-				( allowance?.expiresAtEpochMilliseconds ?? 0 ) - ( allowance?.startedAtEpochMilliseconds ?? 0 ),
-			).toBe( 120_000 );
-			await page.getByRole( 'textbox', { name: 'Unfinished work' } ).fill( 'Preserve my current work' );
-			await page.evaluate( () => {
-				document.body.dataset.documentIdentity = 'original-audio-document';
-			} );
-			expect( await readTabMuted( worker, destination ) ).toBe( false );
-
-			await expect.poll( async () => {
-				const { nodes } = await accessibility.send( 'Accessibility.getFullAXTree' );
-				return nodes.some( ( node ) => ! node.ignored && node.role?.value === 'dialog' );
-			}, { timeout: 125_000 } ).toBe( true );
-			await expect.poll( () => readTabMuted( worker, destination ) ).toBe( true );
-			const waitingTree = await accessibility.send( 'Accessibility.getFullAXTree' );
-			expect( waitingTree.nodes.some( ( node ) => ! node.ignored && node.role?.value === 'button' && node.name?.value === 'Continue' ) ).toBe( false );
-			expect( page.url() ).toBe( destination );
-			expect( await page.getByRole( 'textbox', { name: 'Unfinished work', includeHidden: true } ).inputValue() ).toBe( 'Preserve my current work' );
-
-			await expect.poll( async () => {
-				const { nodes } = await accessibility.send( 'Accessibility.getFullAXTree' );
-				return nodes.some( ( node ) => ! node.ignored && node.role?.value === 'button' && node.name?.value === 'Continue' );
-			}, { timeout: 15_000 } ).toBe( true );
-			expect( await readTabMuted( worker, destination ) ).toBe( true );
-			expect( ( await readDurableState( worker ) ).scopes.scope_audio?.allowance ).toBeUndefined();
-			await page.keyboard.press( 'Space' );
-			await expect.poll( async () => {
-				const { nodes } = await accessibility.send( 'Accessibility.getFullAXTree' );
-				return nodes.some( ( node ) => ! node.ignored && node.role?.value === 'dialog' );
-			} ).toBe( false );
-			await expect.poll( () => readTabMuted( worker, destination ) ).toBe( false );
-			expect( page.url() ).toBe( destination );
-			expect( await page.getByRole( 'textbox', { name: 'Unfinished work' } ).inputValue() ).toBe( 'Preserve my current work' );
-			expect( await page.evaluate( () => document.body.dataset.documentIdentity ) ).toBe( 'original-audio-document' );
-		} finally {
-			await page.close();
-		}
-	}, 165_000 );
-
-	test( 'resets packaged local data through Settings and reopens onboarding without requesting access', async () => {
-		if ( directory === undefined ) {
-			throw new Error( 'The disposable extension directory is unavailable.' );
-		}
-		const extensionPath = join( directory, 'reset-extension' );
-		await cp( fileURLToPath( new URL( '../../../.output/chrome-mv3/', import.meta.url ) ), extensionPath, { recursive: true } );
-		const resetContext = await chromium.launchPersistentContext( join( directory, 'reset-profile' ), {
-			channel: 'chromium',
-			headless: true,
-			args: [ `--disable-extensions-except=${ extensionPath }`, `--load-extension=${ extensionPath }` ],
-		} );
-		try {
-			const resetWorker = resetContext.serviceWorkers()[ 0 ] ?? await resetContext.waitForEvent( 'serviceworker' );
+	test.describe( 'without optional access', () => {
+		test.use( { pregrantSite: false } );
+		test( 'resets packaged local data through Settings and reopens onboarding without requesting access', async ( { context: resetContext, worker: resetWorker } ) => {
 			const optionsUrl = await resetWorker.evaluate( async ( seed ) => {
 				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
 				await chrome.storage.local.set( seed );
@@ -403,8 +358,6 @@ describe( 'packaged Chrome protection', () => {
 			expect( stored.grants.permissions ).not.toContain( 'webNavigation' );
 			expect( stored.rules ).toEqual( [] );
 			expect( resetContext.pages().filter( ( page ) => page.url().endsWith( '/onboarding.html' ) ).length ).toBeGreaterThan( 0 );
-		} finally {
-			await resetContext.close();
-		}
-	}, 15_000 );
+		} );
+	} );
 } );
