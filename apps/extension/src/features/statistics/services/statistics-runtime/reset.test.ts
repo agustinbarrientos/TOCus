@@ -77,6 +77,7 @@ describe( 'statistics runtime reset', () => {
 			focusMeasurementEnabled: true,
 			projection: {
 				status: StatisticsProjectionStatus.AVAILABLE,
+				dailyTotals: [],
 				estimatedReclaimedMilliseconds: 0,
 				focusedPauseMilliseconds: 0,
 				reconsideredVisitCount: 0,
@@ -295,6 +296,7 @@ describe( 'statistics runtime reset', () => {
 			storage: invalidGenerationHarness.storage,
 			sessionStorage: invalidGenerationHarness.sessionStorage,
 			createGenerationId: reuseCurrentGenerationId,
+			getLocalDate: invalidGenerationHarness.options.getLocalDate.bind( invalidGenerationHarness.options ),
 		};
 		const invalidRuntime = createStatisticsRuntime( invalidOptions );
 

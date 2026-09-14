@@ -33,16 +33,12 @@ const TEST_CONFIGURATION = ProtectionConfigurationDocumentSchema.parse( {
 		rule: {
 			host: 'example.com',
 			includeSubdomains: true,
-			scopeId: 'scope-default',
+			scopeId: 'scope_default',
 		},
 	} ],
-	schedulesByScope: {
-		...TestEmptyProtectionConfiguration.schedulesByScope,
-		'scope-default': TestEmptyProtectionConfiguration.schedulesByScope.scope_default,
-	},
 	measurementRevisionsByScope: {
 		...TestEmptyProtectionConfiguration.measurementRevisionsByScope,
-		'scope-default': 'revision_scope_default',
+		'scope_default': 'revision_scope_default',
 	},
 } );
 
@@ -63,8 +59,10 @@ const TEST_STATISTICS_DOCUMENT = StatisticsDocumentSchema.parse( {
 	schemaVersion: StatisticsDocumentVersion,
 	generationId: 'generation_test',
 	lastAppliedBatchId: null,
+	firstRecordedDate: null,
+	dailyTotals: [],
 	scopes: {
-		'scope-default': {
+		'scope_default': {
 			totals: {
 				estimatedReclaimedMilliseconds: 0,
 				focusedPauseMilliseconds: 0,
@@ -97,7 +95,7 @@ function createInput(
 	return {
 		configuration: TEST_CONFIGURATION,
 		statisticsDocument: TEST_STATISTICS_DOCUMENT,
-		statesByScope: { 'scope-default': TEST_ALLOWANCE },
+		statesByScope: { 'scope_default': TEST_ALLOWANCE },
 		focusedTabId: 7,
 		nowEpochMilliseconds: TEST_NOW_EPOCH_MILLISECONDS,
 		tabs: [ {
@@ -112,7 +110,7 @@ function createInput(
 describe( 'resolveFocusedAllowance', () => {
 	it( 'returns only the current allowance measurement identity', () => {
 		expect( resolveFocusedAllowance( createInput() ) ).toEqual( {
-			scopeId: 'scope-default',
+			scopeId: 'scope_default',
 			measurementRevision: 'revision_scope_default',
 			allowanceId: 'allowance-a',
 			siteHost: 'example.com',
@@ -126,7 +124,7 @@ describe( 'resolveFocusedAllowance', () => {
 		expect( resolveFocusedAllowance( createInput( {
 			tabs: [ { id: 7, incognito: false, url } ],
 		} ) ) ).toEqual( {
-			scopeId: 'scope-default',
+			scopeId: 'scope_default',
 			measurementRevision: 'revision_scope_default',
 			allowanceId: 'allowance-a',
 			siteHost: 'example.com',
@@ -138,7 +136,7 @@ describe( 'resolveFocusedAllowance', () => {
 			...TEST_CONFIGURATION,
 			sites: [ ...TEST_CONFIGURATION.sites, {
 				identityHost: 'other.example',
-				rule: { host: 'other.example', includeSubdomains: true, scopeId: 'scope-default' },
+				rule: { host: 'other.example', includeSubdomains: true, scopeId: 'scope_default' },
 			} ],
 		} );
 
@@ -146,7 +144,7 @@ describe( 'resolveFocusedAllowance', () => {
 			configuration,
 			navigation: { frameId: 0, tabId: 7, url: 'https://news.other.example/article' },
 		} ) ) ).toEqual( {
-			scopeId: 'scope-default',
+			scopeId: 'scope_default',
 			measurementRevision: 'revision_scope_default',
 			allowanceId: 'allowance-a',
 			siteHost: 'other.example',
@@ -163,7 +161,7 @@ describe( 'resolveFocusedAllowance', () => {
 		} );
 
 		expect( resolveFocusedAllowance( createInput( {
-			statesByScope: { 'scope-default': allowance },
+			statesByScope: { 'scope_default': allowance },
 		} ) ) ).toBeNull();
 	} );
 
@@ -207,13 +205,13 @@ describe( 'resolveFocusedAllowance', () => {
 		},
 		{
 			label: 'a Waiting scope',
-			overrides: { statesByScope: { 'scope-default': createWaitingState() } },
+			overrides: { statesByScope: { 'scope_default': createWaitingState() } },
 		},
 		{
 			label: 'an expired allowance',
 			overrides: {
 				statesByScope: {
-					'scope-default': AllowanceProtectionStateSchema.parse( {
+					'scope_default': AllowanceProtectionStateSchema.parse( {
 						...TEST_ALLOWANCE,
 						expiresAtEpochMilliseconds: TEST_NOW_EPOCH_MILLISECONDS,
 						startedAtEpochMilliseconds: TEST_NOW_EPOCH_MILLISECONDS - 300_000,
@@ -236,10 +234,10 @@ describe( 'resolveFocusedAllowance', () => {
 				statisticsDocument: StatisticsDocumentSchema.parse( {
 					...TEST_STATISTICS_DOCUMENT,
 					scopes: {
-						'scope-default': {
-							...TEST_STATISTICS_DOCUMENT.scopes[ 'scope-default' ],
+						'scope_default': {
+							...TEST_STATISTICS_DOCUMENT.scopes[ 'scope_default' ],
 							activeAllowance: {
-								...TEST_STATISTICS_DOCUMENT.scopes[ 'scope-default' ]?.activeAllowance,
+								...TEST_STATISTICS_DOCUMENT.scopes[ 'scope_default' ]?.activeAllowance,
 								allowanceId: 'allowance-other',
 							},
 						},
@@ -260,7 +258,7 @@ describe( 'resolveFocusedAllowance', () => {
 				url: 'https://outside.example/old',
 			} ],
 		} ) ) ).toEqual( {
-			scopeId: 'scope-default',
+			scopeId: 'scope_default',
 			measurementRevision: 'revision_scope_default',
 			allowanceId: 'allowance-a',
 			siteHost: 'example.com',
@@ -297,23 +295,8 @@ describe( 'resolveFocusedAllowance', () => {
 		expect( resolveFocusedAllowance( createInput( { navigation } ) ) ).not.toBeNull();
 	} );
 
-	it( 'resolves prototype-named scopes through own properties only', () => {
+	it( 'does not resolve a foreign prototype-named allowance as the shared website allowance', () => {
 		const scopeId = '__proto__';
-		const configuration = ProtectionConfigurationDocumentSchema.parse( {
-			...TestEmptyProtectionConfiguration,
-			sites: [ {
-				identityHost: 'example.com',
-				rule: { host: 'example.com', includeSubdomains: false, scopeId },
-			} ],
-			schedulesByScope: Object.fromEntries( [
-				...Object.entries( TestEmptyProtectionConfiguration.schedulesByScope ),
-				[ scopeId, TestEmptyProtectionConfiguration.schedulesByScope.scope_default ],
-			] ),
-			measurementRevisionsByScope: Object.fromEntries( [
-				...Object.entries( TestEmptyProtectionConfiguration.measurementRevisionsByScope ),
-				[ scopeId, 'revision_prototype' ],
-			] ),
-		} );
 		const state = AllowanceProtectionStateSchema.parse( {
 			...TEST_ALLOWANCE,
 			scopeId,
@@ -322,10 +305,10 @@ describe( 'resolveFocusedAllowance', () => {
 			...TEST_STATISTICS_DOCUMENT,
 			scopes: Object.fromEntries( [
 				[ scopeId, {
-					...TEST_STATISTICS_DOCUMENT.scopes[ 'scope-default' ],
+					...TEST_STATISTICS_DOCUMENT.scopes[ 'scope_default' ],
 					currentMeasurementRevision: 'revision_prototype',
 					activeAllowance: {
-						...TEST_STATISTICS_DOCUMENT.scopes[ 'scope-default' ]?.activeAllowance,
+						...TEST_STATISTICS_DOCUMENT.scopes[ 'scope_default' ]?.activeAllowance,
 						measurementRevision: 'revision_prototype',
 					},
 				} ],
@@ -333,14 +316,9 @@ describe( 'resolveFocusedAllowance', () => {
 		} );
 
 		expect( resolveFocusedAllowance( createInput( {
-			configuration,
+			configuration: TEST_CONFIGURATION,
 			statisticsDocument,
 			statesByScope: Object.fromEntries( [ [ scopeId, state ] ] ),
-		} ) ) ).toEqual( {
-			scopeId,
-			measurementRevision: 'revision_prototype',
-			allowanceId: 'allowance-a',
-			siteHost: 'example.com',
-		} );
+		} ) ) ).toBeNull();
 	} );
 } );
