@@ -39,7 +39,7 @@ function isSupplementalOnlyRun( arguments_: readonly string[] ): boolean {
 		}
 	}
 	return projects.length > 0 && projects.every( ( project ) =>
-		project === 'chromium-onboarding' || project === 'chromium-website' );
+		project === 'chromium-onboarding' || project === 'chromium-website' || project === 'snapshot-comparison' );
 }
 
 /**
