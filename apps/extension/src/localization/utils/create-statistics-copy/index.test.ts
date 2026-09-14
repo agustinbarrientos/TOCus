@@ -2,8 +2,39 @@ import { describe, expect, it } from 'vitest';
 import { createTestI18n } from '../../__fixtures__';
 import { createLocalizationFormatters } from '../create-localization-formatters';
 import { createStatisticsCopy } from './index';
+import { setupI18n } from '@lingui/core';
 
 describe( 'createStatisticsCopy', () => {
+	it( 'formats recorded calendar dates without shifting them into another day', () => {
+		const copy = createStatisticsCopy( createTestI18n(), createLocalizationFormatters( 'en' ) );
+		expect( copy.formatDate( '2026-09-14' ) ).toBe( 'Sep 14' );
+		expect( copy.formatDate( '2026-01-01' ) ).toBe( 'Jan 1' );
+	} );
+
+	it.each( [
+		[ 0, '0s' ],
+		[ 1, '0.001s' ],
+		[ 5_000, '5s' ],
+		[ 15_000, '15s' ],
+		[ 30_000, '30s' ],
+		[ 60_000, '1m' ],
+		[ 90_000, '1.5m' ],
+		[ 3_600_000, '1h' ],
+		[ 9_000_000, '2.5h' ],
+		[ 3_600_000_000_000, '1Mh' ],
+	] )( 'keeps an axis tick of %i milliseconds compact and distinguishable', ( milliseconds, expected ) => {
+		const copy = createStatisticsCopy( createTestI18n(), createLocalizationFormatters( 'en' ) );
+		expect( copy ).toHaveProperty( 'formatAxisDuration', expect.any( Function ) );
+		expect( copy.formatAxisDuration( milliseconds ) ).toBe( expected );
+		expect( copy.formatDuration( 30_000 ) ).toBe( 'Less than 1 minute' );
+	} );
+
+	it( 'localizes compact chart units and decimal separators', () => {
+		const i18n = setupI18n( { locale: 'fr', messages: { fr: {} } } );
+		const copy = createStatisticsCopy( i18n, createLocalizationFormatters( 'fr' ) );
+		expect( copy ).toHaveProperty( 'formatAxisDuration', expect.any( Function ) );
+		expect( copy.formatAxisDuration( 90_000 ) ).toBe( '1,5min' );
+	} );
 	it( 'creates statistics copy and formats its metrics', () => {
 		const copy = createStatisticsCopy( createTestI18n(), createLocalizationFormatters( 'en' ) );
 
