@@ -6,6 +6,7 @@ import { TestEmptyProtectionConfiguration } from '../../../src/domains/protectio
 import { StoredDurableProtectionStateSchema, type StoredDurableProtectionState } from '../../../src/domains/protection/types/stored-protection-state';
 import { ProtectionStorageEnvelopeSchema } from '../../../src/domains/protection/services/protection-storage/types';
 import { createMockStatisticsDocument } from '../../../src/domains/statistics/types/__fixtures__/statistics-document';
+import { DefaultProtectionScopeId } from '../../../src/domains/protection/types/protection-value';
 
 /**
  * Reads the authoritative durable document from the disposable extension worker.
@@ -98,6 +99,65 @@ test.describe( 'packaged Chrome protection', () => {
 			await page.close();
 		}
 	} );
+
+	for ( const clickLink of [ false, true ] ) {
+		test( `opens the breathing screen from a loading allowed page via ${ clickLink ? 'a link' : 'direct navigation' }`, async ( { context, worker, page } ) => {
+			const allowedUrl = 'https://allowed.test/loading';
+			const pendingResourceUrl = 'https://allowed.test/pending.js';
+			const destination = 'https://example.test/from-loading-page';
+			let releasePendingResource: ( () => void ) | undefined;
+			const pendingResource = new Promise<void>( ( resolve ) => {
+				releasePendingResource = resolve;
+			} );
+			let resourceRequested = false;
+			let allowedRequests = 0;
+			await context.route( allowedUrl, ( route ) => {
+				allowedRequests += 1;
+				return route.fulfill( {
+					contentType: 'text/html',
+					body: `<!doctype html><html lang="en"><title>Allowed website</title><body><h1>Still loading</h1><a href="${ destination }">Protected website</a><script async src="${ pendingResourceUrl }"></script></body></html>`,
+				} );
+			} );
+			await context.route( pendingResourceUrl, async ( route ) => {
+				resourceRequested = true;
+				await pendingResource;
+				await route.fulfill( { contentType: 'application/javascript', body: '' } );
+			} );
+
+			try {
+				await worker.evaluate( async ( configuration ) => {
+					const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+					await chrome.storage.local.set( { 'tocus.protection.configuration.v1': configuration } );
+				}, {
+					...TestEmptyProtectionConfiguration,
+					sites: [ { identityHost: 'example.test', rule: { host: 'example.test', includeSubdomains: true, scopeId: DefaultProtectionScopeId } } ],
+				} );
+				await expect.poll( () => worker.evaluate( async () => {
+					const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+					return chrome.declarativeNetRequest.getDynamicRules();
+				} ) ).toEqual( expect.arrayContaining( [ expect.objectContaining( {
+					action: { type: 'redirect', redirect: { extensionPath: '/pause.html' } },
+					condition: { urlFilter: '||example.test^', resourceTypes: [ 'main_frame' ] },
+				} ) ] ) );
+				await page.goto( allowedUrl, { waitUntil: 'domcontentloaded' } );
+				await expect.poll( () => resourceRequested ).toBe( true );
+				expect( await page.evaluate( () => document.readyState ) ).toBe( 'interactive' );
+				await page.bringToFront();
+				if ( clickLink ) {
+					await page.getByRole( 'link', { name: 'Protected website' } ).click( { noWaitAfter: true } );
+				} else {
+					await page.goto( destination, { waitUntil: 'commit' } );
+				}
+				await expect( page.getByRole( 'region', { name: /^Breathe (?:in|out)$/u } ) ).toBeVisible();
+				await expect( page.locator( 'tocus-f-interruption-screen' ) ).toHaveAttribute( 'progressing', '' );
+				await expect( page ).toHaveURL( /\/pause\.html$/u );
+				expect( allowedRequests ).toBe( 1 );
+			} finally {
+				// The isolated context owns its routes, including the fixture's external-request block.
+				releasePendingResource?.();
+			}
+		} );
+	}
 
 	test( 'keeps a redacted pause tab calm while its accepted destination remains pending', async ( { context, worker, page } ) => {
 		// Phase limits total 70 seconds; allow ten for worker readiness and ten for orchestration.

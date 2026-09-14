@@ -222,6 +222,18 @@ export function createProtectionNavigationHandler(
 			? pendingDestination
 			: navigation.url;
 
+		if ( navigation.phase === ProtectionRuntimeNavigationPhase.ERROR_OCCURRED ) {
+			const states = await options.coordinator.getStates();
+			const context = states === null ? null : findRuntimeParticipantContext( states, navigation.tabId );
+			const ownedDestination = pendingDestination ?? context?.participant.retainedDestination;
+
+			// Canceling a still-loading document can report its error after the next navigation starts.
+			// Only that navigation's error may clear its pending destination or remove its participant.
+			if ( ownedDestination !== undefined && destination !== ownedDestination ) {
+				return;
+			}
+		}
+
 		if ( ! await isTabProtectionEligible( navigation.tabId ) ) {
 			pendingDestinationsByTabId.delete( navigation.tabId );
 			await Promise.all( [
