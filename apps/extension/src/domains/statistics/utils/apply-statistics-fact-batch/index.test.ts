@@ -75,6 +75,7 @@ function createBatchOperation(
 	return ApplyStatisticsFactBatchOperationSchema.parse( {
 		type: 'apply-fact-batch',
 		batch: {
+			observedLocalDate: '2026-09-14',
 			batchId,
 			scopeId,
 			measurementRevision,

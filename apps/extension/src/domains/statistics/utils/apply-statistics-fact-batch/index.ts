@@ -6,11 +6,12 @@ import {
 	type ReconsideredVisitFact,
 } from '../../../protection/types/protection-fact';
 import type { ProtectionMeasurementRevision } from '../../../protection/types/protection-value';
-import type { StatisticsDocument, ScopeStatistics } from '../../types/statistics-document';
+import { StatisticsRetentionDays, type StatisticsDocument, type ScopeStatistics } from '../../types/statistics-document';
 import type { ApplyStatisticsFactBatchOperation } from '../../types/statistics-operation';
 import { addStatisticsValues } from '../add-statistics-values';
 import { createEmptyScopeStatistics } from '../create-statistics-document';
 import { finalizeExpiredStatisticsAllowance } from '../finalize-statistics-allowance';
+import { shiftStatisticsDate } from '../statistics-calendar-date';
 
 /**
  * Applies one pause-time fact to scope totals.
@@ -156,6 +157,7 @@ export function applyStatisticsFactBatch(
 	operation: ApplyStatisticsFactBatchOperation,
 ): StatisticsDocument {
 	const { batch } = operation;
+	const localDate = batch.observedLocalDate;
 
 	if ( document.lastAppliedBatchId === batch.batchId ) {
 		return document;
@@ -173,9 +175,43 @@ export function applyStatisticsFactBatch(
 		scope = applyStatisticsFact( scope, fact, batch.measurementRevision );
 	}
 
+	const lastRetainedDate = document.dailyTotals.at( -1 )?.date ?? localDate;
+	const latestDate = localDate > lastRetainedDate ? localDate : lastRetainedDate;
+	const earliestRetainedDate = shiftStatisticsDate( latestDate, 1 - StatisticsRetentionDays );
+	const dailyTotals = document.dailyTotals.filter( ( day ) => day.date >= earliestRetainedDate );
+
+	if ( localDate >= earliestRetainedDate ) {
+		const existingDay = dailyTotals.find( ( day ) => day.date === localDate );
+		let dailyScope = createEmptyScopeStatistics();
+
+		if ( existingDay !== undefined ) {
+			const { date: _date, ...totals } = existingDay;
+			void _date;
+			dailyScope = { totals };
+		}
+
+		for ( const fact of batch.facts ) {
+			dailyScope = applyStatisticsFact( dailyScope, fact, batch.measurementRevision );
+		}
+
+		const updatedDay = { date: localDate, ...dailyScope.totals };
+		const existingIndex = dailyTotals.findIndex( ( day ) => day.date === localDate );
+
+		if ( existingIndex < 0 ) {
+			dailyTotals.push( updatedDay );
+		} else {
+			dailyTotals[ existingIndex ] = updatedDay;
+		}
+
+		dailyTotals.sort( ( left, right ) => left.date.localeCompare( right.date ) );
+	}
+
 	return {
 		...document,
 		lastAppliedBatchId: batch.batchId,
+		firstRecordedDate: document.firstRecordedDate === null || localDate < document.firstRecordedDate
+			? localDate : document.firstRecordedDate,
+		dailyTotals,
 		scopes: {
 			...document.scopes,
 			[ batch.scopeId ]: scope,
