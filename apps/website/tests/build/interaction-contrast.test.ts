@@ -1,12 +1,37 @@
 import { TocusAppearance, TocusPalette } from '@tocus/ui/types';
 import { ForegroundSource, type ContrastMeasurement } from './types';
 import { fileURLToPath } from 'node:url';
-import { chromium, firefox, webkit, type Locator, type Page, type Route } from 'playwright';
-import { describe, expect, test } from 'vitest';
+import { expect, test as base, type Locator, type Page, type Route } from '@playwright/test';
 
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 const PublicRoutes = [ '/', '/de/', '/es/', '/es-ar/', '/fr/', '/it/', '/ja/', '/pt-br/', '/pt-pt/', '/ru/' ] as const;
-const ColorSchemes = [ TocusAppearance.LIGHT, TocusAppearance.DARK ] as const;
+
+const websiteTest = base.extend( {
+	/**
+	 * Audits local hydration and asset requests throughout each isolated page test.
+	 * @param fixtures - Playwright's browser fixtures.
+	 * @param fixtures.page - Disposable browser page.
+	 * @param use - Runs the test before checking the recorded browser failures.
+	 */
+	page: async ( { page }, use ) => {
+		const errors: string[] = [];
+		const externalRequests: string[] = [];
+		page.on( 'pageerror', ( error ) => {
+			errors.push( error.message );
+		} );
+		page.context().on( 'request', ( request ) => {
+			if ( new URL( request.url() ).origin !== 'http://website.test' ) {
+				externalRequests.push( request.url() );
+			}
+		} );
+		await page.context().route( 'http://website.test/**', fulfillWebsiteAsset );
+		await use( page );
+		expect( errors, 'Website hydration must not raise browser errors.' ).toEqual( [] );
+		expect( externalRequests, 'Website assets must stay local.' ).toEqual( [] );
+	},
+} );
+
+websiteTest.use( { colorScheme: TocusAppearance.LIGHT, contextOptions: { reducedMotion: 'reduce' } } );
 
 /**
  * Serves one generated website asset to the disposable browser.
@@ -18,6 +43,18 @@ async function fulfillWebsiteAsset( route: Route ): Promise<void> {
 	const pathname = request.pathname.endsWith( '/' ) ? `${ request.pathname }index.html` : request.pathname;
 
 	await route.fulfill( { path: fileURLToPath( new URL( `.${ pathname }`, WebsiteOutput ) ) } );
+}
+
+/**
+ * Opens one generated locale and waits for its real hydration to finish.
+ * @param page - Disposable browser page.
+ * @param route - Generated locale route.
+ * @return Promise resolved when the light homepage is interactive.
+ */
+async function openHomepage( page: Page, route: string ): Promise<void> {
+	await page.goto( `http://website.test${ route }` );
+	await expect( page.locator( '.homepage' ) ).toHaveAttribute( 'data-enhanced', 'true' );
+	await expect( page.locator( '[data-tocus-ui]' ).first() ).toHaveAttribute( 'data-tocus-theme', TocusAppearance.LIGHT );
 }
 
 /**
@@ -47,7 +84,7 @@ async function focusNextControl( page: Page, locator: Locator, label: string ): 
 	const key = process.platform === 'darwin' && page.context().browser()?.browserType().name() === 'webkit'
 		? 'Alt+Tab' : 'Tab';
 	await page.keyboard.press( key );
-	expect( await locator.evaluate( ( element ) => element === document.activeElement ), label ).toBe( true );
+	await expect( locator, label ).toBeFocused();
 	await settleControl( locator );
 }
 
@@ -182,73 +219,68 @@ async function measureContrast(
 	}, { foregroundSource: source, sources: ForegroundSource } );
 }
 
-describe( 'generated website interaction contrast', () => {
-	for ( const engine of [ chromium, firefox, webkit ] ) {
-		for ( const colorScheme of ColorSchemes ) {
-			test( `${ engine.name() }: ${ colorScheme } routes support keyboard and local hydration`, async () => {
-				const browser = await engine.launch();
-				const context = await browser.newContext( { colorScheme, reducedMotion: 'reduce' } );
-				const errors: string[] = [];
-				const externalRequests: string[] = [];
-				context.on( 'request', ( request ) => {
-					if ( new URL( request.url() ).origin !== 'http://website.test' ) {
-						externalRequests.push( request.url() );
+for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
+	const test = websiteTest.extend( { browserName } );
+	test.describe( browserName, () => {
+		test.describe( 'generated website interaction contrast', () => {
+			// Locales share control styles, and the homepage explicitly selects light appearance.
+			// Audit every palette and native interaction once per engine on the English route.
+			for ( const palette of Object.values( TocusPalette ) ) {
+				test( `${ palette }: controls preserve text and keyboard-focus contrast`, async ( { page } ) => {
+					await openHomepage( page, '/' );
+					await page.locator( '[data-tocus-ui]' ).first().evaluate( ( root, value ) => {
+						root.setAttribute( 'data-tocus-palette', value );
+					}, palette );
+					const alternatives = page.locator( '.hero-actions .store-alternatives a' );
+					await expect( alternatives ).toHaveCount( 2 );
+					for ( const [ name, target ] of [
+						[ 'source link', page.locator( '.open-source a' ).first() ],
+						[ 'header download', page.locator( '.site-header [data-download-primary]' ) ],
+						[ 'download action', page.locator( '.hero-actions [data-download-primary]' ) ],
+						[ 'first alternate browser', alternatives.nth( 0 ) ],
+						[ 'second alternate browser', alternatives.nth( 1 ) ],
+						[ 'language menu', page.locator( '#languages .language-shortcut' ) ],
+					] as const ) {
+						await test.step( name, async () => {
+							await page.mouse.move( 0, 0 );
+							await settleControl( target );
+							expect( ( await measureContrast( target ) ).ratio, `${ palette } ${ name } normal` ).toBeGreaterThanOrEqual( 4.5 );
+							await target.hover();
+							await settleControl( target );
+							expect( ( await measureContrast( target ) ).ratio, `${ palette } ${ name } hover` ).toBeGreaterThanOrEqual( 4.5 );
+							await focusControl( page, target, `${ palette } ${ name } keyboard focus` );
+							expect( ( await measureContrast( target, ForegroundSource.OUTLINE ) ).ratio, `${ palette } ${ name } focus` ).toBeGreaterThanOrEqual( 3 );
+						} );
 					}
 				} );
-				await context.route( 'http://website.test/**', fulfillWebsiteAsset );
-				const page = await context.newPage();
-				page.on( 'pageerror', ( error ) => {
-					errors.push( error.message );
-				} );
+			}
+		} );
 
-				try {
-					for ( const route of PublicRoutes ) {
-						await page.goto( `http://website.test${ route }` );
-						await page.waitForFunction( ( scheme ) =>
-							document.querySelector( '[data-tocus-ui]' )?.getAttribute( 'data-tocus-theme' ) === scheme,
-						TocusAppearance.LIGHT );
-						const headerDownload = page.locator( '.site-header [data-download-primary]' );
-						const sourceLink = page.locator( '.open-source a' ).first();
-						const downloadAction = page.locator( '.hero-actions [data-download-primary]' );
-						const alternatives = page.locator( '.hero-actions .store-alternatives a' );
-						const firstStoryStep = page.locator( '.story-step-action' ).first();
-						const languageButton = page.locator( '#languages .language-shortcut' );
-						expect( await alternatives.count() ).toBe( 2 );
-						await focusNextControl( page, page.locator( '.skip-link' ), `${ route } skip link` );
-						await focusNextControl( page, headerDownload, `${ route } header download link` );
-						await focusNextControl( page, downloadAction, `${ route } download action` );
-						await focusNextControl( page, alternatives.nth( 0 ), `${ route } first alternate browser` );
-						await focusNextControl( page, alternatives.nth( 1 ), `${ route } second alternate browser` );
-						await focusNextControl( page, firstStoryStep, `${ route } first story chapter` );
-						for ( const palette of Object.values( TocusPalette ) ) {
-							await page.locator( '[data-tocus-ui]' ).first().evaluate( ( root, value ) => {
-								root.setAttribute( 'data-tocus-palette', value );
-							}, palette );
-							for ( const target of [ sourceLink, headerDownload, downloadAction,
-								alternatives.nth( 0 ), alternatives.nth( 1 ), languageButton ] ) {
-								await page.mouse.move( 0, 0 );
-								await settleControl( target );
-								expect( ( await measureContrast( target ) ).ratio, `${ route } ${ palette } normal` ).toBeGreaterThanOrEqual( 4.5 );
-								await target.hover();
-								await settleControl( target );
-								expect( ( await measureContrast( target ) ).ratio, `${ route } ${ palette } hover` ).toBeGreaterThanOrEqual( 4.5 );
-								await focusControl( page, target, `${ route } ${ palette } keyboard focus` );
-								expect( ( await measureContrast( target, ForegroundSource.OUTLINE ) ).ratio, `${ route } ${ palette } focus` ).toBeGreaterThanOrEqual( 3 );
-							}
-						}
-						await page.setViewportSize( { width: 360, height: 800 } );
-						const fitsViewport = await page.evaluate(
-							() => document.documentElement.scrollWidth <= window.innerWidth,
-						);
-						expect( fitsViewport ).toBe( true );
-						await page.setViewportSize( { width: 1280, height: 900 } );
-					}
-					expect( errors ).toEqual( [] );
-					expect( externalRequests ).toEqual( [] );
-				} finally {
-					await browser.close();
-				}
-			}, 180_000 );
-		}
-	}
-} );
+		test.describe( 'generated website locales', () => {
+			for ( const route of PublicRoutes ) {
+				test( `${ route }: supports keyboard order, local hydration and mobile layout`, async ( { page } ) => {
+					await openHomepage( page, route );
+					const alternatives = page.locator( '.hero-actions .store-alternatives a' );
+					await expect( alternatives ).toHaveCount( 2 );
+					await focusNextControl( page, page.locator( '.skip-link' ), `${ route } skip link` );
+					await focusNextControl( page, page.locator( '.site-header [data-download-primary]' ), `${ route } header download link` );
+					await focusNextControl( page, page.locator( '.hero-actions [data-download-primary]' ), `${ route } download action` );
+					await focusNextControl( page, alternatives.nth( 0 ), `${ route } first alternate browser` );
+					await focusNextControl( page, alternatives.nth( 1 ), `${ route } second alternate browser` );
+					await focusNextControl( page, page.locator( '.story-step-action' ).first(), `${ route } first story chapter` );
+					await expect( page.locator( '#languages .language-shortcut' ) ).toBeVisible();
+					await page.setViewportSize( { width: 360, height: 800 } );
+					await page.evaluate( () => document.fonts.ready );
+					await expect.poll( () => page.evaluate(
+						() => document.documentElement.scrollWidth <= window.innerWidth,
+					), { message: `${ route } fits the mobile viewport` } ).toBe( true );
+				} );
+			}
+		} );
+
+		test( 'homepage remains light with a dark operating-system preference', async ( { page } ) => {
+			await page.emulateMedia( { colorScheme: TocusAppearance.DARK } );
+			await openHomepage( page, '/' );
+		} );
+	} );
+}

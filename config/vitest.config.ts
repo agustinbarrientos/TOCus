@@ -115,9 +115,12 @@ export default defineConfig( {
 			{
 				test: {
 					name: 'build-contract',
-					// Browser contracts launch multiple native processes per worker, so CPU count overstates capacity.
 					maxWorkers: 2,
 					include: [ 'apps/{extension,website}/tests/build/**/*.{test,spec}.{ts,tsx,mjs}' ],
+					// Native browser journeys belong to Playwright Test, not the Node artifact-validation pool.
+					exclude: [
+						'apps/website/tests/build/interaction-contrast.test.ts',
+					],
 				},
 			},
 		],
