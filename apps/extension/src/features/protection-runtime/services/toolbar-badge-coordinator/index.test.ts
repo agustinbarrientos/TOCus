@@ -105,10 +105,7 @@ const MULTI_SCOPE_CONFIGURATION: ProtectionConfigurationDocument = {
 			},
 		},
 	],
-	schedulesByScope: {
-		...CONFIGURATION.schedulesByScope,
-		[ SECOND_SCOPE_ID ]: { mode: 'always' },
-	},
+	schedule: { mode: 'always' },
 	measurementRevisionsByScope: {
 		...CONFIGURATION.measurementRevisionsByScope,
 		[ SECOND_SCOPE_ID ]: ProtectionMeasurementRevisionSchema.parse( 'revision_secondary' ),

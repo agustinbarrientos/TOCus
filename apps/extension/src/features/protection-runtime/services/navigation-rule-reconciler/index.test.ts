@@ -7,6 +7,7 @@ import {
 	ProtectionStateType,
 } from '../../../../domains/protection/types/protection-state';
 import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
+import { ScheduleMode, Weekday } from '../../../../domains/protection/types/protection-schedule';
 import { createNavigationRuleReconciler } from './index';
 
 /** Protected-site configuration used by navigation-rule fixtures. */
@@ -19,6 +20,56 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
 };
 
 describe( 'createNavigationRuleReconciler', () => {
+	it( 'uses website schedules independently while one browsing allowance covers both websites', async () => {
+		let rules: Browser.declarativeNetRequest.Rule[] = [];
+		let now = Date.UTC( 2026, 8, 14, 9 );
+		const reconciler = createNavigationRuleReconciler( {
+			/**
+			 * Retains the emitted browser redirects.
+			 * @param nextRules - Dynamic browser redirects to install.
+			 * @return Resolved browser mutation.
+			 */
+			replaceNavigationRules: ( nextRules ) => {
+				rules = nextRules; return Promise.resolve();
+			},
+			/**
+			 * Returns the deterministic time zone.
+			 * @return Test time zone.
+			 */
+			getTimeZone: () => 'UTC',
+			/**
+			 * Returns the mutable schedule instant.
+			 * @return Test wall-clock instant.
+			 */
+			now: () => now,
+		} );
+		const configuration = {
+			...CONFIGURATION,
+			sites: [ ...CONFIGURATION.sites, {
+				identityHost: 'second.test',
+				rule: { host: 'second.test', includeSubdomains: true, scopeId: DefaultProtectionScopeId },
+				schedule: { mode: ScheduleMode.CUSTOM, windows: [ { weekday: Weekday.MONDAY, startMinute: 600,
+					endMinute: 660 } ] },
+			} ],
+		};
+
+		await reconciler.reconcile( configuration, {} );
+		expect( rules ).toHaveLength( 1 );
+		now = Date.UTC( 2026, 8, 14, 10 );
+		await reconciler.reconcile( configuration, {} );
+		expect( rules ).toHaveLength( 2 );
+		const allowance = AllowanceProtectionStateSchema.parse( {
+			type: ProtectionStateType.ALLOWANCE, scopeId: DefaultProtectionScopeId,
+			allowanceId: 'allowance_shared', completedWaitId: null,
+			startedAtEpochMilliseconds: now, expiresAtEpochMilliseconds: now + 300_000,
+			readyParticipants: [], ladder: { completedWaits: 0, greatestObservedLocalDate: '2026-09-14' },
+		} );
+		await reconciler.reconcile( configuration, { [ DefaultProtectionScopeId ]: allowance } );
+		expect( rules ).toEqual( [] );
+		now += 300_000;
+		await reconciler.reconcile( configuration, { [ DefaultProtectionScopeId ]: allowance } );
+		expect( rules ).toHaveLength( 2 );
+	} );
 	it( 'keeps scheduled rules active outside an allowance', async () => {
 		let rules: Browser.declarativeNetRequest.Rule[] = [];
 		const reconciler = createNavigationRuleReconciler( {

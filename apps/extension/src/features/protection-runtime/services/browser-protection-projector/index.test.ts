@@ -685,11 +685,9 @@ describe( 'createBrowserProtectionProjector', () => {
 		const projector = createProjector( browser, new ProjectorCoordinatorFixture( {} ) );
 		const configuration: ProtectionConfigurationDocument = {
 			...CONFIGURATION,
-			schedulesByScope: {
-				[ DefaultProtectionScopeId ]: {
-					mode: 'custom',
-					windows: [ { weekday: Weekday.THURSDAY, startMinute: 17, endMinute: 18 } ],
-				},
+			schedule: {
+				mode: 'custom',
+				windows: [ { weekday: Weekday.THURSDAY, startMinute: 17, endMinute: 18 } ],
 			},
 		};
 
@@ -715,11 +713,9 @@ describe( 'createBrowserProtectionProjector', () => {
 		const projector = createProjector( browser, new ProjectorCoordinatorFixture( {} ) );
 		const configuration: ProtectionConfigurationDocument = {
 			...CONFIGURATION,
-			schedulesByScope: {
-				[ DefaultProtectionScopeId ]: {
-					mode: 'custom',
-					windows: [ { weekday: Weekday.THURSDAY, startMinute: 17, endMinute: 18 } ],
-				},
+			schedule: {
+				mode: 'custom',
+				windows: [ { weekday: Weekday.THURSDAY, startMinute: 17, endMinute: 18 } ],
 			},
 		};
 
