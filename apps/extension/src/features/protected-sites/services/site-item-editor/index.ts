@@ -1,7 +1,7 @@
 import { ProtectionConfigurationEditStatus } from '../../../../domains/protection/services/protection-configuration-editor';
-import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
 import { ProtectedSiteItemOperationErrorReason } from '../../components/site-item/types';
-import { resolveSiteDisplayIdentity } from '../../utils/site-display-name-resolver';
+import { createWebsiteDetails } from '../../utils/website-draft';
+import { toSchedule } from '../../../settings/utils/schedule-draft';
 import type { SiteItemEditor, SiteItemEditorOptions, SiteItemEditorSnapshot } from './types';
 
 /**
@@ -12,8 +12,7 @@ import type { SiteItemEditor, SiteItemEditorOptions, SiteItemEditorSnapshot } fr
  */
 export function createSiteItemEditor( options: SiteItemEditorOptions ): SiteItemEditor {
 	const initial: SiteItemEditorSnapshot = { editing: false, saving: false, error: null,
-		displayName: options.site.displayNameOverride ?? resolveSiteDisplayIdentity( options.site ).name,
-		independent: options.site.rule.scopeId !== DefaultProtectionScopeId };
+		details: createWebsiteDetails( options.site ) };
 	let snapshot = initial;
 	const listeners = new Set<() => void>();
 
@@ -43,8 +42,8 @@ export function createSiteItemEditor( options: SiteItemEditorOptions ): SiteItem
 		publish( { saving: true, error: null } );
 		try {
 			const result = await options.editor.update( options.site.identityHost,
-				snapshot.displayName,
-				snapshot.independent );
+				snapshot.details.displayName,
+				snapshot.details.schedule === null ? undefined : toSchedule( snapshot.details.schedule ) );
 			if ( result.status === ProtectionConfigurationEditStatus.REJECTED ) {
 				publish( { error: ProtectedSiteItemOperationErrorReason.CONFIGURATION_CHANGED } );
 			} else {
@@ -87,11 +86,10 @@ export function createSiteItemEditor( options: SiteItemEditorOptions ): SiteItem
 		},
 		/**
 		 * Updates editable fields and clears an error belonging to the previous attempt.
-		 * @param displayName - Raw name displayed by the item-owned text field.
-		 * @param independent - Whether the draft requests a separate scope.
+		 * @param details - Controlled name and active-time override.
 		 */
-		change: ( displayName, independent ) => {
-			publish( { displayName, independent, error: null } );
+		change: ( details ) => {
+			publish( { details, error: null } );
 		},
 		save,
 	};
