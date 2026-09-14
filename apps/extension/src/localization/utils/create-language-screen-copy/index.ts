@@ -21,9 +21,7 @@ export function createLanguageScreenCopy( i18n: I18n ): Readonly<LanguageScreenC
 	}
 
 	return Object.freeze( {
-		eyebrow: i18n._( msg`Personalization` ),
 		title: i18n._( msg`Language` ),
-		introduction: i18n._( msg`Choose the language TOCus uses across the extension.` ),
 		formLabel: i18n._( msg`Language preference` ),
 		languageLabel: i18n._( msg`TOCus language` ),
 		languageLabels: Object.freeze( {

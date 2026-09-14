@@ -20,7 +20,7 @@ export function createAboutScreenCopy( i18n: I18n ): Readonly<AboutScreenCopy> {
 	}
 
 	return Object.freeze( {
-		eyebrow: i18n._( msg`About` ),
+		title: i18n._( msg`About` ),
 		storyTitle: i18n._( msg`Made for a very interesting internet` ),
 		creator: i18n._( msg`Developed by ${ { name: 'Agustin Barrientos' } }` ),
 		summary: i18n._( msg`The internet is full of wonderful things. Sometimes, they all want your attention at once. I built TOCus to help anyone who feels overwhelmed by it all: a gentle pause to breathe, step back, and choose what comes next.` ),
