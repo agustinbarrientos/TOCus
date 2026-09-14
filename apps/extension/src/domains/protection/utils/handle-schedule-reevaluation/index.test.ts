@@ -11,10 +11,28 @@ import {
 	createIdleState,
 	createWaitingState,
 	createReadyState,
+	createNavigationParticipant,
 } from '../../types/__fixtures__/protection-state';
 import { handleScheduleReevaluation } from './index';
 
 describe( 'schedule-reevaluation transition', () => {
+	it( 'removes only the participant whose website schedule deactivates', () => {
+		const state = createWaitingState();
+		state.participants.push( createNavigationParticipant( 'participant-b', 'page-b', false, 1 ) );
+		const event = createScheduleReevaluation( { status: ScheduleEvaluationStatus.INACTIVE }, {
+			participantId: 'participant-b', pageId: 'page-b',
+		} );
+		const result = handleScheduleReevaluation( state, event );
+
+		expect( result.state ).toEqual( { ...state, participants: [ state.participants[ 0 ] ] } );
+		expect( result.decisions ).toEqual( [ {
+			type: ProtectionDecisionType.RELEASE_NAVIGATION,
+			participantId: 'participant-b',
+			pageId: 'page-b',
+			retainedDestination: 'https://example.com/page-b',
+		} ] );
+		expect( result.facts ).toEqual( [] );
+	} );
 	it( 'withdraws a pending allowance when the schedule deactivates', () => {
 		const state = createReadyState();
 		const result = handleScheduleReevaluation( state, createScheduleReevaluation(
@@ -28,6 +46,12 @@ describe( 'schedule-reevaluation transition', () => {
 		} );
 		expect( result.decisions ).toEqual( [ { type: ProtectionDecisionType.RELEASE_NAVIGATION, participantId: 'participant-a', pageId: 'page-a', retainedDestination: 'https://example.com/page-a' } ] );
 		expect( result.facts ).toEqual( [] );
+	} );
+
+	it( 'ignores a stale participant identity without changing another website', () => {
+		const state = createWaitingState();
+		const result = handleScheduleReevaluation( state, createScheduleReevaluation( undefined, { pageId: 'page-stale' } ) );
+		expect( result ).toEqual( { state, decisions: [], facts: [] } );
 	} );
 
 	it( 'accepts exactly one validated schedule-reevaluation event branch', () => {
@@ -58,35 +82,20 @@ describe( 'schedule-reevaluation transition', () => {
 	it.each( [
 		{ status: ScheduleEvaluationStatus.INACTIVE },
 		{ status: ScheduleEvaluationStatus.ERROR, reason: 'invalid-time-zone' as const },
-	] )( 'atomically fails open mixed Waiting participants for $status', ( schedule ) => {
+	] )( 'releases only the inactive owner and preserves another website pause for $status', ( schedule ) => {
 		const state = createWaitingState();
 		state.ladder = createDailyLadder( 9, '2026-08-27' );
 		state.participants.push( createAllowanceExpiryParticipant( 'participant-b', 'page-b', false, 1 ) );
 
 		expect( handleScheduleReevaluation( state, createScheduleReevaluation( schedule ) ) ).toEqual( {
-			state: {
-				type: ProtectionStateType.IDLE,
-				scopeId: 'scope-default',
-				ladder: state.ladder,
-			},
-			decisions: [
-				{
-					type: ProtectionDecisionType.RELEASE_NAVIGATION,
-					participantId: 'participant-a',
-					pageId: 'page-a',
-					retainedDestination: 'https://example.com/page-a',
-				},
-				{
-					type: ProtectionDecisionType.DISMISS_INTERRUPTION,
-					participantId: 'participant-b',
-					pageId: 'page-b',
-				},
-			],
+			state: { ...state, participants: [ state.participants[ 1 ] ], ownerParticipantId: null, ownerEpoch: 2 },
+			decisions: [ { type: ProtectionDecisionType.RELEASE_NAVIGATION, participantId: 'participant-a',
+				pageId: 'page-a', retainedDestination: 'https://example.com/page-a' } ],
 			facts: [],
 		} );
 	} );
 
-	it( 'clears Ready while preserving the allowance interval and failing open each participant', () => {
+	it( 'releases only an inactive Ready website while preserving the shared allowance interval', () => {
 		const state = createAllowanceState();
 		state.readyParticipants.push( createAllowanceExpiryParticipant( 'participant-b', 'page-b', false, 1 ) );
 		const event = createScheduleReevaluation( undefined, {
@@ -94,20 +103,9 @@ describe( 'schedule-reevaluation transition', () => {
 		} );
 
 		expect( handleScheduleReevaluation( state, event ) ).toEqual( {
-			state: { ...state, readyParticipants: [] },
-			decisions: [
-				{
-					type: ProtectionDecisionType.RELEASE_NAVIGATION,
-					participantId: 'participant-a',
-					pageId: 'page-a',
-					retainedDestination: 'https://example.com/page-a',
-				},
-				{
-					type: ProtectionDecisionType.DISMISS_INTERRUPTION,
-					participantId: 'participant-b',
-					pageId: 'page-b',
-				},
-			],
+			state: { ...state, readyParticipants: [ state.readyParticipants[ 1 ] ] },
+			decisions: [ { type: ProtectionDecisionType.RELEASE_NAVIGATION, participantId: 'participant-a',
+				pageId: 'page-a', retainedDestination: 'https://example.com/page-a' } ],
 			facts: [],
 		} );
 	} );

@@ -1,5 +1,6 @@
 import { ProtectionDecisionType, type ProtectionDecision } from '../../types/protection-decision';
 import {
+	DepartureCause,
 	QualifyingDepartureCauseSchema,
 	type ParticipantDepartureEvent,
 } from '../../types/protection-event';
@@ -19,13 +20,13 @@ import { selectOwner } from '../select-protection-owner';
 /**
  * Removes one current participant and updates Waiting ownership or Ready retention.
  * @param state - Current validated protection state for the event scope.
- * @param event - Validated participant-departure event.
+ * @param event - Validated participant-departure state fields; the capture date is coordinator metadata.
  * @return The updated transaction with reconsidered-visit facts when applicable.
  * @since 0.1.0 Initial implementation.
  */
 export function handleParticipantDeparture(
 	state: ProtectionState,
-	event: ParticipantDepartureEvent,
+	event: Omit<ParticipantDepartureEvent, 'observedLocalDate'>,
 ): ProtectionTransitionResult {
 	if ( ! protectionStateMatchesTarget( state, event.target ) ) {
 		return createTransitionResult( state );
@@ -110,10 +111,14 @@ export function handleParticipantDeparture(
 		return createTransitionResult( state );
 	}
 
-	return createTransitionResult( {
-		...state,
-		readyParticipants: state.readyParticipants.filter(
-			( participant ) => participant.participantId !== event.participantId,
-		),
-	} );
+	const readyParticipants = state.readyParticipants.filter(
+		( participant ) => participant.participantId !== event.participantId,
+	);
+	if ( state.type === ProtectionStateType.READY && readyParticipants.length === 0 &&
+		( event.cause === DepartureCause.CONFIGURATION_CHANGE ||
+			event.cause === DepartureCause.SCHEDULE_DEACTIVATION ) ) {
+		return createTransitionResult( { type: ProtectionStateType.IDLE, scopeId: state.scopeId,
+			ladder: state.ladder } );
+	}
+	return createTransitionResult( { ...state, readyParticipants } );
 }
