@@ -30,6 +30,8 @@ import { createToolbarLanguageController } from '../toolbar-language-controller'
 import { createTabAudioController } from '../tab-audio-controller';
 import type { ProtectionBackgroundApplicationOptions, ProtectionBackgroundTabAudioChange } from './types';
 import { InterruptionDocumentPath } from '../../../../shared/utils/interruption-document-url';
+import { createRuntimeLocalDate } from '../../utils/runtime-local-date';
+import type { LocalDate } from '../../../../domains/protection/types/protection-value';
 
 /**
  * Creates one collision-resistant runtime identifier fragment.
@@ -56,6 +58,15 @@ function getCurrentTime(): number {
  */
 function getTimeZone(): string {
 	return Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
+
+/**
+ * Resolves today's date in the current operating-system calendar.
+ * @return Local calendar date.
+ * @since 0.1.0 Initial implementation.
+ */
+function getLocalDate(): LocalDate {
+	return createRuntimeLocalDate( getCurrentTime(), getTimeZone() );
 }
 
 /**
@@ -96,11 +107,10 @@ export function startProtectionBackgroundApplication(
 		/**
 		 * Creates one generation-scoped enrollment before synchronously requesting website access.
 		 * @param siteInput - Website selected through the popup.
-		 * @param independent - Whether the website receives separate timing.
 		 * @return Consent-aware persistence result.
 		 * @since 0.1.0 Initial implementation.
 		 */
-		function addWebsite( siteInput: unknown, independent: boolean ): Promise<ProtectedSiteEnrollmentResult> {
+		function addWebsite( siteInput: unknown ): Promise<ProtectedSiteEnrollmentResult> {
 			const protection = createBrowserProtectionConfigurationEditor( {
 				area: options.browser.storage.local,
 				cryptography: crypto,
@@ -110,7 +120,7 @@ export function startProtectionBackgroundApplication(
 				editor: protection.editor,
 				permissionManager,
 			} );
-			return enrollment.add( siteInput, independent );
+			return enrollment.add( siteInput );
 		}
 
 		createPopupEnrollmentController( {
@@ -150,6 +160,7 @@ export function startProtectionBackgroundApplication(
 	const statisticsRuntime = createStatisticsRuntime( {
 		coordinator,
 		createGenerationId: createStableId,
+		getLocalDate,
 		sessionStorage: statisticsSessionStorage,
 		storage: statisticsStorage,
 	} );

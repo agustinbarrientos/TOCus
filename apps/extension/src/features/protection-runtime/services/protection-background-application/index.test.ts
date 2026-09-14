@@ -246,8 +246,8 @@ describe( 'startProtectionBackgroundApplication', () => {
 			}
 			const firstResult = { status: ProtectedSiteEnrollmentStatus.SAVE_ERROR };
 			enrollment.add.mockResolvedValueOnce( firstResult );
-			const firstAddition = enrollmentOptions.enrollment.add( 'github.com', false );
-			expect( enrollment.add ).toHaveBeenCalledWith( 'github.com', false );
+			const firstAddition = enrollmentOptions.enrollment.add( 'github.com' );
+			expect( enrollment.add ).toHaveBeenCalledWith( 'github.com' );
 			await expect( firstAddition ).resolves.toBe( firstResult );
 			expect( backgroundMocks.createBrowserProtectionConfigurationEditor ).toHaveBeenCalledWith( {
 				area: fakeBrowser.storage.local,
@@ -269,8 +269,8 @@ describe( 'startProtectionBackgroundApplication', () => {
 			const nextEnrollment = { add: vi.fn().mockResolvedValue( nextResult ) };
 			backgroundMocks.createBrowserProtectionConfigurationEditor.mockReturnValueOnce( nextEditor );
 			backgroundMocks.createProtectedSiteEnrollmentService.mockReturnValueOnce( nextEnrollment );
-			const nextAddition = enrollmentOptions.enrollment.add( 'youtube.com', true );
-			expect( nextEnrollment.add ).toHaveBeenCalledWith( 'youtube.com', true );
+			const nextAddition = enrollmentOptions.enrollment.add( 'youtube.com' );
+			expect( nextEnrollment.add ).toHaveBeenCalledWith( 'youtube.com' );
 			await expect( nextAddition ).resolves.toBe( nextResult );
 			expect( backgroundMocks.createBrowserProtectionConfigurationEditor ).toHaveBeenCalledTimes( 2 );
 			expect( backgroundMocks.createProtectedSiteEnrollmentService ).toHaveBeenLastCalledWith( {
@@ -313,6 +313,16 @@ describe( 'startProtectionBackgroundApplication', () => {
 		expect( statisticsRuntimeOptions.sessionStorage ).toBe( statisticsSessionStorage );
 		expect( statisticsRuntimeOptions.storage ).toBe( statisticsStorage );
 		expect( statisticsRuntimeOptions.createGenerationId() ).toEqual( expect.any( String ) );
+		const originalDateOptions = new Intl.DateTimeFormat().resolvedOptions();
+		const dateOptions = vi.spyOn( Intl.DateTimeFormat.prototype, 'resolvedOptions' )
+			.mockReturnValue( { ...originalDateOptions, timeZone: 'America/Bogota' } );
+		expect( statisticsRuntimeOptions.getLocalDate() ).toBe( '2027-01-15' );
+		vi.mocked( Date.now ).mockReturnValue( Date.parse( '2026-09-14T04:59:00Z' ) );
+		expect( statisticsRuntimeOptions.getLocalDate() ).toBe( '2026-09-13' );
+		vi.mocked( Date.now ).mockReturnValue( Date.parse( '2026-09-14T05:01:00Z' ) );
+		expect( statisticsRuntimeOptions.getLocalDate() ).toBe( '2026-09-14' );
+		vi.mocked( Date.now ).mockReturnValue( TestInstant );
+		dateOptions.mockRestore();
 
 		const toolbarLanguageOptions = backgroundMocks.createToolbarLanguageController.mock.calls[ 0 ]?.[ 0 ];
 
