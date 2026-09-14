@@ -232,19 +232,15 @@ describe( 'parseStoredProtectionState', () => {
 		} );
 	} );
 
-	it( 'migrates a valid durable version-one document in memory', () => {
-		const versionOneDurable = {
+	it( 'rejects a version-one document without migrating, emptying or mutating its saved state', () => {
+		const versionOneDurable = freezeDeeply( {
 			schemaVersion: 1,
-			scopes: { 'scope-idle': createStoredDurableScope() },
-		};
+			scopes: { 'scope-allowance': createStoredDurableScope( 'allowance-a' ) },
+		} );
 
 		expect( parseStoredProtectionState( { durable: versionOneDurable } ).durable ).toEqual( {
-			status: StoredProtectionStateParseStatus.CURRENT,
-			state: {
-				schemaVersion: 2,
-				statisticsDelivery: COMPLETE_STATISTICS_DELIVERY,
-				scopes: versionOneDurable.scopes,
-			},
+			status: StoredProtectionStateParseStatus.FAILED,
+			reason: StoredProtectionStateFailureReason.UNSUPPORTED_VERSION,
 		} );
 	} );
 
@@ -295,12 +291,12 @@ describe( 'parseStoredProtectionState', () => {
 		},
 	);
 
-	it( 'categorizes a malformed durable version-one document as invalid', () => {
+	it( 'categorizes a malformed durable version-one document as unsupported', () => {
 		expect( parseStoredProtectionState( {
 			durable: { schemaVersion: 1, scopes: 'invalid' },
 		} ).durable ).toEqual( {
 			status: StoredProtectionStateParseStatus.FAILED,
-			reason: StoredProtectionStateFailureReason.INVALID_STORED_STATE,
+			reason: StoredProtectionStateFailureReason.UNSUPPORTED_VERSION,
 		} );
 	} );
 

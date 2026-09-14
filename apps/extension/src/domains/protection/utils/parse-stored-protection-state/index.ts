@@ -9,8 +9,6 @@ import {
 	type StoredDurableProtectionState,
 } from '../../types/stored-protection-state';
 import {
-	DurableStoredProtectionStateVersionOne,
-	StoredDurableProtectionStateVersionOneSchema,
 	ParsedDurableStoredProtectionStateSchema,
 	ParsedSessionStoredProtectionStateSchema,
 	ParsedStoredProtectionStateSchema,
@@ -71,29 +69,6 @@ function parseDurableStoredProtectionState( input: unknown ): ParsedDurableStore
 
 	if ( versionProbe.success ) {
 		const version = StoredProtectionStateVersionSchema.safeParse( versionProbe.data.schemaVersion );
-
-		if ( version.success && version.data === DurableStoredProtectionStateVersionOne ) {
-			const versionOneState = StoredDurableProtectionStateVersionOneSchema.safeParse( input );
-
-			if ( ! versionOneState.success ) {
-				return ParsedDurableStoredProtectionStateSchema.parse( {
-					status: StoredProtectionStateParseStatus.FAILED,
-					reason: StoredProtectionStateFailureReason.INVALID_STORED_STATE,
-				} );
-			}
-
-			return ParsedDurableStoredProtectionStateSchema.parse( {
-				status: StoredProtectionStateParseStatus.CURRENT,
-				state: {
-					...versionOneState.data,
-					schemaVersion: DurableStoredProtectionStateVersion,
-					statisticsDelivery: {
-						status: StoredProtectionStatisticsDeliveryStatus.COMPLETE,
-						outbox: [],
-					},
-				},
-			} );
-		}
 
 		if ( version.success && version.data !== DurableStoredProtectionStateVersion ) {
 			return ParsedDurableStoredProtectionStateSchema.parse( {
