@@ -353,19 +353,19 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-timing-dark.png",
-    "sha256": "890b1e6a0ed99f8c6203fb8d33d36eb985dfe62bfe3bb347f5e512f88a5f5604"
+    "sha256": "d990abde0e83db857cd4458379f5002cc2a435c93ebaac36c5d9ae11b1ac7e45"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-timing-light.png",
-    "sha256": "eccb262ab468c4fc1b8f7512d8b19a8c0f892876c1032d3b3c7aa0006ad37e07"
+    "sha256": "684e767a8483263077d49fbf05354677ea9c58a03f1e9f1a5a55f73a33458496"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-timing-no-increase-dark.png",
-    "sha256": "9f40fe7c902610618c211871072034b26a7835774931dd936ef56c9f69842e1e"
+    "sha256": "c1e6ebdb4f98340d30fd820e208e621402d089eeacade139e4b038035dfa778c"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-timing-no-increase-light.png",
-    "sha256": "1f05bfeb464b42482a5b8bcb50cf2eb8ccb612a02844bf1ca55324fab386f120"
+    "sha256": "b32a87418bf0326307470e4c26c2bffe2539b51acdd59fd1e05459cef8cd2ae9"
   },
   {
     "path": "apps/extension/src/features/statistics/components/settings-screen/__snapshots__/chromium/statistics-settings-screen-empty-light.png",
