@@ -1,5 +1,17 @@
-import { Button, Input, colorsTuple, createTheme, type CSSVariablesResolver, type VariantColorsResolver } from '@mantine/core';
-import { createElement, Fragment } from 'react';
+import { Button, Input, Loader, colorsTuple, createTheme, type CSSVariablesResolver, type MantineLoaderComponent, type VariantColorsResolver } from '@mantine/core';
+import { createElement } from 'react';
+import { Icon } from './icons';
+import { IconName } from './types';
+
+/**
+ * Renders supplied loading artwork while retaining Mantine's sizing, styles and forwarded ref.
+ * @param props - Native loader attributes supplied by Mantine.
+ * @param props.className - Mantine and consumer composition classes.
+ * @return Decorative spinner in the existing loader surface.
+ */
+const suppliedLoader: MantineLoaderComponent = ( { className = '', ...props } ) => createElement(
+	'span', { ...props, className: `tocus-loader ${ className }` }, createElement( Icon, { name: IconName.SPINNER_THIRD } ),
+);
 
 /**
  * Resolve semantic variants against the active scoped palette.
@@ -89,6 +101,7 @@ export const tocusTheme = createTheme( {
 	colors: { tocus: colorsTuple( 'var(--tocus-color-action)' ) },
 	variantColorResolver: resolveTocusVariant,
 	components: {
+		Loader: Loader.extend( { defaultProps: { loaders: { ...Loader.defaultLoaders, oval: suppliedLoader } } } ),
 		Anchor: { defaultProps: { underline: 'always' } },
 		NavLink: { defaultProps: { variant: 'filled' }, styles: { root: { minHeight: '3rem' } } },
 		Button: { ...Button.extend( {
@@ -102,21 +115,28 @@ export const tocusTheme = createTheme( {
 				fontWeight: 500,
 				'--tocus-button-hover-border': props.color === 'red'
 					? 'var(--tocus-color-danger-hover)' : 'var(--tocus-color-action)',
-				height: props.size === undefined || props.size === 'sm' ? 'var(--tocus-action-height, 2.75rem)' : undefined,
+				height: props.size === undefined || props.size === 'sm'
+					? 'var(--tocus-button-height, var(--tocus-action-height, 2.75rem))' : undefined,
 			} } ),
 		} ), defaultProps: { variant: 'filled', tabIndex: 0, radius: 'var(--tocus-radius-full)', px: '1.5rem' } },
 		CloseButton: { defaultProps: { tabIndex: 0 } },
 		Alert: { defaultProps: { variant: 'light' }, styles: {
-			root: { borderWidth: '0 0 0 4px', borderRadius: 0, padding: '1rem' },
+			root: { borderWidth: '1px', borderRadius: 'var(--tocus-radius-small)',
+				padding: 'var(--tocus-space-4)',
+				marginBlockStart: 'var(--tocus-alert-spacing-before, var(--tocus-alert-spacing, var(--tocus-space-5)))',
+				marginBlockEnd: 'var(--tocus-alert-spacing-after, var(--tocus-alert-spacing, var(--tocus-space-5)))' },
 			message: { color: 'inherit' },
 			icon: { width: '1.25em', height: '1.25em',
-				marginInlineEnd: 'var(--tocus-notice-icon-gap, 0.75rem)',
-				marginTop: '0.125em', justifyContent: 'center' },
+				marginInlineEnd: 'var(--tocus-space-3)',
+				marginTop: 'var(--tocus-alert-icon-offset, 0.125em)', justifyContent: 'center' },
 		} },
 		Checkbox: { defaultProps: { iconColor: 'var(--tocus-color-on-action)' } },
 		Radio: { defaultProps: { iconColor: 'var(--tocus-color-on-action)' } },
-		NativeSelect: { defaultProps: { rightSection: createElement( Fragment ) }, styles: {
-			input: { appearance: 'auto', paddingInline: '1rem' },
+		NativeSelect: { defaultProps: {
+			rightSection: createElement( Icon, { name: IconName.ANGLE_DOWN, className: 'tocus-select-chevron' } ),
+		}, styles: {
+			// Preserve the value inset contributed by the browser's former native arrow appearance.
+			input: { appearance: 'none', paddingInlineStart: 'calc(1rem + 4px)', paddingInlineEnd: '2.5rem' },
 		} },
 		Input: Input.extend( {
 			/**
@@ -137,6 +157,7 @@ export const tocusTheme = createTheme( {
 			},
 		} ),
 		Slider: {
+			defaultProps: { size: 'var(--tocus-space-2)' },
 			styles: {
 				track: { backgroundColor: 'var(--tocus-color-surface-container)' },
 				thumb: {
@@ -148,9 +169,13 @@ export const tocusTheme = createTheme( {
 			},
 		},
 		Modal: {
+			defaultProps: { padding: 'var(--tocus-space-6)' },
 			styles: {
-				content: { backgroundColor: 'var(--tocus-color-surface)' },
-				header: { backgroundColor: 'var(--tocus-color-surface)' },
+				content: { backgroundColor: 'var(--tocus-color-surface)', borderRadius: 'var(--tocus-radius-medium)' },
+				header: { backgroundColor: 'var(--tocus-color-surface)', paddingBottom: 'var(--tocus-space-4)' },
+				title: { fontFamily: 'var(--tocus-font-family-brand)', fontWeight: 700,
+					fontSize: 'var(--tocus-typography-title-large-font-size)',
+					lineHeight: 'var(--tocus-typography-title-large-line-height)' },
 			},
 		},
 		Divider: { styles: { root: { borderColor: 'var(--tocus-color-divider)' } } },
