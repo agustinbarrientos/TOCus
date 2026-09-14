@@ -13,6 +13,9 @@ export default defineConfig( {
 		'website/tests/build/product-demo.test.ts',
 		'website/tests/build/story-motion.test.ts',
 		'website/tests/build/website-navigation.test.ts',
+		'website/tests/build/homepage-mascot.test.ts',
+		'website/tests/build/mascot-prototype.test.ts',
+		'website/tests/build/product-page.test.ts',
 	],
 	// Native browsers share the runner's CPU and memory; never overlap these journeys in CI.
 	workers: 1,

@@ -1,16 +1,16 @@
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { chromium } from 'playwright';
-import { describe, expect, test } from 'vitest';
+import { expect, test } from '@playwright/test';
 
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 
-describe( 'isolated real 3D mascot comparison', () => {
-	test( 'renders local geometry, respects stillness, changes view and disposes after context loss', async () => {
-		const browser = await chromium.launch();
-		const context = await browser.newContext( {
-			viewport: { width: 1440, height: 1100 }, reducedMotion: 'reduce', colorScheme: 'light',
-		} );
+test.describe( 'isolated real 3D mascot comparison', () => {
+	test.use( { contextOptions: {
+		viewport: { width: 1440, height: 1100 }, reducedMotion: 'reduce', colorScheme: 'light',
+	} } );
+
+	test( 'renders local geometry, respects stillness, changes view and disposes after context loss', async ( { context, page } ) => {
+		test.setTimeout( 30000 );
 		context.setDefaultTimeout( 10000 );
 		const externalRequests: string[] = [];
 		const modelRequests: string[] = [];
@@ -32,33 +32,32 @@ describe( 'isolated real 3D mascot comparison', () => {
 			}
 			await route.fulfill( { path: file } );
 		} );
-		try {
-			const page = await context.newPage();
-			const errors: string[] = [];
-			page.on( 'pageerror', ( error ) => errors.push( error.message ) );
-			await page.goto( 'http://website.test/mascot-lab/' );
-			await page.evaluate( () => document.fonts.ready );
-			const canvas = page.getByRole( 'img', { name: 'Interactive 3D capybara prototype' } );
-			expect( await canvas.count() ).toBe( 1 );
-			await page.waitForFunction( () =>
-				document.querySelector( '.mascot-prototype canvas' )?.getAttribute( 'data-status' ) === 'ready',
-			);
-			expect( modelRequests ).toEqual( [ '/models/mascot.glb' ] );
-			expect( await canvas.getAttribute( 'data-animation' ) ).toBe( 'Greeting' );
-			expect( await canvas.getAttribute( 'data-still' ) ).toBe( 'true' );
-			await page.waitForTimeout( 200 );
-			const still = await canvas.getAttribute( 'data-frame' );
-			const frontView = await canvas.screenshot();
-			await page.waitForTimeout( 200 );
-			expect( await canvas.getAttribute( 'data-frame' ) ).toBe( still );
-			await page.evaluate( () => window.dispatchEvent( new PageTransitionEvent( 'pagehide', { persisted: true } ) ) );
-			expect( await canvas.getAttribute( 'data-status' ) ).toBe( 'ready' );
-			await page.evaluate( () => window.dispatchEvent( new PageTransitionEvent( 'pageshow', { persisted: true } ) ) );
-			const turn = page.getByRole( 'slider', { name: 'Turn the 3D model' } );
-			await turn.focus();
-			await page.keyboard.press( 'End' );
-			const turnedView = await canvas.screenshot();
-			expect( turnedView.equals( frontView ) ).toBe( false );
+		const errors: string[] = [];
+		page.on( 'pageerror', ( error ) => errors.push( error.message ) );
+		await page.goto( 'http://website.test/mascot-lab/' );
+		await page.evaluate( () => document.fonts.ready );
+		const canvas = page.getByRole( 'img', { name: 'Interactive 3D capybara prototype' } );
+		expect( await canvas.count() ).toBe( 1 );
+		await page.waitForFunction( () =>
+			document.querySelector( '.mascot-prototype canvas' )?.getAttribute( 'data-status' ) === 'ready',
+		);
+		expect( modelRequests ).toEqual( [ '/models/mascot.glb' ] );
+		expect( await canvas.getAttribute( 'data-animation' ) ).toBe( 'Greeting' );
+		expect( await canvas.getAttribute( 'data-still' ) ).toBe( 'true' );
+		await page.waitForTimeout( 200 );
+		const still = await canvas.getAttribute( 'data-frame' );
+		const frontView = await canvas.screenshot();
+		await page.waitForTimeout( 200 );
+		expect( await canvas.getAttribute( 'data-frame' ) ).toBe( still );
+		await page.evaluate( () => window.dispatchEvent( new PageTransitionEvent( 'pagehide', { persisted: true } ) ) );
+		expect( await canvas.getAttribute( 'data-status' ) ).toBe( 'ready' );
+		await page.evaluate( () => window.dispatchEvent( new PageTransitionEvent( 'pageshow', { persisted: true } ) ) );
+		const turn = page.getByRole( 'slider', { name: 'Turn the 3D model' } );
+		await turn.focus();
+		await page.keyboard.press( 'End' );
+		const turnedView = await canvas.screenshot();
+		expect( turnedView.equals( frontView ) ).toBe( false );
+		await test.step( 'Play and pause the model animation', async () => {
 			const beforePlayback = Number( await canvas.getAttribute( 'data-frame' ) );
 			await page.getByRole( 'button', { name: 'Play animation' } ).click();
 			expect( await canvas.getAttribute( 'data-still' ) ).toBe( 'false' );
@@ -68,6 +67,8 @@ describe( 'isolated real 3D mascot comparison', () => {
 			await page.getByRole( 'button', { name: 'Pause animation' } ).click();
 			expect( await canvas.getAttribute( 'data-still' ) ).toBe( 'true' );
 			expect( ( await canvas.screenshot() ).equals( turnedView ) ).toBe( false );
+		} );
+		await test.step( 'Suspend and resume animation through the page cache', async () => {
 			await page.getByRole( 'button', { name: 'Play animation' } ).click();
 			expect( await canvas.getAttribute( 'data-still' ) ).toBe( 'false' );
 			await page.evaluate( () => window.dispatchEvent( new PageTransitionEvent( 'pagehide', { persisted: true } ) ) );
@@ -79,6 +80,8 @@ describe( 'isolated real 3D mascot comparison', () => {
 			expect( await canvas.getAttribute( 'data-still' ) ).toBe( 'false' );
 			await page.getByRole( 'button', { name: 'Pause animation' } ).click();
 			expect( await canvas.getAttribute( 'data-still' ) ).toBe( 'true' );
+		} );
+		await test.step( 'Observe hidden-page stillness and motion preference changes', async () => {
 			await page.getByRole( 'button', { name: 'Play animation' } ).click();
 			await page.evaluate( () => {
 				Object.defineProperty( document, 'visibilityState', { configurable: true, value: 'hidden' } );
@@ -95,15 +98,14 @@ describe( 'isolated real 3D mascot comparison', () => {
 			await page.emulateMedia( { reducedMotion: 'no-preference' } );
 			await page.emulateMedia( { reducedMotion: 'reduce' } );
 			expect( await canvas.getAttribute( 'data-still' ) ).toBe( 'true' );
+		} );
+		await test.step( 'Keep the reference visible after losing the WebGL context', async () => {
 			await canvas.evaluate( ( element ) => element.dispatchEvent( new Event( 'webglcontextlost' ) ) );
 			expect( await canvas.getAttribute( 'data-status' ) ).toBe( 'unavailable' );
-			expect( await page.getByText( '3D is unavailable in this browser. The reference remains visible.' ).isVisible() )
-				.toBe( true );
-			expect( await page.getByRole( 'img', { name: 'Supplied capybara reference' } ).isVisible() ).toBe( true );
-			expect( errors ).toEqual( [] );
-			expect( externalRequests ).toEqual( [] );
-		} finally {
-			await browser.close();
-		}
-	}, 30000 );
+			await expect( page.getByText( '3D is unavailable in this browser. The reference remains visible.' ) ).toBeVisible();
+			await expect( page.getByRole( 'img', { name: 'Supplied capybara reference' } ) ).toBeVisible();
+		} );
+		expect( errors ).toEqual( [] );
+		expect( externalRequests ).toEqual( [] );
+	} );
 } );

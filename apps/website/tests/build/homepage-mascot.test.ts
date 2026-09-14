@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { chromium, type Route } from 'playwright';
-import { describe, expect, test } from 'vitest';
+import { expect, test, type Route } from '@playwright/test';
 import { MotionPreference } from './types';
 
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
@@ -21,7 +20,7 @@ async function serveAsset( route: Route ): Promise<void> {
 	await route.fulfill( { path: file } );
 }
 
-describe( 'homepage raster mascot', () => {
+test.describe( 'homepage raster mascot', () => {
 	for ( const { viewport, bodyFont } of [
 		{ viewport: { width: 1440, height: 900 } },
 		{ viewport: { width: 1280, height: 720 } },
@@ -33,12 +32,12 @@ describe( 'homepage raster mascot', () => {
 		{ viewport: { width: 1280, height: 720 }, bodyFont: 'monospace' },
 	] ) {
 		for ( const reducedMotion of Object.values( MotionPreference ) ) {
-			test( `${ String( viewport.width ) } (${ bodyFont ?? 'system' }, ${ reducedMotion }): prominent artwork meets the browser without loading a model`, async () => {
-				const browser = await chromium.launch();
-				try {
-					const page = await browser.newPage( {
-						viewport, reducedMotion,
-					} );
+			test.describe( () => {
+				test.use( { contextOptions: {
+					viewport, reducedMotion,
+				} } );
+
+				test( `${ String( viewport.width ) } (${ bodyFont ?? 'system' }, ${ reducedMotion }): prominent artwork meets the browser without loading a model`, async ( { page } ) => {
 					const requests: string[] = [];
 					page.on( 'request', ( request ) => requests.push( request.url() ) );
 					await page.route( '**/*', serveAsset );
@@ -68,26 +67,22 @@ describe( 'homepage raster mascot', () => {
 					expect( await mascot.getAttribute( 'alt' ) ).toBeTruthy();
 					expect( await page.evaluate( () =>
 						document.documentElement.scrollWidth <= window.innerWidth ) ).toBe( true );
-				} finally {
-					await browser.close();
-				}
+				} );
 			} );
 		}
 	}
 
-	test( 'keeps the artwork and direct store links usable without JavaScript', async () => {
-		const browser = await chromium.launch();
-		try {
-			const page = await browser.newPage( { javaScriptEnabled: false } );
+	test.describe( () => {
+		test.use( { contextOptions: { javaScriptEnabled: false } } );
+
+		test( 'keeps the artwork and direct store links usable without JavaScript', async ( { page } ) => {
 			await page.route( '**/*', serveAsset );
 			await page.goto( 'http://website.test/' );
-			expect( await page.locator( '.hero-art img[data-mascot]' ).isVisible() ).toBe( true );
+			await expect( page.locator( '.hero-art img[data-mascot]' ) ).toBeVisible();
 			const download = page.locator( '.hero [data-download-primary]' );
-			expect( await download.isVisible() ).toBe( true );
+			await expect( download ).toBeVisible();
 			expect( await download.getAttribute( 'href' ) ).toMatch( /^https:\/\//u );
 			expect( await page.locator( 'main section' ).count() ).toBeGreaterThanOrEqual( 6 );
-		} finally {
-			await browser.close();
-		}
+		} );
 	} );
 } );
