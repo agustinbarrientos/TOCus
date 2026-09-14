@@ -1,6 +1,5 @@
 import { expect } from '@playwright/test';
 import { SettingsDestination } from '../../services/settings-navigation/types';
-import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
 import { ScheduleMode, Weekday } from '../../../../domains/protection/types/protection-schedule';
 import { test } from '../../utils/browser-test-harness';
 
@@ -23,8 +22,7 @@ test.describe( 'schedule controls', () => {
 		await setting( page, 'rejectSaves', false );
 		await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
 		await page.getByText( 'Schedule saved.', { exact: true } ).waitFor();
-		const schedule = await page.evaluate( ( scope ) =>
-			window.settingsTest.getConfiguration().schedulesByScope[ scope ], DefaultProtectionScopeId );
+		const schedule = await page.evaluate( () => window.settingsTest.getConfiguration().schedule );
 		expect( schedule ).toMatchObject( { mode: ScheduleMode.CUSTOM, windows: [
 			{ weekday: Weekday.MONDAY, startMinute: 1380, endMinute: 1440 },
 			{ weekday: Weekday.TUESDAY, startMinute: 0, endMinute: 60 },
@@ -34,10 +32,15 @@ test.describe( 'schedule controls', () => {
 	test( 'adds and removes staged windows and returns to the saved mode on Discard', async ( { open } ) => {
 		const page = await open( SettingsDestination.SCHEDULE );
 		await page.getByRole( 'radio', { name: 'On a weekly schedule', exact: true } ).click();
+		await expect( page.getByRole( 'button', { name: /^Remove time window/ } ) ).toHaveCount( 0 );
 		await page.getByRole( 'button', { name: 'Add time window', exact: true } ).click();
+		await expect( page.getByRole( 'button', { name: /^Remove time window/ } ) ).toHaveCount( 2 );
+		await expect( page.getByRole( 'button', { name: 'Remove time window 2', exact: true } ).locator( 'svg' ) )
+			.toHaveCount( 1 );
 		expect( await page.getByLabel( 'Start', { exact: true } ).count() ).toBe( 2 );
 		await page.getByRole( 'button', { name: 'Remove time window 2', exact: true } ).click();
 		expect( await page.getByLabel( 'Start', { exact: true } ).count() ).toBe( 1 );
+		await expect( page.getByRole( 'button', { name: /^Remove time window/ } ) ).toHaveCount( 0 );
 		await page.getByRole( 'button', { name: 'Discard', exact: true } ).click();
 		expect( await page.getByRole( 'radio', { name: 'All the time', exact: true } ).isChecked() ).toBe( true );
 		expect( await page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 0 );
