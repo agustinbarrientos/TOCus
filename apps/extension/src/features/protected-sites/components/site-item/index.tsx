@@ -1,50 +1,47 @@
 import {
 	Avatar,
 	Alert,
-	Badge,
+	ActionIcon,
 	Button,
 	Group,
 	Stack,
-	TextInput,
 	Icon,
 	IconName,
 } from '@tocus/ui';
 import {
-	DefaultProtectionScopeId,
-} from '../../../../domains/protection/types/protection-value';
-import {
 	resolveSiteDisplayIdentity,
 } from '../../utils/site-display-name-resolver';
 import {
-	SiteBehavior,
-} from '../site-behavior';
+	WebsiteDetails,
+} from '../website-details';
 import type {
 	WebsiteItemProps,
 } from './types';
 import './style.scss';
 import { Feedback } from '../../../settings/components/feedback';
 import { ProtectedSiteItemOperationErrorReason } from './types';
-import { useEffect, useRef, type SubmitEvent } from 'react';
+import { useState, type SubmitEvent } from 'react';
+import { createWebsiteDetails } from '../../utils/website-draft';
+import { fromSchedule, toSchedule } from '../../../settings/utils/schedule-draft';
+import { ScheduleMode } from '../../../../domains/protection/types/protection-schedule';
 
 
 /**
- * Presents a website identity, its timing scope, and accessible editing or access-recovery actions.
+ * Presents a website identity, its active hours, and accessible editing or access-recovery actions.
  * @param props - Controlled website values, current access and explicit row actions.
  * @return Website identity, denied-access recovery and optional draft editor.
  * @since 0.1.0
  */
 export function WebsiteItem( props: WebsiteItemProps ) {
 	const { site, copy, disabled } = props;
-	const nameInput = useRef<HTMLInputElement>( null );
-	useEffect( () => {
-		if ( props.editing ) {
-			nameInput.current?.focus();
-		}
-	}, [ props.editing ] );
-	const identity = resolveSiteDisplayIdentity( site );
-	const storedIndependent = site.rule.scopeId !== DefaultProtectionScopeId;
-	const independent = props.persistedEditing?.state.independent ?? storedIndependent;
-	const displayName = props.persistedEditing?.state.displayName ?? site.displayNameOverride ?? '';
+	const [ validate, setValidate ] = useState( false );
+	const details = props.persistedEditing?.state.details ?? props.details ?? createWebsiteDetails( site );
+	const identity = resolveSiteDisplayIdentity( { ...site,
+		displayNameOverride: details.displayName.trim() || undefined } );
+	const activeSchedule = details.schedule ?? fromSchedule( props.globalSchedule );
+	const summary = activeSchedule.mode === ScheduleMode.ALWAYS ? props.scheduleCopy.alwaysLabel
+		: activeSchedule.windows.map( ( window ) =>
+			`${ props.scheduleCopy.formatWeekday( window.weekday ) } ${ window.start } - ${ window.fullDay ? '24:00' : window.end }` ).join( ' / ' );
 	const error = props.persistedEditing?.state.error;
 	/**
 	 * Completes the current editor through its existing owner without duplicating persistence.
@@ -55,6 +52,14 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 		if ( disabled ) {
 			return;
 		}
+		setValidate( true );
+		try {
+			if ( details.schedule !== null ) {
+				toSchedule( details.schedule );
+			}
+		} catch {
+			return;
+		}
 		const submit = props.persistedEditing?.save ?? props.onDone ?? props.onEdit;
 		submit();
 	}
@@ -63,58 +68,41 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 			<Stack gap={ 0 }>
 				<Group className="settings-site-row" wrap="nowrap" gap="var(--tocus-space-3)">
 					<Avatar className="tocus-native-avatar" src={ props.favicon }
-						size="2.75rem" radius="var(--tocus-radius-small)" aria-hidden="true">
+						size="2.25rem" radius="var(--tocus-radius-small)" aria-hidden="true">
 						<span className="settings-site-monogram">{ identity.monogram }</span>
 					</Avatar>
 					<div className="settings-site-identity">
 						<h2>{ identity.name }</h2>
 						<p>{ site.rule.host }</p>
+						{ details.schedule !== null && <p className="settings-site-schedule"><Icon name={ IconName.CALENDAR } />{ summary }</p> }
 					</div>
-					<Badge className="settings-site-scope">{ storedIndependent ? copy.independentLabel : copy.sharedLabel }</Badge>
-					<Button className="tocus-native-button" variant="outline" disabled={ disabled } onClick={ props.onEdit }>
-						{ copy.edit }
-					</Button>
+					<ActionIcon className="settings-site-manage" variant="subtle" aria-label={ copy.edit }
+						disabled={ disabled } onClick={ props.onEdit }><Icon name={ IconName.SLIDERS } /></ActionIcon>
 				</Group>
-				<p className="settings-site-boundary">{ copy.formatBoundary( site.rule.host, site.rule.includeSubdomains ) }</p>
 				{ props.confirmation }
-				{ props.accessRequired && <Alert role="status" color="yellow" className="settings-site-access"
-					icon={ <Icon name={ IconName.EXCLAMATION } /> } styles={ {
-						wrapper: { justifyContent: 'space-between' }, body: { display: 'contents' },
-						message: { display: 'contents' }, icon: { marginInlineEnd: 0 },
-					} }>
-					<span>{ copy.accessRequired }</span>
-					<Button className="tocus-native-button" variant="outline" disabled={ props.accessDisabled } onClick={ props.onGrant }>
-						{ props.accessPending ? copy.allowingAccess : copy.allowAccess }
-					</Button>
+				{ props.accessRequired && <Alert role="status" color="yellow" className="settings-site-access tocus-alert-actionable"
+					icon={ <Icon name={ IconName.CIRCLE_EXCLAMATION } /> }>
+					<div className="tocus-alert-layout">
+						<div className="tocus-alert-copy">{ copy.accessRequired }</div>
+						<Group className="tocus-alert-actions">
+							<Button className="tocus-native-button" variant="outline" disabled={ props.accessDisabled } onClick={ props.onGrant }>
+								{ props.accessPending ? copy.allowingAccess : copy.allowAccess }
+							</Button>
+						</Group>
+					</div>
 				</Alert> }
 				{ props.editing && <form className="settings-site-editor" onSubmit={ submitEditor }>
-					<label htmlFor={ `site-name-${ site.identityHost }` }>{ copy.displayNameLabel }</label>
-					<Group className="settings-site-name-control" wrap="nowrap" gap="var(--tocus-space-3)">
-						<TextInput className="tocus-native-field" ref={ nameInput } id={ `site-name-${ site.identityHost }` } value={ displayName }
-							classNames={ { input: 'settings-native-input' } }
-							placeholder={ identity.name } maxLength={ 80 } disabled={ disabled }
-							onChange={ ( event ) => {
-								props.onChange( event.currentTarget.value, independent );
-							} } />
-						<Button className="tocus-native-button" variant="outline" disabled={ disabled }
-							onClick={ () => {
-								props.onChange( '', independent );
-								nameInput.current?.focus();
-							} }>{ copy.useAutomaticName }</Button>
-					</Group>
-					<SiteBehavior stacked copy={ copy } name={ `behavior-${ site.identityHost }` }
-						independent={ independent } disabled={ disabled }
-						onChange={ ( separate ) => {
-							props.onChange( displayName, separate );
-						} } />
-					{ error && <div className="settings-site-feedback">
-						<Feedback nativeError className="tocus-notice-paragraph" error={ error === ProtectedSiteItemOperationErrorReason.CONFIGURATION_CHANGED
+					<WebsiteDetails idPrefix={ `site-${ site.identityHost }` } copy={ copy } scheduleCopy={ props.scheduleCopy }
+						value={ details } disabled={ disabled } validate={ validate || props.validate === true }
+						initiallyExpanded onChange={ props.onChange } />
+					{ error && <Feedback nativeError
+						error={ error === ProtectedSiteItemOperationErrorReason.CONFIGURATION_CHANGED
 							? copy.configurationChangedError : copy.operationError } />
-					</div> }
-					<Group className="settings-site-editor-footer" justify="space-between" gap="var(--tocus-space-2)">
+					}
+					<Group className="tocus-form-actions settings-site-editor-footer" justify="space-between" gap="var(--tocus-space-2)">
 						<Button className="tocus-native-button" color="red"
 							disabled={ disabled } onClick={ props.onRemove }>{ copy.removeSite }</Button>
-						<Group className="tocus-form-actions settings-site-edit-actions" gap="var(--tocus-space-2)">
+						<Group className="settings-site-edit-actions" gap="var(--tocus-space-2)">
 							{ props.persistedEditing && <Button className="tocus-native-button" variant="outline" disabled={ disabled }
 								onClick={ props.persistedEditing.cancel }>{ copy.cancel }</Button> }
 							<Button className="tocus-native-button" type="submit" disabled={ disabled }>

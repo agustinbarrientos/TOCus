@@ -1,3 +1,6 @@
+import type { WebsiteDetailsDraft } from '../../utils/website-draft/types';
+import type { ScheduleScreenCopy } from '../../../settings/components/schedule-screen/types';
+import type { NormalizedSchedule } from '../../../../domains/protection/types/protection-schedule';
 
 import type { ReactNode } from 'react';
 import type {
@@ -120,12 +123,9 @@ export interface ProtectedSiteItemCopy {
 	accessRequestError: string;
 	edit: string;
 	displayNameLabel: string;
-	useAutomaticName: string;
-	behaviorLegend: string;
-	sharedBehavior: string;
-	sharedBehaviorDescription: string;
-	independentBehavior: string;
-	independentBehaviorDescription: string;
+	advancedLabel: string;
+	customScheduleLabel: string;
+	automaticNamePlaceholder: string;
 	saveChanges: string;
 	saving: string;
 	cancel: string;
@@ -134,16 +134,6 @@ export interface ProtectedSiteItemCopy {
 	confirmRemove: string;
 	operationError: string;
 	configurationChangedError: string;
-	sharedLabel: string;
-	independentLabel: string;
-	/**
-	 * Formats the protection boundary shown below one site.
-	 * @param host - Canonical protection host.
-	 * @param includesSubdomains - Whether descendants are protected.
-	 * @return Human-readable boundary explanation.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	formatBoundary( host: string, includesSubdomains: boolean ): string;
 	/**
 	 * Formats one inline removal question.
 	 * @param name - Current resolved display name.
@@ -159,7 +149,7 @@ export interface ProtectedSiteItemCopy {
 export interface ProtectedSiteDraftChangedEventDetail {
 	identityHost: string;
 	displayName?: string;
-	independent?: boolean;
+	schedule?: NormalizedSchedule;
 	removed?: boolean;
 }
 
@@ -173,6 +163,10 @@ export interface WebsiteItemProps {
 	confirmation?: ReactNode;
 	site: ProtectedSiteConfiguration;
 	copy: ProtectedSiteItemCopy;
+	scheduleCopy: ScheduleScreenCopy;
+	globalSchedule: NormalizedSchedule;
+	details?: WebsiteDetailsDraft;
+	validate?: boolean;
 	favicon: string | null;
 	editing: boolean;
 	disabled: boolean;
@@ -183,7 +177,7 @@ export interface WebsiteItemProps {
 	onDone?: () => void;
 	onGrant: () => void;
 	onRemove: () => void;
-	onChange: ( name: string, independent: boolean ) => void;
+	onChange: ( details: WebsiteDetailsDraft ) => void;
 }
 
 /**
