@@ -10,6 +10,7 @@ import type { ReactNode } from 'react';
 export interface WebsiteListProps {
 	copy: ProtectedSiteListCopy;
 	sites: ReadonlyArray<ProtectedSiteConfiguration>;
+	hasCustomSchedule?: ( site: ProtectedSiteConfiguration ) => boolean;
 	/**
 	 * Presents one keyed list item through its actual owning editor boundary.
 	 * @param site - Configuration belonging to the current shared or independent group.
@@ -36,10 +37,6 @@ export interface PresentedProtectedSite {
 export interface ProtectedSiteListCopy {
 	emptyTitle: string;
 	emptyDescription: string;
-	sharedGroupTitle: string;
-	sharedGroupDescription: string;
-	independentGroupTitle: string;
-	independentGroupDescription: string;
 	/**
 	 * Compares two display names using the selected language's collation rules.
 	 * @param firstName - First display name.

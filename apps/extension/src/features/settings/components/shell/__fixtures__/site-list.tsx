@@ -32,6 +32,7 @@ function OriginalWebsiteList() {
 	 */
 	function renderSite( site: ProtectedSiteConfiguration ) {
 		return <PersistedWebsiteItem key={ site.identityHost } site={ site } editor={ null }
+			scheduleCopy={ copy.schedule } globalSchedule={ configuration.schedule }
 			onSaved={ setConfiguration } copy={ copy.protectedSiteItem } favicon={ null } disabled={ false }
 			accessRequired={ ! granted.has( site.identityHost ) } accessPending={ false } accessDisabled={ false }
 			onGrant={ () => {
