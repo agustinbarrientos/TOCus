@@ -2,31 +2,18 @@
 
 [data-tocus-ui] {
 	.preferences-appearance-controls {
-		gap: 2rem;
+		gap: var(--tocus-space-6);
 		container-type: inline-size;
 	}
 
-	.preferences-appearance-controls > :last-child .preferences-section-label {
-		display: flex;
-		align-items: center;
-
-		&::after {
-			flex: 1;
-			border-top: 1px solid var(--tocus-color-divider);
-			content: '';
-		}
-	}
-
 	.preferences-appearance-controls .preferences-section-label {
-		@include typography.apply('label-large');
-
 		display: block;
 	}
 
 	.preferences-appearance-controls .preferences-section-description {
 		@include typography.apply('body-small');
 
-		margin-top: 2.5rem;
+		margin-top: var(--tocus-space-2);
 	}
 
 	.preferences-theme-options {
@@ -39,7 +26,6 @@
 	.preferences-theme-card {
 		display: grid;
 		gap: var(--tocus-space-2);
-		padding: 0;
 		min-width: 0;
 		text-align: center;
 	}
@@ -67,7 +53,7 @@
 		aspect-ratio: 4 / 3;
 		width: 100%;
 		border: 1px solid color-mix(in srgb, var(--tocus-color-on-surface) 12%, transparent);
-		border-radius: calc(var(--tocus-radius-medium) - 0.3rem);
+		border-radius: calc(var(--tocus-radius-medium) - var(--tocus-space-2) - 0.3rem);
 		background: #f8f4ef;
 		color: #2a211d;
 		overflow: hidden;
@@ -144,10 +130,6 @@
 		margin-top: var(--tocus-space-3);
 	}
 
-	.preferences-appearance-controls > :last-child:not(:has(.preferences-section-description)) .preferences-palette-options {
-		margin-top: 2.75rem;
-	}
-
 
 	.preferences-palette-card[data-palette='brown'] {
 		--tocus-choice-background: var(--tocus-color-palette-preview-brown);
@@ -181,8 +163,6 @@
 	}
 
 	.preferences-language-section-label {
-		@include typography.apply('label-large');
-
 		display: block;
 	}
 

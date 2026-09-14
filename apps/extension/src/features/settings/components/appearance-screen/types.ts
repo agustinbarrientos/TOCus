@@ -80,26 +80,14 @@ export interface PreferencesSource {
  * @since 0.1.0 Initial implementation.
  */
 export interface AppearanceScreenCopy extends AppearanceControlsCopy {
-	/** Settings-page eyebrow. */
-	eyebrow: string;
 	/** Settings-page heading. */
 	title: string;
-	/** Settings-page introduction. */
-	introduction: string;
 	/** Accessible label for the complete Settings form. */
 	formLabel: string;
-	/** Required supporting palette explanation on the Settings page. */
-	paletteHelp: string;
 	/** Pause-style section legend. */
 	pauseModeLegend: string;
 	/** Labels and descriptions for every pause-style choice. */
 	pauseModeOptions: Readonly<Record<PauseModeValue, Readonly<AppearanceControlsOptionCopy>>>;
-	/** Accessibility section legend. */
-	accessibilityLegend: string;
-	/** Reduced-motion checkbox label. */
-	reducedMotionLabel: string;
-	/** Reduced-motion checkbox description. */
-	reducedMotionDescription: string;
 	/** Loading-state message. */
 	loading: string;
 	/** Malformed-data recovery heading. */
