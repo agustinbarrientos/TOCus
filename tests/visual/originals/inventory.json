@@ -69,19 +69,19 @@
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-brown-light.png",
-    "sha256": "ba3c37f5085c7b850d9b46dabf73d0466a05d145ed6ce5abe9020bec8d953474"
+    "sha256": "ad494274092bd8557403a61e5f2db308fdc098cbda807429103781012d22c512"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-language-completed-purple-dark-narrow.png",
-    "sha256": "5b58d8795b67a80335106c68ef48d76b60e0ed1733f31f6ccc7ae594c65976e7"
+    "sha256": "c79586d1c33bdf2d75450154f7fb177acbf27e61368cff6c016e29f3de4df72a"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-purple-dark-narrow.png",
-    "sha256": "16734cc675beb0f0c3cc45fe1dc248f73e942a821ad077542dd999993dd8e37f"
+    "sha256": "ae56d09c70332ca883ca7312f10f2b5ce0965eefb9ad756ac9a98491d740e2c1"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-recovery-brown-dark.png",
-    "sha256": "7f956180982292537c20241875dcc82131bba9a1060a708b07f77ccc7be75e04"
+    "sha256": "c39e92b5734587a57ed8919a7accc52a899da37553ebee7987d2d427b83ba614"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-sites-brown-light.png",
