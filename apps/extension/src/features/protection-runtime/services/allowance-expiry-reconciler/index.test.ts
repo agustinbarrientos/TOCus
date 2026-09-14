@@ -27,6 +27,7 @@ import {
 	ProtectionScopeIdSchema,
 } from '../../../../domains/protection/types/protection-value';
 import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
+import { ScheduleMode, Weekday } from '../../../../domains/protection/types/protection-schedule';
 import { transitionProtectionState } from '../../../../domains/protection/utils/transition-protection-state';
 import type { ProtectionRuntimeBrowser, ProtectionRuntimeTab } from '../../types/browser-runtime';
 import { createAllowanceExpiryReconciler } from './index';
@@ -79,10 +80,7 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
 		},
 	],
 	timingConfiguration: TestEmptyProtectionConfiguration.timingConfiguration,
-	schedulesByScope: {
-		[ DefaultProtectionScopeId ]: { mode: 'always' },
-		[ OTHER_SCOPE_ID ]: { mode: 'always' },
-	},
+	schedule: { mode: 'always' },
 	measurementRevisionsByScope: {
 		[ DefaultProtectionScopeId ]: ProtectionMeasurementRevisionSchema.parse( 'revision_default' ),
 		[ OTHER_SCOPE_ID ]: ProtectionMeasurementRevisionSchema.parse( 'revision_other' ),
@@ -174,6 +172,36 @@ function createReconcilerHarness(
 }
 
 describe( 'createAllowanceExpiryReconciler', () => {
+	it( 'restarts the shared pause only for websites whose own active hours include expiry', async () => {
+		const expiredAllowance = { ...createTestAllowanceState( NOW_EPOCH_MILLISECONDS ), readyParticipants: [] };
+		const harness = createReconcilerHarness( { [ DefaultProtectionScopeId ]: expiredAllowance },
+			{ [ DefaultProtectionScopeId ]: expiredAllowance },
+			[
+				{ id: 7, incognito: false, url: 'https://example.com/active' },
+				{ id: 8, incognito: false, url: 'https://other.example/inactive' },
+			] );
+		const configuration = { ...TestEmptyProtectionConfiguration, sites: [
+			{ identityHost: 'example.com', rule: { host: 'example.com', includeSubdomains: true,
+				scopeId: DefaultProtectionScopeId } },
+			{ identityHost: 'other.example', rule: { host: 'other.example', includeSubdomains: true,
+				scopeId: DefaultProtectionScopeId },
+			schedule: { mode: ScheduleMode.CUSTOM, windows: [ { weekday: Weekday.WEDNESDAY,
+				startMinute: 780, endMinute: 840 } ] } },
+		] };
+
+		await harness.reconciler.reconcile( configuration );
+		const event = harness.events[ 0 ];
+		if ( ! event ) {
+			throw new Error( 'Expected an expiry event.' );
+		}
+		const result = transitionProtectionState( expiredAllowance, event );
+		expect( result.state.type ).toBe( ProtectionStateType.WAITING );
+		if ( result.state.type !== ProtectionStateType.WAITING ) {
+			throw new Error( 'Expected a shared pause.' );
+		}
+		expect( result.state.participants ).toHaveLength( 1 );
+		expect( result.state.participants[ 0 ]?.pageId ).toBe( 'page_tab_7_page_one' );
+	} );
 	it( 'creates a live-page expiry candidate only for an explicitly ordinary tab', async () => {
 		const expiredAllowance = createTestAllowanceState( NOW_EPOCH_MILLISECONDS );
 		const harness = createReconcilerHarness(
@@ -494,7 +522,7 @@ describe( 'createAllowanceExpiryReconciler', () => {
 		const expiredAllowance = createTestAllowanceState( NOW_EPOCH_MILLISECONDS );
 		const configurationWithoutSchedule: ProtectionConfigurationDocument = {
 			...CONFIGURATION,
-			schedulesByScope: {},
+			sites: [],
 		};
 		const harness = createReconcilerHarness(
 			{ [ DefaultProtectionScopeId ]: expiredAllowance },

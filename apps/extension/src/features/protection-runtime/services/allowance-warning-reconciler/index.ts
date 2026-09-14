@@ -1,3 +1,4 @@
+import { resolveSiteSchedule } from '../../../../domains/protection/utils/resolve-site-schedule';
 import { AllowanceWarningDecisionType } from '../../../../domains/protection/types/allowance-warning';
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
 import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
@@ -182,7 +183,7 @@ export function createAllowanceWarningReconciler(
 		}
 
 		const state = statesByScope[ match.rule.scopeId ];
-		const schedule = configuration.schedulesByScope[ match.rule.scopeId ];
+		const schedule = resolveSiteSchedule( configuration, match.rule.host );
 
 		if (
 			state?.type !== ProtectionStateType.ALLOWANCE ||
