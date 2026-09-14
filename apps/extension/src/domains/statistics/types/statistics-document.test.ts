@@ -6,9 +6,11 @@ import { StatisticsDocumentSchema } from './statistics-document';
  * @since 0.1.0 Initial implementation.
  */
 const VALID_STATISTICS_DOCUMENT = {
-	schemaVersion: 1,
+	schemaVersion: 2,
 	generationId: 'generation_1',
 	lastAppliedBatchId: null,
+	firstRecordedDate: null,
+	dailyTotals: [],
 	scopes: {
 		scope_default: {
 			totals: {
@@ -88,7 +90,7 @@ describe( 'StatisticsDocumentSchema', () => {
 	it( 'rejects an unsupported document version', () => {
 		const result = StatisticsDocumentSchema.safeParse( {
 			...VALID_STATISTICS_DOCUMENT,
-			schemaVersion: 2,
+			schemaVersion: 3,
 		} );
 
 		expect( result.success ).toBe( false );

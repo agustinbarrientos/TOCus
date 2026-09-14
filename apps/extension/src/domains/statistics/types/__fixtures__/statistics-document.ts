@@ -49,9 +49,11 @@ export function createMockActiveScopeStatistics(): ScopeStatistics {
  */
 export function createMockStatisticsDocument(): StatisticsDocument {
 	return StatisticsDocumentSchema.parse( {
-		schemaVersion: 1,
+		schemaVersion: 2,
 		generationId: 'generation_1',
 		lastAppliedBatchId: null,
+		firstRecordedDate: null,
+		dailyTotals: [],
 		scopes: {
 			scope_default: createMockScopeStatistics(),
 		},
