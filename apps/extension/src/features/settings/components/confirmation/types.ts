@@ -2,6 +2,16 @@ import type {
 	ReactNode,
 } from 'react';
 
+/**
+ * Optional non-destructive persistence decision beside Stay and Discard.
+ * @since 0.1.0
+ */
+export interface ConfirmationSaveAction {
+	label: string;
+	pendingLabel: string;
+	onSave: () => void;
+}
+
 
 /**
  * Focus-trapped confirmation with a safe first action.
@@ -19,6 +29,8 @@ export interface ConfirmationProps {
 	cancel: string;
 	confirm: string;
 	pending?: boolean;
+	save?: ConfirmationSaveAction;
+	error?: string | null;
 	onCancel: () => void;
 	onConfirm: () => void;
 	children?: ReactNode;

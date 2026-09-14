@@ -6,7 +6,7 @@
 	background: var(--tocus-color-surface);
 	h3 { @include typography.apply('title-medium'); margin-bottom: var(--tocus-space-2); }
 	p { @include typography.apply('body-small'); margin: 0; }
-	.tocus-form-actions { padding: var(--tocus-space-6) 0 0; }
+	.tocus-form-actions { padding: var(--tocus-form-actions-padding-before, var(--tocus-space-6)) 0 0; }
 	.tocus-focus:focus-visible { outline-offset: 2px; }
 
 	&[data-minimal] {
