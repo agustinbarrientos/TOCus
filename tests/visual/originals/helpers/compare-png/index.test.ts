@@ -17,6 +17,92 @@ function encode( width: number, height: number, pixels: readonly number[], level
 	return PNG.sync.write( image, { deflateLevel: level } );
 }
 
+/**
+ * Copies a fixture while replacing one decoded RGBA sample.
+ * @param pixels - Source row-major RGBA bytes.
+ * @param width - Source width in pixels.
+ * @param x - Replacement column.
+ * @param y - Replacement row.
+ * @param rgba - Four replacement channel values.
+ * @return Independent changed pixel array.
+ */
+function replacePixel(
+	pixels: readonly number[], width: number, x: number, y: number, rgba: readonly number[],
+): number[] {
+	const changed = [ ...pixels ];
+	changed.splice( ( y * width + x ) * 4, 4, ...rgba );
+	return changed;
+}
+
+/**
+ * Transposes decoded pixels to exchange horizontal and vertical topology.
+ * @param width - Source width in pixels.
+ * @param height - Source height in pixels.
+ * @param pixels - Source row-major RGBA bytes.
+ * @return Transposed row-major RGBA bytes with width equal to the source height.
+ */
+function transposePixels( width: number, height: number, pixels: readonly number[] ): number[] {
+	const transposed = Array<number>( pixels.length );
+	for ( let y = 0; y < height; y++ ) {
+		for ( let x = 0; x < width; x++ ) {
+			const source = ( y * width + x ) * 4;
+			const target = ( x * height + y ) * 4;
+			transposed.splice( target, 4, ...pixels.slice( source, source + 4 ) );
+		}
+	}
+	return transposed;
+}
+
+/**
+ * Embeds decoded pixels in an opaque white frame without changing their local samples.
+ * @param width - Source width in pixels.
+ * @param height - Source height in pixels.
+ * @param pixels - Source row-major RGBA bytes.
+ * @param framedWidth - Result width in pixels.
+ * @param framedHeight - Result height in pixels.
+ * @param offsetX - Source origin column in the result.
+ * @param offsetY - Source origin row in the result.
+ * @return Framed row-major RGBA bytes.
+ */
+function embedPixels(
+	width: number, height: number, pixels: readonly number[],
+	framedWidth: number, framedHeight: number, offsetX: number, offsetY: number,
+): number[] {
+	const framed = Array.from( { length: framedWidth * framedHeight }, () => [ 255, 255, 255, 255 ] ).flat();
+	for ( let y = 0; y < height; y++ ) {
+		for ( let x = 0; x < width; x++ ) {
+			const source = ( y * width + x ) * 4;
+			const target = ( ( y + offsetY ) * framedWidth + x + offsetX ) * 4;
+			framed.splice( target, 4, ...pixels.slice( source, source + 4 ) );
+		}
+	}
+	return framed;
+}
+
+/**
+ * Creates a synthetic five-sample thin edge around a strict central extremum.
+ * @param horizontal - Whether the edge tangent runs horizontally instead of vertically.
+ * @param maximum - Whether the center is a local maximum instead of a local minimum.
+ * @return Nine-by-nine opaque RGBA fixture.
+ */
+function continuingExtremumPixels( horizontal: boolean, maximum = false ): number[] {
+	const surface = maximum ? 0 : 240;
+	const center = maximum ? 81 : 80;
+	const near = maximum ? 60 : 120;
+	const far = maximum ? 40 : 160;
+	let pixels = Array.from( { length: 81 }, () => [ surface, surface, surface, 255 ] ).flat();
+	pixels = replacePixel( pixels, 9, 4, 4, [ center, center, center, 255 ] );
+	for ( const sign of [ -1, 1 ] ) {
+		const nearX = horizontal ? 4 + sign : 4;
+		const nearY = horizontal ? 4 : 4 + sign;
+		const farX = horizontal ? 4 + 2 * sign : 4;
+		const farY = horizontal ? 4 : 4 + 2 * sign;
+		pixels = replacePixel( pixels, 9, nearX, nearY, [ near, near, near, 255 ] );
+		pixels = replacePixel( pixels, 9, farX, farY, [ far, far, far, 255 ] );
+	}
+	return pixels;
+}
+
 describe( 'exact original PNG pixels', () => {
 	it( 'accepts equal decoded pixels despite different PNG compression', () => {
 		const pixels = [ 40, 80, 120, 255, 40, 80, 120, 255 ];
@@ -129,6 +215,31 @@ describe( 'bounded edge rasterization tolerance', () => {
 		160, 160, 160, 255, 160, 160, 160, 255, 160, 160, 160, 255,
 		80, 80, 80, 255, 80, 80, 80, 255, 80, 80, 80, 255,
 	];
+	// Exact three-column neighborhood from the September 13 macOS CI rounded-frame failure.
+	const continuingEdgeExpected = [
+		255, 255, 255, 255, 255, 255, 255, 255, 216, 202, 194, 255,
+		255, 255, 255, 255, 237, 230, 226, 255, 238, 230, 225, 255,
+		255, 255, 255, 255, 222, 210, 203, 255, 248, 244, 239, 255,
+		250, 248, 247, 255, 220, 207, 200, 255, 255, 253, 249, 255,
+		238, 231, 228, 255, 232, 223, 217, 255, 255, 253, 249, 255,
+		230, 221, 217, 255, 242, 237, 232, 255, 255, 253, 249, 255,
+		225, 213, 207, 255, 245, 240, 235, 255, 255, 253, 249, 255,
+		221, 208, 201, 255, 249, 245, 241, 255, 255, 253, 249, 255,
+		217, 203, 195, 255, 253, 250, 246, 255, 255, 253, 249, 255,
+		216, 201, 193, 255, 255, 253, 249, 255, 255, 253, 249, 255,
+	];
+	const continuingEdgeActual = [
+		255, 255, 255, 255, 255, 255, 255, 255, 216, 202, 194, 255,
+		255, 255, 255, 255, 237, 230, 227, 255, 238, 230, 225, 255,
+		255, 255, 255, 255, 222, 210, 203, 255, 248, 244, 239, 255,
+		250, 248, 247, 255, 221, 207, 200, 255, 255, 253, 249, 255,
+		238, 232, 228, 255, 233, 223, 217, 255, 255, 253, 249, 255,
+		232, 223, 217, 255, 243, 237, 232, 255, 255, 253, 249, 255,
+		225, 213, 207, 255, 246, 240, 235, 255, 255, 253, 249, 255,
+		221, 208, 201, 255, 250, 246, 240, 255, 255, 253, 249, 255,
+		217, 203, 195, 255, 253, 251, 246, 255, 255, 253, 249, 255,
+		216, 201, 193, 255, 255, 253, 249, 255, 255, 253, 249, 255,
+	];
 
 	it.each( [ 0, 1, 2 ] )( 'accepts one RGB level at an edge in channel %i, only when opted in', ( channel ) => {
 		const changed = [ ...edge ];
@@ -194,6 +305,155 @@ describe( 'bounded edge rasterization tolerance', () => {
 		expect( comparePngPixels( encode( 3, 4, pixels ), encode( 3, 4, changed ), {
 			allowEdgeRasterization: true,
 		} ) ).toMatchObject( { differingPixels: 2, toleratedEdgePixels: 2 } );
+	} );
+
+	it( 'accepts a local edge extremum only when unchanged image topology continues on both sides', () => {
+		const expected = encode( 3, 10, continuingEdgeExpected );
+		const actual = encode( 3, 10, continuingEdgeActual );
+		for ( const [ left, right ] of [ [ expected, actual ], [ actual, expected ] ] as const ) {
+			expect( comparePngPixels( left, right ) ).toMatchObject( {
+				differingPixels: 9, toleratedEdgePixels: 0,
+			} );
+			expect( comparePngPixels( left, right, { allowEdgeRasterization: true } ) ).toMatchObject( {
+				differingPixels: 9, toleratedEdgePixels: 9,
+			} );
+		}
+	} );
+
+	it( 'accepts the color-inverted neighborhood as a continuing local maximum', () => {
+		const expectedPixels = continuingEdgeExpected.map( ( value, index ) => index % 4 === 3 ? value : 255 - value );
+		const actualPixels = continuingEdgeActual.map( ( value, index ) => index % 4 === 3 ? value : 255 - value );
+		const expected = encode( 3, 10, expectedPixels );
+		const actual = encode( 3, 10, actualPixels );
+		expect( comparePngPixels( expected, actual ) ).toMatchObject( {
+			differingPixels: 9, toleratedEdgePixels: 0,
+		} );
+		expect( comparePngPixels( expected, actual, { allowEdgeRasterization: true } ) ).toMatchObject( {
+			differingPixels: 9, toleratedEdgePixels: 9,
+		} );
+	} );
+
+	it( 'accepts the recorded extremum without requiring any neighboring pixel to change', () => {
+		const actualPixels = replacePixel( continuingEdgeExpected, 3, 1, 3, [ 221, 207, 200, 255 ] );
+		for ( const [ left, right ] of [ [ continuingEdgeExpected, actualPixels ],
+			[ actualPixels, continuingEdgeExpected ] ] as const ) {
+			expect( comparePngPixels( encode( 3, 10, left ), encode( 3, 10, right ), {
+				allowEdgeRasterization: true,
+			} ) ).toMatchObject( { differingPixels: 1, toleratedEdgePixels: 1 } );
+		}
+	} );
+
+	it( 'keeps the topology allowance after transposition and opaque translation', () => {
+		const actualPixels = replacePixel( continuingEdgeExpected, 3, 1, 3, [ 221, 207, 200, 255 ] );
+		const transposedExpected = transposePixels( 3, 10, continuingEdgeExpected );
+		const transposedActual = transposePixels( 3, 10, actualPixels );
+		const framedExpected = embedPixels( 3, 10, continuingEdgeExpected, 7, 14, 2, 2 );
+		const framedActual = embedPixels( 3, 10, actualPixels, 7, 14, 2, 2 );
+		for ( const [ width, height, left, right ] of [
+			[ 10, 3, transposedExpected, transposedActual ],
+			[ 7, 14, framedExpected, framedActual ],
+		] as const ) {
+			expect( comparePngPixels( encode( width, height, left ), encode( width, height, right ), {
+				allowEdgeRasterization: true,
+			} ) ).toMatchObject( { differingPixels: 1, toleratedEdgePixels: 1 } );
+		}
+	} );
+
+	it( 'rejects an extremum when one far tangent sample does not continue the edge', () => {
+		const expectedPixels = replacePixel( continuingEdgeExpected, 3, 1, 1, [ 255, 255, 255, 255 ] );
+		const actualPixels = replacePixel( expectedPixels, 3, 1, 3, [ 221, 207, 200, 255 ] );
+		expect( comparePngPixels( encode( 3, 10, expectedPixels ), encode( 3, 10, actualPixels ), {
+			allowEdgeRasterization: true,
+		} ) ).toMatchObject( { differingPixels: 1, toleratedEdgePixels: 0 } );
+	} );
+
+	it( 'rejects an extremum when expected and actual edge axes differ', () => {
+		const expectedPixels = continuingExtremumPixels( false );
+		const actualPixels = replacePixel( continuingExtremumPixels( true ), 9, 4, 4, [ 81, 80, 80, 255 ] );
+		const comparison = comparePngPixels( encode( 9, 9, expectedPixels ), encode( 9, 9, actualPixels ), {
+			allowEdgeRasterization: true,
+		} );
+		expect( comparison.differingPixels ).toBeGreaterThan( 1 );
+		expect( comparison.toleratedEdgePixels ).toBe( 0 );
+	} );
+
+	it( 'rejects an extremum when expected and actual polarity differs', () => {
+		const expectedPixels = continuingExtremumPixels( false );
+		const actualPixels = replacePixel( continuingExtremumPixels( false, true ), 9, 4, 4, [ 81, 80, 80, 255 ] );
+		const comparison = comparePngPixels( encode( 9, 9, expectedPixels ), encode( 9, 9, actualPixels ), {
+			allowEdgeRasterization: true,
+		} );
+		expect( comparison.differingPixels ).toBeGreaterThan( 1 );
+		expect( comparison.toleratedEdgePixels ).toBe( 0 );
+	} );
+
+	it.each( [
+		{ normal: [ 83, 82, 82, 255 ], toleratedEdgePixels: 0 },
+		{ normal: [ 84, 82, 82, 255 ], toleratedEdgePixels: 1 },
+	] )( 'requires opposing normal contrast above six summed RGB levels', ( { normal, toleratedEdgePixels } ) => {
+		let expectedPixels = continuingExtremumPixels( false );
+		expectedPixels = replacePixel( expectedPixels, 9, 3, 4, normal );
+		expectedPixels = replacePixel( expectedPixels, 9, 5, 4, normal );
+		const actualPixels = replacePixel( expectedPixels, 9, 4, 4, [ 81, 80, 80, 255 ] );
+		expect( comparePngPixels( encode( 9, 9, expectedPixels ), encode( 9, 9, actualPixels ), {
+			allowEdgeRasterization: true,
+		} ) ).toMatchObject( { differingPixels: 1, toleratedEdgePixels } );
+	} );
+
+	it( 'rejects an isolated speck and a constant-width glyph stroke', () => {
+		const surface = Array.from( { length: 49 }, () => [ 240, 240, 240, 255 ] ).flat();
+		const speckExpected = replacePixel( surface, 7, 3, 3, [ 80, 80, 80, 255 ] );
+		const speckActual = replacePixel( speckExpected, 7, 3, 3, [ 81, 80, 80, 255 ] );
+		let strokeExpected = [ ...surface ];
+		for ( let y = 1; y <= 5; y++ ) {
+			strokeExpected = replacePixel( strokeExpected, 7, 3, y, [ 80, 80, 80, 255 ] );
+		}
+		const strokeActual = replacePixel( strokeExpected, 7, 3, 3, [ 81, 80, 80, 255 ] );
+		for ( const [ expectedPixels, actualPixels ] of [
+			[ speckExpected, speckActual ], [ strokeExpected, strokeActual ],
+		] as const ) {
+			expect( comparePngPixels( encode( 7, 7, expectedPixels ), encode( 7, 7, actualPixels ), {
+				allowEdgeRasterization: true,
+			} ) ).toMatchObject( { differingPixels: 1, toleratedEdgePixels: 0 } );
+		}
+	} );
+
+	it.each( [
+		{ label: 'candidate transparency', rgba: [ 221, 207, 200, 254 ] },
+		{ label: 'three RGB levels', rgba: [ 223, 207, 200, 255 ] },
+	] )( 'keeps hard rejection of $label at a supported extremum', ( { rgba } ) => {
+		const actualPixels = replacePixel( continuingEdgeExpected, 3, 1, 3, rgba );
+		expect( comparePngPixels( encode( 3, 10, continuingEdgeExpected ), encode( 3, 10, actualPixels ), {
+			allowEdgeRasterization: true,
+		} ) ).toMatchObject( { differingPixels: 1, toleratedEdgePixels: 0 } );
+	} );
+
+	it.each( [
+		{ label: 'normal', alphaOffset: 39 },
+		{ label: 'immediate tangent', alphaOffset: 31 },
+		{ label: 'far tangent', alphaOffset: 19 },
+	] )( 'rejects a supported extremum with a transparent $label sample', ( { alphaOffset } ) => {
+		const expectedPixels = [ ...continuingEdgeExpected ];
+		expectedPixels[ alphaOffset ] = 0;
+		const actualPixels = [ ...expectedPixels ];
+		actualPixels[ 40 ] = 221;
+		const pairs = [ [ expectedPixels, actualPixels ], [ actualPixels, expectedPixels ] ] as const;
+		for ( const [ left, right ] of pairs ) {
+			expect( comparePngPixels( encode( 3, 10, left ), encode( 3, 10, right ), {
+				allowEdgeRasterization: true,
+			} ) ).toMatchObject( { differingPixels: 1, toleratedEdgePixels: 0 } );
+		}
+	} );
+
+	it( 'rejects an extremum tied with an opaque diagonal neighbor in each image', () => {
+		const expectedPixels = [ ...continuingEdgeExpected ];
+		expectedPixels.splice( 24, 3, 220, 207, 200 );
+		const actualPixels = [ ...expectedPixels ];
+		actualPixels[ 40 ] = 221;
+		actualPixels[ 24 ] = 221;
+		expect( comparePngPixels( encode( 3, 10, expectedPixels ), encode( 3, 10, actualPixels ), {
+			allowEdgeRasterization: true,
+		} ) ).toMatchObject( { differingPixels: 2, toleratedEdgePixels: 0 } );
 	} );
 
 	it( 'rejects a small tint change across an entire gradient despite its blended pixels', () => {

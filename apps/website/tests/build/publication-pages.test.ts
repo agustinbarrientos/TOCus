@@ -1,6 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { chromium, firefox, webkit, type Page, type Route } from 'playwright';
-import { describe, expect, test } from 'vitest';
+import { expect, test, type Page, type Route } from '@playwright/test';
 
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 const SourceUrl = 'https://github.com/agustinbarrientos/TOCus';
@@ -34,78 +33,78 @@ async function expectSafeExternalLinks( page: Page ): Promise<void> {
 	}
 }
 
-describe( 'generated website publication pages', () => {
-	for ( const engine of [ chromium, firefox, webkit ] ) {
-		test( `${ engine.name() }: canonical pages are useful without JavaScript or outbound loading`, async () => {
-			const browser = await engine.launch();
-			const context = await browser.newContext( {
+test.describe( 'generated website publication pages', () => {
+	for ( const engine of [ 'chromium', 'firefox', 'webkit' ] as const ) {
+		const engineTest = test.extend( { browserName: engine } );
+
+		engineTest.describe( () => {
+			engineTest.use( { contextOptions: {
 				javaScriptEnabled: false,
 				viewport: { width: 360, height: 800 },
-			} );
-			const externalRequests: string[] = [];
+			} } );
 
-			await context.route( '**/*', async ( route ) => {
-				if ( new URL( route.request().url() ).origin !== 'http://website.test' ) {
-					externalRequests.push( route.request().url() );
-					await route.abort();
-					return;
-				}
+			engineTest( `${ engine }: canonical pages are useful without JavaScript or outbound loading`, async ( { context, page } ) => {
+				engineTest.setTimeout( 60_000 );
+				const externalRequests: string[] = [];
 
-				await serveGeneratedAsset( route );
-			} );
+				await context.route( '**/*', async ( route ) => {
+					if ( new URL( route.request().url() ).origin !== 'http://website.test' ) {
+						externalRequests.push( route.request().url() );
+						await route.abort();
+						return;
+					}
 
-			try {
-				const page = await context.newPage();
+					await serveGeneratedAsset( route );
+				} );
 
 				for ( const route of PublicationRoutes ) {
-					await page.goto( `http://website.test${ route }` );
-					expect( ( await page.locator( 'h1' ).innerText() ).trim().length, route ).toBeGreaterThan( 8 );
-					expect( await page.locator( 'link[rel="icon"][href="/favicon.svg"]' ).count(), route ).toBe( 1 );
-					expect( await page.locator( '[data-tocus-ui] .website > .page-shell' ).count(), route ).toBe( 1 );
-					expect( await page.locator( 'header .tocus-brand' ).count(), route ).toBe( 1 );
-					for ( const href of [ '/', '/privacy/', '/support/', SourceUrl ] ) {
-						expect( await page.locator( `footer a[href="${ href }"]` ).count(), `${ route } ${ href }` ).toBe( 1 );
-					}
-					expect( await page.locator( 'a[href*="utm_source=tocus"][href*="utm_medium=website"][href*="utm_campaign=about"] img[src="/images/author-favicon.png"]' ).count(), route ).toBe( 1 );
-					await expectSafeExternalLinks( page );
-					expect(
-						await page.evaluate( () => document.documentElement.scrollWidth <= window.innerWidth ),
-						route,
-					).toBe( true );
+					await engineTest.step( `Inspect ${ route }`, async () => {
+						await page.goto( `http://website.test${ route }` );
+						expect( ( await page.locator( 'h1' ).innerText() ).trim().length, route ).toBeGreaterThan( 8 );
+						expect( await page.locator( 'link[rel="icon"][href="/favicon.svg"]' ).count(), route ).toBe( 1 );
+						expect( await page.locator( '[data-tocus-ui] .website > .page-shell' ).count(), route ).toBe( 1 );
+						expect( await page.locator( 'header .tocus-brand' ).count(), route ).toBe( 1 );
+						for ( const href of [ '/', '/privacy/', '/support/', SourceUrl ] ) {
+							expect( await page.locator( `footer a[href="${ href }"]` ).count(), `${ route } ${ href }` ).toBe( 1 );
+						}
+						expect( await page.locator( 'a[href*="utm_source=tocus"][href*="utm_medium=website"][href*="utm_campaign=about"] img[src="/images/author-favicon.png"]' ).count(), route ).toBe( 1 );
+						await expectSafeExternalLinks( page );
+						expect(
+							await page.evaluate( () => document.documentElement.scrollWidth <= window.innerWidth ),
+							route,
+						).toBe( true );
+					} );
 				}
 
 				expect( externalRequests ).toEqual( [] );
-			} finally {
-				await browser.close();
-			}
-		}, 60_000 );
+			} );
+		} );
 	}
 
-	test( 'hydrated information pages remain light when system appearance changes', async () => {
-		const browser = await chromium.launch();
-		const context = await browser.newContext( { colorScheme: 'dark' } );
-		await context.route( 'http://website.test/**', serveGeneratedAsset );
-		try {
-			const page = await context.newPage();
+	test.describe( () => {
+		test.use( { contextOptions: { colorScheme: 'dark' } } );
+
+		test( 'hydrated information pages remain light when system appearance changes', async ( { context, page } ) => {
+			await context.route( 'http://website.test/**', serveGeneratedAsset );
 
 			for ( const route of PublicationRoutes ) {
-				await page.emulateMedia( { colorScheme: 'dark' } );
-				await page.goto( `http://website.test${ route }` );
-				const provider = page.locator( '[data-tocus-ui]' );
-				await expect.poll( () => provider.getAttribute( 'data-tocus-theme' ) ).toBe( 'light' );
+				await test.step( `Inspect ${ route }`, async () => {
+					await page.emulateMedia( { colorScheme: 'dark' } );
+					await page.goto( `http://website.test${ route }` );
+					const provider = page.locator( '[data-tocus-ui]' );
+					await expect.poll( () => provider.getAttribute( 'data-tocus-theme' ) ).toBe( 'light' );
 
-				await page.emulateMedia( { colorScheme: 'light' } );
-				await expect.poll( () => provider.getAttribute( 'data-tocus-theme' ) ).toBe( 'light' );
+					await page.emulateMedia( { colorScheme: 'light' } );
+					await expect.poll( () => provider.getAttribute( 'data-tocus-theme' ) ).toBe( 'light' );
+				} );
 			}
-		} finally {
-			await browser.close();
-		}
+		} );
 	} );
 
-	test( 'privacy distinguishes local extension data from deliberate network requests', async () => {
-		const browser = await chromium.launch();
-		try {
-			const page = await browser.newPage( { javaScriptEnabled: false } );
+	test.describe( () => {
+		test.use( { contextOptions: { javaScriptEnabled: false } } );
+
+		test( 'privacy distinguishes local extension data from deliberate network requests', async ( { page } ) => {
 			await page.route( 'http://website.test/**', serveGeneratedAsset );
 			await page.goto( 'http://website.test/privacy/' );
 
@@ -124,15 +123,13 @@ describe( 'generated website publication pages', () => {
 			expect( websiteText ).toMatch( /external|outbound|third-party/iu );
 			expect( await page.locator( `a[href="${ ChromeLimitedUseUrl }"]` ).count() ).toBe( 1 );
 			expect( await page.locator( '#limited-use' ).innerText() ).toMatch( /Limited Use/iu );
-		} finally {
-			await browser.close();
-		}
+		} );
 	} );
 
-	test( 'support separates public troubleshooting from private vulnerability reports', async () => {
-		const browser = await chromium.launch();
-		try {
-			const page = await browser.newPage( { javaScriptEnabled: false } );
+	test.describe( () => {
+		test.use( { contextOptions: { javaScriptEnabled: false } } );
+
+		test( 'support separates public troubleshooting from private vulnerability reports', async ( { page } ) => {
 			await page.route( 'http://website.test/**', serveGeneratedAsset );
 			await page.goto( 'http://website.test/support/' );
 
@@ -149,8 +146,6 @@ describe( 'generated website publication pages', () => {
 			expect( securityText ).toMatch( /private vulnerability reporting is not currently available/iu );
 			expect( securityText ).toMatch( /do not put security.*public issue/isu );
 			expect( await page.locator( 'a[href^="mailto:"]' ).count() ).toBe( 0 );
-		} finally {
-			await browser.close();
-		}
+		} );
 	} );
 } );

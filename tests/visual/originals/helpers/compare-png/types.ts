@@ -8,6 +8,16 @@ export interface PngDimensions {
 }
 
 /**
+ * Summed-RGB bounds for one decoded pixel and its immediate opaque neighbors.
+ * @since 0.1.0
+ */
+export interface PngNeighborhoodBrightness {
+	center: number;
+	darkest: number;
+	lightest: number;
+}
+
+/**
  * Raw RGBA comparison, counting each changed or uncovered pixel position once.
  * @since 0.1.0
  */

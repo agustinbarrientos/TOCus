@@ -1,6 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { chromium, firefox, webkit, type Route } from 'playwright';
-import { describe, expect, test } from 'vitest';
+import { expect, test, type Route } from '@playwright/test';
 
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 const PublicRoutes = [ '/', '/de/', '/es/', '/es-ar/', '/fr/', '/it/', '/ja/', '/pt-br/', '/pt-pt/', '/ru/' ];
@@ -15,35 +14,37 @@ async function serveAsset( route: Route ): Promise<void> {
 	await route.fulfill( { path: fileURLToPath( new URL( `.${ path }`, WebsiteOutput ) ) } );
 }
 
-describe( 'localized statistics hydration', () => {
-	for ( const engine of [ chromium, firefox, webkit ] ) {
-		test( `${ engine.name() }: preserves the server-rendered metrics in every locale`, async () => {
-			const browser = await engine.launch();
+test.describe( 'localized statistics hydration', () => {
+	for ( const engine of [ 'chromium', 'firefox', 'webkit' ] as const ) {
+		const engineTest = test.extend( { browserName: engine, javaScriptEnabled: false } );
+
+		engineTest( `${ engine }: preserves the server-rendered metrics in every locale`, async ( { browser, context: serverContext } ) => {
+			engineTest.setTimeout( 60_000 );
+			const clientContext = await browser.newContext( { javaScriptEnabled: true, reducedMotion: 'reduce' } );
 			try {
-				const serverContext = await browser.newContext( { javaScriptEnabled: false } );
-				const clientContext = await browser.newContext( { reducedMotion: 'reduce' } );
 				await serverContext.route( 'http://website.test/**', serveAsset );
 				await clientContext.route( 'http://website.test/**', serveAsset );
+				const serverPage = await serverContext.newPage();
+				const clientPage = await clientContext.newPage();
+				const errors: string[] = [];
+				clientPage.on( 'pageerror', ( error ) => errors.push( error.message ) );
 				for ( const route of PublicRoutes ) {
-					const serverPage = await serverContext.newPage();
-					const clientPage = await clientContext.newPage();
-					const errors: string[] = [];
-					clientPage.on( 'pageerror', ( error ) => errors.push( error.message ) );
-					await Promise.all( [ serverPage, clientPage ].map(
-						( page ) => page.goto( `http://website.test${ route }` ),
-					) );
-					await clientPage.locator( '.homepage[data-enhanced="true"]' ).waitFor();
-					const serverMetrics = await serverPage.locator( '.statistics-preview dd' ).allTextContents();
-					const clientMetrics = await clientPage.locator( '.statistics-preview dd' ).allTextContents();
-					expect( serverMetrics, route ).toHaveLength( 5 );
-					expect( serverMetrics.every( ( value ) => value.trim().length > 0 ), route ).toBe( true );
-					expect( clientMetrics, route ).toEqual( serverMetrics );
-					expect( errors, route ).toEqual( [] );
-					await Promise.all( [ serverPage.close(), clientPage.close() ] );
+					await engineTest.step( `Compare server and hydrated metrics for ${ route }`, async () => {
+						await Promise.all( [ serverPage, clientPage ].map(
+							( page ) => page.goto( `http://website.test${ route }` ),
+						) );
+						await clientPage.locator( '.homepage[data-enhanced="true"]' ).waitFor();
+						const serverMetrics = await serverPage.locator( '.statistics-preview dd' ).allTextContents();
+						const clientMetrics = await clientPage.locator( '.statistics-preview dd' ).allTextContents();
+						expect( serverMetrics, route ).toHaveLength( 5 );
+						expect( serverMetrics.every( ( value ) => value.trim().length > 0 ), route ).toBe( true );
+						expect( clientMetrics, route ).toEqual( serverMetrics );
+						expect( errors, route ).toEqual( [] );
+					} );
 				}
 			} finally {
-				await browser.close();
+				await clientContext.close();
 			}
-		}, 60_000 );
+		} );
 	}
 } );

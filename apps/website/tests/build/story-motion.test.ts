@@ -1,26 +1,52 @@
 import { fileURLToPath } from 'node:url';
-import { chromium, firefox, webkit } from 'playwright';
-import { describe, expect, test } from 'vitest';
+import { expect, test, type Page } from '@playwright/test';
 import { DemoChapter } from '../../src/components/product-demo/types';
 
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 
-describe( 'generated website scroll story', () => {
-	for ( const engine of [ chromium, firefox, webkit ] ) {
-		test( `${ engine.name() }: reduced-motion chapter controls select once and keep keyboard focus on a small screen`, async () => {
-			const browser = await engine.launch();
-			const context = await browser.newContext( { viewport: { width: 360, height: 640 }, reducedMotion: 'reduce' } );
-			await context.route( '**/*', async ( route ) => {
-				const url = new URL( route.request().url() );
-				if ( url.origin !== 'http://website.test' ) {
-					await route.abort();
-					return;
-				}
-				const path = url.pathname.endsWith( '/' ) ? `${ url.pathname }index.html` : url.pathname;
-				await route.fulfill( { path: fileURLToPath( new URL( `.${ path }`, WebsiteOutput ) ) } );
-			} );
-			try {
-				const page = await context.newPage();
+/**
+ * Reaches a story position with bounded real wheel gestures and rendered native frames.
+ * @param page - Browser page whose story receives wheel input.
+ * @param target - Document scroll position measured from the rendered story geometry.
+ * @return Completion after every gesture reaches its position and two frames render.
+ */
+async function wheelTo( page: Page, target: number ): Promise<void> {
+	const { before, maximumGesture } = await page.evaluate( () => ( {
+		before: window.scrollY, maximumGesture: window.innerHeight / 2,
+	} ) );
+	// Firefox caps large wheel deltas; divide long entry/exit travel without bypassing native input.
+	const gestures = Math.ceil( Math.abs( target - before ) / maximumGesture );
+	let previous = before;
+	for ( let gesture = 1; gesture <= gestures; gesture += 1 ) {
+		const next = Math.round( before + ( target - before ) * gesture / gestures );
+		await page.mouse.wheel( 0, next - previous );
+		await page.waitForFunction( ( position ) => Math.abs( window.scrollY - position ) <= 1, next );
+		// Let native scrolling and its React scene update composite before the next gesture.
+		await page.evaluate( () => new Promise( ( resolve ) => {
+			requestAnimationFrame( () => requestAnimationFrame( resolve ) );
+		} ) );
+		previous = next;
+	}
+}
+
+test.describe( 'generated website scroll story', () => {
+	for ( const engine of [ 'chromium', 'firefox', 'webkit' ] as const ) {
+		const engineTest = test.extend( { browserName: engine } );
+
+		engineTest.describe( () => {
+			engineTest.use( { contextOptions: { viewport: { width: 360, height: 640 }, reducedMotion: 'reduce' } } );
+
+			engineTest( `${ engine }: reduced-motion chapter controls select once and keep keyboard focus on a small screen`, async ( { context, page } ) => {
+				engineTest.setTimeout( 20_000 );
+				await context.route( '**/*', async ( route ) => {
+					const url = new URL( route.request().url() );
+					if ( url.origin !== 'http://website.test' ) {
+						await route.abort();
+						return;
+					}
+					const path = url.pathname.endsWith( '/' ) ? `${ url.pathname }index.html` : url.pathname;
+					await route.fulfill( { path: fileURLToPath( new URL( `.${ path }`, WebsiteOutput ) ) } );
+				} );
 				await page.goto( 'http://website.test/' );
 				await page.evaluate( () => document.fonts.ready );
 				await expect.poll( () => page.locator( '[data-story-chapter][data-current]' ).count() ).toBe( 5 );
@@ -28,41 +54,45 @@ describe( 'generated website scroll story', () => {
 				expect( await page.locator( '[data-story-active]' ).count() ).toBe( 0 );
 				const demo = page.locator( '.product-demo' );
 				for ( const chapter of [ 'pause', 'browse', 'continue', 'visit', 'choose' ] ) {
-					const button = page.locator( `[data-story-chapter="${ chapter }"] button` );
-					await button.evaluate( ( element ) => {
-						element.focus( { preventScroll: true } );
-					} );
-					await demo.evaluate( ( element ) => {
-						element.setAttribute( 'data-test-scene-changes', '0' );
-						const observer = new MutationObserver( ( records ) => {
-							const count = Number( element.getAttribute( 'data-test-scene-changes' ) );
-							element.setAttribute( 'data-test-scene-changes', String( count + records.length ) );
+					await engineTest.step( `Select ${ chapter } and observe stable focus`, async () => {
+						const button = page.locator( `[data-story-chapter="${ chapter }"] button` );
+						await button.evaluate( ( element ) => {
+							element.focus( { preventScroll: true } );
 						} );
-						observer.observe( element, { attributes: true, attributeFilter: [ 'data-scene' ] } );
-						element.addEventListener( 'tocus-test-stop-counting', () => {
-							observer.disconnect();
-						}, { once: true } );
+						await demo.evaluate( ( element ) => {
+							element.setAttribute( 'data-test-scene-changes', '0' );
+							const observer = new MutationObserver( ( records ) => {
+								const count = Number( element.getAttribute( 'data-test-scene-changes' ) );
+								element.setAttribute( 'data-test-scene-changes', String( count + records.length ) );
+							} );
+							observer.observe( element, { attributes: true, attributeFilter: [ 'data-scene' ] } );
+							element.addEventListener( 'tocus-test-stop-counting', () => {
+								observer.disconnect();
+							}, { once: true } );
+						} );
+						await button.press( chapter === 'browse' ? 'Space' : 'Enter' );
+						await expect.poll( () => demo.getAttribute( 'data-scene' ) ).toBe( chapter );
+						await page.waitForTimeout( 150 );
+						await demo.dispatchEvent( 'tocus-test-stop-counting' );
+						expect( await demo.getAttribute( 'data-test-scene-changes' ) ).toBe( '1' );
+						expect( await button.evaluate( ( element ) =>
+							document.activeElement === element,
+						) ).toBe( true );
+						expect( await page.locator( '.story-caption[aria-hidden="false"]' ).getAttribute( 'data-caption-chapter' ) ).toBe( chapter );
+						const caption = page.locator( '.story-caption[aria-hidden="false"]' );
+						expect( await caption.evaluate( ( element ) => {
+							const bounds = element.getBoundingClientRect();
+							const parent = element.parentElement;
+							return parent !== null && bounds.top >= 0 && bounds.bottom <= window.innerHeight &&
+								getComputedStyle( element ).visibility === 'visible' &&
+								getComputedStyle( parent ).opacity === '1';
+						} ) ).toBe( true );
+						expect( await page.locator( '[aria-current="step"]' ).count() ).toBe( 1 );
+						const bounds = await button.boundingBox();
+						expect( bounds?.y ).toBeGreaterThan( 0 );
+						expect( ( bounds?.y ?? 640 ) + ( bounds?.height ?? 0 ) ).toBeLessThanOrEqual( 640 );
+						expect( await page.locator( '[data-story-active]' ).count() ).toBe( 1 );
 					} );
-					await button.press( chapter === 'browse' ? 'Space' : 'Enter' );
-					await expect.poll( () => demo.getAttribute( 'data-scene' ) ).toBe( chapter );
-					await page.waitForTimeout( 150 );
-					await demo.dispatchEvent( 'tocus-test-stop-counting' );
-					expect( await demo.getAttribute( 'data-test-scene-changes' ) ).toBe( '1' );
-					expect( await button.evaluate( ( element ) => document.activeElement === element ) ).toBe( true );
-					expect( await page.locator( '.story-caption[aria-hidden="false"]' ).getAttribute( 'data-caption-chapter' ) ).toBe( chapter );
-					const caption = page.locator( '.story-caption[aria-hidden="false"]' );
-					expect( await caption.evaluate( ( element ) => {
-						const bounds = element.getBoundingClientRect();
-						const parent = element.parentElement;
-						return parent !== null && bounds.top >= 0 && bounds.bottom <= window.innerHeight &&
-							getComputedStyle( element ).visibility === 'visible' &&
-							getComputedStyle( parent ).opacity === '1';
-					} ) ).toBe( true );
-					expect( await page.locator( '[aria-current="step"]' ).count() ).toBe( 1 );
-					const bounds = await button.boundingBox();
-					expect( bounds?.y ).toBeGreaterThan( 0 );
-					expect( ( bounds?.y ?? 640 ) + ( bounds?.height ?? 0 ) ).toBeLessThanOrEqual( 640 );
-					expect( await page.locator( '[data-story-active]' ).count() ).toBe( 1 );
 				}
 				await page.locator( '[data-story-chapter="pause"] button' ).click();
 				await expect.poll( () => demo.getAttribute( 'data-scene' ) ).toBe( 'pause' );
@@ -73,25 +103,23 @@ describe( 'generated website scroll story', () => {
 				expect( await page.locator( '.hero-art .mascot' ).evaluate( ( element ) =>
 					getComputedStyle( element ).transform,
 				) ).toBe( 'none' );
-			} finally {
-				await browser.close();
-			}
-		}, 20_000 );
+			} );
+		} );
 		for ( const viewport of [ { width: 1280, height: 720 }, { width: 360, height: 800 } ] ) {
-			test( `${ engine.name() } ${ String( viewport.width ) }: wheels advance and reverse all five scenes in a stable frame`, async () => {
-				const browser = await engine.launch();
-				const context = await browser.newContext( { viewport, reducedMotion: 'no-preference' } );
-				await context.route( '**/*', async ( route ) => {
-					const url = new URL( route.request().url() );
-					if ( url.origin !== 'http://website.test' ) {
-						await route.abort();
-						return;
-					}
-					const path = url.pathname.endsWith( '/' ) ? `${ url.pathname }index.html` : url.pathname;
-					await route.fulfill( { path: fileURLToPath( new URL( `.${ path }`, WebsiteOutput ) ) } );
-				} );
-				try {
-					const page = await context.newPage();
+			engineTest.describe( () => {
+				engineTest.use( { contextOptions: { viewport, reducedMotion: 'no-preference' } } );
+
+				engineTest( `${ engine } ${ String( viewport.width ) }: wheels advance and reverse all five scenes in a stable frame`, async ( { context, page } ) => {
+					engineTest.setTimeout( 40_000 );
+					await context.route( '**/*', async ( route ) => {
+						const url = new URL( route.request().url() );
+						if ( url.origin !== 'http://website.test' ) {
+							await route.abort();
+							return;
+						}
+						const path = url.pathname.endsWith( '/' ) ? `${ url.pathname }index.html` : url.pathname;
+						await route.fulfill( { path: fileURLToPath( new URL( `.${ path }`, WebsiteOutput ) ) } );
+					} );
 					await page.goto( 'http://website.test/' );
 					await page.evaluate( () => document.fonts.ready );
 					const demo = page.locator( '.product-demo' );
@@ -102,10 +130,30 @@ describe( 'generated website scroll story', () => {
 						element.getBoundingClientRect().height / window.innerHeight,
 					) ).toBeLessThanOrEqual( 3.6 );
 					expect( await page.locator( '.story-caption[aria-hidden="false"]' ).count() ).toBe( 1 );
-					const distance = await page.locator( '.story-layout' ).evaluate( ( element ) => {
-						const end = window.scrollY + element.getBoundingClientRect().bottom + window.innerHeight * 0.25;
-						return Math.ceil( end / 60 );
+					const travel = await page.locator( '.story-layout' ).evaluate( ( element ) => {
+						const stage = element.querySelector<HTMLElement>( '.experience-stage' );
+						if ( stage === null ) {
+							throw new Error( 'The sticky story stage is unavailable.' );
+						}
+						const bounds = element.getBoundingClientRect();
+						return {
+							start: window.scrollY + bounds.top - Number.parseFloat( getComputedStyle( stage ).top ),
+							distance: bounds.height - stage.offsetHeight,
+							end: Math.ceil( window.scrollY + bounds.bottom + window.innerHeight * 0.25 ),
+						};
 					} );
+					// Visit both sides of every chapter boundary and multiple positions within the two timers.
+					const stops = [
+						[ 0.04, DemoChapter.CHOOSE ], [ 0.22, DemoChapter.VISIT ],
+						[ 0.42, DemoChapter.PAUSE ], [ 0.50, DemoChapter.PAUSE ], [ 0.58, DemoChapter.PAUSE ],
+						[ 0.62, DemoChapter.CONTINUE ],
+						[ 0.82, DemoChapter.BROWSE ], [ 0.90, DemoChapter.BROWSE ], [ 0.98, DemoChapter.BROWSE ],
+					] as const;
+					/**
+					 * Records every rendered frame until the scroll observation ends.
+					 * @param element - Preview whose position and scene remain under observation.
+					 * @return All rendered frame measurements, including the terminal position.
+					 */
 					const frames = preview.evaluate( async ( element ) => {
 						const boxes = [];
 						const sampling = new AbortController();
@@ -113,7 +161,16 @@ describe( 'generated website scroll story', () => {
 							sampling.abort();
 						}, { once: true } );
 						while ( ! sampling.signal.aborted ) {
-							await new Promise( ( resolve ) => requestAnimationFrame( resolve ) );
+							await new Promise<void>( ( resolve ) => {
+								/** Completes a frame wait immediately when sampling is cancelled. */
+								const complete = (): void => {
+									cancelAnimationFrame( frame );
+									sampling.signal.removeEventListener( 'abort', complete );
+									resolve();
+								};
+								const frame = requestAnimationFrame( complete );
+								sampling.signal.addEventListener( 'abort', complete, { once: true } );
+							} );
 							const { left, top, width } = element.getBoundingClientRect();
 							const scene = element.closest<HTMLElement>( '.product-demo' )?.dataset.scene;
 							const countdown = element.querySelector( '.product-demo-countdown' )?.textContent;
@@ -124,22 +181,22 @@ describe( 'generated website scroll story', () => {
 						}
 						return boxes;
 					} );
-					await page.mouse.move( viewport.width - 20, viewport.height / 2 );
 					try {
+						await page.mouse.move( viewport.width - 20, viewport.height / 2 );
 						for ( const direction of [ 1, -1 ] ) {
-							for ( let step = 0; step < 60; step += 1 ) {
-								const before = await page.evaluate( () => window.scrollY );
-								await page.mouse.wheel( 0, distance * direction );
-								await expect.poll( () => page.evaluate( () => window.scrollY ) ).not.toBe( before );
-								// Let native scrolling composite before delivering the next gesture in WebKit.
-								await page.evaluate( () => new Promise( ( resolve ) => {
-									requestAnimationFrame( () => requestAnimationFrame( resolve ) );
-								} ) );
-							}
-							await page.waitForTimeout( 150 );
+							await engineTest.step( direction === 1 ? 'Scroll forward through all scenes' : 'Scroll backward through all scenes', async () => {
+								const orderedStops = direction === 1 ? stops : [ ...stops ].reverse();
+								for ( const [ fraction, chapter ] of orderedStops ) {
+									await wheelTo( page, Math.round( travel.start + travel.distance * fraction ) );
+									await expect( demo ).toHaveAttribute( 'data-scene', chapter );
+								}
+								await wheelTo( page, direction === 1 ? travel.end : 0 );
+								// Sample a stationary interval at each end to keep delayed shaking observable.
+								await page.waitForTimeout( 150 );
+							} );
 						}
 					} finally {
-						await preview.dispatchEvent( 'tocus-test-scroll-complete' );
+						await preview.dispatchEvent( 'tocus-test-scroll-complete', undefined, { timeout: 1_000 } );
 						await frames;
 					}
 					const boxes = await frames;
@@ -183,10 +240,8 @@ describe( 'generated website scroll story', () => {
 						document.documentElement.scrollWidth <= window.innerWidth,
 					) ).toBe( true );
 					expect( await page.locator( '.pin-spacer' ).count() ).toBe( 0 );
-				} finally {
-					await browser.close();
-				}
-			}, 40_000 );
+				} );
+			} );
 		}
 	}
 } );

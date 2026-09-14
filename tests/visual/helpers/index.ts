@@ -6,7 +6,7 @@ import type { Page } from '@playwright/test';
 import type { ComponentInterruptionScreen } from '../../../apps/extension/src/features/interruption/components/screen';
 import type { VisualAppearance } from './types';
 import { captureStableScreenshot } from './capture-stable-screenshot';
-import { compareScreenshot } from './compare-screenshot';
+import { compareScreenshot, WebsiteScreenshotOptions } from './compare-screenshot';
 import { hasFocusedTextCaret } from '../originals/helpers/focused-text-caret';
 import type {} from '../../../apps/extension/src/features/settings/components/shell/__fixtures__/types';
 import type {} from '../../../apps/extension/src/features/interruption/components/screen/__fixtures__/browser-types';
@@ -98,7 +98,7 @@ export async function freezePreview( page: Page, showPreview: () => Promise<void
 }
 
 /**
- * Waits for packaged fonts and a stable frame, then compares once using the shared bounded edge policy.
+ * Waits for packaged fonts and a stable frame, then compares once using the website color threshold.
  * @param page - Fully rendered production fixture or built website page.
  * @param name - Reviewed golden filename.
  * @param fullPage - Whether document content rather than a fixed-position viewport is captured.
@@ -122,7 +122,7 @@ export async function comparePage( page: Page, name: string, fullPage = true ): 
 		expect( actual ).toMatchSnapshot( `${ name }.png`, { threshold: 0, maxDiffPixels: 0 } );
 		return;
 	}
-	await compareScreenshot( actual, `${ name }.png`, { allowEdgeRasterization: true } );
+	await compareScreenshot( actual, `${ name }.png`, WebsiteScreenshotOptions );
 }
 
 export { expect, test };

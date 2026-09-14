@@ -30,9 +30,10 @@
 		"typecheck": "tsc --project tsconfig.json --noEmit && tsc --project tests/visual/tsconfig.json --noEmit && turbo run typecheck",
 		"test": "pnpm test:unit && pnpm test:build-contract && pnpm test:browser",
 		"test:unit": "vitest run --coverage --config config/vitest.config.ts --project unit",
-		"test:build-contract": "pnpm build && pnpm build:firefox && pnpm build:safari && vitest run --config config/vitest.config.ts --project build-contract",
+		"test:build-contract": "pnpm build && pnpm build:firefox && pnpm build:safari && vitest run --config config/vitest.config.ts --project build-contract && pnpm test:build-browser",
+		"test:build-browser": "playwright test --config config/playwright-build.config.ts",
 		"test:browser": "pnpm --filter @tocus/extension test:browser && pnpm test:ui",
-		"test:ui": "pnpm --filter @tocus/ui test:browser && vitest run --config apps/extension/config/vitest-ui.config.ts",
+		"test:ui": "playwright test --config config/playwright-ui.config.ts",
 		"test:visual": "playwright test --config config/playwright-visual.config.ts",
 		"test:visual:update": "playwright test --config config/playwright-visual.config.ts --project chromium-website --update-snapshots=all",
 		"check": "pnpm lint && pnpm typecheck && pnpm test"

@@ -79,6 +79,7 @@ pnpm dev
 | `pnpm test`                            | Run unit coverage, build-contract, and browser tests        |
 | `pnpm test:unit`                       | Run unit tests with protection coverage thresholds          |
 | `pnpm test:build-contract`             | Build all browser targets and validate generated artifacts  |
+| `pnpm test:build-browser`              | Run isolated browser journeys against already-built files  |
 | `pnpm test:browser`                    | Run native media/Canvas coverage and all presentation tests |
 | `pnpm test:ui`                         | Run shared controls and extension UI in all three engines  |
 | `pnpm check`                           | Run linting, type checks, and tests                         |
@@ -111,7 +112,7 @@ unzip -p apps/extension/.output/tocusextension-0.1.0-firefox.zip manifest.json
 shasum -a 256 apps/extension/.output/tocusextension-0.1.0-chrome.zip apps/extension/.output/tocusextension-0.1.0-firefox.zip apps/extension/.output/tocusextension-0.1.0-safari.zip
 ```
 
-Re-run `pnpm exec vitest run --config config/vitest.config.ts --project build-contract` after packaging to check the freshly generated browser outputs. Replace `0.1.0` in filenames when the extension version changes. The declared minimum browser versions are compatibility targets; successful builds do not establish runtime support across every version.
+Re-run `pnpm exec vitest run --config config/vitest.config.ts --project build-contract` for static artifact checks and `pnpm test:build-browser` for packaged browser journeys after packaging. Browser journeys run sequentially with no retries and retain traces and screenshots only on failure under `test-results/build-browser/`; their HTML report is under `playwright-report/build-browser/`. The separate `pnpm test:ui` command uses Playwright Test for shared controls and extension presentation, reusing one fixture server and worker-owned browsers with isolated test contexts. Its diagnostics are under `test-results/ui/` and `playwright-report/ui/`. CI uploads both suites' diagnostics on failure. Replace `0.1.0` in filenames when the extension version changes. The declared minimum browser versions are compatibility targets; successful builds do not establish runtime support across every version.
 
 ### Firefox review source
 

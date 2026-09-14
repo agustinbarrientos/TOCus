@@ -511,6 +511,66 @@ describe( 'createProtectionNavigationHandler', () => {
 		} ] );
 	} );
 
+	it( 'retains a newer protected participant when the previous unprotected page reports an error', async () => {
+		const harness = createHarness( createNavigationWaitingSnapshot() );
+		harness.listTabs.mockResolvedValue( [ {
+			id: 7,
+			incognito: false,
+			url: 'https://unprotected.test/',
+			pendingUrl: INTERRUPTION_PAGE_URL,
+		} ] );
+
+		await harness.handler.handle( {
+			frameId: 0,
+			phase: ProtectionRuntimeNavigationPhase.ERROR_OCCURRED,
+			tabId: 7,
+			url: 'https://unprotected.test/',
+		} );
+
+		expect( harness.departTab ).not.toHaveBeenCalled();
+		expect( harness.releaseNavigationIfInterrupted ).not.toHaveBeenCalled();
+		expect( harness.coordinator.states ).toMatchObject( {
+			[ DEFAULT_SCOPE_ID ]: {
+				type: ProtectionStateType.WAITING,
+				participants: [ { retainedDestination: 'https://example.com/private' } ],
+			},
+		} );
+	} );
+
+	it( 'preserves a pending protected destination when the previous unprotected page reports an error', async () => {
+		const harness = createHarness( createNavigationWaitingSnapshot() );
+		harness.listTabs.mockResolvedValue( [ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ] );
+
+		await harness.handler.handle( {
+			frameId: 0,
+			phase: ProtectionRuntimeNavigationPhase.BEFORE_NAVIGATE,
+			tabId: 7,
+			url: 'https://independent.test/',
+		} );
+		await harness.handler.handle( {
+			frameId: 0,
+			phase: ProtectionRuntimeNavigationPhase.ERROR_OCCURRED,
+			tabId: 7,
+			url: 'https://unprotected.test/',
+		} );
+		await harness.handler.handle( {
+			frameId: 0,
+			phase: ProtectionRuntimeNavigationPhase.COMMITTED,
+			tabId: 7,
+			transitionQualifiers: [ 'server_redirect' ],
+			transitionType: 'typed',
+			url: INTERRUPTION_PAGE_URL,
+		} );
+
+		expect( harness.coordinator.events ).toMatchObject( [ {
+			type: ProtectionEventType.VISIT_ATTEMPT,
+			scopeId: INDEPENDENT_SCOPE_ID,
+			participant: { retainedDestination: 'https://independent.test/' },
+		} ] );
+		expect( harness.departTab ).toHaveBeenCalledExactlyOnceWith( 7, DepartureCause.REDIRECT, CONFIGURATION );
+		expect( harness.releaseNavigationIfInterrupted ).not.toHaveBeenCalled();
+	} );
+
 	it.each( [
 		{ url: 'about:blank' },
 		{ url: INTERRUPTION_PAGE_URL, pendingUrl: 'about:blank' },
@@ -536,8 +596,8 @@ describe( 'createProtectionNavigationHandler', () => {
 		expect( harness.releaseNavigationIfInterrupted ).toHaveBeenCalledWith( 7, 'about:blank' );
 	} );
 
-	it( 'reconciles a browser error when no participant exists', async () => {
-		const harness = createHarness( {} );
+	it.each( [ {}, null ] )( 'reconciles a browser error when no participant exists in %j', async ( states ) => {
+		const harness = createHarness( states );
 
 		await harness.handler.handle( {
 			frameId: 0,
@@ -549,6 +609,27 @@ describe( 'createProtectionNavigationHandler', () => {
 		expect( harness.departTab ).not.toHaveBeenCalled();
 		expect( harness.coordinator.events ).toEqual( [] );
 		expect( harness.reconcileBrowserState ).toHaveBeenCalledWith( CONFIGURATION );
+	} );
+
+	it( 'cleans up an owned navigation error after its pending URL disappears', async () => {
+		const harness = createHarness( createNavigationWaitingSnapshot() );
+		harness.listTabs.mockResolvedValue( [ { id: 7, incognito: false, url: 'https://unprotected.test/' } ] );
+
+		await harness.handler.handle( {
+			frameId: 0,
+			phase: ProtectionRuntimeNavigationPhase.ERROR_OCCURRED,
+			tabId: 7,
+			url: 'https://example.com/private',
+		} );
+
+		expect( harness.departTab ).toHaveBeenCalledExactlyOnceWith(
+			7,
+			DepartureCause.BROWSER_ERROR_OR_RECOVERY,
+			CONFIGURATION,
+		);
+		expect( harness.coordinator.states ).toEqual( {} );
+		expect( harness.reconcileBrowserState ).toHaveBeenCalledWith( CONFIGURATION );
+		expect( harness.releaseNavigationIfInterrupted ).not.toHaveBeenCalled();
 	} );
 
 	it( 'retains committed departure evidence when the live tab disappears during observation', async () => {

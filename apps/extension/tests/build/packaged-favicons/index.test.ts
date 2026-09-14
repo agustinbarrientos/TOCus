@@ -5,9 +5,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PNG } from 'pngjs';
-import { chromium, type Page } from 'playwright';
-import { describe, expect, test } from 'vitest';
-import type { ExtensionManifest, ExtensionWorkerGlobal, FaviconTestFixture } from './types';
+import { expect, test as base, type Page } from '@playwright/test';
+import type { ExtensionManifest, ExtensionWorkerGlobal, FaviconTestFixture, PackagedFaviconFixtures } from './types';
 
 /**
  * Creates a distinctive website icon unrelated to any TOCus artwork.
@@ -63,80 +62,104 @@ async function readCachedFavicon( fixture: FaviconTestFixture, pageUrl: string )
 	return readImageHash( fixture.reader, source.href );
 }
 
-/**
- * Launches the packaged extension with only a disposable synthetic website grant.
- * @return Isolated browser, local server, and native favicon reader.
- * @since 0.1.0 Initial implementation.
- */
-async function createFixture(): Promise<FaviconTestFixture> {
-	const directory = await mkdtemp( join( tmpdir(), 'tocus-packaged-favicons-' ) );
-	const extensionPath = join( directory, 'extension' );
-	const server = createServer( ( request, response ) => {
-		if ( request.url === '/favicon.png' ) {
-			response.writeHead( 200, { 'Content-Type': 'image/png' } );
-			response.end( PNG.sync.write( createWebsiteIcon() ) );
-			return;
-		}
-		response.writeHead( 200, { 'Content-Type': 'text/html' } );
-		response.end( '<!doctype html><html lang="en"><title>Independent website</title><link rel="icon" type="image/png" sizes="32x32" href="/favicon.png"><body><h1>Original website</h1></body></html>' );
-	} );
-	let context: FaviconTestFixture[ 'context' ] | undefined;
-
-	try {
-		await cp( fileURLToPath( new URL( '../../../.output/chrome-mv3/', import.meta.url ) ), extensionPath, { recursive: true } );
-		const manifestPath = join( extensionPath, 'manifest.json' );
-		const manifest = JSON.parse( await readFile( manifestPath, 'utf8' ) ) as ExtensionManifest;
-
-		expect( manifest.permissions ).not.toContain( 'bookmarks' );
-		// Retain every production icon: manifest fallback must participate in this regression.
-		// Bookmarks and synthetic host access belong only to this disposable installation.
-		manifest.permissions = [ ...manifest.permissions ?? [], ...manifest.optional_permissions ?? [], 'bookmarks' ];
-		manifest.host_permissions = [ '*://*.example.test/*' ];
-		delete manifest.optional_permissions;
-		await writeFile( manifestPath, JSON.stringify( manifest ) );
-		await new Promise<void>( ( resolve, reject ) => {
-			server.once( 'error', reject );
-			server.listen( 0, '127.0.0.1', () => {
-				server.off( 'error', reject );
-				resolve();
-			} );
+const test = base.extend<PackagedFaviconFixtures>( {
+	/**
+	 * Owns the packaged browser, profile, and loopback server through acquisition and teardown.
+	 * @param root0 - Browser runner dependencies.
+	 * @param root0.playwright - Instrumented browser APIs retaining configured diagnostics.
+	 * @param use - Runs one scenario with its disposable installation.
+	 */
+	favicon: async ( { playwright }, use ) => {
+		const server = createServer( ( request, response ) => {
+			if ( request.url === '/favicon.png' ) {
+				response.writeHead( 200, { 'Content-Type': 'image/png' } );
+				response.end( PNG.sync.write( createWebsiteIcon() ) );
+				return;
+			}
+			response.writeHead( 200, { 'Content-Type': 'text/html' } );
+			response.end( '<!doctype html><html lang="en"><title>Independent website</title><link rel="icon" type="image/png" sizes="32x32" href="/favicon.png"><body><h1>Original website</h1></body></html>' );
 		} );
-		const address = server.address();
+		let directory: string | undefined;
+		let context: FaviconTestFixture[ 'context' ] | undefined;
 
-		if ( address === null || typeof address === 'string' ) {
-			throw new Error( 'The synthetic favicon server is unavailable.' );
-		}
-		const siteUrl = `http://example.test:${ String( address.port ) }/`;
+		try {
+			directory = await mkdtemp( join( tmpdir(), 'tocus-packaged-favicons-' ) );
+			const extensionPath = join( directory, 'extension' );
 
-		context = await chromium.launchPersistentContext( join( directory, 'profile' ), {
-			channel: 'chromium',
-			headless: true,
-			args: [
+			await cp( fileURLToPath( new URL( '../../../.output/chrome-mv3/', import.meta.url ) ), extensionPath, { recursive: true } );
+			const manifestPath = join( extensionPath, 'manifest.json' );
+			const manifest = JSON.parse( await readFile( manifestPath, 'utf8' ) ) as ExtensionManifest;
+
+			expect( manifest.permissions ).not.toContain( 'bookmarks' );
+			// Retain every production icon: manifest fallback must participate in this regression.
+			// Bookmarks and synthetic host access belong only to this disposable installation.
+			manifest.permissions = [ ...manifest.permissions ?? [], ...manifest.optional_permissions ?? [], 'bookmarks' ];
+			manifest.host_permissions = [ '*://*.example.test/*' ];
+			delete manifest.optional_permissions;
+			await writeFile( manifestPath, JSON.stringify( manifest ) );
+			await new Promise<void>( ( resolve, reject ) => {
+				server.once( 'error', reject );
+				server.listen( 0, '127.0.0.1', () => {
+					server.off( 'error', reject );
+					resolve();
+				} );
+			} );
+			const address = server.address();
+
+			if ( address === null || typeof address === 'string' ) {
+				throw new Error( 'The synthetic favicon server is unavailable.' );
+			}
+			const siteUrl = `http://example.test:${ String( address.port ) }/`;
+
+			context = await playwright.chromium.launchPersistentContext( join( directory, 'profile' ), {
+				channel: 'chromium',
+				headless: true,
+				timeout: 10_000,
+				args: [
 				`--disable-extensions-except=${ extensionPath }`, `--load-extension=${ extensionPath }`,
 				'--host-resolver-rules=MAP example.test 127.0.0.1', '--no-proxy-server',
-			],
-		} );
-		await context.route( /^https?:\/\//u, ( route ) => {
-			return new URL( route.request().url() ).origin === new URL( siteUrl ).origin
-				? route.continue()
-				: route.abort();
-		} );
-		const worker = context.serviceWorkers()[ 0 ] ?? await context.waitForEvent( 'serviceworker' );
-		const extensionRoot = await worker.evaluate( () => {
-			const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
-			return chrome.runtime.getURL( '/' );
-		} );
-		const reader = await context.newPage();
+				],
+			} );
+			await context.route( /^https?:\/\//u, ( route ) => {
+				return new URL( route.request().url() ).origin === new URL( siteUrl ).origin
+					? route.continue()
+					: route.abort();
+			} );
+			const worker = context.serviceWorkers()[ 0 ] ?? await context.waitForEvent( 'serviceworker' );
+			const extensionRoot = await worker.evaluate( () => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				return chrome.runtime.getURL( '/' );
+			} );
+			const reader = await context.newPage();
 
-		await reader.goto( `${ extensionRoot }options.html` );
-		return { context, directory, extensionRoot, reader, server, siteUrl, worker };
-	} catch ( error ) {
-		await context?.close();
-		server.close();
-		await rm( directory, { recursive: true, force: true } );
-		throw error;
-	}
-}
+			await reader.goto( `${ extensionRoot }options.html` );
+			await use( { context, extensionRoot, reader, siteUrl, worker } );
+		} finally {
+			try {
+				await context?.close();
+			} finally {
+				try {
+					if ( server.listening ) {
+						await new Promise<void>( ( resolve, reject ) => {
+							server.close( ( error ) => {
+								if ( error !== undefined ) {
+									reject( error );
+									return;
+								}
+								resolve();
+							} );
+							server.closeAllConnections();
+						} );
+					}
+				} finally {
+					if ( directory !== undefined ) {
+						await rm( directory, { recursive: true, force: true } );
+					}
+				}
+			}
+		}
+	},
+} );
 
 /**
  * Recreates the explicit favicon declaration made by the former pause document.
@@ -220,48 +243,48 @@ async function openReadyPause( fixture: FaviconTestFixture ): Promise<Page> {
 	return pause;
 }
 
-describe( 'packaged Chrome favicon preservation', () => {
-	test.each( [ false, true ] )( 'preserves a website favicon through pause and Continue with legacy bookmark state: %s', async ( legacyState ) => {
-		const fixture = await createFixture();
+test.describe( 'packaged Chrome favicon preservation', () => {
+	for ( const legacyState of [ false, true ] ) {
+		test( `preserves a website favicon through pause and Continue with legacy bookmark state: ${ String( legacyState ) }`, async ( { favicon: fixture } ) => {
+			test.setTimeout( 45_000 );
+			const websiteHash = createHash( 'sha256' ).update( createWebsiteIcon().data ).digest( 'hex' );
+
+			await test.step( 'Prepare the original website favicon and optional legacy bookmark', async () => {
+				if ( legacyState ) {
+					await seedLegacyFavicon( fixture );
+					await fixture.worker.evaluate( async ( url ) => {
+						const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+						await chrome.bookmarks.create( { title: 'Independent website', url } );
+					}, fixture.siteUrl );
+				}
+				const website = await fixture.context.newPage();
+
+				await website.goto( fixture.siteUrl );
+				await expect.poll( () => readCachedFavicon( fixture, fixture.siteUrl ) ).toBe( websiteHash );
+				await website.close();
+			} );
+			const pause = await test.step( 'Complete the real ten-second pause', async () => {
+				await enableProtection( fixture );
+				return openReadyPause( fixture );
+			} );
+
+			await test.step( 'Keep the original favicon before and after Continue', async () => {
+				// Ready follows the real ten-second pause, leaving Chrome time to persist favicon updates.
+				expect( await readCachedFavicon( fixture, fixture.siteUrl ) ).toBe( websiteHash );
+				await pause.getByRole( 'button', { name: 'Continue', exact: true } ).click();
+				await pause.waitForURL( fixture.siteUrl, { timeout: 5_000 } );
+				await expect( pause.getByRole( 'heading', { name: 'Original website' } ) ).toBeVisible();
+				expect( await readCachedFavicon( fixture, fixture.siteUrl ) ).toBe( websiteHash );
+			} );
+		} );
+	}
+
+	test( 'relearns a contaminated website favicon after Continue and preserves it at the next pause', async ( { favicon: fixture } ) => {
+		test.setTimeout( 75_000 );
 		const websiteHash = createHash( 'sha256' ).update( createWebsiteIcon().data ).digest( 'hex' );
-
-		try {
-			if ( legacyState ) {
-				await seedLegacyFavicon( fixture );
-				await fixture.worker.evaluate( async ( url ) => {
-					const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
-					await chrome.bookmarks.create( { title: 'Independent website', url } );
-				}, fixture.siteUrl );
-			}
-			const website = await fixture.context.newPage();
-
-			await website.goto( fixture.siteUrl );
-			await expect.poll( () => readCachedFavicon( fixture, fixture.siteUrl ) ).toBe( websiteHash );
-			await website.close();
-			await enableProtection( fixture );
-			const pause = await openReadyPause( fixture );
-			const continueButton = pause.getByRole( 'button', { name: 'Continue', exact: true } );
-
-			// Ready follows the real ten-second pause, leaving Chrome time to persist favicon updates.
-			expect( await readCachedFavicon( fixture, fixture.siteUrl ) ).toBe( websiteHash );
-			await continueButton.click();
-			await pause.waitForURL( fixture.siteUrl, { timeout: 5_000 } );
-			expect( await pause.getByRole( 'heading', { name: 'Original website' } ).isVisible() ).toBe( true );
-			expect( await readCachedFavicon( fixture, fixture.siteUrl ) ).toBe( websiteHash );
-		} finally {
-			await fixture.context.close();
-			fixture.server.close();
-			await rm( fixture.directory, { recursive: true, force: true } );
-		}
-	}, 30_000 );
-
-	test( 'relearns a contaminated website favicon after Continue and preserves it at the next pause', async () => {
-		const fixture = await createFixture();
-		const websiteHash = createHash( 'sha256' ).update( createWebsiteIcon().data ).digest( 'hex' );
-
-		try {
+		const brandedHash = await test.step( 'Seed the former extension favicon and redirect', async () => {
 			await seedLegacyFavicon( fixture );
-			const brandedHash = await readImageHash( fixture.reader, `${ fixture.extensionRoot }icons/tab-dark.png` );
+			const legacyHash = await readImageHash( fixture.reader, `${ fixture.extensionRoot }icons/tab-dark.png` );
 
 			await enableProtection( fixture );
 			// Recreate the old redirect using the browser API, without editing its favicon database.
@@ -277,8 +300,11 @@ describe( 'packaged Chrome favicon preservation', () => {
 					} ) ),
 				} );
 			} );
-			const legacyPause = await openReadyPause( fixture );
+			return legacyHash;
+		} );
+		const legacyPause = await test.step( 'Complete the first real ten-second pause', () => openReadyPause( fixture ) );
 
+		await test.step( 'Observe the contaminated favicon and relearn the website icon after Continue', async () => {
 			expect( legacyPause.url() ).toBe( `${ fixture.extensionRoot }interruption.html` );
 			// Seeding a separate document does not deterministically populate a redirect's cache entry.
 			// Recreate the old declaration on the redirected tab and observe its actual persisted effect.
@@ -288,14 +314,11 @@ describe( 'packaged Chrome favicon preservation', () => {
 			await legacyPause.waitForURL( fixture.siteUrl, { timeout: 5_000 } );
 			await expect.poll( () => readCachedFavicon( fixture, fixture.siteUrl ) ).toBe( websiteHash );
 			await legacyPause.close();
-
+		} );
+		await test.step( 'Preserve the repaired favicon through the second real ten-second pause', async () => {
 			await enableProtection( fixture, 'scope_revisit' );
 			await openReadyPause( fixture );
 			expect( await readCachedFavicon( fixture, fixture.siteUrl ) ).toBe( websiteHash );
-		} finally {
-			await fixture.context.close();
-			fixture.server.close();
-			await rm( fixture.directory, { recursive: true, force: true } );
-		}
-	}, 45_000 );
+		} );
+	} );
 } );

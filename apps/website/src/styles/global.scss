@@ -445,8 +445,8 @@ body { margin: 0; }
 }
 
 @media (width >= 64rem) and (height <= 60rem) {
-	// Narrower zero glyphs must not wrap the introduction below the first screen.
-	.homepage .description { max-width: max(43ch, 26.5em); }
+	// Use the available hero column so wider system fonts do not push the preview below the first screen.
+	.homepage .description { max-width: none; }
 }
 
 @media (width >= 64rem) and (height <= 52rem) {
