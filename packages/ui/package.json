@@ -11,19 +11,19 @@
 	},
 	"dependencies": {
 		"@tocus/theme": "workspace:*",
-		"@mantine/core": "9.6.0",
-		"@mantine/hooks": "9.6.0"
+		"@mantine/core": "9.6.1",
+		"@mantine/hooks": "9.6.1"
 	},
 	"peerDependencies": { "react": "^19.2.0", "react-dom": "^19.2.0" },
 	"devDependencies": {
-		"@types/react": "19.2.18",
-		"@types/react-dom": "19.2.7",
-		"playwright": "1.62.1",
-		"react": "19.2.8",
-		"react-dom": "19.2.8",
-		"sass": "1.103.1",
-		"typescript": "6.0.3",
-		"vite": "8.2.2",
-		"vitest": "4.1.11"
+		"@types/react": "19.3.0",
+		"@types/react-dom": "19.3.0",
+		"playwright": "1.63.0",
+		"react": "19.3.0",
+		"react-dom": "19.3.0",
+		"sass": "1.104.0",
+		"typescript": "7.0.2",
+		"vite": "8.3.0",
+		"vitest": "5.0.0"
 	}
 }
