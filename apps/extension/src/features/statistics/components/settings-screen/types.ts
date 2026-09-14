@@ -55,9 +55,7 @@ export interface StatisticsSource extends StatisticsChangeSource {
  * @since 0.1.0 Initial implementation.
  */
 export interface StatisticsSettingsScreenCopy {
-	eyebrow: string;
 	title: string;
-	introduction: string;
 	allTimeTitle: string;
 	estimatedReclaimedLabel: string;
 	focusedPauseLabel: string;
@@ -65,7 +63,14 @@ export interface StatisticsSettingsScreenCopy {
 	completedWaitsLabel: string;
 	allowancesGrantedLabel: string;
 	estimationDescription: string;
-	emptyMessage: string;
+	dailyTitle: string;
+	dailyEmpty: string;
+	dateLabel: string;
+	/**
+	 * Formats a recorded local calendar date without shifting its day.
+	 * @since 0.1.0
+	 */
+	formatDate( date: string ): string;
 	loading: string;
 	unavailableTitle: string;
 	unavailableDescription: string;
@@ -95,6 +100,13 @@ export interface StatisticsSettingsScreenCopy {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	formatDuration( milliseconds: number ): string;
+	/**
+	 * Formats a chart-axis duration using compact localized units without minute rounding.
+	 * @param milliseconds - Non-negative axis tick in milliseconds.
+	 * @return Compact seconds, minutes or hours suitable for an axis label.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	formatAxisDuration( milliseconds: number ): string;
 	/**
 	 * Formats one non-negative metric count.
 	 * @param count - Non-negative metric count.
