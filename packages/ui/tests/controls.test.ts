@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { TocusAppearance, TocusPalette } from '../src/types';
 import { FixtureFrequency, FixtureMediaMode } from './fixture/types';
+import { measureContrast } from './utils/measure-contrast';
 
 const url = '/packages/ui/tests/fixture/';
 
@@ -333,78 +334,49 @@ test.describe( 'shared controls', () => {
 		await page.keyboard.press( 'Enter' );
 		expect( await page.getByRole( 'combobox', { name: 'Frequency' } ).inputValue() ).toBe( 'Weekly' );
 	} );
-	// Catches brand mappings that erase semantic colors, contrast, or provider isolation.
-	test( 'keeps semantic text legible in every palette, scheme and interaction state', async ( { page } ) => {
-		for ( const appearance of [ TocusAppearance.LIGHT, TocusAppearance.DARK ] ) {
-			for ( const palette of Object.values( TocusPalette ) ) {
+	// Each theme gets an isolated case and budget, not twelve navigations inside one timeout.
+	for ( const appearance of [ TocusAppearance.LIGHT, TocusAppearance.DARK ] ) {
+		for ( const palette of Object.values( TocusPalette ) ) {
+			test( `keeps semantic text legible in ${ appearance }/${ palette } across interaction states`, async ( { page, browserName } ) => {
+				const tabKey = browserName === 'webkit' && process.platform === 'darwin' ? 'Alt+Tab' : 'Tab';
 				await page.goto( `${ url }?appearance=${ appearance }&palette=${ palette }` );
-				await page.getByRole( 'button', { name: 'Save', exact: true } ).waitFor( { timeout: 1500 } );
+				await expect( page.getByRole( 'button', { name: 'Save', exact: true } ) ).toBeVisible( { timeout: 1500 } );
 				const surfaces = page.locator( '[data-contrast]' );
-				const colors = [];
-				for ( const surface of await surfaces.all() ) {
-					for ( const state of [ 'normal', 'hover', 'focus' ] ) {
+				// Read resting colors together, before hover/focus can contaminate the next surface.
+				const resting = await surfaces.evaluateAll( measureContrast );
+				expect( resting.map( ( result ) => result.label ) ).toEqual( [
+					'Save', 'Discard', 'Delete', 'Unavailable', 'Current page',
+					'Could not save', 'Saved successfully', 'Review browser access', 'Stored on this device',
+				] );
+				expect( resting.filter( ( result ) => result.focusable ).map( ( result ) => result.label ) ).toEqual( [
+					'Save', 'Discard', 'Delete', 'Current page',
+				] );
+				expect( new Set( resting.map( ( result ) => result.background ) ).size ).toBeGreaterThanOrEqual( 5 );
+				for ( const [ index, result ] of resting.entries() ) {
+					expect( result.ratio, `${ result.label }/normal` ).toBeGreaterThanOrEqual( 4.5 );
+					const surface = surfaces.nth( index );
+					await surface.hover();
+					const [ hovered ] = await surface.evaluateAll( measureContrast );
+					expect( hovered?.ratio, `${ result.label }/hover` ).toBeGreaterThanOrEqual( 4.5 );
+					// Notices and disabled controls cannot receive native focus; do not fake that state.
+					if ( result.focusable ) {
 						await page.mouse.move( 0, 0 );
-						if ( state === 'hover' ) {
-							await surface.hover();
-						}
-						if ( state === 'focus' ) {
-							await surface.focus();
-						}
-						/**
-						 * Measures the rendered foreground against its first opaque ancestor surface.
-						 */
-						const result = await surface.evaluate( ( element ) => {
-							const style = getComputedStyle( element );
-							const canvas = document.createElement( 'canvas' );
-							canvas.width = canvas.height = 1;
-							const context = canvas.getContext( '2d' );
-							if ( ! context ) {
-								throw new Error( 'Canvas unavailable for contrast calculation' );
-							}
-							/**
-							 * Resolves browser colors, including color-mix, to sRGB channels.
-							 * @param color - Computed CSS color.
-							 * @return Red, green and blue channels.
-							 */
-							const rgb = ( color: string ) => {
-								context.clearRect( 0, 0, 1, 1 );
-								context.fillStyle = color;
-								context.fillRect( 0, 0, 1, 1 );
-								return Array.from( context.getImageData( 0, 0, 1, 1 ).data ).slice( 0, 3 );
-							};
-							let parent: Element = element;
-							let background = style.backgroundColor;
-							while ( background === 'rgba(0, 0, 0, 0)' && parent.parentElement ) {
-								parent = parent.parentElement; background = getComputedStyle( parent ).backgroundColor;
-							}
-							/**
-							 * Computes WCAG relative luminance from the rendered color.
-							 * @param color - Computed CSS color.
-							 * @return Relative luminance.
-							 */
-							const luminance = ( color: string ) => rgb( color ).reduce( ( total, value, index ) => {
-								const channel = value / 255;
-								const linear = channel <= 0.04045 ? channel / 12.92
-									: ( ( channel + 0.055 ) / 1.055 ) ** 2.4;
-								return total + linear * ( [ 0.2126, 0.7152, 0.0722 ][ index ] ?? 0 );
-							}, 0 );
-							const foreground = luminance( style.color ); const back = luminance( background );
-							const ratio = ( Math.max( foreground, back ) + 0.05 )
-								/ ( Math.min( foreground, back ) + 0.05 );
-							return { ratio, background };
+						await surface.focus();
+						await page.keyboard.press( `Shift+${ tabKey }` );
+						await page.keyboard.press( tabKey );
+						await expect( surface ).toBeFocused();
+						const [ focused ] = await surface.evaluateAll( measureContrast );
+						expect( focused?.ratio, `${ result.label }/keyboard focus` ).toBeGreaterThanOrEqual( 4.5 );
+						await surface.evaluate( ( element ) => {
+							( element as HTMLElement ).blur();
 						} );
-						expect( result.ratio, `${ appearance }/${ palette }/${ await surface.textContent() ?? '' }/${ state }` ).toBeGreaterThanOrEqual( 4.5 );
-						if ( state === 'normal' ) {
-							colors.push( result.background );
-						}
 					}
 				}
-				expect( new Set( colors ).size ).toBeGreaterThanOrEqual( 5 );
 				expect( await page.locator( 'html' ).getAttribute( 'data-mantine-color-scheme' ) ).toBeNull();
 				expect( await page.evaluate( () => localStorage.length ) ).toBe( 0 );
-			}
+			} );
 		}
-	} );
+	}
 	// Catches a provider scale regression, missing local font, or unscoped theme updates.
 	test( 'isolates providers, scales compact pages, bundles fonts, and fits narrow viewports', async ( { page, baseURL } ) => {
 		await page.setViewportSize( { width: 360, height: 800 } );
