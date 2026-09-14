@@ -29,6 +29,8 @@ export function resetStatistics(
 	return {
 		...document,
 		generationId: operation.generationId,
+		firstRecordedDate: null,
+		dailyTotals: [],
 		scopes: Object.fromEntries( scopes ),
 	};
 }

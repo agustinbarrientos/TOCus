@@ -52,6 +52,8 @@ export function createStatisticsDocument( generationId: unknown ): StatisticsDoc
 		schemaVersion: StatisticsDocumentVersion,
 		generationId: StatisticsGenerationIdSchema.parse( generationId ),
 		lastAppliedBatchId: null,
+		firstRecordedDate: null,
+		dailyTotals: [],
 		scopes: {},
 	} );
 }
