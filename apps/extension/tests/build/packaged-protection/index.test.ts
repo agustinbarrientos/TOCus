@@ -196,10 +196,10 @@ test.describe( 'packaged Chrome protection', () => {
 
 					await chrome.storage.local.set( {
 						'tocus.protection.configuration.v1': {
-							schemaVersion: 4,
+							schemaVersion: 5,
 							sites: [ { identityHost: 'example.test', rule: { host: 'example.test', includeSubdomains: true, scopeId: 'scope_default' } } ],
 							timingConfiguration: { initialWaitMilliseconds: 10000, ladderIncreaseMilliseconds: 5000, maximumWaitMilliseconds: 60000, allowanceMilliseconds: 300000, completionAction: 'show-continue' },
-							schedulesByScope: { scope_default: { mode: 'always' } },
+							schedule: { mode: 'always' },
 							measurementRevisionsByScope: { scope_default: 'revision_packaged' },
 						},
 					} );
@@ -313,11 +313,11 @@ test.describe( 'packaged Chrome protection', () => {
 				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
 				await chrome.storage.local.set( {
 					'tocus.protection.configuration.v1': {
-						schemaVersion: 4,
-						sites: [ { identityHost: 'example.test', rule: { host: 'example.test', includeSubdomains: true, scopeId: 'scope_audio' } } ],
+						schemaVersion: 5,
+						sites: [ { identityHost: 'example.test', rule: { host: 'example.test', includeSubdomains: true, scopeId: 'scope_default' } } ],
 						timingConfiguration: { initialWaitMilliseconds: 10000, ladderIncreaseMilliseconds: 0, maximumWaitMilliseconds: 30000, allowanceMilliseconds: 120000, completionAction: 'show-continue' },
-						schedulesByScope: { scope_default: { mode: 'always' }, scope_audio: { mode: 'always' } },
-						measurementRevisionsByScope: { scope_default: 'revision_packaged', scope_audio: 'revision_packaged_audio' },
+						schedule: { mode: 'always' },
+						measurementRevisionsByScope: { scope_default: 'revision_packaged_audio' },
 					},
 				} );
 			} );
@@ -337,7 +337,7 @@ test.describe( 'packaged Chrome protection', () => {
 				await continueButton.waitFor( { state: 'visible', timeout: 15_000 } );
 				await continueButton.click();
 				await page.waitForURL( destination, { timeout: 5_000 } );
-				const allowance = ( await readDurableState( worker ) ).scopes.scope_audio?.allowance;
+				const allowance = ( await readDurableState( worker ) ).scopes.scope_default?.allowance;
 				expect( allowance ).toBeDefined();
 				expect(
 					( allowance?.expiresAtEpochMilliseconds ?? 0 ) - ( allowance?.startedAtEpochMilliseconds ?? 0 ),
@@ -363,7 +363,7 @@ test.describe( 'packaged Chrome protection', () => {
 					return nodes.some( ( node ) => ! node.ignored && node.role?.value === 'button' && node.name?.value === 'Continue' );
 				}, { timeout: 15_000 } ).toBe( true );
 				expect( await readTabMuted( worker, destination ) ).toBe( true );
-				expect( ( await readDurableState( worker ) ).scopes.scope_audio?.allowance ).toBeUndefined();
+				expect( ( await readDurableState( worker ) ).scopes.scope_default?.allowance ).toBeUndefined();
 				await page.keyboard.press( 'Space' );
 				await expect.poll( async () => {
 					const { nodes } = await accessibility.send( 'Accessibility.getFullAXTree' );
