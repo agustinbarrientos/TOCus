@@ -160,7 +160,7 @@ export function ProductDemo( {
 							<header className="product-demo-youtube-header">
 								<span className="product-demo-youtube-brand">
 									<img src={ youtubeIcon } alt="" width="30" height="30" />YouTube</span>
-								{ browsing ? <div className="product-demo-time-left"><Icon name={ IconName.STOPWATCH } />
+								{ browsing ? <div className="product-demo-time-left"><Icon name={ IconName.PAUSE } />
 									<span>{ copy.timeLeft } <time dateTime={ `PT${ String( allowanceSeconds ) }S` }>
 										{ allowance }</time></span>
 								</div> : <div className="product-demo-search" aria-hidden="true"><i /><span /></div> }
