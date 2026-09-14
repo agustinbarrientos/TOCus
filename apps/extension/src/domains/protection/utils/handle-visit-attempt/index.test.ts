@@ -21,17 +21,28 @@ import {
 import { handleVisitAttempt } from './index';
 
 describe( 'visit-attempt transition', () => {
-	it( 'withdraws a pending allowance and releases every participant on an inactive visit', () => {
+	it( 'releases an inactive new website without cancelling another website shared pause', () => {
+		const state = createWaitingState();
+		const result = handleVisitAttempt( state, createVisitAttempt( 'participant-b', 'page-b', true, {
+			schedule: { status: ScheduleEvaluationStatus.INACTIVE },
+		} ) );
+
+		expect( result.state ).toEqual( state );
+		expect( result.decisions ).toEqual( [ {
+			type: ProtectionDecisionType.RELEASE_NAVIGATION,
+			participantId: 'participant-b',
+			pageId: 'page-b',
+			retainedDestination: 'https://example.com/page-b',
+		} ] );
+		expect( result.facts ).toEqual( [] );
+	} );
+	it( 'preserves a pending shared allowance when a different website is inactive', () => {
 		const state = createReadyState();
 		const result = handleVisitAttempt( state, createVisitAttempt( 'participant-b', 'page-b', true, {
 			schedule: { status: ScheduleEvaluationStatus.INACTIVE },
 		} ) );
-		expect( result.state ).toEqual( {
-			type: ProtectionStateType.IDLE,
-			scopeId: state.scopeId,
-			ladder: state.ladder,
-		} );
-		expect( result.decisions ).toMatchObject( [ { participantId: 'participant-a' }, { participantId: 'participant-b' } ] );
+		expect( result.state ).toEqual( state );
+		expect( result.decisions ).toMatchObject( [ { participantId: 'participant-b' } ] );
 		expect( result.facts ).toEqual( [] );
 	} );
 
@@ -56,7 +67,7 @@ describe( 'visit-attempt transition', () => {
 	it.each( [
 		{ status: ScheduleEvaluationStatus.INACTIVE },
 		{ status: ScheduleEvaluationStatus.ERROR, reason: 'invalid-time-zone' as const },
-	] )( 'deactivates a shared wait when a visit observes schedule status $status', ( schedule ) => {
+	] )( 'removes only an existing inactive website from the shared wait for $status', ( schedule ) => {
 		const state = {
 			...createWaitingState(),
 			participants: [
@@ -67,24 +78,9 @@ describe( 'visit-attempt transition', () => {
 		const event = createVisitAttempt( 'participant-a', 'page-a', true, { schedule } );
 
 		expect( handleVisitAttempt( state, event ) ).toEqual( {
-			state: {
-				type: ProtectionStateType.IDLE,
-				scopeId: 'scope-default',
-				ladder: { completedWaits: 0, greatestObservedLocalDate: '2026-08-31' },
-			},
-			decisions: [
-				{
-					type: ProtectionDecisionType.RELEASE_NAVIGATION,
-					participantId: 'participant-a',
-					pageId: 'page-a',
-					retainedDestination: 'https://example.com/page-a',
-				},
-				{
-					type: ProtectionDecisionType.DISMISS_INTERRUPTION,
-					participantId: 'participant-expiry',
-					pageId: 'page-expiry',
-				},
-			],
+			state: { ...state, participants: [ state.participants[ 1 ] ], ownerParticipantId: null, ownerEpoch: 2 },
+			decisions: [ { type: ProtectionDecisionType.RELEASE_NAVIGATION, participantId: 'participant-a',
+				pageId: 'page-a', retainedDestination: 'https://example.com/page-a' } ],
 			facts: [],
 		} );
 	} );
@@ -92,7 +88,7 @@ describe( 'visit-attempt transition', () => {
 	it.each( [
 		{ status: ScheduleEvaluationStatus.INACTIVE },
 		{ status: ScheduleEvaluationStatus.ERROR, reason: 'invalid-time-zone' as const },
-	] )( 'clears Ready participants when a visit observes schedule status $status', ( schedule ) => {
+	] )( 'preserves other Ready participants during an inactive new visit for $status', ( schedule ) => {
 		const state = {
 			...createAllowanceState(),
 			readyParticipants: [
@@ -106,29 +102,9 @@ describe( 'visit-attempt transition', () => {
 		} );
 
 		expect( handleVisitAttempt( state, event ) ).toEqual( {
-			state: {
-				...state,
-				readyParticipants: [],
-			},
-			decisions: [
-				{
-					type: ProtectionDecisionType.RELEASE_NAVIGATION,
-					participantId: 'participant-a',
-					pageId: 'page-a',
-					retainedDestination: 'https://example.com/page-a',
-				},
-				{
-					type: ProtectionDecisionType.DISMISS_INTERRUPTION,
-					participantId: 'participant-expiry',
-					pageId: 'page-expiry',
-				},
-				{
-					type: ProtectionDecisionType.RELEASE_NAVIGATION,
-					participantId: 'participant-b',
-					pageId: 'page-b',
-					retainedDestination: 'https://example.com/page-b',
-				},
-			],
+			state,
+			decisions: [ { type: ProtectionDecisionType.RELEASE_NAVIGATION, participantId: 'participant-b',
+				pageId: 'page-b', retainedDestination: 'https://example.com/page-b' } ],
 			facts: [],
 		} );
 	} );
