@@ -21,7 +21,7 @@ export function getPopupSiteIdentityInput( current: PopupIdentifiedCurrentSite )
 }
 
 /**
- * Finds the current site's authoritative timer without showing another site's countdown.
+ * Returns the shared timer only for a current protected website.
  * @param current - Current website identity and optional scope membership.
  * @param scopes - Active background-owned timers.
  * @return Current scope timer, or undefined when the current site has no active timer.
@@ -34,7 +34,8 @@ export function getPopupCurrentScope(
 	if ( current.status !== PopupCurrentSiteStatus.PROTECTED ) {
 		return undefined;
 	}
-	return scopes.find( ( scope ) => scope.isCurrentScope && scope.scopeId === current.scopeId );
+	const scope = scopes[ 0 ];
+	return scope?.isCurrentScope ? scope : undefined;
 }
 
 /**

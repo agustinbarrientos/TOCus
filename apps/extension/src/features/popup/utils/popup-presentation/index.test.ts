@@ -46,14 +46,11 @@ describe( 'popup presentation projection', () => {
 		expect( UnlistedSite.status ).toBe( PopupCurrentSiteStatus.UNPROTECTED );
 	} );
 
-	it( 'never attributes another website timer to the current website', () => {
-		const otherScope = PopupActiveScopeSchema.parse( {
-			...Wait, scopeId: 'other_scope', isCurrentScope: false,
-		} );
+	it( 'shows the shared timer only when it is marked current for a protected website', () => {
 		expect( getPopupCurrentScope( UnlistedSite, [ Wait ] ) ).toBeUndefined();
-		expect( getPopupCurrentScope( ListedSite, [ otherScope ] ) ).toBeUndefined();
-		expect( getPopupCurrentScope( ListedSite, [ otherScope, Wait ] ) ).toBe( Wait );
-		expect( getPopupCurrentScope( ListedSite, [ { ...otherScope, isCurrentScope: true } ] ) ).toBeUndefined();
+		expect( getPopupCurrentScope( ListedSite, [] ) ).toBeUndefined();
+		expect( getPopupCurrentScope( ListedSite, [ { ...Wait, isCurrentScope: false } ] ) ).toBeUndefined();
+		expect( getPopupCurrentScope( ListedSite, [ Wait ] ) ).toBe( Wait );
 	} );
 
 	it( 'keeps access recovery ahead of timer or schedule descriptions', () => {
