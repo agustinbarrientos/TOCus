@@ -72,11 +72,7 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
 			},
 		},
 	],
-	schedulesByScope: {
-		...TestEmptyProtectionConfiguration.schedulesByScope,
-		[ DEFAULT_SCOPE_ID ]: { mode: 'always' },
-		[ INDEPENDENT_SCOPE_ID ]: { mode: 'always' },
-	},
+	schedule: { mode: 'always' },
 	measurementRevisionsByScope: {
 		...TestEmptyProtectionConfiguration.measurementRevisionsByScope,
 		[ DEFAULT_SCOPE_ID ]: ProtectionMeasurementRevisionSchema.parse( 'revision_grouped' ),
@@ -181,7 +177,7 @@ function createHarness(
 			.mockReturnValueOnce( 'page' )
 			.mockReturnValueOnce( 'wait' ),
 		departTab,
-		evaluateScopeSchedule: vi.fn().mockReturnValue( { status: ScheduleEvaluationStatus.ACTIVE } ),
+		evaluateSiteSchedule: vi.fn().mockReturnValue( { status: ScheduleEvaluationStatus.ACTIVE } ),
 		getTimeZone: vi.fn().mockReturnValue( 'America/New_York' ),
 		loadConfiguration: vi.fn().mockResolvedValue( CONFIGURATION ),
 		now: vi.fn().mockReturnValue( Date.UTC( 2026, 8, 2, 12 ) ),
@@ -707,6 +703,7 @@ describe( 'createProtectionNavigationHandler', () => {
 			cause: DepartureCause.BACK,
 			allowanceDurationMilliseconds: 300_000,
 			observedAtEpochMilliseconds: Date.UTC( 2026, 8, 2, 12, 2 ),
+			observedLocalDate: '2026-09-02',
 		} );
 
 		expect( departed.facts ).toMatchObject( [ {

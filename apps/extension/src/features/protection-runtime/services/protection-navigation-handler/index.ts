@@ -175,9 +175,9 @@ export function createProtectionNavigationHandler(
 				focusEligible: focusedTabId === tabId,
 				statisticsEligible: true,
 			},
-			schedule: options.evaluateScopeSchedule(
+			schedule: options.evaluateSiteSchedule(
 				configuration,
-				scopeId,
+				siteHost,
 				nowEpochMilliseconds,
 				timeZone,
 			),
@@ -346,9 +346,9 @@ export function createProtectionNavigationHandler(
 			return;
 		}
 
-		const schedule = options.evaluateScopeSchedule(
+		const schedule = options.evaluateSiteSchedule(
 			configuration,
-			match.rule.scopeId,
+			match.rule.host,
 			options.now(),
 			options.getTimeZone(),
 		);
