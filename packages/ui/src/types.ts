@@ -86,18 +86,23 @@ export interface ShadowVariablesProps {
 export const IconName = {
 	CAPYBARA: 'capybara',
 	HEART: 'heart',
-	PALETTE: 'palette',
+	BRUSH: 'brush',
 	ARROW_UP_RIGHT_FROM_SQUARE: 'arrow-up-right-from-square',
-	LETTERS: 'letters',
+	LANGUAGE: 'language',
 	SHIELD_HALVED: 'shield-halved',
 	USER_LOCK: 'user-lock',
-	CALENDAR_CLOCK: 'calendar-clock',
-	GEAR: 'gear',
-	LIST: 'list',
+	CALENDAR: 'calendar',
+	SLIDERS: 'sliders',
+	LINK_HORIZONTAL: 'link-horizontal',
 	CHART_COLUMN: 'chart-column',
-	STOPWATCH: 'stopwatch',
+	PAUSE: 'pause',
 	CIRCLE_CHECK: 'circle-check',
-	EXCLAMATION: 'exclamation',
+	ANGLE_DOWN: 'angle-down',
+	ANGLE_UP: 'angle-up',
+	SPINNER_THIRD: 'spinner-third',
+	CIRCLE_EXCLAMATION: 'circle-exclamation',
+	CIRCLE_INFO: 'circle-info',
+	TRASH: 'trash',
 } as const;
 
 /**
@@ -112,6 +117,16 @@ export type IconName = ( typeof IconName )[ keyof typeof IconName ];
 export interface IconProps {
 	name: IconName;
 	className?: string;
+}
+
+/**
+ * Accessible help attached to a form field without persistent visual prose.
+ * @since 0.1.0
+ */
+export interface FieldHelpProps {
+	label: string;
+	description: string;
+	descriptionId: string;
 }
 /**
  * Established wordmark scales shared by extension surfaces and miniature previews.

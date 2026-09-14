@@ -6,6 +6,16 @@ import { Icon } from './icons';
 import * as contracts from './types';
 
 describe( 'shape-named icon catalog', () => {
+	it( 'keeps theme color inheritance and the secondary layer in the supplied duotone artwork', () => {
+		for ( const name of Object.values( contracts.IconName ) ) {
+			if ( name === contracts.IconName.CAPYBARA || name === contracts.IconName.CIRCLE_CHECK ) {
+				continue;
+			}
+			const rendered = renderToStaticMarkup( createElement( Icon, { name } ) );
+			expect( rendered, name ).toContain( 'fill="currentColor"' );
+			expect( rendered, name ).toContain( 'opacity=".4"' );
+		}
+	} );
 	it( 'includes the supplied user and lock artwork used by onboarding privacy', () => {
 		expect( contracts.IconName ).toHaveProperty( 'USER_LOCK' );
 		expect( contracts.IconName ).toHaveProperty( 'CAPYBARA' );
