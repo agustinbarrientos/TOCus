@@ -140,7 +140,7 @@ describe( 'createBrowserProtectionRuntime statistics integration', () => {
 		expect( statisticsRuntime.reset ).toHaveBeenCalledOnce();
 	} );
 
-	it( 'keeps queued statistics complete when a tab closes after its scope is removed', async () => {
+	it( 'keeps queued statistics complete when a tab closes after its website is removed', async () => {
 		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
 		const browser = new MemoryRuntimeBrowser();
 		const configurationStorage = new MemoryConfigurationStorage( MULTI_SCOPE_CONFIGURATION );
@@ -162,14 +162,14 @@ describe( 'createBrowserProtectionRuntime statistics integration', () => {
 
 		expect( deliveryBeforeRemoval ).toMatchObject( {
 			status: StoredProtectionStatisticsDeliveryStatus.COMPLETE,
-			outbox: [ { scopeId: 'scope_independent' } ],
+			outbox: [ { scopeId: DefaultProtectionScopeId } ],
 		} );
 
 		configurationStorage.configuration = GROUPED_CONFIGURATION;
 		await runtime.handleTabRemoved( 7 );
 
 		expect( await coordinator.getStatisticsDelivery() ).toEqual( deliveryBeforeRemoval );
-		expect( ( await coordinator.getStates() )?.scope_independent?.type ).toBe(
+		expect( ( await coordinator.getStates() )?.scope_default?.type ).toBe(
 			ProtectionStateType.IDLE,
 		);
 	} );
@@ -534,3 +534,4 @@ describe( 'createBrowserProtectionRuntime statistics integration', () => {
 		} );
 	} );
 } );
+import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';

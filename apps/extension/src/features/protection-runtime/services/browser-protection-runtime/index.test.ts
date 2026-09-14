@@ -1,10 +1,12 @@
 import { ToolbarBadgePhase } from '../../utils/toolbar-badge-projection/types';
-import { Weekday } from '../../../../domains/protection/types/protection-schedule';
+import { ScheduleMode, Weekday } from '../../../../domains/protection/types/protection-schedule';
 import { describe, expect, it, vi } from 'vitest';
 import { createIdleState, TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import { ProtectionConfigurationDocumentSchema } from '../../../../domains/protection/types/protected-site-configuration';
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
+import { ProtectionParticipantOrigin } from '../../../../domains/protection/types/protection-participant';
 import {
+	DefaultProtectionScopeId,
 	PageIdSchema,
 	ParticipantIdSchema,
 } from '../../../../domains/protection/types/protection-value';
@@ -31,6 +33,53 @@ import {
 import { createInertStatisticsRuntime } from './__fixtures__/statistics-runtime';
 
 describe( 'createBrowserProtectionRuntime', () => {
+	it( 'retains another website shared pause progress when one custom active window ends', async () => {
+		const now = { value: Date.UTC( 2026, 8, 14, 9, 59 ) };
+		const browser = new MemoryRuntimeBrowser();
+		const configuration = ProtectionConfigurationDocumentSchema.parse( {
+			...GROUPED_CONFIGURATION,
+			sites: GROUPED_CONFIGURATION.sites.map( ( site, index ) => index === 0 ? { ...site,
+				schedule: { mode: ScheduleMode.CUSTOM,
+					windows: [ { weekday: Weekday.MONDAY, startMinute: 540, endMinute: 600 } ] },
+			} : site ),
+		} );
+		const { coordinator, runtime } = createRuntime( now, new MemoryConfigurationStorage( configuration ), browser );
+		await runtime.start();
+		await runtime.handleNavigation( { tabId: 7, frameId: 0, url: 'https://example.com/' } );
+		await completeFocusedPause( runtime, 7, 3_000 );
+		browser.tabs.push( { id: 8, incognito: false, url: 'https://another.test/feed' } );
+		await runtime.handleNavigation( { tabId: 8, frameId: 0, url: 'https://another.test/feed' } );
+		const before = ( await coordinator.getStates() )?.scope_default;
+		expect( before ).toMatchObject( { type: ProtectionStateType.WAITING,
+			confirmedFocusedDurationMilliseconds: 3_000, participants: [ expect.anything(), expect.anything() ] } );
+		now.value = Date.UTC( 2026, 8, 14, 10 );
+		await runtime.handleClockTick();
+		const after = ( await coordinator.getStates() )?.scope_default;
+		expect( after ).toMatchObject( { type: ProtectionStateType.WAITING,
+			confirmedFocusedDurationMilliseconds: 3_000,
+			participants: [ expect.objectContaining( { retainedDestination: 'https://another.test/feed' } ) ] } );
+		if ( before?.type !== ProtectionStateType.WAITING || after?.type !== ProtectionStateType.WAITING ) {
+			throw new Error( 'Expected the shared pause to remain active.' );
+		}
+		expect( after.waitId ).toBe( before.waitId );
+		expect( browser.navigations.at( -1 ) ).toEqual( { tabId: 7, url: 'https://example.com/' } );
+		expect( browser.rules ).toHaveLength( 1 );
+	} );
+
+	it( 'releases an expiry participant when its live tab disappears during schedule observation', async () => {
+		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
+		const browser = new MemoryRuntimeBrowser();
+		const { coordinator, runtime } = createRuntime(
+			now, new MemoryConfigurationStorage( EXAMPLE_CONFIGURATION ), browser,
+		);
+		await presentAllowanceExpiryInterruption( runtime, now );
+		const listTabs = vi.spyOn( browser, 'listTabs' );
+		listTabs.mockResolvedValueOnce( browser.tabs )
+			.mockResolvedValueOnce( browser.tabs ).mockResolvedValueOnce( [] );
+		await runtime.handleConfigurationChanged();
+		listTabs.mockRestore();
+		expect( ( await coordinator.getStates() )?.scope_default?.type ).toBe( ProtectionStateType.IDLE );
+	} );
 	it( 'returns no popup snapshot before authoritative startup', async () => {
 		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
 		const browser = new MemoryRuntimeBrowser();
@@ -605,13 +654,11 @@ describe( 'createBrowserProtectionRuntime', () => {
 		const browser = new MemoryRuntimeBrowser();
 		const configurationStorage = new MemoryConfigurationStorage( {
 			...EXAMPLE_CONFIGURATION,
-			schedulesByScope: {
-				scope_default: { mode: 'custom', windows: [ {
-					weekday: Weekday.MONDAY,
-					startMinute: 0,
-					endMinute: 1,
-				} ] },
-			},
+			schedule: { mode: 'custom', windows: [ {
+				weekday: Weekday.MONDAY,
+				startMinute: 0,
+				endMinute: 1,
+			} ] },
 		} );
 		const { coordinator, runtime } = createRuntime( now, configurationStorage, browser );
 
@@ -627,11 +674,9 @@ describe( 'createBrowserProtectionRuntime', () => {
 		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
 		const configuration = ProtectionConfigurationDocumentSchema.parse( {
 			...EXAMPLE_CONFIGURATION,
-			schedulesByScope: {
-				scope_default: {
-					mode: 'custom',
-					windows: [ { weekday: 'Wednesday', startMinute: 720, endMinute: 721 } ],
-				},
+			schedule: {
+				mode: 'custom',
+				windows: [ { weekday: 'Wednesday', startMinute: 720, endMinute: 721 } ],
 			},
 		} );
 		const browser = new MemoryRuntimeBrowser();
@@ -787,7 +832,7 @@ describe( 'createBrowserProtectionRuntime', () => {
 		expect( browser.navigations ).toHaveLength( 2 );
 	} );
 
-	it( 'keeps an independent site outside another scope allowance', async () => {
+	it( 'shares an existing allowance with another website', async () => {
 		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
 		const browser = new MemoryRuntimeBrowser();
 		const { coordinator, runtime } = createRuntime(
@@ -815,8 +860,8 @@ describe( 'createBrowserProtectionRuntime', () => {
 		const states = await coordinator.getStates();
 
 		expect( states?.scope_default?.type ).toBe( ProtectionStateType.ALLOWANCE );
-		expect( states?.scope_independent?.type ).toBe( ProtectionStateType.WAITING );
-		expect( browser.badge ).toMatchObject( { text: '10s' } );
+		expect( Object.keys( states ?? {} ) ).toEqual( [ DefaultProtectionScopeId ] );
+		expect( browser.badge ).toMatchObject( { text: '5m' } );
 	} );
 
 	it( 'pauses focused progress while the browser application is not focused', async () => {
@@ -852,11 +897,9 @@ describe( 'createBrowserProtectionRuntime', () => {
 		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
 		const configuration = ProtectionConfigurationDocumentSchema.parse( {
 			...EXAMPLE_CONFIGURATION,
-			schedulesByScope: {
-				scope_default: {
-					mode: 'custom',
-					windows: [ { weekday: 'Wednesday', startMinute: 720, endMinute: 721 } ],
-				},
+			schedule: {
+				mode: 'custom',
+				windows: [ { weekday: 'Wednesday', startMinute: 720, endMinute: 721 } ],
 			},
 		} );
 		const browser = new MemoryRuntimeBrowser();
@@ -1338,6 +1381,9 @@ describe( 'createBrowserProtectionRuntime', () => {
 						...participant,
 						participantId: ParticipantIdSchema.parse( 'participant_invalid_page' ),
 						pageId: PageIdSchema.parse( 'page_external' ),
+						origin: ProtectionParticipantOrigin.ALLOWANCE_EXPIRY,
+						retainedDestination: null,
+						statisticsEligible: false,
 						focusEligible: false,
 					},
 					participant,

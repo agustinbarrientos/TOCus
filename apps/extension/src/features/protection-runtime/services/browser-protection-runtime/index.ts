@@ -1,3 +1,7 @@
+import { resolveSiteSchedule } from '../../../../domains/protection/utils/resolve-site-schedule';
+import { ProtectionParticipantOrigin } from '../../../../domains/protection/types/protection-participant';
+import { createFreshRuntimeObservation } from '../../utils/runtime-participant-observation';
+import { getRuntimeTabId } from '../../utils/runtime-page-context';
 import {
 	ProtectionConfigurationDocumentSchema,
 	type ProtectionConfigurationDocument,
@@ -45,26 +49,23 @@ import {
 } from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
 
 /**
- * Evaluates the current schedule for one configured protection scope.
+ * Evaluates the current schedule for one freshly matched configured website.
  * @param configuration - Current validated protection configuration.
- * @param scopeId - Protection scope being evaluated.
+ * @param ruleHost - Rule host freshly matched against the same validated configuration.
  * @param nowEpochMilliseconds - Current wall-clock time.
  * @param timeZone - Current IANA time-zone identifier.
  * @return Active, inactive, or failed current schedule evaluation.
  * @since 0.1.0 Initial implementation.
  */
-function evaluateScopeSchedule(
+function evaluateSiteSchedule(
 	configuration: ProtectionConfigurationDocument,
-	scopeId: string,
+	ruleHost: string,
 	nowEpochMilliseconds: number,
 	timeZone: string,
 ): ScheduleEvaluationResult {
-	const scopeIsConfigured = configuration.sites.some( ( site ) => site.rule.scopeId === scopeId );
-	const schedule = scopeIsConfigured ? configuration.schedulesByScope[ scopeId ] : undefined;
+	const schedule = resolveSiteSchedule( configuration, ruleHost );
 
-	return schedule === undefined
-		? { status: ScheduleEvaluationStatus.INACTIVE }
-		: evaluateSchedule( schedule, nowEpochMilliseconds, timeZone );
+	return evaluateSchedule( schedule, nowEpochMilliseconds, timeZone );
 }
 
 /**
@@ -115,6 +116,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 		releaseInjectedInterruption: projector.releaseInjectedInterruption,
 		releaseNavigationIfInterrupted: projector.releaseNavigationIfInterrupted,
 		now: options.now,
+		getTimeZone: options.getTimeZone,
 	} );
 	const allowanceExpiryReconciler = createAllowanceExpiryReconciler( {
 		browser: options.browser,
@@ -131,7 +133,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 		applyDispatchResult,
 		createStableId: options.createStableId,
 		departTab: participantReconciler.departTab,
-		evaluateScopeSchedule,
+		evaluateSiteSchedule,
 		getTimeZone: options.getTimeZone,
 		loadConfiguration,
 		now: options.now,
@@ -422,30 +424,43 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 			return;
 		}
 
+		const hasLiveParticipants = Object.values( statesByScope ).some( ( state ) => {
+			if ( state.type === ProtectionStateType.IDLE ) {
+				return false;
+			}
+			const participants = state.type === ProtectionStateType.WAITING
+				? state.participants : state.readyParticipants;
+			return participants.some( ( participant ) =>
+				participant.origin === ProtectionParticipantOrigin.ALLOWANCE_EXPIRY );
+		} );
+		const tabs = hasLiveParticipants ? await options.browser.listTabs() : [];
+		const tabsById = new Map( tabs.filter( ( tab ) => tab.incognito === false ).map( ( tab ) => [ tab.id, tab ] ) );
 		for ( const state of Object.values( statesByScope ) ) {
 			if ( state.type === ProtectionStateType.IDLE ) {
 				continue;
 			}
-
-			const schedule = evaluateScopeSchedule(
-				configuration,
-				state.scopeId,
-				options.now(),
-				options.getTimeZone(),
-			);
-
-			if ( schedule.status === ScheduleEvaluationStatus.ACTIVE ) {
-				continue;
+			const participants = state.type === ProtectionStateType.WAITING
+				? state.participants : state.readyParticipants;
+			for ( const participant of participants ) {
+				const tabId = getRuntimeTabId( participant.pageId );
+				const destination = participant.origin === ProtectionParticipantOrigin.NAVIGATION
+					? participant.retainedDestination : tabId === null ? null : tabsById.get( tabId )?.url ?? null;
+				const observation = createFreshRuntimeObservation(
+					participant, configuration, options.now(), options.getTimeZone(), destination,
+				);
+				if ( observation.schedule.status === ScheduleEvaluationStatus.ACTIVE ) {
+					continue;
+				}
+				const result = await options.coordinator.dispatch( () => ( {
+					type: ProtectionEventType.SCHEDULE_REEVALUATION,
+					scopeId: state.scopeId,
+					target: createRuntimeStateTarget( state ),
+					participantId: participant.participantId,
+					pageId: participant.pageId,
+					schedule: observation.schedule,
+				} ) );
+				await applyDispatchResult( result, configuration );
 			}
-
-			const result = await options.coordinator.dispatch( () => ( {
-				type: ProtectionEventType.SCHEDULE_REEVALUATION,
-				scopeId: state.scopeId,
-				target: createRuntimeStateTarget( state ),
-				schedule,
-			} ) );
-
-			await applyDispatchResult( result, configuration );
 		}
 	}
 
