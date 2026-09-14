@@ -2,6 +2,7 @@ import type {
 	DraftSnapshot,
 	DraftEquality,
 } from './types';
+import { DraftSaveResult } from './types';
 
 
 /**
@@ -103,11 +104,14 @@ export function createDraft<T extends object>( initial: T, equals?: DraftEqualit
 		/**
 		 * Locks the candidate until persistence settles, retaining failed edits.
 		 * @param persist - Domain operation returning its authoritative stored value.
-		 * @return Completion of the save and its observable feedback.
+		 * @return Explicit success only when persistence leaves the current draft clean.
 		 */
-		save: async ( persist: ( value: T ) => Promise<T> ): Promise<void> => {
-			if ( snapshot.saving || ! snapshot.dirty ) {
-				return;
+		save: async ( persist: ( value: T ) => Promise<T> ): Promise<DraftSaveResult> => {
+			if ( snapshot.saving ) {
+				return DraftSaveResult.FAILED;
+			}
+			if ( ! snapshot.dirty ) {
+				return DraftSaveResult.SAVED;
 			}
 			emit( { saving: true, saved: false, error: null } );
 			const savedRevision = revision;
@@ -125,6 +129,8 @@ export function createDraft<T extends object>( initial: T, equals?: DraftEqualit
 			} finally {
 				emit( { saving: false } );
 			}
+			const settled: DraftSnapshot<T> = snapshot;
+			return settled.error === null && ! settled.dirty ? DraftSaveResult.SAVED : DraftSaveResult.FAILED;
 		},
 	};
 }

@@ -1,6 +1,24 @@
 import type { createDraft } from './index';
 
 /**
+ * Explicit outcome controlling whether a page may leave its saved draft.
+ * @since 0.1.0
+ */
+export const DraftSaveResult = { SAVED: 'saved', FAILED: 'failed' } as const;
+
+/**
+ * Persistence succeeded with a clean draft, or departure must remain blocked.
+ * @since 0.1.0
+ */
+export type DraftSaveResult = typeof DraftSaveResult[ keyof typeof DraftSaveResult ];
+
+/**
+ * Page-owned validation and persistence invoked directly from the user's Save gesture.
+ * @since 0.1.0
+ */
+export type SaveDraft = () => Promise<DraftSaveResult>;
+
+/**
  * Immutable presentation snapshot of an editable destination.
  * @since 0.1.0
  */
@@ -21,6 +39,7 @@ export interface DraftGuard {
 	dirty: boolean;
 	saving: boolean;
 	discard: () => void | Promise<void>;
+	save: SaveDraft;
 }
 
 
