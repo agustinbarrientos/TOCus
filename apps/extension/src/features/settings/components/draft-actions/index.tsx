@@ -35,7 +35,7 @@ export function DraftActions<T extends object>( props: DraftActionsProps<T> ) {
 	/** Runs the page save and restores editing focus after its pending transition settles. */
 	function save(): void {
 		restoreFocus.current = true;
-		props.onSave();
+		void props.onSave();
 	}
 
 	/** Discards without writing and returns focus before these actions become disabled. */

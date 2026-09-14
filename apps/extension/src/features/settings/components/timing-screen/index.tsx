@@ -34,6 +34,7 @@ import type {
 import {
 	LoadState,
 } from '../recovery/types';
+import type { DraftSaveResult } from '../../utils/draft-controller/types';
 
 
 /**
@@ -45,7 +46,7 @@ import {
 export function Timing( props: EditableSettingsScreenProps ) {
 	const { shell, register } = props;
 	const copy = shell.timingCopy;
-	const { draft, value, saving, saved, error } = useDraft( { ...DefaultTimingConfiguration }, register );
+	const { draft, value, saving, saved, error } = useDraft( { ...DefaultTimingConfiguration }, register, save );
 	const [ status, setStatus ] = useState<LoadState>( LoadState.LOADING );
 
 	/**
@@ -71,9 +72,12 @@ export function Timing( props: EditableSettingsScreenProps ) {
 		void load();
 	}, [ shell.editor ] );
 
-	/** Persists a complete candidate while retaining any rejected edits. */
-	function save(): void {
-		void draft.save( async ( timing ) => {
+	/**
+	 * Persists a complete candidate while retaining any rejected edits.
+	 * @return Whether the current draft was saved cleanly.
+	 */
+	function save(): Promise<DraftSaveResult> {
+		return draft.save( async ( timing ) => {
 			const result = await shell.editor?.updateTiming( timing );
 			if ( ! result ) {
 				throw new Error( 'persistence' );
@@ -91,13 +95,13 @@ export function Timing( props: EditableSettingsScreenProps ) {
 			? copy.invalidConfigurationError : error ? copy.saveError : null;
 
 	return (
-		<Page title={ copy.title } eyebrow={ copy.eyebrow } introduction={ copy.introduction }>
+		<Page title={ copy.title }>
 			<Recovery status={ status } copy={ copy } retry={ () => {
 				void load();
 			} } />
 			{ status === LoadState.READY && <form aria-label={ copy.formLabel } aria-busy={ saving }
 				onSubmit={ ( event ) => {
-					event.preventDefault(); save();
+					event.preventDefault(); void save();
 				} }>
 				<Stack gap={ 0 }>
 					<TimingControls copy={ copy } value={ value } disabled={ saving } onChange={ draft.change } />

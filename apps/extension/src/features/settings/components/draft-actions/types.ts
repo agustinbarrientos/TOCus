@@ -1,5 +1,6 @@
 import type {
 	Draft,
+	SaveDraft,
 } from '../../utils/draft-controller/types';
 
 
@@ -21,5 +22,5 @@ export interface DraftActionCopy {
 export interface DraftActionsProps<T extends object> {
 	draft: Draft<T>;
 	copy: DraftActionCopy;
-	onSave: () => void;
+	onSave: SaveDraft;
 }
