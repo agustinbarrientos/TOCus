@@ -69,7 +69,10 @@ pnpm dev
 | `pnpm setup:browsers`                  | Install pinned Chromium, Firefox and WebKit builds          |
 | `pnpm build`                           | Build all workspaces                                        |
 | `pnpm build:firefox`                   | Build the extension for Firefox                             |
-| `pnpm build:safari`                    | Build the extension for Safari                              |
+| `pnpm build:safari`                    | Build Safari web-extension assets                           |
+| `pnpm zip:chrome`                      | Build and ZIP the Chrome release                            |
+| `pnpm zip:firefox`                     | Build and ZIP the Firefox release                           |
+| `pnpm zip:safari`                      | Build and ZIP Safari web-extension assets                   |
 | `pnpm lint`                            | Run script and stylesheet linting                           |
 | `pnpm lint:fix`                        | Fix autofixable script and stylesheet issues                |
 | `pnpm typecheck`                       | Type-check all workspaces                                   |
@@ -79,6 +82,69 @@ pnpm dev
 | `pnpm test:browser`                    | Run native media/Canvas coverage and all presentation tests |
 | `pnpm test:ui`                         | Run shared controls and extension UI in all three engines  |
 | `pnpm check`                           | Run linting, type checks, and tests                         |
+
+## Prepare a release
+
+Use a clean checkout of the reviewed release commit, the Node.js version in `.node-version`, and the pinned pnpm version. Install dependencies with `pnpm install --frozen-lockfile`, then run `pnpm check` and `pnpm test:visual` in the supported environments described in [CONTRIBUTING.md](CONTRIBUTING.md). Record the commit, operating system and architecture, tool versions, check results, and artifact SHA-256 values with the release.
+
+Create production archives from the repository root:
+
+```sh
+pnpm zip:chrome
+pnpm zip:firefox
+pnpm zip:safari
+```
+
+Each command uses [WXT's built-in ZIP command](https://wxt.dev/guide/essentials/publishing) to rebuild its target before archiving it. These commands create local files; store submission is a separate step. With extension version `0.1.0`, the outputs under `apps/extension/.output/` are:
+
+| Archive | Manifest | Intended use |
+| --- | --- | --- |
+| `tocusextension-0.1.0-chrome.zip` | V3, Chrome 120+ | Chrome Web Store upload |
+| `tocusextension-0.1.0-firefox.zip` | V2, Firefox 140+ | Firefox Add-ons upload |
+| `tocusextension-0.1.0-safari.zip` | V2, Safari 16.4+ | Input to Apple's Safari packaging workflow |
+
+Verify ZIP integrity with `unzip -t`, inspect each archive's root `manifest.json` with `unzip -p`, and confirm the packaged icons, locale messages, page resources, and permissions match the reviewed build. For example:
+
+```sh
+unzip -t apps/extension/.output/tocusextension-0.1.0-firefox.zip
+unzip -p apps/extension/.output/tocusextension-0.1.0-firefox.zip manifest.json
+shasum -a 256 apps/extension/.output/tocusextension-0.1.0-chrome.zip apps/extension/.output/tocusextension-0.1.0-firefox.zip apps/extension/.output/tocusextension-0.1.0-safari.zip
+```
+
+Re-run `pnpm exec vitest run --config config/vitest.config.ts --project build-contract` after packaging to check the freshly generated browser outputs. Replace `0.1.0` in filenames when the extension version changes. The declared minimum browser versions are compatibility targets; successful builds do not establish runtime support across every version.
+
+### Firefox review source
+
+WXT also creates `tocusextension-0.1.0-sources.zip` when packaging Firefox. Its default source root is `apps/extension`, so it omits this monorepo's root lockfile, build configuration, and shared packages. That automatic archive is insufficient for Mozilla to reproduce this build.
+
+After confirming `git status --short` is empty and `HEAD` is the reviewed release commit used above, create a complete tracked-workspace source archive instead:
+
+```sh
+git rev-parse HEAD
+git archive --format=zip --output=apps/extension/.output/tocus-0.1.0-workspace-sources.zip HEAD
+unzip -t apps/extension/.output/tocus-0.1.0-workspace-sources.zip
+shasum -a 256 apps/extension/.output/tocus-0.1.0-workspace-sources.zip
+```
+
+Supply that workspace archive and these build instructions with the Firefox submission. Before submitting, extract it into an empty directory, install the pinned tools and dependencies with `pnpm install --frozen-lockfile`, and run `pnpm zip:firefox` from its root. Compare the extracted release file contents with the submitted Firefox ZIP and investigate any differences. The source archive includes `README.md`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `lingui.config.ts`, `apps/extension`, and `packages`; it excludes ignored output, installed dependencies, and uncommitted changes. Follow Mozilla's [source-code submission instructions](https://extensionworkshop.com/documentation/publish/source-code-submission/) for the actual review.
+
+### Safari packaging
+
+The Safari ZIP contains HTML, CSS, JavaScript, and other web-extension resources. It is not a signed Apple app or an App Store distribution archive. For the local Xcode workflow, run Apple's [Safari web-extension packager](https://developer.apple.com/documentation/safariservices/packaging-a-web-extension-for-safari) against `apps/extension/.output/safari-mv2/`, using `--copy-resources` so the generated project has its own reviewed resource copy. Current Xcode calls this tool `xcrun safari-web-extension-packager`; older versions use `safari-web-extension-converter`.
+
+Before creating the release app, confirm the intended Apple platforms, developer team, registered bundle identifiers, signing identities, entitlements, and minimum supported OS versions. Review packager compatibility warnings, add the final public privacy-policy URL to the containing app and App Store Connect, then build, sign, archive, and test installation and extension behavior on the supported Safari platforms. The web-assets archive alone does not complete those steps.
+
+### Publication facts still required
+
+The following release inputs were unresolved on September 9, 2026:
+
+- [ ] Supply the final public Chrome, Firefox, and Safari listing URLs. The approved temporary URLs remain centralized in `apps/website/src/config/downloads/index.ts`; replace each when its listing is public and verify the destination while signed out.
+- [ ] Choose the canonical HTTPS website origin and hosting provider. The repository has no production host configuration or Astro `site` origin; the repository homepage is empty, GitHub reports `has_pages: false`, and its Pages endpoint returns 404. These checks do not rule out an externally configured host.
+- [ ] Confirm the host/CDN request-log fields, retention and deletion behavior, access controls, subprocessors, and region; update the website privacy copy using those verified facts. Configure canonical URLs, redirects, and production headers, then inspect the deployed site's cookies, scripts, and network requests.
+- [ ] Enable GitHub private vulnerability reporting and verify the private report route from an account without repository access. A read-only check of `repos/agustinbarrientos/tocus/private-vulnerability-reporting` returned `{"enabled":false}` on September 9, 2026. [GitHub documents the repository setting](https://docs.github.com/en/code-security/security-advisories/working-with-repository-security-advisories/configuring-private-vulnerability-reporting-for-a-repository).
+- [ ] Confirm Apple release identifiers and signing details and finish the Safari app packaging steps above.
+- [ ] Complete each store's privacy, data-use, and permission declarations from the exact packaged behavior, provide the final public privacy-policy URL, and resolve store review findings.
+- [ ] Recheck the deployed homepage and translated routes, `/privacy/`, `/support/`, local assets, and deliberate outbound links with clean browser profiles before announcing availability.
 
 ## Repository structure
 

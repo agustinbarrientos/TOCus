@@ -398,6 +398,22 @@ async function expectProtectedPageComposition( outputUrl: URL ): Promise<void> {
 
 		expect( font.byteLength ).toBeGreaterThan( 0 );
 	}
+
+	for ( const [ subset, resource, unicodeRange ] of [
+		[ 'hebrew', 'assets/protected-page-font.woff2', 'unicode-range:U+307-308' ],
+		[ 'latin-ext', 'assets/protected-page-font2.woff2', 'unicode-range:U+100-2BA' ],
+		[ 'latin', 'assets/protected-page-font3.woff2', 'unicode-range:U+??' ],
+	] as const ) {
+		const source = await readFile( new URL(
+			`../../../../packages/theme/node_modules/@fontsource-variable/fredoka/files/fredoka-${ subset }-wght-normal.woff2`,
+			import.meta.url,
+		) );
+		const packaged = await readOutputBuffer( outputUrl, resource );
+		const fontFace = fontStyles.split( '@font-face' ).find( ( face ) => face.includes( unicodeRange ) );
+
+		expect( packaged.equals( source ), `${ resource } must always contain the ${ subset } subset` ).toBe( true );
+		expect( fontFace ).toContain( `url(/${ resource })` );
+	}
 }
 
 /**

@@ -37,6 +37,7 @@ describe( 'isolated real 3D mascot comparison', () => {
 			const errors: string[] = [];
 			page.on( 'pageerror', ( error ) => errors.push( error.message ) );
 			await page.goto( 'http://website.test/mascot-lab/' );
+			await page.evaluate( () => document.fonts.ready );
 			const canvas = page.getByRole( 'img', { name: 'Interactive 3D capybara prototype' } );
 			expect( await canvas.count() ).toBe( 1 );
 			await page.waitForFunction( () =>
@@ -58,10 +59,17 @@ describe( 'isolated real 3D mascot comparison', () => {
 			await page.keyboard.press( 'End' );
 			const turnedView = await canvas.screenshot();
 			expect( turnedView.equals( frontView ) ).toBe( false );
+			const beforePlayback = Number( await canvas.getAttribute( 'data-frame' ) );
 			await page.getByRole( 'button', { name: 'Play animation' } ).click();
 			expect( await canvas.getAttribute( 'data-still' ) ).toBe( 'false' );
-			await page.waitForTimeout( 700 );
+			await expect.poll( async () => Number( await canvas.getAttribute( 'data-frame' ) ) )
+				.toBeGreaterThan( beforePlayback + 1 );
+			// Capture the advanced pose after stopping the render loop, including on software GPUs.
+			await page.getByRole( 'button', { name: 'Pause animation' } ).click();
+			expect( await canvas.getAttribute( 'data-still' ) ).toBe( 'true' );
 			expect( ( await canvas.screenshot() ).equals( turnedView ) ).toBe( false );
+			await page.getByRole( 'button', { name: 'Play animation' } ).click();
+			expect( await canvas.getAttribute( 'data-still' ) ).toBe( 'false' );
 			await page.evaluate( () => window.dispatchEvent( new PageTransitionEvent( 'pagehide', { persisted: true } ) ) );
 			expect( await canvas.getAttribute( 'data-still' ) ).toBe( 'true' );
 			const cachedFrame = await canvas.getAttribute( 'data-frame' );

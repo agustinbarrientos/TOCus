@@ -179,11 +179,28 @@ describe( 'createLocalizationBundle', () => {
 		expect( bundle.statistics.formatDuration( 0 ) ).toBe( '0 minutes' );
 		expect( bundle.statistics.formatDuration( 30_000 ) ).toBe( 'Less than 1 minute' );
 		expect( bundle.statistics.formatDuration( 3_900_000 ) ).toBe( '1 hour, 5 minutes' );
-		expect( bundle.statistics.formatEstimatedDuration( 0 ) ).toBe( 'Approximately 0 minutes' );
+		expect( bundle.statistics.formatEstimatedDuration( 0 ) ).toBe( 'Not enough data yet' );
 		expect( bundle.statistics.formatEstimatedDuration( 30_000 ) ).toBe( 'Less than 1 minute' );
 		expect( bundle.statistics.formatEstimatedDuration( 3_600_000 ) ).toBe( 'Approximately 1 hour' );
 		expect( bundle.wellbeing.formatDuration( 30_000 ) ).toBe( '30 seconds' );
 		expect( bundle.wellbeing.formatDuration( 3_900_000 ) ).toBe( '1 hour, 5 minutes' );
+	} );
+
+	it.each( [
+		[ Language.ENGLISH, 'Not enough data yet' ],
+		[ Language.SPANISH_TU, 'Todav\u00eda no hay suficientes datos' ],
+		[ Language.SPANISH_VOS, 'Todav\u00eda no hay suficientes datos' ],
+		[ Language.PORTUGUESE_BRAZIL, 'Ainda n\u00e3o h\u00e1 dados suficientes' ],
+		[ Language.PORTUGUESE_PORTUGAL, 'Ainda n\u00e3o h\u00e1 dados suficientes' ],
+		[ Language.ITALIAN, 'Non ci sono ancora dati sufficienti' ],
+		[ Language.FRENCH, 'Pas encore assez de donn\u00e9es' ],
+		[ Language.GERMAN, 'Noch nicht gen\u00fcgend Daten' ],
+		[ Language.JAPANESE, '\u307e\u3060\u5341\u5206\u306a\u30c7\u30fc\u30bf\u304c\u3042\u308a\u307e\u305b\u3093' ],
+		[ Language.RUSSIAN, '\u041f\u043e\u043a\u0430 \u043d\u0435\u0434\u043e\u0441\u0442\u0430\u0442\u043e\u0447\u043d\u043e \u0434\u0430\u043d\u043d\u044b\u0445' ],
+	] )( 'shows the zero estimate fallback through the %s catalog', async ( language, expected ) => {
+		const bundle = await loadLocalizationBundle( language );
+
+		expect( bundle.statistics.formatEstimatedDuration( 0 ) ).toBe( expected );
 	} );
 
 	it.each( [

@@ -713,6 +713,10 @@ msgstr "Der Navigationszugriff erkennt Website-Wechsel in Echtzeit, ohne deinen 
 msgid "No websites yet"
 msgstr "Noch keine Websites"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Not enough data yet"
+msgstr "Noch nicht genügend Daten"
+
 #. Popup status when the current website schedule is inactive at this moment.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Off right now"

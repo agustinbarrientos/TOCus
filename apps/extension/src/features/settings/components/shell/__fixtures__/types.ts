@@ -45,6 +45,7 @@ export interface SettingsFixtureBridge {
  * @since 0.1.0
  */
 export interface SettingsFixtureStatistics {
+	estimatedReclaimedMilliseconds: number;
 	focusedPauseMilliseconds: number;
 	reconsideredVisitCount: number;
 	completedWaitCount: number;

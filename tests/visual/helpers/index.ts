@@ -1,9 +1,13 @@
 import { release } from 'node:os';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import type { ComponentInterruptionScreen } from '../../../apps/extension/src/features/interruption/components/screen';
 import type { VisualAppearance } from './types';
+import { captureStableScreenshot } from './capture-stable-screenshot';
+import { compareScreenshot } from './compare-screenshot';
+import { hasFocusedTextCaret } from '../originals/helpers/focused-text-caret';
 import type {} from '../../../apps/extension/src/features/settings/components/shell/__fixtures__/types';
 import type {} from '../../../apps/extension/src/features/interruption/components/screen/__fixtures__/browser-types';
 
@@ -94,7 +98,7 @@ export async function freezePreview( page: Page, showPreview: () => Promise<void
 }
 
 /**
- * Waits for packaged fonts and compares actual pixels, hiding only fixture instrumentation.
+ * Waits for packaged fonts and a stable frame, then compares once using the shared bounded edge policy.
  * @param page - Fully rendered production fixture or built website page.
  * @param name - Reviewed golden filename.
  * @param fullPage - Whether document content rather than a fixed-position viewport is captured.
@@ -108,12 +112,17 @@ export async function comparePage( page: Page, name: string, fullPage = true ): 
 		viewport: window.innerWidth,
 	} ) );
 	expect( bounds.content, 'Page content must not overflow the screenshot viewport.' ).toBeLessThanOrEqual( bounds.viewport );
-	await expect( page ).toHaveScreenshot( `${ name }.png`, {
-		fullPage,
-		// Full-page capture/comparison takes about two seconds on CI; allow the built-in stable-image check to finish.
-		timeout: 15000,
-		stylePath: fileURLToPath( new URL( '../fixture-instrumentation.css', import.meta.url ) ),
-	} );
+	const caret = await page.evaluate( hasFocusedTextCaret ) ? 'hide' : 'initial';
+	const style = readFileSync( fileURLToPath( new URL( '../fixture-instrumentation.css', import.meta.url ) ), 'utf8' );
+	const actual = await captureStableScreenshot( () => page.screenshot( {
+		fullPage, caret, style, animations: 'disabled', scale: 'css', timeout: 15000,
+	} ) );
+	// Retain the deliberately requested website update command; normal runs never enter this branch.
+	if ( test.info().config.updateSnapshots !== 'none' ) {
+		expect( actual ).toMatchSnapshot( `${ name }.png`, { threshold: 0, maxDiffPixels: 0 } );
+		return;
+	}
+	await compareScreenshot( actual, `${ name }.png`, { allowEdgeRasterization: true } );
 }
 
 export { expect, test };

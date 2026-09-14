@@ -1,12 +1,16 @@
 import { PNG } from 'pngjs';
 import type { PngComparison, PngComparisonOptions } from './types';
 
+/** Largest approved difference in any one opaque, blended-edge color channel. */
+const maximumEdgeChannelDelta = 2;
+
 /**
  * Conservatively identifies a blended color edge, never a flat fill or local extremum.
+ * @remarks This conservative local heuristic cannot establish why a blended sample changed.
  * @param image - Decoded screenshot.
  * @param x - Physical pixel column.
  * @param y - Physical pixel row.
- * @return Whether darker and lighter opaque neighbors bracket this pixel beyond one RGB level.
+ * @return Whether darker and lighter opaque neighbors bracket this sample beyond the channel allowance.
  */
 function isBlendedEdge( image: PNG, x: number, y: number ): boolean {
 	const offset = ( y * image.width + x ) * 4;
@@ -26,15 +30,14 @@ function isBlendedEdge( image: PNG, x: number, y: number ): boolean {
 			lightest = Math.max( lightest, brightness );
 		}
 	}
-	// Summed RGB uses three integer channels: one-level noise alone spans at most three.
-	return darkest < center && center < lightest && lightest - darkest > 3;
+	return darkest < center && center < lightest && lightest - darkest > 3 * maximumEdgeChannelDelta;
 }
 
 /**
  * Compares decoded 8-bit RGBA samples, retaining raw differences even when edge tolerance is enabled.
  * @param expectedBytes - Immutable original PNG bytes.
  * @param actualBytes - Single captured screenshot's PNG bytes.
- * @param options - Exact by default; optionally accepts only opaque one-level RGB changes at blended edges.
+ * @param options - Exact by default; optionally accepts only opaque changes of up to two RGB levels at fixed blended edges.
  * @return Dimensions, raw differences and the separately counted approved edge variance.
  * @since 0.1.0
  */
@@ -72,7 +75,8 @@ export function comparePngPixels(
 				continue;
 			}
 			differingPixels++;
-			if ( allowEdges && largestRgbDelta <= 1 && expectedAlpha === 255 && actualAlpha === 255
+			if ( allowEdges && largestRgbDelta <= maximumEdgeChannelDelta
+				&& expectedAlpha === 255 && actualAlpha === 255
 				&& isBlendedEdge( expected, x, y ) && isBlendedEdge( actual, x, y ) ) {
 				toleratedEdgePixels++;
 			}

@@ -51,6 +51,7 @@ describe( 'packaged Chrome protection', () => {
 	let directory: string | undefined;
 	let context: BrowserContext | undefined;
 	let worker: Worker;
+	let extensionRoot: string;
 
 	beforeAll( async () => {
 		directory = await mkdtemp( join( tmpdir(), 'tocus-packaged-protection-' ) );
@@ -76,6 +77,11 @@ describe( 'packaged Chrome protection', () => {
 			args: [ `--disable-extensions-except=${ extensionPath }`, `--load-extension=${ extensionPath }` ],
 		} );
 		worker = context.serviceWorkers()[ 0 ] ?? await context.waitForEvent( 'serviceworker' );
+		// The serviceworker event precedes its execution context becoming ready on a cold launch.
+		extensionRoot = await worker.evaluate( () => {
+			const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+			return chrome.runtime.getURL( '/' );
+		} );
 		await context.route( /^https?:\/\//u, ( route ) => route.abort() );
 		await context.route( 'https://example.test/**', ( route ) => route.fulfill( {
 			contentType: 'text/html',
@@ -110,11 +116,7 @@ describe( 'packaged Chrome protection', () => {
 			}
 		} );
 		try {
-			const url = await worker.evaluate( ( path ) => {
-				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
-				return chrome.runtime.getURL( `/${ path }` );
-			}, entry );
-			await page.goto( url );
+			await page.goto( new URL( entry, extensionRoot ).href );
 			await page.getByText( 'TOCus', { exact: true } ).first().waitFor();
 			await page.waitForTimeout( 500 );
 			expect( await page.locator( 'link[rel="modulepreload"]' ).count() ).toBe( 0 );

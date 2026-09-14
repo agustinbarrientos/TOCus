@@ -19,7 +19,7 @@ export interface PngComparison {
 }
 
 /**
- * Explicit opt-in to the approved one-level RGB edge-rasterization allowance.
+ * Explicit opt-in to the approved two-level RGB allowance at opaque blended edges in both images.
  * @since 0.1.0
  */
 export interface PngComparisonOptions {

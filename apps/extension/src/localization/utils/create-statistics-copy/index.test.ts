@@ -17,7 +17,8 @@ describe( 'createStatisticsCopy', () => {
 	} );
 
 	it.each( [
-		[ 0, 'Approximately 0 minutes' ],
+		[ 0, 'Not enough data yet' ],
+		[ 1, 'Less than 1 minute' ],
 		[ 30_000, 'Less than 1 minute' ],
 		[ 59_999, 'Less than 1 minute' ],
 		[ 60_000, 'Approximately 1 minute' ],
@@ -28,7 +29,7 @@ describe( 'createStatisticsCopy', () => {
 		[ 3_599_999, 'Approximately 1 hour' ],
 		[ 3_659_999, 'Approximately 1 hour, 1 minute' ],
 		[ 4_080_000, 'Approximately 1 hour, 8 minutes' ],
-	] )( 'rounds estimates to the nearest minute while preserving zero and subminute values for %i milliseconds', ( milliseconds, expected ) => {
+	] )( 'distinguishes missing estimates from positive durations for %i milliseconds', ( milliseconds, expected ) => {
 		const copy = createStatisticsCopy( createTestI18n(), createLocalizationFormatters( 'en' ) );
 
 		expect( copy.formatEstimatedDuration( milliseconds ) ).toBe( expected );

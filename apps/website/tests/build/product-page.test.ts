@@ -40,11 +40,13 @@ describe( 'public product presentation', () => {
 			await browser.close();
 		}
 	} );
-	for ( const engine of [ chromium, firefox, webkit ] ) {
-		test( `${ engine.name() }: every locale explains the product without JavaScript`, async () => {
+	for ( const { engine, width } of [ chromium, firefox, webkit ].flatMap(
+		( engine ) => [ 360, 320 ].map( ( width ) => ( { engine, width } ) ),
+	) ) {
+		test( `${ engine.name() } ${ String( width ) }: every locale explains the product without JavaScript`, async () => {
 			const browser = await engine.launch();
 			const context = await browser.newContext( {
-				javaScriptEnabled: false, viewport: { width: 360, height: 800 },
+				javaScriptEnabled: false, viewport: { width, height: 800 },
 			} );
 			const externalRequests: string[] = [];
 			await context.route( '**/*', async ( route ) => {
@@ -59,6 +61,13 @@ describe( 'public product presentation', () => {
 				const page = await context.newPage();
 				for ( const route of PublicRoutes ) {
 					await page.goto( `http://website.test${ route }` );
+					// Exercise a larger default text size as well as the narrow viewport.
+					if ( width === 320 ) {
+						await page.evaluate( () => {
+							document.documentElement.style.fontSize = '20px';
+						} );
+					}
+					await expect.poll( () => page.evaluate( () => document.fonts.status ) ).toBe( 'loaded' );
 					expect( await page.locator( 'h1' ).innerText() ).not.toBe( 'TOCus' );
 					expect( await page.locator( '.description' ).isVisible() ).toBe( true );
 					const fallback = page.locator( '.story-fallback' );
@@ -76,7 +85,7 @@ describe( 'public product presentation', () => {
 					expect( await page.locator( '.story-step-action:visible' ).count() ).toBe( 0 );
 					expect( await fallback.evaluate(
 						( element ) => element.scrollWidth <= element.clientWidth,
-					) ).toBe( true );
+					), route ).toBe( true );
 					expect( await page.locator( '#settings' ).isVisible() ).toBe( true );
 					expect( await page.locator( '#privacy' ).isVisible() ).toBe( true );
 					expect( await page.locator( '.product-demo-browser' ).isVisible() ).toBe( true );

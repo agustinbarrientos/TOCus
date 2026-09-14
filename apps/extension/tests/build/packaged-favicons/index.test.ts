@@ -94,7 +94,13 @@ async function createFixture(): Promise<FaviconTestFixture> {
 		manifest.host_permissions = [ '*://*.example.test/*' ];
 		delete manifest.optional_permissions;
 		await writeFile( manifestPath, JSON.stringify( manifest ) );
-		await new Promise<void>( ( resolve ) => server.listen( 0, '127.0.0.1', resolve ) );
+		await new Promise<void>( ( resolve, reject ) => {
+			server.once( 'error', reject );
+			server.listen( 0, '127.0.0.1', () => {
+				server.off( 'error', reject );
+				resolve();
+			} );
+		} );
 		const address = server.address();
 
 		if ( address === null || typeof address === 'string' ) {
@@ -133,6 +139,25 @@ async function createFixture(): Promise<FaviconTestFixture> {
 }
 
 /**
+ * Recreates the explicit favicon declaration made by the former pause document.
+ * @param page - Actual pause tab whose redirected URL Chrome will associate with this icon.
+ * @return Promise resolved once the document declares the old branded favicon.
+ * @since 0.1.0 Initial implementation.
+ */
+async function declareLegacyFavicon( page: Page ): Promise<void> {
+	await page.evaluate( () => {
+		for ( const link of document.querySelectorAll( 'link[rel="icon"]' ) ) {
+			link.remove();
+		}
+		const favicon = document.createElement( 'link' );
+
+		favicon.rel = 'icon';
+		favicon.href = '/icons/tab-dark.png';
+		document.head.append( favicon );
+	} );
+}
+
+/**
  * Recreates a favicon stored by an older installation without rewriting browser databases.
  * @param fixture - Isolated installation whose legacy document should acquire a branded icon.
  * @return Promise resolved once Chromium serves the old branded document icon from its cache.
@@ -145,16 +170,7 @@ async function seedLegacyFavicon( fixture: FaviconTestFixture ): Promise<void> {
 
 	try {
 		await legacyPage.goto( legacyUrl );
-		await legacyPage.evaluate( () => {
-			for ( const link of document.querySelectorAll( 'link[rel="icon"]' ) ) {
-				link.remove();
-			}
-			const favicon = document.createElement( 'link' );
-
-			favicon.rel = 'icon';
-			favicon.href = '/icons/tab-dark.png';
-			document.head.append( favicon );
-		} );
+		await declareLegacyFavicon( legacyPage );
 		await expect.poll( () => readCachedFavicon( fixture, legacyUrl ) ).toBe( brandedHash );
 	} finally {
 		await legacyPage.close();
@@ -264,7 +280,10 @@ describe( 'packaged Chrome favicon preservation', () => {
 			const legacyPause = await openReadyPause( fixture );
 
 			expect( legacyPause.url() ).toBe( `${ fixture.extensionRoot }interruption.html` );
-			expect( await readCachedFavicon( fixture, fixture.siteUrl ) ).toBe( brandedHash );
+			// Seeding a separate document does not deterministically populate a redirect's cache entry.
+			// Recreate the old declaration on the redirected tab and observe its actual persisted effect.
+			await declareLegacyFavicon( legacyPause );
+			await expect.poll( () => readCachedFavicon( fixture, fixture.siteUrl ) ).toBe( brandedHash );
 			await legacyPause.getByRole( 'button', { name: 'Continue', exact: true } ).click();
 			await legacyPause.waitForURL( fixture.siteUrl, { timeout: 5_000 } );
 			await expect.poll( () => readCachedFavicon( fixture, fixture.siteUrl ) ).toBe( websiteHash );
