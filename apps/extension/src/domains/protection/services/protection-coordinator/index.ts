@@ -1,6 +1,7 @@
 import {
 	ProtectionEventSchema,
 	ProtectionEventType,
+	type ProtectionEvent,
 } from '../../types/protection-event';
 import {
 	ProtectionStateSchema,
@@ -11,6 +12,7 @@ import {
 	ProtectionFactBatchIdSchema,
 	SessionContinuityIdSchema,
 	type SessionContinuityId,
+	type LocalDate,
 } from '../../types/protection-value';
 import {
 	StoredProtectionStatisticsDeliverySchema,
@@ -51,6 +53,26 @@ import {
 	createEmptyProtectionStatisticsDelivery,
 	prepareStatisticsDeliveryForTransition,
 } from '../../utils/prepare-protection-statistics-delivery';
+
+/**
+ * Reads the captured calendar attribution without consulting a clock during delivery.
+ * @param event - Validated transition event.
+ * @return Captured date, or null for event kinds that cannot emit statistics facts.
+ * @since 0.1.0 Initial implementation.
+ */
+function getStatisticsObservedLocalDate( event: ProtectionEvent ): LocalDate | null {
+	switch ( event.type ) {
+		case ProtectionEventType.PROGRESS_CHECKPOINT:
+			return event.completionLocalDate;
+		case ProtectionEventType.PARTICIPANT_DEPARTURE:
+		case ProtectionEventType.READY_CONTINUATION:
+		case ProtectionEventType.VISIT_ATTEMPT:
+		case ProtectionEventType.ALLOWANCE_EXPIRY:
+			return event.observedLocalDate;
+		default:
+			return null;
+	}
+}
 
 /**
  * Clones current runtime state without exposing the coordinator's mutable authority.
@@ -302,6 +324,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 		}
 
 		const transition = transitionProtectionState( currentState, parsedEvent );
+		const observedLocalDate = getStatisticsObservedLocalDate( parsedEvent );
 		const nextStatesByScope = {
 			...currentStatesByScope,
 			[ parsedEvent.scopeId ]: transition.state,
@@ -312,6 +335,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 				delivery: currentStatisticsDelivery,
 				facts: transition.facts,
 				scopeId: parsedEvent.scopeId,
+				observedLocalDate,
 				measurementRevision,
 				createProtectionFactBatchId,
 			} );

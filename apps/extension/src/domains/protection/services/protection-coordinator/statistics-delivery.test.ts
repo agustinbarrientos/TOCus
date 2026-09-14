@@ -158,6 +158,7 @@ function createStoredFactBatch( index: number, scopeId = 'scope-default' ) {
 		scopeId,
 		measurementRevision: `revision_${ String( index ) }`,
 		observedAtEpochMilliseconds: TestInstant,
+		observedLocalDate: '2026-08-31',
 		facts: [ {
 			type: ProtectionFactType.RECONSIDERED_VISIT,
 			factId: `fact_${ String( index ) }`,
@@ -293,6 +294,7 @@ describe( 'protection coordinator statistics delivery', () => {
 		const entryResult = await coordinator.dispatch(
 			() => createReadyContinuation( createFreshObservation( 'participant-b', 'page-b', 'https://example.com/page-b' ), {
 				nowEpochMilliseconds: TestInstant + 900_000,
+				observedLocalDate: '2026-09-01',
 			} ),
 			'revision_entry',
 		);
@@ -314,6 +316,7 @@ describe( 'protection coordinator statistics delivery', () => {
 					scopeId: 'scope-default',
 					measurementRevision: 'revision_departure',
 					observedAtEpochMilliseconds: TestInstant,
+					observedLocalDate: '2026-08-31',
 					facts: departureResult.facts,
 				},
 				{
@@ -321,6 +324,7 @@ describe( 'protection coordinator statistics delivery', () => {
 					scopeId: 'scope-default',
 					measurementRevision: 'revision_completion',
 					observedAtEpochMilliseconds: TestInstant,
+					observedLocalDate: '2026-08-31',
 					facts: completionResult.facts,
 				},
 				{
@@ -328,6 +332,7 @@ describe( 'protection coordinator statistics delivery', () => {
 					scopeId: 'scope-default',
 					measurementRevision: 'revision_entry',
 					observedAtEpochMilliseconds: TestInstant + 900_000,
+					observedLocalDate: '2026-09-01',
 					facts: entryResult.facts,
 				},
 			],
