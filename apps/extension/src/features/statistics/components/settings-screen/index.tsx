@@ -27,6 +27,7 @@ import type {
 	StatisticsSummaryProps,
 } from './types';
 import './style.scss';
+import { DailyStatistics } from '../daily-statistics';
 
 
 /**
@@ -39,24 +40,26 @@ export function StatisticsSummary( props: StatisticsSummaryProps ) {
 	const { copy, projection } = props;
 	const estimated = copy.formatEstimatedDuration( projection.estimatedReclaimedMilliseconds );
 	const metrics = [
-		[ copy.estimatedReclaimedLabel, estimated ],
 		[ copy.focusedPauseLabel, copy.formatDuration( projection.focusedPauseMilliseconds ) ],
 		[ copy.reconsideredVisitsLabel, copy.formatCount( projection.reconsideredVisitCount ) ],
 		[ copy.completedWaitsLabel, copy.formatCount( projection.completedWaitCount ) ],
 		[ copy.allowancesGrantedLabel, copy.formatCount( projection.allowanceGrantedCount ) ],
 	];
-	const empty = projection.estimatedReclaimedMilliseconds === 0
-		&& projection.focusedPauseMilliseconds === 0 && projection.reconsideredVisitCount === 0
-		&& projection.completedWaitCount === 0 && projection.allowanceGrantedCount === 0;
 	return (
 		<section className="settings-statistics-summary">
 			<h2>{ copy.allTimeTitle }</h2>
-			{ empty && <p className="settings-statistics-empty">{ copy.emptyMessage }</p> }
-			<dl className="settings-metrics">
-				{ metrics.map( ( [ label, amount ] ) =>
-					<div key={ label }><dt>{ label }</dt><dd>{ amount }</dd></div> ) }
-			</dl>
+			<dl className="settings-statistics-estimate"><div>
+				<dt>{ copy.estimatedReclaimedLabel }</dt><dd>{ estimated }</dd>
+			</div></dl>
 			<p>{ copy.estimationDescription }</p>
+			<DailyStatistics copy={ copy } totals={ projection.dailyTotals } />
+			<section className="settings-statistics-lifetime">
+				<h3>{ copy.allTimeTitle }</h3>
+				<dl className="settings-metrics">
+					{ metrics.map( ( [ label, amount ] ) =>
+						<div key={ label }><dt>{ label }</dt><dd>{ amount }</dd></div> ) }
+				</dl>
+			</section>
 		</section>
 	);
 }
@@ -94,29 +97,27 @@ export function Statistics( props: SettingsScreenProps ) {
 	function retryRead(): void {
 		void read();
 	}
-	const resetButton = <Button color="red" onClick={ requestReset }
-		{ ...( failure ? { h: 'auto', mih: '2.75rem', py: 'var(--tocus-space-2)' } : {} ) }
-		classNames={ { label: 'settings-statistics-reset-label' } }>{ copy.resetAction }</Button>;
+	const resetButton = <Button color="red" onClick={ requestReset }>{ copy.resetAction }</Button>;
 	const confirmation = <Confirmation inline focusConfirm opened={ confirming } title={ copy.resetConfirmationTitle }
 		description={ copy.resetConfirmationDescription } cancel={ copy.cancelReset }
 		confirm={ resetting ? copy.resetting : copy.confirmReset } pending={ resetting }
 		onCancel={ cancelReset } onConfirm={ confirmReset } />;
 
 	return (
-		<Page title={ copy.title } eyebrow={ copy.eyebrow } introduction={ copy.introduction }>
+		<Page title={ copy.title }>
 			{ status === StatisticsLoadState.LOADING &&
 				<Paper component="p" className="settings-statistics-loading" role="status">{ copy.loading }</Paper> }
 			{ projection && <StatisticsSummary copy={ copy } projection={ projection } /> }
 			{ failure && <Alert color="red" role="alert"
-				className="settings-statistics-recovery tocus-notice-recovery"
-				classNames={ { wrapper: 'settings-statistics-recovery-layout', body: 'settings-statistics-recovery-body',
-					message: 'settings-statistics-recovery-message' } }
-				icon={ <Icon name={ IconName.EXCLAMATION } /> }>
-				<div className="settings-statistics-recovery-copy"><h2>{ failure.title }</h2><p>{ failure.description }</p></div>
-				<Group className="settings-statistics-recovery-actions">
-					<Button ref={ retryButton } variant="outline" onClick={ retryRead }>{ copy.retry }</Button>
-					{ source && resetButton }
-				</Group>
+				className="settings-statistics-recovery tocus-alert-actionable"
+				icon={ <Icon name={ IconName.CIRCLE_EXCLAMATION } /> }>
+				<div className="tocus-alert-layout">
+					<div className="tocus-alert-copy"><h2>{ failure.title }</h2><p>{ failure.description }</p></div>
+					<Group className="tocus-alert-actions">
+						<Button ref={ retryButton } variant="outline" onClick={ retryRead }>{ copy.retry }</Button>
+						{ source && resetButton }
+					</Group>
+				</div>
 				{ confirmation }
 			</Alert> }
 			{ status === StatisticsLoadState.READY && source && <section className="settings-statistics-data">
