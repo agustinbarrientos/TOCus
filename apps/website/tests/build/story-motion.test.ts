@@ -1,8 +1,33 @@
 import { fileURLToPath } from 'node:url';
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { DemoChapter } from '../../src/components/product-demo/types';
 
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
+
+/**
+ * Reaches a story position with bounded real wheel gestures and rendered native frames.
+ * @param page - Browser page whose story receives wheel input.
+ * @param target - Document scroll position measured from the rendered story geometry.
+ * @return Completion after every gesture reaches its position and two frames render.
+ */
+async function wheelTo( page: Page, target: number ): Promise<void> {
+	const { before, maximumGesture } = await page.evaluate( () => ( {
+		before: window.scrollY, maximumGesture: window.innerHeight / 2,
+	} ) );
+	// Firefox caps large wheel deltas; divide long entry/exit travel without bypassing native input.
+	const gestures = Math.ceil( Math.abs( target - before ) / maximumGesture );
+	let previous = before;
+	for ( let gesture = 1; gesture <= gestures; gesture += 1 ) {
+		const next = Math.round( before + ( target - before ) * gesture / gestures );
+		await page.mouse.wheel( 0, next - previous );
+		await page.waitForFunction( ( position ) => Math.abs( window.scrollY - position ) <= 1, next );
+		// Let native scrolling and its React scene update composite before the next gesture.
+		await page.evaluate( () => new Promise( ( resolve ) => {
+			requestAnimationFrame( () => requestAnimationFrame( resolve ) );
+		} ) );
+		previous = next;
+	}
+}
 
 test.describe( 'generated website scroll story', () => {
 	for ( const engine of [ 'chromium', 'firefox', 'webkit' ] as const ) {
@@ -105,10 +130,30 @@ test.describe( 'generated website scroll story', () => {
 						element.getBoundingClientRect().height / window.innerHeight,
 					) ).toBeLessThanOrEqual( 3.6 );
 					expect( await page.locator( '.story-caption[aria-hidden="false"]' ).count() ).toBe( 1 );
-					const distance = await page.locator( '.story-layout' ).evaluate( ( element ) => {
-						const end = window.scrollY + element.getBoundingClientRect().bottom + window.innerHeight * 0.25;
-						return Math.ceil( end / 60 );
+					const travel = await page.locator( '.story-layout' ).evaluate( ( element ) => {
+						const stage = element.querySelector<HTMLElement>( '.experience-stage' );
+						if ( stage === null ) {
+							throw new Error( 'The sticky story stage is unavailable.' );
+						}
+						const bounds = element.getBoundingClientRect();
+						return {
+							start: window.scrollY + bounds.top - Number.parseFloat( getComputedStyle( stage ).top ),
+							distance: bounds.height - stage.offsetHeight,
+							end: Math.ceil( window.scrollY + bounds.bottom + window.innerHeight * 0.25 ),
+						};
 					} );
+					// Visit both sides of every chapter boundary and multiple positions within the two timers.
+					const stops = [
+						[ 0.04, DemoChapter.CHOOSE ], [ 0.22, DemoChapter.VISIT ],
+						[ 0.42, DemoChapter.PAUSE ], [ 0.50, DemoChapter.PAUSE ], [ 0.58, DemoChapter.PAUSE ],
+						[ 0.62, DemoChapter.CONTINUE ],
+						[ 0.82, DemoChapter.BROWSE ], [ 0.90, DemoChapter.BROWSE ], [ 0.98, DemoChapter.BROWSE ],
+					] as const;
+					/**
+					 * Records every rendered frame until the scroll observation ends.
+					 * @param element - Preview whose position and scene remain under observation.
+					 * @return All rendered frame measurements, including the terminal position.
+					 */
 					const frames = preview.evaluate( async ( element ) => {
 						const boxes = [];
 						const sampling = new AbortController();
@@ -116,7 +161,16 @@ test.describe( 'generated website scroll story', () => {
 							sampling.abort();
 						}, { once: true } );
 						while ( ! sampling.signal.aborted ) {
-							await new Promise( ( resolve ) => requestAnimationFrame( resolve ) );
+							await new Promise<void>( ( resolve ) => {
+								/** Completes a frame wait immediately when sampling is cancelled. */
+								const complete = (): void => {
+									cancelAnimationFrame( frame );
+									sampling.signal.removeEventListener( 'abort', complete );
+									resolve();
+								};
+								const frame = requestAnimationFrame( complete );
+								sampling.signal.addEventListener( 'abort', complete, { once: true } );
+							} );
 							const { left, top, width } = element.getBoundingClientRect();
 							const scene = element.closest<HTMLElement>( '.product-demo' )?.dataset.scene;
 							const countdown = element.querySelector( '.product-demo-countdown' )?.textContent;
@@ -127,24 +181,22 @@ test.describe( 'generated website scroll story', () => {
 						}
 						return boxes;
 					} );
-					await page.mouse.move( viewport.width - 20, viewport.height / 2 );
 					try {
+						await page.mouse.move( viewport.width - 20, viewport.height / 2 );
 						for ( const direction of [ 1, -1 ] ) {
 							await engineTest.step( direction === 1 ? 'Scroll forward through all scenes' : 'Scroll backward through all scenes', async () => {
-								for ( let step = 0; step < 60; step += 1 ) {
-									const before = await page.evaluate( () => window.scrollY );
-									await page.mouse.wheel( 0, distance * direction );
-									await expect.poll( () => page.evaluate( () => window.scrollY ) ).not.toBe( before );
-									// Let native scrolling composite before delivering the next gesture in WebKit.
-									await page.evaluate( () => new Promise( ( resolve ) => {
-										requestAnimationFrame( () => requestAnimationFrame( resolve ) );
-									} ) );
+								const orderedStops = direction === 1 ? stops : [ ...stops ].reverse();
+								for ( const [ fraction, chapter ] of orderedStops ) {
+									await wheelTo( page, Math.round( travel.start + travel.distance * fraction ) );
+									await expect( demo ).toHaveAttribute( 'data-scene', chapter );
 								}
+								await wheelTo( page, direction === 1 ? travel.end : 0 );
+								// Sample a stationary interval at each end to keep delayed shaking observable.
 								await page.waitForTimeout( 150 );
 							} );
 						}
 					} finally {
-						await preview.dispatchEvent( 'tocus-test-scroll-complete' );
+						await preview.dispatchEvent( 'tocus-test-scroll-complete', undefined, { timeout: 1_000 } );
 						await frames;
 					}
 					const boxes = await frames;
