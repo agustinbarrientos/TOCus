@@ -1,17 +1,10 @@
+import { expect } from '@playwright/test';
 import { Palette, ThemeMode } from '../../../../domains/preferences/types';
 import { SettingsDestination } from '../../services/settings-navigation/types';
-import { describe, expect, it } from 'vitest';
-import { chromium, firefox, webkit } from 'playwright';
-import { createSettingsBrowserHarness } from '../../utils/browser-test-harness';
+import { test } from '../../utils/browser-test-harness';
 
-describe.each( [
-	[ 'Chromium', chromium ],
-	[ 'Firefox', firefox ],
-	[ 'WebKit', webkit ],
-] as const )( '%s React settings', ( _name, engine ) => {
-	const { open, setting } = createSettingsBrowserHarness( engine );
-
-	it( 'preserves the approved edge navigation and spacious page composition', async () => {
+test.describe( 'React settings', () => {
+	test( 'preserves the approved edge navigation and spacious page composition', async ( { open } ) => {
 		const page = await open( SettingsDestination.APPEARANCE );
 		await page.setViewportSize( { width: 1280, height: 1200 } );
 		const navigation = await page.locator( '.settings-navigation' ).boundingBox();
@@ -21,10 +14,10 @@ describe.each( [
 		expect( main?.x ).toBe( 328 );
 		expect( main?.width ).toBe( 888 );
 		expect( await page.locator( '.tocus-page-header' ).textContent() ).toContain( 'Personalization' );
-		await page.close();
 	} );
 
-	it( 'saves keyboard timing, preserves rejection, and discards without writes', async () => {
+	test( 'saves keyboard timing, preserves rejection, and discards without writes', async ( { open, setting } ) => {
+		test.setTimeout( 20000 );
 		const page = await open();
 		const slider = page.getByRole( 'slider' ).first();
 		await slider.focus();
@@ -46,9 +39,9 @@ describe.each( [
 		const initialWait = await page.evaluate( () =>
 			window.settingsTest.getConfiguration().timingConfiguration.initialWaitMilliseconds );
 		expect( initialWait ).toBe( 15000 );
-		await page.close();
-	}, 20000 );
-	it( 'guards clicked and back/forward navigation while preserving the draft', async () => {
+	} );
+	test( 'guards clicked and back/forward navigation while preserving the draft', async ( { open } ) => {
+		test.setTimeout( 20000 );
 		const page = await open( SettingsDestination.ABOUT );
 		await page.getByRole( 'link', { name: 'Pause timing', exact: true } ).click();
 		await page.getByRole( 'slider' ).first().focus();
@@ -69,9 +62,9 @@ describe.each( [
 		} );
 		await page.getByRole( 'slider' ).first().waitFor();
 		expect( await page.getByRole( 'slider' ).first().getAttribute( 'aria-valuenow' ) ).toBe( '10' );
-		await page.close();
-	}, 20000 );
-	it( 'previews preferences, merges external fields and restores them on discard', async () => {
+	} );
+	test( 'previews preferences, merges external fields and restores them on discard', async ( { open } ) => {
+		test.setTimeout( 20000 );
 		const page = await open( SettingsDestination.APPEARANCE );
 		await page.getByRole( 'radio', { name: 'Dark', exact: true } ).click();
 		await expect.poll( () => page.locator( 'html' ).getAttribute( 'data-tocus-theme' ) ).toBe( ThemeMode.DARK );
@@ -81,9 +74,9 @@ describe.each( [
 		await page.getByRole( 'button', { name: 'Discard', exact: true } ).click();
 		await expect.poll( () => page.locator( 'html' ).getAttribute( 'data-tocus-theme' ) ).toBe( ThemeMode.LIGHT );
 		expect( await page.locator( 'html' ).getAttribute( 'data-tocus-palette' ) ).toBe( Palette.BLUE );
-		await page.close();
-	}, 20000 );
-	it( 'keeps denied website drafts and requests browser access from Save', async () => {
+	} );
+	test( 'keeps denied website drafts and requests browser access from Save', async ( { open, setting } ) => {
+		test.setTimeout( 20000 );
 		const page = await open( SettingsDestination.PROTECTED_SITES );
 		const input = page.locator( '#site-address' );
 		await input.fill( 'example.com' );
@@ -98,9 +91,9 @@ describe.each( [
 		await page.evaluate( () => window.settingsTest.revoke() );
 		await page.getByRole( 'button', { name: 'Allow access', exact: true } ).click();
 		await expect.poll( () => page.getByRole( 'button', { name: 'Allow access', exact: true } ).count() ).toBe( 0 );
-		await page.close();
-	}, 20000 );
-	it( 'renders every destination at one width and keeps read-only pages free of Save', async () => {
+	} );
+	test( 'renders every destination at one width and keeps read-only pages free of Save', async ( { open } ) => {
+		test.setTimeout( 20000 );
 		const page = await open( SettingsDestination.ABOUT );
 		for ( const destination of [ 'About', 'Privacy and local data', 'Statistics', 'Language', 'Appearance', 'Pause timing', 'Schedule', 'Websites' ] ) {
 			await page.getByRole( 'link', { name: destination, exact: true } ).click();
@@ -112,9 +105,8 @@ describe.each( [
 		}
 		await page.setViewportSize( { width: 390, height: 844 } );
 		expect( await page.evaluate( () => document.documentElement.scrollWidth <= innerWidth ) ).toBe( true );
-		await page.close();
-	}, 20000 );
-	it( 'covers a tall narrow viewport on every destination without horizontal overflow', async () => {
+	} );
+	test( 'covers a tall narrow viewport on every destination without horizontal overflow', async ( { open } ) => {
 		const page = await open( SettingsDestination.TIMING );
 		await page.setViewportSize( { width: 390, height: 1200 } );
 		for ( const destination of Object.values( SettingsDestination ) ) {
@@ -129,6 +121,5 @@ describe.each( [
 			expect( geometry.bottom, destination ).toBeGreaterThanOrEqual( geometry.viewportHeight );
 			expect( geometry.pageWidth, destination ).toBeLessThanOrEqual( geometry.viewportWidth );
 		}
-		await page.close();
 	} );
 } );

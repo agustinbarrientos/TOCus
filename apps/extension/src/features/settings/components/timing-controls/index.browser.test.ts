@@ -1,15 +1,8 @@
-import { describe, expect, it } from 'vitest';
-import { chromium, firefox, webkit } from 'playwright';
-import { createSettingsBrowserHarness } from '../../utils/browser-test-harness';
+import { expect } from '@playwright/test';
+import { test } from '../../utils/browser-test-harness';
 
-describe.each( [
-	[ 'Chromium', chromium ],
-	[ 'Firefox', firefox ],
-	[ 'WebKit', webkit ],
-] as const )( '%s native timing ranges', ( _name, engine ) => {
-	const { open, setting } = createSettingsBrowserHarness( engine );
-
-	it( 'exposes native bounds and localized values while keyboard changes update the draft', async () => {
+test.describe( 'native timing ranges', () => {
+	test( 'exposes native bounds and localized values while keyboard changes update the draft', async ( { open } ) => {
 		const page = await open();
 		const initial = page.getByRole( 'slider' ).first();
 		await initial.waitFor();
@@ -38,10 +31,9 @@ describe.each( [
 		await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
 		await expect.poll( () => page.evaluate( () =>
 			window.settingsTest.getConfiguration().timingConfiguration.ladderIncreaseMilliseconds ) ).toBe( 0 );
-		await page.close();
 	} );
 
-	it( 'disables every range during persistence without allowing keyboard draft changes', async () => {
+	test( 'disables every range during persistence without allowing keyboard draft changes', async ( { open, setting } ) => {
 		const page = await open();
 		const initial = page.getByRole( 'slider' ).first();
 		await initial.press( 'ArrowRight' );
@@ -62,6 +54,5 @@ describe.each( [
 		await expect.poll( () => initial.isEnabled() ).toBe( true );
 		expect( await page.evaluate( () =>
 			window.settingsTest.getConfiguration().timingConfiguration.initialWaitMilliseconds ) ).toBe( 15000 );
-		await page.close();
 	} );
 } );
