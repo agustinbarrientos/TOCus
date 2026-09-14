@@ -24,7 +24,7 @@ export default defineConfig( {
 	reporter: [
 		[ 'list' ],
 		[ '../tests/visual/originals/audit/index.ts' ],
-		[ 'html', { outputFolder: `playwright-report/visual/${ runId }`, open: 'never' } ],
+		[ 'html', { outputFolder: `../playwright-report/visual/${ runId }`, open: 'never' } ],
 	],
 	expect: { toHaveScreenshot: { animations: 'disabled', caret: 'hide', maxDiffPixels: 0, threshold: 0 } },
 	use: {

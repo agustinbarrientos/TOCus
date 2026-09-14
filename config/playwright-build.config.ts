@@ -21,7 +21,7 @@ export default defineConfig( {
 	outputDir: '../test-results/build-browser',
 	reporter: [
 		[ 'list' ],
-		[ 'html', { outputFolder: 'playwright-report/build-browser', open: 'never' } ],
+		[ 'html', { outputFolder: '../playwright-report/build-browser', open: 'never' } ],
 	],
 	use: {
 		launchOptions: { timeout: 10_000 },
