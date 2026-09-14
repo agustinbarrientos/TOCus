@@ -229,6 +229,8 @@ function createHandlerHarness(
 		getFocusedTabId,
 		getStates,
 		handler,
+		getTimeZone,
+		now,
 		loadConfiguration,
 		reconcileExpiredAllowances,
 		listTabs,
@@ -239,6 +241,28 @@ function createHandlerHarness(
 }
 
 describe( 'interruption request validation', () => {
+	it( 'captures a Ready continuation in the OS calendar at the observed instant', async () => {
+		const ready = {
+			...createReadyState(),
+			scopeId: DefaultProtectionScopeId,
+			readyParticipants: createTestAllowanceState().readyParticipants,
+		};
+		const harness = createHandlerHarness( { [ DefaultProtectionScopeId ]: ready } );
+		harness.now.mockReturnValue( Date.parse( '2026-09-13T22:30:00Z' ) );
+		harness.getTimeZone.mockReturnValue( 'Europe/Berlin' );
+
+		await harness.handler.handle( {
+			type: InterruptionPageRequestType.CONTINUE,
+			documentVisible: true,
+		}, 7, true );
+
+		expect( harness.events ).toMatchObject( [ {
+			type: ProtectionEventType.READY_CONTINUATION,
+			nowEpochMilliseconds: Date.parse( '2026-09-13T22:30:00Z' ),
+			observedLocalDate: '2026-09-14',
+		} ] );
+	} );
+
 	it( 'fails open a privacy-ineligible sender before it can advance protection', async () => {
 		const waitingState = createTestWaitingState();
 		const harness = createHandlerHarness( { [ DefaultProtectionScopeId ]: waitingState } );

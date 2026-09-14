@@ -293,11 +293,12 @@ export function createInterruptionRequestHandler(
 		const allowanceState = context.state;
 		const matchingDestination = await readMatchingDestination( context );
 		const nowEpochMilliseconds = options.now();
+		const timeZone = options.getTimeZone();
 		const observation = createFreshRuntimeObservation(
 			context.participant,
 			configuration,
 			nowEpochMilliseconds,
-			options.getTimeZone(),
+			timeZone,
 			matchingDestination,
 		);
 		const measurementRevision = Object.hasOwn(
@@ -311,6 +312,7 @@ export function createInterruptionRequestHandler(
 			scopeId: allowanceState.scopeId,
 			allowanceId: allowanceState.allowanceId,
 			nowEpochMilliseconds,
+			observedLocalDate: createRuntimeLocalDate( nowEpochMilliseconds, timeZone ),
 			observation,
 		} ), measurementRevision );
 

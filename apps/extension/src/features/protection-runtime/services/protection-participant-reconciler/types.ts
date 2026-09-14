@@ -47,6 +47,12 @@ export interface ProtectionParticipantReconcilerOptions {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	now(): number;
+	/**
+	 * Returns the OS timezone used when recording a departure.
+	 * @return Current IANA timezone identifier.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	getTimeZone(): string;
 }
 
 /**
