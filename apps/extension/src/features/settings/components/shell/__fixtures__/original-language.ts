@@ -9,9 +9,7 @@ import type { LanguageScreenCopy } from '../../language-screen/types';
 export function originalLanguageCopy( english: LanguageScreenCopy ): LanguageScreenCopy {
 	return {
 		...english,
-		eyebrow: 'Personalisierung',
 		title: 'Sprache',
-		introduction: 'Wählen Sie die Sprache, die TOCus in der gesamten Browser-Erweiterung für alle Hinweise und Einstellungen verwendet.',
 		formLabel: 'Spracheinstellung',
 		languageLabel: 'Sprache der TOCus-Benutzeroberfläche',
 		browserLanguageOption: 'Spracheinstellungen des Browsers automatisch verwenden',
