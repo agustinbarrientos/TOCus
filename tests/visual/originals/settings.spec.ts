@@ -40,30 +40,19 @@ async function prepareState( page: Page, name: string ): Promise<void> {
 		await expect( page.getByRole( 'alert' ) ).toBeVisible();
 	}
 	if ( name.includes( 'no-increase' ) ) {
-		await page.getByRole( 'slider', { name: 'Wait increase', exact: true } ).evaluate( ( slider ) => {
-			// The archived input event changed the draft without focusing the control.
-			if ( ! ( slider instanceof HTMLInputElement ) ) {
-				throw new Error( 'The original Timing fixture requires a native range input.' );
-			}
-			const valueDescriptor = Object.getOwnPropertyDescriptor( HTMLInputElement.prototype, 'value' );
-			if ( ! valueDescriptor?.set ) {
-				throw new Error( 'The native Timing fixture requires the browser input value setter.' );
-			}
-			// Bypass React's instance tracker so the native input event reaches its state handler.
-			valueDescriptor.set.call( slider, '0' );
-			slider.dispatchEvent( new Event( 'input', { bubbles: true } ) );
-		} );
+		await page.getByRole( 'slider', { name: 'Wait increase', exact: true } ).press( 'Home' );
+		await page.getByRole( 'slider', { name: 'Wait increase', exact: true } ).blur();
 		await expect( page.getByRole( 'slider', { name: 'Wait increase', exact: true } ) )
 			.toHaveAttribute( 'aria-valuetext', '0 (no increase)' );
 	}
 	if ( name.includes( 'permissions' ) ) {
-		await page.locator( 'summary' ).click();
+		await expect( page.getByRole( 'heading', { name: 'Why TOCus needs browser access' } ) ).toBeVisible();
 	}
 	if ( name.includes( 'protected-site' ) && ( name.includes( 'editing' ) || name.includes( 'removal' ) ) ) {
 		const item = page.locator( '.settings-site-item' ).filter( {
 			has: page.getByRole( 'heading', { name: name.includes( 'independent-removal' ) ? 'ChatGPT' : 'Instagram', exact: true } ),
 		} );
-		await item.getByRole( 'button', { name: 'Manage this website', exact: true } ).evaluate( ( element ) => {
+		await item.getByRole( 'button', { name: 'Edit', exact: true } ).evaluate( ( element ) => {
 			if ( element instanceof HTMLButtonElement ) {
 				element.click();
 			}
@@ -76,7 +65,7 @@ async function prepareState( page: Page, name: string ): Promise<void> {
 			} );
 			await expect( item.getByRole( 'button', { name: 'Remove', exact: true } ) ).toBeFocused();
 		} else {
-			await expect( item.getByLabel( 'Display name', { exact: true } ) ).toBeFocused();
+			await expect( item.getByLabel( 'Name', { exact: true } ) ).toBeFocused();
 		}
 	}
 	if ( name.includes( 'privacy' ) && /confirmation|pending|failed|success|narrow/.test( name ) ) {

@@ -40,9 +40,9 @@ function Notices() {
 		</section>
 		<section className="tocus-section" style={ { paddingBottom: 0 } }><h2 style={ { marginBottom: 0 } }>Timing summary</h2>
 			<p style={ { color: 'inherit', marginTop: '1em' } }>Your five minutes start when you choose Continue.</p></section>
-		<Alert color="green" mt="1rem" icon={ <Icon name={ IconName.CIRCLE_CHECK } /> } role="status">Changes saved.</Alert>
-		<Alert color="red" mt="1rem" icon={ <Icon name={ IconName.EXCLAMATION } /> }>Your changes could not be saved. Try again.</Alert>
-		<Alert color="yellow" mt="1rem" icon={ <Icon name={ IconName.EXCLAMATION } /> } role="status">Browser access is still enabled for this website.</Alert>
+		<Alert color="green" icon={ <Icon name={ IconName.CIRCLE_CHECK } /> } role="status">Changes saved.</Alert>
+		<Alert color="red" icon={ <Icon name={ IconName.CIRCLE_EXCLAMATION } /> }>Your changes could not be saved. Try again.</Alert>
+		<Alert color="yellow" icon={ <Icon name={ IconName.CIRCLE_EXCLAMATION } /> } role="status">Browser access is still enabled for this website.</Alert>
 		<div className="tocus-form-actions"><Button>Save</Button><Button variant="outline">Discard</Button></div>
 	</Page></div>;
 }
