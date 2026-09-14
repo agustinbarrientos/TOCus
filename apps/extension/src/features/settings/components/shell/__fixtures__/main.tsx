@@ -1,4 +1,4 @@
-import { StatisticsProjectionStatus } from '../../../../../domains/statistics/types/statistics-projection';
+import { AvailableStatisticsProjectionSchema, StatisticsProjectionStatus } from '../../../../../domains/statistics/types/statistics-projection';
 import type { AvailableStatisticsProjection, StatisticsProjection } from '../../../../../domains/statistics/types/statistics-projection';
 import { SitePermissionReleaseStatus, SitePermissionGrantProvenance, SitePermissionRequestStatus } from '../../../../protected-sites/services/site-permission-manager/types';
 import '@tocus/ui/styles.scss';
@@ -94,7 +94,7 @@ if ( original ) {
 	preferences.theme = DefaultPreferencesDocument.theme;
 	if ( original.includes( 'appearance-screen-purple-dark' ) ) {
 		preferences = { ...preferences, theme: ThemeMode.DARK, palette: Palette.PURPLE,
-			pauseMode: PauseMode.QUIET, reducedMotion: true };
+			pauseMode: PauseMode.QUIET };
 	}
 	if ( original.includes( 'appearance-screen-green' ) ) {
 		preferences = { ...preferences, theme: ThemeMode.LIGHT, palette: Palette.GREEN };
@@ -188,12 +188,6 @@ shell.editor = createProtectionConfigurationEditor( {
 		},
 	},
 	/**
-	 * Creates independent fixture scopes.
-	 * @return Distinct fixture scope identifier.
-	 * @since 0.1.0
-	 */
-	createIndependentScopeId: () => `scope_${ String( ++sequence ) }`,
-	/**
 	 * Marks each configuration revision.
 	 * @return Distinct fixture revision identifier.
 	 * @since 0.1.0
@@ -259,7 +253,8 @@ shell.preferencesPreview = {
 	apply: ( value ) => {
 		document.documentElement.setAttribute( 'data-tocus-theme', value.theme );
 		document.documentElement.setAttribute( 'data-tocus-palette', value.palette );
-		document.documentElement.setAttribute( 'data-tocus-reduced-motion', String( value.reducedMotion ) );
+		document.documentElement.setAttribute( 'data-tocus-reduced-motion',
+			String( matchMedia( '(prefers-reduced-motion: reduce)' ).matches ) );
 	},
 };
 
@@ -325,21 +320,26 @@ shell.permissionManager = {
 	release: () => Promise.resolve( SitePermissionReleaseStatus.RELEASED ),
 };
 
-let statistics: AvailableStatisticsProjection = {
+let statistics: AvailableStatisticsProjection = AvailableStatisticsProjectionSchema.parse( {
 	status: StatisticsProjectionStatus.AVAILABLE,
 	estimatedReclaimedMilliseconds: ( 2 * 5 + 1 ) * 60_000,
 	focusedPauseMilliseconds: 60_000,
 	reconsideredVisitCount: 2,
 	completedWaitCount: 3,
 	allowanceGrantedCount: 4,
-};
+	dailyTotals: [ {
+		date: '2026-09-14', estimatedReclaimedMilliseconds: 11 * 60_000,
+		focusedPauseMilliseconds: 60_000, reconsideredVisitCount: 2,
+		completedWaitCount: 3, allowanceGrantedCount: 4,
+	} ],
+} );
 if ( original ) {
 	statistics = { ...statistics, estimatedReclaimedMilliseconds: ( 18 * 5 + 27 ) * 60_000,
 		focusedPauseMilliseconds: 1620000, reconsideredVisitCount: 18,
 		completedWaitCount: 24, allowanceGrantedCount: 11 };
 	if ( original.includes( 'empty' ) ) {
 		statistics = { ...statistics, estimatedReclaimedMilliseconds: 0, focusedPauseMilliseconds: 0,
-			reconsideredVisitCount: 0, completedWaitCount: 0, allowanceGrantedCount: 0 };
+			reconsideredVisitCount: 0, completedWaitCount: 0, allowanceGrantedCount: 0, dailyTotals: [] };
 	}
 	controls.unavailableStatistics = original.includes( 'statistics' ) && original.includes( 'unavailable' );
 	controls.rejectResets = original.includes( 'failed' ) || original.includes( 'failure' );
@@ -373,6 +373,7 @@ shell.statisticsSource = {
 			reconsideredVisitCount: 0,
 			completedWaitCount: 0,
 			allowanceGrantedCount: 0,
+			dailyTotals: [],
 		};
 		return Promise.resolve( statistics );
 	},
@@ -446,7 +447,7 @@ const bridge: SettingsFixtureBridge = {
 	 * @since 0.1.0
 	 */
 	externalStatistics: ( update ) => {
-		statistics = { ...statistics, ...update };
+		statistics = AvailableStatisticsProjectionSchema.parse( { ...statistics, ...update } );
 		statisticsListeners.forEach( ( listener ) => {
 			listener();
 		} );
