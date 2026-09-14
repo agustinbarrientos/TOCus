@@ -28,10 +28,6 @@ export function createProtectedSiteListCopy(
 	return Object.freeze( {
 		emptyTitle: i18n._( msg`No websites yet` ),
 		emptyDescription: i18n._( msg`Add the first site you want TOCus to gently interrupt.` ),
-		sharedGroupTitle: i18n._( msg`One timer for these websites` ),
-		sharedGroupDescription: i18n._( msg`These websites use the same timer.` ),
-		independentGroupTitle: i18n._( msg`Independent sites` ),
-		independentGroupDescription: i18n._( msg`Each website has its own timer.` ),
 		compareNames,
 	} );
 }
