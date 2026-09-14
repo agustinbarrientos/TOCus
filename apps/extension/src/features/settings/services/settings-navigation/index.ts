@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DraftGuard } from '../../utils/draft-controller/types';
+import { DraftSaveResult } from '../../utils/draft-controller/types';
 import {
 	SettingsDestination,
 	SettingsHistoryPositionKey,
@@ -51,6 +52,9 @@ function markHistoryPosition( position: number ): void {
 export function useSettingsNavigation(): SettingsNavigationState {
 	const [ destination, setDestination ] = useState( () => resolveDestination( window.location.hash ) );
 	const [ pending, setPending ] = useState<PendingSettingsNavigation | null>( null );
+	const [ saving, setSaving ] = useState( false );
+	const [ saveFailed, setSaveFailed ] = useState( false );
+	const deciding = useRef( false );
 	const activeDestination = useRef( destination );
 	const guard = useRef<DraftGuard | null>( null );
 	const pendingRef = useRef<PendingSettingsNavigation | null>( null );
@@ -79,6 +83,7 @@ export function useSettingsNavigation(): SettingsNavigationState {
 	function setConfirmation( next: PendingSettingsNavigation | null ): void {
 		pendingRef.current = next;
 		setPending( next );
+		setSaveFailed( false );
 	}
 
 	useEffect( () => {
@@ -118,10 +123,11 @@ export function useSettingsNavigation(): SettingsNavigationState {
 				markHistoryPosition( targetPosition );
 				return;
 			}
-			if ( guard.current?.dirty || guard.current?.saving ) {
+			if ( guard.current?.dirty || guard.current?.saving || deciding.current || pendingRef.current !== null ) {
 				const delta = targetPosition - position.current;
 				markHistoryPosition( targetPosition );
-				if ( guard.current.dirty && ! guard.current.saving && pendingRef.current === null ) {
+				if ( guard.current?.dirty && ! guard.current.saving
+					&& ! deciding.current && pendingRef.current === null ) {
 					setConfirmation( {
 						hash: window.location.hash,
 						delta,
@@ -143,7 +149,7 @@ export function useSettingsNavigation(): SettingsNavigationState {
 		 * @since 0.1.0
 		 */
 		function handleBeforeUnload( event: BeforeUnloadEvent ): void {
-			if ( guard.current?.dirty || guard.current?.saving ) {
+			if ( guard.current?.dirty || guard.current?.saving || deciding.current ) {
 				event.preventDefault();
 			}
 		}
@@ -165,7 +171,8 @@ export function useSettingsNavigation(): SettingsNavigationState {
 	 * @since 0.1.0
 	 */
 	function navigate( hash: string, focus: HTMLElement ): void {
-		if ( resolveDestination( hash ) === destination || pending !== null || guard.current?.saving ) {
+		if ( resolveDestination( hash ) === activeDestination.current || pendingRef.current !== null
+			|| guard.current?.saving || deciding.current ) {
 			return;
 		}
 		if ( guard.current?.dirty ) {
@@ -178,24 +185,72 @@ export function useSettingsNavigation(): SettingsNavigationState {
 	}
 
 	/**
-	 * Discards the current draft before committing the original link or history movement.
-	 * @return Promise resolved after the draft is discarded and navigation resumes.
+	 * Commits the original link or history movement after a completed draft decision.
+	 * @param accepted - Original requested movement, never a replacement history entry.
+	 * @since 0.1.0
+	 */
+	function accept( accepted: PendingSettingsNavigation ): void {
+		setConfirmation( null );
+		if ( accepted.delta === null ) {
+			position.current += 1;
+			window.history.pushState( { [ SettingsHistoryPositionKey ]: position.current }, '', accepted.hash );
+			chooseDestination( resolveDestination( accepted.hash ) );
+		} else {
+			position.current += accepted.delta;
+			transition.current = SettingsHistoryTransition.COMMIT;
+			window.history.go( accepted.delta );
+		}
+	}
+
+	/**
+	 * Discards the current draft while locking duplicate confirmation actions.
+	 * @return Completion of the original requested navigation.
 	 * @since 0.1.0
 	 */
 	async function discard(): Promise<void> {
-		if ( pending === null || guard.current?.saving ) {
+		const accepted = pendingRef.current;
+		if ( accepted === null || guard.current?.saving || deciding.current ) {
 			return;
 		}
-		await guard.current?.discard();
-		setConfirmation( null );
-		if ( pending.delta === null ) {
-			position.current += 1;
-			window.history.pushState( { [ SettingsHistoryPositionKey ]: position.current }, '', pending.hash );
-			chooseDestination( resolveDestination( pending.hash ) );
-		} else {
-			position.current += pending.delta;
-			transition.current = SettingsHistoryTransition.COMMIT;
-			window.history.go( pending.delta );
+		deciding.current = true;
+		setSaving( true );
+		try {
+			await guard.current?.discard();
+			accept( accepted );
+		} finally {
+			deciding.current = false;
+			setSaving( false );
+		}
+	}
+
+	/**
+	 * Invokes page persistence within the original gesture and leaves only on clean success.
+	 * @return Completion of persistence and any accepted navigation, retaining failures in place.
+	 * @since 0.1.0
+	 */
+	async function save(): Promise<void> {
+		const accepted = pendingRef.current;
+		const current = guard.current;
+		if ( accepted === null || current === null || current.saving || deciding.current ) {
+			return;
+		}
+		deciding.current = true;
+		setSaving( true );
+		setSaveFailed( false );
+		try {
+			// The page must request optional browser permissions before this first await.
+			const result = await current.save();
+			const settled = guard.current;
+			if ( result === DraftSaveResult.SAVED && settled !== null && ! settled.dirty && ! settled.saving ) {
+				accept( accepted );
+			} else {
+				setSaveFailed( true );
+			}
+		} catch {
+			setSaveFailed( true );
+		} finally {
+			deciding.current = false;
+			setSaving( false );
 		}
 	}
 
@@ -204,10 +259,13 @@ export function useSettingsNavigation(): SettingsNavigationState {
 	 * @since 0.1.0
 	 */
 	function stay(): void {
-		const focus = pending?.focus;
+		if ( deciding.current || guard.current?.saving ) {
+			return;
+		}
+		const focus = pendingRef.current?.focus;
 		setConfirmation( null );
 		requestAnimationFrame( () => focus?.focus() );
 	}
 
-	return { destination, pending, register, navigate, discard, stay };
+	return { destination, pending, saving, saveFailed, register, navigate, discard, save, stay };
 }
