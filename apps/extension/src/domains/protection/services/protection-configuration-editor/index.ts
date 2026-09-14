@@ -9,7 +9,6 @@ import { ScheduleSchema } from '../../types/protection-schedule';
 import { CanonicalHostSchema } from '../../types/protected-site-rule';
 import {
 	DefaultProtectionScopeId,
-	ProtectionScopeIdSchema,
 	type ProtectionScopeId,
 } from '../../types/protection-value';
 import { TimingConfigurationSchema } from '../../types/timing-configuration';
@@ -18,7 +17,6 @@ import {
 	ProtectedSiteCanonicalizationStatus,
 } from '../../utils/protected-site-canonicalizer';
 import { reconcileProtectionScopeMeasurementRevisions } from '../../utils/reconcile-protection-scope-measurement-revisions';
-import { reconcileProtectionScopeSchedules } from '../../utils/reconcile-protection-scope-schedules';
 import { normalizeSchedule } from '../../utils/schedule-normalizer';
 import {
 	ProtectionConfigurationEditRejectionReason,
@@ -127,64 +125,13 @@ function createMembershipUpdatedResult(
 		: createUpdatedResult( {
 			...configuration,
 			sites,
-			schedulesByScope: reconcileProtectionScopeSchedules( sites, configuration.schedulesByScope ),
 			measurementRevisionsByScope,
 		} );
 }
 
 /**
- * Resolves a validated scope for one requested behavior.
- * @param independent - Whether an independent scope is required.
- * @param configuration - Current validated configuration whose scope identifiers must remain unique.
- * @param options - Editor dependencies containing the scope factory.
- * @return Shared or independent scope identifier, or null for an invalid generated identifier.
- * @since 0.1.0 Initial implementation.
- */
-function resolveRequestedScopeId(
-	independent: boolean,
-	configuration: ProtectionConfigurationDocument,
-	options: ProtectionConfigurationEditorOptions,
-): ProtectionScopeId | null {
-	if ( ! independent ) {
-		return DefaultProtectionScopeId;
-	}
-
-	const scopeIdResult = ProtectionScopeIdSchema.safeParse( options.createIndependentScopeId() );
-
-	return scopeIdResult.success &&
-		scopeIdResult.data !== DefaultProtectionScopeId &&
-		! configuration.sites.some( ( site ) => site.rule.scopeId === scopeIdResult.data )
-		? scopeIdResult.data
-		: null;
-}
-
-/**
- * Preserves an existing independent scope or creates one when a shared site becomes independent.
- * @param currentScopeId - Scope currently owned by the protected site.
- * @param independent - Whether independent behavior is requested.
- * @param configuration - Current validated configuration whose scope identifiers must remain unique.
- * @param options - Editor dependencies containing the scope factory.
- * @return Requested scope identifier, or null for an invalid generated identifier.
- * @since 0.1.0 Initial implementation.
- */
-function resolveUpdatedScopeId(
-	currentScopeId: ProtectionScopeId,
-	independent: boolean,
-	configuration: ProtectionConfigurationDocument,
-	options: ProtectionConfigurationEditorOptions,
-): ProtectionScopeId | null {
-	if ( ! independent ) {
-		return DefaultProtectionScopeId;
-	}
-
-	return currentScopeId === DefaultProtectionScopeId
-		? resolveRequestedScopeId( true, configuration, options )
-		: currentScopeId;
-}
-
-/**
  * Creates validated protected-site editing with local persistence coordination.
- * @param options - Storage and independent-scope dependencies.
+ * @param options - Storage and coordinated-edit dependencies.
  * @return Protected-site configuration editor.
  * @since 0.1.0 Initial implementation.
  */
@@ -311,9 +258,8 @@ export function createProtectionConfigurationEditor(
 	}
 
 	/**
-	 * Adds unique hostnames or HTTP(S) URLs with shared or independent behavior atomically.
+	 * Adds unique hostnames or HTTP(S) URLs with shared countdown behavior atomically.
 	 * @param siteInputs - User-entered hostnames or URLs.
-	 * @param independent - Whether the site receives its own scope.
 	 * @param beforePersist - Optional verification performed immediately before persistence.
 	 * @param finalize - Optional effect completed before mutation coordination is released.
 	 * @return Updated configuration or a stable rejection.
@@ -321,7 +267,6 @@ export function createProtectionConfigurationEditor(
 	 */
 	async function performAdd(
 		siteInputs: readonly unknown[],
-		independent: boolean,
 		beforePersist: ProtectionConfigurationEditPrePersist | undefined,
 		finalize: ProtectionConfigurationEditFinalizer | undefined,
 	): Promise<ProtectionConfigurationEditResult> {
@@ -342,16 +287,7 @@ export function createProtectionConfigurationEditor(
 			);
 		}
 
-		const scopeId = resolveRequestedScopeId( independent, configuration, options );
-
-		if ( scopeId === null ) {
-			return finalizeResult(
-				createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_SCOPE_ID ),
-				configuration,
-				finalize,
-			);
-		}
-
+		const scopeId = DefaultProtectionScopeId;
 		const additions = new Map<string, ProtectedSiteConfiguration>();
 
 		for ( const siteInput of siteInputs ) {
@@ -422,7 +358,6 @@ export function createProtectionConfigurationEditor(
 	/**
 	 * Queues one hostname or HTTP(S) URL addition.
 	 * @param siteInput - Unknown user-entered hostname or URL.
-	 * @param independent - Whether the site receives its own scope.
 	 * @param beforePersist - Optional verification performed immediately before persistence.
 	 * @param finalize - Optional effect completed before mutation coordination is released.
 	 * @return Serialized updated configuration or a stable rejection.
@@ -430,11 +365,10 @@ export function createProtectionConfigurationEditor(
 	 */
 	function add(
 		siteInput: unknown,
-		independent: boolean,
 		beforePersist?: ProtectionConfigurationEditPrePersist,
 		finalize?: ProtectionConfigurationEditFinalizer,
 	): Promise<ProtectionConfigurationEditResult> {
-		return serializeMutation( () => performAdd( [ siteInput ], independent, beforePersist, finalize ) );
+		return serializeMutation( () => performAdd( [ siteInput ], beforePersist, finalize ) );
 	}
 
 	/**
@@ -450,21 +384,21 @@ export function createProtectionConfigurationEditor(
 		beforePersist?: ProtectionConfigurationEditPrePersist,
 		finalize?: ProtectionConfigurationEditFinalizer,
 	): Promise<ProtectionConfigurationEditResult> {
-		return serializeMutation( () => performAdd( siteInputs, false, beforePersist, finalize ) );
+		return serializeMutation( () => performAdd( siteInputs, beforePersist, finalize ) );
 	}
 
 	/**
-	 * Updates one exact site's editable display name and scope behavior atomically.
+	 * Updates one exact site's editable display name and active hours atomically.
 	 * @param identityHostInput - Unknown exact canonical identity.
 	 * @param displayNameInput - Unknown editable name input.
-	 * @param independent - Whether the site receives its own scope.
+	 * @param scheduleInput - Optional site-specific active hours; omitted to use the global schedule.
 	 * @return Updated configuration or a stable rejection.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function performUpdate(
 		identityHostInput: unknown,
 		displayNameInput: unknown,
-		independent: boolean,
+		scheduleInput: unknown,
 	): Promise<ProtectionConfigurationEditResult> {
 		const configuration = await options.storage.load();
 
@@ -484,69 +418,38 @@ export function createProtectionConfigurationEditor(
 			return createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_DISPLAY_NAME );
 		}
 
-		const scopeId = resolveUpdatedScopeId(
-			currentSite.rule.scopeId,
-			independent,
-			configuration,
-			options,
-		);
-
-		if ( scopeId === null ) {
-			return createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_SCOPE_ID );
+		const schedule = scheduleInput === undefined ? undefined : ScheduleSchema.safeParse( scheduleInput );
+		if ( schedule !== undefined && ! schedule.success ) {
+			return createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_SCHEDULE );
 		}
-
-		const replacementSite = displayNameResult.data === ''
-			? {
-				identityHost: currentSite.identityHost,
-				rule: {
-					...currentSite.rule,
-					scopeId,
-				},
-			}
-			: {
-				...currentSite,
-				rule: {
-					...currentSite.rule,
-					scopeId,
-				},
-				displayNameOverride: displayNameResult.data,
-			};
-
+		const replacementSite: ProtectedSiteConfiguration = {
+			identityHost: currentSite.identityHost,
+			rule: currentSite.rule,
+			...( displayNameResult.data === '' ? {} : { displayNameOverride: displayNameResult.data } ),
+			...( schedule === undefined ? {} : { schedule: normalizeSchedule( schedule.data ) } ),
+		};
 		const sites = replaceSite( configuration, replacementSite );
-		const rotatedScopeIds = currentSite.rule.scopeId === scopeId
-			? new Set<ProtectionScopeId>()
-			: new Set( [ currentSite.rule.scopeId, scopeId ] );
-		const result = createMembershipUpdatedResult(
-			configuration,
-			sites,
-			rotatedScopeIds,
-			options,
-		);
 
-		return result === null
-			? createRejectedResult(
-				ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION,
-			)
-			: saveUpdatedResult( result );
+		return saveUpdatedResult( createUpdatedResult( { ...configuration, sites } ) );
 	}
 
 	/**
-	 * Queues one exact site's editable name and scope update.
+	 * Queues one exact site's editable name and active hours update.
 	 * @param identityHostInput - Unknown exact canonical identity.
 	 * @param displayNameInput - Unknown editable name input.
-	 * @param independent - Whether independent behavior is requested.
+	 * @param scheduleInput - Optional site-specific active hours; omitted to use the global schedule.
 	 * @return Serialized updated configuration or a stable rejection.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function update(
 		identityHostInput: unknown,
 		displayNameInput: unknown,
-		independent: boolean,
+		scheduleInput?: unknown,
 	): Promise<ProtectionConfigurationEditResult> {
 		return serializeMutation( () => performUpdate(
 			identityHostInput,
 			displayNameInput,
-			independent,
+			scheduleInput,
 		) );
 	}
 
@@ -632,26 +535,18 @@ export function createProtectionConfigurationEditor(
 	}
 
 	/**
-	 * Updates one active scope's schedule atomically.
-	 * @param scopeIdInput - Unknown protection scope identifier.
+	 * Updates the global schedule atomically.
 	 * @param scheduleInput - Unknown editable schedule input.
 	 * @return Updated configuration or a stable rejection.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function performUpdateSchedule(
-		scopeIdInput: unknown,
 		scheduleInput: unknown,
 	): Promise<ProtectionConfigurationEditResult> {
 		const configuration = await options.storage.load();
 
 		if ( configuration === null ) {
 			return createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION );
-		}
-
-		const scopeId = ProtectionScopeIdSchema.safeParse( scopeIdInput );
-
-		if ( ! scopeId.success || ! Object.hasOwn( configuration.schedulesByScope, scopeId.data ) ) {
-			return createRejectedResult( ProtectionConfigurationEditRejectionReason.SCOPE_NOT_FOUND );
 		}
 
 		const schedule = ScheduleSchema.safeParse( scheduleInput );
@@ -662,25 +557,20 @@ export function createProtectionConfigurationEditor(
 
 		return saveUpdatedResult( createUpdatedResult( {
 			...configuration,
-			schedulesByScope: {
-				...configuration.schedulesByScope,
-				[ scopeId.data ]: normalizeSchedule( schedule.data ),
-			},
+			schedule: normalizeSchedule( schedule.data ),
 		} ) );
 	}
 
 	/**
-	 * Queues one active scope's schedule update.
-	 * @param scopeIdInput - Unknown protection scope identifier.
+	 * Queues the global schedule update.
 	 * @param scheduleInput - Unknown editable schedule input.
 	 * @return Serialized updated configuration or a stable rejection.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function updateSchedule(
-		scopeIdInput: unknown,
 		scheduleInput: unknown,
 	): Promise<ProtectionConfigurationEditResult> {
-		return serializeMutation( () => performUpdateSchedule( scopeIdInput, scheduleInput ) );
+		return serializeMutation( () => performUpdateSchedule( scheduleInput ) );
 	}
 
 	/**
@@ -819,7 +709,6 @@ export function createProtectionConfigurationEditor(
 
 	return {
 		add, addMany, load, remove, update, updateSchedule, updateTiming, replaceSites,
-		createIndependentScopeId: options.createIndependentScopeId,
 	};
 }
 

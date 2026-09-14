@@ -220,24 +220,6 @@ class RejectingFirstWriteStorage implements ProtectionConfigurationStorageServic
 }
 
 /**
- * Creates one deterministic valid independent scope.
- * @return Stable independent protection scope.
- * @since 0.1.0 Initial implementation.
- */
-function createValidIndependentScopeId(): string {
-	return 'scope_independent_a';
-}
-
-/**
- * Creates one intentionally invalid independent scope fixture.
- * @return Invalid independent protection scope.
- * @since 0.1.0 Initial implementation.
- */
-function createInvalidIndependentScopeId(): string {
-	return 'scope with spaces';
-}
-
-/**
  * Creates one deterministic valid measurement revision.
  * @return Stable measurement revision.
  * @since 0.1.0 Initial implementation.
@@ -316,7 +298,7 @@ function removeMissingSite(
 function updateMissingSite(
 	editor: ReturnType<typeof createProtectionConfigurationEditor>,
 ) {
-	return editor.update( 'missing.example', 'Name', true );
+	return editor.update( 'missing.example', 'Name' );
 }
 
 /**
@@ -340,7 +322,7 @@ function removeInvalidSite(
 function updateInvalidSite(
 	editor: ReturnType<typeof createProtectionConfigurationEditor>,
 ) {
-	return editor.update( 'not a host', 'Name', false );
+	return editor.update( 'not a host', 'Name' );
 }
 
 /**
@@ -357,7 +339,6 @@ function createEditor(
 	const storage = new MemoryProtectionConfigurationEditorStorage( configuration );
 	const editor = createProtectionConfigurationEditor( {
 		storage,
-		createIndependentScopeId: createValidIndependentScopeId,
 		createMeasurementRevision,
 		coordinateMutation: coordinateMutationDirectly,
 	} );
@@ -366,6 +347,31 @@ function createEditor(
 }
 
 describe( 'createProtectionConfigurationEditor', () => {
+	it( 'rejects incomplete custom site hours without changing the saved name or site', async () => {
+		const { editor, storage } = createEditor( CONFIGURATION_WITH_SITE );
+		await expect( editor.update( CONFIGURED_SITE.identityHost, 'New name', {
+			mode: ScheduleMode.CUSTOM, windows: [],
+		} ) ).resolves.toEqual( {
+			status: ProtectionConfigurationEditStatus.REJECTED,
+			reason: ProtectionConfigurationEditRejectionReason.INVALID_SCHEDULE,
+		} );
+		expect( storage.writes ).toEqual( [] );
+		expect( await editor.load() ).toEqual( CONFIGURATION_WITH_SITE );
+	} );
+	it( 'saves a site schedule and automatic name in one write without separating its timer', async () => {
+		const { editor, storage } = createEditor( CONFIGURATION_WITH_SITE );
+		const schedule = { mode: ScheduleMode.CUSTOM, windows: [ { weekday: Weekday.MONDAY, startMinute: 540,
+			endMinute: 1020 } ] };
+
+		const result = await editor.update( CONFIGURED_SITE.identityHost, '', schedule );
+
+		expect( result.status ).toBe( ProtectionConfigurationEditStatus.UPDATED );
+		expect( storage.writes ).toHaveLength( 1 );
+		expect( await editor.load() ).toEqual( {
+			...CONFIGURATION_WITH_SITE,
+			sites: [ { ...CONFIGURED_SITE, schedule } ],
+		} );
+	} );
 	it( 'keeps the saved site set when a draft cannot allocate its membership revision', async () => {
 		const { editor, storage } = createEditor( CONFIGURATION_WITH_SITE, () => 'invalid revision' );
 		const result = await editor.replaceSites( [ CONFIGURED_SITE ], [] );
@@ -393,15 +399,17 @@ describe( 'createProtectionConfigurationEditor', () => {
 		const { editor, storage } = createEditor(
 			{ ...CONFIGURATION_WITH_SITE, sites: [ CONFIGURED_SITE, CONFIGURED_SECOND_SITE ] }, revisionFactory,
 		);
-		const scopeId = ProtectionScopeIdSchema.parse( editor.createIndependentScopeId() );
-		const nextSites = [ { ...CONFIGURED_SITE, displayNameOverride: 'Photos', rule: { ...CONFIGURED_SITE.rule, scopeId } }, {
-			identityHost: 'example.com', rule: { host: 'example.com', includeSubdomains: true, scopeId: DefaultProtectionScopeId },
+		const schedule = { mode: ScheduleMode.CUSTOM, windows: [ { weekday: Weekday.MONDAY, startMinute: 540,
+			endMinute: 600 } ] };
+		const nextSites = [ { ...CONFIGURED_SITE, displayNameOverride: 'Photos', schedule }, {
+			identityHost: 'example.com', rule: { host: 'example.com', includeSubdomains: true,
+				scopeId: DefaultProtectionScopeId },
 		} ];
 		await editor.replaceSites( [ CONFIGURED_SITE, CONFIGURED_SECOND_SITE ], nextSites );
 		expect( storage.writes ).toHaveLength( 1 );
 		expect( ( await editor.load() )?.sites ).toEqual( nextSites );
-		expect( ( await editor.load() )?.schedulesByScope[ scopeId ] ).toEqual( DefaultProtectionSchedule );
-		expect( revisionFactory ).toHaveBeenCalledTimes( 2 );
+		expect( ( await editor.load() )?.schedule ).toEqual( DefaultProtectionSchedule );
+		expect( revisionFactory ).toHaveBeenCalledOnce();
 	} );
 	it( 'replaces a complete draft with one write and preserves unrelated latest timing', async () => {
 		const { editor, storage } = createEditor( CONFIGURATION_WITH_SITE );
@@ -418,7 +426,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 
 	it( 'rejects a stale website baseline without overwriting a concurrent site edit', async () => {
 		const { editor, storage } = createEditor( CONFIGURATION_WITH_SITE );
-		await editor.update( CONFIGURED_SITE.identityHost, 'A newer name', false );
+		await editor.update( CONFIGURED_SITE.identityHost, 'A newer name' );
 		storage.writes.length = 0;
 		const result = await editor.replaceSites( [ CONFIGURED_SITE ], [] );
 		expect( result.status ).toBe( ProtectionConfigurationEditStatus.REJECTED );
@@ -461,7 +469,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 			createMeasurementRevision,
 		);
 
-		await expect( editor.add( 'instagram.com', false ) ).resolves.toMatchObject( {
+		await expect( editor.add( 'instagram.com' ) ).resolves.toMatchObject( {
 			status: ProtectionConfigurationEditStatus.UPDATED,
 			configuration: {
 				measurementRevisionsByScope: {
@@ -472,93 +480,39 @@ describe( 'createProtectionConfigurationEditor', () => {
 		expect( createMeasurementRevision ).toHaveBeenCalledOnce();
 	} );
 
-	it( 'preserves existing revisions and creates one revision when an independent scope is added', async () => {
-		const createMeasurementRevision = vi.fn().mockReturnValue( 'revision_independent_add' );
-		const { editor } = createEditor(
-			{ ...TestEmptyProtectionConfiguration },
-			createMeasurementRevision,
-		);
 
-		await expect( editor.add( 'instagram.com', true ) ).resolves.toMatchObject( {
-			status: ProtectionConfigurationEditStatus.UPDATED,
-			configuration: {
-				measurementRevisionsByScope: {
-					scope_default: 'revision_initial_scope_default',
-					scope_independent_a: 'revision_independent_add',
-				},
-			},
+
+	it( 'keeps shared measurement identity when only a site schedule changes', async () => {
+		const factory = vi.fn();
+		const { editor } = createEditor( CONFIGURATION_WITH_SITE, factory );
+		await editor.update( CONFIGURED_SITE.identityHost, '', {
+			mode: ScheduleMode.CUSTOM,
+			windows: [ { weekday: Weekday.MONDAY, startMinute: 540, endMinute: 600 } ],
 		} );
-		expect( createMeasurementRevision ).toHaveBeenCalledOnce();
+		expect( ( await editor.load() )?.measurementRevisionsByScope )
+			.toEqual( CONFIGURATION_WITH_SITE.measurementRevisionsByScope );
+		expect( factory ).not.toHaveBeenCalled();
 	} );
 
-	it( 'rotates the old and new scope revisions when a shared site becomes independent', async () => {
-		const createMeasurementRevision = vi.fn()
-			.mockReturnValueOnce( 'revision_default_without_site' )
-			.mockReturnValueOnce( 'revision_new_independent' );
-		const { editor } = createEditor( CONFIGURATION_WITH_SITE, createMeasurementRevision );
-
-		await expect( editor.update( 'www.instagram.com', '', true ) ).resolves.toMatchObject( {
-			status: ProtectionConfigurationEditStatus.UPDATED,
-			configuration: {
-				measurementRevisionsByScope: {
-					scope_default: 'revision_default_without_site',
-					scope_independent_a: 'revision_new_independent',
-				},
-			},
-		} );
-		expect( createMeasurementRevision ).toHaveBeenCalledTimes( 2 );
-	} );
-
-	it( 'rotates every active scope revision when allowance duration changes', async () => {
-		const independentSite: ProtectedSiteConfiguration = {
-			...CONFIGURED_SECOND_SITE,
-			rule: {
-				...CONFIGURED_SECOND_SITE.rule,
-				scopeId: ProtectionScopeIdSchema.parse( 'scope_independent_a' ),
-			},
-		};
-		const configuration: ProtectionConfigurationDocument = {
-			...CONFIGURATION_WITH_SITE,
-			sites: [ CONFIGURED_SITE, independentSite ],
-			schedulesByScope: {
-				...CONFIGURATION_WITH_SITE.schedulesByScope,
-				scope_independent_a: DefaultProtectionSchedule,
-			},
-			measurementRevisionsByScope: {
-				scope_default: ProtectionMeasurementRevisionSchema.parse(
-					'revision_shared_before_allowance_change',
-				),
-				scope_independent_a: ProtectionMeasurementRevisionSchema.parse(
-					'revision_independent_before_allowance_change',
-				),
-			},
-		};
-		const createMeasurementRevision = vi.fn()
-			.mockReturnValueOnce( 'revision_shared_after_allowance_change' )
-			.mockReturnValueOnce( 'revision_independent_after_allowance_change' );
-		const { editor } = createEditor( configuration, createMeasurementRevision );
-
+	it( 'rotates the shared revision once when global allowance duration changes', async () => {
+		const configuration = { ...CONFIGURATION_WITH_SITE, sites: [ CONFIGURED_SITE, CONFIGURED_SECOND_SITE ] };
+		const factory = vi.fn().mockReturnValue( 'revision_shared_after_allowance_change' );
+		const { editor } = createEditor( configuration, factory );
 		await expect( editor.updateTiming( {
-			...configuration.timingConfiguration,
-			allowanceMilliseconds: 10 * 60_000,
+			...configuration.timingConfiguration, allowanceMilliseconds: 10 * 60_000,
 		} ) ).resolves.toMatchObject( {
 			status: ProtectionConfigurationEditStatus.UPDATED,
-			configuration: {
-				measurementRevisionsByScope: {
-					scope_default: 'revision_shared_after_allowance_change',
-					scope_independent_a: 'revision_independent_after_allowance_change',
-				},
-			},
+			configuration: { measurementRevisionsByScope: { scope_default: 'revision_shared_after_allowance_change' } },
 		} );
-		expect( createMeasurementRevision ).toHaveBeenCalledTimes( 2 );
+		expect( factory ).toHaveBeenCalledOnce();
 	} );
 
 	it( 'does not rotate revisions for display, schedule, wait, step, action, or unchanged edits', async () => {
 		const createMeasurementRevision = vi.fn().mockReturnValue( 'revision_unexpected' );
 		const { editor } = createEditor( CONFIGURATION_WITH_SITE, createMeasurementRevision );
 
-		await editor.update( 'www.instagram.com', 'Instagram', false );
-		await editor.updateSchedule( DefaultProtectionScopeId, { mode: ScheduleMode.ALWAYS } );
+		await editor.update( 'www.instagram.com', 'Instagram' );
+		await editor.updateSchedule( { mode: ScheduleMode.ALWAYS } );
 		await editor.updateTiming( {
 			...CONFIGURATION_WITH_SITE.timingConfiguration,
 			initialWaitMilliseconds: 15_000,
@@ -583,12 +537,11 @@ describe( 'createProtectionConfigurationEditor', () => {
 	it( 'uses another revision when a scope membership change is reverted', async () => {
 		const createMeasurementRevision = vi.fn()
 			.mockReturnValueOnce( 'revision_default_without_site' )
-			.mockReturnValueOnce( 'revision_independent_with_site' )
 			.mockReturnValueOnce( 'revision_default_with_site_again' );
 		const { editor } = createEditor( CONFIGURATION_WITH_SITE, createMeasurementRevision );
 
-		await editor.update( 'www.instagram.com', '', true );
-		await expect( editor.update( 'www.instagram.com', '', false ) ).resolves.toMatchObject( {
+		await editor.remove( 'www.instagram.com' );
+		await expect( editor.add( 'www.instagram.com' ) ).resolves.toMatchObject( {
 			status: ProtectionConfigurationEditStatus.UPDATED,
 			configuration: {
 				measurementRevisionsByScope: {
@@ -596,7 +549,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 				},
 			},
 		} );
-		expect( createMeasurementRevision ).toHaveBeenCalledTimes( 3 );
+		expect( createMeasurementRevision ).toHaveBeenCalledTimes( 2 );
 	} );
 
 	it( 'rejects a membership change when the revision factory returns an invalid value', async () => {
@@ -606,7 +559,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 			createMeasurementRevision,
 		);
 
-		await expect( editor.add( 'instagram.com', false ) ).resolves.toEqual( {
+		await expect( editor.add( 'instagram.com' ) ).resolves.toEqual( {
 			status: ProtectionConfigurationEditStatus.REJECTED,
 			reason: ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION,
 		} );
@@ -627,19 +580,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 		expect( storage.writes ).toEqual( [] );
 	} );
 
-	it( 'rejects a scope update when the revision factory returns an invalid value', async () => {
-		const createMeasurementRevision = vi.fn().mockReturnValue( 'not a valid revision' );
-		const { editor, storage } = createEditor(
-			CONFIGURATION_WITH_SITE,
-			createMeasurementRevision,
-		);
 
-		await expect( editor.update( 'www.instagram.com', '', true ) ).resolves.toEqual( {
-			status: ProtectionConfigurationEditStatus.REJECTED,
-			reason: ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION,
-		} );
-		expect( storage.writes ).toEqual( [] );
-	} );
 
 	it( 'rejects an allowance change when the revision factory returns an invalid value', async () => {
 		const createMeasurementRevision = vi.fn().mockReturnValue( 'not a valid revision' );
@@ -661,7 +602,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 	it( 'adds a URL as one whole-domain site in the default shared scope', async () => {
 		const { editor, storage } = createEditor( { ...TestEmptyProtectionConfiguration } );
 
-		await expect( editor.add( 'https://www.instagram.com/reels', false ) ).resolves.toEqual( {
+		await expect( editor.add( 'https://www.instagram.com/reels' ) ).resolves.toEqual( {
 			status: ProtectionConfigurationEditStatus.UPDATED,
 			configuration: CONFIGURATION_WITH_SITE_AFTER_MEMBERSHIP_CHANGE,
 		} );
@@ -680,51 +621,22 @@ describe( 'createProtectionConfigurationEditor', () => {
 		);
 
 		await expect(
-			editor.add( 'https://www.instagram.com/reels', false, beforePersist ),
+			editor.add( 'https://www.instagram.com/reels', beforePersist ),
 		).resolves.toMatchObject( { status: ProtectionConfigurationEditStatus.UPDATED } );
 		expect( beforePersist ).toHaveBeenCalledOnce();
 		expect( storage.writes ).toEqual( [ CONFIGURATION_WITH_SITE_AFTER_MEMBERSHIP_CHANGE ] );
 	} );
 
-	it( 'adds an explicitly independent site to its own supplied scope', async () => {
-		const { editor } = createEditor( { ...TestEmptyProtectionConfiguration } );
 
-		await expect( editor.add( 'instagram.com', true ) ).resolves.toMatchObject( {
-			status: ProtectionConfigurationEditStatus.UPDATED,
-			configuration: {
-				sites: [ {
-					rule: { scopeId: 'scope_independent_a' },
-				} ],
-			},
-		} );
-	} );
 
-	it( 'rejects a generated independent scope already owned by another exception', async () => {
-		const existingIndependentSite: ProtectedSiteConfiguration = {
+	it( 'rejects a draft that attempts to create a separate countdown', async () => {
+		const { editor, storage } = createEditor();
+		await expect( editor.replaceSites( [ CONFIGURED_SITE ], [ {
 			...CONFIGURED_SITE,
-			rule: {
-				...CONFIGURED_SITE.rule,
-				scopeId: ProtectionScopeIdSchema.parse( 'scope_independent_a' ),
-			},
-		};
-		const { editor, storage } = createEditor( {
-			...TestEmptyProtectionConfiguration,
-			sites: [ existingIndependentSite ],
-			schedulesByScope: {
-				...TestEmptyProtectionConfiguration.schedulesByScope,
-				scope_independent_a: DefaultProtectionSchedule,
-			},
-			measurementRevisionsByScope: {
-				...TestEmptyProtectionConfiguration.measurementRevisionsByScope,
-				scope_independent_a: ProtectionMeasurementRevisionSchema.parse(
-					'revision_existing_independent',
-				),
-			},
-		} );
-
-		await expect( editor.add( 'youtube.com', true ) ).resolves.toEqual( {
+			rule: { ...CONFIGURED_SITE.rule, scopeId: ProtectionScopeIdSchema.parse( 'scope_separate' ) },
+		} ] ) ).resolves.toMatchObject( {
 			status: ProtectionConfigurationEditStatus.REJECTED,
-			reason: ProtectionConfigurationEditRejectionReason.INVALID_SCOPE_ID,
+			reason: ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION,
 		} );
 		expect( storage.writes ).toEqual( [] );
 	} );
@@ -736,12 +648,11 @@ describe( 'createProtectionConfigurationEditor', () => {
 			.mockReturnValueOnce( 'revision_concurrent_second' );
 		const editor = createProtectionConfigurationEditor( {
 			storage,
-			createIndependentScopeId: createValidIndependentScopeId,
 			createMeasurementRevision,
 			coordinateMutation: coordinateMutationDirectly,
 		} );
-		const firstEdit = editor.add( 'instagram.com', false );
-		const secondEdit = editor.add( 'youtube.com', false );
+		const firstEdit = editor.add( 'instagram.com' );
+		const secondEdit = editor.add( 'youtube.com' );
 
 		await vi.waitFor( () => {
 			expect( storage.writes ).toHaveLength( 1 );
@@ -765,14 +676,13 @@ describe( 'createProtectionConfigurationEditor', () => {
 			.mockReturnValueOnce( 'revision_coordinated_second' );
 		const editorOptions = {
 			storage,
-			createIndependentScopeId: createValidIndependentScopeId,
 			createMeasurementRevision,
 			coordinateMutation: createSharedMutationCoordinator(),
 		};
 		const firstEditor = createProtectionConfigurationEditor( editorOptions );
 		const secondEditor = createProtectionConfigurationEditor( editorOptions );
-		const firstEdit = firstEditor.add( 'instagram.com', false );
-		const secondEdit = secondEditor.add( 'youtube.com', false );
+		const firstEdit = firstEditor.add( 'instagram.com' );
+		const secondEdit = secondEditor.add( 'youtube.com' );
 
 		await vi.waitFor( () => {
 			expect( storage.writes ).toHaveLength( 1 );
@@ -796,12 +706,11 @@ describe( 'createProtectionConfigurationEditor', () => {
 			.mockReturnValueOnce( 'revision_recovered_write' );
 		const editor = createProtectionConfigurationEditor( {
 			storage,
-			createIndependentScopeId: createValidIndependentScopeId,
 			createMeasurementRevision,
 			coordinateMutation: coordinateMutationDirectly,
 		} );
-		const firstEdit = editor.add( 'instagram.com', false );
-		const secondEdit = editor.add( 'youtube.com', false );
+		const firstEdit = editor.add( 'instagram.com' );
+		const secondEdit = editor.add( 'youtube.com' );
 
 		await expect( firstEdit ).rejects.toThrow( 'First write rejected.' );
 		await expect( secondEdit ).resolves.toMatchObject( {
@@ -816,7 +725,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 	it( 'rejects another identity whose whole-domain rule is already protected', async () => {
 		const { editor, storage } = createEditor();
 
-		await expect( editor.add( 'https://business.instagram.com/', false ) ).resolves.toEqual( {
+		await expect( editor.add( 'https://business.instagram.com/' ) ).resolves.toEqual( {
 			status: ProtectionConfigurationEditStatus.REJECTED,
 			reason: ProtectionConfigurationEditRejectionReason.ALREADY_PROTECTED,
 		} );
@@ -831,7 +740,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 	] )( 'rejects the unprotectable site input %j', async ( siteInput ) => {
 		const { editor, storage } = createEditor();
 
-		await expect( editor.add( siteInput, false ) ).resolves.toEqual( {
+		await expect( editor.add( siteInput ) ).resolves.toEqual( {
 			status: ProtectionConfigurationEditStatus.REJECTED,
 			reason: ProtectionConfigurationEditRejectionReason.INVALID_SITE,
 		} );
@@ -841,7 +750,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 	it( 'rejects malformed stored configuration without replacing it', async () => {
 		const { editor, storage } = createEditor( null );
 
-		await expect( editor.add( 'example.com', false ) ).resolves.toEqual( {
+		await expect( editor.add( 'example.com' ) ).resolves.toEqual( {
 			status: ProtectionConfigurationEditStatus.REJECTED,
 			reason: ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION,
 		} );
@@ -867,7 +776,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 		expect( storage.writes ).toEqual( [] );
 	} );
 
-	it( 'stores a trimmed editable display name and scope behavior in one write', async () => {
+	it( 'stores a trimmed editable display name in one write', async () => {
 		const createMeasurementRevision = vi.fn()
 			.mockReturnValueOnce( 'revision_updated_shared' )
 			.mockReturnValueOnce( 'revision_updated_independent' );
@@ -879,11 +788,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 			createMeasurementRevision,
 		);
 
-		const result = await editor.update(
-			'www.instagram.com',
-			'  My Instagram  ',
-			true,
-		);
+		const result = await editor.update( 'www.instagram.com', '  My Instagram  ' );
 
 		expect( result ).toMatchObject( {
 			status: ProtectionConfigurationEditStatus.UPDATED,
@@ -891,7 +796,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 				sites: [
 					{
 						displayNameOverride: 'My Instagram',
-						rule: { scopeId: 'scope_independent_a' },
+						rule: { scopeId: DefaultProtectionScopeId },
 					},
 					CONFIGURED_SECOND_SITE,
 				],
@@ -910,7 +815,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 			} ],
 		} );
 
-		await expect( editor.update( 'www.instagram.com', '   ', false ) ).resolves.toEqual( {
+		await expect( editor.update( 'www.instagram.com', '   ' ) ).resolves.toEqual( {
 			status: ProtectionConfigurationEditStatus.UPDATED,
 			configuration: CONFIGURATION_WITH_SITE,
 		} );
@@ -919,11 +824,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 	it( 'rejects an overlong editable display name', async () => {
 		const { editor, storage } = createEditor();
 
-		await expect( editor.update(
-			'www.instagram.com',
-			'a'.repeat( 81 ),
-			false,
-		) ).resolves.toEqual( {
+		await expect( editor.update( 'www.instagram.com', 'a'.repeat( 81 ) ) ).resolves.toEqual( {
 			status: ProtectionConfigurationEditStatus.REJECTED,
 			reason: ProtectionConfigurationEditRejectionReason.INVALID_DISPLAY_NAME,
 		} );
@@ -971,7 +872,6 @@ describe( 'createProtectionConfigurationEditor', () => {
 		storage.configuration = CONFIGURATION_WITH_SITE;
 		const editor = createProtectionConfigurationEditor( {
 			storage,
-			createIndependentScopeId: createValidIndependentScopeId,
 			createMeasurementRevision: createValidMeasurementRevision,
 			coordinateMutation: coordinateMutationDirectly,
 		} );
@@ -988,88 +888,17 @@ describe( 'createProtectionConfigurationEditor', () => {
 		expect( storage.writes ).toBe( 1 );
 	} );
 
-	it( 'moves one independent site back to the shared default scope', async () => {
+	it( 'clears a custom schedule without changing the shared countdown identity', async () => {
 		const { editor } = createEditor( {
 			...CONFIGURATION_WITH_SITE,
-			schedulesByScope: {
-				...CONFIGURATION_WITH_SITE.schedulesByScope,
-				scope_independent_a: DefaultProtectionSchedule,
-			},
-			measurementRevisionsByScope: {
-				...CONFIGURATION_WITH_SITE.measurementRevisionsByScope,
-				scope_independent_a: ProtectionMeasurementRevisionSchema.parse(
-					'revision_independent_before_shared_move',
-				),
-			},
-			sites: [ {
-				...CONFIGURED_SITE,
-				rule: {
-					...CONFIGURED_SITE.rule,
-					scopeId: ProtectionScopeIdSchema.parse( 'scope_independent_a' ),
-				},
-			} ],
+			sites: [ { ...CONFIGURED_SITE, schedule: {
+				mode: ScheduleMode.CUSTOM,
+				windows: [ { weekday: Weekday.MONDAY, startMinute: 540, endMinute: 600 } ],
+			} } ],
 		} );
-
-		await expect( editor.update( 'www.instagram.com', '', false ) ).resolves.toEqual( {
-			status: ProtectionConfigurationEditStatus.UPDATED,
-			configuration: CONFIGURATION_WITH_SITE_AFTER_MEMBERSHIP_CHANGE,
+		await expect( editor.update( CONFIGURED_SITE.identityHost, '' ) ).resolves.toEqual( {
+			status: ProtectionConfigurationEditStatus.UPDATED, configuration: CONFIGURATION_WITH_SITE,
 		} );
-	} );
-
-	it( 'preserves an existing independent scope when independent behavior remains selected', async () => {
-		const independentSite: ProtectedSiteConfiguration = {
-			...CONFIGURED_SITE,
-			rule: {
-				...CONFIGURED_SITE.rule,
-				scopeId: ProtectionScopeIdSchema.parse( 'scope_existing_independent' ),
-			},
-		};
-		const { editor } = createEditor( {
-			...TestEmptyProtectionConfiguration,
-			sites: [ independentSite ],
-			schedulesByScope: {
-				...TestEmptyProtectionConfiguration.schedulesByScope,
-				scope_existing_independent: DefaultProtectionSchedule,
-			},
-			measurementRevisionsByScope: {
-				...TestEmptyProtectionConfiguration.measurementRevisionsByScope,
-				scope_existing_independent: ProtectionMeasurementRevisionSchema.parse(
-					'revision_existing_independent',
-				),
-			},
-		} );
-
-		await expect( editor.update( 'www.instagram.com', '', true ) ).resolves.toEqual( {
-			status: ProtectionConfigurationEditStatus.UPDATED,
-			configuration: {
-				...TestEmptyProtectionConfiguration,
-				schedulesByScope: {
-					...TestEmptyProtectionConfiguration.schedulesByScope,
-					scope_existing_independent: DefaultProtectionSchedule,
-				},
-				measurementRevisionsByScope: {
-					...TestEmptyProtectionConfiguration.measurementRevisionsByScope,
-					scope_existing_independent: 'revision_existing_independent',
-				},
-				sites: [ independentSite ],
-			},
-		} );
-	} );
-
-	it( 'rejects an invalid generated independent scope identifier', async () => {
-		const storage = new MemoryProtectionConfigurationEditorStorage( CONFIGURATION_WITH_SITE );
-		const editor = createProtectionConfigurationEditor( {
-			storage,
-			createIndependentScopeId: createInvalidIndependentScopeId,
-			createMeasurementRevision: createValidMeasurementRevision,
-			coordinateMutation: coordinateMutationDirectly,
-		} );
-
-		await expect( editor.update( 'www.instagram.com', '', true ) ).resolves.toEqual( {
-			status: ProtectionConfigurationEditStatus.REJECTED,
-			reason: ProtectionConfigurationEditRejectionReason.INVALID_SCOPE_ID,
-		} );
-		expect( storage.writes ).toEqual( [] );
 	} );
 
 	it.each( [
@@ -1146,10 +975,10 @@ describe( 'createProtectionConfigurationEditor', () => {
 		expect( storage.writes ).toEqual( [] );
 	} );
 
-	it( 'normalizes and updates the schedule for one active scope', async () => {
+	it( 'normalizes and updates the global schedule', async () => {
 		const { editor, storage } = createEditor();
 
-		await expect( editor.updateSchedule( DefaultProtectionScopeId, {
+		await expect( editor.updateSchedule( {
 			mode: ScheduleMode.CUSTOM,
 			windows: [
 				{ weekday: Weekday.MONDAY, startMinute: 540, endMinute: 720 },
@@ -1159,15 +988,13 @@ describe( 'createProtectionConfigurationEditor', () => {
 			status: ProtectionConfigurationEditStatus.UPDATED,
 			configuration: {
 				...CONFIGURATION_WITH_SITE,
-				schedulesByScope: {
-					[ DefaultProtectionScopeId ]: {
-						mode: ScheduleMode.CUSTOM,
-						windows: [ {
-							weekday: Weekday.MONDAY,
-							startMinute: 540,
-							endMinute: 1_020,
-						} ],
-					},
+				schedule: {
+					mode: ScheduleMode.CUSTOM,
+					windows: [ {
+						weekday: Weekday.MONDAY,
+						startMinute: 540,
+						endMinute: 1_020,
+					} ],
 				},
 			},
 		} );
@@ -1177,29 +1004,16 @@ describe( 'createProtectionConfigurationEditor', () => {
 	it.each( [
 		{
 			label: 'invalid schedule',
-			scopeId: DefaultProtectionScopeId,
 			schedule: {
 				mode: ScheduleMode.CUSTOM,
 				windows: [ { weekday: Weekday.MONDAY, startMinute: 540, endMinute: 540 } ],
 			},
 			reason: ProtectionConfigurationEditRejectionReason.INVALID_SCHEDULE,
 		},
-		{
-			label: 'unknown scope',
-			scopeId: 'scope_missing',
-			schedule: { mode: ScheduleMode.ALWAYS },
-			reason: ProtectionConfigurationEditRejectionReason.SCOPE_NOT_FOUND,
-		},
-		{
-			label: 'invalid scope identifier',
-			scopeId: 'scope with spaces',
-			schedule: { mode: ScheduleMode.ALWAYS },
-			reason: ProtectionConfigurationEditRejectionReason.SCOPE_NOT_FOUND,
-		},
-	] )( 'rejects an $label without writing', async ( { scopeId, schedule, reason } ) => {
+	] )( 'rejects an $label without writing', async ( { schedule, reason } ) => {
 		const { editor, storage } = createEditor();
 
-		await expect( editor.updateSchedule( scopeId, schedule ) ).resolves.toEqual( {
+		await expect( editor.updateSchedule( schedule ) ).resolves.toEqual( {
 			status: ProtectionConfigurationEditStatus.REJECTED,
 			reason,
 		} );
@@ -1209,10 +1023,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 	it( 'rejects schedule and timing edits when the stored configuration is malformed', async () => {
 		const { editor, storage } = createEditor( null );
 
-		await expect( editor.updateSchedule(
-			DefaultProtectionScopeId,
-			{ mode: ScheduleMode.ALWAYS },
-		) ).resolves.toEqual( {
+		await expect( editor.updateSchedule( { mode: ScheduleMode.ALWAYS } ) ).resolves.toEqual( {
 			status: ProtectionConfigurationEditStatus.REJECTED,
 			reason: ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION,
 		} );
