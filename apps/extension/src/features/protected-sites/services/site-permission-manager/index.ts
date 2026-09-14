@@ -1,4 +1,3 @@
-import { reconcileProtectionScopeSchedules } from '../../../../domains/protection/utils/reconcile-protection-scope-schedules';
 import { retainActiveProtectionScopeMeasurementRevisions } from '../../../../domains/protection/utils/reconcile-protection-scope-measurement-revisions';
 import {
 	createSitePermissionOrigins,
@@ -87,7 +86,6 @@ export function createSitePermissionManager( options: SitePermissionManagerOptio
 		return {
 			...configuration,
 			sites,
-			schedulesByScope: reconcileProtectionScopeSchedules( sites, configuration.schedulesByScope ),
 			measurementRevisionsByScope: retainActiveProtectionScopeMeasurementRevisions(
 				sites,
 				configuration.measurementRevisionsByScope,

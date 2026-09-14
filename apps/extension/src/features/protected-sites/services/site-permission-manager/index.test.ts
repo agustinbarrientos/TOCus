@@ -46,10 +46,7 @@ const MULTI_SITE_CONFIGURATION: ProtectionConfigurationDocument = {
 		{ identityHost: 'example.com', rule: DOMAIN_RULE },
 		{ identityHost: 'independent.test', rule: INDEPENDENT_RULE },
 	],
-	schedulesByScope: {
-		...TestEmptyProtectionConfiguration.schedulesByScope,
-		scope_independent: { mode: 'always' },
-	},
+	schedule: { mode: 'always' },
 	measurementRevisionsByScope: {
 		...TestEmptyProtectionConfiguration.measurementRevisionsByScope,
 		scope_independent: ProtectionMeasurementRevisionSchema.parse( 'revision_independent' ),

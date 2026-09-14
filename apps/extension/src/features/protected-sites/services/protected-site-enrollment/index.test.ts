@@ -24,7 +24,6 @@ import { DefaultProtectionSchedule } from '../../../../domains/protection/types/
 import {
 	DefaultProtectionScopeId,
 	ProtectionMeasurementRevisionSchema,
-	ProtectionScopeIdSchema,
 	type ProtectionMeasurementRevisionFactory,
 } from '../../../../domains/protection/types/protection-value';
 import {
@@ -44,7 +43,7 @@ import {
 	type ProtectedSiteEnrollmentService,
 } from './types';
 import { createBrowserProtectionConfigurationEditor } from '../../../../domains/protection/services/browser-protection-configuration-editor';
-import { LocalDataGenerationStorageKey, LocalDataResetError } from '../../../../domains/local-data/services/local-data-generation';
+import { LocalDataGenerationStorageKey } from '../../../../domains/local-data/services/local-data-generation';
 
 /**
  * Empty protection configuration used by enrollment service tests.
@@ -87,7 +86,7 @@ const POPULATED_CONFIGURATION: ProtectionConfigurationDocument = {
  * Scope returned by authoritative configuration removal.
  * @since 0.1.0 Initial implementation.
  */
-const AUTHORITATIVE_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope_authoritative' );
+const AUTHORITATIVE_SCOPE_ID = DefaultProtectionScopeId;
 
 /**
  * Site returned by authoritative configuration removal.
@@ -108,10 +107,7 @@ const AUTHORITATIVE_SITE: ProtectedSiteConfiguration = {
 const AUTHORITATIVE_CONFIGURATION = ProtectionConfigurationDocumentSchema.parse( {
 	...TestEmptyProtectionConfiguration,
 	sites: [ AUTHORITATIVE_SITE ],
-	schedulesByScope: {
-		...TestEmptyProtectionConfiguration.schedulesByScope,
-		[ AUTHORITATIVE_SCOPE_ID ]: DefaultProtectionSchedule,
-	},
+	schedule: DefaultProtectionSchedule,
 	measurementRevisionsByScope: {
 		...TestEmptyProtectionConfiguration.measurementRevisionsByScope,
 		[ AUTHORITATIVE_SCOPE_ID ]: ProtectionMeasurementRevisionSchema.parse(
@@ -470,14 +466,6 @@ function createSharedMutationCoordinator(): ProtectionConfigurationMutationCoord
 	return coordinateMutation;
 }
 
-/**
- * Creates one deterministic independent scope identifier.
- * @return Stable independent scope identifier.
- * @since 0.1.0 Initial implementation.
- */
-function createIndependentScopeId(): string {
-	return 'scope_enrollment_test';
-}
 
 /**
  * Creates one enrollment service backed by real configuration editing.
@@ -497,7 +485,6 @@ function createService(
 	return createProtectedSiteEnrollmentService( {
 		editor: createProtectionConfigurationEditor( {
 			storage,
-			createIndependentScopeId,
 			createMeasurementRevision,
 			coordinateMutation,
 		} ),
@@ -614,20 +601,20 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		expect( release ).not.toHaveBeenCalled();
 	} );
 
-	it( 'preserves preexisting browser access when a draft is rejected after a data reset', async () => {
+	it( 'preserves preexisting browser access when a draft is rejected for a non-reset validation error', async () => {
 		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
 		const permissions = new SharedPermissionStateApi();
 		const service = createProtectedSiteEnrollmentService( {
 			editor: createProtectionConfigurationEditor( {
-				storage, createIndependentScopeId,
+				storage,
 				createMeasurementRevision: createTestProtectionMeasurementRevision,
 				coordinateMutation: coordinateMutationDirectly,
 				/**
-				 * Rejects this old page after the user's data reset.
+				 * Rejects this draft because another validation requirement failed.
 				 * @return Rejected generation validation.
 				 * @since 0.1.0 Initial implementation.
 				 */
-				validateAddition: () => Promise.reject( new LocalDataResetError() ),
+				validateAddition: () => Promise.reject( new Error( 'Draft validation failed.' ) ),
 			} ),
 			permissionManager: createSitePermissionManager( { permissions } ),
 		} );
@@ -753,7 +740,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		permissions.permissions.clear();
 		const freshEditor = createBrowserProtectionConfigurationEditor( editorOptions ).editor;
 		const freshEnrollment = createProtectedSiteEnrollmentService( { editor: freshEditor, permissionManager } );
-		await expect( freshEnrollment.add( 'youtube.com', false ) ).resolves.toMatchObject( {
+		await expect( freshEnrollment.add( 'youtube.com' ) ).resolves.toMatchObject( {
 			status: ProtectedSiteEnrollmentStatus.ADDED,
 		} );
 		const freshConfiguration = await freshEditor.load();
@@ -807,7 +794,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 			return grant( descriptor );
 		} );
 		const oldEnrollment = createProtectedSiteEnrollmentService( { editor: oldEditor, permissionManager } );
-		const enrollment = oldEnrollment.add( staleSite, false );
+		const enrollment = oldEnrollment.add( staleSite );
 		values[ LocalDataGenerationStorageKey ] = { generation: 'fresh-overlap', pending: false };
 		permissions.origins.clear();
 		permissions.permissions.clear();
@@ -838,7 +825,40 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		expect( area.set ).not.toHaveBeenCalled();
 	} );
 
-	it.each( [ false, true ] )( 'releases late permission grants after full reset with batch enrollment %s', async ( batch ) => {
+	it.each( [
+		{
+			label: 'single website',
+			/**
+			 * Starts one gesture-bound website request.
+			 * @param service - Enrollment service under test.
+			 * @return Pending single-site result.
+			 */
+			enroll: ( service: ProtectedSiteEnrollmentService ) => service.add( 'github.com' ),
+		},
+		{
+			label: 'batch',
+			/**
+			 * Starts one gesture-bound batch request.
+			 * @param service - Enrollment service under test.
+			 * @return Pending batch result.
+			 */
+			enroll: ( service: ProtectedSiteEnrollmentService ) => service.addMany( [ 'youtube.com', 'github.com' ] ),
+		},
+		{
+			label: 'website draft',
+			/**
+			 * Starts one gesture-bound draft request.
+			 * @param service - Enrollment service under test.
+			 * @return Pending complete-draft result.
+			 */
+			enroll: ( service: ProtectedSiteEnrollmentService ) => service.saveDraft( [], [
+				{ identityHost: 'youtube.com',
+					rule: { host: 'youtube.com', includeSubdomains: true, scopeId: DefaultProtectionScopeId } },
+				{ identityHost: 'github.com',
+					rule: { host: 'github.com', includeSubdomains: true, scopeId: DefaultProtectionScopeId } },
+			] ),
+		},
+	] )( 'releases late permission grants after full reset with $label enrollment', async ( { enroll } ) => {
 		const values: Record<string, unknown> = {};
 		const area = {
 			get: vi.fn( ( key: string ) => Promise.resolve(
@@ -873,7 +893,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 			editor,
 			permissionManager: createSitePermissionManager( { permissions } ),
 		} );
-		const enrollment = batch ? service.addMany( [ 'youtube.com', 'github.com' ] ) : service.add( 'github.com', false );
+		const enrollment = enroll( service );
 		values[ LocalDataGenerationStorageKey ] = { generation: 'new-data', pending: false };
 		permissions.origins.clear();
 		permissions.permissions.clear();
@@ -1078,7 +1098,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		const permissionManager = new MemoryEnrollmentPermissionManager();
 		const service = createService( storage, permissionManager );
 
-		await expect( service.add( 'chrome://settings', false ) ).resolves.toEqual( {
+		await expect( service.add( 'chrome://settings' ) ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.REJECTED,
 			reason: ProtectionConfigurationEditRejectionReason.INVALID_SITE,
 		} );
@@ -1092,7 +1112,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		permissionManager.requestResult = { status: SitePermissionRequestStatus.DENIED };
 		const service = createService( storage, permissionManager );
 
-		await expect( service.add( 'example.com', false ) ).resolves.toEqual( {
+		await expect( service.add( 'example.com' ) ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.PERMISSION_DENIED,
 		} );
 		expect( storage.writes ).toBe( 0 );
@@ -1104,7 +1124,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		permissionManager.requestResult = { status: SitePermissionRequestStatus.ERROR };
 		const service = createService( storage, permissionManager );
 
-		await expect( service.add( 'example.com', false ) ).resolves.toEqual( {
+		await expect( service.add( 'example.com' ) ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.PERMISSION_ERROR,
 		} );
 		expect( storage.writes ).toBe( 0 );
@@ -1115,7 +1135,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		const permissionManager = new MemoryEnrollmentPermissionManager();
 		const service = createService( storage, permissionManager );
 
-		const result = await service.add( 'https://www.example.com/path', false );
+		const result = await service.add( 'https://www.example.com/path' );
 
 		expect( result ).toEqual( {
 			status: ProtectedSiteEnrollmentStatus.ADDED,
@@ -1157,7 +1177,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		};
 		const service = createService( storage, permissionManager );
 
-		await expect( service.add( 'shop.example.com', false ) ).resolves.toEqual( {
+		await expect( service.add( 'shop.example.com' ) ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.REJECTED,
 			reason: ProtectionConfigurationEditRejectionReason.ALREADY_PROTECTED,
 		} );
@@ -1175,7 +1195,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		};
 		const service = createService( storage, permissionManager );
 
-		await expect( service.add( 'example.com', false ) ).resolves.toEqual( {
+		await expect( service.add( 'example.com' ) ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.SAVE_ERROR,
 		} );
 		expect( permissionManager.releasedRules ).toEqual( [ EXAMPLE_SITE.rule ] );
@@ -1192,7 +1212,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		};
 		const service = createService( storage, permissionManager );
 
-		await expect( service.add( 'example.com', false ) ).resolves.toEqual( {
+		await expect( service.add( 'example.com' ) ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.PERMISSION_RETAINED,
 		} );
 		expect( permissionManager.releasedRules ).toEqual( [] );
@@ -1208,7 +1228,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		permissionManager.hasAccessResult = false;
 		const service = createService( storage, permissionManager );
 
-		await expect( service.add( 'example.com', false ) ).resolves.toEqual( {
+		await expect( service.add( 'example.com' ) ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.PERMISSION_RETAINED,
 		} );
 		expect( permissionManager.releasedRules ).toEqual( [] );
@@ -1226,7 +1246,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		permissionManager.releaseResult = SitePermissionReleaseStatus.ERROR;
 		const service = createService( storage, permissionManager );
 
-		await expect( service.add( 'example.com', false ) ).resolves.toEqual( {
+		await expect( service.add( 'example.com' ) ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.PERMISSION_RETAINED,
 		} );
 	} );
@@ -1252,7 +1272,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		};
 		const service = createService( storage, permissionManager );
 
-		await expect( service.add( 'example.com', false ) ).resolves.toEqual( {
+		await expect( service.add( 'example.com' ) ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.SAVE_ERROR,
 		} );
 		expect( permissionManager.releaseRemainingSites ).toEqual( [ true ] );
@@ -1287,7 +1307,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		};
 		const service = createService( storage, permissionManager );
 
-		await expect( service.add( 'example.com', false ) ).resolves.toEqual( {
+		await expect( service.add( 'example.com' ) ).resolves.toEqual( {
 			status: expectedStatus,
 		} );
 		expect( permissionManager.releasedRules ).toEqual( [] );
@@ -1303,7 +1323,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		};
 		const service = createService( storage, permissionManager );
 
-		await expect( service.add( 'example.com', false ) ).resolves.toEqual( {
+		await expect( service.add( 'example.com' ) ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.PERMISSION_RETAINED,
 		} );
 		expect( permissionManager.releasedRules ).toEqual( [] );
@@ -1314,7 +1334,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		const permissionManager = new MemoryEnrollmentPermissionManager();
 		const service = createService( storage, permissionManager );
 
-		await expect( service.add( 'shop.example.com', false ) ).resolves.toEqual( {
+		await expect( service.add( 'shop.example.com' ) ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.REJECTED,
 			reason: ProtectionConfigurationEditRejectionReason.ALREADY_PROTECTED,
 		} );
@@ -1344,7 +1364,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 
 		await expect( service.remove( EXAMPLE_SITE ) ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.REMOVED,
-			configuration: EMPTY_CONFIGURATION,
+			configuration: UPDATED_EMPTY_CONFIGURATION,
 			permissionReleaseStatus: SitePermissionReleaseStatus.RELEASED,
 			site: AUTHORITATIVE_SITE,
 		} );
@@ -1400,7 +1420,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		await removalPermissionManager.releaseStarted;
 
 		let enrollmentSettled = false;
-		const enrollment = enrollmentService.add( 'example.com', false )
+		const enrollment = enrollmentService.add( 'example.com' )
 			.finally( () => {
 				enrollmentSettled = true;
 			} );
@@ -1447,7 +1467,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		const removal = removalService.remove( EXAMPLE_SITE );
 
 		await permissions.removalStarted;
-		const enrollment = enrollmentService.add( 'another.test', false );
+		const enrollment = enrollmentService.add( 'another.test' );
 		expect( permissions.origins ).toContain( '*://another.test/*' );
 		permissions.completeDeferredRemoval();
 
