@@ -70,6 +70,10 @@ msgid "By default, the next pause comes five minutes after you select Continue."
 msgstr "По умолчанию следующая пауза начнётся через пять минут после выбора «Продолжить»."
 
 #: apps/website/src/localization/index.ts
+msgid "Choose different active days and hours for any website. The countdown stays shared."
+msgstr "Выбирайте дни и часы работы для каждого сайта. Обратный отсчет остается общим."
+
+#: apps/website/src/localization/index.ts
 msgid "Choose sites"
 msgstr "Выберите сайты"
 
@@ -93,14 +97,14 @@ msgstr "Продолжить"
 msgid "Continue after the pause"
 msgstr "Продолжите после паузы"
 
+#: apps/website/src/localization/index.ts
+msgid "Custom schedules for each site"
+msgstr "Свое расписание для каждого сайта"
+
 #. Language-menu autonym. Keep this language name written in German.
 #: apps/website/src/localization/index.ts
 msgid "Deutsch"
 msgstr "Deutsch"
-
-#: apps/website/src/localization/index.ts
-msgid "Different sites, different timing"
-msgstr "Разные сайты — разные настройки времени"
 
 #: apps/website/src/localization/index.ts
 msgid "Download for"
@@ -157,10 +161,6 @@ msgstr "Бесплатно и с открытым исходным кодом"
 #: apps/website/src/localization/index.ts
 msgid "Free and open source."
 msgstr "Бесплатно и с открытым кодом."
-
-#: apps/website/src/localization/index.ts
-msgid "Give any website its own wait and schedule."
-msgstr "Задайте для любого сайта своё время ожидания и расписание."
 
 #: apps/website/src/localization/index.ts
 msgid "How it works"
