@@ -6,6 +6,59 @@ import { measureContrast } from './utils/measure-contrast';
 const url = '/packages/ui/tests/fixture/';
 
 test.describe( 'shared controls', () => {
+	test( 'renders the supplied native select arrow without losing keyboard selection or field geometry', async ( { page } ) => {
+		await page.goto( url );
+		const select = page.getByRole( 'combobox', { name: 'Native interval', exact: true } );
+		await expect( select ).toBeVisible();
+		const arrow = select.locator( '..' ).locator( '.tocus-select-chevron' );
+		await expect( arrow.locator( 'svg' ) ).toBeVisible();
+		await expect( arrow ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( await select.evaluate( ( element ) => {
+			const bounds = element.getBoundingClientRect();
+			const arrowBounds = element.parentElement?.querySelector( '.tocus-select-chevron' )?.getBoundingClientRect();
+			return element instanceof HTMLSelectElement && getComputedStyle( element ).appearance === 'none'
+				&& bounds.height === 48 && arrowBounds !== undefined && arrowBounds.width > 0
+				&& arrowBounds.left >= bounds.left && arrowBounds.right <= bounds.right
+				&& arrowBounds.top >= bounds.top && arrowBounds.bottom <= bounds.bottom;
+		} ) ).toBe( true );
+		await select.focus();
+		// Native typeahead remains keyboard-operable without requiring an OS-owned popup in headless browsers.
+		await page.keyboard.press( 'w' );
+		await expect( select ).toHaveValue( FixtureFrequency.WEEKLY );
+	} );
+	test( 'renders the supplied loading artwork with custom sizing, color, ref and reduced motion', async ( { page } ) => {
+		await page.emulateMedia( { reducedMotion: 'no-preference' } );
+		await page.goto( url );
+		const loader = page.locator( '.fixture-loader' );
+		const spinner = loader.locator( '.tocus-icon svg' );
+		await expect( spinner ).toBeVisible();
+		await expect( loader ).toHaveAttribute( 'data-ref-attached', 'true' );
+		const presentation = await loader.evaluate( ( element ) => {
+			const bounds = element.getBoundingClientRect();
+			const style = getComputedStyle( element );
+			return { width: bounds.width, height: bounds.height, margin: style.marginLeft, color: style.color };
+		} );
+		expect( presentation ).toMatchObject( { margin: '7px', color: 'rgb(12, 34, 56)' } );
+		expect( presentation.width ).toBeCloseTo( 36.8, 1 );
+		expect( presentation.height ).toBeCloseTo( 36.8, 1 );
+		const initialTransform = await spinner.evaluate( ( element ) => getComputedStyle( element ).transform );
+		await expect.poll( () => spinner.evaluate( ( element ) => getComputedStyle( element ).transform ) )
+			.not.toBe( initialTransform );
+		await expect( page.getByRole( 'button', { name: 'Loading action', exact: true } ).locator( '.tocus-icon svg' ) ).toBeVisible();
+		await page.emulateMedia( { reducedMotion: 'reduce' } );
+		await expect.poll( () => spinner.evaluate( ( element ) => getComputedStyle( element ).animationName ) ).toBe( 'none' );
+		await expect( spinner ).toBeVisible();
+	} );
+	test( 'keeps the supplied loader visible and motionless inside a strict-CSP shadow provider', async ( { page } ) => {
+		await page.goto( `${ url }shadow.html` );
+		const spinner = page.locator( '.fixture-loader .tocus-icon svg' );
+		await expect( spinner ).toBeVisible();
+		expect( await spinner.evaluate( ( element ) => {
+			const bounds = element.getBoundingClientRect();
+			const style = getComputedStyle( element );
+			return { width: bounds.width, height: bounds.height, color: style.color, animation: style.animationName };
+		} ) ).toEqual( { width: 32, height: 32, color: 'rgb(12, 34, 56)', animation: 'none' } );
+	} );
 	test( 'keeps native notices semantic with decorative artwork and directly wrapping message text', async ( { page } ) => {
 		await page.goto( url );
 		const notice = page.getByRole( 'alert' ).filter( { hasText: 'Native notice keeps localized feedback' } );
@@ -246,6 +299,30 @@ test.describe( 'shared controls', () => {
 		expect( await page.getByRole( 'note' ).evaluate( ( element ) =>
 			parseFloat( getComputedStyle( element ).paddingTop ) ) ).toBe( 16 );
 		expect( await button.evaluate( ( element ) => getComputedStyle( element ).transitionDuration ) ).toBe( '0s' );
+	} );
+	test( 'keeps adjacent notices readable without adding margins to their section gap', async ( { page } ) => {
+		await page.goto( url );
+		const error = page.getByRole( 'alert' ).filter( { hasText: 'Could not save' } );
+		await expect( error ).toBeVisible();
+		const geometry = await error.evaluate( ( element ) => {
+			const previous = element.previousElementSibling;
+			const next = element.nextElementSibling;
+			const label = document.querySelector( '.mantine-InputWrapper-label' );
+			if ( ! previous || ! next || ! label ) {
+				throw new Error( 'Expected adjacent native, error and success feedback plus a field label.' );
+			}
+			const bounds = element.getBoundingClientRect();
+			return {
+				gaps: [ bounds.top - previous.getBoundingClientRect().bottom,
+					next.getBoundingClientRect().top - bounds.bottom ],
+				fonts: [ previous, element, next ].map( ( notice ) => getComputedStyle( notice ).fontSize ),
+				labelFont: getComputedStyle( label ).fontSize,
+			};
+		} );
+		for ( const gap of geometry.gaps ) {
+			expect( gap ).toBeCloseTo( 24, 2 );
+		}
+		expect( geometry.fonts ).toEqual( [ geometry.labelFont, geometry.labelFont, geometry.labelFont ] );
 	} );
 	test( 'distinguishes selected choices from notices and keeps neutral unselected borders', async ( { page } ) => {
 		await page.goto( url );

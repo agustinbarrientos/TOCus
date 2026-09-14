@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Alert, Avatar, Brand, Button, Checkbox, Icon, IconName, Modal, NavLink, Portal, Radio, Select, Slider, Stack, Stepper, TextInput, Title, TocusProvider, TocusAppearance, TocusPalette } from '../../src';
+import { Alert, Avatar, Brand, Button, Checkbox, Icon, IconName, Loader, Modal, NativeSelect, NavLink, Portal, Radio, Select, Slider, Stack, Stepper, TextInput, Title, TocusProvider, TocusAppearance, TocusPalette } from '../../src';
 import avatarImage from '../../../theme/assets/icon.svg?url';
 import '../../src/styles.scss';
 import { FixtureChoice, FixtureFrequency, FixtureMediaMode } from './types';
@@ -59,6 +59,8 @@ function Fixture() {
 					</Radio.Group>
 					<Select name="frequency" label="Frequency" defaultValue={FixtureFrequency.DAILY}
 						data={[ { value: FixtureFrequency.DAILY, label: 'Daily' }, { value: FixtureFrequency.WEEKLY, label: 'Weekly' } ]} />
+					<NativeSelect label="Native interval" defaultValue={FixtureFrequency.DAILY}
+						data={[ { value: FixtureFrequency.DAILY, label: 'Daily' }, { value: FixtureFrequency.WEEKLY, label: 'Weekly' } ]} />
 				</div>
 				<div className="tocus-form-actions">
 					<Button type="submit" data-contrast>Save</Button>
@@ -75,6 +77,10 @@ function Fixture() {
 				} }>Native action</Button>
 				<Button className="tocus-native-button" leftSection={ <Icon name={ IconName.HEART } /> }>Adorned action</Button>
 				<Button className="tocus-native-button" loading>Loading action</Button>
+				<Loader className="fixture-loader" size={32} color="rgb(12, 34, 56)" style={{ marginLeft: 7 }}
+					ref={ ( element ) => {
+						element?.setAttribute( 'data-ref-attached', 'true' );
+					} } />
 				<Button className="tocus-native-button" disabled>Disabled native action</Button>
 				<div aria-label="Native activation count">{ activations }</div>
 				<Avatar className="tocus-native-avatar" size="2.75rem" role="img" aria-label="Native initials">TC</Avatar>
@@ -90,9 +96,9 @@ function Fixture() {
 				<Stepper.Step label="Future step" disabled />
 			</Stepper>
 			<div className="tocus-section">
-				<NativeNotice color="red" role="alert" icon={ IconName.EXCLAMATION }
+				<NativeNotice color="red" role="alert" icon={ IconName.CIRCLE_EXCLAMATION }
 					message="Native notice keeps localized feedback readable when the message wraps onto several lines." />
-				<Alert color="red" icon={<Icon name={ IconName.EXCLAMATION } />} data-contrast>Could not save</Alert>
+				<Alert color="red" icon={<Icon name={ IconName.CIRCLE_EXCLAMATION } />} data-contrast>Could not save</Alert>
 				<Alert color="green" icon={<Icon name={ IconName.CIRCLE_CHECK } />} role="note" data-contrast>Saved successfully</Alert>
 				<Alert color="yellow" role="note" data-contrast>Review browser access</Alert>
 				<div className="tocus-info" data-contrast>Stored on this device</div>
