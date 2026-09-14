@@ -23,10 +23,7 @@ test.describe( 'local statistics', () => {
 		[ Language.PORTUGUESE_BRAZIL, 'Aproximadamente' ],
 	] as const ) {
 		test( `keeps the ${ language } estimate words intact on narrow screens`, async ( { open } ) => {
-			const page = await open( SettingsDestination.STATISTICS );
-			const url = new URL( page.url() );
-			url.searchParams.set( 'language', language );
-			await page.goto( url.href );
+			const page = await open( SettingsDestination.STATISTICS, language );
 			const amount = page.locator( '.settings-metrics > div:first-child dd' );
 			await expect.poll( () => amount.textContent() ).toMatch( new RegExp( `^${ firstWord } ` ) );
 			await page.evaluate( () => document.fonts.ready );
@@ -81,10 +78,7 @@ test.describe( 'local statistics', () => {
 		[ Language.RUSSIAN, '\u041f\u043e\u043a\u0430 \u043d\u0435\u0434\u043e\u0441\u0442\u0430\u0442\u043e\u0447\u043d\u043e \u0434\u0430\u043d\u043d\u044b\u0445' ],
 	] as const ) {
 		test( `renders the ${ language } zero estimate independently of recorded counts on narrow screens`, async ( { open } ) => {
-			const page = await open( SettingsDestination.STATISTICS );
-			const url = new URL( page.url() );
-			url.searchParams.set( 'language', language );
-			await page.goto( url.href );
+			const page = await open( SettingsDestination.STATISTICS, language );
 			const metrics = page.locator( '.settings-metrics' );
 			await metrics.waitFor();
 			await page.evaluate( () => {

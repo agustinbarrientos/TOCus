@@ -24,12 +24,12 @@ test.describe( 'localized statistics hydration', () => {
 			try {
 				await serverContext.route( 'http://website.test/**', serveAsset );
 				await clientContext.route( 'http://website.test/**', serveAsset );
+				const serverPage = await serverContext.newPage();
+				const clientPage = await clientContext.newPage();
+				const errors: string[] = [];
+				clientPage.on( 'pageerror', ( error ) => errors.push( error.message ) );
 				for ( const route of PublicRoutes ) {
 					await engineTest.step( `Compare server and hydrated metrics for ${ route }`, async () => {
-						const serverPage = await serverContext.newPage();
-						const clientPage = await clientContext.newPage();
-						const errors: string[] = [];
-						clientPage.on( 'pageerror', ( error ) => errors.push( error.message ) );
 						await Promise.all( [ serverPage, clientPage ].map(
 							( page ) => page.goto( `http://website.test${ route }` ),
 						) );
@@ -40,7 +40,6 @@ test.describe( 'localized statistics hydration', () => {
 						expect( serverMetrics.every( ( value ) => value.trim().length > 0 ), route ).toBe( true );
 						expect( clientMetrics, route ).toEqual( serverMetrics );
 						expect( errors, route ).toEqual( [] );
-						await Promise.all( [ serverPage.close(), clientPage.close() ] );
 					} );
 				}
 			} finally {

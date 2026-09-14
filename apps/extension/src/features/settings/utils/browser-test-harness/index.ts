@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test';
 import type { SettingsFixtureControls } from '../../components/shell/__fixtures__/types';
 import { SettingsDestination } from '../../services/settings-navigation/types';
 import type { SettingsBrowserHarness } from './types';
+import type { Language } from '../../../../domains/preferences/types';
 
 /**
  * Provides Settings helpers using Playwright's isolated page and failure diagnostics.
@@ -19,10 +20,15 @@ export const test = base.extend<SettingsBrowserHarness>( {
 		/**
 		 * Opens a production Settings destination on the current test page.
 		 * @param destination - Initial Settings fragment.
+		 * @param language - Locale loaded by the initial fixture navigation.
 		 * @return Page ready for screen assertions.
 		 */
-		async function open( destination: SettingsDestination = SettingsDestination.TIMING ): Promise<Page> {
-			await page.goto( `/apps/extension/src/features/settings/components/shell/__fixtures__/#${ destination }` );
+		async function open(
+			destination: SettingsDestination = SettingsDestination.TIMING,
+			language?: Language,
+		): Promise<Page> {
+			const query = language === undefined ? '' : `?language=${ encodeURIComponent( language ) }`;
+			await page.goto( `/apps/extension/src/features/settings/components/shell/__fixtures__/${ query }#${ destination }` );
 			return page;
 		}
 		await use( open );
