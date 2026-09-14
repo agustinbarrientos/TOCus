@@ -17,7 +17,7 @@ import { TimingConfigurationSchema } from './timing-configuration';
  * Current protected-site configuration document version.
  * @since 0.1.0 Initial implementation.
  */
-export const ProtectionConfigurationDocumentVersion = 4;
+export const ProtectionConfigurationDocumentVersion = 5;
 
 /**
  * Validates editable protected-site display-name input, including an empty cleared value.
@@ -51,7 +51,12 @@ export const ProtectedSiteConfigurationSchema = z.object( {
 	identityHost: CanonicalHostSchema,
 	rule: ProtectedSiteRuleSchema,
 	displayNameOverride: ProtectedSiteDisplayNameSchema.optional(),
+	/** Optional active-time override; countdown and browsing allowance remain shared. */
+	schedule: NormalizedScheduleSchema.optional(),
 } ).strict().superRefine( ( configuration, context ) => {
+	if ( configuration.rule.scopeId !== DefaultProtectionScopeId ) {
+		context.addIssue( { code: 'custom', message: 'All websites share one countdown.', path: [ 'rule', 'scopeId' ] } );
+	}
 	const isRuleHost = configuration.identityHost === configuration.rule.host;
 	const isRuleDescendant = configuration.rule.includeSubdomains &&
 		configuration.identityHost.endsWith( `.${ configuration.rule.host }` );
@@ -135,30 +140,6 @@ function createProtectionScopeRecord<Value>(
 }
 
 /**
- * Validates one normalized protection-scope schedule entry.
- * @since 0.1.0 Initial implementation.
- */
-const ProtectionScopeScheduleEntrySchema = z.tuple( [
-	ProtectionScopeIdSchema,
-	NormalizedScheduleSchema,
-] );
-
-/**
- * Validates normalized schedules indexed by protection scope.
- * @since 0.1.0 Initial implementation.
- */
-export const ProtectionScopeScheduleMapSchema = z.preprocess(
-	extractProtectionScopeRecordEntries,
-	z.array( ProtectionScopeScheduleEntrySchema ),
-).transform( createProtectionScopeRecord );
-
-/**
- * Normalized schedules indexed by protection scope.
- * @since 0.1.0 Initial implementation.
- */
-export type ProtectionScopeScheduleMap = z.infer<typeof ProtectionScopeScheduleMapSchema>;
-
-/**
  * Validates one protection-scope measurement-revision entry.
  * @since 0.1.0 Initial implementation.
  */
@@ -192,33 +173,13 @@ export const ProtectionConfigurationDocumentSchema = z.object( {
 	schemaVersion: ProtectionConfigurationDocumentVersionSchema,
 	sites: ProtectedSiteConfigurationSetSchema,
 	timingConfiguration: TimingConfigurationSchema,
-	schedulesByScope: ProtectionScopeScheduleMapSchema,
+	schedule: NormalizedScheduleSchema,
 	measurementRevisionsByScope: ProtectionScopeMeasurementRevisionMapSchema,
 } ).strict().superRefine( ( configuration, context ) => {
 	const activeScopeIds = new Set<string>( [
 		DefaultProtectionScopeId,
 		...configuration.sites.map( ( site ) => site.rule.scopeId ),
 	] );
-
-	for ( const scopeId of activeScopeIds ) {
-		if ( ! Object.hasOwn( configuration.schedulesByScope, scopeId ) ) {
-			context.addIssue( {
-				code: 'custom',
-				message: 'Every active protection scope must have a schedule.',
-				path: [ 'schedulesByScope', scopeId ],
-			} );
-		}
-	}
-
-	for ( const scopeId of Object.keys( configuration.schedulesByScope ) ) {
-		if ( ! activeScopeIds.has( scopeId ) ) {
-			context.addIssue( {
-				code: 'custom',
-				message: 'Schedules must belong to an active protection scope.',
-				path: [ 'schedulesByScope', scopeId ],
-			} );
-		}
-	}
 
 	for ( const scopeId of activeScopeIds ) {
 		if ( ! Object.hasOwn( configuration.measurementRevisionsByScope, scopeId ) ) {
