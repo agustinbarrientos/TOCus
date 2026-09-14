@@ -85,7 +85,7 @@
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-sites-brown-light.png",
-    "sha256": "10869b6e481b0ca0bbaae6a5ffeee306ad8763ac54eb1e8a4d8987e787b2c958"
+    "sha256": "3584b6bdc0558c9cd092eb4885e66cd1e817c424740ea970f9fd80b10645ebd9"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/sites-step/__snapshots__/chromium/onboarding-sites-step-add-focus-green-light.png",
@@ -105,7 +105,7 @@
   },
   {
     "path": "apps/extension/src/features/onboarding/components/sites-step/__snapshots__/chromium/onboarding-sites-step-spanish-tu-denied.png",
-    "sha256": "cb7b1cdf89eb5923b61564dfc4af539f033c2deda75ccfccf42c97f767a7a943"
+    "sha256": "75523ae303097283c4590c64bbbe29ca8b0402bda149a7fbb15d86ca51a67a1c"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/sites-step/__snapshots__/chromium/onboarding-sites-step-spanish-vos-filled.png",
