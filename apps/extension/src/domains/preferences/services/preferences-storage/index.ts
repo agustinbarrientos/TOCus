@@ -1,18 +1,16 @@
 import {
 	DefaultPreferencesDocument,
 	PreferencesDocumentSchema,
-	PreferencesDocumentVersion,
 	type PreferencesDocument,
 } from '../../types';
 import {
 	PreferencesStorageKey,
-	VersionOnePreferencesDocumentSchema,
 	type PreferencesStorageService,
 	type PreferencesStorageServiceOptions,
 } from './types';
 
 /**
- * Parses current preferences or migrates a valid version-one document in memory.
+ * Parses only current preferences without migrating stored data.
  * @param input - Unknown stored preferences document.
  * @return Current preferences or null for malformed and unsupported data.
  * @since 0.1.0 Initial implementation.
@@ -20,21 +18,7 @@ import {
 export function parseStoredPreferences( input: unknown ): PreferencesDocument | null {
 	const currentPreferences = PreferencesDocumentSchema.safeParse( input );
 
-	if ( currentPreferences.success ) {
-		return currentPreferences.data;
-	}
-
-	const versionOnePreferences = VersionOnePreferencesDocumentSchema.safeParse( input );
-
-	if ( ! versionOnePreferences.success ) {
-		return null;
-	}
-
-	return PreferencesDocumentSchema.parse( {
-		...versionOnePreferences.data,
-		schemaVersion: PreferencesDocumentVersion,
-		language: null,
-	} );
+	return currentPreferences.success ? currentPreferences.data : null;
 }
 
 /**
