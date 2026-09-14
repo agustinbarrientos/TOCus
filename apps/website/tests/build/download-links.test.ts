@@ -1,20 +1,19 @@
 import { fileURLToPath } from 'node:url';
-import { chromium } from 'playwright';
-import { describe, expect, test } from 'vitest';
+import { expect, test } from '@playwright/test';
 
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 
-describe( 'browser-specific download links', () => {
+test.describe( 'browser-specific download links', () => {
 	for ( const scenario of [
 		{ browser: 'chrome', userAgent: 'Mozilla/5.0 Chrome/130.0.0.0 Safari/537.36' },
 		{ browser: 'firefox', userAgent: 'Mozilla/5.0 Firefox/130.0' },
 		{ browser: 'safari', userAgent: 'Mozilla/5.0 Version/18.0 Safari/605.1.15' },
 	] ) {
-		test( `${ scenario.browser }: one badge and two plain alternatives link directly to stores`, async () => {
-			const browser = await chromium.launch();
-			const externalRequests: string[] = [];
-			try {
-				const page = await browser.newPage( { userAgent: scenario.userAgent } );
+		test.describe( () => {
+			test.use( { contextOptions: { userAgent: scenario.userAgent } } );
+
+			test( `${ scenario.browser }: one badge and two plain alternatives link directly to stores`, async ( { page } ) => {
+				const externalRequests: string[] = [];
 				await page.route( '**/*', async ( route ) => {
 					const url = new URL( route.request().url() );
 					if ( url.origin !== 'http://website.test' ) {
@@ -49,9 +48,7 @@ describe( 'browser-specific download links', () => {
 						.toBe( await primary.getAttribute( 'href' ) );
 				}
 				expect( externalRequests ).toEqual( [] );
-			} finally {
-				await browser.close();
-			}
+			} );
 		} );
 	}
 } );

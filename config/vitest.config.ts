@@ -115,20 +115,9 @@ export default defineConfig( {
 			{
 				test: {
 					name: 'build-contract',
-					maxWorkers: 2,
-					include: [ 'apps/{extension,website}/tests/build/**/*.{test,spec}.{ts,tsx,mjs}' ],
+					include: [ 'apps/extension/tests/build/**/*.{test,spec}.{ts,tsx,mjs}' ],
 					// Native browser journeys belong to Playwright Test, not the Node artifact-validation pool.
-					exclude: [
-						'apps/website/tests/build/interaction-contrast.test.ts',
-						'apps/extension/tests/build/packaged-protection/index.test.ts',
-						'apps/extension/tests/build/packaged-favicons/index.test.ts',
-						'apps/website/tests/build/product-demo.test.ts',
-						'apps/website/tests/build/story-motion.test.ts',
-						'apps/website/tests/build/website-navigation.test.ts',
-						'apps/website/tests/build/homepage-mascot.test.ts',
-						'apps/website/tests/build/mascot-prototype.test.ts',
-						'apps/website/tests/build/product-page.test.ts',
-					],
+					exclude: [ '**/packaged-protection/**', '**/packaged-favicons/**' ],
 				},
 			},
 		],
