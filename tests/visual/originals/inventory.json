@@ -393,7 +393,7 @@
   },
   {
     "path": "apps/extension/src/features/statistics/components/settings-screen/__snapshots__/chromium/statistics-settings-screen-reset-failure-dark.png",
-    "sha256": "7cb6cf3a527866acd8c8294bcefbad1e5ba8226c04612d96bd2e3079ff13a388"
+    "sha256": "a3b3e3a25c655361e0ad752aa5bf91a8e98af4b2c3968d874c7fdf3c5a94461d"
   },
   {
     "path": "apps/extension/src/features/statistics/components/settings-screen/__snapshots__/chromium/statistics-settings-screen-resetting-light.png",
@@ -401,11 +401,11 @@
   },
   {
     "path": "apps/extension/src/features/statistics/components/settings-screen/__snapshots__/chromium/statistics-settings-screen-unavailable-dark.png",
-    "sha256": "cbdc68d1df1e4d2375a8ae93437a291e138e8aedd5350a9c88b4c5f58855931e"
+    "sha256": "cda704b8f9fe11296dfbb3a8ada83f1691530a2b62fe55e6a58b04aab5adb844"
   },
   {
     "path": "apps/extension/src/features/statistics/components/settings-screen/__snapshots__/chromium/statistics-settings-screen-unavailable-reset-confirmation-dark.png",
-    "sha256": "0444a436b57f1e74c66088a71e801707e3353351080749d60dee2246c5de9ca3"
+    "sha256": "54c1518274a0da9794d7ce59f5c5c532e074b4f65d539bb1b71d2b0920dcf8dc"
   },
   {
     "path": "apps/extension/src/shared/utils/shared-theme-styles/__snapshots__/chromium/shared-notices-blue-dark.png",
