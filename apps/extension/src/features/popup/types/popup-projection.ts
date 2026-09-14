@@ -6,6 +6,7 @@ import { CanonicalHostSchema } from '../../../domains/protection/types/protected
 import {
 	DurationMillisecondsSchema,
 	EpochMillisecondsSchema,
+	DefaultProtectionScopeId,
 	ProtectionScopeIdSchema,
 } from '../../../domains/protection/types/protection-value';
 
@@ -102,7 +103,6 @@ export type PopupScheduleStatus = z.infer<typeof PopupScheduleStatusSchema>;
  */
 export const PopupScopeKind = {
 	SHARED: 'shared',
-	INDEPENDENT: 'independent',
 } as const;
 
 /**
@@ -234,7 +234,7 @@ export type PopupProtectedCurrentSite = z.infer<typeof PopupProtectedCurrentSite
  * @since 0.1.0 Initial implementation.
  */
 const PopupActiveScopeFields = {
-	scopeId: ProtectionScopeIdSchema,
+	scopeId: ProtectionScopeIdSchema.refine( ( scopeId ) => scopeId === DefaultProtectionScopeId ),
 	siteCount: z.number().int().positive(),
 	isCurrentScope: z.boolean(),
 } as const;
@@ -252,26 +252,6 @@ const PopupSharedWaitingScopeSchema = z.object( {
 } ).strict();
 
 /**
- * Validates one independent Waiting scope.
- * @since 0.1.0 Initial implementation.
- */
-const PopupIndependentWaitingScopeSchema = z.object( {
-	...PopupActiveScopeFields,
-	kind: z.enum( [ PopupScopeKind.INDEPENDENT ] ),
-	site: ProtectedSiteConfigurationSchema,
-	phase: z.enum( [ PopupTimerPhase.WAITING ] ),
-	remainingMilliseconds: DurationMillisecondsSchema,
-} ).strict().superRefine( ( scope, context ) => {
-	if ( scope.site.rule.scopeId !== scope.scopeId ) {
-		context.addIssue( {
-			code: 'custom',
-			message: 'Independent timing scope must match its validated site rule.',
-			path: [ 'scopeId' ],
-		} );
-	}
-} );
-
-/**
  * Validates one shared wall-clock Allowance scope.
  * @since 0.1.0 Initial implementation.
  */
@@ -284,34 +264,12 @@ const PopupSharedAllowanceScopeSchema = z.object( {
 } ).strict();
 
 /**
- * Validates one independent wall-clock Allowance scope.
- * @since 0.1.0 Initial implementation.
- */
-const PopupIndependentAllowanceScopeSchema = z.object( {
-	...PopupActiveScopeFields,
-	kind: z.enum( [ PopupScopeKind.INDEPENDENT ] ),
-	site: ProtectedSiteConfigurationSchema,
-	phase: z.enum( [ PopupTimerPhase.ALLOWANCE ] ),
-	expiresAtEpochMilliseconds: EpochMillisecondsSchema,
-} ).strict().superRefine( ( scope, context ) => {
-	if ( scope.site.rule.scopeId !== scope.scopeId ) {
-		context.addIssue( {
-			code: 'custom',
-			message: 'Independent timing scope must match its validated site rule.',
-			path: [ 'scopeId' ],
-		} );
-	}
-} );
-
-/**
  * Validates one active Waiting or Allowance scope without permitting mismatched site metadata.
  * @since 0.1.0 Initial implementation.
  */
-export const PopupActiveScopeSchema = z.union( [
+export const PopupActiveScopeSchema = z.discriminatedUnion( 'phase', [
 	PopupSharedWaitingScopeSchema,
-	PopupIndependentWaitingScopeSchema,
 	PopupSharedAllowanceScopeSchema,
-	PopupIndependentAllowanceScopeSchema,
 ] );
 
 /**
@@ -342,53 +300,33 @@ export const PopupAvailableProjectionSchema = z.object( {
 	status: z.enum( [ PopupProjectionStatus.AVAILABLE ] ),
 	capturedAtEpochMilliseconds: EpochMillisecondsSchema,
 	currentSite: PopupCurrentSiteSchema,
-	activeScopes: z.array( PopupActiveScopeSchema ),
+	activeScopes: z.array( PopupActiveScopeSchema ).max( 1 ),
 } ).strict().superRefine( ( projection, context ) => {
-	const currentScopeId = projection.currentSite.status === PopupCurrentSiteStatus.PROTECTED
-		? projection.currentSite.scopeId
-		: null;
-	const seenScopeIds = new Set<string>();
-	let hasActiveCurrentScope = false;
-
-	for ( const [ index, scope ] of projection.activeScopes.entries() ) {
-		if ( seenScopeIds.has( scope.scopeId ) ) {
-			context.addIssue( {
-				code: 'custom',
-				message: 'Active timing scope identifiers must be unique.',
-				path: [ 'activeScopes', index, 'scopeId' ],
-			} );
-		}
-
-		seenScopeIds.add( scope.scopeId );
-		const isCurrentScope = currentScopeId !== null && scope.scopeId === currentScopeId;
-
-		if ( scope.isCurrentScope !== isCurrentScope ) {
-			context.addIssue( {
-				code: 'custom',
-				message: 'Current timing scope marker must match the current website.',
-				path: [ 'activeScopes', index, 'isCurrentScope' ],
-			} );
-		}
-
-		if ( isCurrentScope ) {
-			hasActiveCurrentScope = true;
-		}
-
-		if (
-			scope.phase === PopupTimerPhase.ALLOWANCE &&
-			scope.expiresAtEpochMilliseconds <= projection.capturedAtEpochMilliseconds
-		) {
-			context.addIssue( {
-				code: 'custom',
-				message: 'An Allowance must expire after the projection was captured.',
-				path: [ 'activeScopes', index, 'expiresAtEpochMilliseconds' ],
-			} );
-		}
+	const scope = projection.activeScopes[ 0 ];
+	if ( scope === undefined ) {
+		return;
+	}
+	const isCurrentScope = projection.currentSite.status === PopupCurrentSiteStatus.PROTECTED;
+	if ( scope.isCurrentScope !== isCurrentScope ) {
+		context.addIssue( {
+			code: 'custom',
+			message: 'Current timing scope marker must match the current website.',
+			path: [ 'activeScopes', 0, 'isCurrentScope' ],
+		} );
+	}
+	if (
+		scope.phase === PopupTimerPhase.ALLOWANCE &&
+		scope.expiresAtEpochMilliseconds <= projection.capturedAtEpochMilliseconds
+	) {
+		context.addIssue( {
+			code: 'custom',
+			message: 'An Allowance must expire after the projection was captured.',
+			path: [ 'activeScopes', 0, 'expiresAtEpochMilliseconds' ],
+		} );
 	}
 
 	if (
 		projection.currentSite.status === PopupCurrentSiteStatus.PROTECTED &&
-		hasActiveCurrentScope &&
 		projection.currentSite.nextWaitMilliseconds !== null
 	) {
 		context.addIssue( {

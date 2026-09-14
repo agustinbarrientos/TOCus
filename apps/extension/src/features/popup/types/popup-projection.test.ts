@@ -24,20 +24,44 @@ const BASE_PROJECTION = Object.freeze( {
 } as const );
 
 describe( 'PopupProjectionSchema', () => {
+	it.each( [
+		{ phase: PopupTimerPhase.WAITING, remainingMilliseconds: 5_000 },
+		{ phase: PopupTimerPhase.ALLOWANCE, expiresAtEpochMilliseconds: 1_800_000_020_000 },
+	] )( 'rejects an independent $phase timer even when its site points to the shared scope', ( timer ) => {
+		expect( PopupProjectionSchema.safeParse( {
+			...BASE_PROJECTION,
+			currentSite: { ...BASE_PROJECTION.currentSite, nextWaitMilliseconds: null },
+			activeScopes: [ {
+				...timer, scopeId: 'scope_default', kind: 'independent', site: SITE,
+				siteCount: 1, isCurrentScope: true,
+			} ],
+		} ).success ).toBe( false );
+	} );
+
+	it( 'rejects a purported shared timer with a non-default countdown identity', () => {
+		expect( PopupProjectionSchema.safeParse( {
+			...BASE_PROJECTION,
+			currentSite: { status: PopupCurrentSiteStatus.UNAVAILABLE },
+			activeScopes: [ {
+				scopeId: 'scope_other', kind: PopupScopeKind.SHARED, site: null,
+				phase: PopupTimerPhase.WAITING, remainingMilliseconds: 5_000,
+				siteCount: 1, isCurrentScope: false,
+			} ],
+		} ).success ).toBe( false );
+	} );
+
 	it( 'accepts one internally consistent protected website projection', () => {
 		expect( PopupProjectionSchema.safeParse( BASE_PROJECTION ).success ).toBe( true );
 	} );
 
-	it( 'accepts an independent Waiting scope whose website uses the same scope', () => {
+	it( 'accepts the shared Waiting scope when current website metadata is unavailable', () => {
 		const projection = {
 			...BASE_PROJECTION,
+			currentSite: { status: PopupCurrentSiteStatus.UNAVAILABLE },
 			activeScopes: [ {
-				scopeId: 'scope_other',
-				kind: PopupScopeKind.INDEPENDENT,
-				site: {
-					...SITE,
-					rule: { ...SITE.rule, scopeId: 'scope_other' },
-				},
+				scopeId: 'scope_default',
+				kind: PopupScopeKind.SHARED,
+				site: null,
 				phase: PopupTimerPhase.WAITING,
 				remainingMilliseconds: 5_000,
 				siteCount: 1,
@@ -50,19 +74,17 @@ describe( 'PopupProjectionSchema', () => {
 
 	it( 'rejects duplicate active scope identifiers', () => {
 		const activeScope = {
-			scopeId: 'scope_other',
-			kind: PopupScopeKind.INDEPENDENT,
-			site: {
-				...SITE,
-				rule: { ...SITE.rule, scopeId: 'scope_other' },
-			},
+			scopeId: 'scope_default',
+			kind: PopupScopeKind.SHARED,
+			site: null,
 			phase: PopupTimerPhase.WAITING,
 			remainingMilliseconds: 5_000,
 			siteCount: 1,
-			isCurrentScope: false,
+			isCurrentScope: true,
 		} as const;
 		const projection = {
 			...BASE_PROJECTION,
+			currentSite: { ...BASE_PROJECTION.currentSite, nextWaitMilliseconds: null },
 			activeScopes: [ activeScope, activeScope ],
 		};
 
@@ -90,7 +112,7 @@ describe( 'PopupProjectionSchema', () => {
 			...BASE_PROJECTION,
 			activeScopes: [ {
 				scopeId: 'scope_other',
-				kind: PopupScopeKind.INDEPENDENT,
+				kind: 'independent',
 				site: {
 					...SITE,
 					rule: { ...SITE.rule, scopeId: 'scope_other' },
@@ -127,17 +149,15 @@ describe( 'PopupProjectionSchema', () => {
 		( expiresAtEpochMilliseconds ) => {
 			const projection = {
 				...BASE_PROJECTION,
+				currentSite: { ...BASE_PROJECTION.currentSite, nextWaitMilliseconds: null },
 				activeScopes: [ {
-					scopeId: 'scope_other',
-					kind: PopupScopeKind.INDEPENDENT,
-					site: {
-						...SITE,
-						rule: { ...SITE.rule, scopeId: 'scope_other' },
-					},
+					scopeId: 'scope_default',
+					kind: PopupScopeKind.SHARED,
+					site: null,
 					phase: PopupTimerPhase.ALLOWANCE,
 					expiresAtEpochMilliseconds,
 					siteCount: 1,
-					isCurrentScope: false,
+					isCurrentScope: true,
 				} ],
 			};
 
@@ -168,7 +188,7 @@ describe( 'PopupProjectionSchema', () => {
 			...BASE_PROJECTION,
 			activeScopes: [ {
 				scopeId: 'scope_other',
-				kind: PopupScopeKind.INDEPENDENT,
+				kind: 'independent',
 				site: SITE,
 				phase: PopupTimerPhase.WAITING,
 				remainingMilliseconds: 5_000,
@@ -180,7 +200,7 @@ describe( 'PopupProjectionSchema', () => {
 			...BASE_PROJECTION,
 			activeScopes: [ {
 				scopeId: 'scope_other',
-				kind: PopupScopeKind.INDEPENDENT,
+				kind: 'independent',
 				site: SITE,
 				phase: PopupTimerPhase.ALLOWANCE,
 				expiresAtEpochMilliseconds: 1_800_000_020_000,

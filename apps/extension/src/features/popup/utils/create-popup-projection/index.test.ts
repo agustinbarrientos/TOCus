@@ -53,28 +53,22 @@ function createSite( identityHost: string, host: string, scopeId: string ) {
  */
 function createConfiguration( inactiveDefaultSchedule = false ): ProtectionConfigurationDocument {
 	return ProtectionConfigurationDocumentSchema.parse( {
-		schemaVersion: 4,
+		schemaVersion: 5,
 		sites: [
 			createSite( 'www.instagram.com', 'instagram.com', DefaultProtectionScopeId ),
 			createSite( 'youtube.com', 'youtube.com', DefaultProtectionScopeId ),
-			createSite( 'chess.com', 'chess.com', CHESS_SCOPE_ID ),
-			createSite( 'twitch.tv', 'twitch.tv', TWITCH_SCOPE_ID ),
+			{ ...createSite( 'chess.com', 'chess.com', DefaultProtectionScopeId ), schedule: { mode: ScheduleMode.ALWAYS } },
+			createSite( 'twitch.tv', 'twitch.tv', DefaultProtectionScopeId ),
 		],
 		timingConfiguration: DefaultTimingConfiguration,
-		schedulesByScope: {
-			[ DefaultProtectionScopeId ]: inactiveDefaultSchedule
-				? {
-					mode: ScheduleMode.CUSTOM,
-					windows: [ { weekday: 'Monday', startMinute: 0, endMinute: 1 } ],
-				}
-				: { mode: ScheduleMode.ALWAYS },
-			[ CHESS_SCOPE_ID ]: { mode: ScheduleMode.ALWAYS },
-			[ TWITCH_SCOPE_ID ]: { mode: ScheduleMode.ALWAYS },
-		},
+		schedule: inactiveDefaultSchedule
+			? {
+				mode: ScheduleMode.CUSTOM,
+				windows: [ { weekday: 'Monday', startMinute: 0, endMinute: 1 } ],
+			}
+			: { mode: ScheduleMode.ALWAYS },
 		measurementRevisionsByScope: {
 			[ DefaultProtectionScopeId ]: 'revision_shared',
-			[ CHESS_SCOPE_ID ]: 'revision_chess',
-			[ TWITCH_SCOPE_ID ]: 'revision_twitch',
 		},
 	} );
 }
@@ -216,7 +210,7 @@ describe( 'createPopupProjection', () => {
 				kind: PopupScopeKind.SHARED,
 				phase: PopupTimerPhase.WAITING,
 				remainingMilliseconds: 8_000,
-				siteCount: 2,
+				siteCount: 4,
 			} ],
 		} );
 	} );
@@ -279,9 +273,7 @@ describe( 'createPopupProjection', () => {
 				ProtectionConfigurationDocumentSchema.parse( {
 					...createConfiguration(),
 					sites: [],
-					schedulesByScope: {
-						[ DefaultProtectionScopeId ]: { mode: ScheduleMode.ALWAYS },
-					},
+					schedule: { mode: ScheduleMode.ALWAYS },
 					measurementRevisionsByScope: {
 						[ DefaultProtectionScopeId ]: 'revision_shared',
 					},
@@ -518,7 +510,7 @@ describe( 'createPopupProjection', () => {
 		} );
 	} );
 
-	it( 'orders the current scope first, then shared timing, then configured independent scopes', () => {
+	it( 'projects only the shared timer for a website with custom active hours', () => {
 		const projection = createPopupProjection( {
 			currentTab: { id: 21, incognito: false, url: 'https://chess.com/play' },
 			interruptionPageUrl: INTERRUPTION_PAGE_URL,
@@ -538,13 +530,12 @@ describe( 'createPopupProjection', () => {
 		}
 
 		expect( projection.activeScopes.map( ( scope ) => scope.scopeId ) ).toEqual( [
-			CHESS_SCOPE_ID,
 			DefaultProtectionScopeId,
-			TWITCH_SCOPE_ID,
 		] );
 		expect( projection.activeScopes[ 0 ] ).toMatchObject( {
-			kind: PopupScopeKind.INDEPENDENT,
-			site: { identityHost: 'chess.com' },
+			kind: PopupScopeKind.SHARED,
+			isCurrentScope: true,
+			site: null,
 		} );
 	} );
 
@@ -623,34 +614,51 @@ describe( 'createPopupProjection', () => {
 		} );
 	} );
 
-	it( 'counts every website intentionally sharing one independent timing scope', () => {
+	it( 'keeps one allowance while resolving each website\'s own active hours', () => {
+		const configuration = createConfiguration( true );
+		for ( const [ host, schedule ] of [
+			[ 'instagram.com', PopupScheduleStatus.INACTIVE ],
+			[ 'chess.com', PopupScheduleStatus.ACTIVE ],
+		] as const ) {
+			const projection = createPopupProjection( {
+				currentTab: { id: 21, incognito: false, url: `https://${ host }/` },
+				interruptionPageUrl: INTERRUPTION_PAGE_URL,
+				snapshot: createSnapshot( {
+					[ DefaultProtectionScopeId ]: createAllowanceState( DefaultProtectionScopeId, 120_000 ),
+				}, configuration ),
+			} );
+			expect( projection ).toMatchObject( {
+				status: PopupProjectionStatus.AVAILABLE,
+				currentSite: { schedule, scopeId: DefaultProtectionScopeId, nextWaitMilliseconds: null },
+				activeScopes: [ { scopeId: DefaultProtectionScopeId, expiresAtEpochMilliseconds: NOW + 120_000 } ],
+			} );
+		}
+	} );
+
+	it( 'counts websites together when only one has a custom schedule', () => {
 		const configuration = ProtectionConfigurationDocumentSchema.parse( {
 			...createConfiguration(),
 			sites: [
-				createSite( 'chess.com', 'chess.com', CHESS_SCOPE_ID ),
-				createSite( 'lichess.org', 'lichess.org', CHESS_SCOPE_ID ),
+				{ ...createSite( 'chess.com', 'chess.com', DefaultProtectionScopeId ), schedule: { mode: ScheduleMode.ALWAYS } },
+				createSite( 'lichess.org', 'lichess.org', DefaultProtectionScopeId ),
 			],
-			schedulesByScope: {
-				[ DefaultProtectionScopeId ]: { mode: ScheduleMode.ALWAYS },
-				[ CHESS_SCOPE_ID ]: { mode: ScheduleMode.ALWAYS },
-			},
+			schedule: { mode: ScheduleMode.ALWAYS },
 			measurementRevisionsByScope: {
 				[ DefaultProtectionScopeId ]: 'revision_shared',
-				[ CHESS_SCOPE_ID ]: 'revision_chess',
 			},
 		} );
 		const projection = createPopupProjection( {
 			currentTab: { id: 21, incognito: false, url: 'https://chess.com/play' },
 			interruptionPageUrl: INTERRUPTION_PAGE_URL,
 			snapshot: createSnapshot( {
-				[ CHESS_SCOPE_ID ]: createAllowanceState( CHESS_SCOPE_ID, 120_000 ),
+				[ DefaultProtectionScopeId ]: createAllowanceState( DefaultProtectionScopeId, 120_000 ),
 			}, configuration ),
 		} );
 
 		expect( projection ).toMatchObject( {
 			status: PopupProjectionStatus.AVAILABLE,
 			activeScopes: [ {
-				kind: PopupScopeKind.INDEPENDENT,
+				kind: PopupScopeKind.SHARED,
 				siteCount: 2,
 			} ],
 		} );
