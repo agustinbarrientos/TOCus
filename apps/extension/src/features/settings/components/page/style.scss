@@ -14,33 +14,26 @@
 	p { color: var(--tocus-color-on-surface-muted); }
 	p + p { margin-top: var(--tocus-space-3); }
 	.tocus-page-header { margin-bottom: var(--tocus-space-6); }
-	.tocus-page-header h1 { margin-bottom: var(--tocus-space-3); }
-	.tocus-page-header > p:not(.settings-eyebrow, .settings-about-version) { @include typography.apply('body-large'); }
-
-	.settings-eyebrow {
-		@include typography.apply('label-large');
-
-		margin-bottom: var(--tocus-space-2);
-		color: var(--tocus-color-action);
-	}
+	.tocus-page-header h1 { margin: 0; }
 
 	.tocus-section {
+		--tocus-section-gap: 0px;
+
 		display: block;
 		padding-block: var(--tocus-space-6);
-		border-top: 1px solid var(--tocus-color-divider);
+		&:first-child, .tocus-page-header + & { padding-top: 0; }
 		h2 { margin-bottom: var(--tocus-space-3); }
 		> button { margin-top: var(--tocus-space-4); }
 	}
 
-	.tocus-form-actions { padding-block: var(--tocus-space-6) 0; }
+	.tocus-form-actions { padding-block: var(--tocus-form-actions-padding-before, var(--tocus-space-6)) 0; }
 	.tocus-section:last-child { padding-bottom: 0; }
 
 	.settings-fieldset {
 		margin: 0;
-		padding: var(--tocus-space-5) 0 0;
+		padding: 0;
 		border: 0;
-		border-top: 1px solid var(--tocus-color-divider);
-		legend { @include typography.apply('label-large'); padding: 0; }
+		legend { padding: 0; }
 	}
 
 	.settings-native-input {
@@ -53,21 +46,11 @@
 		margin-top: var(--tocus-space-5);
 	}
 	.settings-about-version { @include typography.apply('label-medium'); margin-top: var(--tocus-space-3); }
-	.settings-about-section h2 { margin-bottom: 0; }
-	.settings-about-section > a { margin-top: var(--tocus-space-2); }
-
-	.settings-about-story {
-		@include typography.apply('body-large');
-
-		max-width: 38rem;
-		margin-top: var(--tocus-space-2);
-	}
-	.settings-about-description { margin: var(--tocus-space-2) 0 var(--tocus-space-5); }
-	.settings-about-section > :last-child { margin-bottom: 0; }
+	.settings-about-section > a + p { margin-top: var(--tocus-space-3); }
 
 	.settings-about-links {
 		gap: var(--tocus-space-2) var(--tocus-space-5);
-		margin: 0;
+		margin: var(--tocus-space-4) 0 0;
 		padding: 0;
 		list-style: none;
 	}

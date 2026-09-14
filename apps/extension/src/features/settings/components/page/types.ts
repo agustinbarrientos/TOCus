@@ -33,8 +33,6 @@ export interface EditableSettingsScreenProps extends SettingsScreenProps {
  */
 export interface SettingsPageProps {
 	title: string;
-	eyebrow?: string;
-	introduction?: string;
 	headerContent?: ReactNode;
 	children: ReactNode;
 }
