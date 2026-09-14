@@ -197,15 +197,15 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/language-screen/__snapshots__/chromium/language-screen-brown-light.png",
-    "sha256": "ea42a3f08fff0f33bb94793de93c5011354f5d4ea6e322ab8ad96426f2177495"
+    "sha256": "6eef3f350496bb2cc5cb228ff7e86aa45aed4d65ec01388ecd65bc43bd91cc2f"
   },
   {
     "path": "apps/extension/src/features/settings/components/language-screen/__snapshots__/chromium/language-screen-german-narrow.png",
-    "sha256": "e573506f9158572e356b4cd286168969608118bb8857b520ed01a0fcf0f33f99"
+    "sha256": "0e028bbd96658e8b499d117c31cd5192c4395678457d13a8d02363dc82c91b78"
   },
   {
     "path": "apps/extension/src/features/settings/components/language-screen/__snapshots__/chromium/language-screen-purple-dark.png",
-    "sha256": "49f53cf7361c32ed3a26e580950518bb82e9a8eb764af63fefb436bddd4c0851"
+    "sha256": "996e8a248bc4fbf009cfa43d55dd6cfb5d9514b50da7ea6357ef6eeb0932eb66"
   },
   {
     "path": "apps/extension/src/features/settings/components/privacy-screen/__snapshots__/chromium/privacy-screen-all-confirmation-light.png",
