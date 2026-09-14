@@ -3,24 +3,31 @@ import { SettingsDestination } from '../../services/settings-navigation/types';
 import { test } from '../../utils/browser-test-harness';
 
 test.describe( 'privacy resets', () => {
-	test( 'keeps the permissions disclosure styled as a section heading and keyboard-operable', async ( { open } ) => {
+	test( 'keeps browser permissions visible as a matching section heading', async ( { open } ) => {
 		const page = await open( SettingsDestination.PRIVACY );
 		const heading = page.locator( '.tocus-section h2' ).first();
-		const summary = page.locator( 'summary' );
+		const permissions = page.locator( '.settings-privacy-permissions' );
+		await expect( permissions.getByRole( 'heading', { level: 2 } ) ).toBeVisible();
+		await expect( permissions.locator( 'li' ) ).toHaveCount( 5 );
+		await expect( page.locator( 'details, summary' ) ).toHaveCount( 0 );
 		const typography = await heading.evaluate( ( element ) => {
 			const style = getComputedStyle( element );
 			return [ style.fontFamily, style.fontSize, style.fontWeight, style.lineHeight ];
 		} );
-		const disclosureTypography = await summary.evaluate( ( element ) => {
-			const style = getComputedStyle( element.firstElementChild ?? element );
+		const permissionTypography = await permissions.getByRole( 'heading' ).evaluate( ( element ) => {
+			const style = getComputedStyle( element );
 			return [ style.fontFamily, style.fontSize, style.fontWeight, style.lineHeight ];
 		} );
-		expect( disclosureTypography ).toEqual( typography );
-		await summary.focus();
-		await page.keyboard.press( 'Enter' );
-		expect( await page.locator( 'details' ).getAttribute( 'open' ) ).not.toBeNull();
-		await page.keyboard.press( 'Enter' );
-		expect( await page.locator( 'details' ).getAttribute( 'open' ) ).toBeNull();
+		expect( permissionTypography ).toEqual( typography );
+		for ( const width of [ 768, 390 ] ) {
+			await page.setViewportSize( { width, height: 900 } );
+			for ( const item of await permissions.getByRole( 'listitem' ).all() ) {
+				await expect( item ).toBeVisible();
+			}
+			expect( await page.evaluate( () => document.documentElement.scrollWidth <= innerWidth ) ).toBe( true );
+		}
+		await page.emulateMedia( { forcedColors: 'active' } );
+		await expect( permissions.getByRole( 'heading' ) ).toBeVisible();
 	} );
 
 	for ( const label of [ 'Reset statistics', 'Reset all TOCus data' ] ) {
