@@ -113,11 +113,11 @@
   },
   {
     "path": "apps/extension/src/features/popup/components/shell/__snapshots__/chromium/popup-shell-dark.png",
-    "sha256": "6b8444e776c57e26e3cc90d2c41eb8a2ad84ca174ec9c999d48d4c3a74d0e875"
+    "sha256": "542b88aeb45513cc7cc2b5adaa1d0908e079aae9d2e70e5601ec901eca1a6314"
   },
   {
     "path": "apps/extension/src/features/popup/components/shell/__snapshots__/chromium/popup-shell-light.png",
-    "sha256": "f3efba8498dc5e005254ec9ea635f0331a4fac81dd45a700cc4efab8181e992d"
+    "sha256": "909824b1a50b5e0a6930cc5f1ea662bd87f23d0da3891f5ccce5287b30a61790"
   },
   {
     "path": "apps/extension/src/features/popup/components/shell/__snapshots__/chromium/popup-shell-long-content-narrow.png",
@@ -133,11 +133,11 @@
   },
   {
     "path": "apps/extension/src/features/popup/components/shell/__snapshots__/chromium/popup-shell-protected-idle.png",
-    "sha256": "63f10c1e259bdf2389da941d8de27ae846f9092928ee5234e146fe397dcf9157"
+    "sha256": "37d0d1e4f3e5d687b7942544a6a81f4900ed8b6c7245bc0d9b96fc9e9a33ae3e"
   },
   {
     "path": "apps/extension/src/features/popup/components/shell/__snapshots__/chromium/popup-shell-unavailable.png",
-    "sha256": "19fbf5c0f68591cb674439e3b4d9b046b9406db04079a3f51d4a0e225a88e6b2"
+    "sha256": "c457fc1da24b93b1f2cd4e82fbef0dcce39a5c9cacbfef6f0940e4f5b4eb2689"
   },
   {
     "path": "apps/extension/src/features/preferences/components/appearance-controls/__snapshots__/chromium/appearance-controls-brown-light.png",
