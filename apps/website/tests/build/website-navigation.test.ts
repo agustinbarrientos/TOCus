@@ -1,8 +1,18 @@
 import { fileURLToPath } from 'node:url';
-import { chromium, firefox, webkit } from 'playwright';
+import { chromium, firefox, webkit, type Locator } from 'playwright';
 import { describe, expect, test } from 'vitest';
 
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
+
+/**
+ * Waits for the menu's asynchronous focus trap before sending dropdown keyboard commands.
+ * @param menu - Visible language dropdown whose keyboard handler needs the focused target.
+ */
+async function waitForMenuFocus( menu: Locator ): Promise<void> {
+	await expect.poll( () => menu.evaluate( ( element ) => element.contains( document.activeElement ) ), {
+		timeout: 5000,
+	} ).toBe( true );
+}
 
 describe( 'website navigation and statistics presentation', () => {
 	for ( const engine of [ chromium, firefox, webkit ] ) {
@@ -36,6 +46,7 @@ describe( 'website navigation and statistics presentation', () => {
 				await page.keyboard.press( 'Enter' );
 				const languageMenu = page.getByRole( 'menu' );
 				await languageMenu.waitFor( { state: 'visible', timeout: 5000 } );
+				await waitForMenuFocus( languageMenu );
 				expect( await languageMenu.isVisible() ).toBe( true );
 				expect( await page.evaluate( () => window.scrollY ) ).toBe( scrollPosition );
 				await page.keyboard.press( 'Escape' );
@@ -53,6 +64,7 @@ describe( 'website navigation and statistics presentation', () => {
 				await page.keyboard.press( 'Enter' );
 				const languageOptions = page.getByRole( 'menuitem' );
 				await languageMenu.waitFor( { state: 'visible', timeout: 5000 } );
+				await waitForMenuFocus( languageMenu );
 				expect( await languageOptions.count() ).toBe( 10 );
 				await page.keyboard.press( 'ArrowDown' );
 				await page.waitForFunction(
