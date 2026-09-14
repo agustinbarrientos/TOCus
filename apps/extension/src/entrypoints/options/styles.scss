@@ -38,25 +38,19 @@ body {
 	gap: var(--tocus-space-1);
 }
 
+.settings-navigation-divider {
+	width: 100%;
+	margin: var(--tocus-space-3) 0;
+	border: 0;
+	border-top: 1px solid var(--tocus-color-divider);
+}
+
 .settings-content {
 	width: 100%;
 	min-width: 0;
 	padding: clamp(2rem, 5vw, 4.5rem);
 }
 
-
-.settings-schedule-window {
-	display: grid;
-	grid-template-columns: 1.2fr 0.9fr 0.9fr auto;
-	align-items: start;
-	gap: var(--tocus-space-3);
-	margin: 0;
-	padding: var(--tocus-space-3);
-	border: 0;
-	min-width: 0;
-	border-radius: var(--tocus-radius-small);
-	background: var(--tocus-color-surface-container);
-}
 
 
 @media (width <= 48rem) {
@@ -82,6 +76,14 @@ body {
 	white-space: nowrap;
 }
 
+	.settings-navigation-divider {
+		width: 1px;
+		height: 2rem;
+		margin: auto var(--tocus-space-2);
+		border-top: 0;
+		border-left: 1px solid var(--tocus-color-divider);
+	}
+
 	.settings-content {
 	padding: var(--tocus-space-5) var(--tocus-space-4) var(--tocus-space-7);
 }
@@ -92,5 +94,4 @@ body {
 		width: 1.75rem;
 		height: 1.75rem;
 	}
-	.settings-schedule-window { grid-template-columns: minmax(0, 1fr); }
 }

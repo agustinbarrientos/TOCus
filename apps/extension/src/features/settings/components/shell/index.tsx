@@ -1,4 +1,4 @@
-import type { MouseEvent } from 'react';
+import { Fragment, type MouseEvent } from 'react';
 import { useSettingsNavigation } from '../../services/settings-navigation';
 import { Brand, Icon, IconName, NavLink, TocusProvider } from '@tocus/ui';
 import { useDocumentAppearance } from '../../../preferences/services/document-appearance';
@@ -28,11 +28,11 @@ import type {
  */
 function getNavigationItems( copy: Readonly<SettingsShellCopy> ): readonly SettingsNavigationItem[] {
 	return [
-		{ id: SettingsDestination.PROTECTED_SITES, name: copy.protectedSites, icon: IconName.LIST },
-		{ id: SettingsDestination.SCHEDULE, name: copy.schedule, icon: IconName.CALENDAR_CLOCK },
-		{ id: SettingsDestination.TIMING, name: copy.timing, icon: IconName.STOPWATCH },
-		{ id: SettingsDestination.APPEARANCE, name: copy.appearance, icon: IconName.PALETTE },
-		{ id: SettingsDestination.LANGUAGE, name: copy.language, icon: IconName.LETTERS },
+		{ id: SettingsDestination.PROTECTED_SITES, name: copy.protectedSites, icon: IconName.LINK_HORIZONTAL },
+		{ id: SettingsDestination.SCHEDULE, name: copy.schedule, icon: IconName.CALENDAR },
+		{ id: SettingsDestination.TIMING, name: copy.timing, icon: IconName.PAUSE },
+		{ id: SettingsDestination.APPEARANCE, name: copy.appearance, icon: IconName.BRUSH },
+		{ id: SettingsDestination.LANGUAGE, name: copy.language, icon: IconName.LANGUAGE },
 		{ id: SettingsDestination.STATISTICS, name: copy.statistics, icon: IconName.CHART_COLUMN },
 		{ id: SettingsDestination.PRIVACY, name: copy.privacy, icon: IconName.SHIELD_HALVED },
 		{ id: SettingsDestination.ABOUT, name: copy.about, icon: IconName.HEART },
@@ -97,15 +97,22 @@ export function SettingsShell( properties: SettingsShellProperties ) {
 		void navigation.discard();
 	}
 
+	/** Starts the page-owned Save directly from the original dialog click. */
+	function handleSave(): void {
+		void navigation.save();
+	}
+
 	return (
 		<TocusProvider { ...theme }>
 			<div className="settings-layout">
 				<aside className="settings-navigation">
 					<Brand />
 					<nav aria-label={ shell.copy.navigationLabel }>
-						{ items.map( ( item ) => (
+						{ items.map( ( item ) => <Fragment key={ item.id }>
+							{ ( item.id === SettingsDestination.APPEARANCE ||
+								item.id === SettingsDestination.STATISTICS ||
+								item.id === SettingsDestination.PRIVACY ) && <hr className="settings-navigation-divider" /> }
 							<NavLink
-								key={ item.id }
 								component="a"
 								href={ `#${ item.id }` }
 								active={ navigation.destination === item.id }
@@ -114,7 +121,7 @@ export function SettingsShell( properties: SettingsShellProperties ) {
 								leftSection={ <Icon name={ item.icon } /> }
 								onClick={ handleNavigation }
 							/>
-						) ) }
+						</Fragment> ) }
 					</nav>
 				</aside>
 				<div className="settings-content" key={ navigation.destination }>
@@ -131,6 +138,9 @@ export function SettingsShell( properties: SettingsShellProperties ) {
 					description={ shell.copy.unsavedChangesDescription }
 					cancel={ shell.copy.stay }
 					confirm={ shell.copy.discard }
+					pending={ navigation.saving }
+					error={ navigation.saveFailed ? shell.copy.saveFailed : null }
+					save={ { label: shell.copy.save, pendingLabel: shell.copy.saving, onSave: handleSave } }
 					onCancel={ navigation.stay }
 					onConfirm={ handleDiscard }
 				/>

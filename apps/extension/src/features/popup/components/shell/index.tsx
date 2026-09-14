@@ -66,7 +66,7 @@ export function PopupView( properties: PopupViewProperties ) {
 						rel="noopener noreferrer"
 						className="tocus-navigation-link"
 					>
-						<Icon name={ IconName.GEAR } />{ copy.settings }
+						<Icon name={ IconName.SLIDERS } />{ copy.settings }
 					</Anchor>
 				</footer>
 			</main>

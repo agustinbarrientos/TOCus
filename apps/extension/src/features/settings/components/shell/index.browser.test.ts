@@ -13,7 +13,11 @@ test.describe( 'React settings', () => {
 		expect( navigation?.width ).toBe( 264 );
 		expect( main?.x ).toBe( 328 );
 		expect( main?.width ).toBe( 888 );
-		expect( await page.locator( '.tocus-page-header' ).textContent() ).toContain( 'Personalization' );
+		await expect( page.locator( '.tocus-page-header' ).getByRole( 'heading', { level: 1 } ) ).toHaveText( 'Appearance' );
+		await expect( page.locator( '.settings-navigation nav > hr' ) ).toHaveCount( 3 );
+		expect( await page.locator( '.settings-navigation nav > hr' ).evaluateAll( ( separators ) =>
+			separators.map( ( separator ) => separator.nextElementSibling?.getAttribute( 'href' ) ) ) )
+			.toEqual( [ '#appearance', '#statistics', '#privacy' ] );
 	} );
 
 	test( 'saves keyboard timing, preserves rejection, and discards without writes', async ( { open, setting } ) => {

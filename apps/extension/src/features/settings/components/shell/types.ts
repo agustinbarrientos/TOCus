@@ -45,6 +45,9 @@ export interface SettingsShellCopy {
 	unsavedChangesDescription: string;
 	stay: string;
 	discard: string;
+	save: string;
+	saving: string;
+	saveFailed: string;
 }
 
 /**
