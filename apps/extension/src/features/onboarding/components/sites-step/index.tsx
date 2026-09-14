@@ -76,15 +76,15 @@ function SiteFeedback( props: OnboardingStepProps ) {
 	return (
 		<>
 			{ failure && ! isManualFailure && (
-				<Alert className="finish-error" role="alert" color="red" icon={ <Icon name={ IconName.EXCLAMATION } /> }>
+				<Alert role="alert" color="red" icon={ <Icon name={ IconName.CIRCLE_EXCLAMATION } /> }>
 					{ copy.sites[ failure ] }
 				</Alert>
 			) }
 			{ announcement && announcement.kind !== OnboardingAnnouncementKind.ADDED && (
-				<Alert className="removal-status" key={ announcement.sequence } role="status"
+				<Alert key={ announcement.sequence } role="status"
 					color={ announcement.kind === OnboardingAnnouncementKind.RETAINED ? 'yellow' : 'green' }
 					icon={ <Icon name={ announcement.kind === OnboardingAnnouncementKind.RETAINED
-						? IconName.EXCLAMATION : IconName.CIRCLE_CHECK } /> }>
+						? IconName.CIRCLE_EXCLAMATION : IconName.CIRCLE_CHECK } /> }>
 					{ message }
 				</Alert>
 			) }

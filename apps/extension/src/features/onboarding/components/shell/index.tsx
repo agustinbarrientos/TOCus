@@ -51,7 +51,7 @@ function Content( props: OnboardingContentProps ) {
 	if ( state.startupUnavailable ) {
 		return (
 			<section className="onboarding-outcome onboarding-recovery">
-				<span className="onboarding-status-mark onboarding-recovery-mark"><Icon name={ IconName.EXCLAMATION } /></span>
+				<span className="onboarding-status-mark onboarding-recovery-mark"><Icon name={ IconName.CIRCLE_EXCLAMATION } /></span>
 				<Title ref={ heading } tabIndex={ -1 } order={ 1 }>{ copy.startupErrorTitle }</Title>
 				<Text c="dimmed">{ copy.startupErrorDescription }</Text>
 				<div className="onboarding-outcome-actions">

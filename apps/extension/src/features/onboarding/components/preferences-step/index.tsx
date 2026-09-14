@@ -28,7 +28,7 @@ export function PreferencesStep( props: OnboardingStepProps ) {
 						disabled={ controller.pending } onChange={ controller.selectAppearance } />
 				) }
 				<div className="tocus-preferences-error">{ controller.preferenceError && (
-					<Alert color="red" role="alert" icon={ <Icon name={ IconName.EXCLAMATION } /> }>
+					<Alert color="red" role="alert" icon={ <Icon name={ IconName.CIRCLE_EXCLAMATION } /> }>
 						{ copy.preferenceSaveError }
 					</Alert>
 				) }</div>
