@@ -2,7 +2,7 @@
 
 [data-tocus-ui] .settings-page .settings-timing-range {
 	margin-bottom: var(--tocus-space-6);
-	label, output { @include typography.apply('label-large'); }
+	output { @include typography.apply('label-large'); }
 
 	output {
 		min-width: 6.5rem;
@@ -12,7 +12,6 @@
 		color: var(--tocus-color-on-action);
 		text-align: center;
 	}
-	> p { margin-top: var(--tocus-space-2); }
 }
 
 .settings-timing-ticks {

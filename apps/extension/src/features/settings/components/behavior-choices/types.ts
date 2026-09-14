@@ -5,7 +5,7 @@
 export interface BehaviorChoice<Value extends string> {
 	value: Value;
 	label: string;
-	description: string;
+	description?: string;
 }
 
 /**
