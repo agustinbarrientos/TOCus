@@ -149,19 +149,19 @@
   },
   {
     "path": "apps/extension/src/features/protected-sites/components/site-item/__snapshots__/chromium/protected-site-item-access-required-dark.png",
-    "sha256": "8f8537c2469c3975e81389d38ff0eba7c558fe9e162a3990b3c932dcb3782da7"
+    "sha256": "34d2953dcae736c8ddd571995c48c4e8478d103a08905b659946a1adb1f32b70"
   },
   {
     "path": "apps/extension/src/features/protected-sites/components/site-item/__snapshots__/chromium/protected-site-item-access-required-light.png",
-    "sha256": "6cff2a96cc0099c4ad1cc18f2ec63e45ff707e5add58cd41e17f1e7693e615d5"
+    "sha256": "8e618d81471bc9d6682e43d25149a7697f728790bcada73294b5f3fee1a02a35"
   },
   {
     "path": "apps/extension/src/features/protected-sites/components/site-item/__snapshots__/chromium/protected-site-item-operation-error-dark.png",
-    "sha256": "705d12118ad5a690344341e84e5c78024eac68b1ee67342df08b9194894b0c42"
+    "sha256": "9e1a5384bf8ab8146510d128d7e8c77b4968968ab64e0a39cfd55101fe26ef38"
   },
   {
     "path": "apps/extension/src/features/protected-sites/components/site-item/__snapshots__/chromium/protected-site-item-operation-error-light.png",
-    "sha256": "20c4622e28d1ab9da4b1bf203a5d018294c5474629366341e31849c3609bde8b"
+    "sha256": "6fa83c162dd479f046e32057ebab3f2e8351e94e40062e5a4b7113d287421be6"
   },
   {
     "path": "apps/extension/src/features/protected-sites/components/site-list/__snapshots__/chromium/protected-site-list-dark.png",
