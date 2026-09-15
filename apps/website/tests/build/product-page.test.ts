@@ -69,28 +69,43 @@ test.describe( 'public product presentation', () => {
 						const fallback = page.locator( '.story-fallback' );
 						const fallbackItems = fallback.locator( ':scope > li' );
 						expect( await fallbackItems.count() ).toBe( 5 );
-						for ( const item of await fallbackItems.all() ) {
+						// The no-JavaScript document is settled; these independent reads share no mutable state.
+						await Promise.all( ( await fallbackItems.all() ).map( async ( item ) => {
 							const heading = item.locator( 'h3' );
 							const description = item.locator( 'p' );
-							await expect( heading ).toBeVisible();
-							expect( ( await heading.innerText() ).trim() ).not.toBe( '' );
-							await expect( description ).toBeVisible();
-							expect( ( await description.innerText() ).trim() ).not.toBe( '' );
-						}
-						expect( await page.locator( '.story-step-action' ).count() ).toBe( 5 );
-						expect( await page.locator( '.story-step-action:visible' ).count() ).toBe( 0 );
-						expect( await fallback.evaluate(
-							( element ) => element.scrollWidth <= element.clientWidth,
-						), route ).toBe( true );
-						await expect( page.locator( '#settings' ) ).toBeVisible();
-						await expect( page.locator( '#privacy' ) ).toBeVisible();
-						await expect( page.locator( '.product-demo-browser' ) ).toBeVisible();
-						expect( await page.locator( 'main img[data-mascot]' ).count() ).toBe( 2 );
-						expect( await page.locator( '#languages a[lang]' ).count() ).toBe( 10 );
-						expect( await page.locator( '#languages a[aria-current="page"]' ).count() ).toBe( 1 );
-						const externalLinks = await page.locator( 'a[href^="https:"]' ).evaluateAll(
-							( links ) => links.map( ( link ) => link.getAttribute( 'href' ) ),
-						);
+							const [ headingText, descriptionText ] = await Promise.all( [
+								heading.innerText(), description.innerText(),
+								expect( heading ).toBeVisible(), expect( description ).toBeVisible(),
+							] );
+							expect( headingText.trim() ).not.toBe( '' );
+							expect( descriptionText.trim() ).not.toBe( '' );
+						} ) );
+						const [ actionCount, visibleActionCount, fallbackFits, mascotCount, languageCount,
+							currentLanguageCount, externalLinks, blankLinkRelations, fitsViewport,
+						] = await Promise.all( [
+							page.locator( '.story-step-action' ).count(),
+							page.locator( '.story-step-action:visible' ).count(),
+							fallback.evaluate( ( element ) => element.scrollWidth <= element.clientWidth ),
+							page.locator( 'main img[data-mascot]' ).count(),
+							page.locator( '#languages a[lang]' ).count(),
+							page.locator( '#languages a[aria-current="page"]' ).count(),
+							page.locator( 'a[href^="https:"]' ).evaluateAll(
+								( links ) => links.map( ( link ) => link.getAttribute( 'href' ) ),
+							),
+							page.locator( 'a[target="_blank"]' ).evaluateAll(
+								( links ) => links.map( ( link ) => link.getAttribute( 'rel' ) ),
+							),
+							page.evaluate( () => document.documentElement.scrollWidth <= window.innerWidth ),
+							expect( page.locator( '#settings' ) ).toBeVisible(),
+							expect( page.locator( '#privacy' ) ).toBeVisible(),
+							expect( page.locator( '.product-demo-browser' ) ).toBeVisible(),
+						] );
+						expect( actionCount ).toBe( 5 );
+						expect( visibleActionCount ).toBe( 0 );
+						expect( fallbackFits, route ).toBe( true );
+						expect( mascotCount ).toBe( 2 );
+						expect( languageCount ).toBe( 10 );
+						expect( currentLanguageCount ).toBe( 1 );
 						expect( new Set( externalLinks ) ).toEqual( new Set( [
 							'https://github.com/agustinbarrientos/TOCus',
 							'https://agustinbarrientos.com/about/?utm_source=tocus&utm_medium=website&utm_campaign=about',
@@ -98,12 +113,9 @@ test.describe( 'public product presentation', () => {
 							'https://addons.mozilla.org/firefox/addon/tocus-placeholder/',
 							'https://apps.apple.com/app/tocus/id0000000000',
 						] ) );
-						for ( const link of await page.locator( 'a[target="_blank"]' ).all() ) {
-							expect( await link.getAttribute( 'rel' ) ).toContain( 'noopener noreferrer' );
+						for ( const relation of blankLinkRelations ) {
+							expect( relation ).toContain( 'noopener noreferrer' );
 						}
-						const fitsViewport = await page.evaluate(
-							() => document.documentElement.scrollWidth <= window.innerWidth,
-						);
 						expect( fitsViewport, route ).toBe( true );
 					} );
 				}
