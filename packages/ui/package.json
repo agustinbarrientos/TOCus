@@ -11,12 +11,14 @@
 		"./types": "./src/types.ts",
 		"./styles": "./src/styles.scss",
 		"./styles.scss": "./src/styles.scss",
-		"./charts.scss": "./src/charts.scss"
+		"./charts.scss": "./src/charts.scss",
+		"./notifications.scss": "./src/notifications.scss"
 	},
 	"dependencies": {
 		"@mantine/charts": "9.6.0",
 		"@mantine/core": "9.6.0",
 		"@mantine/hooks": "9.6.0",
+		"@mantine/notifications": "9.6.0",
 		"@tocus/theme": "workspace:*",
 		"recharts": "^3.10.1"
 	},
