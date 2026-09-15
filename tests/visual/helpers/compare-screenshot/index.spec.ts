@@ -1,17 +1,19 @@
 import { readFileSync } from 'node:fs';
 import { PNG } from 'pngjs';
 import { expect, test } from '@playwright/test';
-import { compareScreenshot, WebsiteScreenshotOptions } from './index';
+import { compareScreenshot, ScreenshotColorOptions } from './index';
 
 const snapshot = 'apps/website/src/components/home-page/__snapshots__/chromium/website-english-desktop.png'.split( '/' );
+const extensionSnapshot = 'apps/extension/src/features/statistics/components/settings-screen/__snapshots__/chromium/statistics-settings-screen-unavailable-reset-confirmation-dark.png'.split( '/' );
 
 /**
  * Creates a changed actual image in memory without updating the reviewed reference.
  * @param change - Independent regression mutation applied to decoded reference pixels.
+ * @param reference - Reviewed repository-relative screenshot path.
  * @return Encoded actual image passed through the real snapshot assertion.
  */
-function changedScreenshot( change: ( image: PNG ) => void ): Buffer {
-	const image = PNG.sync.read( readFileSync( test.info().snapshotPath( ...snapshot ) ) );
+function changedScreenshot( change: ( image: PNG ) => void, reference = snapshot ): Buffer {
+	const image = PNG.sync.read( readFileSync( test.info().snapshotPath( ...reference ) ) );
 	change( image );
 	return PNG.sync.write( image );
 }
@@ -33,7 +35,7 @@ function recordedRasterVariant(): Buffer {
 }
 
 test( 'website threshold accepts the recorded CI rounded-edge color variance', async () => {
-	await compareScreenshot( recordedRasterVariant(), snapshot, WebsiteScreenshotOptions );
+	await compareScreenshot( recordedRasterVariant(), snapshot, ScreenshotColorOptions );
 } );
 
 test( 'website threshold still rejects a one-pixel layout shift', async () => {
@@ -46,7 +48,7 @@ test( 'website threshold still rejects a one-pixel layout shift', async () => {
 			}
 		}
 	} );
-	await expect( compareScreenshot( actual, snapshot, WebsiteScreenshotOptions ) ).rejects.toThrow();
+	await expect( compareScreenshot( actual, snapshot, ScreenshotColorOptions ) ).rejects.toThrow();
 } );
 
 test( 'website threshold still rejects a changed button fill', async () => {
@@ -57,7 +59,7 @@ test( 'website threshold still rejects a changed button fill', async () => {
 			}
 		}
 	} );
-	await expect( compareScreenshot( actual, snapshot, WebsiteScreenshotOptions ) ).rejects.toThrow();
+	await expect( compareScreenshot( actual, snapshot, ScreenshotColorOptions ) ).rejects.toThrow();
 } );
 
 test( 'website threshold still rejects missing button text', async () => {
@@ -68,7 +70,7 @@ test( 'website threshold still rejects missing button text', async () => {
 			}
 		}
 	} );
-	await expect( compareScreenshot( actual, snapshot, WebsiteScreenshotOptions ) ).rejects.toThrow();
+	await expect( compareScreenshot( actual, snapshot, ScreenshotColorOptions ) ).rejects.toThrow();
 } );
 
 test( 'website threshold still rejects changed image dimensions', async () => {
@@ -76,7 +78,7 @@ test( 'website threshold still rejects changed image dimensions', async () => {
 		image.height--;
 		image.data = image.data.subarray( 0, image.width * image.height * 4 );
 	} );
-	await expect( compareScreenshot( actual, snapshot, WebsiteScreenshotOptions ) ).rejects.toThrow();
+	await expect( compareScreenshot( actual, snapshot, ScreenshotColorOptions ) ).rejects.toThrow();
 } );
 
 test( 'website threshold still rejects a visibly transparent button', async () => {
@@ -87,10 +89,35 @@ test( 'website threshold still rejects a visibly transparent button', async () =
 			}
 		}
 	} );
-	await expect( compareScreenshot( actual, snapshot, WebsiteScreenshotOptions ) ).rejects.toThrow();
+	await expect( compareScreenshot( actual, snapshot, ScreenshotColorOptions ) ).rejects.toThrow();
 } );
 
-test( 'extension comparisons retain their existing strict edge policy', async () => {
-	await expect( compareScreenshot( recordedRasterVariant(), snapshot, { allowEdgeRasterization: true } ) )
-		.rejects.toThrow();
+test( 'extension threshold accepts the recorded CI alert-corner color variance', async () => {
+	const actual = changedScreenshot( ( image ) => {
+		for ( const [ x, y, red, green, blue ] of [
+			[ 757, 78, 192, 135, 128 ], [ 758, 78, 148, 104, 99 ],
+			[ 759, 78, 98, 73, 69 ], [ 758, 79, 154, 98, 94 ],
+			[ 759, 79, 189, 127, 121 ], [ 766, 85, 190, 131, 124 ],
+			[ 767, 85, 44, 35, 34 ], [ 767, 86, 96, 71, 68 ],
+			[ 766, 87, 156, 99, 95 ], [ 766, 88, 119, 70, 68 ],
+		] as const ) {
+			image.data.set( [ red, green, blue, 255 ], ( y * image.width + x ) * 4 );
+		}
+	}, extensionSnapshot );
+	await compareScreenshot( actual, extensionSnapshot, ScreenshotColorOptions );
+} );
+
+test( 'extension threshold still rejects a changed alert fill', async () => {
+	const actual = changedScreenshot( ( image ) => {
+		for ( let y = 90; y < 100; y++ ) {
+			for ( let x = 90; x < 100; x++ ) {
+				image.data.set( [ 120, 70, 65, 255 ], ( y * image.width + x ) * 4 );
+			}
+		}
+	}, extensionSnapshot );
+	await expect( compareScreenshot( actual, extensionSnapshot, ScreenshotColorOptions ) ).rejects.toThrow();
+} );
+
+test( 'comparisons without the approved threshold remain exact', async () => {
+	await expect( compareScreenshot( recordedRasterVariant(), snapshot ) ).rejects.toThrow();
 } );

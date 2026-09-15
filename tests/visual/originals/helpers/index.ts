@@ -5,7 +5,7 @@ import { expect, test } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
 import inventory from '../inventory.json' with { type: 'json' };
 import type { OriginalCaptureOptions, OriginalCase, OriginalClip, OriginalSnapshot } from './types';
-import { compareScreenshot } from '../../helpers/compare-screenshot';
+import { compareScreenshot, ScreenshotColorOptions } from '../../helpers/compare-screenshot';
 import { hasFocusedTextCaret } from './focused-text-caret';
 
 /**
@@ -74,7 +74,7 @@ export function encloseOriginalClip( clip: OriginalClip ): OriginalClip {
 }
 
 /**
- * Compares original framing with the approved bounded RGB edge allowance and preserves raw diagnostics.
+ * Compares original framing with the approved library color threshold and preserves raw diagnostics.
  * @param page - Real browser page after original scenario inputs settle.
  * @param path - Exact original screenshot path, including its PNG filename.
  * @param target - Original component capture target; omit for a viewport screenshot.
@@ -97,7 +97,7 @@ export async function compareOriginal(
 		const actual = target
 			? await target.screenshot( { caret } )
 			: await page.screenshot( { ...captureOptions, caret } );
-		await compareScreenshot( actual, path.split( '/' ), { allowEdgeRasterization: true } );
+		await compareScreenshot( actual, path.split( '/' ), ScreenshotColorOptions );
 	} finally {
 		verifyOriginal( path );
 	}
