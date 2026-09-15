@@ -25,11 +25,11 @@
   },
   {
     "path": "apps/extension/src/features/interruption/components/screen/__snapshots__/chromium/interruption-screen-waiting-dark.png",
-    "sha256": "93a8ede6ab6887603200a9f1fc61ccbc05360cd47a221e9ece93e41b9f7b5a71"
+    "sha256": "a046968d5252e6ef868e05bdfefb7173bdca49c1db11dcd88d8b2312a75d48b5"
   },
   {
     "path": "apps/extension/src/features/interruption/components/screen/__snapshots__/chromium/interruption-screen-waiting-light.png",
-    "sha256": "69195418770a6e2e3ce7e332105da8212882c179a2cea0ba046d616b61a62e85"
+    "sha256": "24338770987709fcfb0ad567f38f63dfdc0e4366e43d47047cab934a472cf78a"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/appearance-step/__snapshots__/chromium/onboarding-appearance-step-brown-light.png",
