@@ -48,16 +48,21 @@ export function createLocalDataResetController( options: LocalDataResetControlle
 
 	/**
 	 * Performs one confirmed reset even when an earlier onboarding launch failed.
+	 * @param settingsTabId - Browser-authenticated first requester tab when available.
 	 * @return Whether the requested operation completed successfully.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	async function reset(): Promise<boolean> {
+	async function reset( settingsTabId: number | undefined ): Promise<boolean> {
 		try {
 			await startup;
 			if ( ! await options.reset.reset() ) {
 				return false;
 			}
-			return await finish();
+			await finish();
+			if ( settingsTabId !== undefined ) {
+				await options.closeSettingsTab( settingsTabId );
+			}
+			return true;
 		} catch {
 			return false;
 		}
@@ -76,7 +81,7 @@ export function createLocalDataResetController( options: LocalDataResetControlle
 			sender.url?.split( '#' )[ 0 ] !== options.optionsPageUrl || ! ResetAllDataRequestSchema.safeParse( input ).success ) {
 			return undefined;
 		}
-		pendingReset ??= reset().finally( () => {
+		pendingReset ??= reset( sender.tab?.id ).finally( () => {
 			pendingReset = null;
 		} );
 		void pendingReset.then( ( result ) => {

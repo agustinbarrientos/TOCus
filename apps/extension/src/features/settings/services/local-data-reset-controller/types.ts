@@ -39,6 +39,13 @@ export interface LocalDataResetControllerOptions {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	openOnboarding(): Promise<void>;
+	/**
+	 * Closes the originating tab when it still displays settings, tolerating browser failures.
+	 * @param tabId - Browser-authenticated originating settings tab identifier.
+	 * @return Completion of the best-effort settings tab handoff.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	closeSettingsTab( tabId: number ): Promise<void>;
 }
 
 /**
