@@ -1,4 +1,5 @@
 import type { Messages } from '@lingui/core';
+import type { InterruptionScreenCopy } from '../../../../extension/src/features/interruption/components/screen/types';
 
 /**
  * Translated labels for the five scenes of the product story.
@@ -24,6 +25,19 @@ export interface ProductDemoProps {
 	chapter?: DemoChapter;
 	/** Reversible progress within the active chapter, from zero to one. */
 	progress?: number;
+}
+
+/**
+ * One mounted product scene whose intrinsic size remains part of the browser layout.
+ * @since 0.1.0
+ */
+export interface ProductDemoSceneProps extends ProductDemoCopy {
+	chapter: DemoChapter;
+	active: boolean;
+	progress: number;
+	reducedMotion: boolean;
+	localized: Readonly<InterruptionScreenCopy>;
+	onContinue: () => void;
 }
 
 /**

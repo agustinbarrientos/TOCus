@@ -35,7 +35,9 @@ export function BrowserChrome( { title, address }: BrowserChromeProps ) {
 			<span><BrowserChromeIcon path={ BrowserChromeIconPath.BACK } /></span>
 			<span><BrowserChromeIcon path={ BrowserChromeIconPath.FORWARD } /></span>
 			<span><BrowserChromeIcon path={ BrowserChromeIconPath.RELOAD } /></span>
-			<span className="product-demo-address">{ address }</span>
+			<span className="product-demo-address">
+				<span className="product-demo-address-label" key={ address }>{ address }</span>
+			</span>
 			<span><BrowserChromeIcon path={ BrowserChromeIconPath.MORE } /></span>
 		</div>
 	</div>;

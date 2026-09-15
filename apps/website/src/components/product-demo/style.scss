@@ -7,6 +7,8 @@
 	text-align: left;
 }
 
+.product-demo { container: product-demo / inline-size; }
+
 .product-demo-browser {
 	min-width: 0;
 	overflow: hidden;
@@ -79,10 +81,14 @@
 	background: #faf8f5;
 }
 
+.product-demo-address-label { display: inline-block; }
+
 .product-demo-stage {
 	position: relative;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
 	width: 100%;
-	aspect-ratio: 16 / 10;
+	min-height: max(20rem, 56.25cqw);
 	container-type: inline-size;
 	background-color: var(--tocus-color-stage-middle);
 	background-image: linear-gradient(145deg, var(--tocus-color-stage-start),
@@ -94,21 +100,22 @@
 .product-demo-choose,
 .product-demo-pause,
 .product-demo-youtube {
-	position: absolute;
-	inset: 0;
+	position: relative;
+	grid-area: 1 / 1;
+	min-width: 0;
 	padding: clamp(0.85rem, 3cqw, 1.6rem);
-	animation: product-scene-enter 220ms ease-out both;
 }
 
-@keyframes product-scene-enter {
-	from { opacity: 0; }
-	to { opacity: 1; }
+[data-demo-chapter][aria-hidden='true'] {
+	visibility: hidden;
+	pointer-events: none;
 }
 
 .product-demo-stage-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	flex-wrap: wrap;
 	gap: 1rem;
 	width: 100%;
 }
@@ -129,8 +136,8 @@
 	display: grid;
 	flex: 1;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
+	grid-template-rows: repeat(2, minmax(5.25rem, 1fr));
 	gap: 2cqw;
-	min-height: 0;
 	margin: 0;
 	padding: 0;
 	list-style: none;
@@ -142,13 +149,19 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: 0.55rem;
+	gap: clamp(0.3rem, 1cqw, 0.55rem);
 	min-width: 0;
+	padding: 0.65rem 0.35rem;
 	border: 1px solid var(--tocus-color-glass-border);
 	border-radius: 0.85rem;
 	background: var(--tocus-color-glass-surface);
 
-	strong { @include typography.apply('label-large'); }
+	strong {
+		@include typography.apply('label-large');
+
+		max-width: 100%;
+		overflow-wrap: anywhere;
+	}
 
 	img {
 		width: clamp(1.4rem, 5cqw, 2.25rem);
@@ -172,21 +185,34 @@
 	color: var(--tocus-color-action);
 }
 
+.product-demo .product-demo-site-check .tocus-icon {
+	width: 100%;
+	height: 100%;
+}
+
 .product-demo-pause {
 	display: grid;
-	grid-template-rows: auto auto minmax(0, 1fr) auto;
+	grid-template-columns: minmax(0, 1fr);
+	grid-template-rows: auto auto minmax(6rem, 1fr) auto;
 	justify-items: center;
 }
 
 .product-demo-phase {
 	@include typography.apply('headline-medium');
 
+	display: grid;
 	margin: 0;
 	padding-top: 2cqw;
+	max-width: 100%;
+	overflow-wrap: anywhere;
+
+	> span { grid-area: 1 / 1; }
+	> [aria-hidden='true'] { visibility: hidden; }
 }
 
 .product-demo-sphere {
 	display: block;
+	contain: size;
 	width: 100%;
 	min-height: 0;
 	height: 100%;
@@ -202,13 +228,18 @@
 	@include typography.apply('body-small');
 
 	max-width: 65%;
+	min-width: 0;
 	margin: 0;
+	overflow-wrap: anywhere;
 	color: var(--tocus-color-on-stage-muted);
 	font-variant-numeric: tabular-nums;
 	text-align: right;
 }
 
-.product-demo-continue { min-width: 10rem; }
+.product-demo-continue {
+	min-width: min(10rem, 100%);
+	max-width: 100%;
+}
 
 .product-demo-youtube {
 	display: grid;
@@ -221,6 +252,7 @@
 
 .product-demo-youtube-header {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	justify-content: space-between;
 	gap: 1rem;
@@ -423,6 +455,7 @@
 	display: flex;
 	align-items: center;
 	gap: 0.45rem;
+	max-width: 100%;
 	padding: 0.45rem 0.6rem;
 	border: 1px solid #d8cabe;
 	border-radius: 2rem;
@@ -438,14 +471,7 @@
 	}
 }
 
-@media (width >= 64rem) and (height <= 42rem), (width >= 40rem) and (height <= 40rem) {
-	.product-demo-stage {
-		aspect-ratio: 16 / 9;
-		max-height: calc(100svh - 8rem);
-	}
-}
-
-@media (width <= 40rem) {
+@container product-demo (width <= 40rem) {
 	.product-demo-browser { border-radius: 0.9rem; }
 	.product-demo-browser-tabs { min-height: 1.9rem; }
 
@@ -456,12 +482,20 @@
 	}
 	.product-demo-address-row { padding-block: 0.3rem; }
 
-	.product-demo-stage {
-		aspect-ratio: 4 / 5;
-		max-height: calc(100svh - 22rem);
-	}
 	.product-demo-choose { gap: 0.65rem; }
-	.product-demo-choose h3 { @include typography.apply('title-medium'); }
+	.product-demo-choose h3 { @include typography.apply('title-large'); }
+
+	.product-demo-stage-header .tocus-brand {
+		@include typography.apply('title-large');
+
+		gap: 0.5rem;
+	}
+
+	.product-demo-stage-header .tocus-brand-icon,
+	.product-demo-stage-header .tocus-brand-icon svg {
+		width: 1.6rem;
+		height: 1.6rem;
+	}
 
 	.product-demo-site-option {
 		gap: 0.2rem;
@@ -500,15 +534,74 @@
 
 		margin-left: 0.15rem;
 	}
-	.product-demo-time-left > svg { display: none; }
 	.product-demo-video-caption { min-height: 0.8rem; }
 	.product-demo-video-caption > span { width: 0.7rem; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-	.product-demo-choose,
-	.product-demo-pause,
-	.product-demo-youtube {
+@container product-demo (width <= 28rem) {
+	.product-demo-stage { min-height: max(20rem, 125cqw); }
+	.product-demo-choose h3 { @include typography.apply('title-medium'); }
+	.product-demo-site-options { grid-template-rows: repeat(2, minmax(4.75rem, 1fr)); }
+	.product-demo-site-option { padding-block: 0.5rem; }
+	.product-demo-stage-header { gap: 0.5rem; }
+	.product-demo-youtube-header { gap: 0.65rem; }
+	.product-demo-time-left { margin-left: auto; }
+}
+
+@keyframes product-demo-enter {
+	from {
+		opacity: 0;
+		transform: translateY(6px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes product-demo-check {
+	from {
+		opacity: 0;
+		transform: scale(0.75);
+	}
+
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.product-demo-address-label,
+	.product-demo-choose > h3,
+	.product-demo-pause > .product-demo-phase,
+	.product-demo-pause > .product-demo-sphere,
+	.product-demo-youtube > .product-demo-video-grid,
+	.product-demo-time-left {
+		animation: product-demo-enter 260ms ease-out both;
+	}
+
+	.product-demo-site-option {
+		animation: product-demo-enter 260ms ease-out both;
+		transition: border-color 180ms ease-out, background-color 180ms ease-out;
+
+		@for $index from 1 through 6 {
+			&:nth-child(#{ $index }) { animation-delay: ($index - 1) * 35ms; }
+		}
+	}
+
+	.product-demo-site-check .tocus-icon { animation: product-demo-check 180ms ease-out both; }
+	.product-demo-ready .product-demo-continue { animation: product-demo-enter 220ms ease-out both; }
+	.product-demo-time-left { animation-delay: 100ms; }
+
+	.product-demo[data-reduced-motion='true'] * {
 		animation: none;
+		transition: none;
+	}
+
+	[data-demo-chapter][aria-hidden='true'] * {
+		animation: none;
+		transition: none;
 	}
 }
