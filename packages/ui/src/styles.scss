@@ -194,12 +194,15 @@
 	}
 
 	.mantine-Avatar-placeholder {
-		background: transparent;
+		background: var(--tocus-color-surface-container);
 		color: var(--tocus-color-on-surface);
 	}
 
 	// Native website marks did not establish a positioned painting context; image and fallback slots remain installed.
-	.tocus-native-avatar.mantine-Avatar-root { position: static; }
+	.tocus-native-avatar.mantine-Avatar-root {
+		position: static;
+		&:has(.mantine-Avatar-image) { border-radius: 0; }
+	}
 
 	// Text-only native actions preserve their original flat paint structure without disturbing section or loader layout.
 	.tocus-native-button.mantine-Button-root:not([data-loading], :has(.mantine-Button-section)) {

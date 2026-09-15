@@ -45,7 +45,7 @@ test.describe( 'shared controls', () => {
 			expect( metrics.opacity ).toBe( '0.5' );
 		}
 	} );
-	test( 'leaves transparent website artwork without an added avatar surface', async ( { page } ) => {
+	test( 'leaves website artwork without an added surface or rounded clipping', async ( { page } ) => {
 		await page.goto( url );
 		const icon = page.getByRole( 'img', { name: 'Website icon', exact: true } );
 		await expect( icon ).toBeVisible();
@@ -53,6 +53,24 @@ test.describe( 'shared controls', () => {
 			const avatar = element.closest( '.mantine-Avatar-root' );
 			return avatar && getComputedStyle( avatar ).backgroundColor;
 		} ) ).toBe( 'rgba(0, 0, 0, 0)' );
+		await expect( icon ).toHaveCSS( 'background-color', 'rgba(0, 0, 0, 0)' );
+		await expect( icon ).toHaveCSS( 'border-radius', '0px' );
+		expect( await icon.evaluate( ( element ) => {
+			const avatar = element.closest( '.mantine-Avatar-root' );
+			return avatar && getComputedStyle( avatar ).borderRadius;
+		} ) ).toBe( '0px' );
+	} );
+	test( 'gives missing and unavailable avatar initials a readable fallback surface', async ( { page } ) => {
+		await page.goto( url );
+		for ( const name of [ 'Native initials', 'Default initials', 'Unavailable website icon' ] ) {
+			const avatar = page.getByRole( 'img', { name, exact: true } );
+			const placeholder = avatar.locator( '.mantine-Avatar-placeholder' );
+			await expect( placeholder ).toHaveText( 'TC' );
+			await expect( avatar ).toHaveCSS( 'background-color', 'rgba(0, 0, 0, 0)' );
+			await expect.soft( placeholder ).not.toHaveCSS( 'background-color', 'rgba(0, 0, 0, 0)' );
+			await expect( avatar ).not.toHaveCSS( 'border-radius', '0px' );
+			await expect( placeholder ).not.toHaveCSS( 'border-radius', '0px' );
+		}
 	} );
 	test( 'renders the supplied native select arrow without losing keyboard selection or field geometry', async ( { page } ) => {
 		await page.goto( url );
