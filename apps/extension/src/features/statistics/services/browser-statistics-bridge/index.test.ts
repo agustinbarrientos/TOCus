@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { LocalDateSchema } from '../../../../domains/protection/types/protection-value';
 import {
 	ProtectionCoordinatorInitializationStatus,
 	type ProtectionCoordinator,
@@ -55,6 +56,7 @@ const EXAMPLE_CONFIGURATION = ProtectionConfigurationDocumentSchema.parse( {
  */
 const AVAILABLE_PROJECTION: StatisticsProjection = {
 	status: StatisticsProjectionStatus.AVAILABLE,
+	currentDate: LocalDateSchema.parse( '2026-09-14' ),
 	dailyTotals: [],
 	estimatedReclaimedMilliseconds: 120_000,
 	focusedPauseMilliseconds: 8_000,

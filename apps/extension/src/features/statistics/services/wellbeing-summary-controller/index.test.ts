@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { LocalDateSchema } from '../../../../domains/protection/types/protection-value';
 import {
 	StatisticsProjectionStatus,
 	type StatisticsProjection,
@@ -82,6 +83,7 @@ function createProjection(
 ): StatisticsProjection {
 	return {
 		status: StatisticsProjectionStatus.AVAILABLE,
+		currentDate: LocalDateSchema.parse( '2026-09-14' ),
 		dailyTotals: [],
 		estimatedReclaimedMilliseconds,
 		focusedPauseMilliseconds,

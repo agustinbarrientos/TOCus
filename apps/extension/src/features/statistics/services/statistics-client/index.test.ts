@@ -64,6 +64,7 @@ class MemoryStorageChangeSource {
  */
 const AVAILABLE_STATISTICS_PROJECTION = Object.freeze( {
 	status: StatisticsProjectionStatus.AVAILABLE,
+	currentDate: '2026-09-14',
 	dailyTotals: [],
 	estimatedReclaimedMilliseconds: 1_200_000,
 	focusedPauseMilliseconds: 42_000,
