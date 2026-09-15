@@ -3,7 +3,7 @@ import { PNG } from 'pngjs';
 import { expect, test } from '@playwright/test';
 import { compareScreenshot, WebsiteScreenshotOptions } from './index';
 
-const snapshot = 'website-english-desktop.png';
+const snapshot = 'apps/website/src/components/home-page/__snapshots__/chromium/website-english-desktop.png'.split( '/' );
 
 /**
  * Creates a changed actual image in memory without updating the reviewed reference.
@@ -11,7 +11,7 @@ const snapshot = 'website-english-desktop.png';
  * @return Encoded actual image passed through the real snapshot assertion.
  */
 function changedScreenshot( change: ( image: PNG ) => void ): Buffer {
-	const image = PNG.sync.read( readFileSync( test.info().snapshotPath( snapshot ) ) );
+	const image = PNG.sync.read( readFileSync( test.info().snapshotPath( ...snapshot ) ) );
 	change( image );
 	return PNG.sync.write( image );
 }
