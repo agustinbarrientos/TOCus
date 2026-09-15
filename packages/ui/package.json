@@ -9,10 +9,10 @@
 	"exports": {
 		".": "./src/index.ts",
 		"./types": "./src/types.ts",
-		"./styles": "./src/styles.scss",
-		"./styles.scss": "./src/styles.scss",
-		"./charts.scss": "./src/charts.scss",
-		"./notifications.scss": "./src/notifications.scss"
+		"./styles": "./src/components/provider/style.scss",
+		"./styles.scss": "./src/components/provider/style.scss",
+		"./charts.scss": "./src/components/provider/charts.scss",
+		"./notifications.scss": "./src/components/snackbar/style.scss"
 	},
 	"dependencies": {
 		"@mantine/charts": "9.6.0",
