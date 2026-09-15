@@ -13,17 +13,15 @@ import {
 	resolveSiteDisplayIdentity,
 } from '../../utils/site-display-name-resolver';
 import {
-	WebsiteDetails,
-} from '../website-details';
+	WebsiteEditor,
+} from '../website-editor';
 import type {
 	WebsiteItemProps,
 } from './types';
 import './style.scss';
-import { Feedback } from '../../../settings/components/feedback';
 import { ProtectedSiteItemOperationErrorReason } from './types';
-import { useState, type SubmitEvent } from 'react';
 import { createWebsiteDetails } from '../../utils/website-draft';
-import { fromSchedule, toSchedule } from '../../../settings/utils/schedule-draft';
+import { fromSchedule } from '../../../settings/utils/schedule-draft';
 import { ScheduleMode } from '../../../../domains/protection/types/protection-schedule';
 
 
@@ -35,35 +33,15 @@ import { ScheduleMode } from '../../../../domains/protection/types/protection-sc
  */
 export function WebsiteItem( props: WebsiteItemProps ) {
 	const { site, copy, disabled } = props;
-	const [ validate, setValidate ] = useState( false );
 	const details = props.persistedEditing?.state.details ?? props.details ?? createWebsiteDetails( site );
 	const identity = resolveSiteDisplayIdentity( { ...site,
 		displayNameOverride: details.displayName.trim() || undefined } );
+	const automaticIdentity = resolveSiteDisplayIdentity( { ...site, displayNameOverride: undefined } );
 	const activeSchedule = details.schedule ?? fromSchedule( props.globalSchedule );
 	const summary = activeSchedule.mode === ScheduleMode.ALWAYS ? props.scheduleCopy.alwaysLabel
 		: activeSchedule.windows.map( ( window ) =>
 			`${ props.scheduleCopy.formatWeekday( window.weekday ) } ${ window.start } - ${ window.fullDay ? '24:00' : window.end }` ).join( ' / ' );
 	const error = props.persistedEditing?.state.error;
-	/**
-	 * Completes the current editor through its existing owner without duplicating persistence.
-	 * @param event - Native form submission from Enter or the primary action.
-	 */
-	function submitEditor( event: SubmitEvent<HTMLFormElement> ): void {
-		event.preventDefault();
-		if ( disabled ) {
-			return;
-		}
-		setValidate( true );
-		try {
-			if ( details.schedule !== null ) {
-				toSchedule( details.schedule );
-			}
-		} catch {
-			return;
-		}
-		const submit = props.persistedEditing?.save ?? props.onDone ?? props.onEdit;
-		submit();
-	}
 	return (
 		<li className="settings-site-item">
 			<Stack gap={ 0 }>
@@ -75,12 +53,12 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 					<div className="settings-site-identity">
 						<h2>{ identity.name }</h2>
 						<p>{ site.rule.host }</p>
-						{ details.schedule !== null && <p className="settings-site-schedule"><Icon name={ IconName.CALENDAR } />{ summary }</p> }
+						{ details.schedule !== null && <p className="settings-site-schedule"><Icon name={ IconName.CALENDAR } /><span>{ summary }</span></p> }
 					</div>
 					<Group className="settings-site-actions" wrap="nowrap" gap="var(--tocus-space-1)">
 						<Tooltip label={ copy.removeSite }
 							events={ { hover: true, focus: true, touch: true } } withArrow>
-							<ActionIcon className="settings-site-remove" variant="subtle" aria-label={ copy.removeSite }
+							<ActionIcon className="settings-site-remove" color="red" variant="subtle" aria-label={ copy.removeSite }
 								disabled={ disabled } onClick={ props.onRemove }>
 								<Icon name={ IconName.TRASH } />
 							</ActionIcon>
@@ -105,22 +83,18 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 						</Group>
 					</div>
 				</Alert> }
-				{ props.editing && <form className="settings-site-editor" onSubmit={ submitEditor }>
-					<WebsiteDetails idPrefix={ `site-${ site.identityHost }` } copy={ copy } scheduleCopy={ props.scheduleCopy }
-						value={ details } disabled={ disabled } validate={ validate || props.validate === true }
-						showName onChange={ props.onChange } />
-					{ error && <Feedback nativeError
-						error={ error === ProtectedSiteItemOperationErrorReason.CONFIGURATION_CHANGED
-							? copy.configurationChangedError : copy.operationError } />
-					}
-					<Group className="tocus-form-actions settings-site-editor-footer" justify="flex-end" gap="var(--tocus-space-2)">
-						{ props.persistedEditing && <Button className="tocus-native-button" variant="outline" disabled={ disabled }
-							onClick={ props.persistedEditing.cancel }>{ copy.cancel }</Button> }
-						<Button className="tocus-native-button" type="submit" disabled={ disabled }>
-							{ props.persistedEditing ? copy.saveChanges : copy.done }
-						</Button>
-					</Group>
-				</form> }
+				<WebsiteEditor opened={ props.editing } idPrefix={ `site-${ site.identityHost }` } name={ identity.name }
+					automaticName={ automaticIdentity.name }
+					value={ details } copy={ copy } scheduleCopy={ props.scheduleCopy } disabled={ disabled }
+					error={ error ? error === ProtectedSiteItemOperationErrorReason.CONFIGURATION_CHANGED
+						? copy.configurationChangedError : copy.operationError : null }
+					submitLabel={ props.persistedEditing ? copy.saveChanges : copy.done }
+					onCancel={ props.persistedEditing?.cancel ?? props.onDone ?? props.onEdit }
+					onSubmit={ ( nextDetails ) => {
+						props.onChange( nextDetails );
+						const submit = props.persistedEditing?.save ?? props.onDone ?? props.onEdit;
+						submit();
+					} } />
 			</Stack>
 		</li>
 	);

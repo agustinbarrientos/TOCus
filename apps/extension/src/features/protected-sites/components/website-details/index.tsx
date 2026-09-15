@@ -14,7 +14,7 @@ export function WebsiteDetails( props: WebsiteDetailsProps ) {
 	const { copy, value } = props;
 	return <Stack className="settings-website-details" gap="var(--tocus-space-4)">
 		{ props.showName && <TextInput id={ `${ props.idPrefix }-name` } label={ copy.displayNameLabel }
-			autoFocus placeholder={ copy.automaticNamePlaceholder } value={ value.displayName } maxLength={ 80 }
+			data-autofocus placeholder={ props.namePlaceholder } value={ value.displayName } maxLength={ 80 }
 			disabled={ props.disabled } onChange={ ( event ) => {
 				props.onChange( { ...value, displayName: event.currentTarget.value } );
 			} } /> }

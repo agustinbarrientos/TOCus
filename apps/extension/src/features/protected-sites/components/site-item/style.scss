@@ -20,29 +20,10 @@
 
 .settings-site-monogram { @include typography.apply('title-medium'); }
 
-.settings-site-editor {
-	display: block;
-	margin-top: var(--tocus-space-5);
-	padding-top: var(--tocus-space-5);
-	> label { @include typography.apply('label-large'); display: block; }
+[data-tocus-ui] .settings-site-actions .tocus-icon {
+	width: 1.2em;
+	height: 1.2em;
 }
-
-.settings-site-access + .settings-site-editor {
-	margin-top: 0;
-	padding-top: 0;
-}
-
-.settings-site-name-control {
-	gap: var(--tocus-space-3);
-	margin-top: var(--tocus-space-2);
-
-	> :first-child {
-		flex: 1;
-		min-width: 0;
-	}
-}
-
-.settings-site-editor-footer { --tocus-form-actions-padding-before: var(--tocus-space-5); }
 
 @media (width <= 38rem) {
 	.settings-site-row {
@@ -54,20 +35,15 @@
 			grid-column: 3;
 		}
 	}
-
-	.settings-site-name-control, .settings-site-editor-footer {
-		align-items: stretch;
-		flex-direction: column;
-	}
 }
 
-[data-tocus-ui] .settings-page .settings-site-schedule {
+[data-tocus-ui] .settings-page .settings-site-identity .settings-site-schedule {
 	display: flex;
-	align-items: baseline;
+	align-items: center;
 	gap: var(--tocus-space-2);
 	margin-top: var(--tocus-space-2);
 
-	svg {
+	.tocus-icon {
 		width: 1rem;
 		height: 1rem;
 		flex-shrink: 0;

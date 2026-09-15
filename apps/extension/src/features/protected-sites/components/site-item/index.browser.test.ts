@@ -29,12 +29,10 @@ test.describe( 'protected site item access recovery', () => {
 			.toBeLessThanOrEqual( 2 );
 		expect( desktopButton.x + desktopButton.width ).toBeLessThanOrEqual( desktopAlert.x + desktopAlert.width );
 		await page.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).click();
-		const editor = page.locator( '.settings-site-item .settings-website-details' );
-		const [ accessBox, editorBox ] = await Promise.all( [ alert.boundingBox(), editor.boundingBox() ] );
-		if ( ! accessBox || ! editorBox ) {
-			throw new TypeError( 'The access recovery alert and editor fields must remain visible together.' );
-		}
-		expect( editorBox.y - ( accessBox.y + accessBox.height ) ).toBe( 24 );
+		const editor = page.getByRole( 'dialog' );
+		await expect( editor.getByLabel( 'Name', { exact: true } ) ).toBeVisible();
+		await editor.getByRole( 'button', { name: 'Cancel', exact: true } ).click();
+		await expect( editor ).toHaveCount( 0 );
 
 		await page.setViewportSize( { width: 320, height: 844 } );
 		const [ narrowAlert, narrowMessage, narrowButton ] = await Promise.all( [

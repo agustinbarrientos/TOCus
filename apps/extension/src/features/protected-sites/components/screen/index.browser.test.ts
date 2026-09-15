@@ -130,14 +130,14 @@ test.describe( 'website draft controls', () => {
 			expect( await page.evaluate( () => window.settingsTest.getConfiguration().sites ) ).toEqual( [] );
 		} );
 
-	test( 'finishes the inline draft with Enter without persisting the page', async ( { open } ) => {
+	test( 'finishes the dialog draft with Enter without persisting the page', async ( { open } ) => {
 		test.setTimeout( 20000 );
 		const page = await open( SettingsDestination.PROTECTED_SITES );
 		await page.getByLabel( 'Website address', { exact: true } ).fill( 'example.com' );
 		await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
 		const row = page.locator( '.settings-site-list > li' ).first();
 		await row.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).click();
-		const displayName = row.getByLabel( 'Name', { exact: true } );
+		const displayName = page.getByRole( 'dialog' ).getByLabel( 'Name', { exact: true } );
 		await expect( displayName ).toBeFocused();
 		await expect( row.getByRole( 'button', { name: 'Advanced', exact: true } ) ).toHaveCount( 0 );
 		expect( await page.locator( '.settings-site-form' ).evaluate( ( element ) =>
@@ -149,7 +149,7 @@ test.describe( 'website draft controls', () => {
 		expect( await page.evaluate( () => window.settingsTest.getConfiguration().sites ) ).toEqual( [] );
 	} );
 
-	test( 'saves inline naming and active hours atomically, restores automatic naming, and confirms removal',
+	test( 'saves dialog naming and active hours atomically, restores automatic naming, and confirms removal',
 		async ( { open } ) => {
 			const page = await open( SettingsDestination.PROTECTED_SITES );
 			await page.getByLabel( 'Website address', { exact: true } ).fill( 'example.com' );
@@ -157,15 +157,17 @@ test.describe( 'website draft controls', () => {
 			const row = page.locator( '.settings-site-list > li' ).first();
 			await expect( row.locator( '.settings-site-schedule' ) ).toHaveCount( 0 );
 			await row.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).click();
-			await row.getByLabel( 'Name', { exact: true } ).fill( 'Reading' );
-			await row.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ).click();
-			await expect( row.getByLabel( 'Start', { exact: true } ) ).toBeVisible();
-			await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
-			await expect( row.getByLabel( 'Start', { exact: true } ) ).toHaveAttribute( 'aria-invalid', 'true' );
+			const dialog = page.getByRole( 'dialog' );
+			await dialog.getByLabel( 'Name', { exact: true } ).fill( 'Reading' );
+			await dialog.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ).click();
+			await expect( dialog.getByLabel( 'Start', { exact: true } ) ).toBeVisible();
+			await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
+			await expect( dialog.getByLabel( 'Start', { exact: true } ) ).toHaveAttribute( 'aria-invalid', 'true' );
 			expect( await page.evaluate( () => window.settingsTest.controls.requests ) ).toBe( 0 );
 			expect( await page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 0 );
-			await row.getByLabel( 'Start', { exact: true } ).fill( '09:00' );
-			await row.getByLabel( 'End', { exact: true } ).fill( '17:00' );
+			await dialog.getByLabel( 'Start', { exact: true } ).fill( '09:00' );
+			await dialog.getByLabel( 'End', { exact: true } ).fill( '17:00' );
+			await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
 			await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
 			await page.getByText( 'Website changes saved.', { exact: true } ).waitFor();
 			const site = await page.evaluate( () => window.settingsTest.getConfiguration().sites[ 0 ] );
@@ -174,8 +176,9 @@ test.describe( 'website draft controls', () => {
 			expect( site?.schedule ).toMatchObject( { mode: ScheduleMode.CUSTOM } );
 			expect( await page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
 			await row.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).click();
-			await row.getByLabel( 'Name', { exact: true } ).fill( '' );
-			await row.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ).click();
+			await dialog.getByLabel( 'Name', { exact: true } ).fill( '' );
+			await dialog.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ).click();
+			await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
 			await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
 			await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 2 );
 			expect( await page.evaluate( () =>
