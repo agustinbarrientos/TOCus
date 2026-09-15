@@ -141,11 +141,11 @@
   },
   {
     "path": "apps/extension/src/features/preferences/components/appearance-controls/__snapshots__/chromium/appearance-controls-brown-light.png",
-    "sha256": "7fe30b27dc5b3af951c07da304efc40cde3b17ef6de12982f267facb55567072"
+    "sha256": "42a7d77b056d2cdd18de114bc93bac6667501779895ebc1800aff80f41dac607"
   },
   {
     "path": "apps/extension/src/features/preferences/components/appearance-controls/__snapshots__/chromium/appearance-controls-purple-dark-narrow.png",
-    "sha256": "d2e0102f9249823d72857c8b4f8e8cd04ee9d9652b5f3055f2610ee1d2e79163"
+    "sha256": "71fef902ebdae1562ecb0c51570bb824d18d7d7e8edc8b24177d1dc2bb20cdbe"
   },
   {
     "path": "apps/extension/src/features/protected-sites/components/site-item/__snapshots__/chromium/protected-site-item-access-required-dark.png",
