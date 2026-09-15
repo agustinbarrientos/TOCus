@@ -442,6 +442,12 @@ test.describe( 'packaged Chrome protection', () => {
 				] );
 				await expect( onboarding ).toHaveURL( new URL( '/onboarding.html', optionsUrl ).href );
 				await expect( onboarding.getByText( 'TOCus', { exact: true } ).first() ).toBeVisible();
+				const confirmation = onboarding.getByRole( 'status' ).filter( { hasText: 'All TOCus data reset.' } );
+				await expect( confirmation ).toBeVisible();
+				await confirmation.getByRole( 'button', { name: 'Dismiss notification', exact: true } ).click();
+				await onboarding.reload();
+				await expect( onboarding.getByText( 'TOCus', { exact: true } ).first() ).toBeVisible();
+				await expect( onboarding.locator( '.tocus-snackbar' ) ).toHaveCount( 0 );
 				expect( settings.isClosed() ).toBe( true );
 				await expect( secondSettings ).toHaveURL( optionsUrl );
 				await expect( secondSettings.getByRole( 'button', { name: 'Reset all TOCus data', exact: true } ) ).toBeEnabled();
