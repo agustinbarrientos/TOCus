@@ -75,11 +75,10 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 		await restartedRuntime.drainProtectionFacts();
 
 		expect( restartedRuntime.getSnapshot().projection ).toMatchObject( {
+			currentDate: '2026-09-16',
 			estimatedReclaimedMilliseconds: 120_000,
 			dailyTotals: [
 				{ date: '2026-09-14', estimatedReclaimedMilliseconds: 120_000 },
-				{ date: '2026-09-15', estimatedReclaimedMilliseconds: 0 },
-				{ date: '2026-09-16', estimatedReclaimedMilliseconds: 0 },
 			],
 		} );
 		expect( harness.storage.savedDocuments.at( -1 )?.dailyTotals ).toEqual( [
@@ -111,12 +110,11 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 		await runtime.drainProtectionFacts();
 
 		expect( runtime.getSnapshot().projection ).toMatchObject( {
+			currentDate: '2026-09-16',
 			estimatedReclaimedMilliseconds: 420_000,
 			dailyTotals: [
 				{ date: '2026-09-13', estimatedReclaimedMilliseconds: 120_000 },
 				{ date: '2026-09-14', estimatedReclaimedMilliseconds: 300_000 },
-				{ date: '2026-09-15', estimatedReclaimedMilliseconds: 0 },
-				{ date: '2026-09-16', estimatedReclaimedMilliseconds: 0 },
 			],
 		} );
 		expect( harness.storage.savedDocuments.at( -1 )?.dailyTotals ).toHaveLength( 2 );

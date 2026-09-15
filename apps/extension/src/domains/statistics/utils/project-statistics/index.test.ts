@@ -16,6 +16,7 @@ describe( 'projectStatistics', () => {
 	it( 'projects exactly five zero values before any visit or pause is recorded', () => {
 		expect( projectStatistics( createMockStatisticsDocument(), '2026-09-14' ) ).toEqual( {
 			status: StatisticsProjectionStatus.AVAILABLE,
+			currentDate: '2026-09-14',
 			dailyTotals: [],
 			estimatedReclaimedMilliseconds: 0,
 			focusedPauseMilliseconds: 0,
@@ -67,6 +68,7 @@ describe( 'projectStatistics', () => {
 
 		expect( projectStatistics( document, '2026-09-14' ) ).toEqual( {
 			status: StatisticsProjectionStatus.AVAILABLE,
+			currentDate: '2026-09-14',
 			dailyTotals: [],
 			estimatedReclaimedMilliseconds: 33,
 			focusedPauseMilliseconds: 22,
@@ -94,6 +96,7 @@ describe( 'projectStatistics', () => {
 
 		expect( projectStatistics( document, '2026-09-14' ) ).toEqual( {
 			status: StatisticsProjectionStatus.AVAILABLE,
+			currentDate: '2026-09-14',
 			dailyTotals: [],
 			estimatedReclaimedMilliseconds: 120_000,
 			focusedPauseMilliseconds: 120_000,
