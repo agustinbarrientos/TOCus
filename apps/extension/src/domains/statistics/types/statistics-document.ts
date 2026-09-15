@@ -46,12 +46,6 @@ export const StatisticsTotalsSchema = z.object( {
 export type StatisticsTotals = z.infer<typeof StatisticsTotalsSchema>;
 
 /**
- * Maximum local calendar dates retained by the daily aggregate history.
- * @since 0.1.0 Initial implementation.
- */
-export const StatisticsRetentionDays = 90;
-
-/**
  * Validates one aggregate-only local calendar day.
  * @since 0.1.0 Initial implementation.
  */
@@ -289,7 +283,7 @@ export const StatisticsDocumentSchema = z.object( {
 	generationId: StatisticsGenerationIdSchema,
 	lastAppliedBatchId: ProtectionFactBatchIdSchema.nullable(),
 	firstRecordedDate: LocalDateSchema.nullable(),
-	dailyTotals: z.array( DailyStatisticsTotalsSchema ).max( StatisticsRetentionDays ),
+	dailyTotals: z.array( DailyStatisticsTotalsSchema ),
 	scopes: StatisticsScopesSchema,
 } ).strict().refine( ( document ) => {
 	const { firstRecordedDate } = document;
@@ -300,11 +294,10 @@ export const StatisticsDocumentSchema = z.object( {
 	const oldest = document.dailyTotals.at( 0 );
 
 	return oldest !== undefined && document.dailyTotals.every( ( day, index, days ) => {
-		const previous = days.slice( 0, index ).at( -1 );
+		const previous = days[ index - 1 ];
 
 		return day.date >= firstRecordedDate &&
-			( previous === undefined || day.date > previous.date ) &&
-			Date.parse( day.date ) - Date.parse( oldest.date ) < StatisticsRetentionDays * 86_400_000;
+			( previous === undefined || day.date > previous.date );
 	} );
 }, { message: 'Daily statistics must be unique, ordered and within the recorded history.' } );
 

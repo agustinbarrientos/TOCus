@@ -1,17 +1,13 @@
 import { LocalDateSchema } from '../../../protection/types/protection-value';
 import {
 	StatisticsDocumentSchema,
-	StatisticsRetentionDays,
 	type DailyStatisticsTotals,
 } from '../../types/statistics-document';
 import {
 	StatisticsProjectionStatus,
-	StatisticsProjectionDays,
 	type StatisticsProjection,
 } from '../../types/statistics-projection';
 import { addStatisticsValues } from '../add-statistics-values';
-import { createEmptyStatisticsTotals } from '../create-statistics-document';
-import { shiftStatisticsDate } from '../statistics-calendar-date';
 
 /**
  * Creates an unavailable statistics projection.
@@ -74,34 +70,16 @@ export function projectStatistics( input: unknown, today: unknown ): StatisticsP
 			focusedPauseMilliseconds,
 		);
 
-		const earliestDate = shiftStatisticsDate( currentDate.data, 1 - StatisticsProjectionDays );
-		const firstRecordedDate = result.data.firstRecordedDate;
-
-		if ( firstRecordedDate !== null ) {
-			let date = firstRecordedDate > earliestDate ? firstRecordedDate : earliestDate;
-			let retentionStart = firstRecordedDate;
-
-			for ( const day of result.data.dailyTotals ) {
-				retentionStart = shiftStatisticsDate( day.date, 1 - StatisticsRetentionDays );
+		for ( const day of result.data.dailyTotals ) {
+			if ( day.date > currentDate.data ) {
+				break;
 			}
-
-			if ( date < retentionStart ) {
-				date = retentionStart;
-			}
-
-			const recordedDays = new Map( result.data.dailyTotals.map( ( day ) => [ day.date, day ] ) );
-
-			while ( date <= currentDate.data ) {
-				const totals = recordedDays.get( date ) ?? createEmptyStatisticsTotals();
-				dailyTotals.push( {
-					...totals,
-					date,
-					estimatedReclaimedMilliseconds: addStatisticsValues(
-						totals.estimatedReclaimedMilliseconds, totals.focusedPauseMilliseconds,
-					),
-				} );
-				date = shiftStatisticsDate( date, 1 );
-			}
+			dailyTotals.push( {
+				...day,
+				estimatedReclaimedMilliseconds: addStatisticsValues(
+					day.estimatedReclaimedMilliseconds, day.focusedPauseMilliseconds,
+				),
+			} );
 		}
 	} catch {
 		return createUnavailableProjection();
@@ -109,6 +87,7 @@ export function projectStatistics( input: unknown, today: unknown ): StatisticsP
 
 	return {
 		status: StatisticsProjectionStatus.AVAILABLE,
+		currentDate: currentDate.data,
 		estimatedReclaimedMilliseconds,
 		focusedPauseMilliseconds,
 		reconsideredVisitCount,

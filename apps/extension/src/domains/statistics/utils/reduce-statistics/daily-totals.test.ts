@@ -37,7 +37,7 @@ function recordVisit( document: unknown, date: string, batchId = 'batch_1' ) {
 }
 
 describe( 'daily statistics', () => {
-	it( 'rejects inconsistent, unordered and out-of-retention persisted daily history', () => {
+	it( 'rejects inconsistent and unordered persisted daily history', () => {
 		const document = recordVisit( createStatisticsDocument( 'generation_1' ), '2026-09-14' );
 		const day = document.dailyTotals[ 0 ];
 		for ( const changes of [
@@ -46,7 +46,6 @@ describe( 'daily statistics', () => {
 			{ dailyTotals: [] },
 			{ dailyTotals: [ day, day ] },
 			{ dailyTotals: [ day, { ...day, date: '2026-09-13' } ] },
-			{ dailyTotals: [ day, { ...day, date: '2027-01-01' } ] },
 		] ) {
 			expect( StatisticsDocumentSchema.safeParse( { ...document, ...changes } ).success ).toBe( false );
 		}
@@ -86,36 +85,58 @@ describe( 'daily statistics', () => {
 		} );
 	} );
 
-	it( 'separates local dates and fills only observed-era gaps, including a DST boundary', () => {
+	it( 'preserves sparse observed local dates across a DST boundary', () => {
 		const first = recordVisit( createStatisticsDocument( 'generation_1' ), '2026-03-07' );
 		const document = recordVisit( first, '2026-03-09', 'batch_2' );
 		const projection = projectStatistics( document, '2026-03-09' );
 
 		expect( projection ).toMatchObject( { dailyTotals: [
 			{ date: '2026-03-07', estimatedReclaimedMilliseconds: 125_000 },
-			{ date: '2026-03-08', estimatedReclaimedMilliseconds: 0 },
 			{ date: '2026-03-09', estimatedReclaimedMilliseconds: 125_000 },
 		] } );
 	} );
 
-	it( 'bounds retention to ninety calendar dates without losing lifetime totals or reviving old buckets', () => {
+	it( 'retains all recorded dates and accepts delayed old contributions after ninety days', () => {
 		let document = recordVisit( createStatisticsDocument( 'generation_1' ), '2026-01-01' );
 		document = recordVisit( document, '2026-04-01', 'batch_2' );
 		document = recordVisit( document, '2026-01-01', 'batch_3' );
 
-		expect( document.dailyTotals ).toEqual( [ expect.objectContaining( { date: '2026-04-01' } ) ] );
+		expect( document.dailyTotals ).toEqual( [
+			expect.objectContaining( { date: '2026-01-01', reconsideredVisitCount: 2 } ),
+			expect.objectContaining( { date: '2026-04-01', reconsideredVisitCount: 1 } ),
+		] );
 		const projection = projectStatistics( document, '2026-04-01' );
 		expect( projection ).toMatchObject( { estimatedReclaimedMilliseconds: 375_000 } );
 		if ( projection.status === 'available' ) {
-			expect( projection.dailyTotals ).toHaveLength( 30 );
-			expect( projection.dailyTotals[ 0 ]?.date ).toBe( '2026-03-03' );
+			expect( projection.dailyTotals ).toHaveLength( 2 );
+			expect( projection.dailyTotals[ 0 ]?.date ).toBe( '2026-01-01' );
 		}
 	} );
 
-	it( 'does not fabricate zero history when a clock rollback revisits already-pruned dates', () => {
+	it( 'keeps known history without fabricating empty dates during a clock rollback', () => {
 		const first = recordVisit( createStatisticsDocument( 'generation_1' ), '2026-01-01' );
 		const document = recordVisit( first, '2026-06-01', 'batch_2' );
-		expect( projectStatistics( document, '2026-02-01' ) ).toMatchObject( { dailyTotals: [] } );
+		expect( projectStatistics( document, '2026-02-01' ) ).toMatchObject( {
+			currentDate: '2026-02-01', dailyTotals: [ { date: '2026-01-01' } ],
+		} );
+	} );
+
+	it( 'stores more than ninety distinct observed dates without truncating either aggregate', () => {
+		let document = createStatisticsDocument( 'generation_1' );
+		for ( let day = 1; day <= 100; day++ ) {
+			const date = new Date( Date.UTC( 2026, 0, day ) ).toISOString().slice( 0, 10 );
+			document = recordVisit( document, date, `batch_${ String( day ) }` );
+		}
+		expect( document.dailyTotals ).toHaveLength( 100 );
+		expect( document.dailyTotals[ 0 ]?.date ).toBe( '2026-01-01' );
+		const projection = projectStatistics( document, '2026-04-10' );
+		expect( projection ).toMatchObject( {
+			estimatedReclaimedMilliseconds: 12_500_000, focusedPauseMilliseconds: 500_000,
+			reconsideredVisitCount: 100,
+		} );
+		if ( projection.status === 'available' ) {
+			expect( projection.dailyTotals ).toHaveLength( 100 );
+		}
 	} );
 
 	it( 'clears daily history on explicit reset and preserves the replay fence', () => {

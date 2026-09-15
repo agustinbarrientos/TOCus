@@ -1,12 +1,7 @@
 import { z } from 'zod';
 import { StatisticsNonNegativeSafeIntegerSchema } from './statistics-value';
 import { DailyStatisticsTotalsSchema } from './statistics-document';
-
-/**
- * Maximum local calendar dates exposed by the daily graph.
- * @since 0.1.0 Initial implementation.
- */
-export const StatisticsProjectionDays = 30;
+import { LocalDateSchema } from '../../protection/types/protection-value';
 
 /**
  * Availability states for the global all-time statistics projection.
@@ -35,6 +30,8 @@ export type StatisticsProjectionStatus = z.infer<typeof StatisticsProjectionStat
  */
 export const AvailableStatisticsProjectionSchema = z.object( {
 	status: z.enum( [ StatisticsProjectionStatus.AVAILABLE ] ),
+	/** Current local date captured by the authoritative runtime. */
+	currentDate: LocalDateSchema,
 	/** Focused pause time plus configured allowance time for reconsidered visits. */
 	estimatedReclaimedMilliseconds: StatisticsNonNegativeSafeIntegerSchema,
 	/** Recorded focused pause time, already included in the reclaimed-time total. */
@@ -42,7 +39,7 @@ export const AvailableStatisticsProjectionSchema = z.object( {
 	reconsideredVisitCount: StatisticsNonNegativeSafeIntegerSchema,
 	completedWaitCount: StatisticsNonNegativeSafeIntegerSchema,
 	allowanceGrantedCount: StatisticsNonNegativeSafeIntegerSchema,
-	dailyTotals: z.array( DailyStatisticsTotalsSchema ).max( StatisticsProjectionDays ),
+	dailyTotals: z.array( DailyStatisticsTotalsSchema ),
 } ).strict();
 
 /**
