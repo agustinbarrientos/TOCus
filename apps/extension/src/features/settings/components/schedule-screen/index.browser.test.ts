@@ -50,7 +50,7 @@ test.describe( 'schedule controls', () => {
 		expect( await page.getByLabel( 'Start', { exact: true } ).inputValue() ).toBe( '23:00' );
 		await setting( page, 'rejectSaves', false );
 		await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
-		await page.getByText( 'Schedule saved.', { exact: true } ).waitFor();
+		await page.getByText( 'Changes saved.', { exact: true } ).waitFor();
 		const schedule = await page.evaluate( () => window.settingsTest.getConfiguration().schedule );
 		expect( schedule ).toMatchObject( { mode: ScheduleMode.CUSTOM, windows: [
 			{ weekday: Weekday.MONDAY, startMinute: 1380, endMinute: 1440 },

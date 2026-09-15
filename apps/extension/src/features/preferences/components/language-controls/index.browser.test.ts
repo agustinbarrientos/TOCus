@@ -100,7 +100,7 @@ test.describe( 'language controls', () => {
 		expect( await selector.inputValue() ).toBe( Language.JAPANESE );
 		await setting( page, 'rejectSaves', false );
 		await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
-		await page.getByText( 'Language saved.', { exact: true } ).waitFor();
+		await page.getByText( 'Changes saved.', { exact: true } ).waitFor();
 		expect( await page.evaluate( () => window.settingsTest.getPreferences().language ) )
 			.toBe( Language.JAPANESE );
 		await selector.selectOption( BrowserLanguageOption );

@@ -211,7 +211,7 @@ test.describe( 'local statistics', () => {
 		expect( await page.evaluate( () => window.settingsTest.controls.resetCount ) ).toBe( 0 );
 		await page.getByRole( 'button', { name: 'Reset statistics', exact: true } ).click();
 		await dialog.getByRole( 'button', { name: 'Reset statistics', exact: true } ).click();
-		await page.locator( '.mantine-Alert-root[role="status"]' ).waitFor();
+		await page.locator( '.mantine-Notification-root[role="status"]' ).waitFor();
 		expect( await totals.locator( 'dd' ).allTextContents() ).toEqual( [
 			'Not enough data yet', '0 minutes', '0', '0', '0',
 		] );

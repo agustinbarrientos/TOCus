@@ -55,7 +55,7 @@ test.describe( 'privacy resets', () => {
 			await setting( page, 'rejectResets', false );
 			await dialog.getByRole( 'button', { name: 'Try again', exact: true } ).click();
 			await dialog.waitFor( { state: 'hidden' } );
-			await page.locator( '.mantine-Alert-root[role="status"]' ).waitFor();
+			await page.locator( '.mantine-Notification-root[role="status"]' ).waitFor();
 			expect( await page.evaluate( () => window.settingsTest.controls.resetCount ) ).toBe( 2 );
 			expect( await page.getByRole( 'button', { name: 'Save', exact: true } ).count() ).toBe( 0 );
 		} );

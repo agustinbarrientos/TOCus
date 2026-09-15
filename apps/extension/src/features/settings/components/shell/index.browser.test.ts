@@ -54,7 +54,7 @@ test.describe( 'React settings', () => {
 		await slider.focus();
 		await page.keyboard.press( 'ArrowRight' );
 		await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
-		await page.locator( '.mantine-Alert-root[role="status"]' ).waitFor();
+		await page.getByRole( 'status' ).filter( { hasText: 'Changes saved.' } ).waitFor();
 		await expect.poll( () => slider.evaluate( ( element ) => element === document.activeElement ) ).toBe( true );
 		const initialWait = await page.evaluate( () =>
 			window.settingsTest.getConfiguration().timingConfiguration.initialWaitMilliseconds );
