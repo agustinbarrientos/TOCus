@@ -405,7 +405,7 @@
   },
   {
     "path": "apps/extension/src/features/statistics/components/settings-screen/__snapshots__/chromium/statistics-settings-screen-unavailable-reset-confirmation-dark.png",
-    "sha256": "54c1518274a0da9794d7ce59f5c5c532e074b4f65d539bb1b71d2b0920dcf8dc"
+    "sha256": "50ebb1eea08f2598cf04057e2deb42abc0762e27133f4b0f4ec6a0d338803451"
   },
   {
     "path": "apps/extension/src/shared/utils/shared-theme-styles/__snapshots__/chromium/shared-notices-blue-dark.png",
