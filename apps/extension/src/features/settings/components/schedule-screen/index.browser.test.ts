@@ -4,6 +4,35 @@ import { ScheduleMode, Weekday } from '../../../../domains/protection/types/prot
 import { test } from '../../utils/browser-test-harness';
 
 test.describe( 'schedule controls', () => {
+	test( 'frames weekly rows with rounded edges and keeps Add row compact', async ( { open } ) => {
+		const page = await open( SettingsDestination.SCHEDULE );
+		await page.getByRole( 'radio', { name: 'On a weekly schedule', exact: true } ).click();
+		const add = page.getByRole( 'button', { name: 'Add row', exact: true } );
+		await add.click();
+		const table = page.getByRole( 'table', { name: 'Active time windows', exact: true } );
+		const presentation = await table.evaluate( ( element ) => {
+			const frame = element.parentElement;
+			const row = element.querySelector( 'tbody tr' );
+			if ( ! frame || ! row ) {
+				throw new Error( 'Expected framed weekly rows.' );
+			}
+			const frameStyle = getComputedStyle( frame );
+			const rowStyle = getComputedStyle( row );
+			return { borderWidth: parseFloat( frameStyle.borderTopWidth ), borderStyle: frameStyle.borderTopStyle,
+				borderColor: frameStyle.borderTopColor, radius: parseFloat( frameStyle.borderTopLeftRadius ),
+				separatorWidth: parseFloat( rowStyle.borderBottomWidth ), separatorStyle: rowStyle.borderBottomStyle,
+				separatorColor: rowStyle.borderBottomColor };
+		} );
+		expect.soft( presentation.borderWidth ).toBeGreaterThanOrEqual( 1 );
+		expect.soft( presentation.borderStyle ).toBe( 'solid' );
+		expect.soft( presentation.radius ).toBeGreaterThanOrEqual( 8 );
+		expect.soft( presentation.separatorWidth ).toBeGreaterThanOrEqual( 1 );
+		expect.soft( presentation.separatorStyle ).toBe( 'solid' );
+		expect.soft( presentation.separatorColor ).toBe( presentation.borderColor );
+		expect.soft( await add.evaluate( ( element ) => element.getBoundingClientRect().height ) ).toBeLessThan( 36 );
+		expect.soft( await add.evaluate( ( element ) =>
+			parseFloat( getComputedStyle( element ).paddingInlineStart ) ) ).toBeLessThan( 24 );
+	} );
 	test( 'validates missing and equal times, retains rejected edits, and saves overnight windows', async ( { open, setting } ) => {
 		test.setTimeout( 20000 );
 		const page = await open( SettingsDestination.SCHEDULE );

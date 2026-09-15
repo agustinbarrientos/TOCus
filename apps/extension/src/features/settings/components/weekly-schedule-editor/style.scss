@@ -6,6 +6,8 @@
 	position: relative;
 	min-width: 0;
 	overflow-x: auto;
+	border: 1px solid var(--tocus-color-divider);
+	border-radius: var(--tocus-radius-small);
 }
 
 .settings-weekly-table {

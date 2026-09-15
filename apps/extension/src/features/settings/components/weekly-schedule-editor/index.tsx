@@ -14,7 +14,7 @@ export function WeeklyScheduleEditor( props: WeeklyScheduleEditorProps ) {
 	return <Stack gap="var(--tocus-space-3)" className="settings-weekly-editor">
 		<div className="settings-weekly-table-scroll">
 			<Table className="settings-weekly-table" aria-label={ props.copy.windowsLegend }
-				horizontalSpacing="xs" verticalSpacing="xs" withRowBorders>
+				horizontalSpacing="xs" verticalSpacing="xs" borderColor="var(--tocus-color-divider)" withRowBorders>
 				<Table.Thead><Table.Tr>
 					<Table.Th scope="col">{ props.copy.weekdayLabel }</Table.Th>
 					<Table.Th scope="col">{ props.copy.startTimeLabel }</Table.Th>
@@ -35,7 +35,7 @@ export function WeeklyScheduleEditor( props: WeeklyScheduleEditorProps ) {
 					} } /> ) }</Table.Tbody>
 			</Table>
 		</div>
-		<Button className="settings-schedule-add" size="sm" variant="outline" disabled={ props.disabled }
+		<Button className="settings-schedule-add" size="xs" variant="outline" disabled={ props.disabled }
 			onClick={ () => {
 				props.onChange( [ ...props.windows,
 					blankWindow( Math.max( -1, ...props.windows.map( ( window ) => window.id ) ) + 1 ) ] );
