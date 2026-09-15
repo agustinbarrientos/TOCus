@@ -63,7 +63,7 @@ export function TimingControls( props: TimingControlsProps ) {
 		<>
 			{ createRanges( copy ).map( ( range ) => <div key={ range.id } className="settings-timing-range">
 				<Group justify="space-between">
-					<Group gap="xs"><label className="tocus-field-label" id={ `${ range.id }-label` } htmlFor={ range.id }>{ range.label }</label>
+					<Group gap="var(--tocus-space-1)"><label className="tocus-field-label" id={ `${ range.id }-label` } htmlFor={ range.id }>{ range.label }</label>
 						<FieldHelp label={ range.label } description={ range.help } descriptionId={ `${ range.id }-help` } /></Group>
 					<output htmlFor={ range.id }>{ range.format( value[ range.key ] / range.unit ) }</output>
 				</Group>

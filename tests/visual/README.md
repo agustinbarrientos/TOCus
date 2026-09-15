@@ -72,6 +72,8 @@ Twelve website references now contain the supplied external-link arrows, languag
 
 This approval changes artwork only. No comparator, tolerance, capture settings, retries or update-flag restrictions were changed. Future baseline changes still require explicit approval and review of the actual differences.
 
+The subsequent September 14 field-help refinement uses the supplied Font Awesome Free question-circle artwork and the shared smallest spacing token beside timing labels. Informational snackbars retain their existing info icon. Four Timing references were reviewed and refreshed at their original paths and names, including both themes and the no-increase states. Dimensions remain 1280 by 1200 pixels, and decoded comparison confirms every changed pixel is confined to the four help glyphs and their closer positions. The other 102 original references, hit areas, accessible descriptions and comparison rules remain unchanged.
+
 ## Approved edge-rasterization allowance
 
 Chromium can produce one-level RGB differences along rounded edges depending on prior component captures. This was reproduced in the archived renderer as well as the migrated fixture. On September 7, 2026, the project owner approved tolerating this tiny edge variance without replacing any original images.

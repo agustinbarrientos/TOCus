@@ -2,6 +2,25 @@ import { expect } from '@playwright/test';
 import { test } from '../../utils/browser-test-harness';
 
 test.describe( 'timing sliders', () => {
+	test( 'keeps question-circle help close to each label without shrinking its target', async ( { open } ) => {
+		const page = await open();
+		const ranges = page.locator( '.settings-timing-range' );
+		await expect( ranges ).toHaveCount( 4 );
+		for ( const range of await ranges.all() ) {
+			const help = range.locator( '.tocus-field-help' );
+			const label = await range.locator( '.tocus-field-label' ).boundingBox();
+			const target = await help.boundingBox();
+			if ( ! label || ! target ) {
+				throw new Error( 'The timing label and help target must both be visible.' );
+			}
+			expect( target.x - label.x - label.width ).toBeGreaterThanOrEqual( 0 );
+			expect( target.x - label.x - label.width ).toBeLessThanOrEqual( 5 );
+			expect( target.width ).toBeGreaterThanOrEqual( 24 );
+			expect( target.height ).toBeGreaterThanOrEqual( 24 );
+			await expect( help.locator( 'svg path' ) ).toHaveCount( 1 );
+			await expect( help.locator( 'svg path[opacity]' ) ).toHaveCount( 0 );
+		}
+	} );
 	test( 'shows every selectable step and exposes help on keyboard focus without inline prose', async ( { open } ) => {
 		const page = await open();
 		const ranges = page.locator( '.settings-timing-range' );

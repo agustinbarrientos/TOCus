@@ -15,7 +15,7 @@ export function FieldHelp( props: FieldHelpProps ) {
 			interactive multiline maw="22rem" withArrow>
 			<ActionIcon variant="subtle" className="tocus-field-help" aria-label={ props.label }
 				aria-describedby={ props.descriptionId }>
-				<Icon name={ IconName.CIRCLE_INFO } />
+				<Icon name={ IconName.CIRCLE_QUESTION } />
 			</ActionIcon>
 		</Tooltip>
 	</>;
