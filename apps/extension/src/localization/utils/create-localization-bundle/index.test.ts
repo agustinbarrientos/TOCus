@@ -129,7 +129,7 @@ describe( 'createLocalizationBundle', () => {
 			'Reddit was added to your list.',
 		);
 		expect( bundle.protectedSiteItem.formatRemoveQuestion( 'Reddit' ) ).toBe( 'Remove Reddit?' );
-		expect( bundle.interruption.formatRemainingTime( 12 ) ).toBe( '12s remaining' );
+		expect( bundle.interruption.formatRemainingTime( 12 ) ).toBe( '12s' );
 		expect( bundle.protectedPageLayer.formatAllowanceWarning( 1 ) ).toBe(
 			'Your visit window ends in 1 second.',
 		);
@@ -297,13 +297,17 @@ describe( 'createLocalizationBundle', () => {
 	} );
 
 	it.each( [
-		{ language: Language.SPANISH_TU, singular: 'Queda 1 s', plural: 'Quedan 2 s' },
-		{ language: Language.SPANISH_VOS, singular: 'Queda 1 s', plural: 'Quedan 2 s' },
-		{ language: Language.PORTUGUESE_BRAZIL, singular: 'Resta 1 s', plural: 'Restam 2 s' },
-		{ language: Language.PORTUGUESE_PORTUGAL, singular: 'Falta 1 s', plural: 'Faltam 2 s' },
-		{ language: Language.ITALIAN, singular: '1s rimanente', plural: '2s rimanenti' },
-		{ language: Language.FRENCH, singular: '1s restante', plural: '2s restantes' },
-	] )( 'uses singular and plural interruption countdown grammar for $language', async ( expectation ) => {
+		{ language: Language.ENGLISH, singular: '1s', plural: '2s' },
+		{ language: Language.GERMAN, singular: '1s', plural: '2s' },
+		{ language: Language.SPANISH_TU, singular: '1s', plural: '2s' },
+		{ language: Language.SPANISH_VOS, singular: '1s', plural: '2s' },
+		{ language: Language.PORTUGUESE_BRAZIL, singular: '1s', plural: '2s' },
+		{ language: Language.PORTUGUESE_PORTUGAL, singular: '1s', plural: '2s' },
+		{ language: Language.ITALIAN, singular: '1s', plural: '2s' },
+		{ language: Language.FRENCH, singular: '1s', plural: '2s' },
+		{ language: Language.JAPANESE, singular: '1秒', plural: '2秒' },
+		{ language: Language.RUSSIAN, singular: '1с', plural: '2с' },
+	] )( 'uses compact localized interruption countdowns for $language', async ( expectation ) => {
 		const bundle = await loadLocalizationBundle( expectation.language );
 
 		expect( bundle.interruption.formatRemainingTime( 1 ) ).toBe( expectation.singular );
