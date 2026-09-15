@@ -20,7 +20,7 @@ export function createStatisticsCopy(
 	i18n: I18n,
 	formatters: LocalizationFormatters,
 ): Readonly<StatisticsSettingsScreenCopy> {
-	const dateFormatter = new Intl.DateTimeFormat( i18n.locale, { month: 'short', day: 'numeric', timeZone: 'UTC' } );
+	const dateFormatter = new Intl.DateTimeFormat( i18n.locale, { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' } );
 	const axisOptions: Intl.NumberFormatOptions = {
 		style: 'unit', unitDisplay: 'narrow', maximumSignificantDigits: 3, notation: 'compact',
 	};
@@ -49,6 +49,17 @@ export function createStatisticsCopy(
 	 */
 	function formatDate( date: string ): string {
 		return dateFormatter.format( new Date( `${ date }T12:00:00Z` ) );
+	}
+	/**
+	 * Labels every date included in a chart interval using the active locale.
+	 * @param startDate - First included calendar date.
+	 * @param endDate - Last included calendar date.
+	 * @return Localized inclusive date range, or a single-day label.
+	 */
+	function formatDateRange( startDate: string, endDate: string ): string {
+		return startDate === endDate ? formatDate( startDate ) : dateFormatter.formatRange(
+			new Date( `${ startDate }T12:00:00Z` ), new Date( `${ endDate }T12:00:00Z` ),
+		);
 	}
 	/**
 	 * Formats one rounded focused-pause duration.
@@ -105,16 +116,21 @@ export function createStatisticsCopy(
 	return Object.freeze( {
 		title: i18n._( msg`Statistics` ),
 		allTimeTitle: i18n._( msg`All time` ),
+		currentWeekTitle: i18n._( msg`Current week` ),
+		currentMonthTitle: i18n._( msg`Current month` ),
+		periodLabel: i18n._( msg`Period` ),
+		incompleteHistory: i18n._( msg`Some daily details are unavailable. All-time totals still include them.` ),
 		estimatedReclaimedLabel: i18n._( msg`Estimated time reclaimed` ),
 		focusedPauseLabel: i18n._( msg`Time you took to pause` ),
 		reconsideredVisitsLabel: i18n._( msg`Reconsidered visits` ),
 		completedWaitsLabel: i18n._( msg`Completed waits` ),
 		allowancesGrantedLabel: i18n._( msg`Allowances granted` ),
 		estimationDescription: i18n._( msg`Time spent pausing plus estimated browsing time avoided, based on your configured visit time.` ),
-		dailyTitle: i18n._( msg`Last 30 days` ),
-		dailyEmpty: i18n._( msg`Your daily activity will appear here after your first pause.` ),
+		dailyTitle: i18n._( msg`Activity` ),
+		dailyEmpty: i18n._( msg`No activity recorded in this period.` ),
 		dateLabel: i18n._( msg`Date` ),
 		formatDate,
+		formatDateRange,
 		loading: i18n._( msg`Loading statistics...` ),
 		unavailableTitle: i18n._( msg`Statistics are unavailable` ),
 		unavailableDescription: i18n._(

@@ -57,6 +57,10 @@ export interface StatisticsSource extends StatisticsChangeSource {
 export interface StatisticsSettingsScreenCopy {
 	title: string;
 	allTimeTitle: string;
+	currentWeekTitle: string;
+	currentMonthTitle: string;
+	periodLabel: string;
+	incompleteHistory: string;
 	estimatedReclaimedLabel: string;
 	focusedPauseLabel: string;
 	reconsideredVisitsLabel: string;
@@ -71,6 +75,8 @@ export interface StatisticsSettingsScreenCopy {
 	 * @since 0.1.0
 	 */
 	formatDate( date: string ): string;
+	/** Formats the inclusive local date interval represented by one chart bucket. */
+	formatDateRange( startDate: string, endDate: string ): string;
 	loading: string;
 	unavailableTitle: string;
 	unavailableDescription: string;

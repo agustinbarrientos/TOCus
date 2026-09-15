@@ -7,8 +7,11 @@ import { setupI18n } from '@lingui/core';
 describe( 'createStatisticsCopy', () => {
 	it( 'formats recorded calendar dates without shifting them into another day', () => {
 		const copy = createStatisticsCopy( createTestI18n(), createLocalizationFormatters( 'en' ) );
-		expect( copy.formatDate( '2026-09-14' ) ).toBe( 'Sep 14' );
-		expect( copy.formatDate( '2026-01-01' ) ).toBe( 'Jan 1' );
+		expect( copy.formatDate( '2026-09-14' ) ).toBe( 'Sep 14, 2026' );
+		expect( copy.formatDate( '2026-01-01' ) ).toBe( 'Jan 1, 2026' );
+		expect( copy.formatDateRange( '2026-09-14', '2026-09-14' ) ).toBe( 'Sep 14, 2026' );
+		expect( copy.formatDateRange( '2025-12-31', '2026-01-01' ) ).toContain( 'Dec 31, 2025' );
+		expect( copy.formatDateRange( '2025-12-31', '2026-01-01' ) ).toContain( 'Jan 1, 2026' );
 	} );
 
 	it.each( [
