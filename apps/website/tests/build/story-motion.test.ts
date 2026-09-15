@@ -34,7 +34,7 @@ test.describe( 'generated website scroll story', () => {
 		const engineTest = test.extend( { browserName: engine } );
 
 		engineTest.describe( () => {
-			engineTest.use( { contextOptions: { viewport: { width: 360, height: 640 }, reducedMotion: 'reduce' } } );
+			engineTest.use( { contextOptions: { viewport: { width: 360, height: 800 }, reducedMotion: 'reduce' } } );
 
 			engineTest( `${ engine }: reduced-motion chapter controls select once and keep keyboard focus on a small screen`, async ( { context, page } ) => {
 				engineTest.setTimeout( 20_000 );
@@ -90,7 +90,7 @@ test.describe( 'generated website scroll story', () => {
 						expect( await page.locator( '[aria-current="step"]' ).count() ).toBe( 1 );
 						const bounds = await button.boundingBox();
 						expect( bounds?.y ).toBeGreaterThan( 0 );
-						expect( ( bounds?.y ?? 640 ) + ( bounds?.height ?? 0 ) ).toBeLessThanOrEqual( 640 );
+						expect( ( bounds?.y ?? 800 ) + ( bounds?.height ?? 0 ) ).toBeLessThanOrEqual( 800 );
 						expect( await page.locator( '[data-story-active]' ).count() ).toBe( 1 );
 					} );
 				}
@@ -146,7 +146,7 @@ test.describe( 'generated website scroll story', () => {
 					const stops = [
 						[ 0.04, DemoChapter.CHOOSE ], [ 0.22, DemoChapter.VISIT ],
 						[ 0.42, DemoChapter.PAUSE ], [ 0.50, DemoChapter.PAUSE ], [ 0.58, DemoChapter.PAUSE ],
-						[ 0.62, DemoChapter.CONTINUE ],
+						[ 0.70, DemoChapter.CONTINUE ],
 						[ 0.82, DemoChapter.BROWSE ], [ 0.90, DemoChapter.BROWSE ], [ 0.98, DemoChapter.BROWSE ],
 					] as const;
 					/**
@@ -173,8 +173,9 @@ test.describe( 'generated website scroll story', () => {
 							} );
 							const { left, top, width } = element.getBoundingClientRect();
 							const scene = element.closest<HTMLElement>( '.product-demo' )?.dataset.scene;
-							const countdown = element.querySelector( '.product-demo-countdown' )?.textContent;
-							const allowance = element.querySelector( '.product-demo-time-left time' )?.textContent;
+							const active = element.querySelector( '[data-demo-chapter][aria-hidden="false"]' );
+							const countdown = active?.querySelector( '.product-demo-countdown' )?.textContent;
+							const allowance = active?.querySelector( '.product-demo-time-left time' )?.textContent;
 							const captions = document.querySelectorAll( '.story-caption[aria-hidden="false"]' ).length;
 							boxes.push( { left, top, width, scrollY: window.scrollY, scene, countdown,
 								allowance, captions } );

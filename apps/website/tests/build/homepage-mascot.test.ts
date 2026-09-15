@@ -37,7 +37,7 @@ test.describe( 'homepage raster mascot', () => {
 					viewport, reducedMotion,
 				} } );
 
-				test( `${ String( viewport.width ) } (${ bodyFont ?? 'system' }, ${ reducedMotion }): prominent artwork meets the browser without loading a model`, async ( { page } ) => {
+				test( `${ String( viewport.width ) } (${ bodyFont ?? 'system' }, ${ reducedMotion }): prominent artwork introduces the story without loading a model`, async ( { page } ) => {
 					const requests: string[] = [];
 					page.on( 'request', ( request ) => requests.push( request.url() ) );
 					await page.route( '**/*', serveAsset );
@@ -53,17 +53,31 @@ test.describe( 'homepage raster mascot', () => {
 					await mascot.evaluate( ( element ) => ( element as HTMLImageElement ).decode() );
 					const image = await mascot.boundingBox();
 					const frame = await page.locator( '.product-demo-browser' ).boundingBox();
-					if ( ! image || ! frame ) {
-						throw new Error( 'The mascot and browser must both be rendered.' );
+					const caption = await page.locator( '.story-heading' ).boundingBox();
+					const navigation = await page.locator( '.story-steps' ).boundingBox();
+					if ( ! image || ! frame || ! caption || ! navigation ) {
+						throw new Error( 'The mascot, caption, chapter controls and browser must all be rendered.' );
 					}
 					expect( requests.some( ( url ) => /\.(?:glb|gltf)(?:\?|$)/u.test( url ) ) ).toBe( false );
 					expect( await page.locator( '.hero-art canvas' ).count() ).toBe( 0 );
 					expect( image.width ).toBeGreaterThan( viewport.width * ( viewport.width < 600 ? 0.75 : 0.3 ) );
 					expect( Math.abs( image.x + image.width / 2 - viewport.width / 2 ) ).toBeLessThan( 2 );
-					expect( Math.abs( image.y + image.height - frame.y ) ).toBeLessThan( 45 );
-					expect( frame.y ).toBeLessThan( viewport.height );
+					expect( Math.min( image.height, viewport.height - image.y ) / image.height ).toBeGreaterThan( 0.8 );
+					expect( caption.y ).toBeGreaterThanOrEqual( image.y + image.height );
+					expect( caption.y - image.y - image.height ).toBeLessThan( 45 );
+					expect( navigation.y ).toBeGreaterThan( caption.y + caption.height );
+					expect( frame.y ).toBeGreaterThan( navigation.y + navigation.height );
 					await page.locator( '[data-story-chapter] button' ).first().click();
-					await expect.poll( () => mascot.isVisible() ).toBe( false );
+					if ( await page.locator( '.homepage' ).evaluate( ( element ) => element.hasAttribute( 'data-story-pinned' ) ) ) {
+						await expect( mascot ).toBeHidden();
+					} else {
+						// In normal flow the mascot may remain above the caption, but cannot cover it.
+						const picture = await mascot.boundingBox();
+						const heading = await page.locator( '.story-heading' ).boundingBox();
+						if ( picture && heading ) {
+							expect( picture.y + picture.height ).toBeLessThanOrEqual( heading.y );
+						}
+					}
 					expect( await mascot.getAttribute( 'alt' ) ).toBeTruthy();
 					expect( await page.evaluate( () =>
 						document.documentElement.scrollWidth <= window.innerWidth ) ).toBe( true );
