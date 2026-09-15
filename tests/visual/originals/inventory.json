@@ -9,19 +9,19 @@
   },
   {
     "path": "apps/extension/src/features/interruption/components/screen/__snapshots__/chromium/interruption-screen-quiet-purple-dark.png",
-    "sha256": "dfbf0416048ff545664b935a087d1c8332599297a69ae4e3fcebec53acab4e64"
+    "sha256": "e24f99be3152379939a4781da4986f1fa6e5f1fb531d3ed7f0bc1c36a73a2178"
   },
   {
     "path": "apps/extension/src/features/interruption/components/screen/__snapshots__/chromium/interruption-screen-ready.png",
-    "sha256": "8903c84dce51e413b835133079303fec40a132c8158b7dddcf69e93362636469"
+    "sha256": "2df3cbb9daf8d39772e8bf7c867d8f8a56d93196958599086a2ba401fadd018d"
   },
   {
     "path": "apps/extension/src/features/interruption/components/screen/__snapshots__/chromium/interruption-screen-unavailable-dark.png",
-    "sha256": "1356c8cb764959bfb9607206da8709a29a314a08183ddb3b5d9683b0a922360f"
+    "sha256": "7c57dbf9542cfc6045fc6736a4537068bfe39d5e749281554d96bf6f78b8c55a"
   },
   {
     "path": "apps/extension/src/features/interruption/components/screen/__snapshots__/chromium/interruption-screen-unavailable.png",
-    "sha256": "af697f95e45240f41610526feb14ed2e3c15c73552ad7d63cc78249862b8bbcd"
+    "sha256": "4d2afa9f4e9df71af53b9b2b55216b47c89764f49271eee4b8d52486de4ff9d7"
   },
   {
     "path": "apps/extension/src/features/interruption/components/screen/__snapshots__/chromium/interruption-screen-waiting-dark.png",
