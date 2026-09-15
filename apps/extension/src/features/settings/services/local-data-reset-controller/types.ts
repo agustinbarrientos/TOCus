@@ -35,10 +35,11 @@ export interface LocalDataResetControllerOptions {
 	resume(): Promise<void>;
 	/**
 	 * Opens the packaged onboarding page without requesting additional permissions.
+	 * @param generation - Completed reset identity verified by the receiving page.
 	 * @return Completion of browser tab creation.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	openOnboarding(): Promise<void>;
+	openOnboarding( generation: string ): Promise<void>;
 	/**
 	 * Closes the originating tab when it still displays settings, tolerating browser failures.
 	 * @param tabId - Browser-authenticated originating settings tab identifier.

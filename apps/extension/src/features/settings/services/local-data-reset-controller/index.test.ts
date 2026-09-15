@@ -134,7 +134,7 @@ describe( 'local data reset controller', () => {
 		expect( options.closeSettingsTab ).not.toHaveBeenCalled();
 		deletion.resolve( true );
 		await vi.waitFor( () => {
-			expect( options.openOnboarding ).toHaveBeenCalledOnce();
+			expect( options.openOnboarding ).toHaveBeenCalledExactlyOnceWith( 'reset' );
 		} );
 		expect( options.closeSettingsTab ).not.toHaveBeenCalled();
 		onboarding.resolve( undefined );

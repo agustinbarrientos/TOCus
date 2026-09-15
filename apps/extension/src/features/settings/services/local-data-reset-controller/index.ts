@@ -25,7 +25,7 @@ export function createLocalDataResetController( options: LocalDataResetControlle
 		await options.resume();
 		const marker = await readLocalDataGeneration( options.localArea );
 		if ( marker?.needsOnboarding ) {
-			await options.openOnboarding();
+			await options.openOnboarding( marker.generation );
 			await options.localArea.set( {
 				[ LocalDataGenerationStorageKey ]: { ...marker, needsOnboarding: false },
 			} );
