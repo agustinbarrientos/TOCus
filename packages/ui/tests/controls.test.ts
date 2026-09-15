@@ -6,6 +6,54 @@ import { measureContrast } from './utils/measure-contrast';
 const url = '/packages/ui/tests/fixture/';
 
 test.describe( 'shared controls', () => {
+	test( 'keeps labels and notices at body size with a clear field gap', async ( { page } ) => {
+		await page.goto( url );
+		const input = page.getByRole( 'textbox', { name: 'Title', exact: true } );
+		await expect( input ).toBeVisible();
+		const metrics = await input.evaluate( ( element ) => {
+			const wrapper = element.closest( '.mantine-InputWrapper-root' );
+			const label = wrapper?.querySelector( 'label' );
+			const notice = document.querySelector( '.mantine-Alert-message' );
+			if ( ! wrapper || ! label || ! notice ) {
+				throw new Error( 'Expected a labelled field and a notice.' );
+			}
+			return { body: getComputedStyle( wrapper ).fontSize,
+				label: getComputedStyle( label ).fontSize, notice: getComputedStyle( notice ).fontSize,
+				gap: element.getBoundingClientRect().top - label.getBoundingClientRect().bottom };
+		} );
+		expect( metrics.label ).toBe( metrics.body );
+		expect( metrics.notice ).toBe( metrics.body );
+		expect( metrics.gap ).toBeGreaterThanOrEqual( 8 );
+	} );
+	test( 'honors small actions without shrinking normal actions or slider hit targets', async ( { page } ) => {
+		await page.goto( url );
+		const small = page.getByRole( 'button', { name: 'Small action', exact: true } );
+		const normal = page.getByRole( 'button', { name: 'Native action', exact: true } );
+		await expect( small ).toBeVisible();
+		const smallBounds = await small.boundingBox();
+		const normalBounds = await normal.boundingBox();
+		expect.soft( smallBounds?.height ).toBeLessThan( normalBounds?.height ?? 0 );
+		const thumb = page.getByRole( 'slider', { name: 'Initial wait' } );
+		expect( await thumb.evaluate( ( element ) => element.getBoundingClientRect().width ) ).toBe( 24 );
+		const marks = page.locator( '.mantine-Slider-mark' );
+		await expect( marks ).toHaveCount( 5 );
+		for ( const mark of await marks.all() ) {
+			const metrics = await mark.evaluate( ( element ) => ( {
+				diameter: element.getBoundingClientRect().width, opacity: getComputedStyle( element ).opacity,
+			} ) );
+			expect( metrics.diameter ).toBeCloseTo( 8 / 3, 2 );
+			expect( metrics.opacity ).toBe( '0.5' );
+		}
+	} );
+	test( 'leaves transparent website artwork without an added avatar surface', async ( { page } ) => {
+		await page.goto( url );
+		const icon = page.getByRole( 'img', { name: 'Website icon', exact: true } );
+		await expect( icon ).toBeVisible();
+		expect( await icon.evaluate( ( element ) => {
+			const avatar = element.closest( '.mantine-Avatar-root' );
+			return avatar && getComputedStyle( avatar ).backgroundColor;
+		} ) ).toBe( 'rgba(0, 0, 0, 0)' );
+	} );
 	test( 'renders the supplied native select arrow without losing keyboard selection or field geometry', async ( { page } ) => {
 		await page.goto( url );
 		const select = page.getByRole( 'combobox', { name: 'Native interval', exact: true } );

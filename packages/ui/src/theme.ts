@@ -115,11 +115,12 @@ export const tocusTheme = createTheme( {
 				fontWeight: 500,
 				'--tocus-button-hover-border': props.color === 'red'
 					? 'var(--tocus-color-danger-hover)' : 'var(--tocus-color-action)',
-				height: props.size === undefined || props.size === 'sm'
+				height: props.size === undefined
 					? 'var(--tocus-button-height, var(--tocus-action-height, 2.75rem))' : undefined,
 			} } ),
 		} ), defaultProps: { variant: 'filled', tabIndex: 0, radius: 'var(--tocus-radius-full)', px: '1.5rem' } },
 		CloseButton: { defaultProps: { tabIndex: 0 } },
+		ActionIcon: { defaultProps: { tabIndex: 0 } },
 		Alert: { defaultProps: { variant: 'light' }, styles: {
 			root: { borderWidth: '1px', borderRadius: 'var(--tocus-radius-small)',
 				padding: 'var(--tocus-space-4)',

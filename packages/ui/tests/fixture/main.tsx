@@ -37,7 +37,8 @@ function Fixture() {
 					<TextInput className="tocus-native-field" label="Adorned field" leftSection={ <span aria-hidden="true">@</span> }
 						rightSection={ <span aria-hidden="true">#</span> } />
 					<label id="wait-label">Initial wait</label>
-					<Slider name="wait" thumbLabel="Initial wait" min={10} max={30} step={5} value={wait} onChange={setWait} />
+					<Slider name="wait" thumbLabel="Initial wait" min={10} max={30} step={5} value={wait} onChange={setWait}
+						marks={ [ 10, 15, 20, 25, 30 ].map( ( value ) => ( { value } ) ) } />
 					<Radio.Group name="media" defaultValue={FixtureMediaMode.MUTE} label="Media">
 						<Radio value={FixtureMediaMode.MUTE} label="Mute media" />
 						<Radio value={FixtureMediaMode.PAUSE} label="Pause media" />
@@ -82,6 +83,7 @@ function Fixture() {
 						element?.setAttribute( 'data-ref-attached', 'true' );
 					} } />
 				<Button className="tocus-native-button" disabled>Disabled native action</Button>
+				<Button size="sm" variant="outline">Small action</Button>
 				<div aria-label="Native activation count">{ activations }</div>
 				<Avatar className="tocus-native-avatar" size="2.75rem" role="img" aria-label="Native initials">TC</Avatar>
 				<Avatar size="2.75rem" role="img" aria-label="Default initials">TC</Avatar>

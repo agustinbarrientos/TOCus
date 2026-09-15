@@ -44,11 +44,12 @@
 	.mantine-Input-input:focus-within { border-color: var(--tocus-color-focus-ring); }
 
 	.mantine-InputWrapper-label, .tocus-field-label {
-		@include typography.apply('body-large');
+		@include typography.apply('body-medium');
 
 		font-weight: 600;
 		color: var(--tocus-color-on-surface);
 	}
+	.mantine-InputWrapper-label { margin-bottom: var(--tocus-space-2); }
 	.tocus-field-help { border-radius: var(--tocus-radius-small); }
 	.mantine-Modal-body .tocus-form-actions { padding: 0; }
 	.mantine-Modal-body p { margin: 0; }
@@ -66,7 +67,7 @@
 	}
 
 	.mantine-Alert-root, .mantine-Alert-message {
-		@include typography.apply('body-large');
+		@include typography.apply('body-medium');
 
 		opacity: 1;
 	}
@@ -189,7 +190,7 @@
 	}
 
 	.mantine-Avatar-root {
-		background: var(--tocus-color-surface-container);
+		background: transparent;
 	}
 
 	.mantine-Avatar-placeholder {
@@ -221,7 +222,12 @@
 	}
 
 	.mantine-Slider-root { margin-block: var(--tocus-space-3); }
-	.mantine-Slider-mark { border-color: var(--tocus-color-action); }
+
+	.mantine-Slider-mark {
+		border-color: var(--tocus-color-action);
+		opacity: 0.5;
+		transform: scale(calc(1 / 3));
+	}
 
 	.mantine-Slider-mark[data-filled] {
 		border-color: var(--tocus-color-on-action);
@@ -599,11 +605,6 @@
 
 		height: 3rem;
 		border-radius: var(--tocus-radius-small);
-	}
-
-	.mantine-Input-input[type='time'] {
-		height: auto;
-		padding-block: var(--tocus-space-3);
 	}
 
 	.mantine-RadioIndicator-indicator:not(.tocus-selection-mark) {
