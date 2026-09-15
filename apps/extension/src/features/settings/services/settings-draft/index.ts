@@ -1,4 +1,5 @@
 import {
+	useCallback,
 	useEffect,
 	useState,
 	useSyncExternalStore,
@@ -11,6 +12,7 @@ import type {
 	DraftEquality,
 	SaveDraft,
 } from '../../utils/draft-controller/types';
+import { SettingsFeedbackAction, useSettingsFeedback } from '../settings-feedback';
 
 
 /**
@@ -27,6 +29,30 @@ export function useDraft<T extends object>(
 ) {
 	const [ draft ] = useState( () => createDraft( initial, equals ) );
 	const state = useSyncExternalStore( draft.subscribe, () => draft.snapshot );
+	const { notify } = useSettingsFeedback();
+	useEffect( () => {
+		let previous = draft.snapshot;
+		return draft.subscribe( () => {
+			const current = draft.snapshot;
+			const saved = previous.saving && ! current.saving && current.saved &&
+				! current.dirty && current.error === null;
+			previous = current;
+			if ( saved ) {
+				notify( SettingsFeedbackAction.SAVED );
+			}
+		} );
+	}, [ draft, notify ] );
+	/** Discards an editable candidate and announces only an actual return to its baseline. */
+	const discard = useCallback( (): void => {
+		const { dirty, saving } = draft.snapshot;
+		if ( ! dirty || saving ) {
+			return;
+		}
+		draft.discard();
+		if ( ! draft.snapshot.dirty ) {
+			notify( SettingsFeedbackAction.DISCARDED );
+		}
+	}, [ draft, notify ] );
 	useEffect( () => {
 		register( {
 			/**
@@ -43,12 +69,12 @@ export function useDraft<T extends object>(
 			get saving() {
 				return draft.snapshot.saving;
 			},
-			discard: draft.discard,
+			discard,
 			save,
 		} );
-	}, [ draft, register, save ] );
+	}, [ draft, discard, register, save ] );
 	useEffect( () => () => {
 		register( null );
 	}, [ register ] );
-	return { draft, ...state };
+	return { draft, ...state, discard };
 }

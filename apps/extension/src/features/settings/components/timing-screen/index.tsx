@@ -46,7 +46,7 @@ import type { DraftSaveResult } from '../../utils/draft-controller/types';
 export function Timing( props: EditableSettingsScreenProps ) {
 	const { shell, register } = props;
 	const copy = shell.timingCopy;
-	const { draft, value, saving, saved, error } = useDraft( { ...DefaultTimingConfiguration }, register, save );
+	const { draft, value, saving, error, discard } = useDraft( { ...DefaultTimingConfiguration }, register, save );
 	const [ status, setStatus ] = useState<LoadState>( LoadState.LOADING );
 
 	/**
@@ -105,8 +105,8 @@ export function Timing( props: EditableSettingsScreenProps ) {
 				} }>
 				<Stack gap={ 0 }>
 					<TimingControls copy={ copy } value={ value } disabled={ saving } onChange={ draft.change } />
-					<Feedback error={ errorMessage } success={ saved ? copy.saved : null } />
-					<DraftActions draft={ draft } copy={ copy } onSave={ save } />
+					<Feedback error={ errorMessage } />
+					<DraftActions draft={ draft } copy={ copy } onSave={ save } onDiscard={ discard } />
 				</Stack>
 			</form> }
 		</Page>

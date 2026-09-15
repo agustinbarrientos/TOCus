@@ -23,4 +23,5 @@ export interface DraftActionsProps<T extends object> {
 	draft: Draft<T>;
 	copy: DraftActionCopy;
 	onSave: SaveDraft;
+	onDiscard: () => void;
 }

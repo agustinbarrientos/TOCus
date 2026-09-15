@@ -41,7 +41,7 @@ export function DraftActions<T extends object>( props: DraftActionsProps<T> ) {
 	/** Discards without writing and returns focus before these actions become disabled. */
 	function discard(): void {
 		restoreFocus.current = true;
-		props.draft.discard();
+		props.onDiscard();
 	}
 
 	return (

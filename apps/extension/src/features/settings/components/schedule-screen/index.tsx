@@ -38,7 +38,7 @@ import './style.scss';
 export function ScheduleScreen( props: EditableSettingsScreenProps ) {
 	const copy = props.shell.scheduleCopy;
 	const state = useScheduleState( props );
-	const { draft, value, saving, saved, error, status, validate } = state;
+	const { draft, value, saving, error, status, validate } = state;
 	const errorMessage = error === ScheduleSaveErrorReason.INVALID_SCHEDULE ? copy.invalidScheduleError
 		: error === ScheduleSaveErrorReason.SCOPE_NOT_FOUND ? copy.scopeNotFoundError
 			: error === ScheduleSaveErrorReason.INVALID_CONFIGURATION
@@ -67,8 +67,8 @@ export function ScheduleScreen( props: EditableSettingsScreenProps ) {
 								draft.change( { ...value, windows } );
 							} } />
 					</section> }
-					<Feedback error={ errorMessage } success={ saved ? copy.savedAnnouncement : null } />
-					<DraftActions draft={ draft } copy={ copy } onSave={ state.save } />
+					<Feedback error={ errorMessage } />
+					<DraftActions draft={ draft } copy={ copy } onSave={ state.save } onDiscard={ state.discard } />
 				</Stack>
 			</form> }
 		</Page>
