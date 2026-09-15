@@ -4,6 +4,25 @@ import type {} from './__fixtures__/browser-types';
 const origin = '/apps/extension/src/features/interruption/components/screen/__fixtures__/browser.html';
 
 test.describe( 'React pause', () => {
+	test( 'keeps the ambient layer behind the cue and a compact sixteen-pixel countdown', async ( { page } ) => {
+		await page.goto( origin );
+		await page.locator( 'html[data-ready]' ).waitFor();
+		for ( const width of [ 1280, 375 ] ) {
+			await page.setViewportSize( { width, height: 900 } );
+			const countdown = page.locator( '.remaining' );
+			await expect( countdown ).toHaveText( '10s' );
+			expect( await countdown.evaluate( ( element ) => getComputedStyle( element ).fontSize ) ).toBe( '16px' );
+			const scene = await page.locator( '.scene' ).boundingBox();
+			const glow = await page.locator( '.bloom' ).boundingBox();
+			const cue = await page.locator( '.cue' ).boundingBox();
+			if ( ! scene || ! glow || ! cue ) {
+				throw new Error( 'Expected the viewport backdrop and breathing cue.' );
+			}
+			expect( glow ).toEqual( scene );
+			expect( glow.y ).toBeLessThan( cue.y );
+			expect( glow.width ).toBe( width );
+		}
+	} );
 	test( 'uses the shared packaged control and preserves focused progress and real Space', async ( { page } ) => {
 		await page.goto( origin );
 		await page.locator( 'html[data-ready]' ).waitFor();
@@ -11,7 +30,7 @@ test.describe( 'React pause', () => {
 			window.pauseFixture.environment.advance( 2000 );
 			await window.pauseFixture.screen.updateComplete;
 		} );
-		expect( await page.locator( '.remaining' ).textContent() ).toBe( '8s remaining' );
+		expect( await page.locator( '.remaining' ).textContent() ).toBe( '8s' );
 		await page.evaluate( async () => {
 			window.pauseFixture.environment.setWindowFocused( false );
 			window.pauseFixture.environment.advance( 5000 );

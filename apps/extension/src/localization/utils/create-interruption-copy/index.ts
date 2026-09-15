@@ -19,8 +19,8 @@ export function createInterruptionCopy( i18n: I18n ): Readonly<InterruptionScree
 		return i18n._( msg( {
 			comment: 'Compact countdown shown during a focused pause. The letter s means seconds.',
 			message: plural( { count: remainingSeconds }, {
-				one: '#s remaining',
-				other: '#s remaining',
+				one: '#s',
+				other: '#s',
 			} ),
 		} ) );
 	}

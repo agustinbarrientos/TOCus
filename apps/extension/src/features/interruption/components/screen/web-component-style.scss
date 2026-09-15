@@ -33,6 +33,7 @@
 }
 
 .scene {
+	--tocus-countdown-font-size: var(--tocus-size-unit);
 	--tocus-breath-bloom-opacity: 0.72;
 	--tocus-breath-bloom-scale: 0.82;
 	--tocus-breath-progress: 0;
@@ -68,16 +69,16 @@
 	&::before {
 		position: absolute;
 		z-index: -1;
-		inset: -20%;
+		inset: -25%;
 		background: radial-gradient(
-			circle at 49% 47%,
+			ellipse at 50% 55%,
 			var(--tocus-color-stage-glow) 0%,
-			transparent 36%
+			transparent 75%
 		);
 		background-repeat: no-repeat;
 		opacity: var(--tocus-breath-bloom-opacity);
 		transform: scale(var(--tocus-breath-bloom-scale));
-		transform-origin: 49% 47%;
+		transform-origin: 50% 55%;
 		content: '';
 		pointer-events: none;
 	}
@@ -117,6 +118,9 @@ header {
 }
 
 .remaining {
+	--tocus-typography-body-large-font-size: var(--tocus-countdown-font-size);
+	--tocus-typography-body-large-line-height: 1.5;
+
 	@include typography.apply( 'body-large' );
 
 	max-width: min(50vw, sizing.size(28));
@@ -418,8 +422,6 @@ footer {
 	}
 
 	.remaining {
-		@include typography.apply( 'body-medium' );
-
 		max-width: 58vw;
 	}
 
