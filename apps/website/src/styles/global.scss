@@ -126,8 +126,7 @@ body { margin: 0; }
 		pointer-events: none;
 	}
 
-	// The mascot must be gone before the chapter caption occupies the same space,
-	// including reduced-motion visitors who do not receive the decorative fade.
+	// The mascot leaves before the pinned product story, including reduced motion.
 	&[data-story-active] .hero-art { visibility: hidden; }
 
 	.website-section {

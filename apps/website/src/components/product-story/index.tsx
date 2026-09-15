@@ -45,11 +45,6 @@ export function ProductStory( props: ProductStoryProps ) {
 						<h3>{ step.title }</h3><p>{ step.description }</p>
 					</div> ) }
 				</div>
-				<ProductDemo languageTag={ languageTag } messages={ messages }
-					chapter={ chapter } progress={ progress } copy={ {
-						label: catalog.demoLabel, chooseTitle: catalog.chooseTitle, visitTitle: catalog.visitTitle,
-						siteSelected: catalog.demoSiteSelected, timeLeft: catalog.demoTimeLeft,
-					} } />
 				<ol className="story-steps" role="list" aria-label={ catalog.howTitle } hidden={ ! enhanced }>
 					{ chapters.map( ( step, index ) => <li key={ step.id } data-story-chapter={ step.id }>
 						<Button variant="subtle" className="story-step-action" px="0.25rem" py="0.7rem" radius={ 0 }
@@ -60,6 +55,11 @@ export function ProductStory( props: ProductStoryProps ) {
 						</Button>
 					</li> ) }
 				</ol>
+				<ProductDemo languageTag={ languageTag } messages={ messages }
+					chapter={ chapter } progress={ progress } copy={ {
+						label: catalog.demoLabel, chooseTitle: catalog.chooseTitle, visitTitle: catalog.visitTitle,
+						siteSelected: catalog.demoSiteSelected, timeLeft: catalog.demoTimeLeft,
+					} } />
 			</div>
 		</div>
 		{ ! enhanced && <ol className="story-fallback">

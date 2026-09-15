@@ -1,4 +1,16 @@
-import type { DemoChapter } from '../../components/product-demo/types';
+import { DemoChapter } from '../../components/product-demo/types';
+
+/**
+ * Deliberate beats give the breathing pause more reading and animation time.
+ * @since 0.1.0
+ */
+export const StoryChapterStart = {
+	[ DemoChapter.CHOOSE ]: 0,
+	[ DemoChapter.VISIT ]: 0.18,
+	[ DemoChapter.PAUSE ]: 0.30,
+	[ DemoChapter.CONTINUE ]: 0.66,
+	[ DemoChapter.BROWSE ]: 0.80,
+} as const;
 
 /**
  * Selects the product scene matching the current explanation.
