@@ -162,5 +162,4 @@ export interface ScheduleScreenCopy {
 	invalidConfigurationError: string;
 	invalidScheduleError: string;
 	scopeNotFoundError: string;
-	savedAnnouncement: string;
 }

@@ -74,7 +74,6 @@ export interface ProtectedSitesAddressInputEvent extends Event {
 export interface ProtectedSitesScreenCopy extends ProtectedSiteListCopy {
 	save: string;
 	discard: string;
-	saved: string;
 	savedWithRetainedAccess: string;
 	configurationChangedError: string;
 	title: string;

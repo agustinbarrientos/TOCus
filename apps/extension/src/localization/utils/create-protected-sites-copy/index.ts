@@ -71,7 +71,6 @@ export function createProtectedSitesCopy(
 		...listCopy,
 		save: i18n._( msg`Save` ),
 		discard: i18n._( msg`Discard` ),
-		saved: i18n._( msg`Website changes saved.` ),
 		savedWithRetainedAccess: i18n._( msg`Your website changes were saved, but some unused browser access could not be removed.` ),
 		configurationChangedError: i18n._( msg`Your website list changed elsewhere. Discard your draft and reopen Websites before trying again.` ),
 		title: i18n._( msg`Websites` ),

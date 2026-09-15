@@ -97,6 +97,5 @@ export function createScheduleCopy(
 		invalidConfigurationError: i18n._( msg`The local configuration could not be updated safely.` ),
 		invalidScheduleError: i18n._( msg`Check the schedule and try again.` ),
 		scopeNotFoundError: i18n._( msg`This timing group is no longer available. Reload the page and try again.` ),
-		savedAnnouncement: i18n._( msg`Schedule saved.` ),
 	} );
 }
