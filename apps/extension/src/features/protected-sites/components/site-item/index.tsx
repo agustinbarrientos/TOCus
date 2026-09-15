@@ -5,6 +5,7 @@ import {
 	Button,
 	Group,
 	Stack,
+	Tooltip,
 	Icon,
 	IconName,
 } from '@tocus/ui';
@@ -76,8 +77,21 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 						<p>{ site.rule.host }</p>
 						{ details.schedule !== null && <p className="settings-site-schedule"><Icon name={ IconName.CALENDAR } />{ summary }</p> }
 					</div>
-					<ActionIcon className="settings-site-manage" variant="subtle" aria-label={ copy.edit }
-						disabled={ disabled } onClick={ props.onEdit }><Icon name={ IconName.SLIDERS } /></ActionIcon>
+					<Group className="settings-site-actions" wrap="nowrap" gap="var(--tocus-space-1)">
+						<Tooltip label={ copy.removeSite }
+							events={ { hover: true, focus: true, touch: true } } withArrow>
+							<ActionIcon className="settings-site-remove" variant="subtle" aria-label={ copy.removeSite }
+								disabled={ disabled } onClick={ props.onRemove }>
+								<Icon name={ IconName.TRASH } />
+							</ActionIcon>
+						</Tooltip>
+						<Tooltip label={ copy.edit } events={ { hover: true, focus: true, touch: true } } withArrow>
+							<ActionIcon className="settings-site-manage" variant="subtle" aria-label={ copy.edit }
+								disabled={ disabled } onClick={ props.onEdit }>
+								<Icon name={ IconName.SLIDERS } />
+							</ActionIcon>
+						</Tooltip>
+					</Group>
 				</Group>
 				{ props.confirmation }
 				{ props.accessRequired && <Alert role="status" color="yellow" className="settings-site-access tocus-alert-actionable"
@@ -94,21 +108,17 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 				{ props.editing && <form className="settings-site-editor" onSubmit={ submitEditor }>
 					<WebsiteDetails idPrefix={ `site-${ site.identityHost }` } copy={ copy } scheduleCopy={ props.scheduleCopy }
 						value={ details } disabled={ disabled } validate={ validate || props.validate === true }
-						initiallyExpanded onChange={ props.onChange } />
+						showName onChange={ props.onChange } />
 					{ error && <Feedback nativeError
 						error={ error === ProtectedSiteItemOperationErrorReason.CONFIGURATION_CHANGED
 							? copy.configurationChangedError : copy.operationError } />
 					}
-					<Group className="tocus-form-actions settings-site-editor-footer" justify="space-between" gap="var(--tocus-space-2)">
-						<Button className="tocus-native-button" color="red"
-							disabled={ disabled } onClick={ props.onRemove }>{ copy.removeSite }</Button>
-						<Group className="settings-site-edit-actions" gap="var(--tocus-space-2)">
-							{ props.persistedEditing && <Button className="tocus-native-button" variant="outline" disabled={ disabled }
-								onClick={ props.persistedEditing.cancel }>{ copy.cancel }</Button> }
-							<Button className="tocus-native-button" type="submit" disabled={ disabled }>
-								{ props.persistedEditing ? copy.saveChanges : copy.done }
-							</Button>
-						</Group>
+					<Group className="tocus-form-actions settings-site-editor-footer" justify="flex-end" gap="var(--tocus-space-2)">
+						{ props.persistedEditing && <Button className="tocus-native-button" variant="outline" disabled={ disabled }
+							onClick={ props.persistedEditing.cancel }>{ copy.cancel }</Button> }
+						<Button className="tocus-native-button" type="submit" disabled={ disabled }>
+							{ props.persistedEditing ? copy.saveChanges : copy.done }
+						</Button>
 					</Group>
 				</form> }
 			</Stack>

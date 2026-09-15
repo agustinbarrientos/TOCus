@@ -123,7 +123,6 @@ export interface ProtectedSiteItemCopy {
 	accessRequestError: string;
 	edit: string;
 	displayNameLabel: string;
-	advancedLabel: string;
 	customScheduleLabel: string;
 	automaticNamePlaceholder: string;
 	saveChanges: string;

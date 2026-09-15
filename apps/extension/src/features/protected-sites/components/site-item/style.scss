@@ -11,10 +11,12 @@
 	min-width: 0;
 	overflow-wrap: anywhere;
 	h2 { @include typography.apply('title-medium'); margin: 0; }
-	p { @include typography.apply('body-small'); margin-top: var(--tocus-space-1); }
+	p { @include typography.apply('body-small'); margin: 0; }
 }
 
 .settings-site-row { gap: var(--tocus-space-3); }
+
+.settings-site-actions { flex-shrink: 0; }
 
 .settings-site-monogram { @include typography.apply('title-medium'); }
 
@@ -42,15 +44,12 @@
 
 .settings-site-editor-footer { --tocus-form-actions-padding-before: var(--tocus-space-5); }
 
-[data-tocus-ui] .settings-site-edit-actions { gap: var(--tocus-space-2); }
-
-
 @media (width <= 38rem) {
 	.settings-site-row {
 		display: grid;
 		grid-template-columns: auto minmax(0, 1fr) auto;
 
-		> button {
+		> .settings-site-actions {
 			grid-row: 1 / span 2;
 			grid-column: 3;
 		}
@@ -77,8 +76,8 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-	.settings-site-manage { opacity: 0; }
+	.settings-site-actions { opacity: 0; }
 
-	.settings-site-item:hover .settings-site-manage,
-	.settings-site-item:focus-within .settings-site-manage { opacity: 1; }
+	.settings-site-item:hover .settings-site-actions,
+	.settings-site-item:focus-within .settings-site-actions { opacity: 1; }
 }
