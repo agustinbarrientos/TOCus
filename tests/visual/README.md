@@ -54,6 +54,14 @@ Fourteen website references were refreshed from normal-run captures: nine locali
 
 During verification, the existing unavailable-Statistics alert corner reproduced a one-level RGB variation at ten opaque pixels, with three rejected by the strict comparison. Its reference corner still matches HEAD and earlier passing captures exactly; older failure captures reproduce the alternate bytes. This is not an approved baseline or tolerance change. The failure remains visible, and does not justify claiming that visual comparisons are unconditionally stable.
 
+## Approved website editor and schedule details
+
+The subsequent September 14 refinement adds a background only to missing-image favicon fallbacks, aligns and separates website schedule summaries, and uses larger semantic row-action icons. Existing website edits now open in the shared modal instead of expanding the list. Its fields remain tentative until Done; Cancel and Escape leave the page draft untouched. The shared weekly table has a rounded border and the Add row action uses the packaged extra-small button size.
+
+Sixteen original references were reviewed before and after and refreshed at their existing paths: four standalone site-item states, two site lists, eight populated/editing/removal Websites views, and two Schedule views. Standalone operation-error scenarios now capture the actual dialog instead of the list item behind it; their filenames and behavior checks are retained. The other 90 originals remain unchanged, including the known unavailable-Statistics corner variation. No comparison tolerance, scenario inventory or update-flag restriction changed.
+
+The subsequent site-removal correction replaces the oversized inline panel with the shared centered confirmation dialog. The question is its heading, the domain identifies the target, and the actions align with other dialogs. The four removal references were compared before and after and refreshed without changing their paths, filenames, dimensions or comparison settings. Browser tests cover stable row layout, cancellation, keyboard focus, draft-only deletion and long identities on narrow screens. The obsolete minimal-confirmation styling was removed rather than retained as another visual variant.
+
 ## Approved supplied-icon replacements
 
 On September 14, 2026, the project owner supplied fifteen replacement SVGs for navigation, external links, privacy and error notices, select and disclosure arrows, and loading indicators. These assets are shared by the extension and website. The canonical filenames and constant names follow their actual shapes; the supplied secondary-path opacity and third-party notices remain intact.
