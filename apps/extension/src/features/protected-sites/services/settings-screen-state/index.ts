@@ -130,9 +130,10 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 
 	/**
 	 * Canonicalizes an address into the page draft without requesting browser access.
+	 * @param savingDraft - Allows an unchanged, already-listed address to be ignored during Save.
 	 * @return Staged complete draft, or null for invalid input.
 	 */
-	function stage(): WebsitesDraft | null {
+	function stage( savingDraft = false ): WebsitesDraft | null {
 		if ( ! shell.editor || saving ) {
 			return null;
 		}
@@ -140,6 +141,14 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 		if ( canonical.status === ProtectedSiteCanonicalizationStatus.REJECTED ) {
 			setInputError( 'invalid-site' );
 			return null;
+		}
+		const alreadyListed = value.sites.some( ( site ) => site.rule.host === canonical.rule.host
+			&& site.rule.includeSubdomains === canonical.rule.includeSubdomains );
+		if ( savingDraft && alreadyListed && ! value.newSite.displayName.trim() && value.newSite.schedule === null ) {
+			// Repeating an address must not block other edits or overwrite the existing site's details.
+			const next = { ...value, address: '' };
+			change( next );
+			return next;
 		}
 		const sites = ProtectedSiteConfigurationSetSchema.safeParse( [
 			...value.sites, { identityHost: canonical.identityHost, rule: canonical.rule },
@@ -171,7 +180,7 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 			return Promise.resolve( DraftSaveResult.FAILED );
 		}
 		setValidate( true );
-		const candidate = value.address.trim() ? stage() : value;
+		const candidate = value.address.trim() ? stage( true ) : value;
 		if ( candidate === null ) {
 			return Promise.resolve( DraftSaveResult.FAILED );
 		}

@@ -45,6 +45,39 @@ async function readTabMuted( worker: Worker, url: string ): Promise<boolean> {
 }
 
 test.describe( 'packaged Chrome protection', () => {
+	test( 'saves website changes through the departure dialog using the native permission API', async ( { page, worker, extensionRoot } ) => {
+		await page.goto( new URL( 'options.html#protected-sites', extensionRoot ).href );
+		await page.getByLabel( 'Website address', { exact: true } ).fill( 'example.test' );
+		await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
+		await page.getByLabel( 'Website address', { exact: true } ).fill( 'https://example.test/again' );
+		await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
+		await page.evaluate( () => {
+			const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+			const request = chrome.permissions.request.bind( chrome.permissions );
+			// Observe the native API without replacing its permission decision or asynchronous result.
+			chrome.permissions.request = ( permissions ) => {
+				document.documentElement.dataset.permissionRequest = JSON.stringify( permissions );
+				document.documentElement.dataset.permissionActivation = String( navigator.userActivation.isActive );
+				return request( permissions );
+			};
+		} );
+		await page.getByRole( 'link', { name: 'About', exact: true } ).click();
+		await page.getByRole( 'dialog' ).getByRole( 'button', { name: 'Save', exact: true } ).click();
+		await expect( page.locator( 'html' ) ).toHaveAttribute( 'data-permission-activation', 'true' );
+		expect( JSON.parse( await page.locator( 'html' ).getAttribute( 'data-permission-request' ) ?? '{}' ) )
+			.toEqual( { permissions: [ 'webNavigation' ], origins: [ '*://example.test/*' ] } );
+		await expect( page ).toHaveURL( /#about$/u );
+		const stored = await worker.evaluate( async () => {
+			const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+			return ( await chrome.storage.local.get( 'tocus.protection.configuration.v1' ) )[ 'tocus.protection.configuration.v1' ];
+		} );
+		expect( stored ).toMatchObject( {
+			sites: [ { identityHost: 'example.test', rule: {
+				host: 'example.test', includeSubdomains: false, scopeId: DefaultProtectionScopeId,
+			} } ],
+		} );
+	} );
+
 	for ( const entry of [ 'popup.html', 'options.html', 'onboarding.html' ] ) {
 		test( `opens packaged ${ entry } without preload-world warnings or script errors`, async ( { context, extensionRoot } ) => {
 			const page = await context.newPage();
