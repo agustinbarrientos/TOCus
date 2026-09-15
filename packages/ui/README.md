@@ -38,13 +38,13 @@ Alerts retain the original icon geometry: a 1.25em square with a 0.125em top mar
 
 Use the `IconName` const catalog for icons, for example `<Icon name={IconName.HEART} />`. Names describe the supplied shapes, never an application destination or feedback meaning: `HEART`, `BRUSH`, `ARROW_UP_RIGHT_FROM_SQUARE`, `LANGUAGE`, `SHIELD_HALVED`, `USER_LOCK`, `CALENDAR`, `SLIDERS`, `LINK_HORIZONTAL`, `CHART_COLUMN`, `PAUSE`, `CIRCLE_CHECK`, `CIRCLE_EXCLAMATION`, `ANGLE_DOWN`, `ANGLE_UP` and `SPINNER_THIRD`. Artwork lives under matching shape-based filenames in `@tocus/theme/icons`; the renderer preserves supplied path opacity and inherits the active foreground color.
 
-`src/theme.ts` supplies `ANGLE_DOWN` through Mantine `NativeSelect`'s public `rightSection` slot while retaining native selection and keyboard behavior. It also supplies `SPINNER_THIRD` as Mantine's default `oval` loader, including `Button` loading states. Shared sizing, rotation and reduced-motion handling live in `src/styles.scss`.
+`src/utils/theme/index.ts` supplies `ANGLE_DOWN` through Mantine `NativeSelect`'s public `rightSection` slot while retaining native selection and keyboard behavior. It also supplies `SPINNER_THIRD` as Mantine's default `oval` loader, including `Button` loading states. Shared sizing, rotation and reduced-motion handling live in `src/components/provider/style.scss`.
 
 For native disclosures, use `details.tocus-disclosure` with `ANGLE_DOWN` and `ANGLE_UP` inside its `summary`, carrying `tocus-disclosure-expand` and `tocus-disclosure-collapse` respectively. Shared styles replace the browser marker and switch artwork using the native `open` attribute; the browser owns disclosure interaction. Keep select, disclosure and loader artwork in these shared defaults and styles.
 
 `IconName.CAPYBARA` reuses the existing mascot artwork from `@tocus/theme/icon.svg`; it does not introduce a duplicate asset. The `tocus-native-checkbox` modifier restores original native checkbox artwork while retaining Mantine's labelled input and form handling.
 
-`IconName`, `TocusAppearance` and `TocusPalette` each expose one runtime const object and its inferred type from canonical `src/types.ts`. Use their constants in production and tests rather than repeating raw values. Node-based tests and tooling can import the catalogs from `@tocus/ui/types` without loading React components or SVG assets.
+`IconName`, `TocusAppearance` and `TocusPalette` each expose one runtime const object and its inferred type from their owning component's `types.ts`, re-exported through `src/types.ts`. Use their constants in production and tests rather than repeating raw values. Node-based tests and tooling can import the catalogs from `@tocus/ui/types` without loading React components or SVG assets.
 
 Shared layout classes are `tocus-page`, `tocus-page-header`, `tocus-section`, `tocus-form-actions`, `tocus-info` and `tocus-external-link`. App styles should compose pages and sections without restyling foundation states.
 

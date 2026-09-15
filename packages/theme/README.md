@@ -4,9 +4,9 @@
 
 ## Ownership
 
-- `packages/ui/src/theme.ts` owns library defaults and semantic variants, including complete foreground/background pairs for resting, hover and focus states, the native-select `ANGLE_DOWN` artwork and the default `SPINNER_THIRD` loader.
-- `packages/ui/src/styles.scss` owns shared layouts and cross-component interaction rules, including native disclosure `ANGLE_DOWN`/`ANGLE_UP` states and loader sizing, rotation and reduced-motion handling. Application SCSS owns only screen layout and unique branded artwork.
-- `packages/ui/src/provider.tsx` owns theme context, portals and style targets. The injected pause keeps styles, overlays and generated variables inside its own Shadow DOM; it must never style the website underneath it.
+- `packages/ui/src/utils/theme/index.ts` owns library defaults and semantic variants, including complete foreground/background pairs for resting, hover and focus states, the native-select `ANGLE_DOWN` artwork and the default `SPINNER_THIRD` loader.
+- `packages/ui/src/components/provider/style.scss` owns shared layouts and cross-component interaction rules, including native disclosure `ANGLE_DOWN`/`ANGLE_UP` states and loader sizing, rotation and reduced-motion handling. Application SCSS owns only screen layout and unique branded artwork.
+- `packages/ui/src/components/provider/index.tsx` owns theme context, portals and style targets. The injected pause keeps styles, overlays and generated variables inside its own Shadow DOM; it must never style the website underneath it.
 - `tokens.scss`, `sizing.scss` and `typography/` remain framework-independent. `controls.scss` contains only the focus-ring mixin used by the native pause dialog, not another control library.
 
 ## Semantic distinctions
@@ -26,6 +26,6 @@ The 15 supplied replacement and control SVGs carry Font Awesome Pro v7.3.1 comme
 
 ## Regression checks
 
-`packages/ui/src/styles.test.ts` rejects copied action and notice styling in application stylesheets. `pnpm test:ui` runs real-browser checks in Chromium, Firefox and WebKit for control semantics, keyboard use, all twelve palette/appearance combinations, hover/focus contrast, forced colors, responsive layouts and isolated styling.
+`packages/ui/src/components/provider/style.test.ts` rejects copied action and notice styling in application stylesheets. `pnpm test:ui` runs real-browser checks in Chromium, Firefox and WebKit for control semantics, keyboard use, all twelve palette/appearance combinations, hover/focus contrast, forced colors, responsive layouts and isolated styling.
 
 Extend the library theme or shared presentation when a reusable variant is needed. Do not patch one page with a second implementation of the same control.

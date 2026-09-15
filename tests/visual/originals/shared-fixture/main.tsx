@@ -1,4 +1,4 @@
-import '../../../../packages/ui/src/styles.scss';
+import '../../../../packages/ui/src/components/provider/style.scss';
 import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Alert, Button, Icon, IconName, Radio, Text, Title, TocusAppearance, TocusPalette, TocusProvider } from '../../../../packages/ui/src';

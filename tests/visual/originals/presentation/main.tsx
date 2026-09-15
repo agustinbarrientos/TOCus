@@ -1,4 +1,4 @@
-import '../../../../packages/ui/src/styles.scss';
+import '../../../../packages/ui/src/components/provider/style.scss';
 import { createRoot } from 'react-dom/client';
 import { Text, Title, TocusProvider } from '../../../../packages/ui/src';
 import {
