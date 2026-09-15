@@ -37,6 +37,13 @@ test.describe( 'privacy resets', () => {
 			const action = page.getByRole( 'main' ).getByRole( 'button', { name: label, exact: true } );
 			await action.click();
 			const dialog = page.getByRole( 'dialog' );
+			const shape = await dialog.evaluate( ( element ) => {
+				const style = getComputedStyle( element );
+				return { radius: parseFloat( style.borderTopLeftRadius ),
+					padding: [ style.paddingTop, style.paddingRight, style.paddingBottom, style.paddingLeft ] };
+			} );
+			expect( shape.radius ).toBe( 12 );
+			expect( new Set( shape.padding ).size ).toBe( 1 );
 			await dialog.getByRole( 'button', { name: 'Cancel', exact: true } ).click();
 			await dialog.waitFor( { state: 'hidden' } );
 			expect( await page.evaluate( () => window.settingsTest.controls.resetCount ) ).toBe( 0 );

@@ -4,6 +4,22 @@ import { SettingsDestination } from '../../services/settings-navigation/types';
 import { test } from '../../utils/browser-test-harness';
 
 test.describe( 'React settings', () => {
+	test( 'keeps navigation separators as subtle as its outer border on wide and narrow screens', async ( { open } ) => {
+		const page = await open( SettingsDestination.APPEARANCE );
+		for ( const width of [ 1280, 375 ] ) {
+			await page.setViewportSize( { width, height: 900 } );
+			const colors = await page.locator( '.settings-navigation' ).evaluate( ( navigation ) => {
+				const divider = navigation.querySelector( 'hr' );
+				if ( ! divider ) {
+					throw new Error( 'Expected grouped navigation.' );
+				}
+				const vertical = matchMedia( '(max-width: 48rem)' ).matches;
+				return { edge: getComputedStyle( navigation )[ vertical ? 'borderBottomColor' : 'borderRightColor' ],
+					divider: getComputedStyle( divider )[ vertical ? 'borderLeftColor' : 'borderTopColor' ] };
+			} );
+			expect( colors.divider ).toBe( colors.edge );
+		}
+	} );
 	test( 'preserves the approved edge navigation and spacious page composition', async ( { open } ) => {
 		const page = await open( SettingsDestination.APPEARANCE );
 		await page.setViewportSize( { width: 1280, height: 1200 } );

@@ -42,7 +42,7 @@ body {
 	width: 100%;
 	margin: var(--tocus-space-3) 0;
 	border: 0;
-	border-top: 1px solid var(--tocus-color-divider);
+	border-top: 1px solid var(--tocus-color-outline);
 }
 
 .settings-content {
@@ -81,7 +81,7 @@ body {
 		height: 2rem;
 		margin: auto var(--tocus-space-2);
 		border-top: 0;
-		border-left: 1px solid var(--tocus-color-divider);
+		border-left: 1px solid var(--tocus-color-outline);
 	}
 
 	.settings-content {

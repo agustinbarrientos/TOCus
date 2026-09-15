@@ -70,7 +70,7 @@ export function Confirmation( props: ConfirmationProps ) {
 			<Paper className="settings-inline-confirmation" data-minimal={ props.minimal || undefined }
 				role="dialog" aria-labelledby={ props.minimal ? undefined : titleId }
 				aria-label={ props.minimal ? props.title : undefined }
-				withBorder radius={ 0 }
+				withBorder radius="var(--tocus-radius-small)"
 				p="var(--tocus-space-4)"
 				{ ...( props.minimal ? { pt: 'var(--tocus-space-5)' } : {} ) }
 				onKeyDown={ ( event ) => {
