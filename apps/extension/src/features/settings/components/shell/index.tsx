@@ -1,5 +1,7 @@
 import { Fragment, type MouseEvent } from 'react';
 import { useSettingsNavigation } from '../../services/settings-navigation';
+import { SettingsFeedbackProvider } from '../../services/settings-feedback';
+import '@tocus/ui/notifications.scss';
 import { Brand, Icon, IconName, NavLink, TocusProvider } from '@tocus/ui';
 import { useDocumentAppearance } from '../../../preferences/services/document-appearance';
 import {
@@ -104,47 +106,49 @@ export function SettingsShell( properties: SettingsShellProperties ) {
 
 	return (
 		<TocusProvider { ...theme }>
-			<div className="settings-layout">
-				<aside className="settings-navigation">
-					<Brand />
-					<nav aria-label={ shell.copy.navigationLabel }>
-						{ items.map( ( item ) => <Fragment key={ item.id }>
-							{ ( item.id === SettingsDestination.APPEARANCE ||
+			<SettingsFeedbackProvider copy={ shell.copy }>
+				<div className="settings-layout">
+					<aside className="settings-navigation">
+						<Brand />
+						<nav aria-label={ shell.copy.navigationLabel }>
+							{ items.map( ( item ) => <Fragment key={ item.id }>
+								{ ( item.id === SettingsDestination.APPEARANCE ||
 								item.id === SettingsDestination.STATISTICS ||
 								item.id === SettingsDestination.PRIVACY ) && <hr className="settings-navigation-divider" /> }
-							<NavLink
-								component="a"
-								href={ `#${ item.id }` }
-								active={ navigation.destination === item.id }
-								aria-current={ navigation.destination === item.id ? 'page' : undefined }
-								label={ item.name }
-								leftSection={ <Icon name={ item.icon } /> }
-								onClick={ handleNavigation }
-							/>
-						</Fragment> ) }
-					</nav>
-				</aside>
-				<div className="settings-content" key={ navigation.destination }>
-					<SettingsDestinationContent
-						destination={ navigation.destination }
-						shell={ shell }
-						register={ navigation.register }
-						accessRef={ accessRef }
+								<NavLink
+									component="a"
+									href={ `#${ item.id }` }
+									active={ navigation.destination === item.id }
+									aria-current={ navigation.destination === item.id ? 'page' : undefined }
+									label={ item.name }
+									leftSection={ <Icon name={ item.icon } /> }
+									onClick={ handleNavigation }
+								/>
+							</Fragment> ) }
+						</nav>
+					</aside>
+					<div className="settings-content" key={ navigation.destination }>
+						<SettingsDestinationContent
+							destination={ navigation.destination }
+							shell={ shell }
+							register={ navigation.register }
+							accessRef={ accessRef }
+						/>
+					</div>
+					<Confirmation
+						opened={ navigation.pending !== null }
+						title={ shell.copy.unsavedChangesTitle }
+						description={ shell.copy.unsavedChangesDescription }
+						cancel={ shell.copy.stay }
+						confirm={ shell.copy.discard }
+						pending={ navigation.saving }
+						error={ navigation.saveFailed ? shell.copy.saveFailed : null }
+						save={ { label: shell.copy.save, pendingLabel: shell.copy.saving, onSave: handleSave } }
+						onCancel={ navigation.stay }
+						onConfirm={ handleDiscard }
 					/>
 				</div>
-				<Confirmation
-					opened={ navigation.pending !== null }
-					title={ shell.copy.unsavedChangesTitle }
-					description={ shell.copy.unsavedChangesDescription }
-					cancel={ shell.copy.stay }
-					confirm={ shell.copy.discard }
-					pending={ navigation.saving }
-					error={ navigation.saveFailed ? shell.copy.saveFailed : null }
-					save={ { label: shell.copy.save, pendingLabel: shell.copy.saving, onSave: handleSave } }
-					onCancel={ navigation.stay }
-					onConfirm={ handleDiscard }
-				/>
-			</div>
+			</SettingsFeedbackProvider>
 		</TocusProvider>
 	);
 }

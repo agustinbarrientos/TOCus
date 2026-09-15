@@ -70,8 +70,8 @@ function AppearanceSettingsControls( props: AppearanceSettingsControlsProps ) {
 export function Preferences( props: PreferencesScreenProps ) {
 	const { shell, language = false } = props;
 	const copy = language ? shell.languageCopy : shell.appearanceCopy;
-	const { draft, value, saving, error, saved, status, recovery, load, save, restore } = usePreferencesState( props );
-	const success = saved ? copy.savedAnnouncement : recovery.restored ? copy.restoredAnnouncement : null;
+	const { draft, value, saving, error, status, recovery, load, save, discard, restore } =
+		usePreferencesState( props );
 
 	return (
 		<Page title={ copy.title }>
@@ -81,7 +81,8 @@ export function Preferences( props: PreferencesScreenProps ) {
 				} } restore={ () => {
 					void restore();
 				} } />
-			<Feedback error={ recovery.failed ? copy.restoreDefaultsError : null } />
+			<Feedback error={ recovery.failed ? copy.restoreDefaultsError : null }
+				success={ recovery.restored ? copy.restoredAnnouncement : null } />
 			{ status === LoadState.READY && <form aria-label={ copy.formLabel } aria-busy={ saving }
 				onSubmit={ ( event ) => {
 					event.preventDefault(); void save();
@@ -95,8 +96,8 @@ export function Preferences( props: PreferencesScreenProps ) {
 							} } />
 						: <AppearanceSettingsControls copy={ shell.appearanceCopy } value={ value }
 							disabled={ saving } onChange={ draft.change } /> }
-					<Feedback error={ error ? copy.saveError : null } success={ success } />
-					<DraftActions draft={ draft } copy={ copy } onSave={ save } />
+					<Feedback error={ error ? copy.saveError : null } />
+					<DraftActions draft={ draft } copy={ copy } onSave={ save } onDiscard={ discard } />
 				</Stack>
 			</form> }
 		</Page>

@@ -2,43 +2,41 @@ import { expect } from '@playwright/test';
 import { test } from '../../utils/browser-test-harness';
 
 test.describe( 'Shared form feedback layout', () => {
-	for ( const rejected of [ true, false ] ) {
-		test( `separates ${ rejected ? 'error' : 'success' } feedback from copy and actions`, async ( { open, setting } ) => {
-			const page = await open();
-			await page.getByRole( 'slider' ).first().focus();
-			await page.keyboard.press( 'End' );
-			await setting( page, 'rejectSaves', rejected );
-			await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
-			const notice = page.locator( '.mantine-Alert-root' );
-			await expect( notice ).toBeVisible();
-			await expect( notice ).toHaveAttribute( 'role', rejected ? 'alert' : 'status' );
-			const geometry = await notice.evaluate( ( element ) => {
-				const style = getComputedStyle( element );
-				const bounds = element.getBoundingClientRect();
-				const previous = element.previousElementSibling?.getBoundingClientRect();
-				const action = element.nextElementSibling?.querySelector( 'button' )?.getBoundingClientRect();
-				const label = document.querySelector( '.tocus-field-label' );
-				const message = element.querySelector( '.mantine-Alert-message' );
-				return {
-					before: bounds.top - ( previous?.bottom ?? bounds.top ),
-					after: ( action?.top ?? bounds.bottom ) - bounds.bottom,
-					font: message ? getComputedStyle( message ).fontSize : '',
-					labelFont: label ? getComputedStyle( label ).fontSize : '',
-					borders: [ style.borderTopWidth, style.borderRightWidth,
-						style.borderBottomWidth, style.borderLeftWidth ],
-					radius: parseFloat( style.borderTopLeftRadius ),
-					padding: [ style.paddingTop, style.paddingRight, style.paddingBottom, style.paddingLeft ],
-				};
-			} );
-			expect( geometry.before ).toBeCloseTo( 24, 1 );
-			expect( geometry.after ).toBeCloseTo( 24, 1 );
-			expect( geometry.font ).toBe( geometry.labelFont );
-			expect( parseFloat( geometry.font ) ).toBeGreaterThanOrEqual( 16 );
-			expect( new Set( geometry.borders ).size ).toBe( 1 );
-			expect( geometry.radius ).toBe( 12 );
-			expect( geometry.padding ).toEqual( [ '16px', '16px', '16px', '16px' ] );
+	test( 'separates inline error feedback from copy and actions', async ( { open, setting } ) => {
+		const page = await open();
+		await page.getByRole( 'slider' ).first().focus();
+		await page.keyboard.press( 'End' );
+		await setting( page, 'rejectSaves', true );
+		await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
+		const notice = page.locator( '.mantine-Alert-root' );
+		await expect( notice ).toBeVisible();
+		await expect( notice ).toHaveAttribute( 'role', 'alert' );
+		const geometry = await notice.evaluate( ( element ) => {
+			const style = getComputedStyle( element );
+			const bounds = element.getBoundingClientRect();
+			const previous = element.previousElementSibling?.getBoundingClientRect();
+			const action = element.nextElementSibling?.querySelector( 'button' )?.getBoundingClientRect();
+			const label = document.querySelector( '.tocus-field-label' );
+			const message = element.querySelector( '.mantine-Alert-message' );
+			return {
+				before: bounds.top - ( previous?.bottom ?? bounds.top ),
+				after: ( action?.top ?? bounds.bottom ) - bounds.bottom,
+				font: message ? getComputedStyle( message ).fontSize : '',
+				labelFont: label ? getComputedStyle( label ).fontSize : '',
+				borders: [ style.borderTopWidth, style.borderRightWidth,
+					style.borderBottomWidth, style.borderLeftWidth ],
+				radius: parseFloat( style.borderTopLeftRadius ),
+				padding: [ style.paddingTop, style.paddingRight, style.paddingBottom, style.paddingLeft ],
+			};
 		} );
-	}
+		expect( geometry.before ).toBeCloseTo( 24, 1 );
+		expect( geometry.after ).toBeCloseTo( 24, 1 );
+		expect( geometry.font ).toBe( geometry.labelFont );
+		expect( parseFloat( geometry.font ) ).toBeGreaterThanOrEqual( 16 );
+		expect( new Set( geometry.borders ).size ).toBe( 1 );
+		expect( geometry.radius ).toBe( 12 );
+		expect( geometry.padding ).toEqual( [ '16px', '16px', '16px', '16px' ] );
+	} );
 
 	test( 'uses one spacing interval for errors inside a dialog stack', async ( { open, setting } ) => {
 		const page = await open();
