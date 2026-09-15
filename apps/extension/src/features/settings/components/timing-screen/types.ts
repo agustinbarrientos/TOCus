@@ -76,7 +76,6 @@ export interface TimingScreenCopy {
 	saveError: string;
 	invalidConfigurationError: string;
 	invalidTimingConfigurationError: string;
-	saved: string;
 	/**
 	 * Formats one whole-second native option.
 	 * @param seconds - Allowed whole-second duration.

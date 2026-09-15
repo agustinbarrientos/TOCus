@@ -112,8 +112,6 @@ export interface AppearanceScreenCopy extends AppearanceControlsCopy {
 	saving: string;
 	/** Restores the authoritative appearance preferences. */
 	discard: string;
-	/** Preference persistence success announcement. */
-	savedAnnouncement: string;
 	/** Malformed-data recovery success announcement. */
 	restoredAnnouncement: string;
 }

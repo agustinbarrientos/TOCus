@@ -107,7 +107,6 @@ export function createTimingCopy( i18n: I18n ): Readonly<TimingScreenCopy> {
 		invalidTimingConfigurationError: i18n._(
 			msg`These timing choices are not valid. Review them before saving.`,
 		),
-		saved: i18n._( msg`Changes saved.` ),
 		formatSecondsOption,
 		formatMinutesOption,
 		formatSummary,
