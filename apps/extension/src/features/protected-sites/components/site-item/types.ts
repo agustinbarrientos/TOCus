@@ -1,4 +1,5 @@
 import type { WebsiteDetailsDraft } from '../../utils/website-draft/types';
+import type { Ref } from 'react';
 import type { ScheduleScreenCopy } from '../../../settings/components/schedule-screen/types';
 import type { NormalizedSchedule } from '../../../../domains/protection/types/protection-schedule';
 
@@ -157,6 +158,10 @@ export interface ProtectedSiteDraftChangedEventDetail {
  * @since 0.1.0
  */
 export interface WebsiteItemProps {
+	/** Allows the owner to reveal this row after an already-listed address is submitted. */
+	itemRef?: Ref<HTMLLIElement>;
+	/** Brief, non-animated emphasis after a duplicate-add attempt. */
+	highlighted?: boolean;
 	persistedEditing?: WebsiteItemPersistence;
 	site: ProtectedSiteConfiguration;
 	copy: ProtectedSiteItemCopy;

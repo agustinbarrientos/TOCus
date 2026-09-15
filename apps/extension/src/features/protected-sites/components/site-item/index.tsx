@@ -43,7 +43,7 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 			`${ props.scheduleCopy.formatWeekday( window.weekday ) } ${ window.start } - ${ window.fullDay ? '24:00' : window.end }` ).join( ' / ' );
 	const error = props.persistedEditing?.state.error;
 	return (
-		<li className="settings-site-item">
+		<li ref={ props.itemRef } className="settings-site-item" data-highlighted={ props.highlighted || undefined }>
 			<Stack gap={ 0 }>
 				<Group className="settings-site-row" wrap="nowrap" gap="var(--tocus-space-3)">
 					<Avatar className="tocus-native-avatar" src={ props.favicon }

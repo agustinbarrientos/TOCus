@@ -4,6 +4,14 @@
 	padding: var(--tocus-space-3) 0;
 	border-bottom: 1px solid var(--tocus-color-outline);
 	list-style: none;
+	scroll-margin-block: var(--tocus-space-5);
+
+	&[data-highlighted] {
+		background: var(--tocus-color-primary-container);
+		outline: 2px solid var(--tocus-color-primary);
+		outline-offset: var(--tocus-space-1);
+		border-radius: var(--tocus-radius-small);
+	}
 }
 
 [data-tocus-ui] .settings-page .settings-site-identity {

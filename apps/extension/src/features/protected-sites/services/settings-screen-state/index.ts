@@ -1,5 +1,8 @@
 import { DraftSaveResult } from '../../../settings/utils/draft-controller/types';
-import { createWebsiteDraft, serializeWebsiteDraft } from '../../utils/website-draft';
+import { createWebsiteDetails, createWebsiteDraft, serializeWebsiteDraft } from '../../utils/website-draft';
+import { useSettingsFeedback } from '../../../settings/services/settings-feedback';
+import { SettingsFeedbackAction } from '../../../settings/services/settings-feedback/types';
+import type { DuplicateSiteNotice } from './types';
 import type { WebsitesDraft, WebsiteDetailsDraft } from '../../utils/website-draft/types';
 import { ProtectedSiteCanonicalizationStatus } from '../../../../domains/protection/utils/protected-site-canonicalizer/types';
 import { SitePermissionRequestStatus, SitePermissionReleaseStatus } from '../site-permission-manager/types';
@@ -46,6 +49,7 @@ import type {
 export function useWebsitesState( props: WebsitesScreenProps ) {
 	const { shell, register, accessRef } = props;
 	const copy = shell.protectedSitesCopy;
+	const { notify } = useSettingsFeedback();
 	const state = useDraft<WebsitesDraft>( createWebsiteDraft( [] ), register, save );
 	const { draft, value, saving, error } = state;
 	const [ configuration, setConfiguration ] = useState<ProtectionConfigurationDocument | null>( null );
@@ -56,6 +60,7 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 	const [ pendingAccess, setPendingAccess ] = useState<string | null>( null );
 	const [ accessMessage, setAccessMessage ] = useState<string | null>( null );
 	const [ retained, setRetained ] = useState( false );
+	const [ duplicate, setDuplicate ] = useState<DuplicateSiteNotice | null>( null );
 	const generation = useRef( 0 );
 
 	/**
@@ -142,13 +147,19 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 			setInputError( 'invalid-site' );
 			return null;
 		}
-		const alreadyListed = value.sites.some( ( site ) => site.rule.host === canonical.rule.host
+		const alreadyListed = value.sites.find( ( site ) => site.rule.host === canonical.rule.host
 			&& site.rule.includeSubdomains === canonical.rule.includeSubdomains );
 		if ( savingDraft && alreadyListed && ! value.newSite.displayName.trim() && value.newSite.schedule === null ) {
 			// Repeating an address must not block other edits or overwrite the existing site's details.
 			const next = { ...value, address: '' };
 			change( next );
 			return next;
+		}
+		if ( alreadyListed ) {
+			setInputError( null );
+			setDuplicate( { identityHost: alreadyListed.identityHost } );
+			notify( SettingsFeedbackAction.DUPLICATE_SITE );
+			return null;
 		}
 		const sites = ProtectedSiteConfigurationSetSchema.safeParse( [
 			...value.sites, { identityHost: canonical.identityHost, rule: canonical.rule },
@@ -168,6 +179,9 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 			return null;
 		}
 		change( next );
+		if ( ! savingDraft ) {
+			notify( SettingsFeedbackAction.SITE_ADDED );
+		}
 		return next;
 	}
 
@@ -218,6 +232,10 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 	 * @param details - Complete controlled details, including incomplete schedule fields.
 	 */
 	function updateSite( site: ProtectedSiteConfiguration, details: WebsiteDetailsDraft ): void {
+		const previous = value.detailsByHost[ site.identityHost ] ?? createWebsiteDetails( site );
+		if ( JSON.stringify( previous ) === JSON.stringify( details ) ) {
+			return;
+		}
 		const { displayNameOverride: previousName, ...withoutName } = site;
 		void previousName;
 		const replacement = { ...withoutName,
@@ -226,6 +244,7 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 			sites: value.sites.map( ( other ) => other.identityHost === site.identityHost ? replacement : other ),
 			detailsByHost: { ...value.detailsByHost, [ site.identityHost ]: details },
 		} );
+		notify( SettingsFeedbackAction.SITE_UPDATED );
 	}
 
 	/**
@@ -268,7 +287,7 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 	const issue = inputError ?? error;
 	const addressError = inputError === 'invalid-site' || inputError === 'already-protected'
 		? errors[ inputError ] ?? copy.invalidSiteError : null;
-	return { ...state, configuration, status, validate, access, pendingAccess, accessMessage, retained,
+	return { ...state, configuration, status, validate, access, pendingAccess, accessMessage, retained, duplicate,
 		addressError, errorMessage: issue && ! addressError ? errors[ issue ] ?? copy.saveError : null,
 		change, load, save, stage, updateSite, grant };
 }
