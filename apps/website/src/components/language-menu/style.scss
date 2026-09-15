@@ -1,0 +1,33 @@
+.website {
+	.site-header-actions {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		min-width: 0;
+	}
+
+	.website-language-picker { flex: 0 0 auto; }
+
+	.language-shortcut {
+		min-width: 2.75rem;
+		min-height: 2.75rem;
+	}
+
+	.website-language-menu {
+		min-width: 13rem;
+		max-width: calc(100vw - 2rem);
+		max-height: min(25rem, calc(100dvh - 6rem));
+		overflow-y: auto;
+		overscroll-behavior: contain;
+	}
+}
+
+@media (width <= 40rem) {
+	.website .language-shortcut {
+		width: 2.75rem;
+		padding-inline: 0;
+
+		.language-shortcut-label { display: none; }
+		.language-shortcut-section[data-position='left'] { margin-inline-end: 0; }
+	}
+}

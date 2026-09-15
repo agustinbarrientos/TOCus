@@ -1,5 +1,6 @@
 import { Button, Icon, IconName, Menu } from '@tocus/ui';
 import type { LanguageMenuProps } from './types';
+import './style.scss';
 
 /**
  * Opens languages next to the initiating control; Mantine manages keyboard focus.
@@ -11,12 +12,13 @@ export function LanguageMenu( props: LanguageMenuProps ) {
 	const { localization, localizations } = props;
 	const { catalog } = localization;
 	const current = catalog.languageLabels[ localization.language ];
-	return <Menu position="bottom-end" withinPortal={ false } shadow="md" width="auto">
+	return <div className="website-language-picker"><Menu position="bottom-end" withinPortal={ false } shadow="md" width="auto">
 		<Menu.Target>
-			<Button variant="subtle" className="language-shortcut"
+			<Button variant="subtle" size="sm" className="language-shortcut"
+				classNames={ { section: 'language-shortcut-section' } }
 				aria-label={ `${ catalog.languageMenuLabel }: ${ current }` }
 				leftSection={ <Icon name={ IconName.LANGUAGE } /> }>
-				{ current }
+				<span className="language-shortcut-label">{ current }</span>
 			</Button>
 		</Menu.Target>
 		<Menu.Dropdown className="website-language-menu">
@@ -28,5 +30,5 @@ export function LanguageMenu( props: LanguageMenuProps ) {
 				{ catalog.languageLabels[ option.language ] }
 			</Menu.Item> ) }
 		</Menu.Dropdown>
-	</Menu>;
+	</Menu></div>;
 }

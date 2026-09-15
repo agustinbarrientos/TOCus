@@ -43,7 +43,10 @@ export default function HomePage( props: HomePageProps ) {
 			<div className="page-shell">
 				<header className="site-header">
 					<Brand />
-					<DownloadLink label={ catalog.getExtension } />
+					<div className="site-header-actions">
+						<DownloadLink label={ catalog.getExtension } />
+						{ enhanced && <LanguageMenu localization={ localization } localizations={ localizations } /> }
+					</div>
 				</header>
 				<main id="main-content" tabIndex={ -1 }>
 					<section className="hero" aria-labelledby="page-title">
@@ -127,9 +130,8 @@ export default function HomePage( props: HomePageProps ) {
 							<ExternalLink href={ WebsiteLink.SOURCE }>{ catalog.sourceShort }</ExternalLink>
 						</div>
 					</div>
-					<div id="languages">
-						{ enhanced && <LanguageMenu localization={ localization } localizations={ localizations } /> }
-						<nav aria-label={ catalog.languageMenuLabel } hidden={ enhanced }>
+					<div id="languages" hidden={ enhanced }>
+						<nav aria-label={ catalog.languageMenuLabel }>
 							<ul role="list">
 								{ localizations.map( ( option ) => <li key={ option.language }>
 									<Anchor href={ option.path } lang={ option.languageTag }

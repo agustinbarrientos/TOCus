@@ -33,7 +33,6 @@ test.describe( 'website navigation and statistics presentation', () => {
 					await page.goto( 'http://website.test/' );
 					const header = page.locator( '.site-header' );
 					expect( await header.locator( 'a' ).count() ).toBe( 1 );
-					expect( await header.locator( 'button' ).count() ).toBe( 0 );
 					expect( await header.locator( 'a' ).getAttribute( 'href' ) ).toMatch( /^https:/u );
 					expect( await page.locator( '.website' ).evaluate( ( element ) =>
 						getComputedStyle( element ).getPropertyValue( 'color-scheme' ) ) ).toBe( 'light' );
@@ -42,8 +41,9 @@ test.describe( 'website navigation and statistics presentation', () => {
 						undefined,
 						{ timeout: 5000 },
 					);
+					await expect( header.locator( 'button' ) ).toHaveCount( 1 );
 				} );
-				const languageButton = page.locator( '#languages .language-shortcut' );
+				const languageButton = page.locator( '.site-header .language-shortcut' );
 				await languageButton.scrollIntoViewIfNeeded();
 				await languageButton.focus();
 				const scrollPosition = await page.evaluate( () => window.scrollY );
@@ -94,7 +94,8 @@ test.describe( 'website navigation and statistics presentation', () => {
 					await page.keyboard.press( 'Enter' );
 					await page.waitForURL( '**/es-ar/' );
 					expect( await page.locator( 'html' ).getAttribute( 'lang' ) ).toBe( 'es-AR' );
-					expect( await page.locator( '#languages .language-shortcut' ).innerText() ).toBe( 'Espa\u00f1ol (vos)' );
+					await expect( page.locator( '.site-header .language-shortcut' ) )
+						.toHaveAttribute( 'aria-label', /Espa\u00f1ol \(vos\)/u );
 					expect( await page.locator( '.site-header a' ).getAttribute( 'href' ) ).toMatch( /^https:/u );
 				} );
 			} );
