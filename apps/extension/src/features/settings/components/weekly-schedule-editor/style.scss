@@ -1,0 +1,25 @@
+@use '@tocus/theme/typography' as typography;
+
+.settings-weekly-editor { min-width: 0; }
+
+.settings-weekly-table-scroll {
+	position: relative;
+	min-width: 0;
+	overflow-x: auto;
+}
+
+.settings-weekly-table {
+	width: 100%;
+	min-width: 26rem;
+	table-layout: fixed;
+
+	th {
+		@include typography.apply('label-medium');
+	}
+
+	th:first-child { width: 34%; }
+
+	.settings-schedule-action { width: 3rem; }
+}
+
+.settings-schedule-add { align-self: start; }

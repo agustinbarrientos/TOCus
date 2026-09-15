@@ -3,7 +3,9 @@ import {
 	Icon,
 	IconName,
 	NativeSelect as SettingsSelect,
+	Table,
 	TextInput,
+	VisuallyHidden,
 } from '@tocus/ui';
 import {
 	Weekday,
@@ -21,7 +23,7 @@ import './style.scss';
 /**
  * Presents one weekly window with local validation and contextual removal.
  * @param props - Controlled window, canonical labels and mutation callbacks.
- * @return Accessible grouped weekday and time inputs.
+ * @return Accessible weekday and time inputs in one semantic table row.
  * @since 0.1.0
  */
 export function ScheduleWindowControl( props: ScheduleWindowControlProps ) {
@@ -32,18 +34,18 @@ export function ScheduleWindowControl( props: ScheduleWindowControlProps ) {
 		value: weekday, label: copy.formatWeekday( weekday ),
 	} ) );
 	return (
-		<fieldset disabled={ disabled } className="settings-schedule-window" aria-label={ copy.formatWindowLabel( index + 1 ) }>
-			<div className="settings-schedule-field">
-				<label htmlFor={ `weekday-${ windowId }` }>{ copy.weekdayLabel }</label>
-				<SettingsSelect id={ `weekday-${ windowId }` } data={ weekdays } value={ window.weekday }
+		<Table.Tr className="settings-schedule-window" aria-label={ copy.formatWindowLabel( index + 1 ) }>
+			<Table.Td>
+				<VisuallyHidden><label htmlFor={ `weekday-${ windowId }` }>{ copy.weekdayLabel }</label></VisuallyHidden>
+				<SettingsSelect id={ `weekday-${ windowId }` } data={ weekdays } value={ window.weekday } disabled={ disabled }
 					onChange={ ( event ) => {
 						props.onChange( { weekday: WeekdaySchema.parse( event.currentTarget.value ) } );
 					} } />
-			</div>
-			<div className="settings-schedule-field">
-				<label htmlFor={ `start-${ windowId }` }>{ copy.startTimeLabel }</label>
-				<TextInput className="tocus-native-field" id={ `start-${ windowId }` } type="time" value={ window.start }
-					classNames={ { input: 'settings-native-input' } }
+			</Table.Td>
+			<Table.Td>
+				<VisuallyHidden><label htmlFor={ `start-${ windowId }` }>{ copy.startTimeLabel }</label></VisuallyHidden>
+				<TextInput id={ `start-${ windowId }` } type="time" value={ window.start }
+					disabled={ disabled }
 					aria-describedby={ `start-error-${ windowId }` }
 					error={ validate && errors.start !== null } onChange={ ( event ) => {
 						props.onChange( { start: event.currentTarget.value, fullDay: false } );
@@ -52,11 +54,11 @@ export function ScheduleWindowControl( props: ScheduleWindowControlProps ) {
 					role={ validate && errors.start ? 'alert' : undefined }>
 					{ validate ? errors.start : null }
 				</small>
-			</div>
-			<div className="settings-schedule-field">
-				<label htmlFor={ `end-${ windowId }` }>{ copy.endTimeLabel }</label>
-				<TextInput className="tocus-native-field" id={ `end-${ windowId }` } type="time" value={ window.end }
-					classNames={ { input: 'settings-native-input' } }
+			</Table.Td>
+			<Table.Td>
+				<VisuallyHidden><label htmlFor={ `end-${ windowId }` }>{ copy.endTimeLabel }</label></VisuallyHidden>
+				<TextInput id={ `end-${ windowId }` } type="time" value={ window.end }
+					disabled={ disabled }
 					aria-describedby={ `end-error-${ windowId }` }
 					error={ validate && errors.end !== null } onChange={ ( event ) => {
 						props.onChange( { end: event.currentTarget.value, fullDay: false } );
@@ -65,12 +67,12 @@ export function ScheduleWindowControl( props: ScheduleWindowControlProps ) {
 					role={ validate && errors.end ? 'alert' : undefined }>
 					{ validate ? errors.end : null }
 				</small>
-			</div>
-			{ props.removable && <ActionIcon className="settings-schedule-remove" variant="subtle"
+			</Table.Td>
+			<Table.Td className="settings-schedule-action">{ props.removable && <ActionIcon className="settings-schedule-remove" variant="subtle"
 				aria-label={ copy.formatRemoveWindowLabel( index + 1 ) } disabled={ disabled }
 				onClick={ props.onRemove }>
 				<Icon name={ IconName.TRASH } />
-			</ActionIcon> }
-		</fieldset>
+			</ActionIcon> }</Table.Td>
+		</Table.Tr>
 	);
 }

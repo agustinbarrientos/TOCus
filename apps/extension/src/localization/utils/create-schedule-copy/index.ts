@@ -80,7 +80,7 @@ export function createScheduleCopy(
 			message: 'End',
 		} ) ),
 		removeWindow: i18n._( msg`Remove window` ),
-		addWindow: i18n._( msg`Add time window` ),
+		addWindow: i18n._( msg`Add row` ),
 		startTimeRequiredError: i18n._( msg`Choose a start time.` ),
 		endTimeRequiredError: i18n._( msg`Choose an end time.` ),
 		equalTimeError: i18n._( msg`Start and end time must be different.` ),
