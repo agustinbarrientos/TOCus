@@ -174,7 +174,8 @@ export const tocusTheme = createTheme( {
 		Modal: {
 			defaultProps: { padding: 'var(--tocus-space-6)' },
 			styles: {
-				content: { backgroundColor: 'var(--tocus-color-surface)', borderRadius: 'var(--tocus-radius-medium)' },
+				content: { backgroundColor: 'var(--tocus-color-surface)', borderRadius: 'var(--tocus-radius-medium)',
+					overflowWrap: 'anywhere' },
 				header: { backgroundColor: 'var(--tocus-color-surface)', paddingBottom: 'var(--tocus-space-4)' },
 				title: { fontFamily: 'var(--tocus-font-family-brand)', fontWeight: 700,
 					fontSize: 'var(--tocus-typography-title-large-font-size)',

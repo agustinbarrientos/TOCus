@@ -52,20 +52,16 @@ async function prepareState( page: Page, name: string ): Promise<void> {
 		const item = page.locator( '.settings-site-item' ).filter( {
 			has: page.getByRole( 'heading', { name: name.includes( 'independent-removal' ) ? 'ChatGPT' : 'Instagram', exact: true } ),
 		} );
-		await item.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).evaluate( ( element ) => {
-			if ( element instanceof HTMLButtonElement ) {
-				element.click();
-			}
-		} );
 		if ( name.includes( 'removal' ) ) {
 			await item.getByRole( 'button', { name: 'Remove site', exact: true } ).evaluate( ( element ) => {
 				if ( element instanceof HTMLButtonElement ) {
 					element.click();
 				}
 			} );
-			await expect( item.getByRole( 'button', { name: 'Remove', exact: true } ) ).toBeFocused();
+			await expect( page.getByRole( 'dialog' ).getByRole( 'button', { name: 'Remove', exact: true } ) ).toBeFocused();
 		} else {
-			await expect( item.getByLabel( 'Name', { exact: true } ) ).toBeFocused();
+			await item.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).click();
+			await expect( page.getByRole( 'dialog' ).getByLabel( 'Name', { exact: true } ) ).toBeFocused();
 		}
 	}
 	if ( name.includes( 'privacy' ) && /confirmation|pending|failed|success|narrow/.test( name ) ) {
@@ -131,9 +127,10 @@ for ( const original of settingsSnapshots ) {
 		await page.evaluate( () => {
 			window.scrollTo( 0, 0 );
 		} );
-		const target = shell ? page.locator( '.settings-layout' ) : name.startsWith( 'protected-site-item' )
-			? page.locator( '.settings-site-item' ).first() : name.startsWith( 'protected-site-list' )
-				? page.locator( '.settings-site-groups' ) : page.locator( '#settings-root' );
+		const target = name.startsWith( 'protected-site-item-operation-error' ) ? page.getByRole( 'dialog' )
+			: shell ? page.locator( '.settings-layout' ) : name.startsWith( 'protected-site-item' )
+				? page.locator( '.settings-site-item' ).first() : name.startsWith( 'protected-site-list' )
+					? page.locator( '.settings-site-groups' ) : page.locator( '#settings-root' );
 		await compareOriginal( page, original.path, target );
 	} );
 }
