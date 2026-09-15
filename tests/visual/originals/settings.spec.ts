@@ -52,7 +52,7 @@ async function prepareState( page: Page, name: string ): Promise<void> {
 		const item = page.locator( '.settings-site-item' ).filter( {
 			has: page.getByRole( 'heading', { name: name.includes( 'independent-removal' ) ? 'ChatGPT' : 'Instagram', exact: true } ),
 		} );
-		await item.getByRole( 'button', { name: 'Edit', exact: true } ).evaluate( ( element ) => {
+		await item.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).evaluate( ( element ) => {
 			if ( element instanceof HTMLButtonElement ) {
 				element.click();
 			}
