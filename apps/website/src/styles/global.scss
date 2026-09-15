@@ -122,7 +122,6 @@ body { margin: 0; }
 		z-index: 2;
 		width: min(28rem, 38%);
 		margin: 0.75rem auto -1.25rem;
-		mix-blend-mode: multiply;
 		pointer-events: none;
 	}
 
@@ -305,9 +304,8 @@ body { margin: 0; }
 
 	.footer-mascot {
 		width: min(24rem, 60%);
-		margin: 0 auto -1.25rem;
+		margin: 0 auto -1.00rem;
 		z-index: 1;
-		mix-blend-mode: multiply;
 		pointer-events: none;
 	}
 
