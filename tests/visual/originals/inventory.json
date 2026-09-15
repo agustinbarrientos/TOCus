@@ -321,19 +321,19 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-protected-sites-removal-confirmation-dark.png",
-    "sha256": "21d7e6f1d38c0cea7cc403a5f5ec960a4ea6230b6e23159b4f009a109c19d3fb"
+    "sha256": "d6f43761afabef33c4b60f8529424d29f371e5aa79164be264c7332b18a5b2c7"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-protected-sites-removal-confirmation-light.png",
-    "sha256": "bc7bbe0edebc68a5b46defe6a9bff0724414fb1f0a7ae5a9cfdfde90679b6dc8"
+    "sha256": "f2b92d45779b2c6fb430039a09e7779331682fe863c3f33f93dba90772344ab8"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-schedule-dark.png",
-    "sha256": "fcc884c33ed1c21dfe3cb5dc65b70e654e3e8bec4850ac58f31d6bc53050885b"
+    "sha256": "fe68026be6181449c9cc68efa6fa2626c289709194ee44bccaa75f45a9a359d9"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-schedule-hover-blue-dark.png",
-    "sha256": "07f6852d844d916c240b885e32b99090c569aa1d6a23d48590dc10e54293ec12"
+    "sha256": "ba91803a0d4fad0951f75ea9bcfc8e996e636b823331545873bf830574108c79"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-schedule-hover-blue-light.png",
