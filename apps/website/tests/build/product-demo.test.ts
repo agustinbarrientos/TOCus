@@ -88,7 +88,9 @@ test.describe( 'the product story', () => {
 								const nextControlKey = process.platform === 'darwin' && engine === 'webkit'
 									? 'Alt+Tab' : 'Tab';
 								await page.keyboard.press( nextControlKey );
-								const chart = page.getByRole( 'application', { name: 'Last 30 days Estimated time reclaimed' } );
+								await expect( page.getByRole( 'combobox', { name: 'Period', exact: true } ) ).toBeFocused();
+								await page.keyboard.press( nextControlKey );
+								const chart = page.getByRole( 'application', { name: 'Activity Estimated time reclaimed' } );
 								await expect( chart ).toBeFocused();
 								await page.keyboard.press( 'ArrowRight' );
 								await expect( page.locator( '.recharts-tooltip-wrapper' ) ).toBeVisible();

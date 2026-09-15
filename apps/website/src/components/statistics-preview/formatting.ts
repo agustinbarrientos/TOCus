@@ -79,6 +79,15 @@ export function createStatisticsPreviewCopy( props: StatisticsPreviewProps ): Re
 		return formatting.dates[ date ] ?? copy.formatDate( date );
 	}
 	/**
+	 * Keeps single-day chart labels aligned with the server-rendered calendar table.
+	 * @param startDate - First included calendar date.
+	 * @param endDate - Last included calendar date.
+	 * @return Server-formatted day or the production formatter for a longer interval.
+	 */
+	function formatDateRange( startDate: string, endDate: string ): string {
+		return startDate === endDate ? formatDate( startDate ) : copy.formatDateRange( startDate, endDate );
+	}
+	/**
 	 * Preserves the server's metric-count formatting.
 	 * @param count - Nonnegative metric count.
 	 * @return Server-formatted count or the production formatter for another value.
@@ -86,5 +95,5 @@ export function createStatisticsPreviewCopy( props: StatisticsPreviewProps ): Re
 	function formatCount( count: number ): string {
 		return formatting.counts[ count ] ?? copy.formatCount( count );
 	}
-	return { ...copy, formatEstimatedDuration, formatDuration, formatDate, formatCount };
+	return { ...copy, formatEstimatedDuration, formatDuration, formatDate, formatDateRange, formatCount };
 }

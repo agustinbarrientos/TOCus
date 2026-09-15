@@ -45,10 +45,15 @@ test.describe( 'localized statistics hydration', () => {
 						expect( serverMetrics.every( ( value ) => value.trim().length > 0 ), route ).toBe( true );
 						expect( clientMetrics, route ).toEqual( serverMetrics );
 						const serverDailyValues = await serverPage.locator( '.statistics-preview tbody td' ).allTextContents();
+						const serverDailyDates = await serverPage.locator( '.statistics-preview tbody th' ).allTextContents();
 						const [ , secondDailyValue = '' ] = serverDailyValues;
+						const [ , secondDailyDate = '' ] = serverDailyDates;
 						expect( serverDailyValues, route ).toHaveLength( 7 );
+						expect( serverDailyDates, route ).toHaveLength( 7 );
 						expect( secondDailyValue, route ).not.toBe( '' );
+						expect( secondDailyDate, route ).not.toBe( '' );
 						expect( await clientPage.locator( '.statistics-preview tbody td' ).allTextContents(), route ).toEqual( serverDailyValues );
+						expect( await clientPage.locator( '.statistics-preview tbody th' ).allTextContents(), route ).toEqual( serverDailyDates );
 						const chart = clientPage.locator( '.statistics-preview' ).getByRole( 'application' );
 						await expect( chart ).toBeVisible();
 						const chartHeading = await clientPage.locator( '.statistics-preview .settings-statistics-daily h3' ).innerText();
@@ -58,7 +63,7 @@ test.describe( 'localized statistics hydration', () => {
 						await chart.press( 'ArrowRight' );
 						const tooltip = clientPage.locator( '.statistics-preview .recharts-tooltip-wrapper' );
 						await expect( tooltip ).toBeVisible();
-						await expect( tooltip ).toContainText( '2026-09-09' );
+						await expect( tooltip ).toContainText( secondDailyDate );
 						await expect( tooltip ).toContainText( secondDailyValue );
 						expect( errors, route ).toEqual( [] );
 					} );

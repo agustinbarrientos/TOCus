@@ -8,6 +8,7 @@ import {
  */
 export const ExampleStatistics = Object.freeze( AvailableStatisticsProjectionSchema.parse( {
 	status: StatisticsProjectionStatus.AVAILABLE,
+	currentDate: '2026-09-14',
 	estimatedReclaimedMilliseconds: ( 12 * 5 + 8 ) * 60_000,
 	focusedPauseMilliseconds: 8 * 60_000,
 	reconsideredVisitCount: 12,
