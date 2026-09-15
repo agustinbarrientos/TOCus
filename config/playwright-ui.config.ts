@@ -38,7 +38,9 @@ export default defineConfig( {
 		{ name: 'webkit', use: { browserName: 'webkit' } },
 	],
 	webServer: {
-		command: 'pnpm --filter @tocus/extension exec vite --config tests/ui-server/vite.config.ts',
+		command: 'pnpm --filter @tocus/extension exec vite build --config tests/ui-server/vite.config.ts && pnpm --filter @tocus/extension exec vite preview --config tests/ui-server/vite.config.ts',
+		// Preserve React act support and Lingui default messages used by the existing source fixtures.
+		env: { NODE_ENV: 'development' },
 		url: 'http://127.0.0.1:4175/apps/extension/tests/ui/index.html',
 		cwd: '..',
 		timeout: 60_000,

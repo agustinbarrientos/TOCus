@@ -99,6 +99,7 @@ jobs:
                   name: ui-failure-diagnostics-${{ matrix.browser }}
                   path: |
                       test-results/ui/
+                      test-results/ui-fixtures/
                       playwright-report/ui/
                   retention-days: 7
                   if-no-files-found: ignore
