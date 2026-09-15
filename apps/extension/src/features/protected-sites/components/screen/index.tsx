@@ -149,11 +149,11 @@ export function Websites( props: WebsitesScreenProps ) {
 						</Group>
 						<p id="site-address-error" className="settings-site-address-error"
 							role={ state.addressError ? 'alert' : undefined }>{ state.addressError }</p>
-						<WebsiteDetails idPrefix="new-site" copy={ copy } scheduleCopy={ shell.scheduleCopy }
+						{ value.address.trim() !== '' && <WebsiteDetails idPrefix="new-site" copy={ copy } scheduleCopy={ shell.scheduleCopy }
 							value={ value.newSite } disabled={ disabled } validate={ state.validate }
 							onChange={ ( newSite ) => {
 								state.change( { ...value, newSite } );
-							} } />
+							} } /> }
 					</Stack>
 				</form>
 				<WebsiteList sites={ value.sites } copy={ copy } renderItem={ renderSite }

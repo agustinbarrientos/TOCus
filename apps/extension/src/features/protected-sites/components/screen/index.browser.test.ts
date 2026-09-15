@@ -5,12 +5,20 @@ import { DefaultProtectionScopeId } from '../../../../domains/protection/types/p
 import { test } from '../../../settings/utils/browser-test-harness';
 
 test.describe( 'website draft controls', () => {
-	test( 'reveals weekly fields immediately in Advanced and saves a shared site exception', async ( { open } ) => {
+	test( 'reveals an optional schedule while typing and saves a site exception with automatic naming', async ( { open } ) => {
 		const page = await open( SettingsDestination.PROTECTED_SITES );
-		await page.getByLabel( 'Website address', { exact: true } ).fill( 'example.com' );
+		const address = page.getByLabel( 'Website address', { exact: true } );
+		await expect( address ).toBeVisible();
 		await expect( page.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ) ).toHaveCount( 0 );
-		await page.getByText( 'Advanced', { exact: true } ).click();
+		await expect( page.getByRole( 'button', { name: 'Advanced', exact: true } ) ).toHaveCount( 0 );
+		await expect( page.getByLabel( 'Name', { exact: true } ) ).toHaveCount( 0 );
+		await address.fill( 'e' );
+		await expect( page.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ) ).toBeVisible();
+		await expect( page.getByLabel( 'Start', { exact: true } ) ).toHaveCount( 0 );
+		await address.fill( 'example.com' );
 		await page.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ).click();
+		await expect( page.getByRole( 'table', { name: 'Active time windows', exact: true } ) ).toBeVisible();
+		await expect( page.getByLabel( 'Name', { exact: true } ) ).toHaveCount( 0 );
 		await expect( page.getByLabel( 'Start', { exact: true } ) ).toBeVisible();
 		await expect( page.getByRole( 'button', { name: 'Remove time window 1', exact: true } ) ).toHaveCount( 0 );
 		await page.getByLabel( 'Start', { exact: true } ).fill( '09:00' );
@@ -23,6 +31,58 @@ test.describe( 'website draft controls', () => {
 			windows: [ { weekday: Weekday.MONDAY, startMinute: 540, endMinute: 1020 } ] } );
 		expect( site?.displayNameOverride ).toBeUndefined();
 		await expect( page.locator( '.settings-site-schedule' ) ).toContainText( '09:00' );
+	} );
+	test( 'clears a pending custom schedule with a blank address so other website edits can save', async ( { open } ) => {
+		const page = await open( SettingsDestination.PROTECTED_SITES );
+		const address = page.getByLabel( 'Website address', { exact: true } );
+		await address.fill( 'example.com' );
+		await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
+		await address.fill( 'example.org' );
+		await page.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ).click();
+		await page.getByLabel( 'Start', { exact: true } ).fill( '09:00' );
+		await address.fill( '   ' );
+		await expect( page.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ) ).toHaveCount( 0 );
+		await expect( page.getByLabel( 'Start', { exact: true } ) ).toHaveCount( 0 );
+		await address.fill( 'example.net' );
+		await expect( page.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ) ).not.toBeChecked();
+		await address.fill( '' );
+		await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
+		await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
+		const sites = await page.evaluate( () => window.settingsTest.getConfiguration().sites );
+		expect( sites ).toHaveLength( 1 );
+		expect( sites[ 0 ]?.identityHost ).toBe( 'example.com' );
+		expect( sites[ 0 ]?.schedule ).toBeUndefined();
+	} );
+	test( 'opens removal directly from the row and preserves storage until page Save', async ( { open } ) => {
+		const page = await open( SettingsDestination.PROTECTED_SITES );
+		await page.getByLabel( 'Website address', { exact: true } ).fill( 'example.com' );
+		await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
+		await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
+		const row = page.locator( '.settings-site-list > li' ).first();
+		const remove = row.getByRole( 'button', { name: 'Remove site', exact: true } );
+		const manage = row.getByRole( 'button', { name: 'Change schedule or site name', exact: true } );
+		await manage.focus();
+		await page.keyboard.press( 'Shift+Tab' );
+		await expect( page.getByRole( 'tooltip', { name: 'Remove site', exact: true } ) ).toBeVisible();
+		await page.keyboard.press( 'Tab' );
+		await expect( page.getByRole( 'tooltip', { name: 'Change schedule or site name', exact: true } ) ).toBeVisible();
+		const [ removeBounds, manageBounds ] = await Promise.all( [ remove.boundingBox(), manage.boundingBox() ] );
+		expect( removeBounds ).not.toBeNull();
+		expect( manageBounds ).not.toBeNull();
+		expect( removeBounds?.x ).toBeLessThan( manageBounds?.x ?? 0 );
+		await remove.click();
+		await expect( row.getByLabel( 'Name', { exact: true } ) ).toHaveCount( 0 );
+		const dialog = page.getByRole( 'dialog' );
+		await expect( dialog.getByRole( 'button', { name: 'Remove', exact: true } ) ).toBeFocused();
+		await dialog.getByRole( 'button', { name: 'Keep site', exact: true } ).click();
+		await expect( row ).toBeVisible();
+		await remove.click();
+		await dialog.getByRole( 'button', { name: 'Remove', exact: true } ).click();
+		await expect( page.locator( '.settings-site-list > li' ) ).toHaveCount( 0 );
+		expect( await page.evaluate( () => window.settingsTest.getConfiguration().sites.length ) ).toBe( 1 );
+		expect( await page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
+		await page.getByRole( 'button', { name: 'Discard', exact: true } ).click();
+		await expect( page.locator( '.settings-site-list > li' ) ).toHaveCount( 1 );
 	} );
 	test( 'shows granted browser access after saving and reopening Websites', async ( { open } ) => {
 		test.setTimeout( 20000 );
@@ -76,14 +136,10 @@ test.describe( 'website draft controls', () => {
 		await page.getByLabel( 'Website address', { exact: true } ).fill( 'example.com' );
 		await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
 		const row = page.locator( '.settings-site-list > li' ).first();
-		await row.getByRole( 'button', { name: 'Edit', exact: true } ).click();
+		await row.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).click();
 		const displayName = row.getByLabel( 'Name', { exact: true } );
 		await expect( displayName ).toBeFocused();
-		const removeBounds = await row.getByRole( 'button', { name: 'Remove site', exact: true } ).boundingBox();
-		const doneBounds = await row.getByRole( 'button', { name: 'Done', exact: true } ).boundingBox();
-		expect( removeBounds ).not.toBeNull();
-		expect( doneBounds ).not.toBeNull();
-		expect( removeBounds?.y ).toBe( doneBounds?.y );
+		await expect( row.getByRole( 'button', { name: 'Advanced', exact: true } ) ).toHaveCount( 0 );
 		expect( await page.locator( '.settings-site-form' ).evaluate( ( element ) =>
 			getComputedStyle( element ).paddingTop ) ).toBe( '0px' );
 		await displayName.fill( 'Reading' );
@@ -100,7 +156,7 @@ test.describe( 'website draft controls', () => {
 			await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
 			const row = page.locator( '.settings-site-list > li' ).first();
 			await expect( row.locator( '.settings-site-schedule' ) ).toHaveCount( 0 );
-			await row.getByRole( 'button', { name: 'Edit', exact: true } ).click();
+			await row.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).click();
 			await row.getByLabel( 'Name', { exact: true } ).fill( 'Reading' );
 			await row.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ).click();
 			await expect( row.getByLabel( 'Start', { exact: true } ) ).toBeVisible();
@@ -117,7 +173,7 @@ test.describe( 'website draft controls', () => {
 			expect( site?.rule.scopeId ).toBe( DefaultProtectionScopeId );
 			expect( site?.schedule ).toMatchObject( { mode: ScheduleMode.CUSTOM } );
 			expect( await page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
-			await row.getByRole( 'button', { name: 'Edit', exact: true } ).click();
+			await row.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).click();
 			await row.getByLabel( 'Name', { exact: true } ).fill( '' );
 			await row.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ).click();
 			await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
@@ -125,7 +181,6 @@ test.describe( 'website draft controls', () => {
 			expect( await page.evaluate( () =>
 				window.settingsTest.getConfiguration().sites[ 0 ]?.displayNameOverride ) ).toBeUndefined();
 			await expect( row.locator( '.settings-site-schedule' ) ).toHaveCount( 0 );
-			await row.getByRole( 'button', { name: 'Edit', exact: true } ).click();
 			await row.getByRole( 'button', { name: 'Remove site', exact: true } ).click();
 			await page.getByRole( 'dialog' ).getByRole( 'button', { name: 'Remove', exact: true } ).click();
 			expect( await page.evaluate( () => window.settingsTest.getConfiguration().sites.length ) ).toBe( 1 );

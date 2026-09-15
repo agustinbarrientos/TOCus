@@ -120,7 +120,9 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 	 * @param next - Complete next staged website set and pending address.
 	 */
 	function change( next: WebsitesDraft ): void {
-		draft.change( next );
+		draft.change( { ...next,
+			newSite: next.address.trim() ? next.newSite : { displayName: '', schedule: null },
+		} );
 		setInputError( null );
 		setAccessMessage( null );
 		setRetained( false );

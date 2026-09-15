@@ -82,7 +82,6 @@ export interface ProtectedSitesScreenCopy extends ProtectedSiteListCopy {
 	addressPlaceholder: string;
 	addSite: string;
 	addingSite: string;
-	advancedLabel: string;
 	customScheduleLabel: string;
 	automaticNamePlaceholder: string;
 	displayNameLabel: string;
