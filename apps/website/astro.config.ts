@@ -16,6 +16,7 @@ const linguiConfigPath = fileURLToPath( new URL( '../../lingui.config.ts', impor
  */
 export default defineConfig( {
 	output: 'static',
+	server: { port: 4322 },
 	integrations: [ react() ],
 	vite: {
 		plugins: [
