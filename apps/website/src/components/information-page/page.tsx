@@ -35,10 +35,10 @@ function PrivacyContent() {
 				</p>
 				<p>
 					Statistics are local counts and durations: completed pauses, reconsidered visits, granted visits,
-					focused pause time, and estimated reclaimed time. Lifetime totals remain until you reset them;
-					daily totals cover the last 90 local calendar days. They do not contain page content or a history
-					of web addresses. TOCus also keeps limited timing and allowance state so an active pause can
-					continue reliably.
+					focused pause time, and estimated reclaimed time.
+					Lifetime totals and recorded daily totals remain locally until you reset them.
+					They do not contain page content or a history of web addresses.
+					TOCus also keeps limited timing and allowance state so an active pause can continue reliably.
 				</p>
 				<p>
 					While a pause is active, its destination address or URL can be held temporarily in browser session

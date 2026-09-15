@@ -115,7 +115,9 @@ test.describe( 'generated website publication pages', () => {
 			expect( extensionPolicyText ).toMatch( /schedule/iu );
 			expect( extensionPolicyText ).toMatch( /statistics/iu );
 			expect( extensionPolicyText ).toMatch( /shared pause timing/iu );
-			expect( extensionPolicyText ).toMatch( /last 90 local calendar days/iu );
+			expect( extensionPolicyText ).toMatch(
+				/lifetime totals and recorded daily totals remain locally until you reset them/iu,
+			);
 			expect( extensionPolicyText ).toMatch( /motion follows your operating system/iu );
 			expect( extensionPolicyText ).not.toMatch( /separate timing|appearance, motion/iu );
 			expect( extensionPolicyText ).toMatch( /destination (?:address|URL)/iu );
