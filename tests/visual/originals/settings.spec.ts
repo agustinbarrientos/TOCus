@@ -131,6 +131,18 @@ for ( const original of settingsSnapshots ) {
 			: shell ? page.locator( '.settings-layout' ) : name.startsWith( 'protected-site-item' )
 				? page.locator( '.settings-site-item' ).first() : name.startsWith( 'protected-site-list' )
 					? page.locator( '.settings-site-groups' ) : page.locator( '#settings-root' );
+		if ( name.includes( 'privacy' ) && name.includes( 'success' ) ) {
+			await expect( page.getByRole( 'status' ).filter( { hasText: 'Statistics reset.' } ) ).toBeVisible();
+			const bounds = await target.boundingBox();
+			if ( bounds === null ) {
+				throw new Error( 'The privacy capture root must be visible.' );
+			}
+			// Include the viewport-anchored snackbar without changing the registered capture width.
+			await compareOriginal( page, original.path, undefined, {
+				clip: { ...bounds, height: Math.max( bounds.height, viewportHeight - bounds.y ) },
+			} );
+			return;
+		}
 		await compareOriginal( page, original.path, target );
 	} );
 }

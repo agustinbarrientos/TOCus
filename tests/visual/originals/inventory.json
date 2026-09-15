@@ -249,7 +249,7 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/privacy-screen/__snapshots__/chromium/privacy-screen-success-light.png",
-    "sha256": "46af296af6f6ee105ec3a790918d4445144c694e2ca57fc69f9f5bfe83ce932a"
+    "sha256": "12af6c18dd901e8e01d7a376e436b6a57aff0464e33e0fb58d9364c3b3fde3d7"
   },
   {
     "path": "apps/extension/src/features/settings/components/privacy-screen/__snapshots__/chromium/privacy-screen-unavailable-light.png",
