@@ -209,7 +209,7 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/privacy-screen/__snapshots__/chromium/privacy-screen-all-confirmation-light.png",
-    "sha256": "b03a17bb8f16eddca078625031f1efe50a1b84eee1b4d16474d6bddd184091ac"
+    "sha256": "a5ff0bbd71e22b109d0ff4ce23d0ddca57776e79b889d063556be96f8120c59a"
   },
   {
     "path": "apps/extension/src/features/settings/components/privacy-screen/__snapshots__/chromium/privacy-screen-dark.png",
@@ -217,7 +217,7 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/privacy-screen/__snapshots__/chromium/privacy-screen-failed-dark.png",
-    "sha256": "eb97cda59de3c620e7b53e6d59ecc8230431e06ca4dda3dd32d645f5a147e8eb"
+    "sha256": "959664a91e1eb89f3f2614e61247f6294dc3a1fde9613f64e54a984aacb6254e"
   },
   {
     "path": "apps/extension/src/features/settings/components/privacy-screen/__snapshots__/chromium/privacy-screen-light.png",
@@ -225,11 +225,11 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/privacy-screen/__snapshots__/chromium/privacy-screen-narrow-light.png",
-    "sha256": "28c0656f9f4e0965faae0b79211016c0c71e935a028eeb38c340ec9fea2d2cba"
+    "sha256": "7c50d152ad25d737cae56019b308fed18e93bb9ea6bfd9ecc099ab03e8a254cb"
   },
   {
     "path": "apps/extension/src/features/settings/components/privacy-screen/__snapshots__/chromium/privacy-screen-pending-light.png",
-    "sha256": "4541b49afdf1b05e161b67ccf6e8360a40ca03f8fa3c361826a9011f0aa38872"
+    "sha256": "198f7f6376ecd5a15d9350506a7fd3b6a6fe04cb4cf27c3eb5541f37901f18ae"
   },
   {
     "path": "apps/extension/src/features/settings/components/privacy-screen/__snapshots__/chromium/privacy-screen-permissions-light.png",
