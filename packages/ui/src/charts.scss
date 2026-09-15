@@ -1,5 +1,0 @@
-@use 'sass:meta';
-
-[data-tocus-ui] {
-	@include meta.load-css('@mantine/charts/styles.css');
-}
