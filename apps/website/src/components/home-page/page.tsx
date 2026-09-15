@@ -3,13 +3,11 @@ import { Anchor, Brand, TocusAppearance, TocusProvider } from '@tocus/ui';
 import { DownloadLink, DownloadLinks } from '../download-links';
 import { ExternalLink, WebsiteLink } from '../site-links';
 import { ProductStory } from '../product-story';
-import { DemoChapter } from '../product-demo/types';
 import { TimingIllustration } from '../timing-illustration';
 import { StatisticsPreview } from '../statistics-preview';
 import { Mascot } from '../mascot';
 import { LanguageMenu } from '../language-menu';
 import { SupportedServices } from '../supported-services';
-import { createStoryMotion } from '../../services/story-motion';
 import { createHomepageMotion } from '../../services/homepage-motion';
 import type { HomePageProps } from './types';
 
@@ -23,16 +21,12 @@ export default function HomePage( props: HomePageProps ) {
 	const { localization, localizations, demoMessages, statisticsFormatting } = props;
 	const { catalog } = localization;
 	const scene = useRef<HTMLDivElement>( null );
-	const [ chapter, setChapter ] = useState<DemoChapter>( DemoChapter.CHOOSE );
-	const [ progress, setProgress ] = useState( 0 );
 	const [ enhanced, setEnhanced ] = useState( false );
 	useEffect( () => {
 		setEnhanced( true );
 		if ( scene.current !== null ) {
-			const stopStory = createStoryMotion( scene.current, setChapter, setProgress );
 			const stopMotion = createHomepageMotion( scene.current );
 			return () => {
-				stopStory();
 				stopMotion();
 			};
 		}
@@ -60,7 +54,7 @@ export default function HomePage( props: HomePageProps ) {
 						<div className="hero-art"><Mascot alt={ catalog.mascotAlt } /></div>
 					</section>
 					<ProductStory catalog={ catalog } languageTag={ localization.languageTag }
-						messages={ demoMessages } chapter={ chapter } progress={ progress } enhanced={ enhanced } />
+						messages={ demoMessages } enhanced={ enhanced } />
 					<section className="settings-overview website-section" id="settings" aria-labelledby="settings-title">
 						<div className="section-heading" data-story-reveal>
 							<h2 id="settings-title">{ catalog.settingsTitle }</h2>

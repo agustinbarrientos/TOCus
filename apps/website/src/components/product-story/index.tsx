@@ -1,4 +1,6 @@
 import { Button, VisuallyHidden } from '@tocus/ui';
+import { useEffect, useRef, useState } from 'react';
+import { createStoryMotion } from '../../services/story-motion';
 import { ProductDemo } from '../product-demo';
 import { DemoChapter } from '../product-demo/types';
 import type { ProductStoryProps } from './types';
@@ -11,7 +13,16 @@ import './style.scss';
  * @since 0.1.0
  */
 export function ProductStory( props: ProductStoryProps ) {
-	const { catalog, chapter, progress, languageTag, messages, enhanced } = props;
+	const { catalog, languageTag, messages, enhanced } = props;
+	const boundary = useRef<HTMLElement>( null );
+	const [ chapter, setChapter ] = useState<DemoChapter>( DemoChapter.CHOOSE );
+	const [ progress, setProgress ] = useState( 0 );
+	useEffect( () => {
+		const root = boundary.current?.closest<HTMLElement>( '.homepage' );
+		if ( root ) {
+			return createStoryMotion( root, setChapter, setProgress );
+		}
+	}, [] );
 	const chapters = [
 		{ id: DemoChapter.CHOOSE, label: catalog.chooseLabel,
 			title: catalog.chooseTitle, description: catalog.chooseDescription },
@@ -24,7 +35,7 @@ export function ProductStory( props: ProductStoryProps ) {
 		{ id: DemoChapter.BROWSE, label: catalog.browseLabel,
 			title: catalog.browseTitle, description: catalog.browseDescription },
 	];
-	return <section className="how-it-works" id="how-it-works" aria-labelledby="how-title">
+	return <section className="how-it-works" id="how-it-works" aria-labelledby="how-title" ref={ boundary }>
 		<VisuallyHidden component="h2" id="how-title">{ catalog.howTitle }</VisuallyHidden>
 		<div className="story-layout">
 			<div className="experience-stage">
