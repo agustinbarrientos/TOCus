@@ -55,6 +55,10 @@ function applyOnboardingLocalization(
 	options.document.title = localization.document.onboardingTitle;
 	options.shell.language = localization.language;
 	options.shell.copy = localization.onboarding;
+	options.shell.notificationCopy = {
+		dismissNotification: localization.settingsShell.dismissNotification,
+		resetComplete: localization.privacyCopy.allSuccess,
+	};
 	options.shell.interruptionCopy = localization.interruption;
 }
 
@@ -314,6 +318,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 			applyProtectedSites( protectionConfiguration );
 		}
 		await synchronizeLocalization();
+		options.shell.resetComplete = await options.readResetCompletion?.().catch( () => false ) ?? false;
 		options.shell.startupUnavailable = false;
 		revealOnboardingPage( options );
 	} catch ( error ) {

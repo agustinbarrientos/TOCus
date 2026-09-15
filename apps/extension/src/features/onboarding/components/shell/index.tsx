@@ -2,6 +2,8 @@ import { OnboardingStepIndex } from '../../types/flow';
 import { OnboardingStep } from './types';
 import { useEffect, useRef } from 'react';
 import { Brand, BrandSize, Button, Group, Icon, IconName, Stack, Stepper, Text, Title, TocusProvider } from '@tocus/ui';
+import { SnackbarProvider, SnackbarTone, useSnackbar } from '@tocus/ui';
+import '@tocus/ui/notifications.scss';
 import { useOnboardingController } from '../../services/onboarding-flow';
 import { PausePreview } from '../pause-preview';
 import { PreferencesStep } from '../preferences-step';
@@ -9,6 +11,23 @@ import { SitesStep } from '../sites-step';
 import type { OnboardingContentProps, OnboardingStepProps, OnboardingViewProps } from '../../types/presentation';
 
 const stepNames = [ OnboardingStep.LANGUAGE, OnboardingStep.APPEARANCE, OnboardingStep.SITES ] as const;
+
+/**
+ * Announces a verified reset once after the localized onboarding document is visible.
+ * @param props - Page-owned completion state and localized notification copy.
+ * @return No additional onboarding layout.
+ */
+function ResetCompletionNotice( props: OnboardingViewProps ) {
+	const snackbar = useSnackbar();
+	const announced = useRef( false );
+	useEffect( () => {
+		if ( ! announced.current && props.state.resetComplete && props.state.notificationCopy ) {
+			announced.current = true;
+			snackbar.show( { message: props.state.notificationCopy.resetComplete, tone: SnackbarTone.SUCCESS } );
+		}
+	}, [ snackbar, props.state.resetComplete, props.state.notificationCopy ] );
+	return null;
+}
 
 /**
  * Exposes completed steps as keyboard-accessible navigation without permitting skips.
@@ -127,12 +146,16 @@ export function OnboardingView( props: OnboardingViewProps ) {
 						</section>
 					</aside>
 					<main className="tocus-page onboarding-form" aria-busy={ controller.pending }>
-						<Content state={ state } copy={ state.copy } controller={ controller } heading={ heading } />
+						<Content state={ state } copy={ state.copy }
+							controller={ controller } heading={ heading } />
 					</main>
 				</div>
 				<Text component="footer" className="onboarding-footer">{ state.copy.settingsNote }</Text>
 				{ showPreview && <PausePreview state={ state } /> }
 			</div>
+			{ state.notificationCopy && <SnackbarProvider closeLabel={ state.notificationCopy.dismissNotification }>
+				<ResetCompletionNotice { ...props } />
+			</SnackbarProvider> }
 		</TocusProvider>
 	);
 }

@@ -28,6 +28,7 @@ import type {
 } from '../../components/shell/types';
 import type { OnboardingSiteSuggestion } from '../../utils/site-suggestion-catalog';
 import type { OnboardingLocalizationLoader } from '../localization-coordinator';
+import type { OnboardingNotificationCopy } from '../reset-completion';
 
 /**
  * Opens the extension Settings surface from onboarding.
@@ -42,6 +43,10 @@ export type OnboardingSettingsOpener = () => Promise<void>;
 export interface OnboardingPageShell extends EventTarget {
 	/** Complete localized onboarding copy. */
 	copy: Readonly<OnboardingShellCopy> | undefined;
+	/** Localized dismiss label and reset-completion message. */
+	notificationCopy: Readonly<OnboardingNotificationCopy> | undefined;
+	/** Whether this page has verified a completed reset handoff. */
+	resetComplete: boolean;
 	/** Complete localized copy used by the real interruption preview. */
 	interruptionCopy: Readonly<InterruptionScreenCopy> | undefined;
 	/** Coordinated local preferences editor. */
@@ -129,4 +134,6 @@ export interface OnboardingPageOptions {
 	storageArea: PreferencesStorageArea & ProtectionConfigurationStorageArea;
 	/** Browser storage changes used by live preferences. */
 	storageChanges: PreferencesStorageChangeSource;
+	/** Consumes a reset handoff after successful startup without persisting notification data. */
+	readResetCompletion?: () => Promise<boolean>;
 }
