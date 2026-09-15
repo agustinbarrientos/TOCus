@@ -28,11 +28,23 @@ test.describe( 'shared controls', () => {
 	test( 'honors small actions without shrinking normal actions or slider hit targets', async ( { page } ) => {
 		await page.goto( url );
 		const small = page.getByRole( 'button', { name: 'Small action', exact: true } );
+		const extraSmall = page.getByRole( 'button', { name: 'Extra small action', exact: true } );
 		const normal = page.getByRole( 'button', { name: 'Native action', exact: true } );
 		await expect( small ).toBeVisible();
 		const smallBounds = await small.boundingBox();
 		const normalBounds = await normal.boundingBox();
 		expect.soft( smallBounds?.height ).toBeLessThan( normalBounds?.height ?? 0 );
+		expect.soft( ( await extraSmall.boundingBox() )?.height ).toBeLessThan( smallBounds?.height ?? 0 );
+		const sizes = [];
+		for ( const button of [ extraSmall, small, normal ] ) {
+			sizes.push( await button.evaluate( ( element ) => {
+				const style = getComputedStyle( element );
+				return { padding: parseFloat( style.paddingInlineStart ), font: parseFloat( style.fontSize ) };
+			} ) );
+		}
+		expect.soft( sizes[ 0 ]?.padding ).toBeLessThan( sizes[ 1 ]?.padding ?? 0 );
+		expect.soft( sizes[ 1 ]?.padding ).toBeLessThan( sizes[ 2 ]?.padding ?? 0 );
+		expect.soft( sizes[ 0 ]?.font ).toBeLessThan( sizes[ 1 ]?.font ?? 0 );
 		const thumb = page.getByRole( 'slider', { name: 'Initial wait' } );
 		expect( await thumb.evaluate( ( element ) => element.getBoundingClientRect().width ) ).toBe( 24 );
 		const marks = page.locator( '.mantine-Slider-mark' );

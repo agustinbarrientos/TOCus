@@ -84,6 +84,7 @@ function Fixture() {
 					} } />
 				<Button className="tocus-native-button" disabled>Disabled native action</Button>
 				<Button size="sm" variant="outline">Small action</Button>
+				<Button size="xs" variant="outline">Extra small action</Button>
 				<div aria-label="Native activation count">{ activations }</div>
 				<Avatar className="tocus-native-avatar" size="2.75rem" role="img" aria-label="Native initials">TC</Avatar>
 				<Avatar size="2.75rem" role="img" aria-label="Default initials">TC</Avatar>
