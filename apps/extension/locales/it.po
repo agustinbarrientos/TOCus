@@ -35,8 +35,8 @@ msgstr "{count, plural, one {# timer attivo} other {# timer attivi}}"
 
 #. Compact countdown shown during a focused pause. The letter s means seconds.
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
-msgid "{count, plural, one {#s remaining} other {#s remaining}}"
-msgstr "{count, plural, zero {#s rimanenti} one {#s rimanente} two {#s rimanenti} few {#s rimanenti} many {#s rimanenti} other {#s rimanenti}}"
+msgid "{count, plural, one {#s} other {#s}}"
+msgstr "{count, plural, one {#s} other {#s}}"
 
 #. Browser toolbar tooltip while a focused pause has whole minutes remaining.
 #: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
@@ -162,6 +162,10 @@ msgstr "L'accesso ai siti che scegli permette a TOCus di mostrare la pausa. Deci
 msgid "Active time windows"
 msgstr "Fasce orarie attive"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Activity"
+msgstr "Attività"
+
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Add {siteName}"
 msgstr "Aggiungi {siteName}"
@@ -169,6 +173,10 @@ msgstr "Aggiungi {siteName}"
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Add another site"
 msgstr "Aggiungi un altro sito"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Add row"
+msgstr "Aggiungi riga"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
@@ -179,10 +187,6 @@ msgstr "Aggiungi sito"
 msgid "Add the first site you want TOCus to gently interrupt."
 msgstr "Aggiungi il primo sito che vuoi far interrompere delicatamente da TOCus."
 
-#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Add time window"
-msgstr "Aggiungi fascia oraria"
-
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Adding {siteName}..."
 msgstr "Aggiunta di {siteName}..."
@@ -192,11 +196,6 @@ msgstr "Aggiunta di {siteName}..."
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Adding..."
 msgstr "Aggiunta..."
-
-#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
-#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "Advanced"
-msgstr "Avanzate"
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "All recorded counts and time totals will be deleted. This cannot be undone."
@@ -319,6 +318,10 @@ msgstr "Per mostrare la pausa su questo sito web è necessario l'accesso del bro
 msgid "Cancel"
 msgstr "Annulla"
 
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Change schedule or site name"
+msgstr "Modifica gli orari o il nome del sito"
+
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 msgid "Changes could not be saved. Check the fields and try again."
 msgstr "Impossibile salvare le modifiche. Controlla i campi e riprova."
@@ -397,10 +400,18 @@ msgstr "Contribuisci"
 msgid "Create a gentle pause before the websites you choose."
 msgstr "Crea una pausa delicata prima dei siti che scegli."
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Current month"
+msgstr "Mese corrente"
+
 #. Heading above the current browser website in the extension popup.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Current website"
 msgstr "Sito web attuale"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Current week"
+msgstr "Settimana corrente"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
@@ -443,10 +454,6 @@ msgstr "Fatto"
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Each completed wait adds this amount to the next wait that day."
 msgstr "Ogni attesa completata aggiunge questo intervallo all'attesa successiva della giornata."
-
-#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
-msgid "Edit"
-msgstr "Modifica"
 
 #. Label for the end-time field of a scheduled protection window.
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -572,10 +579,6 @@ msgid "Language settings could not load"
 msgstr "Impossibile caricare le impostazioni della lingua"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Last 30 days"
-msgstr "Ultimi 30 giorni"
-
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Less than 1 minute"
 msgstr "Meno di 1 minuto"
 
@@ -657,6 +660,10 @@ msgstr "Nome"
 msgid "Navigation access notices website changes as they happen, not your saved browsing history."
 msgstr "L'accesso alla navigazione rileva i cambi di sito in tempo reale, senza consultare la cronologia salvata."
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "No activity recorded in this period."
+msgstr "Nessuna attività registrata in questo periodo."
+
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "No websites yet"
 msgstr "Ancora nessun sito web"
@@ -716,6 +723,10 @@ msgstr "Tempi di pausa"
 #: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "Pause: complete"
 msgstr "Pausa: completata"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Period"
+msgstr "Periodo"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
@@ -909,6 +920,10 @@ msgstr "Da quando hai iniziato, hai dedicato {focusedPauseTime} al tuo benessere
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Site not on the list"
 msgstr "Il sito non è nell'elenco"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Some daily details are unavailable. All-time totals still include them."
+msgstr "Alcuni dati giornalieri non sono disponibili, ma restano inclusi nei totali complessivi."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Something went wrong while adding that site. Try again."
@@ -1423,10 +1438,6 @@ msgstr "Non è stato possibile salvare le modifiche. Non è stato sostituito nul
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Your choice could not be saved. Try again."
 msgstr "Non è stato possibile salvare la tua scelta. Riprova."
-
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Your daily activity will appear here after your first pause."
-msgstr "La tua attività giornaliera apparirà qui dopo la prima pausa."
 
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "Your data stays with you"

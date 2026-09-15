@@ -35,8 +35,8 @@ msgstr "{count, plural, zero {# 件のタイマーが作動中} one {# 件のタ
 
 #. Compact countdown shown during a focused pause. The letter s means seconds.
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
-msgid "{count, plural, one {#s remaining} other {#s remaining}}"
-msgstr "{count, plural, zero {残り # 秒} one {残り # 秒} two {残り # 秒} few {残り # 秒} many {残り # 秒} other {残り # 秒}}"
+msgid "{count, plural, one {#s} other {#s}}"
+msgstr "{count, plural, other {#秒}}"
 
 #. Browser toolbar tooltip while a focused pause has whole minutes remaining.
 #: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
@@ -162,6 +162,10 @@ msgstr "選んだサイトへのアクセスを許可すると、TOCusが一時�
 msgid "Active time windows"
 msgstr "有効な時間帯"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Activity"
+msgstr "アクティビティ"
+
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Add {siteName}"
 msgstr "{siteName} を追加"
@@ -169,6 +173,10 @@ msgstr "{siteName} を追加"
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Add another site"
 msgstr "別のサイトを追加"
+
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Add row"
+msgstr "行を追加"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
@@ -179,10 +187,6 @@ msgstr "サイトを追加"
 msgid "Add the first site you want TOCus to gently interrupt."
 msgstr "TOCus でやさしく中断したい最初のサイトを追加してください。"
 
-#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Add time window"
-msgstr "時間帯を追加"
-
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Adding {siteName}..."
 msgstr "{siteName} を追加中..."
@@ -192,11 +196,6 @@ msgstr "{siteName} を追加中..."
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Adding..."
 msgstr "追加しています..."
-
-#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
-#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "Advanced"
-msgstr "詳細設定"
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "All recorded counts and time totals will be deleted. This cannot be undone."
@@ -319,6 +318,10 @@ msgstr "このウェブサイトで一時停止画面を表示するにはブラ
 msgid "Cancel"
 msgstr "キャンセル"
 
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Change schedule or site name"
+msgstr "スケジュールまたはサイト名を変更"
+
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 msgid "Changes could not be saved. Check the fields and try again."
 msgstr "変更を保存できませんでした。入力内容を確認して、もう一度お試しください。"
@@ -397,10 +400,18 @@ msgstr "開発に参加"
 msgid "Create a gentle pause before the websites you choose."
 msgstr "選んだウェブサイトを開く前に、やさしい間をつくります。"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Current month"
+msgstr "今月"
+
 #. Heading above the current browser website in the extension popup.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Current website"
 msgstr "現在のウェブサイト"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Current week"
+msgstr "今週"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
@@ -443,10 +454,6 @@ msgstr "完了"
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Each completed wait adds this amount to the next wait that day."
 msgstr "待ち時間を完了するたびに、その日の次回の待ち時間へこの長さが加算されます。"
-
-#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
-msgid "Edit"
-msgstr "編集"
 
 #. Label for the end-time field of a scheduled protection window.
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -572,10 +579,6 @@ msgid "Language settings could not load"
 msgstr "言語設定を読み込めませんでした"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Last 30 days"
-msgstr "過去30日間"
-
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Less than 1 minute"
 msgstr "1 分未満"
 
@@ -657,6 +660,10 @@ msgstr "名前"
 msgid "Navigation access notices website changes as they happen, not your saved browsing history."
 msgstr "ナビゲーションへのアクセスは、サイトの切り替えをその場で検知するために使います。保存された閲覧履歴は読み取りません。"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "No activity recorded in this period."
+msgstr "この期間に記録されたアクティビティはありません。"
+
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "No websites yet"
 msgstr "ウェブサイトはまだありません"
@@ -716,6 +723,10 @@ msgstr "一時停止の時間設定"
 #: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "Pause: complete"
 msgstr "一時停止：完了"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Period"
+msgstr "期間"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
@@ -909,6 +920,10 @@ msgstr "使い始めてから、自分のために {focusedPauseTime} の時間�
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Site not on the list"
 msgstr "リストにないサイト"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Some daily details are unavailable. All-time totals still include them."
+msgstr "一部の日別データは利用できませんが、全期間の合計には含まれています。"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Something went wrong while adding that site. Try again."
@@ -1423,10 +1438,6 @@ msgstr "変更を保存できませんでした。何も置き換えられてい
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Your choice could not be saved. Try again."
 msgstr "選択内容を保存できませんでした。もう一度お試しください。"
-
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Your daily activity will appear here after your first pause."
-msgstr "最初の一時停止の後に、日ごとの利用状況がここに表示されます。"
 
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "Your data stays with you"
