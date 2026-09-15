@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Alert, Button, Loader, TocusAppearance, TocusProvider, createShadowStyleSheet } from '../../src';
-import styles from '../../src/styles.scss?inline';
+import styles from '../../src/components/provider/style.scss?inline';
 
 const host = document.getElementById( 'shadow-host' );
 if ( ! host ) {

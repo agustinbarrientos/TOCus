@@ -1,8 +1,8 @@
 import { createRoot } from 'react-dom/client';
 import { TocusAppearance, TocusProvider, createShadowStyleSheet } from '../../src';
 import { SnackbarFixture } from './snackbar-controls';
-import styles from '../../src/styles.scss?inline';
-import notificationStyles from '../../src/notifications.scss?inline';
+import styles from '../../src/components/provider/style.scss?inline';
+import notificationStyles from '../../src/components/snackbar/style.scss?inline';
 
 for ( const id of [ 'first-shadow', 'second-shadow' ] ) {
 	const host = document.getElementById( id );
