@@ -5,12 +5,12 @@ import { BreathingMotionPhase, getBreathingMotionFrame } from '../../../../exten
 import {
 	readBreathingSphereColors, renderBreathingSphereFrame, resizeBreathingSphereCanvas,
 } from '../../../../extension/src/features/interruption/utils/breathing-sphere-renderer';
-import youtubeIcon from '../../../../extension/src/features/onboarding/assets/site-icons/site-youtube.svg?url';
-import instagramIcon from '../../../../extension/src/features/onboarding/assets/site-icons/site-instagram.svg?url';
-import redditIcon from '../../../../extension/src/features/onboarding/assets/site-icons/site-reddit.svg?url';
-import xIcon from '../../../../extension/src/features/onboarding/assets/site-icons/site-x.svg?url';
-import tiktokIcon from '../../../../extension/src/features/onboarding/assets/site-icons/site-tiktok.svg?url';
-import twitchIcon from '../../../../extension/src/features/onboarding/assets/site-icons/site-twitch.svg?url';
+import youtubeIcon from '@tocus/theme/site-icons/site-youtube.svg?url';
+import instagramIcon from '@tocus/theme/site-icons/site-instagram.svg?url';
+import redditIcon from '@tocus/theme/site-icons/site-reddit.svg?url';
+import xIcon from '@tocus/theme/site-icons/site-x.svg?url';
+import tiktokIcon from '@tocus/theme/site-icons/site-tiktok.svg?url';
+import twitchIcon from '@tocus/theme/site-icons/site-twitch.svg?url';
 import { DemoChapter, DemoThumbnail, type ProductDemoSceneProps } from './types';
 
 const WAIT_MILLISECONDS = DefaultTimingConfiguration.initialWaitMilliseconds;

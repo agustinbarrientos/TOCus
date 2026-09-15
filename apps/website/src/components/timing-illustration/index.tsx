@@ -1,5 +1,5 @@
 import { Icon, IconName } from '@tocus/ui';
-import youtubeIcon from '../../../../extension/src/features/onboarding/assets/site-icons/site-youtube.svg?url';
+import youtubeIcon from '@tocus/theme/site-icons/site-youtube.svg?url';
 import type { TimingIllustrationProps } from './types';
 import './style.scss';
 
