@@ -1,5 +1,12 @@
 [
 	{
+		"name": "Agustin Barrientos",
+		"domains": [
+			"agustinbarrientos.com",
+			"www.agustinbarrientos.com"
+		]
+	},
+	{
 		"name": "Bluesky",
 		"domains": [
 			"bsky.app",
@@ -11,6 +18,13 @@
 		"domains": [
 			"chatgpt.com",
 			"*.chatgpt.com"
+		]
+	},
+	{
+		"name": "Crafter Station",
+		"domains": [
+			"crafter.run",
+			"www.crafter.run"
 		]
 	},
 	{
@@ -88,11 +102,39 @@
 		]
 	},
 	{
+		"name": "Uncanny Automator",
+		"domains": [
+			"automatorplugin.com",
+			"www.automatorplugin.com"
+		]
+	},
+	{
+		"name": "Uncanny Owl",
+		"domains": [
+			"uncannyowl.com",
+			"www.uncannyowl.com"
+		]
+	},
+	{
 		"name": "WhatsApp",
 		"domains": [
 			"whatsapp.com",
 			"*.whatsapp.com",
 			"www.whatsapp.com"
+		]
+	},
+	{
+		"name": "WordPress.com",
+		"domains": [
+			"wordpress.com",
+			"www.wordpress.com"
+		]
+	},
+	{
+		"name": "WordPress.org",
+		"domains": [
+			"wordpress.org",
+			"www.wordpress.org"
 		]
 	},
 	{
@@ -855,6 +897,7 @@
 	{
 		"name": "Chess.com",
 		"domains": [
+			"chess.com",
 			"www.chess.com"
 		]
 	},

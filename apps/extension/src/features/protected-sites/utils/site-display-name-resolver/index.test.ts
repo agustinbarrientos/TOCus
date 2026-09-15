@@ -29,6 +29,13 @@ describe( 'resolveSiteDisplayIdentity', () => {
 		[ 'chatgpt.com', 'ChatGPT' ],
 		[ 'youtube.com', 'YouTube' ],
 		[ 'github.com', 'GitHub' ],
+		[ 'chess.com', 'Chess.com' ],
+		[ 'uncannyowl.com', 'Uncanny Owl' ],
+		[ 'automatorplugin.com', 'Uncanny Automator' ],
+		[ 'wordpress.org', 'WordPress.org' ],
+		[ 'wordpress.com', 'WordPress.com' ],
+		[ 'crafter.run', 'Crafter Station' ],
+		[ 'agustinbarrientos.com', 'Agustin Barrientos' ],
 	] )( 'uses the exact local alias for %s', ( host, name ) => {
 		expect( resolveSiteDisplayIdentity( {
 			identityHost: host,
@@ -42,6 +49,12 @@ describe( 'resolveSiteDisplayIdentity', () => {
 		[ 'docs.google.com', 'google.com', 'Google Docs' ],
 		[ 'news.ycombinator.com', 'ycombinator.com', 'Hacker News' ],
 		[ 'old.reddit.com', 'reddit.com', 'Reddit' ],
+		[ 'www.uncannyowl.com', 'uncannyowl.com', 'Uncanny Owl' ],
+		[ 'www.automatorplugin.com', 'automatorplugin.com', 'Uncanny Automator' ],
+		[ 'www.wordpress.org', 'wordpress.org', 'WordPress.org' ],
+		[ 'www.wordpress.com', 'wordpress.com', 'WordPress.com' ],
+		[ 'www.crafter.run', 'crafter.run', 'Crafter Station' ],
+		[ 'www.agustinbarrientos.com', 'agustinbarrientos.com', 'Agustin Barrientos' ],
 	] )( 'uses the catalog identity %s for %s', ( identityHost, protectionHost, name ) => {
 		expect( resolveSiteDisplayIdentity( {
 			identityHost,
