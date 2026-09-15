@@ -10,7 +10,7 @@ test( 'keeps short daily pause ticks distinct while preserving full accessible d
 			reconsideredVisitCount: 0, completedWaitCount: 0, allowanceGrantedCount: 0,
 		} ] } );
 	} );
-	const chart = page.getByRole( 'region', { name: 'Last 30 days', exact: true } );
+	const chart = page.getByRole( 'region', { name: 'Activity', exact: true } );
 	const labels = chart.locator( '.recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value' );
 	await expect( labels.first() ).toHaveText( '0s' );
 	const ticks = await labels.allTextContents();
@@ -29,7 +29,7 @@ for ( const [ milliseconds, formattedDuration ] of [ [ 660_000, '11 minutes' ], 
 				reconsideredVisitCount: 0, completedWaitCount: 0, allowanceGrantedCount: 0,
 			} ] } );
 		}, milliseconds );
-		const chart = page.getByRole( 'region', { name: 'Last 30 days', exact: true } );
+		const chart = page.getByRole( 'region', { name: 'Activity', exact: true } );
 		const labels = chart.locator( '.recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value' );
 		await expect( labels.first() ).toHaveText( '0s' );
 		const ticks = await labels.allTextContents();
@@ -50,25 +50,25 @@ test( 'lets keyboard users inspect the same daily values as pointer users', asyn
 			reconsideredVisitCount: 0, completedWaitCount: 0, allowanceGrantedCount: 0,
 		} ] } );
 	} );
-	const chart = page.getByRole( 'region', { name: 'Last 30 days', exact: true } );
-	const keyboardSurface = chart.getByRole( 'application', { name: 'Last 30 days Estimated time reclaimed', exact: true } );
+	const chart = page.getByRole( 'region', { name: 'Activity', exact: true } );
+	const keyboardSurface = chart.getByRole( 'application', { name: 'Activity Estimated time reclaimed', exact: true } );
 	await expect( chart.getByRole( 'application' ) ).toHaveCount( 1 );
 	await expect( keyboardSurface ).toHaveCount( 1 );
 	await expect( keyboardSurface ).toHaveAttribute( 'tabindex', '0' );
 	const tooltip = chart.locator( '.recharts-tooltip-wrapper' );
 	await chart.locator( '.recharts-bar-rectangle' ).nth( 1 ).hover();
 	await expect( tooltip ).toBeVisible();
-	await expect( tooltip ).toContainText( '2026-09-14' );
+	await expect( tooltip ).toContainText( 'Sep 14, 2026' );
 	await expect( tooltip ).toContainText( '5 minutes' );
 	await page.mouse.move( 0, 0 );
 	await keyboardSurface.focus();
 	await keyboardSurface.press( 'ArrowLeft' );
 	await expect( tooltip ).toBeVisible();
-	await expect( tooltip ).toContainText( '2026-09-13' );
+	await expect( tooltip ).toContainText( 'Sep 13, 2026' );
 	await expect( tooltip ).toContainText( '2 minutes' );
 	await keyboardSurface.press( 'ArrowRight' );
 	await expect( tooltip ).toBeVisible();
-	await expect( tooltip ).toContainText( '2026-09-14' );
+	await expect( tooltip ).toContainText( 'Sep 14, 2026' );
 	await expect( tooltip ).toContainText( '5 minutes' );
 	await expect( chart.getByRole( 'table' ) ).toContainText( '2 minutes' );
 	await expect( chart.getByRole( 'table' ) ).toContainText( '5 minutes' );

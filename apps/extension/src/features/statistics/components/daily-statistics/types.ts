@@ -1,5 +1,5 @@
 import type { SVGProps } from 'react';
-import type { DailyStatisticsTotals } from '../../../../domains/statistics/types/statistics-document';
+import type { StatisticsChartBucket } from '../../utils/select-statistics-range/types';
 import type { StatisticsSettingsScreenCopy } from '../settings-screen/types';
 
 /**
@@ -7,7 +7,7 @@ import type { StatisticsSettingsScreenCopy } from '../settings-screen/types';
  * @since 0.1.0
  */
 export interface DailyStatisticsProps {
-	totals: readonly DailyStatisticsTotals[];
+	totals: readonly StatisticsChartBucket[];
 	copy: StatisticsSettingsScreenCopy;
 }
 

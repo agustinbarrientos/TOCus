@@ -20,12 +20,15 @@ export function DailyStatistics( props: DailyStatisticsProps ) {
 		'aria-labelledby': `${ headingId } ${ metricLabelId }`,
 	};
 	const { copy, totals } = props;
-	const maximumMilliseconds = Math.max( 0, ...totals.map( ( day ) => day.estimatedReclaimedMilliseconds ) );
+	const maximumMilliseconds = totals.reduce(
+		( maximum, day ) => Math.max( maximum, day.estimatedReclaimedMilliseconds ), 0,
+	);
 	const millisecondsPerUnit = maximumMilliseconds >= MILLISECONDS_PER_HOUR ? MILLISECONDS_PER_HOUR :
 		maximumMilliseconds >= MILLISECONDS_PER_MINUTE ? MILLISECONDS_PER_MINUTE : MILLISECONDS_PER_SECOND;
 	// Give the packaged chart natural duration units so its automatic ticks stay useful.
 	const chartData = totals.map( ( day ) => ( {
-		date: day.date, estimatedReclaimedDuration: day.estimatedReclaimedMilliseconds / millisecondsPerUnit,
+		date: copy.formatDateRange( day.date, day.endDate ),
+		estimatedReclaimedDuration: day.estimatedReclaimedMilliseconds / millisecondsPerUnit,
 	} ) );
 	/**
 	 * Labels a library-selected tick in localized duration units.
@@ -42,7 +45,7 @@ export function DailyStatistics( props: DailyStatisticsProps ) {
 				series={ [ { name: 'estimatedReclaimedDuration', label: copy.estimatedReclaimedLabel,
 					color: 'var(--tocus-color-action)' } ] }
 				valueFormatter={ ( value ) => copy.formatDuration( value * millisecondsPerUnit ) } maxBarWidth={ 32 }
-				xAxisProps={ { tickFormatter: copy.formatDate.bind( copy ), minTickGap: 24 } }
+				xAxisProps={ { minTickGap: 24 } }
 				yAxisProps={ { tickFormatter: formatAxisTick, width: 80 } }
 				barProps={ { isAnimationActive: false } }
 				barChartProps={ { ...chartAccessibility, accessibilityLayer: true } } />
@@ -50,7 +53,7 @@ export function DailyStatistics( props: DailyStatisticsProps ) {
 				<caption>{ copy.dailyTitle }</caption>
 				<thead><tr><th scope="col">{ copy.dateLabel }</th><th id={ metricLabelId } scope="col">{ copy.estimatedReclaimedLabel }</th></tr></thead>
 				<tbody>{ totals.map( ( day ) => <tr key={ day.date }>
-					<th scope="row">{ copy.formatDate( day.date ) }</th>
+					<th scope="row">{ copy.formatDateRange( day.date, day.endDate ) }</th>
 					<td>{ copy.formatDuration( day.estimatedReclaimedMilliseconds ) }</td>
 				</tr> ) }</tbody>
 			</table></VisuallyHidden>
