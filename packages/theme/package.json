@@ -16,6 +16,7 @@
 		"./controls": "./controls.scss",
 		"./icon.svg": "./assets/icon.svg",
 		"./icons/*.svg": "./assets/icons/*.svg",
+		"./site-icons/*.svg": "./assets/site-icons/*.svg",
 		"./font": "./font.scss",
 		"./index.scss": "./index.scss",
 		"./runtime-colors": "./runtime-colors.ts",

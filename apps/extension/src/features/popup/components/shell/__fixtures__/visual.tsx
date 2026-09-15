@@ -10,7 +10,7 @@ import {
 	PopupScheduleStatus, PopupScopeKind, PopupTimerPhase,
 } from '../../../types/popup-projection';
 import type { PopupProjection } from '../../../types/popup-projection';
-import instagramIcon from '../../../../onboarding/assets/site-icons/site-instagram.svg?raw';
+import instagramIcon from '@tocus/theme/site-icons/site-instagram.svg?raw';
 import { PopupVisualScenario } from './visual-types';
 
 const now = 1_800_000_000_000;
