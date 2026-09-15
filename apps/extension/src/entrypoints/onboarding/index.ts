@@ -1,9 +1,11 @@
 import '@tocus/theme/index.scss';
 import '@tocus/ui/styles.scss';
+import '@tocus/ui/notifications.scss';
 import { browser } from 'wxt/browser';
 import { resolveLanguage } from '../../domains/preferences/utils';
 import { mountOnboarding } from '../../features/onboarding/services/onboarding-presentation';
 import { bootstrapOnboardingPage } from '../../features/onboarding/services/onboarding-page';
+import { consumeOnboardingResetCompletion } from '../../features/onboarding/services/reset-completion';
 import { loadLocalizationBundle } from '../../localization';
 import './styles.scss';
 
@@ -23,6 +25,15 @@ function openSettings(): Promise<void> {
 	return browser.runtime.openOptionsPage();
 }
 
+/**
+ * Verifies and consumes the completed-reset handoff in this onboarding tab.
+ * @return Whether the loaded page may announce reset completion once.
+ * @since 0.1.0
+ */
+function readResetCompletion(): Promise<boolean> {
+	return consumeOnboardingResetCompletion( { storageArea: browser.storage.local, pageWindow: window } );
+}
+
 void bootstrapOnboardingPage( {
 	browserLanguage: resolveLanguage( browser.i18n.getUILanguage() ),
 	cryptography: crypto,
@@ -35,4 +46,5 @@ void bootstrapOnboardingPage( {
 	shell: onboardingShell,
 	storageArea: browser.storage.local,
 	storageChanges: browser.storage.onChanged,
+	readResetCompletion,
 } );

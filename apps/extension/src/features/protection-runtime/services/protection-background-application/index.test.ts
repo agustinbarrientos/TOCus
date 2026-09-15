@@ -434,9 +434,9 @@ describe( 'startProtectionBackgroundApplication', () => {
 		await resumeOperation;
 		expect( backgroundMocks.refreshProtection ).toHaveBeenCalledOnce();
 		const createTab = vi.spyOn( fakeBrowser.tabs, 'create' );
-		await resetControllerOptions.openOnboarding();
+		await resetControllerOptions.openOnboarding( 'reset/generation?one' );
 		expect( createTab ).toHaveBeenCalledExactlyOnceWith( {
-			url: fakeBrowser.runtime.getURL( '/onboarding.html' ),
+			url: `${ fakeBrowser.runtime.getURL( '/onboarding.html' ) }?reset=reset%2Fgeneration%3Fone`,
 		} );
 		const optionsUrl = fakeBrowser.runtime.getURL( '/options.html' );
 		const settingsTab = await fakeBrowser.tabs.create( { url: `${ optionsUrl }#privacy` } );

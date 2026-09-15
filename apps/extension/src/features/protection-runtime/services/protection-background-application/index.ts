@@ -12,6 +12,7 @@ import {
 	createStatisticsStorageService,
 } from '../../../../domains/statistics';
 import { registerOnboardingOpenOnInstall } from '../../../onboarding/services/open-on-install';
+import { OnboardingResetQueryParameter } from '../../../onboarding/services/reset-completion/types';
 import { createSitePermissionManager } from '../../../protected-sites/services/site-permission-manager';
 import {
 	createProtectedSiteEnrollmentService,
@@ -272,12 +273,15 @@ export function startProtectionBackgroundApplication(
 
 	/**
 	 * Opens the packaged onboarding page after a complete local reset.
+	 * @param generation - Completed reset identity passed to the receiving page.
 	 * @return Completion of browser tab creation.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	async function openOnboarding(): Promise<void> {
+	async function openOnboarding( generation: string ): Promise<void> {
+		const url = new URL( options.browser.runtime.getURL( '/onboarding.html' ) );
+		url.searchParams.set( OnboardingResetQueryParameter, generation );
 		await options.browser.tabs.create( {
-			url: options.browser.runtime.getURL( '/onboarding.html' ),
+			url: url.href,
 		} );
 	}
 
