@@ -81,7 +81,6 @@ export function createLanguageScreenCopy( i18n: I18n ): Readonly<LanguageScreenC
 		save: i18n._( msg`Save` ),
 		saving: i18n._( msg`Saving...` ),
 		discard: i18n._( msg`Discard` ),
-		savedAnnouncement: i18n._( msg`Language saved.` ),
 		restoredAnnouncement: i18n._( msg`Personalization defaults restored.` ),
 		formatBrowserLanguageDescription,
 	} );

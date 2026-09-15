@@ -93,7 +93,6 @@ export interface LanguageScreenCopy {
 	save: string;
 	saving: string;
 	discard: string;
-	savedAnnouncement: string;
 	restoredAnnouncement: string;
 	/**
 	 * Formats the helper shown while TOCus follows the browser language.
