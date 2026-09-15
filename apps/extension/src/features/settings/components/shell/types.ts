@@ -48,6 +48,13 @@ export interface SettingsShellCopy {
 	save: string;
 	saving: string;
 	saveFailed: string;
+	dismissNotification: string;
+	changesSaved: string;
+	changesDiscarded: string;
+	siteAddedToDraft: string;
+	siteUpdatedInDraft: string;
+	siteRemovedFromDraft: string;
+	siteAlreadyExists: string;
 }
 
 /**

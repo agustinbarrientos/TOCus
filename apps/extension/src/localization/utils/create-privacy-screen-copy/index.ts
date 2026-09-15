@@ -37,7 +37,7 @@ export function createPrivacyScreenCopy( i18n: I18n ): Readonly<PrivacyScreenCop
 		retry: i18n._( msg`Try again` ),
 		resetError: i18n._( msg`TOCus could not finish the reset. Try again to complete it.` ),
 		statisticsSuccess: i18n._( msg`Statistics reset. Your websites and settings are unchanged.` ),
-		allSuccess: i18n._( msg`All TOCus data reset. Opening setup...` ),
+		allSuccess: i18n._( msg`All TOCus data reset.` ),
 		unavailable: i18n._( msg`Local data controls are unavailable right now.` ),
 	} );
 }

@@ -9,6 +9,7 @@ describe( 'createPrivacyScreenCopy', () => {
 		expect( copy.statisticsDescription ).toContain( 'Your websites and settings stay the same' );
 		expect( copy.allConfirmation ).toContain( 'Website access will be removed' );
 		expect( copy.allConfirmation ).toContain( 'cannot be undone' );
+		expect( copy.allSuccess ).toBe( 'All TOCus data reset.' );
 		expect( Object.isFrozen( copy ) ).toBe( true );
 	} );
 } );
