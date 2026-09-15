@@ -38,7 +38,7 @@ export function SnackbarProvider( { children, closeLabel }: SnackbarProviderProp
 	} ), [ store ] );
 	return <SnackbarContext value={api}>
 		{children}
-		<Notifications store={store} position="bottom-center" limit={1} autoClose={6000} />
+		<Notifications store={store} position="bottom-center" layout="stacked" limit={1} autoClose={4000} />
 	</SnackbarContext>;
 }
 

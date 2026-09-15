@@ -68,19 +68,87 @@ test.describe( 'shared snackbar', () => {
 		await expect( page.getByRole( 'status' ) ).toHaveCount( 0 );
 	} );
 
-	// Using the global queue or forgetting replacement would replay obsolete feedback after six seconds.
-	test( 'replaces pending feedback and dismisses the latest message after six seconds', async ( { page } ) => {
+	// Using the global queue or forgetting replacement would replay obsolete feedback after four seconds.
+	test( 'replaces pending feedback and dismisses the latest message after four seconds', async ( { page } ) => {
 		await page.clock.install();
 		await page.goto( fixture );
 		await page.getByRole( 'button', { name: 'Show consecutive feedback', exact: true } ).click();
 		await page.clock.runFor( 300 );
 		await expect( page.getByRole( 'status' ) ).toHaveText( 'Latest preferences saved' );
-		await page.clock.runFor( 5_000 );
+		await page.clock.runFor( 3_000 );
 		await expect( page.getByRole( 'status' ) ).toBeVisible();
 		await page.clock.runFor( 1_500 );
+		expect( await page.getByRole( 'status' ).count() ).toBe( 0 );
+		await page.clock.runFor( 4_500 );
 		await expect( page.getByRole( 'status' ) ).toHaveCount( 0 );
-		await page.clock.runFor( 6_500 );
-		await expect( page.getByRole( 'status' ) ).toHaveCount( 0 );
+	} );
+
+	// An outgoing notification must not reserve a second row and move its replacement when it unmounts.
+	test( 'keeps replacement feedback anchored throughout the exit animation', async ( { page } ) => {
+		await page.emulateMedia( { reducedMotion: 'no-preference' } );
+		await page.goto( fixture );
+		await page.getByRole( 'button', { name: 'Show success', exact: true } ).click();
+		const outgoing = page.getByRole( 'status' );
+		await expect( outgoing ).toHaveCSS( 'opacity', '1' );
+		const restingBottom = await outgoing.evaluate( async ( element ) => {
+			await Promise.all( element.getAnimations().map( ( animation ) => animation.finished ) );
+			return element.getBoundingClientRect().bottom;
+		} );
+		const movement = await page.getByRole( 'button', { name: 'Show information', exact: true } )
+			.evaluate( async ( button ) => {
+				if ( ! ( button instanceof HTMLButtonElement ) ) {
+					throw new Error( 'Missing feedback action.' );
+				}
+				const anchors: number[] = [];
+				let overlapFrames = 0;
+				const deadline = performance.now() + 2_000;
+				await new Promise<void>( ( resolve, reject ) => {
+					/** Records rendered frames until both the exit and replacement entry finish. */
+					function sample() {
+						const messages = Array.from( document.querySelectorAll( '[role="status"]' ) );
+						const previous = messages.find( ( element ) => element.textContent.includes( 'Preferences saved' ) );
+						const current = messages.find( ( element ) => element.textContent.includes( 'No changes to save' ) );
+						if ( current ) {
+							const style = getComputedStyle( current );
+							const translation = new DOMMatrixReadOnly( style.transform ).m42;
+							// Remove the intended slide-in transform to detect layout jumps, not easing overshoot.
+							anchors.push( current.getBoundingClientRect().bottom - translation );
+							if ( previous ) {
+								overlapFrames += 1;
+							} else if ( style.opacity === '1' && current.getAnimations().length === 0 ) {
+								resolve();
+								return;
+							}
+						}
+						if ( performance.now() > deadline ) {
+							reject( new Error( 'Snackbar replacement did not settle.' ) );
+							return;
+						}
+						requestAnimationFrame( sample );
+					}
+					requestAnimationFrame( sample );
+					button.click();
+				} );
+				return { anchors, overlapFrames };
+			} );
+		expect( movement.overlapFrames ).toBeGreaterThan( 0 );
+		const largestShift = Math.max( ...movement.anchors.map( ( bottom ) => Math.abs( bottom - restingBottom ) ) );
+		expect( largestShift ).toBeLessThan( 1 );
+		await expect( page.getByRole( 'status' ) ).toHaveText( 'No changes to save' );
+	} );
+
+	// Updating a stable notification ID can inherit an almost-expired timer from the old message.
+	test( 'gives a replacement its own four seconds after the previous message was already visible', async ( { page } ) => {
+		await page.clock.install();
+		await page.goto( fixture );
+		await page.getByRole( 'button', { name: 'Show success', exact: true } ).click();
+		await page.clock.runFor( 3_000 );
+		await expect( page.getByRole( 'status' ) ).toHaveText( 'Preferences saved' );
+		await page.getByRole( 'button', { name: 'Show information', exact: true } ).click();
+		await page.clock.runFor( 3_000 );
+		await expect( page.getByRole( 'status' ) ).toHaveText( 'No changes to save' );
+		await page.clock.runFor( 1_500 );
+		expect( await page.getByRole( 'status' ).count() ).toBe( 0 );
 	} );
 
 	// Ignoring the system preference leaves notification transitions active for reduced-motion users.
