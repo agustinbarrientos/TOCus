@@ -93,7 +93,8 @@ test.describe( 'Unsaved navigation Save', () => {
 			await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
 			await input.fill( address );
 			await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
-			await expect( input ).toHaveAttribute( 'aria-invalid', 'true' );
+			await expect( page.getByRole( 'status' ).filter( { hasText: 'This site is already in your list.' } ) ).toBeVisible();
+			await expect( input ).not.toHaveAttribute( 'aria-invalid', 'true' );
 			await page.getByRole( 'link', { name: 'About', exact: true } ).click();
 			await page.getByRole( 'dialog' ).getByRole( 'button', { name: 'Save', exact: true } ).click();
 			expect( await page.evaluate( () => window.settingsTest.controls.requests ) ).toBe( 1 );

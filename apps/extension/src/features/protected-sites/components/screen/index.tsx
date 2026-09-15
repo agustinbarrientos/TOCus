@@ -1,5 +1,6 @@
 import { LoadState } from '../../../settings/components/recovery/types';
 import {
+	useEffect,
 	useRef,
 	useState,
 } from 'react';
@@ -44,6 +45,8 @@ import type {
 } from './types';
 import './style.scss';
 import { WebsiteList } from '../site-list';
+import { useSettingsFeedback } from '../../../settings/services/settings-feedback';
+import { SettingsFeedbackAction } from '../../../settings/services/settings-feedback/types';
 
 
 export type { AccessRefresh } from './types';
@@ -60,17 +63,46 @@ export function Websites( props: WebsitesScreenProps ) {
 	const copy = shell.protectedSitesCopy;
 	const itemCopy = shell.protectedSiteItemCopy;
 	const state = useWebsitesState( props );
-	const { draft, value, status, saving, saved, configuration, pendingAccess, access } = state;
+	const { notify } = useSettingsFeedback();
+	const { draft, value, status, saving, configuration, pendingAccess, access } = state;
 	const [ editing, setEditing ] = useState<string | null>( null );
 	const [ removing, setRemoving ] = useState<ProtectedSiteConfiguration | null>( null );
 	const addressInput = useRef<HTMLInputElement>( null );
+	const rows = useRef( new Map<string, HTMLLIElement>() );
+	const [ highlighted, setHighlighted ] = useState<string | null>( null );
 	const disabled = saving || shell.permissionManager === null;
 	const savedIdentities = new Set( configuration?.sites.map( ( site ) => site.identityHost ) ?? [] );
 
+	useEffect( () => {
+		if ( state.duplicate === null ) {
+			return;
+		}
+		const host = state.duplicate.identityHost;
+		const row = rows.current.get( host );
+		if ( ! row ) {
+			return;
+		}
+		setHighlighted( host );
+		const reducedMotion = window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+		row.scrollIntoView( { block: 'center', behavior: reducedMotion ? 'instant' : 'smooth' } );
+		// Keep attention on the match without moving keyboard focus away from the add action.
+		const timeout = window.setTimeout( () => {
+			setHighlighted( null );
+		}, 2200 );
+		return () => {
+			window.clearTimeout( timeout );
+		};
+	}, [ state.duplicate ] );
+
 	/** Removes the confirmed row from the draft without changing storage or permissions. */
 	function confirmRemoval(): void {
-		const remaining = value.sites.filter( ( site ) => site.identityHost !== removing?.identityHost );
+		if ( removing === null ) {
+			return;
+		}
+		const removedHost = removing.identityHost;
+		const remaining = value.sites.filter( ( site ) => site.identityHost !== removedHost );
 		state.change( { ...value, sites: remaining } );
+		notify( SettingsFeedbackAction.SITE_REMOVED );
 		setRemoving( null );
 		setEditing( null );
 		// The removed row cannot receive the dialog's restored focus.
@@ -87,6 +119,14 @@ export function Websites( props: WebsitesScreenProps ) {
 			return null;
 		}
 		return <WebsiteItem key={ site.identityHost } site={ site } copy={ itemCopy }
+			highlighted={ highlighted === site.identityHost }
+			itemRef={ ( element ) => {
+				if ( element ) {
+					rows.current.set( site.identityHost, element );
+				} else {
+					rows.current.delete( site.identityHost );
+				}
+			} }
 			scheduleCopy={ shell.scheduleCopy } globalSchedule={ configuration.schedule }
 			{ ...( value.detailsByHost[ site.identityHost ] === undefined
 				? {} : { details: value.detailsByHost[ site.identityHost ] } ) }
@@ -147,8 +187,9 @@ export function Websites( props: WebsitesScreenProps ) {
 				</form>
 				<WebsiteList sites={ value.sites } copy={ copy } renderItem={ renderSite }
 					hasCustomSchedule={ ( site ) => value.detailsByHost[ site.identityHost ]?.schedule !== null } />
-				<DraftActions draft={ draft } copy={ { ...copy, saving: itemCopy.saving } } onSave={ state.save } />
-				<Feedback error={ state.errorMessage } success={ saved ? copy.saved : state.accessMessage } />
+				<DraftActions draft={ draft } copy={ { ...copy, saving: itemCopy.saving } }
+					onSave={ state.save } onDiscard={ state.discard } />
+				<Feedback error={ state.errorMessage } success={ state.accessMessage } />
 				{ state.retained && <p role="status">{ copy.savedWithRetainedAccess }</p> }
 				<Confirmation opened={ removing !== null } focusConfirm
 					title={ removing

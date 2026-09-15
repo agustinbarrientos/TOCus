@@ -147,7 +147,7 @@ test.describe( 'website draft controls', () => {
 		const page = await open( SettingsDestination.PROTECTED_SITES );
 		await page.getByLabel( 'Website address', { exact: true } ).fill( 'example.com' );
 		await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
-		await page.getByText( 'Website changes saved.', { exact: true } ).waitFor();
+		await page.getByText( 'Changes saved.', { exact: true } ).waitFor();
 		const accessAction = page.getByRole( 'button', { name: 'Allow access', exact: true } );
 		expect( await accessAction.count() ).toBe( 0 );
 		expect( await page.evaluate( () => window.settingsTest.controls.requests ) ).toBe( 1 );
@@ -227,7 +227,7 @@ test.describe( 'website draft controls', () => {
 			await dialog.getByLabel( 'End', { exact: true } ).fill( '17:00' );
 			await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
 			await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
-			await page.getByText( 'Website changes saved.', { exact: true } ).waitFor();
+			await page.getByText( 'Changes saved.', { exact: true } ).waitFor();
 			const site = await page.evaluate( () => window.settingsTest.getConfiguration().sites[ 0 ] );
 			expect( site?.displayNameOverride ).toBe( 'Reading' );
 			expect( site?.rule.scopeId ).toBe( DefaultProtectionScopeId );
