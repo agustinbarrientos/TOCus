@@ -381,7 +381,7 @@ test.describe( 'packaged Chrome protection', () => {
 
 	test.describe( 'without optional access', () => {
 		test.use( { pregrantSite: false } );
-		test( 'resets packaged local data through Settings and reopens onboarding without requesting access', async ( { context: resetContext, worker: resetWorker } ) => {
+		test( 'resets packaged local data and replaces only the originating Settings tab with new onboarding', async ( { context: resetContext, worker: resetWorker } ) => {
 			const optionsUrl = await resetWorker.evaluate( async ( seed ) => {
 				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
 				await chrome.storage.local.set( seed );
@@ -391,12 +391,30 @@ test.describe( 'packaged Chrome protection', () => {
 				'tocus.protection.configuration.v1': TestEmptyProtectionConfiguration,
 				'tocus.statistics.v1': createMockStatisticsDocument(),
 			} );
+			const secondSettings = await resetContext.newPage();
+			await secondSettings.goto( optionsUrl );
+			const unrelated = await resetContext.newPage();
+			await unrelated.goto( 'https://example.test/reset-preserves-work' );
+			await unrelated.getByRole( 'textbox', { name: 'Unfinished work' } ).fill( 'Preserve work in another tab' );
 			const settings = await resetContext.newPage();
 			await settings.goto( optionsUrl );
 			const resetButton = settings.getByRole( 'button', { name: 'Reset all TOCus data', exact: true } );
 			await resetButton.click();
 			await settings.getByRole( 'heading', { name: 'Reset all TOCus data?' } ).waitFor();
-			await settings.getByLabel( 'Reset all TOCus data?' ).getByRole( 'button', { name: 'Reset all TOCus data', exact: true } ).click();
+			await test.step( 'Open new onboarding and close only the Settings tab that confirmed reset', async () => {
+				const [ onboarding ] = await Promise.all( [
+					resetContext.waitForEvent( 'page' ),
+					settings.waitForEvent( 'close' ),
+					settings.getByLabel( 'Reset all TOCus data?' ).getByRole( 'button', { name: 'Reset all TOCus data', exact: true } ).click(),
+				] );
+				await expect( onboarding ).toHaveURL( new URL( '/onboarding.html', optionsUrl ).href );
+				await expect( onboarding.getByText( 'TOCus', { exact: true } ).first() ).toBeVisible();
+				expect( settings.isClosed() ).toBe( true );
+				await expect( secondSettings ).toHaveURL( optionsUrl );
+				await expect( secondSettings.getByRole( 'button', { name: 'Reset all TOCus data', exact: true } ) ).toBeEnabled();
+				await expect( unrelated ).toHaveURL( 'https://example.test/reset-preserves-work' );
+				await expect( unrelated.getByRole( 'textbox', { name: 'Unfinished work' } ) ).toHaveValue( 'Preserve work in another tab' );
+			} );
 			const expectedGeneration: unknown = expect.any( String );
 			await expect.poll( () => resetWorker.evaluate( async () => {
 				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
@@ -417,7 +435,6 @@ test.describe( 'packaged Chrome protection', () => {
 			expect( stored.grants.origins ?? [] ).toEqual( [] );
 			expect( stored.grants.permissions ).not.toContain( 'webNavigation' );
 			expect( stored.rules ).toEqual( [] );
-			expect( resetContext.pages().filter( ( page ) => page.url().endsWith( '/onboarding.html' ) ).length ).toBeGreaterThan( 0 );
 		} );
 	} );
 } );

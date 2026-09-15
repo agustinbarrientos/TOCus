@@ -1,5 +1,18 @@
-import type { WxtBrowser } from 'wxt/browser';
+import type { Browser, WxtBrowser } from 'wxt/browser';
 import type { TabAudioMutedInfo } from '../tab-audio-controller';
+import type { ExtensionTabContextTab } from '../../../../shared/services/extension-tab-context';
+
+/**
+ * Live originating-tab identity, including a pending browser navigation state.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ProtectionBackgroundSettingsTab = ExtensionTabContextTab & Pick<Browser.tabs.Tab, 'status'>;
+
+/**
+ * Optional live extension context lookup, unavailable in older browser engines.
+ * @since 0.1.0 Initial implementation.
+ */
+export type ProtectionBackgroundSettingsRuntime = Partial<Pick<WxtBrowser[ 'runtime' ], 'getContexts'>>;
 
 /**
  * Native tab updates relevant to interruption audio ownership.

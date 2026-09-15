@@ -28,7 +28,12 @@ import { createBrowserProtectionRuntime } from '../browser-protection-runtime';
 import { createProtectionBackgroundController } from '../protection-background-controller';
 import { createToolbarLanguageController } from '../toolbar-language-controller';
 import { createTabAudioController } from '../tab-audio-controller';
-import type { ProtectionBackgroundApplicationOptions, ProtectionBackgroundTabAudioChange } from './types';
+import type {
+	ProtectionBackgroundApplicationOptions,
+	ProtectionBackgroundSettingsRuntime,
+	ProtectionBackgroundSettingsTab,
+	ProtectionBackgroundTabAudioChange,
+} from './types';
 import { InterruptionDocumentPath } from '../../../../shared/utils/interruption-document-url';
 import { createRuntimeLocalDate } from '../../utils/runtime-local-date';
 import type { LocalDate } from '../../../../domains/protection/types/protection-value';
@@ -276,6 +281,43 @@ export function startProtectionBackgroundApplication(
 		} );
 	}
 
+	/**
+	 * Closes the originating settings tab only while it still shows an extension settings document.
+	 * @param tabId - Browser-authenticated originating settings tab identifier.
+	 * @return Completion without changing a completed reset when the tab is unavailable.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function closeSettingsTab( tabId: number ): Promise<void> {
+		try {
+			const tab: ProtectionBackgroundSettingsTab = await options.browser.tabs.get( tabId );
+			const settingsUrl = options.browser.runtime.getURL( '/options.html' );
+			let currentUrl = tab.pendingUrl ?? tab.url;
+			if ( currentUrl === undefined && tab.status !== 'loading' && tab.incognito === false ) {
+				const contextRuntime: ProtectionBackgroundSettingsRuntime = options.browser.runtime;
+				const contexts = await contextRuntime.getContexts?.( { contextTypes: [ 'TAB' ], tabIds: [ tabId ] } ) ?? [];
+				const settingsContext = contexts.find( ( context ) =>
+					context.contextType === 'TAB' && context.frameId === 0 && ! context.incognito &&
+					context.tabId === tabId && context.documentUrl?.split( '#' )[ 0 ] === settingsUrl,
+				);
+				if ( settingsContext === undefined ) {
+					return;
+				}
+				const currentTab: ProtectionBackgroundSettingsTab = await options.browser.tabs.get( tabId );
+				const observedUrl = currentTab.pendingUrl ?? currentTab.url;
+				if ( currentTab.status === 'loading' || currentTab.incognito !== false ||
+					( observedUrl !== undefined && observedUrl.split( '#' )[ 0 ] !== settingsUrl ) ) {
+					return;
+				}
+				currentUrl = settingsContext.documentUrl;
+			}
+			if ( currentUrl?.split( '#' )[ 0 ] === settingsUrl ) {
+				await options.browser.tabs.remove( tabId );
+			}
+		} catch {
+			// A closed or unavailable settings tab does not undo a completed reset.
+		}
+	}
+
 	const reset = createLocalDataReset( {
 		localArea: options.browser.storage.local,
 		sessionArea: options.browser.storage.session,
@@ -291,6 +333,7 @@ export function startProtectionBackgroundApplication(
 		reset,
 		resume: resumeProtection,
 		openOnboarding,
+		closeSettingsTab,
 	} );
 
 	protectionController.start();

@@ -1,6 +1,7 @@
 import { ProtectedSiteEnrollmentStatus } from '../../../protected-sites/services/protected-site-enrollment/types';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 import { fakeBrowser } from 'wxt/testing/fake-browser';
+import type { Browser } from 'wxt/browser';
 import { Language } from '../../../../domains/preferences/types';
 import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import { TestInstant } from '../../../../domains/protection/types/__fixtures__/protection-event';
@@ -133,7 +134,7 @@ vi.mock( '../toolbar-language-controller', () => ( {
 	createToolbarLanguageController: backgroundMocks.createToolbarLanguageController,
 } ) );
 
-import { startProtectionBackgroundApplication } from './index';
+import { startProtectionBackgroundApplication, type ProtectionBackgroundSettingsTab } from './index';
 
 describe( 'startProtectionBackgroundApplication', () => {
 	beforeEach( () => {
@@ -437,5 +438,117 @@ describe( 'startProtectionBackgroundApplication', () => {
 		expect( createTab ).toHaveBeenCalledExactlyOnceWith( {
 			url: fakeBrowser.runtime.getURL( '/onboarding.html' ),
 		} );
+		const optionsUrl = fakeBrowser.runtime.getURL( '/options.html' );
+		const settingsTab = await fakeBrowser.tabs.create( { url: `${ optionsUrl }#privacy` } );
+		const secondSettingsTab = await fakeBrowser.tabs.create( { url: optionsUrl } );
+		const unrelatedTab = await fakeBrowser.tabs.create( { url: 'https://example.com/' } );
+		if ( settingsTab.id === undefined ) {
+			throw new TypeError( 'Expected originating settings tab identity.' );
+		}
+		// The background uses the promise overload instead of Chrome's callback overload.
+		const getTab = vi.spyOn( fakeBrowser.tabs, 'get' ) as MockInstance<( tabId: number ) => Promise<ProtectionBackgroundSettingsTab>>;
+		const removeTab = vi.spyOn( fakeBrowser.tabs, 'remove' );
+		await resetControllerOptions.closeSettingsTab( settingsTab.id );
+		expect( getTab ).toHaveBeenCalledExactlyOnceWith( settingsTab.id );
+		expect( removeTab ).toHaveBeenCalledExactlyOnceWith( settingsTab.id );
+		const remainingTabs = await fakeBrowser.tabs.query( {} );
+		expect( remainingTabs ).toEqual( expect.arrayContaining( [ secondSettingsTab, unrelatedTab ] ) );
+		removeTab.mockClear();
+		for ( const navigation of [
+			{ url: 'https://example.com/', pendingUrl: undefined },
+			{ url: `${ optionsUrl }#privacy`, pendingUrl: 'https://example.com/' },
+			{ url: `${ optionsUrl }?other`, pendingUrl: undefined },
+			{ url: undefined, pendingUrl: undefined },
+		] ) {
+			getTab.mockResolvedValueOnce( { ...settingsTab, ...navigation } );
+			await resetControllerOptions.closeSettingsTab( settingsTab.id );
+		}
+		expect( removeTab ).not.toHaveBeenCalled();
+		getTab.mockResolvedValueOnce( { ...settingsTab, url: optionsUrl, pendingUrl: `${ optionsUrl }#appearance` } );
+		await resetControllerOptions.closeSettingsTab( settingsTab.id );
+		expect( removeTab ).toHaveBeenCalledExactlyOnceWith( settingsTab.id );
+		removeTab.mockClear();
+		getTab.mockRejectedValueOnce( new Error( 'tab already closed' ) );
+		await expect( resetControllerOptions.closeSettingsTab( settingsTab.id ) ).resolves.toBeUndefined();
+		expect( removeTab ).not.toHaveBeenCalled();
+		getTab.mockResolvedValueOnce( settingsTab );
+		removeTab.mockRejectedValueOnce( new Error( 'tab removal unavailable' ) );
+		await expect( resetControllerOptions.closeSettingsTab( settingsTab.id ) ).resolves.toBeUndefined();
+		removeTab.mockClear();
+		const settingsContext = {
+			contextId: 'settings-context',
+			contextType: 'TAB' as const,
+			documentId: 'settings-document',
+			documentOrigin: optionsUrl,
+			documentUrl: `${ optionsUrl }#privacy`,
+			frameId: 0,
+			incognito: false,
+			tabId: settingsTab.id,
+			windowId: settingsTab.windowId,
+		};
+		const getContexts = vi.spyOn( fakeBrowser.runtime, 'getContexts' ) as MockInstance<( filter: Browser.runtime.ContextFilter ) => Promise<Browser.runtime.ExtensionContext[]>>;
+		getContexts.mockResolvedValue( [ settingsContext ] );
+		const redactedTab = { ...settingsTab, url: undefined, pendingUrl: undefined, status: 'complete' as const };
+		getTab.mockResolvedValue( redactedTab );
+		await resetControllerOptions.closeSettingsTab( settingsTab.id );
+		expect( getContexts ).toHaveBeenCalledExactlyOnceWith( { contextTypes: [ 'TAB' ], tabIds: [ settingsTab.id ] } );
+		expect( removeTab ).toHaveBeenCalledExactlyOnceWith( settingsTab.id );
+		removeTab.mockClear();
+		for ( const navigation of [
+			{ status: 'loading' as const },
+			{ url: 'https://example.com/' },
+			{ pendingUrl: 'https://example.com/' },
+			{ incognito: true },
+			{ incognito: undefined },
+		] ) {
+			getContexts.mockClear();
+			const contextLookup = Promise.withResolvers<Browser.runtime.ExtensionContext[]>();
+			getContexts.mockReturnValueOnce( contextLookup.promise );
+			getTab.mockResolvedValueOnce( redactedTab ).mockResolvedValueOnce( { ...redactedTab, ...navigation } );
+			const pendingClose = resetControllerOptions.closeSettingsTab( settingsTab.id );
+			await vi.waitFor( () => {
+				expect( getContexts ).toHaveBeenCalledOnce();
+			} );
+			expect( removeTab ).not.toHaveBeenCalled();
+			contextLookup.resolve( [ settingsContext ] );
+			await pendingClose;
+			expect( removeTab ).not.toHaveBeenCalled();
+		}
+		getContexts.mockClear();
+		for ( const navigation of [
+			{ status: 'loading' as const },
+			{ url: 'https://example.com/' },
+			{ pendingUrl: 'https://example.com/' },
+			{ incognito: true },
+			{ incognito: undefined },
+		] ) {
+			getTab.mockResolvedValueOnce( { ...redactedTab, ...navigation } );
+			await resetControllerOptions.closeSettingsTab( settingsTab.id );
+		}
+		expect( getContexts ).not.toHaveBeenCalled();
+		expect( removeTab ).not.toHaveBeenCalled();
+		getTab.mockResolvedValue( redactedTab );
+		for ( const context of [
+			{ contextType: 'POPUP' as const },
+			{ frameId: 1 },
+			{ incognito: true },
+			{ tabId: settingsTab.id + 1 },
+			{ documentUrl: `${ optionsUrl }?other` },
+		] ) {
+			getContexts.mockResolvedValueOnce( [ { ...settingsContext, ...context } ] );
+			await resetControllerOptions.closeSettingsTab( settingsTab.id );
+		}
+		const contextWithoutDocumentUrl: Browser.runtime.ExtensionContext = { ...settingsContext };
+		delete contextWithoutDocumentUrl.documentUrl;
+		getContexts.mockResolvedValueOnce( [ contextWithoutDocumentUrl ] );
+		await resetControllerOptions.closeSettingsTab( settingsTab.id );
+		expect( removeTab ).not.toHaveBeenCalled();
+		getContexts.mockRejectedValueOnce( new Error( 'context lookup unavailable' ) );
+		await expect( resetControllerOptions.closeSettingsTab( settingsTab.id ) ).resolves.toBeUndefined();
+		expect( removeTab ).not.toHaveBeenCalled();
+		Object.defineProperty( fakeBrowser.runtime, 'getContexts', { configurable: true, value: undefined } );
+		await expect( resetControllerOptions.closeSettingsTab( settingsTab.id ) ).resolves.toBeUndefined();
+		expect( removeTab ).not.toHaveBeenCalled();
+		getContexts.mockRestore();
 	} );
 } );
