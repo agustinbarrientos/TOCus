@@ -20,8 +20,6 @@ export interface ConfirmationSaveAction {
 export interface ConfirmationProps {
 	opened: boolean;
 	inline?: boolean;
-	/** Presents a boxed site-removal question without a repeated heading. */
-	minimal?: boolean;
 	/** Restores the established first focused action for an existing confirmation flow. */
 	focusConfirm?: boolean;
 	title: string;
