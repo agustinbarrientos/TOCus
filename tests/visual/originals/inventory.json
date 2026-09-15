@@ -33,11 +33,11 @@
   },
   {
     "path": "apps/extension/src/features/onboarding/components/appearance-step/__snapshots__/chromium/onboarding-appearance-step-brown-light.png",
-    "sha256": "54bc69277bba2f1ef43ccf09cb148fd090ccdc00c69548a8b3c17e068c9b9f54"
+    "sha256": "b74964291ae96072fd4ec841bfdcaa16fbd01656f722b5a1c119d9f55aa2bc3c"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/appearance-step/__snapshots__/chromium/onboarding-appearance-step-purple-dark-narrow.png",
-    "sha256": "4a9410046a41da1018dddc8d4528587a3dc6d655baec3feb7337c721a5f59ae1"
+    "sha256": "1c7990bd756fd064529917c0bf8659585bfbf8573890e499f24814a18503498d"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/language-step/__snapshots__/chromium/onboarding-language-step-english-light.png",
