@@ -16,6 +16,7 @@ import brand from '@tocus/theme/icon.svg?raw';
 import circleCheck from '@tocus/theme/icons/circle-check.svg?raw';
 import circleExclamation from '@tocus/theme/icons/circle-exclamation.svg?raw';
 import circleInfo from '@tocus/theme/icons/circle-info.svg?raw';
+import circleQuestion from '@tocus/theme/icons/circle-question.svg?raw';
 import trash from '@tocus/theme/icons/trash.svg?raw';
 import { BrandSize, IconName, type BrandProps, type IconProps } from './types';
 
@@ -39,6 +40,7 @@ const icons = {
 	[ IconName.CIRCLE_CHECK ]: circleCheck,
 	[ IconName.CIRCLE_EXCLAMATION ]: circleExclamation,
 	[ IconName.CIRCLE_INFO ]: circleInfo,
+	[ IconName.CIRCLE_QUESTION ]: circleQuestion,
 	[ IconName.TRASH ]: trash,
 } satisfies Record<IconName, string>;
 

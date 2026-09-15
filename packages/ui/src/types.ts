@@ -102,6 +102,7 @@ export const IconName = {
 	SPINNER_THIRD: 'spinner-third',
 	CIRCLE_EXCLAMATION: 'circle-exclamation',
 	CIRCLE_INFO: 'circle-info',
+	CIRCLE_QUESTION: 'circle-question',
 	TRASH: 'trash',
 } as const;
 
