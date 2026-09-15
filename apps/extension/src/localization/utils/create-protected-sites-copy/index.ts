@@ -79,7 +79,6 @@ export function createProtectedSitesCopy(
 		addressPlaceholder: i18n._( msg`example.com` ),
 		addSite: i18n._( msg`Add site` ),
 		addingSite: i18n._( msg`Adding...` ),
-		advancedLabel: i18n._( msg`Advanced` ),
 		customScheduleLabel: i18n._( msg`Use custom schedule` ),
 		automaticNamePlaceholder: i18n._( msg`Automatic name` ),
 		displayNameLabel: i18n._( msg`Name` ),

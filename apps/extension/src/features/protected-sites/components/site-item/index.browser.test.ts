@@ -28,13 +28,13 @@ test.describe( 'protected site item access recovery', () => {
 		expect( Math.abs( desktopIcon.y + desktopIcon.height / 2 - ( desktopButton.y + desktopButton.height / 2 ) ) )
 			.toBeLessThanOrEqual( 2 );
 		expect( desktopButton.x + desktopButton.width ).toBeLessThanOrEqual( desktopAlert.x + desktopAlert.width );
-		await page.getByRole( 'button', { name: 'Edit', exact: true } ).click();
-		const advanced = page.locator( '.settings-site-item' ).getByRole( 'button', { name: 'Advanced', exact: true } );
-		const [ accessBox, advancedBox ] = await Promise.all( [ alert.boundingBox(), advanced.boundingBox() ] );
-		if ( ! accessBox || ! advancedBox ) {
-			throw new TypeError( 'The access recovery alert and editor disclosure must remain visible together.' );
+		await page.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).click();
+		const editor = page.locator( '.settings-site-item .settings-website-details' );
+		const [ accessBox, editorBox ] = await Promise.all( [ alert.boundingBox(), editor.boundingBox() ] );
+		if ( ! accessBox || ! editorBox ) {
+			throw new TypeError( 'The access recovery alert and editor fields must remain visible together.' );
 		}
-		expect( advancedBox.y - ( accessBox.y + accessBox.height ) ).toBe( 24 );
+		expect( editorBox.y - ( accessBox.y + accessBox.height ) ).toBe( 24 );
 
 		await page.setViewportSize( { width: 320, height: 844 } );
 		const [ narrowAlert, narrowMessage, narrowButton ] = await Promise.all( [

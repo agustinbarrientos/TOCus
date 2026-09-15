@@ -6,7 +6,7 @@ describe( 'createProtectedSiteItemCopy', () => {
 	it( 'creates concise editing copy and a contextual removal question', () => {
 		const copy = createProtectedSiteItemCopy( createTestI18n() );
 
-		expect( copy.edit ).toBe( 'Edit' );
+		expect( copy.edit ).toBe( 'Change schedule or site name' );
 		expect( copy.customScheduleLabel ).toBe( 'Use custom schedule' );
 		expect( copy.formatRemoveQuestion( 'Reddit' ) ).toBe( 'Remove Reddit?' );
 	} );

@@ -20,7 +20,6 @@ export function createProtectedSiteItemCopy( i18n: I18n ): Readonly<ProtectedSit
 	}
 
 	return Object.freeze( {
-		advancedLabel: i18n._( msg`Advanced` ),
 		customScheduleLabel: i18n._( msg`Use custom schedule` ),
 		automaticNamePlaceholder: i18n._( msg`Automatic name` ),
 		done: i18n._( msg`Done` ),
@@ -28,7 +27,7 @@ export function createProtectedSiteItemCopy( i18n: I18n ): Readonly<ProtectedSit
 		allowAccess: i18n._( msg`Allow access` ),
 		allowingAccess: i18n._( msg`Allowing...` ),
 		accessRequestError: i18n._( msg`Browser access is still required to show the pause on this website.` ),
-		edit: i18n._( msg`Edit` ),
+		edit: i18n._( msg`Change schedule or site name` ),
 		displayNameLabel: i18n._( msg`Name` ),
 		saveChanges: i18n._( msg`Save changes` ),
 		saving: i18n._( msg`Saving...` ),

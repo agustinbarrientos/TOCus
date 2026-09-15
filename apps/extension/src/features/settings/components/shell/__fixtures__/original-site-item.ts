@@ -15,7 +15,7 @@ export function stageOriginalSiteItemError( root: HTMLElement, original: string 
 	let submitted = false;
 	const observer = new MutationObserver( () => {
 		if ( ! opened ) {
-			const action = root.querySelector( '.settings-site-row button' );
+			const action = root.querySelector( '.settings-site-manage' );
 			if ( action instanceof HTMLButtonElement ) {
 				opened = true;
 				action.click();
