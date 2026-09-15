@@ -322,6 +322,7 @@ shell.permissionManager = {
 
 let statistics: AvailableStatisticsProjection = AvailableStatisticsProjectionSchema.parse( {
 	status: StatisticsProjectionStatus.AVAILABLE,
+	currentDate: '2026-09-14',
 	estimatedReclaimedMilliseconds: ( 2 * 5 + 1 ) * 60_000,
 	focusedPauseMilliseconds: 60_000,
 	reconsideredVisitCount: 2,
@@ -334,9 +335,10 @@ let statistics: AvailableStatisticsProjection = AvailableStatisticsProjectionSch
 	} ],
 } );
 if ( original ) {
-	statistics = { ...statistics, estimatedReclaimedMilliseconds: ( 18 * 5 + 27 ) * 60_000,
+	const totals = { estimatedReclaimedMilliseconds: ( 18 * 5 + 27 ) * 60_000,
 		focusedPauseMilliseconds: 1620000, reconsideredVisitCount: 18,
 		completedWaitCount: 24, allowanceGrantedCount: 11 };
+	statistics = { ...statistics, ...totals, dailyTotals: [ { date: statistics.currentDate, ...totals } ] };
 	if ( original.includes( 'empty' ) ) {
 		statistics = { ...statistics, estimatedReclaimedMilliseconds: 0, focusedPauseMilliseconds: 0,
 			reconsideredVisitCount: 0, completedWaitCount: 0, allowanceGrantedCount: 0, dailyTotals: [] };

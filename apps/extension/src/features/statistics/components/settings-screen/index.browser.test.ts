@@ -2,8 +2,43 @@ import { expect } from '@playwright/test';
 import { SettingsDestination } from '../../../settings/services/settings-navigation/types';
 import { test } from '../../../settings/utils/browser-test-harness';
 import { Language } from '../../../../domains/preferences/types';
+import { StatisticsRange } from '../../utils/select-statistics-range/types';
 
 test.describe( 'local statistics', () => {
+	test( 'defaults to all time and updates the chart and every metric together for calendar periods', async ( { open } ) => {
+		const page = await open( SettingsDestination.STATISTICS );
+		await page.evaluate( () => {
+			window.settingsTest.externalStatistics( {
+				currentDate: '2026-09-16', estimatedReclaimedMilliseconds: 720_000, focusedPauseMilliseconds: 360_000,
+				reconsideredVisitCount: 6, completedWaitCount: 12, allowanceGrantedCount: 18,
+				dailyTotals: [
+					{ date: '2026-08-31', estimatedReclaimedMilliseconds: 120_000, focusedPauseMilliseconds: 60_000,
+						reconsideredVisitCount: 1, completedWaitCount: 2, allowanceGrantedCount: 3 },
+					{ date: '2026-09-13', estimatedReclaimedMilliseconds: 240_000, focusedPauseMilliseconds: 120_000,
+						reconsideredVisitCount: 2, completedWaitCount: 4, allowanceGrantedCount: 6 },
+					{ date: '2026-09-14', estimatedReclaimedMilliseconds: 360_000, focusedPauseMilliseconds: 180_000,
+						reconsideredVisitCount: 3, completedWaitCount: 6, allowanceGrantedCount: 9 },
+				],
+			} );
+		} );
+		const selector = page.getByRole( 'combobox', { name: 'Period', exact: true } );
+		await expect( selector ).toHaveValue( StatisticsRange.ALL_TIME );
+		const totals = page.locator( '.settings-statistics-estimate dd, .settings-metrics dd' );
+		const rows = page.getByRole( 'region', { name: 'Activity', exact: true } ).locator( 'tbody tr' );
+		await expect( totals ).toHaveText( [ 'Approximately 12 minutes', '6 minutes', '6', '12', '18' ] );
+		await expect( rows ).toHaveCount( 3 );
+		await selector.selectOption( StatisticsRange.CURRENT_WEEK );
+		await expect( totals ).toHaveText( [ 'Approximately 6 minutes', '3 minutes', '3', '6', '9' ] );
+		await expect( rows ).toHaveCount( 1 );
+		await expect( rows ).toContainText( 'Sep 14, 2026' );
+		await selector.selectOption( StatisticsRange.CURRENT_MONTH );
+		await expect( totals ).toHaveText( [ 'Approximately 10 minutes', '5 minutes', '5', '10', '15' ] );
+		await expect( rows ).toHaveCount( 2 );
+		await selector.selectOption( StatisticsRange.ALL_TIME );
+		await expect( totals ).toHaveText( [ 'Approximately 12 minutes', '6 minutes', '6', '12', '18' ] );
+		await expect( rows ).toHaveCount( 3 );
+	} );
+
 	test( 'places recorded daily totals between the estimate and supporting lifetime metrics', async ( { open } ) => {
 		const page = await open( SettingsDestination.STATISTICS );
 		await page.evaluate( () => {
@@ -12,7 +47,7 @@ test.describe( 'local statistics', () => {
 				reconsideredVisitCount: 1, completedWaitCount: 1, allowanceGrantedCount: 1,
 			} ] } );
 		} );
-		const chart = page.getByRole( 'region', { name: 'Last 30 days', exact: true } );
+		const chart = page.getByRole( 'region', { name: 'Activity', exact: true } );
 		await expect( chart ).toBeVisible();
 		await expect( chart.getByRole( 'table' ) ).toContainText( '6 minutes' );
 		const estimate = await page.locator( '.settings-statistics-estimate' ).boundingBox();

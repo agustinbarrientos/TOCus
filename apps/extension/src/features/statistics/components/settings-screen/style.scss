@@ -1,5 +1,13 @@
 @use '@tocus/theme/typography' as typography;
 
+.settings-statistics-period {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--tocus-space-4);
+}
+
 .settings-statistics-estimate, .settings-statistics-summary .settings-metrics {
 	margin: var(--tocus-space-4) 0 0;
 	dt { @include typography.apply('body-medium'); color: var(--tocus-color-on-surface-muted); }

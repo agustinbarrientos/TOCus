@@ -1,5 +1,5 @@
 import { StatisticsLoadState } from '../../services/settings-screen-state/types';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { resolveStatisticsFeedback } from '../../utils/resolve-statistics-feedback';
 import {
 	Alert,
@@ -7,6 +7,7 @@ import {
 	Icon, IconName,
 	Paper,
 	Group,
+	NativeSelect,
 } from '@tocus/ui';
 import {
 	Confirmation,
@@ -28,33 +29,50 @@ import type {
 } from './types';
 import './style.scss';
 import { DailyStatistics } from '../daily-statistics';
+import { selectStatisticsRange } from '../../utils/select-statistics-range';
+import { StatisticsRange, StatisticsRangeSchema } from '../../utils/select-statistics-range/types';
 
 
 /**
- * Presents the five approved all-time metrics from a validated projection.
+ * Presents all five metrics and the chart for one selected local calendar period.
  * @param props - Canonical labels, formatters and authoritative totals.
  * @return Metric definition list with an explicit estimate and empty-state guidance.
  * @since 0.1.0
  */
 export function StatisticsSummary( props: StatisticsSummaryProps ) {
 	const { copy, projection } = props;
-	const estimated = copy.formatEstimatedDuration( projection.estimatedReclaimedMilliseconds );
+	const [ range, setRange ] = useState<StatisticsRange>( StatisticsRange.ALL_TIME );
+	const selected = selectStatisticsRange( projection, range );
+	const rangeLabels = {
+		[ StatisticsRange.CURRENT_WEEK ]: copy.currentWeekTitle,
+		[ StatisticsRange.CURRENT_MONTH ]: copy.currentMonthTitle,
+		[ StatisticsRange.ALL_TIME ]: copy.allTimeTitle,
+	};
+	const estimated = copy.formatEstimatedDuration( selected.totals.estimatedReclaimedMilliseconds );
 	const metrics = [
-		[ copy.focusedPauseLabel, copy.formatDuration( projection.focusedPauseMilliseconds ) ],
-		[ copy.reconsideredVisitsLabel, copy.formatCount( projection.reconsideredVisitCount ) ],
-		[ copy.completedWaitsLabel, copy.formatCount( projection.completedWaitCount ) ],
-		[ copy.allowancesGrantedLabel, copy.formatCount( projection.allowanceGrantedCount ) ],
+		[ copy.focusedPauseLabel, copy.formatDuration( selected.totals.focusedPauseMilliseconds ) ],
+		[ copy.reconsideredVisitsLabel, copy.formatCount( selected.totals.reconsideredVisitCount ) ],
+		[ copy.completedWaitsLabel, copy.formatCount( selected.totals.completedWaitCount ) ],
+		[ copy.allowancesGrantedLabel, copy.formatCount( selected.totals.allowanceGrantedCount ) ],
 	];
 	return (
 		<section className="settings-statistics-summary">
-			<h2>{ copy.allTimeTitle }</h2>
+			<div className="settings-statistics-period">
+				<h2>{ rangeLabels[ range ] }</h2>
+				<NativeSelect label={ copy.periodLabel } value={ range }
+					data={ Object.entries( rangeLabels ).map( ( [ value, label ] ) => ( { value, label } ) ) }
+					onChange={ ( event ) => {
+						setRange( StatisticsRangeSchema.parse( event.currentTarget.value ) );
+					} } />
+			</div>
 			<dl className="settings-statistics-estimate"><div>
 				<dt>{ copy.estimatedReclaimedLabel }</dt><dd>{ estimated }</dd>
 			</div></dl>
 			<p>{ copy.estimationDescription }</p>
-			<DailyStatistics copy={ copy } totals={ projection.dailyTotals } />
+			<DailyStatistics copy={ copy } totals={ selected.chartBuckets } />
+			{ selected.incompleteHistory && <p>{ copy.incompleteHistory }</p> }
 			<section className="settings-statistics-lifetime">
-				<h3>{ copy.allTimeTitle }</h3>
+				<h3>{ rangeLabels[ range ] }</h3>
 				<dl className="settings-metrics">
 					{ metrics.map( ( [ label, amount ] ) =>
 						<div key={ label }><dt>{ label }</dt><dd>{ amount }</dd></div> ) }
