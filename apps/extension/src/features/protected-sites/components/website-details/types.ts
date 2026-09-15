@@ -15,5 +15,6 @@ export interface WebsiteDetailsProps {
 	disabled: boolean;
 	validate: boolean;
 	showName?: boolean;
+	namePlaceholder?: string;
 	onChange: ( details: WebsiteDetailsDraft ) => void;
 }
