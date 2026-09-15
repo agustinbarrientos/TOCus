@@ -41,15 +41,15 @@
   },
   {
     "path": "apps/extension/src/features/onboarding/components/language-step/__snapshots__/chromium/onboarding-language-step-english-light.png",
-    "sha256": "87b22154991401e0d32cc4d110db30a3dde0e583625dee812931c2c20ab65ec4"
+    "sha256": "edd8cf3f24077eae26c58481b16ed8faaff55f96ba476169846123ed7b5dc4eb"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/language-step/__snapshots__/chromium/onboarding-language-step-portuguese-brazil-dark-narrow.png",
-    "sha256": "d87dae8ae554b19aba2233c9d47e7ba27fe9b8f4eac6a51f054417b6a3a5125e"
+    "sha256": "c06bb9253277e5aee9d675c467539b35a1a9ba1b5a2adf3830e8cb4e1fb9ac87"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/language-step/__snapshots__/chromium/onboarding-language-step-spanish-tu-dark-narrow.png",
-    "sha256": "46f012447ac318be3047242a34fecd799075bd6322ac7f2a16994eb282824419"
+    "sha256": "ccf21924671cb2e6375c7a445f23c4347dc7bd7d28c3a7ff282c9606f61b41da"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-appearance-brown-light-landscape-scrolled.png",
