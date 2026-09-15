@@ -105,7 +105,7 @@
   },
   {
     "path": "apps/extension/src/features/onboarding/components/sites-step/__snapshots__/chromium/onboarding-sites-step-spanish-tu-denied.png",
-    "sha256": "75523ae303097283c4590c64bbbe29ca8b0402bda149a7fbb15d86ca51a67a1c"
+    "sha256": "78d06a121dd719e4072a4d408376f3a61d00be53bc2f32d82f43154f270e3579"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/sites-step/__snapshots__/chromium/onboarding-sites-step-spanish-vos-filled.png",
