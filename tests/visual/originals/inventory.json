@@ -149,11 +149,11 @@
   },
   {
     "path": "apps/extension/src/features/protected-sites/components/site-item/__snapshots__/chromium/protected-site-item-access-required-dark.png",
-    "sha256": "34d2953dcae736c8ddd571995c48c4e8478d103a08905b659946a1adb1f32b70"
+    "sha256": "092d956634dfb7e8f820bac374fe9ecac69e1c58b35346571b829bc60ef32f1b"
   },
   {
     "path": "apps/extension/src/features/protected-sites/components/site-item/__snapshots__/chromium/protected-site-item-access-required-light.png",
-    "sha256": "8e618d81471bc9d6682e43d25149a7697f728790bcada73294b5f3fee1a02a35"
+    "sha256": "05a4028ead66799101c1fdae74d1bcd502cb04df9acadaccd152b1ddeb884e4a"
   },
   {
     "path": "apps/extension/src/features/protected-sites/components/site-item/__snapshots__/chromium/protected-site-item-operation-error-dark.png",
@@ -165,11 +165,11 @@
   },
   {
     "path": "apps/extension/src/features/protected-sites/components/site-list/__snapshots__/chromium/protected-site-list-dark.png",
-    "sha256": "8f3e5e6131afbfe2ca4422fad2da455b689d0b3ab4d0dc6db14edb5fca1572f6"
+    "sha256": "15131ad962a0023c57634394988ecfb8b0b90615aeffb31d304645c377728738"
   },
   {
     "path": "apps/extension/src/features/protected-sites/components/site-list/__snapshots__/chromium/protected-site-list-light.png",
-    "sha256": "5422388d1e54ebbfd03dfa0cd9709bc379fc3129796899e6418b2d30fa9bf94e"
+    "sha256": "a0642b669c00dcc76d3705eee891aab84f897d417dbf4b3ae42a047c974b4bb6"
   },
   {
     "path": "apps/extension/src/features/settings/components/about-screen/__snapshots__/chromium/about-screen-brown-light.png",
