@@ -210,8 +210,8 @@ msgid "All time"
 msgstr "Gesamt"
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
-msgid "All TOCus data reset. Opening setup..."
-msgstr "Alle TOCus-Daten wurden zurückgesetzt. Die Einrichtung wird geöffnet..."
+msgid "All TOCus data reset."
+msgstr "Alle TOCus-Daten wurden zurückgesetzt."
 
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Allow access"
@@ -243,10 +243,6 @@ msgstr "Darstellung"
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Appearance preferences"
 msgstr "Darstellungseinstellungen"
-
-#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "Appearance saved."
-msgstr "Darstellung gespeichert."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Appearance settings could not load"
@@ -326,7 +322,11 @@ msgstr "Zeitplan oder Websitenamen ändern"
 msgid "Changes could not be saved. Check the fields and try again."
 msgstr "Die Änderungen konnten nicht gespeichert werden. Prüfe die Felder und versuche es erneut."
 
-#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Changes discarded."
+msgstr "Änderungen verworfen."
+
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 msgid "Changes saved."
 msgstr "Änderungen gespeichert."
 
@@ -446,6 +446,10 @@ msgstr "Entwickelt von {name}"
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Discard"
 msgstr "Verwerfen"
+
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Dismiss notification"
+msgstr "Benachrichtigung schließen"
 
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Done"
@@ -569,10 +573,6 @@ msgstr "Sprache"
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Language preference"
 msgstr "Spracheinstellungen"
-
-#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
-msgid "Language saved."
-msgstr "Sprache gespeichert."
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Language settings could not load"
@@ -887,10 +887,6 @@ msgstr "Zeitplan"
 msgid "Schedule could not load"
 msgstr "Zeitplan konnte nicht geladen werden"
 
-#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Schedule saved."
-msgstr "Zeitplan gespeichert."
-
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 msgid "Settings"
@@ -916,10 +912,22 @@ msgstr "Seit deinem Start hast du dir etwa {estimatedReclaimedTime} zurückgegeb
 msgid "Since you started, you've taken {focusedPauseTime} for yourself."
 msgstr "Seit deinem Start hast du dir {focusedPauseTime} für dich genommen."
 
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Site added. Save to apply your changes."
+msgstr "Website hinzugefügt. Speichere, um deine Änderungen anzuwenden."
+
 #. Popup status when the current website is not on the user's TOCus list.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Site not on the list"
 msgstr "Website nicht in der Liste"
+
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Site removed. Save to apply your changes."
+msgstr "Website entfernt. Speichere, um deine Änderungen anzuwenden."
+
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Site updated. Save to apply your changes."
+msgstr "Website aktualisiert. Speichere, um deine Änderungen anzuwenden."
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Some daily details are unavailable. All-time totals still include them."
@@ -1054,6 +1062,10 @@ msgstr "Das wirst du sehen"
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "This site changed elsewhere. Reload settings and try again."
 msgstr "Diese Website wurde an anderer Stelle geändert. Lade die Einstellungen neu und versuche es erneut."
+
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "This site is already in your list."
+msgstr "Diese Website ist bereits in deiner Liste."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "This site was not saved, but TOCus may still have browser access to it. Add it again to finish setup, or remove that access from your browser's extension settings."
@@ -1351,10 +1363,6 @@ msgstr "Du möchtest mehr Kontrolle über den Code, den du ausführst? Erstelle 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Website address"
 msgstr "Website-Adresse"
-
-#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "Website changes saved."
-msgstr "Website-Änderungen gespeichert."
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
