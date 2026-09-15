@@ -245,15 +245,15 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/privacy-screen/__snapshots__/chromium/privacy-screen-statistics-confirmation-light.png",
-    "sha256": "635bea9be376426717da89907b0fcf09c32caffa86c108b0e95811d6ac544f6b"
+    "sha256": "6816f8254d6c260b27f68d55b180b81d8ee1126e3385c7ab72353c6c3e1d7ed6"
   },
   {
     "path": "apps/extension/src/features/settings/components/privacy-screen/__snapshots__/chromium/privacy-screen-success-light.png",
-    "sha256": "1ee027ee68a23757dfbfc2d64f8f43e09752593df30ed31ec31a780fd6421870"
+    "sha256": "46af296af6f6ee105ec3a790918d4445144c694e2ca57fc69f9f5bfe83ce932a"
   },
   {
     "path": "apps/extension/src/features/settings/components/privacy-screen/__snapshots__/chromium/privacy-screen-unavailable-light.png",
-    "sha256": "3f616ac508f1c7753880dc83490f1d3c46b61c9789835854b208803c926678f9"
+    "sha256": "c195dd21328abcbb1258a7bb27d38a0d540b2a4f6750199cb910a6244a958943"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-about-dark.png",
