@@ -194,6 +194,7 @@ export function createReadyContinuation(
 		scopeId: 'scope-default',
 		allowanceId: 'allowance-a',
 		nowEpochMilliseconds: TestInstant + 1,
+		observedLocalDate: '2026-08-31',
 		observation,
 		...overrides,
 	} );
@@ -361,6 +362,7 @@ export function createDeparture(
 		cause,
 		allowanceDurationMilliseconds: 300_000,
 		observedAtEpochMilliseconds: TestInstant,
+		observedLocalDate: '2026-08-31',
 		...overrides,
 	} );
 
@@ -385,6 +387,8 @@ export function createScheduleReevaluation(
 	const event = ProtectionEventSchema.parse( {
 		type: ProtectionEventType.SCHEDULE_REEVALUATION,
 		scopeId: 'scope-default',
+		participantId: 'participant-a',
+		pageId: 'page-a',
 		target: {
 			stateType: ProtectionStateType.WAITING,
 			waitId: 'wait-a',

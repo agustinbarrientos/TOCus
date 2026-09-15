@@ -2,8 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { ProtectionConfigurationDocumentSchema } from '../../../../domains/protection/types/protected-site-configuration';
 import { DefaultProtectionSchedule } from '../../../../domains/protection/types/protection-schedule';
 import { StoredProtectionStatisticsDeliveryStatus } from '../../../../domains/protection/types/stored-protection-statistics-delivery';
+import { createDeparture } from '../../../../domains/protection/types/__fixtures__/protection-event';
+import { createWaitingState } from '../../../../domains/protection/types/__fixtures__/protection-state';
+import { DepartureCause } from '../../../../domains/protection/types/protection-event';
+import { prepareStatisticsDeliveryForTransition } from '../../../../domains/protection/utils/prepare-protection-statistics-delivery';
+import { transitionProtectionState } from '../../../../domains/protection/utils/transition-protection-state';
 import { StatisticsDocumentSchema } from '../../../../domains/statistics/types/statistics-document';
 import { StatisticsProjectionStatus } from '../../../../domains/statistics/types/statistics-projection';
+import { createRuntimeLocalDate } from '../../../protection-runtime/utils/runtime-local-date';
+import { createStatisticsRuntime } from './index';
 import {
 	TEST_CONFIGURATION,
 	TEST_NOW_EPOCH_MILLISECONDS,
@@ -21,6 +28,100 @@ import {
 } from './__fixtures__';
 
 describe( 'statistics runtime initialization and fact delivery', () => {
+	it( 'preserves the captured local date when blocked durable delivery restarts in another timezone', async () => {
+		const observedAt = Date.parse( '2026-09-13T22:30:00Z' );
+		const event = createDeparture( DepartureCause.ACTIVE_SESSION_TAB_CLOSE, 'participant-a', 'page-a', {
+			scopeId: 'scope_default',
+			observedAtEpochMilliseconds: observedAt,
+			observedLocalDate: '2026-09-14',
+			allowanceDurationMilliseconds: 120_000,
+		} );
+		const transition = transitionProtectionState( { ...createWaitingState(), scopeId: event.scopeId }, event );
+		const deliveryInput = {
+			delivery: createDelivery( StoredProtectionStatisticsDeliveryStatus.COMPLETE, [] ),
+			facts: transition.facts,
+			scopeId: event.scopeId,
+			measurementRevision: 'revision_current',
+			observedLocalDate: event.observedLocalDate,
+			/**
+			 * Retains the identifier across the durable-delivery boundary.
+			 * @return Stable batch identifier.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			createProtectionFactBatchId: () => 'batch_travel',
+		};
+		const harness = createRuntimeHarness( prepareStatisticsDeliveryForTransition( deliveryInput ) );
+		harness.clock.nowEpochMilliseconds = Date.parse( '2026-09-16T12:00:00Z' );
+		let timeZone = 'Europe/Berlin';
+		const options = {
+			...harness.options,
+			/**
+			 * Reads the current OS timezone independently of the captured fact date.
+			 * @return Current local calendar date.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			getLocalDate: () => createRuntimeLocalDate( harness.clock.now(), timeZone ),
+		};
+		const runtime = createStatisticsRuntime( options );
+		await reconcileRuntime( runtime );
+		harness.storage.saveFailure = new Error( 'local storage unavailable' );
+		await runtime.drainProtectionFacts();
+		expect( ( await harness.coordinator.getStatisticsDelivery() )?.outbox ).toHaveLength( 1 );
+
+		timeZone = 'America/Bogota';
+		harness.storage.saveFailure = null;
+		const restartedRuntime = createStatisticsRuntime( options );
+		await reconcileRuntime( restartedRuntime );
+		await restartedRuntime.drainProtectionFacts();
+
+		expect( restartedRuntime.getSnapshot().projection ).toMatchObject( {
+			currentDate: '2026-09-16',
+			estimatedReclaimedMilliseconds: 120_000,
+			dailyTotals: [
+				{ date: '2026-09-14', estimatedReclaimedMilliseconds: 120_000 },
+			],
+		} );
+		expect( harness.storage.savedDocuments.at( -1 )?.dailyTotals ).toEqual( [
+			expect.objectContaining( { date: '2026-09-14', estimatedReclaimedMilliseconds: 120_000 } ),
+		] );
+		expect( harness.trace.slice( -2 ) ).toEqual( [ 'local:batch_travel', 'ack:batch_travel' ] );
+	} );
+
+	it( 'attributes delayed batches across local midnight to their recorded dates and persists both aggregates before acknowledgement', async () => {
+		const beforeMidnight = Date.parse( '2026-09-14T04:59:00Z' );
+		const afterMidnight = Date.parse( '2026-09-14T05:01:00Z' );
+		const harness = createRuntimeHarness( createDelivery(
+			StoredProtectionStatisticsDeliveryStatus.COMPLETE, [
+				createReconsideredBatch( 'batch_before', 'scope_default', 'revision_current', beforeMidnight, 120_000, '2026-09-13' ),
+				createReconsideredBatch( 'batch_after', 'scope_default', 'revision_current', afterMidnight, 300_000, '2026-09-14' ),
+			],
+		) );
+		harness.clock.nowEpochMilliseconds = Date.parse( '2026-09-16T12:00:00Z' );
+		const runtime = createStatisticsRuntime( {
+			...harness.options,
+			/**
+			 * Resolves today's date in a zone whose midnight differs from UTC.
+			 * @return Local calendar date.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			getLocalDate: () => createRuntimeLocalDate( harness.clock.now(), 'America/Bogota' ),
+		} );
+		await reconcileRuntime( runtime );
+		await runtime.drainProtectionFacts();
+
+		expect( runtime.getSnapshot().projection ).toMatchObject( {
+			currentDate: '2026-09-16',
+			estimatedReclaimedMilliseconds: 420_000,
+			dailyTotals: [
+				{ date: '2026-09-13', estimatedReclaimedMilliseconds: 120_000 },
+				{ date: '2026-09-14', estimatedReclaimedMilliseconds: 300_000 },
+			],
+		} );
+		expect( harness.storage.savedDocuments.at( -1 )?.dailyTotals ).toHaveLength( 2 );
+		expect( harness.trace.slice( -4 ) ).toEqual( [
+			'local:batch_before', 'ack:batch_before', 'local:batch_after', 'ack:batch_after',
+		] );
+	} );
 	it( 'forgets cached totals and focus work without writing before loading replacement storage', async () => {
 		const harness = createRuntimeHarness( createDelivery(
 			StoredProtectionStatisticsDeliveryStatus.COMPLETE, [ createReconsideredBatch( 'batch_reset' ) ],
@@ -129,17 +230,13 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 					rule: {
 						host: 'readded.example',
 						includeSubdomains: false,
-						scopeId: 'scope_readded',
+						scopeId: 'scope_default',
 					},
 				},
 			],
-			schedulesByScope: {
-				scope_default: DefaultProtectionSchedule,
-				scope_readded: DefaultProtectionSchedule,
-			},
+			schedule: DefaultProtectionSchedule,
 			measurementRevisionsByScope: {
 				scope_default: 'revision_current',
-				scope_readded: 'revision_readded',
 			},
 		} );
 
@@ -158,9 +255,9 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 			scope_removed: {
 				totals: { estimatedReclaimedMilliseconds: 6_300_000 },
 			},
-			scope_readded: {
+			scope_default: {
 				totals: { estimatedReclaimedMilliseconds: 0 },
-				currentMeasurementRevision: 'revision_readded',
+				currentMeasurementRevision: 'revision_current',
 			},
 		} );
 	} );
@@ -622,6 +719,9 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 		} );
 		expect( harness.storage.savedDocuments.at( -1 )?.scopes.scope_default?.totals )
 			.toMatchObject( { estimatedReclaimedMilliseconds: 300_000, reconsideredVisitCount: 1 } );
+		expect( harness.storage.savedDocuments.at( -1 )?.dailyTotals ).toEqual( [
+			expect.objectContaining( { estimatedReclaimedMilliseconds: 300_000, reconsideredVisitCount: 1 } ),
+		] );
 		expect( harness.trace.slice( -2 ) ).toEqual( [ 'local:batch_1', 'ack:batch_1' ] );
 
 		harness.coordinator.acknowledgementFailure = null;
@@ -629,6 +729,9 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 		expect( harness.runtime.getSnapshot().projection ).toMatchObject( {
 			estimatedReclaimedMilliseconds: 600_000,
 			reconsideredVisitCount: 2,
+			dailyTotals: [ expect.objectContaining( {
+				estimatedReclaimedMilliseconds: 600_000, reconsideredVisitCount: 2,
+			} ) ],
 		} );
 		expect( harness.trace.slice( -4 ) ).toEqual( [
 			'local:batch_1',
@@ -736,23 +839,8 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 		} );
 	} );
 
-	it( 'reconciles and drains a prototype-named scope through own properties', async () => {
+	it( 'drains a retained prototype-named fact through own properties without attaching it to current websites', async () => {
 		const scopeId = '__proto__';
-		const configuration = ProtectionConfigurationDocumentSchema.parse( {
-			...TEST_CONFIGURATION,
-			sites: [ {
-				identityHost: 'example.com',
-				rule: { host: 'example.com', includeSubdomains: false, scopeId },
-			} ],
-			schedulesByScope: Object.fromEntries( [
-				[ 'scope_default', TEST_CONFIGURATION.schedulesByScope.scope_default ],
-				[ scopeId, TEST_CONFIGURATION.schedulesByScope.scope_default ],
-			] ),
-			measurementRevisionsByScope: Object.fromEntries( [
-				[ 'scope_default', 'revision_current' ],
-				[ scopeId, 'revision_prototype' ],
-			] ),
-		} );
 		const harness = createRuntimeHarness(
 			createDelivery( StoredProtectionStatisticsDeliveryStatus.COMPLETE, [
 				createReconsideredBatch( 'batch_magic', scopeId, 'revision_prototype' ),
@@ -760,7 +848,7 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 			createStatisticsDocument( scopeId, 'revision_old' ),
 		);
 
-		await reconcileRuntime( harness.runtime, configuration );
+		await reconcileRuntime( harness.runtime, TEST_CONFIGURATION );
 		await harness.runtime.drainProtectionFacts();
 
 		expect( harness.runtime.getSnapshot().projection ).toMatchObject( {

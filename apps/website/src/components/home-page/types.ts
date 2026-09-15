@@ -1,6 +1,6 @@
 import type { Messages } from '@lingui/core';
-import type { ReactNode } from 'react';
 import type { LocalizedHomePageProperties } from '../../localization';
+import type { StatisticsPreviewFormatting } from '../statistics-preview/types';
 
 /**
  * Server-rendered marketing copy and serializable packaged product messages.
@@ -8,6 +8,6 @@ import type { LocalizedHomePageProperties } from '../../localization';
  */
 export interface HomePageProps extends LocalizedHomePageProperties {
 	demoMessages: Messages;
-	/** Static Astro slot keeps the illustrative totals independent of browser Intl data. */
-	statisticsPreview?: ReactNode;
+	/** Serialized values keep SSR metrics stable while the chart hydrates inside the page provider. */
+	statisticsFormatting: StatisticsPreviewFormatting;
 }

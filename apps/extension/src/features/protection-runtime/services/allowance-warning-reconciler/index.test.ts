@@ -167,11 +167,9 @@ describe( 'createAllowanceWarningReconciler', () => {
 		} );
 		const configuration: ProtectionConfigurationDocument = {
 			...CONFIGURATION,
-			schedulesByScope: {
-				[ DefaultProtectionScopeId ]: {
-					mode: 'custom',
-					windows: [ { weekday: Weekday.THURSDAY, startMinute: 0, endMinute: 5 } ],
-				},
+			schedule: {
+				mode: 'custom',
+				windows: [ { weekday: Weekday.THURSDAY, startMinute: 0, endMinute: 5 } ],
 			},
 		};
 		browser.nowEpochMilliseconds = 295_000;
@@ -200,11 +198,9 @@ describe( 'createAllowanceWarningReconciler', () => {
 		} );
 		const configuration: ProtectionConfigurationDocument = {
 			...CONFIGURATION,
-			schedulesByScope: {
-				[ DefaultProtectionScopeId ]: {
-					mode: 'custom',
-					windows: [ { weekday: Weekday.THURSDAY, startMinute: 5, endMinute: 6 } ],
-				},
+			schedule: {
+				mode: 'custom',
+				windows: [ { weekday: Weekday.THURSDAY, startMinute: 5, endMinute: 6 } ],
 			},
 		};
 		browser.nowEpochMilliseconds = 295_000;
@@ -244,11 +240,9 @@ describe( 'createAllowanceWarningReconciler', () => {
 		const browser = new AllowanceWarningBrowserFixture();
 		const configuration: ProtectionConfigurationDocument = {
 			...CONFIGURATION,
-			schedulesByScope: {
-				[ DefaultProtectionScopeId ]: {
-					mode: 'custom',
-					windows: [ { weekday: Weekday.FRIDAY, startMinute: 0, endMinute: 60 } ],
-				},
+			schedule: {
+				mode: 'custom',
+				windows: [ { weekday: Weekday.FRIDAY, startMinute: 0, endMinute: 60 } ],
 			},
 		};
 		const reconciler = createFixtureReconciler( browser );
@@ -283,11 +277,9 @@ describe( 'createAllowanceWarningReconciler', () => {
 		const browser = new AllowanceWarningBrowserFixture();
 		const configuration: ProtectionConfigurationDocument = {
 			...CONFIGURATION,
-			schedulesByScope: {
-				[ DefaultProtectionScopeId ]: {
-					mode: 'custom',
-					windows: [ { weekday: Weekday.FRIDAY, startMinute: 0, endMinute: 60 } ],
-				},
+			schedule: {
+				mode: 'custom',
+				windows: [ { weekday: Weekday.FRIDAY, startMinute: 0, endMinute: 60 } ],
 			},
 		};
 		const reconciler = createFixtureReconciler( browser );

@@ -148,6 +148,16 @@ test.describe( 'migrated presentation', () => {
 			await page.getByRole( 'alert' ).waitFor();
 			expect( await page.getByRole( 'heading', { name: 'Choose your language' } ).isVisible() ).toBe( true );
 			expect( await page.getByRole( 'button', { name: 'Continue', exact: true } ).isDisabled() ).toBe( false );
+			const [ controls, notice, action ] = await Promise.all( [
+				page.locator( '.preferences-language-options' ).boundingBox(),
+				page.getByRole( 'alert' ).boundingBox(),
+				page.getByRole( 'button', { name: 'Continue', exact: true } ).boundingBox(),
+			] );
+			if ( ! controls || ! notice || ! action ) {
+				throw new Error( 'The rejected save must retain its choices, feedback, and retry action.' );
+			}
+			expect( notice.y - controls.y - controls.height ).toBeCloseTo( 24, 1 );
+			expect( action.y - notice.y - notice.height ).toBeCloseTo( 24, 1 );
 		}
 		await page.goto( `/apps/extension/tests/ui/index.html?surface=${ PresentationSurface.ONBOARDING }&save=${ PreferenceSaveScenario.PENDING }` );
 		await page.getByRole( 'button', { name: 'Continue', exact: true } ).click();

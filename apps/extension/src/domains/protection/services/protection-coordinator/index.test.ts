@@ -412,7 +412,7 @@ describe( 'protection coordinator initialization', () => {
 		} );
 	} );
 
-	it( 'persists a normalized durable version two document after version-one migration', async () => {
+	it( 'rejects a version-one durable document without migrating or overwriting it', async () => {
 		const storage = new MemoryProtectionStorage( {
 			durable: {
 				schemaVersion: 1,
@@ -426,14 +426,8 @@ describe( 'protection coordinator initialization', () => {
 			readyObservations: [],
 		} );
 
-		expect( getLatestSavedState( storage ).durable ).toEqual( {
-			schemaVersion: 2,
-			statisticsDelivery: {
-				status: StoredProtectionStatisticsDeliveryStatus.COMPLETE,
-				outbox: [],
-			},
-			scopes: {},
-		} );
+		expect( storage.savedStates ).toEqual( [] );
+		expect( await coordinator.getStates() ).toBeNull();
 	} );
 
 	it( 'reuses a valid continued-session continuity identifier', async () => {

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { NormalizedScheduleSchema } from '../../../../domains/protection/types/protection-schedule';
 import {
 	ProtectedSiteDisplayNameInputSchema,
 	ProtectedSiteDisplayNameSchema,
@@ -16,6 +17,7 @@ export const SiteDisplayNameResolutionInputSchema = z.object( {
 	identityHost: CanonicalHostSchema,
 	rule: ProtectedSiteRuleSchema,
 	displayNameOverride: ProtectedSiteDisplayNameInputSchema.optional(),
+	schedule: NormalizedScheduleSchema.optional(),
 } ).strict().superRefine( ( input, context ) => {
 	const isRuleHost = input.identityHost === input.rule.host;
 	const isRuleDescendant = input.rule.includeSubdomains && input.identityHost.endsWith( `.${ input.rule.host }` );

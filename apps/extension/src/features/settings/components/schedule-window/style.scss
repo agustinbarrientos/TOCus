@@ -1,0 +1,14 @@
+@use '@tocus/theme/typography' as typography;
+
+.settings-schedule-window td { vertical-align: top; }
+
+.settings-schedule-error {
+	@include typography.apply('body-small');
+
+	display: block;
+	margin-top: var(--tocus-space-1);
+
+	&:empty { display: none; }
+}
+
+.settings-schedule-remove { margin-top: var(--tocus-space-1); }

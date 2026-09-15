@@ -15,7 +15,7 @@ export function LanguageMenu( props: LanguageMenuProps ) {
 		<Menu.Target>
 			<Button variant="subtle" className="language-shortcut"
 				aria-label={ `${ catalog.languageMenuLabel }: ${ current }` }
-				leftSection={ <Icon name={ IconName.LETTERS } /> }>
+				leftSection={ <Icon name={ IconName.LANGUAGE } /> }>
 				{ current }
 			</Button>
 		</Menu.Target>

@@ -1,6 +1,7 @@
 import {
 	Group,
-	Input,
+	Slider,
+	FieldHelp,
 } from '@tocus/ui';
 import {
 	CompletionAction,
@@ -62,32 +63,27 @@ export function TimingControls( props: TimingControlsProps ) {
 		<>
 			{ createRanges( copy ).map( ( range ) => <div key={ range.id } className="settings-timing-range">
 				<Group justify="space-between">
-					<label id={ `${ range.id }-label` } htmlFor={ range.id }>{ range.label }</label>
+					<Group gap="var(--tocus-space-1)"><label className="tocus-field-label" id={ `${ range.id }-label` } htmlFor={ range.id }>{ range.label }</label>
+						<FieldHelp label={ range.label } description={ range.help } descriptionId={ `${ range.id }-help` } /></Group>
 					<output htmlFor={ range.id }>{ range.format( value[ range.key ] / range.unit ) }</output>
 				</Group>
-				<Input type="range" className="tocus-native-range"
-					id={ range.id } name={ range.id } min={ range.min } max={ range.max } step={ range.step }
+				<Slider name={ range.id } min={ range.min } max={ range.max } step={ range.step }
 					value={ value[ range.key ] / range.unit } disabled={ disabled }
-					style={ { '--tocus-range-fill': `${ String( ( value[ range.key ] / range.unit - range.min )
-						/ ( range.max - range.min ) * 100 ) }%` } }
-					aria-valuemin={ range.min } aria-valuemax={ range.max }
-					aria-valuenow={ value[ range.key ] / range.unit }
-					aria-valuetext={ range.format( value[ range.key ] / range.unit ) }
-					aria-labelledby={ `${ range.id }-label` }
-					aria-describedby={ `${ range.id }-help` }
-					onChange={ ( event ) => {
-						props.onChange( { ...value, [ range.key ]: event.currentTarget.valueAsNumber * range.unit } );
+					marks={ Array.from( { length: ( range.max - range.min ) / range.step + 1 },
+						( _, index ) => ( { value: range.min + index * range.step } ) ) }
+					label={ null } thumbLabel={ range.label } thumbValueText={ range.format }
+					attributes={ { thumb: { id: range.id, 'aria-labelledby': `${ range.id }-label`,
+						'aria-describedby': `${ range.id }-help` } } }
+					onChange={ ( selected ) => {
+						props.onChange( { ...value, [ range.key ]: selected * range.unit } );
 					} } />
 				<div className="settings-timing-ticks"><span>{ range.format( range.min ) }</span>
 					<span>{ range.format( range.max ) }</span></div>
-				<p id={ `${ range.id }-help` }>{ range.help }</p>
 			</div> ) }
 			<BehaviorChoices label={ copy.completionActionLegend } name="completion-action" value={ value.completionAction }
 				disabled={ disabled } options={ [
-					{ value: CompletionAction.SHOW_CONTINUE, label: copy.showContinueLabel,
-						description: copy.showContinueDescription },
-					{ value: CompletionAction.OPEN_AUTOMATICALLY, label: copy.openAutomaticallyLabel,
-						description: copy.openAutomaticallyDescription },
+					{ value: CompletionAction.SHOW_CONTINUE, label: copy.showContinueLabel },
+					{ value: CompletionAction.OPEN_AUTOMATICALLY, label: copy.openAutomaticallyLabel },
 				] }
 				onChange={ ( completionAction ) => {
 					props.onChange( { ...value, completionAction } );

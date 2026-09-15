@@ -156,7 +156,8 @@ export function createBrowserProtectionProjector(
 			return null;
 		}
 
-		const cacheKey = JSON.stringify( [ configuration.schedulesByScope, timeZone ] );
+		const schedules = configuration.sites.map( ( site ) => site.schedule ?? configuration.schedule );
+		const cacheKey = JSON.stringify( [ schedules, timeZone ] );
 		const cacheRemainsCurrent =
 			cacheKey === cachedScheduleTransitionKey &&
 			cachedScheduleTransitionOrigin !== null &&
@@ -171,7 +172,7 @@ export function createBrowserProtectionProjector(
 		cachedScheduleTransitionKey = cacheKey;
 		cachedScheduleTransitionOrigin = nowEpochMilliseconds;
 		cachedScheduleTransitionDeadline = getNextScheduleTransitionDeadline(
-			Object.values( configuration.schedulesByScope ),
+			schedules,
 			nowEpochMilliseconds,
 			timeZone,
 		);

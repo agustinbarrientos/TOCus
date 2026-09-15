@@ -63,14 +63,20 @@ export interface PendingSettingsNavigation {
 export interface SettingsNavigationState {
 	/** Destination whose content is currently mounted. */
 	destination: SettingsDestination;
-	/** Requested navigation awaiting a discard/stay decision. */
+	/** Requested navigation awaiting a save/discard/stay decision. */
 	pending: PendingSettingsNavigation | null;
+	/** An accepted decision currently owns persistence and all navigation actions. */
+	saving: boolean;
+	/** The last save could not safely finish the pending navigation. */
+	saveFailed: boolean;
 	/** Registers the currently mounted destination's editable draft. */
 	register: RegisterDraft;
 	/** Requests a new navigation-link entry while preserving an active draft. */
 	navigate: ( hash: string, focus: HTMLElement ) => void;
 	/** Discards the current draft before completing its deferred navigation. */
 	discard: () => Promise<void>;
+	/** Saves the current page and leaves only after explicit success with a clean draft. */
+	save: () => Promise<void>;
 	/** Cancels deferred navigation and restores the triggering control's focus. */
 	stay: () => void;
 }

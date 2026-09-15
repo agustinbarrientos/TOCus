@@ -12,7 +12,6 @@ const POPUP_PAGE_URL = 'chrome-extension://extension-id/popup.html';
 const REQUEST = {
 	type: PopupSiteEnrollmentRequestType,
 	siteInput: 'https://github.com/agustinbarrientos/TOCus',
-	independent: false,
 };
 
 /**

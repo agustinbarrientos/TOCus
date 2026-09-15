@@ -34,9 +34,8 @@ export interface PopupEnrollmentClient {
 	/**
 	 * Immediately sends a website addition from the current user gesture.
 	 * @param input - Current website URL supplied by the popup.
-	 * @param independent - Whether the website receives independent timing.
 	 * @return Validated enrollment outcome or a save error.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	add( input: unknown, independent: boolean ): Promise<PopupSiteEnrollmentResult>;
+	add( input: unknown ): Promise<PopupSiteEnrollmentResult>;
 }

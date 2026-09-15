@@ -42,7 +42,17 @@
 		outline-offset: 2px;
 	}
 	.mantine-Input-input:focus-within { border-color: var(--tocus-color-focus-ring); }
-	.mantine-InputWrapper-label { @include typography.apply('label-large'); }
+
+	.mantine-InputWrapper-label, .tocus-field-label {
+		@include typography.apply('body-medium');
+
+		font-weight: 600;
+		color: var(--tocus-color-on-surface);
+	}
+	.mantine-InputWrapper-label { margin-bottom: var(--tocus-space-2); }
+	.tocus-field-help { border-radius: var(--tocus-radius-small); }
+	.mantine-Modal-body .tocus-form-actions { padding: 0; }
+	.mantine-Modal-body p { margin: 0; }
 	.mantine-InputWrapper-root { @include typography.apply('body-medium'); }
 	:where(h1, h2, h3, h4, h5, h6)[tabindex='-1']:focus { outline: none; }
 
@@ -62,6 +72,93 @@
 		opacity: 1;
 	}
 
+	.mantine-Alert-root {
+		--tocus-alert-spacing: var(--tocus-space-5);
+		--tocus-alert-spacing-before: var(--tocus-alert-spacing);
+		--tocus-alert-spacing-after: var(--tocus-alert-spacing);
+		--tocus-alert-icon-offset: 0.125em;
+
+		overflow: visible;
+	}
+	.mantine-Alert-body { min-width: 0; }
+	.mantine-Alert-root:first-child { --tocus-alert-spacing-before: 0px; }
+	.mantine-Alert-root:last-child { --tocus-alert-spacing-after: 0px; }
+	.mantine-Alert-root + .mantine-Alert-root { --tocus-alert-spacing-before: 0px; }
+
+	.tocus-section > .mantine-Alert-root {
+		--tocus-alert-spacing: max(0px, calc(var(--tocus-space-5) - var(--tocus-section-gap)));
+	}
+
+	// A parent's gap already contributes to the space around its direct-child notices.
+	.mantine-Stack-root > .mantine-Alert-root {
+		/* stylelint-disable-next-line custom-property-pattern -- Read Mantine's public Stack gap without duplicating its scale. */
+		--tocus-alert-spacing: max(0px, calc(var(--tocus-space-5) - var(--stack-gap, var(--mantine-spacing-md))));
+	}
+	.mantine-Alert-root + .tocus-form-actions { --tocus-form-actions-padding-before: 0px; }
+
+	.tocus-alert-actionable {
+		--tocus-alert-icon-offset: 0;
+
+		container: tocus-alert / inline-size;
+		.mantine-Alert-wrapper { align-items: center; }
+		.mantine-Alert-message { overflow: visible; }
+	}
+
+	// A recovery decision can expand below its message; keep the icon beside the heading.
+	.tocus-alert-actionable:has(.tocus-alert-copy > h2) {
+		--tocus-alert-icon-offset: 0.125em;
+
+		.mantine-Alert-wrapper { align-items: flex-start; }
+	}
+
+	.tocus-alert-layout {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) fit-content(50%);
+		align-items: center;
+		gap: var(--tocus-space-4);
+	}
+
+	.mantine-Alert-root .tocus-alert-copy {
+		min-width: 0;
+
+		h2 {
+			@include typography.apply('title-medium');
+
+			margin: 0 0 var(--tocus-space-2);
+		}
+
+		p {
+			font: inherit;
+			color: inherit;
+		}
+	}
+
+	.tocus-alert-actions {
+		flex-wrap: wrap;
+		gap: var(--tocus-space-3);
+		align-items: center;
+		justify-content: flex-end;
+	}
+
+	:is(.tocus-alert-actions, .mantine-Alert-root .tocus-form-actions) {
+		.mantine-Button-label { white-space: normal; }
+
+		.mantine-Button-root {
+			--tocus-button-height: auto;
+
+			min-width: 0;
+			max-width: 100%;
+			min-height: var(--tocus-action-height, 2.75rem);
+			padding-block: var(--tocus-space-2);
+		}
+	}
+
+	@container tocus-alert (width <= 30rem) {
+		.mantine-Alert-wrapper { align-items: flex-start; }
+		.tocus-alert-layout { grid-template-columns: minmax(0, 1fr); }
+		.tocus-alert-actions { justify-content: flex-start; }
+	}
+
 	.mantine-Alert-icon .tocus-icon {
 		width: 1.25em;
 		height: 1.25em;
@@ -72,8 +169,6 @@
 		display: flex;
 		align-items: flex-start;
 		gap: var(--tocus-space-3);
-		margin: 0;
-		overflow: visible;
 
 		.tocus-native-notice-icon {
 			flex: 0 0 1.25em;
@@ -82,14 +177,6 @@
 			margin-top: 0.125em;
 		}
 	}
-
-	.tocus-notice-compact, .tocus-notice-compact .mantine-Alert-message {
-		@include typography.apply('body-small');
-
-		color: var(--tocus-color-on-surface-muted);
-	}
-
-	.tocus-notice-recovery { --tocus-notice-icon-gap: 0; }
 
 	.mantine-Badge-root {
 		@include typography.apply('label-medium');
@@ -103,16 +190,19 @@
 	}
 
 	.mantine-Avatar-root {
-		background: var(--tocus-color-surface-container);
+		background: transparent;
 	}
 
 	.mantine-Avatar-placeholder {
-		background: transparent;
+		background: var(--tocus-color-surface-container);
 		color: var(--tocus-color-on-surface);
 	}
 
 	// Native website marks did not establish a positioned painting context; image and fallback slots remain installed.
-	.tocus-native-avatar.mantine-Avatar-root { position: static; }
+	.tocus-native-avatar.mantine-Avatar-root {
+		position: static;
+		&:has(.mantine-Avatar-image) { border-radius: 0; }
+	}
 
 	// Text-only native actions preserve their original flat paint structure without disturbing section or loader layout.
 	.tocus-native-button.mantine-Button-root:not([data-loading], :has(.mantine-Button-section)) {
@@ -134,94 +224,17 @@
 		&:not(:has(> .mantine-Input-section, > .mantine-Input-bottomSection)) { position: static; }
 	}
 
-	// Native range painting preserves the original browser track and thumb rasterization.
-	.tocus-native-range {
-		display: contents;
+	.mantine-Slider-root { margin-block: var(--tocus-space-3); }
 
-		.mantine-Input-input {
-			display: inline-block;
-			width: 100%;
-			height: 2rem;
-			min-height: 0;
-			margin: var(--tocus-space-2) 0 0;
-			padding: 0;
-			border: 0;
-			border-radius: 0;
-			appearance: none;
-			background: transparent;
-			color: var(--tocus-color-action);
-			cursor: pointer;
-
-			&::-webkit-slider-runnable-track {
-				height: 0.5rem;
-				border: 1px solid var(--tocus-color-divider);
-				border-radius: 999px;
-				background: linear-gradient(to right,
-					var(--tocus-color-action) 0 var(--tocus-range-fill),
-					var(--tocus-color-surface-container) var(--tocus-range-fill) 100%);
-			}
-
-			&::-webkit-slider-thumb {
-				width: 1.5rem;
-				height: 1.5rem;
-				margin-top: -0.5625rem;
-				border: 2px solid var(--tocus-color-action);
-				border-radius: 50%;
-				appearance: none;
-				background: var(--tocus-color-surface-lowest);
-				box-shadow: 0 1px 3px color-mix(in srgb, var(--tocus-color-shadow-depth) 30%, transparent);
-			}
-
-			&::-moz-range-track {
-				height: 0.5rem;
-				border: 1px solid var(--tocus-color-divider);
-				border-radius: 999px;
-				background: var(--tocus-color-surface-container);
-			}
-
-			&::-moz-range-progress {
-				height: 0.5rem;
-				border-radius: 999px;
-				background: var(--tocus-color-action);
-			}
-
-			&::-moz-range-thumb {
-				width: 1.5rem;
-				height: 1.5rem;
-				border: 2px solid var(--tocus-color-action);
-				border-radius: 50%;
-				background: var(--tocus-color-surface-lowest);
-				box-shadow: 0 1px 3px color-mix(in srgb, var(--tocus-color-shadow-depth) 30%, transparent);
-			}
-
-			&:focus-visible {
-				outline: 2px solid var(--tocus-color-focus-ring);
-				outline-offset: 2px;
-			}
-
-			&:disabled {
-				opacity: 0.6;
-				cursor: default;
-			}
-		}
+	.mantine-Slider-mark {
+		border-color: var(--tocus-color-action);
+		opacity: 0.5;
+		transform: scale(calc(1 / 3));
 	}
 
-	.mantine-Slider-root:not([data-orientation='vertical']) {
-		height: 2rem;
-		padding-inline: 13px;
-		justify-content: center;
-
-		.mantine-Slider-trackContainer { height: 100%; }
-		.mantine-Slider-track { height: 0.5rem; }
-		.mantine-Slider-track::before { inset-inline: -13px; }
-
-		.mantine-Slider-bar:not([data-inverted]) {
-			inset-inline: -13px;
-			width: auto;
-			background: linear-gradient(to right,
-				var(--tocus-color-action) calc(var(--slider-bar-width) - 2 * var(--slider-size)),
-				var(--tocus-color-surface-container) calc(var(--slider-bar-width) - 2 * var(--slider-size)));
-		}
+	.mantine-Slider-mark[data-filled] {
+		border-color: var(--tocus-color-on-action);
+		background: var(--tocus-color-on-action);
 	}
 
 	.mantine-Button-root:disabled, .mantine-Button-root[data-disabled] {
@@ -263,7 +276,7 @@
 
 	.mantine-NavLink-root {
 		border-radius: var(--tocus-radius-full);
-		padding: 12px 16px;
+		padding: var(--tocus-space-3);
 
 		&[data-active] {
 			background: var(--tocus-color-surface-container);
@@ -276,11 +289,11 @@
 
 		display: block;
 	}
-	.mantine-NavLink-section[data-position='left'] { margin-inline-end: 12px; }
+	.mantine-NavLink-section[data-position='left'] { margin-inline-end: var(--tocus-space-3); }
 
 	.mantine-NavLink-section .tocus-icon {
-		width: 1.25rem;
-		height: 1.25rem;
+		width: 1.5rem;
+		height: 1.5rem;
 	}
 
 	.mantine-Stepper-stepIcon {
@@ -328,23 +341,26 @@
 	}
 
 	.tocus-choice-card.tocus-choice-preview {
-		border: 0;
+		padding: var(--tocus-space-2);
+		border: 1px solid transparent;
+		border-radius: var(--tocus-radius-medium);
 		background: transparent;
 		box-shadow: none;
 		color: inherit;
 
+		&:hover:not([data-disabled]), &[data-checked] {
+			border-color: var(--tocus-color-action);
+			background: transparent;
+			box-shadow: none;
+		}
+
 		.tocus-choice-frame {
 			border: 1px solid color-mix(in srgb, var(--tocus-color-on-surface) 18%, transparent);
-			border-radius: var(--tocus-radius-medium);
+			border-radius: calc(var(--tocus-radius-medium) - var(--tocus-space-2));
 			background: var(--tocus-color-surface-container);
 			box-shadow: 0 0.35rem 0.9rem color-mix(in srgb, var(--tocus-color-shadow-depth) 10%, transparent);
 		}
 
-		&[data-checked] .tocus-choice-frame {
-			border-color: var(--tocus-color-action);
-			box-shadow: 0 0 0 0.15rem var(--tocus-color-action),
-				0 0.8rem 1.7rem color-mix(in srgb, var(--tocus-color-shadow-depth) 18%, transparent);
-		}
 	}
 
 	.tocus-choice-card.tocus-choice-language {
@@ -362,10 +378,17 @@
 	}
 
 	.tocus-choice-card.tocus-choice-swatch {
-		border: 0;
+		border: 1px solid transparent;
+		border-radius: var(--tocus-radius-small);
 		background: transparent;
 		box-shadow: none;
 		color: inherit;
+
+		&:hover:not([data-disabled]), &[data-checked] {
+			border-color: var(--tocus-color-action);
+			background: transparent;
+			box-shadow: none;
+		}
 	}
 
 	.tocus-choice-clay {
@@ -452,9 +475,16 @@
 		button { min-width: 8rem; }
 	}
 
+	.tocus-preferences-error:has(> .mantine-Alert-root),
+	.tocus-preferences-error:has(> .mantine-Alert-root) + .tocus-preferences-actions {
+		margin-top: var(--tocus-space-5);
+	}
+
 	.tocus-section {
+		--tocus-section-gap: var(--tocus-space-5);
+
 		display: grid;
-		gap: var(--tocus-space-5);
+		gap: var(--tocus-section-gap);
 		padding-block: var(--tocus-space-5);
 	}
 	.tocus-section + .tocus-section { border-top: 1px solid var(--tocus-color-divider); }
@@ -463,7 +493,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--tocus-space-3);
-		padding-block: var(--tocus-space-5);
+		padding-block: var(--tocus-form-actions-padding-before, var(--tocus-space-5)) var(--tocus-space-5);
 	}
 	.tocus-form-actions.tocus-preferences-actions { padding: 0; }
 
@@ -580,11 +610,6 @@
 		border-radius: var(--tocus-radius-small);
 	}
 
-	.mantine-Input-input[type='time'] {
-		height: auto;
-		padding-block: var(--tocus-space-3);
-	}
-
 	.mantine-RadioIndicator-indicator:not(.tocus-selection-mark) {
 		width: 1.125rem;
 		height: 1.125rem;
@@ -653,6 +678,43 @@
 		fill: currentcolor;
 	}
 
+	.tocus-loader {
+		display: inline-flex;
+		width: var(--loader-size);
+		height: var(--loader-size);
+		color: var(--loader-color);
+
+		.tocus-icon {
+			width: 100%;
+			height: 100%;
+		}
+		svg { animation: tocus-loader-spin 1.2s linear infinite; }
+	}
+
+	.tocus-disclosure {
+		> summary {
+			position: relative;
+			cursor: pointer;
+
+			// Retain the native marker's exact advance and wrapping while replacing only its artwork.
+			&::marker { color: transparent; }
+			&::-webkit-details-marker { color: transparent; }
+
+			.tocus-icon {
+				position: absolute;
+				inset-inline-start: 0;
+				inset-block-start: calc(var(--tocus-space-2) + (1lh - 1em) / 2);
+			}
+
+			.tocus-disclosure-collapse { display: none; }
+		}
+
+		&[open] > summary {
+			.tocus-disclosure-expand { display: none; }
+			.tocus-disclosure-collapse { display: inline-flex; }
+		}
+	}
+
 	.tocus-brand {
 		@include typography.apply('headline-small');
 
@@ -710,8 +772,17 @@
 	}
 }
 
+@keyframes tocus-loader-spin {
+	to { transform: rotate(360deg); }
+}
+
 @media (forced-colors: active) {
 	[data-tocus-ui] {
+		// Marker pseudo-elements cannot opt out independently; restore system colors on all visible children.
+		.tocus-disclosure > summary {
+			forced-color-adjust: none;
+			> * { forced-color-adjust: auto; }
+		}
 		button, input, [role='slider'], .mantine-Alert-root { border: 1px solid ButtonText; }
 		:focus-visible { outline: 3px solid Highlight; }
 		.mantine-Checkbox-input:checked, .mantine-Radio-radio:checked { background: Highlight; }

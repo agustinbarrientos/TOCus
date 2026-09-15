@@ -45,6 +45,39 @@ async function readTabMuted( worker: Worker, url: string ): Promise<boolean> {
 }
 
 test.describe( 'packaged Chrome protection', () => {
+	test( 'saves website changes through the departure dialog using the native permission API', async ( { page, worker, extensionRoot } ) => {
+		await page.goto( new URL( 'options.html#protected-sites', extensionRoot ).href );
+		await page.getByLabel( 'Website address', { exact: true } ).fill( 'example.test' );
+		await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
+		await page.getByLabel( 'Website address', { exact: true } ).fill( 'https://example.test/again' );
+		await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
+		await page.evaluate( () => {
+			const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+			const request = chrome.permissions.request.bind( chrome.permissions );
+			// Observe the native API without replacing its permission decision or asynchronous result.
+			chrome.permissions.request = ( permissions ) => {
+				document.documentElement.dataset.permissionRequest = JSON.stringify( permissions );
+				document.documentElement.dataset.permissionActivation = String( navigator.userActivation.isActive );
+				return request( permissions );
+			};
+		} );
+		await page.getByRole( 'link', { name: 'About', exact: true } ).click();
+		await page.getByRole( 'dialog' ).getByRole( 'button', { name: 'Save', exact: true } ).click();
+		await expect( page.locator( 'html' ) ).toHaveAttribute( 'data-permission-activation', 'true' );
+		expect( JSON.parse( await page.locator( 'html' ).getAttribute( 'data-permission-request' ) ?? '{}' ) )
+			.toEqual( { permissions: [ 'webNavigation' ], origins: [ '*://example.test/*' ] } );
+		await expect( page ).toHaveURL( /#about$/u );
+		const stored = await worker.evaluate( async () => {
+			const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+			return ( await chrome.storage.local.get( 'tocus.protection.configuration.v1' ) )[ 'tocus.protection.configuration.v1' ];
+		} );
+		expect( stored ).toMatchObject( {
+			sites: [ { identityHost: 'example.test', rule: {
+				host: 'example.test', includeSubdomains: false, scopeId: DefaultProtectionScopeId,
+			} } ],
+		} );
+	} );
+
 	for ( const entry of [ 'popup.html', 'options.html', 'onboarding.html' ] ) {
 		test( `opens packaged ${ entry } without preload-world warnings or script errors`, async ( { context, extensionRoot } ) => {
 			const page = await context.newPage();
@@ -196,10 +229,10 @@ test.describe( 'packaged Chrome protection', () => {
 
 					await chrome.storage.local.set( {
 						'tocus.protection.configuration.v1': {
-							schemaVersion: 4,
+							schemaVersion: 5,
 							sites: [ { identityHost: 'example.test', rule: { host: 'example.test', includeSubdomains: true, scopeId: 'scope_default' } } ],
 							timingConfiguration: { initialWaitMilliseconds: 10000, ladderIncreaseMilliseconds: 5000, maximumWaitMilliseconds: 60000, allowanceMilliseconds: 300000, completionAction: 'show-continue' },
-							schedulesByScope: { scope_default: { mode: 'always' } },
+							schedule: { mode: 'always' },
 							measurementRevisionsByScope: { scope_default: 'revision_packaged' },
 						},
 					} );
@@ -313,11 +346,11 @@ test.describe( 'packaged Chrome protection', () => {
 				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
 				await chrome.storage.local.set( {
 					'tocus.protection.configuration.v1': {
-						schemaVersion: 4,
-						sites: [ { identityHost: 'example.test', rule: { host: 'example.test', includeSubdomains: true, scopeId: 'scope_audio' } } ],
+						schemaVersion: 5,
+						sites: [ { identityHost: 'example.test', rule: { host: 'example.test', includeSubdomains: true, scopeId: 'scope_default' } } ],
 						timingConfiguration: { initialWaitMilliseconds: 10000, ladderIncreaseMilliseconds: 0, maximumWaitMilliseconds: 30000, allowanceMilliseconds: 120000, completionAction: 'show-continue' },
-						schedulesByScope: { scope_default: { mode: 'always' }, scope_audio: { mode: 'always' } },
-						measurementRevisionsByScope: { scope_default: 'revision_packaged', scope_audio: 'revision_packaged_audio' },
+						schedule: { mode: 'always' },
+						measurementRevisionsByScope: { scope_default: 'revision_packaged_audio' },
 					},
 				} );
 			} );
@@ -337,7 +370,7 @@ test.describe( 'packaged Chrome protection', () => {
 				await continueButton.waitFor( { state: 'visible', timeout: 15_000 } );
 				await continueButton.click();
 				await page.waitForURL( destination, { timeout: 5_000 } );
-				const allowance = ( await readDurableState( worker ) ).scopes.scope_audio?.allowance;
+				const allowance = ( await readDurableState( worker ) ).scopes.scope_default?.allowance;
 				expect( allowance ).toBeDefined();
 				expect(
 					( allowance?.expiresAtEpochMilliseconds ?? 0 ) - ( allowance?.startedAtEpochMilliseconds ?? 0 ),
@@ -363,7 +396,7 @@ test.describe( 'packaged Chrome protection', () => {
 					return nodes.some( ( node ) => ! node.ignored && node.role?.value === 'button' && node.name?.value === 'Continue' );
 				}, { timeout: 15_000 } ).toBe( true );
 				expect( await readTabMuted( worker, destination ) ).toBe( true );
-				expect( ( await readDurableState( worker ) ).scopes.scope_audio?.allowance ).toBeUndefined();
+				expect( ( await readDurableState( worker ) ).scopes.scope_default?.allowance ).toBeUndefined();
 				await page.keyboard.press( 'Space' );
 				await expect.poll( async () => {
 					const { nodes } = await accessibility.send( 'Accessibility.getFullAXTree' );
@@ -381,7 +414,7 @@ test.describe( 'packaged Chrome protection', () => {
 
 	test.describe( 'without optional access', () => {
 		test.use( { pregrantSite: false } );
-		test( 'resets packaged local data through Settings and reopens onboarding without requesting access', async ( { context: resetContext, worker: resetWorker } ) => {
+		test( 'resets packaged local data and replaces only the originating Settings tab with new onboarding', async ( { context: resetContext, worker: resetWorker } ) => {
 			const optionsUrl = await resetWorker.evaluate( async ( seed ) => {
 				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
 				await chrome.storage.local.set( seed );
@@ -391,12 +424,36 @@ test.describe( 'packaged Chrome protection', () => {
 				'tocus.protection.configuration.v1': TestEmptyProtectionConfiguration,
 				'tocus.statistics.v1': createMockStatisticsDocument(),
 			} );
+			const secondSettings = await resetContext.newPage();
+			await secondSettings.goto( optionsUrl );
+			const unrelated = await resetContext.newPage();
+			await unrelated.goto( 'https://example.test/reset-preserves-work' );
+			await unrelated.getByRole( 'textbox', { name: 'Unfinished work' } ).fill( 'Preserve work in another tab' );
 			const settings = await resetContext.newPage();
 			await settings.goto( optionsUrl );
 			const resetButton = settings.getByRole( 'button', { name: 'Reset all TOCus data', exact: true } );
 			await resetButton.click();
 			await settings.getByRole( 'heading', { name: 'Reset all TOCus data?' } ).waitFor();
-			await settings.getByLabel( 'Reset all TOCus data?' ).getByRole( 'button', { name: 'Reset all TOCus data', exact: true } ).click();
+			await test.step( 'Open new onboarding and close only the Settings tab that confirmed reset', async () => {
+				const [ onboarding ] = await Promise.all( [
+					resetContext.waitForEvent( 'page' ),
+					settings.waitForEvent( 'close' ),
+					settings.getByLabel( 'Reset all TOCus data?' ).getByRole( 'button', { name: 'Reset all TOCus data', exact: true } ).click(),
+				] );
+				await expect( onboarding ).toHaveURL( new URL( '/onboarding.html', optionsUrl ).href );
+				await expect( onboarding.getByText( 'TOCus', { exact: true } ).first() ).toBeVisible();
+				const confirmation = onboarding.getByRole( 'status' ).filter( { hasText: 'All TOCus data reset.' } );
+				await expect( confirmation ).toBeVisible();
+				await confirmation.getByRole( 'button', { name: 'Dismiss notification', exact: true } ).click();
+				await onboarding.reload();
+				await expect( onboarding.getByText( 'TOCus', { exact: true } ).first() ).toBeVisible();
+				await expect( onboarding.locator( '.tocus-snackbar' ) ).toHaveCount( 0 );
+				expect( settings.isClosed() ).toBe( true );
+				await expect( secondSettings ).toHaveURL( optionsUrl );
+				await expect( secondSettings.getByRole( 'button', { name: 'Reset all TOCus data', exact: true } ) ).toBeEnabled();
+				await expect( unrelated ).toHaveURL( 'https://example.test/reset-preserves-work' );
+				await expect( unrelated.getByRole( 'textbox', { name: 'Unfinished work' } ) ).toHaveValue( 'Preserve work in another tab' );
+			} );
 			const expectedGeneration: unknown = expect.any( String );
 			await expect.poll( () => resetWorker.evaluate( async () => {
 				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
@@ -417,7 +474,6 @@ test.describe( 'packaged Chrome protection', () => {
 			expect( stored.grants.origins ?? [] ).toEqual( [] );
 			expect( stored.grants.permissions ).not.toContain( 'webNavigation' );
 			expect( stored.rules ).toEqual( [] );
-			expect( resetContext.pages().filter( ( page ) => page.url().endsWith( '/onboarding.html' ) ).length ).toBeGreaterThan( 0 );
 		} );
 	} );
 } );

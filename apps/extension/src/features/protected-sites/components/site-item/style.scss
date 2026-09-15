@@ -1,11 +1,17 @@
 @use '@tocus/theme/typography' as typography;
 
 .settings-site-item {
-	padding: var(--tocus-space-5);
-	border: 1px solid var(--tocus-color-outline);
-	border-radius: var(--tocus-radius-medium);
-	background: var(--tocus-color-surface);
+	padding: var(--tocus-space-3) 0;
+	border-bottom: 1px solid var(--tocus-color-outline);
 	list-style: none;
+	scroll-margin-block: var(--tocus-space-5);
+
+	&[data-highlighted] {
+		background: var(--tocus-color-primary-container);
+		outline: 2px solid var(--tocus-color-primary);
+		outline-offset: var(--tocus-space-1);
+		border-radius: var(--tocus-radius-small);
+	}
 }
 
 [data-tocus-ui] .settings-page .settings-site-identity {
@@ -13,63 +19,49 @@
 	min-width: 0;
 	overflow-wrap: anywhere;
 	h2 { @include typography.apply('title-medium'); margin: 0; }
-	p { @include typography.apply('body-small'); margin-top: var(--tocus-space-1); }
-}
-
-[data-tocus-ui] .settings-page .settings-site-boundary {
-	@include typography.apply('body-small');
-
-	margin: var(--tocus-space-3) 0 0 calc(2.75rem + var(--tocus-space-3));
+	p { @include typography.apply('body-small'); margin: 0; }
 }
 
 .settings-site-row { gap: var(--tocus-space-3); }
 
+.settings-site-actions { flex-shrink: 0; }
+
 .settings-site-monogram { @include typography.apply('title-medium'); }
 
-.settings-site-access { margin-top: var(--tocus-space-4); }
-
-.settings-site-editor {
-	display: block;
-	margin-top: var(--tocus-space-5);
-	padding-top: var(--tocus-space-5);
-	border-top: 1px solid var(--tocus-color-outline);
-	> label { @include typography.apply('label-large'); display: block; }
-	> .settings-behavior-control { margin-top: var(--tocus-space-5); }
+[data-tocus-ui] .settings-site-actions .tocus-icon {
+	width: 1.2em;
+	height: 1.2em;
 }
-
-.settings-site-feedback { margin-top: var(--tocus-space-4); }
-
-.settings-site-name-control {
-	gap: var(--tocus-space-3);
-	margin-top: var(--tocus-space-2);
-
-	> :first-child {
-		flex: 1;
-		min-width: 0;
-	}
-}
-
-.settings-site-editor-footer { margin-top: var(--tocus-space-5); }
-
-[data-tocus-ui] .settings-site-edit-actions { gap: var(--tocus-space-2); }
-
-.settings-site-editor .settings-behavior-label { padding-inline: 2px; }
 
 @media (width <= 38rem) {
 	.settings-site-row {
 		display: grid;
 		grid-template-columns: auto minmax(0, 1fr) auto;
 
-		> button {
+		> .settings-site-actions {
 			grid-row: 1 / span 2;
 			grid-column: 3;
 		}
 	}
-	.settings-site-scope { grid-column: 2; }
-	[data-tocus-ui] .settings-page .settings-site-boundary { margin-left: 0; }
+}
 
-	.settings-site-name-control, .settings-site-editor-footer {
-		align-items: stretch;
-		flex-direction: column;
+[data-tocus-ui] .settings-page .settings-site-identity .settings-site-schedule {
+	display: flex;
+	align-items: center;
+	gap: var(--tocus-space-2);
+	margin-top: var(--tocus-space-2);
+
+	.tocus-icon {
+		width: 1rem;
+		height: 1rem;
+		flex-shrink: 0;
+		align-self: center;
 	}
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.settings-site-actions { opacity: 0; }
+
+	.settings-site-item:hover .settings-site-actions,
+	.settings-site-item:focus-within .settings-site-actions { opacity: 1; }
 }

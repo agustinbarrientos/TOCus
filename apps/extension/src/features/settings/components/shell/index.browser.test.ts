@@ -4,6 +4,22 @@ import { SettingsDestination } from '../../services/settings-navigation/types';
 import { test } from '../../utils/browser-test-harness';
 
 test.describe( 'React settings', () => {
+	test( 'keeps navigation separators as subtle as its outer border on wide and narrow screens', async ( { open } ) => {
+		const page = await open( SettingsDestination.APPEARANCE );
+		for ( const width of [ 1280, 375 ] ) {
+			await page.setViewportSize( { width, height: 900 } );
+			const colors = await page.locator( '.settings-navigation' ).evaluate( ( navigation ) => {
+				const divider = navigation.querySelector( 'hr' );
+				if ( ! divider ) {
+					throw new Error( 'Expected grouped navigation.' );
+				}
+				const vertical = matchMedia( '(max-width: 48rem)' ).matches;
+				return { edge: getComputedStyle( navigation )[ vertical ? 'borderBottomColor' : 'borderRightColor' ],
+					divider: getComputedStyle( divider )[ vertical ? 'borderLeftColor' : 'borderTopColor' ] };
+			} );
+			expect( colors.divider ).toBe( colors.edge );
+		}
+	} );
 	test( 'preserves the approved edge navigation and spacious page composition', async ( { open } ) => {
 		const page = await open( SettingsDestination.APPEARANCE );
 		await page.setViewportSize( { width: 1280, height: 1200 } );
@@ -13,7 +29,11 @@ test.describe( 'React settings', () => {
 		expect( navigation?.width ).toBe( 264 );
 		expect( main?.x ).toBe( 328 );
 		expect( main?.width ).toBe( 888 );
-		expect( await page.locator( '.tocus-page-header' ).textContent() ).toContain( 'Personalization' );
+		await expect( page.locator( '.tocus-page-header' ).getByRole( 'heading', { level: 1 } ) ).toHaveText( 'Appearance' );
+		await expect( page.locator( '.settings-navigation nav > hr' ) ).toHaveCount( 3 );
+		expect( await page.locator( '.settings-navigation nav > hr' ).evaluateAll( ( separators ) =>
+			separators.map( ( separator ) => separator.nextElementSibling?.getAttribute( 'href' ) ) ) )
+			.toEqual( [ '#appearance', '#statistics', '#privacy' ] );
 	} );
 
 	test( 'saves keyboard timing, preserves rejection, and discards without writes', async ( { open, setting } ) => {
@@ -34,7 +54,7 @@ test.describe( 'React settings', () => {
 		await slider.focus();
 		await page.keyboard.press( 'ArrowRight' );
 		await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
-		await page.locator( '.mantine-Alert-root[role="status"]' ).waitFor();
+		await page.getByRole( 'status' ).filter( { hasText: 'Changes saved.' } ).waitFor();
 		await expect.poll( () => slider.evaluate( ( element ) => element === document.activeElement ) ).toBe( true );
 		const initialWait = await page.evaluate( () =>
 			window.settingsTest.getConfiguration().timingConfiguration.initialWaitMilliseconds );

@@ -41,7 +41,7 @@ export function createPreferencesController(
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function synchronizeReducedMotion(): void {
-		const nextReducedMotion = preferences.reducedMotion || options.systemMotionPreference.matches;
+		const nextReducedMotion = options.systemMotionPreference.matches;
 		options.appearanceTarget.setAttribute(
 			'data-tocus-reduced-motion',
 			String( nextReducedMotion ),
@@ -355,7 +355,7 @@ export function createPreferencesController(
 			return effectiveLanguage;
 		},
 		/**
-		 * Reports whether either the user or operating system currently requests reduced motion.
+		 * Reports whether the operating system currently requests reduced motion.
 		 * @return Effective reduced-motion preference.
 		 * @since 0.1.0 Initial implementation.
 		 */

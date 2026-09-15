@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { LocalDateSchema } from '../../../../domains/protection/types/protection-value';
 import {
 	StatisticsProjectionStatus,
 	type StatisticsProjection,
@@ -15,11 +16,13 @@ describe( 'createProtectionBackgroundController statistics messages', () => {
 		const harness = createHarness( false, false );
 		const response: StatisticsProjection = {
 			status: StatisticsProjectionStatus.AVAILABLE,
+			currentDate: LocalDateSchema.parse( '2026-09-14' ),
 			estimatedReclaimedMilliseconds: 120_000,
 			focusedPauseMilliseconds: 8_000,
 			reconsideredVisitCount: 3,
 			completedWaitCount: 2,
 			allowanceGrantedCount: 2,
+			dailyTotals: [],
 		};
 		const readResponse = vi.fn();
 		const resetResponse = vi.fn();

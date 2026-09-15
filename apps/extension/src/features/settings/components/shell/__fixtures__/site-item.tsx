@@ -43,6 +43,7 @@ function OriginalWebsiteItem() {
 		palette={ TocusPalette.BROWN }>
 		<main className="settings-page" style={ { width: Number( params.get( 'width' ) ?? 736 ) } }>
 			{ ! removed && <PersistedWebsiteItem site={ site } editor={ null } onSaved={ saved } copy={ copy }
+				scheduleCopy={ createEnglishLocalizationBundle().schedule } globalSchedule={ configuration.schedule }
 				favicon={ null } disabled={ false } accessRequired={ accessRequired } accessPending={ false }
 				accessDisabled={ false } onGrant={ () => {
 					setAccessRequired( false );

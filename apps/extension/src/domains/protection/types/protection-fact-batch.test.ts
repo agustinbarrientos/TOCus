@@ -10,6 +10,7 @@ const VALID_BATCH = {
 	scopeId: 'scope_default',
 	measurementRevision: 'revision_1',
 	observedAtEpochMilliseconds: 1_000,
+	observedLocalDate: '2026-09-14',
 	facts: [
 		{
 			type: 'reconsidered-visit',
@@ -27,6 +28,10 @@ const VALID_BATCH = {
 describe( 'ProtectionFactBatchSchema', () => {
 	it( 'parses one non-empty same-scope fact batch', () => {
 		expect( ProtectionFactBatchSchema.parse( VALID_BATCH ) ).toEqual( VALID_BATCH );
+	} );
+
+	it.each( [ undefined, null, '', '2026-02-30' ] )( 'rejects a missing or invalid captured local date: %s', ( observedLocalDate ) => {
+		expect( ProtectionFactBatchSchema.safeParse( { ...VALID_BATCH, observedLocalDate } ).success ).toBe( false );
 	} );
 
 	it( 'rejects a fact from a different scope', () => {

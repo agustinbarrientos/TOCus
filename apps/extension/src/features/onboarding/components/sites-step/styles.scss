@@ -221,19 +221,8 @@
 		padding: var(--tocus-space-2) var(--tocus-space-3);
 	}
 
-	.field-help,
-	.removal-status,
-	.announcement {
+	.field-help {
 		@include typography.apply( 'body-small' );
-	}
-
-	.removal-status,
-	.finish-error {
-		margin: var(--tocus-space-3) 0 0;
-
-		&:empty {
-			display: none;
-		}
 	}
 
 	.field-help,

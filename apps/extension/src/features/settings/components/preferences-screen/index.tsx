@@ -1,6 +1,5 @@
 import { LoadState } from '../recovery/types';
 import {
-	Checkbox,
 	Stack,
 } from '@tocus/ui';
 import {
@@ -36,9 +35,9 @@ import './style.scss';
 
 
 /**
- * Adds Settings-owned pause-style and accessibility controls to shared appearance choices.
+ * Adds Settings-owned pause-style controls to shared appearance choices.
  * @param props - Complete controlled appearance draft and canonical localized labels.
- * @return Theme, palette, pause-style and reduced-motion controls.
+ * @return Theme, palette and pause-style controls; motion follows the operating system.
  * @since 0.1.0
  */
 function AppearanceSettingsControls( props: AppearanceSettingsControlsProps ) {
@@ -57,15 +56,6 @@ function AppearanceSettingsControls( props: AppearanceSettingsControlsProps ) {
 				onChange={ ( pauseMode ) => {
 					props.onChange( { ...value, pauseMode } );
 				} } /></section>
-			<fieldset className="settings-preferences-accessibility">
-				<legend>{ copy.accessibilityLegend }</legend>
-				<Checkbox className="tocus-native-checkbox" label={ copy.reducedMotionLabel }
-					description={ copy.reducedMotionDescription }
-					name="reduced-motion" checked={ value.reducedMotion } disabled={ disabled }
-					onChange={ ( event ) => {
-						props.onChange( { ...value, reducedMotion: event.currentTarget.checked } );
-					} } />
-			</fieldset>
 		</>
 	);
 }
@@ -80,21 +70,22 @@ function AppearanceSettingsControls( props: AppearanceSettingsControlsProps ) {
 export function Preferences( props: PreferencesScreenProps ) {
 	const { shell, language = false } = props;
 	const copy = language ? shell.languageCopy : shell.appearanceCopy;
-	const { draft, value, saving, error, saved, status, recovery, load, save, restore } = usePreferencesState( props );
-	const success = saved ? copy.savedAnnouncement : recovery.restored ? copy.restoredAnnouncement : null;
+	const { draft, value, saving, error, status, recovery, load, save, discard, restore } =
+		usePreferencesState( props );
 
 	return (
-		<Page title={ copy.title } eyebrow={ copy.eyebrow } introduction={ copy.introduction }>
+		<Page title={ copy.title }>
 			<Recovery status={ status } copy={ copy } disabled={ recovery.pending }
 				retry={ () => {
 					void load();
 				} } restore={ () => {
 					void restore();
 				} } />
-			<Feedback error={ recovery.failed ? copy.restoreDefaultsError : null } />
+			<Feedback error={ recovery.failed ? copy.restoreDefaultsError : null }
+				success={ recovery.restored ? copy.restoredAnnouncement : null } />
 			{ status === LoadState.READY && <form aria-label={ copy.formLabel } aria-busy={ saving }
 				onSubmit={ ( event ) => {
-					event.preventDefault(); save();
+					event.preventDefault(); void save();
 				} }>
 				<Stack gap={ 0 }>
 					{ language
@@ -105,8 +96,8 @@ export function Preferences( props: PreferencesScreenProps ) {
 							} } />
 						: <AppearanceSettingsControls copy={ shell.appearanceCopy } value={ value }
 							disabled={ saving } onChange={ draft.change } /> }
-					<Feedback error={ error ? copy.saveError : null } success={ success } />
-					<DraftActions draft={ draft } copy={ copy } onSave={ save } />
+					<Feedback error={ error ? copy.saveError : null } />
+					<DraftActions draft={ draft } copy={ copy } onSave={ save } onDiscard={ discard } />
 				</Stack>
 			</form> }
 		</Page>

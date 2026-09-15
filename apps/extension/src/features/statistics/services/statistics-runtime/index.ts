@@ -404,6 +404,7 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 				deliveryStatus === StoredProtectionStatisticsDeliveryStatus.COMPLETE
 					? statisticsDocument
 					: null,
+				options.getLocalDate(),
 			),
 		};
 	}

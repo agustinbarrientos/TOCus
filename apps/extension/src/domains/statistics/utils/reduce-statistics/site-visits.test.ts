@@ -25,6 +25,7 @@ function recordVisit(
 	let current = reduceStatistics( document, {
 		type: StatisticsOperationType.APPLY_FACT_BATCH,
 		batch: {
+			observedLocalDate: '2026-09-14',
 			batchId: `batch_${ String( startedAt ) }`,
 			scopeId: 'scope_default',
 			measurementRevision: 'revision_1',
@@ -79,6 +80,7 @@ function reconsiderVisits(
 	return reduceStatistics( document, {
 		type: StatisticsOperationType.APPLY_FACT_BATCH,
 		batch: {
+			observedLocalDate: '2026-09-14',
 			batchId: `batch_departures_${ document.generationId }`,
 			scopeId,
 			measurementRevision: revision,
@@ -101,7 +103,7 @@ describe( 'configured browsing-allowance estimates', () => {
 	it( 'adds fifteen minutes for three reconsidered visits without prior browsing history', () => {
 		const result = reconsiderVisits( createMockStatisticsDocument(), [ 300_000, 300_000, 300_000 ] );
 
-		expect( projectStatistics( result ) ).toMatchObject( {
+		expect( projectStatistics( result, '2026-09-14' ) ).toMatchObject( {
 			estimatedReclaimedMilliseconds: 900_000,
 			reconsideredVisitCount: 3,
 		} );
@@ -113,7 +115,7 @@ describe( 'configured browsing-allowance estimates', () => {
 		const shortVisit = recordVisit( fullVisit, 'youtube.com', 500_000, 10_000 );
 		const result = reconsiderVisits( shortVisit, [ 300_000, 300_000, 300_000 ] );
 
-		expect( projectStatistics( result ) ).toMatchObject( {
+		expect( projectStatistics( result, '2026-09-14' ) ).toMatchObject( {
 			estimatedReclaimedMilliseconds: 900_000,
 			reconsideredVisitCount: 3,
 		} );
@@ -122,7 +124,7 @@ describe( 'configured browsing-allowance estimates', () => {
 	it( 'uses the allowance captured by each event when timing changes', () => {
 		const result = reconsiderVisits( createMockStatisticsDocument(), [ 120_000, 300_000, 600_000 ] );
 
-		expect( projectStatistics( result ) ).toMatchObject( {
+		expect( projectStatistics( result, '2026-09-14' ) ).toMatchObject( {
 			estimatedReclaimedMilliseconds: 1_020_000,
 			reconsideredVisitCount: 3,
 		} );
@@ -133,6 +135,7 @@ describe( 'configured browsing-allowance estimates', () => {
 		const operation = {
 			type: StatisticsOperationType.APPLY_FACT_BATCH,
 			batch: {
+				observedLocalDate: '2026-09-14',
 				batchId: 'batch_pause',
 				scopeId: 'scope_default',
 				measurementRevision: 'revision_1',
@@ -154,7 +157,7 @@ describe( 'configured browsing-allowance estimates', () => {
 		expect( reduceStatistics( result, operation ) ).toEqual( result );
 		expect( result.scopes.scope_default?.totals.estimatedReclaimedMilliseconds ).toBe( 900_000 );
 		for ( let read = 0; read < 2; read += 1 ) {
-			expect( projectStatistics( result ) ).toMatchObject( {
+			expect( projectStatistics( result, '2026-09-14' ) ).toMatchObject( {
 				estimatedReclaimedMilliseconds: 920_000,
 				focusedPauseMilliseconds: 20_000,
 				reconsideredVisitCount: 3,
@@ -170,7 +173,7 @@ describe( 'configured browsing-allowance estimates', () => {
 		} );
 		const result = reconsiderVisits( reconfigured, [ 600_000 ], scopeId, 'revision_2' );
 
-		expect( projectStatistics( result ) ).toMatchObject( { estimatedReclaimedMilliseconds: 600_000 } );
+		expect( projectStatistics( result, '2026-09-14' ) ).toMatchObject( { estimatedReclaimedMilliseconds: 600_000 } );
 	} );
 
 	it( 'resets totals and counts the full configured allowance on the next reconsidered visit', () => {
@@ -181,11 +184,11 @@ describe( 'configured browsing-allowance estimates', () => {
 			measurementRevisionsByScope: { scope_default: 'revision_1' },
 		} );
 
-		expect( projectStatistics( reset ) ).toMatchObject( {
+		expect( projectStatistics( reset, '2026-09-14' ) ).toMatchObject( {
 			estimatedReclaimedMilliseconds: 0,
 			reconsideredVisitCount: 0,
 		} );
-		expect( projectStatistics( reconsiderVisits( reset, [ 300_000 ] ) ) ).toMatchObject( {
+		expect( projectStatistics( reconsiderVisits( reset, [ 300_000 ] ), '2026-09-14' ) ).toMatchObject( {
 			estimatedReclaimedMilliseconds: 300_000,
 			reconsideredVisitCount: 1,
 		} );

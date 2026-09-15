@@ -5,6 +5,21 @@ import { BrowserPaletteLabels, BrowserThemeLabels } from '../../types/__fixtures
 import { test } from '../../../settings/utils/browser-test-harness';
 
 test.describe( 'shared appearance controls', () => {
+	test( 'uses padded preview focus and neutral swatch hover instead of palette floods', async ( { open } ) => {
+		const page = await open( SettingsDestination.APPEARANCE );
+		const preview = page.locator( '.preferences-theme-card' ).first();
+		await preview.focus();
+		const focus = await preview.evaluate( ( element ) => {
+			const style = getComputedStyle( element );
+			return { padding: parseFloat( style.paddingTop ), radius: parseFloat( style.borderRadius ) };
+		} );
+		expect( focus.padding ).toBeGreaterThan( 0 );
+		expect( focus.radius ).toBeGreaterThan( focus.padding );
+		const swatch = page.locator( '.preferences-palette-card' ).last();
+		const resting = await swatch.evaluate( ( element ) => getComputedStyle( element ).backgroundColor );
+		await swatch.hover();
+		expect( await swatch.evaluate( ( element ) => getComputedStyle( element ).backgroundColor ) ).toBe( resting );
+	} );
 	test( 'shows named two-column palette choices in forced colors', async ( { open } ) => {
 		const page = await open( SettingsDestination.APPEARANCE );
 
@@ -31,7 +46,7 @@ test.describe( 'shared appearance controls', () => {
 
 		const swatch = page.locator( '.preferences-palette-card' ).first();
 		expect( await page.locator( '.mantine-RadioGroup-label' ).nth( 1 ).evaluate( ( element ) =>
-			getComputedStyle( element, '::after' ).borderTopStyle ) ).toBe( 'solid' );
+			getComputedStyle( element, '::after' ).borderTopStyle ) ).toBe( 'none' );
 		const geometry = await swatch.evaluate( ( element ) => ( {
 			width: element.getBoundingClientRect().width,
 			height: element.getBoundingClientRect().height,

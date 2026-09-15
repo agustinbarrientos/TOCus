@@ -52,15 +52,15 @@ export interface ProtectionNavigationHandlerOptions {
 	/**
 	 * Evaluates the current schedule for one protection scope.
 	 * @param configuration - Current validated configuration.
-	 * @param scopeId - Protection scope being evaluated.
+	 * @param ruleHost - Canonical matching-rule host.
 	 * @param nowEpochMilliseconds - Current wall-clock time.
 	 * @param timeZone - Current IANA time-zone identifier.
 	 * @return Current schedule evaluation.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	evaluateScopeSchedule(
+	evaluateSiteSchedule(
 		configuration: ProtectionConfigurationDocument,
-		scopeId: string,
+		ruleHost: string,
 		nowEpochMilliseconds: number,
 		timeZone: string,
 	): ScheduleEvaluationResult;

@@ -36,7 +36,11 @@ Use `tocus-native-button` for an original text-only native action whose flat lay
 
 Alerts retain the original icon geometry: a 1.25em square with a 0.125em top margin. `tocus-notice-compact` uses body-small text and scales the icon with it. `tocus-notice-recovery` removes the icon's end margin when a recovery layout supplies its own gap.
 
-Use the `IconName` const catalog for icons, for example `<Icon name={IconName.HEART} />`. Names describe the supplied shapes, never an application destination or feedback meaning: `HEART`, `PALETTE`, `ARROW_UP_RIGHT_FROM_SQUARE`, `LETTERS`, `SHIELD_HALVED`, `USER_LOCK`, `CALENDAR_CLOCK`, `GEAR`, `LIST`, `CHART_COLUMN`, `STOPWATCH`, `CIRCLE_CHECK` and `EXCLAMATION`. The artwork is unchanged and lives under matching shape-based filenames in `@tocus/theme/icons`.
+Use the `IconName` const catalog for icons, for example `<Icon name={IconName.HEART} />`. Names describe the supplied shapes, never an application destination or feedback meaning: `HEART`, `BRUSH`, `ARROW_UP_RIGHT_FROM_SQUARE`, `LANGUAGE`, `SHIELD_HALVED`, `USER_LOCK`, `CALENDAR`, `SLIDERS`, `LINK_HORIZONTAL`, `CHART_COLUMN`, `PAUSE`, `CIRCLE_CHECK`, `CIRCLE_EXCLAMATION`, `ANGLE_DOWN`, `ANGLE_UP` and `SPINNER_THIRD`. Artwork lives under matching shape-based filenames in `@tocus/theme/icons`; the renderer preserves supplied path opacity and inherits the active foreground color.
+
+`src/theme.ts` supplies `ANGLE_DOWN` through Mantine `NativeSelect`'s public `rightSection` slot while retaining native selection and keyboard behavior. It also supplies `SPINNER_THIRD` as Mantine's default `oval` loader, including `Button` loading states. Shared sizing, rotation and reduced-motion handling live in `src/styles.scss`.
+
+For native disclosures, use `details.tocus-disclosure` with `ANGLE_DOWN` and `ANGLE_UP` inside its `summary`, carrying `tocus-disclosure-expand` and `tocus-disclosure-collapse` respectively. Shared styles replace the browser marker and switch artwork using the native `open` attribute; the browser owns disclosure interaction. Keep select, disclosure and loader artwork in these shared defaults and styles.
 
 `IconName.CAPYBARA` reuses the existing mascot artwork from `@tocus/theme/icon.svg`; it does not introduce a duplicate asset. The `tocus-native-checkbox` modifier restores original native checkbox artwork while retaining Mantine's labelled input and form handling.
 

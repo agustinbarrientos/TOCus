@@ -1,20 +1,57 @@
 import { expect } from '@playwright/test';
 import { test } from '../../utils/browser-test-harness';
 
-test.describe( 'native timing ranges', () => {
-	test( 'exposes native bounds and localized values while keyboard changes update the draft', async ( { open } ) => {
+test.describe( 'timing sliders', () => {
+	test( 'keeps question-circle help close to each label without shrinking its target', async ( { open } ) => {
+		const page = await open();
+		const ranges = page.locator( '.settings-timing-range' );
+		await expect( ranges ).toHaveCount( 4 );
+		for ( const range of await ranges.all() ) {
+			const help = range.locator( '.tocus-field-help' );
+			const label = await range.locator( '.tocus-field-label' ).boundingBox();
+			const target = await help.boundingBox();
+			if ( ! label || ! target ) {
+				throw new Error( 'The timing label and help target must both be visible.' );
+			}
+			expect( target.x - label.x - label.width ).toBeGreaterThanOrEqual( 0 );
+			expect( target.x - label.x - label.width ).toBeLessThanOrEqual( 5 );
+			expect( target.width ).toBeGreaterThanOrEqual( 24 );
+			expect( target.height ).toBeGreaterThanOrEqual( 24 );
+			await expect( help.locator( 'svg path' ) ).toHaveCount( 1 );
+			await expect( help.locator( 'svg path[opacity]' ) ).toHaveCount( 0 );
+		}
+	} );
+	test( 'shows every selectable step and exposes help on keyboard focus without inline prose', async ( { open } ) => {
+		const page = await open();
+		const ranges = page.locator( '.settings-timing-range' );
+		await expect( ranges ).toHaveCount( 4 );
+		for ( const [ index, count ] of [ 5, 6, 4, 19 ].entries() ) {
+			await expect( ranges.nth( index ).locator( '.mantine-Slider-mark' ) ).toHaveCount( count );
+		}
+		const help = ranges.first().getByRole( 'button', { name: 'Initial wait', exact: true } );
+		await help.focus();
+		await expect( page.getByRole( 'tooltip' ) ).toContainText( 'first' );
+		await page.keyboard.press( 'Escape' );
+		await expect( page.getByRole( 'tooltip' ) ).toBeHidden();
+		await expect( ranges.first().locator( '> p' ) ).toHaveCount( 0 );
+	} );
+	test( 'exposes bounds and localized values while keyboard steps update the draft', async ( { open } ) => {
 		const page = await open();
 		const initial = page.getByRole( 'slider' ).first();
 		await initial.waitFor();
 		expect( await page.getByRole( 'slider' ).evaluateAll( ( sliders ) => sliders.map( ( slider ) => ( {
-			native: slider instanceof HTMLInputElement && slider.type === 'range',
-			min: slider.getAttribute( 'min' ), max: slider.getAttribute( 'max' ), step: slider.getAttribute( 'step' ),
+			min: slider.getAttribute( 'aria-valuemin' ), max: slider.getAttribute( 'aria-valuemax' ),
 		} ) ) ) ).toEqual( [
-			{ native: true, min: '10', max: '30', step: '5' },
-			{ native: true, min: '0', max: '5', step: '1' },
-			{ native: true, min: '30', max: '120', step: '30' },
-			{ native: true, min: '2', max: '20', step: '1' },
+			{ min: '10', max: '30' }, { min: '0', max: '5' },
+			{ min: '30', max: '120' }, { min: '2', max: '20' },
 		] );
+		for ( const [ index, firstStep ] of [ '15', '1', '60', '3' ].entries() ) {
+			const slider = page.getByRole( 'slider' ).nth( index );
+			await slider.press( 'Home' );
+			await slider.press( 'ArrowRight' );
+			await expect( slider ).toHaveAttribute( 'aria-valuenow', firstStep );
+			await slider.press( 'Home' );
+		}
 		await initial.focus();
 		await page.keyboard.press( 'ArrowRight' );
 		expect( await initial.getAttribute( 'aria-valuenow' ) ).toBe( '15' );
@@ -35,15 +72,18 @@ test.describe( 'native timing ranges', () => {
 
 	test( 'disables every range during persistence without allowing keyboard draft changes', async ( { open, setting } ) => {
 		const page = await open();
-		const initial = page.getByRole( 'slider' ).first();
+		const sliders = page.getByRole( 'slider', { includeHidden: true } );
+		const initial = sliders.first();
 		await initial.press( 'ArrowRight' );
 		await setting( page, 'holdConfigurationWrites', true );
 		await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
-		await expect.poll( () => page.getByRole( 'slider' ).evaluateAll( ( sliders ) =>
-			sliders.every( ( slider ) => slider instanceof HTMLInputElement && slider.disabled ) ) ).toBe( true );
-		await initial.evaluate( ( input ) => {
-			if ( input instanceof HTMLInputElement ) {
-				input.focus();
+		await expect( sliders ).toHaveCount( 4 );
+		for ( const slider of await sliders.all() ) {
+			await expect( slider ).toBeDisabled();
+		}
+		await initial.evaluate( ( element ) => {
+			if ( element instanceof HTMLElement ) {
+				element.focus();
 			}
 		} );
 		await page.keyboard.press( 'End' );

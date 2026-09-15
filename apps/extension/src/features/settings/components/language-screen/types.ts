@@ -76,9 +76,7 @@ export interface LanguagePreferencesSource {
  * @since 0.1.0 Initial implementation.
  */
 export interface LanguageScreenCopy {
-	eyebrow: string;
 	title: string;
-	introduction: string;
 	formLabel: string;
 	languageLabel: string;
 	languageLabels: Readonly<Record<LanguageValue, string>>;
@@ -95,7 +93,6 @@ export interface LanguageScreenCopy {
 	save: string;
 	saving: string;
 	discard: string;
-	savedAnnouncement: string;
 	restoredAnnouncement: string;
 	/**
 	 * Formats the helper shown while TOCus follows the browser language.

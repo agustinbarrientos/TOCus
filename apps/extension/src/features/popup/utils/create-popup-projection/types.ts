@@ -1,9 +1,7 @@
-import type { ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
 import type {
 	ProtectionState,
 	ProtectionStateType,
 } from '../../../../domains/protection/types/protection-state';
-import type { ProtectionScopeId } from '../../../../domains/protection/types/protection-value';
 import type { BrowserProtectionRuntimeSnapshot } from '../../../protection-runtime/services/browser-protection-runtime';
 import type { PopupCurrentTabContext } from '../../types/current-tab-context';
 
@@ -67,16 +65,3 @@ interface PopupWaitingProtectionStateDiscriminator {
  * @since 0.1.0 Initial implementation.
  */
 export type PopupWaitingProtectionState = Extract<ProtectionState, PopupWaitingProtectionStateDiscriminator>;
-
-/**
- * Nonempty configured scope metadata used while projecting active timers.
- * @since 0.1.0 Initial implementation.
- */
-export interface PopupProjectionScopeEntry {
-	/** First configured website in stable configuration order. */
-	firstSite: ProtectedSiteConfiguration;
-	/** Number of configured websites sharing the scope. */
-	siteCount: number;
-	/** Stable protection scope identifier. */
-	scopeId: ProtectionScopeId;
-}

@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
     quality:
-        name: Check and build
+        name: Build and quality checks
         runs-on: ubuntu-24.04
         timeout-minutes: 20
 
@@ -41,8 +41,20 @@ jobs:
             - name: Install pinned browsers
               run: pnpm --filter @tocus/extension exec playwright install --with-deps chromium firefox webkit
 
-            - name: Run quality checks
-              run: pnpm check
+            - name: Lint scripts and styles
+              run: pnpm lint
+
+            - name: Check project types
+              run: pnpm typecheck
+
+            - name: Run unit tests and coverage
+              run: pnpm test:unit
+
+            - name: Build and verify packaged applications
+              run: pnpm test:build-contract
+
+            - name: Verify native media and Canvas coverage
+              run: pnpm --filter @tocus/extension test:browser
 
             - name: Preserve browser failure diagnostics
               if: failure()
@@ -52,7 +64,42 @@ jobs:
                   path: |
                       test-results/build-browser/
                       playwright-report/build-browser/
+                  retention-days: 7
+                  if-no-files-found: ignore
+
+    ui:
+        name: UI (${{ matrix.browser }})
+        runs-on: ubuntu-24.04
+        timeout-minutes: 20
+        strategy:
+            fail-fast: false
+            matrix:
+                browser: [chromium, firefox, webkit]
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+              with:
+                  persist-credentials: false
+            - name: Set up Node.js and pnpm
+              uses: pnpm/setup@84cb39b217b10273981911c288cd62326dc7c6d2 # v2
+              with:
+                  runtime: node@24.20.0
+                  cache: true
+                  install: false
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+            - name: Install the selected pinned browser
+              run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+            - name: Check production UI
+              run: pnpm test:ui --project=${{ matrix.browser }}
+            - name: Preserve UI failure diagnostics
+              if: failure()
+              uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+              with:
+                  name: ui-failure-diagnostics-${{ matrix.browser }}
+                  path: |
                       test-results/ui/
+                      test-results/ui-fixtures/
                       playwright-report/ui/
                   retention-days: 7
                   if-no-files-found: ignore
@@ -90,3 +137,21 @@ jobs:
                       playwright-report/visual/
                   retention-days: 7
                   if-no-files-found: ignore
+
+    checks:
+        name: Check and build
+        needs: [quality, ui, visual]
+        if: always()
+        runs-on: ubuntu-24.04
+        timeout-minutes: 1
+        steps:
+            - name: Require every verification job to succeed
+              env:
+                  QUALITY_RESULT: ${{ needs.quality.result }}
+                  UI_RESULT: ${{ needs.ui.result }}
+                  VISUAL_RESULT: ${{ needs.visual.result }}
+              run: |
+                  printf 'Build/quality: %s; UI: %s; visuals: %s\n' "$QUALITY_RESULT" "$UI_RESULT" "$VISUAL_RESULT"
+                  test "$QUALITY_RESULT" = success
+                  test "$UI_RESULT" = success
+                  test "$VISUAL_RESULT" = success

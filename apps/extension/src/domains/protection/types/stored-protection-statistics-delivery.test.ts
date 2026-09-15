@@ -24,6 +24,7 @@ function createBatch( index: number, scopeId = 'scope_default' ) {
 		scopeId,
 		measurementRevision: `revision_${ String( index ) }`,
 		observedAtEpochMilliseconds: TEST_OBSERVATION_TIME,
+		observedLocalDate: '2026-09-14',
 		facts: [ {
 			type: 'reconsidered-visit',
 			factId: `fact_${ String( index ) }`,

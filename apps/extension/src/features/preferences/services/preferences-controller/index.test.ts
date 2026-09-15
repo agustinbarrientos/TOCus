@@ -243,8 +243,8 @@ describe( 'createPreferencesController', () => {
 		expect( observedLanguageTags ).toEqual( [ `${ Language.JAPANESE }:ja` ] );
 	} );
 
-	it( 'combines the stored setting with the operating-system motion preference', async () => {
-		const fixture = createFixture( createPreferences( { reducedMotion: false } ) );
+	it( 'follows changes to the operating-system motion preference', async () => {
+		const fixture = createFixture();
 		const listener = vi.fn();
 
 		fixture.controller.addEventListener( 'change', listener );
@@ -267,17 +267,19 @@ describe( 'createPreferencesController', () => {
 		expect( listener ).toHaveBeenCalledTimes( 2 );
 	} );
 
-	it( 'keeps reduced motion active when the user setting is enabled', async () => {
-		const fixture = createFixture( createPreferences( { reducedMotion: true } ) );
+	it( 'never lets appearance previews override the operating-system motion preference', async () => {
+		const fixture = createFixture();
 		const listener = vi.fn();
 
 		fixture.controller.addEventListener( 'change', listener );
 		await fixture.controller.start();
 		fixture.systemMotionPreference.setMatches( true );
+		fixture.controller.apply( createPreferences( { palette: Palette.GREEN } ) );
+		expect( fixture.controller.matches ).toBe( true );
 		fixture.systemMotionPreference.setMatches( false );
 
-		expect( fixture.controller.matches ).toBe( true );
-		expect( listener ).toHaveBeenCalledTimes( 1 );
+		expect( fixture.controller.matches ).toBe( false );
+		expect( listener ).toHaveBeenCalledTimes( 2 );
 	} );
 
 	it( 'applies valid local storage changes and ignores unrelated changes', async () => {
@@ -289,17 +291,16 @@ describe( 'createPreferencesController', () => {
 			theme: ThemeMode.LIGHT,
 			palette: Palette.GREEN,
 			pauseMode: PauseMode.BREATHING,
-			reducedMotion: true,
 		} ) );
 
 		expect( fixture.attributes ).toEqual( new Map( [
 			[ 'lang', 'fr' ],
 			[ 'data-tocus-theme', 'light' ],
 			[ 'data-tocus-palette', 'green' ],
-			[ 'data-tocus-reduced-motion', 'true' ],
+			[ 'data-tocus-reduced-motion', 'false' ],
 		] ) );
 		expect( fixture.presentation.mode ).toBe( PauseMode.BREATHING );
-		expect( fixture.controller.matches ).toBe( true );
+		expect( fixture.controller.matches ).toBe( false );
 	} );
 
 	it( 'delivers complete preference projections to active settings listeners', async () => {
@@ -350,8 +351,10 @@ describe( 'createPreferencesController', () => {
 		expect( fixture.presentation.mode ).toBe( PauseMode.BREATHING );
 	} );
 
-	it( 'migrates a version-one preferences storage event through the shared parser', async () => {
+	it( 'reports unsupported alpha preferences for recovery without migrating them', async () => {
 		const fixture = createFixture( createPreferences( { language: Language.RUSSIAN } ) );
+		const listener = vi.fn();
+		fixture.controller.addPreferencesChangeListener( listener );
 
 		await fixture.controller.start();
 		fixture.storageChanges.emit( {
@@ -362,7 +365,8 @@ describe( 'createPreferencesController', () => {
 			reducedMotion: false,
 		} );
 
-		expect( fixture.attributes.get( 'data-tocus-theme' ) ).toBe( ThemeMode.LIGHT );
+		expect( listener ).toHaveBeenLastCalledWith( null );
+		expect( fixture.attributes.get( 'data-tocus-theme' ) ).toBe( ThemeMode.SYSTEM );
 		expect( fixture.attributes.get( 'lang' ) ).toBe( 'fr' );
 		expect( fixture.controller.language ).toBe( Language.FRENCH );
 	} );

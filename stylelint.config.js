@@ -10,7 +10,7 @@ export default {
 			files: [ 'packages/ui/src/**/*.{css,scss}' ],
 			rules: {
 				// Mantine exposes these component-local variables through its public Button and Slider Styles APIs.
-				'custom-property-pattern': '^(tocus-|mantine-|button-(bg|color|bd)$|slider-(bar-width|size)$)',
+				'custom-property-pattern': '^(tocus-|mantine-|button-(bg|color|bd)$|slider-(bar-width|size)$|loader-(size|color)$)',
 				'selector-class-pattern': '^(tocus-[a-z0-9-]+|mantine-[A-Za-z0-9-]+)$',
 			},
 		},

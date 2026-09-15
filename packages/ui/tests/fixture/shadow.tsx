@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Alert, Button, TocusAppearance, TocusProvider, createShadowStyleSheet } from '../../src';
+import { Alert, Button, Loader, TocusAppearance, TocusProvider, createShadowStyleSheet } from '../../src';
 import styles from '../../src/styles.scss?inline';
 
 const host = document.getElementById( 'shadow-host' );
@@ -22,6 +22,7 @@ function ShadowFixture() {
 				setChanged( true );
 			}}>Change dimensions</Button>
 		<Alert color="red" p={changed ? '2rem' : '1.25rem'} radius=".5rem">Could not save</Alert>
+		<Loader className="fixture-loader" size="2rem" color="rgb(12, 34, 56)" />
 		{changed && <Alert color="green" p="1rem" role="note">New notice</Alert>}
 	</TocusProvider>;
 }

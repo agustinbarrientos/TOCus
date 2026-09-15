@@ -134,34 +134,6 @@ function createContourPath(
 }
 
 /**
- * Draws the soft color volume surrounding the sphere.
- * @param context - Canvas drawing context.
- * @param centerX - Horizontal sphere center.
- * @param centerY - Vertical sphere center.
- * @param radius - Current sphere radius.
- * @param color - Current clay color.
- * @param opacity - Current glow opacity.
- */
-function drawAmbientGlow(
-	context: CanvasRenderingContext2D,
-	centerX: number,
-	centerY: number,
-	radius: number,
-	color: string,
-	opacity: number,
-): void {
-	const gradient = context.createRadialGradient( centerX, centerY, 0, centerX, centerY, radius );
-
-	gradient.addColorStop( 0, color );
-	gradient.addColorStop( 1, 'transparent' );
-	context.save();
-	context.globalAlpha = opacity;
-	context.fillStyle = gradient;
-	context.fillRect( centerX - radius, centerY - radius, radius * 2, radius * 2 );
-	context.restore();
-}
-
-/**
  * Draws the breathing sphere's soft grounding shadow.
  * @param context - Canvas drawing context.
  * @param centerX - Horizontal shadow center.
@@ -348,14 +320,6 @@ export function renderBreathingSphereFrame( input: BreathingSphereFrameInput ): 
 
 	context.setTransform( devicePixelRatio, 0, 0, devicePixelRatio, 0, 0 );
 	context.clearRect( 0, 0, width, height );
-	drawAmbientGlow(
-		context,
-		centerX,
-		centerY,
-		radius * 2.5,
-		input.colors.clay,
-		0.16 + breathProgress * 0.05,
-	);
 	drawGroundShadow(
 		context,
 		centerX,

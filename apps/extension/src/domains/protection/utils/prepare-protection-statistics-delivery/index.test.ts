@@ -10,7 +10,7 @@ import {
 	StoredProtectionStatisticsDeliverySchema,
 	StoredProtectionStatisticsDeliveryStatus,
 } from '../../types/stored-protection-statistics-delivery';
-import { ProtectionScopeIdSchema } from '../../types/protection-value';
+import { LocalDateSchema, ProtectionScopeIdSchema } from '../../types/protection-value';
 import {
 	cloneProtectionStatisticsDelivery,
 	createEmptyProtectionStatisticsDelivery,
@@ -88,6 +88,7 @@ function createRetainedBatch( index: number ) {
 		measurementRevision: `revision_${ String( index ) }`,
 		observedAtEpochMilliseconds: TEST_OBSERVATION_TIME,
 		facts: [ TEST_FACTS[ 1 ] ],
+		observedLocalDate: '2026-08-31',
 	} );
 }
 
@@ -160,6 +161,7 @@ describe( 'prepareProtectionStatisticsDelivery', () => {
 			delivery: createCompleteDelivery( [ retainedBatch ] ),
 			facts: TEST_FACTS,
 			scopeId: TEST_SCOPE_ID,
+			observedLocalDate: LocalDateSchema.parse( '2026-08-31' ),
 			measurementRevision: 'revision_current',
 			createProtectionFactBatchId: createCurrentBatchId,
 		} ) ).toEqual( {
@@ -171,6 +173,7 @@ describe( 'prepareProtectionStatisticsDelivery', () => {
 					scopeId: TEST_SCOPE_ID,
 					measurementRevision: 'revision_current',
 					observedAtEpochMilliseconds: TEST_OBSERVATION_TIME,
+					observedLocalDate: '2026-08-31',
 					facts: TEST_FACTS,
 				},
 			],
@@ -198,6 +201,7 @@ describe( 'prepareProtectionStatisticsDelivery', () => {
 			facts: TEST_FACTS,
 			scopeId: TEST_SCOPE_ID,
 			measurementRevision: revision,
+			observedLocalDate: LocalDateSchema.parse( '2026-08-31' ),
 			createProtectionFactBatchId: factory,
 		} ) ).toEqual( {
 			status: StoredProtectionStatisticsDeliveryStatus.INCOMPLETE,
@@ -218,6 +222,7 @@ describe( 'prepareProtectionStatisticsDelivery', () => {
 		expect( prepareStatisticsDeliveryForTransition( {
 			delivery,
 			facts: mismatchedFacts,
+			observedLocalDate: LocalDateSchema.parse( '2026-08-31' ),
 			scopeId: TEST_SCOPE_ID,
 			measurementRevision: 'revision_current',
 			createProtectionFactBatchId: createCurrentBatchId,
@@ -262,6 +267,7 @@ describe( 'prepareProtectionStatisticsDelivery', () => {
 			scopeId: TEST_SCOPE_ID,
 			measurementRevision: 'revision_current',
 			createProtectionFactBatchId: createCountedBatchId,
+			observedLocalDate: LocalDateSchema.parse( '2026-08-31' ),
 		} );
 
 		expect( result ).toEqual( {

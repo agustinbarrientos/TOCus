@@ -11,9 +11,8 @@ import type { PrivacyScreenCopy } from '../../../features/settings/components/pr
 export function createPrivacyScreenCopy( i18n: I18n ): Readonly<PrivacyScreenCopy> {
 	return Object.freeze( {
 		title: i18n._( msg`Privacy and local data` ),
-		introduction: i18n._( msg`Your data stays on this device. No account, servers, or tracking.` ),
 		storedTitle: i18n._( msg`What stays on your device` ),
-		storedDescription: i18n._( msg`Your website list, shared or separate timing, schedules, preferences, and statistics.` ),
+		storedDescription: i18n._( msg`Your website list, pause timing, schedules, preferences, and statistics.` ),
 		statisticsPrivacy: i18n._( msg`Statistics keep counts and durations, not page content or web addresses.` ),
 		recoveryPrivacy: i18n._( msg`An active pause may temporarily keep its destination address so you can return to the website.` ),
 		permissionsTitle: i18n._( msg`Why TOCus needs browser access` ),
@@ -31,14 +30,14 @@ export function createPrivacyScreenCopy( i18n: I18n ): Readonly<PrivacyScreenCop
 		allTitle: i18n._( msg`Start fresh` ),
 		allDescription: i18n._( msg`Remove all TOCus data and set it up again.` ),
 		allConfirmationTitle: i18n._( msg`Reset all TOCus data?` ),
-		allConfirmation: i18n._( msg`Your websites, groups, schedules, timing, preferences, active pauses, and statistics will be deleted. Website access will be removed and setup will reopen. This cannot be undone.` ),
+		allConfirmation: i18n._( msg`Your websites, schedules, pause timing, preferences, active pauses, and statistics will be deleted. Website access will be removed and setup will reopen. This cannot be undone.` ),
 		resetAll: i18n._( msg`Reset all TOCus data` ),
 		cancel: i18n._( msg`Cancel` ),
 		resetting: i18n._( msg`Resetting...` ),
 		retry: i18n._( msg`Try again` ),
 		resetError: i18n._( msg`TOCus could not finish the reset. Try again to complete it.` ),
 		statisticsSuccess: i18n._( msg`Statistics reset. Your websites and settings are unchanged.` ),
-		allSuccess: i18n._( msg`All TOCus data reset. Opening setup...` ),
+		allSuccess: i18n._( msg`All TOCus data reset.` ),
 		unavailable: i18n._( msg`Local data controls are unavailable right now.` ),
 	} );
 }

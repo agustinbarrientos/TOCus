@@ -1,4 +1,8 @@
-import { StatisticsDocumentSchema } from '../../types/statistics-document';
+import { LocalDateSchema } from '../../../protection/types/protection-value';
+import {
+	StatisticsDocumentSchema,
+	type DailyStatisticsTotals,
+} from '../../types/statistics-document';
 import {
 	StatisticsProjectionStatus,
 	type StatisticsProjection,
@@ -17,13 +21,15 @@ function createUnavailableProjection(): StatisticsProjection {
 /**
  * Projects all-time statistics, including focused pause time in the reclaimed-time total.
  * @param input - Unknown persisted statistics document.
+ * @param today - Current local calendar date used to bound the graph.
  * @return Available aggregate values, or an unavailable projection for unsafe persistence.
  * @since 0.1.0 Initial implementation.
  */
-export function projectStatistics( input: unknown ): StatisticsProjection {
+export function projectStatistics( input: unknown, today: unknown ): StatisticsProjection {
 	const result = StatisticsDocumentSchema.safeParse( input );
+	const currentDate = LocalDateSchema.safeParse( today );
 
-	if ( ! result.success ) {
+	if ( ! result.success || ! currentDate.success ) {
 		return createUnavailableProjection();
 	}
 
@@ -32,6 +38,7 @@ export function projectStatistics( input: unknown ): StatisticsProjection {
 	let reconsideredVisitCount = 0;
 	let completedWaitCount = 0;
 	let allowanceGrantedCount = 0;
+	const dailyTotals: DailyStatisticsTotals[] = [];
 
 	try {
 		for ( const scope of Object.values( result.data.scopes ) ) {
@@ -62,16 +69,30 @@ export function projectStatistics( input: unknown ): StatisticsProjection {
 			estimatedReclaimedMilliseconds,
 			focusedPauseMilliseconds,
 		);
+
+		for ( const day of result.data.dailyTotals ) {
+			if ( day.date > currentDate.data ) {
+				break;
+			}
+			dailyTotals.push( {
+				...day,
+				estimatedReclaimedMilliseconds: addStatisticsValues(
+					day.estimatedReclaimedMilliseconds, day.focusedPauseMilliseconds,
+				),
+			} );
+		}
 	} catch {
 		return createUnavailableProjection();
 	}
 
 	return {
 		status: StatisticsProjectionStatus.AVAILABLE,
+		currentDate: currentDate.data,
 		estimatedReclaimedMilliseconds,
 		focusedPauseMilliseconds,
 		reconsideredVisitCount,
 		completedWaitCount,
 		allowanceGrantedCount,
+		dailyTotals,
 	};
 }

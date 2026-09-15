@@ -2,6 +2,7 @@ import { z, type RefinementCtx } from 'zod';
 import { ProtectionFactSchema, ProtectionFactType } from './protection-fact';
 import {
 	EpochMillisecondsSchema,
+	LocalDateSchema,
 	ProtectionFactBatchIdSchema,
 	ProtectionMeasurementRevisionSchema,
 	ProtectionScopeIdSchema,
@@ -16,6 +17,7 @@ const ProtectionFactBatchFieldsSchema = z.object( {
 	scopeId: ProtectionScopeIdSchema,
 	measurementRevision: ProtectionMeasurementRevisionSchema,
 	observedAtEpochMilliseconds: EpochMillisecondsSchema,
+	observedLocalDate: LocalDateSchema,
 	facts: z.array( ProtectionFactSchema ).min( 1 ),
 } ).strict();
 

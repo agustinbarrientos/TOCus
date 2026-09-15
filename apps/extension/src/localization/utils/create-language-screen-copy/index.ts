@@ -21,9 +21,7 @@ export function createLanguageScreenCopy( i18n: I18n ): Readonly<LanguageScreenC
 	}
 
 	return Object.freeze( {
-		eyebrow: i18n._( msg`Personalization` ),
 		title: i18n._( msg`Language` ),
-		introduction: i18n._( msg`Choose the language TOCus uses across the extension.` ),
 		formLabel: i18n._( msg`Language preference` ),
 		languageLabel: i18n._( msg`TOCus language` ),
 		languageLabels: Object.freeze( {
@@ -83,7 +81,6 @@ export function createLanguageScreenCopy( i18n: I18n ): Readonly<LanguageScreenC
 		save: i18n._( msg`Save` ),
 		saving: i18n._( msg`Saving...` ),
 		discard: i18n._( msg`Discard` ),
-		savedAnnouncement: i18n._( msg`Language saved.` ),
 		restoredAnnouncement: i18n._( msg`Personalization defaults restored.` ),
 		formatBrowserLanguageDescription,
 	} );

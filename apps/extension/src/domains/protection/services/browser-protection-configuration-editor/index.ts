@@ -37,15 +37,6 @@ export function createBrowserProtectionConfigurationEditor(
 	}
 
 	/**
-	 * Creates one independent protection scope identifier.
-	 * @return Prefixed browser-generated scope identifier.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	function createIndependentScopeId(): string {
-		return `scope_${ options.cryptography.randomUUID() }`;
-	}
-
-	/**
 	 * Creates one protection measurement revision.
 	 * @return Prefixed browser-generated measurement revision.
 	 * @since 0.1.0 Initial implementation.
@@ -76,7 +67,6 @@ export function createBrowserProtectionConfigurationEditor(
 			load: () => storage.load(),
 			save,
 		},
-		createIndependentScopeId,
 		createMeasurementRevision,
 		coordinateMutation,
 		validateAddition: assertCurrentGeneration,

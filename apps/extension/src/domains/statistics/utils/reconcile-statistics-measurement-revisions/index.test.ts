@@ -108,6 +108,7 @@ describe( 'reconcileStatisticsMeasurementRevisions', () => {
 			ApplyStatisticsFactBatchOperationSchema.parse( {
 				type: 'apply-fact-batch',
 				batch: {
+					observedLocalDate: '2026-09-14',
 					batchId: 'batch_instagram',
 					scopeId: 'scope_instagram',
 					measurementRevision: 'revision_instagram',
@@ -129,7 +130,7 @@ describe( 'reconcileStatisticsMeasurementRevisions', () => {
 		expect( result.scopes.scope_instagram ).toMatchObject( {
 			totals: document.scopes.scope_instagram?.totals,
 		} );
-		expect( projectStatistics( resultAfterQueuedFact ) ).toMatchObject( {
+		expect( projectStatistics( resultAfterQueuedFact, '2026-09-14' ) ).toMatchObject( {
 			status: 'available',
 			estimatedReclaimedMilliseconds: 6_162_000,
 			focusedPauseMilliseconds: 42_000,
@@ -170,7 +171,7 @@ describe( 'reconcileStatisticsMeasurementRevisions', () => {
 		const result = reconcileStatisticsMeasurementRevisions( document, operation );
 
 		expect( result.scopes.scope_default?.totals ).toEqual( document.scopes.scope_default?.totals );
-		expect( projectStatistics( result ) ).toMatchObject( {
+		expect( projectStatistics( result, '2026-09-14' ) ).toMatchObject( {
 			status: 'available',
 			estimatedReclaimedMilliseconds: 0,
 		} );

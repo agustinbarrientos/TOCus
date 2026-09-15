@@ -33,9 +33,11 @@ describe( 'resetStatistics', () => {
 		} );
 
 		expect( resetStatistics( document, operation ) ).toEqual( {
-			schemaVersion: 1,
+			schemaVersion: 2,
 			generationId: 'generation_2',
 			lastAppliedBatchId: 'batch_last',
+			firstRecordedDate: null,
+			dailyTotals: [],
 			scopes: {
 				scope_default: {
 					totals: {
@@ -95,7 +97,7 @@ describe( 'resetStatistics', () => {
 		} );
 		const result = resetStatistics( document, operation );
 
-		expect( projectStatistics( result ) ).toMatchObject( {
+		expect( projectStatistics( result, '2026-09-14' ) ).toMatchObject( {
 			status: 'available',
 			estimatedReclaimedMilliseconds: 0,
 			focusedPauseMilliseconds: 0,

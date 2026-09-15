@@ -1,5 +1,4 @@
 import type {
-	ProtectedSiteConfiguration,
 } from '../../../../domains/protection/types/protected-site-configuration';
 import type {
 	EditableSettingsScreenProps,
@@ -75,22 +74,17 @@ export interface ProtectedSitesAddressInputEvent extends Event {
 export interface ProtectedSitesScreenCopy extends ProtectedSiteListCopy {
 	save: string;
 	discard: string;
-	saved: string;
 	savedWithRetainedAccess: string;
 	configurationChangedError: string;
-	eyebrow: string;
 	title: string;
-	introduction: string;
 	addressLabel: string;
 	addressPlaceholder: string;
 	addSite: string;
 	addingSite: string;
-	addressHelp: string;
-	behaviorLegend: string;
-	sharedBehavior: string;
-	sharedBehaviorDescription: string;
-	independentBehavior: string;
-	independentBehaviorDescription: string;
+	customScheduleLabel: string;
+	automaticNamePlaceholder: string;
+	displayNameLabel: string;
+	invalidScheduleError: string;
 	loading: string;
 	invalidSiteError: string;
 	alreadyProtectedError: string;
@@ -161,12 +155,5 @@ export interface WebsitesScreenProps extends EditableSettingsScreenProps {
 }
 
 
-/**
- * Complete staged site set and unfinished address input, both guarded during navigation.
- * @since 0.1.0
- */
-export interface WebsitesDraft {
-	sites: ProtectedSiteConfiguration[];
-	address: string;
-}
+export type { WebsitesDraft } from '../../utils/website-draft/types';
 import type { RefObject } from 'react';

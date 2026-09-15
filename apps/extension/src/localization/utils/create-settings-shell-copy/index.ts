@@ -3,7 +3,7 @@ import { msg } from '@lingui/core/macro';
 import type { SettingsShellCopy } from '../../../features/settings/components/shell/types';
 
 /**
- * Creates localized settings-shell navigation copy.
+ * Creates localized settings-shell navigation and notification copy.
  * @param i18n - Locale-specific Lingui instance.
  * @return Complete localized settings-shell copy.
  * @since 0.1.0 Initial implementation.
@@ -19,9 +19,19 @@ export function createSettingsShellCopy( i18n: I18n ): Readonly<SettingsShellCop
 		language: i18n._( msg`Language` ),
 		privacy: i18n._( msg`Privacy and local data` ),
 		statistics: i18n._( msg`Statistics` ),
-		unsavedChangesTitle: i18n._( msg`Discard unsaved changes?` ),
-		unsavedChangesDescription: i18n._( msg`Leaving this page will discard your unsaved changes.` ),
+		unsavedChangesTitle: i18n._( msg`Save your changes?` ),
+		unsavedChangesDescription: i18n._( msg`Save or discard your changes before leaving this page.` ),
 		stay: i18n._( msg`Stay` ),
 		discard: i18n._( msg`Discard` ),
+		save: i18n._( msg`Save` ),
+		saving: i18n._( msg`Saving...` ),
+		saveFailed: i18n._( msg`Changes could not be saved. Check the fields and try again.` ),
+		dismissNotification: i18n._( msg`Dismiss notification` ),
+		changesSaved: i18n._( msg`Changes saved.` ),
+		changesDiscarded: i18n._( msg`Changes discarded.` ),
+		siteAddedToDraft: i18n._( msg`Site added. Save to apply your changes.` ),
+		siteUpdatedInDraft: i18n._( msg`Site updated. Save to apply your changes.` ),
+		siteRemovedFromDraft: i18n._( msg`Site removed. Save to apply your changes.` ),
+		siteAlreadyExists: i18n._( msg`This site is already in your list.` ),
 	} );
 }

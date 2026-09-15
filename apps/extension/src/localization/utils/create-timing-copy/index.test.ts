@@ -15,7 +15,6 @@ describe( 'createTimingCopy', () => {
 		expect( copy.save ).toBe( 'Save' );
 		expect( copy.discard ).toBe( 'Discard' );
 		expect( copy.saving ).toBe( 'Saving...' );
-		expect( copy.saved ).toBe( 'Changes saved.' );
 		expect( copy.formatSecondsOption( 2 ) ).toBe( '2 seconds' );
 		expect( copy.formatMinutesOption( 2 ) ).toBe( '2 minutes' );
 		expect( copy.formatSummary( 5, 5, 60, 5, CompletionAction.SHOW_CONTINUE ) ).toBe(

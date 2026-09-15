@@ -101,7 +101,7 @@ export type PauseMode = z.infer<typeof PauseModeSchema>;
  * Current local preferences document version.
  * @since 0.1.0 Initial implementation.
  */
-export const PreferencesDocumentVersion = 2;
+export const PreferencesDocumentVersion = 3;
 
 /**
  * Validates the current local preferences document version.
@@ -121,7 +121,6 @@ export const PreferencesDocumentSchema = z.object( {
 	theme: ThemeModeSchema,
 	palette: PaletteSchema,
 	pauseMode: PauseModeSchema,
-	reducedMotion: z.boolean(),
 	language: LanguageSchema.nullable(),
 } ).strict();
 
@@ -141,7 +140,6 @@ export const DefaultPreferencesDocument: Readonly<PreferencesDocument> = Object.
 		theme: ThemeMode.SYSTEM,
 		palette: Palette.BROWN,
 		pauseMode: PauseMode.BREATHING,
-		reducedMotion: false,
 		language: null,
 	} ),
 );

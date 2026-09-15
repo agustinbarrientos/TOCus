@@ -15,7 +15,6 @@ export const PopupSiteEnrollmentRequestType = 'add-popup-site';
 export const PopupSiteEnrollmentRequestSchema = z.object( {
 	type: z.enum( [ PopupSiteEnrollmentRequestType ] ),
 	siteInput: z.string(),
-	independent: z.boolean(),
 } ).strict();
 
 /**

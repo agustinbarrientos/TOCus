@@ -40,33 +40,17 @@ async function prepareState( page: Page, name: string ): Promise<void> {
 		await expect( page.getByRole( 'alert' ) ).toBeVisible();
 	}
 	if ( name.includes( 'no-increase' ) ) {
-		await page.getByRole( 'slider', { name: 'Wait increase', exact: true } ).evaluate( ( slider ) => {
-			// The archived input event changed the draft without focusing the control.
-			if ( ! ( slider instanceof HTMLInputElement ) ) {
-				throw new Error( 'The original Timing fixture requires a native range input.' );
-			}
-			const valueDescriptor = Object.getOwnPropertyDescriptor( HTMLInputElement.prototype, 'value' );
-			if ( ! valueDescriptor?.set ) {
-				throw new Error( 'The native Timing fixture requires the browser input value setter.' );
-			}
-			// Bypass React's instance tracker so the native input event reaches its state handler.
-			valueDescriptor.set.call( slider, '0' );
-			slider.dispatchEvent( new Event( 'input', { bubbles: true } ) );
-		} );
+		await page.getByRole( 'slider', { name: 'Wait increase', exact: true } ).press( 'Home' );
+		await page.getByRole( 'slider', { name: 'Wait increase', exact: true } ).blur();
 		await expect( page.getByRole( 'slider', { name: 'Wait increase', exact: true } ) )
 			.toHaveAttribute( 'aria-valuetext', '0 (no increase)' );
 	}
 	if ( name.includes( 'permissions' ) ) {
-		await page.locator( 'summary' ).click();
+		await expect( page.getByRole( 'heading', { name: 'Why TOCus needs browser access' } ) ).toBeVisible();
 	}
 	if ( name.includes( 'protected-site' ) && ( name.includes( 'editing' ) || name.includes( 'removal' ) ) ) {
 		const item = page.locator( '.settings-site-item' ).filter( {
 			has: page.getByRole( 'heading', { name: name.includes( 'independent-removal' ) ? 'ChatGPT' : 'Instagram', exact: true } ),
-		} );
-		await item.getByRole( 'button', { name: 'Manage this website', exact: true } ).evaluate( ( element ) => {
-			if ( element instanceof HTMLButtonElement ) {
-				element.click();
-			}
 		} );
 		if ( name.includes( 'removal' ) ) {
 			await item.getByRole( 'button', { name: 'Remove site', exact: true } ).evaluate( ( element ) => {
@@ -74,9 +58,10 @@ async function prepareState( page: Page, name: string ): Promise<void> {
 					element.click();
 				}
 			} );
-			await expect( item.getByRole( 'button', { name: 'Remove', exact: true } ) ).toBeFocused();
+			await expect( page.getByRole( 'dialog' ).getByRole( 'button', { name: 'Remove', exact: true } ) ).toBeFocused();
 		} else {
-			await expect( item.getByLabel( 'Display name', { exact: true } ) ).toBeFocused();
+			await item.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).click();
+			await expect( page.getByRole( 'dialog' ).getByLabel( 'Name', { exact: true } ) ).toBeFocused();
 		}
 	}
 	if ( name.includes( 'privacy' ) && /confirmation|pending|failed|success|narrow/.test( name ) ) {
@@ -142,9 +127,22 @@ for ( const original of settingsSnapshots ) {
 		await page.evaluate( () => {
 			window.scrollTo( 0, 0 );
 		} );
-		const target = shell ? page.locator( '.settings-layout' ) : name.startsWith( 'protected-site-item' )
-			? page.locator( '.settings-site-item' ).first() : name.startsWith( 'protected-site-list' )
-				? page.locator( '.settings-site-groups' ) : page.locator( '#settings-root' );
+		const target = name.startsWith( 'protected-site-item-operation-error' ) ? page.getByRole( 'dialog' )
+			: shell ? page.locator( '.settings-layout' ) : name.startsWith( 'protected-site-item' )
+				? page.locator( '.settings-site-item' ).first() : name.startsWith( 'protected-site-list' )
+					? page.locator( '.settings-site-groups' ) : page.locator( '#settings-root' );
+		if ( name.includes( 'privacy' ) && name.includes( 'success' ) ) {
+			await expect( page.getByRole( 'status' ).filter( { hasText: 'Statistics reset.' } ) ).toBeVisible();
+			const bounds = await target.boundingBox();
+			if ( bounds === null ) {
+				throw new Error( 'The privacy capture root must be visible.' );
+			}
+			// Include the viewport-anchored snackbar without changing the registered capture width.
+			await compareOriginal( page, original.path, undefined, {
+				clip: { ...bounds, height: Math.max( bounds.height, viewportHeight - bounds.y ) },
+			} );
+			return;
+		}
 		await compareOriginal( page, original.path, target );
 	} );
 }

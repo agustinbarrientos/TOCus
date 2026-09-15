@@ -2,6 +2,7 @@ import { z, type RefinementCtx } from 'zod';
 import { AllowanceDurationMillisecondsSchema } from '../../protection/types/allowance-duration';
 import {
 	AllowanceIdSchema,
+	LocalDateSchema,
 	ProtectionFactBatchIdSchema,
 	ProtectionMeasurementRevisionSchema,
 	ProtectionScopeIdSchema,
@@ -15,7 +16,7 @@ import {
  * Current local statistics document version.
  * @since 0.1.0 Initial implementation.
  */
-export const StatisticsDocumentVersion = 1;
+export const StatisticsDocumentVersion = 2;
 
 /**
  * Validates the current local statistics document version.
@@ -43,6 +44,20 @@ export const StatisticsTotalsSchema = z.object( {
  * @since 0.1.0 Initial implementation.
  */
 export type StatisticsTotals = z.infer<typeof StatisticsTotalsSchema>;
+
+/**
+ * Validates one aggregate-only local calendar day.
+ * @since 0.1.0 Initial implementation.
+ */
+export const DailyStatisticsTotalsSchema = StatisticsTotalsSchema.extend( {
+	date: LocalDateSchema,
+} );
+
+/**
+ * Aggregate-only local calendar day without site identifiers.
+ * @since 0.1.0 Initial implementation.
+ */
+export type DailyStatisticsTotals = z.infer<typeof DailyStatisticsTotalsSchema>;
 
 /**
  * Validates the unrefined shape of one active allowance measurement.
@@ -267,8 +282,24 @@ export const StatisticsDocumentSchema = z.object( {
 	schemaVersion: StatisticsDocumentVersionSchema,
 	generationId: StatisticsGenerationIdSchema,
 	lastAppliedBatchId: ProtectionFactBatchIdSchema.nullable(),
+	firstRecordedDate: LocalDateSchema.nullable(),
+	dailyTotals: z.array( DailyStatisticsTotalsSchema ),
 	scopes: StatisticsScopesSchema,
-} ).strict();
+} ).strict().refine( ( document ) => {
+	const { firstRecordedDate } = document;
+	if ( firstRecordedDate === null ) {
+		return document.dailyTotals.length === 0;
+	}
+
+	const oldest = document.dailyTotals.at( 0 );
+
+	return oldest !== undefined && document.dailyTotals.every( ( day, index, days ) => {
+		const previous = days[ index - 1 ];
+
+		return day.date >= firstRecordedDate &&
+			( previous === undefined || day.date > previous.date );
+	} );
+}, { message: 'Daily statistics must be unique, ordered and within the recorded history.' } );
 
 /**
  * Aggregate-first local statistics document.

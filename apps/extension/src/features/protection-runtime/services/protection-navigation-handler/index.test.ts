@@ -72,11 +72,7 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
 			},
 		},
 	],
-	schedulesByScope: {
-		...TestEmptyProtectionConfiguration.schedulesByScope,
-		[ DEFAULT_SCOPE_ID ]: { mode: 'always' },
-		[ INDEPENDENT_SCOPE_ID ]: { mode: 'always' },
-	},
+	schedule: { mode: 'always' },
 	measurementRevisionsByScope: {
 		...TestEmptyProtectionConfiguration.measurementRevisionsByScope,
 		[ DEFAULT_SCOPE_ID ]: ProtectionMeasurementRevisionSchema.parse( 'revision_grouped' ),
@@ -181,7 +177,7 @@ function createHarness(
 			.mockReturnValueOnce( 'page' )
 			.mockReturnValueOnce( 'wait' ),
 		departTab,
-		evaluateScopeSchedule: vi.fn().mockReturnValue( { status: ScheduleEvaluationStatus.ACTIVE } ),
+		evaluateSiteSchedule: vi.fn().mockReturnValue( { status: ScheduleEvaluationStatus.ACTIVE } ),
 		getTimeZone: vi.fn().mockReturnValue( 'America/New_York' ),
 		loadConfiguration: vi.fn().mockResolvedValue( CONFIGURATION ),
 		now: vi.fn().mockReturnValue( Date.UTC( 2026, 8, 2, 12 ) ),
@@ -477,6 +473,50 @@ describe( 'createProtectionNavigationHandler', () => {
 		},
 	);
 
+	it( 'does not restore a committed allowed page after a newer pause opens during reconciliation', async () => {
+		const harness = createHarness( {} );
+		// Host access hides the allowed page when its commit starts being handled.
+		harness.reconcileBrowserState.mockImplementationOnce( () => {
+			// The browser can commit its redirect while the old navigation handler awaits I/O.
+			harness.listTabs.mockResolvedValue( [ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ] );
+		} );
+
+		await harness.handler.handle( {
+			frameId: 0,
+			phase: ProtectionRuntimeNavigationPhase.COMMITTED,
+			tabId: 7,
+			transitionQualifiers: [],
+			transitionType: 'typed',
+			url: 'https://unprotected.test/loading',
+		} );
+
+		expect( harness.releaseNavigationIfInterrupted ).not.toHaveBeenCalled();
+		expect( harness.departTab ).not.toHaveBeenCalled();
+	} );
+
+	it( 'releases an allowed destination retained by the observed interruption outcome', async () => {
+		const harness = createHarness( createNavigationWaitingSnapshot() );
+		harness.listTabs.mockResolvedValue( [ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ] );
+
+		await harness.handler.handle( {
+			frameId: 0,
+			phase: ProtectionRuntimeNavigationPhase.BEFORE_NAVIGATE,
+			tabId: 7,
+			url: 'https://unprotected.test/',
+		} );
+		await harness.handler.handle( {
+			frameId: 0,
+			phase: ProtectionRuntimeNavigationPhase.COMMITTED,
+			tabId: 7,
+			transitionQualifiers: [ 'server_redirect' ],
+			transitionType: 'typed',
+			url: INTERRUPTION_PAGE_URL,
+		} );
+
+		expect( harness.releaseNavigationIfInterrupted ).toHaveBeenCalledExactlyOnceWith( 7, 'https://unprotected.test/' );
+		expect( harness.departTab ).toHaveBeenCalledExactlyOnceWith( 7, DepartureCause.REDIRECT, CONFIGURATION );
+	} );
+
 	it( 'preserves a pending protected destination when a stale blank commit arrives first', async () => {
 		const harness = createHarness( createNavigationWaitingSnapshot() );
 		harness.listTabs.mockResolvedValue( [ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ] );
@@ -593,7 +633,7 @@ describe( 'createProtectionNavigationHandler', () => {
 			DepartureCause.NON_EXTENSION_TOP_LEVEL_NAVIGATION_AWAY,
 			CONFIGURATION,
 		);
-		expect( harness.releaseNavigationIfInterrupted ).toHaveBeenCalledWith( 7, 'about:blank' );
+		expect( harness.releaseNavigationIfInterrupted ).not.toHaveBeenCalled();
 	} );
 
 	it.each( [ {}, null ] )( 'reconciles a browser error when no participant exists in %j', async ( states ) => {
@@ -707,6 +747,7 @@ describe( 'createProtectionNavigationHandler', () => {
 			cause: DepartureCause.BACK,
 			allowanceDurationMilliseconds: 300_000,
 			observedAtEpochMilliseconds: Date.UTC( 2026, 8, 2, 12, 2 ),
+			observedLocalDate: '2026-09-02',
 		} );
 
 		expect( departed.facts ).toMatchObject( [ {
@@ -848,10 +889,7 @@ describe( 'createProtectionNavigationHandler', () => {
 			DepartureCause.NON_EXTENSION_TOP_LEVEL_NAVIGATION_AWAY,
 			CONFIGURATION,
 		);
-		expect( harness.releaseNavigationIfInterrupted ).toHaveBeenCalledWith(
-			7,
-			'https://unprotected.test/',
-		);
+		expect( harness.releaseNavigationIfInterrupted ).not.toHaveBeenCalled();
 	} );
 
 	it( 'retains a participant until a cross-scope navigation commits with user provenance', async () => {

@@ -8,9 +8,31 @@ import {
 import {
 	createDraft,
 } from './index';
+import { DraftSaveResult } from './types';
 
 
 describe( 'Settings draft', () => {
+	it( 'reports successful persistence explicitly and never reports rejected edits as saved', async () => {
+		const draft = createDraft( { duration: 10 } );
+		draft.change( { duration: 20 } );
+		expect( await draft.save( () => Promise.reject( new Error( 'persistence' ) ) ) ).toBe( DraftSaveResult.FAILED );
+		expect( draft.snapshot.dirty ).toBe( true );
+		expect( await draft.save( ( value ) => Promise.resolve( value ) ) ).toBe( DraftSaveResult.SAVED );
+		expect( draft.snapshot.dirty ).toBe( false );
+	} );
+	it( 'does not authorize departure while a save is pending or a newer draft remains dirty', async () => {
+		const draft = createDraft( { duration: 10 } );
+		draft.change( { duration: 20 } );
+		let finish!: ( value: { duration: number } ) => void;
+		const saving = draft.save( () => new Promise( ( resolve ) => {
+			finish = resolve;
+		} ) );
+		expect( await draft.save( ( value ) => Promise.resolve( value ) ) ).toBe( DraftSaveResult.FAILED );
+		draft.rebase( { duration: 30 } );
+		finish( { duration: 20 } );
+		expect( await saving ).toBe( DraftSaveResult.FAILED );
+		expect( draft.snapshot ).toMatchObject( { value: { duration: 20 }, dirty: true, saving: false } );
+	} );
 	it( 'notifies subscriptions until cleanup and uses a domain equality predicate', () => {
 		const initial = { duration: 10, label: 'first' };
 		const draft = createDraft( initial, ( left, right ) => left.duration === right.duration );

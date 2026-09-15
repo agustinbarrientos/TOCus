@@ -1,3 +1,4 @@
+import { resolveSiteSchedule } from '../../../../domains/protection/utils/resolve-site-schedule';
 import {
 	ProtectionEventType,
 	AllowanceExpiryCandidateSource,
@@ -145,7 +146,13 @@ export function createAllowanceExpiryReconciler(
 					: observedState;
 				const nowEpochMilliseconds = options.now();
 				const timeZone = options.getTimeZone();
-				const schedule = configuration.schedulesByScope[ observedState.scopeId ];
+				const schedules = configuration.sites.filter( ( site ) => site.rule.scopeId === observedState.scopeId )
+					.map( ( site ) => evaluateSchedule( site.schedule ?? configuration.schedule,
+						nowEpochMilliseconds,
+						timeZone ) );
+				const schedule = schedules.find( ( result ) => result.status === ScheduleEvaluationStatus.ACTIVE )
+					?? schedules.find( ( result ) => result.status === ScheduleEvaluationStatus.ERROR )
+					?? { status: ScheduleEvaluationStatus.INACTIVE } as const;
 
 				return {
 					type: ProtectionEventType.ALLOWANCE_EXPIRY,
@@ -155,9 +162,7 @@ export function createAllowanceExpiryReconciler(
 					nowEpochMilliseconds,
 					observedLocalDate: createRuntimeLocalDate( nowEpochMilliseconds, timeZone ),
 					timingConfiguration: configuration.timingConfiguration,
-					schedule: schedule === undefined
-						? { status: ScheduleEvaluationStatus.INACTIVE } as const
-						: evaluateSchedule( schedule, nowEpochMilliseconds, timeZone ),
+					schedule,
 					candidates: [
 						...createReadyRuntimeExpiryCandidates(
 							sourceState,
@@ -167,7 +172,17 @@ export function createAllowanceExpiryReconciler(
 							liveDestinationsByTab,
 						),
 						...liveCandidates,
-					],
+					].map( ( candidate ) => {
+						if ( candidate.match.status !== ProtectedUrlMatchStatus.PROTECTED ) {
+							return candidate;
+						}
+						const siteSchedule = resolveSiteSchedule( configuration, candidate.match.rule.host );
+						const active = siteSchedule !== undefined && evaluateSchedule(
+							siteSchedule, nowEpochMilliseconds, timeZone,
+						).status === ScheduleEvaluationStatus.ACTIVE;
+						return active ? candidate
+							: { ...candidate, match: { status: ProtectedUrlMatchStatus.UNPROTECTED } as const };
+					} ),
 				};
 			} );
 

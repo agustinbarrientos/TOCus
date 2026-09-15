@@ -4,7 +4,7 @@
  * @since 0.1.0 Initial implementation.
  */
 export interface AboutScreenCopy {
-	eyebrow: string;
+	title: string;
 	storyTitle: string;
 	creator: string;
 	summary: string;

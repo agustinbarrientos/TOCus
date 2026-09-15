@@ -14,6 +14,5 @@ export function arePreferencesEqual(
 	return first.theme === second.theme &&
 		first.palette === second.palette &&
 		first.pauseMode === second.pauseMode &&
-		first.reducedMotion === second.reducedMotion &&
 		first.language === second.language;
 }

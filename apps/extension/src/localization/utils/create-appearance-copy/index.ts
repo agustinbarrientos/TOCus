@@ -11,10 +11,8 @@ import type { AppearanceScreenCopy } from '../../../features/settings/components
  */
 export function createAppearanceCopy( i18n: I18n ): Readonly<AppearanceScreenCopy> {
 	return Object.freeze( {
-		eyebrow: i18n._( msg`Personalization` ),
 		title: i18n._( msg`Appearance` ),
-		introduction: i18n._( msg`Choose the colors and pause style that feel right for you.` ),
-		formLabel: i18n._( msg`Appearance and accessibility preferences` ),
+		formLabel: i18n._( msg`Appearance preferences` ),
 		themeLegend: i18n._( msg`Theme` ),
 		themeOptions: Object.freeze( {
 			[ ThemeMode.SYSTEM ]: Object.freeze( {
@@ -31,7 +29,6 @@ export function createAppearanceCopy( i18n: I18n ): Readonly<AppearanceScreenCop
 			} ),
 		} ),
 		paletteLegend: i18n._( msg`Color palette` ),
-		paletteHelp: i18n._( msg`The selected palette colors the complete pause experience.` ),
 		paletteLabels: Object.freeze( {
 			[ Palette.BROWN ]: i18n._( msg`Brown` ),
 			[ Palette.GREEN ]: i18n._( msg`Green` ),
@@ -51,13 +48,10 @@ export function createAppearanceCopy( i18n: I18n ): Readonly<AppearanceScreenCop
 				description: i18n._( msg`A still pause with no breathing cue.` ),
 			} ),
 		} ),
-		accessibilityLegend: i18n._( msg`Accessibility` ),
-		reducedMotionLabel: i18n._( msg`Reduce motion` ),
-		reducedMotionDescription: i18n._( msg`Keep the pause still and remove movement.` ),
 		loading: i18n._( msg`Loading appearance settings...` ),
 		malformedDataTitle: i18n._( msg`Personalization settings need your attention` ),
 		malformedDataDescription: i18n._(
-			msg`Your local personalization data is not valid. Restoring defaults will reset appearance, pause, motion, and language preferences.`,
+			msg`Your local personalization data is not valid. Restoring defaults will reset appearance, pause, and language preferences.`,
 		),
 		loadErrorTitle: i18n._( msg`Appearance settings could not load` ),
 		loadErrorDescription: i18n._( msg`TOCus could not load local appearance settings. Nothing was changed.` ),
@@ -68,7 +62,6 @@ export function createAppearanceCopy( i18n: I18n ): Readonly<AppearanceScreenCop
 		save: i18n._( msg`Save` ),
 		saving: i18n._( msg`Saving...` ),
 		discard: i18n._( msg`Discard` ),
-		savedAnnouncement: i18n._( msg`Appearance saved.` ),
 		restoredAnnouncement: i18n._( msg`Personalization defaults restored.` ),
 	} );
 }

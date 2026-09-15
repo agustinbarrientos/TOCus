@@ -9,14 +9,10 @@ describe( 'createScheduleCopy', () => {
 		const copy = createScheduleCopy( createTestI18n(), createLocalizationFormatters( 'en' ) );
 
 		expect( copy.title ).toBe( 'Schedule' );
-		expect( copy.appliesToLabel ).toBe( 'Schedule for' );
-		expect( copy.sharedScope ).toBe( 'Websites using the same timer' );
 		expect( copy.save ).toBe( 'Save' );
 		expect( copy.discard ).toBe( 'Discard' );
 		expect( copy.formatWeekday( Weekday.MONDAY ) ).toBe( 'Monday' );
 		expect( copy.formatWindowLabel( 2 ) ).toBe( 'Time window 2' );
 		expect( copy.formatRemoveWindowLabel( 2 ) ).toBe( 'Remove time window 2' );
-		expect( copy.formatIndependentScopeLabel( 'Reddit', 'reddit.com' ) ).toBe( 'Reddit (reddit.com)' );
-		expect( copy.compareNames( 'a', 'b' ) ).toBeLessThan( 0 );
 	} );
 } );

@@ -21,16 +21,14 @@ export function createPopupEnrollmentClient( options: PopupEnrollmentClientOptio
 		/**
 		 * Starts enrollment before yielding the popup user gesture.
 		 * @param input - Current website URL supplied by the popup.
-		 * @param independent - Whether the website receives independent timing.
 		 * @return Validated enrollment outcome or a save error.
 		 * @since 0.1.0 Initial implementation.
 		 */
-		async add( input: unknown, independent: boolean ): Promise<PopupSiteEnrollmentResult> {
+		async add( input: unknown ): Promise<PopupSiteEnrollmentResult> {
 			try {
 				const request = PopupSiteEnrollmentRequestSchema.parse( {
 					type: PopupSiteEnrollmentRequestType,
 					siteInput: input,
-					independent,
 				} );
 
 				return PopupSiteEnrollmentResultSchema.parse( await options.runtime.sendMessage( request ) );

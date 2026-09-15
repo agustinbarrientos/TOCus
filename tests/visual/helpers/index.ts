@@ -6,7 +6,7 @@ import type { Page } from '@playwright/test';
 import type { ComponentInterruptionScreen } from '../../../apps/extension/src/features/interruption/components/screen';
 import type { VisualAppearance } from './types';
 import { captureStableScreenshot } from './capture-stable-screenshot';
-import { compareScreenshot, WebsiteScreenshotOptions } from './compare-screenshot';
+import { compareScreenshot, ScreenshotColorOptions } from './compare-screenshot';
 import { hasFocusedTextCaret } from '../originals/helpers/focused-text-caret';
 import type {} from '../../../apps/extension/src/features/settings/components/shell/__fixtures__/types';
 import type {} from '../../../apps/extension/src/features/interruption/components/screen/__fixtures__/browser-types';
@@ -122,7 +122,7 @@ export async function comparePage( page: Page, name: string, fullPage = true ): 
 		expect( actual ).toMatchSnapshot( `${ name }.png`, { threshold: 0, maxDiffPixels: 0 } );
 		return;
 	}
-	await compareScreenshot( actual, `${ name }.png`, WebsiteScreenshotOptions );
+	await compareScreenshot( actual, `${ name }.png`, ScreenshotColorOptions );
 }
 
 export { expect, test };

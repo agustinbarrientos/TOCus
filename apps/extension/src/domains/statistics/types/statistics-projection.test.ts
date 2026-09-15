@@ -10,6 +10,8 @@ import {
  */
 const VALID_AVAILABLE_PROJECTION = {
 	status: 'available',
+	currentDate: '2026-09-14',
+	dailyTotals: [],
 	estimatedReclaimedMilliseconds: 0,
 	focusedPauseMilliseconds: 0,
 	reconsideredVisitCount: 0,

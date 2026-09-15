@@ -85,6 +85,7 @@ const test = base.extend<PackagedFaviconFixtures>( {
 		try {
 			directory = await mkdtemp( join( tmpdir(), 'tocus-packaged-favicons-' ) );
 			const extensionPath = join( directory, 'extension' );
+			const profilePath = join( directory, 'profile' );
 
 			await cp( fileURLToPath( new URL( '../../../.output/chrome-mv3/', import.meta.url ) ), extensionPath, { recursive: true } );
 			const manifestPath = join( extensionPath, 'manifest.json' );
@@ -111,29 +112,54 @@ const test = base.extend<PackagedFaviconFixtures>( {
 			}
 			const siteUrl = `http://example.test:${ String( address.port ) }/`;
 
-			context = await playwright.chromium.launchPersistentContext( join( directory, 'profile' ), {
-				channel: 'chromium',
-				headless: true,
-				timeout: 10_000,
-				args: [
-				`--disable-extensions-except=${ extensionPath }`, `--load-extension=${ extensionPath }`,
-				'--host-resolver-rules=MAP example.test 127.0.0.1', '--no-proxy-server',
-				],
-			} );
-			await context.route( /^https?:\/\//u, ( route ) => {
-				return new URL( route.request().url() ).origin === new URL( siteUrl ).origin
-					? route.continue()
-					: route.abort();
-			} );
-			const worker = context.serviceWorkers()[ 0 ] ?? await context.waitForEvent( 'serviceworker' );
-			const extensionRoot = await worker.evaluate( () => {
-				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
-				return chrome.runtime.getURL( '/' );
-			} );
-			const reader = await context.newPage();
+			/**
+			 * Opens the same test-owned profile and reinstalls its loopback-only network boundary.
+			 * @return Packaged browser handles with the latest context retained for teardown.
+			 * @since 0.1.0
+			 */
+			async function launchBrowser(): Promise<Pick<FaviconTestFixture, 'context' | 'extensionRoot' | 'reader' | 'worker'>> {
+				context = await playwright.chromium.launchPersistentContext( profilePath, {
+					channel: 'chromium',
+					headless: true,
+					timeout: 10_000,
+					args: [
+						`--disable-extensions-except=${ extensionPath }`, `--load-extension=${ extensionPath }`,
+						'--host-resolver-rules=MAP example.test 127.0.0.1', '--no-proxy-server',
+					],
+				} );
+				await context.route( /^https?:\/\//u, ( route ) => {
+					return new URL( route.request().url() ).origin === new URL( siteUrl ).origin
+						? route.continue()
+						: route.abort();
+				} );
+				const worker = context.serviceWorkers()[ 0 ] ?? await context.waitForEvent( 'serviceworker' );
+				const extensionRoot = await worker.evaluate( () => {
+					const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+					return chrome.runtime.getURL( '/' );
+				} );
+				const reader = await context.newPage();
 
-			await reader.goto( `${ extensionRoot }options.html` );
-			await use( { context, extensionRoot, reader, siteUrl, worker } );
+				await reader.goto( `${ extensionRoot }options.html` );
+				return { context, extensionRoot, reader, worker };
+			}
+
+			const fixture: FaviconTestFixture = {
+				...await launchBrowser(),
+				siteUrl,
+				/**
+				 * Reopens the same browser profile so native favicon history survives a fresh runtime.
+				 * @return Ready replacement handles after the old context closes completely.
+				 * @since 0.1.0
+				 */
+				async restartBrowser(): Promise<void> {
+					await fixture.context.close();
+					const replacement = await launchBrowser();
+
+					expect( replacement.extensionRoot ).toBe( fixture.extensionRoot );
+					Object.assign( fixture, replacement );
+				},
+			};
+			await use( fixture );
 		} finally {
 			try {
 				await context?.close();
@@ -201,30 +227,46 @@ async function seedLegacyFavicon( fixture: FaviconTestFixture ): Promise<void> {
 }
 
 /**
- * Enables real packaged protection with a fresh allowance scope when requested.
+ * Enables real packaged protection with the shared countdown.
  * @param fixture - Disposable extension whose stored configuration should change.
- * @param scopeId - Scope separating a later interruption from an earlier allowance.
  * @return Promise resolved once the browser has installed its navigation rules.
  * @since 0.1.0 Initial implementation.
  */
-async function enableProtection( fixture: FaviconTestFixture, scopeId = 'scope_default' ): Promise<void> {
-	await fixture.worker.evaluate( async ( scope ) => {
+async function enableProtection( fixture: FaviconTestFixture ): Promise<void> {
+	await fixture.worker.evaluate( async () => {
 		const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
 
 		await chrome.storage.local.set( {
 			'tocus.protection.configuration.v1': {
-				schemaVersion: 4,
-				sites: [ { identityHost: 'example.test', rule: { host: 'example.test', includeSubdomains: true, scopeId: scope } } ],
+				schemaVersion: 5,
+				sites: [ { identityHost: 'example.test', rule: { host: 'example.test', includeSubdomains: true, scopeId: 'scope_default' } } ],
 				timingConfiguration: { initialWaitMilliseconds: 10000, ladderIncreaseMilliseconds: 5000, maximumWaitMilliseconds: 60000, allowanceMilliseconds: 300000, completionAction: 'show-continue' },
-				schedulesByScope: { scope_default: { mode: 'always' }, [ scope ]: { mode: 'always' } },
-				measurementRevisionsByScope: { scope_default: 'revision_packaged_favicon', [ scope ]: 'revision_packaged_favicon' },
+				schedule: { mode: 'always' },
+				measurementRevisionsByScope: { scope_default: 'revision_packaged_favicon' },
 			},
 		} );
-	}, scopeId );
+	} );
 	await expect.poll( () => fixture.worker.evaluate( async () => {
 		const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
 		return ( await chrome.declarativeNetRequest.getDynamicRules() ).length;
 	} ) ).toBeGreaterThan( 0 );
+}
+
+/**
+ * Starts a second visit fixture without replacing the browser's repaired favicon cache.
+ * Only this disposable extension's runtime state is cleared; real waits and navigation remain intact.
+ * @param fixture - Test-owned profile whose completed allowance should not carry into the next scenario.
+ * @return Ready packaged worker and icon-reader page after relaunching the same browser profile.
+ * @since 0.1.0
+ */
+async function restartVisitFixture( fixture: FaviconTestFixture ): Promise<void> {
+	await fixture.reader.close();
+	await fixture.worker.evaluate( async () => {
+		const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+		await chrome.storage.local.remove( 'tocus.protection.durable.v1' );
+		await chrome.storage.session.remove( 'tocus.protection.session.v1' );
+	} );
+	await fixture.restartBrowser();
 }
 
 /**
@@ -316,7 +358,8 @@ test.describe( 'packaged Chrome favicon preservation', () => {
 			await legacyPause.close();
 		} );
 		await test.step( 'Preserve the repaired favicon through the second real ten-second pause', async () => {
-			await enableProtection( fixture, 'scope_revisit' );
+			await restartVisitFixture( fixture );
+			await enableProtection( fixture );
 			await openReadyPause( fixture );
 			expect( await readCachedFavicon( fixture, fixture.siteUrl ) ).toBe( websiteHash );
 		} );

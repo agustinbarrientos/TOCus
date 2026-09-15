@@ -76,7 +76,6 @@ describe( 'createPreferencesStorageService', () => {
 			theme: 'dark',
 			palette: 'purple',
 			pauseMode: 'quiet',
-			reducedMotion: true,
 			language: Language.SPANISH_VOS,
 		};
 		const area = new MemoryPreferencesStorageArea();
@@ -90,7 +89,7 @@ describe( 'createPreferencesStorageService', () => {
 		await expect( storage.load() ).resolves.toEqual( preferences );
 	} );
 
-	it( 'migrates version-one preferences to automatic language selection without writing', async () => {
+	it( 'preserves unsupported alpha preferences for explicit recovery without migration', async () => {
 		const area = new MemoryPreferencesStorageArea( {
 			[ PreferencesStorageKey.PREFERENCES ]: {
 				schemaVersion: 1,
@@ -102,14 +101,7 @@ describe( 'createPreferencesStorageService', () => {
 		} );
 		const storage = createPreferencesStorageService( { area } );
 
-		await expect( storage.load() ).resolves.toEqual( {
-			schemaVersion: 2,
-			theme: 'dark',
-			palette: 'purple',
-			pauseMode: 'quiet',
-			reducedMotion: true,
-			language: null,
-		} );
+		await expect( storage.load() ).resolves.toBeNull();
 		expect( area.writtenValues ).toEqual( [] );
 	} );
 

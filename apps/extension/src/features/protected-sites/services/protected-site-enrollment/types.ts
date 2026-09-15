@@ -170,13 +170,11 @@ export interface ProtectedSiteEnrollmentService {
 	/**
 	 * Adds one protected site after securing its required browser access.
 	 * @param siteInput - Unknown user-entered hostname or URL.
-	 * @param independent - Whether the site receives its own protection scope.
 	 * @return Successful enrollment or a presentation-neutral failure.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	add(
 		siteInput: unknown,
-		independent: boolean,
 	): Promise<ProtectedSiteEnrollmentResult>;
 
 	/**

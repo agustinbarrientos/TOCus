@@ -175,9 +175,9 @@ export function createProtectionNavigationHandler(
 				focusEligible: focusedTabId === tabId,
 				statisticsEligible: true,
 			},
-			schedule: options.evaluateScopeSchedule(
+			schedule: options.evaluateSiteSchedule(
 				configuration,
-				scopeId,
+				siteHost,
 				nowEpochMilliseconds,
 				timeZone,
 			),
@@ -342,13 +342,16 @@ export function createProtectionNavigationHandler(
 
 		if ( match.status !== ProtectedUrlMatchStatus.PROTECTED ) {
 			await options.reconcileBrowserState( configuration );
-			await options.releaseNavigationIfInterrupted( navigation.tabId, destination );
+			// A committed allowed page already arrived; a later interruption may belong to a newer visit.
+			if ( navigation.phase !== ProtectionRuntimeNavigationPhase.COMMITTED || resolvesPendingInterruption ) {
+				await options.releaseNavigationIfInterrupted( navigation.tabId, destination );
+			}
 			return;
 		}
 
-		const schedule = options.evaluateScopeSchedule(
+		const schedule = options.evaluateSiteSchedule(
 			configuration,
-			match.rule.scopeId,
+			match.rule.host,
 			options.now(),
 			options.getTimeZone(),
 		);

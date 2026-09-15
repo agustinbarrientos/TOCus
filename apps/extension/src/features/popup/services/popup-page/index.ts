@@ -166,9 +166,9 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 	}
 
 	/**
-	 * Returns the earliest wall-clock Allowance expiry in one projection.
+	 * Returns the shared wall-clock Allowance expiry in one projection.
 	 * @param projection - Current semantic popup projection.
-	 * @return Earliest expiry or null when no Allowance is open.
+	 * @return Shared expiry or null when no Allowance is open.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	function getNextAllowanceExpiry( projection: PopupProjection ): number | null {
@@ -176,19 +176,8 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 			return null;
 		}
 
-		let expiry: number | null = null;
-
-		for ( const scope of projection.activeScopes ) {
-			if ( scope.phase !== PopupTimerPhase.ALLOWANCE ) {
-				continue;
-			}
-
-			expiry = expiry === null
-				? scope.expiresAtEpochMilliseconds
-				: Math.min( expiry, scope.expiresAtEpochMilliseconds );
-		}
-
-		return expiry;
+		const scope = projection.activeScopes[ 0 ];
+		return scope?.phase === PopupTimerPhase.ALLOWANCE ? scope.expiresAtEpochMilliseconds : null;
 	}
 
 	/**
@@ -375,7 +364,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 		options.shell.operationError = null;
 
 		try {
-			const request = options.enrollment.add( currentTab.url, false );
+			const request = options.enrollment.add( currentTab.url );
 
 			void completeEnrollment( request );
 		} catch {

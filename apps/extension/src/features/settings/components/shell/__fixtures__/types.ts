@@ -1,4 +1,6 @@
 import type axe from 'axe-core';
+import type { z } from 'zod';
+import type { AvailableStatisticsProjectionSchema } from '../../../../../domains/statistics/types/statistics-projection';
 import type { ProtectionConfigurationDocument } from '../../../../../domains/protection/types/protected-site-configuration';
 import type { PreferencesDocument } from '../../../../../domains/preferences/types';
 import type { ThemeMode, Palette, Language } from '../../../../../domains/preferences/types';
@@ -44,13 +46,7 @@ export interface SettingsFixtureBridge {
  * Observable counters supported by the statistics fixture's live-update bridge.
  * @since 0.1.0
  */
-export interface SettingsFixtureStatistics {
-	estimatedReclaimedMilliseconds: number;
-	focusedPauseMilliseconds: number;
-	reconsideredVisitCount: number;
-	completedWaitCount: number;
-	allowanceGrantedCount: number;
-}
+export type SettingsFixtureStatistics = Omit<z.input<typeof AvailableStatisticsProjectionSchema>, 'status'>;
 
 declare global {
 	/**

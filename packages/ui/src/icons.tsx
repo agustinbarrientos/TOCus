@@ -1,35 +1,47 @@
+import angleDown from '@tocus/theme/icons/angle-down.svg?raw';
+import angleUp from '@tocus/theme/icons/angle-up.svg?raw';
+import spinnerThird from '@tocus/theme/icons/spinner-third.svg?raw';
 import heart from '@tocus/theme/icons/heart.svg?raw';
-import palette from '@tocus/theme/icons/palette.svg?raw';
+import brush from '@tocus/theme/icons/brush.svg?raw';
 import arrowUpRightFromSquare from '@tocus/theme/icons/arrow-up-right-from-square.svg?raw';
-import letters from '@tocus/theme/icons/letters.svg?raw';
+import language from '@tocus/theme/icons/language.svg?raw';
 import shieldHalved from '@tocus/theme/icons/shield-halved.svg?raw';
 import userLock from '@tocus/theme/icons/user-lock.svg?raw';
-import calendarClock from '@tocus/theme/icons/calendar-clock.svg?raw';
-import gear from '@tocus/theme/icons/gear.svg?raw';
-import list from '@tocus/theme/icons/list.svg?raw';
+import calendar from '@tocus/theme/icons/calendar.svg?raw';
+import sliders from '@tocus/theme/icons/sliders.svg?raw';
+import linkHorizontal from '@tocus/theme/icons/link-horizontal.svg?raw';
 import chartColumn from '@tocus/theme/icons/chart-column.svg?raw';
-import stopwatch from '@tocus/theme/icons/stopwatch.svg?raw';
+import pause from '@tocus/theme/icons/pause.svg?raw';
 import brand from '@tocus/theme/icon.svg?raw';
 import circleCheck from '@tocus/theme/icons/circle-check.svg?raw';
-import exclamation from '@tocus/theme/icons/exclamation.svg?raw';
+import circleExclamation from '@tocus/theme/icons/circle-exclamation.svg?raw';
+import circleInfo from '@tocus/theme/icons/circle-info.svg?raw';
+import circleQuestion from '@tocus/theme/icons/circle-question.svg?raw';
+import trash from '@tocus/theme/icons/trash.svg?raw';
 import { BrandSize, IconName, type BrandProps, type IconProps } from './types';
 
 /** Complete trusted artwork registry keyed by the public shape catalog. */
 const icons = {
 	[ IconName.CAPYBARA ]: brand,
+	[ IconName.ANGLE_DOWN ]: angleDown,
+	[ IconName.ANGLE_UP ]: angleUp,
+	[ IconName.SPINNER_THIRD ]: spinnerThird,
 	[ IconName.HEART ]: heart,
-	[ IconName.PALETTE ]: palette,
+	[ IconName.BRUSH ]: brush,
 	[ IconName.ARROW_UP_RIGHT_FROM_SQUARE ]: arrowUpRightFromSquare,
-	[ IconName.LETTERS ]: letters,
+	[ IconName.LANGUAGE ]: language,
 	[ IconName.SHIELD_HALVED ]: shieldHalved,
 	[ IconName.USER_LOCK ]: userLock,
-	[ IconName.CALENDAR_CLOCK ]: calendarClock,
-	[ IconName.GEAR ]: gear,
-	[ IconName.LIST ]: list,
+	[ IconName.CALENDAR ]: calendar,
+	[ IconName.SLIDERS ]: sliders,
+	[ IconName.LINK_HORIZONTAL ]: linkHorizontal,
 	[ IconName.CHART_COLUMN ]: chartColumn,
-	[ IconName.STOPWATCH ]: stopwatch,
+	[ IconName.PAUSE ]: pause,
 	[ IconName.CIRCLE_CHECK ]: circleCheck,
-	[ IconName.EXCLAMATION ]: exclamation,
+	[ IconName.CIRCLE_EXCLAMATION ]: circleExclamation,
+	[ IconName.CIRCLE_INFO ]: circleInfo,
+	[ IconName.CIRCLE_QUESTION ]: circleQuestion,
+	[ IconName.TRASH ]: trash,
 } satisfies Record<IconName, string>;
 
 /**

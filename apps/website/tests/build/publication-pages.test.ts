@@ -114,6 +114,12 @@ test.describe( 'generated website publication pages', () => {
 			expect( extensionPolicyText ).toMatch( /timing/iu );
 			expect( extensionPolicyText ).toMatch( /schedule/iu );
 			expect( extensionPolicyText ).toMatch( /statistics/iu );
+			expect( extensionPolicyText ).toMatch( /shared pause timing/iu );
+			expect( extensionPolicyText ).toMatch(
+				/lifetime totals and recorded daily totals remain locally until you reset them/iu,
+			);
+			expect( extensionPolicyText ).toMatch( /motion follows your operating system/iu );
+			expect( extensionPolicyText ).not.toMatch( /separate timing|appearance, motion/iu );
 			expect( extensionPolicyText ).toMatch( /destination (?:address|URL)/iu );
 			expect( extensionPolicyText ).toMatch( /device|browser/iu );
 			expect( await page.locator( '#permissions' ).innerText() ).toMatch( /selected (?:sites|websites)/iu );
@@ -139,6 +145,9 @@ test.describe( 'generated website publication pages', () => {
 			expect( preparationText ).toMatch( /setup/iu );
 			expect( preparationText ).toMatch( /reset/iu );
 			expect( preparationText ).toMatch( /permission/iu );
+			expect( preparationText ).toMatch( /Pause timing applies to every website/iu );
+			expect( preparationText ).toMatch( /custom schedule changes only its active days and hours/iu );
+			expect( preparationText ).not.toMatch( /own timing/iu );
 			const publicIssueText = await page.locator( '#public-issues' ).innerText();
 			expect( publicIssueText ).toMatch( /do not include|never include/iu );
 			expect( publicIssueText ).toMatch( /URL|browsing/iu );

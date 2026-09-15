@@ -2,13 +2,14 @@
 import '@tocus/ui/styles.scss';
 import '../../styles/global.scss';
 import HomePage from './page';
-import { StatisticsPreview } from '../statistics-preview';
+import { createStatisticsPreviewFormatting } from '../statistics-preview/formatting';
 import { type LocalizedHomePageProperties as Props } from '../../localization';
 import { loadLocalizationMessages } from '../../../../extension/src/localization/services/load-localization-messages';
 
 const { localization, localizations } = Astro.props;
 const { catalog } = localization;
 const demoMessages = await loadLocalizationMessages( localization.language );
+const statisticsFormatting = createStatisticsPreviewFormatting( localization.languageTag, demoMessages );
 ---
 
 <!doctype html>
@@ -31,9 +32,7 @@ const demoMessages = await loadLocalizationMessages( localization.language );
 		) )}
 	</head>
 	<body>
-		<HomePage localization={localization} localizations={localizations} demoMessages={demoMessages} client:load>
-			<StatisticsPreview slot="statisticsPreview" languageTag={localization.languageTag}
-				messages={demoMessages} label={catalog.exampleData} />
-		</HomePage>
+		<HomePage localization={localization} localizations={localizations} demoMessages={demoMessages}
+			statisticsFormatting={statisticsFormatting} client:load />
 	</body>
 </html>

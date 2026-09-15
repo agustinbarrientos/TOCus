@@ -2,7 +2,7 @@ import {
 	Alert,
 	Button,
 	Icon, IconName,
-	Stack,
+	Group,
 } from '@tocus/ui';
 import { LoadState,
 	type RecoveryProps,
@@ -27,14 +27,16 @@ export function Recovery( props: RecoveryProps ) {
 	const title = malformed ? props.copy.malformedDataTitle : props.copy.loadErrorTitle;
 	const description = malformed ? props.copy.malformedDataDescription : props.copy.loadErrorDescription;
 	return (
-		<Alert role="alert" color="red" title={ title } icon={ <Icon name={ IconName.EXCLAMATION } /> }>
-			<Stack>
-				<p>{ description }</p>
-				<Button variant="outline" disabled={ props.disabled ?? false }
-					onClick={ restoreAvailable ? props.restore : props.retry }>
-					{ restoreAvailable ? props.copy.restoreDefaults : props.copy.retry }
-				</Button>
-			</Stack>
+		<Alert role="alert" color="red" className="tocus-alert-actionable" icon={ <Icon name={ IconName.CIRCLE_EXCLAMATION } /> }>
+			<div className="tocus-alert-layout">
+				<div className="tocus-alert-copy"><h2>{ title }</h2><p>{ description }</p></div>
+				<Group className="tocus-alert-actions">
+					<Button variant="outline" disabled={ props.disabled ?? false }
+						onClick={ restoreAvailable ? props.restore : props.retry }>
+						{ restoreAvailable ? props.copy.restoreDefaults : props.copy.retry }
+					</Button>
+				</Group>
+			</div>
 		</Alert>
 	);
 }

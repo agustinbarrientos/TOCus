@@ -3,7 +3,6 @@ import {
 } from 'react';
 import {
 	Button,
-	Title,
 } from '@tocus/ui';
 import {
 	Confirmation,
@@ -119,26 +118,23 @@ export function Privacy( props: SettingsScreenProps ) {
 			onCancel={ cancelReset } onConfirm={ () => {
 				void confirmReset();
 			} }>
-			<Feedback className="settings-privacy-error tocus-notice-paragraph tocus-notice-compact"
-				error={ failed ? copy.resetError : null } />
+			<Feedback error={ failed ? copy.resetError : null } />
 		</Confirmation>;
 	}
 
 	return (
-		<Page title={ copy.title } introduction={ copy.introduction }>
+		<Page title={ copy.title }>
 			<section className="tocus-section">
 				<h2>{ copy.storedTitle }</h2>
 				<p>{ copy.storedDescription }</p>
 				<p>{ copy.statisticsPrivacy }</p>
 				<p>{ copy.recoveryPrivacy }</p>
 			</section>
-			<details className="tocus-section settings-privacy-permissions">
-				<summary>
-					<Title order={ 2 } component="span">{ copy.permissionsTitle }</Title>
-				</summary>
+			<section className="tocus-section settings-privacy-permissions">
+				<h2>{ copy.permissionsTitle }</h2>
 				<ul>{ permissions.map( ( permission ) => <li key={ permission }>{ permission }</li> ) }</ul>
 				<p>{ copy.deniedPermission }</p>
-			</details>
+			</section>
 			<ResetSection title={ copy.statisticsTitle } description={ copy.statisticsDescription }
 				label={ copy.resetStatistics } disabled={ pending || actions === null }
 				onRequest={ () => {
@@ -149,10 +145,8 @@ export function Privacy( props: SettingsScreenProps ) {
 				onRequest={ () => {
 					requestReset( PrivacyResetAction.ALL );
 				} }>{ renderConfirmation( PrivacyResetAction.ALL ) }</ResetSection>
-			{ ( actions === null || successMessage ) && <div className="settings-privacy-feedback">
-				<Feedback className="tocus-notice-paragraph"
-					error={ actions === null ? copy.unavailable : null } success={ successMessage } />
-			</div> }
+			{ ( actions === null || successMessage ) && <Feedback
+				error={ actions === null ? copy.unavailable : null } success={ successMessage } /> }
 		</Page>
 	);
 }

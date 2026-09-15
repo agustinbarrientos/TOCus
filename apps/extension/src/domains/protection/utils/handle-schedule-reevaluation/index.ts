@@ -1,5 +1,4 @@
-import type { ProtectionDecision } from '../../types/protection-decision';
-import type { ScheduleReevaluationEvent } from '../../types/protection-event';
+import { DepartureCause, ProtectionEventType, type ScheduleReevaluationEvent } from '../../types/protection-event';
 import {
 	ProtectionStateType,
 	type ProtectionState,
@@ -9,9 +8,10 @@ import { ScheduleEvaluationStatus } from '../../types/schedule-evaluation';
 import { createFailOpenDecision } from '../create-protection-decision';
 import { createTransitionResult } from '../create-protection-transition-result';
 import { protectionStateMatchesTarget } from '../match-protection-state-target';
+import { handleParticipantDeparture } from '../handle-participant-departure';
 
 /**
- * Applies one current schedule observation to a Waiting, Ready, or Allowance transaction.
+ * Applies one website schedule observation without releasing other shared participants.
  * @param state - Current validated protection state for the event scope.
  * @param event - Validated schedule-reevaluation event.
  * @return The unchanged active transaction or its atomic fail-open result.
@@ -31,18 +31,22 @@ export function handleScheduleReevaluation(
 	const participants = state.type === ProtectionStateType.WAITING
 		? state.participants
 		: state.readyParticipants;
-	const decisions: ProtectionDecision[] = participants.map( createFailOpenDecision );
+	const participant = participants.find( ( candidate ) =>
+		candidate.participantId === event.participantId && candidate.pageId === event.pageId );
 
-	if ( state.type === ProtectionStateType.WAITING || state.type === ProtectionStateType.READY ) {
-		return createTransitionResult( {
-			type: ProtectionStateType.IDLE,
-			scopeId: state.scopeId,
-			ladder: state.ladder,
-		}, decisions );
+	if ( participant === undefined ) {
+		return createTransitionResult( state );
 	}
 
-	return createTransitionResult( {
-		...state,
-		readyParticipants: [],
-	}, decisions );
+	const result = handleParticipantDeparture( state, {
+		type: ProtectionEventType.PARTICIPANT_DEPARTURE,
+		scopeId: state.scopeId,
+		target: event.target,
+		participantId: participant.participantId,
+		pageId: participant.pageId,
+		cause: DepartureCause.SCHEDULE_DEACTIVATION,
+		allowanceDurationMilliseconds: null,
+		observedAtEpochMilliseconds: 0,
+	} );
+	return createTransitionResult( result.state, [ createFailOpenDecision( participant ), ...result.decisions ] );
 }

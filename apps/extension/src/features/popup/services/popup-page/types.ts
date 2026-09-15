@@ -34,11 +34,10 @@ export interface PopupPageEnrollmentService {
 	/**
 	 * Adds one current website to the default shared timing scope.
 	 * @param input - Current tab URL supplied directly by the page coordinator.
-	 * @param independent - Whether the website receives independent timing.
 	 * @return Exact protected-site enrollment outcome.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	add( input: unknown, independent: boolean ): Promise<PopupSiteEnrollmentResult>;
+	add( input: unknown ): Promise<PopupSiteEnrollmentResult>;
 }
 
 /**

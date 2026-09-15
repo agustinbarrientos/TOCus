@@ -113,27 +113,7 @@ export interface ScheduleButtonEvent extends Event {
  * @since 0.1.0 Initial implementation.
  */
 export interface ScheduleScreenCopy {
-	eyebrow: string;
 	title: string;
-	introduction: string;
-	appliesToLabel: string;
-	sharedScope: string;
-	/**
-	 * Formats one independent protection scope for the native selector.
-	 * @param name - Resolved local site name.
-	 * @param domain - Exact configured site identity.
-	 * @return Readable selector label.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	formatIndependentScopeLabel( name: string, domain: string ): string;
-	/**
-	 * Compares two scope labels using the selected language's collation rules.
-	 * @param firstName - First scope label.
-	 * @param secondName - Second scope label.
-	 * @return Negative, zero, or positive locale-aware ordering result.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	compareNames( firstName: string, secondName: string ): number;
 	/**
 	 * Formats one weekday for native schedule options.
 	 * @param weekday - Domain weekday to present.
@@ -161,7 +141,6 @@ export interface ScheduleScreenCopy {
 	customLabel: string;
 	customDescription: string;
 	windowsLegend: string;
-	windowsHelp: string;
 	weekdayLabel: string;
 	startTimeLabel: string;
 	endTimeLabel: string;
@@ -170,7 +149,6 @@ export interface ScheduleScreenCopy {
 	startTimeRequiredError: string;
 	endTimeRequiredError: string;
 	equalTimeError: string;
-	dirtyScopeNotice: string;
 	discard: string;
 	save: string;
 	saving: string;
@@ -184,5 +162,4 @@ export interface ScheduleScreenCopy {
 	invalidConfigurationError: string;
 	invalidScheduleError: string;
 	scopeNotFoundError: string;
-	savedAnnouncement: string;
 }

@@ -1,3 +1,4 @@
+import { resolveSiteSchedule } from '../../../../domains/protection/utils/resolve-site-schedule';
 import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
 import {
 	ProtectedSiteConfigurationSchema,
@@ -7,7 +8,6 @@ import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/pr
 import { ProtectionStateType, type ProtectionState } from '../../../../domains/protection/types/protection-state';
 import {
 	DefaultProtectionScopeId,
-	type ProtectionScopeId,
 } from '../../../../domains/protection/types/protection-value';
 import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
 import { synchronizeDailyLadder } from '../../../../domains/protection/utils/daily-ladder-progression';
@@ -38,7 +38,6 @@ import type {
 	CreatePopupProjectionCurrentTabOptions,
 	CreatePopupProjectionOptions,
 	PopupActiveProtectionState,
-	PopupProjectionScopeEntry,
 	PopupWaitingProtectionState,
 } from './types';
 
@@ -85,7 +84,7 @@ function resolveCurrentUrl( options: CreatePopupProjectionCurrentTabOptions ): s
 /**
  * Converts one schedule evaluation into its popup presentation state.
  * @param configuration - Current active protection configuration.
- * @param scopeId - Timing scope owning the website.
+ * @param ruleHost - Matching host whose active hours apply.
  * @param capturedAtEpochMilliseconds - Snapshot wall-clock instant.
  * @param timeZone - Snapshot IANA time zone.
  * @return Current schedule state for presentation.
@@ -93,11 +92,11 @@ function resolveCurrentUrl( options: CreatePopupProjectionCurrentTabOptions ): s
  */
 function resolveScheduleStatus(
 	configuration: ProtectionConfigurationDocument,
-	scopeId: string,
+	ruleHost: string,
 	capturedAtEpochMilliseconds: number,
 	timeZone: string,
 ): PopupScheduleStatus {
-	const schedule = configuration.schedulesByScope[ scopeId ];
+	const schedule = resolveSiteSchedule( configuration, ruleHost );
 	const result = evaluateSchedule( schedule, capturedAtEpochMilliseconds, timeZone );
 
 	if ( result.status === ScheduleEvaluationStatus.ACTIVE ) {
@@ -161,95 +160,36 @@ function resolveNextWaitMilliseconds(
 }
 
 /**
- * Projects every active scope in stable configuration order.
+ * Projects the one shared countdown when it has an active timer.
  * @param options - Popup projection inputs with an available runtime snapshot.
- * @param currentScopeId - Current website scope, or null when none is configured.
- * @return Active Waiting and Allowance scopes in presentation order.
+ * @param isCurrentScope - Whether the current website belongs to the shared countdown.
+ * @return The shared Waiting or Allowance timer, or an empty list.
  * @since 0.1.0 Initial implementation.
  */
 function createActiveScopes(
 	options: CreatePopupProjectionAvailableOptions,
-	currentScopeId: ProtectionScopeId | null,
+	isCurrentScope: boolean,
 ): PopupActiveScope[] {
 	const { activeConfiguration, capturedAtEpochMilliseconds, statesByScope } = options.snapshot;
-	const scopeEntries: PopupProjectionScopeEntry[] = [];
-
-	if ( activeConfiguration === null ) {
+	if ( activeConfiguration === null || activeConfiguration.sites.length === 0 ) {
 		return [];
 	}
 
-	const firstSharedSite = activeConfiguration.sites.find(
-		( site ) => site.rule.scopeId === DefaultProtectionScopeId,
-	);
-
-	if ( firstSharedSite !== undefined ) {
-		scopeEntries.push( {
-			firstSite: firstSharedSite,
-			siteCount: activeConfiguration.sites.filter(
-				( site ) => site.rule.scopeId === DefaultProtectionScopeId,
-			).length,
-			scopeId: DefaultProtectionScopeId,
-		} );
+	const state = statesByScope[ DefaultProtectionScopeId ];
+	if ( state === undefined || ! hasActiveTimer( state, capturedAtEpochMilliseconds ) ) {
+		return [];
 	}
-
-	for ( const site of activeConfiguration.sites ) {
-		if (
-			site.rule.scopeId !== DefaultProtectionScopeId &&
-			! scopeEntries.some( ( entry ) => entry.scopeId === site.rule.scopeId )
-		) {
-			scopeEntries.push( {
-				firstSite: site,
-				siteCount: activeConfiguration.sites.filter(
-					( candidate ) => candidate.rule.scopeId === site.rule.scopeId,
-				).length,
-				scopeId: site.rule.scopeId,
-			} );
-		}
-	}
-
-	const currentEntry = currentScopeId === null
-		? undefined
-		: scopeEntries.find( ( entry ) => entry.scopeId === currentScopeId );
-	const orderedScopeEntries = currentEntry === undefined
-		? scopeEntries
-		: [ currentEntry, ...scopeEntries.filter( ( entry ) => entry.scopeId !== currentScopeId ) ];
-	const activeScopes: PopupActiveScope[] = [];
-
-	for ( const entry of orderedScopeEntries ) {
-		const state = statesByScope[ entry.scopeId ];
-
-		if ( state === undefined || ! hasActiveTimer( state, capturedAtEpochMilliseconds ) ) {
-			continue;
-		}
-
-		const scopeSite = entry.scopeId === DefaultProtectionScopeId
-			? null
-			: entry.firstSite;
-		const commonProjection = {
-			scopeId: state.scopeId,
-			kind: entry.scopeId === DefaultProtectionScopeId ? PopupScopeKind.SHARED : PopupScopeKind.INDEPENDENT,
-			siteCount: entry.siteCount,
-			site: scopeSite,
-			isCurrentScope: entry.scopeId === currentScopeId,
-		};
-
-		if ( state.type === ProtectionStateType.WAITING ) {
-			activeScopes.push( PopupActiveScopeSchema.parse( {
-				...commonProjection,
-				phase: PopupTimerPhase.WAITING,
-				remainingMilliseconds: getRemainingMilliseconds( state ),
-			} ) );
-			continue;
-		}
-
-		activeScopes.push( PopupActiveScopeSchema.parse( {
-			...commonProjection,
-			phase: PopupTimerPhase.ALLOWANCE,
-			expiresAtEpochMilliseconds: state.expiresAtEpochMilliseconds,
-		} ) );
-	}
-
-	return activeScopes;
+	const commonProjection = {
+		scopeId: state.scopeId, kind: PopupScopeKind.SHARED,
+		siteCount: activeConfiguration.sites.length, site: null, isCurrentScope,
+	};
+	return [ PopupActiveScopeSchema.parse( state.type === ProtectionStateType.WAITING ? {
+		...commonProjection, phase: PopupTimerPhase.WAITING,
+		remainingMilliseconds: getRemainingMilliseconds( state ),
+	} : {
+		...commonProjection, phase: PopupTimerPhase.ALLOWANCE,
+		expiresAtEpochMilliseconds: state.expiresAtEpochMilliseconds,
+	} ) ];
 }
 
 /**
@@ -291,7 +231,7 @@ function createCurrentSite(
 		? PopupScheduleStatus.UNAVAILABLE
 		: resolveScheduleStatus(
 			activeConfiguration,
-			configuredSite.rule.scopeId,
+			configuredSite.rule.host,
 			options.snapshot.capturedAtEpochMilliseconds,
 			options.snapshot.timeZone,
 		);
@@ -343,15 +283,11 @@ export function createPopupProjection( options: CreatePopupProjectionOptions ): 
 
 		currentSite = createCurrentSite( currentTabOptions, resolveCurrentUrl( currentTabOptions ) );
 	}
-	const currentScopeId = currentSite.status === PopupCurrentSiteStatus.PROTECTED
-		? currentSite.scopeId
-		: null;
-
 	return PopupProjectionSchema.parse( {
 		status: PopupProjectionStatus.AVAILABLE,
 		capturedAtEpochMilliseconds: options.snapshot.capturedAtEpochMilliseconds,
 		currentSite,
-		activeScopes: createActiveScopes( availableOptions, currentScopeId ),
+		activeScopes: createActiveScopes( availableOptions, currentSite.status === PopupCurrentSiteStatus.PROTECTED ),
 	} );
 }
 

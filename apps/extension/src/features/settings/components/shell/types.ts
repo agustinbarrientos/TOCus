@@ -45,6 +45,16 @@ export interface SettingsShellCopy {
 	unsavedChangesDescription: string;
 	stay: string;
 	discard: string;
+	save: string;
+	saving: string;
+	saveFailed: string;
+	dismissNotification: string;
+	changesSaved: string;
+	changesDiscarded: string;
+	siteAddedToDraft: string;
+	siteUpdatedInDraft: string;
+	siteRemovedFromDraft: string;
+	siteAlreadyExists: string;
 }
 
 /**

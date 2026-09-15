@@ -132,6 +132,10 @@ class ImmediateMutationLock {
 class MemoryOnboardingShell extends EventTarget implements OnboardingPageShell {
 	copy: OnboardingPageShell[ 'copy' ];
 
+	notificationCopy: OnboardingPageShell[ 'notificationCopy' ];
+
+	resetComplete = false;
+
 	interruptionCopy: OnboardingPageShell[ 'interruptionCopy' ];
 
 	editor: OnboardingPageShell[ 'editor' ] = null;
@@ -201,6 +205,32 @@ function createOptions(
 }
 
 describe( 'startOnboardingPage', () => {
+	it( 'projects a completed reset notice only after onboarding localization is ready', async () => {
+		const localization = Promise.withResolvers<typeof TestEnglishLocalizationBundle>();
+		const resetCompletion = Promise.withResolvers<boolean>();
+		const options = createOptions( {
+			loadLocalization: vi.fn().mockReturnValue( localization.promise ),
+			readResetCompletion: vi.fn().mockReturnValue( resetCompletion.promise ),
+		} );
+		const started = startOnboardingPage( options );
+		resetCompletion.resolve( true );
+		expect( options.shell.resetComplete ).not.toBe( true );
+		localization.resolve( TestEnglishLocalizationBundle );
+		await started;
+		expect( options.shell.resetComplete ).toBe( true );
+		expect( options.shell.notificationCopy ).toEqual( {
+			dismissNotification: TestEnglishLocalizationBundle.settingsShell.dismissNotification,
+			resetComplete: TestEnglishLocalizationBundle.privacyCopy.allSuccess,
+		} );
+	} );
+
+	it( 'opens onboarding normally when completion verification is unavailable', async () => {
+		const options = createOptions( { readResetCompletion: vi.fn().mockRejectedValue( new Error( 'unavailable' ) ) } );
+		await startOnboardingPage( options );
+		expect( options.shell.resetComplete ).toBe( false );
+		expect( options.shell.startupUnavailable ).toBe( false );
+	} );
+
 	it( 'retains a live protection projection when an older startup read resolves later', async () => {
 		const read = Promise.withResolvers<Record<string, unknown>>();
 		const storageChanges = new MemoryStorageChanges();

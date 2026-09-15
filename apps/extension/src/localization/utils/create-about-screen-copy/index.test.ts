@@ -8,7 +8,7 @@ describe( 'createAboutScreenCopy', () => {
 	it( 'provides English source copy and formats the supplied version', () => {
 		const copy = createAboutScreenCopy( createTestI18n() );
 
-		expect( copy.eyebrow ).toBe( 'About' );
+		expect( copy.title ).toBe( 'About' );
 		expect( copy.formatVersion( '2.3.4' ) ).toBe( 'Version 2.3.4' );
 		expect( Object.isFrozen( copy ) ).toBe( true );
 	} );

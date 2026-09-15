@@ -86,18 +86,24 @@ export interface ShadowVariablesProps {
 export const IconName = {
 	CAPYBARA: 'capybara',
 	HEART: 'heart',
-	PALETTE: 'palette',
+	BRUSH: 'brush',
 	ARROW_UP_RIGHT_FROM_SQUARE: 'arrow-up-right-from-square',
-	LETTERS: 'letters',
+	LANGUAGE: 'language',
 	SHIELD_HALVED: 'shield-halved',
 	USER_LOCK: 'user-lock',
-	CALENDAR_CLOCK: 'calendar-clock',
-	GEAR: 'gear',
-	LIST: 'list',
+	CALENDAR: 'calendar',
+	SLIDERS: 'sliders',
+	LINK_HORIZONTAL: 'link-horizontal',
 	CHART_COLUMN: 'chart-column',
-	STOPWATCH: 'stopwatch',
+	PAUSE: 'pause',
 	CIRCLE_CHECK: 'circle-check',
-	EXCLAMATION: 'exclamation',
+	ANGLE_DOWN: 'angle-down',
+	ANGLE_UP: 'angle-up',
+	SPINNER_THIRD: 'spinner-third',
+	CIRCLE_EXCLAMATION: 'circle-exclamation',
+	CIRCLE_INFO: 'circle-info',
+	CIRCLE_QUESTION: 'circle-question',
+	TRASH: 'trash',
 } as const;
 
 /**
@@ -112,6 +118,16 @@ export type IconName = ( typeof IconName )[ keyof typeof IconName ];
 export interface IconProps {
 	name: IconName;
 	className?: string;
+}
+
+/**
+ * Accessible help attached to a form field without persistent visual prose.
+ * @since 0.1.0
+ */
+export interface FieldHelpProps {
+	label: string;
+	description: string;
+	descriptionId: string;
 }
 /**
  * Established wordmark scales shared by extension surfaces and miniature previews.
@@ -137,4 +153,46 @@ export type BrandSize = ( typeof BrandSize )[ keyof typeof BrandSize ];
 export interface BrandProps {
 	className?: string;
 	size?: BrandSize;
+}
+
+/**
+ * Semantic tones for transient action feedback.
+ * @since 0.1.0
+ */
+export const SnackbarTone = { SUCCESS: 'success', INFO: 'info' } as const;
+
+/**
+ * Snackbar tone inferred from its runtime catalog.
+ * @since 0.1.0
+ */
+export type SnackbarTone = ( typeof SnackbarTone )[ keyof typeof SnackbarTone ];
+
+/**
+ * Plain localized feedback displayed after a completed action.
+ * @since 0.1.0
+ */
+export interface SnackbarOptions {
+	message: string;
+	tone?: SnackbarTone;
+}
+
+/**
+ * Stable interface for replacing one provider's current feedback.
+ * @since 0.1.0
+ */
+export interface SnackbarApi {
+	/**
+	 * Displays the latest message and discards obsolete feedback.
+	 * @param options - Localized message and optional semantic tone.
+	 */
+	show: ( options: SnackbarOptions ) => void;
+}
+
+/**
+ * Localized notification boundary nested inside the owning TocusProvider.
+ * @since 0.1.0
+ */
+export interface SnackbarProviderProps {
+	children: ReactNode;
+	closeLabel: string;
 }

@@ -75,10 +75,10 @@ describe( 'participant-departure transition', () => {
 		expect( handleParticipantDeparture( result.state, event ) ).toEqual( result );
 	} );
 
-	it( 'accepts exactly one validated participant-departure event branch', () => {
+	it( 'accepts participant-departure state fields without coordinator-only date metadata', () => {
 		expectTypeOf( handleParticipantDeparture )
 			.parameter( 1 )
-			.toEqualTypeOf<ParticipantDepartureEvent>();
+			.toEqualTypeOf<Omit<ParticipantDepartureEvent, 'observedLocalDate'>>();
 	} );
 
 	it.each( Object.values( QualifyingDepartureCause ) )(

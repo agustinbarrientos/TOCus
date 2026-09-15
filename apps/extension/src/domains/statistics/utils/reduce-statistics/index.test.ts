@@ -22,6 +22,7 @@ describe( 'reduceStatistics', () => {
 		const withAllowance = reduceStatistics( createMockStatisticsDocument(), {
 			type: 'apply-fact-batch',
 			batch: {
+				observedLocalDate: '2026-09-14',
 				batchId: 'batch_1',
 				scopeId: 'scope_default',
 				measurementRevision: 'revision_1',
@@ -66,9 +67,11 @@ describe( 'reduceStatistics', () => {
 		} );
 
 		expect( reset ).toEqual( {
-			schemaVersion: 1,
+			schemaVersion: 2,
 			generationId: 'generation_2',
 			lastAppliedBatchId: 'batch_1',
+			firstRecordedDate: null,
+			dailyTotals: [],
 			scopes: {
 				scope_default: {
 					totals: {

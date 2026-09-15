@@ -462,8 +462,8 @@ describe( 'createProtectionRuntimeRestorer', () => {
 			url: 'https://unrelated.example/',
 		},
 		{
-			label: 'the protected scope has no schedule',
-			configuration: { ...CONFIGURATION, schedulesByScope: {} },
+			label: 'the protected website was removed',
+			configuration: { ...CONFIGURATION, sites: [] },
 			url: 'https://example.com/preserved-draft',
 		},
 	] )( 'marks an expiry-origin Ready observation inactive when $label', async ( testCase ) => {
@@ -565,6 +565,7 @@ describe( 'createProtectionRuntimeRestorer', () => {
 			cause: DepartureCause.BROWSER_ERROR_OR_RECOVERY,
 			allowanceDurationMilliseconds: null,
 			observedAtEpochMilliseconds: NOW_EPOCH_MILLISECONDS,
+			observedLocalDate: '2027-01-15',
 		} ] );
 		expect( harness.applyDispatchResult ).toHaveBeenCalledWith( APPLIED_RESULT, testCase.configuration );
 	} );

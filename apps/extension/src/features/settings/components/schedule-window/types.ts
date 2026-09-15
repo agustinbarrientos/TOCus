@@ -11,6 +11,7 @@ import type {
  * @since 0.1.0
  */
 export interface ScheduleWindowControlProps {
+	idPrefix: string;
 	copy: ScheduleScreenCopy;
 	window: ScheduleWindowDraft;
 	index: number;

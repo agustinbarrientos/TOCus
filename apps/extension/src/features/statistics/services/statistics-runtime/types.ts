@@ -12,6 +12,7 @@ import type {
 	StatisticsFocusObservationMode,
 } from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
 import type { StatisticsCheckpointObservation } from '../statistics-focus-session';
+import type { LocalDate } from '../../../../domains/protection/types/protection-value';
 
 export type {
 	StatisticsCheckpointFocusObservation,
@@ -40,6 +41,13 @@ export interface StatisticsRuntimeOptions {
 	 * @since 0.1.0 Initial implementation.
 	 */
 	createGenerationId(): unknown;
+
+	/**
+	 * Resolves today's date in the operating system's local calendar for the graph boundary.
+	 * @return Local calendar date without any site information.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	getLocalDate(): LocalDate;
 }
 
 /**

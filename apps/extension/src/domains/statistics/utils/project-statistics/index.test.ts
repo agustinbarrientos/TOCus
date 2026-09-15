@@ -6,16 +6,18 @@ import { projectStatistics } from './index';
 
 describe( 'projectStatistics', () => {
 	it( 'returns unavailable for malformed or unsupported persistence', () => {
-		expect( projectStatistics( null ) ).toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
+		expect( projectStatistics( null, '2026-09-14' ) ).toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
 		expect( projectStatistics( {
 			...createMockStatisticsDocument(),
-			schemaVersion: 2,
-		} ) ).toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
+			schemaVersion: 3,
+		}, '2026-09-14' ) ).toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
 	} );
 
 	it( 'projects exactly five zero values before any visit or pause is recorded', () => {
-		expect( projectStatistics( createMockStatisticsDocument() ) ).toEqual( {
+		expect( projectStatistics( createMockStatisticsDocument(), '2026-09-14' ) ).toEqual( {
 			status: StatisticsProjectionStatus.AVAILABLE,
+			currentDate: '2026-09-14',
+			dailyTotals: [],
 			estimatedReclaimedMilliseconds: 0,
 			focusedPauseMilliseconds: 0,
 			reconsideredVisitCount: 0,
@@ -35,7 +37,7 @@ describe( 'projectStatistics', () => {
 					latestBaseline: { measurementRevision: 'revision_1', focusedUseMilliseconds: 120_000 },
 				},
 			},
-		} ) ).toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
+		}, '2026-09-14' ) ).toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
 	} );
 
 	it( 'sums every per-scope all-time total', () => {
@@ -64,8 +66,10 @@ describe( 'projectStatistics', () => {
 			},
 		} );
 
-		expect( projectStatistics( document ) ).toEqual( {
+		expect( projectStatistics( document, '2026-09-14' ) ).toEqual( {
 			status: StatisticsProjectionStatus.AVAILABLE,
+			currentDate: '2026-09-14',
+			dailyTotals: [],
 			estimatedReclaimedMilliseconds: 33,
 			focusedPauseMilliseconds: 22,
 			reconsideredVisitCount: 33,
@@ -90,8 +94,10 @@ describe( 'projectStatistics', () => {
 			},
 		} );
 
-		expect( projectStatistics( document ) ).toEqual( {
+		expect( projectStatistics( document, '2026-09-14' ) ).toEqual( {
 			status: StatisticsProjectionStatus.AVAILABLE,
+			currentDate: '2026-09-14',
+			dailyTotals: [],
 			estimatedReclaimedMilliseconds: 120_000,
 			focusedPauseMilliseconds: 120_000,
 			reconsideredVisitCount: 0,
@@ -118,8 +124,9 @@ describe( 'projectStatistics', () => {
 		const persistedBefore = JSON.stringify( document );
 
 		for ( let read = 0; read < 3; read += 1 ) {
-			expect( projectStatistics( document ) ).toMatchObject( {
+			expect( projectStatistics( document, '2026-09-14' ) ).toMatchObject( {
 				status: StatisticsProjectionStatus.AVAILABLE,
+				dailyTotals: [],
 				estimatedReclaimedMilliseconds: 1_020_000,
 				focusedPauseMilliseconds: 120_000,
 				reconsideredVisitCount: 3,
@@ -145,7 +152,7 @@ describe( 'projectStatistics', () => {
 			},
 		} );
 
-		expect( projectStatistics( document ) ).toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
+		expect( projectStatistics( document, '2026-09-14' ) ).toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
 	} );
 
 	it( 'preserves accumulated estimates when the measurement revision changes', () => {
@@ -164,8 +171,9 @@ describe( 'projectStatistics', () => {
 			currentMeasurementRevision: 'revision_2',
 		} );
 
-		expect( projectStatistics( document ) ).toMatchObject( {
+		expect( projectStatistics( document, '2026-09-14' ) ).toMatchObject( {
 			status: StatisticsProjectionStatus.AVAILABLE,
+			dailyTotals: [],
 			estimatedReclaimedMilliseconds: 60_000,
 		} );
 	} );
@@ -182,8 +190,9 @@ describe( 'projectStatistics', () => {
 			totals: scope.totals,
 		} );
 
-		expect( projectStatistics( document ) ).toMatchObject( {
+		expect( projectStatistics( document, '2026-09-14' ) ).toMatchObject( {
 			status: StatisticsProjectionStatus.AVAILABLE,
+			dailyTotals: [],
 			estimatedReclaimedMilliseconds: 0,
 		} );
 	} );
@@ -214,6 +223,6 @@ describe( 'projectStatistics', () => {
 			},
 		} );
 
-		expect( projectStatistics( document ) ).toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
+		expect( projectStatistics( document, '2026-09-14' ) ).toEqual( { status: StatisticsProjectionStatus.UNAVAILABLE } );
 	} );
 } );

@@ -20,7 +20,6 @@ describe( 'arePreferencesEqual', () => {
 		{ field: 'theme', value: ThemeMode.DARK },
 		{ field: 'palette', value: Palette.GREEN },
 		{ field: 'pauseMode', value: PauseMode.QUIET },
-		{ field: 'reducedMotion', value: true },
 		{ field: 'language', value: Language.GERMAN },
 	] )( 'rejects a projection whose $field differs', ( { field, value } ) => {
 		expect( arePreferencesEqual(

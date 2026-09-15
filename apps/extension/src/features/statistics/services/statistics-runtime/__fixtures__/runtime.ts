@@ -2,6 +2,7 @@ import type {
 	ProtectionCoordinatorStateSnapshot,
 	ProtectionCoordinatorStatisticsDeliverySnapshot,
 } from '../../../../../domains/protection/services/protection-coordinator';
+import { createRuntimeLocalDate } from '../../../../protection-runtime/utils/runtime-local-date';
 import type { ProtectionConfigurationDocument } from '../../../../../domains/protection/types/protected-site-configuration';
 import type {
 	SessionContinuityId,
@@ -361,6 +362,12 @@ export function createRuntimeHarness(
 		storage,
 		sessionStorage,
 		createGenerationId: createResetGenerationId,
+		/**
+		 * Resolves the current test clock in a deterministic calendar.
+		 * @return Test-local calendar date.
+		 * @since 0.1.0 Initial implementation.
+		 */
+		getLocalDate: () => createRuntimeLocalDate( clock.now(), 'UTC' ),
 	};
 	const runtime = createStatisticsRuntime( options );
 

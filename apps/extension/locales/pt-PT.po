@@ -35,8 +35,8 @@ msgstr "{count, plural, one {# temporizador ativo} other {# temporizadores ativo
 
 #. Compact countdown shown during a focused pause. The letter s means seconds.
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
-msgid "{count, plural, one {#s remaining} other {#s remaining}}"
-msgstr "{count, plural, zero {Faltam # s} one {Falta # s} two {Faltam # s} few {Faltam # s} many {Faltam # s} other {Faltam # s}}"
+msgid "{count, plural, one {#s} other {#s}}"
+msgstr "{count, plural, one {#s} other {#s}}"
 
 #. Browser toolbar tooltip while a focused pause has whole minutes remaining.
 #: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
@@ -85,10 +85,6 @@ msgstr "{count}m"
 msgid "{count}s"
 msgstr "{count}s"
 
-#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "{name} ({domain})"
-msgstr "{name} ({domain})"
-
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "{name} access was restored."
 msgstr "O acesso a {name} foi reposto."
@@ -133,10 +129,6 @@ msgctxt "Extension description"
 msgid "A gentle pause before distracting websites, designed to help you return to your intentions."
 msgstr "Uma pausa tranquila antes de sites que distraem, pensada para ajudar a retomar as suas intenções."
 
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "A private, all-time view of the pauses and choices TOCus has supported on this device."
-msgstr "Uma vista privada de todo o histórico de pausas e escolhas apoiadas pelo TOCus neste dispositivo."
-
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "A soft clay sphere expands as you breathe in and settles as you breathe out."
 msgstr "Uma esfera macia de argila expande-se ao inspirar e repousa ao expirar."
@@ -166,13 +158,13 @@ msgstr "Acesso necessário"
 msgid "Access to your selected websites lets TOCus show the pause. You choose which websites to allow."
 msgstr "O acesso aos sites escolhidos permite ao TOCus mostrar a pausa. Pode escolher quais os sites a autorizar."
 
-#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "Accessibility"
-msgstr "Acessibilidade"
-
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Active time windows"
 msgstr "Períodos horários ativos"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Activity"
+msgstr "Atividade"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Add {siteName}"
@@ -182,6 +174,10 @@ msgstr "Adicionar {siteName}"
 msgid "Add another site"
 msgstr "Adicionar outro site"
 
+#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+msgid "Add row"
+msgstr "Adicionar linha"
+
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Add site"
@@ -190,10 +186,6 @@ msgstr "Adicionar site"
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "Add the first site you want TOCus to gently interrupt."
 msgstr "Adicione o primeiro site onde pretende que o TOCus faça uma interrupção suave."
-
-#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Add time window"
-msgstr "Adicionar período horário"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Adding {siteName}..."
@@ -218,8 +210,8 @@ msgid "All time"
 msgstr "Todo o período"
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
-msgid "All TOCus data reset. Opening setup..."
-msgstr "Todos os dados do TOCus foram repostos. A abrir a configuração inicial..."
+msgid "All TOCus data reset."
+msgstr "Todos os dados do TOCus foram repostos."
 
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Allow access"
@@ -241,10 +233,6 @@ msgstr "A permitir acesso..."
 msgid "An active pause may temporarily keep its destination address so you can return to the website."
 msgstr "Uma pausa ativa pode guardar temporariamente o endereço de destino para poder voltar ao site."
 
-#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "An end time earlier than its start continues into the next day."
-msgstr "Uma hora de fim anterior à hora de início prolonga-se pelo dia seguinte."
-
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
@@ -253,12 +241,8 @@ msgid "Appearance"
 msgstr "Aparência"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "Appearance and accessibility preferences"
-msgstr "Preferências de aparência e acessibilidade"
-
-#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "Appearance saved."
-msgstr "Aparência guardada."
+msgid "Appearance preferences"
+msgstr "Preferências de aparência"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Appearance settings could not load"
@@ -267,6 +251,11 @@ msgstr "Não foi possível carregar as definições de aparência"
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Approximately {duration}"
 msgstr "Aproximadamente {duration}"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Automatic name"
+msgstr "Nome automático"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
@@ -325,13 +314,29 @@ msgstr "É necessário acesso ao navegador para apresentar a pausa neste site. N
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: apps/extension/src/localization/utils/create-timing-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Change schedule or site name"
+msgstr "Alterar os horários ou o nome do site"
+
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Changes could not be saved. Check the fields and try again."
+msgstr "Não foi possível guardar as alterações. Verifique os campos e tente novamente."
+
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Changes discarded."
+msgstr "Alterações descartadas."
+
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 msgid "Changes saved."
 msgstr "Alterações guardadas."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Check the schedule and try again."
 msgstr "Verifique o horário e volte a tentar."
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Choose a day and valid start and end times."
+msgstr "Escolha um dia e horas de início e fim válidas."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Choose a start time."
@@ -345,29 +350,13 @@ msgstr "Escolha uma hora de fim."
 msgid "Choose the appearance and color that feel right for you."
 msgstr "Escolha a aparência e a cor que prefere."
 
-#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "Choose the colors and pause style that feel right for you."
-msgstr "Escolha as cores e o estilo de pausa que prefere."
-
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Choose the days and times when TOCus should be active."
 msgstr "Escolha os dias e as horas em que o TOCus deve estar ativo."
 
-#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
-msgid "Choose the language TOCus uses across the extension."
-msgstr "Escolha o idioma utilizado pelo TOCus em toda a extensão."
-
-#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "Choose the websites where a calm pause can help you return to your intentions."
-msgstr "Escolha os sites onde uma pausa tranquila pode ajudar a retomar as suas intenções."
-
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Choose websites"
 msgstr "Escolha sites"
-
-#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Choose when TOCus is active. Times use this device's current time zone."
-msgstr "Escolha quando o TOCus está ativo. As horas seguem o fuso horário atual deste dispositivo."
 
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
 msgid "Choose your language"
@@ -411,15 +400,27 @@ msgstr "Contribuir"
 msgid "Create a gentle pause before the websites you choose."
 msgstr "Crie uma pausa tranquila antes dos sites que escolher."
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Current month"
+msgstr "Mês atual"
+
 #. Heading above the current browser website in the extension popup.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Current website"
 msgstr "Site atual"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Current week"
+msgstr "Semana atual"
+
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Dark"
 msgstr "Escuro"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Date"
+msgstr "Data"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Day"
@@ -447,12 +448,8 @@ msgid "Discard"
 msgstr "Descartar"
 
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
-msgid "Discard unsaved changes?"
-msgstr "Descartar as alterações não guardadas?"
-
-#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
-msgid "Display name"
-msgstr "Nome apresentado"
+msgid "Dismiss notification"
+msgstr "Fechar notificação"
 
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Done"
@@ -461,10 +458,6 @@ msgstr "Concluído"
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Each completed wait adds this amount to the next wait that day."
 msgstr "Cada espera concluída acrescenta esta duração à espera seguinte desse dia."
-
-#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
-msgid "Each website has its own timer."
-msgstr "Cada site tem o seu próprio temporizador."
 
 #. Label for the end-time field of a scheduled protection window.
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -489,10 +482,6 @@ msgstr "Introduza um endereço de site válido, como example.com."
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Enter a valid website address."
 msgstr "Introduza um endereço de site válido."
-
-#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "Enter a website address or domain. TOCus includes its subdomains by default."
-msgstr "Introduza um endereço de site ou domínio. Por predefinição, o TOCus inclui os respetivos subdomínios."
 
 #. Language autonym. Keep the language name written in Spanish.
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
@@ -546,15 +535,6 @@ msgstr "Français"
 msgid "Friday"
 msgstr "Sexta-feira"
 
-#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "Give this site its own wait and allowance."
-msgstr "Atribuir a este site a sua própria espera e o seu próprio período de acesso."
-
-#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
-#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "Give this website its own timing"
-msgstr "Atribuir durações próprias a este site"
-
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Global timing"
 msgstr "Durações gerais"
@@ -563,27 +543,6 @@ msgstr "Durações gerais"
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Green"
 msgstr "Verde"
-
-#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "How should this site behave?"
-msgstr "Como deve funcionar este site?"
-
-#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
-msgid "Includes {host} and its subdomains"
-msgstr "Inclui {host} e os respetivos subdomínios"
-
-#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
-msgid "Includes only {host}"
-msgstr "Inclui apenas {host}"
-
-#. Status adjective for a site with its own protection timing.
-#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
-msgid "Independent"
-msgstr "Independente"
-
-#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
-msgid "Independent sites"
-msgstr "Sites independentes"
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Initial wait"
@@ -599,10 +558,6 @@ msgstr "Italiano"
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Keep site"
 msgstr "Manter site"
-
-#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "Keep the pause still and remove movement."
-msgstr "Manter a pausa imóvel e sem movimento."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Keep TOCus active every day and at every time."
@@ -620,16 +575,8 @@ msgid "Language preference"
 msgstr "Preferências de idioma"
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
-msgid "Language saved."
-msgstr "Idioma guardado."
-
-#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Language settings could not load"
 msgstr "Não foi possível carregar as definições de idioma"
-
-#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
-msgid "Leaving this page will discard your unsaved changes."
-msgstr "Se sair desta página, as alterações não guardadas serão descartadas."
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Less than 1 minute"
@@ -689,7 +636,6 @@ msgid "Make TOCus yours"
 msgstr "Torne o TOCus seu"
 
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
-#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Manage this website"
 msgstr "Gerir este site"
 
@@ -705,9 +651,18 @@ msgstr "Licença MIT"
 msgid "Monday"
 msgstr "Segunda-feira"
 
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Name"
+msgstr "Nome"
+
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "Navigation access notices website changes as they happen, not your saved browsing history."
 msgstr "O acesso à navegação deteta mudanças de site quando ocorrem, sem consultar o seu histórico guardado."
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "No activity recorded in this period."
+msgstr "Nenhuma atividade registada neste período."
 
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "No websites yet"
@@ -726,11 +681,6 @@ msgstr "Desativado neste momento"
 msgid "On a weekly schedule"
 msgstr "Segundo um horário semanal"
 
-#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
-#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "One timer for these websites"
-msgstr "Um temporizador para estes sites"
-
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Open Settings"
 msgstr "Abrir Definições"
@@ -738,10 +688,6 @@ msgstr "Abrir Definições"
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "Open source. Open to you."
 msgstr "Código aberto. Aberto a ti."
-
-#: apps/extension/src/localization/utils/create-timing-copy/index.ts
-msgid "Open the requested site as soon as the wait ends."
-msgstr "Abrir o site solicitado assim que a espera terminar."
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Open the site automatically"
@@ -756,20 +702,10 @@ msgstr "Ou prima {key}"
 msgid "Orange"
 msgstr "Laranja"
 
-#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
-msgid "Pause behavior"
-msgstr "Comportamento da pausa"
-
 #. Popup status while the user is completing a timed pause before a website.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Pause in progress"
 msgstr "Pausa em curso"
-
-#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-#: apps/extension/src/localization/utils/create-timing-copy/index.ts
-msgid "Pause setup"
-msgstr "Configuração da pausa"
 
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Pause site"
@@ -788,10 +724,9 @@ msgstr "Duração das pausas"
 msgid "Pause: complete"
 msgstr "Pausa: concluída"
 
-#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-#: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
-msgid "Personalization"
-msgstr "Personalização"
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Period"
+msgstr "Período"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
@@ -852,10 +787,6 @@ msgstr "Pausa serena"
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Reconsidered visits"
 msgstr "Visitas reconsideradas"
-
-#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "Reduce motion"
-msgstr "Reduzir movimento"
 
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Remove"
@@ -921,6 +852,7 @@ msgstr "Sábado"
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Save"
 msgstr "Guardar"
@@ -929,14 +861,19 @@ msgstr "Guardar"
 msgid "Save changes"
 msgstr "Guardar alterações"
 
-#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Save or discard your changes before choosing other websites."
-msgstr "Guarde ou descarte as alterações antes de escolher outros sites."
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Save or discard your changes before leaving this page."
+msgstr "Guarde ou descarte as alterações antes de sair desta página."
+
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Save your changes?"
+msgstr "Guardar alterações?"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Saving..."
 msgstr "A guardar..."
@@ -950,18 +887,6 @@ msgstr "Horário"
 msgid "Schedule could not load"
 msgstr "Não foi possível carregar o horário"
 
-#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Schedule for"
-msgstr "Horário para"
-
-#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Schedule saved."
-msgstr "Horário guardado."
-
-#: apps/extension/src/localization/utils/create-timing-copy/index.ts
-msgid "Set one calm timing pattern for every website on your list."
-msgstr "Defina um padrão de durações tranquilo para todos os sites da sua lista."
-
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 msgid "Settings"
@@ -970,11 +895,6 @@ msgstr "Definições"
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Setup progress"
 msgstr "Progresso da configuração"
-
-#. Status adjective for a site that shares protection timing with other sites.
-#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
-msgid "Shared"
-msgstr "Partilhada"
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Show a Continue button"
@@ -992,10 +912,26 @@ msgstr "Desde que começou, recuperou cerca de {estimatedReclaimedTime} para si.
 msgid "Since you started, you've taken {focusedPauseTime} for yourself."
 msgstr "Desde que começou, reservou {focusedPauseTime} para si."
 
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Site added. Save to apply your changes."
+msgstr "Site adicionado. Guarde para aplicar as alterações."
+
 #. Popup status when the current website is not on the user's TOCus list.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Site not on the list"
 msgstr "O site não está na lista"
+
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Site removed. Save to apply your changes."
+msgstr "Site removido. Guarde para aplicar as alterações."
+
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Site updated. Save to apply your changes."
+msgstr "Site atualizado. Guarde para aplicar as alterações."
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Some daily details are unavailable. All-time totals still include them."
+msgstr "Alguns dados diários não estão disponíveis, mas continuam incluídos nos totais de todo o período."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Something went wrong while adding that site. Try again."
@@ -1099,10 +1035,6 @@ msgstr "Não foi possível atualizar as definições locais em segurança."
 msgid "The schedule could not be saved. Your settings were not changed."
 msgstr "Não foi possível guardar o horário. As definições não foram alteradas."
 
-#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "The selected palette colors the complete pause experience."
-msgstr "A paleta selecionada aplica cor a toda a experiência de pausa."
-
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "The wait will not grow beyond this duration."
 msgstr "A espera não ultrapassará esta duração."
@@ -1119,11 +1051,6 @@ msgstr "Tema"
 msgid "These timing choices are not valid. Review them before saving."
 msgstr "Estas escolhas de duração não são válidas. Reveja-as antes de guardar."
 
-#: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
-msgid "These websites use the same timer."
-msgstr "Estes sites usam o mesmo temporizador."
-
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 #: apps/extension/src/localization/utils/create-wellbeing-copy/index.ts
 msgid "This is a moment just for you."
 msgstr "Este momento é só para si."
@@ -1135,6 +1062,10 @@ msgstr "Isto é o que verá"
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "This site changed elsewhere. Reload settings and try again."
 msgstr "Este site foi alterado noutro local. Recarregue as definições e volte a tentar."
+
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "This site is already in your list."
+msgstr "Este site já está na sua lista."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "This site was not saved, but TOCus may still have browser access to it. Add it again to finish setup, or remove that access from your browser's extension settings."
@@ -1383,29 +1314,14 @@ msgstr "Utilizar um aspeto escuro."
 msgid "Use a light appearance."
 msgstr "Utilizar um aspeto claro."
 
-#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
-msgid "Use automatic name"
-msgstr "Utilizar nome automático"
-
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Use browser language"
 msgstr "Utilizar o idioma do navegador"
 
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
-msgid "Use shared timing"
-msgstr "Utilizar durações partilhadas"
-
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "Use the same wait and allowance as your other websites."
-msgstr "Utilize a mesma espera e o mesmo período de acesso dos restantes sites."
-
-#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
-msgid "Uses its own wait, allowance, and schedule."
-msgstr "Utiliza a sua própria espera, o seu próprio período de acesso e o seu próprio horário."
-
-#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
-msgid "Uses the shared wait, allowance, and schedule."
-msgstr "Utiliza a espera, o período de acesso e o horário partilhados."
+msgid "Use custom schedule"
+msgstr "Usar horário personalizado"
 
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "Version {version}"
@@ -1418,10 +1334,6 @@ msgstr "Período de visita: concluído"
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
 msgid "Vos"
 msgstr "Vos"
-
-#: apps/extension/src/localization/utils/create-timing-copy/index.ts
-msgid "Wait for an explicit choice before opening the site."
-msgstr "Esperar por uma escolha explícita antes de abrir o site."
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Wait increase"
@@ -1452,10 +1364,6 @@ msgstr "Queres ter mais controlo sobre o código que executas? Faz um fork do pr
 msgid "Website address"
 msgstr "Endereço do site"
 
-#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "Website changes saved."
-msgstr "Alterações nos sites guardadas."
-
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
@@ -1467,20 +1375,12 @@ msgid "Websites could not load"
 msgstr "Não foi possível carregar os sites"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Websites using the same timer"
-msgstr "Sites que usam o mesmo temporizador"
-
-#: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Wednesday"
 msgstr "Quarta-feira"
 
 #: apps/extension/src/localization/utils/create-document-copy/index.ts
 msgid "Welcome to TOCus"
 msgstr "Boas-vindas ao TOCus"
-
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Wellbeing"
-msgstr "Bem-estar"
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "What stays on your device"
@@ -1547,10 +1447,6 @@ msgstr "Não foi possível guardar as alterações. Nada foi substituído."
 msgid "Your choice could not be saved. Try again."
 msgstr "Não foi possível guardar a sua escolha. Volte a tentar."
 
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
-msgid "Your data stays on this device. No account, servers, or tracking."
-msgstr "Os seus dados ficam neste dispositivo. Sem conta, servidores ou rastreio."
-
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "Your data stays with you"
 msgstr "Os teus dados ficam contigo"
@@ -1560,6 +1456,9 @@ msgid "Your language could not be saved. Your choice is still shown here."
 msgstr "Não foi possível guardar o idioma. A sua escolha continua visível aqui."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "Your local personalization data is not valid. Restoring defaults will reset appearance, pause, and language preferences."
+msgstr "Os seus dados de personalização não são válidos. Restaurar as predefinições irá repor as preferências de aparência, pausa e idioma."
+
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Your local personalization data is not valid. Restoring defaults will reset appearance, pause, motion, and language preferences."
 msgstr "Os dados locais de personalização não são válidos. Repor as predefinições irá repor as preferências de aparência, pausa, movimento e idioma."
@@ -1625,16 +1524,16 @@ msgid "Your website list needs attention"
 msgstr "A sua lista de sites requer atenção"
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
-msgid "Your website list, shared or separate timing, schedules, preferences, and statistics."
-msgstr "A sua lista de sites, tempos partilhados ou separados, horários, preferências e estatísticas."
+msgid "Your website list, pause timing, schedules, preferences, and statistics."
+msgstr "A tua lista de sites, durações das pausas, horários, preferências e estatísticas."
 
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Your websites and settings are unchanged. Try again."
 msgstr "Os seus sites e definições não foram alterados. Volte a tentar."
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
-msgid "Your websites, groups, schedules, timing, preferences, active pauses, and statistics will be deleted. Website access will be removed and setup will reopen. This cannot be undone."
-msgstr "Os seus sites, grupos, horários, tempos, preferências, pausas ativas e estatísticas serão apagados. O acesso aos sites será removido e a configuração inicial será reaberta. Esta ação não pode ser desfeita."
+msgid "Your websites, schedules, pause timing, preferences, active pauses, and statistics will be deleted. Website access will be removed and setup will reopen. This cannot be undone."
+msgstr "Os teus sites, horários, durações das pausas, preferências, pausas ativas e estatísticas serão eliminados. As permissões de acesso aos sites serão removidas e a configuração inicial será aberta. Esta ação não pode ser anulada."
 
 #. Language autonym. Keep the language name written in Russian.
 #. Language-menu autonym. Keep this language name written in Russian.

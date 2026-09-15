@@ -44,7 +44,7 @@ export function createPopupEnrollmentController(
 			return undefined;
 		}
 
-		void options.enrollment.add( request.data.siteInput, request.data.independent )
+		void options.enrollment.add( request.data.siteInput )
 			.then( ( result ) => {
 				respond( sendResponse, result.status === ProtectedSiteEnrollmentStatus.REJECTED
 					? result

@@ -4,8 +4,8 @@
 
 ## Ownership
 
-- `packages/ui/src/theme.ts` owns library defaults and semantic variants, including complete foreground/background pairs for resting, hover and focus states.
-- `packages/ui/src/styles.scss` owns shared layouts and cross-component interaction rules. Application SCSS owns only screen layout and unique branded artwork.
+- `packages/ui/src/theme.ts` owns library defaults and semantic variants, including complete foreground/background pairs for resting, hover and focus states, the native-select `ANGLE_DOWN` artwork and the default `SPINNER_THIRD` loader.
+- `packages/ui/src/styles.scss` owns shared layouts and cross-component interaction rules, including native disclosure `ANGLE_DOWN`/`ANGLE_UP` states and loader sizing, rotation and reduced-motion handling. Application SCSS owns only screen layout and unique branded artwork.
 - `packages/ui/src/provider.tsx` owns theme context, portals and style targets. The injected pause keeps styles, overlays and generated variables inside its own Shadow DOM; it must never style the website underneath it.
 - `tokens.scss`, `sizing.scss` and `typography/` remain framework-independent. `controls.scss` contains only the focus-ring mixin used by the native pause dialog, not another control library.
 
@@ -17,6 +17,12 @@
 - Options use library radio or checkbox semantics. The shared `tocus-choice-card` class gives neutral unselected borders and an accent border only when selected.
 - Read-only summaries use text, headings and separators. They are not selection-shaped cards.
 - All heading levels use the brand font. Links remain underlined and external links use the supplied external-link icon.
+
+## Icon assets and licenses
+
+`assets/icons/` stores the supplied SVG artwork consumed through `@tocus/ui`'s shape-based `IconName` catalog. See the [shared UI icon documentation](../ui/README.md) for names and control usage. The brand mascot remains in `assets/icon.svg`.
+
+The 15 supplied replacement and control SVGs carry Font Awesome Pro v7.3.1 commercial-license notices and Fonticons, Inc. copyright notices. `circle-check.svg` retains its Font Awesome Free notice. These third-party asset notices are separate from the project's MIT license; preserve them when editing or distributing the SVGs. This repository does not include the Font Awesome Pro license agreement or document permission to redistribute the raw assets.
 
 ## Regression checks
 

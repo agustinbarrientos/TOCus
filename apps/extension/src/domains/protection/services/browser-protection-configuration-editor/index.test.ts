@@ -31,7 +31,7 @@ class MemoryProtectionConfigurationMutationLock implements BrowserProtectionConf
 }
 
 describe( 'createBrowserProtectionConfigurationEditor', () => {
-	it( 'coordinates site writes and creates prefixed identifiers from browser UUIDs', async () => {
+	it( 'coordinates site writes and rotates the shared countdown revision with browser UUIDs', async () => {
 		const values: Record<string, unknown> = {};
 		const set = vi.fn<( update: Record<string, unknown> ) => Promise<void>>( ( update ) => {
 			Object.assign( values, update );
@@ -46,28 +46,26 @@ describe( 'createBrowserProtectionConfigurationEditor', () => {
 		};
 		const locks = new MemoryProtectionConfigurationMutationLock();
 		const randomUUID = vi.fn()
-			.mockReturnValueOnce( 'default-measurement-id' )
-			.mockReturnValueOnce( 'scope-id' )
-			.mockReturnValueOnce( 'measurement-id' );
+			.mockReturnValueOnce( 'first-measurement-id' )
+			.mockReturnValueOnce( 'second-measurement-id' );
 		const services = createBrowserProtectionConfigurationEditor( {
 			area,
 			cryptography: { randomUUID },
 			locks,
 		} );
 
-		const sharedResult = await services.editor.add( 'instagram.com', false );
-		const independentResult = await services.editor.add( 'youtube.com', true );
+		const sharedResult = await services.editor.add( 'instagram.com' );
+		const nextResult = await services.editor.add( 'youtube.com' );
 
 		expect( locks.names ).toEqual( [
 			ProtectionConfigurationStorageKey.CONFIGURATION,
 			ProtectionConfigurationStorageKey.CONFIGURATION,
 		] );
 		expect( sharedResult ).toHaveProperty( 'configuration.sites.0.rule.scopeId', DefaultProtectionScopeId );
-		expect( independentResult ).toHaveProperty( 'configuration.sites.1.rule.scopeId', 'scope_scope-id' );
-		expect( independentResult ).toHaveProperty(
-			'configuration.measurementRevisionsByScope.scope_scope-id',
-			'revision_measurement-id',
-		);
+		expect( nextResult ).toHaveProperty( 'configuration.sites.1.rule.scopeId', DefaultProtectionScopeId );
+		expect( nextResult ).toHaveProperty( 'configuration.measurementRevisionsByScope', {
+			[ DefaultProtectionScopeId ]: 'revision_second-measurement-id',
+		} );
 		expect( set ).toHaveBeenCalledTimes( 2 );
 	} );
 
@@ -109,7 +107,7 @@ describe( 'createBrowserProtectionConfigurationEditor', () => {
 		await editor.load();
 		values[ LocalDataGenerationStorageKey ] = { generation: 'reset', pending: false };
 		const finalize = vi.fn().mockResolvedValue( undefined );
-		await expect( editor.add( 'github.com', false, undefined, finalize ) ).rejects.toThrow( 'reset' );
+		await expect( editor.add( 'github.com', undefined, finalize ) ).rejects.toThrow( 'reset' );
 		expect( area.set ).not.toHaveBeenCalled();
 		expect( finalize ).toHaveBeenCalledWith( expect.objectContaining( { result: null } ) );
 	} );

@@ -50,7 +50,7 @@ export function About( props: SettingsScreenProps ) {
 	];
 
 	return (
-		<Page title={ copy.eyebrow } headerContent={ <>
+		<Page title={ copy.title } headerContent={ <>
 			<div className="settings-about-brand"><Brand size={ BrandSize.HERO } /></div>
 			{ version !== '' && <p className="settings-about-version">{ copy.formatVersion( version ) }</p> }
 		</> }>
@@ -58,16 +58,16 @@ export function About( props: SettingsScreenProps ) {
 				<h2>{ copy.storyTitle }</h2>
 				<ProjectLink label={ copy.creator }
 					href="https://agustinbarrientos.com/about/?utm_source=tocus&utm_medium=extension&utm_campaign=about" />
-				<p className="settings-about-story">{ copy.summary }</p>
+				<p>{ copy.summary }</p>
 			</section>
 			<section className="tocus-section settings-about-section">
 				<h2>{ copy.privacyTitle }</h2>
-				<p className="settings-about-description">{ copy.privacyDescription }</p>
+				<p>{ copy.privacyDescription }</p>
 			</section>
 			<section className="tocus-section settings-about-section">
 				<h2>{ copy.linksTitle }</h2>
-				<p className="settings-about-description">{ copy.linksDescription }</p>
-				<p className="settings-about-description">{ copy.forkDescription }</p>
+				<p>{ copy.linksDescription }</p>
+				<p>{ copy.forkDescription }</p>
 				<Group component="ul" className="settings-about-links">
 					{ resources.map( ( resource ) => <li key={ resource.href }><ProjectLink { ...resource } /></li> ) }
 				</Group>

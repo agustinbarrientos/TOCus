@@ -9,9 +9,11 @@ import {
 describe( 'createStatisticsDocument', () => {
 	it( 'creates an empty aggregate document with the supplied generation', () => {
 		expect( createStatisticsDocument( 'generation_1' ) ).toEqual( {
-			schemaVersion: 1,
+			schemaVersion: 2,
 			generationId: 'generation_1',
 			lastAppliedBatchId: null,
+			firstRecordedDate: null,
+			dailyTotals: [],
 			scopes: {},
 		} );
 	} );

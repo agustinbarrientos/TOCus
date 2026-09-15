@@ -1,8 +1,5 @@
-import {
-	ProtectionDecisionType,
-	type ProtectionDecision,
-} from '../../types/protection-decision';
-import type { VisitAttemptEvent } from '../../types/protection-event';
+import { ProtectionDecisionType } from '../../types/protection-decision';
+import { ProtectionEventType, type VisitAttemptEvent } from '../../types/protection-event';
 import type {
 	ProtectionParticipant,
 	VisitAttemptParticipant,
@@ -19,6 +16,7 @@ import { createTransitionResult } from '../create-protection-transition-result';
 import { synchronizeDailyLadder } from '../daily-ladder-progression';
 import { selectOwner } from '../select-protection-owner';
 import { getNextWaitDuration } from '../wait-duration-calculator';
+import { handleScheduleReevaluation } from '../handle-schedule-reevaluation';
 
 /**
  * Orders participants by the ownership-preserving join-order contract.
@@ -70,50 +68,31 @@ function appendVisitParticipant(
 }
 
 /**
- * Applies a fresh non-active schedule observation to the whole scope before releasing the incoming visit.
+ * Releases one inactive website visit without cancelling other websites' shared progress.
  * @param state - Current validated protection state for the event scope.
  * @param participant - Incoming visit participant that observed the non-active schedule.
- * @return The scope-wide fail-open transition without metric facts.
+ * @return The participant-only fail-open transition without metric facts.
  * @since 0.1.0 Initial implementation.
  */
-function deactivateScopeForVisit(
+function releaseInactiveVisit(
 	state: ProtectionState,
 	participant: VisitAttemptParticipant,
 ): ProtectionTransitionResult {
-	const retainedParticipants = state.type === ProtectionStateType.WAITING
-		? state.participants
-		: state.type === ProtectionStateType.ALLOWANCE || state.type === ProtectionStateType.READY
-			? state.readyParticipants
-			: [];
-	const decisions: ProtectionDecision[] = retainedParticipants.map( createFailOpenDecision );
-	const incomingParticipant = { ...participant, joinSequence: 0 };
-	const incomingParticipantIsRetained = retainedParticipants.some(
-		( retainedParticipant ) =>
-			retainedParticipant.origin === incomingParticipant.origin &&
-			retainedParticipant.participantId === incomingParticipant.participantId &&
-			retainedParticipant.pageId === incomingParticipant.pageId,
-	);
-
-	if ( ! incomingParticipantIsRetained ) {
-		decisions.push( createFailOpenDecision( incomingParticipant ) );
+	const decision = createFailOpenDecision( { ...participant, joinSequence: 0 } );
+	if ( state.type === ProtectionStateType.IDLE ) {
+		return createTransitionResult( state, [ decision ] );
 	}
-
-	if ( state.type === ProtectionStateType.WAITING || state.type === ProtectionStateType.READY ) {
-		return createTransitionResult( {
-			type: ProtectionStateType.IDLE,
-			scopeId: state.scopeId,
-			ladder: state.ladder,
-		}, decisions );
-	}
-
-	if ( state.type === ProtectionStateType.ALLOWANCE ) {
-		return createTransitionResult( {
-			...state,
-			readyParticipants: [],
-		}, decisions );
-	}
-
-	return createTransitionResult( state, decisions );
+	const result = handleScheduleReevaluation( state, {
+		type: ProtectionEventType.SCHEDULE_REEVALUATION,
+		scopeId: state.scopeId,
+		participantId: participant.participantId,
+		pageId: participant.pageId,
+		target: state.type === ProtectionStateType.WAITING
+			? { stateType: state.type, waitId: state.waitId }
+			: { stateType: state.type, allowanceId: state.allowanceId },
+		schedule: { status: ScheduleEvaluationStatus.INACTIVE },
+	} );
+	return result.decisions.length > 0 ? result : createTransitionResult( result.state, [ decision ] );
 }
 
 /**
@@ -135,7 +114,7 @@ export function handleVisitAttempt(
 	}
 
 	if ( event.schedule.status !== ScheduleEvaluationStatus.ACTIVE ) {
-		return deactivateScopeForVisit( state, event.participant );
+		return releaseInactiveVisit( state, event.participant );
 	}
 
 	if ( state.type === ProtectionStateType.ALLOWANCE ) {

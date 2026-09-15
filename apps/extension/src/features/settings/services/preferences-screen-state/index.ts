@@ -18,6 +18,7 @@ import type {
 	PreferencesScreenProps,
 } from '../../components/preferences-screen/types';
 import type { DraftGuard } from '../../utils/draft-controller/types';
+import type { DraftSaveResult } from '../../utils/draft-controller/types';
 
 
 /**
@@ -34,9 +35,26 @@ export function usePreferencesState( props: PreferencesScreenProps ) {
 	 * @param guard - Current editable draft state, or null during destination cleanup.
 	 */
 	const registerPreferencesDraft = useCallback( ( guard: DraftGuard | null ) => {
-		register( guard === null ? null : { ...guard, saving: guard.saving || recovery.pending } );
+		register( guard === null ? null : {
+			/**
+			 * Preserves the controller's live dirty check through the recovery wrapper.
+			 * @return Whether editable preferences differ from the saved baseline.
+			 */
+			get dirty() {
+				return guard.dirty;
+			},
+			/**
+			 * Guards both synchronous draft persistence and explicit recovery.
+			 * @return Whether a preference mutation currently owns navigation.
+			 */
+			get saving() {
+				return guard.saving || recovery.pending;
+			},
+			discard: guard.discard,
+			save: guard.save,
+		} );
 	}, [ register, recovery.pending ] );
-	const state = useDraft( { ...DefaultPreferencesDocument }, registerPreferencesDraft );
+	const state = useDraft( { ...DefaultPreferencesDocument }, registerPreferencesDraft, save );
 	const { draft, value } = state;
 	const [ status, setStatus ] = useState<LoadState>( LoadState.LOADING );
 	const generation = useRef( 0 );
@@ -97,11 +115,14 @@ export function usePreferencesState( props: PreferencesScreenProps ) {
 		}
 	}, [ value, shell.preferencesPreview, status ] );
 
-	/** Saves only dirty fields belonging to the current preference destination. */
-	function save(): void {
-		void draft.save( async ( preferences ) => {
+	/**
+	 * Saves only dirty fields belonging to the current preference destination.
+	 * @return Whether the current draft was saved cleanly.
+	 */
+	function save(): Promise<DraftSaveResult> {
+		return draft.save( async ( preferences ) => {
 			const fields: ( keyof PreferencesDocument )[] = language
-				? [ 'language' ] : [ 'theme', 'palette', 'pauseMode', 'reducedMotion' ];
+				? [ 'language' ] : [ 'theme', 'palette', 'pauseMode' ];
 			const changedFields = fields.filter( ( key ) => preferences[ key ] !== draft.baseline[ key ] );
 			const update = Object.fromEntries( changedFields.map( ( key ) => [ key, preferences[ key ] ] ) );
 			const updated = await shell.preferencesEditor?.update( update );

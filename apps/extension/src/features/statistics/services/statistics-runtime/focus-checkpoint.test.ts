@@ -3,7 +3,6 @@ import { createWaitingState } from '../../../../domains/protection/types/__fixtu
 import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import { SessionContinuityIdSchema } from '../../../../domains/protection/types/protection-value';
 import { StoredProtectionStatisticsDeliveryStatus } from '../../../../domains/protection/types/stored-protection-statistics-delivery';
-import { StatisticsDocumentSchema } from '../../../../domains/statistics/types/statistics-document';
 import { StatisticsProjectionStatus } from '../../../../domains/statistics/types/statistics-projection';
 import * as checkpointPreparation from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
 import { StatisticsFocusObservationMode } from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
@@ -23,8 +22,7 @@ import {
 	createPendingSession,
 	createRuntimeHarness,
 	createTestCheckpointObservation,
-	createTwoScopeActiveStatisticsDocument,
-	createTwoScopeConfiguration,
+	createTwoSiteConfiguration,
 	reconcileRuntime,
 } from './__fixtures__';
 
@@ -895,21 +893,17 @@ describe( 'statistics runtime focus checkpointing', () => {
 		expect( harness.storage.savedDocuments ).toEqual( [] );
 	} );
 
-	it( 'charges the old allowance before switching the persisted anchor to another scope', async () => {
-		const configuration = createTwoScopeConfiguration();
+	it( 'charges the shared allowance before switching the persisted anchor to another website', async () => {
+		const configuration = createTwoSiteConfiguration();
 		const anchorTime = TEST_NOW_EPOCH_MILLISECONDS - 30_000;
 		const harness = createRuntimeHarness(
 			createDelivery( StoredProtectionStatisticsDeliveryStatus.COMPLETE ),
-			createTwoScopeActiveStatisticsDocument(),
+			createActiveStatisticsDocument(),
 			createFocusSession( anchorTime ),
 		);
 
 		harness.coordinator.states = {
 			scope_default: createMatchingAllowanceState(),
-			scope_other: createMatchingAllowanceState(
-				'scope_other',
-				'allowance_other',
-			),
 		};
 		harness.browser.focusedTabId = 8;
 		harness.browser.tabs = [ {
@@ -931,8 +925,9 @@ describe( 'statistics runtime focus checkpointing', () => {
 			harness.storage.savedDocuments.at( -1 )?.scopes.scope_default?.activeAllowance,
 		).toMatchObject( { confirmedFocusedUseMilliseconds: 30_000 } );
 		expect( harness.sessionStorage.savedDocuments.at( -1 )?.focusAnchor ).toMatchObject( {
-			scopeId: 'scope_other',
-			allowanceId: 'allowance_other',
+			scopeId: 'scope_default',
+			allowanceId: 'allowance_current',
+			siteHost: 'other.example',
 		} );
 	} );
 
@@ -972,8 +967,8 @@ describe( 'statistics runtime focus checkpointing', () => {
 		}
 	} );
 
-	it( 'finalizes every expired active allowance in one checkpoint', async () => {
-		const configuration = createTwoScopeConfiguration();
+	it( 'finalizes the shared expired allowance in one checkpoint', async () => {
+		const configuration = createTwoSiteConfiguration();
 		const startedAt = TEST_NOW_EPOCH_MILLISECONDS - 300_000;
 		const first = createActiveStatisticsDocument(
 			'scope_default',
@@ -983,21 +978,9 @@ describe( 'statistics runtime focus checkpointing', () => {
 			40_000,
 			startedAt + 40_000,
 		);
-		const second = createActiveStatisticsDocument(
-			'scope_other',
-			'revision_other',
-			'allowance_other',
-			startedAt,
-			50_000,
-			startedAt + 50_000,
-		);
-		const document = StatisticsDocumentSchema.parse( {
-			...first,
-			scopes: { ...first.scopes, ...second.scopes },
-		} );
 		const harness = createRuntimeHarness(
 			createDelivery( StoredProtectionStatisticsDeliveryStatus.COMPLETE ),
-			document,
+			first,
 		);
 
 		await reconcileRuntime( harness.runtime, configuration );
@@ -1012,14 +995,8 @@ describe( 'statistics runtime focus checkpointing', () => {
 				currentMeasurementRevision: 'revision_current',
 				totals: { estimatedReclaimedMilliseconds: 0 },
 			},
-			scope_other: {
-				currentMeasurementRevision: 'revision_other',
-				totals: { estimatedReclaimedMilliseconds: 0 },
-			},
 		} );
 		expect( harness.storage.savedDocuments[ 0 ]?.scopes.scope_default?.activeAllowance )
-			.toBeUndefined();
-		expect( harness.storage.savedDocuments[ 0 ]?.scopes.scope_other?.activeAllowance )
 			.toBeUndefined();
 	} );
 } );

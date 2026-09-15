@@ -6,6 +6,7 @@ import type { ProtectedSiteConfiguration } from '../../../../domains/protection/
 import { ProtectedSiteItemOperationErrorReason } from '../../components/site-item/types';
 import { createSiteItemEditor } from './index';
 import type { ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
+import { ScheduleMode, Weekday } from '../../../../domains/protection/types/protection-schedule';
 
 /**
  * Supplies deterministic mutation coordination and identifiers to the real domain editor.
@@ -15,11 +16,6 @@ import type { ProtectionConfigurationStorageService } from '../../../../domains/
 function domainEditor( storage: ProtectionConfigurationStorageService ) {
 	let revision = 0;
 	return createProtectionConfigurationEditor( { storage,
-		/**
-		 * Supplies a valid deterministic independent identifier.
-		 * @return Unused scope identifier for this isolated storage.
-		 */
-		createIndependentScopeId: () => 'scope_item_test',
 		/**
 		 * Gives every affected measurement contract a distinct revision.
 		 * @return Next deterministic revision identifier.
@@ -44,7 +40,7 @@ describe( 'item-owned editor compatibility', () => {
 		editor.open();
 		await editor.save();
 		expect( editor.getSnapshot() ).toMatchObject( { editing: true, saving: false,
-			displayName: 'Instagram', error: ProtectedSiteItemOperationErrorReason.OPERATION } );
+			details: { displayName: '', schedule: null }, error: ProtectedSiteItemOperationErrorReason.OPERATION } );
 		expect( onSaved ).not.toHaveBeenCalled();
 	} );
 
@@ -59,11 +55,17 @@ describe( 'item-owned editor compatibility', () => {
 			load: () => Promise.resolve( { ...TestEmptyProtectionConfiguration, sites: [ site ] } ), save,
 		} ) } );
 		editor.open();
-		editor.change( 'My Instagram', false );
+		editor.change( { displayName: 'My Instagram', schedule: { mode: ScheduleMode.CUSTOM, windows: [ {
+			id: 0, weekday: Weekday.MONDAY, start: '09:00', end: '10:00', fullDay: false,
+		} ] } } );
 		await editor.save();
 		expect( save ).toHaveBeenCalledOnce();
 		expect( onSaved ).toHaveBeenCalledWith( expect.objectContaining( {
-			sites: [ { ...site, displayNameOverride: 'My Instagram' } ],
+			sites: [ { ...site, displayNameOverride: 'My Instagram', schedule: { mode: ScheduleMode.CUSTOM,
+				windows: [ { weekday: Weekday.MONDAY, startMinute: 540, endMinute: 600 } ],
+			} } ],
+			timingConfiguration: TestEmptyProtectionConfiguration.timingConfiguration,
+			schedule: TestEmptyProtectionConfiguration.schedule,
 		} ) );
 		expect( editor.getSnapshot() ).toMatchObject( { editing: false, saving: false, error: null } );
 	} );
@@ -94,12 +96,15 @@ describe( 'item-owned editor compatibility', () => {
 		const listener = vi.fn();
 		const unsubscribe = editor.subscribe( listener );
 		editor.open();
-		editor.change( 'Unsaved name', true );
+		editor.change( { displayName: 'Unsaved name', schedule: { mode: ScheduleMode.ALWAYS, windows: [] } } );
 		await editor.save();
 		expect( editor.getSnapshot().error ).toBe( ProtectedSiteItemOperationErrorReason.OPERATION );
+		expect( editor.getSnapshot().details ).toEqual( {
+			displayName: 'Unsaved name', schedule: { mode: ScheduleMode.ALWAYS, windows: [] },
+		} );
 		editor.cancel();
 		editor.open();
-		expect( editor.getSnapshot() ).toMatchObject( { displayName: 'Instagram', independent: false, error: null } );
+		expect( editor.getSnapshot() ).toMatchObject( { details: { displayName: '', schedule: null }, error: null } );
 		expect( listener ).toHaveBeenCalled();
 		unsubscribe();
 		listener.mockClear();

@@ -1,5 +1,7 @@
 import { LoadState } from '../../../settings/components/recovery/types';
 import {
+	useEffect,
+	useRef,
 	useState,
 } from 'react';
 import {
@@ -30,8 +32,8 @@ import {
 	Recovery,
 } from '../../../settings/components/recovery';
 import {
-	SiteBehavior,
-} from '../site-behavior';
+	WebsiteDetails,
+} from '../website-details';
 import {
 	WebsiteItem,
 } from '../site-item';
@@ -43,6 +45,8 @@ import type {
 } from './types';
 import './style.scss';
 import { WebsiteList } from '../site-list';
+import { useSettingsFeedback } from '../../../settings/services/settings-feedback';
+import { SettingsFeedbackAction } from '../../../settings/services/settings-feedback/types';
 
 
 export type { AccessRefresh } from './types';
@@ -59,42 +63,74 @@ export function Websites( props: WebsitesScreenProps ) {
 	const copy = shell.protectedSitesCopy;
 	const itemCopy = shell.protectedSiteItemCopy;
 	const state = useWebsitesState( props );
-	const { draft, value, status, saving, saved, independent, configuration, pendingAccess, access } = state;
+	const { notify } = useSettingsFeedback();
+	const { draft, value, status, saving, configuration, pendingAccess, access } = state;
 	const [ editing, setEditing ] = useState<string | null>( null );
 	const [ removing, setRemoving ] = useState<ProtectedSiteConfiguration | null>( null );
+	const addressInput = useRef<HTMLInputElement>( null );
+	const rows = useRef( new Map<string, HTMLLIElement>() );
+	const [ highlighted, setHighlighted ] = useState<string | null>( null );
 	const disabled = saving || shell.permissionManager === null;
 	const savedIdentities = new Set( configuration?.sites.map( ( site ) => site.identityHost ) ?? [] );
 
+	useEffect( () => {
+		if ( state.duplicate === null ) {
+			return;
+		}
+		const host = state.duplicate.identityHost;
+		const row = rows.current.get( host );
+		if ( ! row ) {
+			return;
+		}
+		setHighlighted( host );
+		const reducedMotion = window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+		row.scrollIntoView( { block: 'center', behavior: reducedMotion ? 'instant' : 'smooth' } );
+		// Keep attention on the match without moving keyboard focus away from the add action.
+		const timeout = window.setTimeout( () => {
+			setHighlighted( null );
+		}, 2200 );
+		return () => {
+			window.clearTimeout( timeout );
+		};
+	}, [ state.duplicate ] );
+
 	/** Removes the confirmed row from the draft without changing storage or permissions. */
 	function confirmRemoval(): void {
-		const remaining = value.sites.filter( ( site ) => site.identityHost !== removing?.identityHost );
+		if ( removing === null ) {
+			return;
+		}
+		const removedHost = removing.identityHost;
+		const remaining = value.sites.filter( ( site ) => site.identityHost !== removedHost );
 		state.change( { ...value, sites: remaining } );
+		notify( SettingsFeedbackAction.SITE_REMOVED );
 		setRemoving( null );
 		setEditing( null );
-	}
-
-	/**
-	 * Retains removal confirmation beside the identity being removed.
-	 * @param site - Website owning the explicit removal action.
-	 * @return Focus-safe inline confirmation for this row.
-	 */
-	function renderRemoval( site: ProtectedSiteConfiguration ) {
-		return <Confirmation inline minimal focusConfirm opened={ removing?.identityHost === site.identityHost }
-			title={ itemCopy.removeSite }
-			description={ itemCopy.formatRemoveQuestion( resolveSiteDisplayIdentity( site ).name ) }
-			cancel={ itemCopy.keepSite } confirm={ itemCopy.confirmRemove } onCancel={ () => {
-				setRemoving( null );
-			} } onConfirm={ confirmRemoval } />;
+		// The removed row cannot receive the dialog's restored focus.
+		addressInput.current?.focus();
 	}
 
 	/**
 	 * Binds one grouped row to the page's unchanged Save/Discard transaction.
 	 * @param site - Website configuration currently staged in the page draft.
-	 * @return Keyed row with permission and inline editor callbacks.
+	 * @return Keyed row with permission and dialog editor callbacks.
 	 */
 	function renderSite( site: ProtectedSiteConfiguration ) {
+		if ( configuration === null ) {
+			return null;
+		}
 		return <WebsiteItem key={ site.identityHost } site={ site } copy={ itemCopy }
-			confirmation={ renderRemoval( site ) }
+			highlighted={ highlighted === site.identityHost }
+			itemRef={ ( element ) => {
+				if ( element ) {
+					rows.current.set( site.identityHost, element );
+				} else {
+					rows.current.delete( site.identityHost );
+				}
+			} }
+			scheduleCopy={ shell.scheduleCopy } globalSchedule={ configuration.schedule }
+			{ ...( value.detailsByHost[ site.identityHost ] === undefined
+				? {} : { details: value.detailsByHost[ site.identityHost ] } ) }
+			validate={ state.validate }
 			favicon={ shell.faviconProvider?.getSource( site.identityHost ) ?? null }
 			editing={ editing === site.identityHost && removing?.identityHost !== site.identityHost }
 			disabled={ saving }
@@ -113,26 +149,26 @@ export function Websites( props: WebsitesScreenProps ) {
 			onRemove={ () => {
 				setRemoving( site );
 			} }
-			onChange={ ( name, separate ) => {
-				state.updateSite( site, name, separate );
+			onChange={ ( details ) => {
+				state.updateSite( site, details );
 			} } />;
 	}
 
 	return (
-		<Page title={ copy.title } eyebrow={ copy.eyebrow } introduction={ copy.introduction }>
+		<Page title={ copy.title }>
 			<Recovery status={ status } copy={ copy } retry={ () => {
 				void state.load();
 			} } />
 			{ status === LoadState.READY && <>
-				<form className="settings-site-form tocus-section" onSubmit={ ( event ) => {
+				<form className="settings-site-form" onSubmit={ ( event ) => {
 					event.preventDefault(); state.stage();
 				} }>
 					<Stack gap={ 0 }>
 						<Group className="settings-site-add" align="stretch" gap="var(--tocus-space-3)">
-							<TextInput className="settings-site-address tocus-native-field" id="site-address" name="site-address"
+							<TextInput ref={ addressInput } className="settings-site-address tocus-native-field" id="site-address" name="site-address"
 								classNames={ { input: 'settings-native-input' } }
 								aria-label={ copy.addressLabel } placeholder={ copy.addressPlaceholder } autoComplete="url"
-								aria-describedby="site-address-help site-address-error" value={ value.address } disabled={ disabled }
+								aria-describedby="site-address-error" value={ value.address } disabled={ disabled }
 								error={ state.addressError !== null }
 								onChange={ ( event ) => {
 									state.change( { ...value, address: event.currentTarget.value } );
@@ -140,19 +176,30 @@ export function Websites( props: WebsitesScreenProps ) {
 							<Button className="tocus-native-button" h="auto" type="submit" variant="outline"
 								disabled={ disabled }>{ copy.addSite }</Button>
 						</Group>
-						<p id="site-address-help">{ copy.addressHelp }</p>
 						<p id="site-address-error" className="settings-site-address-error"
 							role={ state.addressError ? 'alert' : undefined }>{ state.addressError }</p>
-						<SiteBehavior copy={ copy } independent={ independent } disabled={ saving }
-							name="new-site-behavior" onChange={ state.setIndependent } />
+						{ value.address.trim() !== '' && <WebsiteDetails idPrefix="new-site" copy={ copy } scheduleCopy={ shell.scheduleCopy }
+							value={ value.newSite } disabled={ disabled } validate={ state.validate }
+							onChange={ ( newSite ) => {
+								state.change( { ...value, newSite } );
+							} } /> }
 					</Stack>
 				</form>
-				<WebsiteList sites={ value.sites } copy={ copy } renderItem={ renderSite } />
-				<DraftActions draft={ draft } copy={ { ...copy, saving: itemCopy.saving } } onSave={ state.save } />
-				<div className="settings-site-announcement">
-					<Feedback error={ state.errorMessage } success={ saved ? copy.saved : state.accessMessage } />
-					{ state.retained && <p role="status">{ copy.savedWithRetainedAccess }</p> }
-				</div>
+				<WebsiteList sites={ value.sites } copy={ copy } renderItem={ renderSite }
+					hasCustomSchedule={ ( site ) => value.detailsByHost[ site.identityHost ]?.schedule !== null } />
+				<DraftActions draft={ draft } copy={ { ...copy, saving: itemCopy.saving } }
+					onSave={ state.save } onDiscard={ state.discard } />
+				<Feedback error={ state.errorMessage } success={ state.accessMessage } />
+				{ state.retained && <p role="status">{ copy.savedWithRetainedAccess }</p> }
+				<Confirmation opened={ removing !== null } focusConfirm
+					title={ removing
+						? itemCopy.formatRemoveQuestion( resolveSiteDisplayIdentity( removing ).name )
+						: itemCopy.removeSite }
+					description={ removing?.rule.host ?? '' }
+					cancel={ itemCopy.keepSite } confirm={ itemCopy.confirmRemove }
+					onCancel={ () => {
+						setRemoving( null );
+					} } onConfirm={ confirmRemoval } />
 			</> }
 		</Page>
 	);

@@ -1,3 +1,4 @@
+import { resolveSiteSchedule } from '../../../../domains/protection/utils/resolve-site-schedule';
 import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import {
 	AllowanceExpiryCandidateSource,
@@ -39,7 +40,7 @@ export function createFreshRuntimeObservation(
 			configuration.sites.map( ( site ) => site.rule ),
 		);
 	const schedule = match.status === ProtectedUrlMatchStatus.PROTECTED
-		? configuration.schedulesByScope[ match.rule.scopeId ]
+		? resolveSiteSchedule( configuration, match.rule.host )
 		: undefined;
 
 	return {

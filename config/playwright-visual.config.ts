@@ -52,7 +52,6 @@ export default defineConfig( {
 		},
 		{
 			name: 'snapshot-comparison', testMatch: '**/compare-screenshot/index.spec.ts',
-			snapshotPathTemplate: '{testDir}/../../apps/website/src/components/home-page/__snapshots__/chromium/{arg}{ext}',
 		},
 	],
 	webServer: [

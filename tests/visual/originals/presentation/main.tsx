@@ -96,7 +96,8 @@ if ( ! standalone && scenario !== OnboardingVisualScenario.LANGUAGE &&
 document.documentElement.style.colorScheme = dark ? ThemeMode.DARK : ThemeMode.LIGHT;
 const reactRoot = standalone ? createRoot( root ) : null;
 const port = reactRoot ? createPresentationPort<OnboardingState>( {
-	copy: undefined, interruptionCopy: undefined, editor: null, enrollment: null, language: Language.ENGLISH,
+	copy: undefined, notificationCopy: undefined, resetComplete: false,
+	interruptionCopy: undefined, editor: null, enrollment: null, language: Language.ENGLISH,
 	theme: ThemeMode.LIGHT, palette: Palette.BROWN, protectedSites: [], reducedMotion: true,
 	suggestions: [], startupUnavailable: false, synchronizeLanguage: null,
 }, ( state ) => {
@@ -109,6 +110,10 @@ const language = Object.values( Language ).find( ( candidate ) => candidate === 
 // Every archived standalone Sites fixture mounted in English before any locale-copy change.
 const bundle = ! standalone && language ? await loadLocalizationBundle( language ) : createEnglishLocalizationBundle();
 port.copy = bundle.onboarding;
+port.notificationCopy = {
+	dismissNotification: bundle.settingsShell.dismissNotification,
+	resetComplete: bundle.privacyCopy.allSuccess,
+};
 port.interruptionCopy = bundle.interruption;
 port.language = Language.ENGLISH;
 port.theme = dark ? ThemeMode.DARK : ThemeMode.LIGHT;

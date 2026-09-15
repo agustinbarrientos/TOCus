@@ -9,8 +9,6 @@ describe( 'createProtectedSitesCopy', () => {
 
 		expect( copy.title ).toBe( 'Websites' );
 		expect( copy.addSite ).toBe( 'Add site' );
-		expect( copy.sharedBehavior ).toBe( 'One timer for these websites' );
-		expect( copy.independentBehavior ).toBe( 'Give this website its own timing' );
 		expect( copy.alreadyProtectedError ).toBe( 'This website is already on your list.' );
 		expect( copy.formatAddedAnnouncement( 'Reddit' ) ).toBe( 'Reddit was added to your list.' );
 		expect( copy.formatUpdatedAnnouncement( 'Reddit' ) ).toBe( 'Reddit was updated.' );

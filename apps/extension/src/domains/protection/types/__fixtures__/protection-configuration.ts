@@ -1,5 +1,6 @@
 import {
 	ProtectionConfigurationDocumentSchema,
+	ProtectionConfigurationDocumentVersion,
 } from '../protected-site-configuration';
 import { DefaultProtectionSchedule } from '../protection-schedule';
 import { DefaultProtectionScopeId } from '../protection-value';
@@ -20,12 +21,10 @@ export function createTestProtectionMeasurementRevision(): string {
  */
 export const TestEmptyProtectionConfiguration = Object.freeze(
 	ProtectionConfigurationDocumentSchema.parse( {
-		schemaVersion: 4,
+		schemaVersion: ProtectionConfigurationDocumentVersion,
 		sites: [],
 		timingConfiguration: DefaultTimingConfiguration,
-		schedulesByScope: {
-			[ DefaultProtectionScopeId ]: DefaultProtectionSchedule,
-		},
+		schedule: DefaultProtectionSchedule,
 		measurementRevisionsByScope: {
 			[ DefaultProtectionScopeId ]: 'revision_initial_scope_default',
 		},

@@ -1,21 +1,13 @@
+import { DraftSaveResult } from '../../utils/draft-controller/types';
 import { ProtectionConfigurationEditStatus } from '../../../../domains/protection/services/protection-configuration-editor/types';
 import {
 	useEffect,
 	useState,
 } from 'react';
 import {
-	DefaultProtectionScopeId,
-} from '../../../../domains/protection/types/protection-value';
-import type {
-	ProtectionConfigurationDocument,
-} from '../../../../domains/protection/types/protected-site-configuration';
-import {
 	ScheduleMode,
 	NormalizedScheduleSchema,
 } from '../../../../domains/protection/types/protection-schedule';
-import {
-	resolveSiteDisplayIdentity,
-} from '../../../protected-sites/utils/site-display-name-resolver';
 import {
 	useDraft,
 } from '../settings-draft';
@@ -47,10 +39,8 @@ import type {
 export function useScheduleState( props: EditableSettingsScreenProps ) {
 	const { shell, register } = props;
 	const copy = shell.scheduleCopy;
-	const state = useDraft<ScheduleDraft>( { mode: ScheduleMode.ALWAYS, windows: [] }, register, schedulesEqual );
-	const { draft, value, dirty, saving } = state;
-	const [ configuration, setConfiguration ] = useState<ProtectionConfigurationDocument | null>( null );
-	const [ scope, setScope ] = useState<string>( DefaultProtectionScopeId );
+	const state = useDraft<ScheduleDraft>( { mode: ScheduleMode.ALWAYS, windows: [] }, register, save, schedulesEqual );
+	const { draft, value, saving } = state;
 	const [ status, setStatus ] = useState<LoadState>( LoadState.LOADING );
 	const [ validate, setValidate ] = useState( false );
 
@@ -63,9 +53,7 @@ export function useScheduleState( props: EditableSettingsScreenProps ) {
 		try {
 			const config = await shell.editor?.load();
 			if ( config ) {
-				setConfiguration( config );
-				setScope( DefaultProtectionScopeId );
-				const schedule = NormalizedScheduleSchema.parse( config.schedulesByScope[ DefaultProtectionScopeId ] );
+				const schedule = NormalizedScheduleSchema.parse( config.schedule );
 				draft.adopt( fromSchedule( schedule ) );
 				setStatus( LoadState.READY );
 			} else {
@@ -78,19 +66,6 @@ export function useScheduleState( props: EditableSettingsScreenProps ) {
 	useEffect( () => {
 		void load();
 	}, [ shell.editor ] );
-
-	/**
-	 * Changes the edited schedule only after the current draft is saved or discarded.
-	 * @param next - Valid selected schedule identifier.
-	 */
-	function selectScope( next: string ): void {
-		if ( dirty || saving || ! configuration ) {
-			return;
-		}
-		setScope( next );
-		draft.adopt( fromSchedule( NormalizedScheduleSchema.parse( configuration.schedulesByScope[ next ] ) ) );
-		setValidate( false );
-	}
 
 	/**
 	 * Updates one window without mutating its siblings.
@@ -114,7 +89,9 @@ export function useScheduleState( props: EditableSettingsScreenProps ) {
 	 * @param id - Window selected by the contextual remove action.
 	 */
 	function removeWindow( id: number ): void {
-		draft.change( { ...value, windows: value.windows.filter( ( window ) => window.id !== id ) } );
+		if ( value.windows.length > 1 ) {
+			draft.change( { ...value, windows: value.windows.filter( ( window ) => window.id !== id ) } );
+		}
 	}
 
 	/**
@@ -127,41 +104,31 @@ export function useScheduleState( props: EditableSettingsScreenProps ) {
 		} );
 	}
 
-	/** Validates required fields before persisting a normalized schedule through the domain editor. */
-	function save(): void {
+	/**
+	 * Validates required fields before persisting a normalized schedule through the domain editor.
+	 * @return Explicit persistence success or a retained invalid draft.
+	 */
+	function save(): Promise<DraftSaveResult> {
 		setValidate( true );
 		const invalidWindow = value.windows.some( ( window ) => {
 			const errors = windowErrors( window, copy );
 			return errors.start !== null || errors.end !== null;
 		} );
-		if ( value.mode === ScheduleMode.CUSTOM && invalidWindow ) {
-			return;
+		if ( saving || value.mode === ScheduleMode.CUSTOM && ( invalidWindow || value.windows.length === 0 ) ) {
+			return Promise.resolve( DraftSaveResult.FAILED );
 		}
-		void draft.save( async ( candidate ) => {
-			const result = await shell.editor?.updateSchedule( scope, toSchedule( candidate ) );
+		return draft.save( async ( candidate ) => {
+			const result = await shell.editor?.updateSchedule( toSchedule( candidate ) );
 			if ( ! result ) {
 				throw new Error( 'persistence' );
 			}
 			if ( result.status === ProtectionConfigurationEditStatus.REJECTED ) {
 				throw new Error( result.reason );
 			}
-			setConfiguration( result.configuration );
 			setValidate( false );
-			return fromSchedule( NormalizedScheduleSchema.parse( result.configuration.schedulesByScope[ scope ] ) );
+			return fromSchedule( NormalizedScheduleSchema.parse( result.configuration.schedule ) );
 		} );
 	}
 
-	const sharedNames = configuration?.sites.filter( ( site ) => site.rule.scopeId === DefaultProtectionScopeId )
-		.map( ( site ) => copy.formatIndependentScopeLabel(
-			resolveSiteDisplayIdentity( site ).name, site.identityHost,
-		) )
-		.join( ' · ' );
-	const individualScopes = configuration?.sites.filter( ( site ) => site.rule.scopeId !== DefaultProtectionScopeId )
-		.map( ( site ) => ( { value: site.rule.scopeId,
-			label: copy.formatIndependentScopeLabel( resolveSiteDisplayIdentity( site ).name, site.identityHost ),
-		} ) ).sort( ( first, second ) => copy.compareNames( first.label, second.label ) ) ?? [];
-	const scopes = [ { value: DefaultProtectionScopeId, label: sharedNames || copy.sharedScope }, ...individualScopes ];
-
-	return { ...state, scope, scopes, status, validate, load, save, selectScope,
-		updateWindow, addWindow, removeWindow, changeMode };
+	return { ...state, status, validate, load, save, updateWindow, addWindow, removeWindow, changeMode };
 }

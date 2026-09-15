@@ -12,6 +12,7 @@ import {
 	createStatisticsStorageService,
 } from '../../../../domains/statistics';
 import { registerOnboardingOpenOnInstall } from '../../../onboarding/services/open-on-install';
+import { OnboardingResetQueryParameter } from '../../../onboarding/services/reset-completion/types';
 import { createSitePermissionManager } from '../../../protected-sites/services/site-permission-manager';
 import {
 	createProtectedSiteEnrollmentService,
@@ -28,8 +29,15 @@ import { createBrowserProtectionRuntime } from '../browser-protection-runtime';
 import { createProtectionBackgroundController } from '../protection-background-controller';
 import { createToolbarLanguageController } from '../toolbar-language-controller';
 import { createTabAudioController } from '../tab-audio-controller';
-import type { ProtectionBackgroundApplicationOptions, ProtectionBackgroundTabAudioChange } from './types';
+import type {
+	ProtectionBackgroundApplicationOptions,
+	ProtectionBackgroundSettingsRuntime,
+	ProtectionBackgroundSettingsTab,
+	ProtectionBackgroundTabAudioChange,
+} from './types';
 import { InterruptionDocumentPath } from '../../../../shared/utils/interruption-document-url';
+import { createRuntimeLocalDate } from '../../utils/runtime-local-date';
+import type { LocalDate } from '../../../../domains/protection/types/protection-value';
 
 /**
  * Creates one collision-resistant runtime identifier fragment.
@@ -56,6 +64,15 @@ function getCurrentTime(): number {
  */
 function getTimeZone(): string {
 	return Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
+
+/**
+ * Resolves today's date in the current operating-system calendar.
+ * @return Local calendar date.
+ * @since 0.1.0 Initial implementation.
+ */
+function getLocalDate(): LocalDate {
+	return createRuntimeLocalDate( getCurrentTime(), getTimeZone() );
 }
 
 /**
@@ -96,11 +113,10 @@ export function startProtectionBackgroundApplication(
 		/**
 		 * Creates one generation-scoped enrollment before synchronously requesting website access.
 		 * @param siteInput - Website selected through the popup.
-		 * @param independent - Whether the website receives separate timing.
 		 * @return Consent-aware persistence result.
 		 * @since 0.1.0 Initial implementation.
 		 */
-		function addWebsite( siteInput: unknown, independent: boolean ): Promise<ProtectedSiteEnrollmentResult> {
+		function addWebsite( siteInput: unknown ): Promise<ProtectedSiteEnrollmentResult> {
 			const protection = createBrowserProtectionConfigurationEditor( {
 				area: options.browser.storage.local,
 				cryptography: crypto,
@@ -110,7 +126,7 @@ export function startProtectionBackgroundApplication(
 				editor: protection.editor,
 				permissionManager,
 			} );
-			return enrollment.add( siteInput, independent );
+			return enrollment.add( siteInput );
 		}
 
 		createPopupEnrollmentController( {
@@ -150,6 +166,7 @@ export function startProtectionBackgroundApplication(
 	const statisticsRuntime = createStatisticsRuntime( {
 		coordinator,
 		createGenerationId: createStableId,
+		getLocalDate,
 		sessionStorage: statisticsSessionStorage,
 		storage: statisticsStorage,
 	} );
@@ -256,13 +273,53 @@ export function startProtectionBackgroundApplication(
 
 	/**
 	 * Opens the packaged onboarding page after a complete local reset.
+	 * @param generation - Completed reset identity passed to the receiving page.
 	 * @return Completion of browser tab creation.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	async function openOnboarding(): Promise<void> {
+	async function openOnboarding( generation: string ): Promise<void> {
+		const url = new URL( options.browser.runtime.getURL( '/onboarding.html' ) );
+		url.searchParams.set( OnboardingResetQueryParameter, generation );
 		await options.browser.tabs.create( {
-			url: options.browser.runtime.getURL( '/onboarding.html' ),
+			url: url.href,
 		} );
+	}
+
+	/**
+	 * Closes the originating settings tab only while it still shows an extension settings document.
+	 * @param tabId - Browser-authenticated originating settings tab identifier.
+	 * @return Completion without changing a completed reset when the tab is unavailable.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function closeSettingsTab( tabId: number ): Promise<void> {
+		try {
+			const tab: ProtectionBackgroundSettingsTab = await options.browser.tabs.get( tabId );
+			const settingsUrl = options.browser.runtime.getURL( '/options.html' );
+			let currentUrl = tab.pendingUrl ?? tab.url;
+			if ( currentUrl === undefined && tab.status !== 'loading' && tab.incognito === false ) {
+				const contextRuntime: ProtectionBackgroundSettingsRuntime = options.browser.runtime;
+				const contexts = await contextRuntime.getContexts?.( { contextTypes: [ 'TAB' ], tabIds: [ tabId ] } ) ?? [];
+				const settingsContext = contexts.find( ( context ) =>
+					context.contextType === 'TAB' && context.frameId === 0 && ! context.incognito &&
+					context.tabId === tabId && context.documentUrl?.split( '#' )[ 0 ] === settingsUrl,
+				);
+				if ( settingsContext === undefined ) {
+					return;
+				}
+				const currentTab: ProtectionBackgroundSettingsTab = await options.browser.tabs.get( tabId );
+				const observedUrl = currentTab.pendingUrl ?? currentTab.url;
+				if ( currentTab.status === 'loading' || currentTab.incognito !== false ||
+					( observedUrl !== undefined && observedUrl.split( '#' )[ 0 ] !== settingsUrl ) ) {
+					return;
+				}
+				currentUrl = settingsContext.documentUrl;
+			}
+			if ( currentUrl?.split( '#' )[ 0 ] === settingsUrl ) {
+				await options.browser.tabs.remove( tabId );
+			}
+		} catch {
+			// A closed or unavailable settings tab does not undo a completed reset.
+		}
 	}
 
 	const reset = createLocalDataReset( {
@@ -280,6 +337,7 @@ export function startProtectionBackgroundApplication(
 		reset,
 		resume: resumeProtection,
 		openOnboarding,
+		closeSettingsTab,
 	} );
 
 	protectionController.start();

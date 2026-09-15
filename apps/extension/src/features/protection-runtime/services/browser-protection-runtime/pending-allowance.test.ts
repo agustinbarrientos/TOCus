@@ -24,7 +24,8 @@ describe( 'pending completed pause', () => {
 		{ overlay: false, automatic: true },
 		{ overlay: true, automatic: false },
 		{ overlay: true, automatic: true },
-	] )( 'acknowledges accepted entry with overlay=$overlay and automatic=$automatic', async ( { overlay, automatic } ) => {
+	] )( 'acknowledges accepted entry with overlay=$overlay and automatic=$automatic', async ( { overlay,
+		automatic } ) => {
 		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
 		const browser = new MemoryRuntimeBrowser();
 		const configurationStorage = new MemoryConfigurationStorage( EXAMPLE_CONFIGURATION );
@@ -87,7 +88,8 @@ describe( 'pending completed pause', () => {
 		expect( browser.rules ).not.toEqual( [] );
 		expect( browser.badge ).toMatchObject( { phase: ToolbarBadgePhase.INACTIVE, text: '' } );
 		expect( browser.protectionClockDeadlines ).toEqual( [] );
-		expect( browser.navigations ).toEqual( [ { tabId: 7, url: 'chrome-extension://extension-id/interruption.html' } ] );
+		expect( browser.navigations ).toEqual( [ { tabId: 7,
+			url: 'chrome-extension://extension-id/interruption.html' } ] );
 
 		await runtime.handlePageRequest( {
 			type: InterruptionPageRequestType.CONTINUE,
@@ -129,7 +131,8 @@ describe( 'pending completed pause', () => {
 			type: ProtectionStateType.READY,
 			ladder: { completedWaits: 1 },
 		} );
-		expect( browser.navigations.at( -1 ) ).toEqual( { tabId: 8, url: 'chrome-extension://extension-id/interruption.html' } );
+		expect( browser.navigations.at( -1 ) ).toEqual( { tabId: 8,
+			url: 'chrome-extension://extension-id/interruption.html' } );
 		now.value += 600_000;
 		await runtime.handlePageRequest( {
 			type: InterruptionPageRequestType.CONTINUE,
@@ -151,7 +154,7 @@ describe( 'pending completed pause', () => {
 		expect( facts.filter( ( fact ) => fact.type === ProtectionFactType.ALLOWANCE_GRANTED ) ).toHaveLength( 1 );
 	} );
 
-	it( 'keeps independent scope navigation waiting while the completed scope remains Ready', async () => {
+	it( 'lets another configured website share the completed pause', async () => {
 		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
 		const browser = new MemoryRuntimeBrowser();
 		const { coordinator, runtime } = createRuntime(
@@ -167,7 +170,9 @@ describe( 'pending completed pause', () => {
 		await runtime.handleNavigation( { tabId: 8, frameId: 0, url: 'https://independent.test/feed' } );
 
 		expect( ( await coordinator.getStates() )?.scope_default?.type ).toBe( ProtectionStateType.READY );
-		expect( ( await coordinator.getStates() )?.scope_independent?.type ).toBe( ProtectionStateType.WAITING );
+		expect( ( await coordinator.getStates() )?.scope_default ).toMatchObject( {
+			readyParticipants: [ expect.anything(), expect.anything() ],
+		} );
 	} );
 
 	it( 'restores a pending page after a long suspension without starting its allowance', async () => {
@@ -203,7 +208,7 @@ describe( 'pending completed pause', () => {
 		} );
 	} );
 
-	it( 'keeps the focused pending page badge empty while another scope has a running visit', async () => {
+	it( 'shows the shared allowance on a pending page after another website enters', async () => {
 		const now = { value: Date.UTC( 2026, 8, 2, 12 ) };
 		const browser = new MemoryRuntimeBrowser();
 		const { runtime } = createRuntime(
@@ -227,7 +232,7 @@ describe( 'pending completed pause', () => {
 		browser.focusedTabId = 7;
 		await runtime.handleFocusChanged();
 
-		expect( browser.badge ).toMatchObject( { phase: ToolbarBadgePhase.INACTIVE, text: '' } );
+		expect( browser.badge ).toMatchObject( { text: '5m' } );
 	} );
 
 	it( 'releases a pending page when its configured scope is removed', async () => {

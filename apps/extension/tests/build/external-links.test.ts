@@ -1,5 +1,6 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
+import { IconName } from '@tocus/ui/types';
 
 /**
  * Generated website pages checked for shared external-link artwork.
@@ -9,6 +10,9 @@ const websiteOutput = new URL( '../../../website/dist/', import.meta.url );
 
 describe( 'external website links', () => {
 	it( 'marks external destinations with the shared icon in every language without marking internal navigation', async () => {
+		const externalArtwork = ( await readFile( new URL(
+			`../../../../packages/theme/assets/icons/${ IconName.ARROW_UP_RIGHT_FROM_SQUARE }.svg`, import.meta.url,
+		), 'utf8' ) ).trim();
 		const paths = ( await readdir( websiteOutput, { recursive: true } ) ).filter( ( path ) => path.endsWith( 'index.html' ) );
 		// Public routes must exist, while additional pages (such as the local mascot lab)
 		// are also inspected without assuming that every page has outbound navigation.
@@ -25,10 +29,10 @@ describe( 'external website links', () => {
 				if ( href?.startsWith( 'https://' ) ) {
 					expect( contents ).toContain( 'aria-hidden="true"' );
 					expect( contents ).toContain( 'viewBox="0 0 640 640"' );
-					expect( contents ).toContain( 'M354.4 83.8' );
+					expect( contents ).toContain( externalArtwork );
 				} else {
 					// Internal language and brand links can contain artwork, but not the outbound glyph.
-					expect( contents ).not.toContain( 'M354.4 83.8' );
+					expect( contents ).not.toContain( externalArtwork );
 				}
 			}
 		}

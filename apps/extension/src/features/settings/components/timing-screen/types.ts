@@ -49,9 +49,7 @@ export interface TimingFormEvent extends Event {
  * @since 0.1.0 Initial implementation.
  */
 export interface TimingScreenCopy {
-	eyebrow: string;
 	title: string;
-	introduction: string;
 	formLabel: string;
 	initialWaitLabel: string;
 	initialWaitHelp: string;
@@ -64,9 +62,7 @@ export interface TimingScreenCopy {
 	allowanceHelp: string;
 	completionActionLegend: string;
 	showContinueLabel: string;
-	showContinueDescription: string;
 	openAutomaticallyLabel: string;
-	openAutomaticallyDescription: string;
 	summaryTitle: string;
 	loading: string;
 	malformedDataTitle: string;
@@ -80,7 +76,6 @@ export interface TimingScreenCopy {
 	saveError: string;
 	invalidConfigurationError: string;
 	invalidTimingConfigurationError: string;
-	saved: string;
 	/**
 	 * Formats one whole-second native option.
 	 * @param seconds - Allowed whole-second duration.

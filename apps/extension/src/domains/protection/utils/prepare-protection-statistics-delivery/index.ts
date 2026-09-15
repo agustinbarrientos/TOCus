@@ -74,7 +74,7 @@ function markProtectionStatisticsDeliveryIncomplete(
 
 /**
  * Appends one validated fact batch or marks delivery incomplete while retaining queued batches.
- * @param input - Current delivery, emitted facts, revision, scope, and optional batch factory.
+ * @param input - Current delivery, emitted facts, captured local date, revision, scope, and batch factory.
  * @return Next validated durable statistics delivery.
  * @since 0.1.0 Initial implementation.
  */
@@ -107,6 +107,7 @@ export function prepareStatisticsDeliveryForTransition(
 			scopeId: input.scopeId,
 			measurementRevision: revision.data,
 			observedAtEpochMilliseconds: observationTimes[ 0 ],
+			observedLocalDate: input.observedLocalDate,
 			facts: input.facts,
 		} );
 

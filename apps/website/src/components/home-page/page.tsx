@@ -5,6 +5,7 @@ import { ExternalLink, WebsiteLink } from '../site-links';
 import { ProductStory } from '../product-story';
 import { DemoChapter } from '../product-demo/types';
 import { TimingIllustration } from '../timing-illustration';
+import { StatisticsPreview } from '../statistics-preview';
 import { Mascot } from '../mascot';
 import { LanguageMenu } from '../language-menu';
 import { SupportedServices } from '../supported-services';
@@ -19,7 +20,7 @@ import type { HomePageProps } from './types';
  * @since 0.1.0
  */
 export default function HomePage( props: HomePageProps ) {
-	const { localization, localizations, demoMessages, statisticsPreview } = props;
+	const { localization, localizations, demoMessages, statisticsFormatting } = props;
 	const { catalog } = localization;
 	const scene = useRef<HTMLDivElement>( null );
 	const [ chapter, setChapter ] = useState<DemoChapter>( DemoChapter.CHOOSE );
@@ -77,7 +78,8 @@ export default function HomePage( props: HomePageProps ) {
 							<h2 id="statistics-title">{ catalog.statisticsTitle }</h2>
 							<p>{ catalog.statisticsDescription }</p>
 						</div>
-						{ statisticsPreview }
+						<StatisticsPreview languageTag={ localization.languageTag } messages={ demoMessages }
+							label={ catalog.exampleData } formatting={ statisticsFormatting } />
 					</section>
 					<section className="privacy-section website-section" id="privacy" aria-labelledby="privacy-title">
 						<div className="privacy-statement" data-story-reveal>

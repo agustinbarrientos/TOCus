@@ -70,6 +70,10 @@ msgid "By default, the next pause comes five minutes after you select Continue."
 msgstr "Standardmäßig folgt die nächste Pause fünf Minuten, nachdem du Fortfahren gewählt hast."
 
 #: apps/website/src/localization/index.ts
+msgid "Choose different active days and hours for any website. The countdown stays shared."
+msgstr "Wähle für jede Website eigene aktive Tage und Uhrzeiten. Der Countdown bleibt gemeinsam."
+
+#: apps/website/src/localization/index.ts
 msgid "Choose sites"
 msgstr "Websites auswählen"
 
@@ -93,14 +97,14 @@ msgstr "Fortfahren"
 msgid "Continue after the pause"
 msgstr "Fahre nach der Pause fort"
 
+#: apps/website/src/localization/index.ts
+msgid "Custom schedules for each site"
+msgstr "Eigene Zeitpläne für jede Website"
+
 #. Language-menu autonym. Keep this language name written in German.
 #: apps/website/src/localization/index.ts
 msgid "Deutsch"
 msgstr "Deutsch"
-
-#: apps/website/src/localization/index.ts
-msgid "Different sites, different timing"
-msgstr "Andere Websites, andere Zeiten"
 
 #: apps/website/src/localization/index.ts
 msgid "Download for"
@@ -157,10 +161,6 @@ msgstr "Kostenlos und quelloffen"
 #: apps/website/src/localization/index.ts
 msgid "Free and open source."
 msgstr "Kostenlos und quelloffen."
-
-#: apps/website/src/localization/index.ts
-msgid "Give any website its own wait and schedule."
-msgstr "Gib jeder Website eine eigene Wartezeit und einen eigenen Zeitplan."
 
 #: apps/website/src/localization/index.ts
 msgid "How it works"

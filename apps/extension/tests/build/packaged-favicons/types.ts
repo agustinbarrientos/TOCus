@@ -17,6 +17,12 @@ export interface FaviconTestFixture {
 	siteUrl: string;
 	/** Actual packaged background service worker. */
 	worker: Worker;
+	/**
+	 * Relaunches this disposable profile without changing its native favicon or bookmark data.
+	 * @return Ready replacement browser, worker, and reader handles on this fixture.
+	 * @since 0.1.0
+	 */
+	restartBrowser(): Promise<void>;
 }
 
 /**

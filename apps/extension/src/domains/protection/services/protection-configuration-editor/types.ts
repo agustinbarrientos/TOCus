@@ -147,18 +147,11 @@ export type ProtectionConfigurationMutationCoordinator = (
 ) => Promise<ProtectionConfigurationEditResult>;
 
 /**
- * Creates one new stable scope identifier for an independent protected site.
- * @since 0.1.0 Initial implementation.
- */
-export type IndependentProtectionScopeIdFactory = () => unknown;
-
-/**
  * Dependencies used by protected-site configuration editing.
  * @since 0.1.0 Initial implementation.
  */
 export interface ProtectionConfigurationEditorOptions {
 	storage: ProtectionConfigurationStorageService;
-	createIndependentScopeId: IndependentProtectionScopeIdFactory;
 	createMeasurementRevision: ProtectionMeasurementRevisionFactory;
 	coordinateMutation: ProtectionConfigurationMutationCoordinator;
 	/**
@@ -174,8 +167,6 @@ export interface ProtectionConfigurationEditorOptions {
  * @since 0.1.0 Initial implementation.
  */
 export interface ProtectionConfigurationEditor {
-	/** Creates a stable independent scope for a local draft without reading or writing storage. */
-	createIndependentScopeId: IndependentProtectionScopeIdFactory;
 	/** Replaces the complete site set only while its baseline still matches authoritative storage. */
 	replaceSites(
 		expectedSites: unknown,
@@ -191,9 +182,8 @@ export interface ProtectionConfigurationEditor {
 	load(): Promise<ProtectionConfigurationDocument | null>;
 
 	/**
-	 * Adds one hostname or HTTP(S) URL with shared or independent scope behavior.
+	 * Adds one hostname or HTTP(S) URL with shared countdown behavior.
 	 * @param siteInput - Unknown user-entered hostname or URL.
-	 * @param independent - Whether the site receives its own protection scope.
 	 * @param beforePersist - Optional verification performed immediately before persistence.
 	 * @param finalize - Optional side effect completed before mutation coordination is released.
 	 * @return Updated configuration or a stable rejection.
@@ -201,7 +191,6 @@ export interface ProtectionConfigurationEditor {
 	 */
 	add(
 		siteInput: unknown,
-		independent: boolean,
 		beforePersist?: ProtectionConfigurationEditPrePersist,
 		finalize?: ProtectionConfigurationEditFinalizer,
 	): Promise<ProtectionConfigurationEditResult>;
@@ -221,17 +210,16 @@ export interface ProtectionConfigurationEditor {
 	): Promise<ProtectionConfigurationEditResult>;
 
 	/**
-	 * Updates one exact site's editable display name and scope behavior atomically.
+	 * Updates one exact site's editable display name and active hours atomically.
 	 * @param identityHost - Exact canonical site identity.
 	 * @param displayNameInput - Unknown editable name input; an empty value restores automatic naming.
-	 * @param independent - Whether the site receives its own protection scope.
 	 * @return Updated configuration or a stable rejection.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	update(
 		identityHost: unknown,
 		displayNameInput: unknown,
-		independent: boolean,
+		scheduleInput?: unknown,
 	): Promise<ProtectionConfigurationEditResult>;
 
 	/**
@@ -247,14 +235,12 @@ export interface ProtectionConfigurationEditor {
 	): Promise<ProtectionConfigurationEditResult>;
 
 	/**
-	 * Updates the normalized schedule for one active protection scope.
-	 * @param scopeIdInput - Unknown protection scope identifier.
+	 * Updates the global normalized schedule.
 	 * @param scheduleInput - Unknown editable schedule input.
 	 * @return Updated configuration or a stable rejection.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	updateSchedule(
-		scopeIdInput: unknown,
 		scheduleInput: unknown,
 	): Promise<ProtectionConfigurationEditResult>;
 

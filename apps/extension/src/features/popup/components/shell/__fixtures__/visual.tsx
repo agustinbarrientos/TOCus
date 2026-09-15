@@ -22,12 +22,8 @@ const site = ProtectedSiteConfigurationSchema.parse( {
 	rule: {
 		host: longContent ? 'this-is-an-intentionally-long-subdomain-that-needs-to-truncate.example.com' : 'instagram.com',
 		includeSubdomains: ! longContent,
-		scopeId: longContent ? 'scope_long_host' : DefaultProtectionScopeId,
+		scopeId: DefaultProtectionScopeId,
 	},
-} );
-const chess = ProtectedSiteConfigurationSchema.parse( {
-	identityHost: 'chess.com',
-	rule: { host: 'chess.com', includeSubdomains: true, scopeId: 'scope_chess' },
 } );
 const active = scenario === PopupVisualScenario.ACTIVE;
 const dark = active || scenario === PopupVisualScenario.UNAVAILABLE;
@@ -51,7 +47,6 @@ port.copy = longContent ? {
 	currentWebsite: 'Website currently open',
 	pauseInProgress: 'Your mindful pause is currently in progress',
 	timeLeft: 'Time remaining for this website',
-	manageWebsite: 'Manage this website and its timing',
 	statistics: 'View statistics',
 	settings: 'Open settings',
 } : copy;
@@ -83,14 +78,11 @@ function originalProjection(): PopupProjection {
 			nextWaitMilliseconds: active || longContent ? null : 10_000,
 		},
 		activeScopes: longContent ? [ {
-			scopeId: site.rule.scopeId, kind: PopupScopeKind.INDEPENDENT, phase: PopupTimerPhase.WAITING,
-			remainingMilliseconds: 8000, siteCount: 1, site, isCurrentScope: true,
+			scopeId: site.rule.scopeId, kind: PopupScopeKind.SHARED, phase: PopupTimerPhase.WAITING,
+			remainingMilliseconds: 8000, siteCount: 1, site: null, isCurrentScope: true,
 		} ] : active ? [ {
 			scopeId: DefaultProtectionScopeId, kind: PopupScopeKind.SHARED, phase: PopupTimerPhase.ALLOWANCE,
 			expiresAtEpochMilliseconds: now + 240_000, siteCount: 3, site: null, isCurrentScope: true,
-		}, {
-			scopeId: chess.rule.scopeId, kind: PopupScopeKind.INDEPENDENT, phase: PopupTimerPhase.WAITING,
-			remainingMilliseconds: 8000, siteCount: 1, site: chess, isCurrentScope: false,
 		} ] : [],
 	};
 }

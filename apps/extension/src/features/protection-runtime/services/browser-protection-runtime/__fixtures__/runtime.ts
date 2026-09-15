@@ -134,17 +134,13 @@ export const MULTI_SCOPE_CONFIGURATION = ProtectionConfigurationDocumentSchema.p
 			rule: {
 				host: 'independent.test',
 				includeSubdomains: true,
-				scopeId: 'scope_independent',
+				scopeId: DefaultProtectionScopeId,
 			},
 		},
 	],
-	schedulesByScope: {
-		scope_default: { mode: 'always' },
-		scope_independent: { mode: 'always' },
-	},
+	schedule: { mode: 'always' },
 	measurementRevisionsByScope: {
 		scope_default: 'revision_default',
-		scope_independent: 'revision_independent',
 	},
 } );
 

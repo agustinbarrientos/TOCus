@@ -49,10 +49,7 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
 			scopeId: TEST_SCOPE_ID,
 		},
 	} ],
-	schedulesByScope: {
-		...TestEmptyProtectionConfiguration.schedulesByScope,
-		[ TEST_SCOPE_ID ]: { mode: 'always' },
-	},
+	schedule: { mode: 'always' },
 	measurementRevisionsByScope: {
 		...TestEmptyProtectionConfiguration.measurementRevisionsByScope,
 		[ TEST_SCOPE_ID ]: ProtectionMeasurementRevisionSchema.parse( 'revision_test_scope' ),
@@ -128,6 +125,7 @@ interface ParticipantReconcilerHarness {
  * @param states - Current authoritative protection states.
  * @param tabs - Current browser-tab observations.
  * @param interruptionPageUrl - Configured interruption document URL.
+ * @param timeZone - OS timezone used by captured departure events.
  * @return Reconciler, coordinator fixture, and release spy.
  * @since 0.1.0 Initial implementation.
  */
@@ -135,6 +133,7 @@ function createHarness(
 	states: ProtectionCoordinatorStateSnapshot,
 	tabs: ReadonlyArray<ProtectionRuntimeTab>,
 	interruptionPageUrl = INTERRUPTION_PAGE_URL,
+	timeZone = 'UTC',
 ): ParticipantReconcilerHarness {
 	const coordinator = new ParticipantCoordinatorFixture( states );
 	const releaseInjectedInterruption = vi.fn().mockResolvedValue( undefined );
@@ -179,11 +178,33 @@ function createHarness(
 			releaseInjectedInterruption,
 			releaseNavigationIfInterrupted,
 			now,
+			/**
+			 * Returns the deterministic calendar for captured departures.
+			 * @return IANA timezone identifier.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			getTimeZone: () => timeZone,
 		} ),
 	};
 }
 
 describe( 'createProtectionParticipantReconciler', () => {
+	it.each( [ [ 'Pacific/Honolulu', '2027-01-14' ], [ 'Europe/Berlin', '2027-01-15' ] ] )(
+		'captures a departure in the %s local calendar', async ( timeZone, date ) => {
+			const waiting = createWaitingState();
+			waiting.participants = [ createNavigationParticipant(
+				'participant-a', 'page_tab_7_alpha', true, 0, 'https://example.com/',
+			) ];
+			const harness = createHarness( { 'scope-default': waiting }, [], INTERRUPTION_PAGE_URL, timeZone );
+			await harness.reconciler.departTab( 7, DepartureCause.ACTIVE_SESSION_TAB_CLOSE, CONFIGURATION );
+
+			expect( harness.coordinator.events ).toEqual( [ expect.objectContaining( {
+				observedAtEpochMilliseconds: 1_800_000_000_000,
+				observedLocalDate: date,
+			} ) ] );
+		},
+	);
+
 	it.each( [ 120_000, 300_000, 1_200_000 ] )( 'uses the current %i ms configured visit time on departure', async ( allowanceMilliseconds ) => {
 		const waiting = createWaitingState();
 		waiting.participants = [ createNavigationParticipant(
@@ -513,6 +534,12 @@ describe( 'createProtectionParticipantReconciler', () => {
 			 * @since 0.1.0 Initial implementation.
 			 */
 			now: () => 1_800_000_000_000,
+			/**
+			 * Returns the deterministic calendar for this inert instance.
+			 * @return IANA timezone identifier.
+			 * @since 0.1.0 Initial implementation.
+			 */
+			getTimeZone: () => 'UTC',
 		} );
 
 		await expect( reconciler.reconcile( CONFIGURATION ) ).resolves.toBeUndefined();

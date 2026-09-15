@@ -13,6 +13,7 @@ import type {
 import {
 	StatisticsLoadState,
 } from './types';
+import { observeStatisticsCalendar } from '../statistics-calendar-observer';
 
 
 /**
@@ -83,8 +84,12 @@ export function useStatisticsState( source: StatisticsSource | null ) {
 			}
 		}
 		source?.addStatisticsChangeListener( receiveChange );
+		const stopObservingCalendar = source === null ? undefined : observeStatisticsCalendar( {
+			document, window, onChange: receiveChange,
+		} );
 		return () => {
 			generation.current++;
+			stopObservingCalendar?.();
 			source?.removeStatisticsChangeListener( receiveChange );
 		};
 	}, [ source ] );

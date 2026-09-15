@@ -64,6 +64,10 @@ function setupOnboarding( container: HTMLElement, counter: HTMLOutputElement ): 
 	let preferences = { ...DefaultPreferencesDocument };
 	let requests = 0;
 	port.copy = bundle.onboarding;
+	port.notificationCopy = {
+		dismissNotification: bundle.settingsShell.dismissNotification,
+		resetComplete: bundle.privacyCopy.allSuccess,
+	};
 	port.interruptionCopy = bundle.interruption;
 	port.suggestions = OnboardingSiteSuggestions;
 	if ( query.has( 'persisted' ) ) {
@@ -170,6 +174,10 @@ function setupOnboarding( container: HTMLElement, counter: HTMLOutputElement ): 
 	 */
 	function applyLocalizationSnapshot( localization: Readonly<LocalizationBundle> ): void {
 		port.copy = localization.onboarding;
+		port.notificationCopy = {
+			dismissNotification: localization.settingsShell.dismissNotification,
+			resetComplete: localization.privacyCopy.allSuccess,
+		};
 		port.interruptionCopy = localization.interruption;
 	}
 

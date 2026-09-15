@@ -1,3 +1,4 @@
+import type { WebsiteDetailsDraft } from '../../utils/website-draft/types';
 import type { ProtectionConfigurationEditor } from '../../../../domains/protection/services/protection-configuration-editor';
 import type { ProtectedSiteConfiguration, ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import type { ProtectedSiteItemOperationErrorReason } from '../../components/site-item/types';
@@ -9,8 +10,7 @@ import type { ProtectedSiteItemOperationErrorReason } from '../../components/sit
 export interface SiteItemEditorSnapshot {
 	editing: boolean;
 	saving: boolean;
-	displayName: string;
-	independent: boolean;
+	details: WebsiteDetailsDraft;
 	error: ProtectedSiteItemOperationErrorReason | null;
 }
 
@@ -33,6 +33,6 @@ export interface SiteItemEditor {
 	subscribe: ( listener: () => void ) => () => void;
 	open: () => void;
 	cancel: () => void;
-	change: ( displayName: string, independent: boolean ) => void;
+	change: ( details: WebsiteDetailsDraft ) => void;
 	save: () => Promise<void>;
 }

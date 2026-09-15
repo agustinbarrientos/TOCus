@@ -1,4 +1,5 @@
 import { TestEmptyProtectionConfiguration } from '../../../../../domains/protection/types/__fixtures__/protection-configuration';
+import { createRuntimeLocalDate } from '../../../../protection-runtime/utils/runtime-local-date';
 import { createAllowanceState } from '../../../../../domains/protection/types/__fixtures__/protection-state';
 import {
 	ProtectionFactBatchSchema,
@@ -81,9 +82,11 @@ export function createStatisticsDocument(
 	measurementRevision = 'revision_old',
 ): StatisticsDocument {
 	return StatisticsDocumentSchema.parse( {
-		schemaVersion: 1,
+		schemaVersion: 2,
 		generationId: 'generation_test',
 		lastAppliedBatchId: null,
+		firstRecordedDate: null,
+		dailyTotals: [],
 		scopes: Object.fromEntries( [ [ scopeId, {
 			totals: {
 				estimatedReclaimedMilliseconds: 0,
@@ -104,6 +107,7 @@ export function createStatisticsDocument(
  * @param measurementRevision - Revision captured with the fact.
  * @param observedAtEpochMilliseconds - Shared batch observation time.
  * @param allowanceDurationMilliseconds - Configured duration captured with the reconsidered visit.
+ * @param observedLocalDate - Calendar date captured with the fact, defaulting to the UTC fixture calendar.
  * @return Valid protection-fact batch.
  * @since 0.1.0 Initial implementation.
  */
@@ -113,12 +117,14 @@ export function createReconsideredBatch(
 	measurementRevision = 'revision_current',
 	observedAtEpochMilliseconds = TEST_NOW_EPOCH_MILLISECONDS,
 	allowanceDurationMilliseconds = 300_000,
+	observedLocalDate: string = createRuntimeLocalDate( observedAtEpochMilliseconds, 'UTC' ),
 ) {
 	return ProtectionFactBatchSchema.parse( {
 		batchId,
 		scopeId,
 		measurementRevision,
 		observedAtEpochMilliseconds,
+		observedLocalDate,
 		facts: [ {
 			type: 'reconsidered-visit',
 			factId: `fact_${ batchId }`,
@@ -154,6 +160,7 @@ export function createAllowanceBatch(
 		scopeId,
 		measurementRevision,
 		observedAtEpochMilliseconds: startedAtEpochMilliseconds,
+		observedLocalDate: createRuntimeLocalDate( startedAtEpochMilliseconds, 'UTC' ),
 		facts: [ {
 			type: 'allowance-granted',
 			factId: `fact_${ batchId }`,
@@ -316,17 +323,11 @@ export function createPendingSession(
 }
 
 /**
- * Creates a configuration with two independently measured protected scopes.
- * @return Valid two-scope protection configuration.
+ * Creates two websites sharing the same measured countdown.
+ * @return Valid shared-countdown protection configuration.
  * @since 0.1.0 Initial implementation.
  */
-export function createTwoScopeConfiguration(): ProtectionConfigurationDocument {
-	const defaultSchedule = TEST_CONFIGURATION.schedulesByScope.scope_default;
-
-	if ( defaultSchedule === undefined ) {
-		throw new Error( 'Expected the default schedule fixture.' );
-	}
-
+export function createTwoSiteConfiguration(): ProtectionConfigurationDocument {
 	return ProtectionConfigurationDocumentSchema.parse( {
 		...TEST_CONFIGURATION,
 		sites: [
@@ -336,39 +337,12 @@ export function createTwoScopeConfiguration(): ProtectionConfigurationDocument {
 				rule: {
 					host: 'other.example',
 					includeSubdomains: false,
-					scopeId: 'scope_other',
+					scopeId: 'scope_default',
 				},
 			},
 		],
-		schedulesByScope: {
-			...TEST_CONFIGURATION.schedulesByScope,
-			scope_other: defaultSchedule,
-		},
 		measurementRevisionsByScope: {
 			scope_default: 'revision_current',
-			scope_other: 'revision_other',
-		},
-	} );
-}
-
-/**
- * Creates local statistics with active measurements in two protected scopes.
- * @return Valid two-scope active statistics document.
- * @since 0.1.0 Initial implementation.
- */
-export function createTwoScopeActiveStatisticsDocument(): StatisticsDocument {
-	const first = createActiveStatisticsDocument();
-	const second = createActiveStatisticsDocument(
-		'scope_other',
-		'revision_other',
-		'allowance_other',
-	);
-
-	return StatisticsDocumentSchema.parse( {
-		...first,
-		scopes: {
-			...first.scopes,
-			...second.scopes,
 		},
 	} );
 }

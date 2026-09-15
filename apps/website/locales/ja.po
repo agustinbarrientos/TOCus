@@ -70,6 +70,10 @@ msgid "By default, the next pause comes five minutes after you select Continue."
 msgstr "初期設定では「続ける」を選んでから5分後に次の休憩が始まります。"
 
 #: apps/website/src/localization/index.ts
+msgid "Choose different active days and hours for any website. The countdown stays shared."
+msgstr "サイトごとに有効な曜日と時間を設定できます。カウントダウンは共通です。"
+
+#: apps/website/src/localization/index.ts
 msgid "Choose sites"
 msgstr "サイトを選ぶ"
 
@@ -93,14 +97,14 @@ msgstr "続ける"
 msgid "Continue after the pause"
 msgstr "休憩後に続ける"
 
+#: apps/website/src/localization/index.ts
+msgid "Custom schedules for each site"
+msgstr "サイトごとのスケジュール"
+
 #. Language-menu autonym. Keep this language name written in German.
 #: apps/website/src/localization/index.ts
 msgid "Deutsch"
 msgstr "Deutsch"
-
-#: apps/website/src/localization/index.ts
-msgid "Different sites, different timing"
-msgstr "サイトごとに異なる時間設定"
 
 #: apps/website/src/localization/index.ts
 msgid "Download for"
@@ -157,10 +161,6 @@ msgstr "無料・オープンソース"
 #: apps/website/src/localization/index.ts
 msgid "Free and open source."
 msgstr "無料でオープンソース。"
-
-#: apps/website/src/localization/index.ts
-msgid "Give any website its own wait and schedule."
-msgstr "各ウェブサイトに個別の待ち時間とスケジュールを設定できます。"
 
 #: apps/website/src/localization/index.ts
 msgid "How it works"

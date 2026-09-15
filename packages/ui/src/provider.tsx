@@ -1,4 +1,4 @@
-import { MantineProvider, type MantineColorSchemeManager } from '@mantine/core';
+import { MantineProvider, mergeThemeOverrides, type MantineColorSchemeManager } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { useId, useMemo, useRef } from 'react';
 import { useOwnedAttributes, useOwnedPortal } from './ownership';
@@ -75,14 +75,11 @@ export function TocusProvider( {
 	} ), [ id, scheme, palette, motion, transparent ] );
 	useOwnedAttributes( root, attributes );
 	useOwnedAttributes( portalTarget === root ? undefined : portalTarget, attributes );
-	const theme = useMemo( () => ( {
-		...tocusTheme,
+	const theme = useMemo( () => mergeThemeOverrides( tocusTheme, {
 		scale: scale ?? ( compact ? 1 : 1.15 ),
 		components: {
-			...tocusTheme.components,
 			Portal: { defaultProps: { target: portalMount ?? `${ selector } > .tocus-provider-content` } },
 			Modal: {
-				...tocusTheme.components?.Modal,
 				defaultProps: { transitionProps: { duration: motion ? 0 : 160 } },
 			},
 		},

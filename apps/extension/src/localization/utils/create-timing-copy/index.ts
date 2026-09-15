@@ -78,9 +78,7 @@ export function createTimingCopy( i18n: I18n ): Readonly<TimingScreenCopy> {
 	}
 
 	return Object.freeze( {
-		eyebrow: i18n._( msg`Pause setup` ),
 		title: i18n._( msg`Pause timing` ),
-		introduction: i18n._( msg`Set one calm timing pattern for every website on your list.` ),
 		formLabel: i18n._( msg`Global timing` ),
 		initialWaitLabel: i18n._( msg`Initial wait` ),
 		initialWaitHelp: i18n._( msg`The first interruption of the day starts with this wait.` ),
@@ -93,9 +91,7 @@ export function createTimingCopy( i18n: I18n ): Readonly<TimingScreenCopy> {
 		allowanceHelp: i18n._( msg`This time starts when you choose Continue or the site opens automatically.` ),
 		completionActionLegend: i18n._( msg`When the wait finishes` ),
 		showContinueLabel: i18n._( msg`Show a Continue button` ),
-		showContinueDescription: i18n._( msg`Wait for an explicit choice before opening the site.` ),
 		openAutomaticallyLabel: i18n._( msg`Open the site automatically` ),
-		openAutomaticallyDescription: i18n._( msg`Open the requested site as soon as the wait ends.` ),
 		summaryTitle: i18n._( msg`Timing summary` ),
 		loading: i18n._( msg`Loading timing settings...` ),
 		malformedDataTitle: i18n._( msg`Timing settings need your attention` ),
@@ -111,7 +107,6 @@ export function createTimingCopy( i18n: I18n ): Readonly<TimingScreenCopy> {
 		invalidTimingConfigurationError: i18n._(
 			msg`These timing choices are not valid. Review them before saving.`,
 		),
-		saved: i18n._( msg`Changes saved.` ),
 		formatSecondsOption,
 		formatMinutesOption,
 		formatSummary,

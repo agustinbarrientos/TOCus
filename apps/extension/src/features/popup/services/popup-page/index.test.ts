@@ -3,7 +3,6 @@ import { Language } from '../../../../domains/preferences/types';
 import { ProtectionConfigurationEditRejectionReason } from '../../../../domains/protection/services/protection-configuration-editor';
 import {
 	DefaultProtectionScopeId,
-	ProtectionScopeIdSchema,
 } from '../../../../domains/protection/types/protection-value';
 import { createEnglishLocalizationBundle } from '../../../../localization';
 import { ProtectedSiteEnrollmentStatus } from '../../../protected-sites/services/protected-site-enrollment';
@@ -30,7 +29,6 @@ const CURRENT_TAB = Object.freeze( {
 	incognito: false,
 	url: 'https://example.com/feed',
 } as const );
-const EXAMPLE_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope_example' );
 const TEST_SITE = Object.freeze( {
 	identityHost: 'example.com',
 	rule: {
@@ -191,7 +189,7 @@ function createHarness( initialProjection: PopupProjection = UNPROTECTED_PROJECT
 		refreshStatus: vi.fn().mockResolvedValue( PROTECTED_PROJECTION ),
 	};
 	const enrollment = {
-		add: vi.fn<( input: unknown, independent: boolean ) => Promise<PopupSiteEnrollmentResult>>()
+		add: vi.fn<( input: unknown ) => Promise<PopupSiteEnrollmentResult>>()
 			.mockResolvedValue( {
 				status: ProtectedSiteEnrollmentStatus.ADDED,
 			} ),
@@ -317,7 +315,7 @@ describe( 'popup page service', () => {
 		harness.shell.dispatchEvent( new Event( PopupAddSiteRequestEventName ) );
 
 		expect( harness.shell.adding ).toBe( true );
-		expect( harness.enrollment.add ).toHaveBeenCalledWith( CURRENT_TAB.url, false );
+		expect( harness.enrollment.add ).toHaveBeenCalledWith( CURRENT_TAB.url );
 		expect( harness.statusClient.refreshStatus ).not.toHaveBeenCalled();
 
 		enrollmentResult.resolve( {
@@ -565,7 +563,7 @@ describe( 'popup page service', () => {
 		expect( harness.faviconProvider.getSource ).not.toHaveBeenCalled();
 	} );
 
-	it( 'refreshes at the earliest of multiple concurrent allowance expiries', async () => {
+	it( 'refreshes at the shared allowance expiry, but not before it', async () => {
 		const harness = createHarness( {
 			...PROTECTED_PROJECTION,
 			currentSite: ACTIVE_PROTECTED_CURRENT_SITE,
@@ -577,24 +575,15 @@ describe( 'popup page service', () => {
 					site: null,
 					isCurrentScope: true,
 					phase: PopupTimerPhase.ALLOWANCE,
-					expiresAtEpochMilliseconds: 1_800_000_010_000,
-				},
-				{
-					scopeId: EXAMPLE_SCOPE_ID,
-					kind: PopupScopeKind.INDEPENDENT,
-					siteCount: 1,
-					site: {
-						...TEST_SITE,
-						rule: { ...TEST_SITE.rule, scopeId: EXAMPLE_SCOPE_ID },
-					},
-					isCurrentScope: false,
-					phase: PopupTimerPhase.ALLOWANCE,
 					expiresAtEpochMilliseconds: 1_800_000_005_000,
 				},
 			],
 		} );
 
 		await startPopupPage( harness.options );
+		harness.now.mockReturnValueOnce( 1_800_000_004_999 );
+		harness.pageWindowHarness.tick();
+		expect( harness.statusClient.refreshStatus ).not.toHaveBeenCalled();
 		harness.now.mockReturnValueOnce( 1_800_000_005_000 );
 		harness.pageWindowHarness.tick();
 		await vi.waitFor( () => {

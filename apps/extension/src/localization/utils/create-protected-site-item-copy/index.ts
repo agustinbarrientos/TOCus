@@ -10,19 +10,6 @@ import type { ProtectedSiteItemCopy } from '../../../features/protected-sites/co
  */
 export function createProtectedSiteItemCopy( i18n: I18n ): Readonly<ProtectedSiteItemCopy> {
 	/**
-	 * Formats one protection boundary.
-	 * @param host - Canonical protection host.
-	 * @param includesSubdomains - Whether descendant hosts are protected.
-	 * @return Complete localized boundary explanation.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	function formatBoundary( host: string, includesSubdomains: boolean ): string {
-		return includesSubdomains
-			? i18n._( msg`Includes ${ { host } } and its subdomains` )
-			: i18n._( msg`Includes only ${ { host } }` );
-	}
-
-	/**
 	 * Formats one removal question.
 	 * @param name - Current resolved display name.
 	 * @return Complete localized question.
@@ -33,19 +20,15 @@ export function createProtectedSiteItemCopy( i18n: I18n ): Readonly<ProtectedSit
 	}
 
 	return Object.freeze( {
+		customScheduleLabel: i18n._( msg`Use custom schedule` ),
+		automaticNamePlaceholder: i18n._( msg`Automatic name` ),
 		done: i18n._( msg`Done` ),
 		accessRequired: i18n._( msg`Access required` ),
 		allowAccess: i18n._( msg`Allow access` ),
 		allowingAccess: i18n._( msg`Allowing...` ),
 		accessRequestError: i18n._( msg`Browser access is still required to show the pause on this website.` ),
-		edit: i18n._( msg`Manage this website` ),
-		displayNameLabel: i18n._( msg`Display name` ),
-		useAutomaticName: i18n._( msg`Use automatic name` ),
-		behaviorLegend: i18n._( msg`Pause behavior` ),
-		sharedBehavior: i18n._( msg`Use shared timing` ),
-		sharedBehaviorDescription: i18n._( msg`Uses the shared wait, allowance, and schedule.` ),
-		independentBehavior: i18n._( msg`Give this website its own timing` ),
-		independentBehaviorDescription: i18n._( msg`Uses its own wait, allowance, and schedule.` ),
+		edit: i18n._( msg`Change schedule or site name` ),
+		displayNameLabel: i18n._( msg`Name` ),
 		saveChanges: i18n._( msg`Save changes` ),
 		saving: i18n._( msg`Saving...` ),
 		cancel: i18n._( msg`Cancel` ),
@@ -54,15 +37,6 @@ export function createProtectedSiteItemCopy( i18n: I18n ): Readonly<ProtectedSit
 		confirmRemove: i18n._( msg`Remove` ),
 		operationError: i18n._( msg`Your changes could not be saved. Nothing was replaced.` ),
 		configurationChangedError: i18n._( msg`This site changed elsewhere. Reload settings and try again.` ),
-		sharedLabel: i18n._( msg( {
-			comment: 'Status adjective for a site that shares protection timing with other sites.',
-			message: 'Shared',
-		} ) ),
-		independentLabel: i18n._( msg( {
-			comment: 'Status adjective for a site with its own protection timing.',
-			message: 'Independent',
-		} ) ),
-		formatBoundary,
 		formatRemoveQuestion,
 	} );
 }

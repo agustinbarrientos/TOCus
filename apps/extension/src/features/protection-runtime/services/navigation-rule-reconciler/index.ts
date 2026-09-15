@@ -37,9 +37,9 @@ export function createNavigationRuleReconciler(
 			const state = statesByScope[ site.rule.scopeId ];
 			const hasActiveAllowance = state?.type === ProtectionStateType.ALLOWANCE &&
 				nowEpochMilliseconds < state.expiresAtEpochMilliseconds;
-			const schedule = configuration.schedulesByScope[ site.rule.scopeId ];
+			const schedule = site.schedule ?? configuration.schedule;
 
-			return ! hasActiveAllowance && schedule !== undefined && evaluateSchedule(
+			return ! hasActiveAllowance && evaluateSchedule(
 				schedule,
 				nowEpochMilliseconds,
 				options.getTimeZone(),

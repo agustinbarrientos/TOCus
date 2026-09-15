@@ -5,7 +5,6 @@ import {
 	PauseTimeFactInputSchema,
 } from '../protection-fact';
 import {
-	DefaultProtectionSchedule,
 	NormalizedCustomScheduleSchema,
 	ScheduleEndMinuteSchema,
 	ScheduleMode,
@@ -20,7 +19,6 @@ import {
 import {
 	ProtectionConfigurationDocumentSchema,
 	ProtectionScopeMeasurementRevisionMapSchema,
-	ProtectionScopeScheduleMapSchema,
 } from '../protected-site-configuration';
 import {
 	ProtectionParticipantOrigin,
@@ -124,13 +122,13 @@ describe( 'protection type fixtures', () => {
 	it( 'round-trips the current protection configuration fixture', () => {
 		expect( ProtectionConfigurationDocumentSchema.parse( {
 			...TestEmptyProtectionConfiguration,
-			schemaVersion: 4,
+			schemaVersion: 5,
 			measurementRevisionsByScope: {
 				scope_default: 'revision_initial_scope_default',
 			},
 		} ) ).toStrictEqual( {
 			...TestEmptyProtectionConfiguration,
-			schemaVersion: 4,
+			schemaVersion: 5,
 			measurementRevisionsByScope: {
 				scope_default: 'revision_initial_scope_default',
 			},
@@ -162,7 +160,7 @@ describe( 'protection contract custom rules', () => {
 	it( 'requires one measurement revision for every active protection scope', () => {
 		const currentConfiguration = {
 			...TestEmptyProtectionConfiguration,
-			schemaVersion: 4,
+			schemaVersion: 5,
 			measurementRevisionsByScope: {
 				scope_default: 'revision_initial_scope_default',
 			},
@@ -184,28 +182,20 @@ describe( 'protection contract custom rules', () => {
 		} ).success ).toBe( false );
 	} );
 
-	it( 'preserves every supported object-property scope key in both configuration maps', () => {
+	it( 'preserves every supported object-property scope key in the measurement revision map', () => {
 		const scopeIds = [ '__proto__', 'constructor', 'toString', 'hasOwnProperty' ];
-		const schedulesByScope = Object.fromEntries(
-			scopeIds.map( ( scopeId ) => [ scopeId, DefaultProtectionSchedule ] as const ),
-		);
 		const measurementRevisionsByScope = Object.fromEntries(
 			scopeIds.map( ( scopeId, index ) => [ scopeId, `revision_${ String( index ) }` ] as const ),
 		);
 
-		Reflect.setPrototypeOf( schedulesByScope, null );
 		Reflect.setPrototypeOf( measurementRevisionsByScope, null );
 
-		const parsedSchedules = ProtectionScopeScheduleMapSchema.parse( schedulesByScope );
 		const parsedRevisions = ProtectionScopeMeasurementRevisionMapSchema.parse(
 			measurementRevisionsByScope,
 		);
 
-		expect( Object.keys( parsedSchedules ) ).toEqual( scopeIds );
 		expect( Object.keys( parsedRevisions ) ).toEqual( scopeIds );
 		for ( const scopeId of scopeIds ) {
-			expect( Object.hasOwn( parsedSchedules, scopeId ) ).toBe( true );
-			expect( parsedSchedules[ scopeId ] ).toEqual( DefaultProtectionSchedule );
 			expect( Object.hasOwn( parsedRevisions, scopeId ) ).toBe( true );
 			expect( parsedRevisions[ scopeId ] ).toBe(
 				measurementRevisionsByScope[ scopeId ],
@@ -214,12 +204,6 @@ describe( 'protection contract custom rules', () => {
 	} );
 
 	it.each( [
-		{
-			label: 'schedule',
-			schema: ProtectionScopeScheduleMapSchema,
-			validValue: DefaultProtectionSchedule,
-			invalidValue: { mode: 'sometimes' },
-		},
 		{
 			label: 'measurement-revision',
 			schema: ProtectionScopeMeasurementRevisionMapSchema,
@@ -247,38 +231,15 @@ describe( 'protection contract custom rules', () => {
 		] ) ).success ).toBe( false );
 	} );
 
-	it( 'round-trips prototype-named active scopes through the configuration document schema', () => {
-		const scopeIds = [ '__proto__', 'constructor', 'toString', 'hasOwnProperty' ];
-		const schedulesByScope = Object.fromEntries( [
-			[ 'scope_default', DefaultProtectionSchedule ] as const,
-			...scopeIds.map( ( scopeId ) => [ scopeId, DefaultProtectionSchedule ] as const ),
-		] );
-		const measurementRevisionsByScope = Object.fromEntries( [
-			[ 'scope_default', 'revision_default' ] as const,
-			...scopeIds.map( ( scopeId, index ) => [
-				scopeId,
-				`revision_${ String( index ) }`,
-			] as const ),
-		] );
-		const configuration = ProtectionConfigurationDocumentSchema.parse( {
-			...TestEmptyProtectionConfiguration,
-			sites: scopeIds.map( ( scopeId, index ) => ( {
-				identityHost: `scope-${ String( index ) }.example`,
-				rule: {
-					host: `scope-${ String( index ) }.example`,
-					includeSubdomains: false,
-					scopeId,
-				},
-			} ) ),
-			schedulesByScope,
-			measurementRevisionsByScope,
-		} );
-
-		for ( const scopeId of scopeIds ) {
-			expect( Object.hasOwn( configuration.schedulesByScope, scopeId ) ).toBe( true );
-			expect( Object.hasOwn( configuration.measurementRevisionsByScope, scopeId ) ).toBe( true );
-		}
-	} );
+	it.each( [ '__proto__', 'constructor', 'toString', 'hasOwnProperty', 'scope_separate' ] )(
+		'rejects a configured website outside the shared countdown: %s', ( scopeId ) => {
+			expect( ProtectionConfigurationDocumentSchema.safeParse( {
+				...TestEmptyProtectionConfiguration,
+				sites: [ { identityHost: 'example.com', rule: { host: 'example.com', includeSubdomains: true,
+					scopeId } } ],
+			} ).success ).toBe( false );
+		},
+	);
 
 	it( 'accepts only real ISO calendar dates', () => {
 		expect( LocalDateSchema.parse( '2028-02-29' ) ).toBe( '2028-02-29' );

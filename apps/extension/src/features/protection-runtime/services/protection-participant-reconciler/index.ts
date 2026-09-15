@@ -12,6 +12,7 @@ import {
 	type ProtectionRuntimeParticipantContext,
 } from '../../utils/runtime-page-context';
 import type { ProtectionRuntimeTab } from '../../types/browser-runtime';
+import { createRuntimeLocalDate } from '../../utils/runtime-local-date';
 import type {
 	ProtectionParticipantReconciler,
 	ProtectionParticipantReconcilerOptions,
@@ -157,16 +158,21 @@ export function createProtectionParticipantReconciler(
 		)
 			? configuration.measurementRevisionsByScope[ context.state.scopeId ]
 			: undefined;
-		const result = await options.coordinator.dispatch( () => ( {
-			type: ProtectionEventType.PARTICIPANT_DEPARTURE,
-			scopeId: context.state.scopeId,
-			target: createRuntimeStateTarget( context.state ),
-			participantId: context.participant.participantId,
-			pageId: context.participant.pageId,
-			cause,
-			allowanceDurationMilliseconds: configuration?.timingConfiguration.allowanceMilliseconds ?? null,
-			observedAtEpochMilliseconds: options.now(),
-		} ), measurementRevision );
+		const result = await options.coordinator.dispatch( () => {
+			const observedAtEpochMilliseconds = options.now();
+
+			return {
+				type: ProtectionEventType.PARTICIPANT_DEPARTURE,
+				scopeId: context.state.scopeId,
+				target: createRuntimeStateTarget( context.state ),
+				participantId: context.participant.participantId,
+				pageId: context.participant.pageId,
+				cause,
+				allowanceDurationMilliseconds: configuration?.timingConfiguration.allowanceMilliseconds ?? null,
+				observedAtEpochMilliseconds,
+				observedLocalDate: createRuntimeLocalDate( observedAtEpochMilliseconds, options.getTimeZone() ),
+			};
+		}, measurementRevision );
 
 		await options.applyDispatchResult( result, configuration );
 	}

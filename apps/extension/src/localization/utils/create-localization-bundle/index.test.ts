@@ -67,30 +67,28 @@ describe( 'createLocalizationBundle', () => {
 	} );
 
 	it.each( [
-		[ Language.SPANISH_TU, 'Tiempo de pausas', 'Un temporizador para estos sitios', 'Pausar sitio', 'Tiempo restante', 'Sitios que usan el mismo temporizador' ],
-		[ Language.SPANISH_VOS, 'Tiempo de pausas', 'Un temporizador para estos sitios', 'Pausar sitio', 'Tiempo restante', 'Sitios que usan el mismo temporizador' ],
-		[ Language.PORTUGUESE_BRAZIL, 'Tempo das pausas', 'Um temporizador para estes sites', 'Pausar site', 'Tempo restante', 'Sites que usam o mesmo temporizador' ],
-		[ Language.PORTUGUESE_PORTUGAL, 'Duração das pausas', 'Um temporizador para estes sites', 'Pausar site', 'Tempo restante', 'Sites que usam o mesmo temporizador' ],
-		[ Language.ITALIAN, 'Tempi di pausa', 'Un timer per questi siti', 'Metti in pausa il sito', 'Tempo rimanente', 'Siti che usano lo stesso timer' ],
-		[ Language.FRENCH, 'Temps de pause', 'Un minuteur pour ces sites', 'Mettre le site en pause', 'Temps restant', 'Sites utilisant le même minuteur' ],
-		[ Language.GERMAN, 'Pausenzeiten', 'Ein Timer für diese Websites', 'Website pausieren', 'Verbleibende Zeit', 'Websites mit demselben Timer' ],
-		[ Language.JAPANESE, '一時停止の時間設定', 'これらのウェブサイト用の1つのタイマー', 'サイトを一時停止', '残り時間', '同じタイマーを使うウェブサイト' ],
-		[ Language.RUSSIAN, 'Время пауз', 'Один таймер для этих сайтов', 'Приостановить сайт', 'Оставшееся время', 'Сайты с общим таймером' ],
+		[ Language.SPANISH_TU, 'Tiempo de pausas', 'Usar horario personalizado', 'Pausar sitio', 'Tiempo restante' ],
+		[ Language.SPANISH_VOS, 'Tiempo de pausas', 'Usar horario personalizado', 'Pausar sitio', 'Tiempo restante' ],
+		[ Language.PORTUGUESE_BRAZIL, 'Tempo das pausas', 'Usar horário personalizado', 'Pausar site', 'Tempo restante' ],
+		[ Language.PORTUGUESE_PORTUGAL, 'Duração das pausas', 'Usar horário personalizado', 'Pausar site', 'Tempo restante' ],
+		[ Language.ITALIAN, 'Tempi di pausa', 'Usa orari personalizzati', 'Metti in pausa il sito', 'Tempo rimanente' ],
+		[ Language.FRENCH, 'Temps de pause', 'Utiliser des horaires personnalisés', 'Mettre le site en pause', 'Temps restant' ],
+		[ Language.GERMAN, 'Pausenzeiten', 'Eigenen Zeitplan verwenden', 'Website pausieren', 'Verbleibende Zeit' ],
+		[ Language.JAPANESE, '一時停止の時間設定', '個別のスケジュールを使う', 'サイトを一時停止', '残り時間' ],
+		[ Language.RUSSIAN, 'Время пауз', 'Использовать своё расписание', 'Приостановить сайт', 'Оставшееся время' ],
 	] )( 'loads the revised timing and popup labels for %s', async (
 		language,
 		pauseTiming,
-		sharedTimer,
+		customSchedule,
 		pauseSite,
 		timeLeft,
-		sharedSchedule,
 	) => {
 		const bundle = await loadLocalizationBundle( language );
 
 		expect( bundle.settingsShell.timing ).toBe( pauseTiming );
 		expect( bundle.timing.title ).toBe( pauseTiming );
-		expect( bundle.schedule.sharedScope ).toBe( sharedSchedule );
-		expect( bundle.protectedSites.sharedBehavior ).toBe( sharedTimer );
-		expect( bundle.protectedSiteList.sharedGroupTitle ).toBe( sharedTimer );
+		expect( bundle.protectedSites.customScheduleLabel ).toBe( customSchedule );
+		expect( bundle.protectedSiteItem.customScheduleLabel ).toBe( customSchedule );
 		expect( bundle.popup.pauseSite ).toBe( pauseSite );
 		expect( bundle.popup.timeLeft ).toBe( timeLeft );
 	} );
@@ -107,12 +105,9 @@ describe( 'createLocalizationBundle', () => {
 		expect( bundle.languageScreen.languageLabel ).toBe( 'TOCus language' );
 		expect( bundle.appearance.themeOptions.system.label ).toBe( 'System' );
 		expect( bundle.settingsShell.timing ).toBe( 'Pause timing' );
-		expect( bundle.schedule.sharedScope ).toBe( 'Websites using the same timer' );
 		expect( bundle.timing.title ).toBe( 'Pause timing' );
 		expect( bundle.timing.initialWaitLabel ).toBe( 'Initial wait' );
 		expect( bundle.protectedSites.emptyTitle ).toBe( 'No websites yet' );
-		expect( bundle.protectedSites.sharedBehavior ).toBe( 'One timer for these websites' );
-		expect( bundle.protectedSiteList.sharedGroupTitle ).toBe( 'One timer for these websites' );
 		expect( bundle.protectedSiteItem.accessRequired ).toBe( 'Access required' );
 		expect( bundle.statistics.allTimeTitle ).toBe( 'All time' );
 		expect( bundle.interruption.takeAMoment ).toBe( 'Take a moment' );
@@ -127,19 +122,14 @@ describe( 'createLocalizationBundle', () => {
 		expect( bundle.languageScreen.formatBrowserLanguageDescription( 'English' ) ).toBe(
 			'Your browser currently selects English.',
 		);
-		expect( bundle.schedule.formatIndependentScopeLabel( 'Reddit', 'reddit.com' ) ).toBe( 'Reddit (reddit.com)' );
 		expect( bundle.schedule.formatWeekday( Weekday.MONDAY ) ).toBe( 'Monday' );
 		expect( bundle.schedule.formatWindowLabel( 2 ) ).toBe( 'Time window 2' );
 		expect( bundle.schedule.formatRemoveWindowLabel( 2 ) ).toBe( 'Remove time window 2' );
 		expect( bundle.protectedSites.formatAddedAnnouncement( 'Reddit' ) ).toBe(
 			'Reddit was added to your list.',
 		);
-		expect( bundle.protectedSiteItem.formatBoundary( 'reddit.com', true ) ).toBe(
-			'Includes reddit.com and its subdomains',
-		);
-		expect( bundle.protectedSiteItem.formatBoundary( 'reddit.com', false ) ).toBe( 'Includes only reddit.com' );
 		expect( bundle.protectedSiteItem.formatRemoveQuestion( 'Reddit' ) ).toBe( 'Remove Reddit?' );
-		expect( bundle.interruption.formatRemainingTime( 12 ) ).toBe( '12s remaining' );
+		expect( bundle.interruption.formatRemainingTime( 12 ) ).toBe( '12s' );
 		expect( bundle.protectedPageLayer.formatAllowanceWarning( 1 ) ).toBe(
 			'Your visit window ends in 1 second.',
 		);
@@ -168,7 +158,6 @@ describe( 'createLocalizationBundle', () => {
 	it( 'compares translated names with one selected-locale collation policy', async () => {
 		const bundle = await loadLocalizationBundle( Language.SPANISH_TU );
 
-		expect( bundle.schedule.compareNames( '\u00f1', 'nz' ) ).toBeGreaterThan( 0 );
 		expect( bundle.protectedSiteList.compareNames( '\u00f1', 'nz' ) ).toBeGreaterThan( 0 );
 		expect( bundle.protectedSites.compareNames( '\u00f1', 'nz' ) ).toBeGreaterThan( 0 );
 	} );
@@ -308,13 +297,17 @@ describe( 'createLocalizationBundle', () => {
 	} );
 
 	it.each( [
-		{ language: Language.SPANISH_TU, singular: 'Queda 1 s', plural: 'Quedan 2 s' },
-		{ language: Language.SPANISH_VOS, singular: 'Queda 1 s', plural: 'Quedan 2 s' },
-		{ language: Language.PORTUGUESE_BRAZIL, singular: 'Resta 1 s', plural: 'Restam 2 s' },
-		{ language: Language.PORTUGUESE_PORTUGAL, singular: 'Falta 1 s', plural: 'Faltam 2 s' },
-		{ language: Language.ITALIAN, singular: '1s rimanente', plural: '2s rimanenti' },
-		{ language: Language.FRENCH, singular: '1s restante', plural: '2s restantes' },
-	] )( 'uses singular and plural interruption countdown grammar for $language', async ( expectation ) => {
+		{ language: Language.ENGLISH, singular: '1s', plural: '2s' },
+		{ language: Language.GERMAN, singular: '1s', plural: '2s' },
+		{ language: Language.SPANISH_TU, singular: '1s', plural: '2s' },
+		{ language: Language.SPANISH_VOS, singular: '1s', plural: '2s' },
+		{ language: Language.PORTUGUESE_BRAZIL, singular: '1s', plural: '2s' },
+		{ language: Language.PORTUGUESE_PORTUGAL, singular: '1s', plural: '2s' },
+		{ language: Language.ITALIAN, singular: '1s', plural: '2s' },
+		{ language: Language.FRENCH, singular: '1s', plural: '2s' },
+		{ language: Language.JAPANESE, singular: '1秒', plural: '2秒' },
+		{ language: Language.RUSSIAN, singular: '1с', plural: '2с' },
+	] )( 'uses compact localized interruption countdowns for $language', async ( expectation ) => {
 		const bundle = await loadLocalizationBundle( expectation.language );
 
 		expect( bundle.interruption.formatRemainingTime( 1 ) ).toBe( expectation.singular );
@@ -327,10 +320,10 @@ describe( 'createLocalizationBundle', () => {
 		const portugueseBrazil = await loadLocalizationBundle( Language.PORTUGUESE_BRAZIL );
 		const portuguesePortugal = await loadLocalizationBundle( Language.PORTUGUESE_PORTUGAL );
 
-		expect( spanishTu.languageScreen.introduction ).not.toBe( spanishVos.languageScreen.introduction );
-		expect( portugueseBrazil.languageScreen.introduction ).not.toBe(
-			portuguesePortugal.languageScreen.introduction,
-		);
+		expect( spanishTu.settingsShell.unsavedChangesDescription )
+			.not.toBe( spanishVos.settingsShell.unsavedChangesDescription );
+		expect( portugueseBrazil.settingsShell.unsavedChangesTitle )
+			.not.toBe( portuguesePortugal.settingsShell.unsavedChangesTitle );
 	} );
 
 	it.each( Object.values( Language ) )( 'creates nonempty dynamic messages for %s', async ( language ) => {
@@ -343,7 +336,6 @@ describe( 'createLocalizationBundle', () => {
 			bundle.onboarding.sites.formatAddingSuggestionLabel( 'Instagram' ),
 			bundle.onboarding.sites.formatAddedSuggestionLabel( 'Instagram' ),
 			bundle.onboarding.sites.formatAddedAnnouncement( 'Instagram' ),
-			bundle.schedule.formatIndependentScopeLabel( 'Reddit', 'reddit.com' ),
 			bundle.schedule.formatWeekday( Weekday.SUNDAY ),
 			bundle.schedule.formatWindowLabel( 3 ),
 			bundle.schedule.formatRemoveWindowLabel( 3 ),
@@ -355,7 +347,6 @@ describe( 'createLocalizationBundle', () => {
 			bundle.protectedSites.formatRemovedAnnouncement( 'Reddit' ),
 			bundle.protectedSites.formatPermissionRetainedAnnouncement( 'Reddit' ),
 			bundle.protectedSites.formatAccessRestoredAnnouncement( 'Reddit' ),
-			bundle.protectedSiteItem.formatBoundary( 'reddit.com', true ),
 			bundle.protectedSiteItem.formatRemoveQuestion( 'Reddit' ),
 			bundle.statistics.formatEstimatedDuration( 90_000 ),
 			bundle.statistics.formatDuration( 90_000 ),

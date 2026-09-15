@@ -6,6 +6,137 @@ import { measureContrast } from './utils/measure-contrast';
 const url = '/packages/ui/tests/fixture/';
 
 test.describe( 'shared controls', () => {
+	test( 'keeps labels and notices at body size with a clear field gap', async ( { page } ) => {
+		await page.goto( url );
+		const input = page.getByRole( 'textbox', { name: 'Title', exact: true } );
+		await expect( input ).toBeVisible();
+		const metrics = await input.evaluate( ( element ) => {
+			const wrapper = element.closest( '.mantine-InputWrapper-root' );
+			const label = wrapper?.querySelector( 'label' );
+			const notice = document.querySelector( '.mantine-Alert-message' );
+			if ( ! wrapper || ! label || ! notice ) {
+				throw new Error( 'Expected a labelled field and a notice.' );
+			}
+			return { body: getComputedStyle( wrapper ).fontSize,
+				label: getComputedStyle( label ).fontSize, notice: getComputedStyle( notice ).fontSize,
+				gap: element.getBoundingClientRect().top - label.getBoundingClientRect().bottom };
+		} );
+		expect( metrics.label ).toBe( metrics.body );
+		expect( metrics.notice ).toBe( metrics.body );
+		expect( metrics.gap ).toBeGreaterThanOrEqual( 8 );
+	} );
+	test( 'honors small actions without shrinking normal actions or slider hit targets', async ( { page } ) => {
+		await page.goto( url );
+		const small = page.getByRole( 'button', { name: 'Small action', exact: true } );
+		const extraSmall = page.getByRole( 'button', { name: 'Extra small action', exact: true } );
+		const normal = page.getByRole( 'button', { name: 'Native action', exact: true } );
+		await expect( small ).toBeVisible();
+		const smallBounds = await small.boundingBox();
+		const normalBounds = await normal.boundingBox();
+		expect.soft( smallBounds?.height ).toBeLessThan( normalBounds?.height ?? 0 );
+		expect.soft( ( await extraSmall.boundingBox() )?.height ).toBeLessThan( smallBounds?.height ?? 0 );
+		const sizes = [];
+		for ( const button of [ extraSmall, small, normal ] ) {
+			sizes.push( await button.evaluate( ( element ) => {
+				const style = getComputedStyle( element );
+				return { padding: parseFloat( style.paddingInlineStart ), font: parseFloat( style.fontSize ) };
+			} ) );
+		}
+		expect.soft( sizes[ 0 ]?.padding ).toBeLessThan( sizes[ 1 ]?.padding ?? 0 );
+		expect.soft( sizes[ 1 ]?.padding ).toBeLessThan( sizes[ 2 ]?.padding ?? 0 );
+		expect.soft( sizes[ 0 ]?.font ).toBeLessThan( sizes[ 1 ]?.font ?? 0 );
+		const thumb = page.getByRole( 'slider', { name: 'Initial wait' } );
+		expect( await thumb.evaluate( ( element ) => element.getBoundingClientRect().width ) ).toBe( 24 );
+		const marks = page.locator( '.mantine-Slider-mark' );
+		await expect( marks ).toHaveCount( 5 );
+		for ( const mark of await marks.all() ) {
+			const metrics = await mark.evaluate( ( element ) => ( {
+				diameter: element.getBoundingClientRect().width, opacity: getComputedStyle( element ).opacity,
+			} ) );
+			expect( metrics.diameter ).toBeCloseTo( 8 / 3, 2 );
+			expect( metrics.opacity ).toBe( '0.5' );
+		}
+	} );
+	test( 'leaves website artwork without an added surface or rounded clipping', async ( { page } ) => {
+		await page.goto( url );
+		const icon = page.getByRole( 'img', { name: 'Website icon', exact: true } );
+		await expect( icon ).toBeVisible();
+		expect( await icon.evaluate( ( element ) => {
+			const avatar = element.closest( '.mantine-Avatar-root' );
+			return avatar && getComputedStyle( avatar ).backgroundColor;
+		} ) ).toBe( 'rgba(0, 0, 0, 0)' );
+		await expect( icon ).toHaveCSS( 'background-color', 'rgba(0, 0, 0, 0)' );
+		await expect( icon ).toHaveCSS( 'border-radius', '0px' );
+		expect( await icon.evaluate( ( element ) => {
+			const avatar = element.closest( '.mantine-Avatar-root' );
+			return avatar && getComputedStyle( avatar ).borderRadius;
+		} ) ).toBe( '0px' );
+	} );
+	test( 'gives missing and unavailable avatar initials a readable fallback surface', async ( { page } ) => {
+		await page.goto( url );
+		for ( const name of [ 'Native initials', 'Default initials', 'Unavailable website icon' ] ) {
+			const avatar = page.getByRole( 'img', { name, exact: true } );
+			const placeholder = avatar.locator( '.mantine-Avatar-placeholder' );
+			await expect( placeholder ).toHaveText( 'TC' );
+			await expect( avatar ).toHaveCSS( 'background-color', 'rgba(0, 0, 0, 0)' );
+			await expect.soft( placeholder ).not.toHaveCSS( 'background-color', 'rgba(0, 0, 0, 0)' );
+			await expect( avatar ).not.toHaveCSS( 'border-radius', '0px' );
+			await expect( placeholder ).not.toHaveCSS( 'border-radius', '0px' );
+		}
+	} );
+	test( 'renders the supplied native select arrow without losing keyboard selection or field geometry', async ( { page } ) => {
+		await page.goto( url );
+		const select = page.getByRole( 'combobox', { name: 'Native interval', exact: true } );
+		await expect( select ).toBeVisible();
+		const arrow = select.locator( '..' ).locator( '.tocus-select-chevron' );
+		await expect( arrow.locator( 'svg' ) ).toBeVisible();
+		await expect( arrow ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( await select.evaluate( ( element ) => {
+			const bounds = element.getBoundingClientRect();
+			const arrowBounds = element.parentElement?.querySelector( '.tocus-select-chevron' )?.getBoundingClientRect();
+			return element instanceof HTMLSelectElement && getComputedStyle( element ).appearance === 'none'
+				&& bounds.height === 48 && arrowBounds !== undefined && arrowBounds.width > 0
+				&& arrowBounds.left >= bounds.left && arrowBounds.right <= bounds.right
+				&& arrowBounds.top >= bounds.top && arrowBounds.bottom <= bounds.bottom;
+		} ) ).toBe( true );
+		await select.focus();
+		// Native typeahead remains keyboard-operable without requiring an OS-owned popup in headless browsers.
+		await page.keyboard.press( 'w' );
+		await expect( select ).toHaveValue( FixtureFrequency.WEEKLY );
+	} );
+	test( 'renders the supplied loading artwork with custom sizing, color, ref and reduced motion', async ( { page } ) => {
+		await page.emulateMedia( { reducedMotion: 'no-preference' } );
+		await page.goto( url );
+		const loader = page.locator( '.fixture-loader' );
+		const spinner = loader.locator( '.tocus-icon svg' );
+		await expect( spinner ).toBeVisible();
+		await expect( loader ).toHaveAttribute( 'data-ref-attached', 'true' );
+		const presentation = await loader.evaluate( ( element ) => {
+			const bounds = element.getBoundingClientRect();
+			const style = getComputedStyle( element );
+			return { width: bounds.width, height: bounds.height, margin: style.marginLeft, color: style.color };
+		} );
+		expect( presentation ).toMatchObject( { margin: '7px', color: 'rgb(12, 34, 56)' } );
+		expect( presentation.width ).toBeCloseTo( 36.8, 1 );
+		expect( presentation.height ).toBeCloseTo( 36.8, 1 );
+		const initialTransform = await spinner.evaluate( ( element ) => getComputedStyle( element ).transform );
+		await expect.poll( () => spinner.evaluate( ( element ) => getComputedStyle( element ).transform ) )
+			.not.toBe( initialTransform );
+		await expect( page.getByRole( 'button', { name: 'Loading action', exact: true } ).locator( '.tocus-icon svg' ) ).toBeVisible();
+		await page.emulateMedia( { reducedMotion: 'reduce' } );
+		await expect.poll( () => spinner.evaluate( ( element ) => getComputedStyle( element ).animationName ) ).toBe( 'none' );
+		await expect( spinner ).toBeVisible();
+	} );
+	test( 'keeps the supplied loader visible and motionless inside a strict-CSP shadow provider', async ( { page } ) => {
+		await page.goto( `${ url }shadow.html` );
+		const spinner = page.locator( '.fixture-loader .tocus-icon svg' );
+		await expect( spinner ).toBeVisible();
+		expect( await spinner.evaluate( ( element ) => {
+			const bounds = element.getBoundingClientRect();
+			const style = getComputedStyle( element );
+			return { width: bounds.width, height: bounds.height, color: style.color, animation: style.animationName };
+		} ) ).toEqual( { width: 32, height: 32, color: 'rgb(12, 34, 56)', animation: 'none' } );
+	} );
 	test( 'keeps native notices semantic with decorative artwork and directly wrapping message text', async ( { page } ) => {
 		await page.goto( url );
 		const notice = page.getByRole( 'alert' ).filter( { hasText: 'Native notice keeps localized feedback' } );
@@ -246,6 +377,30 @@ test.describe( 'shared controls', () => {
 		expect( await page.getByRole( 'note' ).evaluate( ( element ) =>
 			parseFloat( getComputedStyle( element ).paddingTop ) ) ).toBe( 16 );
 		expect( await button.evaluate( ( element ) => getComputedStyle( element ).transitionDuration ) ).toBe( '0s' );
+	} );
+	test( 'keeps adjacent notices readable without adding margins to their section gap', async ( { page } ) => {
+		await page.goto( url );
+		const error = page.getByRole( 'alert' ).filter( { hasText: 'Could not save' } );
+		await expect( error ).toBeVisible();
+		const geometry = await error.evaluate( ( element ) => {
+			const previous = element.previousElementSibling;
+			const next = element.nextElementSibling;
+			const label = document.querySelector( '.mantine-InputWrapper-label' );
+			if ( ! previous || ! next || ! label ) {
+				throw new Error( 'Expected adjacent native, error and success feedback plus a field label.' );
+			}
+			const bounds = element.getBoundingClientRect();
+			return {
+				gaps: [ bounds.top - previous.getBoundingClientRect().bottom,
+					next.getBoundingClientRect().top - bounds.bottom ],
+				fonts: [ previous, element, next ].map( ( notice ) => getComputedStyle( notice ).fontSize ),
+				labelFont: getComputedStyle( label ).fontSize,
+			};
+		} );
+		for ( const gap of geometry.gaps ) {
+			expect( gap ).toBeCloseTo( 24, 2 );
+		}
+		expect( geometry.fonts ).toEqual( [ geometry.labelFont, geometry.labelFont, geometry.labelFont ] );
 	} );
 	test( 'distinguishes selected choices from notices and keeps neutral unselected borders', async ( { page } ) => {
 		await page.goto( url );

@@ -103,13 +103,11 @@ export function createProtectedSiteEnrollmentService(
 	/**
 	 * Adds one protected site after securing its required browser access.
 	 * @param siteInput - Unknown user-entered hostname or URL.
-	 * @param independent - Whether the site receives its own protection scope.
 	 * @return Successful enrollment or a presentation-neutral failure.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function add(
 		siteInput: unknown,
-		independent: boolean,
 	): Promise<ProtectedSiteEnrollmentResult> {
 		const canonicalSite = canonicalizeProtectedSite( siteInput, DefaultProtectionScopeId );
 
@@ -207,7 +205,6 @@ export function createProtectedSiteEnrollmentService(
 		try {
 			editResult = await options.editor.add(
 				siteInput,
-				independent,
 				verifyPermissionBeforePersistence,
 				finalizeEdit,
 			);
@@ -476,7 +473,7 @@ export function createProtectedSiteEnrollmentService(
 				} else if ( permissionResult !== null ) {
 					state.retained = await options.permissionManager.releaseNewAccess(
 						additions,
-						permissionResult.previousGrant,
+						settlement.error instanceof LocalDataResetError ? {} : permissionResult.previousGrant,
 						settlement.configuration,
 					) !== SitePermissionReleaseStatus.RELEASED;
 				}

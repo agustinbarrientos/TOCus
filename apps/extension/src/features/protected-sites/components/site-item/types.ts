@@ -1,5 +1,8 @@
+import type { WebsiteDetailsDraft } from '../../utils/website-draft/types';
+import type { Ref } from 'react';
+import type { ScheduleScreenCopy } from '../../../settings/components/schedule-screen/types';
+import type { NormalizedSchedule } from '../../../../domains/protection/types/protection-schedule';
 
-import type { ReactNode } from 'react';
 import type {
 	ProtectedSiteConfiguration,
 	ProtectionConfigurationDocument,
@@ -120,12 +123,8 @@ export interface ProtectedSiteItemCopy {
 	accessRequestError: string;
 	edit: string;
 	displayNameLabel: string;
-	useAutomaticName: string;
-	behaviorLegend: string;
-	sharedBehavior: string;
-	sharedBehaviorDescription: string;
-	independentBehavior: string;
-	independentBehaviorDescription: string;
+	customScheduleLabel: string;
+	automaticNamePlaceholder: string;
 	saveChanges: string;
 	saving: string;
 	cancel: string;
@@ -134,18 +133,8 @@ export interface ProtectedSiteItemCopy {
 	confirmRemove: string;
 	operationError: string;
 	configurationChangedError: string;
-	sharedLabel: string;
-	independentLabel: string;
 	/**
-	 * Formats the protection boundary shown below one site.
-	 * @param host - Canonical protection host.
-	 * @param includesSubdomains - Whether descendants are protected.
-	 * @return Human-readable boundary explanation.
-	 * @since 0.1.0 Initial implementation.
-	 */
-	formatBoundary( host: string, includesSubdomains: boolean ): string;
-	/**
-	 * Formats one inline removal question.
+	 * Formats one removal confirmation heading.
 	 * @param name - Current resolved display name.
 	 * @return Human-readable removal question.
 	 * @since 0.1.0 Initial implementation.
@@ -159,7 +148,7 @@ export interface ProtectedSiteItemCopy {
 export interface ProtectedSiteDraftChangedEventDetail {
 	identityHost: string;
 	displayName?: string;
-	independent?: boolean;
+	schedule?: NormalizedSchedule;
 	removed?: boolean;
 }
 
@@ -169,10 +158,17 @@ export interface ProtectedSiteDraftChangedEventDetail {
  * @since 0.1.0
  */
 export interface WebsiteItemProps {
+	/** Allows the owner to reveal this row after an already-listed address is submitted. */
+	itemRef?: Ref<HTMLLIElement>;
+	/** Brief, non-animated emphasis after a duplicate-add attempt. */
+	highlighted?: boolean;
 	persistedEditing?: WebsiteItemPersistence;
-	confirmation?: ReactNode;
 	site: ProtectedSiteConfiguration;
 	copy: ProtectedSiteItemCopy;
+	scheduleCopy: ScheduleScreenCopy;
+	globalSchedule: NormalizedSchedule;
+	details?: WebsiteDetailsDraft;
+	validate?: boolean;
 	favicon: string | null;
 	editing: boolean;
 	disabled: boolean;
@@ -183,7 +179,7 @@ export interface WebsiteItemProps {
 	onDone?: () => void;
 	onGrant: () => void;
 	onRemove: () => void;
-	onChange: ( name: string, independent: boolean ) => void;
+	onChange: ( details: WebsiteDetailsDraft ) => void;
 }
 
 /**

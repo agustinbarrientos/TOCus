@@ -87,9 +87,11 @@ describe( 'createStatisticsStorageService', () => {
 		} );
 
 		await expect( storage.load() ).resolves.toEqual( {
-			schemaVersion: 1,
+			schemaVersion: 2,
 			generationId: 'generation_created',
 			lastAppliedBatchId: null,
+			firstRecordedDate: null,
+			dailyTotals: [],
 			scopes: {},
 		} );
 		expect( area.readKeys ).toEqual( [ 'tocus.statistics.v1' ] );
@@ -144,7 +146,7 @@ describe( 'createStatisticsStorageService', () => {
 	} );
 
 	it.each( [
-		{ ...createMockStatisticsDocument(), schemaVersion: 2 },
+		{ ...createMockStatisticsDocument(), schemaVersion: 3 },
 		{ ...createMockStatisticsDocument(), generationId: 'invalid generation' },
 	] )( 'returns null without writing for malformed or future persistence', async ( document ) => {
 		const area = new MemoryStatisticsStorageArea( {

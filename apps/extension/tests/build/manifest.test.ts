@@ -314,6 +314,16 @@ async function expectOptionsComposition( outputUrl: URL ): Promise<void> {
 	const moduleCode = await readOutputFile( outputUrl, moduleSource.replace( /^\//u, '' ) );
 
 	expect( moduleCode ).toMatch( /getElementById\([`"']settings-root[`"']\)/u );
+	const stylesheets = [ ...optionsHtml.matchAll( /<link\s[^>]*rel="stylesheet"[^>]*href="([^"]+)"/gu ) ];
+	const styles = await Promise.all( stylesheets.map( ( stylesheet ) =>
+		readOutputFile( outputUrl, ( stylesheet[ 1 ] ?? '' ).replace( /^\//u, '' ) ) ) );
+	const chartRules = [ ...styles.join( '\n' ).matchAll( /([^{}]+)\{[^{}]*--chart-/gu ) ];
+
+	expect( chartRules.length, 'Options must retain chart presentation styles.' ).toBeGreaterThan( 0 );
+	for ( const rule of chartRules ) {
+		expect( rule[ 1 ]?.split( ',' ).every( ( selector ) => selector.trim().startsWith( '[data-tocus-ui]' ) ),
+			'Chart presentation styles must stay inside the shared UI boundary.' ).toBe( true );
+	}
 }
 
 /**
@@ -386,6 +396,8 @@ async function expectProtectedPageComposition( outputUrl: URL ): Promise<void> {
 
 	expect( moduleCode ).toContain( 'tocus-f-protected-page-layer' );
 	expect( moduleCode ).toContain( 'get-protected-page-presentation-status' );
+	expect( moduleCode.includes( '--chart-' ), 'The injected renderer must not carry chart CSS.' ).toBe( false );
+	expect( moduleCode.includes( 'recharts-' ), 'The injected renderer must not carry chart rendering code.' ).toBe( false );
 	expect( fontStyles ).toContain( '@font-face' );
 	expect( fontStyles ).toContain( 'Fredoka Variable' );
 	expect( fontStyles ).not.toMatch( /url\((?:["'])?https?:/u );

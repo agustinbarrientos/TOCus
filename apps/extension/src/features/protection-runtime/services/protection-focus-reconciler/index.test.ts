@@ -9,8 +9,8 @@ import type { ProtectionConfigurationDocument } from '../../../../domains/protec
 import type { ProtectionParticipant } from '../../../../domains/protection/types/protection-participant';
 import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
 import {
+	DefaultProtectionScopeId,
 	ProtectionMeasurementRevisionSchema,
-	ProtectionScopeIdSchema,
 } from '../../../../domains/protection/types/protection-value';
 import { createProtectionFocusReconciler } from './index';
 import type { ProtectionFocusReconcilerOptions } from './types';
@@ -25,7 +25,7 @@ const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/interruption.html
  * Protection scope used by focus tests.
  * @since 0.1.0 Initial implementation.
  */
-const TEST_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope-default' );
+const TEST_SCOPE_ID = DefaultProtectionScopeId;
 
 /**
  * Protected-site configuration used by focus tests.
@@ -41,10 +41,7 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
 			scopeId: TEST_SCOPE_ID,
 		},
 	} ],
-	schedulesByScope: {
-		...TestEmptyProtectionConfiguration.schedulesByScope,
-		[ TEST_SCOPE_ID ]: { mode: 'always' },
-	},
+	schedule: { mode: 'always' },
 	measurementRevisionsByScope: {
 		...TestEmptyProtectionConfiguration.measurementRevisionsByScope,
 		[ TEST_SCOPE_ID ]: ProtectionMeasurementRevisionSchema.parse( 'revision_test_scope' ),
@@ -61,12 +58,41 @@ function createSnapshot(
 	participant: ProtectionParticipant,
 ): ProtectionCoordinatorStateSnapshot {
 	const waiting = createWaitingState();
+	waiting.scopeId = TEST_SCOPE_ID;
 	waiting.participants = [ participant ];
 
 	return { [ TEST_SCOPE_ID ]: waiting };
 }
 
 describe( 'createProtectionFocusReconciler', () => {
+	it.each( [
+		{ label: 'non-browser page identity', pageId: 'page_external', removeBeforeDispatch: false },
+		{ label: 'participant removed during focus reconciliation', pageId: 'page_tab_7_navigation', removeBeforeDispatch: true },
+	] )( 'does not synchronize stale focus for a $label', async ( { pageId, removeBeforeDispatch } ) => {
+		const states = createSnapshot( createNavigationParticipant( 'participant-stale', pageId ) );
+		const getStates = vi.fn().mockResolvedValue( null ).mockResolvedValueOnce( states );
+		if ( ! removeBeforeDispatch ) {
+			getStates.mockResolvedValue( states );
+		}
+		const synchronizeParticipantFocus = vi.fn().mockResolvedValue( undefined );
+		const refreshFocusEffects = vi.fn().mockResolvedValue( undefined );
+		const reconciler = createProtectionFocusReconciler( {
+			browser: { listTabs: vi.fn().mockResolvedValue( [] ) },
+			coordinator: { getStates },
+			interruptionPageUrl: INTERRUPTION_PAGE_URL,
+			loadConfiguration: vi.fn().mockResolvedValue( CONFIGURATION ),
+			reconcileExpiredAllowances: vi.fn().mockResolvedValue( undefined ),
+			reconcileParticipants: vi.fn().mockResolvedValue( undefined ),
+			reconcileSchedules: vi.fn().mockResolvedValue( undefined ),
+			reconcileUnavailableConfiguration: vi.fn().mockResolvedValue( undefined ),
+			refreshFocusEffects,
+			synchronizeParticipantFocus,
+		} );
+		await reconciler.reconcile();
+		expect( synchronizeParticipantFocus ).not.toHaveBeenCalled();
+		expect( refreshFocusEffects ).toHaveBeenCalledWith( CONFIGURATION, removeBeforeDispatch ? null : states );
+	} );
+
 	it.each( [ INTERRUPTION_PAGE_URL, 'chrome-extension://extension-id/pause.html' ] )(
 		'synchronizes a navigation participant on a live interruption page with %s configured', async ( interruptionPageUrl ) => {
 			const states = createSnapshot( createNavigationParticipant(

@@ -1,3 +1,4 @@
+import { resolveSiteSchedule } from '../../../../domains/protection/utils/resolve-site-schedule';
 import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
 import {
 	ProtectionCoordinatorInitializationStatus,
@@ -22,6 +23,7 @@ import { evaluateSchedule } from '../../../../domains/protection/utils/schedule-
 import { matchProtectedUrl } from '../../../../domains/protection/utils/protected-url-matcher';
 import type { ProtectionStateReconciliationRequirement } from '../../../../domains/protection/utils/restore-protection-state';
 import { createFreshRuntimeObservation } from '../../utils/runtime-participant-observation';
+import { createRuntimeLocalDate } from '../../utils/runtime-local-date';
 import { getRuntimeTabId } from '../../utils/runtime-page-context';
 import type { ProtectionRuntimeTab } from '../../types/browser-runtime';
 import type { ProtectionRuntimeRestorer, ProtectionRuntimeRestorerOptions } from './types';
@@ -58,6 +60,7 @@ function findRequiredParticipant(
  * @param requirement - Persisted Ready participant identity requiring reconciliation.
  * @param statesByScope - Current states held by the coordinator dispatch barrier.
  * @param observedAtEpochMilliseconds - Current wall-clock time.
+ * @param timeZone - OS timezone captured with the recovery observation.
  * @return Participant departure event targeting the restored allowance transaction.
  * @since 0.1.0 Initial implementation.
  */
@@ -65,6 +68,7 @@ function createRecoveryDeparture(
 	requirement: ProtectionStateReconciliationRequirement,
 	statesByScope: ProtectionCoordinatorStateSnapshot,
 	observedAtEpochMilliseconds: number,
+	timeZone: string,
 ): ParticipantDepartureEvent {
 	const state = statesByScope[ requirement.scopeId ];
 
@@ -82,6 +86,7 @@ function createRecoveryDeparture(
 		cause: DepartureCause.BROWSER_ERROR_OR_RECOVERY,
 		allowanceDurationMilliseconds: null,
 		observedAtEpochMilliseconds,
+		observedLocalDate: createRuntimeLocalDate( observedAtEpochMilliseconds, timeZone ),
 	};
 }
 
@@ -123,7 +128,7 @@ function createRestoredReadyObservation(
 		configuration.sites.map( ( site ) => site.rule ),
 	);
 	const schedule = match.status === ProtectedUrlMatchStatus.PROTECTED
-		? configuration.schedulesByScope[ match.rule.scopeId ]
+		? resolveSiteSchedule( configuration, match.rule.host )
 		: undefined;
 
 	return {
@@ -164,6 +169,7 @@ export function createProtectionRuntimeRestorer(
 		const result = await options.coordinator.dispatch( ( statesByScope ) => {
 			const participant = findRequiredParticipant( statesByScope, requirement );
 			const nowEpochMilliseconds = options.now();
+			const timeZone = options.getTimeZone();
 			const observation = configuration === null || participant === null
 				? null
 				: createRestoredReadyObservation(
@@ -172,7 +178,7 @@ export function createProtectionRuntimeRestorer(
 					configuration,
 					options.interruptionPageUrl,
 					nowEpochMilliseconds,
-					options.getTimeZone(),
+					timeZone,
 				);
 
 			if ( participant !== null && observation !== null ) {
@@ -187,7 +193,7 @@ export function createProtectionRuntimeRestorer(
 				return event;
 			}
 
-			return createRecoveryDeparture( requirement, statesByScope, nowEpochMilliseconds );
+			return createRecoveryDeparture( requirement, statesByScope, nowEpochMilliseconds, timeZone );
 		} );
 
 		await options.applyDispatchResult( result, configuration );
