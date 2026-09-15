@@ -146,6 +146,20 @@ describe( 'breathing-sphere renderer', () => {
 		assert.equal( canvas.height, 280 );
 		assert.isAbove( countVisiblePixels( canvas ), restingPixels );
 	} );
+	it( 'leaves the ambient backdrop outside the bounded sphere canvas', async () => {
+		const { canvas, colorProbe } = await createRendererFixture( 320, 280 );
+		const colors = readBreathingSphereColors( colorProbe );
+		resizeBreathingSphereCanvas( canvas );
+		for ( const breathProgress of [ 0, 1 ] ) {
+			renderBreathingSphereFrame( { breathProgress, canvas, colors, still: false } );
+			const context = canvas.getContext( '2d' );
+			if ( context === null ) {
+				throw new Error( 'Expected the real Canvas renderer.' );
+			}
+			assert.equal( context.getImageData( canvas.width / 2, 0, 1, 1 ).data[ 3 ], 0 );
+			assert.equal( context.getImageData( 0, canvas.height / 2, 1, 1 ).data[ 3 ], 0 );
+		}
+	} );
 
 	it( 'keeps the dimensional still sphere unchanged across breath values', async () => {
 		const { canvas, colorProbe } = await createRendererFixture( 320, 280 );
