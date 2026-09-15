@@ -2,7 +2,6 @@ import type { WebsiteDetailsDraft } from '../../utils/website-draft/types';
 import type { ScheduleScreenCopy } from '../../../settings/components/schedule-screen/types';
 import type { NormalizedSchedule } from '../../../../domains/protection/types/protection-schedule';
 
-import type { ReactNode } from 'react';
 import type {
 	ProtectedSiteConfiguration,
 	ProtectionConfigurationDocument,
@@ -134,7 +133,7 @@ export interface ProtectedSiteItemCopy {
 	operationError: string;
 	configurationChangedError: string;
 	/**
-	 * Formats one inline removal question.
+	 * Formats one removal confirmation heading.
 	 * @param name - Current resolved display name.
 	 * @return Human-readable removal question.
 	 * @since 0.1.0 Initial implementation.
@@ -159,7 +158,6 @@ export interface ProtectedSiteDraftChangedEventDetail {
  */
 export interface WebsiteItemProps {
 	persistedEditing?: WebsiteItemPersistence;
-	confirmation?: ReactNode;
 	site: ProtectedSiteConfiguration;
 	copy: ProtectedSiteItemCopy;
 	scheduleCopy: ScheduleScreenCopy;

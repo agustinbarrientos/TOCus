@@ -1,5 +1,6 @@
 import { LoadState } from '../../../settings/components/recovery/types';
 import {
+	useRef,
 	useState,
 } from 'react';
 import {
@@ -62,6 +63,7 @@ export function Websites( props: WebsitesScreenProps ) {
 	const { draft, value, status, saving, saved, configuration, pendingAccess, access } = state;
 	const [ editing, setEditing ] = useState<string | null>( null );
 	const [ removing, setRemoving ] = useState<ProtectedSiteConfiguration | null>( null );
+	const addressInput = useRef<HTMLInputElement>( null );
 	const disabled = saving || shell.permissionManager === null;
 	const savedIdentities = new Set( configuration?.sites.map( ( site ) => site.identityHost ) ?? [] );
 
@@ -71,26 +73,14 @@ export function Websites( props: WebsitesScreenProps ) {
 		state.change( { ...value, sites: remaining } );
 		setRemoving( null );
 		setEditing( null );
-	}
-
-	/**
-	 * Retains removal confirmation beside the identity being removed.
-	 * @param site - Website owning the explicit removal action.
-	 * @return Focus-safe inline confirmation for this row.
-	 */
-	function renderRemoval( site: ProtectedSiteConfiguration ) {
-		return <Confirmation inline minimal focusConfirm opened={ removing?.identityHost === site.identityHost }
-			title={ itemCopy.removeSite }
-			description={ itemCopy.formatRemoveQuestion( resolveSiteDisplayIdentity( site ).name ) }
-			cancel={ itemCopy.keepSite } confirm={ itemCopy.confirmRemove } onCancel={ () => {
-				setRemoving( null );
-			} } onConfirm={ confirmRemoval } />;
+		// The removed row cannot receive the dialog's restored focus.
+		addressInput.current?.focus();
 	}
 
 	/**
 	 * Binds one grouped row to the page's unchanged Save/Discard transaction.
 	 * @param site - Website configuration currently staged in the page draft.
-	 * @return Keyed row with permission and inline editor callbacks.
+	 * @return Keyed row with permission and dialog editor callbacks.
 	 */
 	function renderSite( site: ProtectedSiteConfiguration ) {
 		if ( configuration === null ) {
@@ -101,7 +91,6 @@ export function Websites( props: WebsitesScreenProps ) {
 			{ ...( value.detailsByHost[ site.identityHost ] === undefined
 				? {} : { details: value.detailsByHost[ site.identityHost ] } ) }
 			validate={ state.validate }
-			confirmation={ renderRemoval( site ) }
 			favicon={ shell.faviconProvider?.getSource( site.identityHost ) ?? null }
 			editing={ editing === site.identityHost && removing?.identityHost !== site.identityHost }
 			disabled={ saving }
@@ -136,7 +125,7 @@ export function Websites( props: WebsitesScreenProps ) {
 				} }>
 					<Stack gap={ 0 }>
 						<Group className="settings-site-add" align="stretch" gap="var(--tocus-space-3)">
-							<TextInput className="settings-site-address tocus-native-field" id="site-address" name="site-address"
+							<TextInput ref={ addressInput } className="settings-site-address tocus-native-field" id="site-address" name="site-address"
 								classNames={ { input: 'settings-native-input' } }
 								aria-label={ copy.addressLabel } placeholder={ copy.addressPlaceholder } autoComplete="url"
 								aria-describedby="site-address-error" value={ value.address } disabled={ disabled }
@@ -161,6 +150,15 @@ export function Websites( props: WebsitesScreenProps ) {
 				<DraftActions draft={ draft } copy={ { ...copy, saving: itemCopy.saving } } onSave={ state.save } />
 				<Feedback error={ state.errorMessage } success={ saved ? copy.saved : state.accessMessage } />
 				{ state.retained && <p role="status">{ copy.savedWithRetainedAccess }</p> }
+				<Confirmation opened={ removing !== null } focusConfirm
+					title={ removing
+						? itemCopy.formatRemoveQuestion( resolveSiteDisplayIdentity( removing ).name )
+						: itemCopy.removeSite }
+					description={ removing?.rule.host ?? '' }
+					cancel={ itemCopy.keepSite } confirm={ itemCopy.confirmRemove }
+					onCancel={ () => {
+						setRemoving( null );
+					} } onConfirm={ confirmRemoval } />
 			</> }
 		</Page>
 	);

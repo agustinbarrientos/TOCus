@@ -47,14 +47,12 @@ export function Confirmation( props: ConfirmationProps ) {
 		<p>{ props.description }</p>
 		{ props.children }
 		<Feedback error={ props.error ?? null } />
-		<Group className="tocus-form-actions">
-			<Button className={ props.minimal ? 'tocus-native-button' : undefined }
-				variant="outline" data-autofocus={ ! props.focusConfirm || undefined }
+		<Group className="tocus-form-actions" justify={ props.inline ? undefined : 'flex-end' }>
+			<Button variant="outline" data-autofocus={ ! props.focusConfirm || undefined }
 				disabled={ pending } onClick={ props.onCancel }>
 				{ props.cancel }
 			</Button>
-			<Button className={ props.minimal ? 'tocus-native-button' : undefined }
-				ref={ confirmButton } color="red" variant={ props.save ? 'outline' : 'filled' }
+			<Button ref={ confirmButton } color="red" variant={ props.save ? 'outline' : 'filled' }
 				data-autofocus={ props.focusConfirm || undefined }
 				disabled={ pending } onClick={ props.onConfirm }>
 				{ props.confirm }
@@ -67,18 +65,15 @@ export function Confirmation( props: ConfirmationProps ) {
 	</Stack>;
 	if ( props.inline ) {
 		return props.opened && <FocusTrap active>
-			<Paper className="settings-inline-confirmation" data-minimal={ props.minimal || undefined }
-				role="dialog" aria-labelledby={ props.minimal ? undefined : titleId }
-				aria-label={ props.minimal ? props.title : undefined }
+			<Paper className="settings-inline-confirmation" role="dialog" aria-labelledby={ titleId }
 				withBorder radius="var(--tocus-radius-small)"
 				p="var(--tocus-space-4)"
-				{ ...( props.minimal ? { pt: 'var(--tocus-space-5)' } : {} ) }
 				onKeyDown={ ( event ) => {
 					if ( event.key === 'Escape' ) {
 						event.stopPropagation(); close();
 					}
 				} }>
-				{ ! props.minimal && <h3 id={ titleId }>{ props.title }</h3> }
+				<h3 id={ titleId }>{ props.title }</h3>
 				{ content }
 			</Paper>
 		</FocusTrap>;

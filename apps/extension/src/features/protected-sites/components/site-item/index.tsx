@@ -71,7 +71,6 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 						</Tooltip>
 					</Group>
 				</Group>
-				{ props.confirmation }
 				{ props.accessRequired && <Alert role="status" color="yellow" className="settings-site-access tocus-alert-actionable"
 					icon={ <Icon name={ IconName.CIRCLE_EXCLAMATION } /> }>
 					<div className="tocus-alert-layout">
