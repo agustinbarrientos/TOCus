@@ -342,7 +342,10 @@ export function createProtectionNavigationHandler(
 
 		if ( match.status !== ProtectedUrlMatchStatus.PROTECTED ) {
 			await options.reconcileBrowserState( configuration );
-			await options.releaseNavigationIfInterrupted( navigation.tabId, destination );
+			// A committed allowed page already arrived; a later interruption may belong to a newer visit.
+			if ( navigation.phase !== ProtectionRuntimeNavigationPhase.COMMITTED || resolvesPendingInterruption ) {
+				await options.releaseNavigationIfInterrupted( navigation.tabId, destination );
+			}
 			return;
 		}
 

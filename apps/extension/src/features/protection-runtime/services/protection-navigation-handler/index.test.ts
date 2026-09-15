@@ -473,6 +473,50 @@ describe( 'createProtectionNavigationHandler', () => {
 		},
 	);
 
+	it( 'does not restore a committed allowed page after a newer pause opens during reconciliation', async () => {
+		const harness = createHarness( {} );
+		// Host access hides the allowed page when its commit starts being handled.
+		harness.reconcileBrowserState.mockImplementationOnce( () => {
+			// The browser can commit its redirect while the old navigation handler awaits I/O.
+			harness.listTabs.mockResolvedValue( [ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ] );
+		} );
+
+		await harness.handler.handle( {
+			frameId: 0,
+			phase: ProtectionRuntimeNavigationPhase.COMMITTED,
+			tabId: 7,
+			transitionQualifiers: [],
+			transitionType: 'typed',
+			url: 'https://unprotected.test/loading',
+		} );
+
+		expect( harness.releaseNavigationIfInterrupted ).not.toHaveBeenCalled();
+		expect( harness.departTab ).not.toHaveBeenCalled();
+	} );
+
+	it( 'releases an allowed destination retained by the observed interruption outcome', async () => {
+		const harness = createHarness( createNavigationWaitingSnapshot() );
+		harness.listTabs.mockResolvedValue( [ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ] );
+
+		await harness.handler.handle( {
+			frameId: 0,
+			phase: ProtectionRuntimeNavigationPhase.BEFORE_NAVIGATE,
+			tabId: 7,
+			url: 'https://unprotected.test/',
+		} );
+		await harness.handler.handle( {
+			frameId: 0,
+			phase: ProtectionRuntimeNavigationPhase.COMMITTED,
+			tabId: 7,
+			transitionQualifiers: [ 'server_redirect' ],
+			transitionType: 'typed',
+			url: INTERRUPTION_PAGE_URL,
+		} );
+
+		expect( harness.releaseNavigationIfInterrupted ).toHaveBeenCalledExactlyOnceWith( 7, 'https://unprotected.test/' );
+		expect( harness.departTab ).toHaveBeenCalledExactlyOnceWith( 7, DepartureCause.REDIRECT, CONFIGURATION );
+	} );
+
 	it( 'preserves a pending protected destination when a stale blank commit arrives first', async () => {
 		const harness = createHarness( createNavigationWaitingSnapshot() );
 		harness.listTabs.mockResolvedValue( [ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ] );
@@ -589,7 +633,7 @@ describe( 'createProtectionNavigationHandler', () => {
 			DepartureCause.NON_EXTENSION_TOP_LEVEL_NAVIGATION_AWAY,
 			CONFIGURATION,
 		);
-		expect( harness.releaseNavigationIfInterrupted ).toHaveBeenCalledWith( 7, 'about:blank' );
+		expect( harness.releaseNavigationIfInterrupted ).not.toHaveBeenCalled();
 	} );
 
 	it.each( [ {}, null ] )( 'reconciles a browser error when no participant exists in %j', async ( states ) => {
@@ -845,10 +889,7 @@ describe( 'createProtectionNavigationHandler', () => {
 			DepartureCause.NON_EXTENSION_TOP_LEVEL_NAVIGATION_AWAY,
 			CONFIGURATION,
 		);
-		expect( harness.releaseNavigationIfInterrupted ).toHaveBeenCalledWith(
-			7,
-			'https://unprotected.test/',
-		);
+		expect( harness.releaseNavigationIfInterrupted ).not.toHaveBeenCalled();
 	} );
 
 	it( 'retains a participant until a cross-scope navigation commits with user provenance', async () => {
