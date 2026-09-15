@@ -46,7 +46,7 @@ for ( const [ size, width ] of [ [ 'desktop', 1440 ], [ 'narrow', 390 ] ] as con
 test( 'Website language menu narrow', async ( { page } ) => {
 	await page.setViewportSize( { width: 390, height: 844 } );
 	await page.goto( WebsiteOrigin );
-	await page.locator( '#languages button' ).click();
+	await page.locator( '.site-header .language-shortcut' ).click();
 	await page.clock.runFor( 200 );
 	await expect( page.getByRole( 'menu' ) ).toBeVisible();
 	await page.mouse.move( 0, 0 );
