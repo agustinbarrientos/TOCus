@@ -148,10 +148,30 @@ components:
 
 # Design System: TOCus website
 
+## Approved usability refinement - September 15, 2026
+
+Keep the existing light brand, raster mascot, direct store actions, and real product
+components. Put the changing caption and chapter controls above a single browser
+frame so every step can be read and selected together. Animate actions inside that
+frame; never scale or translate the browser while scrolling.
+
+Pin the complete story only when its measured height fits the viewport. Otherwise
+use normal document flow, with no empty scroll runway and no clipped controls.
+Keep all five chapter buttons usable in either layout and with reduced motion.
+
+Move the language picker beside the header download link, bound its menu to the
+available screen, and preserve native names, keyboard navigation and static links.
+Use brief, factual copy in all ten homepage languages. Keep canonical privacy and
+support in English and do not invent hosting or retention guarantees.
+
+The September 7 record below describes the original implementation. The layout,
+navigation, and product demonstration contracts later in this document describe
+the current refinement. Local development uses port 4322, leaving 4321 untouched.
+
 ## Approved homepage implementation — September 7, 2026
 
 The user approved the desktop and mobile visual concepts in this task. The previous
-split hero and long side-by-side story are superseded. This section is the current
+split hero and long side-by-side story are superseded. This section is the original
 implementation plan and progress record; no separate artifact directory is needed.
 
 **Goal:** Build the approved light homepage around a large peeking raster capybara
@@ -301,7 +321,7 @@ Fredoka gives the product a soft, friendly heading voice. Body and control text 
 
 The frontmatter's shared-role values include the existing noncompact scale factor (1.15) at the normal size unit (1rem). They are not the unscaled literals in the Sass role map. The fluid website display overrides bypass that size calculation while retaining the shared family and weight.
 
-At widths up to 48rem, the hero uses `clamp(2.7rem, 10.4vw, 4.5rem)` and a maximum measure of 15 characters. The introductory description is capped at 43 characters on desktop and 32 on mobile. Headings balance wrapping; prose uses pretty wrapping. Keep all ten locales in these roles with literal copy. Compact chapter labels wrap within equal-width mobile navigation cells.
+At widths up to 48rem, the hero uses `clamp(2.7rem, 10.4vw, 4.5rem)` and a maximum measure of 15 characters. The introductory description is capped at 43 characters on desktop and 32 on mobile. Headings balance wrapping; prose uses pretty wrapping. Keep all ten locales in these roles with plain, natural copy. Compact chapter labels wrap within equal-width mobile navigation cells.
 
 **The Two Voices Rule.** Use Fredoka for brand and heading roles and the shared body stack for prose and controls.
 
@@ -309,11 +329,11 @@ At widths up to 48rem, the hero uses `clamp(2.7rem, 10.4vw, 4.5rem)` and a maxim
 
 The centered shell has a maximum width of 76rem and fluid outer gutters through `min(76rem, calc(100% - clamp(2.5rem, 8vw, 8rem)))`. Section spacing follows the website section token; component spacing follows the shared quarter-rem-based scale.
 
-The hero centers the headline and direct download action above the peeking mascot. Its paws meet the browser edge. The story occupies 280svh with one stable native-sticky browser, one changing caption above it, and a compact chapter rail below it. There is no side-by-side instruction list. A four-part timing diagram explains the pause and allowance; schedule and site exceptions use an open two-column strip.
+The hero centers the headline and direct download action above the peeking mascot. The story follows with a changing caption, a compact five-step rail, and one browser frame, in that order. Captions reserve space for the longest translation so scene changes do not move navigation. There is no side-by-side instruction list. A four-part timing diagram explains the pause and allowance; schedule and site exceptions use an open two-column strip.
 
-At widths up to 48rem, supporting sections and the timing diagram stack; the mascot occupies almost the full content width. The header retains its direct download link. The shared statistics grid collapses to one column at 42rem. At widths up to 40rem the browser stage uses a height-capped 4:5 ratio, leaving room for the caption and five navigation controls in the viewport.
+At widths up to 48rem, supporting sections and the timing diagram stack; the mascot occupies almost the full content width. The header retains its direct download link and uses an icon-only language trigger with an accessible name. The shared statistics grid collapses to one column at 42rem. Below a 28rem container width the browser stage has a 4:5 minimum proportion and grows for its content, without a viewport-height cap that could crop it.
 
-Short landscape screens reduce the sticky offset and cap the stage width from the available height. CSS owns the frame geometry at every size, including reduced motion; scrolling never scales the frame or applies JavaScript pinning.
+The controller measures the complete caption, rail, and browser after layout, fonts, and viewport changes. The browser grid reserves the largest real scene; inactive scenes are inert and hidden from vision and accessibility. Scene height can grow for enlarged text instead of clipping to an aspect ratio. If the complete story fits with a 1rem inset on each edge, CSS pins it within a 320svh track. Otherwise, normal document flow keeps all content reachable and chapter buttons change the scene without moving the page. The desktop frame grows from 47rem to 62rem when screen height permits; mobile uses the available width. Scrolling never scales the frame or applies JavaScript pinning.
 
 ## Elevation & Depth
 
@@ -361,7 +381,7 @@ Reuse the actual [statistics component](../extension/src/features/statistics/com
 
 ### Navigation
 
-The homepage, Privacy, and Support headers contain the brand and a direct “Download TOCus” link. Underlines and the shared action color identify links. The homepage footer carries Privacy, Support, source, and an in-place language menu; without JavaScript it renders all ten locale links. The current locale is marked with `aria-current`. External links include the shared external-link SVG and open in a new tab. The creator link uses a bundled favicon and the existing UTM-tagged destination.
+The homepage, Privacy, and Support headers contain the brand and a direct “Download TOCus” link. The homepage also has a Mantine language menu beside downloading, with native language names, an indicated current locale, keyboard operation, and viewport-bounded scrolling. Underlines and the shared action color identify links. The footer carries Privacy, Support, source, and all ten locale links when JavaScript is unavailable. The current locale is marked with `aria-current`. External links include the shared external-link SVG and open in a new tab. The creator link uses a bundled favicon and the existing UTM-tagged destination.
 
 The hero and final download section use one filled text button with a bundled icon for the detected browser, followed by plain text links to the other stores. Browser detection runs locally after hydration; static and unknown-browser output defaults to Chrome. Every download destination comes from [the shared download configuration](src/config/downloads/index.ts). Its deliberate placeholder URLs are authorized development content and remain marked for replacement before publication.
 
@@ -371,7 +391,7 @@ Use shared SVG artwork for icons. Browser context uses drawn SVG paths rather th
 
 The browser stage matches five visible chapters: choose websites, visit YouTube, take the production breathing pause, Continue, and browse with the default five-minute allowance. Scroll progress selects sites, paints the breathing renderer, and advances the illustrated allowance from 5:00 toward 4:30. Reversing scroll reverses the illustration. The browser chrome and illustrative video thumbnails are decorative; this surface has no trial, replay, or next-pause controls.
 
-Chapter title buttons use the same document positions as scrolling and expose the current step. Continue is disabled during the pause, becomes available in the Continue chapter, and moves focus and the viewport to the browse chapter. A polite status describes scene changes without announcing every countdown frame. Reduced motion keeps this navigation and a still sphere. Static output retains the first illustration, all explanations, downloads, and ordinary links; enhanced scene navigation requires JavaScript.
+Chapter buttons use the same document positions as scrolling when the story is pinned and select scenes in place when it is not. They expose the current step. Continue is disabled during the pause, becomes available in the Continue chapter, and moves focus to the browse chapter. A polite status describes scene changes without announcing every countdown frame. Brief scene-entry and checkmark animations make each action visible inside the fixed frame. Reduced motion removes those animations, retaining navigation and a still sphere. Static output retains the first illustration, all explanations, downloads, and ordinary links; enhanced scene navigation requires JavaScript.
 
 **The Real Interaction Rule.** Reuse product behavior and components for demonstrations, and give each focusable control its advertised effect.
 
@@ -390,7 +410,7 @@ Supported-media artwork is locally packaged and accompanies explicit names for Y
 - **Do** preserve the approved capybara identity, peeking pose, and warm materials.
 - **Do** reuse the real breathing renderer and statistics presentation when demonstrating the product.
 - **Do** identify example statistics and retain the distinction between estimates and measured totals.
-- **Do** keep links, keyboard focus, footer language selection, and chapter controls operable.
+- **Do** keep links, keyboard focus, header language selection, and chapter controls operable.
 - **Do** let reduced motion remove optional animation while preserving the stable frame and chapter navigation.
 
 ### Don't:
