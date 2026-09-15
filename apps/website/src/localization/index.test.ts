@@ -66,7 +66,6 @@ const WebsiteProductStoryFields = Object.freeze( [
 	'privacyLink',
 	'supportLink',
 	'madeBy',
-	'creatorStory',
 	'privacyShort',
 	'privacyAccounts',
 	'privacyTracking',
@@ -199,7 +198,7 @@ describe( 'website localization', () => {
 		expect( catalog.continueDescription ).toMatch( /\bContinue\b/u );
 		expect( catalog.browseDescription ).toMatch( /\bContinue\b/u );
 		expect( catalog.statisticsDescription ).not.toMatch( /\b(?:actual|estimated|reclaimed|saved)\b/iu );
-		expect( catalog.privacy ).toMatch( /\bwithout an internet connection\b/iu );
+		expect( catalog.privacy ).toMatch( /\boffline\b/iu );
 		expect( [
 			catalog.privacyAccounts,
 			catalog.privacyTracking,

@@ -99,7 +99,6 @@ export interface WebsiteCatalog {
 	privacyLink: string;
 	supportLink: string;
 	madeBy: string;
-	creatorStory: string;
 	privacyShort: string;
 	sourceShort: string;
 	skipLink: string;

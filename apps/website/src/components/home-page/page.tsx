@@ -106,7 +106,6 @@ export default function HomePage( props: HomePageProps ) {
 							<ExternalLink href={ WebsiteLink.SOURCE }>{ catalog.sourceShort }</ExternalLink>
 						</div>
 						<div className="maker-story">
-							<p>{ catalog.creatorStory }</p>
 							<div className="maker-credit">
 								<span>{ catalog.madeBy }</span>
 								<ExternalLink href={ WebsiteLink.AUTHOR }>
