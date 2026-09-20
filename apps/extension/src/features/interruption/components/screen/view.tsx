@@ -70,7 +70,7 @@ export function ScreenView( props: ScreenViewProps ) {
 						disabled={recovering} onClick={props.onRetry}>
 						{recovering ? copy.retryingLabel : copy.retryLabel}</Button></section>}
 			</section></main>
-			<footer>{props.wellbeingSummary}</footer>
+			{props.wellbeingSummary && <footer>{props.wellbeingSummary}</footer>}
 		</div>
 		<p className="visually-hidden" aria-atomic="true" aria-live="polite">{props.announcement}</p>
 	</TocusProvider>;

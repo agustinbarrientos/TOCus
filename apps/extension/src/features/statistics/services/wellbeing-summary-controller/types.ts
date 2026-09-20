@@ -1,5 +1,15 @@
 import type { StatisticsChangeSource } from '../statistics-client/types';
 import type { WellbeingSummaryCopy } from '../../utils/format-wellbeing-summary/types';
+import type { StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
+
+/**
+ * Converts one authoritative projection into localized footer content.
+ * @since 0.1.0 Initial implementation.
+ */
+export type WellbeingSummaryFormatter = (
+	projection: StatisticsProjection,
+	copy: Readonly<WellbeingSummaryCopy>,
+) => string;
 
 /**
  * Interruption presentation that receives one complete wellbeing footer.
@@ -17,6 +27,8 @@ export interface WellbeingSummaryTarget {
 export interface WellbeingSummaryControllerOptions {
 	/** Optional localized summary grammar and duration formatting. */
 	copy?: Readonly<WellbeingSummaryCopy>;
+	/** Optional surface-specific summary formatter. */
+	formatSummary?: WellbeingSummaryFormatter;
 	/** Read-only authoritative statistics source. */
 	source: StatisticsChangeSource;
 	/** Interruption presentation receiving the formatted sentence. */

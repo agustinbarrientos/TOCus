@@ -14,6 +14,7 @@ import {
 	createWellbeingSummaryController,
 	type WellbeingSummaryController,
 } from '../../../statistics/services/wellbeing-summary-controller';
+import { formatNewTabWellbeingSummary } from '../../../statistics/utils/format-wellbeing-summary';
 import { ComponentInterruptionScreen } from '../../components/screen';
 import { InterruptionScreenState } from '../../components/screen/types';
 import {
@@ -122,6 +123,7 @@ export async function startInterruptionPage(): Promise<void> {
 			storageChanges: browser.storage.onChanged,
 		} );
 		const activeWellbeingSummaryController = createWellbeingSummaryController( {
+			formatSummary: formatNewTabWellbeingSummary,
 			source: statisticsClient,
 			target: activeInterruptionScreen,
 		} );
@@ -148,7 +150,7 @@ export async function startInterruptionPage(): Promise<void> {
 			document.documentElement.lang = localization.languageTag;
 			document.title = localization.document.interruptionTitle;
 			activeInterruptionScreen.copy = localization.interruption;
-			activeInterruptionScreen.wellbeingSummary = localization.wellbeing.neutral;
+			activeInterruptionScreen.wellbeingSummary = '';
 			activeWellbeingSummaryController.setCopy( localization.wellbeing );
 		}
 

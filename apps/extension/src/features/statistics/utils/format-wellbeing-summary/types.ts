@@ -24,6 +24,22 @@ export interface WellbeingSummaryCopy {
 	formatDuration( milliseconds: number ): string;
 
 	/**
+	 * Formats one nonzero duration with localized compact units.
+	 * @param milliseconds - Positive duration in milliseconds.
+	 * @return Human-readable compact duration.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	formatShortDuration( milliseconds: number ): string;
+
+	/**
+	 * Composes the concise new-tab estimate.
+	 * @param duration - Localized compact estimated duration.
+	 * @return Complete concise estimate sentence.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	formatShortSummary( duration: string ): string;
+
+	/**
 	 * Composes one complete summary from the available formatted values.
 	 * @param values - Formatted all-time values.
 	 * @return Complete human wellbeing sentence.

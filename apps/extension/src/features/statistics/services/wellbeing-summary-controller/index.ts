@@ -31,6 +31,7 @@ export function createWellbeingSummaryController(
 	let started = false;
 	let copy = options.copy;
 	let latestProjection: StatisticsProjection | null = null;
+	const formatSummary = options.formatSummary ?? formatWellbeingSummary;
 
 	/**
 	 * Formats and applies one authoritative projection.
@@ -43,7 +44,7 @@ export function createWellbeingSummaryController(
 			return;
 		}
 
-		options.target.wellbeingSummary = formatWellbeingSummary(
+		options.target.wellbeingSummary = formatSummary(
 			nextProjection,
 			copy,
 		);
@@ -127,4 +128,5 @@ export type {
 	WellbeingSummaryController,
 	WellbeingSummaryControllerOptions,
 	WellbeingSummaryTarget,
+	WellbeingSummaryFormatter,
 } from './types';

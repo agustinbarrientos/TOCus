@@ -5,7 +5,7 @@ import {
 	type StatisticsProjection,
 	type AvailableStatisticsProjection,
 } from '../../../../domains/statistics/types/statistics-projection';
-import { formatWellbeingSummary } from './index';
+import { formatNewTabWellbeingSummary, formatWellbeingSummary } from './index';
 import type { WellbeingSummaryValues } from './types';
 import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
 
@@ -27,6 +27,16 @@ function formatTestWellbeingSummary( projection: StatisticsProjection ): string 
  */
 function formatTestDuration( milliseconds: number ): string {
 	return `duration:${ String( milliseconds ) }`;
+}
+
+/**
+ * Exposes compact summary input for localized-copy delegation tests.
+ * @param duration - Duration supplied by the formatter.
+ * @return Stable test representation.
+ * @since 0.1.0 Initial implementation.
+ */
+function formatTestShortSummary( duration: string ): string {
+	return `short:${ duration }`;
 }
 
 /**
@@ -62,6 +72,23 @@ function createProjection(
 }
 
 describe( 'format wellbeing summary', () => {
+	it.each( [
+		{ projection: { status: StatisticsProjectionStatus.UNAVAILABLE } as const, label: 'unavailable statistics' },
+		{ projection: createProjection( { estimatedReclaimedMilliseconds: 899_999 } ), label: 'an estimate below fifteen minutes' },
+	] )( 'hides the new-tab summary for $label', ( { projection } ) => {
+		expect( formatNewTabWellbeingSummary(
+			projection,
+			TestEnglishLocalizationBundle.wellbeing,
+		) ).toBe( '' );
+	} );
+
+	it( 'shows the concise new-tab estimate at exactly fifteen minutes', () => {
+		expect( formatNewTabWellbeingSummary(
+			createProjection( { estimatedReclaimedMilliseconds: 900_000 } ),
+			TestEnglishLocalizationBundle.wellbeing,
+		) ).toBe( 'About 15 min saved.' );
+	} );
+
 	it( 'uses the neutral message when statistics are unavailable or both values are zero', () => {
 		expect( formatTestWellbeingSummary(
 			{ status: StatisticsProjectionStatus.UNAVAILABLE },
@@ -123,6 +150,8 @@ describe( 'format wellbeing summary', () => {
 			{
 				neutral: 'neutral',
 				formatDuration: formatTestDuration,
+				formatShortDuration: formatTestDuration,
+				formatShortSummary: formatTestShortSummary,
 				formatSummary: formatTestSummary,
 			},
 		) ).toBe( JSON.stringify( {

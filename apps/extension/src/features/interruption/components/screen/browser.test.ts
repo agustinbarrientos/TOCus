@@ -4,6 +4,17 @@ import type {} from './__fixtures__/browser-types';
 const origin = '/apps/extension/src/features/interruption/components/screen/__fixtures__/browser.html';
 
 test.describe( 'React pause', () => {
+	test( 'removes an empty wellbeing footer and restores it for a visible summary', async ( { page } ) => {
+		await page.goto( origin );
+		await page.locator( 'html[data-ready]' ).waitFor();
+		await expect( page.locator( 'footer' ) ).toHaveCount( 0 );
+		await page.evaluate( async () => {
+			window.pauseFixture.screen.wellbeingSummary = 'About 15 min saved.';
+			await window.pauseFixture.screen.updateComplete;
+		} );
+		await expect( page.locator( 'footer' ) ).toHaveText( 'About 15 min saved.' );
+	} );
+
 	test( 'keeps the ambient layer behind the cue and a compact sixteen-pixel countdown', async ( { page } ) => {
 		await page.goto( origin );
 		await page.locator( 'html[data-ready]' ).waitFor();

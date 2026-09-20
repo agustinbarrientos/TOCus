@@ -13,6 +13,13 @@ import type {
 	PreferencesChangeListener,
 	PreferencesLanguageChangeListener,
 } from '../../../preferences/services/preferences-controller/types';
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
+import { StatisticsProjectionStatus } from '../../../../domains/statistics/types/statistics-projection';
+import { LocalDateSchema } from '../../../../domains/protection/types/protection-value';
+import type {
+	WellbeingSummaryController,
+	WellbeingSummaryControllerOptions,
+} from '../../../statistics/services/wellbeing-summary-controller/types';
 
 /**
  * Hoisted dependencies used by interruption page tests.
@@ -94,7 +101,9 @@ const pageMocks = await vi.hoisted( async () => {
 		createPreferencesController: vi.fn().mockReturnValue( preferencesController ),
 		createPreferencesStorage: vi.fn().mockReturnValue( preferencesStorage ),
 		createStatisticsClient: vi.fn().mockReturnValue( statisticsClient ),
-		createWellbeingSummaryController: vi.fn().mockReturnValue( wellbeingSummaryController ),
+		createWellbeingSummaryController: vi.fn<(
+			options: WellbeingSummaryControllerOptions,
+		) => WellbeingSummaryController>().mockReturnValue( wellbeingSummaryController ),
 		getUILanguage: vi.fn().mockReturnValue( 'es-AR' ),
 		initialLocalization,
 		languageChangeListener,
@@ -245,10 +254,22 @@ describe( 'interruption page service', () => {
 			runtime: { sendMessage: pageMocks.sendMessage },
 			storageChanges: pageMocks.storageChanges,
 		} );
-		expect( pageMocks.createWellbeingSummaryController ).toHaveBeenCalledWith( {
-			source: pageMocks.statisticsClient,
-			target: interruptionScreen,
-		} );
+		const wellbeingOptions = pageMocks.createWellbeingSummaryController.mock.calls[ 0 ]?.[ 0 ];
+		if ( wellbeingOptions?.formatSummary === undefined ) {
+			throw new TypeError( 'Expected a standalone wellbeing summary formatter.' );
+		}
+		expect( wellbeingOptions.source ).toBe( pageMocks.statisticsClient );
+		expect( wellbeingOptions.target ).toBe( interruptionScreen );
+		expect( wellbeingOptions.formatSummary( {
+			status: StatisticsProjectionStatus.AVAILABLE,
+			currentDate: LocalDateSchema.parse( '2026-09-20' ),
+			dailyTotals: [],
+			estimatedReclaimedMilliseconds: 899_999,
+			focusedPauseMilliseconds: 0,
+			reconsideredVisitCount: 0,
+			completedWaitCount: 0,
+			allowanceGrantedCount: 0,
+		}, TestEnglishLocalizationBundle.wellbeing ) ).toBe( '' );
 		expect( pageMocks.createInterruptionPageController ).not.toHaveBeenCalled();
 		expect( pageMocks.loadLocalizationBundle ).not.toHaveBeenCalled();
 		expect( pageMocks.wellbeingSummaryController.setCopy ).not.toHaveBeenCalled();
@@ -262,8 +283,7 @@ describe( 'interruption page service', () => {
 		expect( pageMocks.loadLocalizationBundle ).toHaveBeenCalledWith( Language.FRENCH );
 		expect( documentTarget.title ).toBe( 'Localized interruption title' );
 		expect( interruptionScreen.copy ).toBe( pageMocks.initialLocalization.interruption );
-		expect( interruptionScreen.wellbeingSummary )
-			.toBe( pageMocks.initialLocalization.wellbeing.neutral );
+		expect( interruptionScreen.wellbeingSummary ).toBe( '' );
 		expect( pageMocks.wellbeingSummaryController.setCopy )
 			.toHaveBeenCalledWith( pageMocks.initialLocalization.wellbeing );
 		expect( pageMocks.wellbeingSummaryController.setCopy.mock.invocationCallOrder[ 0 ] )
@@ -342,8 +362,7 @@ describe( 'interruption page service', () => {
 
 		expect( pageMocks.loadLocalizationBundle ).toHaveBeenLastCalledWith( Language.JAPANESE );
 		expect( documentTarget.title ).toBe( 'Live interruption title' );
-		expect( interruptionScreen.wellbeingSummary )
-			.toBe( pageMocks.liveLocalization.wellbeing.neutral );
+		expect( interruptionScreen.wellbeingSummary ).toBe( '' );
 		expect( pageMocks.wellbeingSummaryController.setCopy )
 			.toHaveBeenLastCalledWith( pageMocks.liveLocalization.wellbeing );
 	} );
