@@ -71,24 +71,22 @@ test.describe( 'the product story', () => {
 									} ),
 								) ).toBe( true );
 							}
-							if ( chapter === DemoChapter.VISIT || chapter === DemoChapter.BROWSE ) {
+							if ( chapter === DemoChapter.VISIT ) {
+								await expect( demo.locator( '.product-demo-address' ) ).toBeEmpty();
+								await expect( demo.locator( '.product-demo-new-tab:visible' ) ).toContainText( 'YouTube' );
+								await expect( demo.locator( '.product-demo-youtube:visible' ) ).toHaveCount( 0 );
+							}
+							if ( chapter === DemoChapter.BROWSE ) {
 								expect( await demo.locator( '.product-demo-address' ).innerText() ).toBe( 'youtube.com' );
 								await expect( demo.locator( '.product-demo-youtube:visible' ) ).toBeVisible();
 							}
 							if ( chapter === DemoChapter.PAUSE ) {
-								const canvas = demo.locator( 'canvas:visible' );
-								expect( await canvas.getAttribute( 'data-still' ) ).toBe( 'true' );
-								await expect.poll( () => canvas.evaluate( ( element ) =>
-									( element as HTMLCanvasElement ).width,
-								) ).not.toBe( 300 );
-								const frame = await canvas.evaluate( ( element ) =>
-									( element as HTMLCanvasElement ).toDataURL(),
-								);
-								await page.waitForTimeout( 160 );
-								expect( await canvas.evaluate( ( element ) =>
-									( element as HTMLCanvasElement ).toDataURL(),
-								) ).toBe( frame );
-								expect( await demo.locator( '.product-demo-continue:visible' ).isEnabled() ).toBe( false );
+								const sphere = demo.locator( '.product-demo-sphere:visible' );
+								await expect( sphere ).toHaveAttribute( 'data-still', 'true' );
+								await expect( sphere.locator( '.product-demo-orb' ) ).toBeVisible();
+								await expect( demo.locator( '.product-demo-countdown:visible' ) ).toHaveText( '10s' );
+								await expect( demo.locator( '.product-demo-countdown:visible' ) ).toHaveCSS( 'font-size', '16px' );
+								await expect( demo.locator( '.product-demo-continue:visible' ) ).toHaveCount( 0 );
 							}
 							if ( chapter === DemoChapter.CONTINUE ) {
 								await expect( demo.locator( '.product-demo-ready' ) ).toBeVisible();
@@ -111,12 +109,12 @@ test.describe( 'the product story', () => {
 								await page.keyboard.press( 'ArrowRight' );
 								await expect( page.locator( '.recharts-tooltip-wrapper' ) ).toBeVisible();
 								await page.keyboard.press( nextControlKey );
-								expect( await page.locator( '#privacy a' ).evaluate( ( element ) =>
+								expect( await page.getByRole( 'link', { name: 'Read the privacy policy' } ).evaluate( ( element ) =>
 									element === document.activeElement,
 								) ).toBe( true );
 							}
 							if ( chapter === DemoChapter.BROWSE ) {
-								expect( await demo.locator( '.product-demo-time-left time' ).innerText() ).toBe( '5:00' );
+								await expect( demo.locator( '.product-demo-browser-chrome .product-demo-time-left' ) ).toHaveText( '5m' );
 							}
 						} );
 					}

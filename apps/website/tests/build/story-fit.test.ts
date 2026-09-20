@@ -11,7 +11,11 @@ const WebsiteOutput = new URL( '../../dist/', import.meta.url );
  */
 function findClippedContent( element: HTMLElement ) {
 	const bounds = element.getBoundingClientRect();
-	return Array.from( element.querySelectorAll<HTMLElement>( '.product-demo-site-option, .product-demo-continue, .product-demo-phase, .product-demo-countdown, .product-demo-time-left' ) )
+	return Array.from( element.querySelectorAll<HTMLElement>( [
+		'.product-demo-site-option', '.product-demo-continue', '.product-demo-phase',
+		'.product-demo-countdown', '.product-demo-time-left', '.product-demo-manual-control',
+		'.product-demo-setup-actions', '.product-demo-shortcut-hint', '.product-demo-video h4',
+	].join( ', ' ) ) )
 		.flatMap( ( child ) => {
 			const box = child.getBoundingClientRect();
 			if ( getComputedStyle( child ).visibility === 'hidden' || box.width <= 0 || box.height <= 0 ||
@@ -30,7 +34,7 @@ function findClippedContent( element: HTMLElement ) {
 for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 	const browserTest = test.extend( { browserName } );
 	browserTest.describe( `${ browserName } story geometry`, () => {
-		browserTest( 'the complete story fits when pinned and remains readable in short-screen flow', async ( { context, page } ) => {
+		browserTest( 'the complete story remains readable in normal flow on short screens', async ( { context, page } ) => {
 			test.setTimeout( 30_000 );
 			await context.route( '**/*', async ( route ) => {
 				const url = new URL( route.request().url() );
@@ -50,9 +54,7 @@ for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 					await page.goto( 'http://website.test/' );
 					await page.evaluate( () => document.fonts.ready );
 					await expect( page.locator( '.homepage' ) ).toHaveAttribute( 'data-enhanced', 'true' );
-					if ( viewport.height === 720 ) {
-						await expect( page.locator( '.homepage' ) ).toHaveAttribute( 'data-story-pinned' );
-					}
+					await expect( page.locator( '.experience-stage' ) ).toHaveCSS( 'position', 'static' );
 					for ( const chapter of Object.values( DemoChapter ) ) {
 						const button = page.locator( `[data-story-chapter="${ chapter }"] button` );
 						await button.evaluate( ( element ) => {
@@ -94,7 +96,7 @@ for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 					await page.setViewportSize( viewport );
 					await expect.poll( () => page.locator( '.experience-stage' ).evaluate( ( element ) =>
 						getComputedStyle( element ).position,
-					) ).toBe( viewport.height === 400 ? 'static' : 'sticky' );
+					) ).toBe( 'static' );
 					const scenes = await page.locator( '.product-demo' ).evaluate( async ( element ) => {
 						const seen = [];
 						for ( let frame = 0; frame < 12; frame += 1 ) {
@@ -107,11 +109,8 @@ for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 					await page.locator( '[data-story-chapter="continue"] button' ).click();
 					const continueButton = page.locator( '.product-demo-continue:visible' );
 					await expect( continueButton ).toBeEnabled();
+					await continueButton.scrollIntoViewIfNeeded();
 					if ( viewport.height === 720 ) {
-						const stageBounds = await page.locator( '.experience-stage' ).boundingBox();
-						expect( stageBounds?.y ).toBeGreaterThanOrEqual( 0 );
-						expect( ( stageBounds?.y ?? viewport.height ) + ( stageBounds?.height ?? viewport.height ) )
-							.toBeLessThanOrEqual( viewport.height );
 						const buttonBounds = await continueButton.boundingBox();
 						expect( buttonBounds ).not.toBeNull();
 						if ( ! buttonBounds ) {
@@ -162,15 +161,13 @@ for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 				const stage = page.locator( '.experience-stage' );
 				await expect.poll( () => stage.evaluate( ( element ) => {
 					const style = getComputedStyle( element );
-					const stagePixels = ( element as HTMLElement ).offsetHeight;
-					const fits = stagePixels + Number.parseFloat( style.top ) * 2 <= window.innerHeight;
-					return style.position === ( fits ? 'sticky' : 'static' );
+					return style.position === 'static';
 				} ) ).toBe( true );
 				const position = await stage.evaluate( ( element ) => getComputedStyle( element ).position );
 				if ( height === 640 ) {
 					expect( position ).toBe( 'static' );
 				}
-				const stageHeight = await stage.evaluate( ( element ) => element.getBoundingClientRect().height );
+				const stageHeight = await page.locator( '.product-demo-browser' ).evaluate( ( element ) => element.getBoundingClientRect().height );
 				for ( const chapter of Object.values( DemoChapter ) ) {
 					await test.step( `Read the ${ chapter } chapter`, async () => {
 						const button = page.locator( `[data-story-chapter="${ chapter }"] button` );
@@ -187,7 +184,7 @@ for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 						await expect( page.locator( '[data-demo-chapter][aria-hidden="false"]' ) ).toHaveCount( 1 );
 						await expect( page.locator( '[data-demo-chapter][aria-hidden="true"]:not([inert])' ) ).toHaveCount( 0 );
 						await expect( stage ).toHaveCSS( 'position', position );
-						const currentHeight = await stage.evaluate( ( element ) =>
+						const currentHeight = await page.locator( '.product-demo-browser' ).evaluate( ( element ) =>
 							element.getBoundingClientRect().height,
 						);
 						expect( Math.abs( currentHeight - stageHeight ),
