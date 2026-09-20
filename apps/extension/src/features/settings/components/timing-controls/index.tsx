@@ -54,6 +54,8 @@ function createRanges( copy: TimingScreenCopy ): TimingRange[] {
  */
 export function TimingControls( props: TimingControlsProps ) {
 	const { copy, value, disabled } = props;
+	const ranges = createRanges( copy ).filter( ( range ) =>
+		range.key !== 'maximumWaitMilliseconds' || value.ladderIncreaseMilliseconds !== 0 );
 	const summary = copy.formatSummary( value.initialWaitMilliseconds / 1000,
 		value.ladderIncreaseMilliseconds / 1000,
 		value.maximumWaitMilliseconds / 1000,
@@ -61,8 +63,8 @@ export function TimingControls( props: TimingControlsProps ) {
 		value.completionAction );
 	return (
 		<>
-			{ createRanges( copy ).map( ( range ) => <div key={ range.id } className="settings-timing-range">
-				<Group justify="space-between">
+			{ ranges.map( ( range ) => <div key={ range.id } className="settings-timing-range">
+				<Group className="tocus-field-header" justify="space-between">
 					<Group gap="var(--tocus-space-1)"><label className="tocus-field-label" id={ `${ range.id }-label` } htmlFor={ range.id }>{ range.label }</label>
 						<FieldHelp label={ range.label } description={ range.help } descriptionId={ `${ range.id }-help` } /></Group>
 					<output htmlFor={ range.id }>{ range.format( value[ range.key ] / range.unit ) }</output>

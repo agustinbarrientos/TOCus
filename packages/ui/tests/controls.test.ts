@@ -23,7 +23,12 @@ test.describe( 'shared controls', () => {
 		} );
 		expect( metrics.label ).toBe( metrics.body );
 		expect( metrics.notice ).toBe( metrics.body );
-		expect( metrics.gap ).toBeGreaterThanOrEqual( 8 );
+		expect( metrics.gap ).toBe( 8 );
+		for ( const selector of [ '.mantine-Radio-label', '.mantine-Checkbox-label' ] ) {
+			for ( const label of await page.locator( selector ).all() ) {
+				await expect( label ).toHaveCSS( 'margin-bottom', '0px' );
+			}
+		}
 	} );
 	test( 'honors small actions without shrinking normal actions or slider hit targets', async ( { page } ) => {
 		await page.goto( url );
