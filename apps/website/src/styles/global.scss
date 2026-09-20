@@ -83,15 +83,17 @@ body { margin: 0; }
 
 	.hero {
 		position: relative;
-		padding-top: 1.25rem;
-		text-align: center;
+		display: grid;
+		grid-template-columns: 1fr 1.1fr;
+		align-items: center;
+		gap: 1rem;
+		padding-block: 1.5rem 2.5rem;
 	}
 
 	.hero-copy {
 		position: relative;
 		z-index: 3;
-		max-width: 58rem;
-		margin-inline: auto;
+		max-width: 34rem;
 	}
 
 	.hero h1 {
@@ -99,7 +101,6 @@ body { margin: 0; }
 			$line-height: 1.02, $spacing: -0.025em);
 
 		max-width: 15ch;
-		margin-inline: auto;
 	}
 
 	.description {
@@ -107,12 +108,12 @@ body { margin: 0; }
 			$line-height: 1.5, $spacing: 0);
 
 		max-width: 43ch;
-		margin: 1.4rem auto 0;
+		margin: 1.4rem 0 0;
 	}
 
 	.hero-actions {
 		display: grid;
-		justify-items: center;
+		justify-items: start;
 		gap: 0.8rem;
 		margin-top: 1rem;
 	}
@@ -120,13 +121,10 @@ body { margin: 0; }
 	.hero-art {
 		position: relative;
 		z-index: 2;
-		width: min(28rem, 38%);
-		margin: 0.75rem auto -1.25rem;
-		pointer-events: none;
+		width: 100%;
+		max-width: 38rem;
+		margin-inline: auto;
 	}
-
-	// The mascot leaves before the pinned product story, including reduced motion.
-	&[data-story-active] .hero-art { visibility: hidden; }
 
 	.website-section {
 		padding-block: var(--tocus-website-section-space);
@@ -142,14 +140,14 @@ body { margin: 0; }
 
 	.section-heading p { max-width: 50ch; }
 
-	.section-heading h2, .download-section h2 {
+	.section-heading h2, .download-section h2, .how-it-works > h2 {
 		@include type.apply('display-large', $size: clamp(2.3rem, 4.2vw, 4rem),
 			$line-height: 1.12, $spacing: -0.025em);
 
 		max-width: 22ch;
 	}
 
-	.feature-strip p, .media-feature p, .open-source p, .section-heading p {
+	.feature-strip p, .privacy-copy p, .section-heading p {
 		color: var(--tocus-color-on-surface-muted);
 	}
 
@@ -157,51 +155,26 @@ body { margin: 0; }
 
 	.feature-strip {
 		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: clamp(2rem, 6vw, 5rem);
-		padding-block: 2.5rem;
-		border-block: 1px solid var(--tocus-website-rule);
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 2rem;
+		padding: 2.5rem 0;
+		margin: 0;
+		list-style: none;
+		border-top: 1px solid var(--tocus-website-rule);
 	}
 
-	.feature-strip h3, .media-feature h3, .privacy-copy h3 {
-		@include type.apply('headline-medium', $size: clamp(1.55rem, 2.4vw, 2.2rem),
+	.feature-strip h3, .privacy-copy h3 {
+		@include type.apply('headline-medium', $size: clamp(1.4rem, 2vw, 1.75rem),
 			$line-height: 1.12, $spacing: -0.025em);
 	}
 
-	.feature-strip p, .media-feature p { margin-top: 0.8rem; }
-
-	.media-feature {
-		display: grid;
-		gap: 2rem;
-		margin-top: 2.5rem;
-	}
+	.feature-strip p { margin-top: 0.8rem; }
 
 	.statistics-section { padding-top: 2rem; }
 
 	.statistics-preview {
 		max-width: 62rem;
 		margin-inline: auto;
-	}
-
-	.statistics-preview-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		margin-bottom: 1.5rem;
-	}
-
-	.statistics-preview-header > span {
-		@include type.apply('body-medium');
-	}
-
-	.statistics-preview h2 {
-		@include type.apply('title-large', $size: 1.4rem, $line-height: 1.12, $spacing: -0.025em);
-	}
-
-	.statistics-preview .settings-statistics-summary > p {
-		margin-top: 1.5rem;
-		color: var(--tocus-color-on-surface-muted);
 	}
 
 	.privacy-section {
@@ -211,57 +184,39 @@ body { margin: 0; }
 
 	.privacy-statement {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 		align-items: start;
-		gap: clamp(2rem, 5vw, 4rem);
+		gap: 1rem clamp(2rem, 5vw, 4rem);
 	}
 
-	.privacy-statement h2 {
-		@include type.apply('display-large', $size: clamp(2.8rem, 4.5vw, 4.5rem),
-			$line-height: 1.1, $spacing: -0.025em);
-
-		max-width: 15ch;
-	}
-
-	.privacy-facts {
-		@include type.apply('body-large', $size: clamp(1.1rem, 1.8vw, 1.4rem), $line-height: 1.5);
-
-		display: grid;
-		gap: 1rem;
-		padding: 0;
-		margin: 0;
-		list-style: none;
-	}
 
 	.privacy-copy {
-		max-width: 44rem;
-		margin-top: 3.5rem;
-		padding-top: 2rem;
-		border-top: 1px solid var(--tocus-website-rule);
+		display: grid;
+		grid-row: span 4;
+		grid-template-rows: subgrid;
+		align-items: start;
+		gap: 1rem;
+		min-width: 0;
 	}
 
 	.privacy-copy p {
 		@include type.apply('body-large', $line-height: 1.6);
 
-		margin-block: 1rem 1.5rem;
+		margin: 0;
 	}
 
-	.open-source {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 5rem;
+	.privacy-body p + p { margin-top: 1rem; }
+
+
+	.privacy-copy a, .privacy-copy .maker-credit {
+		@include type.apply('body-large', $line-height: 1.6);
 	}
 
-	.open-source h2 {
-		@include type.apply('headline-large', $size: clamp(1.8rem, 2.8vw, 2.6rem),
-			$line-height: 1.12, $spacing: -0.025em);
-	}
-	.open-source p { margin-block: 1.1rem; }
-
-	.maker-story {
-		align-self: center;
-		padding-left: 3rem;
-		border-left: 1px solid var(--tocus-website-rule);
+	.privacy-copy > a {
+		display: inline-flex;
+		align-items: center;
+		min-height: 2.75rem;
+		margin-top: 0.25rem;
 	}
 
 	.maker-credit {
@@ -346,7 +301,13 @@ body { margin: 0; }
 			gap: 0.5rem;
 		}
 
-		.hero { padding-top: 1rem; }
+		.hero {
+			grid-template-columns: 1fr;
+			padding-top: 1rem;
+			text-align: center;
+		}
+		.hero-copy { margin-inline: auto; }
+		.hero-actions { justify-items: center; }
 
 		.hero h1 {
 			--tocus-typography-display-large-font-size: clamp(2.7rem, 10.4vw, 4.5rem);
@@ -357,13 +318,12 @@ body { margin: 0; }
 		.description {
 			margin-top: 1rem;
 			max-width: 32ch;
+			margin-inline: auto;
 		}
 
 		.hero-art {
-			width: min(34rem, 108%);
-			max-width: none;
-			left: -4%;
-			margin-top: 0.5rem;
+			width: min(34rem, 100%);
+			margin-top: 0;
 		}
 
 		.section-heading {
@@ -377,7 +337,7 @@ body { margin: 0; }
 			padding-block: 1.75rem;
 		}
 
-		.feature-strip > div + div {
+		.feature-strip > li + li {
 			padding-top: 1.75rem;
 			border-top: 1px solid var(--tocus-website-rule);
 		}
@@ -392,27 +352,6 @@ body { margin: 0; }
 			gap: 2rem;
 		}
 
-		.privacy-statement h2 {
-			--tocus-typography-display-large-font-size: clamp(2.5rem, 10vw, 4rem);
-		}
-
-		.privacy-facts {
-			padding-top: 2rem;
-			border-top: 1px solid var(--tocus-website-rule);
-		}
-
-		.privacy-copy { margin-top: 2rem; }
-
-		.open-source {
-			grid-template-columns: 1fr;
-			gap: 2rem;
-		}
-
-		.maker-story {
-			border-left: 0;
-			border-top: 1px solid var(--tocus-website-rule);
-			padding: 2rem 0 0;
-		}
 
 		.download-section { padding-top: 2rem; }
 		.footer-mascot { width: 90%; }
@@ -449,8 +388,8 @@ body { margin: 0; }
 		.description { margin-top: 0.8rem; }
 
 		.hero-art {
-			width: min(24.5rem, 42%);
-			margin-top: 0.25rem;
+			width: 100%;
+			max-width: min(36rem, 80svh);
 		}
 	}
 }

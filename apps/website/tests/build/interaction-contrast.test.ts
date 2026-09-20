@@ -234,7 +234,7 @@ for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 					const alternatives = page.locator( '.hero-actions .store-alternatives a' );
 					await expect( alternatives ).toHaveCount( 2 );
 					for ( const [ name, target ] of [
-						[ 'source link', page.locator( '.open-source a' ).first() ],
+						[ 'source link', page.locator( '#privacy' ).getByRole( 'link', { name: 'View the source', exact: true } ) ],
 						[ 'header download', page.locator( '.site-header [data-download-primary]' ) ],
 						[ 'download action', page.locator( '.hero-actions [data-download-primary]' ) ],
 						[ 'first alternate browser', alternatives.nth( 0 ) ],

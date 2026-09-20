@@ -102,7 +102,7 @@ test.describe( 'website navigation and statistics presentation', () => {
 		} );
 	}
 
-	test( 'statistics are explicitly illustrative and expose the real product metrics without collecting data', async ( { page } ) => {
+	test( 'statistics show product metrics without collecting data', async ( { page } ) => {
 		test.setTimeout( 30_000 );
 		await page.route( 'http://website.test/**', async ( route ) => {
 			const url = new URL( route.request().url() );
@@ -112,7 +112,10 @@ test.describe( 'website navigation and statistics presentation', () => {
 		await page.goto( 'http://website.test/' );
 		const statistics = page.locator( '#statistics' );
 		await statistics.waitFor( { timeout: 5000 } );
-		expect( await statistics.getByText( 'Example data', { exact: true } ).count() ).toBe( 1 );
+		await expect( statistics.getByRole( 'heading', { name: 'See how much time you saved', exact: true } ) )
+			.toBeVisible();
+		await expect( page.getByText( 'Example data', { exact: true } ) ).toHaveCount( 0 );
+		await expect( page.getByText( 'Example timing', { exact: true } ) ).toHaveCount( 0 );
 		expect( await statistics.locator( 'dt' ).count() ).toBe( 5 );
 		await expect( statistics.locator( 'dt' ).filter( { hasText: /^Estimated time reclaimed$/ } ) ).toHaveCount( 1 );
 		await expect( statistics.getByRole( 'columnheader', { name: 'Estimated time reclaimed', exact: true } ) )

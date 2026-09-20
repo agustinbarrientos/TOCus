@@ -20,7 +20,24 @@ async function serveAsset( route: Route ): Promise<void> {
 	await route.fulfill( { path: file } );
 }
 
-test.describe( 'homepage raster mascot', () => {
+test.describe( 'homepage beach scene', () => {
+	test( 'responds to the pointer and keyboard while preserving the footer artwork', async ( { page } ) => {
+		await page.route( '**/*', serveAsset );
+		await page.goto( 'http://website.test/' );
+		const scene = page.locator( '.beach-scene' );
+		await expect( scene ).toHaveAttribute( 'data-ready', 'true' );
+		const artwork = scene.locator( 'img' );
+		const before = await artwork.evaluate( ( element ) => getComputedStyle( element ).transform );
+		await scene.hover( { position: { x: 30, y: 30 } } );
+		await expect.poll( () => artwork.evaluate(
+			( element ) => getComputedStyle( element ).transform ) ).not.toBe( before );
+		await scene.getByRole( 'button' ).focus();
+		await page.keyboard.press( 'Enter' );
+		await expect( scene ).toHaveAttribute( 'data-reacting', 'true' );
+		await expect( page.locator( '.footer-mascot img' ) ).toHaveAttribute( 'src', '/images/mascot-peek.webp' );
+		await page.locator( '.site-footer' ).scrollIntoViewIfNeeded();
+		await expect( scene ).toHaveAttribute( 'data-playing', 'false' );
+	} );
 	for ( const { viewport, bodyFont } of [
 		{ viewport: { width: 1440, height: 900 } },
 		{ viewport: { width: 1280, height: 720 } },
@@ -53,7 +70,7 @@ test.describe( 'homepage raster mascot', () => {
 					await mascot.evaluate( ( element ) => ( element as HTMLImageElement ).decode() );
 					const image = await mascot.boundingBox();
 					const frame = await page.locator( '.product-demo-browser' ).boundingBox();
-					const caption = await page.locator( '.story-heading' ).boundingBox();
+					const caption = await page.getByRole( 'heading', { name: 'How TOCus works' } ).boundingBox();
 					const navigation = await page.locator( '.story-steps' ).boundingBox();
 					if ( ! image || ! frame || ! caption || ! navigation ) {
 						throw new Error( 'The mascot, caption, chapter controls and browser must all be rendered.' );
@@ -61,19 +78,27 @@ test.describe( 'homepage raster mascot', () => {
 					expect( requests.some( ( url ) => /\.(?:glb|gltf)(?:\?|$)/u.test( url ) ) ).toBe( false );
 					expect( await page.locator( '.hero-art canvas' ).count() ).toBe( 0 );
 					expect( image.width ).toBeGreaterThan( viewport.width * ( viewport.width < 600 ? 0.75 : 0.3 ) );
-					expect( Math.abs( image.x + image.width / 2 - viewport.width / 2 ) ).toBeLessThan( 2 );
-					expect( Math.min( image.height, viewport.height - image.y ) / image.height ).toBeGreaterThan( 0.8 );
+					if ( viewport.width < 600 ) {
+						expect( Math.abs( image.x + image.width / 2 - viewport.width / 2 ) ).toBeLessThan( 8 );
+					} else {
+						expect( image.x ).toBeGreaterThan( viewport.width / 2 );
+						expect( Math.min( image.height, viewport.height - image.y ) / image.height )
+							.toBeGreaterThan( 0.8 );
+					}
 					expect( caption.y ).toBeGreaterThanOrEqual( image.y + image.height );
-					expect( caption.y - image.y - image.height ).toBeLessThan( 45 );
 					expect( navigation.y ).toBeGreaterThan( caption.y + caption.height );
-					expect( frame.y ).toBeGreaterThan( navigation.y + navigation.height );
+					if ( viewport.width < 600 ) {
+						expect( frame.y ).toBeGreaterThan( navigation.y + navigation.height );
+					} else {
+						expect( frame.x ).toBeGreaterThan( navigation.x + navigation.width );
+					}
 					await page.locator( '[data-story-chapter] button' ).first().click();
 					if ( await page.locator( '.homepage' ).evaluate( ( element ) => element.hasAttribute( 'data-story-pinned' ) ) ) {
 						await expect( mascot ).toBeHidden();
 					} else {
 						// In normal flow the mascot may remain above the caption, but cannot cover it.
 						const picture = await mascot.boundingBox();
-						const heading = await page.locator( '.story-heading' ).boundingBox();
+						const heading = await page.getByRole( 'heading', { name: 'How TOCus works' } ).boundingBox();
 						if ( picture && heading ) {
 							expect( picture.y + picture.height ).toBeLessThanOrEqual( heading.y );
 						}
