@@ -346,11 +346,21 @@ async function expectOnboardingComposition( outputUrl: URL ): Promise<void> {
 	}
 
 	const moduleCode = await readOutputFile( outputUrl, moduleSource.replace( /^\//u, '' ) );
-	const iconDataUrls = moduleCode.match( /data:image\/svg\+xml,[^`]+/gu ) ?? [];
+	const iconUrls = ( moduleCode.match( /([`"'])\/assets\/site-[\w-]+\.svg\1/gu ) ?? [] )
+		.map( ( literal ) => literal.slice( 1, -1 ) );
 
 	expect( moduleCode ).toMatch( /getElementById\([`"']app[`"']\)/u );
-	expect( iconDataUrls ).toHaveLength( expectedOnboardingSiteNames.length );
-	expect( new Set( iconDataUrls ).size ).toBe( expectedOnboardingSiteNames.length );
+	expect( iconUrls ).toHaveLength( expectedOnboardingSiteNames.length );
+	expect( new Set( iconUrls ).size ).toBe( expectedOnboardingSiteNames.length );
+
+	for ( const iconUrl of iconUrls ) {
+		const icon = await readOutputFile( outputUrl, iconUrl.slice( 1 ) );
+
+		expect( icon, iconUrl ).toContain( '<svg' );
+		expect( icon, iconUrl ).not.toMatch( /<(?:foreignObject|image|script)\b/iu );
+		expect( icon, iconUrl ).not.toMatch( /(?:href|src)=["'](?:https?:|\/\/)/iu );
+		expect( icon, iconUrl ).not.toMatch( /url\(["']?(?:https?:|\/\/)/iu );
+	}
 
 	for ( const siteName of expectedOnboardingSiteNames ) {
 		expect( moduleCode ).toContain( `displayName:\`${ siteName }\`` );
