@@ -9,7 +9,7 @@ import * as sass from 'sass';
 /** Absolute workspace root for the two retained native-browser service suites. */
 const extensionRoot = fileURLToPath( new URL( '../..', import.meta.url ) );
 /** Brand tokens used by the unchanged Canvas renderer, without any control renderer. */
-const themeStyles = sass.compile( path.resolve( extensionRoot, '../../packages/theme/tokens.scss' ) ).css;
+const themeStyles = sass.compile( path.resolve( extensionRoot, '../../packages/theme/src/styles/tokens/index.scss' ) ).css;
 /** Deterministic device theme for native service tests. */
 const testThemes = readFileSync( path.join( extensionRoot, 'config/wtr/test-themes.css' ), 'utf8' );
 

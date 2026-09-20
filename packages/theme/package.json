@@ -4,26 +4,20 @@
 	"type": "module",
 	"files": [
 		"assets",
-		"controls.scss",
-		"font.scss",
-		"index.scss",
-		"runtime-colors.ts",
-		"sizing.scss",
-		"tokens.scss",
-		"typography/*.scss"
+		"src"
 	],
 	"exports": {
-		"./controls": "./controls.scss",
+		"./controls": "./src/utils/controls/index.scss",
 		"./icon.svg": "./assets/icon.svg",
 		"./icons/*.svg": "./assets/icons/*.svg",
 		"./site-icons/*.svg": "./assets/site-icons/*.svg",
-		"./font": "./font.scss",
-		"./index.scss": "./index.scss",
-		"./runtime-colors": "./runtime-colors.ts",
-		"./sizing": "./sizing.scss",
-		"./tokens": "./tokens.scss",
-		"./tokens.scss": "./tokens.scss",
-		"./typography": "./typography/index.scss"
+		"./font": "./src/styles/font/index.scss",
+		"./index.scss": "./src/styles/index.scss",
+		"./runtime-colors": "./src/types/runtime-colors.ts",
+		"./sizing": "./src/utils/sizing/index.scss",
+		"./tokens": "./src/styles/tokens/index.scss",
+		"./tokens.scss": "./src/styles/tokens/index.scss",
+		"./typography": "./src/utils/typography/index.scss"
 	},
 	"dependencies": {
 		"@fontsource-variable/fredoka": "5.3.0"

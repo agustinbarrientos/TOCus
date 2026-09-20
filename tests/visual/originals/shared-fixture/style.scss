@@ -1,4 +1,4 @@
-@use '../../../../packages/theme/typography' as typography;
+@use '../../../../packages/theme/src/utils/typography' as typography;
 
 body { margin: 8px; }
 #root { max-width: 100%; }

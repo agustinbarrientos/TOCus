@@ -40,6 +40,14 @@ function findControlOverrides( source: string, markup: string, stylesheetUrl?: U
 	const localStyles = source.replaceAll( /@use\s+['"]@tocus\/ui\/styles(?:\.scss)?['"];?/gu, '' );
 	const css = sass.compileString( localStyles, {
 		loadPaths: [ themeNodeModules ],
+		importers: [ {
+			/**
+			 * Resolves public theme exports the same way as the application bundler.
+			 * @param url - Sass import specifier.
+			 * @return Exported theme file, or null for ordinary Sass resolution.
+			 */
+			findFileUrl: ( url ) => url.startsWith( '@tocus/theme/' ) ? new URL( import.meta.resolve( url ) ) : null,
+		} ],
 		...( stylesheetUrl ? { url: stylesheetUrl } : {} ),
 	} ).css.replaceAll( /\/\*[\s\S]*?\*\//gu, '' );
 	const overrides: string[] = [];

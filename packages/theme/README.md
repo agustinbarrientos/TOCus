@@ -4,10 +4,11 @@
 
 ## Ownership
 
+- `src/styles/` owns emitted stylesheets and token tests; `src/utils/` owns Sass functions and mixins with their tests; `src/types/` owns runtime constants. Public package exports keep consumers independent of these internal paths. Assets stay in the single `assets/` directory.
 - `packages/ui/src/utils/theme/index.ts` owns library defaults and semantic variants, including complete foreground/background pairs for resting, hover and focus states, the native-select `ANGLE_DOWN` artwork and the default `SPINNER_THIRD` loader.
 - `packages/ui/src/components/provider/style.scss` owns shared layouts and cross-component interaction rules, including native disclosure `ANGLE_DOWN`/`ANGLE_UP` states and loader sizing, rotation and reduced-motion handling. Application SCSS owns only screen layout and unique branded artwork.
 - `packages/ui/src/components/provider/index.tsx` owns theme context, portals and style targets. The injected pause keeps styles, overlays and generated variables inside its own Shadow DOM; it must never style the website underneath it.
-- `tokens.scss`, `sizing.scss` and `typography/` remain framework-independent. `controls.scss` contains only the focus-ring mixin used by the native pause dialog, not another control library.
+- `src/styles/tokens/`, `src/utils/sizing/` and `src/utils/typography/` remain framework-independent. `src/utils/controls/index.scss` contains only the focus-ring mixin used by the native pause dialog, not another control library.
 
 ## Semantic distinctions
 
