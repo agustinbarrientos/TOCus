@@ -99,15 +99,12 @@ body { margin: 0; }
 	.hero h1 {
 		@include type.apply('display-large', $size: clamp(3rem, 5.6vw, 4.5rem),
 			$line-height: 1.02, $spacing: -0.025em);
-
-		max-width: 15ch;
 	}
 
 	.description {
 		@include type.apply('body-large', $size: clamp(1.05rem, 1.8vw, 1.4rem),
 			$line-height: 1.5, $spacing: 0);
 
-		max-width: 43ch;
 		margin: 1.4rem 0 0;
 	}
 
@@ -138,13 +135,9 @@ body { margin: 0; }
 		text-align: center;
 	}
 
-	.section-heading p { max-width: 50ch; }
-
 	.section-heading h2, .download-section h2, .how-it-works > h2 {
 		@include type.apply('display-large', $size: clamp(2.3rem, 4.2vw, 4rem),
 			$line-height: 1.12, $spacing: -0.025em);
-
-		max-width: 22ch;
 	}
 
 	.feature-strip p, .privacy-copy p, .section-heading p {
@@ -311,13 +304,10 @@ body { margin: 0; }
 
 		.hero h1 {
 			--tocus-typography-display-large-font-size: clamp(2.7rem, 10.4vw, 4.5rem);
-
-			max-width: 15ch;
 		}
 
 		.description {
 			margin-top: 1rem;
-			max-width: 32ch;
 			margin-inline: auto;
 		}
 
@@ -369,11 +359,6 @@ body { margin: 0; }
 	}
 }
 
-@media (width >= 64rem) and (height <= 60rem) {
-	// Use the available hero column so wider system fonts do not push the preview below the first screen.
-	.homepage .description { max-width: none; }
-}
-
 @media (width >= 64rem) and (height <= 52rem) {
 	.homepage {
 		.site-header { padding-block: 1rem; }
@@ -381,8 +366,6 @@ body { margin: 0; }
 
 		.hero h1 {
 			--tocus-typography-display-large-font-size: clamp(2.8rem, 4.4vw, 3.5rem);
-
-			max-width: none;
 		}
 
 		.description { margin-top: 0.8rem; }

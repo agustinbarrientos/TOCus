@@ -164,7 +164,6 @@
 	p {
 		@include typography.apply('body-small');
 
-		max-width: 17rem;
 		margin: var(--tocus-space-2) 0 0;
 		color: var(--tocus-color-on-surface-muted);
 	}

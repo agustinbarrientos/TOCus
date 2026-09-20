@@ -59,6 +59,26 @@ test.describe( 'migrated presentation', () => {
 		expect( layout?.footerLeft ).toBe( 96 );
 		expect( layout?.footerBottom ).toBeLessThanOrEqual( 1000 );
 	} );
+	test( 'lets onboarding descriptions use their parent width at every step', async ( { page } ) => {
+		for ( const viewport of [ { width: 1440, height: 1000 }, { width: 390, height: 844 } ] ) {
+			await page.setViewportSize( viewport );
+			await page.goto( `/apps/extension/tests/ui/index.html?surface=${ PresentationSurface.ONBOARDING }` );
+			for ( const heading of [ 'Choose your language', 'Make TOCus yours', 'Choose websites' ] ) {
+				await expect( page.getByRole( 'heading', { name: heading, exact: true } ) ).toBeVisible();
+				const header = page.locator( '.tocus-preferences-header' );
+				const parent = await header.boundingBox();
+				const description = await header.locator( 'p' ).boundingBox();
+				if ( ! parent || ! description ) {
+					throw new Error( 'The onboarding heading and description must have visible layout boxes.' );
+				}
+				expect( description.width, `${ heading } at ${ String( viewport.width ) }px` ).toBeCloseTo( parent.width, 0 );
+				expect( description.x ).toBeCloseTo( parent.x, 0 );
+				if ( heading !== 'Choose websites' ) {
+					await page.getByRole( 'button', { name: 'Continue', exact: true } ).click();
+				}
+			}
+		}
+	} );
 	test( 'keeps the original four-column language choices and two-column narrow layout', async ( { page } ) => {
 		await page.setViewportSize( { width: 1440, height: 1000 } );
 		await page.goto( `/apps/extension/tests/ui/index.html?surface=${ PresentationSurface.ONBOARDING }` );

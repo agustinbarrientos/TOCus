@@ -49,7 +49,7 @@
 		font-weight: 600;
 		color: var(--tocus-color-on-surface);
 	}
-	.mantine-InputWrapper-label { margin-bottom: var(--tocus-space-2); }
+	.mantine-InputWrapper-label, .tocus-field-header { margin-bottom: var(--tocus-space-2); }
 	.tocus-field-help { border-radius: var(--tocus-radius-small); }
 	.mantine-Modal-body .tocus-form-actions { padding: 0; }
 	.mantine-Modal-body p { margin: 0; }
@@ -225,6 +225,7 @@
 	}
 
 	.mantine-Slider-root { margin-block: var(--tocus-space-3); }
+	.tocus-field-header + .mantine-Slider-root { margin-top: 0; }
 
 	.mantine-Slider-mark {
 		border-color: var(--tocus-color-action);
@@ -452,13 +453,10 @@
 		p {
 			@include typography.apply('body-large');
 
-			max-width: 40rem;
 			margin: var(--tocus-space-3) 0 0;
 			color: var(--tocus-color-on-surface-muted);
 		}
 	}
-	.tocus-preferences-language-header p { max-width: 38rem; }
-	.tocus-preferences-sites-header p { max-width: 44rem; }
 	.tocus-preferences-appearance-actions { --tocus-action-height: 3.0625rem; }
 
 	.tocus-preferences-error {
