@@ -3,24 +3,27 @@
 .supported-services {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 1rem 2rem;
-	margin: 0;
+	gap: var(--tocus-space-2);
+	margin: var(--tocus-space-4) 0 0;
 	padding: 0;
 	list-style: none;
 }
 
 .supported-services li {
-	@include typography.apply('title-large');
+	@include typography.apply('body-small');
 
 	display: flex;
 	align-items: center;
-	gap: var(--tocus-space-3);
-	color: var(--tocus-color-action);
+	gap: var(--tocus-space-2);
+	padding: var(--tocus-space-2) var(--tocus-space-3);
+	border-radius: var(--tocus-radius-full);
+	background: var(--tocus-color-surface-container);
+	color: var(--tocus-color-on-surface);
 }
 
 .supported-services li img {
-	width: var(--tocus-space-6);
-	height: var(--tocus-space-6);
+	width: 1rem;
+	height: 1rem;
 	object-fit: contain;
 	flex: 0 0 auto;
 }

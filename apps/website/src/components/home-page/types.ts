@@ -1,4 +1,3 @@
-import type { Messages } from '@lingui/core';
 import type { LocalizedHomePageProperties } from '../../localization';
 import type { StatisticsPreviewFormatting } from '../statistics-preview/types';
 
@@ -7,7 +6,6 @@ import type { StatisticsPreviewFormatting } from '../statistics-preview/types';
  * @since 0.1.0
  */
 export interface HomePageProps extends LocalizedHomePageProperties {
-	demoMessages: Messages;
 	/** Serialized values keep SSR metrics stable while the chart hydrates inside the page provider. */
 	statisticsFormatting: StatisticsPreviewFormatting;
 }

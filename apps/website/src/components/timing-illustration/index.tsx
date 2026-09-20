@@ -22,6 +22,5 @@ export function TimingIllustration( props: TimingIllustrationProps ) {
 			<li><span className="timing-symbol timing-window"><span /></span>
 				<strong>{ catalog.timingBrowse }</strong></li>
 		</ol>
-		<figcaption>{ catalog.exampleTiming }</figcaption>
 	</figure>;
 }
