@@ -14,8 +14,12 @@ msgstr ""
 "Plural-Forms: \n"
 
 #: apps/website/src/localization/index.ts
-msgid "Privacy in your browser."
-msgstr "La confidentialité dans votre navigateur."
+msgid "{minutes}m"
+msgstr "{minutes}m"
+
+#: apps/website/src/localization/index.ts
+msgid "{seconds}s"
+msgstr "{seconds}s"
 
 #: apps/website/src/localization/index.ts
 msgid "10s pause"
@@ -26,20 +30,44 @@ msgid "5m browsing"
 msgstr "5 min de navigation"
 
 #: apps/website/src/localization/index.ts
+msgid "A capybara relaxing in a beach chair"
+msgstr "Un capybara qui se repose dans une chaise de plage"
+
+#: apps/website/src/localization/index.ts
 msgid "A preview of the breathing pause."
 msgstr "Un aperçu de la pause pour respirer."
+
+#: apps/website/src/localization/index.ts
+msgid "A quiet afternoon"
+msgstr "Un après-midi tranquille"
 
 #: apps/website/src/localization/index.ts
 msgid "A short pause before the websites you choose."
 msgstr "Une courte pause avant les sites que vous choisissez."
 
 #: apps/website/src/localization/index.ts
-msgid "A smiling capybara"
-msgstr "Un capybara souriant"
+msgid "Activity"
+msgstr "Activité"
 
 #: apps/website/src/localization/index.ts
-msgid "Add a pause to your browser."
-msgstr "Ajoutez une pause à votre navigateur."
+msgid "Add a pause to your browser"
+msgstr "Ajoutez une pause à votre navigateur"
+
+#: apps/website/src/localization/index.ts
+msgid "Add another site"
+msgstr "Ajouter un autre site"
+
+#: apps/website/src/localization/index.ts
+msgid "Add site"
+msgstr "Ajouter un site"
+
+#: apps/website/src/localization/index.ts
+msgid "All time"
+msgstr "Depuis le début"
+
+#: apps/website/src/localization/index.ts
+msgid "Allowances granted"
+msgstr "Fenêtres de visite accordées"
 
 #: apps/website/src/localization/index.ts
 msgid "Also available on"
@@ -50,6 +78,10 @@ msgid "Appearance"
 msgstr "Apparence"
 
 #: apps/website/src/localization/index.ts
+msgid "Approximately {time}"
+msgstr "Environ {time}"
+
+#: apps/website/src/localization/index.ts
 msgid "Breathe"
 msgstr "Respirez"
 
@@ -58,28 +90,36 @@ msgid "Breathe in"
 msgstr "Inspirez"
 
 #: apps/website/src/localization/index.ts
+msgid "Breathe out"
+msgstr "Expirez"
+
+#: apps/website/src/localization/index.ts
+msgid "Breathing guide"
+msgstr "Guide de respiration"
+
+#: apps/website/src/localization/index.ts
 msgid "Browse"
 msgstr "Naviguez"
 
 #: apps/website/src/localization/index.ts
-msgid "Browse until the next pause."
-msgstr "Naviguez jusqu'à la prochaine pause."
+msgid "Browse until the next pause"
+msgstr "Naviguez jusqu'à la prochaine pause"
 
 #: apps/website/src/localization/index.ts
 msgid "By default, the next pause comes five minutes after you select Continue."
 msgstr "Par défaut, la prochaine pause arrive cinq minutes après avoir sélectionné Continuer."
 
 #: apps/website/src/localization/index.ts
-msgid "Choose different active days and hours for each website. Pause timing applies to all your selected sites."
-msgstr "Choisissez des jours et des heures d'activité différents pour chaque site. Les durées de pause s'appliquent à tous les sites sélectionnés."
+msgid "Choose different active days and hours for each website."
+msgstr "Choisissez des jours et des heures d'activité différents pour chaque site."
 
 #: apps/website/src/localization/index.ts
 msgid "Choose sites"
 msgstr "Choisissez des sites"
 
 #: apps/website/src/localization/index.ts
-msgid "Choose your sites."
-msgstr "Choisissez vos sites."
+msgid "Choose your sites"
+msgstr "Choisissez vos sites"
 
 #: apps/website/src/localization/index.ts
 msgid "Choose your wait, browsing time, and schedule."
@@ -90,6 +130,10 @@ msgid "Coming soon"
 msgstr "Bientôt disponible"
 
 #: apps/website/src/localization/index.ts
+msgid "Completed waits"
+msgstr "Attentes terminées"
+
+#: apps/website/src/localization/index.ts
 msgid "Continue"
 msgstr "Continuer"
 
@@ -98,8 +142,20 @@ msgid "Continue after the pause"
 msgstr "Continuez après la pause"
 
 #: apps/website/src/localization/index.ts
+msgid "Current month"
+msgstr "Mois en cours"
+
+#: apps/website/src/localization/index.ts
+msgid "Current week"
+msgstr "Semaine en cours"
+
+#: apps/website/src/localization/index.ts
 msgid "Custom schedules for each site"
 msgstr "Des horaires personnalisés pour chaque site"
+
+#: apps/website/src/localization/index.ts
+msgid "Date"
+msgstr "Date"
 
 #. Language-menu autonym. Keep this language name written in German.
 #: apps/website/src/localization/index.ts
@@ -130,16 +186,20 @@ msgid "Español (vos)"
 msgstr "Español (vos)"
 
 #: apps/website/src/localization/index.ts
-msgid "Example data"
-msgstr "Données d’exemple"
+msgid "Estimated time reclaimed"
+msgstr "Temps récupéré estimé"
 
 #: apps/website/src/localization/index.ts
-msgid "Example timing"
-msgstr "Exemple de durées"
+msgid "example.com"
+msgstr "example.com"
 
 #: apps/website/src/localization/index.ts
 msgid "Explore the source on GitHub"
 msgstr "Explorer le code source sur GitHub"
+
+#: apps/website/src/localization/index.ts
+msgid "Finish setup"
+msgstr "Terminer la configuration"
 
 #: apps/website/src/localization/index.ts
 msgid "Follow the breathing guide. Your browsing time has not started yet."
@@ -155,16 +215,16 @@ msgid "Free and open source"
 msgstr "Gratuit et open source"
 
 #: apps/website/src/localization/index.ts
-msgid "Free and open source."
-msgstr "Gratuit et open source."
-
-#: apps/website/src/localization/index.ts
 msgid "How it works"
 msgstr "Comment ça marche"
 
 #: apps/website/src/localization/index.ts
-msgid "How TOCus works."
-msgstr "Comment fonctionne TOCus."
+msgid "How TOCus works"
+msgstr "Comment fonctionne TOCus"
+
+#: apps/website/src/localization/index.ts
+msgid "Interact with the capybara"
+msgstr "Interagissez avec le capybara"
 
 #. Language-menu autonym. Keep this language name written in Italian.
 #: apps/website/src/localization/index.ts
@@ -180,24 +240,12 @@ msgid "Meet the creator"
 msgstr "Découvrez le créateur"
 
 #: apps/website/src/localization/index.ts
+msgid "New tab"
+msgstr "Nouvel onglet"
+
+#: apps/website/src/localization/index.ts
 msgid "No account is needed to use the extension."
 msgstr "Aucun compte n'est nécessaire pour utiliser l'extension."
-
-#: apps/website/src/localization/index.ts
-msgid "You can use TOCus without an account."
-msgstr "Vous pouvez utiliser TOCus sans compte."
-
-#: apps/website/src/localization/index.ts
-msgid "The extension does not contact external services."
-msgstr "L'extension ne contacte aucun service externe."
-
-#: apps/website/src/localization/index.ts
-msgid "The extension has no analytics or advertising."
-msgstr "L'extension ne contient ni outils d'analyse d'utilisation ni publicité."
-
-#: apps/website/src/localization/index.ts
-msgid "TOCus pauses playing videos on supported sites during the wait and resumes them when you continue."
-msgstr "TOCus met les vidéos en cours en pause pendant l'attente sur les sites compatibles et reprend leur lecture quand vous continuez."
 
 #: apps/website/src/localization/index.ts
 msgid "Only when you want"
@@ -216,16 +264,32 @@ msgid "Open-source browser extension"
 msgstr "Extension de navigateur open source"
 
 #: apps/website/src/localization/index.ts
+msgid "Or press {key}"
+msgstr "Ou appuyez sur {key}"
+
+#: apps/website/src/localization/index.ts
 msgid "Pause and browsing time"
 msgstr "Temps de pause et de navigation"
 
 #: apps/website/src/localization/index.ts
-msgid "Pause before you scroll."
-msgstr "Faites une pause avant de faire défiler la page."
+msgid "Pause before you scroll"
+msgstr "Faites une pause avant de faire défiler la page"
 
 #: apps/website/src/localization/index.ts
-msgid "See counts of completed pauses and reconsidered visits."
-msgstr "Consultez le nombre de pauses terminées et de visites reconsidérées."
+msgid "Pause walkthrough"
+msgstr "Mettre la démonstration en pause"
+
+#: apps/website/src/localization/index.ts
+msgid "Period"
+msgstr "Période"
+
+#: apps/website/src/localization/index.ts
+msgid "Play walkthrough"
+msgstr "Lire la démonstration"
+
+#: apps/website/src/localization/index.ts
+msgid "Popular choices"
+msgstr "Choix populaires"
 
 #. Language-menu autonym for Brazilian Portuguese. Keep this language name written in Portuguese.
 #: apps/website/src/localization/index.ts
@@ -242,6 +306,10 @@ msgid "Privacy"
 msgstr "Confidentialité"
 
 #: apps/website/src/localization/index.ts
+msgid "Private and safe"
+msgstr "Privé et sécurisé"
+
+#: apps/website/src/localization/index.ts
 msgid "Read the code, suggest changes, or make it your own."
 msgstr "Lisez le code, proposez des modifications ou adaptez-le à vos besoins."
 
@@ -250,24 +318,32 @@ msgid "Read the privacy policy"
 msgstr "Lire la politique de confidentialité"
 
 #: apps/website/src/localization/index.ts
-msgid "Your pauses, over time."
-msgstr "Vos pauses au fil du temps."
+msgid "Ready when you are"
+msgstr "Continuez quand vous le souhaitez"
 
 #: apps/website/src/localization/index.ts
-msgid "TOCus pauses before opening the websites you add."
-msgstr "TOCus marque une pause avant d'ouvrir les sites que vous ajoutez."
+msgid "Reconsidered visits"
+msgstr "Visites reconsidérées"
+
+#: apps/website/src/localization/index.ts
+msgid "Replay walkthrough"
+msgstr "Revoir la démonstration"
+
+#: apps/website/src/localization/index.ts
+msgid "See counts of completed pauses and reconsidered visits."
+msgstr "Consultez le nombre de pauses terminées et de visites reconsidérées."
+
+#: apps/website/src/localization/index.ts
+msgid "See how much time you saved"
+msgstr "Voyez combien de temps vous avez gagné"
 
 #: apps/website/src/localization/index.ts
 msgid "Set the days and hours TOCus is active."
 msgstr "Définissez les jours et les heures d’activation de TOCus."
 
 #: apps/website/src/localization/index.ts
-msgid "Set the pause to fit your day."
-msgstr "Adaptez la pause à votre journée."
-
-#: apps/website/src/localization/index.ts
-msgid "Your settings and statistics stay in your browser. The extension works offline."
-msgstr "Vos réglages et vos statistiques restent dans votre navigateur. L'extension fonctionne hors ligne."
+msgid "Set the pause to fit your day"
+msgstr "Adaptez la pause à votre journée"
 
 #: apps/website/src/localization/index.ts
 msgid "Six palettes with light, dark, or system appearance. Motion follows your operating system's reduced motion setting."
@@ -278,16 +354,56 @@ msgid "Skip to content"
 msgstr "Aller au contenu"
 
 #: apps/website/src/localization/index.ts
+msgid "Slow days"
+msgstr "Des jours tranquilles"
+
+#: apps/website/src/localization/index.ts
+msgid "Space"
+msgstr "Espace"
+
+#: apps/website/src/localization/index.ts
+msgid "Statistics"
+msgstr "Statistiques"
+
+#: apps/website/src/localization/index.ts
+msgid "Stored on your device"
+msgstr "Données stockées sur votre appareil"
+
+#: apps/website/src/localization/index.ts
 msgid "Support"
 msgstr "Assistance"
 
 #: apps/website/src/localization/index.ts
-msgid "Take a moment before you continue."
-msgstr "Prenez un moment avant de continuer."
+msgid "Take a moment"
+msgstr "Prenez un instant"
+
+#: apps/website/src/localization/index.ts
+msgid "Take a moment before you continue"
+msgstr "Prenez un moment avant de continuer"
+
+#: apps/website/src/localization/index.ts
+msgid "The extension does not contact external services."
+msgstr "L'extension ne contacte aucun service externe."
+
+#: apps/website/src/localization/index.ts
+msgid "The extension has no advertising."
+msgstr "L'extension ne contient pas de publicité."
+
+#: apps/website/src/localization/index.ts
+msgid "The extension has no analytics."
+msgstr "L'extension ne collecte pas de statistiques d'utilisation."
 
 #: apps/website/src/localization/index.ts
 msgid "Time left"
 msgstr "Temps restant"
+
+#: apps/website/src/localization/index.ts
+msgid "Time spent pausing plus estimated browsing time avoided, based on your configured visit time."
+msgstr "Temps consacré aux pauses, plus une estimation du temps de navigation évité basée sur la durée de visite que vous avez configurée."
+
+#: apps/website/src/localization/index.ts
+msgid "Time you took to pause"
+msgstr "Temps consacré à vos pauses"
 
 #: apps/website/src/localization/index.ts
 msgid "TOCus adds a breathing pause to the websites you choose."
@@ -296,6 +412,14 @@ msgstr "TOCus ajoute une pause pour respirer aux sites web de votre choix."
 #: apps/website/src/localization/index.ts
 msgid "TOCus is an open-source browser extension."
 msgstr "TOCus est une extension de navigateur open source."
+
+#: apps/website/src/localization/index.ts
+msgid "TOCus pauses before opening the websites you add."
+msgstr "TOCus marque une pause avant d'ouvrir les sites que vous ajoutez."
+
+#: apps/website/src/localization/index.ts
+msgid "TOCus pauses playing videos on supported sites during the wait and resumes them when you continue."
+msgstr "TOCus met les vidéos en cours en pause pendant l'attente sur les sites compatibles et reprend leur lecture quand vous continuez."
 
 #: apps/website/src/localization/index.ts
 msgid "View the source"
@@ -310,6 +434,10 @@ msgid "Website added"
 msgstr "Site web ajouté"
 
 #: apps/website/src/localization/index.ts
+msgid "Website address"
+msgstr "Adresse du site"
+
+#: apps/website/src/localization/index.ts
 msgid "Website language"
 msgstr "Langue du site"
 
@@ -318,12 +446,16 @@ msgid "When the wait ends, select Continue to open the website, or close the tab
 msgstr "À la fin de l’attente, sélectionnez Continuer pour ouvrir le site web ou fermez l’onglet."
 
 #: apps/website/src/localization/index.ts
-msgid "Stored on your device."
-msgstr "Données stockées sur votre appareil."
+msgid "You can use TOCus without an account."
+msgstr "Vous pouvez utiliser TOCus sans compte."
 
 #: apps/website/src/localization/index.ts
-msgid "Your video pauses, too."
-msgstr "Votre vidéo fait aussi une pause."
+msgid "Your settings and statistics stay in your browser. The extension works offline."
+msgstr "Vos réglages et vos statistiques restent dans votre navigateur. L'extension fonctionne hors ligne."
+
+#: apps/website/src/localization/index.ts
+msgid "Your video pauses, too"
+msgstr "Votre vidéo fait aussi une pause"
 
 #. Language-menu autonym. Keep this language name written in Russian.
 #: apps/website/src/localization/index.ts
