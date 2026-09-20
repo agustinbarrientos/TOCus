@@ -1,40 +1,31 @@
 import { DemoChapter } from '../../components/product-demo/types';
 
 /**
- * Deliberate beats give the breathing pause more reading and animation time.
+ * Duration of each website-only demonstration beat.
  * @since 0.1.0
  */
-export const StoryChapterStart = {
-	[ DemoChapter.CHOOSE ]: 0,
-	[ DemoChapter.VISIT ]: 0.18,
-	[ DemoChapter.PAUSE ]: 0.30,
-	[ DemoChapter.CONTINUE ]: 0.66,
-	[ DemoChapter.BROWSE ]: 0.80,
+export const StoryChapterDuration = {
+	[ DemoChapter.CHOOSE ]: 4_000,
+	[ DemoChapter.VISIT ]: 3_000,
+	[ DemoChapter.PAUSE ]: 10_000,
+	[ DemoChapter.CONTINUE ]: 3_000,
+	[ DemoChapter.BROWSE ]: 5_000,
 } as const;
 
 /**
- * Selects the product scene matching the current explanation.
+ * Publishes the current demonstration frame.
  * @since 0.1.0
  */
-export type StoryChapterChangeHandler = ( chapter: DemoChapter ) => void;
-
-/**
- * Scrubs the active product scene using normalized chapter progress.
- * @since 0.1.0
- */
-export type StoryProgressChangeHandler = ( progress: number ) => void;
-
-/**
- * Chapter button action that follows the ordinary scroll position.
- * @since 0.1.0
- */
-export type StoryNavigationHandler = () => void;
-
-/**
- * CSS-owned document interval during which the story frame stays sticky.
- * @since 0.1.0
- */
-export interface StoryInterval {
-	start: number;
-	distance: number;
+export interface StoryFrame {
+	chapter: DemoChapter;
+	progress: number;
+	playing: boolean;
+	complete: boolean;
+	reducedMotion: boolean;
 }
+
+/**
+ * Receives playback state without owning a browser clock.
+ * @since 0.1.0
+ */
+export type StoryFrameHandler = ( frame: StoryFrame ) => void;

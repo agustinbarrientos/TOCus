@@ -1,190 +1,100 @@
 import { DemoChapter } from '../../components/product-demo/types';
-import { StoryChapterStart, type StoryChapterChangeHandler, type StoryInterval, type StoryNavigationHandler, type StoryProgressChangeHandler } from './types';
+import { StoryChapterDuration, type StoryFrameHandler } from './types';
 
 /**
- * Maps the native sticky browser's travel to five reversible product scenes.
- * Chapter buttons use the same interval, without changing layout or taking focus.
- * @param root - Website boundary containing the story and chapter buttons.
- * @param onChapterChange - Selects one of the five product steps.
- * @param onProgressChange - Scrubs the illustration within the current step.
- * @return Cleanup for scroll observation and button listeners.
+ * Plays a local demonstration while visible, with explicit pause and chapter controls.
+ * @param root - Story section containing the player and chapter buttons.
+ * @param onFrame - Receives active captions and the current illustrative frame.
+ * @return Cleanup for all browser observations and controls.
  * @since 0.1.0
  */
-export function createStoryMotion(
-	root: HTMLElement,
-	onChapterChange: StoryChapterChangeHandler,
-	onProgressChange?: StoryProgressChangeHandler,
-): () => void {
-	const chapters = Array.from( root.querySelectorAll<HTMLElement>( '[data-story-chapter]' ) );
-	const stage = root.querySelector<HTMLElement>( '.experience-stage' );
-	const layout = root.querySelector<HTMLElement>( '.story-layout' );
+export function createStoryMotion( root: HTMLElement, onFrame: StoryFrameHandler ): () => void {
 	const order = Object.values( DemoChapter );
-	const originalActive = root.getAttribute( 'data-story-active' );
-	const originalPinned = root.hasAttribute( 'data-story-pinned' );
-	const originalMarkers = new Map( chapters.map( ( chapter ) => [ chapter, chapter.getAttribute( 'data-current' ) ] ) );
-	const originalButtons = new Map( chapters.flatMap( ( chapter ) => {
-		const button = chapter.querySelector( 'button' );
-		return button ? [ [ button, button.getAttribute( 'aria-current' ) ] as const ] : [];
-	} ) );
-	const buttonListeners = new Map<HTMLButtonElement, StoryNavigationHandler>();
-	let selected: DemoChapter | null = null;
-	let previousProgress = -1;
-	let frame = 0;
-	let disposed = false;
-	let pinned = false;
-	let needsMeasurement = true;
-	let interval: StoryInterval = { start: 0, distance: 1 };
+	const motion = window.matchMedia( '(prefers-reduced-motion: reduce)' );
+	const listeners = new AbortController();
+	let chapter: DemoChapter = DemoChapter.CHOOSE;
+	let elapsed = 0;
+	let visible = false;
+	let requested = ! motion.matches;
+	let complete = false;
+	let animation = 0;
+	let previous = 0;
 
-	/**
-	 * Reads the CSS-owned sticky travel; rail items never determine scene duration.
-	 */
-	function measureStory(): void {
-		if ( ! stage || ! layout ) {
-			return;
-		}
-		const inset = Number.parseFloat( getComputedStyle( stage ).top ) || 0;
-		pinned = stage.offsetHeight + inset * 2 <= window.innerHeight;
-		root.toggleAttribute( 'data-story-pinned', pinned );
-		const bounds = layout.getBoundingClientRect();
-		interval = { start: window.scrollY + bounds.top - inset,
-			distance: Math.max( 1, bounds.height - stage.offsetHeight ) };
-		needsMeasurement = false;
+	/** Reports the selected scene and its elapsed fraction to React. */
+	function publish(): void {
+		onFrame( { chapter, progress: elapsed / StoryChapterDuration[ chapter ],
+			playing: requested && visible && ! document.hidden && ! motion.matches && ! complete,
+			complete, reducedMotion: motion.matches } );
 	}
 
 	/**
-	 * Publishes only changed scene state to the isolated story component.
-	 * @param chapter - Current explanation and illustration.
-	 * @param progress - Normalized position within this chapter.
+	 * Advances only elapsed foreground time; there is no scroll-owned progress.
+	 * @param now - Current animation frame timestamp.
 	 */
-	function selectChapter( chapter: DemoChapter, progress: number ): void {
-		if ( selected !== chapter ) {
-			selected = chapter;
-			previousProgress = -1;
-			for ( const element of chapters ) {
-				const current = element.dataset.storyChapter === chapter;
-				element.setAttribute( 'data-current', String( current ) );
-				const button = element.querySelector( 'button' );
-				if ( current ) {
-					button?.setAttribute( 'aria-current', 'step' );
-				} else {
-					button?.removeAttribute( 'aria-current' );
-				}
+	function tick( now: number ): void {
+		elapsed += previous ? now - previous : 0;
+		previous = now;
+		while ( elapsed >= StoryChapterDuration[ chapter ] ) {
+			const next = order[ order.indexOf( chapter ) + 1 ];
+			if ( ! next ) {
+				elapsed = StoryChapterDuration[ chapter ];
+				complete = true;
+				requested = false;
+				break;
 			}
-			onChapterChange( chapter );
+			elapsed -= StoryChapterDuration[ chapter ];
+			chapter = next;
 		}
-		if ( progress !== previousProgress ) {
-			previousProgress = progress;
-			onProgressChange?.( progress );
+		publish();
+		animation = complete ? 0 : requestAnimationFrame( tick );
+	}
+
+	/** Starts or suspends the single clock after visibility or user intent changes. */
+	function reconcile(): void {
+		cancelAnimationFrame( animation );
+		animation = 0;
+		previous = 0;
+		publish();
+		if ( requested && visible && ! document.hidden && ! motion.matches && ! complete ) {
+			animation = requestAnimationFrame( tick );
 		}
 	}
 
-	/** Updates scroll-owned scenes only when the complete stage can remain visible. */
-	function updateStory(): void {
-		cancelAnimationFrame( frame );
-		frame = 0;
-		if ( disposed || ! layout || ! stage ) {
-			return;
-		}
-		if ( needsMeasurement ) {
-			measureStory();
-		}
-		const { start, distance } = interval;
-		root.toggleAttribute( 'data-story-active', window.scrollY >= start );
-		if ( ! pinned ) {
-			if ( selected === null ) {
-				selectChapter( DemoChapter.CHOOSE, 1 );
+	root.addEventListener( 'click', ( event ) => {
+		const target = event.target instanceof Element ? event.target : null;
+		const step = target?.closest<HTMLElement>( '[data-story-chapter]' )?.dataset.storyChapter;
+		const selected = order.find( ( value ) => value === step );
+		if ( selected ) {
+			chapter = selected;
+			elapsed = 0;
+			complete = false;
+			requested = false;
+		} else if ( target?.closest( '[data-story-toggle]' ) ) {
+			if ( complete ) {
+				chapter = DemoChapter.CHOOSE;
+				elapsed = 0;
+				complete = false;
 			}
-			return;
-		}
-		const position = Math.max( 0, Math.min( 1, ( window.scrollY - start ) / distance ) );
-		const index = order.findLastIndex( ( chapter ) => position >= StoryChapterStart[ chapter ] );
-		const chapter = order[ index ];
-		if ( chapter ) {
-			const next = order[ index + 1 ];
-			const end = next ? StoryChapterStart[ next ] : 1;
-			const progress = ( position - StoryChapterStart[ chapter ] ) / ( end - StoryChapterStart[ chapter ] );
-			selectChapter( chapter, progress );
-		}
-	}
-
-	/** Coalesces scroll and resize notifications without running an idle animation loop. */
-	function scheduleUpdate(): void {
-		if ( ! disposed && frame === 0 ) {
-			frame = requestAnimationFrame( updateStory );
-		}
-	}
-
-	/** Rechecks intrinsic caption and scene height after fonts, content or viewport changes. */
-	function scheduleMeasurement(): void {
-		needsMeasurement = true;
-		scheduleUpdate();
-	}
-
-	for ( const element of chapters ) {
-		const button = element.querySelector( 'button' );
-		const index = order.findIndex( ( chapter ) => chapter === element.dataset.storyChapter );
-		if ( ! button || index < 0 ) {
-			continue;
-		}
-		/** Native click also handles Enter and Space exactly once while retaining focus. */
-		const navigate = () => {
-			measureStory();
-			const chapter = order[ index ];
-			if ( ! chapter ) {
-				return;
-			}
-			if ( pinned ) {
-				const { start, distance } = interval;
-				window.scrollTo( { top: Math.max( 0, start + distance * StoryChapterStart[ chapter ] + 1 ), behavior: 'instant' } );
-				updateStory();
-			} else {
-				selectChapter( chapter, 0 );
-			}
-		};
-		button.addEventListener( 'click', navigate );
-		buttonListeners.set( button, navigate );
-	}
-
-	window.addEventListener( 'scroll', scheduleUpdate, { passive: true } );
-	window.addEventListener( 'resize', scheduleMeasurement );
-	const resizeObserver = new ResizeObserver( scheduleMeasurement );
-	for ( const element of [ root, layout, stage ] ) {
-		if ( element ) {
-			resizeObserver.observe( element );
-		}
-	}
-	updateStory();
-
-	return () => {
-		disposed = true;
-		cancelAnimationFrame( frame );
-		window.removeEventListener( 'scroll', scheduleUpdate );
-		window.removeEventListener( 'resize', scheduleMeasurement );
-		resizeObserver.disconnect();
-		root.toggleAttribute( 'data-story-pinned', originalPinned );
-		for ( const [ button, listener ] of buttonListeners ) {
-			button.removeEventListener( 'click', listener );
-		}
-		for ( const [ element, value ] of originalButtons ) {
-			if ( value === null ) {
-				element.removeAttribute( 'aria-current' );
-			} else {
-				element.setAttribute( 'aria-current', value );
-			}
-		}
-		for ( const [ element, value ] of originalMarkers ) {
-			if ( value === null ) {
-				element.removeAttribute( 'data-current' );
-			} else {
-				element.setAttribute( 'data-current', value );
-			}
-		}
-		if ( originalActive === null ) {
-			root.removeAttribute( 'data-story-active' );
+			requested = ! requested;
 		} else {
-			root.setAttribute( 'data-story-active', originalActive );
+			return;
 		}
+		reconcile();
+	}, { signal: listeners.signal } );
+	motion.addEventListener( 'change', () => {
+		requested = false;
+		reconcile();
+	}, { signal: listeners.signal } );
+	document.addEventListener( 'visibilitychange', reconcile, { signal: listeners.signal } );
+	const observer = new IntersectionObserver( ( entries ) => {
+		visible = entries.some( ( entry ) => entry.isIntersecting );
+		reconcile();
+	}, { threshold: 0 } );
+	observer.observe( root.querySelector( '.product-demo-browser' ) ?? root );
+	reconcile();
+	return () => {
+		cancelAnimationFrame( animation );
+		listeners.abort();
+		observer.disconnect();
 	};
 }
-
-export type { StoryChapterChangeHandler, StoryProgressChangeHandler } from './types';
