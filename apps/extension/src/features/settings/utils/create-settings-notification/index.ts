@@ -18,6 +18,7 @@ export function createSettingsNotification(
 		[ SettingsFeedbackAction.SITE_ADDED ]: copy.siteAddedToDraft,
 		[ SettingsFeedbackAction.SITE_UPDATED ]: copy.siteUpdatedInDraft,
 		[ SettingsFeedbackAction.SITE_REMOVED ]: copy.siteRemovedFromDraft,
+		[ SettingsFeedbackAction.SITES_REMOVED ]: copy.sitesRemovedFromDraft,
 		[ SettingsFeedbackAction.DUPLICATE_SITE ]: copy.siteAlreadyExists,
 	};
 	return { message: messages[ action ],

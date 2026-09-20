@@ -29,7 +29,7 @@ test.describe( 'Website action snackbars', () => {
 		await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
 		await expect( page.getByRole( 'status' ).filter( { hasText: 'Site added. Save to apply your changes.' } ) ).toBeVisible();
 		expect( await page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 0 );
-		await page.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).click();
+		await page.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } ).click();
 		await page.getByRole( 'dialog' ).getByLabel( 'Name', { exact: true } ).fill( 'My reading' );
 		await page.getByRole( 'dialog' ).getByRole( 'button', { name: 'Done', exact: true } ).click();
 		await expect( page.getByRole( 'status' ).filter( { hasText: 'Site updated. Save to apply your changes.' } ) ).toBeVisible();

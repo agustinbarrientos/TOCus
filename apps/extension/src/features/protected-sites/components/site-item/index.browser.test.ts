@@ -28,7 +28,7 @@ test.describe( 'protected site item access recovery', () => {
 		expect( Math.abs( desktopIcon.y + desktopIcon.height / 2 - ( desktopButton.y + desktopButton.height / 2 ) ) )
 			.toBeLessThanOrEqual( 2 );
 		expect( desktopButton.x + desktopButton.width ).toBeLessThanOrEqual( desktopAlert.x + desktopAlert.width );
-		await page.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).click();
+		await page.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } ).click();
 		const editor = page.getByRole( 'dialog' );
 		await expect( editor.getByLabel( 'Name', { exact: true } ) ).toBeVisible();
 		await editor.getByRole( 'button', { name: 'Cancel', exact: true } ).click();

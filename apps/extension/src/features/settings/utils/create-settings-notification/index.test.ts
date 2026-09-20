@@ -11,6 +11,7 @@ describe( 'createSettingsNotification', () => {
 		[ SettingsFeedbackAction.SITE_ADDED, 'Site added. Save to apply your changes.', SnackbarTone.INFO ],
 		[ SettingsFeedbackAction.SITE_UPDATED, 'Site updated. Save to apply your changes.', SnackbarTone.INFO ],
 		[ SettingsFeedbackAction.SITE_REMOVED, 'Site removed. Save to apply your changes.', SnackbarTone.INFO ],
+		[ SettingsFeedbackAction.SITES_REMOVED, 'Selected websites removed. Save to apply.', SnackbarTone.INFO ],
 		[ SettingsFeedbackAction.DUPLICATE_SITE, 'This site is already in your list.', SnackbarTone.INFO ],
 	] as const )( 'maps %s to its completion or draft message and tone', ( action, message, tone ) => {
 		expect( createSettingsNotification( action, TestEnglishLocalizationBundle.settingsShell ) )

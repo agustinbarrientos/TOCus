@@ -1,11 +1,21 @@
 @use '@tocus/theme/typography' as typography;
 
 .settings-site-list {
+	--tocus-site-selection-width: var(--tocus-space-6);
+
 	display: grid;
 	gap: 0;
 	padding: 0;
 	margin: var(--tocus-space-3) 0 0;
 	list-style: none;
+}
+
+@media (hover: none), (pointer: coarse), (width <= 48rem) {
+	.settings-site-list:has(> [data-selectable]) {
+		--tocus-site-selection-width: calc(var(--tocus-space-6) + var(--tocus-space-3));
+
+		padding-inline-start: calc(var(--tocus-site-selection-width) + var(--tocus-space-1));
+	}
 }
 
 .settings-site-groups { margin-top: var(--tocus-space-5); }

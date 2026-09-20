@@ -60,7 +60,7 @@ async function prepareState( page: Page, name: string ): Promise<void> {
 			} );
 			await expect( page.getByRole( 'dialog' ).getByRole( 'button', { name: 'Remove', exact: true } ) ).toBeFocused();
 		} else {
-			await item.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).click();
+			await item.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } ).click();
 			await expect( page.getByRole( 'dialog' ).getByLabel( 'Name', { exact: true } ) ).toBeFocused();
 		}
 	}

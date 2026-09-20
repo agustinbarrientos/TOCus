@@ -3,6 +3,7 @@ import {
 	Alert,
 	ActionIcon,
 	Button,
+	Checkbox,
 	Group,
 	Stack,
 	Tooltip,
@@ -43,7 +44,14 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 			`${ props.scheduleCopy.formatWeekday( window.weekday ) } ${ window.start } - ${ window.fullDay ? '24:00' : window.end }` ).join( ' / ' );
 	const error = props.persistedEditing?.state.error;
 	return (
-		<li ref={ props.itemRef } className="settings-site-item" data-highlighted={ props.highlighted || undefined }>
+		<li ref={ props.itemRef } className="settings-site-item" data-highlighted={ props.highlighted || undefined }
+			data-selectable={ props.selection !== undefined || undefined }
+			data-selection-active={ props.selection?.active || undefined }>
+			{ props.selection && <Checkbox.Card className="settings-site-select" withBorder={ false }
+				aria-label={ copy.formatSelectSite( identity.name ) } checked={ props.selection.checked }
+				onChange={ props.selection.onChange } disabled={ disabled }>
+				<Checkbox.Indicator size="sm" disabled={ disabled } aria-hidden="true" />
+			</Checkbox.Card> }
 			<Stack gap={ 0 }>
 				<Group className="settings-site-row" wrap="nowrap" gap="var(--tocus-space-3)">
 					<Avatar className="tocus-native-avatar" src={ props.favicon }

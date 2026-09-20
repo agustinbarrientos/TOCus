@@ -1,5 +1,5 @@
 import type { I18n } from '@lingui/core';
-import { msg } from '@lingui/core/macro';
+import { msg, plural } from '@lingui/core/macro';
 import type { ProtectedSitesScreenCopy } from '../../../features/protected-sites/components/screen/types';
 import type { LocalizationFormatters } from '../create-localization-formatters';
 import { createProtectedSiteListCopy } from '../create-protected-site-list-copy';
@@ -16,6 +16,36 @@ export function createProtectedSitesCopy(
 	formatters: LocalizationFormatters,
 ): Readonly<ProtectedSitesScreenCopy> {
 	const listCopy = createProtectedSiteListCopy( i18n, formatters );
+
+	/**
+	 * Formats the bulk-removal action for the selected website count.
+	 * @param count - Number of selected websites.
+	 * @return Complete localized action label.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function formatRemoveSelected( count: number ): string {
+		return i18n._( msg( {
+			message: plural( { count }, {
+				one: 'Remove selected (#)',
+				other: 'Remove selected (#)',
+			} ),
+		} ) );
+	}
+
+	/**
+	 * Formats the bulk-removal confirmation heading for the selected website count.
+	 * @param count - Number of selected websites.
+	 * @return Complete localized removal question.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function formatRemoveSelectedQuestion( count: number ): string {
+		return i18n._( msg( {
+			message: plural( { count }, {
+				one: 'Remove # website?',
+				other: 'Remove # websites?',
+			} ),
+		} ) );
+	}
 
 	/**
 	 * Formats one addition announcement.
@@ -98,6 +128,11 @@ export function createProtectedSitesCopy(
 		loadErrorTitle: i18n._( msg`Websites could not load` ),
 		loadErrorDescription: i18n._( msg`TOCus could not load local settings. Nothing was changed.` ),
 		retry: i18n._( msg`Try again` ),
+		removeSelectedDescription: i18n._( msg`These websites will be removed when you save your changes.` ),
+		cancelRemoveSelected: i18n._( msg`Cancel` ),
+		confirmRemoveSelected: i18n._( msg`Remove` ),
+		formatRemoveSelected,
+		formatRemoveSelectedQuestion,
 		formatAddedAnnouncement,
 		formatUpdatedAnnouncement,
 		formatRemovedAnnouncement,

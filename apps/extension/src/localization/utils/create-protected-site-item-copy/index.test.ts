@@ -6,8 +6,9 @@ describe( 'createProtectedSiteItemCopy', () => {
 	it( 'creates concise editing copy and a contextual removal question', () => {
 		const copy = createProtectedSiteItemCopy( createTestI18n() );
 
-		expect( copy.edit ).toBe( 'Change schedule or site name' );
+		expect( copy.edit ).toBe( 'Change when TOCus pauses this site, or rename it' );
 		expect( copy.customScheduleLabel ).toBe( 'Use custom schedule' );
+		expect( copy.formatSelectSite( 'Chess.com' ) ).toBe( 'Select Chess.com' );
 		expect( copy.formatRemoveQuestion( 'Reddit' ) ).toBe( 'Remove Reddit?' );
 	} );
 } );

@@ -134,6 +134,13 @@ export interface ProtectedSiteItemCopy {
 	operationError: string;
 	configurationChangedError: string;
 	/**
+	 * Formats the accessible selection label for one website.
+	 * @param name - Current resolved display name.
+	 * @return Human-readable selection label.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	formatSelectSite( name: string ): string;
+	/**
 	 * Formats one removal confirmation heading.
 	 * @param name - Current resolved display name.
 	 * @return Human-readable removal question.
@@ -158,6 +165,8 @@ export interface ProtectedSiteDraftChangedEventDetail {
  * @since 0.1.0
  */
 export interface WebsiteItemProps {
+	/** Optional selection owned by the settings page, outside the row's identity grid. */
+	selection?: WebsiteItemSelection;
 	/** Allows the owner to reveal this row after an already-listed address is submitted. */
 	itemRef?: Ref<HTMLLIElement>;
 	/** Brief, non-animated emphasis after a duplicate-add attempt. */
@@ -180,6 +189,16 @@ export interface WebsiteItemProps {
 	onGrant: () => void;
 	onRemove: () => void;
 	onChange: ( details: WebsiteDetailsDraft ) => void;
+}
+
+/**
+ * Page-local selection state with no persistence or permission side effects.
+ * @since 0.1.0
+ */
+export interface WebsiteItemSelection {
+	checked: boolean;
+	active: boolean;
+	onChange: ( checked: boolean ) => void;
 }
 
 /**
