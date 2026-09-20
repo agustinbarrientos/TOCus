@@ -1,0 +1,4 @@
+$selector: ':root' !default;
+
+@use 'scale';
+@include scale.emit-tokens( $selector );
