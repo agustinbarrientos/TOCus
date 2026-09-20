@@ -3,13 +3,14 @@ import { PNG } from 'pngjs';
 import { expect, test } from '@playwright/test';
 import { compareScreenshot, ScreenshotColorOptions } from './index';
 
-const snapshot = 'apps/website/src/components/home-page/__snapshots__/chromium/website-english-desktop.png'.split( '/' );
+// Freeze the historical button so homepage redesigns cannot invalidate these pixel mutations.
+const snapshot = 'tests/visual/helpers/compare-screenshot/__fixtures__/website-button.png'.split( '/' );
 const extensionSnapshot = 'apps/extension/src/features/statistics/components/settings-screen/__snapshots__/chromium/statistics-settings-screen-unavailable-reset-confirmation-dark.png'.split( '/' );
 
 /**
  * Creates a changed actual image in memory without updating the reviewed reference.
  * @param change - Independent regression mutation applied to decoded reference pixels.
- * @param reference - Reviewed repository-relative screenshot path.
+ * @param reference - Repository-relative comparison fixture or reviewed screenshot path.
  * @return Encoded actual image passed through the real snapshot assertion.
  */
 function changedScreenshot( change: ( image: PNG ) => void, reference = snapshot ): Buffer {
@@ -22,12 +23,12 @@ function changedScreenshot( change: ( image: PNG ) => void, reference = snapshot
 function recordedRasterVariant(): Buffer {
 	return changedScreenshot( ( image ) => {
 		for ( const [ x, y, red, green, blue ] of [
-			[ 889, 351, 74, 61, 53 ], [ 888, 352, 48, 34, 25 ],
-			[ 889, 352, 60, 46, 37 ], [ 888, 353, 48, 34, 25 ],
-			[ 889, 353, 76, 63, 54 ], [ 888, 354, 48, 34, 25 ],
-			[ 889, 354, 97, 85, 76 ], [ 888, 355, 48, 34, 25 ],
-			[ 888, 356, 50, 36, 27 ], [ 889, 356, 148, 139, 131 ],
-			[ 888, 357, 66, 53, 44 ], [ 889, 357, 184, 176, 169 ],
+			[ 345, 35, 74, 61, 53 ], [ 344, 36, 48, 34, 25 ],
+			[ 345, 36, 60, 46, 37 ], [ 344, 37, 48, 34, 25 ],
+			[ 345, 37, 76, 63, 54 ], [ 344, 38, 48, 34, 25 ],
+			[ 345, 38, 97, 85, 76 ], [ 344, 39, 48, 34, 25 ],
+			[ 344, 40, 50, 36, 27 ], [ 345, 40, 148, 139, 131 ],
+			[ 344, 41, 66, 53, 44 ], [ 345, 41, 184, 176, 169 ],
 		] as const ) {
 			image.data.set( [ red, green, blue, 255 ], ( y * image.width + x ) * 4 );
 		}
@@ -41,8 +42,8 @@ test( 'website threshold accepts the recorded CI rounded-edge color variance', a
 test( 'website threshold still rejects a one-pixel layout shift', async () => {
 	const actual = changedScreenshot( ( image ) => {
 		const source = Buffer.from( image.data );
-		for ( let y = 321; y < 384; y++ ) {
-			for ( let x = 549; x < 892; x++ ) {
+		for ( let y = 5; y < 68; y++ ) {
+			for ( let x = 5; x < 348; x++ ) {
 				const offset = ( y * image.width + x ) * 4;
 				image.data.set( source.subarray( offset - 4, offset ), offset );
 			}
@@ -53,8 +54,8 @@ test( 'website threshold still rejects a one-pixel layout shift', async () => {
 
 test( 'website threshold still rejects a changed button fill', async () => {
 	const actual = changedScreenshot( ( image ) => {
-		for ( let y = 337; y < 347; y++ ) {
-			for ( let x = 580; x < 590; x++ ) {
+		for ( let y = 21; y < 31; y++ ) {
+			for ( let x = 36; x < 46; x++ ) {
 				image.data.set( [ 68, 54, 45, 255 ], ( y * image.width + x ) * 4 );
 			}
 		}
@@ -64,8 +65,8 @@ test( 'website threshold still rejects a changed button fill', async () => {
 
 test( 'website threshold still rejects missing button text', async () => {
 	const actual = changedScreenshot( ( image ) => {
-		for ( let y = 340; y < 365; y++ ) {
-			for ( let x = 610; x < 820; x++ ) {
+		for ( let y = 24; y < 49; y++ ) {
+			for ( let x = 66; x < 276; x++ ) {
 				image.data.set( [ 48, 34, 25, 255 ], ( y * image.width + x ) * 4 );
 			}
 		}
@@ -83,8 +84,8 @@ test( 'website threshold still rejects changed image dimensions', async () => {
 
 test( 'website threshold still rejects a visibly transparent button', async () => {
 	const actual = changedScreenshot( ( image ) => {
-		for ( let y = 337; y < 347; y++ ) {
-			for ( let x = 580; x < 590; x++ ) {
+		for ( let y = 21; y < 31; y++ ) {
+			for ( let x = 36; x < 46; x++ ) {
 				image.data[ ( y * image.width + x ) * 4 + 3 ] = 180;
 			}
 		}
