@@ -1,0 +1,4 @@
+@function size($multiple) {
+	/* Surface dimensions share one inherited unit so injected UI can use its own CSS pixel baseline while browser zoom remains available. */
+	@return calc(var(--tocus-size-unit) * #{$multiple});
+}
