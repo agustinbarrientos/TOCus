@@ -1,4 +1,3 @@
-import type { Messages } from '@lingui/core';
 import type { WebsiteCatalog } from '../../localization/types';
 
 /**
@@ -7,7 +6,5 @@ import type { WebsiteCatalog } from '../../localization/types';
  */
 export interface ProductStoryProps {
 	catalog: Readonly<WebsiteCatalog>;
-	languageTag: string;
-	messages: Messages;
 	enhanced: boolean;
 }
