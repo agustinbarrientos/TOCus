@@ -1,5 +1,5 @@
-import { useState, type SubmitEvent } from 'react';
-import { Button, Group, Modal, Stack } from '@tocus/ui';
+import { useId, useState, type SubmitEvent } from 'react';
+import { Button, Group, Modal, Stack, useFocusReturn } from '@tocus/ui';
 import { Feedback } from '../../../settings/components/feedback';
 import { toSchedule } from '../../../settings/utils/schedule-draft';
 import { WebsiteDetails } from '../website-details';
@@ -54,15 +54,18 @@ function WebsiteEditorForm( props: WebsiteEditorProps ) {
  * @since 0.1.0
  */
 export function WebsiteEditor( props: WebsiteEditorProps ) {
+	const stackId = useId();
+	useFocusReturn( { opened: props.opened } );
 	/** Keeps pending saves inside their dialog until the owner reports completion. */
 	function close(): void {
 		if ( ! props.disabled ) {
 			props.onCancel();
 		}
 	}
-	return <Modal opened={ props.opened } title={ props.name } size="lg" centered onClose={ close }
+	return <Modal.Stack><Modal stackId={ stackId } opened={ props.opened } title={ props.name } size="lg" centered onClose={ close }
 		withCloseButton={ false } closeOnClickOutside={ false } closeOnEscape={ ! props.disabled }
+		returnFocus={ false }
 		aria-busy={ props.disabled }>
 		{ props.opened && <WebsiteEditorForm { ...props } onCancel={ close } /> }
-	</Modal>;
+	</Modal></Modal.Stack>;
 }

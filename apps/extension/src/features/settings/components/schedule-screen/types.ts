@@ -146,6 +146,15 @@ export interface ScheduleScreenCopy {
 	endTimeLabel: string;
 	removeWindow: string;
 	addWindow: string;
+	presetWeekdaysWorkingHours: string;
+	presetWeekdaysAllDay: string;
+	presetWeekendsAllDay: string;
+	clearWindows: string;
+	clearWindowsTitle: string;
+	clearWindowsDescription: string;
+	cancelClearWindows: string;
+	emptyWindowsMessage: string;
+	allDayLabel: string;
 	startTimeRequiredError: string;
 	endTimeRequiredError: string;
 	equalTimeError: string;

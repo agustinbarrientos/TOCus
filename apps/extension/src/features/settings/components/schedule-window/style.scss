@@ -12,3 +12,11 @@
 }
 
 .settings-schedule-remove { margin-top: var(--tocus-space-1); }
+
+.settings-schedule-day-hint {
+	@include typography.apply('body-small');
+
+	display: block;
+	margin-top: var(--tocus-space-1);
+	color: var(--tocus-color-on-surface-muted);
+}

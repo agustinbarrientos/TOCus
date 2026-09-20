@@ -1,5 +1,6 @@
 import type {
 	ReactNode,
+	RefObject,
 } from 'react';
 
 /**
@@ -20,6 +21,8 @@ export interface ConfirmationSaveAction {
 export interface ConfirmationProps {
 	opened: boolean;
 	inline?: boolean;
+	/** Focus destination after closing a modal whose triggering action becomes unavailable. */
+	returnFocusRef?: RefObject<HTMLButtonElement | null>;
 	/** Restores the established first focused action for an existing confirmation flow. */
 	focusConfirm?: boolean;
 	title: string;
