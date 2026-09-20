@@ -66,7 +66,7 @@ test.describe( 'public product presentation', () => {
 						await expect.poll( () => page.evaluate( () => document.fonts.status ) ).toBe( 'loaded' );
 						expect( await page.locator( 'h1' ).innerText() ).not.toBe( 'TOCus' );
 						await expect( page.locator( '.description' ) ).toBeVisible();
-						const fallback = page.locator( '.story-fallback' );
+						const fallback = page.locator( '.story-steps' );
 						const fallbackItems = fallback.locator( ':scope > li' );
 						expect( await fallbackItems.count() ).toBe( 5 );
 						// The no-JavaScript document is settled; these independent reads share no mutable state.
@@ -83,8 +83,8 @@ test.describe( 'public product presentation', () => {
 						const [ actionCount, visibleActionCount, fallbackFits, mascotCount, languageCount,
 							currentLanguageCount, externalLinks, blankLinkRelations, fitsViewport,
 						] = await Promise.all( [
-							page.locator( '.story-step-action' ).count(),
-							page.locator( '.story-step-action:visible' ).count(),
+							page.locator( 'button.story-step-action' ).count(),
+							page.locator( 'button.story-step-action:visible' ).count(),
 							fallback.evaluate( ( element ) => element.scrollWidth <= element.clientWidth ),
 							page.locator( 'main img[data-mascot]' ).count(),
 							page.locator( '#languages a[lang]' ).count(),
@@ -100,7 +100,7 @@ test.describe( 'public product presentation', () => {
 							expect( page.locator( '#privacy' ) ).toBeVisible(),
 							expect( page.locator( '.product-demo-browser' ) ).toBeVisible(),
 						] );
-						expect( actionCount ).toBe( 5 );
+						expect( actionCount ).toBe( 0 );
 						expect( visibleActionCount ).toBe( 0 );
 						expect( fallbackFits, route ).toBe( true );
 						expect( mascotCount ).toBe( 2 );

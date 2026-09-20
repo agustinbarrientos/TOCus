@@ -71,7 +71,7 @@ describe( 'OnboardingSiteSuggestions', () => {
 	} );
 
 	it( 'contains only the approved self-contained SVG files', async () => {
-		const iconDirectory = new URL( '../../assets/site-icons/', import.meta.url );
+		const iconDirectory = new URL( '.', import.meta.resolve( '@tocus/theme/site-icons/site-youtube.svg' ) );
 		const filenames = ( await readdir( iconDirectory ) ).sort();
 		const expectedFilenames = ExpectedSuggestions.map( ( suggestion ) => `site-${ suggestion.id }.svg` ).sort();
 

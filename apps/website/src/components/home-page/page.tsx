@@ -3,39 +3,26 @@ import { Anchor, Brand, TocusAppearance, TocusProvider } from '@tocus/ui';
 import { DownloadLink, DownloadLinks } from '../download-links';
 import { ExternalLink, WebsiteLink } from '../site-links';
 import { ProductStory } from '../product-story';
-import { DemoChapter } from '../product-demo/types';
 import { TimingIllustration } from '../timing-illustration';
 import { StatisticsPreview } from '../statistics-preview';
 import { Mascot } from '../mascot';
 import { LanguageMenu } from '../language-menu';
 import { SupportedServices } from '../supported-services';
-import { createStoryMotion } from '../../services/story-motion';
-import { createHomepageMotion } from '../../services/homepage-motion';
 import type { HomePageProps } from './types';
 
 /**
- * Introduces TOCus through one scroll-driven browser and factual product sections.
+ * Introduces TOCus through an interactive illustration and independently playable demonstration.
  * @param props - Current locale, routes and packaged product messages.
  * @return Progressively enhanced website without visitor tracking.
  * @since 0.1.0
  */
 export default function HomePage( props: HomePageProps ) {
-	const { localization, localizations, demoMessages, statisticsFormatting } = props;
+	const { localization, localizations, statisticsFormatting } = props;
 	const { catalog } = localization;
 	const scene = useRef<HTMLDivElement>( null );
-	const [ chapter, setChapter ] = useState<DemoChapter>( DemoChapter.CHOOSE );
-	const [ progress, setProgress ] = useState( 0 );
 	const [ enhanced, setEnhanced ] = useState( false );
 	useEffect( () => {
 		setEnhanced( true );
-		if ( scene.current !== null ) {
-			const stopStory = createStoryMotion( scene.current, setChapter, setProgress );
-			const stopMotion = createHomepageMotion( scene.current );
-			return () => {
-				stopStory();
-				stopMotion();
-			};
-		}
 	}, [] );
 	return <TocusProvider appearance={ TocusAppearance.LIGHT }>
 		<div className="website homepage" ref={ scene } data-enhanced={ enhanced }>
@@ -43,7 +30,10 @@ export default function HomePage( props: HomePageProps ) {
 			<div className="page-shell">
 				<header className="site-header">
 					<Brand />
-					<DownloadLink label={ catalog.getExtension } />
+					<div className="site-header-actions">
+						<DownloadLink label={ catalog.getExtension } />
+						{ enhanced && <LanguageMenu localization={ localization } localizations={ localizations } /> }
+					</div>
 				</header>
 				<main id="main-content" tabIndex={ -1 }>
 					<section className="hero" aria-labelledby="page-title">
@@ -54,68 +44,67 @@ export default function HomePage( props: HomePageProps ) {
 								<DownloadLinks label={ catalog.downloadFor } alsoAvailable={ catalog.alsoAvailable } />
 							</div>
 						</div>
-						<div className="hero-art"><Mascot alt={ catalog.mascotAlt } /></div>
+						<div className="hero-art"><Mascot alt={ catalog.mascotAlt }
+							interactionLabel={ catalog.mascotInteractionLabel } /></div>
 					</section>
-					<ProductStory catalog={ catalog } languageTag={ localization.languageTag }
-						messages={ demoMessages } chapter={ chapter } progress={ progress } enhanced={ enhanced } />
+					<ProductStory catalog={ catalog } enhanced={ enhanced } />
 					<section className="settings-overview website-section" id="settings" aria-labelledby="settings-title">
 						<div className="section-heading" data-story-reveal>
 							<h2 id="settings-title">{ catalog.settingsTitle }</h2>
 							<p>{ catalog.timingDescription }</p>
 						</div>
 						<TimingIllustration catalog={ catalog } />
-						<div className="feature-strip">
-							<div><h3>{ catalog.scheduleTitle }</h3><p>{ catalog.scheduleDescription }</p></div>
-							<div><h3>{ catalog.sitesTitle }</h3><p>{ catalog.sitesDescription }</p></div>
-						</div>
-						<div className="media-feature">
-							<div><h3>{ catalog.mediaTitle }</h3><p>{ catalog.mediaDescription }</p></div>
-							<SupportedServices />
-						</div>
+						<ul className="feature-strip" role="list">
+							<li><h3>{ catalog.scheduleTitle }</h3><p>{ catalog.scheduleDescription }</p></li>
+							<li><h3>{ catalog.sitesTitle }</h3><p>{ catalog.sitesDescription }</p></li>
+							<li><h3>{ catalog.mediaTitle }</h3><p>{ catalog.mediaDescription }</p>
+								<SupportedServices />
+							</li>
+						</ul>
 					</section>
 					<section className="statistics-section website-section" id="statistics" aria-labelledby="statistics-title">
 						<div className="section-heading" data-story-reveal>
 							<h2 id="statistics-title">{ catalog.statisticsTitle }</h2>
 							<p>{ catalog.statisticsDescription }</p>
 						</div>
-						<StatisticsPreview languageTag={ localization.languageTag } messages={ demoMessages }
-							label={ catalog.exampleData } formatting={ statisticsFormatting } />
+						<StatisticsPreview languageTag={ localization.languageTag } catalog={ catalog }
+							formatting={ statisticsFormatting } />
 					</section>
 					<section className="privacy-section website-section" id="privacy" aria-labelledby="privacy-title">
-						<div className="privacy-statement" data-story-reveal>
+						<div className="section-heading">
 							<h2 id="privacy-title">{ catalog.privacyTitle }</h2>
-							<ul role="list" className="privacy-facts">
-								<li>{ catalog.privacyAccounts }</li>
-								<li>{ catalog.privacyTracking }</li>
-								<li>{ catalog.privacyCalls }</li>
-							</ul>
 						</div>
-						<div className="privacy-copy">
-							<h3>{ catalog.privacyLocal }</h3>
-							<p>{ catalog.privacy }</p>
-							<Anchor href="/privacy/" underline="always">{ catalog.readPrivacy }</Anchor>
-						</div>
-					</section>
-					<section className="open-source website-section" aria-labelledby="open-title" data-story-reveal>
-						<div>
-							<h2 id="open-title">{ catalog.openSourceTitle }</h2>
-							<p>{ catalog.openSourceDescription }</p>
-							<ExternalLink href={ WebsiteLink.SOURCE }>{ catalog.sourceShort }</ExternalLink>
-						</div>
-						<div className="maker-story">
-							<p>{ catalog.creatorStory }</p>
-							<div className="maker-credit">
-								<span>{ catalog.madeBy }</span>
-								<ExternalLink href={ WebsiteLink.AUTHOR }>
-									<img src="/images/author-favicon.png" width="28" height="28" alt="" />Agustin Barrientos
-								</ExternalLink>
+						<div className="privacy-statement">
+							<div className="privacy-copy">
+								<h3>{ catalog.privacyLocal }</h3>
+								<div className="privacy-body">
+									<p>{ catalog.privacy }</p>
+									<p>{ catalog.privacyAccounts } { catalog.privacyTracking }{ ' ' }
+										{ catalog.privacyCalls }</p>
+								</div>
+								<Anchor href="/privacy/" underline="always">{ catalog.readPrivacy }</Anchor>
+							</div>
+							<div className="privacy-copy">
+								<h3 id="open-title">{ catalog.openSourceTitle }</h3>
+								<div className="privacy-body">
+									<p>{ catalog.openSourceDescription }</p>
+									<p>{ catalog.privacyAdvertising }</p>
+								</div>
+								<ExternalLink href={ WebsiteLink.SOURCE }>{ catalog.sourceShort }</ExternalLink>
+								<div className="maker-credit">
+									<span>{ catalog.madeBy }</span>
+									<ExternalLink href={ WebsiteLink.AUTHOR }>
+										<img src="/images/author-favicon.png" width="28" height="28" alt="" />Agustin Barrientos
+									</ExternalLink>
+								</div>
 							</div>
 						</div>
 					</section>
 					<section className="download-section" id="downloads" aria-labelledby="download-title">
 						<h2 id="download-title">{ catalog.downloadTitle }</h2>
 						<DownloadLinks label={ catalog.downloadFor } alsoAvailable={ catalog.alsoAvailable } />
-						<div className="footer-mascot"><Mascot alt="" loading="lazy" /></div>
+						<div className="footer-mascot"><img data-mascot src="/images/mascot-peek.webp"
+							width="1144" height="1145" alt="" loading="lazy" /></div>
 					</section>
 				</main>
 				<footer className="site-footer">
@@ -127,9 +116,8 @@ export default function HomePage( props: HomePageProps ) {
 							<ExternalLink href={ WebsiteLink.SOURCE }>{ catalog.sourceShort }</ExternalLink>
 						</div>
 					</div>
-					<div id="languages">
-						{ enhanced && <LanguageMenu localization={ localization } localizations={ localizations } /> }
-						<nav aria-label={ catalog.languageMenuLabel } hidden={ enhanced }>
+					<div id="languages" hidden={ enhanced }>
+						<nav aria-label={ catalog.languageMenuLabel }>
 							<ul role="list">
 								{ localizations.map( ( option ) => <li key={ option.language }>
 									<Anchor href={ option.path } lang={ option.languageTag }

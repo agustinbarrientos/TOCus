@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Alert, Avatar, Brand, Button, Checkbox, Icon, IconName, Loader, Modal, NativeSelect, NavLink, Portal, Radio, Select, Slider, Stack, Stepper, TextInput, Title, TocusProvider, TocusAppearance, TocusPalette } from '../../src';
 import avatarImage from '../../../theme/assets/icon.svg?url';
-import '../../src/styles.scss';
+import '../../src/components/provider/style.scss';
 import { FixtureChoice, FixtureFrequency, FixtureMediaMode } from './types';
 import { NativeNotice } from '../../src';
 

@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { expect, test, type Route } from '@playwright/test';
+import { SamplePeriod } from '../../src/components/statistics-preview/types';
 
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 const PublicRoutes = [ '/', '/de/', '/es/', '/es-ar/', '/fr/', '/it/', '/ja/', '/pt-br/', '/pt-pt/', '/ru/' ];
@@ -48,8 +49,8 @@ test.describe( 'localized statistics hydration', () => {
 						const serverDailyDates = await serverPage.locator( '.statistics-preview tbody th' ).allTextContents();
 						const [ , secondDailyValue = '' ] = serverDailyValues;
 						const [ , secondDailyDate = '' ] = serverDailyDates;
-						expect( serverDailyValues, route ).toHaveLength( 7 );
-						expect( serverDailyDates, route ).toHaveLength( 7 );
+						expect( serverDailyValues, route ).toHaveLength( 31 );
+						expect( serverDailyDates, route ).toHaveLength( 31 );
 						expect( secondDailyValue, route ).not.toBe( '' );
 						expect( secondDailyDate, route ).not.toBe( '' );
 						expect( await clientPage.locator( '.statistics-preview tbody td' ).allTextContents(), route ).toEqual( serverDailyValues );
@@ -65,6 +66,20 @@ test.describe( 'localized statistics hydration', () => {
 						await expect( tooltip ).toBeVisible();
 						await expect( tooltip ).toContainText( secondDailyDate );
 						await expect( tooltip ).toContainText( secondDailyValue );
+						const period = clientPage.locator( '.statistics-preview select' );
+						for ( const [ selection, rows ] of [ [ SamplePeriod.CURRENT_WEEK, 5 ],
+							[ SamplePeriod.CURRENT_MONTH, 31 ] ] as const ) {
+							await period.selectOption( selection );
+							await expect( clientPage.locator( '.statistics-preview tbody tr' ) ).toHaveCount( rows );
+							const metrics = await clientPage.locator( '.statistics-preview dd' ).allTextContents();
+							expect( metrics ).toHaveLength( 5 );
+							expect( metrics.every( ( value, index ) => value !== serverMetrics[ index ] ) )
+								.toBe( true );
+						}
+						await period.selectOption( SamplePeriod.ALL );
+						expect( await clientPage.locator( '.statistics-preview dd' ).allTextContents() )
+							.toEqual( serverMetrics );
+						await expect( clientPage.locator( '.statistics-preview tbody tr' ) ).toHaveCount( 31 );
 						expect( errors, route ).toEqual( [] );
 					} );
 				}

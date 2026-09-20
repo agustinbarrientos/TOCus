@@ -46,38 +46,52 @@ test.describe( 'the product story', () => {
 							if ( ! bounds ) {
 								throw new Error( 'The current chapter must have a visible browser illustration.' );
 							}
-							expect( bounds.y ).toBeGreaterThanOrEqual( 0 );
-							expect( bounds.y + bounds.height ).toBeLessThanOrEqual( viewport.height );
+							if ( await page.locator( '.homepage' ).evaluate( ( element ) => element.hasAttribute( 'data-story-pinned' ) ) ) {
+								expect( bounds.y ).toBeGreaterThanOrEqual( 0 );
+								expect( bounds.y + bounds.height ).toBeLessThanOrEqual( viewport.height );
+							} else {
+								// A short screen must allow the full-sized scene to scroll naturally into view.
+								expect( await page.locator( '.experience-stage' ).evaluate( ( element ) =>
+									getComputedStyle( element ).position,
+								) ).toBe( 'static' );
+							}
 							if ( chapter === DemoChapter.CHOOSE ) {
 								expect( await demo.locator( '.product-demo-site-option' ).count() ).toBe( 6 );
 								expect( await demo.locator( '.product-demo-site-option[data-selected="true"]' ).count() ).toBeGreaterThan( 0 );
 								for ( const name of [ 'YouTube', 'Instagram', 'Reddit' ] ) {
-									await expect( demo.getByText( name, { exact: true } ) ).toBeVisible();
+									const label = demo.getByText( name, { exact: true } ).filter( { visible: true } );
+									await expect( label ).toBeVisible();
 								}
+								expect( await demo.locator( '.product-demo-site-check .tocus-icon' ).evaluateAll( ( icons ) =>
+									icons.every( ( icon ) => {
+										const mark = icon.getBoundingClientRect();
+										const slot = icon.parentElement?.getBoundingClientRect();
+										return slot !== undefined &&
+											mark.width <= slot.width && mark.height <= slot.height;
+									} ),
+								) ).toBe( true );
 							}
-							if ( chapter === DemoChapter.VISIT || chapter === DemoChapter.BROWSE ) {
+							if ( chapter === DemoChapter.VISIT ) {
+								await expect( demo.locator( '.product-demo-address' ) ).toBeEmpty();
+								await expect( demo.locator( '.product-demo-new-tab:visible' ) ).toContainText( 'YouTube' );
+								await expect( demo.locator( '.product-demo-youtube:visible' ) ).toHaveCount( 0 );
+							}
+							if ( chapter === DemoChapter.BROWSE ) {
 								expect( await demo.locator( '.product-demo-address' ).innerText() ).toBe( 'youtube.com' );
-								await expect( demo.locator( '.product-demo-youtube' ) ).toBeVisible();
+								await expect( demo.locator( '.product-demo-youtube:visible' ) ).toBeVisible();
 							}
 							if ( chapter === DemoChapter.PAUSE ) {
-								const canvas = demo.locator( 'canvas' );
-								expect( await canvas.getAttribute( 'data-still' ) ).toBe( 'true' );
-								await expect.poll( () => canvas.evaluate( ( element ) =>
-									( element as HTMLCanvasElement ).width,
-								) ).not.toBe( 300 );
-								const frame = await canvas.evaluate( ( element ) =>
-									( element as HTMLCanvasElement ).toDataURL(),
-								);
-								await page.waitForTimeout( 160 );
-								expect( await canvas.evaluate( ( element ) =>
-									( element as HTMLCanvasElement ).toDataURL(),
-								) ).toBe( frame );
-								expect( await demo.locator( '.product-demo-continue' ).isEnabled() ).toBe( false );
+								const sphere = demo.locator( '.product-demo-sphere:visible' );
+								await expect( sphere ).toHaveAttribute( 'data-still', 'true' );
+								await expect( sphere.locator( '.product-demo-orb' ) ).toBeVisible();
+								await expect( demo.locator( '.product-demo-countdown:visible' ) ).toHaveText( '10s' );
+								await expect( demo.locator( '.product-demo-countdown:visible' ) ).toHaveCSS( 'font-size', '16px' );
+								await expect( demo.locator( '.product-demo-continue:visible' ) ).toHaveCount( 0 );
 							}
 							if ( chapter === DemoChapter.CONTINUE ) {
 								await expect( demo.locator( '.product-demo-ready' ) ).toBeVisible();
-								expect( await demo.locator( '.product-demo-continue' ).innerText() ).toBe( 'Continue' );
-								await demo.locator( '.product-demo-continue' ).focus();
+								expect( await demo.locator( '.product-demo-continue:visible' ).innerText() ).toBe( 'Continue' );
+								await demo.locator( '.product-demo-continue:visible' ).focus();
 								await page.keyboard.press( 'Space' );
 								await expect.poll( () => demo.getAttribute( 'data-scene' ) ).toBe( DemoChapter.BROWSE );
 								const browseButton = page.locator( `[data-story-chapter="${ DemoChapter.BROWSE }"] button` );
@@ -95,12 +109,12 @@ test.describe( 'the product story', () => {
 								await page.keyboard.press( 'ArrowRight' );
 								await expect( page.locator( '.recharts-tooltip-wrapper' ) ).toBeVisible();
 								await page.keyboard.press( nextControlKey );
-								expect( await page.locator( '#privacy a' ).evaluate( ( element ) =>
+								expect( await page.getByRole( 'link', { name: 'Read the privacy policy' } ).evaluate( ( element ) =>
 									element === document.activeElement,
 								) ).toBe( true );
 							}
 							if ( chapter === DemoChapter.BROWSE ) {
-								expect( await demo.locator( '.product-demo-time-left time' ).innerText() ).toBe( '5:00' );
+								await expect( demo.locator( '.product-demo-browser-chrome .product-demo-time-left' ) ).toHaveText( '5m' );
 							}
 						} );
 					}

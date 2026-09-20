@@ -1,99 +1,54 @@
-import { setupI18n, type Messages } from '@lingui/core';
-import { createStatisticsCopy } from '../../../../extension/src/localization/utils/create-statistics-copy';
-import { createLocalizationFormatters } from '../../../../extension/src/localization/utils/create-localization-formatters';
-import type { StatisticsSettingsScreenCopy } from '../../../../extension/src/features/statistics/components/settings-screen/types';
-import { ExampleStatistics } from './data';
-import type { StatisticsPreviewFormatting, StatisticsPreviewProps } from './types';
+import { ExampleStatistics, selectSampleDays, summarizeSampleDays } from './data';
+import { SamplePeriod, type StatisticsPreviewFormatting } from './types';
+import { createSampleChartBuckets } from './utils/chart-buckets';
+import { formatSampleDuration } from './utils/duration-formatting';
 
 /**
- * Creates the production copy for the selected packaged locale.
- * @param languageTag - Locale used by product messages and numeric formatting.
- * @param messages - Packaged product translations.
- * @return Localized statistics copy and formatters.
+ * Serializes every sample period's metrics and calendar labels before hydration.
+ * @param languageTag - Active website locale.
+ * @return Plain display strings shared by server rendering and client interactions.
  * @since 0.1.0
  */
-function createCopy( languageTag: string, messages: Messages ): Readonly<StatisticsSettingsScreenCopy> {
-	return createStatisticsCopy(
-		setupI18n( { locale: languageTag, messages: { [ languageTag ]: messages } } ),
-		createLocalizationFormatters( languageTag ),
-	);
-}
-
-/**
- * Serializes the actual example's formatted values before the page crosses the Astro boundary.
- * @param languageTag - Server-selected locale.
- * @param messages - Packaged product translations.
- * @return Plain value maps that preserve SSR text even when browser Intl data differs.
- * @since 0.1.0
- */
-export function createStatisticsPreviewFormatting(
-	languageTag: string, messages: Messages,
-): StatisticsPreviewFormatting {
-	const copy = createCopy( languageTag, messages );
-	const durations = [ ExampleStatistics.focusedPauseMilliseconds,
-		...ExampleStatistics.dailyTotals.map( ( day ) => day.estimatedReclaimedMilliseconds ) ];
-	const counts = [ ExampleStatistics.reconsideredVisitCount, ExampleStatistics.completedWaitCount,
-		ExampleStatistics.allowanceGrantedCount ];
+export function createStatisticsPreviewFormatting( languageTag: string ): StatisticsPreviewFormatting {
+	const count = new Intl.NumberFormat( languageTag );
+	const date = new Intl.DateTimeFormat( languageTag, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' } );
+	const totals = Object.values( SamplePeriod ).map( ( period ) => summarizeSampleDays( selectSampleDays( period ) ) );
+	const buckets = Object.values( SamplePeriod )
+		.flatMap( ( period ) => createSampleChartBuckets( selectSampleDays( period ) ) );
+	const durations = [ ...ExampleStatistics.dailyTotals.map( ( day ) => day.estimatedReclaimedMilliseconds ),
+		...buckets.map( ( bucket ) => bucket.estimatedReclaimedMilliseconds ),
+		...totals.flatMap( ( value ) => [ value.estimatedReclaimedMilliseconds, value.focusedPauseMilliseconds ] ) ];
+	const counts = totals.flatMap( ( value ) => [
+		value.reconsideredVisitCount, value.completedWaitCount, value.allowanceGrantedCount,
+	] );
+	/**
+	 * Formats the inclusive dates shown beneath the selected period.
+	 * @param period - Selected sample calendar period.
+	 * @return Localized date range.
+	 */
+	function formatPeriodRange( period: SamplePeriod ): string {
+		const days = selectSampleDays( period );
+		const first = days[ 0 ];
+		const last = days.at( -1 );
+		return first && last ? date.formatRange( new Date( `${ first.date }T12:00:00Z` ),
+			new Date( `${ last.date }T12:00:00Z` ) ).replace( /[\u2013\u2014]/gu, '-' ) : '';
+	}
 	return {
-		estimates: { [ ExampleStatistics.estimatedReclaimedMilliseconds ]:
-			copy.formatEstimatedDuration( ExampleStatistics.estimatedReclaimedMilliseconds ) },
-		durations: Object.fromEntries( durations.map( ( value ) => [ value, copy.formatDuration( value ) ] ) ),
-		counts: Object.fromEntries( counts.map( ( value ) => [ value, copy.formatCount( value ) ] ) ),
-		dates: Object.fromEntries( ExampleStatistics.dailyTotals.map(
-			( day ) => [ day.date, copy.formatDate( day.date ) ],
-		) ),
+		durations: Object.fromEntries( durations.map( ( value ) =>
+			[ value, formatSampleDuration( value, languageTag ) ] ) ),
+		counts: Object.fromEntries( counts.map( ( value ) => [ value, count.format( value ) ] ) ),
+		dates: Object.fromEntries( ExampleStatistics.dailyTotals.map( ( day ) => [
+			day.date, date.format( new Date( `${ day.date }T12:00:00Z` ) ),
+		] ) ),
+		dateRanges: Object.fromEntries( buckets.map( ( bucket ) => [ `${ bucket.date }:${ bucket.endDate }`,
+			bucket.date === bucket.endDate ? date.format( new Date( `${ bucket.date }T12:00:00Z` ) ) :
+				date.formatRange( new Date( `${ bucket.date }T12:00:00Z` ), new Date( `${ bucket.endDate }T12:00:00Z` ) )
+					.replace( /[\u2013\u2014]/gu, '-' ),
+		] ) ),
+		periodRanges: {
+			[ SamplePeriod.ALL ]: formatPeriodRange( SamplePeriod.ALL ),
+			[ SamplePeriod.CURRENT_WEEK ]: formatPeriodRange( SamplePeriod.CURRENT_WEEK ),
+			[ SamplePeriod.CURRENT_MONTH ]: formatPeriodRange( SamplePeriod.CURRENT_MONTH ),
+		},
 	};
-}
-
-/**
- * Reuses server-formatted values while allowing the client chart to format its automatic axis ticks.
- * @param props - Serialized example values and packaged locale.
- * @return Production copy with hydration-stable metrics, dates and tooltip values.
- * @since 0.1.0
- */
-export function createStatisticsPreviewCopy( props: StatisticsPreviewProps ): Readonly<StatisticsSettingsScreenCopy> {
-	const copy = createCopy( props.languageTag, props.messages );
-	const { formatting } = props;
-	/**
-	 * Preserves the server's estimated-duration phrase.
-	 * @param milliseconds - Estimated reclaimed duration.
-	 * @return Server-formatted estimate or the production formatter for another value.
-	 */
-	function formatEstimatedDuration( milliseconds: number ): string {
-		return formatting.estimates[ milliseconds ] ?? copy.formatEstimatedDuration( milliseconds );
-	}
-	/**
-	 * Preserves full server-rendered durations in metrics and chart tooltips.
-	 * @param milliseconds - Duration expressed in milliseconds.
-	 * @return Server-formatted duration or the production formatter for another value.
-	 */
-	function formatDuration( milliseconds: number ): string {
-		return formatting.durations[ milliseconds ] ?? copy.formatDuration( milliseconds );
-	}
-	/**
-	 * Preserves the server's calendar labels.
-	 * @param date - Recorded local calendar date.
-	 * @return Server-formatted date or the production formatter for another day.
-	 */
-	function formatDate( date: string ): string {
-		return formatting.dates[ date ] ?? copy.formatDate( date );
-	}
-	/**
-	 * Keeps single-day chart labels aligned with the server-rendered calendar table.
-	 * @param startDate - First included calendar date.
-	 * @param endDate - Last included calendar date.
-	 * @return Server-formatted day or the production formatter for a longer interval.
-	 */
-	function formatDateRange( startDate: string, endDate: string ): string {
-		return startDate === endDate ? formatDate( startDate ) : copy.formatDateRange( startDate, endDate );
-	}
-	/**
-	 * Preserves the server's metric-count formatting.
-	 * @param count - Nonnegative metric count.
-	 * @return Server-formatted count or the production formatter for another value.
-	 */
-	function formatCount( count: number ): string {
-		return formatting.counts[ count ] ?? copy.formatCount( count );
-	}
-	return { ...copy, formatEstimatedDuration, formatDuration, formatDate, formatDateRange, formatCount };
 }

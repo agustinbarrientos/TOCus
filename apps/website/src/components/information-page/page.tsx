@@ -18,49 +18,49 @@ function PrivacyContent() {
 		<>
 			<header className="information-page-introduction">
 				<p className="information-page-eyebrow">Privacy</p>
-				<h1 id="page-title">Your choices stay with you</h1>
+				<h1 id="page-title">How TOCus handles your data</h1>
 				<p className="information-page-lede">
-					TOCus has no account, advertising, or analytics. The extension keeps the information it needs in
-					your browser and does not transmit it to the developer.
+					The TOCus extension keeps its settings and statistics in your browser. It has no accounts,
+					advertising, or analytics and does not send this information to the developer.
 				</p>
-				<p className="information-page-reviewed">Last reviewed September 14, 2026.</p>
+				<p className="information-page-reviewed">Last reviewed September 15, 2026.</p>
 			</header>
 
 			<section id="extension-data" aria-labelledby="extension-data-title">
 				<h2 id="extension-data-title">What the extension keeps locally</h2>
 				<p>
-					TOCus saves your selected-site rules and labels, shared pause timing, active schedules, and
-					appearance and language preferences in extension-local browser storage. This information makes
-					your setup available after the browser restarts. Motion follows your operating system.
+					TOCus stores the rules and labels for your selected websites, shared pause timing, schedules,
+					and your appearance and language preferences in your browser. Your settings remain available after
+					the browser restarts. TOCus follows your operating system&apos;s motion preference.
 				</p>
 				<p>
 					Statistics are local counts and durations: completed pauses, reconsidered visits, granted visits,
 					focused pause time, and estimated reclaimed time.
-					Lifetime totals and recorded daily totals remain locally until you reset them.
+					Lifetime and daily totals stay in your browser until you reset them.
 					They do not contain page content or a history of web addresses.
-					TOCus also keeps limited timing and allowance state so an active pause can continue reliably.
+					TOCus also stores the timing of active pauses and allowed browsing periods so they can continue.
 				</p>
 				<p>
-					While a pause is active, its destination address or URL can be held temporarily in browser session
-					storage so Continue can return you to the page you requested. TOCus does not send that address,
-					your configuration, or your statistics to the developer or to an analytics, advertising, or data
+					During a pause, TOCus may temporarily store the destination URL in browser session storage so
+					Continue can open the page you requested. TOCus does not send that address, your settings,
+					or your statistics to the developer or to an analytics, advertising, or data
 					service.
 				</p>
 			</section>
 
 			<section id="permissions" aria-labelledby="permissions-title">
-				<h2 id="permissions-title">Why browser permissions are requested</h2>
+				<h2 id="permissions-title">Why TOCus asks for browser permissions</h2>
 				<p>
 					TOCus asks for access to the selected websites where you want a pause. That site-specific access,
 					scripting, and browser navigation rules let it detect a matching visit and show the pause. The
-					optional navigation permission notices changes as they happen; it does not read your saved browsing
+					optional navigation permission detects changes as they happen; it does not read your saved browsing
 					history.
 				</p>
 				<p>
-					Local storage saves the choices described above, alarms keep timing current, and the toolbar action
-					can use temporary access to the current tab when you ask to add it. On Chrome, the favicon
-					permission
-					reads a browser-cached icon for a saved site; TOCus does not contact an icon service.
+					Storage permission lets TOCus save your settings, and alarms keep its timers up to date. When you
+					add a site from the toolbar, TOCus can use temporary access to the current tab. On Chrome, the
+					favicon permission reads the site icon cached by your browser.
+					TOCus does not contact an icon service.
 				</p>
 				<p>
 					Without access to a site, TOCus cannot show its pause there. You can remove a site in TOCus or
@@ -76,9 +76,9 @@ function PrivacyContent() {
 					statistics, removes granted website access, and reopens setup.
 				</p>
 				<p>
-					A reset may leave a random technical generation marker in local storage so an older open settings
-					page cannot restore deleted data. The marker identifies a reset boundary, not a person, device,
-					account, or browsing activity.
+					After a reset, TOCus may keep a random value in local storage so an older settings page cannot
+					restore deleted data. The value marks the reset. It does not identify a person, device, account,
+					or browsing activity.
 				</p>
 			</section>
 
@@ -95,19 +95,17 @@ function PrivacyContent() {
 			</section>
 
 			<section id="website-and-links" aria-labelledby="website-and-links-title">
-				<h2 id="website-and-links-title">This website and voluntary links</h2>
+				<h2 id="website-and-links-title">This website and external links</h2>
 				<p>
-					Loading this website makes ordinary requests to its hosting server. Those requests can include
-					technical delivery data such as your IP address, browser user agent, requested path, and time of
-					request. The specific production hosting provider and its log-retention period are not yet
-					finalized.
+					When you visit this website, your browser sends requests to the server that hosts it. These requests
+					can include your IP address, browser user agent, the page requested, and the request time.
+					The hosting service may record these requests in server logs.
 					The website source does not add analytics, advertising trackers, remote fonts, or remote media.
 				</p>
 				<p>
-					Following an external or outbound link—such as GitHub, a browser policy, a store listing, or the
-					author&apos;s site—is a deliberate navigation to that third party, whose own privacy terms apply.
-					Installing or updating an extension can also contact your browser or store provider; that traffic is
-					separate from TOCus sending extension data to the developer.
+					Links to GitHub, browser policies, extension stores, and the author&apos;s website open other
+					websites whose privacy terms apply. Installing or updating TOCus can also contact your browser
+					or store provider. These requests are separate from the extension sending data to the developer.
 				</p>
 			</section>
 		</>
@@ -124,38 +122,39 @@ function SupportContent() {
 		<>
 			<header className="information-page-introduction">
 				<p className="information-page-eyebrow">Support</p>
-				<h1 id="page-title">Get TOCus back on track</h1>
+				<h1 id="page-title">Get help with TOCus</h1>
 				<p className="information-page-lede">
-					Start with the local checks below. If the problem remains, use the public issue form for ordinary
-					support. For a suspected vulnerability, read the security-reporting status before sharing details.
+					Check your site settings and permissions below. If you still need help, open a public issue on
+					GitHub. Read the security reports section before sharing details of a suspected vulnerability.
 				</p>
 			</header>
 
 			<section id="before-reporting" aria-labelledby="before-reporting-title">
-				<h2 id="before-reporting-title">Check setup, reset, and permissions</h2>
+				<h2 id="before-reporting-title">If a site does not pause</h2>
 				<ol>
 					<li>
-						<strong>Check the site.</strong>{' '}
 						Open TOCus settings and confirm the website is saved, enabled, and
-						covered by the schedule you expect.
+						active at the current day and time.
 					</li>
 					<li>
-						<strong>Check permission.</strong>{' '}
-						Your browser must allow TOCus to run on that selected website. Remove and add the site again to
-						request access, or review the extension&apos;s site-access settings in
-						your browser.
+						Check that your browser allows TOCus to run on the website. You can review site access in your
+						browser&apos;s extension settings, or remove and add the site again in TOCus to request access.
 					</li>
 					<li>
-						<strong>Check timing and active hours.</strong>{' '}Pause timing applies to every website.
-						A website&apos;s custom schedule changes only its active days and hours; otherwise it follows
+						Pause timing applies to all your selected websites. A site&apos;s custom schedule changes only
+						its active days and hours. Without a custom schedule, it follows
 						the main Schedule.
 					</li>
-					<li>
-						<strong>Reset only what you mean to clear.</strong>{' '}
-						Reset statistics preserves sites and settings.
-						Reset all TOCus data removes local configuration and website access, then starts setup again.
-					</li>
 				</ol>
+			</section>
+
+			<section id="resetting" aria-labelledby="resetting-title">
+				<h2 id="resetting-title">Resetting TOCus</h2>
+				<p>
+					Reset statistics clears recorded counts and time totals while keeping your sites and settings.
+					Reset all TOCus data removes your local configuration, active pauses, statistics, and website
+					access, then starts setup again.
+				</p>
 			</section>
 
 			<section id="public-issues" aria-labelledby="public-issues-title">
@@ -167,21 +166,18 @@ function SupportContent() {
 					your browser and TOCus version, the steps you took, what you expected, and what happened.
 				</p>
 				<p>
-					Public reports are visible to everyone. Do not include credentials, authentication data, personal
-					information, private browsing data, your full list of selected websites, or an exact URL you would
-					not publish. Redact screenshots and logs before attaching them.
+					GitHub issues are public. Remove credentials, authentication data, personal information, private
+					browsing data, your full site list, and any URL you would not publish. Check screenshots and logs
+					before attaching them.
 				</p>
 			</section>
 
 			<section id="security-reporting" aria-labelledby="security-reporting-title">
 				<h2 id="security-reporting-title">Security reports</h2>
 				<p>
-					Private vulnerability reporting is not currently available for this repository. Do not put security
-					vulnerability details, private URLs, credentials, or reproduction material in a public issue.
-				</p>
-				<p>
-					A verified private reporting channel will appear here after it is enabled. No separate support email
-					is currently published.
+					Private vulnerability reporting is not currently available for this repository, and no separate
+					support email is published. Do not share vulnerability details, private URLs, credentials, or steps
+					to reproduce a security issue in a public issue.
 				</p>
 			</section>
 		</>

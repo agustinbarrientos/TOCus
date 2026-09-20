@@ -1,8 +1,8 @@
 import { createRoot } from 'react-dom/client';
 import { TocusAppearance, TocusProvider } from '../../src';
 import { SnackbarFixture } from './snackbar-controls';
-import '../../src/styles.scss';
-import '../../src/notifications.scss';
+import '../../src/components/provider/style.scss';
+import '../../src/components/snackbar/style.scss';
 
 const main = document.querySelector( 'main' );
 if ( ! main ) {

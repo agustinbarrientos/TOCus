@@ -46,18 +46,41 @@ const WebsiteProductStoryFields = Object.freeze( [
 	'browseDescription',
 	'timingPause',
 	'timingBrowse',
-	'exampleTiming',
+	'storyPlay',
+	'storyPause',
+	'storyReplay',
 	'comingSoon',
 	'downloadTitle',
 	'downloadDescription',
 	'downloadFor',
 	'freeLabel',
 	'mascotAlt',
+	'mascotInteractionLabel',
+	'demoNewTab',
+	'demoReady',
+	'demoTakeAMoment',
+	'demoBreatheIn',
+	'demoBreatheOut',
+	'demoContinue',
+	'demoSphere',
+	'demoSecondsRemaining',
 	'demoLabel',
 	'demoSiteSelected',
 	'statisticsTitle',
 	'statisticsDescription',
-	'exampleData',
+	'statsTitle',
+	'statsEstimated',
+	'statsFocused',
+	'statsReconsidered',
+	'statsCompleted',
+	'statsAllowances',
+	'statsPeriod',
+	'statsAllTime',
+	'statsThisMonth',
+	'statsThisWeek',
+	'statsActivity',
+	'statsDate',
+	'statsEstimateDescription',
 	'mediaTitle',
 	'mediaDescription',
 	'sitesTitle',
@@ -66,7 +89,6 @@ const WebsiteProductStoryFields = Object.freeze( [
 	'privacyLink',
 	'supportLink',
 	'madeBy',
-	'creatorStory',
 	'privacyShort',
 	'privacyAccounts',
 	'privacyTracking',
@@ -102,6 +124,12 @@ async function readWebsiteCatalog( locale: string ): Promise<CatalogType> {
 }
 
 describe( 'website localization', () => {
+	it( 'keeps em dashes out of every localized website string', () => {
+		for ( const localization of getWebsiteLocalizations() ) {
+			expect( JSON.stringify( localization ) ).not.toContain( '\u2014' );
+		}
+	} );
+
 	it( 'provides one complete catalog for every approved website language', () => {
 		const localizations = getWebsiteLocalizations();
 
@@ -199,7 +227,7 @@ describe( 'website localization', () => {
 		expect( catalog.continueDescription ).toMatch( /\bContinue\b/u );
 		expect( catalog.browseDescription ).toMatch( /\bContinue\b/u );
 		expect( catalog.statisticsDescription ).not.toMatch( /\b(?:actual|estimated|reclaimed|saved)\b/iu );
-		expect( catalog.privacy ).toMatch( /\bwithout an internet connection\b/iu );
+		expect( catalog.privacy ).toMatch( /\boffline\b/iu );
 		expect( [
 			catalog.privacyAccounts,
 			catalog.privacyTracking,
@@ -236,23 +264,38 @@ describe( 'website localization', () => {
 	it( 'translates every new feature and demo label without English fallbacks', () => {
 		const english = getWebsiteLocalization( WebsiteLanguage.ENGLISH ).catalog;
 		const fields = [
-			'statisticsTitle', 'statisticsDescription', 'exampleData', 'mediaTitle',
+			'statisticsTitle', 'statisticsDescription', 'mediaTitle',
 			'mediaDescription', 'sitesTitle', 'sitesDescription', 'demoSiteSelected',
 			'demoTimeLeft', 'getExtension', 'howLink', 'alsoAvailable', 'visitTitle',
 			'visitDescription', 'pauseDescription', 'continueTitle', 'continueDescription',
 			'browseTitle', 'browseDescription', 'chooseLabel', 'visitLabel', 'pauseLabel',
-			'continueLabel', 'browseLabel', 'timingPause', 'timingBrowse', 'exampleTiming',
+			'continueLabel', 'browseLabel', 'timingPause', 'timingBrowse',
 			'privacyAccounts', 'privacyTracking', 'privacyCalls', 'privacyLocal', 'downloadFor',
-			'readPrivacy',
+			'readPrivacy', 'mascotInteractionLabel', 'storyPlay', 'storyPause', 'storyReplay',
+			'demoNewTab', 'demoReady', 'demoTakeAMoment', 'demoBreatheIn', 'demoBreatheOut',
+			'demoContinue', 'demoSphere', 'demoSecondsRemaining', 'statsTitle', 'statsEstimated',
+			'statsFocused', 'statsReconsidered', 'statsCompleted', 'statsAllowances', 'statsPeriod',
+			'statsAllTime', 'statsThisMonth', 'statsThisWeek', 'statsActivity', 'statsEstimateDescription',
 		] as const;
 
 		for ( const { language, catalog } of getWebsiteLocalizations() ) {
 			for ( const field of fields ) {
 				expect( catalog[ field ], `${ language }:${ field }` ).toEqual( expect.any( String ) );
-				if ( language !== WebsiteLanguage.ENGLISH ) {
+				if ( language !== WebsiteLanguage.ENGLISH && field !== 'demoSecondsRemaining' ) {
 					expect( catalog[ field ], `${ language }:${ field }` ).not.toBe( english[ field ] );
 				}
 			}
+		}
+	} );
+
+	it( 'keeps localized headings concise and preserves the countdown replacement token', () => {
+		for ( const { language, catalog } of getWebsiteLocalizations() ) {
+			for ( const [ field, value ] of Object.entries( catalog ) ) {
+				if ( field.endsWith( 'Title' ) || field === 'intro' || field === 'privacyLocal' ) {
+					expect( value, `${ language }:${ field }` ).not.toMatch( /[.\u3002\uff0e]$/u );
+				}
+			}
+			expect( catalog.demoSecondsRemaining, language ).toContain( '{seconds}' );
 		}
 	} );
 

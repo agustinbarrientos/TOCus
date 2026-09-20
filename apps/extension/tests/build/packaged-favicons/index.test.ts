@@ -218,9 +218,14 @@ async function seedLegacyFavicon( fixture: FaviconTestFixture ): Promise<void> {
 	const brandedHash = await readImageHash( fixture.reader, `${ fixture.extensionRoot }icons/tab-dark.png` );
 
 	try {
+		// This seed represents an old static document, not a live protection participant.
+		// Disable only its page scripts so modern recovery cannot dismiss it while Chrome learns the icon.
+		const legacySession = await fixture.context.newCDPSession( legacyPage );
+		await legacySession.send( 'Emulation.setScriptExecutionDisabled', { value: true } );
 		await legacyPage.goto( legacyUrl );
 		await declareLegacyFavicon( legacyPage );
 		await expect.poll( () => readCachedFavicon( fixture, legacyUrl ) ).toBe( brandedHash );
+		await expect( legacyPage ).toHaveURL( legacyUrl );
 	} finally {
 		await legacyPage.close();
 	}

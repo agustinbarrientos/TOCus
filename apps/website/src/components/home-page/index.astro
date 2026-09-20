@@ -4,12 +4,10 @@ import '../../styles/global.scss';
 import HomePage from './page';
 import { createStatisticsPreviewFormatting } from '../statistics-preview/formatting';
 import { type LocalizedHomePageProperties as Props } from '../../localization';
-import { loadLocalizationMessages } from '../../../../extension/src/localization/services/load-localization-messages';
 
 const { localization, localizations } = Astro.props;
 const { catalog } = localization;
-const demoMessages = await loadLocalizationMessages( localization.language );
-const statisticsFormatting = createStatisticsPreviewFormatting( localization.languageTag, demoMessages );
+const statisticsFormatting = createStatisticsPreviewFormatting( localization.languageTag );
 ---
 
 <!doctype html>
@@ -25,14 +23,14 @@ const statisticsFormatting = createStatisticsPreviewFormatting( localization.lan
 		<meta property="og:image" content="/images/mascot-peek.webp" />
 		<meta name="twitter:card" content="summary_large_image" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<title>{`TOCus — ${catalog.intro}`}</title>
+		<title>{`TOCus - ${catalog.intro}`}</title>
 		<link rel="alternate" hreflang="x-default" href="/" />
 		{localizations.map( ( option ) => (
 			<link rel="alternate" hreflang={option.languageTag} href={option.path} />
 		) )}
 	</head>
 	<body>
-		<HomePage localization={localization} localizations={localizations} demoMessages={demoMessages}
+		<HomePage localization={localization} localizations={localizations}
 			statisticsFormatting={statisticsFormatting} client:load />
 	</body>
 </html>

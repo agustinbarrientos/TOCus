@@ -1,4 +1,3 @@
-import type { Messages } from '@lingui/core';
 
 /**
  * Translated labels for the five scenes of the product story.
@@ -10,6 +9,25 @@ export interface ProductDemoCopy {
 	visitTitle: string;
 	siteSelected: string;
 	timeLeft: string;
+	newTab: string;
+	ready: string;
+	takeAMoment: string;
+	breatheIn: string;
+	breatheOut: string;
+	continueLabel: string;
+	sphere: string;
+	secondsRemaining: string;
+	popularChoices: string;
+	addAnotherSite: string;
+	addSite: string;
+	address: string;
+	addressPlaceholder: string;
+	finishSetup: string;
+	continueShortcut: string;
+	spaceKey: string;
+	allowanceMinutes: string;
+	videoTitle: string;
+	videoChannel: string;
 }
 
 /**
@@ -17,13 +35,24 @@ export interface ProductDemoCopy {
  * @since 0.1.0
  */
 export interface ProductDemoProps {
-	languageTag: string;
-	messages: Messages;
 	copy: ProductDemoCopy;
+	reducedMotion: boolean;
 	/** Current scene, controlled by the surrounding scroll story. */
 	chapter?: DemoChapter;
 	/** Reversible progress within the active chapter, from zero to one. */
 	progress?: number;
+}
+
+/**
+ * One mounted product scene whose intrinsic size remains part of the browser layout.
+ * @since 0.1.0
+ */
+export interface ProductDemoSceneProps extends ProductDemoCopy {
+	chapter: DemoChapter;
+	active: boolean;
+	progress: number;
+	reducedMotion: boolean;
+	onContinue: () => void;
 }
 
 /**
@@ -39,14 +68,6 @@ export const DemoChapter = {
  * @since 0.1.0
  */
 export type DemoChapter = typeof DemoChapter[keyof typeof DemoChapter];
-
-/**
- * Packaged thumbnail compositions in the illustrative website feed.
- * @since 0.1.0
- */
-export const DemoThumbnail = {
-	LANDSCAPE: 'landscape', MUSIC: 'music', PORTRAIT: 'portrait', ARCHITECTURE: 'architecture',
-} as const;
 
 /**
  * Decorative browser glyphs drawn on the same 24-unit grid.
@@ -76,4 +97,5 @@ export interface BrowserChromeIconProps {
 export interface BrowserChromeProps {
 	title: string;
 	address: string;
+	allowance?: string | undefined;
 }

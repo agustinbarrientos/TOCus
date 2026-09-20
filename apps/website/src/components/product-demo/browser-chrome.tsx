@@ -1,4 +1,5 @@
 import { BrowserChromeIconPath, type BrowserChromeIconProps, type BrowserChromeProps } from './types';
+import iconUrl from '@tocus/theme/icon.svg?url';
 
 /**
  * Draws a decorative browser control with shared stroke geometry.
@@ -19,10 +20,11 @@ function BrowserChromeIcon( { path }: BrowserChromeIconProps ) {
  * @param props - Illustrative tab and address labels.
  * @param props.title - Current scene title.
  * @param props.address - Local-only illustrative address.
+ * @param props.allowance - Compact visit-window badge shown on the extension toolbar icon.
  * @return Browser chrome excluded from assistive navigation.
  * @since 0.1.0
  */
-export function BrowserChrome( { title, address }: BrowserChromeProps ) {
+export function BrowserChrome( { title, address, allowance }: BrowserChromeProps ) {
 	return <div className="product-demo-browser-chrome" aria-hidden="true">
 		<div className="product-demo-browser-tabs">
 			<span className="product-demo-window-dots"><i /><i /><i /></span>
@@ -35,7 +37,13 @@ export function BrowserChrome( { title, address }: BrowserChromeProps ) {
 			<span><BrowserChromeIcon path={ BrowserChromeIconPath.BACK } /></span>
 			<span><BrowserChromeIcon path={ BrowserChromeIconPath.FORWARD } /></span>
 			<span><BrowserChromeIcon path={ BrowserChromeIconPath.RELOAD } /></span>
-			<span className="product-demo-address">{ address }</span>
+			<span className="product-demo-address">
+				<span className="product-demo-address-label" key={ address }>{ address }</span>
+			</span>
+			{ allowance && <span className="product-demo-toolbar-badge">
+				<img src={ iconUrl } width="24" height="24" alt="TOCus" />
+				<span className="product-demo-time-left">{ allowance }</span>
+			</span> }
 			<span><BrowserChromeIcon path={ BrowserChromeIconPath.MORE } /></span>
 		</div>
 	</div>;

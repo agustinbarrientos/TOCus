@@ -148,10 +148,30 @@ components:
 
 # Design System: TOCus website
 
-## Approved homepage implementation — September 7, 2026
+## Approved usability refinement - September 15, 2026
+
+Keep the existing light brand, raster mascot, direct store actions, and real product
+components. Put the changing caption and chapter controls above a single browser
+frame so every step can be read and selected together. Animate actions inside that
+frame; never scale or translate the browser while scrolling.
+
+Pin the complete story only when its measured height fits the viewport. Otherwise
+use normal document flow, with no empty scroll runway and no clipped controls.
+Keep all five chapter buttons usable in either layout and with reduced motion.
+
+Move the language picker beside the header download link, bound its menu to the
+available screen, and preserve native names, keyboard navigation and static links.
+Use brief, factual copy in all ten homepage languages. Keep canonical privacy and
+support in English and do not invent hosting or retention guarantees.
+
+The September 7 record below describes the original implementation. The layout,
+navigation, and product demonstration contracts later in this document describe
+the current refinement. Local development uses port 4322, leaving 4321 untouched.
+
+## Approved homepage implementation - September 7, 2026
 
 The user approved the desktop and mobile visual concepts in this task. The previous
-split hero and long side-by-side story are superseded. This section is the current
+split hero and long side-by-side story are superseded. This section is the original
 implementation plan and progress record; no separate artifact directory is needed.
 
 **Goal:** Build the approved light homepage around a large peeking raster capybara
@@ -170,7 +190,7 @@ No homepage GLB, new component library, scroll hijacking, inert settings form, o
 repository artifact folders. Original model assets remain available in their lab.
 No commits or publishing are part of this approval.
 
-### Task 1 — Approved image and page composition
+### Task 1 - Approved image and page composition
 
 Files: `src/components/home-page/page.tsx`, `src/styles/global.scss`,
 `src/components/mascot/*`, `public/images/mascot-peek.webp`,
@@ -186,7 +206,7 @@ Files: `src/components/home-page/page.tsx`, `src/styles/global.scss`,
   creator/source, repeat CTA, and compact language-menu sections using shared controls.
 - [x] Verify light rendering, desktop/mobile geometry, keyboard operation and no overflow.
 
-### Task 2 — Stable scroll narrative
+### Task 2 - Stable scroll narrative
 
 Files: `src/services/story-motion/*`, `tests/build/story-motion.test.ts`.
 Interface: preserve `createStoryMotion(root, onChapterChange, onProgressChange)`.
@@ -203,7 +223,7 @@ root once the browser enters its sticky reading position; remove it before then.
   Skip updates outside the story; clean up observers/listeners on unmount.
 - [x] Run real Chromium, Firefox and WebKit tests after the integrated build.
 
-### Task 3 — Concise localized narrative
+### Task 3 - Concise localized narrative
 
 Files: `src/localization/*`, `locales/*.po` (website only).
 
@@ -213,7 +233,7 @@ Files: `src/localization/*`, `locales/*.po` (website only).
   never imply actual visitor data or measured savings. Browsing starts on Continue.
 - [x] Translate the affected website copy in all ten locales and run localization tests.
 
-### Task 4 — Visual and interaction verification
+### Task 4 - Visual and interaction verification
 
 - [x] Build with `pnpm --filter @tocus/website build` and run website build-contract tests.
 - [x] Run website lint, style lint and typecheck. Resolve failures rather than weakening checks.
@@ -259,7 +279,7 @@ The website shares its visual foundations and controls with the extension. Produ
 - Spacious responsive composition around five matching product scenes.
 - Scroll-owned progress within a stable native-sticky browser, with reduced-motion support.
 
-**Source evidence:** [shared palette, radius, and spacing tokens](../../packages/theme/tokens.scss), [shared type scale](../../packages/theme/typography/_scale.scss), [shared control theme](../../packages/ui/src/theme.ts), [shared component styles](../../packages/ui/src/styles.scss), [homepage](src/components/home-page/page.tsx), [website styles](src/styles/global.scss), [product demonstration](src/components/product-demo/index.tsx), [demo styles](src/components/product-demo/style.scss), and [story motion](src/services/story-motion/index.ts). Brand commitments come from [PRODUCT.md](PRODUCT.md). Approval and the implementation checklist are recorded above.
+**Source evidence:** [shared palette, radius, and spacing tokens](../../packages/theme/src/styles/tokens/index.scss), [shared type scale](../../packages/theme/src/utils/typography/_scale.scss), [shared control theme](../../packages/ui/src/utils/theme/index.ts), [shared component styles](../../packages/ui/src/components/provider/style.scss), [homepage](src/components/home-page/page.tsx), [website styles](src/styles/global.scss), [product demonstration](src/components/product-demo/index.tsx), [demo styles](src/components/product-demo/style.scss), and [story motion](src/services/story-motion/index.ts). Brand commitments come from [PRODUCT.md](PRODUCT.md). Approval and the implementation checklist are recorded above.
 
 The frontmatter records the active light brown palette and observed website type values. The extension's dark palette remains outside the public website contract. Runtime ownership remains in `@tocus/theme` and `@tocus/ui`: use their semantic CSS variables and components in implementation.
 
@@ -301,7 +321,7 @@ Fredoka gives the product a soft, friendly heading voice. Body and control text 
 
 The frontmatter's shared-role values include the existing noncompact scale factor (1.15) at the normal size unit (1rem). They are not the unscaled literals in the Sass role map. The fluid website display overrides bypass that size calculation while retaining the shared family and weight.
 
-At widths up to 48rem, the hero uses `clamp(2.7rem, 10.4vw, 4.5rem)` and a maximum measure of 15 characters. The introductory description is capped at 43 characters on desktop and 32 on mobile. Headings balance wrapping; prose uses pretty wrapping. Keep all ten locales in these roles with literal copy. Compact chapter labels wrap within equal-width mobile navigation cells.
+At widths up to 48rem, the hero uses `clamp(2.7rem, 10.4vw, 4.5rem)` and a maximum measure of 15 characters. The introductory description is capped at 43 characters on desktop and 32 on mobile. Headings balance wrapping; prose uses pretty wrapping. Keep all ten locales in these roles with plain, natural copy. Compact chapter labels wrap within equal-width mobile navigation cells.
 
 **The Two Voices Rule.** Use Fredoka for brand and heading roles and the shared body stack for prose and controls.
 
@@ -309,11 +329,11 @@ At widths up to 48rem, the hero uses `clamp(2.7rem, 10.4vw, 4.5rem)` and a maxim
 
 The centered shell has a maximum width of 76rem and fluid outer gutters through `min(76rem, calc(100% - clamp(2.5rem, 8vw, 8rem)))`. Section spacing follows the website section token; component spacing follows the shared quarter-rem-based scale.
 
-The hero centers the headline and direct download action above the peeking mascot. Its paws meet the browser edge. The story occupies 280svh with one stable native-sticky browser, one changing caption above it, and a compact chapter rail below it. There is no side-by-side instruction list. A four-part timing diagram explains the pause and allowance; schedule and site exceptions use an open two-column strip.
+The hero centers the headline and direct download action above the peeking mascot. The story follows with a changing caption, a compact five-step rail, and one browser frame, in that order. Captions reserve space for the longest translation so scene changes do not move navigation. There is no side-by-side instruction list. A four-part timing diagram explains the pause and allowance; schedule and site exceptions use an open two-column strip.
 
-At widths up to 48rem, supporting sections and the timing diagram stack; the mascot occupies almost the full content width. The header retains its direct download link. The shared statistics grid collapses to one column at 42rem. At widths up to 40rem the browser stage uses a height-capped 4:5 ratio, leaving room for the caption and five navigation controls in the viewport.
+At widths up to 48rem, supporting sections and the timing diagram stack; the mascot occupies almost the full content width. The header retains its direct download link and uses an icon-only language trigger with an accessible name. The shared statistics grid collapses to one column at 42rem. Below a 28rem container width the browser stage has a 4:5 minimum proportion and grows for its content, without a viewport-height cap that could crop it.
 
-Short landscape screens reduce the sticky offset and cap the stage width from the available height. CSS owns the frame geometry at every size, including reduced motion; scrolling never scales the frame or applies JavaScript pinning.
+The controller measures the complete caption, rail, and browser after layout, fonts, and viewport changes. The browser grid reserves the largest real scene; inactive scenes are inert and hidden from vision and accessibility. Scene height can grow for enlarged text instead of clipping to an aspect ratio. If the complete story fits with a 1rem inset on each edge, CSS pins it within a 320svh track. Otherwise, normal document flow keeps all content reachable and chapter buttons change the scene without moving the page. The desktop frame grows from 47rem to 62rem when screen height permits; mobile uses the available width. Scrolling never scales the frame or applies JavaScript pinning.
 
 ## Elevation & Depth
 
@@ -355,13 +375,13 @@ The shared badge is a compact, naturally cased label with a container background
 
 ### Cards / Containers
 
-The statistics preview embeds the extension's actual `StatisticsSummary` inside a large-radius frame. Its metric tiles use the shared medium radius and container tone; the first metric spans the row and receives a quiet action tint. The preview visibly identifies its data as examples and retains the estimate explanation.
+The website-owned statistics preview matches the extension's visual hierarchy without importing extension runtime components. The estimate uses a bordered surface, followed by a duration chart and four metric tiles. Two complete months of deterministic sample activity include inactive days and varied visit counts. Current week, current month, and all-time selections update the chart and every metric together. The visible dates identify the sample period; values are illustrative, not visitor measurements.
 
-Reuse the actual [statistics component](../extension/src/features/statistics/components/settings-screen/index.tsx) and [its styles](../extension/src/features/statistics/components/settings-screen/style.scss). This is a product information pattern, not a generic marketing card treatment. The feature strip and supporting prose remain open in the implemented homepage.
+Use the [extension statistics component](../extension/src/features/statistics/components/settings-screen/index.tsx) and [its styles](../extension/src/features/statistics/components/settings-screen/style.scss) as visual references. Share theme tokens and controls through their public package exports. Keep extension business rules and storage out of the website dependency graph.
 
 ### Navigation
 
-The homepage, Privacy, and Support headers contain the brand and a direct “Download TOCus” link. Underlines and the shared action color identify links. The homepage footer carries Privacy, Support, source, and an in-place language menu; without JavaScript it renders all ten locale links. The current locale is marked with `aria-current`. External links include the shared external-link SVG and open in a new tab. The creator link uses a bundled favicon and the existing UTM-tagged destination.
+The homepage, Privacy, and Support headers contain the brand and a direct “Download TOCus” link. The homepage also has a Mantine language menu beside downloading, with native language names, an indicated current locale, keyboard operation, and viewport-bounded scrolling. Underlines and the shared action color identify links. The footer carries Privacy, Support, source, and all ten locale links when JavaScript is unavailable. The current locale is marked with `aria-current`. External links include the shared external-link SVG and open in a new tab. The creator link uses a bundled favicon and the existing UTM-tagged destination.
 
 The hero and final download section use one filled text button with a bundled icon for the detected browser, followed by plain text links to the other stores. Browser detection runs locally after hydration; static and unknown-browser output defaults to Chrome. Every download destination comes from [the shared download configuration](src/config/downloads/index.ts). Its deliberate placeholder URLs are authorized development content and remain marked for replacement before publication.
 
@@ -369,15 +389,15 @@ Use shared SVG artwork for icons. Browser context uses drawn SVG paths rather th
 
 ### Product Demonstration
 
-The browser stage matches five visible chapters: choose websites, visit YouTube, take the production breathing pause, Continue, and browse with the default five-minute allowance. Scroll progress selects sites, paints the breathing renderer, and advances the illustrated allowance from 5:00 toward 4:30. Reversing scroll reverses the illustration. The browser chrome and illustrative video thumbnails are decorative; this surface has no trial, replay, or next-pause controls.
+The browser stage has five chapters: choose websites, click a YouTube shortcut in a new tab, breathe before the website opens, Continue, and browse with the five-minute toolbar allowance. A foreground-only clock advances the demonstration while its frame is visible. Scrolling never scrubs or pins content. A fake pointer makes illustrated clicks visible; waiting has a compact countdown, while the Continue state replaces the breathing artwork.
 
-Chapter title buttons use the same document positions as scrolling and expose the current step. Continue is disabled during the pause, becomes available in the Continue chapter, and moves focus and the viewport to the browse chapter. A polite status describes scene changes without announcing every countdown frame. Reduced motion keeps this navigation and a still sphere. Static output retains the first illustration, all explanations, downloads, and ordinary links; enhanced scene navigation requires JavaScript.
+Chapter buttons select scenes in place and pause automatic playback. The active chapter exposes its description beside the player on wide screens and above it on narrow screens. Play, pause, and replay controls remain available. Reduced motion disables automatic animation but retains chapter navigation. Without JavaScript, all five chapter headings and descriptions remain readable, with the initial illustration and ordinary download links.
 
-**The Real Interaction Rule.** Reuse product behavior and components for demonstrations, and give each focusable control its advertised effect.
+**The Real Interaction Rule.** Match the real product's sequence and visual hierarchy using website-owned replicas and shared controls. Give every focusable control its advertised effect; decorative simulated controls must not enter the tab order.
 
 ### Brand and Mascot
 
-Use the shared `Brand` component for the TOCus wordmark and capybara mark. The homepage uses the generated raster asset `public/images/mascot-peek.webp`, preserving the reference character's warm orange fur and brown paws. It has no canvas or model dependency. The active imported mesh, authoring pipeline, and original character reference remain available in the separate mascot lab; superseded raster poses and unreferenced procedural sculpting code are not retained in the application.
+Use the shared `Brand` component for the TOCus wordmark and capybara mark. The hero uses `public/images/capybara-lounge.webp` with restrained pointer movement, breathing, and shoreline motion. The original `public/images/mascot-peek.webp` remains in the footer. Both images remain visible without JavaScript, and reduced motion removes the optional hero interaction. The homepage has no canvas or model dependency; the separate mascot lab retains its original model assets.
 
 Supported-media artwork is locally packaged and accompanies explicit names for YouTube, Netflix, Twitch, HBO Max, Prime Video, and Disney+. These identify playback support, not partnerships. Preserve the existing raster provenance records when reusing the mascot, creator favicon, and service artwork.
 
@@ -388,9 +408,9 @@ Supported-media artwork is locally packaged and accompanies explicit names for Y
 - **Do** implement colors, type, radii, and controls through the shared TOCus theme and UI package.
 - **Do** pair Fredoka headings with the shared body stack and allow localized copy to wrap.
 - **Do** preserve the approved capybara identity, peeking pose, and warm materials.
-- **Do** reuse the real breathing renderer and statistics presentation when demonstrating the product.
+- **Do** match the real breathing and statistics presentation without importing extension runtime components.
 - **Do** identify example statistics and retain the distinction between estimates and measured totals.
-- **Do** keep links, keyboard focus, footer language selection, and chapter controls operable.
+- **Do** keep links, keyboard focus, header language selection, and chapter controls operable.
 - **Do** let reduced motion remove optional animation while preserving the stable frame and chapter navigation.
 
 ### Don't:

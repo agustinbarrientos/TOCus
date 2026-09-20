@@ -7,7 +7,7 @@ const codeFilename = `${ process.cwd() }/apps/extension/src/features/settings/co
 describe( 'application theme ownership', () => {
 	it( 'allows the shared theme to configure the packaged button variant variables', async () => {
 		const result = await stylelint.lint( {
-			config, codeFilename: `${ process.cwd() }/packages/ui/src/styles.scss`,
+			config, codeFilename: `${ process.cwd() }/packages/ui/src/components/provider/style.scss`,
 			code: '.mantine-Button-root {\n --button-bg: red;\n --button-color: white;\n --button-bd: 1px solid red;\n}',
 		} );
 		expect( result.results.flatMap( ( file ) => file.warnings ) ).toEqual( [] );
