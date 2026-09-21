@@ -1,4 +1,4 @@
-import { Fragment, type MouseEvent } from 'react';
+import { Fragment, lazy, Suspense, type MouseEvent } from 'react';
 import { useSettingsNavigation } from '../../services/settings-navigation';
 import { SettingsFeedbackProvider } from '../../services/settings-feedback';
 import '@tocus/ui/notifications.scss';
@@ -15,12 +15,24 @@ import { Preferences } from '../preferences-screen';
 import { Websites } from '../../../protected-sites/components/screen';
 import { About } from '../about-screen';
 import { Privacy } from '../privacy-screen';
-import { Statistics } from '../../../statistics/components/settings-screen';
+import { Page } from '../page';
 import type {
 	SettingsDestinationProperties,
 	SettingsNavigationItem,
 	SettingsShellProperties,
 } from './types';
+
+/**
+ * Loads the Statistics destination and its chart renderer when first requested.
+ * @return React lazy component contract preserving the destination's named export.
+ */
+async function loadStatisticsScreen() {
+	const { Statistics } = await import( '../../../statistics/components/settings-screen' );
+	return { default: Statistics };
+}
+
+/** Defers the Statistics module until its destination enters the rendered tree. */
+const Statistics = lazy( loadStatisticsScreen );
 
 /**
  * Creates navigation items from canonical destinations, localized labels, and shared icons.
@@ -59,7 +71,11 @@ function SettingsDestinationContent( properties: SettingsDestinationProperties )
 		case SettingsDestination.LANGUAGE:
 			return <Preferences shell={ shell } register={ register } language />;
 		case SettingsDestination.STATISTICS:
-			return <Statistics shell={ shell } />;
+			return <Suspense fallback={ <Page title={ shell.statisticsCopy.title }>
+				<p role="status">{ shell.statisticsCopy.loading }</p>
+			</Page> }>
+				<Statistics shell={ shell } />
+			</Suspense>;
 		case SettingsDestination.PRIVACY:
 			return <Privacy shell={ shell } />;
 		case SettingsDestination.ABOUT:

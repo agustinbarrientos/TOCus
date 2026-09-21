@@ -1,12 +1,30 @@
 import type { Route, Worker } from '@playwright/test';
+import { readFile, readdir } from 'node:fs/promises';
 import { expect, test } from './__fixtures__';
 import type { ExtensionWorkerGlobal } from './types';
-import { DefaultPreferencesDocument } from '../../../src/domains/preferences/types';
+import { DefaultPreferencesDocument, Language } from '../../../src/domains/preferences/types';
 import { TestEmptyProtectionConfiguration } from '../../../src/domains/protection/types/__fixtures__';
 import { StoredDurableProtectionStateSchema, type StoredDurableProtectionState } from '../../../src/domains/protection/types/stored-protection-state';
 import { ProtectionStorageEnvelopeSchema } from '../../../src/domains/protection/services/protection-storage/types';
 import { createMockStatisticsDocument } from '../../../src/domains/statistics/types/__fixtures__/statistics-document';
 import { DefaultProtectionScopeId } from '../../../src/domains/protection/types/protection-value';
+
+/**
+ * Identifies packaged chart code independently of generated chunk names.
+ * @param extensionRoot - Root URL of the current disposable extension installation.
+ * @return URLs of every emitted JavaScript module containing the chart renderer.
+ */
+async function readChartModuleUrls( extensionRoot: string ): Promise<string[]> {
+	const output = new URL( '../../../.output/chrome-mv3/', import.meta.url );
+	const paths = ( await readdir( output, { recursive: true } ) ).filter( ( path ) => path.endsWith( '.js' ) );
+	const modules = await Promise.all( paths.map( async ( path ) => ( {
+		path,
+		code: await readFile( new URL( path, output ), 'utf8' ),
+	} ) ) );
+	const chartModules = modules.filter( ( module ) => module.code.includes( 'recharts-wrapper' ) );
+	expect( chartModules.length, 'The packaged extension must contain its real chart renderer.' ).toBeGreaterThan( 0 );
+	return chartModules.map( ( module ) => new URL( module.path, extensionRoot ).href );
+}
 
 /**
  * Reads the authoritative durable document from the disposable extension worker.
@@ -43,6 +61,71 @@ async function readTabMuted( worker: Worker, url: string ): Promise<boolean> {
 		return tab.mutedInfo.muted;
 	}, url );
 }
+
+test.describe( 'packaged Settings loading', () => {
+	test.use( { pregrantSite: false } );
+	test.beforeEach( async ( { worker } ) => {
+		const totals = {
+			estimatedReclaimedMilliseconds: 120_000,
+			focusedPauseMilliseconds: 60_000,
+			reconsideredVisitCount: 1,
+			completedWaitCount: 1,
+			allowanceGrantedCount: 1,
+		};
+		await worker.evaluate( async ( seed ) => {
+			const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+			await chrome.storage.local.set( seed );
+		}, {
+			'tocus.preferences.v1': { ...DefaultPreferencesDocument, language: Language.ENGLISH },
+			'tocus.protection.configuration.v1': TestEmptyProtectionConfiguration,
+			'tocus.statistics.v1': {
+				...createMockStatisticsDocument(),
+				firstRecordedDate: '2026-09-16',
+				dailyTotals: [ { date: '2026-09-16', ...totals } ],
+				scopes: { [ DefaultProtectionScopeId ]: { totals } },
+			},
+		} );
+	} );
+
+	test( 'loads chart code only after navigating to Statistics', async ( { page, extensionRoot } ) => {
+		const chartModules = await readChartModuleUrls( extensionRoot );
+		const requests = new Set<string>();
+		const errors: string[] = [];
+		page.on( 'request', ( request ) => requests.add( request.url() ) );
+		page.on( 'pageerror', ( error ) => errors.push( error.message ) );
+
+		await test.step( 'Open and navigate ordinary Settings without requesting chart code', async () => {
+			await page.goto( new URL( 'options.html#about', extensionRoot ).href );
+			await expect( page.getByRole( 'heading', { level: 1, name: 'About', exact: true } ) ).toBeVisible();
+			await page.getByRole( 'link', { name: 'Appearance', exact: true } ).click();
+			await expect( page.getByRole( 'heading', { level: 1, name: 'Appearance', exact: true } ) ).toBeVisible();
+			expect( chartModules.filter( ( url ) => requests.has( url ) ) ).toEqual( [] );
+		} );
+
+		await test.step( 'Request the packaged chart and render its local statistics on navigation', async () => {
+			await page.getByRole( 'link', { name: 'Statistics', exact: true } ).click();
+			await expect( page ).toHaveURL( /#statistics$/u );
+			await expect( page.getByRole( 'heading', { level: 1, name: 'Statistics', exact: true } ) ).toBeVisible();
+			await expect( page.locator( '.recharts-wrapper svg.recharts-surface' ) ).toBeVisible();
+			await expect( page.locator( '.settings-statistics-estimate dd' ) ).toHaveText( 'Approximately 3 minutes' );
+			expect( chartModules.filter( ( url ) => requests.has( url ) ) ).toEqual( chartModules );
+			expect( errors ).toEqual( [] );
+		} );
+	} );
+
+	test( 'loads Statistics directly from its Settings URL', async ( { page, extensionRoot } ) => {
+		const errors: string[] = [];
+		page.on( 'pageerror', ( error ) => errors.push( error.message ) );
+		await test.step( 'Open the direct Statistics URL and render its chart', async () => {
+			await page.goto( new URL( 'options.html#statistics', extensionRoot ).href );
+			await expect( page.getByRole( 'heading', { level: 1, name: 'Statistics', exact: true } ) ).toBeVisible();
+			await expect( page.getByRole( 'link', { name: 'Statistics', exact: true } ) ).toHaveAttribute( 'aria-current', 'page' );
+			await expect( page.locator( '.recharts-wrapper svg.recharts-surface' ) ).toBeVisible();
+			await expect( page.locator( '.settings-statistics-estimate dd' ) ).toHaveText( 'Approximately 3 minutes' );
+			expect( errors ).toEqual( [] );
+		} );
+	} );
+} );
 
 test.describe( 'packaged Chrome protection', () => {
 	test( 'saves website changes through the departure dialog using the native permission API', async ( { page, worker, extensionRoot } ) => {
