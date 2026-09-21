@@ -2,6 +2,8 @@
 
 `@tocus/ui` directly re-exports Mantine 9.6 components and types. It owns the brand theme, provider integration and layout classes, not local implementations of controls.
 
+Stylesheets have one public export each: `@tocus/ui/styles.scss` for the full UI, `@tocus/ui/pause.scss` for the pause screen's limited controls, `@tocus/ui/charts.scss` for charts, and `@tocus/ui/notifications.scss` for snackbars. Use these exact paths in JavaScript imports and Sass `@use`; extensionless aliases are not exported.
+
 ```tsx
 import { Button, Slider, TocusAppearance, TocusPalette, TocusProvider } from '@tocus/ui';
 import '@tocus/ui/styles.scss';
@@ -38,7 +40,7 @@ Alerts retain the original icon geometry: a 1.25em square with a 0.125em top mar
 
 Use the `IconName` const catalog for icons, for example `<Icon name={IconName.HEART} />`. Names describe the supplied shapes, never an application destination or feedback meaning: `HEART`, `BRUSH`, `ARROW_UP_RIGHT_FROM_SQUARE`, `LANGUAGE`, `SHIELD_HALVED`, `USER_LOCK`, `CALENDAR`, `SLIDERS`, `LINK_HORIZONTAL`, `CHART_COLUMN`, `PAUSE`, `CIRCLE_CHECK`, `CIRCLE_EXCLAMATION`, `ANGLE_DOWN`, `ANGLE_UP` and `SPINNER_THIRD`. Artwork lives under matching shape-based filenames in `@tocus/theme/icons`; the renderer preserves supplied path opacity and inherits the active foreground color.
 
-`src/utils/theme/index.ts` supplies `ANGLE_DOWN` through Mantine `NativeSelect`'s public `rightSection` slot while retaining native selection and keyboard behavior. It also supplies `SPINNER_THIRD` as Mantine's default `oval` loader, including `Button` loading states. Shared sizing, rotation and reduced-motion handling live in `src/components/provider/style.scss`.
+`src/utils/theme/index.ts` supplies `ANGLE_DOWN` through Mantine `NativeSelect`'s public `rightSection` slot while retaining native selection and keyboard behavior. It also supplies `SPINNER_THIRD` as Mantine's default `oval` loader, including `Button` loading states. Shared sizing, rotation and reduced-motion handling live in `src/components/provider/shared.scss`.
 
 For native disclosures, use `details.tocus-disclosure` with `ANGLE_DOWN` and `ANGLE_UP` inside its `summary`, carrying `tocus-disclosure-expand` and `tocus-disclosure-collapse` respectively. Shared styles replace the browser marker and switch artwork using the native `open` attribute; the browser owns disclosure interaction. Keep select, disclosure and loader artwork in these shared defaults and styles.
 
@@ -49,6 +51,8 @@ For native disclosures, use `details.tocus-disclosure` with `ANGLE_DOWN` and `AN
 Shared layout classes are `tocus-page`, `tocus-page-header`, `tocus-section`, `tocus-form-actions`, `tocus-info` and `tocus-external-link`. App styles should compose pages and sections without restyling foundation states.
 
 For injected integration, pass the compiled `@tocus/ui/styles.scss?inline` string to `createShadowStyleSheet`, adopt the returned sheet inside the owned shadow root, and pass that root as `shadowRoot`. This option uses Mantine's public variable resolver/converter to adopt generated theme variables too, so strict host CSP does not block a generated style tag. It adds and removes only its own generated stylesheet.
+
+The production pause instead includes `@tocus/ui/pause.scss` in its screen stylesheet. This entry retains the shared provider rules and only the Mantine primitives used by the pause; its owning document or protected-page font loader supplies the packaged fonts.
 
 Shadow integration resolves packaged and generated CSS `rem` lengths against a fixed 16px baseline, retaining the default 1.15 scale. It also normalizes Mantine's initial and subsequently updated inline lengths through CSSOM inside that provider's subtree. Host font changes therefore require no compensation, global mutations, resize listeners or polling. URLs, quoted content, other units and normal-page styles remain unchanged. Do not pre-compensate `scale` for the host font. The injected integration still supplies its existing local font loader.
 

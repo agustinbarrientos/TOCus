@@ -1,7 +1,8 @@
 @use '@tocus/theme/typography' as typography;
 @use '@tocus/theme/controls' as controls;
 @use '@tocus/theme/sizing';
-@use '@tocus/ui/styles';
+/* stylelint-disable-next-line scss/load-partial-extension -- Public package styles use their canonical .scss export, not a Sass partial path. */
+@use '@tocus/ui/pause.scss';
 
 :host {
 	--tocus-size-unit: 16px;

@@ -1,4 +1,5 @@
 import { readdirSync, readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as sass from 'sass';
@@ -37,7 +38,7 @@ function findControlOverrides( source: string, markup: string, stylesheetUrl?: U
 		}
 	}
 	// The library stylesheet is verified by its own rendered suite, not counted as an app override.
-	const localStyles = source.replaceAll( /@use\s+['"]@tocus\/ui\/styles(?:\.scss)?['"];?/gu, '' );
+	const localStyles = source.replaceAll( /@use\s+['"]@tocus\/ui\/(?:styles|pause)\.scss['"];?/gu, '' );
 	const css = sass.compileString( localStyles, {
 		loadPaths: [ themeNodeModules ],
 		importers: [ {
@@ -75,6 +76,13 @@ function findControlOverrides( source: string, markup: string, stylesheetUrl?: U
 }
 
 describe( 'shared UI style ownership', () => {
+	it.each( [ 'styles', 'pause', 'charts', 'notifications' ] )( 'resolves %s through one explicit SCSS package export', ( stylesheet ) => {
+		const packageRequire = createRequire( new URL( '../../../package.json', import.meta.url ) );
+		expect( packageRequire.resolve( `@tocus/ui/${ stylesheet }.scss` ) ).toMatch( /\.scss$/u );
+		expect( () => packageRequire.resolve( `@tocus/ui/${ stylesheet }` ) )
+			.toThrow( expect.objectContaining( { code: 'ERR_PACKAGE_PATH_NOT_EXPORTED' } ) );
+	} );
+
 	it.each( [
 		'.save-action { background: red; color: white; border-radius: 10px; }',
 		'.save-action { &:hover { box-shadow: none; transform: translateY(-1px); } }',

@@ -125,7 +125,7 @@ const maximumClassicRuntimeBytes = 450_000;
  * Background scripts retain the smaller engine-only budget above.
  * @since 0.1.0 React presentation migration.
  */
-const maximumProtectedPageBytes = 1_000_000;
+const maximumProtectedPageBytes = 750_000;
 const pngSignature = Buffer.from( [ 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a ] );
 
 /**
@@ -412,6 +412,8 @@ async function expectProtectedPageComposition( outputUrl: URL ): Promise<void> {
 	expect( moduleCode ).toContain( 'get-protected-page-presentation-status' );
 	expect( moduleCode.includes( '--chart-' ), 'The injected renderer must not carry chart CSS.' ).toBe( false );
 	expect( moduleCode.includes( 'recharts-' ), 'The injected renderer must not carry chart rendering code.' ).toBe( false );
+	expect( moduleCode.includes( '@font-face' ), 'Brand fonts belong to the separately injected font stylesheet.' ).toBe( false );
+	expect( moduleCode ).not.toMatch( /data:(?:font|application\/font)/u );
 	expect( fontStyles ).toContain( '@font-face' );
 	expect( fontStyles ).toContain( 'Fredoka Variable' );
 	expect( fontStyles ).not.toMatch( /url\((?:["'])?https?:/u );
