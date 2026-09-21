@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { Palette, ThemeMode } from '../../../apps/extension/src/domains/preferences/types';
 import { SettingsDestination } from '../../../apps/extension/src/features/settings/services/settings-navigation/types';
 import { compareOriginal, expect, originalCase, OriginalFixtureOrigin, OriginalSnapshots } from './helpers';
+import { waitForStatisticsState } from './helpers/statistics-readiness';
 import type { Page } from '@playwright/test';
 
 /**
@@ -123,6 +124,9 @@ for ( const original of settingsSnapshots ) {
 			: name.startsWith( 'protected-site-list' ) ? 'site-list.html' : 'index.html';
 		await page.goto( `${ OriginalFixtureOrigin }/apps/extension/src/features/settings/components/shell/__fixtures__/${ fixture }?${ parameters }#${ destination }` );
 		await expect( page.getByRole( 'heading', { level: fixture === 'index.html' ? 1 : 2 } ).first() ).toBeVisible();
+		if ( destination === SettingsDestination.STATISTICS ) {
+			await waitForStatisticsState( page, name );
+		}
 		await prepareState( page, name );
 		await page.evaluate( () => {
 			window.scrollTo( 0, 0 );
