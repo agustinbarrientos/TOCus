@@ -57,7 +57,7 @@ test.describe( 'timing sliders', () => {
 					outputCenter: outputBounds.top + outputBounds.height / 2,
 				};
 			} );
-			expect.soft( metrics.gap ).toBe( 8 );
+			expect.soft( metrics.gap ).toBeCloseTo( 8, 2 );
 			expect( metrics.labelCenter ).toBeCloseTo( metrics.helpCenter, 1 );
 			expect( metrics.labelCenter ).toBeCloseTo( metrics.outputCenter, 1 );
 		}

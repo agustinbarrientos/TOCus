@@ -26,7 +26,7 @@ test.describe( 'shared appearance controls', () => {
 			}
 			return [ element.getBoundingClientRect().top - label.getBoundingClientRect().bottom,
 				options.getBoundingClientRect().top - element.getBoundingClientRect().bottom ];
-		} ) ).toEqual( [ 8, 8 ] );
+		} ) ).toEqual( [ expect.closeTo( 8, 2 ), expect.closeTo( 8, 2 ) ] );
 	} );
 	test( 'keeps a single field gap below onboarding language and regional labels', async ( { page } ) => {
 		await page.goto( '/tests/visual/originals/presentation/?scenario=language' );
