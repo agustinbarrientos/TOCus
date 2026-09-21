@@ -36,6 +36,17 @@ describe( 'resolveSiteDisplayIdentity', () => {
 		[ 'wordpress.com', 'WordPress.com' ],
 		[ 'crafter.run', 'Crafter Station' ],
 		[ 'agustinbarrientos.com', 'Agustin Barrientos' ],
+		[ 'daily.dev', 'Daily.dev' ],
+		[ 'primevideo.com', 'Prime Video' ],
+		[ 'hbomax.com', 'HBO Max' ],
+		[ 'max.com', 'HBO Max' ],
+		[ 'disneyplus.com', 'Disney+' ],
+		[ 'paramountplus.com', 'Paramount+' ],
+		[ 'peacocktv.com', 'Peacock' ],
+		[ 'tubitv.com', 'Tubi' ],
+		[ 'pluto.tv', 'Pluto TV' ],
+		[ 'soundcloud.com', 'SoundCloud' ],
+		[ 'tidal.com', 'TIDAL' ],
 	] )( 'uses the exact local alias for %s', ( host, name ) => {
 		expect( resolveSiteDisplayIdentity( {
 			identityHost: host,
@@ -55,6 +66,15 @@ describe( 'resolveSiteDisplayIdentity', () => {
 		[ 'www.wordpress.com', 'wordpress.com', 'WordPress.com' ],
 		[ 'www.crafter.run', 'crafter.run', 'Crafter Station' ],
 		[ 'www.agustinbarrientos.com', 'agustinbarrientos.com', 'Agustin Barrientos' ],
+		[ 'app.daily.dev', 'daily.dev', 'Daily.dev' ],
+		[ 'play.hbomax.com', 'hbomax.com', 'HBO Max' ],
+		[ 'play.max.com', 'max.com', 'HBO Max' ],
+		[ 'player.twitch.tv', 'twitch.tv', 'Twitch' ],
+		[ 'tv.apple.com', 'apple.com', 'Apple TV' ],
+		[ 'music.apple.com', 'apple.com', 'Apple Music' ],
+		[ 'www.apple.com', 'apple.com', 'Apple' ],
+		[ 'apps.apple.com', 'apple.com', 'App Store' ],
+		[ 'listen.tidal.com', 'tidal.com', 'TIDAL' ],
 	] )( 'uses the catalog identity %s for %s', ( identityHost, protectionHost, name ) => {
 		expect( resolveSiteDisplayIdentity( {
 			identityHost,
@@ -109,17 +129,43 @@ describe( 'resolveSiteDisplayIdentity', () => {
 		} );
 	} );
 
-	it( 'uses a trimmed editable name and falls back when it is cleared', () => {
+	it.each( [
+		[ 'x.com', 'X' ],
+		[ 'daily.dev', 'Daily.dev' ],
+		[ 'primevideo.com', 'Prime Video' ],
+		[ 'hbomax.com', 'HBO Max' ],
+		[ 'tv.apple.com', 'Apple TV' ],
+		[ 'soundcloud.com', 'SoundCloud' ],
+	] )( 'uses a trimmed editable name for %s and falls back when it is cleared', ( host, name ) => {
 		expect( resolveSiteDisplayIdentity( {
-			identityHost: 'x.com',
-			rule: createRule( 'x.com' ),
+			identityHost: host,
+			rule: createRule( host ),
 			displayNameOverride: '  My social space  ',
 		} ).name ).toBe( 'My social space' );
 		expect( resolveSiteDisplayIdentity( {
-			identityHost: 'x.com',
-			rule: createRule( 'x.com' ),
+			identityHost: host,
+			rule: createRule( host ),
 			displayNameOverride: '   ',
-		} ).name ).toBe( 'X' );
+		} ).name ).toBe( name );
+	} );
+
+	it.each( [
+		'amazon.com',
+		'amazon.co.uk',
+		'amazon.de',
+		'amazon.co.jp',
+		'amazon.ca',
+		'amazon.in',
+		'amazon.com.mx',
+	] )( 'keeps the shared retail identity for Prime Video on %s', ( host ) => {
+		expect( resolveSiteDisplayIdentity( {
+			identityHost: host,
+			rule: createRule( host ),
+		} ).name ).toBe( 'Amazon' );
+		expect( resolveSiteDisplayIdentity( {
+			identityHost: `www.${ host }`,
+			rule: createRule( host ),
+		} ).name ).toBe( 'Amazon' );
 	} );
 
 	it.each( [

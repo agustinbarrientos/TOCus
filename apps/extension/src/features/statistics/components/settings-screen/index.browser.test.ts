@@ -81,7 +81,8 @@ test.describe( 'local statistics', () => {
 			await page.evaluate( () => document.fonts.ready );
 			for ( const width of [ 320, 360, 390 ] ) {
 				await page.setViewportSize( { width, height: 844 } );
-				const layout = await amount.evaluate( ( element, firstWord ) => {
+				// Chart dimensions follow the viewport through an asynchronous ResizeObserver update.
+				await expect.poll( () => amount.evaluate( ( element, firstWord ) => {
 					const node = element.firstChild;
 					if ( ! ( node instanceof Text ) ) {
 						throw new TypeError( 'The metric amount must contain its localized text.' );
@@ -98,8 +99,7 @@ test.describe( 'local statistics', () => {
 						fontSize: getComputedStyle( element ).fontSize,
 						availableWidth: bounds.width,
 					};
-				}, firstWord );
-				expect( layout, `${ language } at ${ String( width ) }px: ${ JSON.stringify( layout ) }` ).toMatchObject( {
+				}, firstWord ), { message: `${ language } at ${ String( width ) }px` } ).toMatchObject( {
 					wordLines: 1, wordFits: true, pageFits: true,
 				} );
 			}

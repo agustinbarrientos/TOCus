@@ -6,12 +6,34 @@
 	list-style: none;
 	scroll-margin-block: var(--tocus-space-5);
 
+	&[data-selectable] { position: relative; }
+
 	&[data-highlighted] {
 		background: var(--tocus-color-primary-container);
 		outline: 2px solid var(--tocus-color-primary);
 		outline-offset: var(--tocus-space-1);
 		border-radius: var(--tocus-radius-small);
 	}
+}
+
+[data-tocus-ui] .settings-site-select {
+	position: absolute;
+	top: var(--tocus-space-3);
+	left: calc(-1 * (var(--tocus-site-selection-width) + var(--tocus-space-1)));
+	display: flex;
+	width: calc(var(--tocus-site-selection-width) + var(--tocus-space-1));
+	min-height: calc(var(--tocus-space-6) + var(--tocus-space-3));
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+}
+
+@media (hover: hover) and (pointer: fine) and (width > 48rem) {
+	.settings-site-select { opacity: 0; }
+
+	.settings-site-item:hover .settings-site-select,
+	.settings-site-item:focus-within .settings-site-select,
+	.settings-site-item[data-selection-active] .settings-site-select { opacity: 1; }
 }
 
 [data-tocus-ui] .settings-page .settings-site-identity {

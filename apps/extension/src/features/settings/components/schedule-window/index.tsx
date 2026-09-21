@@ -59,10 +59,13 @@ export function ScheduleWindowControl( props: ScheduleWindowControlProps ) {
 				<VisuallyHidden><label htmlFor={ `end-${ windowId }` }>{ copy.endTimeLabel }</label></VisuallyHidden>
 				<TextInput id={ `end-${ windowId }` } type="time" value={ window.end }
 					disabled={ disabled }
-					aria-describedby={ `end-error-${ windowId }` }
+					aria-describedby={ `end-error-${ windowId }${ window.fullDay ? ` all-day-${ windowId }` : '' }` }
 					error={ validate && errors.end !== null } onChange={ ( event ) => {
 						props.onChange( { end: event.currentTarget.value, fullDay: false } );
 					} } />
+				{ window.fullDay && <small id={ `all-day-${ windowId }` } className="settings-schedule-day-hint">
+					{ copy.allDayLabel }
+				</small> }
 				<small id={ `end-error-${ windowId }` } className="settings-schedule-error"
 					role={ validate && errors.end ? 'alert' : undefined }>
 					{ validate ? errors.end : null }

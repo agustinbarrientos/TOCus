@@ -32,6 +32,7 @@ export function createSettingsShellCopy( i18n: I18n ): Readonly<SettingsShellCop
 		siteAddedToDraft: i18n._( msg`Site added. Save to apply your changes.` ),
 		siteUpdatedInDraft: i18n._( msg`Site updated. Save to apply your changes.` ),
 		siteRemovedFromDraft: i18n._( msg`Site removed. Save to apply your changes.` ),
+		sitesRemovedFromDraft: i18n._( msg`Selected websites removed. Save to apply.` ),
 		siteAlreadyExists: i18n._( msg`This site is already in your list.` ),
 	} );
 }

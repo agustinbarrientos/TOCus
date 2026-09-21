@@ -8,6 +8,7 @@ import { createWellbeingSummaryController } from './index';
 import type { WellbeingSummaryTarget } from './types';
 import type { WellbeingSummaryValues } from '../../utils/format-wellbeing-summary/types';
 import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
+import { formatNewTabWellbeingSummary } from '../../utils/format-wellbeing-summary';
 
 /**
  * Statistics-change listener used by the controller fixture.
@@ -115,6 +116,16 @@ function formatLocalizedDuration( milliseconds: number ): string {
 }
 
 /**
+ * Composes one deterministic compact localized sentence for controller tests.
+ * @param duration - Formatted fixture duration.
+ * @return Deterministic compact sentence.
+ * @since 0.1.0 Initial implementation.
+ */
+function formatLocalizedShortSummary( duration: string ): string {
+	return `Aproximadamente ${ duration } recuperados.`;
+}
+
+/**
  * Composes one deterministic localized wellbeing sentence for controller tests.
  * @param values - Formatted fixture values.
  * @return Deterministic localized sentence.
@@ -136,6 +147,8 @@ describe( 'wellbeing summary controller', () => {
 		controller.setCopy( {
 			neutral: 'Este momento es para vos.',
 			formatDuration: formatLocalizedDuration,
+			formatShortDuration: formatLocalizedDuration,
+			formatShortSummary: formatLocalizedShortSummary,
 			formatSummary: formatLocalizedSummary,
 		} );
 
@@ -154,7 +167,7 @@ describe( 'wellbeing summary controller', () => {
 		expect( target.wellbeingSummary ).toBe( '' );
 	} );
 
-	it( 'reads and projects the authoritative summary', async () => {
+	it( 'keeps the existing detailed summary as the injected-overlay default', async () => {
 		const target = createTarget();
 		const readStatistics = vi.fn().mockResolvedValue( createProjection( 120_000, 60_000 ) );
 		const controller = createWellbeingSummaryController( {
@@ -169,6 +182,20 @@ describe( 'wellbeing summary controller', () => {
 		expect( target.wellbeingSummary ).toBe(
 			"Since you started, you've given yourself about 2 minutes back, including 1 minute spent pausing.",
 		);
+	} );
+
+	it( 'uses an explicitly selected summary formatter for the standalone page', async () => {
+		const target = createTarget();
+		const controller = createWellbeingSummaryController( {
+			copy: TestEnglishLocalizationBundle.wellbeing,
+			formatSummary: formatNewTabWellbeingSummary,
+			source: new MemoryStatisticsSource( vi.fn().mockResolvedValue( createProjection( 899_999, 0 ) ) ),
+			target,
+		} );
+
+		await controller.refresh();
+
+		expect( target.wellbeingSummary ).toBe( '' );
 	} );
 
 	it( 'uses the neutral footer when statistics are unavailable or the read rejects', async () => {
@@ -228,6 +255,8 @@ describe( 'wellbeing summary controller', () => {
 		controller.setCopy( {
 			neutral: 'Este momento es para vos.',
 			formatDuration: formatLocalizedDuration,
+			formatShortDuration: formatLocalizedDuration,
+			formatShortSummary: formatLocalizedShortSummary,
 			formatSummary: formatLocalizedSummary,
 		} );
 

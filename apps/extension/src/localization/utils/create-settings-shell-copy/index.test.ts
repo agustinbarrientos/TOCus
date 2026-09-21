@@ -29,6 +29,7 @@ describe( 'createSettingsShellCopy', () => {
 			siteAddedToDraft: 'Site added. Save to apply your changes.',
 			siteUpdatedInDraft: 'Site updated. Save to apply your changes.',
 			siteRemovedFromDraft: 'Site removed. Save to apply your changes.',
+			sitesRemovedFromDraft: 'Selected websites removed. Save to apply.',
 			siteAlreadyExists: 'This site is already in your list.',
 		};
 

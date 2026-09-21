@@ -101,6 +101,23 @@ export interface ProtectedSitesScreenCopy extends ProtectedSiteListCopy {
 	loadErrorTitle: string;
 	loadErrorDescription: string;
 	retry: string;
+	removeSelectedDescription: string;
+	cancelRemoveSelected: string;
+	confirmRemoveSelected: string;
+	/**
+	 * Formats the bulk-removal action label for the selected website count.
+	 * @param count - Number of selected websites.
+	 * @return Human-readable action label.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	formatRemoveSelected( count: number ): string;
+	/**
+	 * Formats the bulk-removal confirmation heading for the selected website count.
+	 * @param count - Number of selected websites.
+	 * @return Human-readable removal question.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	formatRemoveSelectedQuestion( count: number ): string;
 	/**
 	 * Formats the announcement emitted after one site is added.
 	 * @param name - Resolved local site name.

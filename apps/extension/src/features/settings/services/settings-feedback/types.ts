@@ -11,6 +11,7 @@ export const SettingsFeedbackAction = {
 	SITE_ADDED: 'site-added',
 	SITE_UPDATED: 'site-updated',
 	SITE_REMOVED: 'site-removed',
+	SITES_REMOVED: 'sites-removed',
 	DUPLICATE_SITE: 'duplicate-site',
 } as const;
 

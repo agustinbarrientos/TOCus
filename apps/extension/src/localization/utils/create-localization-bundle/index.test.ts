@@ -51,7 +51,7 @@ describe( 'createLocalizationBundle', () => {
 	it.each( [
 		[ Language.ENGLISH, 'Current website', 'TOCus is active' ],
 		[ Language.SPANISH_TU, 'Sitio web actual', 'TOCus está activo' ],
-		[ Language.SPANISH_VOS, 'Sitio actual', 'TOCus está activo' ],
+		[ Language.SPANISH_VOS, 'Sitio web actual', 'TOCus está activo' ],
 		[ Language.PORTUGUESE_BRAZIL, 'Site atual', 'O TOCus está ativo' ],
 		[ Language.PORTUGUESE_PORTUGAL, 'Site atual', 'O TOCus está ativo' ],
 		[ Language.ITALIAN, 'Sito web attuale', 'TOCus è attivo' ],
@@ -314,14 +314,58 @@ describe( 'createLocalizationBundle', () => {
 		expect( bundle.interruption.formatRemainingTime( 2 ) ).toBe( expectation.plural );
 	} );
 
+	it.each( Object.values( Language ).filter( ( language ) => language !== Language.ENGLISH ) )(
+		'loads translated schedule quick actions through the %s catalog',
+		async ( language ) => {
+			const bundle = await loadLocalizationBundle( language );
+			const english = await loadLocalizationBundle( Language.ENGLISH );
+			const messageKeys = [
+				'presetWeekdaysWorkingHours',
+				'presetWeekdaysAllDay',
+				'presetWeekendsAllDay',
+				'clearWindows',
+				'clearWindowsTitle',
+				'clearWindowsDescription',
+				'cancelClearWindows',
+				'emptyWindowsMessage',
+				'allDayLabel',
+			] as const;
+
+			for ( const key of messageKeys ) {
+				expect( bundle.schedule[ key ].trim(), key ).not.toBe( '' );
+				expect( bundle.schedule[ key ], key ).not.toBe( english.schedule[ key ] );
+			}
+
+			expect( new Set( [
+				bundle.schedule.presetWeekdaysWorkingHours,
+				bundle.schedule.presetWeekdaysAllDay,
+				bundle.schedule.presetWeekendsAllDay,
+			] ).size ).toBe( 3 );
+		},
+	);
+
 	it( 'keeps regional language variants independently authored', async () => {
 		const spanishTu = await loadLocalizationBundle( Language.SPANISH_TU );
 		const spanishVos = await loadLocalizationBundle( Language.SPANISH_VOS );
 		const portugueseBrazil = await loadLocalizationBundle( Language.PORTUGUESE_BRAZIL );
 		const portuguesePortugal = await loadLocalizationBundle( Language.PORTUGUESE_PORTUGAL );
 
+		for ( const bundle of [ spanishTu, spanishVos ] ) {
+			expect( bundle.onboarding.stepNames.sites ).toBe( 'Sitios web' );
+			expect( bundle.settingsShell.protectedSites ).toBe( 'Sitios web' );
+			expect( bundle.protectedSites.title ).toBe( 'Sitios web' );
+			expect( bundle.settingsShell.schedule ).toBe( 'Horario' );
+			expect( bundle.schedule.title ).toBe( 'Horario' );
+		}
+
 		expect( spanishTu.settingsShell.unsavedChangesDescription )
 			.not.toBe( spanishVos.settingsShell.unsavedChangesDescription );
+		expect( spanishTu.schedule.presetWeekdaysWorkingHours ).toBe( spanishVos.schedule.presetWeekdaysWorkingHours );
+		expect( spanishTu.schedule.presetWeekdaysAllDay ).toBe( spanishVos.schedule.presetWeekdaysAllDay );
+		expect( spanishTu.schedule.presetWeekendsAllDay ).toBe( spanishVos.schedule.presetWeekendsAllDay );
+		expect( spanishTu.schedule.clearWindowsTitle ).toBe( spanishVos.schedule.clearWindowsTitle );
+		expect( spanishTu.schedule.clearWindowsDescription ).not.toBe( spanishVos.schedule.clearWindowsDescription );
+		expect( spanishTu.schedule.emptyWindowsMessage ).not.toBe( spanishVos.schedule.emptyWindowsMessage );
 		expect( portugueseBrazil.settingsShell.unsavedChangesTitle )
 			.not.toBe( portuguesePortugal.settingsShell.unsavedChangesTitle );
 	} );

@@ -25,3 +25,9 @@
 }
 
 .settings-schedule-add { align-self: start; }
+
+.settings-schedule-empty {
+	margin: 0;
+	padding: var(--tocus-space-2);
+	color: var(--tocus-color-on-surface-muted);
+}

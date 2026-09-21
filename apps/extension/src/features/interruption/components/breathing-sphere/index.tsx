@@ -189,7 +189,7 @@ export class ComponentBreathingSphere extends PresentationElement {
 	}
 
 	/**
-	 * Observes root appearance settings, system theme, and component size.
+	 * Observes inherited appearance settings across shadow boundaries, system theme, and component size.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	private connectObservers(): void {
@@ -203,12 +203,13 @@ export class ComponentBreathingSphere extends PresentationElement {
 			attributes: true,
 		};
 
-		this.appearanceObserver.observe( document.documentElement, observerOptions );
-		let root = this.getRootNode();
-
-		while ( root instanceof ShadowRoot ) {
-			this.appearanceObserver.observe( root.host, observerOptions );
-			root = root.host.getRootNode();
+		this.appearanceObserver.observe( this, observerOptions );
+		const boundary = this.getRootNode();
+		let owner = this.parentElement ?? ( boundary instanceof ShadowRoot ? boundary.host : null );
+		while ( owner !== null ) {
+			this.appearanceObserver.observe( owner, observerOptions );
+			const root = owner.getRootNode();
+			owner = owner.parentElement ?? ( root instanceof ShadowRoot ? root.host : null );
 		}
 
 		this.resizeObserver = new ResizeObserver( () => {

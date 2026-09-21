@@ -86,6 +86,7 @@ test.describe( 'the product story', () => {
 								await expect( sphere.locator( '.product-demo-orb' ) ).toBeVisible();
 								await expect( demo.locator( '.product-demo-countdown:visible' ) ).toHaveText( '10s' );
 								await expect( demo.locator( '.product-demo-countdown:visible' ) ).toHaveCSS( 'font-size', '16px' );
+								await expect( demo.locator( '.product-demo-countdown:visible' ) ).toHaveCSS( 'max-width', 'none' );
 								await expect( demo.locator( '.product-demo-continue:visible' ) ).toHaveCount( 0 );
 							}
 							if ( chapter === DemoChapter.CONTINUE ) {

@@ -3,8 +3,67 @@ import { SettingsDestination } from '../../../settings/services/settings-navigat
 import { ThemeMode, Palette } from '../../../../domains/preferences/types';
 import { BrowserPaletteLabels, BrowserThemeLabels } from '../../types/__fixtures__/browser-labels';
 import { test } from '../../../settings/utils/browser-test-harness';
+import type {} from '../../../../../../../tests/visual/originals/presentation/types';
 
 test.describe( 'shared appearance controls', () => {
+	test( 'keeps optional palette help between the label and choices with one gap on each side', async ( { page } ) => {
+		await page.goto( '/tests/visual/originals/presentation/?scenario=appearance' );
+		await expect( page.locator( '.preferences-palette-options' ) ).toBeVisible();
+		await page.evaluate( () => {
+			const copy = window.onboardingOriginal.copy;
+			if ( ! copy ) {
+				throw new Error( 'Expected initialized onboarding copy.' );
+			}
+			window.onboardingOriginal.copy = { ...copy, appearance: { ...copy.appearance, paletteHelp: 'Choose a color.' } };
+		} );
+		const description = page.getByText( 'Choose a color.', { exact: true } );
+		await expect( description ).toBeVisible();
+		expect( await description.evaluate( ( element ) => {
+			const label = element.previousElementSibling;
+			const options = element.parentElement?.querySelector( '.preferences-palette-options' );
+			if ( ! label || ! options ) {
+				throw new Error( 'Expected the palette label and choices.' );
+			}
+			return [ element.getBoundingClientRect().top - label.getBoundingClientRect().bottom,
+				options.getBoundingClientRect().top - element.getBoundingClientRect().bottom ];
+		} ) ).toEqual( [ expect.closeTo( 8, 2 ), expect.closeTo( 8, 2 ) ] );
+	} );
+	test( 'keeps a single field gap below onboarding language and regional labels', async ( { page } ) => {
+		await page.goto( '/tests/visual/originals/presentation/?scenario=language' );
+		await page.getByRole( 'radio', { name: 'Espa\u00f1ol', exact: true } ).click();
+		await expect( page.locator( '.preferences-language-section-label' ) ).toHaveCount( 2 );
+		const gaps = await page.locator( '.preferences-language-options' ).evaluateAll( ( options ) => options.map( ( element ) => {
+			const label = element.parentElement?.parentElement?.querySelector( '.preferences-language-section-label' );
+			if ( ! label ) {
+				throw new Error( 'Expected the language group label.' );
+			}
+			return element.getBoundingClientRect().top - label.getBoundingClientRect().bottom;
+		} ) );
+		expect( gaps ).toEqual( [ 8, 8 ] );
+	} );
+	for ( const surface of [ 'settings', 'onboarding' ] ) {
+		test( `keeps a single field gap below appearance labels in ${ surface }`, async ( { open, page } ) => {
+			if ( surface === 'settings' ) {
+				await open( SettingsDestination.APPEARANCE );
+			} else {
+				await page.goto( '/tests/visual/originals/presentation/?scenario=appearance' );
+			}
+			await expect( page.locator( '.preferences-theme-options' ) ).toBeVisible();
+			const metrics = await page.locator( '.preferences-appearance-controls' ).evaluate( ( element ) => {
+				const labels = element.querySelectorAll( '.preferences-section-label' );
+				const theme = element.querySelector( '.preferences-theme-options' );
+				const palette = element.querySelector( '.preferences-palette-options' );
+				if ( ! labels[ 0 ] || ! labels[ 1 ] || ! theme || ! palette ) {
+					throw new Error( 'Expected labeled theme and palette choices.' );
+				}
+				return {
+					theme: theme.getBoundingClientRect().top - labels[ 0 ].getBoundingClientRect().bottom,
+					palette: palette.getBoundingClientRect().top - labels[ 1 ].getBoundingClientRect().bottom,
+				};
+			} );
+			expect( metrics ).toEqual( { theme: 8, palette: 8 } );
+		} );
+	}
 	test( 'uses padded preview focus and neutral swatch hover instead of palette floods', async ( { open } ) => {
 		const page = await open( SettingsDestination.APPEARANCE );
 		const preview = page.locator( '.preferences-theme-card' ).first();

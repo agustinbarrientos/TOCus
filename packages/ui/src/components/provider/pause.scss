@@ -1,0 +1,11 @@
+@use 'sass:meta';
+@use 'shared';
+
+// Font faces are registered by the owning extension document or protected-page font stylesheet.
+@include shared.styles {
+	@include meta.load-css('@mantine/core/styles/baseline.css');
+	@include meta.load-css('@mantine/core/styles/global.css');
+	@include meta.load-css('@mantine/core/styles/UnstyledButton.css');
+	@include meta.load-css('@mantine/core/styles/Loader.css');
+	@include meta.load-css('@mantine/core/styles/Button.css');
+}

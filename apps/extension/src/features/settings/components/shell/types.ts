@@ -54,6 +54,7 @@ export interface SettingsShellCopy {
 	siteAddedToDraft: string;
 	siteUpdatedInDraft: string;
 	siteRemovedFromDraft: string;
+	sitesRemovedFromDraft: string;
 	siteAlreadyExists: string;
 }
 

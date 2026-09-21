@@ -10,6 +10,16 @@ import type { ProtectedSiteItemCopy } from '../../../features/protected-sites/co
  */
 export function createProtectedSiteItemCopy( i18n: I18n ): Readonly<ProtectedSiteItemCopy> {
 	/**
+	 * Formats one accessible selection label.
+	 * @param name - Current resolved display name.
+	 * @return Complete localized selection label.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function formatSelectSite( name: string ): string {
+		return i18n._( msg`Select ${ { name } }` );
+	}
+
+	/**
 	 * Formats one removal question.
 	 * @param name - Current resolved display name.
 	 * @return Complete localized question.
@@ -27,7 +37,7 @@ export function createProtectedSiteItemCopy( i18n: I18n ): Readonly<ProtectedSit
 		allowAccess: i18n._( msg`Allow access` ),
 		allowingAccess: i18n._( msg`Allowing...` ),
 		accessRequestError: i18n._( msg`Browser access is still required to show the pause on this website.` ),
-		edit: i18n._( msg`Change schedule or site name` ),
+		edit: i18n._( msg`Change when TOCus pauses this site, or rename it` ),
 		displayNameLabel: i18n._( msg`Name` ),
 		saveChanges: i18n._( msg`Save changes` ),
 		saving: i18n._( msg`Saving...` ),
@@ -37,6 +47,7 @@ export function createProtectedSiteItemCopy( i18n: I18n ): Readonly<ProtectedSit
 		confirmRemove: i18n._( msg`Remove` ),
 		operationError: i18n._( msg`Your changes could not be saved. Nothing was replaced.` ),
 		configurationChangedError: i18n._( msg`This site changed elsewhere. Reload settings and try again.` ),
+		formatSelectSite,
 		formatRemoveQuestion,
 	} );
 }

@@ -13,14 +13,13 @@
 	.preferences-appearance-controls .preferences-section-description {
 		@include typography.apply('body-small');
 
-		margin-top: var(--tocus-space-2);
+		margin: 0 0 var(--tocus-space-2);
 	}
 
 	.preferences-theme-options {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 		gap: 1rem;
-		margin-top: var(--tocus-space-3);
 	}
 
 	.preferences-theme-card {
@@ -127,7 +126,6 @@
 
 	.preferences-palette-options {
 		gap: var(--tocus-space-3);
-		margin-top: var(--tocus-space-3);
 	}
 
 
@@ -159,7 +157,6 @@
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
 		gap: var(--tocus-space-3);
-		margin-top: var(--tocus-space-3);
 	}
 
 	.preferences-language-section-label {

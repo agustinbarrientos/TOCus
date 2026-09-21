@@ -9,6 +9,8 @@ import {
 	Group,
 	Stack,
 	TextInput,
+	Icon,
+	IconName,
 } from '@tocus/ui';
 import type {
 	ProtectedSiteConfiguration,
@@ -67,11 +69,22 @@ export function Websites( props: WebsitesScreenProps ) {
 	const { draft, value, status, saving, configuration, pendingAccess, access } = state;
 	const [ editing, setEditing ] = useState<string | null>( null );
 	const [ removing, setRemoving ] = useState<ProtectedSiteConfiguration | null>( null );
+	const [ selected, setSelected ] = useState<ReadonlySet<string>>( new Set() );
+	const [ removingSelected, setRemovingSelected ] = useState<ReadonlySet<string> | null>( null );
 	const addressInput = useRef<HTMLInputElement>( null );
 	const rows = useRef( new Map<string, HTMLLIElement>() );
 	const [ highlighted, setHighlighted ] = useState<string | null>( null );
 	const disabled = saving || shell.permissionManager === null;
 	const savedIdentities = new Set( configuration?.sites.map( ( site ) => site.identityHost ) ?? [] );
+	const selectedSites = value.sites.filter( ( site ) => selected.has( site.identityHost ) );
+
+	useEffect( () => {
+		const hosts = new Set<string>( value.sites.map( ( site ) => site.identityHost ) );
+		setSelected( ( previous ) => {
+			const remaining = new Set( [ ...previous ].filter( ( host ) => hosts.has( host ) ) );
+			return remaining.size === previous.size ? previous : remaining;
+		} );
+	}, [ value.sites ] );
 
 	useEffect( () => {
 		if ( state.duplicate === null ) {
@@ -94,19 +107,42 @@ export function Websites( props: WebsitesScreenProps ) {
 		};
 	}, [ state.duplicate ] );
 
-	/** Removes the confirmed row from the draft without changing storage or permissions. */
-	function confirmRemoval(): void {
-		if ( removing === null ) {
-			return;
+	/**
+	 * Stages confirmed removals together without touching storage or permissions.
+	 * @param hosts - Exact identities captured when the confirmation opened.
+	 */
+	function removeFromDraft( hosts: ReadonlySet<string> ): void {
+		state.change( { ...value,
+			sites: value.sites.filter( ( site ) => ! hosts.has( site.identityHost ) ),
+			detailsByHost: Object.fromEntries( Object.entries( value.detailsByHost )
+				.filter( ( [ host ] ) => ! hosts.has( host ) ) ),
+		} );
+		setSelected( ( previous ) => new Set( [ ...previous ].filter( ( host ) => ! hosts.has( host ) ) ) );
+		if ( editing !== null && hosts.has( editing ) ) {
+			setEditing( null );
 		}
-		const removedHost = removing.identityHost;
-		const remaining = value.sites.filter( ( site ) => site.identityHost !== removedHost );
-		state.change( { ...value, sites: remaining } );
-		notify( SettingsFeedbackAction.SITE_REMOVED );
-		setRemoving( null );
-		setEditing( null );
 		// The removed row cannot receive the dialog's restored focus.
 		addressInput.current?.focus();
+	}
+
+	/** Removes the confirmed row from the draft without changing storage or permissions. */
+	function confirmRemoval(): void {
+		if ( removing === null || saving ) {
+			return;
+		}
+		removeFromDraft( new Set( [ removing.identityHost ] ) );
+		notify( SettingsFeedbackAction.SITE_REMOVED );
+		setRemoving( null );
+	}
+
+	/** Stages the confirmed selection as one change in the existing Save/Discard transaction. */
+	function confirmSelectedRemoval(): void {
+		if ( removingSelected === null || saving ) {
+			return;
+		}
+		removeFromDraft( removingSelected );
+		notify( SettingsFeedbackAction.SITES_REMOVED );
+		setRemovingSelected( null );
 	}
 
 	/**
@@ -120,6 +156,25 @@ export function Websites( props: WebsitesScreenProps ) {
 		}
 		return <WebsiteItem key={ site.identityHost } site={ site } copy={ itemCopy }
 			highlighted={ highlighted === site.identityHost }
+			selection={ { checked: selected.has( site.identityHost ), active: selectedSites.length > 0,
+				/**
+				 * Changes only this row's page-local selection.
+				 * @param checked - Whether the row belongs to the next bulk action.
+				 */
+				onChange: ( checked ) => {
+					if ( saving ) {
+						return;
+					}
+					setSelected( ( previous ) => {
+						const next = new Set( previous );
+						if ( checked ) {
+							next.add( site.identityHost );
+						} else {
+							next.delete( site.identityHost );
+						}
+						return next;
+					} );
+				} } }
 			itemRef={ ( element ) => {
 				if ( element ) {
 					rows.current.set( site.identityHost, element );
@@ -185,13 +240,29 @@ export function Websites( props: WebsitesScreenProps ) {
 							} } /> }
 					</Stack>
 				</form>
+				{ selectedSites.length > 0 && <Group className="settings-site-selection-actions">
+					<Button type="button" size="sm" variant="outline" color="red" disabled={ saving }
+						leftSection={ <Icon name={ IconName.TRASH } /> } onClick={ () => {
+							setRemovingSelected( new Set( selectedSites.map( ( site ) => site.identityHost ) ) );
+						} }>{ copy.formatRemoveSelected( selectedSites.length ) }</Button>
+				</Group> }
 				<WebsiteList sites={ value.sites } copy={ copy } renderItem={ renderSite }
 					hasCustomSchedule={ ( site ) => value.detailsByHost[ site.identityHost ]?.schedule !== null } />
 				<DraftActions draft={ draft } copy={ { ...copy, saving: itemCopy.saving } }
-					onSave={ state.save } onDiscard={ state.discard } />
+					onSave={ state.save } onDiscard={ () => {
+						state.discard();
+						setSelected( new Set() );
+					} } />
 				<Feedback error={ state.errorMessage } success={ state.accessMessage } />
 				{ state.retained && <p role="status">{ copy.savedWithRetainedAccess }</p> }
-				<Confirmation opened={ removing !== null } focusConfirm
+				<Confirmation opened={ removingSelected !== null } pending={ saving }
+					title={ copy.formatRemoveSelectedQuestion( removingSelected?.size ?? 0 ) }
+					description={ copy.removeSelectedDescription }
+					cancel={ copy.cancelRemoveSelected } confirm={ copy.confirmRemoveSelected }
+					onCancel={ () => {
+						setRemovingSelected( null );
+					} } onConfirm={ confirmSelectedRemoval } />
+				<Confirmation opened={ removing !== null } focusConfirm pending={ saving }
 					title={ removing
 						? itemCopy.formatRemoveQuestion( resolveSiteDisplayIdentity( removing ).name )
 						: itemCopy.removeSite }

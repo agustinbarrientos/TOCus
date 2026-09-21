@@ -1,7 +1,8 @@
 @use '@tocus/theme/typography' as typography;
 @use '@tocus/theme/controls' as controls;
 @use '@tocus/theme/sizing';
-@use '@tocus/ui/styles';
+/* stylelint-disable-next-line scss/load-partial-extension -- Public package styles use their canonical .scss export, not a Sass partial path. */
+@use '@tocus/ui/pause.scss';
 
 :host {
 	--tocus-size-unit: 16px;
@@ -123,7 +124,6 @@ header {
 
 	@include typography.apply( 'body-large' );
 
-	max-width: min(50vw, sizing.size(28));
 	margin: 0;
 	padding: var(--tocus-space-2) var(--tocus-space-4);
 	border: 1px solid var(--tocus-color-glass-border);
@@ -156,7 +156,6 @@ main {
 	@include typography.apply( 'headline-large' );
 
 	z-index: 1;
-	max-width: min(90vw, sizing.size(48));
 	margin: var(--tocus-space-3) 0 0;
 	color: var(--tocus-color-on-stage);
 	text-align: center;
@@ -319,7 +318,6 @@ kbd {
 footer {
 	@include typography.apply( 'body-small' );
 
-	max-width: min(92vw, sizing.size(52));
 	margin-inline: auto;
 	padding: var(--tocus-space-4) clamp(sizing.size(1), 4vw, sizing.size(3)) clamp(sizing.size(1), 2.8vw, sizing.size(2));
 	color: var(--tocus-color-on-stage-muted);
@@ -373,7 +371,6 @@ footer {
 
 	.remaining {
 		flex: 0 0 auto;
-		max-width: 58%;
 		padding: sizing.size(0.25) sizing.size(0.55);
 		white-space: nowrap;
 	}
@@ -387,7 +384,6 @@ footer {
 	}
 
 	.cue {
-		max-width: 90%;
 		margin-top: sizing.size(0.25);
 	}
 
@@ -399,7 +395,6 @@ footer {
 	}
 
 	footer {
-		max-width: 100%;
 		padding: sizing.size(0.4) clamp(sizing.size(0.625), 4cqw, sizing.size(1)) clamp(sizing.size(0.5), 4cqh, sizing.size(0.75));
 	}
 }
@@ -419,10 +414,6 @@ footer {
 @media (width <= 40rem) {
 	header {
 		align-items: flex-start;
-	}
-
-	.remaining {
-		max-width: 58vw;
 	}
 
 	.sphere-shell {

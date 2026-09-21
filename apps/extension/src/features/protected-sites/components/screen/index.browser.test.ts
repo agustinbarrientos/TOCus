@@ -60,12 +60,12 @@ test.describe( 'website draft controls', () => {
 		await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
 		const row = page.locator( '.settings-site-list > li' ).first();
 		const remove = row.getByRole( 'button', { name: 'Remove site', exact: true } );
-		const manage = row.getByRole( 'button', { name: 'Change schedule or site name', exact: true } );
+		const manage = row.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } );
 		await manage.focus();
 		await page.keyboard.press( 'Shift+Tab' );
 		await expect( page.getByRole( 'tooltip', { name: 'Remove site', exact: true } ) ).toBeVisible();
 		await page.keyboard.press( 'Tab' );
-		await expect( page.getByRole( 'tooltip', { name: 'Change schedule or site name', exact: true } ) ).toBeVisible();
+		await expect( page.getByRole( 'tooltip', { name: 'Change when TOCus pauses this site, or rename it', exact: true } ) ).toBeVisible();
 		const [ removeBounds, manageBounds ] = await Promise.all( [ remove.boundingBox(), manage.boundingBox() ] );
 		expect( removeBounds ).not.toBeNull();
 		expect( manageBounds ).not.toBeNull();
@@ -111,7 +111,7 @@ test.describe( 'website draft controls', () => {
 		await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
 		const row = page.locator( '.settings-site-item' ).first();
 		await expect( row.getByRole( 'heading', { name: 'Uncanny Automator', exact: true } ) ).toBeVisible();
-		await row.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).click();
+		await row.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } ).click();
 		await page.getByRole( 'dialog' ).getByLabel( 'Name', { exact: true } ).fill( 'My automations' );
 		await page.getByRole( 'button', { name: 'Done', exact: true } ).click();
 		await row.getByRole( 'button', { name: 'Remove site', exact: true } ).click();
@@ -194,7 +194,7 @@ test.describe( 'website draft controls', () => {
 		await page.getByLabel( 'Website address', { exact: true } ).fill( 'example.com' );
 		await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
 		const row = page.locator( '.settings-site-list > li' ).first();
-		await row.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).click();
+		await row.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } ).click();
 		const displayName = page.getByRole( 'dialog' ).getByLabel( 'Name', { exact: true } );
 		await expect( displayName ).toBeFocused();
 		await expect( row.getByRole( 'button', { name: 'Advanced', exact: true } ) ).toHaveCount( 0 );
@@ -214,7 +214,7 @@ test.describe( 'website draft controls', () => {
 			await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
 			const row = page.locator( '.settings-site-list > li' ).first();
 			await expect( row.locator( '.settings-site-schedule' ) ).toHaveCount( 0 );
-			await row.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).click();
+			await row.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } ).click();
 			const dialog = page.getByRole( 'dialog' );
 			await dialog.getByLabel( 'Name', { exact: true } ).fill( 'Reading' );
 			await dialog.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ).click();
@@ -233,7 +233,7 @@ test.describe( 'website draft controls', () => {
 			expect( site?.rule.scopeId ).toBe( DefaultProtectionScopeId );
 			expect( site?.schedule ).toMatchObject( { mode: ScheduleMode.CUSTOM } );
 			expect( await page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
-			await row.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).click();
+			await row.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } ).click();
 			await dialog.getByLabel( 'Name', { exact: true } ).fill( '' );
 			await dialog.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ).click();
 			await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();

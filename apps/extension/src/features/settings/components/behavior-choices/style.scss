@@ -2,10 +2,19 @@
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: var(--tocus-space-2);
-	margin-top: var(--tocus-space-2);
 }
 
 .settings-behavior-choices-stacked { grid-template-columns: minmax(0, 1fr); }
+
+.settings-behavior-choices .tocus-choice-radio.settings-behavior-choice-compact {
+	align-items: center;
+	min-height: 3rem;
+
+	.settings-behavior-choice-control-compact {
+		align-self: center;
+		margin-top: 0;
+	}
+}
 
 @media (width <= 42rem) {
 	.settings-behavior-choices { grid-template-columns: minmax(0, 1fr); }

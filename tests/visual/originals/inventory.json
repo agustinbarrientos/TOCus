@@ -9,83 +9,83 @@
   },
   {
     "path": "apps/extension/src/features/interruption/components/screen/__snapshots__/chromium/interruption-screen-quiet-purple-dark.png",
-    "sha256": "e24f99be3152379939a4781da4986f1fa6e5f1fb531d3ed7f0bc1c36a73a2178"
+    "sha256": "729c5aeff7e3e579c804b40b147fe556ea215412c4e3e74af82107553b7e9b99"
   },
   {
     "path": "apps/extension/src/features/interruption/components/screen/__snapshots__/chromium/interruption-screen-ready.png",
-    "sha256": "2df3cbb9daf8d39772e8bf7c867d8f8a56d93196958599086a2ba401fadd018d"
+    "sha256": "436dd1be599664bfdcbfd97b4a4ea96d41ce0376a0cd15d31a9fb387aca16314"
   },
   {
     "path": "apps/extension/src/features/interruption/components/screen/__snapshots__/chromium/interruption-screen-unavailable-dark.png",
-    "sha256": "7c57dbf9542cfc6045fc6736a4537068bfe39d5e749281554d96bf6f78b8c55a"
+    "sha256": "4a9000464881b239ac8515e1108b3fe3e889abcf65215832c325d35e0197f582"
   },
   {
     "path": "apps/extension/src/features/interruption/components/screen/__snapshots__/chromium/interruption-screen-unavailable.png",
-    "sha256": "4d2afa9f4e9df71af53b9b2b55216b47c89764f49271eee4b8d52486de4ff9d7"
+    "sha256": "1ed9328d24bb1ea679ab6b6e0064ece9d102732109af2d0f119ca2153451875e"
   },
   {
     "path": "apps/extension/src/features/interruption/components/screen/__snapshots__/chromium/interruption-screen-waiting-dark.png",
-    "sha256": "a046968d5252e6ef868e05bdfefb7173bdca49c1db11dcd88d8b2312a75d48b5"
+    "sha256": "3cbbfe09f4b283c1437c25059ce598d0c9a6e757af9d87aa7d25c57143247885"
   },
   {
     "path": "apps/extension/src/features/interruption/components/screen/__snapshots__/chromium/interruption-screen-waiting-light.png",
-    "sha256": "24338770987709fcfb0ad567f38f63dfdc0e4366e43d47047cab934a472cf78a"
+    "sha256": "4bcd160cf169c400c8d47a591272bf087779ab278e998f4a59737ae82373957e"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/appearance-step/__snapshots__/chromium/onboarding-appearance-step-brown-light.png",
-    "sha256": "b74964291ae96072fd4ec841bfdcaa16fbd01656f722b5a1c119d9f55aa2bc3c"
+    "sha256": "011b597d2154a24f88381d9e34b0a7ee10a89efd09ec7a603bff6b085a35e360"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/appearance-step/__snapshots__/chromium/onboarding-appearance-step-purple-dark-narrow.png",
-    "sha256": "1c7990bd756fd064529917c0bf8659585bfbf8573890e499f24814a18503498d"
+    "sha256": "8c15f744c731f164dee66c246391812a202d86395759d6dc9cb7ce0d5a4789e1"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/language-step/__snapshots__/chromium/onboarding-language-step-english-light.png",
-    "sha256": "edd8cf3f24077eae26c58481b16ed8faaff55f96ba476169846123ed7b5dc4eb"
+    "sha256": "9ed1d4332a9d4481f3d68bae93377d303a776311dee1542a2b6dcc772302dc41"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/language-step/__snapshots__/chromium/onboarding-language-step-portuguese-brazil-dark-narrow.png",
-    "sha256": "c06bb9253277e5aee9d675c467539b35a1a9ba1b5a2adf3830e8cb4e1fb9ac87"
+    "sha256": "18dc089c315981f20c4de6e40ebf333c00ed580a1904b194591abe4099a99b61"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/language-step/__snapshots__/chromium/onboarding-language-step-spanish-tu-dark-narrow.png",
-    "sha256": "ccf21924671cb2e6375c7a445f23c4347dc7bd7d28c3a7ff282c9606f61b41da"
+    "sha256": "45b76ea4acf55622c37e26a7f9fd2db4aa7ff490ced2368591c2ed13c4bac834"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-appearance-brown-light-landscape-scrolled.png",
-    "sha256": "be692471bf98dfca988fb04a094980f520a994ae1eb290460459c2b56eb0a1a1"
+    "sha256": "56807b54f15b26f7168ae6947e0fd2790e938b60921148446938e2fdf780fcb0"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-appearance-brown-light.png",
-    "sha256": "7efcf8a8ed1a1286e8544fc6de678ec1298fde4864f75e5d78d574a046a8aa11"
+    "sha256": "42a14e18017dfd43167eb6668f9ac7e5bb2899e4004f36062a77f3cd3ef00cc6"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-appearance-purple-dark-narrow.png",
-    "sha256": "bf887435ce20233b21c6772d0cbae7b166207fea0a4f06513f63cc2936df33a4"
+    "sha256": "eedc51d8e0c80a11e49619a5a3da74096033ab18530370b31b47085099da9713"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-appearance-purple-dark-phone-scrolled.png",
-    "sha256": "30d1e0552fc4a2a81e1d78da755e908c611218401bb7ab4eaeb36c600e94c5d9"
+    "sha256": "a27dd1649e8acb43f5206824aa70235a15d50e33cf2117fd8b84635d18a2fb17"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-brown-light.png",
-    "sha256": "11d016dfb619a75a22674de1c77df1e7425723a7e034eaf96af60cacee1f54bd"
+    "sha256": "320af5992f35ed1ee810b3538374fd86feb9bbd1957461e8b29a9d12c835d14e"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-language-completed-purple-dark-narrow.png",
-    "sha256": "24a24afffd82ac782d86027aa407af708b8c9a45a01a124ff6b112dfe0ba0818"
+    "sha256": "ec8b786e048dffef05a2a9f49f36990eadcc828c99f05ce575b693bc248cfa3d"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-purple-dark-narrow.png",
-    "sha256": "bf0cd8154043c1d0fb8951190f9c924ef575e96f391f2c7381d5f00f98e5a52b"
+    "sha256": "09f190bb6c1a20f5c9d0a0ad830ec662840ec090ac2991e4f85717f10d47c1a1"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-recovery-brown-dark.png",
-    "sha256": "c39e92b5734587a57ed8919a7accc52a899da37553ebee7987d2d427b83ba614"
+    "sha256": "84abcfb29f8a2f57aae7e0f92e6278cc7218f9eaf7eccbe0c22be2f562758093"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-sites-brown-light.png",
-    "sha256": "3584b6bdc0558c9cd092eb4885e66cd1e817c424740ea970f9fd80b10645ebd9"
+    "sha256": "41379b365e95701dd61e79eb819e9603ee89ba6ec0dc04c00696106c95663b7a"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/sites-step/__snapshots__/chromium/onboarding-sites-step-add-focus-green-light.png",
@@ -105,11 +105,11 @@
   },
   {
     "path": "apps/extension/src/features/onboarding/components/sites-step/__snapshots__/chromium/onboarding-sites-step-spanish-tu-denied.png",
-    "sha256": "78d06a121dd719e4072a4d408376f3a61d00be53bc2f32d82f43154f270e3579"
+    "sha256": "8da359c80541c3eeecbe8da789244dd889dbaec3d2e599842a8d14f76f2e5e69"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/sites-step/__snapshots__/chromium/onboarding-sites-step-spanish-vos-filled.png",
-    "sha256": "c5ab7d1b7a659298d39d47932f9e4bd6f30a8a99ccf66d944195854956246059"
+    "sha256": "f7d11cee9750caf66f61af94160c1783d132f40fe951e2ba5fff9bb285dd9b42"
   },
   {
     "path": "apps/extension/src/features/popup/components/shell/__snapshots__/chromium/popup-shell-dark.png",
@@ -141,11 +141,11 @@
   },
   {
     "path": "apps/extension/src/features/preferences/components/appearance-controls/__snapshots__/chromium/appearance-controls-brown-light.png",
-    "sha256": "42a7d77b056d2cdd18de114bc93bac6667501779895ebc1800aff80f41dac607"
+    "sha256": "c7f8e487eef6e055b75bf41615a4de547c79e716ebf106ec49d7a246d63b0201"
   },
   {
     "path": "apps/extension/src/features/preferences/components/appearance-controls/__snapshots__/chromium/appearance-controls-purple-dark-narrow.png",
-    "sha256": "71fef902ebdae1562ecb0c51570bb824d18d7d7e8edc8b24177d1dc2bb20cdbe"
+    "sha256": "ca54ed0c9ef1a5ba741e1e305fbe8d721260b52a4b47317acef259be865be712"
   },
   {
     "path": "apps/extension/src/features/protected-sites/components/site-item/__snapshots__/chromium/protected-site-item-access-required-dark.png",
@@ -185,15 +185,15 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/appearance-screen/__snapshots__/chromium/appearance-screen-brown-light.png",
-    "sha256": "e0d442630140fbe5e30b430dc892761c59da9f3d5dfcd75ce85ee793cdd51c49"
+    "sha256": "1034bb413c9cf7ea598ab43332bd6435978cfae86d4ed7ab5cd97ea0a1915122"
   },
   {
     "path": "apps/extension/src/features/settings/components/appearance-screen/__snapshots__/chromium/appearance-screen-green-narrow.png",
-    "sha256": "9fe264412c792b2d0d871d5029991c51f3bb646d82185130db9846498a417960"
+    "sha256": "6c9c7469d3044c2e4200cd7b3f526eb59789b848d6243cbc4b95e3c831b40b84"
   },
   {
     "path": "apps/extension/src/features/settings/components/appearance-screen/__snapshots__/chromium/appearance-screen-purple-dark.png",
-    "sha256": "49f8fcd243e52c82dff2a297d72d52f588f980471d0c737319b26912f0163a49"
+    "sha256": "9a5c69dd0b95fbcad0e258a47b8600dd339d69ff26a4af582b40bbd201ed2a51"
   },
   {
     "path": "apps/extension/src/features/settings/components/language-screen/__snapshots__/chromium/language-screen-brown-light.png",
@@ -265,11 +265,11 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-appearance-dark.png",
-    "sha256": "66e5f6d585b6f875e75ca6fdb5059de1891383d997c103c46ae1edc9aaa5d325"
+    "sha256": "ab3b59b978b3b6519c6b5454b6da48909dde28b91937e7068dd724e89cc13938"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-appearance-light.png",
-    "sha256": "818921a056ee6fb05a7cbc0b84dc5dbb89c7a3fed1ae98836d4330763d7775f0"
+    "sha256": "29edc38967363d339c0e1a5f0ce16102bb02b344df4a783adc6d092727a67129"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-language-dark.png",
@@ -329,7 +329,7 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-schedule-dark.png",
-    "sha256": "22c9e4634647e08cbd649c18e57471f89caea24a2f263b3f39a036ee2e28939e"
+    "sha256": "8f767441a9ea24b86936ddd2b91d727103f1fb8a274cff5b0320f18c8b1b7711"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-schedule-hover-blue-dark.png",
@@ -341,7 +341,7 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-schedule-light.png",
-    "sha256": "0fbbb1a8b0f400f9e3e269f05580f2db9c33054639c6e118364185c7f1027522"
+    "sha256": "0e08b0bfe57cb364637fbacda839b2dcdd77ee1791b2d17163d9aedc3bbf0338"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-statistics-dark.png",
@@ -353,19 +353,19 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-timing-dark.png",
-    "sha256": "b7f0b2c764b5025146352509b70ab8f19b37b4ed2d118fb39523e5e4000ba36e"
+    "sha256": "f226a774df5cdbca3992c5470b3f3f89ebf84487ebdd9c5a20304e395f758ca5"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-timing-light.png",
-    "sha256": "bd4d2a999f07cd5d10b34aaf04ce8d8b57321645189c3c06d774abb071f6e753"
+    "sha256": "a341a453359a1c6fd33374321d3b55042218b358521cbd2735e7bd3f6be898ec"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-timing-no-increase-dark.png",
-    "sha256": "627a7000106f4b834e8878e7d25d2439aa7a9453eef2690a276b0e6c05f4b194"
+    "sha256": "ae5e335804672ffa43ee6e39f59a1a7f9a62bdb580498d06d907a8b2de1f20bd"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-timing-no-increase-light.png",
-    "sha256": "c3d237e892bff67421b6933937cc4175027145d2b6fa0d134ff0d3c44edcbc60"
+    "sha256": "e93a2785b5c526579d4f300f520d9834203e9241ac7dc3ed8c2a6d2d6f1c856d"
   },
   {
     "path": "apps/extension/src/features/statistics/components/settings-screen/__snapshots__/chromium/statistics-settings-screen-empty-light.png",

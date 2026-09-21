@@ -32,7 +32,7 @@ export function createOnboardingCopy( i18n: I18n ): Readonly<OnboardingShellCopy
 	}
 
 	return Object.freeze( {
-		introduction: i18n._( msg`Create a gentle pause before the websites you choose.` ),
+		introduction: i18n._( msg`Pause before you browse` ),
 		privacyTitle: i18n._( msg`100% private` ),
 		privacyDescription: i18n._( msg`TOCus works offline. Your data stays on this device and is never sent to servers.` ),
 		completionTitle: i18n._( msg`You're all set` ),

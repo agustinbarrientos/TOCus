@@ -8,7 +8,7 @@ test( 'edits a website in a focus-contained dialog without changing the page dra
 	await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
 	await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
 	const row = page.locator( '.settings-site-item' ).first();
-	const manage = row.getByRole( 'button', { name: 'Change schedule or site name', exact: true } );
+	const manage = row.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } );
 	await manage.click();
 	const dialog = page.getByRole( 'dialog', { name: 'Chess.com', exact: true } );
 	const name = dialog.getByLabel( 'Name', { exact: true } );
@@ -93,7 +93,7 @@ test( 'contains keyboard focus and keeps custom schedule rows usable in a narrow
 	await page.setViewportSize( { width: 320, height: 844 } );
 	await page.getByLabel( 'Website address', { exact: true } ).fill( 'chess.com' );
 	await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
-	await page.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).click();
+	await page.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } ).click();
 	const dialog = page.getByRole( 'dialog', { name: 'Chess.com', exact: true } );
 	await dialog.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ).click();
 	await dialog.getByRole( 'button', { name: 'Add row', exact: true } ).click();

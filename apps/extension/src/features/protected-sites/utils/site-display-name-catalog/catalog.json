@@ -441,6 +441,18 @@
 		]
 	},
 	{
+		"name": "Apple Music",
+		"domains": [
+			"music.apple.com"
+		]
+	},
+	{
+		"name": "Apple TV",
+		"domains": [
+			"tv.apple.com"
+		]
+	},
+	{
 		"name": "Apuesta Total",
 		"domains": [
 			"www.apuestatotal.com"
@@ -1011,6 +1023,13 @@
 		]
 	},
 	{
+		"name": "Crunchyroll",
+		"domains": [
+			"crunchyroll.com",
+			"www.crunchyroll.com"
+		]
+	},
+	{
 		"name": "Crn77",
 		"domains": [
 			"crn77.com"
@@ -1065,8 +1084,17 @@
 		]
 	},
 	{
+		"name": "Daily.dev",
+		"domains": [
+			"daily.dev",
+			"www.daily.dev",
+			"app.daily.dev"
+		]
+	},
+	{
 		"name": "Dailymotion",
 		"domains": [
+			"dailymotion.com",
 			"www.dailymotion.com"
 		]
 	},
@@ -1105,6 +1133,13 @@
 		"domains": [
 			"gall.dcinside.com",
 			"m.dcinside.com"
+		]
+	},
+	{
+		"name": "Deezer",
+		"domains": [
+			"deezer.com",
+			"www.deezer.com"
 		]
 	},
 	{
@@ -1176,6 +1211,7 @@
 	{
 		"name": "Disney+",
 		"domains": [
+			"disneyplus.com",
 			"www.disneyplus.com"
 		]
 	},
@@ -2070,6 +2106,17 @@
 		]
 	},
 	{
+		"name": "HBO Max",
+		"domains": [
+			"hbomax.com",
+			"www.hbomax.com",
+			"play.hbomax.com",
+			"max.com",
+			"www.max.com",
+			"play.max.com"
+		]
+	},
+	{
 		"name": "Hdhub4u",
 		"domains": [
 			"hdhub4u.med",
@@ -2141,6 +2188,13 @@
 		"name": "HubSpot",
 		"domains": [
 			"app.hubspot.com"
+		]
+	},
+	{
+		"name": "Hulu",
+		"domains": [
+			"hulu.com",
+			"www.hulu.com"
 		]
 	},
 	{
@@ -3197,6 +3251,7 @@
 	{
 		"name": "Netflix",
 		"domains": [
+			"netflix.com",
 			"www.netflix.com"
 		]
 	},
@@ -3436,6 +3491,7 @@
 	{
 		"name": "Paramount+",
 		"domains": [
+			"paramountplus.com",
 			"www.paramountplus.com"
 		]
 	},
@@ -3461,6 +3517,13 @@
 		"name": "PayPal",
 		"domains": [
 			"www.paypal.com"
+		]
+	},
+	{
+		"name": "Peacock",
+		"domains": [
+			"peacocktv.com",
+			"www.peacocktv.com"
 		]
 	},
 	{
@@ -3528,6 +3591,22 @@
 		"name": "Playhop",
 		"domains": [
 			"playhop.com"
+		]
+	},
+	{
+		"name": "Plex",
+		"domains": [
+			"plex.tv",
+			"www.plex.tv",
+			"watch.plex.tv",
+			"app.plex.tv"
+		]
+	},
+	{
+		"name": "Pluto TV",
+		"domains": [
+			"pluto.tv",
+			"www.pluto.tv"
 		]
 	},
 	{
@@ -3632,6 +3711,7 @@
 	{
 		"name": "Prime Video",
 		"domains": [
+			"primevideo.com",
 			"www.primevideo.com"
 		]
 	},
@@ -4101,6 +4181,14 @@
 		]
 	},
 	{
+		"name": "SoundCloud",
+		"domains": [
+			"soundcloud.com",
+			"www.soundcloud.com",
+			"w.soundcloud.com"
+		]
+	},
+	{
 		"name": "Sotwe",
 		"domains": [
 			"www.sotwe.com"
@@ -4153,6 +4241,8 @@
 	{
 		"name": "Spotify",
 		"domains": [
+			"spotify.com",
+			"www.spotify.com",
 			"accounts.spotify.com",
 			"open.spotify.com"
 		]
@@ -4419,6 +4509,14 @@
 		]
 	},
 	{
+		"name": "TIDAL",
+		"domains": [
+			"tidal.com",
+			"www.tidal.com",
+			"listen.tidal.com"
+		]
+	},
+	{
 		"name": "Tiktokio",
 		"domains": [
 			"tiktokio.com"
@@ -4515,6 +4613,15 @@
 		]
 	},
 	{
+		"name": "Tubi",
+		"domains": [
+			"tubitv.com",
+			"www.tubitv.com",
+			"tubi.tv",
+			"www.tubi.tv"
+		]
+	},
+	{
 		"name": "TV Azteca",
 		"domains": [
 			"www.tvazteca.com"
@@ -4529,7 +4636,10 @@
 	{
 		"name": "Twitch",
 		"domains": [
-			"www.twitch.tv"
+			"twitch.tv",
+			"www.twitch.tv",
+			"player.twitch.tv",
+			"clips.twitch.tv"
 		]
 	},
 	{
@@ -4656,6 +4766,14 @@
 		"name": "Vietnam.vn",
 		"domains": [
 			"www.vietnam.vn"
+		]
+	},
+	{
+		"name": "Vimeo",
+		"domains": [
+			"vimeo.com",
+			"www.vimeo.com",
+			"player.vimeo.com"
 		]
 	},
 	{

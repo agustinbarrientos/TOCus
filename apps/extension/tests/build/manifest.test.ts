@@ -125,7 +125,7 @@ const maximumClassicRuntimeBytes = 450_000;
  * Background scripts retain the smaller engine-only budget above.
  * @since 0.1.0 React presentation migration.
  */
-const maximumProtectedPageBytes = 1_000_000;
+const maximumProtectedPageBytes = 750_000;
 const pngSignature = Buffer.from( [ 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a ] );
 
 /**
@@ -317,9 +317,13 @@ async function expectOptionsComposition( outputUrl: URL ): Promise<void> {
 	const stylesheets = [ ...optionsHtml.matchAll( /<link\s[^>]*rel="stylesheet"[^>]*href="([^"]+)"/gu ) ];
 	const styles = await Promise.all( stylesheets.map( ( stylesheet ) =>
 		readOutputFile( outputUrl, ( stylesheet[ 1 ] ?? '' ).replace( /^\//u, '' ) ) ) );
-	const chartRules = [ ...styles.join( '\n' ).matchAll( /([^{}]+)\{[^{}]*--chart-/gu ) ];
+	expect( styles.join( '\n' ), 'Chart styles must not load with ordinary Settings destinations.' ).not.toContain( '--chart-' );
+	const lazyStylesheets = [ ...moduleCode.matchAll( /["'`](assets\/[^"'`]+\.css)["'`]/gu ) ];
+	const lazyStyles = await Promise.all( lazyStylesheets.map( ( stylesheet ) =>
+		readOutputFile( outputUrl, stylesheet[ 1 ] ?? '' ) ) );
+	const chartRules = [ ...lazyStyles.join( '\n' ).matchAll( /([^{}]+)\{[^{}]*--chart-/gu ) ];
 
-	expect( chartRules.length, 'Options must retain chart presentation styles.' ).toBeGreaterThan( 0 );
+	expect( chartRules.length, 'Statistics must load its chart presentation styles on demand.' ).toBeGreaterThan( 0 );
 	for ( const rule of chartRules ) {
 		expect( rule[ 1 ]?.split( ',' ).every( ( selector ) => selector.trim().startsWith( '[data-tocus-ui]' ) ),
 			'Chart presentation styles must stay inside the shared UI boundary.' ).toBe( true );
@@ -408,6 +412,8 @@ async function expectProtectedPageComposition( outputUrl: URL ): Promise<void> {
 	expect( moduleCode ).toContain( 'get-protected-page-presentation-status' );
 	expect( moduleCode.includes( '--chart-' ), 'The injected renderer must not carry chart CSS.' ).toBe( false );
 	expect( moduleCode.includes( 'recharts-' ), 'The injected renderer must not carry chart rendering code.' ).toBe( false );
+	expect( moduleCode.includes( '@font-face' ), 'Brand fonts belong to the separately injected font stylesheet.' ).toBe( false );
+	expect( moduleCode ).not.toMatch( /data:(?:font|application\/font)/u );
 	expect( fontStyles ).toContain( '@font-face' );
 	expect( fontStyles ).toContain( 'Fredoka Variable' );
 	expect( fontStyles ).not.toMatch( /url\((?:["'])?https?:/u );

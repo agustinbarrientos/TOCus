@@ -24,7 +24,10 @@ export function BehaviorChoices<Value extends string>( props: BehaviorChoicesPro
 		label={ props.label } value={ props.value } onChange={ changeSelection }>
 		<div className={ `settings-behavior-choices${ props.stacked ? ' settings-behavior-choices-stacked' : '' }` }>
 			{ props.options.map( ( option ) => <Radio key={ option.value } value={ option.value }
-				className="tocus-choice-card tocus-choice-radio" disabled={ props.disabled }
+				className={ `tocus-choice-card tocus-choice-radio${ option.description
+					? '' : ' settings-behavior-choice-compact' }` } disabled={ props.disabled }
+				classNames={ { inner: option.description
+					? undefined : 'settings-behavior-choice-control-compact' } }
 				label={ option.label } description={ option.description } /> ) }
 		</div>
 	</Radio.Group>;

@@ -2,12 +2,13 @@ import {
 	Button,
 	Group,
 	Modal,
+	ModalStackContext,
 	Stack,
 	Paper,
 	FocusTrap,
 	useFocusReturn,
 } from '@tocus/ui';
-import { useEffect, useId, useRef } from 'react';
+import { use, useEffect, useId, useRef, useState } from 'react';
 import type {
 	ConfirmationProps,
 } from './types';
@@ -26,7 +27,58 @@ export function Confirmation( props: ConfirmationProps ) {
 	const titleId = useId();
 	const confirmButton = useRef<HTMLButtonElement>( null );
 	const saveButton = useRef<HTMLButtonElement>( null );
-	useFocusReturn( { opened: props.opened && ( props.inline ?? false ) } );
+	const modalStack = use( ModalStackContext );
+	const explicitReturn = modalStack !== null || props.returnFocusRef !== undefined;
+	const restoreFrame = useRef( 0 );
+	const restoreTimeout = useRef( 0 );
+	const focusMoved = useRef( false );
+	const [ completedExit, setCompletedExit ] = useState( 0 );
+	const returnFocus = useFocusReturn( { opened: props.opened, shouldReturnFocus: props.inline ?? false } );
+	useEffect( () => {
+		focusMoved.current = false;
+		/**
+		 * Keeps a closing dialog from overriding the user's next keyboard or pointer action.
+		 * @param event - Navigation or pointer interaction during the closing transition.
+		 */
+		function preserveFocus( event: KeyboardEvent | PointerEvent ): void {
+			if ( event.type === 'pointerdown' || ( event instanceof KeyboardEvent && event.key === 'Tab' ) ) {
+				focusMoved.current = true;
+			}
+		}
+		if ( ! props.opened && explicitReturn ) {
+			document.addEventListener( 'keydown', preserveFocus );
+			document.addEventListener( 'pointerdown', preserveFocus );
+		}
+		return () => {
+			cancelAnimationFrame( restoreFrame.current );
+			window.clearTimeout( restoreTimeout.current );
+			document.removeEventListener( 'keydown', preserveFocus );
+			document.removeEventListener( 'pointerdown', preserveFocus );
+		};
+	}, [ props.opened, explicitReturn ] );
+	useEffect( () => {
+		if ( completedExit === 0 ) {
+			return;
+		}
+		restoreFrame.current = requestAnimationFrame( () => {
+			// The parent focus trap queues autofocus timers when the modal stack resumes it.
+			// Run after those timers, which can outlive this frame with reduced motion.
+			restoreTimeout.current = window.setTimeout( () => {
+				if ( focusMoved.current ) {
+					return;
+				}
+				if ( props.returnFocusRef?.current ) {
+					props.returnFocusRef.current.focus();
+				} else {
+					returnFocus();
+				}
+			} );
+		} );
+		return () => {
+			cancelAnimationFrame( restoreFrame.current );
+			window.clearTimeout( restoreTimeout.current );
+		};
+	}, [ completedExit ] );
 	useEffect( () => {
 		if ( props.opened && props.focusConfirm && ! pending ) {
 			confirmButton.current?.focus();
@@ -42,6 +94,10 @@ export function Confirmation( props: ConfirmationProps ) {
 		if ( ! pending ) {
 			props.onCancel();
 		}
+	}
+	/** Lets the closing render commit before restoring focus, including zero-duration transitions. */
+	function restoreFocus(): void {
+		setCompletedExit( ( current ) => current + 1 );
 	}
 	const content = <Stack gap={ props.inline ? 0 : 'var(--tocus-space-5)' }>
 		<p>{ props.description }</p>
@@ -78,7 +134,9 @@ export function Confirmation( props: ConfirmationProps ) {
 			</Paper>
 		</FocusTrap>;
 	}
-	return <Modal opened={ props.opened } onClose={ close } title={ props.title } aria-busy={ pending }
+	return <Modal stackId={ titleId } opened={ props.opened } onClose={ close } title={ props.title }
+		aria-busy={ pending }
+		returnFocus={ ! explicitReturn } { ...( explicitReturn ? { onExitTransitionEnd: restoreFocus } : {} ) }
 		closeOnClickOutside={ false } closeOnEscape={ ! pending } withCloseButton={ false } centered>
 		{ content }
 	</Modal>;

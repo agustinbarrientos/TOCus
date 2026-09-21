@@ -419,7 +419,7 @@ describe( 'startOnboardingPage', () => {
 
 	it.each( [
 		{
-			expectedIntroduction: 'Crea una pausa amable antes de los sitios web que elijas.',
+			expectedIntroduction: 'Haz una pausa antes de navegar',
 			expectedLanguageTag: 'es',
 			expectedPortugueseVariantLegend: '\u00bfQu\u00e9 variante de portugu\u00e9s quieres que use TOCus?',
 			expectedPrivacyTitle: '100% privado',
@@ -430,7 +430,7 @@ describe( 'startOnboardingPage', () => {
 			language: Language.SPANISH_TU,
 		},
 		{
-			expectedIntroduction: 'Crie uma pausa gentil antes dos sites que voc\u00ea escolher.',
+			expectedIntroduction: 'Fa\u00e7a uma pausa antes de navegar',
 			expectedLanguageTag: 'pt-BR',
 			expectedPortugueseVariantLegend: 'Qual variante do portugu\u00eas o TOCus deve usar?',
 			expectedPrivacyTitle: '100% privado',

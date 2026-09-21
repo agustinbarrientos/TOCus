@@ -21,6 +21,17 @@ export function createWellbeingCopy(
 	i18n: I18n,
 	formatters: LocalizationFormatters,
 ): Readonly<WellbeingSummaryCopy> {
+	const shortSeconds = new Intl.NumberFormat( i18n.locale, {
+		style: 'unit', unit: DurationUnit.SECOND, unitDisplay: 'short',
+	} );
+	const shortMinutes = new Intl.NumberFormat( i18n.locale, {
+		style: 'unit', unit: DurationUnit.MINUTE, unitDisplay: 'short',
+	} );
+	const shortHours = new Intl.NumberFormat( i18n.locale, {
+		style: 'unit', unit: DurationUnit.HOUR, unitDisplay: 'short',
+	} );
+	const shortList = new Intl.ListFormat( i18n.locale, { style: 'short', type: 'unit' } );
+
 	/**
 	 * Formats one nonzero all-time duration.
 	 * @param milliseconds - Positive duration in milliseconds.
@@ -39,6 +50,43 @@ export function createWellbeingCopy(
 			Math.max( 1, Math.round( milliseconds / MILLISECONDS_PER_MINUTE ) ),
 			formatters,
 		);
+	}
+
+	/**
+	 * Formats one nonzero all-time duration with locale-native compact units.
+	 * @param milliseconds - Positive duration in milliseconds.
+	 * @return Localized compact duration.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function formatShortDuration( milliseconds: number ): string {
+		const totalSeconds = Math.max( 1, Math.round( milliseconds / MILLISECONDS_PER_SECOND ) );
+
+		if ( totalSeconds < 60 ) {
+			return shortSeconds.format( totalSeconds );
+		}
+
+		const totalMinutes = Math.max( 1, Math.round( milliseconds / MILLISECONDS_PER_MINUTE ) );
+
+		if ( totalMinutes < 60 ) {
+			return shortMinutes.format( totalMinutes );
+		}
+
+		const hours = Math.floor( totalMinutes / 60 );
+		const minutes = totalMinutes % 60;
+
+		return minutes === 0
+			? shortHours.format( hours )
+			: shortList.format( [ shortHours.format( hours ), shortMinutes.format( minutes ) ] );
+	}
+
+	/**
+	 * Composes the concise new-tab estimate.
+	 * @param duration - Localized compact estimated duration.
+	 * @return Complete concise estimate sentence.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function formatShortSummary( duration: string ): string {
+		return i18n._( msg`About ${ duration } saved.` );
 	}
 
 	/**
@@ -68,6 +116,8 @@ export function createWellbeingCopy(
 	return Object.freeze( {
 		neutral: i18n._( msg`This is a moment just for you.` ),
 		formatDuration,
+		formatShortDuration,
+		formatShortSummary,
 		formatSummary,
 	} );
 }

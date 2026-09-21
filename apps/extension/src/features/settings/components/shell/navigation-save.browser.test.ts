@@ -155,7 +155,7 @@ test.describe( 'Unsaved navigation Save', () => {
 		await page.locator( '#site-address' ).fill( 'example.com' );
 		await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
 		await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
-		await page.getByRole( 'button', { name: 'Change schedule or site name', exact: true } ).click();
+		await page.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } ).click();
 		await page.getByRole( 'dialog' ).getByLabel( 'Name', { exact: true } ).fill( 'My reading' );
 		await page.getByRole( 'button', { name: 'Done', exact: true } ).click();
 		await page.locator( '#site-address' ).fill( 'https://www.example.com/' );
