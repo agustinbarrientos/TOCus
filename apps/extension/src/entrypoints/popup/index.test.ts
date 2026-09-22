@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { SiteFaviconProviderOptions } from '../../features/protected-sites/services/site-favicon-provider/types';
+import { ExtensionBuildBrowser } from '../../shared/utils/build-browser/types';
 
 const entrypointMocks = await vi.hoisted( async () => {
 	const { Language: HoistedLanguage } = await import( '../../domains/preferences/types' );
@@ -39,7 +41,8 @@ const entrypointMocks = await vi.hoisted( async () => {
 		createPreferencesStorageService: vi.fn().mockReturnValue( preferencesStorage ),
 		createProtectedSiteEnrollmentService: vi.fn().mockReturnValue( enrollment ),
 		createPopupEnrollmentClient: vi.fn().mockReturnValue( enrollmentClient ),
-		createSiteFaviconProvider: vi.fn().mockReturnValue( faviconProvider ),
+		createSiteFaviconProvider: vi.fn<( options: SiteFaviconProviderOptions ) => unknown>()
+			.mockReturnValue( faviconProvider ),
 		createSitePermissionManager: vi.fn().mockReturnValue( { permissions: true } ),
 		createPopupStatusClient: vi.fn().mockReturnValue( statusClient ),
 		currentTabReader,
@@ -109,7 +112,6 @@ describe( 'popup entrypoint', () => {
 	beforeEach( () => {
 		vi.resetModules();
 		vi.clearAllMocks();
-		vi.stubEnv( 'CHROME', '' );
 		entrypointMocks.document.getElementById.mockReturnValue( entrypointMocks.container );
 	} );
 
@@ -118,8 +120,15 @@ describe( 'popup entrypoint', () => {
 		vi.unstubAllGlobals();
 	} );
 
-	it.each( [ 'FIREFOX', 'SAFARI' ] )( 'preserves direct popup permission enrollment on %s', async ( browserTarget ) => {
-		vi.stubEnv( browserTarget, 'true' );
+	it.each( [
+		ExtensionBuildBrowser.FIREFOX,
+		ExtensionBuildBrowser.SAFARI,
+	] as const )( 'preserves direct popup permission enrollment on %s', async ( browser ) => {
+		vi.stubEnv( 'BROWSER', browser );
+		vi.stubEnv( 'CHROME', '' );
+		vi.stubEnv( 'EDGE', '' );
+		vi.stubEnv( 'FIREFOX', browser === ExtensionBuildBrowser.FIREFOX ? 'true' : '' );
+		vi.stubEnv( 'SAFARI', browser === ExtensionBuildBrowser.SAFARI ? 'true' : '' );
 		vi.stubGlobal( 'document', entrypointMocks.document );
 		vi.stubGlobal( 'window', {
 			addEventListener: vi.fn(),
@@ -151,6 +160,11 @@ describe( 'popup entrypoint', () => {
 			permissions: entrypointMocks.browser.permissions,
 		} );
 		expect( entrypointMocks.createPopupEnrollmentClient ).not.toHaveBeenCalled();
+		expect( entrypointMocks.createSiteFaviconProvider ).toHaveBeenCalledWith( expect.objectContaining( {
+			extensionRootUrl: 'chrome-extension://extension-id/',
+		} ) );
+		expect( entrypointMocks.createSiteFaviconProvider.mock.calls[ 0 ]?.[ 0 ].supportsCachedFavicons )
+			.toBeFalsy();
 		expect( entrypointMocks.bootstrapPopupPage ).toHaveBeenCalledWith( expect.objectContaining( {
 			currentTabReader: entrypointMocks.currentTabReader,
 			enrollment: entrypointMocks.enrollment,
@@ -163,8 +177,15 @@ describe( 'popup entrypoint', () => {
 		} ) );
 	} );
 
-	it( 'does not construct a popup-local configuration editor or permission flow on Chrome', async () => {
-		vi.stubEnv( 'CHROME', 'true' );
+	it.each( [
+		ExtensionBuildBrowser.CHROME,
+		ExtensionBuildBrowser.EDGE,
+	] as const )( 'uses background-owned popup enrollment on %s', async ( browser ) => {
+		vi.stubEnv( 'BROWSER', browser );
+		vi.stubEnv( 'CHROME', browser === ExtensionBuildBrowser.CHROME ? 'true' : '' );
+		vi.stubEnv( 'EDGE', browser === ExtensionBuildBrowser.EDGE ? 'true' : '' );
+		vi.stubEnv( 'FIREFOX', '' );
+		vi.stubEnv( 'SAFARI', '' );
 		vi.stubGlobal( 'document', entrypointMocks.document );
 		vi.stubGlobal( 'window', { matchMedia: vi.fn().mockReturnValue( {} ) } );
 		vi.stubGlobal( 'navigator', { locks: {} } );
@@ -178,12 +199,22 @@ describe( 'popup entrypoint', () => {
 		expect( entrypointMocks.createPopupEnrollmentClient ).toHaveBeenCalledExactlyOnceWith( {
 			runtime: entrypointMocks.browser.runtime,
 		} );
+		expect( entrypointMocks.createSiteFaviconProvider ).toHaveBeenCalledWith( expect.objectContaining( {
+			extensionRootUrl: 'chrome-extension://extension-id/',
+		} ) );
+		expect( entrypointMocks.createSiteFaviconProvider.mock.calls[ 0 ]?.[ 0 ].supportsCachedFavicons )
+			.toBeTruthy();
 		expect( entrypointMocks.bootstrapPopupPage ).toHaveBeenCalledWith( expect.objectContaining( {
 			enrollment: entrypointMocks.enrollmentClient,
 		} ) );
 	} );
 
 	it( 'fails clearly when the popup shell is missing', async () => {
+		vi.stubEnv( 'BROWSER', ExtensionBuildBrowser.CHROME );
+		vi.stubEnv( 'CHROME', 'true' );
+		vi.stubEnv( 'EDGE', '' );
+		vi.stubEnv( 'FIREFOX', '' );
+		vi.stubEnv( 'SAFARI', '' );
 		entrypointMocks.document.getElementById.mockReturnValueOnce( null );
 		vi.stubGlobal( 'document', entrypointMocks.document );
 

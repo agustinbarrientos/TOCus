@@ -33,6 +33,6 @@ void bootstrapSettingsPage( {
 	shell: settingsShell,
 	storageArea: browser.storage.local,
 	storageChanges: browser.storage.onChanged,
-	supportsCachedFavicons: import.meta.env.CHROME,
+	supportsCachedFavicons: import.meta.env.CHROME || import.meta.env.EDGE,
 	version: browser.runtime.getManifest().version,
 } );

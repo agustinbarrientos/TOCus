@@ -109,7 +109,7 @@ export function startProtectionBackgroundApplication(
 	const permissionManager = createSitePermissionManager( {
 		permissions: options.browser.permissions,
 	} );
-	if ( import.meta.env.CHROME ) {
+	if ( import.meta.env.CHROME || import.meta.env.EDGE ) {
 		/**
 		 * Creates one generation-scoped enrollment before synchronously requesting website access.
 		 * @param siteInput - Website selected through the popup.

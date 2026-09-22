@@ -35,6 +35,7 @@ test( 'calibrates the independent luminance measurement against known sRGB sampl
 
 for ( const [ output, action ] of [
 	[ 'chrome-mv3', 'action' ],
+	[ 'edge-mv3', 'action' ],
 	[ 'firefox-mv2', 'browser_action' ],
 	[ 'safari-mv2', 'browser_action' ],
 ] as const ) {

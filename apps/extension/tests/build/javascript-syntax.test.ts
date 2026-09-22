@@ -16,6 +16,7 @@ const executeFile = promisify( execFile );
  */
 const browserOutputs = [
 	[ 'Chrome', new URL( '../../.output/chrome-mv3/', import.meta.url ) ],
+	[ 'Edge', new URL( '../../.output/edge-mv3/', import.meta.url ) ],
 	[ 'Firefox', new URL( '../../.output/firefox-mv2/', import.meta.url ) ],
 	[ 'Safari', new URL( '../../.output/safari-mv2/', import.meta.url ) ],
 ] as const;

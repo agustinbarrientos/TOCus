@@ -6,6 +6,7 @@ import { createToolbarIconAssets } from './config/icons/services/create-toolbar-
 import { addBrowserLocaleAssets } from './config/localization/services/create-browser-locale-assets/index.ts';
 import { configureProtectedPageFontAssets } from './config/vite/services/configure-protected-page-font-assets/index.ts';
 import { createLocalizationViteConfig } from './config/vite/services/create-localization-vite-config/index.ts';
+import { isChromiumBuild } from './src/shared/utils/build-browser/index.ts';
 import { InterruptionDocumentPath } from './src/shared/utils/interruption-document-url/types.ts';
 
 const PROTECTED_PAGE_MATCHES = [
@@ -80,7 +81,7 @@ export default defineConfig( {
 		permissions: [
 			'storage',
 			'activeTab',
-			...( context.browser === 'chrome' ? [ 'favicon' as const ] : [] ),
+			...( isChromiumBuild( context.browser ) ? [ 'favicon' as const ] : [] ),
 			'alarms',
 			'declarativeNetRequestWithHostAccess',
 			'scripting',
@@ -97,7 +98,7 @@ export default defineConfig( {
 			resources: PROTECTED_PAGE_RESOURCES,
 			use_dynamic_url: false,
 		} ],
-		...( context.browser === 'chrome' ? { minimum_chrome_version: '120' } : {} ),
+		...( isChromiumBuild( context.browser ) ? { minimum_chrome_version: '120' } : {} ),
 		...( context.browser === 'firefox'
 			? {
 				browser_specific_settings: {
