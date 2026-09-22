@@ -1,7 +1,7 @@
 {
   "asset": "hero.glb",
-  "fileBytes": 2377636,
-  "gzipBytes": 1436306,
+  "fileBytes": 2379896,
+  "gzipBytes": 1438981,
   "triangles": 96155,
   "meshObjects": 45,
   "drawCalls": 48,
@@ -31,23 +31,34 @@
       "right": 0.074786
     },
     "soleGroundClearanceWorldUnits": -0.004,
-    "version": 5,
+    "version": 6,
     "headTurnDegrees": 35,
     "strawStraighteningDegrees": 24,
     "continuousShallowArmArc": true,
     "maximumArmBowWorldUnits": {
       "rest": 0.183966,
-      "sip": 0.152308
+      "sip": 0.256288
     },
     "armCenterlineLengthWorldUnits": {
       "rest": 1.476567,
-      "sip": 2.05403
+      "sip": 2.053975
     },
     "sideMountedShoulder": true,
     "shoulderGltf": [
       0.8,
       1.94,
       -0.02
-    ]
+    ],
+    "drinkingContact": {
+      "location": "Lower smile curve",
+      "gltf": [
+        0.059832,
+        2.810938,
+        -1.691732
+      ],
+      "loweredWorldUnits": 0.092606,
+      "sipArmLengthPreserved": true,
+      "restPosePreserved": true
+    }
   }
 }

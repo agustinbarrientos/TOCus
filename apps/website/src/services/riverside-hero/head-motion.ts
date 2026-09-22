@@ -8,7 +8,7 @@ const MaxHeadYaw = 35 * Math.PI / 180;
 // Exported character meshes use world-space coordinates, Y up, with the neck at (0, 2.5, -0.08).
 const HeadShader = `
 uniform float headYaw;
-float neckWeight(vec3 p) { return smoothstep(2.02, 2.85, p.y); }
+float neckWeight(vec3 p) { return smoothstep(2.02, 2.75, p.y); }
 vec3 turnHeadVector(vec3 v, float angle) {
 	float c = cos(angle), s = sin(angle);
 	return vec3(c * v.x + s * v.z, v.y, -s * v.x + c * v.z);
@@ -18,11 +18,11 @@ vec3 turnHeadPosition(vec3 p) {
 	return pivot + turnHeadVector(p - pivot, -headYaw * neckWeight(p));
 }
 vec3 turnHeadNormal(vec3 p, vec3 n) {
-	float t = clamp((p.y - 2.02) / 0.83, 0.0, 1.0);
+	float t = clamp((p.y - 2.02) / 0.73, 0.0, 1.0);
 	float angle = -headYaw * neckWeight(p);
 	vec3 offset = turnHeadVector(p - vec3(0.0, 2.5, -0.08), angle);
 	vec3 normal = turnHeadVector(n, angle);
-	float rate = -headYaw * 6.0 * t * (1.0 - t) / 0.83;
+	float rate = -headYaw * 6.0 * t * (1.0 - t) / 0.73;
 	normal.y -= rate * (offset.z * normal.x - offset.x * normal.z);
 	return normalize(normal);
 }
