@@ -94,6 +94,16 @@ The browser-free comparator suite replays the recorded 24 samples and verifies t
 
 ## Capture platform and CI
 
+### Approved Edge copy and download references
+
+On September 22, 2026, the project owner approved refreshing only fourteen Privacy references and ten website references for the Edge support changes. The unmodified captures come from the macOS 26 ARM64 visual job in CI run 35750223659 at commit 7893acba, using Playwright 1.63.0. They were reviewed against the committed expected images before replacement.
+
+The twelve isolated Privacy references and two Settings Privacy shell references replace "Chrome can supply" with "Your browser can supply". All dimensions are unchanged; every changed decoded RGBA pixel lies within that sentence, including its existing three-line narrow layout. Only those fourteen original inventory hashes changed; the other 92 original references and all regional onboarding references are untouched.
+
+The website references comprise the desktop and narrow English, Argentine Spanish, Brazilian Portuguese and European Portuguese pages, the English dark-browser page, and the narrow language menu. They include the unavailable Edge download text. Desktop differences are confined to the hero download group and footer alternatives. Each narrow full page is 46px taller because the alternatives wrap onto an additional line in both download groups; the menu capture reflects the corresponding hero shift. The ten story references remain unchanged, including the two narrow story captures with separately investigated one-pixel color differences. No comparison threshold, changed-pixel allowance, capture setting, retry, or test registration changed.
+
+### Environment
+
 The configured environment is pinned Playwright1.63.0 with its bundled Chromium, macOS26 ARM64, device scale1, UTC, en-US, and packaged local fonts. CI's dedicated `macos-26` job runs comparisons and never accepts images. Cross-OS pixel equivalence is not assumed; Linux retains functional checks. Configuring the hosted job is not evidence of a successful hosted run. Original pixel failures must remain visible until repaired.
 
 The reviewed macOS captures use overlay scrollbars. CI sets `AppleShowScrollBars` to `WhenScrolling` on its disposable runner before launching Chromium. Local captures require the same effective scrollbar appearance: macOS Settings > Appearance > Show scroll bars > When scrolling. The Automatic setting can choose a different mode depending on the connected input device. Classic scrollbars reserve a 15px gutter in the narrow onboarding Appearance layout, changing text wrapping and palette rows. The runner preference preserves the reviewed layout without changing production styling or pixel comparisons.
