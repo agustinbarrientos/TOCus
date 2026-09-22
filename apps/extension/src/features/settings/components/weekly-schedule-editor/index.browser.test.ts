@@ -49,7 +49,8 @@ test.describe( 'weekly schedule quick actions', () => {
 		await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
 		await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
 		const saved = await page.evaluate( () => window.settingsTest.getConfiguration().schedule );
-		const clear = page.getByRole( 'button', { name: 'Clear all', exact: true } );
+		const clear = page.getByRole( 'form', { name: 'Schedule', exact: true } )
+			.getByRole( 'button', { name: 'Clear all', exact: true } );
 		const confirmation = page.getByRole( 'dialog', { name: 'Clear all schedule rows?', exact: true } );
 		await clear.click();
 		await expect( confirmation.getByRole( 'button', { name: 'Cancel', exact: true } ) ).toBeFocused();

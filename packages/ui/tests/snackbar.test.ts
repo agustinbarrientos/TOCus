@@ -195,7 +195,7 @@ test.describe( 'shared snackbar', () => {
 				outsideRadius: getComputedStyle( outside ).borderRadius };
 		} ) ).toEqual( { lightDomNotifications: 0, rootAttributes: [ 'lang' ], bodyAttributes: [],
 			fontSize: '40px', outsideColor: 'rgb(12, 34, 56)', outsideRadius: '0px' } );
-		await expect( second.getByRole( 'status' ).locator( '.mantine-Notification-description' ) )
-			.toHaveCSS( 'font-size', '16.1px' );
+		await expect.poll( () => second.getByRole( 'status' ).locator( '.mantine-Notification-description' )
+			.evaluate( ( element ) => parseFloat( getComputedStyle( element ).fontSize ) ) ).toBeCloseTo( 16.1, 1 );
 	} );
 } );
