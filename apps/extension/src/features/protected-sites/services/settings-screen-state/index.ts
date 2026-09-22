@@ -237,7 +237,6 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 			return;
 		}
 		const { displayNameOverride: previousName, ...withoutName } = site;
-		void previousName;
 		const replacement = { ...withoutName,
 			...( details.displayName.trim() ? { displayNameOverride: details.displayName } : {} ) };
 		change( { ...value,

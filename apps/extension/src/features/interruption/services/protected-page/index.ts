@@ -234,7 +234,6 @@ async function initializeProtectedPageLayer(): Promise<void> {
 			sender: unknown,
 			sendResponse: ProtectedPageResponseSender,
 		): true {
-			void sender;
 			if ( ! layer.isConnected ) {
 				document.documentElement.append( layer );
 			}

@@ -6,15 +6,23 @@ import { formatter } from '@lingui/format-po';
 import { describe, expect, test } from 'vitest';
 
 const chromeManifestUrl = new URL( '../../.output/chrome-mv3/manifest.json', import.meta.url );
+const edgeManifestUrl = new URL( '../../.output/edge-mv3/manifest.json', import.meta.url );
 const firefoxManifestUrl = new URL( '../../.output/firefox-mv2/manifest.json', import.meta.url );
 const safariManifestUrl = new URL( '../../.output/safari-mv2/manifest.json', import.meta.url );
 const chromeOutputUrl = new URL( '../../.output/chrome-mv3/', import.meta.url );
+const edgeOutputUrl = new URL( '../../.output/edge-mv3/', import.meta.url );
 const firefoxOutputUrl = new URL( '../../.output/firefox-mv2/', import.meta.url );
 const safariOutputUrl = new URL( '../../.output/safari-mv2/', import.meta.url );
+const browserOutputs = [
+	[ 'Chrome', chromeOutputUrl ],
+	[ 'Edge', edgeOutputUrl ],
+	[ 'Firefox', firefoxOutputUrl ],
+	[ 'Safari', safariOutputUrl ],
+] as const;
 
 test.each( [ 'popup', 'options', 'onboarding', 'interruption', 'pause' ] )(
 	'loads %s modules normally without incompatible extension preload hints', async ( page ) => {
-		for ( const output of [ chromeOutputUrl, firefoxOutputUrl, safariOutputUrl ] ) {
+		for ( const [ , output ] of browserOutputs ) {
 			const html = await readFile( new URL( `${ page }.html`, output ), 'utf8' );
 			expect( html ).toMatch( /<script[^>]+type="module"[^>]+src="[^"]+"/u );
 			expect( html ).toMatch( /<link[^>]+rel="stylesheet"/u );
@@ -551,6 +559,23 @@ describe( 'extension build manifest', () => {
 		expectValidExtensionVersion( manifest );
 	} );
 
+	test( 'preserves the Chromium permission contract in the Edge package', async () => {
+		const chrome = await readManifest( chromeManifestUrl ) as Record<string, unknown>;
+		const edge = await readManifest( edgeManifestUrl ) as Record<string, unknown>;
+
+		expect( edge.manifest_version ).toBe( 3 );
+		expect( edge.background ).toEqual( chrome.background );
+		expect( edge.permissions ).toEqual( chrome.permissions );
+		expect( edge.optional_permissions ).toEqual( chrome.optional_permissions );
+		expect( edge.optional_host_permissions ).toEqual( chrome.optional_host_permissions );
+		expect( edge.web_accessible_resources ).toEqual( chrome.web_accessible_resources );
+		expect( edge.minimum_chrome_version ).toBe( '120' );
+		expect( edge ).not.toHaveProperty( 'update_url' );
+		expect( edge ).not.toHaveProperty( 'browser_specific_settings' );
+		expectNoUnnecessaryBrowsingPermissions( edge );
+		expectValidExtensionVersion( edge );
+	} );
+
 	test( 'produces a minimal Firefox extension manifest with an explicit no-data declaration', async () => {
 		const manifest = await readManifest( firefoxManifestUrl );
 
@@ -625,75 +650,59 @@ describe( 'extension build manifest', () => {
 		expectValidExtensionVersion( manifest );
 	} );
 
-	test.each( [
-		[ 'Chrome', chromeOutputUrl ],
-		[ 'Firefox', firefoxOutputUrl ],
-		[ 'Safari', safariOutputUrl ],
-	] )( 'connects the generated %s popup to its component implementation', async ( _browser, outputUrl ) => {
-		await expectPopupComposition( outputUrl );
-	} );
+	test.each( browserOutputs )(
+		'connects the generated %s popup to its component implementation', async ( _browser, outputUrl ) => {
+			await expectPopupComposition( outputUrl );
+		},
+	);
 
-	test.each( [
-		[ 'Chrome', chromeOutputUrl ],
-		[ 'Firefox', firefoxOutputUrl ],
-		[ 'Safari', safariOutputUrl ],
-	] )( 'connects the generated %s options page to its settings shell', async ( _browser, outputUrl ) => {
-		await expectOptionsComposition( outputUrl );
-	} );
+	test.each( browserOutputs )(
+		'connects the generated %s options page to its settings shell', async ( _browser, outputUrl ) => {
+			await expectOptionsComposition( outputUrl );
+		},
+	);
 
-	test.each( [
-		[ 'Chrome', chromeOutputUrl ],
-		[ 'Firefox', firefoxOutputUrl ],
-		[ 'Safari', safariOutputUrl ],
-	] )( 'packages the generated %s onboarding page and its local site icons', async ( _browser, outputUrl ) => {
-		await expectOnboardingComposition( outputUrl );
-	} );
+	test.each( browserOutputs )(
+		'packages the generated %s onboarding page and its local site icons', async ( _browser, outputUrl ) => {
+			await expectOnboardingComposition( outputUrl );
+		},
+	);
 
-	test.each( [
-		[ 'Chrome', chromeOutputUrl ],
-		[ 'Firefox', firefoxOutputUrl ],
-		[ 'Safari', safariOutputUrl ],
-	] )( 'connects the generated %s interruption page to its screen', async ( _browser, outputUrl ) => {
-		await expectInterruptionComposition( outputUrl, 'pause.html' );
-		await expectInterruptionComposition( outputUrl, 'interruption.html' );
-	} );
+	test.each( browserOutputs )(
+		'connects the generated %s interruption page to its screen', async ( _browser, outputUrl ) => {
+			await expectInterruptionComposition( outputUrl, 'pause.html' );
+			await expectInterruptionComposition( outputUrl, 'interruption.html' );
+		},
+	);
 
-	test.each( [
-		[ 'Chrome', chromeOutputUrl ],
-		[ 'Firefox', firefoxOutputUrl ],
-		[ 'Safari', safariOutputUrl ],
-	] )( 'packages the isolated %s protected-page layer and brand font', async ( _browser, outputUrl ) => {
-		await expectProtectedPageComposition( outputUrl );
-	} );
+	test.each( browserOutputs )(
+		'packages the isolated %s protected-page layer and brand font', async ( _browser, outputUrl ) => {
+			await expectProtectedPageComposition( outputUrl );
+		},
+	);
 
-	test.each( [
-		[ 'Chrome', chromeOutputUrl ],
-		[ 'Firefox', firefoxOutputUrl ],
-		[ 'Safari', safariOutputUrl ],
-	] )( 'packages complete localized %s manifest metadata', async ( _browser, outputUrl ) => {
-		await expectLocalizedManifestMessages( outputUrl );
-	} );
+	test.each( browserOutputs )(
+		'packages complete localized %s manifest metadata', async ( _browser, outputUrl ) => {
+			await expectLocalizedManifestMessages( outputUrl );
+		},
+	);
 
-	test.each( [
-		[ 'Chrome', chromeOutputUrl ],
-		[ 'Firefox', firefoxOutputUrl ],
-		[ 'Safari', safariOutputUrl ],
-	] )( 'keeps %s classic runtimes compatible and within their localization budget', async ( _browser, outputUrl ) => {
-		await expectClassicRuntimeLocalization( outputUrl, 'background.js' );
-		await expectClassicRuntimeLocalization( outputUrl, 'protected-page.js' );
-	} );
+	test.each( browserOutputs )(
+		'keeps %s classic runtimes compatible and within their localization budget', async ( _browser, outputUrl ) => {
+			await expectClassicRuntimeLocalization( outputUrl, 'background.js' );
+			await expectClassicRuntimeLocalization( outputUrl, 'protected-page.js' );
+		},
+	);
 
-	test.each( [
-		[ 'Chrome', chromeOutputUrl ],
-		[ 'Firefox', firefoxOutputUrl ],
-		[ 'Safari', safariOutputUrl ],
-	] )( 'generates every declared %s icon at its declared dimensions', async ( _browser, outputUrl ) => {
-		for ( const [ size, iconPath ] of Object.entries( expectedExtensionIcons ) ) {
-			const icon = await readOutputBuffer( outputUrl, iconPath );
+	test.each( browserOutputs )(
+		'generates every declared %s icon at its declared dimensions', async ( _browser, outputUrl ) => {
+			for ( const [ size, iconPath ] of Object.entries( expectedExtensionIcons ) ) {
+				const icon = await readOutputBuffer( outputUrl, iconPath );
 
-			expectSquarePng( icon, Number( size ) );
-		}
-	} );
+				expectSquarePng( icon, Number( size ) );
+			}
+		},
+	);
 
 	test( 'keeps the theme icon recolorable with a brown standalone fallback', async () => {
 		const iconSource = await readFile( fileURLToPath( themeIconUrl ), 'utf8' );

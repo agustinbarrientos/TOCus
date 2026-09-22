@@ -31,7 +31,7 @@ export default function HomePage( props: HomePageProps ) {
 				<header className="site-header">
 					<Brand />
 					<div className="site-header-actions">
-						<DownloadLink label={ catalog.getExtension } />
+						<DownloadLink label={ catalog.getExtension } comingSoon={ catalog.comingSoon } />
 						{ enhanced && <LanguageMenu localization={ localization } localizations={ localizations } /> }
 					</div>
 				</header>
@@ -41,7 +41,8 @@ export default function HomePage( props: HomePageProps ) {
 							<h1 id="page-title">{ catalog.intro }</h1>
 							<p className="description">{ catalog.description }</p>
 							<div className="hero-actions">
-								<DownloadLinks label={ catalog.downloadFor } alsoAvailable={ catalog.alsoAvailable } />
+								<DownloadLinks label={ catalog.downloadFor } alsoAvailable={ catalog.alsoAvailable }
+									comingSoon={ catalog.comingSoon } />
 							</div>
 						</div>
 						<div className="hero-art"><Mascot alt={ catalog.mascotAlt }
@@ -102,7 +103,8 @@ export default function HomePage( props: HomePageProps ) {
 					</section>
 					<section className="download-section" id="downloads" aria-labelledby="download-title">
 						<h2 id="download-title">{ catalog.downloadTitle }</h2>
-						<DownloadLinks label={ catalog.downloadFor } alsoAvailable={ catalog.alsoAvailable } />
+						<DownloadLinks label={ catalog.downloadFor } alsoAvailable={ catalog.alsoAvailable }
+							comingSoon={ catalog.comingSoon } />
 						<div className="footer-mascot"><img data-mascot src="/images/mascot-peek.webp"
 							width="1144" height="1145" alt="" loading="lazy" /></div>
 					</section>

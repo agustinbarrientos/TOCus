@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
 	createAllowanceState,
 	createAllowanceExpiryParticipant,
+	createNavigationParticipant,
 	createWaitingState,
 	TestEmptyProtectionConfiguration,
 } from '../../../../domains/protection/types/__fixtures__';
@@ -17,6 +18,9 @@ import { createProtectionPageProjector } from './index';
  * @since 0.1.0 Initial implementation.
  */
 const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/interruption.html';
+
+/** Current destination-carrying pause URL used by fail-open fixtures. */
+const CURRENT_INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/pause.html';
 
 describe( 'createProtectionPageProjector', () => {
 	it.each( [
@@ -42,6 +46,64 @@ describe( 'createProtectionPageProjector', () => {
 		await projector.releaseNavigationIfInterrupted( 21, 'https://example.com/retained-destination' );
 
 		expect( navigateTab ).toHaveBeenCalledExactlyOnceWith( 21, 'https://example.com/retained-destination' );
+	} );
+
+	it( 'releases a fail-open carrier to its payload instead of an unrelated participant destination', async () => {
+		const carrierDestination = 'https://example.test/watch?v=carrier#chapter';
+		const carrierUrl = `${ CURRENT_INTERRUPTION_PAGE_URL }#destination=${ carrierDestination }`;
+		const staleParticipant = createNavigationParticipant(
+			'participant-stale',
+			'page_tab_21_stale',
+			true,
+			0,
+			'https://unrelated.test/previous-visit',
+		);
+		const waiting = createWaitingState();
+		waiting.participants = [ staleParticipant ];
+		waiting.ownerParticipantId = staleParticipant.participantId;
+		const states: ProtectionCoordinatorStateSnapshot = { [ waiting.scopeId ]: waiting };
+		const navigateTab = vi.fn().mockResolvedValue( undefined );
+		const projector = createProtectionPageProjector( {
+			browser: {
+				dismissInterruption: vi.fn().mockResolvedValue( undefined ),
+				getProtectedPagePresentation: vi.fn().mockResolvedValue( null ),
+				listTabs: vi.fn().mockResolvedValue( [ { id: 21, incognito: false, url: carrierUrl } ] ),
+				navigateTab,
+				updateProtectedPagePresentation: vi.fn().mockResolvedValue( undefined ),
+			},
+			interruptionPageUrl: CURRENT_INTERRUPTION_PAGE_URL,
+		} );
+
+		await projector.releaseInterruptionPages( states );
+
+		expect( navigateTab ).toHaveBeenCalledExactlyOnceWith( 21, carrierDestination );
+	} );
+
+	it.each( [
+		[ 'has closed', [] ],
+		[ 'has navigated elsewhere', [ { id: 21, incognito: false, url: 'https://unrelated.test/current' } ] ],
+	] )( 'leaves a carrier tab untouched when it %s before cleanup', async ( _label, currentTabs ) => {
+		const carrierUrl = `${ CURRENT_INTERRUPTION_PAGE_URL }#destination=https://example.test/watch`;
+		const navigateTab = vi.fn().mockResolvedValue( undefined );
+		const dismissInterruption = vi.fn().mockResolvedValue( undefined );
+		const listTabs = vi.fn()
+			.mockResolvedValueOnce( [ { id: 21, incognito: false, url: carrierUrl } ] )
+			.mockResolvedValueOnce( currentTabs );
+		const projector = createProtectionPageProjector( {
+			browser: {
+				dismissInterruption,
+				getProtectedPagePresentation: vi.fn().mockResolvedValue( null ),
+				listTabs,
+				navigateTab,
+				updateProtectedPagePresentation: vi.fn().mockResolvedValue( undefined ),
+			},
+			interruptionPageUrl: CURRENT_INTERRUPTION_PAGE_URL,
+		} );
+
+		await projector.releaseInterruptionPages( null );
+
+		expect( navigateTab ).not.toHaveBeenCalled();
+		expect( dismissInterruption ).not.toHaveBeenCalled();
 	} );
 
 	it( 'dismisses an orphaned standalone interruption page', async () => {

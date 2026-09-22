@@ -36,7 +36,7 @@ const preferencesController = createPreferencesController( {
 	storageChanges: browser.storage.onChanged,
 	systemMotionPreference: window.matchMedia( '(prefers-reduced-motion: reduce)' ),
 } );
-const enrollment = import.meta.env.CHROME
+const enrollment = import.meta.env.CHROME || import.meta.env.EDGE
 	? createPopupEnrollmentClient( { runtime: browser.runtime } )
 	: createProtectedSiteEnrollmentService( {
 		editor: createBrowserProtectionConfigurationEditor( {
@@ -54,7 +54,7 @@ void bootstrapPopupPage( {
 	fallbackLocalization: createEnglishLocalizationBundle(),
 	faviconProvider: createSiteFaviconProvider( {
 		extensionRootUrl: browser.runtime.getURL( '/' ),
-		supportsCachedFavicons: import.meta.env.CHROME,
+		supportsCachedFavicons: import.meta.env.CHROME || import.meta.env.EDGE,
 	} ),
 	loadLocalization: loadLocalizationBundle,
 	now: Date.now,

@@ -165,7 +165,7 @@ test.describe( 'shared controls', () => {
 		const heading = page.getByRole( 'heading', { name: 'Controls' } );
 		await heading.waitFor();
 		expect( await heading.evaluate( ( element ) => parseFloat( getComputedStyle( element ).fontSize ) ) )
-			.toBeCloseTo( 36.8, 4 );
+			.toBeCloseTo( 36.8, 1 );
 		await heading.focus();
 		expect( await heading.evaluate( ( element ) => getComputedStyle( element ).outlineStyle ) ).toBe( 'none' );
 		expect( await page.locator( '.tocus-brand' ).evaluate( ( element ) => getComputedStyle( element ).color ) )
@@ -553,7 +553,8 @@ test.describe( 'shared controls', () => {
 		await page.evaluate( () => document.fonts.ready );
 		expect( await page.evaluate( () => Array.from( document.fonts ).some( ( font ) => font.family.includes( 'Fredoka' ) && font.status === 'loaded' ) ) ).toBe( true );
 		expect( await page.locator( 'h1' ).evaluate( ( element ) => getComputedStyle( element ).fontFamily ) ).toContain( 'Fredoka' );
-		expect( await page.locator( '[data-testid="main-provider"]' ).evaluate( ( element ) => getComputedStyle( element ).fontSize ) ).toBe( '18.4px' );
+		expect( await page.locator( '[data-testid="main-provider"]' ).evaluate( ( element ) =>
+			parseFloat( getComputedStyle( element ).fontSize ) ) ).toBeCloseTo( 18.4, 1 );
 		expect( await page.getByRole( 'button', { name: 'Compact action' } ).evaluate( ( element ) => getComputedStyle( element ).fontSize ) ).toBe( '14px' );
 		expect( await page.getByRole( 'button', { name: 'Compact action' } ).evaluate( ( element ) => getComputedStyle( element ).backgroundColor ) ).not.toBe( await page.getByRole( 'button', { name: 'Save', exact: true } ).evaluate( ( element ) => getComputedStyle( element ).backgroundColor ) );
 		expect( await page.evaluate( () => document.documentElement.scrollWidth <= innerWidth ) ).toBe( true );

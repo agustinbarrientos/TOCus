@@ -135,8 +135,8 @@ export interface ProtectionNavigationHandler {
 	/**
 	 * Handles one observed top-level browser navigation.
 	 * @param navigation - Browser navigation details.
-	 * @return Promise resolved after navigation reconciliation.
+	 * @return Verified replacement URL for a redirect document, or no page-side action.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	handle( navigation: ProtectionRuntimeNavigation ): Promise<void>;
+	handle( navigation: ProtectionRuntimeNavigation ): Promise<string | undefined>;
 }

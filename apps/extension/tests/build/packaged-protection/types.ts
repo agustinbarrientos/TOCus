@@ -2,10 +2,27 @@ import type { WxtBrowser } from 'wxt/browser';
 import type { Worker } from '@playwright/test';
 
 /**
+ * Build targets selectable by the shared packaged Chromium fixture.
+ * @since 0.1.0 Initial implementation.
+ */
+export const PackagedExtensionBuild = {
+	CHROME: 'chrome-mv3',
+	EDGE: 'edge-mv3',
+} as const;
+
+/**
+ * A compiled extension directory supported by the packaged fixture.
+ * @since 0.1.0 Initial implementation.
+ */
+export type PackagedExtensionBuild = typeof PackagedExtensionBuild[ keyof typeof PackagedExtensionBuild ];
+
+/**
  * Per-test packaged installation and its optional synthetic-site grant.
  * @since 0.1.0 Initial implementation.
  */
 export interface ProtectionTestFixtures {
+	/** Compiled browser target copied into this disposable installation. */
+	extensionBuild: PackagedExtensionBuild;
 	/** Whether the disposable installation pregrants the synthetic protected website. */
 	pregrantSite: boolean;
 	/** Ready service worker for this test's isolated installation. */

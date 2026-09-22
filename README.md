@@ -41,7 +41,7 @@ Settings includes **Privacy and local data**, where you can review local storage
 ## Prerequisites
 
 - Node.js 24.16.0 or newer within the Node.js 24 release line (`.node-version` pins the 24.20.0 version used in CI)
-- pnpm 11.24.0
+- pnpm 12.5.1
 
 The repository pins its package-manager version in `package.json`.
 
@@ -68,9 +68,11 @@ pnpm dev
 | `pnpm dev`                             | Run workspace development tasks in parallel                 |
 | `pnpm setup:browsers`                  | Install pinned Chromium, Firefox and WebKit builds          |
 | `pnpm build`                           | Build all workspaces                                        |
+| `pnpm build:edge`                      | Build the Edge Manifest V3 extension                        |
 | `pnpm build:firefox`                   | Build the extension for Firefox                             |
 | `pnpm build:safari`                    | Build Safari web-extension assets                           |
 | `pnpm zip:chrome`                      | Build and ZIP the Chrome release                            |
+| `pnpm zip:edge`                        | Build and ZIP the Edge release                              |
 | `pnpm zip:firefox`                     | Build and ZIP the Firefox release                           |
 | `pnpm zip:safari`                      | Build and ZIP Safari web-extension assets                   |
 | `pnpm lint`                            | Run script and stylesheet linting                           |
@@ -92,6 +94,7 @@ Create production archives from the repository root:
 
 ```sh
 pnpm zip:chrome
+pnpm zip:edge
 pnpm zip:firefox
 pnpm zip:safari
 ```
@@ -101,6 +104,7 @@ Each command uses [WXT's built-in ZIP command](https://wxt.dev/guide/essentials/
 | Archive | Manifest | Intended use |
 | --- | --- | --- |
 | `tocusextension-0.1.0-chrome.zip` | V3, Chrome 120+ | Chrome Web Store upload |
+| `tocusextension-0.1.0-edge.zip` | V3, Chromium 120 compatibility floor | Microsoft Edge Add-ons upload after native verification |
 | `tocusextension-0.1.0-firefox.zip` | V2, Firefox 140+ | Firefox Add-ons upload |
 | `tocusextension-0.1.0-safari.zip` | V2, Safari 16.4+ | Input to Apple's Safari packaging workflow |
 
@@ -109,10 +113,27 @@ Verify ZIP integrity with `unzip -t`, inspect each archive's root `manifest.json
 ```sh
 unzip -t apps/extension/.output/tocusextension-0.1.0-firefox.zip
 unzip -p apps/extension/.output/tocusextension-0.1.0-firefox.zip manifest.json
-shasum -a 256 apps/extension/.output/tocusextension-0.1.0-chrome.zip apps/extension/.output/tocusextension-0.1.0-firefox.zip apps/extension/.output/tocusextension-0.1.0-safari.zip
+shasum -a 256 apps/extension/.output/tocusextension-0.1.0-chrome.zip apps/extension/.output/tocusextension-0.1.0-edge.zip apps/extension/.output/tocusextension-0.1.0-firefox.zip apps/extension/.output/tocusextension-0.1.0-safari.zip
 ```
 
 Re-run `pnpm exec vitest run --config config/vitest.config.ts --project build-contract` for static artifact checks and `pnpm test:build-browser` for packaged browser journeys after packaging. Browser journeys run sequentially with no retries and retain traces and screenshots only on failure under `test-results/build-browser/`; their HTML report is under `playwright-report/build-browser/`. The separate `pnpm test:ui` command uses Playwright Test for shared controls and extension presentation, reusing one fixture server and worker-owned browsers with isolated test contexts. Its diagnostics are under `test-results/ui/` and `playwright-report/ui/`. CI uploads both suites' diagnostics on failure. Replace `0.1.0` in filenames when the extension version changes. The declared minimum browser versions are compatibility targets; successful builds do not establish runtime support across every version.
+
+### Edge verification and publication
+
+`pnpm build:edge` emits `apps/extension/.output/edge-mv3/` from the shared extension source. Edge and Chrome use the same popup enrollment path and browser-local cached-favicon capability. The Edge manifest retains optional website access and navigation permission, without adding access to saved history, required broad host access, a Chrome store update URL or Firefox metadata. `minimum_chrome_version: "120"` declares the Chromium compatibility floor, not a tested Edge release or a claim of support on every operating system.
+
+The existing artifact gate checks Edge's manifest, resources, localized messages, JavaScript syntax and size limits. One additional packaged-browser test mounts the Edge-built popup, settings and onboarding in bundled Chromium. Existing Chrome journeys retain their default artifact and are not repeated as an Edge matrix. Bundled Chromium is not native Microsoft Edge verification.
+
+Before publishing to Edge Add-ons:
+
+1. Build `pnpm zip:edge` from the clean, reviewed release commit. Record the source commit, tools, extension version, exact ZIP filename and SHA-256; run `unzip -t` and inspect its root manifest and packaged resources.
+2. Extract that ZIP unchanged, create a separate desktop Edge profile, then use `edge://extensions`, Developer mode and Load unpacked. Do not edit the manifest or pregrant permissions. Record the Edge version/channel and operating system. [Microsoft documents local sideloading](https://learn.microsoft.com/en-us/microsoft-edge/extensions/getting-started/extension-sideloading); branded Edge does not support the command-line extension-loading flags used by the bundled Chromium fixture.
+3. Verify onboarding, language/theme selection, the actual toolbar popup, settings and cached favicons. Check for manifest warnings, page errors, missing resources and unexpected extension network requests. Confirm permission grant, denial and dismissal from the toolbar popup, normal Settings Save and the unsaved-changes dialog's Save button, including persistence after the popup closes.
+4. Test protected navigation from both loaded and still-loading allowed pages, using the address bar and links. Check the breathing screen, Continue and automatic continuation, allowance expiry, custom schedules, browser restart and recovery after service-worker suspension without attached DevTools. Verify media pause/resume and tab-audio restoration, permission revocation/regrant, statistics reset and full reset in this disposable profile only.
+5. Record each result against that exact ZIP. Native Edge acceptance remains pending until this record is complete; a successful build or Chromium run does not establish it. Run the full CI and pinned visual gates before merging or publishing.
+6. Submit separately through [Microsoft Partner Center](https://learn.microsoft.com/en-us/microsoft-edge/extensions/publish/publish-extension), supplying the ZIP, listing assets, public privacy URL and accurate permission/review notes. Do not submit the Chrome listing as the Edge listing. After approval, verify the real Edge Add-ons URL, obtain appropriate Microsoft permission and usage rights for any locally bundled official Edge artwork or implement an approved badge according to its conditions and actual listing link, then replace Edge's null download URL in the website configuration. Test the available state while signed out and confirm the artwork and download link load without a broken image before publishing.
+
+Until a public listing is available, desktop Edge visitors see `Edge - Coming soon` with no install link. Mobile Edge is not advertised as a desktop extension target. This unavailable state is text-only; Microsoft's official [Edge Add-ons badge](https://learn.microsoft.com/en-us/microsoft-edge/extensions/publish/add-ons-badge) requires a clickable link to the actual listing. Store submission and website publication are separate release actions.
 
 ### Firefox review source
 
@@ -140,6 +161,7 @@ Before creating the release app, confirm the intended Apple platforms, developer
 The following release inputs were unresolved on September 9, 2026:
 
 - [ ] Supply the final public Chrome, Firefox, and Safari listing URLs. The approved temporary URLs remain centralized in `apps/website/src/config/downloads/index.ts`; replace each when its listing is public and verify the destination while signed out.
+- [ ] Complete native desktop Edge acceptance and the separate Microsoft Edge Add-ons submission. Replace Edge's null URL only when the actual listing is public, the signed-out destination and installation are verified, and the available state has been tested with approved locally bundled Edge artwork or an approved badge used according to Microsoft's conditions and the actual listing link.
 - [ ] Choose the canonical HTTPS website origin and hosting provider. The repository has no production host configuration or Astro `site` origin; the repository homepage is empty, GitHub reports `has_pages: false`, and its Pages endpoint returns 404. These checks do not rule out an externally configured host.
 - [ ] Confirm the host/CDN request-log fields, retention and deletion behavior, access controls, subprocessors, and region; update the website privacy copy using those verified facts. Configure canonical URLs, redirects, and production headers, then inspect the deployed site's cookies, scripts, and network requests.
 - [ ] Enable GitHub private vulnerability reporting and verify the private report route from an account without repository access. A read-only check of `repos/agustinbarrientos/tocus/private-vulnerability-reporting` returned `{"enabled":false}` on September 9, 2026. [GitHub documents the repository setting](https://docs.github.com/en/code-security/security-advisories/working-with-repository-security-advisories/configuring-private-vulnerability-reporting-for-a-repository).

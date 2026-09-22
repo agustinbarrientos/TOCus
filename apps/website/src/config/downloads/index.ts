@@ -12,6 +12,11 @@ export const DownloadStores: Readonly<Record<WebsiteBrowser, StoreListing>> = {
 		name: 'Chrome',
 		href: 'https://chromewebstore.google.com/detail/tocus/placeholder-listing-id',
 	},
+	[ WebsiteBrowser.EDGE ]: {
+		browser: WebsiteBrowser.EDGE,
+		name: 'Edge',
+		href: null,
+	},
 	[ WebsiteBrowser.FIREFOX ]: {
 		browser: WebsiteBrowser.FIREFOX,
 		name: 'Firefox',
@@ -34,7 +39,10 @@ export function detectDownloadBrowser( userAgent = '' ): WebsiteBrowser {
 	if ( /Firefox\/|FxiOS\//iu.test( userAgent ) ) {
 		return WebsiteBrowser.FIREFOX;
 	}
-	if ( /Chrome\/|Chromium\/|CriOS\/|Edg(?:e|A|iOS)?\/|OPR\/|OPiOS\//iu.test( userAgent ) ) {
+	if ( /Edg\//iu.test( userAgent ) ) {
+		return WebsiteBrowser.EDGE;
+	}
+	if ( /Chrome\/|Chromium\/|CriOS\/|EdgA\/|EdgiOS\/|OPR\/|OPiOS\//iu.test( userAgent ) ) {
 		return WebsiteBrowser.CHROME;
 	}
 	if ( /Safari\//iu.test( userAgent ) ) {

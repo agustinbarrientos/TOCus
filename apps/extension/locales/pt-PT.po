@@ -384,10 +384,6 @@ msgstr "Escolha sites"
 msgid "Choose your language"
 msgstr "Escolha o seu idioma"
 
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
-msgid "Chrome can supply cached website icons. TOCus does not contact an icon service."
-msgstr "O Chrome pode fornecer ícones de sites guardados em cache. O TOCus não contacta nenhum serviço de ícones."
-
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Clear all"
 msgstr "Limpar tudo"
@@ -1484,6 +1480,10 @@ msgstr "Está tudo pronto"
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Your appearance could not be saved. Your choice is still shown here."
 msgstr "Não foi possível guardar a aparência. A sua escolha continua apresentada aqui."
+
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Your browser can supply cached website icons. TOCus does not contact an icon service."
+msgstr "O seu navegador pode fornecer ícones de sites guardados em cache. O TOCus não contacta nenhum serviço de ícones."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Your browser could not request access for that site. Try again."

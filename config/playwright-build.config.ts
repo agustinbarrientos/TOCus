@@ -10,6 +10,7 @@ export default defineConfig( {
 		'website/tests/build/**/*.test.ts',
 		'extension/tests/build/packaged-protection/index.test.ts',
 		'extension/tests/build/packaged-favicons/index.test.ts',
+		'extension/tests/build/packaged-edge/index.test.ts',
 	],
 	// Native browsers share the runner's CPU and memory; never overlap these journeys in CI.
 	workers: 1,

@@ -17,6 +17,7 @@ import type {
 	ToolbarLanguageControllerOptions,
 } from '../toolbar-language-controller';
 import type { ToolbarBadgeCopy } from '../../utils/toolbar-badge-projection';
+import { ExtensionBuildBrowser } from '../../../../shared/utils/build-browser/types';
 
 /**
  * Constructor and startup doubles for the background application composition.
@@ -150,8 +151,17 @@ describe( 'startProtectionBackgroundApplication', () => {
 		vi.unstubAllGlobals();
 	} );
 
-	it.each( [ true, false ] )( 'constructs the browser-backed runtime with Chrome enrollment ownership: %s', async ( isChrome ) => {
-		vi.stubEnv( 'CHROME', isChrome ? 'true' : '' );
+	it.each( [
+		[ ExtensionBuildBrowser.CHROME, true ],
+		[ ExtensionBuildBrowser.EDGE, true ],
+		[ ExtensionBuildBrowser.FIREFOX, false ],
+		[ ExtensionBuildBrowser.SAFARI, false ],
+	] as const )( 'wires %s protection with Chromium enrollment: %s', async ( browser, isChromium ) => {
+		vi.stubEnv( 'BROWSER', browser );
+		vi.stubEnv( 'CHROME', browser === ExtensionBuildBrowser.CHROME ? 'true' : '' );
+		vi.stubEnv( 'EDGE', browser === ExtensionBuildBrowser.EDGE ? 'true' : '' );
+		vi.stubEnv( 'FIREFOX', browser === ExtensionBuildBrowser.FIREFOX ? 'true' : '' );
+		vi.stubEnv( 'SAFARI', browser === ExtensionBuildBrowser.SAFARI ? 'true' : '' );
 		const locks = {};
 		vi.stubGlobal( 'navigator', { locks } );
 		const preferencesStorage = { load: vi.fn(), save: vi.fn() };
@@ -238,7 +248,7 @@ describe( 'startProtectionBackgroundApplication', () => {
 		observeAudio( 7, { mutedInfo }, observedTab );
 		expect( backgroundMocks.observeMuteChange ).toHaveBeenCalledWith( 7, mutedInfo );
 
-		if ( isChrome ) {
+		if ( isChromium ) {
 			expect( backgroundMocks.createBrowserProtectionConfigurationEditor ).not.toHaveBeenCalled();
 			expect( backgroundMocks.createProtectedSiteEnrollmentService ).not.toHaveBeenCalled();
 			const enrollmentOptions = backgroundMocks.createPopupEnrollmentController.mock.calls[ 0 ]?.[ 0 ];

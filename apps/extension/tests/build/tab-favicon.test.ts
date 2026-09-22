@@ -4,7 +4,7 @@ import { describe, expect, test } from 'vitest';
 /**
  * Browser packages that contain standalone extension documents.
  */
-const outputs = [ 'chrome-mv3', 'firefox-mv2', 'safari-mv2' ] as const;
+const outputs = [ 'chrome-mv3', 'edge-mv3', 'firefox-mv2', 'safari-mv2' ] as const;
 
 /**
  * Extension documents that can appear in a browser tab.

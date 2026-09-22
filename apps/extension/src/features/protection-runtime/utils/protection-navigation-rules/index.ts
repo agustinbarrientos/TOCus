@@ -1,9 +1,10 @@
 import type { Browser } from 'wxt/browser';
 import type { ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
-import { InterruptionDocumentPath } from '../../../../shared/utils/interruption-document-url';
 
 const NAVIGATION_RULE_PRIORITY = 1;
 const PROTECTION_NAVIGATION_RULE_CAPACITY = 100_000;
+const PROTECTABLE_URL_REGEX_FILTER = '^https?://.*';
+const REGEX_SPECIAL_CHARACTERS = /[.*+?^${}()|[\]\\]/gu;
 
 /**
  * First dynamic-rule identifier reserved for protected-site redirects.
@@ -23,32 +24,37 @@ export function isProtectionNavigationRuleId( ruleId: number ): boolean {
 }
 
 /**
- * Creates URL filters for one canonical protected-site match range.
- * @param rule - Canonical protected-site rule selected by the user.
- * @return One subdomain-aware filter or separate exact HTTP and HTTPS filters.
+ * Escapes one canonical host for literal use in a declarative request regex.
+ * @param host - Canonical host selected by the user.
+ * @return Regex-safe literal host.
  * @since 0.1.0 Initial implementation.
  */
-function createUrlFilters( rule: ProtectedSiteRule ): string[] {
-	if ( rule.includeSubdomains ) {
-		return [ `||${ rule.host }^` ];
-	}
+function escapeRegexHost( host: string ): string {
+	return host.replace( REGEX_SPECIAL_CHARACTERS, '\\$&' );
+}
 
-	return [
-		`|http://${ rule.host }^`,
-		`|https://${ rule.host }^`,
-	];
+/**
+ * Creates one full-URL regex restricted to an exact canonical host.
+ * @param host - Canonical host selected by the user.
+ * @return Anchored HTTP(S) URL regex preserving credentials, ports, paths, queries, and fragments.
+ * @since 0.1.0 Initial implementation.
+ */
+function createExactHostRegexFilter( host: string ): string {
+	return `^https?://([^/?#@]*@)?${ escapeRegexHost( host ) }(:[0-9]+)?([/?#].*)?$`;
 }
 
 /**
  * Creates one deterministic browser navigation redirect.
  * @param id - Positive identifier unique within the projected rule set.
- * @param urlFilter - Browser navigation filter for the protected match range.
+ * @param condition - Browser navigation condition for the protected match range.
+ * @param interruptionPageUrl - Trusted packaged interruption-page URL.
  * @return Main-frame redirect to the interruption page.
  * @since 0.1.0 Initial implementation.
  */
 function createNavigationRule(
 	id: number,
-	urlFilter: string,
+	condition: Browser.declarativeNetRequest.RuleCondition,
+	interruptionPageUrl: string,
 ): Browser.declarativeNetRequest.Rule {
 	return {
 		id,
@@ -56,11 +62,11 @@ function createNavigationRule(
 		action: {
 			type: 'redirect',
 			redirect: {
-				extensionPath: InterruptionDocumentPath.CURRENT,
+				regexSubstitution: `${ interruptionPageUrl }#destination=\\0`,
 			},
 		},
 		condition: {
-			urlFilter,
+			...condition,
 			resourceTypes: [ 'main_frame' ],
 		},
 	};
@@ -69,11 +75,13 @@ function createNavigationRule(
 /**
  * Creates browser navigation redirects for the protected sites selected by the user.
  * @param rules - Canonical protected-site rules selected by the user.
+ * @param interruptionPageUrl - Trusted packaged interruption-page URL.
  * @return Deterministic main-frame redirect rules.
  * @since 0.1.0 Initial implementation.
  */
 export function createProtectionNavigationRules(
 	rules: readonly ProtectedSiteRule[],
+	interruptionPageUrl: string,
 ): Browser.declarativeNetRequest.Rule[] {
 	const orderedRules = [ ...rules ].sort( ( left, right ) => {
 		const leftSortKey = `${ left.host }\0${ left.includeSubdomains ? '1' : '0' }\0${ left.scopeId }`;
@@ -81,10 +89,23 @@ export function createProtectionNavigationRules(
 
 		return leftSortKey.localeCompare( rightSortKey, 'en' );
 	} );
-	const urlFilters = orderedRules.flatMap( createUrlFilters );
+	const subdomainHosts = orderedRules
+		.filter( ( rule ) => rule.includeSubdomains )
+		.map( ( rule ) => rule.host );
+	const exactHostRules = orderedRules.filter( ( rule ) => ! rule.includeSubdomains );
+	const conditions: Browser.declarativeNetRequest.RuleCondition[] = [
+		...( subdomainHosts.length === 0 ? [] : [ {
+			regexFilter: PROTECTABLE_URL_REGEX_FILTER,
+			requestDomains: subdomainHosts,
+		} ] ),
+		...exactHostRules.map( ( rule ) => ( {
+			regexFilter: createExactHostRegexFilter( rule.host ),
+		} ) ),
+	];
 
-	return urlFilters.map( ( urlFilter, index ) => createNavigationRule(
+	return conditions.map( ( condition, index ) => createNavigationRule(
 		ProtectionNavigationRuleIdStart + index,
-		urlFilter,
+		condition,
+		interruptionPageUrl,
 	) );
 }

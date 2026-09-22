@@ -5,6 +5,7 @@ import { ProtectionStateType } from '../../../../domains/protection/types/protec
 import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
 import { matchProtectedUrl } from '../../../../domains/protection/utils/protected-url-matcher';
 import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
+import { readInterruptionNavigationDestination } from '../../../../shared/utils/interruption-navigation-destination';
 import {
 	createRuntimeStateTarget,
 	findRuntimeParticipantContext,
@@ -115,7 +116,9 @@ function getParticipantInvalidationCause(
 	const observedUrl = getObservedTabUrl( tab );
 
 	if ( context.participant.origin === ProtectionParticipantOrigin.NAVIGATION ) {
-		return isInterruptionDocumentUrl( observedUrl, interruptionPageUrl )
+		return ( isInterruptionDocumentUrl( observedUrl, interruptionPageUrl ) ||
+			readInterruptionNavigationDestination( observedUrl, interruptionPageUrl ) ===
+				context.participant.retainedDestination )
 			? null
 			: DepartureCause.BROWSER_ERROR_OR_RECOVERY;
 	}

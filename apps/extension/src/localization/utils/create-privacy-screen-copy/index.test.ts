@@ -10,6 +10,7 @@ describe( 'createPrivacyScreenCopy', () => {
 		expect( copy.allConfirmation ).toContain( 'Website access will be removed' );
 		expect( copy.allConfirmation ).toContain( 'cannot be undone' );
 		expect( copy.allSuccess ).toBe( 'All TOCus data reset.' );
+		expect( copy.faviconPermission ).toBe( 'Your browser can supply cached website icons. TOCus does not contact an icon service.' );
 		expect( Object.isFrozen( copy ) ).toBe( true );
 	} );
 } );

@@ -1,5 +1,6 @@
 import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
 import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
+import { readInterruptionNavigationDestination } from '../../../../shared/utils/interruption-navigation-destination';
 import {
 	ProtectionDecisionType,
 	type ProtectionDecision,
@@ -261,6 +262,44 @@ export function createProtectionPageProjector(
 	}
 
 	/**
+	 * Releases one destination-carrying pause document only while its exact tab URL remains current.
+	 * @param tab - Fresh carrier-tab observation.
+	 * @param carrierUrl - Exact observed carrier URL that authorized cleanup.
+	 * @param destination - Strictly parsed HTTP(S) destination carried by the pause fragment.
+	 * @return Promise resolved after navigation or when the carrier became stale.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function releaseObservedInterruptionCarrier(
+		tab: ProtectionRuntimeTab,
+		carrierUrl: string,
+		destination: string,
+	): Promise<void> {
+		/**
+		 * Reports whether a fresh tab still owns the exact parsed carrier.
+		 * @param candidate - Fresh tab observation for the carrier's browser tab.
+		 * @return Whether both the exact carrier URL and destination remain current.
+		 */
+		const matchesCarrier = ( candidate: ProtectionRuntimeTab ): boolean =>
+			getObservedTabUrl( candidate ) === carrierUrl &&
+			readInterruptionNavigationDestination(
+				getObservedTabUrl( candidate ),
+				options.interruptionPageUrl,
+			) === destination;
+		const tabs = await options.browser.listTabs();
+		const currentTab = tabs.find( ( candidate ) => candidate.id === tab.id );
+
+		if ( currentTab === undefined || ! matchesCarrier( currentTab ) ) {
+			return;
+		}
+
+		await applyPageEffect(
+			options.browser.navigateTab( tab.id, destination ),
+			tab.id,
+			matchesCarrier,
+		);
+	}
+
+	/**
 	 * Releases one tab only while a fresh observation still identifies the interruption page.
 	 * @param tabId - Browser tab that may still display the interruption page.
 	 * @param retainedDestination - Validated destination to restore, or null for browser-native dismissal.
@@ -359,9 +398,23 @@ export function createProtectionPageProjector(
 		storedParticipants: Parameters<ProtectionPageProjector[ 'releaseInterruptionPages' ]>[ 1 ] = [],
 	): Promise<void> {
 		const tabs = await options.browser.listTabs();
-		const interruptionTabs = tabs.filter( isInterruptionTab );
+		const interruptionTabs = tabs.filter( ( tab ) =>
+			isInterruptionTab( tab ) || readInterruptionNavigationDestination(
+				getObservedTabUrl( tab ),
+				options.interruptionPageUrl,
+			) !== null );
 
 		await Promise.all( interruptionTabs.map( ( tab ) => {
+			const observedUrl = getObservedTabUrl( tab );
+			const carriedDestination = readInterruptionNavigationDestination(
+				observedUrl,
+				options.interruptionPageUrl,
+			);
+
+			if ( observedUrl !== undefined && carriedDestination !== null ) {
+				return releaseObservedInterruptionCarrier( tab, observedUrl, carriedDestination );
+			}
+
 			const context = statesByScope === null
 				? null
 				: findRuntimeParticipantContext( statesByScope, tab.id );

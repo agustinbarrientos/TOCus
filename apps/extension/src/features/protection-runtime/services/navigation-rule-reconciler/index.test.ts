@@ -19,11 +19,15 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
 	} ],
 };
 
+/** Trusted packaged interruption page used by redirect fixtures. */
+const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/pause.html';
+
 describe( 'createNavigationRuleReconciler', () => {
 	it( 'uses website schedules independently while one browsing allowance covers both websites', async () => {
 		let rules: Browser.declarativeNetRequest.Rule[] = [];
 		let now = Date.UTC( 2026, 8, 14, 9 );
 		const reconciler = createNavigationRuleReconciler( {
+			interruptionPageUrl: INTERRUPTION_PAGE_URL,
 			/**
 			 * Retains the emitted browser redirects.
 			 * @param nextRules - Dynamic browser redirects to install.
@@ -57,7 +61,12 @@ describe( 'createNavigationRuleReconciler', () => {
 		expect( rules ).toHaveLength( 1 );
 		now = Date.UTC( 2026, 8, 14, 10 );
 		await reconciler.reconcile( configuration, {} );
-		expect( rules ).toHaveLength( 2 );
+		expect( rules ).toHaveLength( 1 );
+		expect( rules[ 0 ]?.action ).toEqual( {
+			type: 'redirect',
+			redirect: { regexSubstitution: `${ INTERRUPTION_PAGE_URL }#destination=\\0` },
+		} );
+		expect( rules[ 0 ]?.condition.requestDomains ).toEqual( [ 'example.com', 'second.test' ] );
 		const allowance = AllowanceProtectionStateSchema.parse( {
 			type: ProtectionStateType.ALLOWANCE, scopeId: DefaultProtectionScopeId,
 			allowanceId: 'allowance_shared', completedWaitId: null,
@@ -68,11 +77,12 @@ describe( 'createNavigationRuleReconciler', () => {
 		expect( rules ).toEqual( [] );
 		now += 300_000;
 		await reconciler.reconcile( configuration, { [ DefaultProtectionScopeId ]: allowance } );
-		expect( rules ).toHaveLength( 2 );
+		expect( rules ).toHaveLength( 1 );
 	} );
 	it( 'keeps scheduled rules active outside an allowance', async () => {
 		let rules: Browser.declarativeNetRequest.Rule[] = [];
 		const reconciler = createNavigationRuleReconciler( {
+			interruptionPageUrl: INTERRUPTION_PAGE_URL,
 			/**
 			 * Retains the latest test navigation rules.
 			 * @param nextRules - Complete replacement rule set.
@@ -103,6 +113,7 @@ describe( 'createNavigationRuleReconciler', () => {
 		let rules: Browser.declarativeNetRequest.Rule[] = [];
 		let now = 100_000;
 		const reconciler = createNavigationRuleReconciler( {
+			interruptionPageUrl: INTERRUPTION_PAGE_URL,
 			/**
 			 * Retains the latest test navigation rules.
 			 * @param nextRules - Complete replacement rule set.
@@ -145,6 +156,7 @@ describe( 'createNavigationRuleReconciler', () => {
 	it( 'clears redirects when configuration or runtime state is unavailable', async () => {
 		let ruleCount = -1;
 		const reconciler = createNavigationRuleReconciler( {
+			interruptionPageUrl: INTERRUPTION_PAGE_URL,
 			/**
 			 * Retains the latest test navigation-rule count.
 			 * @param rules - Complete replacement rule set.

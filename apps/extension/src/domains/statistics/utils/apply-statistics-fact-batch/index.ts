@@ -180,7 +180,6 @@ export function applyStatisticsFactBatch(
 
 	if ( existingDay !== undefined ) {
 		const { date: _date, ...totals } = existingDay;
-		void _date;
 		dailyScope = { totals };
 	}
 

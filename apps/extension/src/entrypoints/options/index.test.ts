@@ -2,6 +2,7 @@ import { Language } from '../../domains/preferences/types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SettingsPlatform } from '../../features/settings/components/shell/types';
 import type { SettingsPageOptions } from '../../features/settings/services/settings-page/types';
+import { ExtensionBuildBrowser } from '../../shared/utils/build-browser/types';
 
 /**
  * Hoisted dependencies used by settings entrypoint composition tests.
@@ -57,16 +58,18 @@ vi.mock( '../../localization', () => ( {
 
 /**
  * Imports the settings entrypoint for one browser environment.
- * @param environment - Browser build flags exposed by WXT.
+ * @param browser - Browser build target exposed by WXT.
  * @return Promise resolved after entrypoint evaluation.
  * @since 0.1.0 Initial implementation.
  */
 async function importSettingsEntrypoint(
-	environment: Readonly<{ CHROME?: string; FIREFOX?: string; SAFARI?: string }> = {},
+	browser: string,
 ): Promise<void> {
-	for ( const [ name, value ] of Object.entries( environment ) ) {
-		vi.stubEnv( name, value );
-	}
+	vi.stubEnv( 'BROWSER', browser );
+	vi.stubEnv( 'CHROME', browser === ExtensionBuildBrowser.CHROME ? 'true' : '' );
+	vi.stubEnv( 'EDGE', browser === ExtensionBuildBrowser.EDGE ? 'true' : '' );
+	vi.stubEnv( 'FIREFOX', browser === ExtensionBuildBrowser.FIREFOX ? 'true' : '' );
+	vi.stubEnv( 'SAFARI', browser === ExtensionBuildBrowser.SAFARI ? 'true' : '' );
 
 	await import( './index' );
 }
@@ -86,40 +89,42 @@ describe( 'settings entrypoint', () => {
 		vi.unstubAllGlobals();
 	} );
 
-	it( 'starts Chrome settings with browser and document dependencies', async () => {
-		const removeProperty = vi.fn();
-		const documentTarget = {
-			documentElement: {
-				setAttribute: vi.fn(),
-				style: { removeProperty },
-			},
-			getElementById: vi.fn().mockReturnValue( entrypointMocks.container ),
-			title: 'TOCus',
-		};
+	it.each( [ ExtensionBuildBrowser.CHROME, ExtensionBuildBrowser.EDGE ] )(
+		'starts %s settings with Chromium browser behavior', async ( browser ) => {
+			const removeProperty = vi.fn();
+			const documentTarget = {
+				documentElement: {
+					setAttribute: vi.fn(),
+					style: { removeProperty },
+				},
+				getElementById: vi.fn().mockReturnValue( entrypointMocks.container ),
+				title: 'TOCus',
+			};
 
-		vi.stubGlobal( 'document', documentTarget );
-		await importSettingsEntrypoint( { CHROME: 'true', FIREFOX: '', SAFARI: '' } );
+			vi.stubGlobal( 'document', documentTarget );
+			await importSettingsEntrypoint( browser );
 
-		expect( entrypointMocks.bootstrapSettingsPage ).toHaveBeenCalledOnce();
-		const options = entrypointMocks.bootstrapSettingsPage.mock.calls[ 0 ]?.[ 0 ];
+			expect( entrypointMocks.bootstrapSettingsPage ).toHaveBeenCalledOnce();
+			const options = entrypointMocks.bootstrapSettingsPage.mock.calls[ 0 ]?.[ 0 ];
 
-		if ( options === undefined ) {
-			throw new TypeError( 'Expected settings page options.' );
-		}
+			if ( options === undefined ) {
+				throw new TypeError( 'Expected settings page options.' );
+			}
 
-		expect( documentTarget.getElementById ).toHaveBeenCalledWith( 'settings-root' );
-		expect( entrypointMocks.mountSettings ).toHaveBeenCalledWith( entrypointMocks.container );
-		expect( options.shell ).toBe( entrypointMocks.shell );
-		expect( options.browserLanguage ).toBe( Language.SPANISH_VOS );
-		expect( options.platform ).toBe( SettingsPlatform.CHROME );
-		expect( options.supportsCachedFavicons ).toBeTruthy();
-		expect( options.extensionRootUrl ).toBe( 'chrome-extension://extension-id/' );
-		expect( options.version ).toBe( '2.3.4' );
-		expect( options.cryptography ).toBe( crypto );
-		expect( options.document ).toBe( documentTarget );
-		expect( options.pageWindow ).toBe( window );
-		expect( removeProperty ).not.toHaveBeenCalled();
-	} );
+			expect( documentTarget.getElementById ).toHaveBeenCalledWith( 'settings-root' );
+			expect( entrypointMocks.mountSettings ).toHaveBeenCalledWith( entrypointMocks.container );
+			expect( options.shell ).toBe( entrypointMocks.shell );
+			expect( options.browserLanguage ).toBe( Language.SPANISH_VOS );
+			expect( options.platform ).toBe( SettingsPlatform.CHROME );
+			expect( options.supportsCachedFavicons ).toBeTruthy();
+			expect( options.extensionRootUrl ).toBe( 'chrome-extension://extension-id/' );
+			expect( options.version ).toBe( '2.3.4' );
+			expect( options.cryptography ).toBe( crypto );
+			expect( options.document ).toBe( documentTarget );
+			expect( options.pageWindow ).toBe( window );
+			expect( removeProperty ).not.toHaveBeenCalled();
+		},
+	);
 
 	it( 'selects the Firefox settings platform', async () => {
 		vi.stubGlobal( 'document', {
@@ -127,10 +132,11 @@ describe( 'settings entrypoint', () => {
 			getElementById: vi.fn().mockReturnValue( entrypointMocks.container ),
 		} );
 
-		await importSettingsEntrypoint( { CHROME: '', FIREFOX: 'true', SAFARI: '' } );
+		await importSettingsEntrypoint( ExtensionBuildBrowser.FIREFOX );
 
-		expect( entrypointMocks.bootstrapSettingsPage.mock.calls[ 0 ]?.[ 0 ].platform )
-			.toBe( SettingsPlatform.FIREFOX );
+		const options = entrypointMocks.bootstrapSettingsPage.mock.calls[ 0 ]?.[ 0 ];
+		expect( options?.platform ).toBe( SettingsPlatform.FIREFOX );
+		expect( options?.supportsCachedFavicons ).toBeFalsy();
 	} );
 
 	it( 'selects the Safari settings platform', async () => {
@@ -139,16 +145,17 @@ describe( 'settings entrypoint', () => {
 			getElementById: vi.fn().mockReturnValue( entrypointMocks.container ),
 		} );
 
-		await importSettingsEntrypoint( { CHROME: '', FIREFOX: '', SAFARI: 'true' } );
+		await importSettingsEntrypoint( ExtensionBuildBrowser.SAFARI );
 
-		expect( entrypointMocks.bootstrapSettingsPage.mock.calls[ 0 ]?.[ 0 ].platform )
-			.toBe( SettingsPlatform.SAFARI );
+		const options = entrypointMocks.bootstrapSettingsPage.mock.calls[ 0 ]?.[ 0 ];
+		expect( options?.platform ).toBe( SettingsPlatform.SAFARI );
+		expect( options?.supportsCachedFavicons ).toBeFalsy();
 	} );
 
 	it( 'fails clearly when the settings shell is missing', async () => {
 		vi.stubGlobal( 'document', { getElementById: vi.fn().mockReturnValue( null ) } );
 
-		await expect( importSettingsEntrypoint() ).rejects.toThrow(
+		await expect( importSettingsEntrypoint( ExtensionBuildBrowser.CHROME ) ).rejects.toThrow(
 			'Expected the options page to contain the settings shell.',
 		);
 		expect( entrypointMocks.bootstrapSettingsPage ).not.toHaveBeenCalled();

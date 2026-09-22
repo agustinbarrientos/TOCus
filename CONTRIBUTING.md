@@ -10,7 +10,7 @@ Thanks for helping build TOCus. Focused bug reports, design feedback, documentat
 
 ## Development setup
 
-Use Node.js 24.16.0 or newer within the Node.js 24 release line and pnpm 11.24.0, then install the locked dependencies. The `.node-version` file pins the 24.20.0 version used in CI.
+Use Node.js 24.16.0 or newer within the Node.js 24 release line and pnpm 12.5.1, then install the locked dependencies. The `.node-version` file pins the 24.20.0 version used in CI.
 
 ```sh
 corepack enable

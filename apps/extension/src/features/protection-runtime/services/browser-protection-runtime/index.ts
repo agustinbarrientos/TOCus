@@ -592,10 +592,10 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	function handleNavigation(
 		navigation: Parameters<BrowserProtectionRuntime[ 'handleNavigation' ]>[ 0 ],
 		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
-	): Promise<void> {
+	): Promise<string | undefined> {
 		return enqueueObserved( async () => {
 			if ( available ) {
-				await navigationHandler.handle( navigation );
+				return navigationHandler.handle( navigation );
 			}
 		}, StatisticsFocusObservationMode.BOUNDARY, undefined, navigation, statisticsObservation );
 	}

@@ -20,7 +20,7 @@ export function createPrivacyScreenCopy( i18n: I18n ): Readonly<PrivacyScreenCop
 		toolbarPermission: i18n._( msg`Clicking the toolbar icon gives TOCus temporary access to the current website.` ),
 		navigationPermission: i18n._( msg`Navigation access notices website changes as they happen, not your saved browsing history.` ),
 		localToolsPermission: i18n._( msg`Local storage saves your choices. Scripts and browser rules show the pause. Alarms keep the timing up to date.` ),
-		faviconPermission: i18n._( msg`Chrome can supply cached website icons. TOCus does not contact an icon service.` ),
+		faviconPermission: i18n._( msg`Your browser can supply cached website icons. TOCus does not contact an icon service.` ),
 		deniedPermission: i18n._( msg`Without website access, TOCus cannot pause that website. You can change access in your browser's extension settings.` ),
 		statisticsTitle: i18n._( msg`Reset statistics` ),
 		statisticsDescription: i18n._( msg`Clear your recorded counts and time totals. Your websites and settings stay the same.` ),
