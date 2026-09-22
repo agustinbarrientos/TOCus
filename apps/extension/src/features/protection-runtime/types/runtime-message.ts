@@ -6,6 +6,48 @@ import {
 } from '../../../domains/protection/types/protection-value';
 
 /**
+ * Dedicated command sent to an interruption document before releasing it.
+ * @since 0.1.0 Initial implementation.
+ */
+export const InterruptionNavigationReplacementMessageType = {
+	REPLACE: 'replace-interruption-navigation',
+} as const;
+
+/**
+ * Validates the exact source document and HTTP(S) destination selected by the background.
+ * @since 0.1.0 Initial implementation.
+ */
+export const InterruptionNavigationReplacementRequestSchema = z.object( {
+	type: z.literal( InterruptionNavigationReplacementMessageType.REPLACE ),
+	sourceUrl: z.string(),
+	url: z.string(),
+} ).strict();
+
+/**
+ * Background-to-page command that preserves native history during an authorized release.
+ * @since 0.1.0 Initial implementation.
+ */
+export type InterruptionNavigationReplacementRequest = z.infer<
+	typeof InterruptionNavigationReplacementRequestSchema
+>;
+
+/**
+ * Validates the acknowledgement emitted before the interruption document replaces itself.
+ * @since 0.1.0 Initial implementation.
+ */
+export const InterruptionNavigationReplacementResponseSchema = z.object( {
+	replaced: z.literal( true ),
+} ).strict();
+
+/**
+ * Positive acknowledgement from the exact interruption document selected for release.
+ * @since 0.1.0 Initial implementation.
+ */
+export type InterruptionNavigationReplacementResponse = z.infer<
+	typeof InterruptionNavigationReplacementResponseSchema
+>;
+
+/**
  * Validates the destination-resolution handshake before a redirect document mounts its UI.
  * The destination is taken from the browser sender, never supplied as a message field.
  * @since 0.1.0 Initial implementation.

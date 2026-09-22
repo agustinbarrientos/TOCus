@@ -327,6 +327,27 @@ test.describe( 'packaged Chrome protection', () => {
 			await continueButton.click();
 			await expect( protectedPage ).toHaveURL( destination );
 			await expect( protectedPage.getByRole( 'heading', { name: 'Destination loaded', exact: true } ) ).toBeVisible();
+			const historyUrls: string[] = [];
+			protectedPage.on( 'framenavigated', ( frame ) => {
+				if ( frame === protectedPage.mainFrame() ) {
+					historyUrls.push( frame.url() );
+				}
+			} );
+
+			const backResponse = await protectedPage.goBack( { waitUntil: 'commit' } );
+			if ( targetBlank ) {
+				expect( backResponse ).toBeNull();
+				await expect( protectedPage ).toHaveURL( destination );
+				expect( historyUrls ).toEqual( [] );
+				expect( await protectedPage.goForward( { waitUntil: 'commit' } ) ).toBeNull();
+				expect( historyUrls ).toEqual( [] );
+			} else {
+				await expect( protectedPage ).toHaveURL( searchUrl );
+				await protectedPage.goForward( { waitUntil: 'commit' } );
+				await expect( protectedPage ).toHaveURL( destination );
+			}
+			expect( historyUrls.filter( ( url ) => /\/pause\.html(?:#|$)/u.test( url ) ) ).toEqual( [] );
+			await expect( protectedPage.getByRole( 'heading', { name: 'Destination loaded', exact: true } ) ).toBeVisible();
 		} );
 	}
 

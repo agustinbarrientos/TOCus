@@ -1,6 +1,15 @@
 import { ToolbarBadgeBackgroundColor } from '@tocus/theme/runtime-colors';
 import type { Browser } from 'wxt/browser';
 import { enrichExtensionTabUrls } from '../../../../shared/services/extension-tab-context';
+import {
+	InterruptionDocumentPath,
+	isInterruptionDocumentUrl,
+} from '../../../../shared/utils/interruption-document-url';
+import { readInterruptionNavigationDestination } from '../../../../shared/utils/interruption-navigation-destination';
+import {
+	InterruptionNavigationReplacementMessageType,
+	InterruptionNavigationReplacementResponseSchema,
+} from '../../types/runtime-message';
 import { isProtectionNavigationRuleId } from '../../utils/protection-navigation-rules';
 import {
 	ProtectedPageMessageSchema,
@@ -335,14 +344,59 @@ export function createBrowserProtectionAdapter(
 	}
 
 	/**
-	 * Navigates one live tab to its retained HTTP or HTTPS destination.
+	 * Lets an owned interruption replace itself without leaving an extra browser-history entry.
+	 * @param tabId - Browser-assigned target tab identifier.
+	 * @param url - Retained HTTP(S) destination authorized by the runtime.
+	 * @return Whether the page handled navigation or its source became stale during delivery.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function replaceInterruptionNavigation( tabId: number, url: string ): Promise<boolean> {
+		const currentUrl = browserApi.runtime?.getURL( InterruptionDocumentPath.CURRENT );
+
+		if ( currentUrl === undefined || ! /^https?:\/\//u.test( url ) ) {
+			return false;
+		}
+
+		const tab = ( await listTabs() ).find( ( candidate ) => candidate.id === tabId );
+		const sourceUrl = tab?.pendingUrl ?? tab?.url;
+
+		if (
+			tab?.incognito !== false || sourceUrl === undefined ||
+			( ! isInterruptionDocumentUrl( sourceUrl, currentUrl ) &&
+				readInterruptionNavigationDestination( sourceUrl, currentUrl ) === null )
+		) {
+			return true;
+		}
+
+		try {
+			const response = await browserApi.tabs.sendMessage( tabId, {
+				type: InterruptionNavigationReplacementMessageType.REPLACE,
+				sourceUrl,
+				url,
+			} );
+			if ( InterruptionNavigationReplacementResponseSchema.safeParse( response ).success ) {
+				return true;
+			}
+		} catch {
+			// A loading or failed page may not have a listener; preserve fail-open browser navigation.
+		}
+
+		const freshTab = ( await listTabs() ).find( ( candidate ) => candidate.id === tabId );
+
+		return freshTab?.incognito !== false || ( freshTab.pendingUrl ?? freshTab.url ) !== sourceUrl;
+	}
+
+	/**
+	 * Navigates one live tab, replacing an owned interruption document when its listener is available.
 	 * @param tabId - Browser-assigned tab identifier.
 	 * @param url - Retained navigation destination.
 	 * @return Promise resolved after the browser accepts the update.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	async function navigateTab( tabId: number, url: string ): Promise<void> {
-		await browserApi.tabs.update( tabId, { url } );
+		if ( ! await replaceInterruptionNavigation( tabId, url ) ) {
+			await browserApi.tabs.update( tabId, { url } );
+		}
 		await tabAudio.restore( tabId );
 	}
 

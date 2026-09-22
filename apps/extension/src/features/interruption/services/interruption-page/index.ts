@@ -29,6 +29,7 @@ import {
 	type InterruptionPageVisibility,
 } from '../interruption-page-controller';
 import { resolveNavigationRedirect } from '../navigation-redirect';
+import { registerInterruptionNavigationReplacement } from '../navigation-replacement';
 
 /**
  * Reveals the interruption document after either successful startup or terminal recovery.
@@ -257,6 +258,11 @@ export async function startInterruptionPage(): Promise<void> {
  * @since 0.1.0 Initial implementation.
  */
 export async function bootstrapInterruptionPage(): Promise<void> {
+	registerInterruptionNavigationReplacement( {
+		location: window.location,
+		runtime: browser.runtime,
+	} );
+
 	try {
 		if ( await resolveNavigationRedirect( {
 			location: window.location,

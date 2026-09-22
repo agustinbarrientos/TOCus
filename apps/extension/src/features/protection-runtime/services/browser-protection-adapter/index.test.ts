@@ -397,6 +397,107 @@ describe( 'createBrowserProtectionAdapter', () => {
 		} );
 	} );
 
+	it.each( [ '', '#destination=https://example.com/redirected' ] )(
+		'replaces an interruption history entry instead of adding another navigation: %s',
+		async ( fragment ) => {
+			const browserApi = createBrowserApi();
+			const currentUrl = 'chrome-extension://extension-id/pause.html';
+			const sourceUrl = `${ currentUrl }${ fragment }`;
+			const url = 'https://example.com/watch?next=%2Fvideo#chapter';
+			browserApi.runtime = { getURL: vi.fn().mockReturnValue( currentUrl ) };
+			vi.mocked( browserApi.tabs.query ).mockResolvedValue( [ { id: 7, incognito: false, url: sourceUrl } ] );
+			vi.mocked( browserApi.tabs.sendMessage ).mockResolvedValue( { replaced: true } );
+			const audio = createTabAudioController();
+			const adapter = createBrowserProtectionAdapter( browserApi, audio );
+
+			await adapter.navigateTab( 7, url );
+
+			expect( browserApi.tabs.sendMessage ).toHaveBeenCalledWith( 7, {
+				type: 'replace-interruption-navigation', sourceUrl, url,
+			} );
+			expect( browserApi.tabs.update ).not.toHaveBeenCalled();
+			expect( audio.restore ).toHaveBeenCalledWith( 7 );
+		},
+	);
+
+	it.each( [ undefined, null, { replaced: false }, { replaced: true, unexpected: true }, new Error( 'No receiver' ) ] )(
+		'falls back to a browser update only while an unhandled interruption remains current: %j',
+		async ( response ) => {
+			const browserApi = createBrowserApi();
+			const sourceUrl = 'chrome-extension://extension-id/pause.html';
+			browserApi.runtime = { getURL: vi.fn().mockReturnValue( sourceUrl ) };
+			vi.mocked( browserApi.tabs.query ).mockResolvedValue( [ { id: 7, incognito: false, url: sourceUrl } ] );
+			if ( response instanceof Error ) {
+				vi.mocked( browserApi.tabs.sendMessage ).mockRejectedValue( response );
+			} else {
+				vi.mocked( browserApi.tabs.sendMessage ).mockResolvedValue( response );
+			}
+			const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
+
+			await adapter.navigateTab( 7, 'https://example.com/' );
+
+			expect( browserApi.tabs.query ).toHaveBeenCalledTimes( 2 );
+			expect( browserApi.tabs.update ).toHaveBeenCalledWith( 7, { url: 'https://example.com/' } );
+		},
+	);
+
+	it.each( [
+		{ freshTabs: [] },
+		{ freshTabs: [ { id: 7, incognito: false, url: 'https://unrelated.example/' } ] },
+		{ freshTabs: [ {
+			id: 7, incognito: false, url: 'chrome-extension://extension-id/pause.html', pendingUrl: 'https://other.example/',
+		} ] },
+		{ freshTabs: [ { id: 7, incognito: true, url: 'chrome-extension://extension-id/pause.html' } ] },
+	] )( 'does not replace a moved or closed tab after an unacknowledged message: %j', async ( { freshTabs } ) => {
+		const browserApi = createBrowserApi();
+		const sourceUrl = 'chrome-extension://extension-id/pause.html';
+		browserApi.runtime = { getURL: vi.fn().mockReturnValue( sourceUrl ) };
+		vi.mocked( browserApi.tabs.query )
+			.mockResolvedValueOnce( [ { id: 7, incognito: false, url: sourceUrl } ] )
+			.mockResolvedValueOnce( freshTabs );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
+
+		await adapter.navigateTab( 7, 'https://example.com/' );
+
+		expect( browserApi.tabs.sendMessage ).toHaveBeenCalledOnce();
+		expect( browserApi.tabs.update ).not.toHaveBeenCalled();
+	} );
+
+	it.each( [
+		{ tabs: [] },
+		{ tabs: [ { id: 7, incognito: false } ] },
+		{ tabs: [ { id: 7, incognito: true, url: 'chrome-extension://extension-id/pause.html' } ] },
+		{ tabs: [ { id: 7, incognito: false, url: 'https://unrelated.example/' } ] },
+		{ tabs: [ { id: 7, incognito: false, url: 'chrome-extension://other-id/pause.html' } ] },
+		{ tabs: [ { id: 7, incognito: false, url: 'chrome-extension://extension-id/pause.html#destination=invalid' } ] },
+		{ tabs: [ {
+			id: 7, incognito: false, url: 'chrome-extension://extension-id/pause.html', pendingUrl: 'https://other.example/',
+		} ] },
+	] )( 'leaves a tab untouched if its interruption is already stale before delivery: %j', async ( { tabs } ) => {
+		const browserApi = createBrowserApi();
+		browserApi.runtime = { getURL: vi.fn().mockReturnValue( 'chrome-extension://extension-id/pause.html' ) };
+		vi.mocked( browserApi.tabs.query ).mockResolvedValue( tabs );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
+
+		await adapter.navigateTab( 7, 'https://example.com/' );
+
+		expect( browserApi.tabs.sendMessage ).not.toHaveBeenCalled();
+		expect( browserApi.tabs.update ).not.toHaveBeenCalled();
+	} );
+
+	it( 'uses a normal browser update when opening the interruption from a protected site', async () => {
+		const browserApi = createBrowserApi();
+		const url = 'chrome-extension://extension-id/pause.html';
+		browserApi.runtime = { getURL: vi.fn().mockReturnValue( url ) };
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
+
+		await adapter.navigateTab( 7, url );
+
+		expect( browserApi.tabs.query ).not.toHaveBeenCalled();
+		expect( browserApi.tabs.sendMessage ).not.toHaveBeenCalled();
+		expect( browserApi.tabs.update ).toHaveBeenCalledWith( 7, { url } );
+	} );
+
 	it( 'dismisses an interruption through browser-native back navigation when available', async () => {
 		const browserApi = createBrowserApi();
 		browserApi.tabs.goBack = vi.fn().mockResolvedValue( undefined );

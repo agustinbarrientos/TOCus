@@ -84,7 +84,9 @@ const pageMocks = await vi.hoisted( async () => {
 	const storageChanges = {};
 	const statisticsClient = {};
 	const runtime = {
+		id: 'extension-id',
 		getURL: vi.fn().mockReturnValue( 'chrome-extension://extension-id/pause.html' ),
+		onMessage: { addListener: vi.fn() },
 		sendMessage: vi.fn<( request: InterruptionPageRequest ) => Promise<unknown>>(),
 	};
 	const wellbeingSummaryController = {
@@ -116,6 +118,7 @@ const pageMocks = await vi.hoisted( async () => {
 		preferencesController,
 		preferencesStorage,
 		removeDocumentVisibility,
+		registerInterruptionNavigationReplacement: vi.fn(),
 		resolveNavigationRedirect: vi.fn(),
 		resolveLanguage: vi.fn().mockReturnValue( 'es-vos' ),
 		runtime,
@@ -160,6 +163,9 @@ vi.mock( '../../../statistics/services/wellbeing-summary-controller', () => ( {
 } ) );
 vi.mock( '../navigation-redirect', () => ( {
 	resolveNavigationRedirect: pageMocks.resolveNavigationRedirect,
+} ) );
+vi.mock( '../navigation-replacement', () => ( {
+	registerInterruptionNavigationReplacement: pageMocks.registerInterruptionNavigationReplacement,
 } ) );
 
 /**
@@ -573,6 +579,10 @@ describe( 'interruption page service', () => {
 		const { bootstrapInterruptionPage } = await import( './index' );
 
 		const bootstrap = bootstrapInterruptionPage();
+		expect( pageMocks.registerInterruptionNavigationReplacement ).toHaveBeenCalledExactlyOnceWith( {
+			location,
+			runtime: pageMocks.runtime,
+		} );
 		await vi.waitFor( () => {
 			expect( pageMocks.resolveNavigationRedirect ).toHaveBeenCalledWith( {
 				location,
