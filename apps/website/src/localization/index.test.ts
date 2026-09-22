@@ -32,10 +32,10 @@ const WebsiteCatalogLocales = Object.freeze( [
  * @since 0.1.0 Initial implementation.
  */
 const WebsiteHomepageFields = Object.freeze( [
-	'howTitle', 'stepOpen', 'stepPause', 'stepContinue', 'stepBrowse',
+	'stepOpen', 'stepPause', 'stepContinue', 'stepBrowse',
 	'featuresTitle', 'scheduleTitle', 'scheduleDescription',
 	'sitesTitle', 'sitesDescription', 'mediaTitle', 'mediaDescription', 'mediaServices',
-	'statisticsTitle', 'statisticsDescription', 'statisticsExample',
+	'statisticsTitle', 'statisticsDescription',
 	'privacyLocal', 'privacy', 'readPrivacy',
 	'openSourceTitle', 'openSourceDescription', 'sourceShort',
 	'alsoAvailable', 'comingSoon', 'downloadTitle', 'downloadFor',
@@ -168,10 +168,9 @@ describe( 'website localization', () => {
 		expect( catalog.intro ).toBe( 'Pause before visiting addictive websites' );
 		expect( catalog.description.length ).toBeLessThanOrEqual( 64 );
 		expect( catalog.statisticsDescription ).not.toMatch( /\b(?:actual|estimated|reclaimed|saved)\b/iu );
-		expect( catalog.statisticsExample ).toMatch( /^Example:/u );
 		expect( catalog.privacy ).toMatch( /\boffline\b/iu );
-		expect( catalog.privacy ).toContain( 'without an account' );
-		expect( catalog.openSourceDescription ).toContain( 'No advertising.' );
+		expect( catalog.privacy ).toContain( 'needs no account' );
+		expect( catalog.openSourceDescription ).toContain( 'no advertising.' );
 		for ( const value of Object.values( catalog ) ) {
 			if ( typeof value === 'string' ) {
 				expect( value ).not.toMatch( /\bprotect(?:ed|ion)?\b/iu );
@@ -197,7 +196,7 @@ describe( 'website localization', () => {
 		const english = getWebsiteLocalization( WebsiteLanguage.ENGLISH ).catalog;
 		const fields = [
 			'featuresTitle', 'mediaDescription', 'mediaServices',
-			'statisticsDescription', 'statisticsExample', 'privacy',
+			'statisticsDescription', 'privacy',
 			'openSourceDescription', 'downloadTitle', 'readPrivacy', 'sourceLink',
 		] as const;
 
@@ -211,14 +210,13 @@ describe( 'website localization', () => {
 		}
 	} );
 
-	it( 'keeps feature headings concise and marks the statistics sample as illustrative', () => {
+	it( 'keeps feature headings concise', () => {
 		for ( const { language, catalog } of getWebsiteLocalizations() ) {
 			for ( const [ field, value ] of Object.entries( catalog ) ) {
 				if ( ( field.endsWith( 'Title' ) && field !== 'downloadTitle' ) || field === 'intro' || field === 'privacyLocal' ) {
 					expect( value, `${ language }:${ field }` ).not.toMatch( /[.\u3002\uff0e]$/u );
 				}
 			}
-			expect( catalog.statisticsExample, language ).toMatch( /^.+[:\uff1a]/u );
 		}
 	} );
 

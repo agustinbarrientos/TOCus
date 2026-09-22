@@ -4,8 +4,8 @@ import { expect, test, type Route } from '@playwright/test';
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 const PublicRoutes = [ '/', '/de/', '/es/', '/es-ar/', '/fr/', '/it/', '/ja/', '/pt-br/', '/pt-pt/', '/ru/' ];
 const FeatureTitles = [
-	'Only when you want', 'Custom schedules for each site', 'Your video pauses, too',
-	'See how much time you saved', 'Stored on your device', 'Free and open source',
+	'Use it only when you want to', 'Set a custom schedule for each site', 'Your videos will pause automatically',
+	'Check how much time you\u2019ve saved', 'Everything is stored on your device', 'It\u2019s free and open source',
 ];
 
 /**
@@ -24,28 +24,67 @@ test.describe( 'static illustrated product presentation', () => {
 	test( 'explains four steps and six features with local artwork and direct downloads', async ( { page } ) => {
 		await page.route( 'http://website.test/**', serveAsset );
 		await page.goto( 'http://website.test/' );
-		await expect( page.locator( '#how-it-works h2' ) ).toHaveText( 'How it works' );
+		await expect( page.locator( '#how-it-works h2, #how-it-works h3' ) ).toHaveCount( 0 );
 		const steps = page.locator( '#how-it-works ol.how-steps > li' );
 		await expect( steps ).toHaveCount( 4 );
-		for ( const [ index, label ] of [ 'Open a site', '10s pause', 'Continue', '5m browsing' ].entries() ) {
-			await expect( steps.nth( index ) ).toContainText( label );
-		}
+		await expect( steps.locator( '.how-step-label' ) )
+			.toHaveText( [ 'Open a site', '10s pause', 'Continue', '5m browsing' ] );
 		await expect( page.locator( '#features h2' ) ).toHaveText( 'A calmer way to browse' );
 		const features = page.locator( '#features ul.feature-grid > li' );
 		await expect( features ).toHaveCount( 6 );
 		await expect( features.locator( 'h3' ) ).toHaveText( FeatureTitles );
 		for ( const feature of await features.all() ) {
-			const art = feature.locator( 'img' );
+			const art = feature.locator( '.feature-art' );
 			await expect( art ).toHaveCount( 1 );
 			await expect( art ).toHaveAttribute( 'src', /^\/(?!\/)/u );
 			await art.scrollIntoViewIfNeeded();
 			await art.evaluate( ( image: HTMLImageElement ) => image.decode() );
 			await expect( art ).toBeVisible();
 		}
+		const media = features.filter( {
+			has: page.getByRole( 'heading', { name: 'Your videos will pause automatically', exact: true } ),
+		} );
+		await expect( media ).toContainText( 'Works with' );
+		await expect( media.getByText( '+', { exact: true } ) ).toBeVisible();
+		const serviceIcons = media.locator( 'img[alt]:not([alt=""])' );
+		await expect( serviceIcons ).toHaveCount( 3 );
+		expect( await serviceIcons.evaluateAll( ( icons ) => icons.map( ( icon ) => icon.getAttribute( 'alt' ) ) ) )
+			.toEqual( [ 'youtube', 'netflix', 'twitch' ] );
+		for ( const icon of await serviceIcons.all() ) {
+			await expect( icon ).toHaveAttribute( 'src', /^\/(?!\/)/u );
+			await icon.scrollIntoViewIfNeeded();
+			await icon.evaluate( ( image: HTMLImageElement ) => image.decode() );
+			await expect( icon ).toBeVisible();
+		}
+		expect( await media.locator( '.feature-services' ).evaluate( ( row ) => {
+			const selection = window.getSelection();
+			const range = document.createRange();
+			range.selectNodeContents( row );
+			selection?.removeAllRanges();
+			selection?.addRange( range );
+			const text = selection?.toString().replace( /\s+/gu, ' ' ).trim();
+			selection?.removeAllRanges();
+			return text;
+		} ) ).toBe( 'Works with youtube netflix twitch +' );
+		for ( const [ width, alignment ] of [ [ 1440, 'center' ], [ 768, 'start' ] ] as const ) {
+			await page.setViewportSize( { width, height: 900 } );
+			const typography = await page.locator( '.how-step-label, .feature-grid h3' ).evaluateAll( ( labels ) =>
+				labels.map( ( label ) => {
+					const style = getComputedStyle( label );
+					return [ style.fontFamily, style.fontSize, style.fontWeight,
+						style.lineHeight, style.letterSpacing ];
+				} ),
+			);
+			expect( typography ).toHaveLength( 10 );
+			expect( new Set( typography.map( ( values ) => JSON.stringify( values ) ) ).size ).toBe( 1 );
+			for ( const text of await features.locator( 'h3, p' ).all() ) {
+				await expect( text ).toHaveCSS( 'text-align', alignment );
+			}
+		}
 		await expect( page.locator( '#how-it-works button, #features button, #features select, #features canvas' ) )
 			.toHaveCount( 0 );
 		await expect( page.locator( '.product-demo, .story-player, .statistics-preview, .timing-diagram' ) ).toHaveCount( 0 );
-		await expect( page.locator( '#downloads h2' ) ).toHaveText( 'Take a little pause.' );
+		await expect( page.locator( '#downloads h2' ) ).toHaveText( 'Take a moment to pause.' );
 		const primaryDownload = page.locator( '#downloads .store-primary[data-download-primary]' );
 		await expect( primaryDownload ).toHaveCount( 1 );
 		await expect( primaryDownload ).toHaveAttribute( 'href', /^https:/u );
@@ -85,14 +124,16 @@ test.describe( 'static illustrated product presentation', () => {
 						await expect( page.locator( '.hero h1' ) ).toBeVisible();
 						await expect( page.locator( '.hero [data-download-primary]' ) ).toBeVisible();
 						await expect( page.locator( '#how-it-works ol.how-steps > li' ) ).toHaveCount( 4 );
+						await expect( page.locator( '#how-it-works h2, #how-it-works h3' ) ).toHaveCount( 0 );
 						await expect( page.locator( '#features ul.feature-grid > li' ) ).toHaveCount( 6 );
-						await expect( page.locator( '#features ul.feature-grid > li img' ) ).toHaveCount( 6 );
-						for ( const heading of await page.locator( '#how-it-works h2, #features h2, #features h3, #downloads h2' ).all() ) {
+						await expect( page.locator( '#features ul.feature-grid > li .feature-art' ) ).toHaveCount( 6 );
+						const copy = page.locator( '.how-step-label, #features h2, #features h3, #downloads h2' );
+						await expect( copy ).toHaveCount( 12 );
+						for ( const heading of await copy.all() ) {
 							await expect( heading ).toBeVisible();
 							await expect( heading ).not.toHaveText( /^\s*$/u );
 						}
 						if ( route !== '/' ) {
-							await expect( page.locator( '#how-it-works h2' ) ).not.toHaveText( 'How it works' );
 							await expect( page.locator( '#features h2' ) ).not.toHaveText( 'A calmer way to browse' );
 						}
 						await expect( page.locator( '#languages a[lang]' ) ).toHaveCount( 10 );

@@ -11,23 +11,24 @@
 	.website-language-picker { flex: 0 0 auto; }
 
 	.language-shortcut {
-		@include type.apply('label-large', $size: 0.85rem);
+		@include type.apply('title-medium', $size: 1.125rem, $line-height: 1.4, $weight: 400, $spacing: 0);
 
 		min-width: 2.75rem;
 		min-height: 2.75rem;
 		padding-inline: 0.8rem;
 		border-radius: var(--tocus-radius-full);
 		background: var(--tocus-website-paper);
+		color: var(--tocus-website-ink);
 	}
 
 	.language-shortcut-section .tocus-icon {
-		width: 0.95rem;
-		height: 0.95rem;
+		width: 1.1rem;
+		height: 1.1rem;
 	}
 
 	.language-shortcut-section .language-shortcut-chevron {
-		width: 0.7rem;
-		height: 0.7rem;
+		width: 0.8rem;
+		height: 0.8rem;
 	}
 
 	.website-language-menu {

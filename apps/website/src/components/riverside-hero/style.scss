@@ -4,6 +4,9 @@
 	inset: 0;
 	overflow: hidden;
 	background: #cbb0a0;
+
+	// Leave only page paper beneath the transition's antialiased bottom edge.
+	clip-path: inset(0 0 2px);
 }
 
 .riverside-hero-poster,

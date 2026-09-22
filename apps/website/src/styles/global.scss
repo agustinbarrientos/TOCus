@@ -86,15 +86,15 @@ body { margin: 0; }
 		padding-block: clamp(1.25rem, 5.4vh, 4rem);
 	}
 
-	.hero-header .tocus-brand {
+	.tocus-brand {
 		@include type.apply('headline-small', $size: clamp(1.65rem, 2.4vw, 2.7rem));
 
 		gap: 0.7rem;
 		color: var(--tocus-website-ink);
 	}
 
-	.hero-header .tocus-brand-icon,
-	.hero-header .tocus-brand-icon svg {
+	.tocus-brand-icon,
+	.tocus-brand-icon svg {
 		width: clamp(2rem, 3vw, 3.4rem);
 		height: clamp(2rem, 3vw, 3.4rem);
 		color: inherit;
@@ -107,7 +107,7 @@ body { margin: 0; }
 	.hero {
 		--tocus-color-action: var(--tocus-website-ink);
 		--tocus-color-focus-ring: var(--tocus-website-ink);
-		--tocus-hero-shore-height: 5.5rem;
+		--tocus-hero-shore-height: 7rem;
 
 		position: relative;
 		isolation: isolate;
@@ -115,7 +115,7 @@ body { margin: 0; }
 		height: calc(100svh + var(--tocus-hero-shore-height));
 		height: calc(100dvh + var(--tocus-hero-shore-height));
 		overflow: hidden;
-		background: #cdb4a3;
+		background: var(--tocus-website-paper);
 		text-align: center;
 	}
 
@@ -161,10 +161,10 @@ body { margin: 0; }
 	.hero-shore-transition {
 		position: absolute;
 		z-index: 4;
-		inset: auto 0 0;
+		inset: auto 0 -2px;
 		display: block;
 		width: 100%;
-		height: var(--tocus-hero-shore-height);
+		height: calc(var(--tocus-hero-shore-height) + 2px);
 		pointer-events: none;
 	}
 
@@ -216,7 +216,7 @@ body { margin: 0; }
 		}
 
 		.hero-header .site-header-actions { gap: 0.35rem; }
-		.hero { --tocus-hero-shore-height: 3.4rem; }
+		.hero { --tocus-hero-shore-height: 4.5rem; }
 
 		.hero-copy {
 			width: calc(100% - 2.5rem);

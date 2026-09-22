@@ -36,12 +36,20 @@ for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 								failures.push( `Item ${ String( index ) } extends beyond the viewport` );
 							}
 							for ( const text of item.querySelectorAll( 'h3, p' ) ) {
-								const range = document.createRange();
-								range.selectNodeContents( text );
-								for ( const line of range.getClientRects() ) {
-									if ( line.left < box.left - 1 || line.right > box.right + 1 ||
-										line.top < box.top - 1 || line.bottom > box.bottom + 1 ) {
-										failures.push( `Text exceeds item ${ String( index ) }: ${ text.textContent }` );
+								const walker = document.createTreeWalker( text, NodeFilter.SHOW_TEXT );
+								while ( walker.nextNode() ) {
+									const node = walker.currentNode;
+									// Hidden service names support copying, not visible text layout.
+									if ( node.parentElement?.closest( '[aria-hidden="true"]' ) ) {
+										continue;
+									}
+									const range = document.createRange();
+									range.selectNodeContents( node );
+									for ( const line of range.getClientRects() ) {
+										if ( line.left < box.left - 1 || line.right > box.right + 1 ||
+											line.top < box.top - 1 || line.bottom > box.bottom + 1 ) {
+											failures.push( `Text exceeds item ${ String( index ) }: ${ text.textContent }` );
+										}
 									}
 								}
 							}
@@ -59,6 +67,14 @@ for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 				const download = page.locator( '#downloads [data-download-primary]' );
 				await download.scrollIntoViewIfNeeded();
 				await expect( download ).toBeInViewport();
+				const sun = page.locator( '.download-sun' );
+				await sun.evaluate( ( image: HTMLImageElement ) => image.decode() );
+				await expect( sun ).toHaveCSS( 'animation-name', 'none' );
+				expect( await sun.evaluate( ( image ) => {
+					const panel = document.querySelector( '.download-panel' );
+					return panel !== null &&
+						image.getBoundingClientRect().bottom <= panel.getBoundingClientRect().top - 12;
+				} ), 'The sun must remain above the panel with motion reduced' ).toBe( true );
 				expect( await download.evaluate( ( element ) => {
 					const box = element.getBoundingClientRect();
 					return element.contains( document.elementFromPoint(

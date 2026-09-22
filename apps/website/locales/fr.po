@@ -30,8 +30,12 @@ msgid "Also available on"
 msgstr "Aussi disponible pour"
 
 #: apps/website/src/localization/index.ts
-msgid "Choose different active days and hours for each website."
-msgstr "Choisissez des jours et des heures d'activité différents pour chaque site."
+msgid "Check how much time you’ve saved"
+msgstr "Voyez combien de temps vous avez gagné"
+
+#: apps/website/src/localization/index.ts
+msgid "Choose the days and hours TOCus is active."
+msgstr "Choisissez les jours et les heures où TOCus est actif."
 
 #: apps/website/src/localization/index.ts
 msgid "Coming soon"
@@ -40,10 +44,6 @@ msgstr "Bientôt disponible"
 #: apps/website/src/localization/index.ts
 msgid "Continue"
 msgstr "Continuer"
-
-#: apps/website/src/localization/index.ts
-msgid "Custom schedules for each site"
-msgstr "Des horaires personnalisés pour chaque site"
 
 #. Language-menu autonym. Keep this language name written in German.
 #: apps/website/src/localization/index.ts
@@ -70,21 +70,13 @@ msgid "Español (vos)"
 msgstr "Español (vos)"
 
 #: apps/website/src/localization/index.ts
-msgid "Example: 24h 40m reclaimed / 254 reconsidered visits"
-msgstr "Exemple : 24 h 40 min récupérées / 254 visites reconsidérées"
+msgid "Everything is stored on your device"
+msgstr "Tout reste sur votre appareil"
 
 #. Language-menu autonym. Keep this language name written in French.
 #: apps/website/src/localization/index.ts
 msgid "Français"
 msgstr "Français"
-
-#: apps/website/src/localization/index.ts
-msgid "Free and open source"
-msgstr "Gratuit et open source"
-
-#: apps/website/src/localization/index.ts
-msgid "How it works"
-msgstr "Comment ça marche"
 
 #. Language-menu autonym. Keep this language name written in Italian.
 #: apps/website/src/localization/index.ts
@@ -92,12 +84,12 @@ msgid "Italiano"
 msgstr "Italiano"
 
 #: apps/website/src/localization/index.ts
-msgid "Made by"
-msgstr "Créé par"
+msgid "It’s free and open source"
+msgstr "C’est gratuit et open source"
 
 #: apps/website/src/localization/index.ts
-msgid "Only when you want"
-msgstr "Uniquement quand vous le souhaitez"
+msgid "Made by"
+msgstr "Créé par"
 
 #: apps/website/src/localization/index.ts
 msgid "Open a site"
@@ -106,6 +98,10 @@ msgstr "Ouvrez un site"
 #: apps/website/src/localization/index.ts
 msgid "Pause before visiting addictive websites"
 msgstr "Faites une pause avant de visiter des sites web addictifs"
+
+#: apps/website/src/localization/index.ts
+msgid "Pick different days and times for each site."
+msgstr "Choisissez des jours et des horaires différents pour chaque site."
 
 #. Language-menu autonym for Brazilian Portuguese. Keep this language name written in Portuguese.
 #: apps/website/src/localization/index.ts
@@ -126,24 +122,8 @@ msgid "Privacy policy"
 msgstr "Politique de confidentialité"
 
 #: apps/website/src/localization/index.ts
-msgid "Read the code, suggest changes, or make it your own. No advertising."
-msgstr "Lisez le code, proposez des changements ou adaptez-le à vos besoins. Sans publicité."
-
-#: apps/website/src/localization/index.ts
-msgid "See completed pauses and reconsidered visits."
-msgstr "Consultez les pauses terminées et les visites reconsidérées."
-
-#: apps/website/src/localization/index.ts
-msgid "See how much time you saved"
-msgstr "Voyez combien de temps vous avez gagné"
-
-#: apps/website/src/localization/index.ts
-msgid "Set the days and hours TOCus is active."
-msgstr "Définissez les jours et les heures d’activation de TOCus."
-
-#: apps/website/src/localization/index.ts
-msgid "Settings and statistics stay in your browser. Works offline, without an account."
-msgstr "Les réglages et les statistiques restent dans votre navigateur. Fonctionne hors ligne, sans compte."
+msgid "Set a custom schedule for each site"
+msgstr "Définissez un horaire pour chaque site"
 
 #: apps/website/src/localization/index.ts
 msgid "Skip to content"
@@ -154,10 +134,6 @@ msgid "Source"
 msgstr "Code source"
 
 #: apps/website/src/localization/index.ts
-msgid "Stored on your device"
-msgstr "Données stockées sur votre appareil"
-
-#: apps/website/src/localization/index.ts
 msgid "TOCus adds a breathing pause to the websites you choose."
 msgstr "TOCus ajoute une pause pour respirer aux sites web de votre choix."
 
@@ -166,28 +142,44 @@ msgid "TOCus is an open-source browser extension."
 msgstr "TOCus est une extension de navigateur open source."
 
 #: apps/website/src/localization/index.ts
-msgid "Take a little pause."
-msgstr "Faites une petite pause."
+msgid "Take a moment to pause."
+msgstr "Prenez un moment pour faire une pause."
 
 #: apps/website/src/localization/index.ts
-msgid "Videos pause during the wait and resume when you continue."
-msgstr "Les vidéos se mettent en pause pendant l’attente et reprennent lorsque vous continuez."
+msgid "Use it only when you want to"
+msgstr "Utilisez-le seulement quand vous le souhaitez"
+
+#: apps/website/src/localization/index.ts
+msgid "Videos pause while you wait and resume when you’re ready."
+msgstr "Les vidéos se mettent en pause pendant l’attente et reprennent quand vous souhaitez continuer."
 
 #: apps/website/src/localization/index.ts
 msgid "View the source"
 msgstr "Voir le code source"
 
 #: apps/website/src/localization/index.ts
+msgid "View your completed pauses and visits you changed your mind about."
+msgstr "Consultez vos pauses terminées et les visites auxquelles vous avez renoncé."
+
+#: apps/website/src/localization/index.ts
 msgid "Website language"
 msgstr "Langue du site"
 
 #: apps/website/src/localization/index.ts
-msgid "YouTube, Netflix, Twitch and more"
-msgstr "YouTube, Netflix, Twitch et bien d’autres"
+msgid "Works with"
+msgstr "Fonctionne avec"
 
 #: apps/website/src/localization/index.ts
-msgid "Your video pauses, too"
-msgstr "Votre vidéo fait aussi une pause"
+msgid "You can read the code, suggest changes, or make it your own. There’s no advertising."
+msgstr "Vous pouvez lire le code, proposer des changements ou l’adapter à vos besoins. Il n’y a pas de publicité."
+
+#: apps/website/src/localization/index.ts
+msgid "Your settings and stats stay in your browser. It even works offline and needs no account."
+msgstr "Vos réglages et statistiques restent dans votre navigateur. L’extension fonctionne même hors ligne et ne nécessite aucun compte."
+
+#: apps/website/src/localization/index.ts
+msgid "Your videos will pause automatically"
+msgstr "Vos vidéos se mettront en pause automatiquement"
 
 #. Language-menu autonym. Keep this language name written in Russian.
 #: apps/website/src/localization/index.ts

@@ -13,7 +13,7 @@ async function waitForMenuFocus( menu: Locator ): Promise<void> {
 	} ).toBe( true );
 }
 
-test.describe( 'website navigation and example statistics', () => {
+test.describe( 'website navigation and statistics explanation', () => {
 	test.use( { reducedMotion: 'reduce' } );
 	for ( const engine of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 		const engineTest = test.extend( { browserName: engine } );
@@ -102,7 +102,7 @@ test.describe( 'website navigation and example statistics', () => {
 		} );
 	}
 
-	test( 'statistics are explicitly illustrative and do not collect visitor metrics', async ( { page } ) => {
+	test( 'statistics are explained without example totals or visitor metrics', async ( { page } ) => {
 		await page.route( 'http://website.test/**', async ( route ) => {
 			const url = new URL( route.request().url() );
 			const path = url.pathname.endsWith( '/' ) ? `${ url.pathname }index.html` : url.pathname;
@@ -111,11 +111,12 @@ test.describe( 'website navigation and example statistics', () => {
 		await page.goto( 'http://website.test/' );
 		await expect( page.locator( '.homepage' ) ).toHaveAttribute( 'data-enhanced', 'true' );
 		const statistics = page.locator( '#features .feature-grid > li' ).filter( {
-			has: page.getByRole( 'heading', { name: 'See how much time you saved', exact: true } ),
+			has: page.getByRole( 'heading', { name: 'Check how much time you\u2019ve saved', exact: true } ),
 		} );
 		await expect( statistics ).toBeVisible();
-		await expect( statistics.locator( '.feature-detail' ) )
-			.toHaveText( 'Example: 24h 40m reclaimed / 254 reconsidered visits' );
+		await expect( statistics.locator( 'p' ) ).not.toHaveText( /^\s*$/u );
+		await expect( statistics.locator( '.feature-detail' ) ).toHaveCount( 0 );
+		await expect( statistics ).not.toContainText( /24h 40m|254 reconsidered visits|Example:/u );
 		await expect( statistics.locator( 'select, button, table, canvas, [role="application"]' ) ).toHaveCount( 0 );
 		expect( await page.evaluate( () => ( { local: localStorage.length, session: sessionStorage.length } ) ) )
 			.toEqual( { local: 0, session: 0 } );

@@ -15,6 +15,7 @@ export function LanguageMenu( props: LanguageMenuProps ) {
 	return <div className="website-language-picker"><Menu position="bottom-end" withinPortal={ false } shadow="md" width="auto">
 		<Menu.Target>
 			<Button variant="default" size="xs" className="language-shortcut"
+				styles={ { root: { fontSize: 'var(--tocus-typography-title-medium-font-size)' } } }
 				classNames={ { section: 'language-shortcut-section' } }
 				aria-label={ `${ catalog.languageMenuLabel }: ${ current }` }
 				leftSection={ <Icon name={ IconName.LANGUAGE } /> }

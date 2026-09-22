@@ -39,7 +39,6 @@ export interface WebsiteCatalog {
 	description: string;
 	sourceLink: string;
 	privacy: string;
-	howTitle: string;
 	stepOpen: string;
 	stepPause: string;
 	stepContinue: string;
@@ -54,7 +53,6 @@ export interface WebsiteCatalog {
 	mediaServices: string;
 	statisticsTitle: string;
 	statisticsDescription: string;
-	statisticsExample: string;
 	privacyLocal: string;
 	openSourceTitle: string;
 	openSourceDescription: string;

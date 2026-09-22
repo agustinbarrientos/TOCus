@@ -17,8 +17,8 @@ test( 'local and open-source claims remain readable while reduced motion uses th
 	await page.goto( 'http://website.test/' );
 	await expect( page.locator( '.homepage' ) ).toHaveAttribute( 'data-enhanced', 'true' );
 	const features = page.locator( '#features .feature-grid > li' );
-	const local = features.filter( { has: page.getByRole( 'heading', { name: 'Stored on your device', exact: true } ) } );
-	const open = features.filter( { has: page.getByRole( 'heading', { name: 'Free and open source', exact: true } ) } );
+	const local = features.filter( { has: page.getByRole( 'heading', { name: 'Everything is stored on your device', exact: true } ) } );
+	const open = features.filter( { has: page.getByRole( 'heading', { name: 'It\u2019s free and open source', exact: true } ) } );
 	await expect( local ).toBeVisible();
 	await expect( local.locator( 'p' ) ).not.toHaveText( /^\s*$/u );
 	await expect( open ).toBeVisible();

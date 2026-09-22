@@ -136,7 +136,7 @@ test.describe( 'homepage riverside hero', () => {
 					expect( hero.width ).toBeCloseTo( viewport.width, 0 );
 					expect( transition.height ).toBeGreaterThan( 0 );
 					expect( transition.y ).toBeCloseTo( viewport.height, 0 );
-					expect( hero.height ).toBeCloseTo( viewport.height + transition.height, 0 );
+					expect( transition.y + transition.height - ( hero.y + hero.height ) ).toBeCloseTo( 2, 0 );
 					for ( const layer of [ posterBounds, canvasBounds ] ) {
 						expect( layer.x ).toBeCloseTo( hero.x, 0 );
 						expect( layer.y ).toBeCloseTo( hero.y, 0 );

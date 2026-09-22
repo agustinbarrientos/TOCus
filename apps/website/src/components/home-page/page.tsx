@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Anchor, Brand, TocusAppearance, TocusProvider } from '@tocus/ui';
+import { Anchor, Brand, TocusAppearance, TocusProvider, VisuallyHidden } from '@tocus/ui';
 import { DownloadLinks } from '../download-links';
 import { ExternalLink, WebsiteLink } from '../site-links';
 import { RiversideHero } from '../riverside-hero';
 import { LanguageMenu } from '../language-menu';
-import youtubeIcon from '@tocus/theme/site-icons/site-youtube.svg?url';
 import type { LocalizedHomePageProperties } from '../../localization';
 import './style.scss';
 
@@ -49,24 +48,23 @@ export default function HomePage( props: LocalizedHomePageProperties ) {
 					</svg>
 				</section>
 				<div className="homepage-content page-shell">
-					<section className="how-it-works" id="how-it-works" aria-labelledby="how-title">
-						<h2 id="how-title">{ catalog.howTitle }</h2>
+					<div className="how-it-works" id="how-it-works">
 						<ol className="how-steps" role="list">
 							<li><span className="how-symbol" aria-hidden="true">
-								<img src={ youtubeIcon } width="64" height="64" alt="" loading="lazy" />
-							</span><h3>{ catalog.stepOpen }</h3></li>
+								<img src="/badges/service-youtube.svg" width="64" height="64" alt="" loading="lazy" />
+							</span><p className="how-step-label">{ catalog.stepOpen }</p></li>
 							<li><span className="how-symbol" aria-hidden="true"><span className="how-sphere" /></span>
-								<h3>{ catalog.stepPause }</h3></li>
+								<p className="how-step-label">{ catalog.stepPause }</p></li>
 							<li><span className="how-symbol" aria-hidden="true">
 								<svg className="how-check" viewBox="0 0 64 64" focusable="false">
 									<circle cx="32" cy="32" r="26" />
 									<path d="m21 32 8 8 15-18" />
 								</svg>
-							</span><h3>{ catalog.stepContinue }</h3></li>
+							</span><p className="how-step-label">{ catalog.stepContinue }</p></li>
 							<li><span className="how-symbol" aria-hidden="true"><span className="how-progress" /></span>
-								<h3>{ catalog.stepBrowse }</h3></li>
+								<p className="how-step-label">{ catalog.stepBrowse }</p></li>
 						</ol>
-					</section>
+					</div>
 					<section className="homepage-features" id="features" aria-labelledby="features-title">
 						<h2 id="features-title">{ catalog.featuresTitle }</h2>
 						<ul className="feature-grid" role="list">
@@ -84,13 +82,19 @@ export default function HomePage( props: LocalizedHomePageProperties ) {
 								<img className="feature-art" src="/images/homepage/icon-video-pause.webp"
 									width="500" height="500" alt="" loading="lazy" />
 								<h3>{ catalog.mediaTitle }</h3><p>{ catalog.mediaDescription }</p>
-								<p className="feature-detail">{ catalog.mediaServices }</p>
+								<p className="feature-services">
+									<span>{ catalog.mediaServices }</span>{ ' ' }
+									{ [ 'youtube', 'netflix', 'twitch' ].map( ( service ) => <span className="feature-service" key={ service }>
+										<img src={ `/badges/service-${ service }.svg` } width="28" height="28" alt={ service } loading="lazy" />
+										<VisuallyHidden aria-hidden="true">{ service }{ ' ' }</VisuallyHidden>
+									</span> ) }
+									<span>+</span>
+								</p>
 							</li>
 							<li>
 								<img className="feature-art" src="/images/homepage/icon-stats.webp"
 									width="500" height="500" alt="" loading="lazy" />
 								<h3>{ catalog.statisticsTitle }</h3><p>{ catalog.statisticsDescription }</p>
-								<p className="feature-detail">{ catalog.statisticsExample }</p>
 							</li>
 							<li>
 								<img className="feature-art" src="/images/homepage/icon-computer.webp"

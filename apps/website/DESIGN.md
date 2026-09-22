@@ -49,18 +49,18 @@ The September 22, 2026 direction pairs the retained interactive riverside hero w
 ## Page composition
 
 1. A full-width riverside hero with the brand, language selector, headline and browser download links.
-2. A four-step "How it works" row: open a site, pause for 10 seconds, Continue, and browse for 5 minutes. The durations illustrate the product sequence; they are configurable in the extension.
+2. A four-step row without a section heading: open a site, pause for 10 seconds, Continue, and browse for 5 minutes. The durations illustrate the product sequence; they are configurable in the extension.
 3. "A calmer way to browse": six open feature blocks describing active hours, per-site schedules, video pausing, statistics, local storage and open source.
-4. "Take a little pause": a repeated download group inside a cream rounded panel, surrounded by peach landscape waves and supplied plant and sun illustrations.
+4. "Take a moment to pause": a repeated download group inside a cream rounded panel, surrounded by peach landscape waves and supplied plant and sun illustrations.
 5. A compact peach footer with the brand, Privacy, Source and the existing author credit. Static locale links remain available without JavaScript.
 
 The content follows normal document flow. There is no pinned section, simulated browser, chapter navigation, statistics selector or homepage settings form. The illustrated steps are explanations, not focusable controls. Feature blocks use whitespace rather than cards or borders around every item.
 
 ## Hero and motion
 
-The hero occupies `100dvh` plus its transition height, with `100svh` as the fallback. The transition begins after the first viewport: it is 5.5rem high on desktop and 3.4rem at widths up to 48rem. The live scene and poster fill the entire height. Centered copy sits above the capybara; layered peach and cream waves meet the page paper below.
+The hero occupies `100dvh` plus its transition height, with `100svh` as the fallback. The transition begins after the first viewport: it is 7rem high on desktop and 4.5rem at widths up to 48rem. The SVG extends 2px past the clipped hero edge to prevent a seam at fractional pixel boundaries. The live scene and poster fill the entire height. Centered copy sits above the capybara; layered peach and cream waves meet the page paper below.
 
-The header contains the shared brand and a compact pill-shaped language selector. It has no separate download action. The language menu uses native language names, marks the selected locale and supports keyboard navigation. The hero and lower download panel provide the download actions.
+The header contains the shared brand and a pill-shaped language selector with 18px Fredoka text. It has no separate download action. The language menu uses native language names, marks the selected locale and supports keyboard navigation. The hero and lower download panel provide the download actions.
 
 Horizontal pointer movement eases the camera within 50 degrees on either side of its centered rear view. Camera height, target and orbit radius stay fixed. Touch input does not orbit the camera. The sunset lights the seated character from behind, water waves wash the shoreline, clicking visible water adds a bounded ripple, and hovering a plant increases its subtle sway. The local model includes an automatic 12-second mate-drinking and blinking animation.
 
@@ -72,7 +72,7 @@ Horizontal pointer movement eases the camera within 50 degrees on either side of
 
 Use Fredoka for the brand, headings, step labels and the complete browser-availability line. Descriptive prose and primary download controls use the shared system UI stack. Both the "Also available on" label and browser links share one fluid 16-18px Fredoka treatment, consistent weight and aligned local icons. Text links underline on hover; they do not inherit mismatched heading or button styles.
 
-The hero's desktop heading uses a maximum measure of 19 characters. At widths up to 48rem it uses `clamp(2.25rem, 8.3vw, 4.1rem)` and a maximum measure of 18 characters, with tighter overrides for short viewports. Section headings and feature titles retain their own smaller scales. Let translated text wrap naturally; balance headings and use pretty wrapping for prose.
+The hero's desktop heading uses a maximum measure of 19 characters. At widths up to 48rem it uses `clamp(2.25rem, 8.3vw, 4.1rem)` and a maximum measure of 18 characters, with tighter overrides for short viewports. Step labels and feature titles share `clamp(1.35rem, 2.5vw, 1.8rem)` Fredoka at weight 600. Let translated text wrap naturally; balance headings and use pretty wrapping for prose.
 
 The website explicitly uses the shared light appearance regardless of the browser's color preference. Its local paper is `#fffaf4` and ink is `#302219`. Warm peach landscape layers are decorative materials; shared controls still use semantic theme roles and the existing focus treatment. Feature descriptions use a quieter brown, while links remain distinguishable and keyboard focus stays visible.
 
@@ -80,9 +80,9 @@ The website explicitly uses the shared light appearance regardless of the browse
 
 The general shell is capped at 76rem with fluid gutters. The illustrated content has a narrower 70rem maximum and generous vertical spacing. The four steps use equal columns with short connecting rules on wide screens. At widths up to 35rem they form two rows and the connectors disappear.
 
-Features form two columns with three rows on wide screens and one column at widths up to 35rem. Each block has one supplied image, a short heading and a compact description. Additional media and statistics copy remains subordinate. Privacy and source links sit below their respective descriptions.
+Features form two columns with three rows on wide screens and one column at widths up to 35rem. Icons, headings, descriptions and links are centered above 48rem and left aligned on smaller screens. Each block has one supplied image, a short heading and a compact description. The media feature includes a compact service-icon row; there are no example statistics. Privacy and source links sit below their respective descriptions.
 
-The final cream download panel has a broad rounded silhouette and stays above the decorative landscape. The plants and sun do not intercept input. On narrow screens the panel widens, decorations move toward its edges and the footer wraps without horizontal overflow. No content relies on a fixed-height text container.
+The final cream download panel has a broad rounded silhouette and stays above the decorative landscape. The sun sits above its upper-right edge with 24px of clearance at rest. A native scroll timeline gives it a bounded 24px vertical drift; reduced motion and browsers without scroll-timeline support keep it still. The plants and sun do not intercept input. On narrow screens the panel widens, decorations move toward its edges and the footer wraps without horizontal overflow. No content relies on a fixed-height text container.
 
 ## Artwork and downloads
 
@@ -91,15 +91,15 @@ The user-supplied page illustrations live in `public/images/homepage/`:
 - `icon-clock.webp`, `icon-schedule.webp`, `icon-video-pause.webp`, `icon-stats.webp`, `icon-computer.webp` and `icon-open-source.webp` illustrate the six features.
 - `decoration-plant-1.webp`, `decoration-plant-2.webp` and `decoration-sun.webp` frame the lower download section.
 
-Artwork has explicit dimensions, empty alternative text when the neighboring text already provides its meaning, and lazy loading below the hero. The four-step row uses the existing packaged YouTube mark, a CSS clay sphere, an SVG check and an illustrative progress bar. Browser icons remain local SVG assets under `public/badges/`.
+Artwork has explicit dimensions, empty alternative text when the neighboring text already provides its meaning, and lazy loading below the hero. The four-step row uses the supplied YouTube mark, a CSS clay sphere, an SVG check and an illustrative progress bar. Browser and supplied YouTube, Netflix and Twitch icons remain local SVG assets under `public/badges/`. Service icons have named alternative text and visually hidden duplicate text for ordinary text selection, with the duplicate excluded from the accessibility tree.
 
 Both download groups use `DownloadLinks`: one filled pill for the detected browser followed by consistent text links for the alternatives. Browser detection runs locally after hydration; static and unknown-browser output defaults to Chrome. Store destinations stay centralized in `src/config/downloads/index.ts`. The development placeholder URLs, including Edge, are intentional and must be replaced with verified listings before publication.
 
-The shared `Brand` supplies the wordmark and capybara mark. The footer retains the bundled author favicon and existing tagged author URL. `public/images/capybara-mate.webp`, `public/models/mascot.glb` and their authoring source remain in use by `/mascot-lab`; they are not the homepage footer artwork.
+The shared `Brand` supplies the wordmark and capybara mark. Both use the same dark ink and responsive sizing in the header and footer. Footer links and the author credit share 16px Fredoka text at weight 400 in dark ink. The footer retains the bundled author favicon and existing tagged author URL. `public/images/capybara-mate.webp`, `public/models/mascot.glb` and their authoring source remain in use by `/mascot-lab`; they are not the homepage footer artwork.
 
 ## Content, privacy and accessibility
 
-Keep the ten supported locales complete and use short, factual product copy. Example statistics must be identified as illustrative. Estimates are not measured time saved, and website copy must not imply access to the visitor's extension settings or activity. Supported video services are examples of playback integration, not partnerships.
+Keep the ten supported locales complete and use short, factual product copy. Website copy must not imply access to the visitor's extension settings or activity. Supported video services are examples of playback integration, not partnerships.
 
 Preserve the skip link, semantic headings and lists, visible focus, real link destinations and useful server-rendered content. Without JavaScript, the hero poster, every explanation, download links and footer locale navigation remain available. Reduced motion removes optional animation without hiding information. Privacy and Support retain their own canonical English content and shared light styling.
 
