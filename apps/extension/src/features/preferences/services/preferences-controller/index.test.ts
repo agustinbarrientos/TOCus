@@ -122,13 +122,10 @@ function ignoreDeferredResolution(): undefined {
 
 /**
  * Provides an inert initial callback before a deferred load captures its rejection.
- * @param reason - Unused rejection reason.
  * @return Undefined inert result.
  * @since 0.1.0 Initial implementation.
  */
-function ignoreDeferredRejection( reason?: unknown ): undefined {
-	void reason;
-
+function ignoreDeferredRejection(): undefined {
 	return undefined;
 }
 

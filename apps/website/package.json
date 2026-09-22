@@ -24,7 +24,7 @@
 		"@types/react": "19.2.18",
 		"@types/react-dom": "19.2.7",
 		"@types/three": "^0.185.4",
-		"playwright": "1.62.1",
+		"playwright": "1.63.0",
 		"typescript": "6.0.3"
 	}
 }

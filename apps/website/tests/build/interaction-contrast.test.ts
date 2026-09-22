@@ -64,7 +64,7 @@ async function openHomepage( page: Page, route: string ): Promise<void> {
  */
 async function settleControl( locator: Locator ): Promise<void> {
 	await locator.evaluate( async ( element ) => {
-		void getComputedStyle( element ).backgroundColor;
+		getComputedStyle( element ).getPropertyValue( 'background-color' );
 		await Promise.all( element.getAnimations( { subtree: true } ).filter(
 			( animation ) => animation.effect?.getComputedTiming().iterations !== Infinity,
 		).map( ( animation ) => animation.finished.catch( () => undefined ) ) );

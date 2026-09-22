@@ -94,7 +94,7 @@ The browser-free comparator suite replays the recorded 24 samples and verifies t
 
 ## Capture platform and CI
 
-The configured environment is pinned Playwright/Chromium1.62.1, macOS26 ARM64, device scale1, UTC, en-US, and packaged local fonts. CI's dedicated `macos-26` job runs comparisons and never accepts images. Cross-OS pixel equivalence is not assumed; Linux retains functional checks. Configuring the hosted job is not evidence of a successful hosted run. Original pixel failures must remain visible until repaired.
+The configured environment is pinned Playwright1.63.0 with its bundled Chromium, macOS26 ARM64, device scale1, UTC, en-US, and packaged local fonts. CI's dedicated `macos-26` job runs comparisons and never accepts images. Cross-OS pixel equivalence is not assumed; Linux retains functional checks. Configuring the hosted job is not evidence of a successful hosted run. Original pixel failures must remain visible until repaired.
 
 The reviewed macOS captures use overlay scrollbars. CI sets `AppleShowScrollBars` to `WhenScrolling` on its disposable runner before launching Chromium. Local captures require the same effective scrollbar appearance: macOS Settings > Appearance > Show scroll bars > When scrolling. The Automatic setting can choose a different mode depending on the connected input device. Classic scrollbars reserve a 15px gutter in the narrow onboarding Appearance layout, changing text wrapping and palette rows. The runner preference preserves the reviewed layout without changing production styling or pixel comparisons.
 

@@ -41,7 +41,7 @@ Settings includes **Privacy and local data**, where you can review local storage
 ## Prerequisites
 
 - Node.js 24.16.0 or newer within the Node.js 24 release line (`.node-version` pins the 24.20.0 version used in CI)
-- pnpm 11.24.0
+- pnpm 12.5.1
 
 The repository pins its package-manager version in `package.json`.
 
