@@ -29,7 +29,7 @@
 	}
 
 	.store-alternatives {
-		@include type.apply('title-medium', $size: clamp(14px, 1.2vw, 16px),
+		@include type.apply('title-medium', $size: clamp(16px, calc(14px + 0.25vw), 18px),
 			$weight: 400, $line-height: 1.4, $spacing: 0);
 
 		display: flex;

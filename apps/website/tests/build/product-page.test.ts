@@ -3,6 +3,10 @@ import { expect, test, type Route } from '@playwright/test';
 
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 const PublicRoutes = [ '/', '/de/', '/es/', '/es-ar/', '/fr/', '/it/', '/ja/', '/pt-br/', '/pt-pt/', '/ru/' ];
+const FeatureTitles = [
+	'Only when you want', 'Custom schedules for each site', 'Your video pauses, too',
+	'See how much time you saved', 'Stored on your device', 'Free and open source',
+];
 
 /**
  * Serves only local generated website assets.
@@ -14,37 +18,53 @@ async function serveAsset( route: Route ): Promise<void> {
 	await route.fulfill( { path: fileURLToPath( new URL( `.${ path }`, WebsiteOutput ) ) } );
 }
 
-test.describe( 'public product presentation', () => {
+test.describe( 'static illustrated product presentation', () => {
 	test.use( { reducedMotion: 'reduce' } );
-	test( 'offers centralized download destinations and locally served artwork', async ( { page } ) => {
+
+	test( 'explains four steps and six features with local artwork and direct downloads', async ( { page } ) => {
 		await page.route( 'http://website.test/**', serveAsset );
 		await page.goto( 'http://website.test/' );
+		await expect( page.locator( '#how-it-works h2' ) ).toHaveText( 'How it works' );
+		const steps = page.locator( '#how-it-works ol.how-steps > li' );
+		await expect( steps ).toHaveCount( 4 );
+		for ( const [ index, label ] of [ 'Open a site', '10s pause', 'Continue', '5m browsing' ].entries() ) {
+			await expect( steps.nth( index ) ).toContainText( label );
+		}
+		await expect( page.locator( '#features h2' ) ).toHaveText( 'A calmer way to browse' );
+		const features = page.locator( '#features ul.feature-grid > li' );
+		await expect( features ).toHaveCount( 6 );
+		await expect( features.locator( 'h3' ) ).toHaveText( FeatureTitles );
+		for ( const feature of await features.all() ) {
+			const art = feature.locator( 'img' );
+			await expect( art ).toHaveCount( 1 );
+			await expect( art ).toHaveAttribute( 'src', /^\/(?!\/)/u );
+			await art.scrollIntoViewIfNeeded();
+			await art.evaluate( ( image: HTMLImageElement ) => image.decode() );
+			await expect( art ).toBeVisible();
+		}
+		await expect( page.locator( '#how-it-works button, #features button, #features select, #features canvas' ) )
+			.toHaveCount( 0 );
+		await expect( page.locator( '.product-demo, .story-player, .statistics-preview, .timing-diagram' ) ).toHaveCount( 0 );
+		await expect( page.locator( '#downloads h2' ) ).toHaveText( 'Take a little pause.' );
 		const primaryDownload = page.locator( '#downloads .store-primary[data-download-primary]' );
-		expect( await primaryDownload.count() ).toBe( 1 );
-		expect( await primaryDownload.getAttribute( 'href' ) ).toMatch( /^https:/u );
-		expect( await primaryDownload.innerText() ).toMatch( /\S/u );
-		expect( await primaryDownload.locator( 'img' ).count() ).toBe( 1 );
-		expect( await primaryDownload.locator( '.tocus-icon' ).count() ).toBe( 1 );
-		expect( await page.locator( '#downloads a[href]' ).count() ).toBe( 4 );
-		expect( await page.locator( 'main img[data-mascot]' ).count() ).toBe( 1 );
-		expect( await page.locator( '.riverside-hero img' ).getAttribute( 'src' ) ).toMatch( /^\//u );
-		expect( await page.locator( '.footer-mascot img[data-mascot]' ).getAttribute( 'src' ) ).toMatch( /^\//u );
-		expect( await page.locator( '.hero-actions a[data-store]' ).count() ).toBe( 4 );
-		expect( await page.locator( 'a[href*="utm_medium=website"] img' ).getAttribute( 'src' ) ).toMatch( /^\//u );
-		expect( await page.locator( 'a[href="/privacy/"]' ).count() ).toBeGreaterThan( 0 );
-		expect( await page.locator( 'a[href="/support/"]' ).count() ).toBeGreaterThan( 0 );
+		await expect( primaryDownload ).toHaveCount( 1 );
+		await expect( primaryDownload ).toHaveAttribute( 'href', /^https:/u );
+		await expect( primaryDownload.locator( 'img' ) ).toHaveCount( 1 );
+		await expect( page.locator( '#downloads a[href]' ) ).toHaveCount( 4 );
+		await expect( page.locator( '.hero-actions a[data-store]' ) ).toHaveCount( 4 );
+		await expect( page.locator( '.riverside-hero img' ) ).toHaveAttribute( 'src', '/images/riverside-hero.webp' );
+		await expect( page.locator( '.site-footer a[href="/privacy/"]' ) ).toHaveCount( 1 );
+		await expect( page.locator( '.site-footer a[href="https://github.com/agustinbarrientos/TOCus"]' ) ).toHaveCount( 1 );
+		await expect( page.locator( '.site-footer a[href*="utm_medium=website"]' ) ).toContainText( 'Agustin Barrientos' );
+		await expect( page.locator( 'a[href="/support/"]' ) ).toHaveCount( 0 );
 	} );
-	for ( const { engine, width } of ( [ 'chromium', 'firefox', 'webkit' ] as const ).flatMap(
-		( engine ) => [ 360, 320 ].map( ( width ) => ( { engine, width } ) ),
-	) ) {
+
+	for ( const engine of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 		const engineTest = test.extend( { browserName: engine } );
-
 		engineTest.describe( () => {
-			engineTest.use( { contextOptions: {
-				javaScriptEnabled: false, viewport: { width, height: 800 },
-			} } );
+			engineTest.use( { javaScriptEnabled: false, viewport: { width: 320, height: 800 } } );
 
-			engineTest( `${ engine } ${ String( width ) }: every locale explains the product without JavaScript`, async ( { context, page } ) => {
+			engineTest( `${ engine }: every locale explains the product without JavaScript`, async ( { context, page } ) => {
 				engineTest.setTimeout( 60_000 );
 				const externalRequests: string[] = [];
 				await context.route( '**/*', async ( route ) => {
@@ -56,70 +76,34 @@ test.describe( 'public product presentation', () => {
 					}
 				} );
 				for ( const route of PublicRoutes ) {
-					await engineTest.step( `Inspect ${ route } without JavaScript`, async () => {
+					await engineTest.step( `Read ${ route } without JavaScript`, async () => {
 						await page.goto( `http://website.test${ route }` );
-						// Exercise a larger default text size as well as the narrow viewport.
-						if ( width === 320 ) {
-							await page.evaluate( () => {
-								document.documentElement.style.fontSize = '20px';
-							} );
-						}
-						await expect.poll( () => page.evaluate( () => document.fonts.status ) ).toBe( 'loaded' );
-						expect( await page.locator( 'h1' ).innerText() ).not.toBe( 'TOCus' );
+						await page.evaluate( async () => {
+							await document.fonts.ready;
+							document.documentElement.style.fontSize = '20px';
+						} );
 						await expect( page.locator( '.hero h1' ) ).toBeVisible();
 						await expect( page.locator( '.hero [data-download-primary]' ) ).toBeVisible();
-						const fallback = page.locator( '.story-steps' );
-						const fallbackItems = fallback.locator( ':scope > li' );
-						expect( await fallbackItems.count() ).toBe( 5 );
-						// The no-JavaScript document is settled; these independent reads share no mutable state.
-						await Promise.all( ( await fallbackItems.all() ).map( async ( item ) => {
-							const heading = item.locator( 'h3' );
-							const description = item.locator( 'p' );
-							const [ headingText, descriptionText ] = await Promise.all( [
-								heading.innerText(), description.innerText(),
-								expect( heading ).toBeVisible(), expect( description ).toBeVisible(),
-							] );
-							expect( headingText.trim() ).not.toBe( '' );
-							expect( descriptionText.trim() ).not.toBe( '' );
-						} ) );
-						const [ actionCount, visibleActionCount, fallbackFits, mascotCount, languageCount,
-							currentLanguageCount, externalLinks, blankLinkRelations, fitsViewport,
-						] = await Promise.all( [
-							page.locator( 'button.story-step-action' ).count(),
-							page.locator( 'button.story-step-action:visible' ).count(),
-							fallback.evaluate( ( element ) => element.scrollWidth <= element.clientWidth ),
-							page.locator( 'main img[data-mascot]' ).count(),
-							page.locator( '#languages a[lang]' ).count(),
-							page.locator( '#languages a[aria-current="page"]' ).count(),
-							page.locator( 'a[href^="https:"]' ).evaluateAll(
-								( links ) => links.map( ( link ) => link.getAttribute( 'href' ) ),
-							),
-							page.locator( 'a[target="_blank"]' ).evaluateAll(
-								( links ) => links.map( ( link ) => link.getAttribute( 'rel' ) ),
-							),
-							page.evaluate( () => document.documentElement.scrollWidth <= window.innerWidth ),
-							expect( page.locator( '#settings' ) ).toBeVisible(),
-							expect( page.locator( '#privacy' ) ).toBeVisible(),
-							expect( page.locator( '.product-demo-browser' ) ).toBeVisible(),
-						] );
-						expect( actionCount ).toBe( 0 );
-						expect( visibleActionCount ).toBe( 0 );
-						expect( fallbackFits, route ).toBe( true );
-						expect( mascotCount ).toBe( 1 );
-						expect( languageCount ).toBe( 10 );
-						expect( currentLanguageCount ).toBe( 1 );
-						expect( new Set( externalLinks ) ).toEqual( new Set( [
-							'https://github.com/agustinbarrientos/TOCus',
-							'https://agustinbarrientos.com/about/?utm_source=tocus&utm_medium=website&utm_campaign=about',
-							'https://chromewebstore.google.com/detail/tocus/placeholder-listing-id',
-							'https://microsoftedge.microsoft.com/addons/detail/tocus/placeholder-listing-id',
-							'https://addons.mozilla.org/firefox/addon/tocus-placeholder/',
-							'https://apps.apple.com/app/tocus/id0000000000',
-						] ) );
-						for ( const relation of blankLinkRelations ) {
-							expect( relation ).toContain( 'noopener noreferrer' );
+						await expect( page.locator( '#how-it-works ol.how-steps > li' ) ).toHaveCount( 4 );
+						await expect( page.locator( '#features ul.feature-grid > li' ) ).toHaveCount( 6 );
+						await expect( page.locator( '#features ul.feature-grid > li img' ) ).toHaveCount( 6 );
+						for ( const heading of await page.locator( '#how-it-works h2, #features h2, #features h3, #downloads h2' ).all() ) {
+							await expect( heading ).toBeVisible();
+							await expect( heading ).not.toHaveText( /^\s*$/u );
 						}
-						expect( fitsViewport, route ).toBe( true );
+						if ( route !== '/' ) {
+							await expect( page.locator( '#how-it-works h2' ) ).not.toHaveText( 'How it works' );
+							await expect( page.locator( '#features h2' ) ).not.toHaveText( 'A calmer way to browse' );
+						}
+						await expect( page.locator( '#languages a[lang]' ) ).toHaveCount( 10 );
+						await expect( page.locator( '#languages a[aria-current="page"]' ) ).toHaveCount( 1 );
+						await expect( page.locator( '#downloads [data-download-primary]' ) ).toBeVisible();
+						for ( const link of await page.locator( 'a[target="_blank"]' ).all() ) {
+							await expect( link ).toHaveAttribute( 'rel', /noopener noreferrer/u );
+						}
+						expect( await page.evaluate(
+							() => document.documentElement.scrollWidth <= window.innerWidth,
+						), route ).toBe( true );
 					} );
 				}
 				expect( externalRequests ).toEqual( [] );

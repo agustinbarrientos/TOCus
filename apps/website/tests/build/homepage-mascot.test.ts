@@ -96,7 +96,6 @@ test.describe( 'homepage riverside hero', () => {
 			await expect( canvas ).toHaveCSS( 'opacity', '0' );
 			await expect( scene.locator( 'img' ) ).toBeVisible();
 			await expect( page.locator( '.hero [data-download-primary]' ) ).toBeVisible();
-			await expect( page.locator( '.footer-mascot img' ) ).toHaveAttribute( 'src', '/images/capybara-mate.webp' );
 		} );
 	} );
 
@@ -129,10 +128,10 @@ test.describe( 'homepage riverside hero', () => {
 					const title = await page.getByRole( 'heading', { level: 1 } ).boundingBox();
 					const action = page.locator( '.hero [data-download-primary]' );
 					const actionBounds = await action.boundingBox();
-					const story = await page.locator( '.how-it-works' ).boundingBox();
+					const explanation = await page.locator( '#how-it-works' ).boundingBox();
 					if ( ! hero || ! posterBounds || ! canvasBounds || ! transition ||
-						! title || ! actionBounds || ! story ) {
-						throw new Error( 'The hero layers, transition, heading, download and product story must all have layout.' );
+						! title || ! actionBounds || ! explanation ) {
+						throw new Error( 'The hero layers, transition, heading, download and explanation must all have layout.' );
 					}
 					expect( hero.width ).toBeCloseTo( viewport.width, 0 );
 					expect( transition.height ).toBeGreaterThan( 0 );
@@ -149,11 +148,9 @@ test.describe( 'homepage riverside hero', () => {
 					expect( title.y + title.height ).toBeLessThan( actionBounds.y );
 					expect( actionBounds.y + actionBounds.height ).toBeLessThan( viewport.height * 0.65 );
 					expect( Math.abs( title.x + title.width / 2 - viewport.width / 2 ) ).toBeLessThan( 1 );
-					expect( story.y ).toBeGreaterThanOrEqual( hero.y + hero.height );
+					expect( explanation.y ).toBeGreaterThanOrEqual( hero.y + hero.height );
 					await expect( action ).toHaveAttribute( 'href', /^https:\/\//u );
-					await expect( page.locator( '.footer-mascot img' ) )
-						.toHaveAttribute( 'src', '/images/capybara-mate.webp' );
-					expect( await page.locator( 'main section' ).count() ).toBeGreaterThanOrEqual( 6 );
+					await expect( page.locator( '#how-it-works, #features, #downloads' ) ).toHaveCount( 3 );
 					expect( requests.some( ( url ) => /\.(?:glb|gltf)(?:\?|$)/u.test( url ) ) ).toBe( false );
 					expect( await page.evaluate(
 						() => document.documentElement.scrollWidth <= window.innerWidth,

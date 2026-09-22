@@ -9,11 +9,8 @@ body { margin: 0; }
 
 .website {
 	@include type.apply('body-large');
-	--tocus-website-section-space: clamp(3.5rem, 7vw, 6rem);
 	--tocus-website-ink: #302219;
 	--tocus-website-paper: #fffaf4;
-	--tocus-website-rule: #d9c8b8;
-	--tocus-website-clay: #b86f46;
 
 	min-height: 100svh;
 	background: var(--tocus-website-paper);
@@ -68,15 +65,12 @@ body { margin: 0; }
 		&:focus { transform: none; }
 	}
 
-	.site-header, .footer-main, .footer-links {
-		display: flex;
-		align-items: center;
-		gap: clamp(1rem, 2.4vw, 2rem);
-	}
-
 	.site-header {
 		position: relative;
 		z-index: 20;
+		display: flex;
+		align-items: center;
+		gap: clamp(1rem, 2.4vw, 2rem);
 		justify-content: space-between;
 		padding-block: 1.2rem;
 	}
@@ -177,110 +171,6 @@ body { margin: 0; }
 	.hero-shore-transition-back { fill: #e4c9b4; }
 	.hero-shore-transition-front { fill: var(--tocus-website-paper); }
 
-	.website-section {
-		padding-block: var(--tocus-website-section-space);
-	}
-
-	.section-heading {
-		display: grid;
-		justify-items: center;
-		gap: 1rem;
-		margin-bottom: 3rem;
-		text-align: center;
-	}
-
-	.section-heading h2, .download-section h2, .how-it-works > h2 {
-		@include type.apply('display-large', $size: clamp(2.3rem, 4.2vw, 4rem),
-			$line-height: 1.12, $spacing: -0.025em);
-	}
-
-	.feature-strip p, .privacy-copy p, .section-heading p {
-		color: var(--tocus-color-on-surface-muted);
-	}
-
-	.settings-overview { border-top: 1px solid var(--tocus-website-rule); }
-
-	.feature-strip {
-		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-		gap: 2rem;
-		padding: 2.5rem 0;
-		margin: 0;
-		list-style: none;
-		border-top: 1px solid var(--tocus-website-rule);
-	}
-
-	.feature-strip h3, .privacy-copy h3 {
-		@include type.apply('headline-medium', $size: clamp(1.4rem, 2vw, 1.75rem),
-			$line-height: 1.12, $spacing: -0.025em);
-	}
-
-	.feature-strip p { margin-top: 0.8rem; }
-
-	.statistics-section { padding-top: 2rem; }
-
-	.statistics-preview {
-		max-width: 62rem;
-		margin-inline: auto;
-	}
-
-	.privacy-section {
-		position: relative;
-		border-block: 1px solid var(--tocus-website-rule);
-	}
-
-	.privacy-statement {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		align-items: start;
-		gap: 1rem clamp(2rem, 5vw, 4rem);
-	}
-
-
-	.privacy-copy {
-		display: grid;
-		grid-row: span 4;
-		grid-template-rows: subgrid;
-		align-items: start;
-		gap: 1rem;
-		min-width: 0;
-	}
-
-	.privacy-copy p {
-		@include type.apply('body-large', $line-height: 1.6);
-
-		margin: 0;
-	}
-
-	.privacy-body p + p { margin-top: 1rem; }
-
-
-	.privacy-copy a, .privacy-copy .maker-credit {
-		@include type.apply('body-large', $line-height: 1.6);
-	}
-
-	.privacy-copy > a {
-		display: inline-flex;
-		align-items: center;
-		min-height: 2.75rem;
-		margin-top: 0.25rem;
-	}
-
-	.maker-credit {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 0.6rem;
-		margin: 0;
-	}
-
-	.maker-credit img {
-		flex: 0 0 1.5rem;
-		width: 1.5rem;
-		height: 1.5rem;
-		border-radius: 50%;
-	}
-
 	.tocus-external-link {
 		display: inline-flex;
 		align-items: center;
@@ -293,34 +183,6 @@ body { margin: 0; }
 	.tocus-external-link .tocus-icon {
 		width: 0.85em;
 		height: 0.85em;
-	}
-
-	.download-section {
-		display: grid;
-		justify-items: center;
-		gap: 1.8rem;
-		padding-top: 3rem;
-		text-align: center;
-		border-top: 1px solid var(--tocus-website-rule);
-	}
-
-	.footer-mascot {
-		width: min(24rem, 60%);
-		margin: 0 auto -1.00rem;
-		z-index: 1;
-		pointer-events: none;
-	}
-
-	.site-footer {
-		position: relative;
-		border-top: 1px solid var(--tocus-website-rule);
-		padding-block: 2.5rem;
-	}
-
-	.footer-main { justify-content: space-between; }
-
-	.footer-links {
-		@include type.apply('body-medium');
 	}
 
 	#languages { margin-top: 1.5rem; }
@@ -375,46 +237,6 @@ body { margin: 0; }
 		.hero .store-links .store-primary { padding-inline: 1.2rem; }
 		.hero .store-links .store-alternatives { max-width: 24rem; }
 
-		.section-heading {
-			gap: 1rem;
-			margin-bottom: 2rem;
-		}
-
-		.feature-strip {
-			grid-template-columns: 1fr;
-			gap: 1.75rem;
-			padding-block: 1.75rem;
-		}
-
-		.feature-strip > li + li {
-			padding-top: 1.75rem;
-			border-top: 1px solid var(--tocus-website-rule);
-		}
-
-		.statistics-preview-header {
-			flex-wrap: wrap;
-			margin-bottom: 1.25rem;
-		}
-
-		.privacy-statement {
-			grid-template-columns: 1fr;
-			gap: 2rem;
-		}
-
-
-		.download-section { padding-top: 2rem; }
-		.footer-mascot { width: 90%; }
-
-		.footer-main {
-			align-items: flex-start;
-			flex-direction: column;
-			gap: 1.5rem;
-		}
-
-		.footer-links {
-			flex-wrap: wrap;
-			gap: 1rem;
-		}
 	}
 }
 

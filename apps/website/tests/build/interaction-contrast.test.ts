@@ -234,7 +234,7 @@ for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 					const alternatives = page.locator( '.hero-actions .store-alternatives a' );
 					await expect( alternatives ).toHaveCount( 3 );
 					for ( const [ name, target ] of [
-						[ 'source link', page.locator( '#privacy' ).getByRole( 'link', { name: 'View the source', exact: true } ) ],
+						[ 'source link', page.locator( '.site-footer a[href="https://github.com/agustinbarrientos/TOCus"]' ) ],
 						[ 'download action', page.locator( '.hero-actions [data-download-primary]' ) ],
 						[ 'first alternate browser', alternatives.nth( 0 ) ],
 						[ 'second alternate browser', alternatives.nth( 1 ) ],
@@ -268,7 +268,7 @@ for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 					await focusNextControl( page, alternatives.nth( 0 ), `${ route } first alternate browser` );
 					await focusNextControl( page, alternatives.nth( 1 ), `${ route } second alternate browser` );
 					await focusNextControl( page, alternatives.nth( 2 ), `${ route } third alternate browser` );
-					await focusNextControl( page, page.locator( '.story-step-action' ).first(), `${ route } first story chapter` );
+					await focusNextControl( page, page.locator( '#how-it-works a[href], #features a[href], #downloads [data-download-primary]' ).first(), `${ route } first link after the hero` );
 					await expect( page.locator( '.site-header .language-shortcut' ) ).toBeVisible();
 					await page.setViewportSize( { width: 360, height: 800 } );
 					await page.evaluate( () => document.fonts.ready );

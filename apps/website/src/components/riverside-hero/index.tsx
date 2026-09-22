@@ -59,7 +59,7 @@ export function RiversideHero() {
 	}, [] );
 	return <div className="riverside-hero" data-status={ status } aria-hidden="true">
 		<img className="riverside-hero-poster" src="/images/riverside-hero.webp" alt=""
-			width="3000" height="1000" fetchPriority="high" />
+			width="6000" height="2160" fetchPriority="high" />
 		<canvas ref={ canvas } className="riverside-hero-canvas" />
 	</div>;
 }

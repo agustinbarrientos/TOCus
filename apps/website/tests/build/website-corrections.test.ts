@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 
-test( 'privacy links and media services stay with their claims, and hero interaction respects reduced motion', async ( { page } ) => {
+test( 'local and open-source claims remain readable while reduced motion uses the hero poster', async ( { page } ) => {
 	await page.emulateMedia( { reducedMotion: 'reduce' } );
 	await page.route( '**/*', async ( route ) => {
 		const url = new URL( route.request().url() );
@@ -16,28 +16,19 @@ test( 'privacy links and media services stay with their claims, and hero interac
 	} );
 	await page.goto( 'http://website.test/' );
 	await expect( page.locator( '.homepage' ) ).toHaveAttribute( 'data-enhanced', 'true' );
-	const privacy = page.locator( '.privacy-statement' );
-	await expect( privacy.locator( ':scope > *' ) ).toHaveCount( 2 );
-	const local = privacy.locator( '.privacy-copy' ).filter( { has: page.getByRole( 'heading', { name: 'Stored on your device' } ) } );
-	const open = privacy.locator( '.privacy-copy' ).filter( { has: page.getByRole( 'heading', { name: 'Free and open source' } ) } );
-	await expect( local ).toContainText( 'without an account' );
-	await expect( local ).toContainText( 'no analytics' );
-	await expect( local ).toContainText( 'does not contact external services' );
-	await expect( open ).toContainText( 'advertising' );
-	await expect( open.getByRole( 'link', { name: 'Agustin Barrientos' } ) ).toBeVisible();
-	const links = await privacy.locator( 'a' ).evaluateAll( ( elements ) => elements.map( ( element ) => {
-		const style = getComputedStyle( element );
-		return [ style.fontSize, style.fontFamily, style.fontWeight, style.lineHeight ];
-	} ) );
-	expect( new Set( links.map( ( value ) => JSON.stringify( value ) ) ).size ).toBe( 1 );
-	const video = page.locator( '.feature-strip > li' ).filter( { hasText: 'Your video pauses, too' } );
-	await expect( video.locator( '.supported-services li' ) ).toHaveCount( 6 );
-	expect( await video.locator( '.supported-services img' ).first().evaluate( ( element ) => element.getBoundingClientRect().width ) ).toBeLessThanOrEqual( 20 );
+	const features = page.locator( '#features .feature-grid > li' );
+	const local = features.filter( { has: page.getByRole( 'heading', { name: 'Stored on your device', exact: true } ) } );
+	const open = features.filter( { has: page.getByRole( 'heading', { name: 'Free and open source', exact: true } ) } );
+	await expect( local ).toBeVisible();
+	await expect( local.locator( 'p' ) ).not.toHaveText( /^\s*$/u );
+	await expect( open ).toBeVisible();
+	await expect( open.locator( 'p' ) ).not.toHaveText( /^\s*$/u );
+	await expect( page.locator( '.site-footer a[href="/privacy/"]' ) ).toBeVisible();
+	await expect( page.locator( '.site-footer a[href="https://github.com/agustinbarrientos/TOCus"]' ) ).toBeVisible();
 	expect( await page.title() ).not.toContain( '\u2014' );
 	const scene = page.locator( '.riverside-hero' );
 	await scene.scrollIntoViewIfNeeded();
 	await expect( scene ).toHaveAttribute( 'data-status', 'poster' );
 	await expect( scene.locator( 'canvas' ) ).toHaveCSS( 'opacity', '0' );
 	await expect( scene.locator( 'img' ) ).toBeVisible();
-	await expect( page.locator( '.footer-mascot img' ) ).toHaveAttribute( 'src', '/images/capybara-mate.webp' );
 } );

@@ -56,6 +56,11 @@ test.describe( 'browser-specific download links', () => {
 						const icon = alternative.locator( 'img' );
 						await expect( icon ).toHaveAttribute( 'src', `/badges/browser-${ String( browser ) }.svg` );
 						await expect( icon ).toHaveAttribute( 'alt', '' );
+						const fontSize = await alternative.evaluate( ( element ) =>
+							parseFloat( getComputedStyle( element ).fontSize ),
+						);
+						expect( fontSize ).toBeGreaterThanOrEqual( 16 );
+						expect( fontSize ).toBeLessThanOrEqual( 18 );
 						await icon.evaluate( ( image: HTMLImageElement ) => image.decode() );
 					}
 					for ( const alternative of await group.locator( '.store-alternatives a[data-store]' ).all() ) {

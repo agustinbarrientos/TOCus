@@ -14,14 +14,6 @@ msgstr ""
 "Plural-Forms: \n"
 
 #: apps/website/src/localization/index.ts
-msgid "{minutes}m"
-msgstr "{minutes}m"
-
-#: apps/website/src/localization/index.ts
-msgid "{seconds}s"
-msgstr "{seconds}s"
-
-#: apps/website/src/localization/index.ts
 msgid "10s pause"
 msgstr "10s pause"
 
@@ -30,132 +22,28 @@ msgid "5m browsing"
 msgstr "5m browsing"
 
 #: apps/website/src/localization/index.ts
-msgid "A capybara relaxing in a beach chair"
-msgstr "A capybara relaxing in a beach chair"
-
-#: apps/website/src/localization/index.ts
-msgid "A preview of the breathing pause."
-msgstr "A preview of the breathing pause."
-
-#: apps/website/src/localization/index.ts
-msgid "A quiet afternoon"
-msgstr "A quiet afternoon"
-
-#: apps/website/src/localization/index.ts
-msgid "A short pause before the websites you choose."
-msgstr "A short pause before the websites you choose."
-
-#: apps/website/src/localization/index.ts
-msgid "Activity"
-msgstr "Activity"
-
-#: apps/website/src/localization/index.ts
-msgid "Add a pause to your browser"
-msgstr "Add a pause to your browser"
-
-#: apps/website/src/localization/index.ts
-msgid "Add another site"
-msgstr "Add another site"
-
-#: apps/website/src/localization/index.ts
-msgid "Add site"
-msgstr "Add site"
-
-#: apps/website/src/localization/index.ts
-msgid "All time"
-msgstr "All time"
-
-#: apps/website/src/localization/index.ts
-msgid "Allowances granted"
-msgstr "Allowances granted"
+msgid "A calmer way to browse"
+msgstr "A calmer way to browse"
 
 #: apps/website/src/localization/index.ts
 msgid "Also available on"
 msgstr "Also available on"
 
 #: apps/website/src/localization/index.ts
-msgid "Appearance"
-msgstr "Appearance"
-
-#: apps/website/src/localization/index.ts
-msgid "Approximately {time}"
-msgstr "Approximately {time}"
-
-#: apps/website/src/localization/index.ts
-msgid "Breathe"
-msgstr "Breathe"
-
-#: apps/website/src/localization/index.ts
-msgid "Breathe in"
-msgstr "Breathe in"
-
-#: apps/website/src/localization/index.ts
-msgid "Breathe out"
-msgstr "Breathe out"
-
-#: apps/website/src/localization/index.ts
-msgid "Breathing guide"
-msgstr "Breathing guide"
-
-#: apps/website/src/localization/index.ts
-msgid "Browse"
-msgstr "Browse"
-
-#: apps/website/src/localization/index.ts
-msgid "Browse until the next pause"
-msgstr "Browse until the next pause"
-
-#: apps/website/src/localization/index.ts
-msgid "By default, the next pause comes five minutes after you select Continue."
-msgstr "By default, the next pause comes five minutes after you select Continue."
-
-#: apps/website/src/localization/index.ts
 msgid "Choose different active days and hours for each website."
 msgstr "Choose different active days and hours for each website."
-
-#: apps/website/src/localization/index.ts
-msgid "Choose sites"
-msgstr "Choose sites"
-
-#: apps/website/src/localization/index.ts
-msgid "Choose your sites"
-msgstr "Choose your sites"
-
-#: apps/website/src/localization/index.ts
-msgid "Choose your wait, browsing time, and schedule."
-msgstr "Choose your wait, browsing time, and schedule."
 
 #: apps/website/src/localization/index.ts
 msgid "Coming soon"
 msgstr "Coming soon"
 
 #: apps/website/src/localization/index.ts
-msgid "Completed waits"
-msgstr "Completed waits"
-
-#: apps/website/src/localization/index.ts
 msgid "Continue"
 msgstr "Continue"
 
 #: apps/website/src/localization/index.ts
-msgid "Continue after the pause"
-msgstr "Continue after the pause"
-
-#: apps/website/src/localization/index.ts
-msgid "Current month"
-msgstr "Current month"
-
-#: apps/website/src/localization/index.ts
-msgid "Current week"
-msgstr "Current week"
-
-#: apps/website/src/localization/index.ts
 msgid "Custom schedules for each site"
 msgstr "Custom schedules for each site"
-
-#: apps/website/src/localization/index.ts
-msgid "Date"
-msgstr "Date"
 
 #. Language-menu autonym. Keep this language name written in German.
 #: apps/website/src/localization/index.ts
@@ -165,10 +53,6 @@ msgstr "Deutsch"
 #: apps/website/src/localization/index.ts
 msgid "Download for"
 msgstr "Download for"
-
-#: apps/website/src/localization/index.ts
-msgid "Download TOCus"
-msgstr "Download TOCus"
 
 #. Language-menu autonym. Keep this language name written in English.
 #: apps/website/src/localization/index.ts
@@ -186,24 +70,8 @@ msgid "Español (vos)"
 msgstr "Español (vos)"
 
 #: apps/website/src/localization/index.ts
-msgid "Estimated time reclaimed"
-msgstr "Estimated time reclaimed"
-
-#: apps/website/src/localization/index.ts
-msgid "example.com"
-msgstr "example.com"
-
-#: apps/website/src/localization/index.ts
-msgid "Explore the source on GitHub"
-msgstr "Explore the source on GitHub"
-
-#: apps/website/src/localization/index.ts
-msgid "Finish setup"
-msgstr "Finish setup"
-
-#: apps/website/src/localization/index.ts
-msgid "Follow the breathing guide. Your browsing time has not started yet."
-msgstr "Follow the breathing guide. Your browsing time has not started yet."
+msgid "Example: 24h 40m reclaimed / 254 reconsidered visits"
+msgstr "Example: 24h 40m reclaimed / 254 reconsidered visits"
 
 #. Language-menu autonym. Keep this language name written in French.
 #: apps/website/src/localization/index.ts
@@ -218,14 +86,6 @@ msgstr "Free and open source"
 msgid "How it works"
 msgstr "How it works"
 
-#: apps/website/src/localization/index.ts
-msgid "How TOCus works"
-msgstr "How TOCus works"
-
-#: apps/website/src/localization/index.ts
-msgid "Interact with the capybara"
-msgstr "Interact with the capybara"
-
 #. Language-menu autonym. Keep this language name written in Italian.
 #: apps/website/src/localization/index.ts
 msgid "Italiano"
@@ -236,18 +96,6 @@ msgid "Made by"
 msgstr "Made by"
 
 #: apps/website/src/localization/index.ts
-msgid "Meet the creator"
-msgstr "Meet the creator"
-
-#: apps/website/src/localization/index.ts
-msgid "New tab"
-msgstr "New tab"
-
-#: apps/website/src/localization/index.ts
-msgid "No account is needed to use the extension."
-msgstr "No account is needed to use the extension."
-
-#: apps/website/src/localization/index.ts
 msgid "Only when you want"
 msgstr "Only when you want"
 
@@ -256,40 +104,8 @@ msgid "Open a site"
 msgstr "Open a site"
 
 #: apps/website/src/localization/index.ts
-msgid "Open a website you added to TOCus."
-msgstr "Open a website you added to TOCus."
-
-#: apps/website/src/localization/index.ts
-msgid "Open-source browser extension"
-msgstr "Open-source browser extension"
-
-#: apps/website/src/localization/index.ts
-msgid "Or press {key}"
-msgstr "Or press {key}"
-
-#: apps/website/src/localization/index.ts
-msgid "Pause and browsing time"
-msgstr "Pause and browsing time"
-
-#: apps/website/src/localization/index.ts
 msgid "Pause before visiting addictive websites"
 msgstr "Pause before visiting addictive websites"
-
-#: apps/website/src/localization/index.ts
-msgid "Pause walkthrough"
-msgstr "Pause walkthrough"
-
-#: apps/website/src/localization/index.ts
-msgid "Period"
-msgstr "Period"
-
-#: apps/website/src/localization/index.ts
-msgid "Play walkthrough"
-msgstr "Play walkthrough"
-
-#: apps/website/src/localization/index.ts
-msgid "Popular choices"
-msgstr "Popular choices"
 
 #. Language-menu autonym for Brazilian Portuguese. Keep this language name written in Portuguese.
 #: apps/website/src/localization/index.ts
@@ -306,32 +122,16 @@ msgid "Privacy"
 msgstr "Privacy"
 
 #: apps/website/src/localization/index.ts
-msgid "Private and safe"
-msgstr "Private and safe"
+msgid "Privacy policy"
+msgstr "Privacy policy"
 
 #: apps/website/src/localization/index.ts
-msgid "Read the code, suggest changes, or make it your own."
-msgstr "Read the code, suggest changes, or make it your own."
+msgid "Read the code, suggest changes, or make it your own. No advertising."
+msgstr "Read the code, suggest changes, or make it your own. No advertising."
 
 #: apps/website/src/localization/index.ts
-msgid "Read the privacy policy"
-msgstr "Read the privacy policy"
-
-#: apps/website/src/localization/index.ts
-msgid "Ready when you are"
-msgstr "Ready when you are"
-
-#: apps/website/src/localization/index.ts
-msgid "Reconsidered visits"
-msgstr "Reconsidered visits"
-
-#: apps/website/src/localization/index.ts
-msgid "Replay walkthrough"
-msgstr "Replay walkthrough"
-
-#: apps/website/src/localization/index.ts
-msgid "See counts of completed pauses and reconsidered visits."
-msgstr "See counts of completed pauses and reconsidered visits."
+msgid "See completed pauses and reconsidered visits."
+msgstr "See completed pauses and reconsidered visits."
 
 #: apps/website/src/localization/index.ts
 msgid "See how much time you saved"
@@ -342,68 +142,20 @@ msgid "Set the days and hours TOCus is active."
 msgstr "Set the days and hours TOCus is active."
 
 #: apps/website/src/localization/index.ts
-msgid "Set the pause to fit your day"
-msgstr "Set the pause to fit your day"
-
-#: apps/website/src/localization/index.ts
-msgid "Six palettes with light, dark, or system appearance. Motion follows your operating system's reduced motion setting."
-msgstr "Six palettes with light, dark, or system appearance. Motion follows your operating system's reduced motion setting."
+msgid "Settings and statistics stay in your browser. Works offline, without an account."
+msgstr "Settings and statistics stay in your browser. Works offline, without an account."
 
 #: apps/website/src/localization/index.ts
 msgid "Skip to content"
 msgstr "Skip to content"
 
 #: apps/website/src/localization/index.ts
-msgid "Slow days"
-msgstr "Slow days"
-
-#: apps/website/src/localization/index.ts
-msgid "Space"
-msgstr "Space"
-
-#: apps/website/src/localization/index.ts
-msgid "Statistics"
-msgstr "Statistics"
+msgid "Source"
+msgstr "Source"
 
 #: apps/website/src/localization/index.ts
 msgid "Stored on your device"
 msgstr "Stored on your device"
-
-#: apps/website/src/localization/index.ts
-msgid "Support"
-msgstr "Support"
-
-#: apps/website/src/localization/index.ts
-msgid "Take a moment"
-msgstr "Take a moment"
-
-#: apps/website/src/localization/index.ts
-msgid "Take a moment before you continue"
-msgstr "Take a moment before you continue"
-
-#: apps/website/src/localization/index.ts
-msgid "The extension does not contact external services."
-msgstr "The extension does not contact external services."
-
-#: apps/website/src/localization/index.ts
-msgid "The extension has no advertising."
-msgstr "The extension has no advertising."
-
-#: apps/website/src/localization/index.ts
-msgid "The extension has no analytics."
-msgstr "The extension has no analytics."
-
-#: apps/website/src/localization/index.ts
-msgid "Time left"
-msgstr "Time left"
-
-#: apps/website/src/localization/index.ts
-msgid "Time spent pausing plus estimated browsing time avoided, based on your configured visit time."
-msgstr "Time spent pausing plus estimated browsing time avoided, based on your configured visit time."
-
-#: apps/website/src/localization/index.ts
-msgid "Time you took to pause"
-msgstr "Time you took to pause"
 
 #: apps/website/src/localization/index.ts
 msgid "TOCus adds a breathing pause to the websites you choose."
@@ -414,44 +166,24 @@ msgid "TOCus is an open-source browser extension."
 msgstr "TOCus is an open-source browser extension."
 
 #: apps/website/src/localization/index.ts
-msgid "TOCus pauses before opening the websites you add."
-msgstr "TOCus pauses before opening the websites you add."
+msgid "Take a little pause."
+msgstr "Take a little pause."
 
 #: apps/website/src/localization/index.ts
-msgid "TOCus pauses playing videos on supported sites during the wait and resumes them when you continue."
-msgstr "TOCus pauses playing videos on supported sites during the wait and resumes them when you continue."
+msgid "Videos pause during the wait and resume when you continue."
+msgstr "Videos pause during the wait and resume when you continue."
 
 #: apps/website/src/localization/index.ts
 msgid "View the source"
 msgstr "View the source"
 
 #: apps/website/src/localization/index.ts
-msgid "Visit a website"
-msgstr "Visit a website"
-
-#: apps/website/src/localization/index.ts
-msgid "Website added"
-msgstr "Website added"
-
-#: apps/website/src/localization/index.ts
-msgid "Website address"
-msgstr "Website address"
-
-#: apps/website/src/localization/index.ts
 msgid "Website language"
 msgstr "Website language"
 
 #: apps/website/src/localization/index.ts
-msgid "When the wait ends, select Continue to open the website, or close the tab."
-msgstr "When the wait ends, select Continue to open the website, or close the tab."
-
-#: apps/website/src/localization/index.ts
-msgid "You can use TOCus without an account."
-msgstr "You can use TOCus without an account."
-
-#: apps/website/src/localization/index.ts
-msgid "Your settings and statistics stay in your browser. The extension works offline."
-msgstr "Your settings and statistics stay in your browser. The extension works offline."
+msgid "YouTube, Netflix, Twitch and more"
+msgstr "YouTube, Netflix, Twitch and more"
 
 #: apps/website/src/localization/index.ts
 msgid "Your video pauses, too"

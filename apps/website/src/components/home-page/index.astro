@@ -2,12 +2,10 @@
 import '@tocus/ui/styles.scss';
 import '../../styles/global.scss';
 import HomePage from './page';
-import { createStatisticsPreviewFormatting } from '../statistics-preview/formatting';
 import { type LocalizedHomePageProperties as Props } from '../../localization';
 
 const { localization, localizations } = Astro.props;
 const { catalog } = localization;
-const statisticsFormatting = createStatisticsPreviewFormatting( localization.languageTag );
 ---
 
 <!doctype html>
@@ -30,7 +28,6 @@ const statisticsFormatting = createStatisticsPreviewFormatting( localization.lan
 		) )}
 	</head>
 	<body>
-		<HomePage localization={localization} localizations={localizations}
-			statisticsFormatting={statisticsFormatting} client:load />
+		<HomePage localization={localization} localizations={localizations} client:load />
 	</body>
 </html>

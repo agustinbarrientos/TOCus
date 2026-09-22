@@ -12,7 +12,7 @@ People who enjoy the internet but want a moment to reconsider opening distractin
 
 ## Product Purpose
 
-TOCus adds a breathing or quiet pause before selected websites, followed by a configurable browsing allowance. The website must explain this plainly and demonstrate the complete interaction.
+TOCus adds a breathing or quiet pause before selected websites, followed by a configurable browsing allowance. The website explains this sequence with a riverside hero, a four-step illustration and concise feature descriptions.
 
 ## Capabilities and Constraints
 
@@ -22,30 +22,35 @@ TOCus adds a breathing or quiet pause before selected websites, followed by a co
 - The extension has no accounts, tracking, or external-server calls. Its settings and statistics remain on the device.
 - Supported streaming-site video playback pauses during an interruption and resumes only if previously playing.
 - The current implementation matches website hosts; do not advertise path-specific or custom wildcard rules.
-- Website demonstration data must be labeled as examples. The website must not read extension or visitor statistics.
+- Website example data must be labeled as illustrative. The website must not read extension or visitor statistics.
 - The user permits placeholder store URLs during development. Keep them centralized in `src/config/downloads/index.ts`, clearly marked, and replace them before publication. Hosting details remain a publication prerequisite.
 
 ## Brand Commitments
 
-TOCus name, supplied capybara mark, Fredoka headings, shared theme, warm clay materials, concise literal copy, and accessible controls. The approved homepage uses a large peeking raster capybara based on the orange character supplied on September 7, 2026. It introduces the product story without overlapping its caption or navigation. Earlier mascot poses and the homepage 3D experiment are superseded.
+Preserve the TOCus name, supplied capybara mark, Fredoka headings, shared theme, warm clay materials, concise literal copy and accessible controls. The current homepage uses the local animated riverside model with a seated capybara holding a mate, vegetation, moving water and sunset lighting. A packaged poster provides the static and reduced-motion presentation. The earlier mascot prototype remains available in its separate lab.
 
-The public website stays light independently of browser appearance. The header contains the brand, a direct download link, and a language picker. The primary CTA downloads for the detected browser; other stores appear as text links below it. The scroll-driven product story follows directly below the hero.
+The public website stays light independently of browser appearance. Its homepage header contains the brand and a compact language-selector pill. The hero headline sits above a primary browser download action and consistent 16-18px Fredoka alternatives with local browser icons.
+
+Below the hero, the page contains four illustrated steps, six open feature blocks and a repeated download group framed by supplied plant and sun artwork. The steps show opening a site, a 10-second pause, Continue and a 5-minute browsing allowance as an example of the configurable sequence. Feature blocks explain active hours, per-site schedules, video pausing, local statistics, on-device storage and open source. The footer provides Privacy, Source, author credit and a static locale-navigation fallback. The former browser story player and interactive statistics preview are removed.
 
 ## Evidence on Hand
 
-The extension's real breathing renderer, localized statistics presentation, timing and schedule logic, bundled browser badges, and supplied mascot reference. No testimonials, customer logos, or aggregate user statistics are available.
+The extension's actual timing, schedule, media-pause and statistics behavior; the shared TOCus theme and brand; packaged browser icons; the local riverside scene and poster; and user-supplied clay feature and decoration images. No testimonials, customer logos or aggregate user statistics are available.
 
 ## Product Principles
 
-- Show the behavior instead of displaying settings without a visible result.
+- Explain the pause and allowance sequence plainly, including that browsing begins after Continue.
 - Keep privacy and personal statistics prominent and understandable.
-- Use short sections with one idea each.
+- Use short sections with one idea each and examples that do not imply visitor measurements.
 - Preserve the extension interface while improving its marketing website.
-- Do not load a 3D model on the homepage. Preserve the original experiment only in its separate lab.
+- Treat the 3D hero as optional decoration: all information and actions remain available in ordinary HTML.
+- Remove superseded components, styles and assets when replacing page sections.
 
 ## Accessibility & Inclusion
 
-Keyboard-operable story navigation, a header language menu, readable contrast, responsive layouts, reduced-motion support, and useful static explanations and footer locale links without JavaScript. Ten existing locales remain supported. The complete story is pinned only when it fits the viewport; short screens and enlarged text use normal page flow and chapter buttons.
+Keep semantic headings and lists, a skip link, keyboard-accessible downloads and language selection, visible focus, readable contrast and layouts that allow translated text to wrap. The four-step explanation is static content rather than simulated controls. Feature blocks stack on narrow screens without clipping.
+
+The animated hero is decorative and hidden from the accessibility tree. Reduced motion avoids loading it, and its local poster remains available without JavaScript or WebGL. Scene rendering stops when offscreen or the page is hidden. Ten locales remain supported; footer locale links are available without JavaScript. Privacy and Support keep their canonical English content.
 
 ## Local Development
 

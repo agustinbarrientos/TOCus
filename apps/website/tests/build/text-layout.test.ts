@@ -3,7 +3,6 @@ import { expect, test } from '@playwright/test';
 
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 const TextLayouts = [
-	{ path: '/', selector: '.how-it-works > h2' },
 	{ path: '/privacy/', selector: '.information-page h1, .information-page h2, .information-page p' },
 	{ path: '/support/', selector: '.information-page h1, .information-page h2, .information-page p, .information-page li' },
 	{ path: '/mascot-lab/', selector: '.mascot-lab-intro > p' },
@@ -40,13 +39,6 @@ test.describe( 'website text layout', () => {
 				);
 				expect( textWidths.length ).toBeGreaterThan( 0 );
 				expect( textWidths.filter( ( text ) => Math.abs( text.width - text.available ) > 1 ) ).toEqual( [] );
-				if ( path === '/' ) {
-					const centeredText = page.locator( '.section-heading h2, .section-heading p, .download-section h2' );
-					expect( await centeredText.count() ).toBeGreaterThan( 0 );
-					for ( const element of await centeredText.all() ) {
-						await expect( element ).toHaveCSS( 'max-width', 'none' );
-					}
-				}
 				expect( await page.evaluate( () => document.documentElement.scrollWidth <= window.innerWidth ) )
 					.toBe( true );
 			} );
