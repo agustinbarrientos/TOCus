@@ -272,8 +272,8 @@ msgid "Pause and browsing time"
 msgstr "Tempo de pausa e navegação"
 
 #: apps/website/src/localization/index.ts
-msgid "Pause before you scroll"
-msgstr "Faz uma pausa antes de percorreres a página"
+msgid "Pause before visiting addictive websites"
+msgstr "Faz uma pausa antes de visitares sites viciantes"
 
 #: apps/website/src/localization/index.ts
 msgid "Pause walkthrough"

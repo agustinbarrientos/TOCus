@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 const TextLayouts = [
-	{ path: '/', selector: '.hero-copy > h1, .hero-copy > .description, .how-it-works > h2' },
+	{ path: '/', selector: '.how-it-works > h2' },
 	{ path: '/privacy/', selector: '.information-page h1, .information-page h2, .information-page p' },
 	{ path: '/support/', selector: '.information-page h1, .information-page h2, .information-page p, .information-page li' },
 	{ path: '/mascot-lab/', selector: '.mascot-lab-intro > p' },

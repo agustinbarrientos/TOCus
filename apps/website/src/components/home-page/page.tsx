@@ -1,17 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import { Anchor, Brand, TocusAppearance, TocusProvider } from '@tocus/ui';
-import { DownloadLink, DownloadLinks } from '../download-links';
+import { DownloadLinks } from '../download-links';
 import { ExternalLink, WebsiteLink } from '../site-links';
 import { ProductStory } from '../product-story';
 import { TimingIllustration } from '../timing-illustration';
 import { StatisticsPreview } from '../statistics-preview';
-import { Mascot } from '../mascot';
+import { RiversideHero } from '../riverside-hero';
 import { LanguageMenu } from '../language-menu';
 import { SupportedServices } from '../supported-services';
 import type { HomePageProps } from './types';
 
 /**
- * Introduces TOCus through an interactive illustration and independently playable demonstration.
+ * Introduces TOCus through a riverside scene and independently playable demonstration.
  * @param props - Current locale, routes and packaged product messages.
  * @return Progressively enhanced website without visitor tracking.
  * @since 0.1.0
@@ -27,27 +27,31 @@ export default function HomePage( props: HomePageProps ) {
 	return <TocusProvider appearance={ TocusAppearance.LIGHT }>
 		<div className="website homepage" ref={ scene } data-enhanced={ enhanced }>
 			<Anchor className="skip-link" href="#main-content">{ catalog.skipLink }</Anchor>
-			<div className="page-shell">
-				<header className="site-header">
-					<Brand />
-					<div className="site-header-actions">
-						<DownloadLink label={ catalog.getExtension } comingSoon={ catalog.comingSoon } />
-						{ enhanced && <LanguageMenu localization={ localization } localizations={ localizations } /> }
-					</div>
-				</header>
-				<main id="main-content" tabIndex={ -1 }>
-					<section className="hero" aria-labelledby="page-title">
-						<div className="hero-copy">
-							<h1 id="page-title">{ catalog.intro }</h1>
-							<p className="description">{ catalog.description }</p>
-							<div className="hero-actions">
-								<DownloadLinks label={ catalog.downloadFor } alsoAvailable={ catalog.alsoAvailable }
-									comingSoon={ catalog.comingSoon } />
-							</div>
+			<header className="site-header hero-header page-shell">
+				<Brand />
+				<div className="site-header-actions">
+					{ enhanced && <LanguageMenu localization={ localization } localizations={ localizations } /> }
+				</div>
+			</header>
+			<main id="main-content" tabIndex={ -1 }>
+				<section className="hero" aria-labelledby="page-title">
+					<RiversideHero />
+					<div className="hero-copy">
+						<h1 id="page-title">{ catalog.intro }</h1>
+						<div className="hero-actions">
+							<DownloadLinks label={ catalog.downloadFor } alsoAvailable={ catalog.alsoAvailable }
+								comingSoon={ catalog.comingSoon } />
 						</div>
-						<div className="hero-art"><Mascot alt={ catalog.mascotAlt }
-							interactionLabel={ catalog.mascotInteractionLabel } /></div>
-					</section>
+					</div>
+					<svg className="hero-shore-transition" viewBox="0 0 1440 100" preserveAspectRatio="none"
+						aria-hidden="true" focusable="false">
+						<path className="hero-shore-transition-back"
+							d="M0 38C160 0 285 88 500 48S820 2 1030 39S1260 82 1440 33V100H0Z" />
+						<path className="hero-shore-transition-front"
+							d="M0 60C180 30 320 92 530 66S860 26 1090 62S1330 94 1440 61V100H0Z" />
+					</svg>
+				</section>
+				<div className="page-shell">
 					<ProductStory catalog={ catalog } enhanced={ enhanced } />
 					<section className="settings-overview website-section" id="settings" aria-labelledby="settings-title">
 						<div className="section-heading" data-story-reveal>
@@ -105,10 +109,12 @@ export default function HomePage( props: HomePageProps ) {
 						<h2 id="download-title">{ catalog.downloadTitle }</h2>
 						<DownloadLinks label={ catalog.downloadFor } alsoAvailable={ catalog.alsoAvailable }
 							comingSoon={ catalog.comingSoon } />
-						<div className="footer-mascot"><img data-mascot src="/images/mascot-peek.webp"
-							width="1144" height="1145" alt="" loading="lazy" /></div>
+						<div className="footer-mascot"><img data-mascot src="/images/capybara-mate.webp"
+							width="700" height="800" alt="" loading="lazy" /></div>
 					</section>
-				</main>
+				</div>
+			</main>
+			<div className="page-shell">
 				<footer className="site-footer">
 					<div className="footer-main">
 						<Brand />

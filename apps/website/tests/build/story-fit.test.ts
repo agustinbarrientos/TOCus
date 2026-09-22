@@ -36,6 +36,8 @@ for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 	browserTest.describe( `${ browserName } story geometry`, () => {
 		browserTest( 'the complete story remains readable in normal flow on short screens', async ( { context, page } ) => {
 			test.setTimeout( 30_000 );
+			// Manual chapter selection measures geometry; the playback suite covers timed motion.
+			await page.emulateMedia( { reducedMotion: 'reduce' } );
 			await context.route( '**/*', async ( route ) => {
 				const url = new URL( route.request().url() );
 				if ( url.origin !== 'http://website.test' ) {

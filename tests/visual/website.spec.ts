@@ -3,6 +3,8 @@ import { DemoChapter } from '../../apps/website/src/components/product-demo/type
 import type { Page } from '@playwright/test';
 
 test.beforeEach( async ( { page } ) => {
+	// The native poster gives screenshot comparisons a deterministic hero frame.
+	await page.emulateMedia( { reducedMotion: 'reduce' } );
 	// Keep the real demo renderer at its initial still frame during full-page captures.
 	const captureTime = new Date( '2026-09-07T12:00:00Z' );
 	await page.clock.install( { time: new Date( captureTime.getTime() - 1000 ) } );
@@ -65,7 +67,7 @@ for ( const [ size, width ] of [ [ 'desktop', 1440 ], [ 'narrow', 390 ] ] as con
 			await page.clock.runFor( 100 );
 			await page.mouse.move( 0, 0 );
 			await expect( page.locator( '.product-demo' ) ).toHaveAttribute( 'data-scene', chapter );
-			await expect( page.locator( '.hero-art' ) ).toBeVisible();
+			await expect( page.locator( '.riverside-hero' ) ).toBeVisible();
 			await expect( page.locator( '.experience-stage' ) ).toHaveCSS( 'position', 'static' );
 			const frame = page.locator( size === 'desktop' ? '.experience-stage' : '.story-player' );
 			await frame.evaluate( ( element ) => {

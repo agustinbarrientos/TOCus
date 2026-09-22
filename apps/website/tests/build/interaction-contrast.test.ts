@@ -232,13 +232,13 @@ for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 						root.setAttribute( 'data-tocus-palette', value );
 					}, palette );
 					const alternatives = page.locator( '.hero-actions .store-alternatives a' );
-					await expect( alternatives ).toHaveCount( 2 );
+					await expect( alternatives ).toHaveCount( 3 );
 					for ( const [ name, target ] of [
 						[ 'source link', page.locator( '#privacy' ).getByRole( 'link', { name: 'View the source', exact: true } ) ],
-						[ 'header download', page.locator( '.site-header [data-download-primary]' ) ],
 						[ 'download action', page.locator( '.hero-actions [data-download-primary]' ) ],
 						[ 'first alternate browser', alternatives.nth( 0 ) ],
 						[ 'second alternate browser', alternatives.nth( 1 ) ],
+						[ 'third alternate browser', alternatives.nth( 2 ) ],
 						[ 'language menu', page.locator( '.site-header .language-shortcut' ) ],
 					] as const ) {
 						await test.step( name, async () => {
@@ -261,13 +261,13 @@ for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 				test( `${ route }: supports keyboard order, local hydration and mobile layout`, async ( { page } ) => {
 					await openHomepage( page, route );
 					const alternatives = page.locator( '.hero-actions .store-alternatives a' );
-					await expect( alternatives ).toHaveCount( 2 );
+					await expect( alternatives ).toHaveCount( 3 );
 					await focusNextControl( page, page.locator( '.skip-link' ), `${ route } skip link` );
-					await focusNextControl( page, page.locator( '.site-header [data-download-primary]' ), `${ route } header download link` );
 					await focusNextControl( page, page.locator( '.site-header .language-shortcut' ), `${ route } language menu` );
 					await focusNextControl( page, page.locator( '.hero-actions [data-download-primary]' ), `${ route } download action` );
 					await focusNextControl( page, alternatives.nth( 0 ), `${ route } first alternate browser` );
 					await focusNextControl( page, alternatives.nth( 1 ), `${ route } second alternate browser` );
+					await focusNextControl( page, alternatives.nth( 2 ), `${ route } third alternate browser` );
 					await focusNextControl( page, page.locator( '.story-step-action' ).first(), `${ route } first story chapter` );
 					await expect( page.locator( '.site-header .language-shortcut' ) ).toBeVisible();
 					await page.setViewportSize( { width: 360, height: 800 } );

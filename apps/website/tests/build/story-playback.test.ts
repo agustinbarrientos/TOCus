@@ -9,6 +9,10 @@ for ( const engine of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 	engineTest( `${ engine }: walkthrough plays on entry, pauses offscreen, and never opens YouTube before Continue`, async ( { page } ) => {
 		await page.route( '**/*', async ( route ) => {
 			const url = new URL( route.request().url() );
+			if ( url.protocol === 'blob:' ) {
+				await route.continue();
+				return;
+			}
 			if ( url.origin !== 'http://website.test' ) {
 				await route.abort();
 				return;

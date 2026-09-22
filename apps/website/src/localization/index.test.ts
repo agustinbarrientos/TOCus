@@ -221,7 +221,7 @@ describe( 'website localization', () => {
 	it( 'keeps concise claims aligned with local product behavior', () => {
 		const { catalog } = getWebsiteLocalization( WebsiteLanguage.ENGLISH );
 
-		expect( catalog.intro.length ).toBeLessThanOrEqual( 32 );
+		expect( catalog.intro ).toBe( 'Pause before visiting addictive websites' );
 		expect( catalog.description.length ).toBeLessThanOrEqual( 64 );
 		expect( catalog.pauseDescription ).toMatch( /\bnot started\b/iu );
 		expect( catalog.continueDescription ).toMatch( /\bContinue\b/u );

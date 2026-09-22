@@ -88,7 +88,7 @@ function createWebsiteCatalog( i18n: I18n ): Readonly<WebsiteCatalog> {
 			description: i18n._( msg`TOCus is an open-source browser extension.` ),
 		} ),
 		eyebrow: i18n._( msg`Open-source browser extension` ),
-		intro: i18n._( msg`Pause before you scroll` ),
+		intro: i18n._( msg`Pause before visiting addictive websites` ),
 		description: i18n._( msg`TOCus adds a breathing pause to the websites you choose.` ),
 		sourceLink: i18n._( msg`Explore the source on GitHub` ),
 		privacy: i18n._( msg`Your settings and statistics stay in your browser. The extension works offline.` ),

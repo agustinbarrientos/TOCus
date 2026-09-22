@@ -50,7 +50,7 @@ export function Mascot( props: MascotProps ) {
 		<div className="beach-water" aria-hidden="true"><span /><span /><span /></div>
 		<div className="beach-sand" aria-hidden="true" />
 		<div className="beach-shadow" aria-hidden="true" />
-		<img data-mascot src="/images/capybara-lounge.webp" width="1100" height="1100"
+		<img data-mascot src="/images/capybara-mate.webp" width="700" height="800"
 			fetchPriority="high" alt={ alt } />
 		<UnstyledButton className="beach-interaction" aria-label={ interactionLabel }>
 			<span className="beach-ripple" aria-hidden="true" />

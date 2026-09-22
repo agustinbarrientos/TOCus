@@ -29,9 +29,37 @@
 	}
 
 	.store-alternatives {
-		@include type.apply('body-medium');
+		@include type.apply('title-medium', $size: clamp(14px, 1.2vw, 16px),
+			$weight: 400, $line-height: 1.4, $spacing: 0);
 
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: 0.35rem 0.8rem;
 		margin: 0;
 		text-align: center;
+	}
+
+	.store-alternative [data-store] {
+		@include type.apply('title-medium');
+
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		color: inherit;
+		text-decoration: none;
+		text-underline-offset: 0.2em;
+		white-space: nowrap;
+
+		&:hover { text-decoration: underline; }
+	}
+
+	.store-alternative .tocus-icon { display: none; }
+
+	.store-alternative img {
+		flex: 0 0 1.15em;
+		width: 1.15em;
+		height: 1.15em;
 	}
 }

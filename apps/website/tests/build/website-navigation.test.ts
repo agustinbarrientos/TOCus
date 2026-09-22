@@ -14,15 +14,16 @@ async function waitForMenuFocus( menu: Locator ): Promise<void> {
 }
 
 test.describe( 'website navigation and statistics presentation', () => {
+	test.use( { reducedMotion: 'reduce' } );
 	for ( const engine of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 		const engineTest = test.extend( { browserName: engine } );
 
 		engineTest.describe( () => {
 			engineTest.use( { contextOptions: {
-				viewport: { width: 390, height: 844 }, colorScheme: 'dark',
+				viewport: { width: 390, height: 844 }, colorScheme: 'dark', reducedMotion: 'reduce',
 			} } );
 
-			engineTest( `${ engine }: light pages keep the header focused on downloading and locales reachable`, async ( { page } ) => {
+			engineTest( `${ engine }: light pages keep a minimal header and locales reachable`, async ( { page } ) => {
 				engineTest.setTimeout( 30_000 );
 				await page.route( 'http://website.test/**', async ( route ) => {
 					const url = new URL( route.request().url() );
@@ -32,8 +33,7 @@ test.describe( 'website navigation and statistics presentation', () => {
 				await engineTest.step( 'Load the light header and hydrate navigation', async () => {
 					await page.goto( 'http://website.test/' );
 					const header = page.locator( '.site-header' );
-					expect( await header.locator( 'a' ).count() ).toBe( 1 );
-					expect( await header.locator( 'a' ).getAttribute( 'href' ) ).toMatch( /^https:/u );
+					await expect( header.locator( 'a' ) ).toHaveCount( 0 );
 					expect( await page.locator( '.website' ).evaluate( ( element ) =>
 						getComputedStyle( element ).getPropertyValue( 'color-scheme' ) ) ).toBe( 'light' );
 					await page.waitForFunction(
@@ -96,7 +96,7 @@ test.describe( 'website navigation and statistics presentation', () => {
 					expect( await page.locator( 'html' ).getAttribute( 'lang' ) ).toBe( 'es-AR' );
 					await expect( page.locator( '.site-header .language-shortcut' ) )
 						.toHaveAttribute( 'aria-label', /Espa\u00f1ol \(vos\)/u );
-					expect( await page.locator( '.site-header a' ).getAttribute( 'href' ) ).toMatch( /^https:/u );
+					await expect( page.locator( '.site-header [data-download-primary]' ) ).toHaveCount( 0 );
 				} );
 			} );
 		} );

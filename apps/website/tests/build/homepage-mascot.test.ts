@@ -11,6 +11,10 @@ const WebsiteOutput = new URL( '../../dist/', import.meta.url );
  */
 async function serveAsset( route: Route ): Promise<void> {
 	const url = new URL( route.request().url() );
+	if ( url.protocol === 'blob:' ) {
+		await route.continue();
+		return;
+	}
 	const pathname = url.pathname.endsWith( '/' ) ? `${ url.pathname }index.html` : url.pathname;
 	const file = fileURLToPath( new URL( `.${ pathname }`, WebsiteOutput ) );
 	if ( url.origin !== 'http://website.test' || ! existsSync( file ) ) {
@@ -20,108 +24,159 @@ async function serveAsset( route: Route ): Promise<void> {
 	await route.fulfill( { path: file } );
 }
 
-test.describe( 'homepage beach scene', () => {
-	test( 'responds to the pointer and keyboard while preserving the footer artwork', async ( { page } ) => {
+test.describe( 'homepage riverside hero', () => {
+	test( 'orbits horizontally within its limits, pauses offscreen and restores the poster after context loss', async ( { page } ) => {
+		await page.setViewportSize( { width: 960, height: 640 } );
 		await page.route( '**/*', serveAsset );
 		await page.goto( 'http://website.test/' );
-		const scene = page.locator( '.beach-scene' );
-		await expect( scene ).toHaveAttribute( 'data-ready', 'true' );
-		const artwork = scene.locator( 'img' );
-		const before = await artwork.evaluate( ( element ) => getComputedStyle( element ).transform );
-		await scene.hover( { position: { x: 30, y: 30 } } );
-		await expect.poll( () => artwork.evaluate(
-			( element ) => getComputedStyle( element ).transform ) ).not.toBe( before );
-		await scene.getByRole( 'button' ).focus();
-		await page.keyboard.press( 'Enter' );
-		await expect( scene ).toHaveAttribute( 'data-reacting', 'true' );
-		await expect( page.locator( '.footer-mascot img' ) ).toHaveAttribute( 'src', '/images/mascot-peek.webp' );
-		await page.locator( '.site-footer' ).scrollIntoViewIfNeeded();
-		await expect( scene ).toHaveAttribute( 'data-playing', 'false' );
-	} );
-	for ( const { viewport, bodyFont } of [
-		{ viewport: { width: 1440, height: 900 } },
-		{ viewport: { width: 1280, height: 720 } },
-		{ viewport: { width: 390, height: 844 } },
-		{ viewport: { width: 1440, height: 900 }, bodyFont: 'sans-serif' },
-		{ viewport: { width: 1280, height: 720 }, bodyFont: 'sans-serif' },
-		// A generic fixed-width face reliably exercises wider glyphs on every host, without a local font dependency.
-		{ viewport: { width: 1440, height: 900 }, bodyFont: 'monospace' },
-		{ viewport: { width: 1280, height: 720 }, bodyFont: 'monospace' },
-	] ) {
-		for ( const reducedMotion of Object.values( MotionPreference ) ) {
-			test.describe( () => {
-				test.use( { contextOptions: {
-					viewport, reducedMotion,
-				} } );
+		const scene = page.locator( '.riverside-hero' );
+		const canvas = scene.locator( 'canvas' );
+		await expect( scene ).toHaveAttribute( 'data-status', 'ready' );
+		await expect( canvas ).toHaveAttribute( 'data-playing', 'true' );
+		await expect.poll( async () => Number( await canvas.getAttribute( 'data-triangles' ) ) ).toBeGreaterThan( 0 );
+		const height = await canvas.getAttribute( 'data-camera-height' );
+		if ( height === null ) {
+			throw new Error( 'The loaded scene must expose its camera height.' );
+		}
+		expect( Number( height ) ).toBeGreaterThan( 0 );
 
-				test( `${ String( viewport.width ) } (${ bodyFont ?? 'system' }, ${ reducedMotion }): prominent artwork introduces the story without loading a model`, async ( { page } ) => {
+		await test.step( 'horizontal pointer movement approaches both authored limits without tilting', async () => {
+			await page.mouse.move( 0, 320 );
+			await expect.poll( async () => Number( await canvas.getAttribute( 'data-yaw' ) ) ).toBeLessThan( -0.84 );
+			expect( Number( await canvas.getAttribute( 'data-yaw' ) ) ).toBeGreaterThanOrEqual( -50 * Math.PI / 180 );
+			await expect( canvas ).toHaveAttribute( 'data-camera-height', height );
+			await page.mouse.move( 959, 320 );
+			await expect.poll( async () => Number( await canvas.getAttribute( 'data-yaw' ) ) ).toBeGreaterThan( 0.84 );
+			expect( Number( await canvas.getAttribute( 'data-yaw' ) ) ).toBeLessThanOrEqual( 50 * Math.PI / 180 );
+			await page.mouse.move( 959, 100 );
+			await expect( canvas ).toHaveAttribute( 'data-camera-height', height );
+			await page.mouse.move( 480, 280 );
+			await expect.poll( async () => Math.abs( Number( await canvas.getAttribute( 'data-yaw' ) ) ) ).toBeLessThan( 0.01 );
+		} );
+
+		await test.step( 'scrolling away stops frame rendering and returning resumes it', async () => {
+			await page.locator( '.site-footer' ).scrollIntoViewIfNeeded();
+			await expect( canvas ).toHaveAttribute( 'data-playing', 'false' );
+			const stoppedFrame = await canvas.getAttribute( 'data-frame' );
+			if ( stoppedFrame === null ) {
+				throw new Error( 'The loaded scene must expose its rendered frame.' );
+			}
+			await page.evaluate( () => new Promise( ( resolve ) => {
+				requestAnimationFrame( () => {
+					requestAnimationFrame( resolve );
+				} );
+			} ) );
+			await expect( canvas ).toHaveAttribute( 'data-frame', stoppedFrame );
+			await page.evaluate( () => {
+				window.scrollTo( { top: 0, behavior: 'instant' } );
+			} );
+			await expect( canvas ).toHaveAttribute( 'data-playing', 'true' );
+			await expect.poll( async () => Number( await canvas.getAttribute( 'data-frame' ) ) ).toBeGreaterThan( Number( stoppedFrame ) );
+		} );
+
+		await test.step( 'a changed motion preference releases the animated scene', async () => {
+			await page.emulateMedia( { reducedMotion: MotionPreference.REDUCE } );
+			await expect( scene ).toHaveAttribute( 'data-status', 'poster' );
+			await expect( canvas ).toHaveAttribute( 'data-playing', 'false' );
+			await expect( canvas ).toHaveCSS( 'opacity', '0' );
+			await expect( scene.locator( 'img' ) ).toBeVisible();
+			await page.emulateMedia( { reducedMotion: MotionPreference.NO_PREFERENCE } );
+			await expect( scene ).toHaveAttribute( 'data-status', 'ready' );
+		} );
+
+		await test.step( 'native GPU context loss leaves artwork and downloads usable', async () => {
+			const lost = await canvas.evaluate( ( element: HTMLCanvasElement ) => {
+				const extension = element.getContext( 'webgl2' )?.getExtension( 'WEBGL_lose_context' );
+				extension?.loseContext();
+				return Boolean( extension );
+			} );
+			expect( lost ).toBe( true );
+			await expect( scene ).toHaveAttribute( 'data-status', 'unavailable' );
+			await expect( canvas ).toHaveAttribute( 'data-playing', 'false' );
+			await expect( canvas ).toHaveCSS( 'opacity', '0' );
+			await expect( scene.locator( 'img' ) ).toBeVisible();
+			await expect( page.locator( '.hero [data-download-primary]' ) ).toBeVisible();
+			await expect( page.locator( '.footer-mascot img' ) ).toHaveAttribute( 'src', '/images/capybara-mate.webp' );
+		} );
+	} );
+
+	for ( const viewport of [
+		{ width: 1440, height: 900 }, { width: 1280, height: 720 },
+		{ width: 390, height: 844 }, { width: 320, height: 568 },
+	] ) {
+		for ( const javaScriptEnabled of [ true, false ] ) {
+			test.describe( () => {
+				test.use( { contextOptions: { viewport, javaScriptEnabled, reducedMotion: MotionPreference.REDUCE } } );
+
+				test( `${ String( viewport.width ) } (${ javaScriptEnabled ? 'reduced motion' : 'no JavaScript' }): poster fills the viewport and following wave transition without loading a model`, async ( { page } ) => {
 					const requests: string[] = [];
 					page.on( 'request', ( request ) => requests.push( request.url() ) );
 					await page.route( '**/*', serveAsset );
 					await page.goto( 'http://website.test/' );
-					await page.locator( '.homepage[data-enhanced="true"]' ).waitFor();
-					if ( bodyFont ) {
-						await page.locator( '[data-tocus-ui]' ).first().evaluate( ( element, font ) => {
-							( element as HTMLElement ).style.setProperty( '--tocus-font-family-body', font );
-						}, bodyFont );
+					if ( javaScriptEnabled ) {
+						await expect( page.locator( '.homepage' ) ).toHaveAttribute( 'data-enhanced', 'true' );
 					}
 					await page.evaluate( () => document.fonts.ready );
-					const mascot = page.locator( '.hero-art img[data-mascot]' );
-					await mascot.evaluate( ( element ) => ( element as HTMLImageElement ).decode() );
-					const image = await mascot.boundingBox();
-					const frame = await page.locator( '.product-demo-browser' ).boundingBox();
-					const caption = await page.getByRole( 'heading', { name: 'How TOCus works' } ).boundingBox();
-					const navigation = await page.locator( '.story-steps' ).boundingBox();
-					if ( ! image || ! frame || ! caption || ! navigation ) {
-						throw new Error( 'The mascot, caption, chapter controls and browser must all be rendered.' );
+					const poster = page.locator( '.riverside-hero img' );
+					await poster.evaluate( ( element: HTMLImageElement ) => element.decode() );
+					await expect( poster ).toBeVisible();
+					await expect( poster ).toHaveAttribute( 'src', '/images/riverside-hero.webp' );
+					await expect( page.locator( '.riverside-hero canvas' ) ).toHaveCSS( 'opacity', '0' );
+					const hero = await page.locator( '.hero' ).boundingBox();
+					const posterBounds = await poster.boundingBox();
+					const canvasBounds = await page.locator( '.riverside-hero canvas' ).boundingBox();
+					const transition = await page.locator( '.hero-shore-transition' ).boundingBox();
+					const title = await page.getByRole( 'heading', { level: 1 } ).boundingBox();
+					const action = page.locator( '.hero [data-download-primary]' );
+					const actionBounds = await action.boundingBox();
+					const story = await page.locator( '.how-it-works' ).boundingBox();
+					if ( ! hero || ! posterBounds || ! canvasBounds || ! transition ||
+						! title || ! actionBounds || ! story ) {
+						throw new Error( 'The hero layers, transition, heading, download and product story must all have layout.' );
 					}
+					expect( hero.width ).toBeCloseTo( viewport.width, 0 );
+					expect( transition.height ).toBeGreaterThan( 0 );
+					expect( transition.y ).toBeCloseTo( viewport.height, 0 );
+					expect( hero.height ).toBeCloseTo( viewport.height + transition.height, 0 );
+					for ( const layer of [ posterBounds, canvasBounds ] ) {
+						expect( layer.x ).toBeCloseTo( hero.x, 0 );
+						expect( layer.y ).toBeCloseTo( hero.y, 0 );
+						expect( layer.width ).toBeCloseTo( hero.width, 0 );
+						expect( layer.height ).toBeCloseTo( hero.height, 0 );
+					}
+					expect( hero.y ).toBe( 0 );
+					expect( title.y ).toBeGreaterThan( 0 );
+					expect( title.y + title.height ).toBeLessThan( actionBounds.y );
+					expect( actionBounds.y + actionBounds.height ).toBeLessThan( viewport.height * 0.65 );
+					expect( Math.abs( title.x + title.width / 2 - viewport.width / 2 ) ).toBeLessThan( 1 );
+					expect( story.y ).toBeGreaterThanOrEqual( hero.y + hero.height );
+					await expect( action ).toHaveAttribute( 'href', /^https:\/\//u );
+					await expect( page.locator( '.footer-mascot img' ) )
+						.toHaveAttribute( 'src', '/images/capybara-mate.webp' );
+					expect( await page.locator( 'main section' ).count() ).toBeGreaterThanOrEqual( 6 );
 					expect( requests.some( ( url ) => /\.(?:glb|gltf)(?:\?|$)/u.test( url ) ) ).toBe( false );
-					expect( await page.locator( '.hero-art canvas' ).count() ).toBe( 0 );
-					expect( image.width ).toBeGreaterThan( viewport.width * ( viewport.width < 600 ? 0.75 : 0.3 ) );
-					if ( viewport.width < 600 ) {
-						expect( Math.abs( image.x + image.width / 2 - viewport.width / 2 ) ).toBeLessThan( 8 );
-					} else {
-						expect( image.x ).toBeGreaterThan( viewport.width / 2 );
-						expect( Math.min( image.height, viewport.height - image.y ) / image.height )
-							.toBeGreaterThan( 0.8 );
-					}
-					expect( caption.y ).toBeGreaterThanOrEqual( image.y + image.height );
-					expect( navigation.y ).toBeGreaterThan( caption.y + caption.height );
-					if ( viewport.width < 600 ) {
-						expect( frame.y ).toBeGreaterThan( navigation.y + navigation.height );
-					} else {
-						expect( frame.x ).toBeGreaterThan( navigation.x + navigation.width );
-					}
-					await page.locator( '[data-story-chapter] button' ).first().click();
-					if ( await page.locator( '.homepage' ).evaluate( ( element ) => element.hasAttribute( 'data-story-pinned' ) ) ) {
-						await expect( mascot ).toBeHidden();
-					} else {
-						// In normal flow the mascot may remain above the caption, but cannot cover it.
-						const picture = await mascot.boundingBox();
-						const heading = await page.getByRole( 'heading', { name: 'How TOCus works' } ).boundingBox();
-						if ( picture && heading ) {
-							expect( picture.y + picture.height ).toBeLessThanOrEqual( heading.y );
-						}
-					}
-					expect( await mascot.getAttribute( 'alt' ) ).toBeTruthy();
-					expect( await page.evaluate( () =>
-						document.documentElement.scrollWidth <= window.innerWidth ) ).toBe( true );
+					expect( await page.evaluate(
+						() => document.documentElement.scrollWidth <= window.innerWidth,
+					) ).toBe( true );
 				} );
 			} );
 		}
 	}
 
-	test.describe( () => {
-		test.use( { contextOptions: { javaScriptEnabled: false } } );
-
-		test( 'keeps the artwork and direct store links usable without JavaScript', async ( { page } ) => {
-			await page.route( '**/*', serveAsset );
-			await page.goto( 'http://website.test/' );
-			await expect( page.locator( '.hero-art img[data-mascot]' ) ).toBeVisible();
-			const download = page.locator( '.hero [data-download-primary]' );
-			await expect( download ).toBeVisible();
-			expect( await download.getAttribute( 'href' ) ).toMatch( /^https:\/\//u );
-			expect( await page.locator( 'main section' ).count() ).toBeGreaterThanOrEqual( 6 );
+	test( 'a failed model request keeps the poster and a keyboard-accessible download', async ( { page } ) => {
+		await page.route( '**/*', async ( route ) => {
+			if ( /\.(?:glb|gltf)(?:\?|$)/u.test( route.request().url() ) ) {
+				await route.abort();
+			} else {
+				await serveAsset( route );
+			}
 		} );
+		await page.goto( 'http://website.test/' );
+		await expect( page.locator( '.riverside-hero' ) ).toHaveAttribute( 'data-status', 'unavailable' );
+		await expect( page.locator( '.riverside-hero img' ) ).toBeVisible();
+		const download = page.locator( '.hero [data-download-primary]' );
+		await download.focus();
+		await expect( download ).toBeFocused();
+		await expect( download ).toHaveAttribute( 'href', /^https:\/\//u );
 	} );
 } );

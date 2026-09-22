@@ -30,7 +30,7 @@ describe( 'download store selection', () => {
 		expect( getDownloadStore( detectDownloadBrowser() ).browser ).toBe( WebsiteBrowser.CHROME );
 	} );
 
-	test( 'identifies desktop Edge without advertising an unavailable store destination', () => {
+	test( 'selects the configured placeholder listing for desktop Edge', () => {
 		const browser = detectDownloadBrowser(
 			'Mozilla/5.0 Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0',
 		);
@@ -39,7 +39,7 @@ describe( 'download store selection', () => {
 		expect( getDownloadStore( browser ) ).toEqual( {
 			browser: WebsiteBrowser.EDGE,
 			name: 'Edge',
-			href: null,
+			href: 'https://microsoftedge.microsoft.com/addons/detail/tocus/placeholder-listing-id',
 		} );
 	} );
 

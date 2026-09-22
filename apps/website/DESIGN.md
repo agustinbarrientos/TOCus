@@ -18,10 +18,10 @@ colors:
 typography:
   display-hero:
     fontFamily: "'Fredoka Variable', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif"
-    fontSize: "clamp(3rem, 5.6vw, 4.5rem)"
-    fontWeight: 600
-    lineHeight: 1.02
-    letterSpacing: "-0.025em"
+    fontSize: "clamp(2.5rem, 4.2vw, 5.4rem)"
+    fontWeight: 700
+    lineHeight: 1.13
+    letterSpacing: "0.005em"
   display-section:
     fontFamily: "'Fredoka Variable', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif"
     fontSize: "clamp(2.3rem, 4.2vw, 4rem)"
@@ -147,6 +147,12 @@ components:
 ---
 
 # Design System: TOCus website
+
+## Current riverside hero - September 22, 2026
+
+The homepage hero fills 100vw and extends one full viewport (100dvh) plus the transition height, with centered Fredoka copy above the capybara and local vegetation. Layered peach and cream waves begin below the first viewport and occupy 5.5rem on desktop or 3.4rem on mobile before the following content. The poster and live scene fill the complete hero height. The header contains the wordmark and a compact language pill; download actions stay with the hero copy. Browser availability uses the supplied local browser icons. Horizontal pointer movement gently orbits the camera within 50 degrees of the rear view, with a fixed height and target. The trimmed water animates below the shoreline; the low sun lights the character from behind. The packaged `public/models/riverside/hero.glb` contains the character, mate and surrounding land, while the website renders the sky and water.
+
+`public/images/riverside-hero.webp` is the local hero poster for no JavaScript, reduced motion, loading and WebGL failure. `public/images/capybara-mate.webp` is the current transparent character artwork for the footer, product demonstration and mascot comparison. The four older character image files have been retired at the user's request. Preserve the shared brand, local assets, ten locales and existing download availability. This direction supersedes the older hero composition and no-model constraints in the historical implementation notes below.
 
 ## Approved usability refinement - September 15, 2026
 
@@ -397,7 +403,7 @@ Chapter buttons select scenes in place and pause automatic playback. The active 
 
 ### Brand and Mascot
 
-Use the shared `Brand` component for the TOCus wordmark and capybara mark. The hero uses `public/images/capybara-lounge.webp` with restrained pointer movement, breathing, and shoreline motion. The original `public/images/mascot-peek.webp` remains in the footer. Both images remain visible without JavaScript, and reduced motion removes the optional hero interaction. The homepage has no canvas or model dependency; the separate mascot lab retains its original model assets.
+Use the shared `Brand` component for the TOCus wordmark and capybara mark. The full-viewport hero uses the local riverside model and keeps `public/images/riverside-hero.webp` visible until the scene is available. The current transparent `public/images/capybara-mate.webp` supplies the footer and product demonstration. Reduced motion and no JavaScript retain the static hero poster without requesting the model. The separate mascot lab compares its earlier interactive model with the current character image.
 
 Supported-media artwork is locally packaged and accompanies explicit names for YouTube, Netflix, Twitch, HBO Max, Prime Video, and Disney+. These identify playback support, not partnerships. Preserve the existing raster provenance records when reusing the mascot, creator favicon, and service artwork.
 
@@ -407,7 +413,7 @@ Supported-media artwork is locally packaged and accompanies explicit names for Y
 
 - **Do** implement colors, type, radii, and controls through the shared TOCus theme and UI package.
 - **Do** pair Fredoka headings with the shared body stack and allow localized copy to wrap.
-- **Do** preserve the approved capybara identity, peeking pose, and warm materials.
+- **Do** preserve the approved capybara identity, seated pose, and warm materials.
 - **Do** match the real breathing and statistics presentation without importing extension runtime components.
 - **Do** identify example statistics and retain the distinction between estimates and measured totals.
 - **Do** keep links, keyboard focus, header language selection, and chapter controls operable.

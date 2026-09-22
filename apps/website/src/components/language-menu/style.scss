@@ -1,3 +1,5 @@
+@use '../../styles/type';
+
 .website {
 	.site-header-actions {
 		display: flex;
@@ -9,8 +11,23 @@
 	.website-language-picker { flex: 0 0 auto; }
 
 	.language-shortcut {
+		@include type.apply('label-large', $size: 0.85rem);
+
 		min-width: 2.75rem;
 		min-height: 2.75rem;
+		padding-inline: 0.8rem;
+		border-radius: var(--tocus-radius-full);
+		background: var(--tocus-website-paper);
+	}
+
+	.language-shortcut-section .tocus-icon {
+		width: 0.95rem;
+		height: 0.95rem;
+	}
+
+	.language-shortcut-section .language-shortcut-chevron {
+		width: 0.7rem;
+		height: 0.7rem;
 	}
 
 	.website-language-menu {
@@ -24,10 +41,13 @@
 
 @media (width <= 40rem) {
 	.website .language-shortcut {
-		width: 2.75rem;
-		padding-inline: 0;
+		padding-inline: 0.65rem;
 
-		.language-shortcut-label { display: none; }
-		.language-shortcut-section[data-position='left'] { margin-inline-end: 0; }
+		.language-shortcut-label {
+			max-width: 4.25rem;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
 	}
 }

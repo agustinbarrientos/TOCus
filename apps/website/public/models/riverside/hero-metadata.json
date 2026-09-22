@@ -1,0 +1,19 @@
+{
+  "asset": "hero.glb",
+  "fileBytes": 2461996,
+  "gzipBytes": 1542990,
+  "triangles": 96637,
+  "meshObjects": 45,
+  "drawCalls": 48,
+  "clip": "Mate sip and blink",
+  "durationSeconds": 12,
+  "meshopt": true,
+  "waterIncluded": false,
+  "coordinateSystem": "Y up; capybara faces -Z; rear camera at +Z",
+  "plantMeshesAreShared": true,
+  "eyePlacement": {
+    "forwardShift": 0.16,
+    "symmetric": true,
+    "blinkPreserved": true
+  }
+}

@@ -4,6 +4,7 @@ import { expect, test } from '@playwright/test';
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 
 test( 'privacy links and media services stay with their claims, and hero interaction respects reduced motion', async ( { page } ) => {
+	await page.emulateMedia( { reducedMotion: 'reduce' } );
 	await page.route( '**/*', async ( route ) => {
 		const url = new URL( route.request().url() );
 		if ( url.origin !== 'http://website.test' ) {
@@ -33,13 +34,10 @@ test( 'privacy links and media services stay with their claims, and hero interac
 	await expect( video.locator( '.supported-services li' ) ).toHaveCount( 6 );
 	expect( await video.locator( '.supported-services img' ).first().evaluate( ( element ) => element.getBoundingClientRect().width ) ).toBeLessThanOrEqual( 20 );
 	expect( await page.title() ).not.toContain( '\u2014' );
-	const scene = page.locator( '.beach-scene' );
+	const scene = page.locator( '.riverside-hero' );
 	await scene.scrollIntoViewIfNeeded();
-	await expect( scene ).toHaveAttribute( 'data-playing', 'true' );
-	await scene.getByRole( 'button' ).press( 'Enter' );
-	await expect( scene ).toHaveAttribute( 'data-reacting', 'true' );
-	await page.emulateMedia( { reducedMotion: 'reduce' } );
-	await expect( scene ).toHaveAttribute( 'data-playing', 'false' );
+	await expect( scene ).toHaveAttribute( 'data-status', 'poster' );
+	await expect( scene.locator( 'canvas' ) ).toHaveCSS( 'opacity', '0' );
 	await expect( scene.locator( 'img' ) ).toBeVisible();
-	await expect( page.locator( '.footer-mascot img' ) ).toHaveAttribute( 'src', '/images/mascot-peek.webp' );
+	await expect( page.locator( '.footer-mascot img' ) ).toHaveAttribute( 'src', '/images/capybara-mate.webp' );
 } );

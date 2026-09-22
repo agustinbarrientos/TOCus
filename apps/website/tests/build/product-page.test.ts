@@ -15,6 +15,7 @@ async function serveAsset( route: Route ): Promise<void> {
 }
 
 test.describe( 'public product presentation', () => {
+	test.use( { reducedMotion: 'reduce' } );
 	test( 'offers centralized download destinations and locally served artwork', async ( { page } ) => {
 		await page.route( 'http://website.test/**', serveAsset );
 		await page.goto( 'http://website.test/' );
@@ -24,11 +25,11 @@ test.describe( 'public product presentation', () => {
 		expect( await primaryDownload.innerText() ).toMatch( /\S/u );
 		expect( await primaryDownload.locator( 'img' ).count() ).toBe( 1 );
 		expect( await primaryDownload.locator( '.tocus-icon' ).count() ).toBe( 1 );
-		expect( await page.locator( '#downloads a[href]' ).count() ).toBe( 3 );
-		expect( await page.locator( 'main img[data-mascot]' ).count() ).toBe( 2 );
-		expect( await page.locator( '.hero-art img[data-mascot]' ).getAttribute( 'src' ) ).toMatch( /^\//u );
+		expect( await page.locator( '#downloads a[href]' ).count() ).toBe( 4 );
+		expect( await page.locator( 'main img[data-mascot]' ).count() ).toBe( 1 );
+		expect( await page.locator( '.riverside-hero img' ).getAttribute( 'src' ) ).toMatch( /^\//u );
 		expect( await page.locator( '.footer-mascot img[data-mascot]' ).getAttribute( 'src' ) ).toMatch( /^\//u );
-		expect( await page.locator( '.hero-actions a[data-store]' ).count() ).toBe( 3 );
+		expect( await page.locator( '.hero-actions a[data-store]' ).count() ).toBe( 4 );
 		expect( await page.locator( 'a[href*="utm_medium=website"] img' ).getAttribute( 'src' ) ).toMatch( /^\//u );
 		expect( await page.locator( 'a[href="/privacy/"]' ).count() ).toBeGreaterThan( 0 );
 		expect( await page.locator( 'a[href="/support/"]' ).count() ).toBeGreaterThan( 0 );
@@ -65,7 +66,8 @@ test.describe( 'public product presentation', () => {
 						}
 						await expect.poll( () => page.evaluate( () => document.fonts.status ) ).toBe( 'loaded' );
 						expect( await page.locator( 'h1' ).innerText() ).not.toBe( 'TOCus' );
-						await expect( page.locator( '.description' ) ).toBeVisible();
+						await expect( page.locator( '.hero h1' ) ).toBeVisible();
+						await expect( page.locator( '.hero [data-download-primary]' ) ).toBeVisible();
 						const fallback = page.locator( '.story-steps' );
 						const fallbackItems = fallback.locator( ':scope > li' );
 						expect( await fallbackItems.count() ).toBe( 5 );
@@ -103,13 +105,14 @@ test.describe( 'public product presentation', () => {
 						expect( actionCount ).toBe( 0 );
 						expect( visibleActionCount ).toBe( 0 );
 						expect( fallbackFits, route ).toBe( true );
-						expect( mascotCount ).toBe( 2 );
+						expect( mascotCount ).toBe( 1 );
 						expect( languageCount ).toBe( 10 );
 						expect( currentLanguageCount ).toBe( 1 );
 						expect( new Set( externalLinks ) ).toEqual( new Set( [
 							'https://github.com/agustinbarrientos/TOCus',
 							'https://agustinbarrientos.com/about/?utm_source=tocus&utm_medium=website&utm_campaign=about',
 							'https://chromewebstore.google.com/detail/tocus/placeholder-listing-id',
+							'https://microsoftedge.microsoft.com/addons/detail/tocus/placeholder-listing-id',
 							'https://addons.mozilla.org/firefox/addon/tocus-placeholder/',
 							'https://apps.apple.com/app/tocus/id0000000000',
 						] ) );

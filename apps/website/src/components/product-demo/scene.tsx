@@ -124,7 +124,7 @@ function ProductDemoSceneContent( props: ProductDemoSceneProps ) {
 			<div className="product-demo-watch-page">
 				<div className="product-demo-video">
 					<div className="product-demo-video-player">
-						<img src="/images/capybara-lounge.webp" alt="" width="1536" height="1024" loading="lazy" />
+						<img src="/images/capybara-mate.webp" alt="" width="700" height="800" loading="lazy" />
 						<div className="product-demo-video-controls" aria-hidden="true"><span className="product-demo-play" />
 							<span className="product-demo-video-progress" /><span>0:12 / 8:24</span></div>
 					</div>

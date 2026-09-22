@@ -524,13 +524,13 @@
 	overflow: hidden;
 	aspect-ratio: 16 / 10;
 	border-radius: 0.55rem;
-	background: #332e28;
+	background: #ead1b8;
 
 	> img {
 		display: block;
 		width: 100%;
 		height: 100%;
-		object-fit: cover;
+		object-fit: contain;
 	}
 }
 
