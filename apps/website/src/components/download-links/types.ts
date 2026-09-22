@@ -4,6 +4,7 @@
  */
 export interface DownloadLinkProps {
 	label: string;
+	comingSoon: string;
 }
 
 /**

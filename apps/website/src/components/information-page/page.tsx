@@ -200,7 +200,7 @@ function InformationHeader() {
 			<Anchor aria-label="TOCus home" className="information-brand-link" href={ InformationRoute.HOME }>
 				<Brand />
 			</Anchor>
-			<DownloadLink label="Download TOCus" />
+			<DownloadLink label="Download TOCus" comingSoon="Coming soon" />
 		</header>
 	);
 }

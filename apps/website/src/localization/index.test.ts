@@ -266,7 +266,7 @@ describe( 'website localization', () => {
 		const fields = [
 			'statisticsTitle', 'statisticsDescription', 'mediaTitle',
 			'mediaDescription', 'sitesTitle', 'sitesDescription', 'demoSiteSelected',
-			'demoTimeLeft', 'getExtension', 'howLink', 'alsoAvailable', 'visitTitle',
+			'demoTimeLeft', 'getExtension', 'howLink', 'alsoAvailable', 'comingSoon', 'visitTitle',
 			'visitDescription', 'pauseDescription', 'continueTitle', 'continueDescription',
 			'browseTitle', 'browseDescription', 'chooseLabel', 'visitLabel', 'pauseLabel',
 			'continueLabel', 'browseLabel', 'timingPause', 'timingBrowse',
