@@ -44,6 +44,18 @@ export type HeroStatus = typeof HeroStatus[keyof typeof HeroStatus];
 export interface HeroController { dispose: () => void }
 
 /**
+ * A head-only deformation layered over the baked sipping and blinking poses.
+ * @since 0.1.0
+ */
+export interface HeroHeadMotion { update: ( cameraYaw: number ) => number; dispose: () => void }
+
+/**
+ * Keeps the raised cup and grip attached to the independently turning head.
+ * @since 0.1.0
+ */
+export interface HeroSipFollow { update: ( headYaw: number ) => void; dispose: () => void }
+
+/**
  * Reports availability without putting per-frame state into React.
  * @since 0.1.0
  */

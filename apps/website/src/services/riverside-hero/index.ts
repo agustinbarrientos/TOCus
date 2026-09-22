@@ -7,8 +7,13 @@ import {
 import { disposeObjectResources } from '../mascot-scene/model';
 import { cameraPosition, pointerYaw } from './camera';
 import { createEnvironment } from './environment';
+import { createHeadMotion } from './head-motion';
 import { loadRiversideModel } from './model';
-import { HeroCamera, HeroStatus, WaterMotion, type HeroController, type HeroListener, type RiversideModel } from './types';
+import { createSipHeadFollow } from './sip-head-follow';
+import {
+	HeroCamera, HeroStatus, WaterMotion,
+	type HeroController, type HeroHeadMotion, type HeroListener, type HeroSipFollow, type RiversideModel,
+} from './types';
 
 /**
  * Owns the bounded camera, local animation, water interaction and GPU lifecycle.
@@ -42,6 +47,8 @@ export function createRiversideHero( canvas: HTMLCanvasElement, onStatus: HeroLi
 	let targetYaw = 0;
 	let model: RiversideModel | undefined;
 	let mixer: AnimationMixer | undefined;
+	let head: HeroHeadMotion | undefined;
+	let sipFollow: HeroSipFollow | undefined;
 	let ripple = 0;
 	const pointer = new Vector2();
 	const raycaster = new Raycaster();
@@ -49,7 +56,6 @@ export function createRiversideHero( canvas: HTMLCanvasElement, onStatus: HeroLi
 	const hit = new Vector3();
 	const plants: Object3D[] = [];
 	const plantRotations: number[] = [];
-	let hoveredPlant: Object3D | undefined;
 
 	/** Draws the scene and exposes inexpensive diagnostics for browser verification. */
 	function render(): void {
@@ -83,10 +89,13 @@ export function createRiversideHero( canvas: HTMLCanvasElement, onStatus: HeroLi
 		elapsed += dt;
 		yaw += ( targetYaw - yaw ) * ( 1 - Math.exp( -wallDelta * 4 ) );
 		mixer?.update( dt );
+		canvas.dataset.animationTime = String( mixer?.time ?? 0 );
+		const headYaw = head?.update( yaw ) ?? 0;
+		sipFollow?.update( headYaw );
+		canvas.dataset.headYaw = String( headYaw );
 		environment.time.value = elapsed;
 		plants.forEach( ( plant, index ) => {
-			const strength = plant === hoveredPlant ? 0.032 : 0.004;
-			plant.rotation.z = ( plantRotations[ index ] ?? 0 ) + Math.sin( elapsed * 1.6 + index * 1.9 ) * strength;
+			plant.rotation.z = ( plantRotations[ index ] ?? 0 ) + Math.sin( elapsed * 1.6 + index * 1.9 ) * 0.004;
 		} );
 		render();
 		request = requestAnimationFrame( tick );
@@ -130,17 +139,11 @@ export function createRiversideHero( canvas: HTMLCanvasElement, onStatus: HeroLi
 		}
 		const bounds = hero.getBoundingClientRect();
 		targetYaw = pointerYaw( event.clientX, bounds.left, bounds.width );
-		pointer.set(
-			( event.clientX - bounds.left ) / bounds.width * 2 - 1,
-			-( event.clientY - bounds.top ) / bounds.height * 2 + 1,
-		);
-		raycaster.setFromCamera( pointer, camera );
-		hoveredPlant = raycaster.intersectObjects( plants, false )[ 0 ]?.object;
 	}
 
 	/** Returns gently to the centered rear view when the pointer leaves. */
 	function leavePointer(): void {
-		targetYaw = 0; hoveredPlant = undefined;
+		targetYaw = 0;
 	}
 
 	/**
@@ -226,6 +229,8 @@ export function createRiversideHero( canvas: HTMLCanvasElement, onStatus: HeroLi
 		window.removeEventListener( 'pageshow', showPage );
 		canvas.removeEventListener( 'webglcontextlost', loseContext );
 		mixer?.stopAllAction();
+		sipFollow?.dispose();
+		head?.dispose();
 		if ( model ) {
 			mixer?.uncacheRoot( model.root );
 		}
@@ -254,6 +259,9 @@ export function createRiversideHero( canvas: HTMLCanvasElement, onStatus: HeroLi
 			disposeObjectResources( loaded.root ); return;
 		}
 		model = loaded;
+		head = createHeadMotion( model.root );
+		sipFollow = createSipHeadFollow( model.root );
+		canvas.dataset.headYaw = String( head.update( 0 ) );
 		scene.add( model.root );
 		mixer = new AnimationMixer( model.root );
 		for ( const clip of model.clips ) {

@@ -22,7 +22,7 @@ test.describe( 'static illustrated product presentation', () => {
 	test.use( { reducedMotion: 'reduce' } );
 
 	test( 'explains four steps and six features with local artwork and direct downloads', async ( { page } ) => {
-		await page.route( 'http://website.test/**', serveAsset );
+		await page.context().route( 'http://website.test/**', serveAsset );
 		await page.goto( 'http://website.test/' );
 		await expect( page.locator( '#how-it-works h2, #how-it-works h3' ) ).toHaveCount( 0 );
 		const steps = page.locator( '#how-it-works ol.how-steps > li' );
@@ -66,7 +66,7 @@ test.describe( 'static illustrated product presentation', () => {
 			selection?.removeAllRanges();
 			return text;
 		} ) ).toBe( 'Works with youtube netflix twitch +' );
-		for ( const [ width, alignment ] of [ [ 1440, 'center' ], [ 768, 'start' ] ] as const ) {
+		for ( const width of [ 1440, 768 ] ) {
 			await page.setViewportSize( { width, height: 900 } );
 			const typography = await page.locator( '.how-step-label, .feature-grid h3' ).evaluateAll( ( labels ) =>
 				labels.map( ( label ) => {
@@ -78,7 +78,7 @@ test.describe( 'static illustrated product presentation', () => {
 			expect( typography ).toHaveLength( 10 );
 			expect( new Set( typography.map( ( values ) => JSON.stringify( values ) ) ).size ).toBe( 1 );
 			for ( const text of await features.locator( 'h3, p' ).all() ) {
-				await expect( text ).toHaveCSS( 'text-align', alignment );
+				await expect( text ).toHaveCSS( 'text-align', 'start' );
 			}
 		}
 		await expect( page.locator( '#how-it-works button, #features button, #features select, #features canvas' ) )
@@ -94,6 +94,19 @@ test.describe( 'static illustrated product presentation', () => {
 		await expect( page.locator( '.riverside-hero img' ) ).toHaveAttribute( 'src', '/images/riverside-hero.webp' );
 		await expect( page.locator( '.site-footer a[href="/privacy/"]' ) ).toHaveCount( 1 );
 		await expect( page.locator( '.site-footer a[href="https://github.com/agustinbarrientos/TOCus"]' ) ).toHaveCount( 1 );
+		await expect( page.locator( '.site-footer' ).getByRole( 'link', { name: 'Source code', exact: true } ) ).toBeVisible();
+		for ( const link of await page.locator( '.footer-links > a, .feature-link[href="/privacy/"]' ).all() ) {
+			await expect( link ).toHaveAttribute( 'target', '_blank' );
+			await expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
+			await expect( link.locator( '.tocus-icon' ) ).toBeVisible();
+		}
+		const [ privacyPage ] = await Promise.all( [
+			page.waitForEvent( 'popup' ),
+			page.locator( '.site-footer a[href="/privacy/"]' ).click(),
+		] );
+		await expect( privacyPage ).toHaveURL( 'http://website.test/privacy/' );
+		await expect( privacyPage.getByRole( 'heading', { level: 1 } ) ).toHaveText( 'How TOCus handles your data' );
+		await privacyPage.close();
 		await expect( page.locator( '.site-footer a[href*="utm_medium=website"]' ) ).toContainText( 'Agustin Barrientos' );
 		await expect( page.locator( 'a[href="/support/"]' ) ).toHaveCount( 0 );
 	} );

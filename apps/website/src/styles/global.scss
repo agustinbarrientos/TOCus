@@ -132,7 +132,7 @@ body { margin: 0; }
 		@include type.apply('display-large', $size: clamp(2.5rem, 4.2vw, 5.4rem),
 			$line-height: 1.13, $weight: 700, $spacing: 0.005em);
 
-		max-width: 19ch;
+		max-width: 25ch;
 		margin-inline: auto;
 		color: #302016;
 	}

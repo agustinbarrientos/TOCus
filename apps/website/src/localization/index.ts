@@ -89,7 +89,7 @@ function createWebsiteCatalog( i18n: I18n ): Readonly<WebsiteCatalog> {
 		} ),
 		intro: i18n._( msg`Pause before visiting addictive websites` ),
 		description: i18n._( msg`TOCus adds a breathing pause to the websites you choose.` ),
-		sourceLink: i18n._( msg`Source` ),
+		sourceLink: i18n._( msg`Source code` ),
 		privacy: i18n._( msg`Your settings and stats stay in your browser. It even works offline and needs no account.` ),
 		stepOpen: i18n._( msg`Open a site` ),
 		stepPause: i18n._( msg`10s pause` ),

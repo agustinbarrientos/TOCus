@@ -25,7 +25,14 @@ async function serveAsset( route: Route ): Promise<void> {
 }
 
 test.describe( 'homepage riverside hero', () => {
-	test( 'orbits horizontally within its limits, pauses offscreen and restores the poster after context loss', async ( { page } ) => {
+	test( 'orbits with attentive head turns, pauses offscreen and restores the poster after context loss', async ( { page } ) => {
+		test.setTimeout( 45_000 );
+		const shaderErrors: string[] = [];
+		page.on( 'console', ( message ) => {
+			if ( message.type() === 'error' && /webglprogram|shader error/iu.test( message.text() ) ) {
+				shaderErrors.push( message.text() );
+			}
+		} );
 		await page.setViewportSize( { width: 960, height: 640 } );
 		await page.route( '**/*', serveAsset );
 		await page.goto( 'http://website.test/' );
@@ -33,6 +40,7 @@ test.describe( 'homepage riverside hero', () => {
 		const canvas = scene.locator( 'canvas' );
 		await expect( scene ).toHaveAttribute( 'data-status', 'ready' );
 		await expect( canvas ).toHaveAttribute( 'data-playing', 'true' );
+		await expect( canvas ).toHaveAttribute( 'data-head-yaw', '0' );
 		await expect.poll( async () => Number( await canvas.getAttribute( 'data-triangles' ) ) ).toBeGreaterThan( 0 );
 		const height = await canvas.getAttribute( 'data-camera-height' );
 		if ( height === null ) {
@@ -40,18 +48,52 @@ test.describe( 'homepage riverside hero', () => {
 		}
 		expect( Number( height ) ).toBeGreaterThan( 0 );
 
-		await test.step( 'horizontal pointer movement approaches both authored limits without tilting', async () => {
+		await test.step( 'horizontal orbit turns the head visibly toward the viewer in each direction', async () => {
+			const headLimit = 35 * Math.PI / 180;
 			await page.mouse.move( 0, 320 );
 			await expect.poll( async () => Number( await canvas.getAttribute( 'data-yaw' ) ) ).toBeLessThan( -0.84 );
 			expect( Number( await canvas.getAttribute( 'data-yaw' ) ) ).toBeGreaterThanOrEqual( -50 * Math.PI / 180 );
+			await expect.poll( async () => Number( await canvas.getAttribute( 'data-head-yaw' ) ), {
+				timeout: 15_000,
+				message: 'The head follows left independently of the drinking pose.',
+			} ).toBeLessThan( -0.3 );
+			const leftHeadYaw = Number( await canvas.getAttribute( 'data-head-yaw' ) );
+			expect( leftHeadYaw ).toBeGreaterThanOrEqual( -headLimit );
+			expect( Math.abs( leftHeadYaw ) ).toBeLessThan( Math.abs( Number( await canvas.getAttribute( 'data-yaw' ) ) ) );
 			await expect( canvas ).toHaveAttribute( 'data-camera-height', height );
 			await page.mouse.move( 959, 320 );
 			await expect.poll( async () => Number( await canvas.getAttribute( 'data-yaw' ) ) ).toBeGreaterThan( 0.84 );
 			expect( Number( await canvas.getAttribute( 'data-yaw' ) ) ).toBeLessThanOrEqual( 50 * Math.PI / 180 );
+			await expect.poll( async () => Number( await canvas.getAttribute( 'data-head-yaw' ) ), {
+				timeout: 15_000,
+				message: 'The head follows right independently of the drinking pose.',
+			} ).toBeGreaterThan( 0.3 );
+			const rightHeadYaw = Number( await canvas.getAttribute( 'data-head-yaw' ) );
+			expect( rightHeadYaw ).toBeLessThanOrEqual( headLimit );
+			expect( rightHeadYaw ).toBeLessThan( Number( await canvas.getAttribute( 'data-yaw' ) ) );
+			const animationStart = Number( await canvas.getAttribute( 'data-animation-time' ) );
+			let maximumHeadDrift = 0;
+			await expect.poll( async () => {
+				const pose = await canvas.evaluate( ( element: HTMLCanvasElement ) => ( {
+					head: Number( element.dataset.headYaw ),
+					yaw: Number( element.dataset.yaw ),
+					time: Number( element.dataset.animationTime ),
+				} ) );
+				maximumHeadDrift = Math.max( maximumHeadDrift, Math.abs( pose.head - pose.yaw * 35 / 50 ) );
+				return pose.time - animationStart;
+			}, {
+				timeout: 20_000,
+				intervals: [ 100 ],
+				message: 'Head following stays active throughout a complete twelve-second sip and blink cycle.',
+			} ).toBeGreaterThan( 12 );
+			expect( maximumHeadDrift ).toBeLessThan( 0.00001 );
 			await page.mouse.move( 959, 100 );
 			await expect( canvas ).toHaveAttribute( 'data-camera-height', height );
+			expect( Math.abs( Number( await canvas.getAttribute( 'data-head-yaw' ) ) ) ).toBeLessThanOrEqual( headLimit );
 			await page.mouse.move( 480, 280 );
 			await expect.poll( async () => Math.abs( Number( await canvas.getAttribute( 'data-yaw' ) ) ) ).toBeLessThan( 0.01 );
+			await expect.poll( async () => Math.abs( Number( await canvas.getAttribute( 'data-head-yaw' ) ) ) ).toBeLessThan( 0.005 );
+			expect( shaderErrors ).toEqual( [] );
 		} );
 
 		await test.step( 'scrolling away stops frame rendering and returning resumes it', async () => {

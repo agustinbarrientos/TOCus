@@ -130,7 +130,7 @@ msgid "Skip to content"
 msgstr "Aller au contenu"
 
 #: apps/website/src/localization/index.ts
-msgid "Source"
+msgid "Source code"
 msgstr "Code source"
 
 #: apps/website/src/localization/index.ts

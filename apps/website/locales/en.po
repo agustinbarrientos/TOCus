@@ -130,8 +130,8 @@ msgid "Skip to content"
 msgstr "Skip to content"
 
 #: apps/website/src/localization/index.ts
-msgid "Source"
-msgstr "Source"
+msgid "Source code"
+msgstr "Source code"
 
 #: apps/website/src/localization/index.ts
 msgid "TOCus adds a breathing pause to the websites you choose."

@@ -1,8 +1,8 @@
 {
   "asset": "hero.glb",
-  "fileBytes": 2461996,
-  "gzipBytes": 1542990,
-  "triangles": 96637,
+  "fileBytes": 2377636,
+  "gzipBytes": 1436306,
+  "triangles": 96155,
   "meshObjects": 45,
   "drawCalls": 48,
   "clip": "Mate sip and blink",
@@ -14,6 +14,40 @@
   "eyePlacement": {
     "forwardShift": 0.16,
     "symmetric": true,
-    "blinkPreserved": true
+    "blinkPreserved": true,
+    "visibleClosedLids": {
+      "closedHeightRatio": 0.17,
+      "restHeightWorldUnits": 0.030995,
+      "sipHeightWorldUnits": 0.033096,
+      "openBasisPreserved": true,
+      "blinkTimingPreserved": true
+    }
+  },
+  "characterRefinement": {
+    "grip": "Three curled fingers around the cup with an opposing thumb",
+    "roundedElbow": true,
+    "feetLoweredWorldUnits": {
+      "left": 0.156917,
+      "right": 0.074786
+    },
+    "soleGroundClearanceWorldUnits": -0.004,
+    "version": 5,
+    "headTurnDegrees": 35,
+    "strawStraighteningDegrees": 24,
+    "continuousShallowArmArc": true,
+    "maximumArmBowWorldUnits": {
+      "rest": 0.183966,
+      "sip": 0.152308
+    },
+    "armCenterlineLengthWorldUnits": {
+      "rest": 1.476567,
+      "sip": 2.05403
+    },
+    "sideMountedShoulder": true,
+    "shoulderGltf": [
+      0.8,
+      1.94,
+      -0.02
+    ]
   }
 }

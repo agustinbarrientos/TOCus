@@ -188,12 +188,15 @@
 
 	.download-landscape, .download-decoration {
 		position: absolute;
-		z-index: -1;
 		inset: 0;
 		width: 100%;
 		height: 100%;
 		pointer-events: none;
 	}
+
+	.download-landscape { z-index: -3; }
+	.download-decoration { z-index: -2; }
+	.download-landscape-foreground { z-index: -1; }
 
 	.download-landscape-back { fill: #ffeadb; }
 	.download-landscape-middle { fill: #fddcc5; }
@@ -263,8 +266,6 @@
 		&:hover { text-decoration: underline; }
 	}
 
-	.footer-links > .tocus-external-link .tocus-icon { display: none; }
-
 	.maker-credit {
 		flex-wrap: wrap;
 		gap: 0.6rem;
@@ -274,18 +275,6 @@
 		width: 1.5rem;
 		height: 1.5rem;
 	}
-}
-
-@media (width > 48rem) {
-	.homepage .feature-grid li {
-		text-align: center;
-	}
-
-	.homepage .feature-art, .homepage .feature-grid p {
-		margin-inline: auto;
-	}
-
-	.homepage .feature-services { justify-content: center; }
 }
 
 @media (width <= 48rem) {
@@ -335,7 +324,7 @@
 
 @keyframes tocus-footer-sun-parallax {
 	from { transform: translateY(12px); }
-	to { transform: translateY(-12px); }
+	to { transform: translateY(-84px); }
 }
 
 @media (prefers-reduced-motion: no-preference) {

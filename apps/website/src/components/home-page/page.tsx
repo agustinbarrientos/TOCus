@@ -100,7 +100,7 @@ export default function HomePage( props: LocalizedHomePageProperties ) {
 								<img className="feature-art" src="/images/homepage/icon-computer.webp"
 									width="500" height="500" alt="" loading="lazy" />
 								<h3>{ catalog.privacyLocal }</h3><p>{ catalog.privacy }</p>
-								<Anchor className="feature-link" href="/privacy/" underline="always">{ catalog.readPrivacy }</Anchor>
+								<ExternalLink className="feature-link" href="/privacy/">{ catalog.readPrivacy }</ExternalLink>
 							</li>
 							<li>
 								<img className="feature-art" src="/images/homepage/icon-open-source.webp"
@@ -120,8 +120,6 @@ export default function HomePage( props: LocalizedHomePageProperties ) {
 							d="M0 135C190 10 300 240 545 155S895 90 1070 135S1300 62 1440 108V400H0Z" />
 						<path className="download-landscape-front"
 							d="M0 250C180 195 275 330 550 250S900 298 1090 220S1300 228 1440 200V400H0Z" />
-						<path className="download-landscape-bottom"
-							d="M0 340C200 285 420 415 660 362S1080 380 1440 320V400H0Z" />
 					</svg>
 					<div className="download-decoration" aria-hidden="true">
 						<img className="download-plant download-plant-left" src="/images/homepage/decoration-plant-1.webp"
@@ -131,6 +129,11 @@ export default function HomePage( props: LocalizedHomePageProperties ) {
 						<img className="download-sun" src="/images/homepage/decoration-sun.webp"
 							width="600" height="587" alt="" loading="lazy" />
 					</div>
+					<svg className="download-landscape download-landscape-foreground" viewBox="0 0 1440 400"
+						preserveAspectRatio="none" aria-hidden="true" focusable="false">
+						<path className="download-landscape-bottom"
+							d="M0 340C200 285 420 415 660 362S1080 380 1440 320V400H0Z" />
+					</svg>
 					<div className="download-panel">
 						<h2 id="download-title">{ catalog.downloadTitle }</h2>
 						<DownloadLinks label={ catalog.downloadFor } alsoAvailable={ catalog.alsoAvailable }
@@ -143,7 +146,7 @@ export default function HomePage( props: LocalizedHomePageProperties ) {
 					<div className="footer-main">
 						<Brand />
 						<div className="footer-links">
-							<Anchor href="/privacy/">{ catalog.privacyLink }</Anchor>
+							<ExternalLink href="/privacy/">{ catalog.privacyLink }</ExternalLink>
 							<ExternalLink href={ WebsiteLink.SOURCE }>{ catalog.sourceLink }</ExternalLink>
 							<div className="maker-credit">
 								<span>{ catalog.madeBy }</span>
