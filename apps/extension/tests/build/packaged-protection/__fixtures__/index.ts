@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test as base, expect, type BrowserContext } from '@playwright/test';
-import type { ExtensionManifest, ExtensionWorkerGlobal, ProtectionTestFixtures } from '../types';
+import { PackagedExtensionBuild, type ExtensionManifest, type ExtensionWorkerGlobal, type ProtectionTestFixtures } from '../types';
 
 /**
  * Owns the complete lifetime of each disposable packaged extension, including failed setup.
@@ -11,12 +11,13 @@ import type { ExtensionManifest, ExtensionWorkerGlobal, ProtectionTestFixtures }
  */
 export const test = base.extend<ProtectionTestFixtures>( {
 	pregrantSite: [ true, { option: true } ],
-	context: [ async ( { playwright, pregrantSite }, use ) => {
+	extensionBuild: [ PackagedExtensionBuild.CHROME, { option: true } ],
+	context: [ async ( { playwright, pregrantSite, extensionBuild }, use ) => {
 		const directory = await mkdtemp( join( tmpdir(), 'tocus-packaged-protection-' ) );
 		let context: BrowserContext | undefined;
 		try {
 			const extensionPath = join( directory, 'extension' );
-			await cp( fileURLToPath( new URL( '../../../../.output/chrome-mv3/', import.meta.url ) ),
+			await cp( fileURLToPath( new URL( `../../../../.output/${ extensionBuild }/`, import.meta.url ) ),
 				extensionPath,
 				{ recursive: true } );
 			const manifestPath = join( extensionPath, 'manifest.json' );
