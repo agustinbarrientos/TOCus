@@ -111,6 +111,7 @@ export function createBrowserProtectionProjector(
 	options: BrowserProtectionProjectorOptions,
 ): BrowserProtectionProjector {
 	const navigationRuleReconciler = createNavigationRuleReconciler( {
+		interruptionPageUrl: options.interruptionPageUrl,
 		replaceNavigationRules: options.browser.replaceNavigationRules,
 		getTimeZone: options.getTimeZone,
 		now: options.now,

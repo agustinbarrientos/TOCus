@@ -15,6 +15,21 @@ describe( 'enrichExtensionTabUrls', () => {
 		vi.clearAllMocks();
 	} );
 
+	it( 'preserves the destination-bearing redirect URL of a redacted pause tab', async () => {
+		const currentUrl = 'chrome-extension://extension-id/pause.html';
+		const documentUrl = `${ currentUrl }#destination=https://example.com/watch?v=a%26b&next=%2Ffeed`;
+		const runtime = {
+			getContexts: vi.fn().mockResolvedValue( [ { ...INTERRUPTION_CONTEXT, documentUrl } ] ),
+			getURL: vi.fn().mockReturnValue( currentUrl ),
+		};
+
+		await expect( enrichExtensionTabUrls( [ { id: 7, incognito: false } ], runtime ) ).resolves.toEqual( [ {
+			id: 7,
+			incognito: false,
+			url: documentUrl,
+		} ] );
+	} );
+
 	it.each( [ '/pause.html', '/interruption.html' ] )( 'preserves the actual %s URL while identifying redacted pause tabs after an upgrade', async ( path ) => {
 		const documentUrl = `chrome-extension://extension-id${ path }`;
 		const tabs = [ { id: 7, incognito: false } ];

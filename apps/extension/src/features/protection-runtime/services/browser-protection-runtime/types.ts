@@ -171,13 +171,13 @@ export interface BrowserProtectionRuntime {
 	 * Handles one observed top-level browser navigation.
 	 * @param navigation - Browser navigation details.
 	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
-	 * @return Promise resolved after any protected visit is persisted and projected.
+	 * @return Verified redirect replacement URL, or no document-side action after reconciliation.
 	 * @since 0.1.0 Initial implementation.
 	 */
 	handleNavigation(
 		navigation: ProtectionRuntimeNavigation,
 		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
-	): Promise<void>;
+	): Promise<string | undefined>;
 
 	/**
 	 * Handles one unknown request from an extension-owned interruption page.

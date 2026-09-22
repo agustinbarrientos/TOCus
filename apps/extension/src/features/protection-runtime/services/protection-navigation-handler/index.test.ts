@@ -8,6 +8,7 @@ import {
 } from '../../../../domains/protection/services/protection-coordinator';
 import {
 	createAllowanceExpiryParticipant,
+	createAllowanceState,
 	createIdleState,
 	createNavigationParticipant,
 	createWaitingState,
@@ -139,6 +140,12 @@ interface NavigationHandlerHarness {
 	handler: ProtectionNavigationHandler;
 	/** Open-tab observation boundary. */
 	listTabs: ReturnType<typeof vi.fn>;
+	/** Configuration boundary for permission and schedule changes. */
+	loadConfiguration: ReturnType<typeof vi.fn>;
+	/** Current schedule evaluation boundary. */
+	evaluateSiteSchedule: ReturnType<typeof vi.fn>;
+	/** Fail-open rule cleanup boundary. */
+	reconcileUnavailableConfiguration: ReturnType<typeof vi.fn>;
 	/** Browser projection reconciliation boundary. */
 	reconcileBrowserState: ReturnType<typeof vi.fn>;
 	/** Interruption-page release boundary. */
@@ -162,6 +169,9 @@ function createHarness(
 		return Promise.resolve();
 	} );
 	const listTabs = vi.fn().mockResolvedValue( [ { id: 7, incognito: false } ] );
+	const loadConfiguration = vi.fn().mockResolvedValue( CONFIGURATION );
+	const evaluateSiteSchedule = vi.fn().mockReturnValue( { status: ScheduleEvaluationStatus.ACTIVE } );
+	const reconcileUnavailableConfiguration = vi.fn().mockResolvedValue( undefined );
 	const reconcileBrowserState = vi.fn().mockResolvedValue( undefined );
 	const releaseNavigationIfInterrupted = vi.fn().mockResolvedValue( undefined );
 	const handler = createProtectionNavigationHandler( {
@@ -177,14 +187,14 @@ function createHarness(
 			.mockReturnValueOnce( 'page' )
 			.mockReturnValueOnce( 'wait' ),
 		departTab,
-		evaluateSiteSchedule: vi.fn().mockReturnValue( { status: ScheduleEvaluationStatus.ACTIVE } ),
+		evaluateSiteSchedule,
 		getTimeZone: vi.fn().mockReturnValue( 'America/New_York' ),
-		loadConfiguration: vi.fn().mockResolvedValue( CONFIGURATION ),
+		loadConfiguration,
 		now: vi.fn().mockReturnValue( Date.UTC( 2026, 8, 2, 12 ) ),
 		reconcileBrowserState,
 		reconcileExpiredAllowances: vi.fn().mockResolvedValue( undefined ),
 		reconcileSchedules: vi.fn().mockResolvedValue( undefined ),
-		reconcileUnavailableConfiguration: vi.fn().mockResolvedValue( undefined ),
+		reconcileUnavailableConfiguration,
 		releaseNavigationIfInterrupted,
 	} );
 
@@ -193,6 +203,9 @@ function createHarness(
 		departTab,
 		handler,
 		listTabs,
+		loadConfiguration,
+		evaluateSiteSchedule,
+		reconcileUnavailableConfiguration,
 		reconcileBrowserState,
 		releaseNavigationIfInterrupted,
 	};
@@ -236,6 +249,130 @@ function createNavigationWaitingSnapshot(): ProtectionCoordinatorStateSnapshot {
 }
 
 describe( 'createProtectionNavigationHandler', () => {
+	describe( 'destination-bearing redirects', () => {
+		const currentUrl = 'chrome-extension://extension-id/pause.html';
+		const destination = 'https://example.com/private';
+		const redirectUrl = `${ currentUrl }#destination=${ destination }`;
+		const navigation = {
+			frameId: 0, phase: ProtectionRuntimeNavigationPhase.COMMITTED, tabId: 7, url: redirectUrl,
+		};
+		const currentTab = { id: 7, incognito: false, url: redirectUrl };
+
+		it.each( [
+			{ frameId: 1 }, { tabId: -1 },
+			{ phase: ProtectionRuntimeNavigationPhase.BEFORE_NAVIGATE },
+			{ phase: ProtectionRuntimeNavigationPhase.ERROR_OCCURRED },
+			{ phase: ProtectionRuntimeNavigationPhase.REFERENCE_FRAGMENT_UPDATED },
+		] )( 'does not claim an uncommitted or non-top-level redirect %j', async ( changes ) => {
+			const harness = createHarness( {}, currentUrl );
+			harness.listTabs.mockResolvedValue( [ currentTab ] );
+			await expect( harness.handler.handle( { ...navigation, ...changes } ) ).resolves.toBeUndefined();
+			expect( harness.coordinator.events ).toEqual( [] );
+		} );
+
+		it.each( [
+			{ tabs: [] }, { tabs: [ { ...currentTab, id: 8 } ] }, { tabs: [ { ...currentTab, incognito: true } ] },
+			{ tabs: [ { id: 7 } ] }, { tabs: [ { ...currentTab, pendingUrl: 'https://unprotected.test/' } ] },
+		] )( 'ignores a redirect that no longer owns its ordinary tab %j', async ( { tabs } ) => {
+			const harness = createHarness( {}, currentUrl );
+			harness.listTabs.mockResolvedValue( tabs );
+			await expect( harness.handler.handle( navigation ) ).resolves.toBeUndefined();
+			expect( harness.coordinator.events ).toEqual( [] );
+		} );
+
+		it( 'keeps an already persisted participant when canonicalizing its redirect', async () => {
+			const harness = createHarness( createNavigationWaitingSnapshot(), currentUrl );
+			harness.listTabs.mockResolvedValue( [ currentTab ] );
+			await expect( harness.handler.handle( navigation ) ).resolves.toBe( currentUrl );
+			expect( harness.coordinator.events ).toEqual( [] );
+		} );
+
+		it.each( [ false, true ] )( 'honors the current allowance (expired: %s)', async ( expired ) => {
+			const allowance = createAllowanceState();
+			allowance.readyParticipants = [];
+			allowance.expiresAtEpochMilliseconds = expired ? 0 : Date.UTC( 2026, 8, 2, 13 );
+			const harness = createHarness( { [ DEFAULT_SCOPE_ID ]: allowance }, currentUrl );
+			harness.listTabs.mockResolvedValue( [ currentTab ] );
+			const replacement = await harness.handler.handle( navigation );
+			if ( expired ) {
+				expect( harness.coordinator.events ).toHaveLength( 1 );
+				expect( replacement ).toBeUndefined();
+			} else {
+				expect( harness.coordinator.events ).toEqual( [] );
+				expect( harness.reconcileBrowserState ).toHaveBeenCalledOnce();
+				expect( replacement ).toBe( destination );
+			}
+		} );
+
+		it( 'does not replace a newer navigation after asynchronous reconciliation', async () => {
+			const harness = createHarness( createNavigationWaitingSnapshot(), currentUrl );
+			harness.listTabs.mockResolvedValue( [ currentTab ] );
+			harness.reconcileBrowserState.mockImplementation( () => {
+				harness.listTabs.mockResolvedValue( [ { ...currentTab, pendingUrl: 'https://unprotected.test/' } ] );
+			} );
+			await expect( harness.handler.handle( navigation ) ).resolves.toBeUndefined();
+		} );
+
+		it.each( [ null, {} ] )( 'does not expose a pause without a persisted participant %j', async ( states ) => {
+			const harness = createHarness( states, currentUrl );
+			harness.listTabs.mockResolvedValue( [ currentTab ] );
+			await expect( harness.handler.handle( navigation ) ).resolves.toBeUndefined();
+			expect( harness.coordinator.events ).toHaveLength( 1 );
+		} );
+
+		it( 'removes redirects before releasing a destination when configuration is unavailable', async () => {
+			const harness = createHarness( {}, currentUrl );
+			harness.listTabs.mockResolvedValue( [ currentTab ] );
+			harness.loadConfiguration.mockResolvedValue( null );
+			await expect( harness.handler.handle( navigation ) ).resolves.toBe( destination );
+			expect( harness.reconcileUnavailableConfiguration ).toHaveBeenCalledOnce();
+		} );
+
+		it.each( [ 'removed', 'inactive' ] )( 'releases a %s site only after refreshing redirect rules', async ( reason ) => {
+			const harness = createHarness( {}, currentUrl );
+			harness.listTabs.mockResolvedValue( [ currentTab ] );
+			if ( reason === 'removed' ) {
+				harness.loadConfiguration.mockResolvedValue( { ...CONFIGURATION, sites: [] } );
+			} else {
+				harness.evaluateSiteSchedule.mockReturnValue( { status: ScheduleEvaluationStatus.INACTIVE } );
+			}
+			await expect( harness.handler.handle( navigation ) ).resolves.toBe( destination );
+			expect( harness.coordinator.events ).toEqual( [] );
+			expect( harness.reconcileBrowserState ).toHaveBeenCalledOnce();
+		} );
+	} );
+
+	it( 'claims the final protected URL carried by a committed network redirect', async () => {
+		const currentUrl = 'chrome-extension://extension-id/pause.html';
+		const destination = 'https://example.com/watch?v=a%26b&next=%2Ffeed';
+		const redirectUrl = `${ currentUrl }#destination=${ destination }`;
+		const harness = createHarness( {}, currentUrl );
+		harness.listTabs.mockResolvedValue( [ { id: 7, incognito: false, url: redirectUrl } ] );
+		vi.spyOn( harness.coordinator, 'dispatch' ).mockImplementation( ( prepareEvent ) => {
+			const event = prepareEvent( harness.coordinator.states ?? {} );
+			harness.coordinator.events.push( event );
+			const result = transitionProtectionState( createIdleState(), event );
+			harness.coordinator.states = { [ DEFAULT_SCOPE_ID ]: result.state };
+			return Promise.resolve( {
+				status: ProtectionCoordinatorDispatchStatus.APPLIED, decisions: result.decisions, facts: result.facts,
+			} );
+		} );
+
+		const replacement = await harness.handler.handle( {
+			frameId: 0,
+			phase: ProtectionRuntimeNavigationPhase.COMMITTED,
+			tabId: 7,
+			transitionQualifiers: [ 'server_redirect' ],
+			transitionType: 'link',
+			url: redirectUrl,
+		} );
+
+		expect( harness.coordinator.events ).toMatchObject( [ {
+			type: ProtectionEventType.VISIT_ATTEMPT,
+			participant: { retainedDestination: destination },
+		} ] );
+		expect( replacement ).toBe( currentUrl );
+	} );
 	it.each( [
 		{
 			label: 'a server redirect',

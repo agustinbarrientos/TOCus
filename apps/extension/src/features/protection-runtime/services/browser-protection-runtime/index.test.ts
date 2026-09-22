@@ -17,6 +17,7 @@ import {
 	InterruptionPageResponseState,
 } from '../../types/runtime-message';
 import { ProtectedPageMessageType } from '../../types/protected-page-message';
+import { ProtectionRuntimeNavigationPhase } from '../../types/browser-runtime';
 import { StatisticsFocusObservationMode } from '../../../../domains/statistics/utils/prepare-statistics-checkpoint';
 import {
 	EXAMPLE_CONFIGURATION,
@@ -33,6 +34,58 @@ import {
 import { createInertStatisticsRuntime } from './__fixtures__/statistics-runtime';
 
 describe( 'createBrowserProtectionRuntime', () => {
+	it( 'keeps a redirected visit through focus reconciliation and resolves its handshake without a second attempt', async () => {
+		const browser = new MemoryRuntimeBrowser();
+		const currentUrl = 'chrome-extension://extension-id/interruption.html';
+		const destination = 'https://example.com/watch?v=redirect#chapter';
+		const carrierUrl = `${ currentUrl }#destination=${ destination }`;
+		const { coordinator, runtime } = createRuntime(
+			{ value: Date.UTC( 2026, 8, 2, 12 ) }, new MemoryConfigurationStorage( EXAMPLE_CONFIGURATION ), browser,
+		);
+		await runtime.start();
+		browser.tabs = [ { id: 7, incognito: false, url: carrierUrl } ];
+		const navigation = {
+			tabId: 7, frameId: 0, phase: ProtectionRuntimeNavigationPhase.COMMITTED, url: carrierUrl,
+		};
+		await expect( runtime.handleNavigation( navigation ) ).resolves.toBe( currentUrl );
+		const before = ( await coordinator.getStates() )?.scope_default;
+		await runtime.handleFocusChanged();
+		await expect( runtime.handleNavigation( navigation ) ).resolves.toBe( currentUrl );
+		expect( before ).toMatchObject( {
+			type: ProtectionStateType.WAITING,
+			participants: [ { retainedDestination: destination } ],
+		} );
+		if ( before?.type !== ProtectionStateType.WAITING ) {
+			throw new Error( 'Expected the redirected visit to be persisted.' );
+		}
+		expect( ( await coordinator.getStates() )?.scope_default ).toMatchObject( {
+			waitId: before.waitId,
+			participants: before.participants.map( ( participant ) => ( { ...participant, focusEligible: false } ) ),
+		} );
+		expect( browser.navigations ).toEqual( [] );
+	} );
+
+	it( 'releases a carrier to its destination after failed persistence clears redirect rules', async () => {
+		const browser = new MemoryRuntimeBrowser();
+		const storage = new MemoryProtectionStorage();
+		const { runtime } = createRuntime(
+			{ value: Date.UTC( 2026, 8, 2, 12 ) },
+			new MemoryConfigurationStorage( EXAMPLE_CONFIGURATION ),
+			browser,
+			storage,
+		);
+		await runtime.start();
+		const destination = 'https://example.com/watch?v=redirect#chapter';
+		const carrierUrl = `chrome-extension://extension-id/interruption.html#destination=${ destination }`;
+		browser.tabs = [ { id: 7, incognito: false, url: carrierUrl } ];
+		storage.throwOnSave = true;
+		await expect( runtime.handleNavigation( {
+			tabId: 7, frameId: 0, phase: ProtectionRuntimeNavigationPhase.COMMITTED, url: carrierUrl,
+		} ) ).rejects.toThrow( 'Protection state dispatch failed: storage-write-failed.' );
+		expect( browser.rules ).toEqual( [] );
+		expect( browser.navigations ).toEqual( [ { tabId: 7, url: destination } ] );
+	} );
+
 	it( 'retains another website shared pause progress when one custom active window ends', async () => {
 		const now = { value: Date.UTC( 2026, 8, 14, 9, 59 ) };
 		const browser = new MemoryRuntimeBrowser();

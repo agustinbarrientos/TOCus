@@ -1,11 +1,13 @@
 import { ProtectionConfigurationStorageKey } from '../../../../domains/protection/services/protection-configuration-storage';
 import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
+import { readInterruptionNavigationDestination } from '../../../../shared/utils/interruption-navigation-destination';
 import {
 	InterruptionPageRequestSchema,
 	InterruptionPageRequestType,
 	InterruptionPageResponseSchema,
 	InterruptionPageResponseState,
 	ProtectionClockRequestSchema,
+	NavigationRedirectRequestSchema,
 } from '../../types/runtime-message';
 import { ProtectionRuntimeNavigationPhase } from '../../types/browser-runtime';
 import { isProtectionClockAlarmName } from '../browser-protection-adapter';
@@ -201,7 +203,7 @@ export function createProtectionBackgroundController(
 	 * @param operation - Runtime operation already started by a browser event.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	function observeRuntimeOperation( operation: Promise<void> ): void {
+	function observeRuntimeOperation( operation: Promise<unknown> ): void {
 		void operation.catch( handleRuntimeFailure );
 	}
 
@@ -422,6 +424,32 @@ export function createProtectionBackgroundController(
 		sender: ProtectionBackgroundMessageSender,
 		sendResponse: ProtectionBackgroundSendResponse,
 	): true | undefined {
+		if ( NavigationRedirectRequestSchema.safeParse( input ).success ) {
+			const tabId = sender.tab?.id;
+			const url = sender.url;
+
+			if (
+				sender.frameId !== 0 || sender.tab?.incognito !== false ||
+				tabId === undefined || ! Number.isSafeInteger( tabId ) || tabId < 0 ||
+				url === undefined || readInterruptionNavigationDestination( url, options.interruptionPageUrl ) === null
+			) {
+				return undefined;
+			}
+
+			void runAfterCapability( () => options.runtime.handleNavigation( {
+				frameId: 0, tabId, url, phase: ProtectionRuntimeNavigationPhase.COMMITTED,
+			} ) )
+				.then( ( replacement ) => {
+					sendResponse( { url: replacement ?? null } );
+				} )
+				.catch( () => {
+					sendResponse( { url: null } );
+					handleRuntimeFailure();
+				} );
+
+			return true;
+		}
+
 		const statisticsRequest = StatisticsRuntimeRequestSchema.safeParse( input );
 
 		if ( statisticsRequest.success ) {

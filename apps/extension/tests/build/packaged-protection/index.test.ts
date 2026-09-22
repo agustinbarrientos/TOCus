@@ -252,8 +252,14 @@ test.describe( 'packaged Chrome protection', () => {
 					const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
 					return chrome.declarativeNetRequest.getDynamicRules();
 				} ) ).toEqual( expect.arrayContaining( [ expect.objectContaining( {
-					action: { type: 'redirect', redirect: { extensionPath: '/pause.html' } },
-					condition: { urlFilter: '||example.test^', resourceTypes: [ 'main_frame' ] },
+					action: { type: 'redirect', redirect: {
+						regexSubstitution: expect.stringMatching( /pause\.html#destination=\\0$/u ),
+					} },
+					condition: {
+						regexFilter: '^https?://.*',
+						requestDomains: [ 'example.test' ],
+						resourceTypes: [ 'main_frame' ],
+					},
 				} ) ] ) );
 				await page.goto( allowedUrl, { waitUntil: 'domcontentloaded' } );
 				await expect.poll( () => resourceRequested ).toBe( true );
@@ -272,6 +278,55 @@ test.describe( 'packaged Chrome protection', () => {
 				// The isolated context owns its routes, including the fixture's external-request block.
 				releasePendingResource?.();
 			}
+		} );
+	}
+
+	for ( const targetBlank of [ false, true ] ) {
+		test( `continues to the protected destination after a server redirect in ${ targetBlank ? 'a new tab' : 'the same tab' }`, async ( { context, worker, page } ) => {
+			const searchUrl = 'https://allowed.test/search';
+			const redirectUrl = 'https://allowed.test/redirect';
+			const destination = 'https://example.test/watch%2Fencoded?v=regression&next=https%3A%2F%2Fother.test%2Fx#chapter%201';
+			await context.route( searchUrl, ( route ) => route.fulfill( {
+				contentType: 'text/html',
+				body: `<!doctype html><html lang="en"><title>Search results</title><body><h1>Search results</h1><a href="${ redirectUrl }"${ targetBlank ? ' target="_blank"' : '' }>Protected result</a></body></html>`,
+			} ) );
+			await context.route( redirectUrl, ( route ) => route.fulfill( {
+				status: 302,
+				headers: { location: destination },
+				body: '',
+			} ) );
+			await worker.evaluate( async ( configuration ) => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				await chrome.storage.local.set( { 'tocus.protection.configuration.v1': configuration } );
+			}, {
+				...TestEmptyProtectionConfiguration,
+				sites: [ { identityHost: 'example.test', rule: { host: 'example.test', includeSubdomains: true, scopeId: DefaultProtectionScopeId } } ],
+			} );
+			await expect.poll( () => worker.evaluate( async () => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				return chrome.declarativeNetRequest.getDynamicRules();
+			} ) ).toEqual( expect.arrayContaining( [ expect.objectContaining( {
+				action: { type: 'redirect', redirect: {
+					regexSubstitution: expect.stringMatching( /pause\.html#destination=\\0$/u ),
+				} },
+				condition: {
+					regexFilter: '^https?://.*',
+					requestDomains: [ 'example.test' ],
+					resourceTypes: [ 'main_frame' ],
+				},
+			} ) ] ) );
+
+			await page.goto( searchUrl );
+			const newPagePromise = targetBlank ? context.waitForEvent( 'page' ) : null;
+			await page.getByRole( 'link', { name: 'Protected result', exact: true } ).click( { noWaitAfter: true } );
+			const protectedPage = newPagePromise === null ? page : await newPagePromise;
+			await protectedPage.bringToFront();
+			await expect( protectedPage.getByRole( 'region', { name: /^Breathe (?:in|out)$/u } ) ).toBeVisible();
+			const continueButton = protectedPage.getByRole( 'button', { name: 'Continue', exact: true } );
+			await expect( continueButton ).toBeVisible( { timeout: 15_000 } );
+			await continueButton.click();
+			await expect( protectedPage ).toHaveURL( destination );
+			await expect( protectedPage.getByRole( 'heading', { name: 'Destination loaded', exact: true } ) ).toBeVisible();
 		} );
 	}
 
@@ -325,8 +380,14 @@ test.describe( 'packaged Chrome protection', () => {
 
 					return chrome.declarativeNetRequest.getDynamicRules();
 				} ) ).toEqual( expect.arrayContaining( [ expect.objectContaining( {
-					action: { type: 'redirect', redirect: { extensionPath: '/pause.html' } },
-					condition: { urlFilter: '||example.test^', resourceTypes: [ 'main_frame' ] },
+					action: { type: 'redirect', redirect: {
+						regexSubstitution: expect.stringMatching( /pause\.html#destination=\\0$/u ),
+					} },
+					condition: {
+						regexFilter: '^https?://.*',
+						requestDomains: [ 'example.test' ],
+						resourceTypes: [ 'main_frame' ],
+					},
 				} ) ] ) );
 			}, { timeout: 10_000 } );
 			const observedStates: string[] = [];

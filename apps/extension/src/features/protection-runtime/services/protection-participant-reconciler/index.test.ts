@@ -273,6 +273,21 @@ describe( 'createProtectionParticipantReconciler', () => {
 		},
 	);
 
+	it.each( [ true, false ] )( 'retains only the redirect belonging to the persisted destination (matching: %s)', async ( matches ) => {
+		const waiting = createWaitingState();
+		waiting.participants = [ createNavigationParticipant(
+			'participant-a', 'page_tab_7_current', true, 0, 'https://example.com/private',
+		) ];
+		const destination = matches ? 'https://example.com/private' : 'https://example.com/different';
+		const harness = createHarness( { [ TEST_SCOPE_ID ]: waiting }, [ {
+			id: 7, incognito: false, url: `${ INTERRUPTION_PAGE_URL }#destination=${ destination }`,
+		} ] );
+
+		await harness.reconciler.reconcile( CONFIGURATION );
+
+		expect( harness.coordinator.events ).toHaveLength( matches ? 0 : 1 );
+	} );
+
 	it( 'releases a navigation participant that has already left the interruption page', async () => {
 		const waiting = createWaitingState();
 		waiting.participants = [ createNavigationParticipant(

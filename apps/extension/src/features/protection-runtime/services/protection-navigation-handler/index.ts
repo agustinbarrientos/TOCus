@@ -7,6 +7,7 @@ import type { CanonicalHost } from '../../../../domains/protection/types/protect
 import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
 import { matchProtectedUrl } from '../../../../domains/protection/utils/protected-url-matcher';
 import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
+import { readInterruptionNavigationDestination } from '../../../../shared/utils/interruption-navigation-destination';
 import { createRuntimeLocalDate } from '../../utils/runtime-local-date';
 import {
 	createRuntimePageId,
@@ -191,14 +192,16 @@ export function createProtectionNavigationHandler(
 	}
 
 	/**
-	 * Handles one observed top-level browser navigation.
+	 * Reconciles one observed top-level browser navigation before releasing its redirect document.
 	 * @param navigation - Browser navigation details.
-	 * @return Promise resolved after navigation reconciliation.
+	 * @param redirectDestination - Validated destination carried by a committed redirect, when present.
+	 * @return Safe next document for a redirect, or undefined when no transition was authorized.
 	 * @since 0.1.0 Initial implementation.
 	 */
-	async function handle(
+	async function reconcileNavigation(
 		navigation: Parameters<ProtectionNavigationHandler[ 'handle' ]>[ 0 ],
-	): Promise<void> {
+		redirectDestination: string | null,
+	): Promise<string | undefined> {
 		const isOutcome =
 			navigation.phase === ProtectionRuntimeNavigationPhase.COMMITTED ||
 			navigation.phase === ProtectionRuntimeNavigationPhase.ERROR_OCCURRED;
@@ -218,9 +221,9 @@ export function createProtectionNavigationHandler(
 			return;
 		}
 
-		const destination = resolvesPendingInterruption
+		const destination = redirectDestination ?? ( resolvesPendingInterruption
 			? pendingDestination
-			: navigation.url;
+			: navigation.url );
 
 		if ( navigation.phase === ProtectionRuntimeNavigationPhase.ERROR_OCCURRED ) {
 			const states = await options.coordinator.getStates();
@@ -244,7 +247,7 @@ export function createProtectionNavigationHandler(
 				),
 				options.releaseNavigationIfInterrupted( navigation.tabId, destination ),
 			] );
-			return;
+			return destination;
 		}
 
 		const configuration = await options.loadConfiguration();
@@ -252,13 +255,14 @@ export function createProtectionNavigationHandler(
 		if ( configuration === null ) {
 			pendingDestinationsByTabId.delete( navigation.tabId );
 			await options.reconcileUnavailableConfiguration();
-			return;
+			return destination;
 		}
 
 		const match = matchProtectedUrl( destination, configuration.sites.map( ( site ) => site.rule ) );
 
 		if (
 			navigation.phase === ProtectionRuntimeNavigationPhase.COMMITTED &&
+			redirectDestination === null &&
 			! resolvesPendingInterruption &&
 			match.status !== ProtectedUrlMatchStatus.PROTECTED
 		) {
@@ -289,7 +293,7 @@ export function createProtectionNavigationHandler(
 
 		if ( isSameScopeExpiryParticipant ) {
 			await options.reconcileBrowserState( configuration );
-			return;
+			return options.interruptionPageUrl;
 		}
 
 		if ( navigation.phase === ProtectionRuntimeNavigationPhase.BEFORE_NAVIGATE ) {
@@ -346,7 +350,7 @@ export function createProtectionNavigationHandler(
 			if ( navigation.phase !== ProtectionRuntimeNavigationPhase.COMMITTED || resolvesPendingInterruption ) {
 				await options.releaseNavigationIfInterrupted( navigation.tabId, destination );
 			}
-			return;
+			return destination;
 		}
 
 		const schedule = options.evaluateSiteSchedule(
@@ -360,7 +364,7 @@ export function createProtectionNavigationHandler(
 		if ( schedule.status !== ScheduleEvaluationStatus.ACTIVE ) {
 			await options.reconcileBrowserState( configuration );
 			await options.releaseNavigationIfInterrupted( navigation.tabId, destination );
-			return;
+			return destination;
 		}
 
 		if (
@@ -369,15 +373,71 @@ export function createProtectionNavigationHandler(
 		) {
 			await options.reconcileBrowserState( configuration );
 			await options.releaseNavigationIfInterrupted( navigation.tabId, destination );
-			return;
+			return destination;
 		}
 
 		if ( existingContext?.participant.retainedDestination === destination ) {
 			await options.reconcileBrowserState( configuration );
-			return;
+			return options.interruptionPageUrl;
 		}
 
 		await dispatchVisitAttempt( navigation.tabId, destination, configuration, match.rule.scopeId, match.rule.host );
+
+		if ( redirectDestination !== null ) {
+			const states = await options.coordinator.getStates();
+			const context = states === null ? null : findRuntimeParticipantContext( states, navigation.tabId );
+
+			if ( context?.participant.retainedDestination === destination ) {
+				return options.interruptionPageUrl;
+			}
+		}
+	}
+
+	/**
+	 * Checks that a redirect still owns the ordinary top-level tab before acting on its payload.
+	 * @param tabId - Browser-assigned tab identifier.
+	 * @param redirectUrl - Exact committed redirect document including its destination.
+	 * @return Whether the same redirect document remains current.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function ownsRedirect( tabId: number, redirectUrl: string ): Promise<boolean> {
+		const tabs = await options.browser.listTabs();
+		const tab = tabs.find( ( candidate ) => candidate.id === tabId );
+
+		return tab?.incognito === false && ( tab.pendingUrl ?? tab.url ) === redirectUrl;
+	}
+
+	/**
+	 * Resolves a network redirect only after policy and persistence succeed.
+	 * @param navigation - Browser-provided navigation observation.
+	 * @return Verified URL for the document to replace itself with, avoiding an extra history entry.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	async function handle(
+		navigation: Parameters<ProtectionNavigationHandler[ 'handle' ]>[ 0 ],
+	): Promise<string | undefined> {
+		const redirectDestination = readInterruptionNavigationDestination(
+			navigation.url, options.interruptionPageUrl,
+		);
+
+		if ( redirectDestination === null ) {
+			await reconcileNavigation( navigation, null );
+			return;
+		}
+
+		if (
+			navigation.frameId !== 0 || navigation.tabId < 0 ||
+			navigation.phase !== ProtectionRuntimeNavigationPhase.COMMITTED ||
+			! await ownsRedirect( navigation.tabId, navigation.url )
+		) {
+			return;
+		}
+
+		const nextUrl = await reconcileNavigation( navigation, redirectDestination );
+
+		if ( nextUrl !== undefined && await ownsRedirect( navigation.tabId, navigation.url ) ) {
+			return nextUrl;
+		}
 	}
 
 	return { handle };

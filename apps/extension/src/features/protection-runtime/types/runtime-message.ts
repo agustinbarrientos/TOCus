@@ -6,6 +6,24 @@ import {
 } from '../../../domains/protection/types/protection-value';
 
 /**
+ * Validates the destination-resolution handshake before a redirect document mounts its UI.
+ * The destination is taken from the browser sender, never supplied as a message field.
+ * @since 0.1.0 Initial implementation.
+ */
+export const NavigationRedirectRequestSchema = z.object( {
+	type: z.literal( 'resolve-navigation-redirect' ),
+} ).strict();
+
+/**
+ * Destination permitted by authoritative navigation reconciliation, or an unavailable result.
+ * @since 0.1.0 Initial implementation.
+ */
+export interface NavigationRedirectResponse {
+	/** Exact replacement document; the page also checks it against its own original destination. */
+	url: string | null;
+}
+
+/**
  * Requests supported by the extension-owned interruption page.
  * @since 0.1.0 Initial implementation.
  */

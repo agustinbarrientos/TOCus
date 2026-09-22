@@ -46,7 +46,10 @@ export function createNavigationRuleReconciler(
 			).status === ScheduleEvaluationStatus.ACTIVE;
 		} ).map( ( site ) => site.rule );
 
-		await options.replaceNavigationRules( createProtectionNavigationRules( activeRules ) );
+		await options.replaceNavigationRules( createProtectionNavigationRules(
+			activeRules,
+			options.interruptionPageUrl,
+		) );
 	}
 
 	return { reconcile };

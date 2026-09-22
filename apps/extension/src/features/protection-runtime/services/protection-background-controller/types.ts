@@ -1,5 +1,5 @@
 import type { Browser } from 'wxt/browser';
-import type { InterruptionPageResponse } from '../../types/runtime-message';
+import type { InterruptionPageResponse, NavigationRedirectResponse } from '../../types/runtime-message';
 import type { BrowserProtectionRuntime } from '../browser-protection-runtime';
 import type { StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
 
@@ -148,7 +148,8 @@ export interface ProtectionBackgroundMessageSender {
  * Response returned by one claimed protection or statistics runtime request.
  * @since 0.1.0 Initial implementation.
  */
-export type ProtectionBackgroundMessageResponse = boolean | InterruptionPageResponse | StatisticsProjection;
+export type ProtectionBackgroundMessageResponse =
+	boolean | InterruptionPageResponse | StatisticsProjection | NavigationRedirectResponse;
 
 /**
  * Sends one asynchronous response through a browser runtime message channel.

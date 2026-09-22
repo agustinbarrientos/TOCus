@@ -83,6 +83,10 @@ const pageMocks = await vi.hoisted( async () => {
 	const removeDocumentVisibility = vi.fn();
 	const storageChanges = {};
 	const statisticsClient = {};
+	const runtime = {
+		getURL: vi.fn().mockReturnValue( 'chrome-extension://extension-id/pause.html' ),
+		sendMessage: vi.fn<( request: InterruptionPageRequest ) => Promise<unknown>>(),
+	};
 	const wellbeingSummaryController = {
 		refresh: vi.fn(),
 		setCopy: vi.fn(),
@@ -104,6 +108,7 @@ const pageMocks = await vi.hoisted( async () => {
 		createWellbeingSummaryController: vi.fn<(
 			options: WellbeingSummaryControllerOptions,
 		) => WellbeingSummaryController>().mockReturnValue( wellbeingSummaryController ),
+		getURL: runtime.getURL,
 		getUILanguage: vi.fn().mockReturnValue( 'es-AR' ),
 		initialLocalization,
 		languageChangeListener,
@@ -111,8 +116,10 @@ const pageMocks = await vi.hoisted( async () => {
 		preferencesController,
 		preferencesStorage,
 		removeDocumentVisibility,
+		resolveNavigationRedirect: vi.fn(),
 		resolveLanguage: vi.fn().mockReturnValue( 'es-vos' ),
-		sendMessage: vi.fn<( request: InterruptionPageRequest ) => Promise<unknown>>(),
+		runtime,
+		sendMessage: runtime.sendMessage,
 		start: vi.fn(),
 		storageChanges,
 		statisticsClient,
@@ -123,7 +130,7 @@ const pageMocks = await vi.hoisted( async () => {
 vi.mock( 'wxt/browser', () => ( {
 	browser: {
 		i18n: { getUILanguage: pageMocks.getUILanguage },
-		runtime: { sendMessage: pageMocks.sendMessage },
+		runtime: pageMocks.runtime,
 		storage: { local: {}, onChanged: pageMocks.storageChanges },
 	},
 } ) );
@@ -150,6 +157,9 @@ vi.mock( '../../../statistics/services/statistics-client', () => ( {
 } ) );
 vi.mock( '../../../statistics/services/wellbeing-summary-controller', () => ( {
 	createWellbeingSummaryController: pageMocks.createWellbeingSummaryController,
+} ) );
+vi.mock( '../navigation-redirect', () => ( {
+	resolveNavigationRedirect: pageMocks.resolveNavigationRedirect,
 } ) );
 
 /**
@@ -189,6 +199,7 @@ describe( 'interruption page service', () => {
 				: pageMocks.initialLocalization ),
 		);
 		pageMocks.preferencesController.language = Language.FRENCH;
+		pageMocks.resolveNavigationRedirect.mockResolvedValue( false );
 		vi.spyOn( Date, 'now' ).mockReturnValue( 100_000 );
 	} );
 
@@ -201,12 +212,17 @@ describe( 'interruption page service', () => {
 		const interruptionScreen = new pageMocks.ComponentInterruptionScreen();
 		const motionPreference = Object.assign( new EventTarget(), { matches: true } );
 		const matchMedia = vi.fn().mockReturnValue( motionPreference );
+		const location = {
+			href: 'chrome-extension://extension-id/pause.html#destination=https://example.test/',
+			replace: vi.fn(),
+		};
 		const appearanceTarget = {
 			style: { removeProperty: pageMocks.removeDocumentVisibility },
 		};
 		const windowTarget = Object.assign( new EventTarget(), {
 			clearInterval: vi.fn(),
 			clearTimeout: vi.fn(),
+			location,
 			matchMedia,
 			setInterval: vi.fn(),
 			setTimeout: vi.fn(),
@@ -251,7 +267,7 @@ describe( 'interruption page service', () => {
 			systemMotionPreference: motionPreference,
 		} );
 		expect( pageMocks.createStatisticsClient ).toHaveBeenCalledWith( {
-			runtime: { sendMessage: pageMocks.sendMessage },
+			runtime: pageMocks.runtime,
 			storageChanges: pageMocks.storageChanges,
 		} );
 		const wellbeingOptions = pageMocks.createWellbeingSummaryController.mock.calls[ 0 ]?.[ 0 ];
@@ -324,6 +340,26 @@ describe( 'interruption page service', () => {
 		} ) ).resolves.toEqual( { state: InterruptionPageResponseState.UNAVAILABLE } );
 		expect( pageMocks.sendMessage ).toHaveBeenCalledWith( {
 			type: InterruptionPageRequestType.SYNCHRONIZE,
+			documentVisible: true,
+		} );
+		pageMocks.resolveNavigationRedirect.mockResolvedValueOnce( true );
+		pageMocks.sendMessage.mockClear();
+		await expect( options.runtime.sendMessage( {
+			type: InterruptionPageRequestType.RECOVER,
+			documentVisible: true,
+		} ) ).resolves.toEqual( { state: InterruptionPageResponseState.UNAVAILABLE } );
+		expect( pageMocks.resolveNavigationRedirect ).toHaveBeenCalledWith( {
+			location,
+			runtime: pageMocks.runtime,
+		} );
+		expect( pageMocks.sendMessage ).not.toHaveBeenCalled();
+		pageMocks.resolveNavigationRedirect.mockResolvedValueOnce( false );
+		await expect( options.runtime.sendMessage( {
+			type: InterruptionPageRequestType.RECOVER,
+			documentVisible: true,
+		} ) ).resolves.toEqual( { state: InterruptionPageResponseState.UNAVAILABLE } );
+		expect( pageMocks.sendMessage ).toHaveBeenCalledExactlyOnceWith( {
+			type: InterruptionPageRequestType.RECOVER,
 			documentVisible: true,
 		} );
 		expect( pageMocks.start ).toHaveBeenCalledOnce();
@@ -515,6 +551,66 @@ describe( 'interruption page service', () => {
 		const { bootstrapInterruptionPage } = await import( './index' );
 
 		await expect( bootstrapInterruptionPage() ).resolves.toBeUndefined();
+		expect( pageMocks.removeDocumentVisibility ).toHaveBeenCalledWith( 'visibility' );
+	} );
+
+	it( 'waits for carrier reconciliation and never mounts ordinary interruption UI when handled', async () => {
+		const resolution = Promise.withResolvers<boolean>();
+		const querySelector = vi.fn();
+		const location = {
+			href: 'chrome-extension://extension-id/pause.html#destination=https://example.test/',
+			replace: vi.fn(),
+		};
+		vi.stubGlobal( 'document', Object.assign( new EventTarget(), {
+			documentElement: {
+				style: { removeProperty: pageMocks.removeDocumentVisibility },
+			},
+			querySelector,
+			visibilityState: 'visible',
+		} ) );
+		vi.stubGlobal( 'window', Object.assign( new EventTarget(), { location } ) );
+		pageMocks.resolveNavigationRedirect.mockReturnValueOnce( resolution.promise );
+		const { bootstrapInterruptionPage } = await import( './index' );
+
+		const bootstrap = bootstrapInterruptionPage();
+		await vi.waitFor( () => {
+			expect( pageMocks.resolveNavigationRedirect ).toHaveBeenCalledWith( {
+				location,
+				runtime: pageMocks.runtime,
+			} );
+		} );
+		expect( querySelector ).not.toHaveBeenCalled();
+		expect( pageMocks.createPreferencesController ).not.toHaveBeenCalled();
+		expect( pageMocks.removeDocumentVisibility ).not.toHaveBeenCalled();
+
+		resolution.resolve( true );
+		await bootstrap;
+		expect( querySelector ).not.toHaveBeenCalled();
+		expect( pageMocks.createInterruptionPageController ).not.toHaveBeenCalled();
+		expect( pageMocks.removeDocumentVisibility ).not.toHaveBeenCalled();
+	} );
+
+	it( 'falls through to recoverable interruption UI when initial carrier resolution fails', async () => {
+		const querySelector = vi.fn().mockReturnValue( null );
+		const location = {
+			href: 'chrome-extension://extension-id/pause.html#destination=https://example.test/',
+			replace: vi.fn(),
+		};
+		vi.stubGlobal( 'document', Object.assign( new EventTarget(), {
+			documentElement: {
+				style: { removeProperty: pageMocks.removeDocumentVisibility },
+			},
+			querySelector,
+			visibilityState: 'visible',
+		} ) );
+		vi.stubGlobal( 'window', Object.assign( new EventTarget(), { location } ) );
+		pageMocks.resolveNavigationRedirect.mockRejectedValueOnce(
+			new Error( 'Background unavailable.' ),
+		);
+		const { bootstrapInterruptionPage } = await import( './index' );
+
+		await expect( bootstrapInterruptionPage() ).resolves.toBeUndefined();
+		expect( querySelector ).toHaveBeenCalledOnce();
 		expect( pageMocks.removeDocumentVisibility ).toHaveBeenCalledWith( 'visibility' );
 	} );
 

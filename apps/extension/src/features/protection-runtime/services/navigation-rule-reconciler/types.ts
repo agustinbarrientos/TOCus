@@ -7,6 +7,8 @@ import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/pro
  * @since 0.1.0 Initial implementation.
  */
 export interface NavigationRuleReconcilerOptions {
+	/** Trusted packaged interruption-page URL receiving protected navigations. */
+	interruptionPageUrl: string;
 	/** Replaces every extension-owned dynamic navigation rule. */
 	replaceNavigationRules: ( rules: Browser.declarativeNetRequest.Rule[] ) => Promise<void>;
 	/** Returns the current local IANA time zone. */

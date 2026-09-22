@@ -15,6 +15,62 @@ import {
 } from './__fixtures__';
 
 describe( 'createProtectionBackgroundController', () => {
+	it( 'resolves a redirect from its verified sender URL without authenticating ordinary page requests', async () => {
+		const harness = createHarness();
+		const sendResponse = vi.fn();
+		const url = `${ INTERRUPTION_PAGE_URL }#destination=https://example.com/watch?v=private`;
+		harness.handleNavigation.mockResolvedValue( INTERRUPTION_PAGE_URL );
+		harness.controller.start();
+		await harness.controller.waitUntilReady();
+
+		expect( harness.message.emit( { type: 'resolve-navigation-redirect' }, {
+			frameId: 0, tab: { id: 7, incognito: false }, url,
+		}, sendResponse ) ).toBe( true );
+		await vi.waitFor( () => {
+			expect( sendResponse ).toHaveBeenCalledExactlyOnceWith( { url: INTERRUPTION_PAGE_URL } );
+		} );
+		expect( harness.handleNavigation ).toHaveBeenCalledWith( {
+			frameId: 0, tabId: 7, phase: ProtectionRuntimeNavigationPhase.COMMITTED, url,
+		} );
+		expect( harness.handlePageRequest ).not.toHaveBeenCalled();
+	} );
+
+	it.each( [
+		{ frameId: 1 }, { tab: undefined }, { tab: { id: -1, incognito: false } },
+		{ tab: { id: 7, incognito: true } }, { tab: { id: 7 } },
+		{ url: INTERRUPTION_PAGE_URL }, { url: 'https://example.com/' },
+		{ url: `${ INTERRUPTION_PAGE_URL }#destination=javascript:alert(1)` },
+	] )( 'rejects redirect-resolution requests from invalid senders %j', ( changes ) => {
+		const harness = createHarness();
+		const sendResponse = vi.fn();
+		harness.controller.start();
+		expect( harness.message.emit( { type: 'resolve-navigation-redirect' }, {
+			frameId: 0, tab: { id: 7, incognito: false },
+			url: `${ INTERRUPTION_PAGE_URL }#destination=https://example.com/`, ...changes,
+		}, sendResponse ) ).toBeUndefined();
+		expect( harness.handleNavigation ).not.toHaveBeenCalled();
+		expect( sendResponse ).not.toHaveBeenCalled();
+	} );
+
+	it.each( [ false, true ] )( 'does not authorize a replacement after unavailable or failed navigation (failure: %s)', async ( fails ) => {
+		const harness = createHarness();
+		const sendResponse = vi.fn();
+		harness.controller.start();
+		await harness.controller.waitUntilReady();
+		harness.failOpen.mockClear();
+		if ( fails ) {
+			harness.handleNavigation.mockRejectedValue( new Error( 'Persistence unavailable' ) );
+		}
+		harness.message.emit( { type: 'resolve-navigation-redirect' }, {
+			frameId: 0, tab: { id: 7, incognito: false },
+			url: `${ INTERRUPTION_PAGE_URL }#destination=https://example.com/`,
+		}, sendResponse );
+		await vi.waitFor( () => {
+			expect( sendResponse ).toHaveBeenCalledExactlyOnceWith( { url: null } );
+		} );
+		expect( harness.failOpen ).toHaveBeenCalledTimes( fails ? 1 : 0 );
+	} );
+
 	it( 'refreshes configuration through the navigation-capability gate', async () => {
 		const harness = createHarness();
 		harness.controller.start();
@@ -631,6 +687,11 @@ describe( 'createProtectionBackgroundController', () => {
 		[ 'a missing frame identifier', {
 			tab: { id: 7 },
 			url: INTERRUPTION_PAGE_URL,
+		} ],
+		[ 'an unclaimed destination-bearing redirect document', {
+			frameId: 0,
+			tab: { id: 7 },
+			url: `${ INTERRUPTION_PAGE_URL }#destination=https://example.com/private`,
 		} ],
 		[ 'an interruption-page iframe', {
 			frameId: 1,

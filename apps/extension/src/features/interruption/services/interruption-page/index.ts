@@ -8,7 +8,11 @@ import {
 	type PreferencesController,
 	type PreferencesLanguageChangeListener,
 } from '../../../preferences/services/preferences-controller';
-import type { InterruptionPageRequest } from '../../../protection-runtime/types/runtime-message';
+import {
+	InterruptionPageRequestType,
+	InterruptionPageResponseState,
+	type InterruptionPageRequest,
+} from '../../../protection-runtime/types/runtime-message';
 import { createStatisticsClient } from '../../../statistics/services/statistics-client';
 import {
 	createWellbeingSummaryController,
@@ -24,6 +28,7 @@ import {
 	type InterruptionPageRuntime,
 	type InterruptionPageVisibility,
 } from '../interruption-page-controller';
+import { resolveNavigationRedirect } from '../navigation-redirect';
 
 /**
  * Reveals the interruption document after either successful startup or terminal recovery.
@@ -66,6 +71,15 @@ export async function startInterruptionPage(): Promise<void> {
 		 * @since 0.1.0 Initial implementation.
 		 */
 		function sendInterruptionPageRequest( request: InterruptionPageRequest ): Promise<unknown> {
+			if ( request.type === InterruptionPageRequestType.RECOVER ) {
+				return resolveNavigationRedirect( {
+					location: window.location,
+					runtime: browser.runtime,
+				} ).then( ( handled ) => handled
+					? { state: InterruptionPageResponseState.UNAVAILABLE }
+					: browser.runtime.sendMessage( request ) );
+			}
+
 			return browser.runtime.sendMessage( request );
 		}
 
@@ -243,6 +257,17 @@ export async function startInterruptionPage(): Promise<void> {
  * @since 0.1.0 Initial implementation.
  */
 export async function bootstrapInterruptionPage(): Promise<void> {
+	try {
+		if ( await resolveNavigationRedirect( {
+			location: window.location,
+			runtime: browser.runtime,
+		} ) ) {
+			return;
+		}
+	} catch {
+		// The existing unavailable presentation provides an explicit user-driven Retry path.
+	}
+
 	try {
 		await startInterruptionPage();
 	} catch {
