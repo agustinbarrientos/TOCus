@@ -6,6 +6,22 @@ import { ToolbarBadgeDurationUnit } from '../../../features/protection-runtime/u
 import { createLocalizationBundle, loadLocalizationBundle } from '../../index';
 
 describe( 'createLocalizationBundle', () => {
+	it.each( [
+		[ Language.ENGLISH, 'Your browser can supply cached website icons. TOCus does not contact an icon service.' ],
+		[ Language.SPANISH_TU, 'Tu navegador puede proporcionar iconos de sitios web guardados en cach\u00e9. TOCus no se conecta a ning\u00fan servicio de iconos.' ],
+		[ Language.SPANISH_VOS, 'Tu navegador puede proporcionar iconos de sitios web guardados en cach\u00e9. TOCus no se conecta a ning\u00fan servicio de iconos.' ],
+		[ Language.PORTUGUESE_BRAZIL, 'Seu navegador pode fornecer \u00edcones de sites salvos em cache. O TOCus n\u00e3o acessa nenhum servi\u00e7o de \u00edcones.' ],
+		[ Language.PORTUGUESE_PORTUGAL, 'O seu navegador pode fornecer \u00edcones de sites guardados em cache. O TOCus n\u00e3o contacta nenhum servi\u00e7o de \u00edcones.' ],
+		[ Language.ITALIAN, 'Il tuo browser pu\u00f2 fornire le icone dei siti salvate nella cache. TOCus non contatta servizi di icone.' ],
+		[ Language.FRENCH, 'Votre navigateur peut fournir les ic\u00f4nes de sites en cache. TOCus ne contacte aucun service d\'ic\u00f4nes.' ],
+		[ Language.GERMAN, 'Dein Browser kann zwischengespeicherte Website-Symbole bereitstellen. TOCus kontaktiert keinen Symbol-Dienst.' ],
+		[ Language.JAPANESE, '\u30d6\u30e9\u30a6\u30b6\u30fc\u306b\u4fdd\u5b58\u3055\u308c\u305f\u30b5\u30a4\u30c8\u30a2\u30a4\u30b3\u30f3\u3092\u5229\u7528\u3067\u304d\u307e\u3059\u3002TOCus\u304c\u30a2\u30a4\u30b3\u30f3\u30b5\u30fc\u30d3\u30b9\u306b\u63a5\u7d9a\u3059\u308b\u3053\u3068\u306f\u3042\u308a\u307e\u305b\u3093\u3002' ],
+		[ Language.RUSSIAN, '\u0412\u0430\u0448 \u0431\u0440\u0430\u0443\u0437\u0435\u0440 \u043c\u043e\u0436\u0435\u0442 \u043f\u0440\u0435\u0434\u043e\u0441\u0442\u0430\u0432\u0438\u0442\u044c \u0437\u043d\u0430\u0447\u043a\u0438 \u0441\u0430\u0439\u0442\u043e\u0432 \u0438\u0437 \u043a\u0435\u0448\u0430. TOCus \u043d\u0435 \u043e\u0431\u0440\u0430\u0449\u0430\u0435\u0442\u0441\u044f \u043a \u0441\u0435\u0440\u0432\u0438\u0441\u0430\u043c \u0437\u043d\u0430\u0447\u043a\u043e\u0432.' ],
+	] )( 'describes browser-local favicons without Chrome branding in %s', async ( language, expected ) => {
+		const bundle = await loadLocalizationBundle( language );
+		expect( bundle.privacyCopy.faviconPermission ).toBe( expected );
+	} );
+
 	it( 'loads one complete localization bundle through the packaged catalog boundary', async () => {
 		const bundle = await loadLocalizationBundle( Language.FRENCH );
 
