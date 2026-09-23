@@ -48,6 +48,8 @@ test.describe( 'Shared form feedback layout', () => {
 		await dialog.getByRole( 'button', { name: 'Save', exact: true } ).click();
 		const notice = dialog.getByRole( 'alert' );
 		await expect( notice ).toBeVisible();
+		// Bounding boxes include the dialog's entrance scale until its transition finishes.
+		await expect( dialog ).toHaveCSS( 'transform', 'matrix(1, 0, 0, 1, 0, 0)' );
 		const gaps = await notice.evaluate( ( element ) => {
 			const bounds = element.getBoundingClientRect();
 			const previous = element.previousElementSibling?.getBoundingClientRect();
