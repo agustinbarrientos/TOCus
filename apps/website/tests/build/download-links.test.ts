@@ -6,6 +6,41 @@ const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 
 test.describe( 'browser-specific download links', () => {
 	test.use( { reducedMotion: 'reduce' } );
+	for ( const locale of [ '', 'es', 'es-ar', 'pt-br', 'pt-pt', 'fr', 'it', 'de', 'ja', 'ru' ] ) {
+		test( `${ locale || 'en' }: small-screen alternative browser icons stay together`, async ( { page } ) => {
+			await page.route( '**/*', async ( route ) => {
+				const url = new URL( route.request().url() );
+				if ( url.origin !== 'http://website.test' ) {
+					await route.abort();
+					return;
+				}
+				const path = url.pathname.endsWith( '/' ) ? `${ url.pathname }index.html` : url.pathname;
+				await route.fulfill( { path: fileURLToPath( new URL( `.${ path }`, WebsiteOutput ) ) } );
+			} );
+			await page.goto( `http://website.test/${ locale ? `${ locale }/` : '' }` );
+			await expect( page.locator( '.homepage' ) ).toHaveAttribute( 'data-enhanced', 'true' );
+			await page.evaluate( () => document.fonts.ready );
+			const groups = page.locator( '.store-alternatives' );
+			await expect( groups ).toHaveCount( 2 );
+			for ( const width of [ 320, 390 ] ) {
+				await page.setViewportSize( { width, height: 844 } );
+				for ( const group of await groups.all() ) {
+					const links = group.locator( '[data-store]' );
+					await expect( links ).toHaveCount( 3 );
+					const bounds = await links.evaluateAll( ( elements ) => elements.map( ( element ) => {
+						const { top, left, right } = element.getBoundingClientRect();
+						return { top, left, right };
+					} ) );
+					expect( new Set( bounds.map( ( item ) => item.top ) ).size ).toBe( 1 );
+					for ( const item of bounds ) {
+						expect( item.left ).toBeGreaterThanOrEqual( 0 );
+						expect( item.right ).toBeLessThanOrEqual( width );
+					}
+				}
+			}
+		} );
+	}
+
 	test( 'alternative browser names hide only on small screens while links remain accessible and easy to tap', async ( { page } ) => {
 		await page.route( '**/*', async ( route ) => {
 			const url = new URL( route.request().url() );

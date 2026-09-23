@@ -132,6 +132,14 @@ The website has 10 retained references under `apps/website/src/components/home-p
 
 On September 22, 2026, the project owner requested repairing the failing comparisons after the approved riverside redesign and mobile feature alignment. The ten website references were visually reviewed and refreshed from the unmodified normal-run captures in CI run 35811402734 at commit f5a4feed368548554f8471bc05280b72a645e120, on macOS 26 ARM64 with pinned Playwright 1.63.0 Chromium. They now cover the riverside hero, four illustrated steps, six features, centered single-column content and landscape download section. Review included translated wrapping, the light page under a dark browser preference, and the open language menu. Each downloaded expected image matched its prior committed bytes before replacement. The 106 extension originals, 12 regional onboarding references, scenario inventory, frame-stability requirements and comparison tolerances are unchanged.
 
+## Approved privacy, onboarding and mobile presentation
+
+On September 23, 2026, the project owner requested new Privacy/About copy, a consistent onboarding slogan, removal of four onboarding helper texts, and at least one selected website before finishing. The same change replaces the small-screen interactive hero with its static preview and displays alternative browser links as accessible icons.
+
+The first reviewed captures come from the normal macOS 26 ARM64 visual job in CI run 35896778773 at commit d5e504c8, using pinned Playwright 1.63.0 Chromium. Twenty original onboarding references, twelve regional onboarding references and sixteen Privacy/About references were reviewed against their existing expected images and copied without modifying the captured PNG bytes. Updated dimensions reflect the requested text and removal of helper content. All original paths and scenario identities remain present; only the corresponding 36 original inventory hashes changed in this first review.
+
+The longer Privacy content exposed three capture defects that must be corrected before accepting those references: scrolling after a real hover removed the reset button's hover state, and the success capture's page clip omitted content below the viewport. The remaining mobile website references also require review after keeping the three browser icons together when translated labels wrap. Comparator tolerances, viewport sizes, capture counts, retries and original-update restrictions remain unchanged.
+
 ## Case API and commands
 
 Run a bounded original comparison with `pnpm test:visual --project chromium-originals --grep 'interruption-screen-ready.png'`. Explicit grep permits partial investigation, but hash checks always run. Local servers can be reused; CI starts fresh servers.

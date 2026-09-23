@@ -40,4 +40,5 @@ export interface OriginalClip {
  */
 export interface OriginalCaptureOptions {
 	clip?: OriginalClip;
+	fullPage?: boolean;
 }
