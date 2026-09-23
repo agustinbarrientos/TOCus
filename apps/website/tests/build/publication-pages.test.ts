@@ -33,6 +33,36 @@ async function expectSafeExternalLinks( page: Page ): Promise<void> {
 	}
 }
 
+/**
+ * Checks paragraph links against their actual surrounding typography at reading widths.
+ * @param page - Generated publication page under inspection.
+ * @return Completion after mobile and desktop inline styles match their paragraph.
+ */
+async function expectInlineLinkTypography( page: Page ): Promise<void> {
+	const links = page.locator( '.information-page p a' );
+	expect( await links.count() ).toBeGreaterThan( 0 );
+	for ( const width of [ 360, 1280 ] ) {
+		await page.setViewportSize( { width, height: 800 } );
+		const measurements = await links.evaluateAll( ( elements ) => elements.map( ( element ) => {
+			const paragraph = element.closest( 'p' );
+			if ( ! paragraph ) {
+				throw new Error( 'An inline information link must have a surrounding paragraph.' );
+			}
+			const linkStyle = getComputedStyle( element );
+			const paragraphStyle = getComputedStyle( paragraph );
+			return {
+				label: element.textContent,
+				link: [ linkStyle.fontFamily, linkStyle.fontSize, linkStyle.fontWeight, linkStyle.lineHeight, linkStyle.letterSpacing ],
+				paragraph: [ paragraphStyle.fontFamily, paragraphStyle.fontSize, paragraphStyle.fontWeight, paragraphStyle.lineHeight, paragraphStyle.letterSpacing ],
+			};
+		} ) );
+		for ( const measurement of measurements ) {
+			expect( measurement.link, `${ width }px: ${ measurement.label }` ).toEqual( measurement.paragraph );
+		}
+	}
+	await page.setViewportSize( { width: 360, height: 800 } );
+}
+
 test.describe( 'generated website publication pages', () => {
 	for ( const engine of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 		const engineTest = test.extend( { browserName: engine } );
@@ -69,6 +99,7 @@ test.describe( 'generated website publication pages', () => {
 						}
 						expect( await page.locator( 'a[href*="utm_source=tocus"][href*="utm_medium=website"][href*="utm_campaign=about"] img[src="/images/author-favicon.png"]' ).count(), route ).toBe( 1 );
 						await expectSafeExternalLinks( page );
+						await expectInlineLinkTypography( page );
 						expect(
 							await page.evaluate( () => document.documentElement.scrollWidth <= window.innerWidth ),
 							route,

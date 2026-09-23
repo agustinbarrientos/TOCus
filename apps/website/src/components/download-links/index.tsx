@@ -75,13 +75,15 @@ export function DownloadLinks( props: DownloadLinksProps ) {
 			{ Object.values( DownloadStores ).filter( ( alternative ) => alternative.browser !== store.browser )
 				.map( ( alternative ) => <span className="store-alternative" key={ alternative.browser }>
 					{ alternative.href === null
-						? <span aria-disabled="true" data-store={ alternative.browser }>
+						? <span role="link" aria-disabled="true" data-store={ alternative.browser }
+							aria-label={ `${ alternative.name } - ${ props.comingSoon }` }>
 							<img src={ `/badges/browser-${ alternative.browser }.svg` } alt="" width="22" height="22" />
-							{ alternative.name } - { props.comingSoon }
+							<span className="store-alternative-name">{ alternative.name } - { props.comingSoon }</span>
 						</span>
-						: <ExternalLink href={ alternative.href } data-store={ alternative.browser }>
+						: <ExternalLink href={ alternative.href } data-store={ alternative.browser }
+							aria-label={ alternative.name } title={ alternative.name }>
 							<img src={ `/badges/browser-${ alternative.browser }.svg` } alt="" width="22" height="22" />
-							{ alternative.name }
+							<span className="store-alternative-name">{ alternative.name }</span>
 						</ExternalLink> }
 				</span> ) }
 		</p>

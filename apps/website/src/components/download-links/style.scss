@@ -62,4 +62,23 @@
 		width: 1.15em;
 		height: 1.15em;
 	}
+
+	@media (width <= 35rem) {
+		.store-alternatives { gap: 0.25rem; }
+
+		.store-alternative-name { display: none; }
+
+		.store-alternative [data-store] {
+			justify-content: center;
+			min-width: 2.75rem;
+			min-height: 2.75rem;
+			gap: 0;
+		}
+
+		.store-alternative img {
+			flex-basis: 1.5rem;
+			width: 1.5rem;
+			height: 1.5rem;
+		}
+	}
 }

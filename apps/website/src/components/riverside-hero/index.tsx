@@ -20,12 +20,13 @@ export function RiversideHero() {
 		let generation = 0;
 		let controller: HeroController | undefined;
 		const motion = matchMedia( '(prefers-reduced-motion: reduce)' );
-		/** Loads WebGL only for visitors who permit motion, or restores the poster. */
+		const smallScreen = matchMedia( '(max-width: 35rem)' );
+		/** Loads WebGL on larger screens when motion is permitted, or restores the poster. */
 		async function enhance(): Promise<void> {
 			const current = ++generation;
 			controller?.dispose();
 			controller = undefined;
-			if ( motion.matches ) {
+			if ( motion.matches || smallScreen.matches ) {
 				setStatus( HeroStatus.POSTER ); return;
 			}
 			setStatus( HeroStatus.LOADING );
@@ -35,25 +36,27 @@ export function RiversideHero() {
 					return;
 				}
 				controller = createRiversideHero( surface, ( next ) => {
-					if ( active ) {
+					if ( active && current === generation ) {
 						setStatus( next );
 					}
 				} );
 			} catch {
-				if ( active ) {
+				if ( active && current === generation ) {
 					setStatus( HeroStatus.UNAVAILABLE );
 				}
 			}
 		}
 		/** Dispatches async enhancement from a synchronous media-query listener. */
-		function updateMotion(): void {
+		function updateEnhancement(): void {
 			void enhance();
 		}
-		updateMotion();
-		motion.addEventListener( 'change', updateMotion );
+		updateEnhancement();
+		motion.addEventListener( 'change', updateEnhancement );
+		smallScreen.addEventListener( 'change', updateEnhancement );
 		return () => {
 			active = false;
-			motion.removeEventListener( 'change', updateMotion );
+			motion.removeEventListener( 'change', updateEnhancement );
+			smallScreen.removeEventListener( 'change', updateEnhancement );
 			controller?.dispose();
 		};
 	}, [] );
