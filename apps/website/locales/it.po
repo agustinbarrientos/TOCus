@@ -101,7 +101,7 @@ msgstr "Apri un sito"
 
 #: apps/website/src/localization/index.ts
 msgid "Pause before visiting addictive websites"
-msgstr "Fai una pausa prima di visitare siti che creano dipendenza"
+msgstr "Fai una pausa prima di aprire siti che creano dipendenza"
 
 #. Language-menu autonym for Brazilian Portuguese. Keep this language name written in Portuguese.
 #: apps/website/src/localization/index.ts
