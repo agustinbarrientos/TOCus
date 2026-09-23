@@ -42,7 +42,6 @@ export function createPrivacyCatalog( i18n: I18n ): Readonly<PrivacyCatalog> {
 		analyticsTitle: i18n._( msg( { message: 'Google Analytics on this website' } ) ),
 		analyticsDescription: i18n._( msg( { message: 'This website uses Google Analytics to understand how visitors use its pages. Google Analytics uses cookies and sends Google information such as pages visited, interactions, approximate location, and browser and device details. The developer can view reports about visits to this website.' } ) ),
 		analyticsBoundary: i18n._( msg( { message: "The TOCus extension has no analytics or tracking. Website analytics can't read your extension's site list, settings, or statistics." } ) ),
-		analyticsConsent: i18n._( msg( { message: 'This website only loads Google Analytics after you accept. You can reject it or change your choice using Analytics preferences in the footer. Your choice is saved in this browser.' } ) ),
 		analyticsLink: i18n._( msg( { message: 'How Google uses information from websites that use its services' } ) ),
 		externalLinks: i18n._( msg( { message: "Links to GitHub, browser rules, extension stores, and the author's website open other sites that have their own privacy rules. Installing or updating TOCus can also connect with your browser or store provider. These connections are separate from the extension sending data to the developer." } ) ),
 	} );

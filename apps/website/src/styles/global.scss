@@ -36,6 +36,8 @@ body { margin: 0; }
 
 	section { scroll-margin-top: 2rem; }
 
+	main[tabindex='-1']:focus { outline: none; }
+
 	button, a { -webkit-tap-highlight-color: transparent; }
 
 	::selection {

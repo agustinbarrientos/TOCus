@@ -66,11 +66,6 @@ export interface WebsiteCatalog {
 	sourceShort: string;
 	skipLink: string;
 	languageMenuLabel: string;
-	analyticsPromptTitle: string;
-	analyticsPromptDescription: string;
-	analyticsAccept: string;
-	analyticsReject: string;
-	analyticsPreferences: string;
 	languageLabels: Readonly<Record<WebsiteLanguage, string>>;
 }
 

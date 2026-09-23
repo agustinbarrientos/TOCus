@@ -103,7 +103,7 @@ Keep the ten supported locales complete and use short, factual product copy. Web
 
 Preserve the skip link, semantic headings and lists, visible focus, real link destinations and useful server-rendered content. Without JavaScript, the hero poster, every explanation, download links and footer locale navigation remain available. Reduced motion removes optional animation without hiding information. The Privacy Policy supports the same ten languages and shared light styling. The homepage and Privacy Policy are the only public pages.
 
-No extension permissions, local data handling or shared extension interfaces are changed by this layout. Do not add accounts, tracking or analytics to the extension, or fabricated endorsements to the website. The production website uses Google Analytics only after an explicit website consent choice. The translated prompt offers equal Accept and Reject controls; Analytics preferences in the footer reopens it. Google measurement stays off on development and preview hosts. Fonts and artwork remain local. Do not introduce nonfunctional controls to make the static explanation look interactive.
+No extension permissions, local data handling or shared extension interfaces are changed by this layout. Do not add accounts, tracking or analytics to the extension, or fabricated endorsements to the website. The production website loads Google Analytics without an on-page prompt or preferences control. The Privacy Policy explains website measurement separately from the extension's local-only operation. Google measurement stays off on development and preview hosts. Fonts and artwork remain local. Do not introduce nonfunctional controls to make the static explanation look interactive.
 
 ## Source ownership and verification
 
