@@ -16,7 +16,7 @@ describe( 'createOnboardingSitesStepCopy', () => {
 		expect( copy.alreadyProtectedError ).toBe( 'That website is already on your list.' );
 		expect( copy.formatAddedAnnouncement( 'Instagram' ) ).toBe( 'Instagram was added to your list.' );
 		expect( copy.formatRemovedAnnouncement( 'Instagram' ) ).toBe( 'Instagram was removed from your list.' );
-		expect( copy.formatPermissionRetainedAnnouncement( 'Instagram' ) ).toBe( 'Instagram was removed, but its browser access could not be removed automatically.' );
+		expect( copy.formatPermissionRetainedAnnouncement( 'Instagram' ) ).toBe( "Instagram was removed, but its browser access couldn't be removed automatically." );
 	} );
 
 	it.each( [ Language.SPANISH_TU, Language.SPANISH_VOS ] )( 'uses the requested add-site label in %s', async ( language ) => {

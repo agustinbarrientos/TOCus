@@ -30,6 +30,6 @@ describe( 'loadLocalizationBundle', () => {
 		const bundle = createEnglishLocalizationBundle();
 
 		expect( bundle.language ).toBe( Language.ENGLISH );
-		expect( bundle.onboarding.startupErrorTitle ).toBe( 'TOCus could not finish opening' );
+		expect( bundle.onboarding.startupErrorTitle ).toBe( "TOCus couldn't finish opening" );
 	} );
 } );

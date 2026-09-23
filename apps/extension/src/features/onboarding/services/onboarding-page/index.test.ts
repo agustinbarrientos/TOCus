@@ -697,7 +697,7 @@ describe( 'startOnboardingPage', () => {
 		expect( loadLocalization ).toHaveBeenLastCalledWith( Language.ENGLISH );
 		expect( setAttribute ).toHaveBeenCalledWith( 'lang', 'en' );
 		expect( options.document.title ).toBe( TestEnglishLocalizationBundle.document.onboardingTitle );
-		expect( shell.copy?.startupErrorTitle ).toBe( 'TOCus could not finish opening' );
+		expect( shell.copy?.startupErrorTitle ).toBe( "TOCus couldn't finish opening" );
 		expect( shell.startupUnavailable ).toBe( true );
 		expect( removeProperty ).toHaveBeenCalledWith( 'visibility' );
 
@@ -744,7 +744,7 @@ describe( 'startOnboardingPage', () => {
 		await bootstrapOnboardingPage( options );
 
 		expect( shell.startupUnavailable ).toBe( true );
-		expect( shell.copy?.startupErrorTitle ).toBe( 'TOCus could not finish opening' );
+		expect( shell.copy?.startupErrorTitle ).toBe( "TOCus couldn't finish opening" );
 		expect( removeProperty ).toHaveBeenCalledWith( 'visibility' );
 	} );
 
