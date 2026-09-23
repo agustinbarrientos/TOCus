@@ -11,23 +11,13 @@
 			border-bottom: 1px solid var(--tocus-color-outline);
 		}
 
-		.information-page-eyebrow {
-			@include typography.apply('label-large');
-
-			margin-bottom: 1rem;
-			color: var(--tocus-color-action);
-			text-transform: uppercase;
-		}
-
 		h1 {
 			@include typography.apply('display-large');
 		}
 
-		.information-page-lede {
-			@include typography.apply('headline-small');
-
-			margin-top: 1.75rem;
-			color: var(--tocus-color-on-surface-muted);
+		h1, h2, h3 {
+			hyphens: auto;
+			overflow-wrap: anywhere;
 		}
 
 		.information-page-reviewed {
@@ -37,13 +27,22 @@
 			color: var(--tocus-color-on-surface-muted);
 		}
 
-		section {
-			padding-block: clamp(2.5rem, 6vw, 4rem);
-			border-bottom: 1px solid var(--tocus-color-outline);
+		.support-contact {
+			margin-top: 1.75rem;
 		}
 
-		section:last-child {
+		.privacy-group {
+			padding-block: clamp(3rem, 7vw, 5rem);
+			border-bottom: 1px solid var(--tocus-color-outline);
+
+			> section {
+				padding-top: clamp(2rem, 4vw, 3rem);
+			}
+		}
+
+		.privacy-group:last-child {
 			border-bottom: 0;
+			padding-bottom: 0;
 		}
 
 		h2 {
@@ -52,15 +51,14 @@
 			margin-bottom: 1.5rem;
 		}
 
-		p + p {
-			margin-top: 1.25rem;
+		h3 {
+			@include typography.apply('headline-small');
+
+			margin-bottom: 1.25rem;
 		}
 
-		ol {
-			display: grid;
-			gap: 1.25rem;
-			margin: 0;
-			padding-inline-start: 1.4rem;
+		p + p {
+			margin-top: 1.25rem;
 		}
 
 		.tocus-external-link {
@@ -75,7 +73,7 @@
 			}
 		}
 
-		p .tocus-external-link {
+		p a {
 			font: inherit;
 			/* stylelint-disable-next-line property-disallowed-list -- Inline prose inherits its existing typography tokens. */
 			letter-spacing: inherit;

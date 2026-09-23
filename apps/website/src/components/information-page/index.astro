@@ -5,17 +5,24 @@ import './style.scss';
 import InformationPage from './page';
 import Favicon from '../favicon/index.astro';
 import SocialMetadata from '../social-metadata/index.astro';
-import { WebsiteLanguage, getWebsiteLocalization, getWebsiteLocalizations } from '../../localization';
-import { InformationPageMetadata, type InformationPageProperties as Props } from './types';
+import { WebsiteLanguage, getWebsiteLocalization, getWebsiteLocalizations, getPrivacyCatalog, getSupportCatalog } from '../../localization';
+import { InformationDocument, type InformationPageProperties as Props } from './types';
 
-const { document } = Astro.props;
-const metadata = InformationPageMetadata[ document ];
-const localization = getWebsiteLocalization( WebsiteLanguage.ENGLISH );
-const localizations = getWebsiteLocalizations();
+const { language = WebsiteLanguage.ENGLISH, document = InformationDocument.PRIVACY } = Astro.props;
+const localization = getWebsiteLocalization( language );
+const localizations = getWebsiteLocalizations().map( ( option ) => ( {
+	...option,
+	path: `${ option.path }${ document }/`,
+} ) );
+const documentProperties = document === InformationDocument.SUPPORT
+	? { document, supportCatalog: getSupportCatalog( language ) }
+	: { document, privacyCatalog: getPrivacyCatalog( language ) };
+const catalog = documentProperties.privacyCatalog ?? documentProperties.supportCatalog;
+const metadata = { title: `${ catalog.title } - TOCus`, description: catalog.description };
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={localization.languageTag}>
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
@@ -25,8 +32,12 @@ const localizations = getWebsiteLocalizations();
 			description={metadata.description} imageAlt={localization.catalog.intro} />
 		<Favicon />
 		<title>{metadata.title}</title>
+		<link rel="alternate" hreflang="x-default" href={`/${ document }/`} />
+		{localizations.map( ( option ) => (
+			<link rel="alternate" hreflang={option.languageTag} href={option.path} />
+		) )}
 	</head>
 	<body>
-		<InformationPage {document} {localization} {localizations} client:load />
+		<InformationPage {...documentProperties} {localization} {localizations} client:load />
 	</body>
 </html>

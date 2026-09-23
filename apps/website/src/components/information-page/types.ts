@@ -1,8 +1,10 @@
-import type { LocalizedHomePageProperties } from '../../localization';
+import type { LocalizedHomePageProperties, WebsiteLanguage } from '../../localization';
+import type { PrivacyCatalog } from '../../localization/privacy/types';
+import type { SupportCatalog } from '../../localization/support/types';
 
 /**
- * Canonical publication documents rendered outside the translated product routes.
- * @since 1.0.0 Initial implementation.
+ * Public documents that share the website's navigation and reading layout.
+ * @since 1.0.0
  */
 export const InformationDocument = {
 	PRIVACY: 'privacy',
@@ -10,57 +12,55 @@ export const InformationDocument = {
 } as const;
 
 /**
- * Publication document derived from the runtime catalog.
- * @since 1.0.0 Initial implementation.
- */
-export type InformationDocument = typeof InformationDocument[keyof typeof InformationDocument];
-
-/**
- * External destinations used by the canonical publication documents.
+ * Contact and external destinations used by the canonical publication documents.
  * @since 1.0.0 Initial implementation.
  */
 export const InformationExternalUrl = {
 	CHROME_LIMITED_USE: 'https://developer.chrome.com/docs/webstore/program-policies/user-data-faq',
-	ISSUES: 'https://github.com/agustinbarrientos/TOCus/issues/new/choose',
+	SUPPORT_EMAIL: 'mailto:hi@agustinbarrientos.com',
 } as const;
 
 /**
- * Public title and description used in generated document metadata.
- * @since 1.0.0 Initial implementation.
- */
-export interface InformationPageMetadata {
-	/** Browser-tab title. */
-	title: string;
-	/** Search and link-preview summary. */
-	description: string;
-}
-
-/**
- * Metadata indexed by its canonical information document.
- * @since 1.0.0 Initial implementation.
- */
-export const InformationPageMetadata = {
-	[ InformationDocument.PRIVACY ]: {
-		title: 'Privacy Policy - TOCus',
-		description: 'How TOCus handles extension-local data, permissions, deletion, and ordinary website requests.',
-	},
-	[ InformationDocument.SUPPORT ]: {
-		title: 'TOCus support',
-		description: 'Setup and troubleshooting guidance, public issue reporting, and current security-reporting status.',
-	},
-} as const satisfies Record<InformationDocument, InformationPageMetadata>;
-
-/**
- * Information-page selection supplied by its canonical Astro route.
+ * Document and language supplied by each static information route.
  * @since 1.0.0 Initial implementation.
  */
 export interface InformationPageProperties {
-	/** Canonical document to render. */
-	document: InformationDocument;
+	/** Selected language, defaulting to the English canonical route. */
+	language?: WebsiteLanguage;
+	/** Public document, defaulting to the Privacy Policy. */
+	document?: typeof InformationDocument[keyof typeof InformationDocument];
 }
 
 /**
- * Information document and static navigation copy supplied to the React page.
+ * Privacy document and its translated prose.
  * @since 1.0.0
  */
-export interface LocalizedInformationPageProperties extends InformationPageProperties, LocalizedHomePageProperties {}
+export interface PrivacyDocumentProperties {
+	document: typeof InformationDocument.PRIVACY;
+	privacyCatalog: Readonly<PrivacyCatalog>;
+}
+
+/**
+ * Support document and its translated contact introduction.
+ * @since 1.0.0
+ */
+export interface SupportDocumentProperties {
+	document: typeof InformationDocument.SUPPORT;
+	supportCatalog: Readonly<SupportCatalog>;
+}
+
+/**
+ * Fully localized public document and its shared website navigation.
+ * @since 1.0.0
+ */
+export type LocalizedInformationPageProperties = LocalizedHomePageProperties & (
+	PrivacyDocumentProperties | SupportDocumentProperties
+);
+
+/**
+ * Complete translated prose rendered by the Privacy Policy.
+ * @since 1.0.0
+ */
+export interface PrivacyContentProperties {
+	catalog: Readonly<PrivacyCatalog>;
+}
