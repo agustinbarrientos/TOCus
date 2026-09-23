@@ -4,10 +4,10 @@ import { expect, test } from '@playwright/test';
 import { compareScreenshot, ScreenshotColorOptions } from './index';
 import { RegionalScreenshotColorOptions } from '../compare-regional-page';
 
-// Freeze the historical button so homepage redesigns cannot invalidate these pixel mutations.
+// Freeze historical buttons so page redesigns cannot invalidate these pixel mutations.
 const snapshot = 'tests/visual/helpers/compare-screenshot/__fixtures__/website-button.png'.split( '/' );
 const extensionSnapshot = 'apps/extension/src/features/statistics/components/settings-screen/__snapshots__/chromium/statistics-settings-screen-unavailable-reset-confirmation-dark.png'.split( '/' );
-const regionalSnapshot = 'tests/visual/__snapshots__/chromium-macos26-arm64/onboarding-language-portuguese-portugal.png'.split( '/' );
+const regionalSnapshot = 'tests/visual/helpers/compare-screenshot/__fixtures__/regional-continue-button.png'.split( '/' );
 
 /**
  * Creates a changed actual image in memory without updating the reviewed reference.
@@ -128,18 +128,18 @@ test( 'comparisons without the approved threshold remain exact', async () => {
 test( 'regional threshold accepts the recorded CI Continue-edge color variance', async () => {
 	const actual = changedScreenshot( ( image ) => {
 		for ( const [ x, y, red, green, blue ] of [
-			[ 1176, 780, 125, 79, 62 ], [ 1176, 781, 124, 78, 61 ],
-			[ 1189, 794, 115, 66, 48 ], [ 1190, 794, 115, 66, 48 ],
-			[ 1287, 794, 116, 67, 48 ], [ 1288, 794, 116, 66, 48 ],
-			[ 1289, 794, 131, 87, 70 ], [ 1189, 795, 161, 127, 114 ],
-			[ 1190, 795, 122, 76, 59 ], [ 1191, 795, 120, 73, 56 ],
-			[ 1192, 795, 115, 66, 47 ], [ 1193, 795, 115, 66, 48 ],
-			[ 1194, 795, 116, 67, 48 ], [ 1195, 795, 115, 67, 48 ],
-			[ 1196, 795, 115, 66, 48 ], [ 1281, 795, 115, 66, 48 ],
-			[ 1282, 795, 115, 67, 48 ], [ 1283, 795, 116, 67, 48 ],
-			[ 1284, 795, 116, 66, 48 ], [ 1285, 795, 114, 65, 48 ],
-			[ 1286, 795, 120, 72, 55 ], [ 1287, 795, 123, 77, 59 ],
-			[ 1288, 795, 162, 128, 114 ], [ 1289, 795, 209, 193, 184 ],
+			[ 12, 46, 125, 79, 62 ], [ 12, 47, 124, 78, 61 ],
+			[ 25, 60, 115, 66, 48 ], [ 26, 60, 115, 66, 48 ],
+			[ 123, 60, 116, 67, 48 ], [ 124, 60, 116, 66, 48 ],
+			[ 125, 60, 131, 87, 70 ], [ 25, 61, 161, 127, 114 ],
+			[ 26, 61, 122, 76, 59 ], [ 27, 61, 120, 73, 56 ],
+			[ 28, 61, 115, 66, 47 ], [ 29, 61, 115, 66, 48 ],
+			[ 30, 61, 116, 67, 48 ], [ 31, 61, 115, 67, 48 ],
+			[ 32, 61, 115, 66, 48 ], [ 117, 61, 115, 66, 48 ],
+			[ 118, 61, 115, 67, 48 ], [ 119, 61, 116, 67, 48 ],
+			[ 120, 61, 116, 66, 48 ], [ 121, 61, 114, 65, 48 ],
+			[ 122, 61, 120, 72, 55 ], [ 123, 61, 123, 77, 59 ],
+			[ 124, 61, 162, 128, 114 ], [ 125, 61, 209, 193, 184 ],
 		] as const ) {
 			image.data.set( [ red, green, blue, 255 ], ( y * image.width + x ) * 4 );
 		}
@@ -151,8 +151,8 @@ test( 'regional threshold accepts the recorded CI Continue-edge color variance',
 test( 'regional threshold still rejects a one-pixel Continue button shift', async () => {
 	const actual = changedScreenshot( ( image ) => {
 		const source = Buffer.from( image.data );
-		for ( let y = 750; y < 801; y++ ) {
-			for ( let x = 1170; x < 1310; x++ ) {
+		for ( let y = 16; y < 67; y++ ) {
+			for ( let x = 6; x < 146; x++ ) {
 				const offset = ( y * image.width + x ) * 4;
 				image.data.set( source.subarray( offset - 4, offset ), offset );
 			}
@@ -163,8 +163,8 @@ test( 'regional threshold still rejects a one-pixel Continue button shift', asyn
 
 test( 'regional threshold still rejects missing Continue text', async () => {
 	const actual = changedScreenshot( ( image ) => {
-		for ( let y = 767; y < 783; y++ ) {
-			for ( let x = 1201; x < 1277; x++ ) {
+		for ( let y = 33; y < 49; y++ ) {
+			for ( let x = 37; x < 113; x++ ) {
 				image.data.set( [ 117, 66, 47, 255 ], ( y * image.width + x ) * 4 );
 			}
 		}
@@ -182,8 +182,8 @@ test( 'regional threshold still rejects changed image dimensions', async () => {
 
 test( 'regional threshold still rejects a changed Continue button fill', async () => {
 	const actual = changedScreenshot( ( image ) => {
-		for ( let y = 760; y < 766; y++ ) {
-			for ( let x = 1210; x < 1220; x++ ) {
+		for ( let y = 26; y < 32; y++ ) {
+			for ( let x = 46; x < 56; x++ ) {
 				image.data.set( [ 95, 45, 30, 255 ], ( y * image.width + x ) * 4 );
 			}
 		}
@@ -193,7 +193,7 @@ test( 'regional threshold still rejects a changed Continue button fill', async (
 
 test( 'regional threshold permits no extra pixels beyond its color policy', async () => {
 	const actual = changedScreenshot( ( image ) => {
-		image.data.set( [ 0, 0, 0, 255 ], ( 740 * image.width + 1200 ) * 4 );
+		image.data.set( [ 0, 0, 0, 255 ], ( 6 * image.width + 36 ) * 4 );
 	}, regionalSnapshot );
 	await expect( compareScreenshot( actual, regionalSnapshot, RegionalScreenshotColorOptions ) ).rejects.toThrow();
 } );
