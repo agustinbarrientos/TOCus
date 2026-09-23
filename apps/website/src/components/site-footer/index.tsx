@@ -1,6 +1,7 @@
+import { useEffect } from 'react';
 import { Anchor, Brand } from '@tocus/ui';
 import { ExternalLink, WebsiteLink } from '../site-links';
-import { AnalyticsConsent } from '../analytics-consent';
+import { startAnalytics } from '../../services/website-analytics';
 import type { SiteFooterProps } from './types';
 import './style.scss';
 
@@ -13,6 +14,7 @@ import './style.scss';
 export function SiteFooter( props: SiteFooterProps ) {
 	const { localization, localizations, enhanced } = props;
 	const { catalog } = localization;
+	useEffect( startAnalytics, [] );
 	return (
 		<footer className="site-footer">
 			<div className="page-shell">
@@ -30,7 +32,6 @@ export function SiteFooter( props: SiteFooterProps ) {
 						</div>
 					</div>
 				</div>
-				<AnalyticsConsent localization={ localization } />
 				<div id="languages" hidden={ enhanced }>
 					<nav aria-label={ catalog.languageMenuLabel }>
 						<ul role="list">

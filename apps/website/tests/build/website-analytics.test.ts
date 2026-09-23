@@ -30,44 +30,28 @@ async function serveWebsite( page: Page ): Promise<string[]> {
 
 test.use( { reducedMotion: 'reduce' } );
 
-test( 'analytics waits for consent, remembers rejection and supports later acceptance and withdrawal', async ( { page } ) => {
+test( 'production pages load analytics without a banner or preferences control', async ( { page } ) => {
 	const requests = await serveWebsite( page );
-	await page.goto( ProductionOrigin );
-	const prompt = page.getByRole( 'region', { name: 'Website analytics', exact: true } );
-	await expect( prompt ).toBeVisible();
-	expect( requests ).toEqual( [] );
-	await prompt.getByRole( 'button', { name: 'Reject', exact: true } ).click();
-	await expect( prompt ).toBeHidden();
-	await page.reload();
-	await expect( page.getByRole( 'button', { name: 'Analytics preferences', exact: true } ) ).toBeVisible();
-	await expect( prompt ).toBeHidden();
-	expect( requests ).toEqual( [] );
-	await page.getByRole( 'button', { name: 'Analytics preferences', exact: true } ).click();
-	await prompt.getByRole( 'button', { name: 'Accept', exact: true } ).click();
-	await expect.poll( () => requests.length ).toBe( 1 );
-	expect( requests[ 0 ] ).toBe( 'https://www.googletagmanager.com/gtag/js?id=G-RBHGLDECJ9' );
-	const commands = await page.evaluate( () => JSON.stringify( Reflect.get( window, 'dataLayer' ) ) );
-	expect( commands ).toContain( 'G-RBHGLDECJ9' );
-	expect( commands ).toContain( 'analytics_storage' );
-	expect( commands ).toContain( 'granted' );
-	expect( commands ).toContain( '"allow_google_signals":false' );
-	await page.goto( `${ ProductionOrigin }/es/privacy/` );
-	await expect.poll( () => requests.length ).toBe( 2 );
-	await expect( page.locator( '.analytics-prompt' ) ).toBeHidden();
-	await expect( page.locator( '#website-analytics' ) ).toContainText( 'Google Analytics' );
-	await page.goto( `${ ProductionOrigin }/privacy/` );
-	await expect.poll( () => requests.length ).toBe( 3 );
-	await page.evaluate( () => {
-		document.cookie = '_ga=test; path=/; SameSite=Lax; Secure';
+	for ( const [ index, path ] of [ '/', '/es/privacy/', '/privacy/' ].entries() ) {
+		await page.goto( `${ ProductionOrigin }${ path }` );
+		await expect( page.locator( '.website' ) ).toHaveAttribute( 'data-enhanced', 'true' );
+		await expect( page.locator( '.analytics-prompt, .analytics-preferences' ) ).toHaveCount( 0 );
+		await expect.poll( () => requests.length ).toBe( index + 1 );
+		expect( requests[ index ] ).toBe( 'https://www.googletagmanager.com/gtag/js?id=G-RBHGLDECJ9' );
+		await expect( page.locator( 'script[data-website-analytics]' ) ).toHaveCount( 1 );
+		if ( path.includes( 'privacy' ) ) {
+			await expect( page.locator( '#website-analytics' ) ).toContainText( 'Google Analytics' );
+		}
+	}
+	const commands = await page.evaluate( () => {
+		const queue = Reflect.get( window, 'dataLayer' ) as ArrayLike<unknown>[];
+		return queue.map( ( command ) => Array.from( command ) );
 	} );
-	await page.getByRole( 'button', { name: 'Analytics preferences', exact: true } ).click();
-	await prompt.getByRole( 'button', { name: 'Reject', exact: true } ).click();
-	await expect( page.locator( 'script[data-website-analytics]' ) ).toHaveCount( 0 );
-	await expect( prompt ).toBeHidden();
-	expect( requests ).toHaveLength( 3 );
-	expect( await page.context().cookies() ).not.toEqual( expect.arrayContaining( [
-		expect.objectContaining( { name: '_ga' } ),
-	] ) );
+	expect( commands ).toContainEqual( [ 'config', 'G-RBHGLDECJ9', {
+		allow_google_signals: false,
+		allow_ad_personalization_signals: false,
+		cookie_domain: 'none',
+	} ] );
 } );
 
 test( 'local and preview hosts never load Google Analytics', async ( { page } ) => {
