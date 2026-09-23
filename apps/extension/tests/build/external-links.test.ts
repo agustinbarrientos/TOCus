@@ -13,14 +13,13 @@ describe( 'external website links', () => {
 		const externalArtwork = ( await readFile( new URL(
 			`../../../../packages/theme/assets/icons/${ IconName.ARROW_UP_RIGHT_FROM_SQUARE }.svg`, import.meta.url,
 		), 'utf8' ) ).trim();
-		const paths = ( await readdir( websiteOutput, { recursive: true } ) ).filter( ( path ) => path.endsWith( 'index.html' ) );
-		// Public routes must exist, while additional pages (such as the local mascot lab)
-		// are also inspected without assuming that every page has outbound navigation.
-		expect( paths ).toEqual( expect.arrayContaining( [
-			'index.html', 'de/index.html', 'es/index.html', 'es-ar/index.html',
-			'fr/index.html', 'it/index.html', 'ja/index.html', 'pt-br/index.html',
-			'pt-pt/index.html', 'ru/index.html', 'privacy/index.html', 'support/index.html',
-		] ) );
+		const paths = ( await readdir( websiteOutput, { recursive: true } ) ).filter( ( path ) => path.endsWith( '.html' ) );
+		// Only the homepage and Privacy Policy belong in production.
+		const locales = [ '', 'de/', 'es/', 'es-ar/', 'fr/', 'it/', 'ja/', 'pt-br/', 'pt-pt/', 'ru/' ];
+		const expectedPages = locales.flatMap( ( locale ) => [
+			`${ locale }index.html`, `${ locale }privacy/index.html`,
+		] );
+		expect( paths.sort() ).toEqual( expectedPages.sort() );
 		for ( const path of paths ) {
 			const page = await readFile( new URL( path, websiteOutput ), 'utf8' );
 			const links = Array.from( page.matchAll( /<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gu ) );

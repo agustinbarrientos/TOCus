@@ -66,12 +66,11 @@ export function createOnboardingSitesStepCopy( i18n: I18n ): Readonly<Onboarding
 	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatPermissionRetainedAnnouncement( name: string ): string {
-		return i18n._( msg`${ { name } } was removed, but its browser access could not be removed automatically.` );
+		return i18n._( msg`${ { name } } was removed, but its browser access couldn't be removed automatically.` );
 	}
 
 	return Object.freeze( {
 		title: i18n._( msg`Choose websites` ),
-		introduction: i18n._( msg`Pick any suggestions or add a site yourself. You can finish without choosing one.` ),
 		suggestionsLegend: i18n._( msg`Popular choices` ),
 		manualLegend: i18n._( msg`Add another site` ),
 		addressLabel: i18n._( msg`Website address` ),
@@ -82,16 +81,16 @@ export function createOnboardingSitesStepCopy( i18n: I18n ): Readonly<Onboarding
 		invalidSiteError: i18n._( msg`Enter a valid website address.` ),
 		alreadyProtectedError: i18n._( msg`That website is already on your list.` ),
 		permissionDeniedError: i18n._( msg`TOCus needs browser access to show the pause on that website. Nothing was added.` ),
-		permissionRequestError: i18n._( msg`Your browser could not request access for that site. Try again.` ),
+		permissionRequestError: i18n._( msg`Your browser couldn't request access for that site. Try again.` ),
 		permissionRetainedError: i18n._(
-			msg`This site was not saved, but TOCus may still have browser access to it. Add it again to finish setup, or remove that access from your browser's extension settings.`,
+			msg`This site wasn't saved, but TOCus may still have browser access to it. Add it again to finish setup, or remove that access from your browser's extension settings.`,
 		),
-		saveError: i18n._( msg`TOCus could not save that site. Try again.` ),
+		saveError: i18n._( msg`TOCus couldn't save that site. Try again.` ),
 		unexpectedError: i18n._( msg`Something went wrong while adding that site. Try again.` ),
 		finishLabel: i18n._( msg`Finish setup` ),
 		finishHelp: i18n._( msg`Your browser will ask for access to the selected websites when you finish.` ),
 		removeSiteLabel: i18n._( msg`Remove site` ),
-		removalError: i18n._( msg`Your changes could not be saved. Nothing was replaced.` ),
+		removalError: i18n._( msg`Your changes couldn't be saved. Nothing was replaced.` ),
 		formatAddSuggestionLabel,
 		formatAddingSuggestionLabel,
 		formatAddedSuggestionLabel,

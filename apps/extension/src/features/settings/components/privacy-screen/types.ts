@@ -40,9 +40,13 @@ export type PrivacyResetAction = typeof PrivacyResetAction[keyof typeof PrivacyR
 export interface PrivacyScreenCopy {
 	title: string;
 	storedTitle: string;
+	storedSummary: string;
 	storedDescription: string;
 	statisticsPrivacy: string;
+	offlinePrivacy: string;
 	recoveryPrivacy: string;
+	trustPrivacy: string;
+	sourcePrivacy: string;
 	permissionsTitle: string;
 	websitePermission: string;
 	toolbarPermission: string;

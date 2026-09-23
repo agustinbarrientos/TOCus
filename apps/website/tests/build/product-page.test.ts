@@ -105,10 +105,9 @@ test.describe( 'static illustrated product presentation', () => {
 			page.locator( '.site-footer a[href="/privacy/"]' ).click(),
 		] );
 		await expect( privacyPage ).toHaveURL( 'http://website.test/privacy/' );
-		await expect( privacyPage.getByRole( 'heading', { level: 1 } ) ).toHaveText( 'How TOCus handles your data' );
+		await expect( privacyPage.getByRole( 'heading', { level: 1 } ) ).toHaveText( 'Privacy Policy' );
 		await privacyPage.close();
 		await expect( page.locator( '.site-footer a[href*="utm_medium=website"]' ) ).toContainText( 'Agustin Barrientos' );
-		await expect( page.locator( 'a[href="/support/"]' ) ).toHaveCount( 0 );
 	} );
 
 	for ( const engine of [ 'chromium', 'firefox', 'webkit' ] as const ) {

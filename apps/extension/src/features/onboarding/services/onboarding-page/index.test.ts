@@ -419,23 +419,21 @@ describe( 'startOnboardingPage', () => {
 
 	it.each( [
 		{
-			expectedIntroduction: 'Haz una pausa antes de navegar',
+			expectedIntroduction: 'Haz una pausa antes de visitar sitios web adictivos',
 			expectedLanguageTag: 'es',
 			expectedPortugueseVariantLegend: '\u00bfQu\u00e9 variante de portugu\u00e9s quieres que use TOCus?',
 			expectedPrivacyTitle: '100% privado',
 			expectedProgressLabel: 'Progreso de la configuraci\u00f3n',
-			expectedSettingsNote: 'Puedes cambiar estas opciones y ajustar los tiempos o los horarios cuando quieras en Configuraci\u00f3n.',
 			expectedSpanishVariantLegend: '\u00bfQu\u00e9 variante de espa\u00f1ol quieres que use TOCus?',
 			expectedTitle: 'Elige tu idioma',
 			language: Language.SPANISH_TU,
 		},
 		{
-			expectedIntroduction: 'Fa\u00e7a uma pausa antes de navegar',
+			expectedIntroduction: 'Fa\u00e7a uma pausa antes de visitar sites viciantes',
 			expectedLanguageTag: 'pt-BR',
 			expectedPortugueseVariantLegend: 'Qual variante do portugu\u00eas o TOCus deve usar?',
 			expectedPrivacyTitle: '100% privado',
 			expectedProgressLabel: 'Progresso da configura\u00e7\u00e3o',
-			expectedSettingsNote: 'Voc\u00ea pode alterar estas escolhas e ajustar os tempos ou hor\u00e1rios quando quiser nas Configura\u00e7\u00f5es.',
 			expectedSpanishVariantLegend: 'Qual variante do espanhol o TOCus deve usar?',
 			expectedTitle: 'Escolha seu idioma',
 			language: Language.PORTUGUESE_BRAZIL,
@@ -446,7 +444,6 @@ describe( 'startOnboardingPage', () => {
 		expectedPortugueseVariantLegend,
 		expectedPrivacyTitle,
 		expectedProgressLabel,
-		expectedSettingsNote,
 		expectedSpanishVariantLegend,
 		expectedTitle,
 		language,
@@ -479,7 +476,6 @@ describe( 'startOnboardingPage', () => {
 		expect( shell.copy?.introduction ).toBe( expectedIntroduction );
 		expect( shell.copy?.privacyTitle ).toBe( expectedPrivacyTitle );
 		expect( shell.copy?.progressLabel ).toBe( expectedProgressLabel );
-		expect( shell.copy?.settingsNote ).toBe( expectedSettingsNote );
 		expect( setAttribute ).toHaveBeenLastCalledWith( 'lang', expectedLanguageTag );
 		expect( storageSet ).not.toHaveBeenCalled();
 	} );
@@ -701,7 +697,7 @@ describe( 'startOnboardingPage', () => {
 		expect( loadLocalization ).toHaveBeenLastCalledWith( Language.ENGLISH );
 		expect( setAttribute ).toHaveBeenCalledWith( 'lang', 'en' );
 		expect( options.document.title ).toBe( TestEnglishLocalizationBundle.document.onboardingTitle );
-		expect( shell.copy?.startupErrorTitle ).toBe( 'TOCus could not finish opening' );
+		expect( shell.copy?.startupErrorTitle ).toBe( "TOCus couldn't finish opening" );
 		expect( shell.startupUnavailable ).toBe( true );
 		expect( removeProperty ).toHaveBeenCalledWith( 'visibility' );
 
@@ -748,7 +744,7 @@ describe( 'startOnboardingPage', () => {
 		await bootstrapOnboardingPage( options );
 
 		expect( shell.startupUnavailable ).toBe( true );
-		expect( shell.copy?.startupErrorTitle ).toBe( 'TOCus could not finish opening' );
+		expect( shell.copy?.startupErrorTitle ).toBe( "TOCus couldn't finish opening" );
 		expect( removeProperty ).toHaveBeenCalledWith( 'visibility' );
 	} );
 

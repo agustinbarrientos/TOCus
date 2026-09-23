@@ -15,6 +15,7 @@ const linguiConfigPath = fileURLToPath( new URL( '../../lingui.config.ts', impor
  * @since 1.0.0 Initial implementation.
  */
 export default defineConfig( {
+	site: 'https://tocus.uo.ar',
 	output: 'static',
 	server: { port: 4322 },
 	integrations: [ react() ],

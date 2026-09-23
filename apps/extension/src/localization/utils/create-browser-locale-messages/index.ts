@@ -21,7 +21,7 @@ export function createBrowserLocaleMessages( i18n: I18n ): BrowserLocaleMessages
 		extensionDescription: {
 			message: i18n._( msg( {
 				comment: 'Short extension description shown by the browser and extension store.',
-				message: 'A gentle pause before distracting websites, designed to help you return to your intentions.',
+				message: 'Pause before visiting addictive websites',
 				context: 'Extension description',
 			} ) ),
 			description: 'Short extension description shown by the browser and extension store.',

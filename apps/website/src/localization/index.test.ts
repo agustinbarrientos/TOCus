@@ -8,6 +8,7 @@ import {
 	WebsiteLanguages,
 	getWebsiteLocalization,
 	getWebsiteLocalizations,
+	getPrivacyCatalog,
 } from './index';
 
 /**
@@ -68,6 +69,19 @@ async function readWebsiteCatalog( locale: string ): Promise<CatalogType> {
 }
 
 describe( 'website localization', () => {
+	it( 'provides every public privacy paragraph without English fallbacks', () => {
+		const english = getPrivacyCatalog( WebsiteLanguage.ENGLISH );
+		for ( const language of WebsiteLanguages ) {
+			const privacy = getPrivacyCatalog( language );
+			for ( const [ field, value ] of Object.entries( privacy ) ) {
+				expect( value.trim(), `${ language }:${ field }` ).not.toBe( '' );
+				if ( language !== WebsiteLanguage.ENGLISH ) {
+					expect( value, `${ language }:${ field }` ).not.toBe( english[ field as keyof typeof english ] );
+				}
+			}
+		}
+	} );
+
 	it( 'keeps em dashes out of every localized website string', () => {
 		for ( const localization of getWebsiteLocalizations() ) {
 			expect( JSON.stringify( localization ) ).not.toContain( '\u2014' );

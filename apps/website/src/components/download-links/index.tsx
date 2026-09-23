@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 import { Button, Icon, IconName } from '@tocus/ui';
 import { detectDownloadBrowser, DownloadStores, getDownloadStore, WebsiteBrowser } from '../../config/downloads';
 import { ExternalLink } from '../site-links';
-import type { DownloadLinkProps, DownloadLinksProps } from './types';
+import type { DownloadLinksProps } from './types';
 import './style.scss';
 
 /**
@@ -32,24 +32,6 @@ function useDownloadStore() {
 }
 
 /**
- * Shared compact download action for page headers.
- * @param props - Localized download label.
- * @return Direct store link or unavailable text for the selected browser.
- * @since 1.0.0
- */
-export function DownloadLink( props: DownloadLinkProps ) {
-	const store = useDownloadStore();
-	if ( store.href === null ) {
-		return <span aria-disabled="true" data-download-primary data-store={ store.browser }>
-			{ store.name } - { props.comingSoon }
-		</span>;
-	}
-	return <ExternalLink href={ store.href } data-download-primary data-store={ store.browser }>
-		{ props.label }
-	</ExternalLink>;
-}
-
-/**
  * Shows the primary browser availability followed by the other browser stores.
  * @param props - Localized download and alternate-store labels.
  * @return Primary store action and text alternatives.
@@ -72,18 +54,22 @@ export function DownloadLinks( props: DownloadLinksProps ) {
 			</Button> }
 		<p className="store-alternatives">
 			<span>{ props.alsoAvailable }</span>{ ' ' }
-			{ Object.values( DownloadStores ).filter( ( alternative ) => alternative.browser !== store.browser )
-				.map( ( alternative ) => <span className="store-alternative" key={ alternative.browser }>
-					{ alternative.href === null
-						? <span aria-disabled="true" data-store={ alternative.browser }>
-							<img src={ `/badges/browser-${ alternative.browser }.svg` } alt="" width="22" height="22" />
-							{ alternative.name } - { props.comingSoon }
-						</span>
-						: <ExternalLink href={ alternative.href } data-store={ alternative.browser }>
-							<img src={ `/badges/browser-${ alternative.browser }.svg` } alt="" width="22" height="22" />
-							{ alternative.name }
-						</ExternalLink> }
-				</span> ) }
+			<span className="store-alternative-list">
+				{ Object.values( DownloadStores ).filter( ( alternative ) => alternative.browser !== store.browser )
+					.map( ( alternative ) => <span className="store-alternative" key={ alternative.browser }>
+						{ alternative.href === null
+							? <span role="link" aria-disabled="true" data-store={ alternative.browser }
+								aria-label={ `${ alternative.name } - ${ props.comingSoon }` }>
+								<img src={ `/badges/browser-${ alternative.browser }.svg` } alt="" width="22" height="22" />
+								<span className="store-alternative-name">{ alternative.name } - { props.comingSoon }</span>
+							</span>
+							: <ExternalLink href={ alternative.href } data-store={ alternative.browser }
+								aria-label={ alternative.name } title={ alternative.name }>
+								<img src={ `/badges/browser-${ alternative.browser }.svg` } alt="" width="22" height="22" />
+								<span className="store-alternative-name">{ alternative.name }</span>
+							</ExternalLink> }
+					</span> ) }
+			</span>
 		</p>
 	</div>;
 }

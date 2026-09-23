@@ -96,3 +96,11 @@ export interface HeroTimeUniform { value: number }
  * @since 1.0.0
  */
 export interface HeroCameraPosition { x: number; y: number; z: number }
+
+/**
+ * An owned WebGL resource whose allocation must be released during teardown.
+ * @since 1.0.0
+ */
+export interface DisposableResource {
+	dispose: () => void;
+}

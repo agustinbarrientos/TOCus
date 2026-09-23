@@ -366,9 +366,6 @@ importers:
       '@types/three':
         specifier: ^0.185.4
         version: 0.185.4
-      playwright:
-        specifier: 1.63.0
-        version: 1.63.0
       typescript:
         specifier: 6.0.3
         version: 6.0.3

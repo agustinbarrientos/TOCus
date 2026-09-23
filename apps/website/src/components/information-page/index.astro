@@ -4,23 +4,37 @@ import '../../styles/global.scss';
 import './style.scss';
 import InformationPage from './page';
 import Favicon from '../favicon/index.astro';
-import { InformationPageMetadata, type InformationPageProperties as Props } from './types';
+import SocialMetadata from '../social-metadata/index.astro';
+import { WebsiteLanguage, getWebsiteLocalization, getWebsiteLocalizations, getPrivacyCatalog } from '../../localization';
+import type { InformationPageProperties as Props } from './types';
 
-const { document } = Astro.props;
-const metadata = InformationPageMetadata[ document ];
+const { language = WebsiteLanguage.ENGLISH } = Astro.props;
+const localization = getWebsiteLocalization( language );
+const localizations = getWebsiteLocalizations().map( ( option ) => ( {
+	...option,
+	path: `${ option.path }privacy/`,
+} ) );
+const privacyCatalog = getPrivacyCatalog( language );
+const metadata = { title: `${ privacyCatalog.title } - TOCus`, description: privacyCatalog.description };
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={localization.languageTag}>
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="color-scheme" content="light" />
 		<meta name="description" content={metadata.description} />
+		<SocialMetadata language={localization.language} title={metadata.title}
+			description={metadata.description} imageAlt={localization.catalog.intro} />
 		<Favicon />
 		<title>{metadata.title}</title>
+		<link rel="alternate" hreflang="x-default" href="/privacy/" />
+		{localizations.map( ( option ) => (
+			<link rel="alternate" hreflang={option.languageTag} href={option.path} />
+		) )}
 	</head>
 	<body>
-		<InformationPage {document} client:load />
+		<InformationPage {privacyCatalog} {localization} {localizations} client:load />
 	</body>
 </html>

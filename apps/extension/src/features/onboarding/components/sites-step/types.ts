@@ -36,7 +36,6 @@ export type OnboardingEnrollmentFailure =
  */
 export interface OnboardingSitesStepCopy {
 	title: string;
-	introduction: string;
 	suggestionsLegend: string;
 	manualLegend: string;
 	addressLabel: string;

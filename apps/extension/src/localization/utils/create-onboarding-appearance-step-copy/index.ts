@@ -12,7 +12,6 @@ import type { OnboardingAppearanceStepCopy } from '../../../features/onboarding/
 export function createOnboardingAppearanceStepCopy( i18n: I18n ): Readonly<OnboardingAppearanceStepCopy> {
 	return Object.freeze( {
 		title: i18n._( msg`Make TOCus yours` ),
-		introduction: i18n._( msg`Choose the appearance and color that feel right for you.` ),
 		themeLegend: i18n._( msg`Appearance` ),
 		themeOptions: Object.freeze( {
 			[ ThemeMode.SYSTEM ]: Object.freeze( {

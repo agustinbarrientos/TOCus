@@ -1,5 +1,7 @@
 import { setupI18n, type I18n, type Messages } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
+import { createPrivacyCatalog } from './privacy';
+import type { PrivacyCatalog } from './privacy/types';
 import { messages as germanMessages } from '../../locales/de.po';
 import { messages as englishMessages } from '../../locales/en.po';
 import { messages as spanishTuMessages } from '../../locales/es.po';
@@ -118,6 +120,11 @@ function createWebsiteCatalog( i18n: I18n ): Readonly<WebsiteCatalog> {
 		sourceShort: i18n._( msg`View the source` ),
 		skipLink: i18n._( msg`Skip to content` ),
 		languageMenuLabel: i18n._( msg`Website language` ),
+		analyticsPromptTitle: i18n._( msg( { message: 'Website analytics' } ) ),
+		analyticsPromptDescription: i18n._( msg( { message: 'May we use Google Analytics cookies to understand visits to this website? The extension has no analytics or tracking.' } ) ),
+		analyticsAccept: i18n._( msg( { message: 'Accept' } ) ),
+		analyticsReject: i18n._( msg( { message: 'Reject' } ) ),
+		analyticsPreferences: i18n._( msg( { message: 'Analytics preferences' } ) ),
 		languageLabels: Object.freeze( {
 			[ WebsiteLanguage.ENGLISH ]: i18n._( msg( {
 				comment: 'Language-menu autonym. Keep this language name written in English.',
@@ -164,17 +171,38 @@ function createWebsiteCatalog( i18n: I18n ): Readonly<WebsiteCatalog> {
 }
 
 /**
- * Returns one complete localized website projection.
+ * Activates one isolated website translation catalog.
  * @param language - Stable website language.
- * @return Catalog, route, and document language for the selected language.
- * @since 1.0.0 Initial implementation.
+ * @return Page-local Lingui instance.
+ * @since 1.0.0
  */
-export function getWebsiteLocalization( language: WebsiteLanguageValue ): Readonly<WebsiteLocalization> {
+function createWebsiteI18n( language: WebsiteLanguageValue ): I18n {
 	const metadata = WebsiteLanguageMetadataByLanguage[ language ];
-	const i18n = setupI18n( {
+	return setupI18n( {
 		locale: metadata.languageTag,
 		messages: { [ metadata.languageTag ]: WebsiteMessagesByLanguage[ language ] },
 	} );
+}
+
+/**
+ * Returns the complete translated public privacy document.
+ * @param language - Stable website language.
+ * @return Privacy copy without English fallbacks.
+ * @since 1.0.0
+ */
+export function getPrivacyCatalog( language: WebsiteLanguageValue ): Readonly<PrivacyCatalog> {
+	return createPrivacyCatalog( createWebsiteI18n( language ) );
+}
+
+/**
+ * Returns one complete localized website projection.
+ * @param language - Stable website language.
+ * @return Catalog, route, and document language for the selected language.
+ * @since 1.0.0
+ */
+export function getWebsiteLocalization( language: WebsiteLanguageValue ): Readonly<WebsiteLocalization> {
+	const metadata = WebsiteLanguageMetadataByLanguage[ language ];
+	const i18n = createWebsiteI18n( language );
 
 	return Object.freeze( {
 		language,

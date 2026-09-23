@@ -1,68 +1,36 @@
-/**
- * Canonical publication documents rendered outside the translated product routes.
- * @since 1.0.0 Initial implementation.
- */
-export const InformationDocument = {
-	PRIVACY: 'privacy',
-	SUPPORT: 'support',
-} as const;
+import type { LocalizedHomePageProperties, WebsiteLanguage } from '../../localization';
+import type { PrivacyCatalog } from '../../localization/privacy/types';
 
 /**
- * Publication document derived from the runtime catalog.
- * @since 1.0.0 Initial implementation.
- */
-export type InformationDocument = typeof InformationDocument[keyof typeof InformationDocument];
-
-/**
- * Stable local routes shared by the information-page navigation.
- * @since 1.0.0 Initial implementation.
- */
-export const InformationRoute = {
-	HOME: '/',
-	PRIVACY: '/privacy/',
-	SUPPORT: '/support/',
-} as const;
-
-/**
- * External destinations used by the canonical publication documents.
+ * Contact and external destinations used by the canonical publication documents.
  * @since 1.0.0 Initial implementation.
  */
 export const InformationExternalUrl = {
 	CHROME_LIMITED_USE: 'https://developer.chrome.com/docs/webstore/program-policies/user-data-faq',
-	ISSUES: 'https://github.com/agustinbarrientos/TOCus/issues/new/choose',
+	GOOGLE_DATA_USE: 'https://policies.google.com/technologies/partner-sites',
 } as const;
 
 /**
- * Public title and description used in generated document metadata.
- * @since 1.0.0 Initial implementation.
- */
-export interface InformationPageMetadata {
-	/** Browser-tab title. */
-	title: string;
-	/** Search and link-preview summary. */
-	description: string;
-}
-
-/**
- * Metadata indexed by its canonical information document.
- * @since 1.0.0 Initial implementation.
- */
-export const InformationPageMetadata = {
-	[ InformationDocument.PRIVACY ]: {
-		title: 'TOCus privacy',
-		description: 'How TOCus handles extension-local data, permissions, deletion, and ordinary website requests.',
-	},
-	[ InformationDocument.SUPPORT ]: {
-		title: 'TOCus support',
-		description: 'Setup and troubleshooting guidance, public issue reporting, and current security-reporting status.',
-	},
-} as const satisfies Record<InformationDocument, InformationPageMetadata>;
-
-/**
- * Information-page selection supplied by its canonical Astro route.
+ * Language supplied by each static privacy route.
  * @since 1.0.0 Initial implementation.
  */
 export interface InformationPageProperties {
-	/** Canonical document to render. */
-	document: InformationDocument;
+	/** Selected language, defaulting to the English canonical route. */
+	language?: WebsiteLanguage;
+}
+
+/**
+ * Fully localized privacy document and its shared website navigation.
+ * @since 1.0.0
+ */
+export interface LocalizedInformationPageProperties extends LocalizedHomePageProperties {
+	privacyCatalog: Readonly<PrivacyCatalog>;
+}
+
+/**
+ * Complete translated prose rendered by the Privacy Policy.
+ * @since 1.0.0
+ */
+export interface PrivacyContentProperties {
+	catalog: Readonly<PrivacyCatalog>;
 }

@@ -7,10 +7,10 @@ describe( 'createPrivacyScreenCopy', () => {
 		const copy = createPrivacyScreenCopy( createTestI18n() );
 		expect( copy.title ).toBe( 'Privacy and local data' );
 		expect( copy.statisticsDescription ).toContain( 'Your websites and settings stay the same' );
-		expect( copy.allConfirmation ).toContain( 'Website access will be removed' );
-		expect( copy.allConfirmation ).toContain( 'cannot be undone' );
+		expect( copy.allConfirmation ).toContain( 'The setup will begin again.' );
+		expect( copy.allConfirmation ).toContain( "This can't be reversed." );
 		expect( copy.allSuccess ).toBe( 'All TOCus data reset.' );
-		expect( copy.faviconPermission ).toBe( 'Your browser can supply cached website icons. TOCus does not contact an icon service.' );
+		expect( copy.faviconPermission ).toBe( "Your browser tries to use website icons from its own cache whenever it can. Sometimes this doesn't work. I set it up this way to keep TOCus completely private and avoid connecting to any icon service." );
 		expect( Object.isFrozen( copy ) ).toBe( true );
 	} );
 } );

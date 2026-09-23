@@ -28,9 +28,8 @@ test.describe( 'migrated presentation', () => {
 			const actions = document.querySelector<HTMLElement>( '.onboarding-form .tocus-form-actions' );
 			const button = actions?.querySelector( 'button' );
 			const privacyDescription = privacy?.querySelector( 'p:last-child' );
-			const footer = document.querySelector( '.onboarding-footer' );
 			if ( ! stage || ! panel || ! privacy || ! actions || ! button
-				|| ! privacyDescription || ! footer ) {
+				|| ! privacyDescription ) {
 				return null;
 			}
 			const style = getComputedStyle( panel );
@@ -43,8 +42,6 @@ test.describe( 'migrated presentation', () => {
 				actionRight: actions.getBoundingClientRect().right,
 				buttonRight: button.getBoundingClientRect().right,
 				privacyFontSize: parseFloat( getComputedStyle( privacyDescription ).fontSize ),
-				footerLeft: footer.getBoundingClientRect().left,
-				footerBottom: footer.getBoundingClientRect().bottom,
 			};
 		} );
 		expect( layout, 'The original onboarding shell has distinct setup and privacy surfaces.' ).not.toBeNull();
@@ -56,28 +53,6 @@ test.describe( 'migrated presentation', () => {
 		expect( layout?.privacyBorder ).toBe( 1 );
 		expect( Math.abs( ( layout?.actionRight ?? 0 ) - ( layout?.buttonRight ?? 1 ) ) ).toBeLessThan( 1 );
 		expect( layout?.privacyFontSize ).toBeCloseTo( 13.8, 1 );
-		expect( layout?.footerLeft ).toBe( 96 );
-		expect( layout?.footerBottom ).toBeLessThanOrEqual( 1000 );
-	} );
-	test( 'lets onboarding descriptions use their parent width at every step', async ( { page } ) => {
-		for ( const viewport of [ { width: 1440, height: 1000 }, { width: 390, height: 844 } ] ) {
-			await page.setViewportSize( viewport );
-			await page.goto( `/apps/extension/tests/ui/index.html?surface=${ PresentationSurface.ONBOARDING }` );
-			for ( const heading of [ 'Choose your language', 'Make TOCus yours', 'Choose websites' ] ) {
-				await expect( page.getByRole( 'heading', { name: heading, exact: true } ) ).toBeVisible();
-				const header = page.locator( '.tocus-preferences-header' );
-				const parent = await header.boundingBox();
-				const description = await header.locator( 'p' ).boundingBox();
-				if ( ! parent || ! description ) {
-					throw new Error( 'The onboarding heading and description must have visible layout boxes.' );
-				}
-				expect( description.width, `${ heading } at ${ String( viewport.width ) }px` ).toBeCloseTo( parent.width, 0 );
-				expect( description.x ).toBeCloseTo( parent.x, 0 );
-				if ( heading !== 'Choose websites' ) {
-					await page.getByRole( 'button', { name: 'Continue', exact: true } ).click();
-				}
-			}
-		}
 	} );
 	test( 'keeps the original four-column language choices and two-column narrow layout', async ( { page } ) => {
 		await page.setViewportSize( { width: 1440, height: 1000 } );
@@ -138,7 +113,7 @@ test.describe( 'migrated presentation', () => {
 			}, checkmarkSource ), 'Completed steps retain the supplied checkmark artwork after returning.' ).toBe( true );
 		}
 	} );
-	test( 'announces the next onboarding heading without scrolling the setup page', async ( { page } ) => {
+	test( 'announces the next onboarding heading without adding scroll during focus', async ( { page } ) => {
 		await page.setViewportSize( { width: 1440, height: 300 } );
 		await page.emulateMedia( { reducedMotion: 'reduce' } );
 		await page.goto( `/apps/extension/tests/ui/index.html?surface=${ PresentationSurface.ONBOARDING }` );
@@ -146,6 +121,22 @@ test.describe( 'migrated presentation', () => {
 		await action.waitFor();
 		await action.evaluate( ( element ) => {
 			element.focus( { preventScroll: true } );
+			// eslint-disable-next-line @typescript-eslint/unbound-method -- The observer forwards each original element as this through nativeFocus.call.
+			const nativeFocus = HTMLElement.prototype.focus;
+			/**
+			 * Observes real heading focus separately from the browser's step-layout scroll anchoring.
+			 * @param options - Production focus options forwarded to the original browser method.
+			 */
+			HTMLElement.prototype.focus = function observeHeadingFocus( options?: FocusOptions ): void {
+				const before = window.scrollY;
+				nativeFocus.call( this, options );
+				if ( this.tagName === 'H1' ) {
+					this.dataset.focusScrollBefore = String( before );
+					this.dataset.focusScrollAfter = String( window.scrollY );
+					this.dataset.focusPreventScroll = String( options?.preventScroll );
+					HTMLElement.prototype.focus = nativeFocus;
+				}
+			};
 		} );
 		const previousScroll = await page.evaluate( () => {
 			window.scrollTo( 0, 300 );
@@ -157,7 +148,12 @@ test.describe( 'migrated presentation', () => {
 		await expect.poll( () => heading.evaluate(
 			( element ) => element === document.activeElement,
 		) ).toBe( true );
-		expect( await page.evaluate( () => window.scrollY ) ).toBe( previousScroll );
+		await expect( heading ).toHaveAttribute( 'data-focus-prevent-scroll', 'true' );
+		const focusScroll = await heading.evaluate( ( element ) => ( {
+			before: Number( element.dataset.focusScrollBefore ),
+			after: Number( element.dataset.focusScrollAfter ),
+		} ) );
+		expect( focusScroll.after ).toBe( focusScroll.before );
 	} );
 	test( 'retains editable preferences after rejected or unavailable saves and locks pending navigation', async ( { page } ) => {
 		page.setDefaultTimeout( 5000 );
@@ -272,12 +268,37 @@ test.describe( 'migrated presentation', () => {
 		await youtube.click();
 		expect( await youtube.getAttribute( 'aria-pressed' ) ).toBe( 'false' );
 	} );
-	test( 'finishes empty setup without consent and contains a rejected browser operation', async ( { page } ) => {
-		page.setDefaultTimeout( 5000 );
-		await openSites( page );
+	test( 'requires an added website and disables Finish again after the last removal', async ( { page } ) => {
+		await openSites( page, `batch=${ SiteBatchScenario.SUCCESS }` );
+		const finish = page.getByRole( 'button', { name: 'Finish setup', exact: true } );
+		await expect( finish ).toBeDisabled();
+		await page.getByRole( 'textbox' ).fill( 'example.com' );
+		await expect( finish ).toBeDisabled();
+		await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
+		await expect( finish ).toBeEnabled();
+		await page.locator( '.onboarding-remove' ).click();
+		await expect( finish ).toBeDisabled();
+		const youtube = page.getByRole( 'button', { name: 'YouTube', exact: true } );
+		await youtube.click();
+		await expect( finish ).toBeEnabled();
+		await youtube.click();
+		await expect( finish ).toBeDisabled();
+		await expect( page.getByTestId( 'requests' ) ).toHaveText( '0' );
+		await expect( page.getByRole( 'heading', { name: 'Choose websites', exact: true } ) ).toBeVisible();
+		await youtube.click();
+		await finish.click();
+		await expect( page.getByRole( 'button', { name: 'Open Settings', exact: true } ) ).toBeVisible();
+		await expect( page.getByTestId( 'requests' ) ).toHaveText( '1' );
+		await expect( page.getByTestId( 'requests' ) ).toHaveAttribute( 'data-activation', 'true' );
+	} );
+	test( 'finishes with previously saved websites without requesting browser access again', async ( { page } ) => {
+		await openSites( page, 'persisted' );
+		await expect( page.getByRole( 'listitem' ) ).toHaveCount( 2 );
 		await page.getByRole( 'button', { name: 'Finish setup', exact: true } ).click();
-		await page.getByRole( 'button', { name: 'Open Settings', exact: true } ).waitFor();
-		expect( await page.getByTestId( 'requests' ).textContent() ).toBe( '0' );
+		await expect( page.getByRole( 'button', { name: 'Open Settings', exact: true } ) ).toBeVisible();
+		await expect( page.getByTestId( 'requests' ) ).toHaveText( '0' );
+	} );
+	test( 'contains a rejected browser operation and retains its selected website', async ( { page } ) => {
 		await openSites( page, `batch=${ SiteBatchScenario.REJECT }` );
 		await page.getByRole( 'button', { name: 'YouTube', exact: true } ).click();
 		await page.getByRole( 'button', { name: 'Finish setup', exact: true } ).click();

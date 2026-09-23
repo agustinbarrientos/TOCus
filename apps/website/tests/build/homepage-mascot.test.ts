@@ -72,6 +72,44 @@ async function advanceAnimationFrames( page: Page, frames: number ): Promise<voi
 }
 
 test.describe( 'homepage riverside hero', () => {
+	for ( const width of [ 320, 560 ] ) {
+		test( `${ String( width ) }: uses the static hero without downloading 3D assets even when motion is allowed`, async ( { page } ) => {
+			await page.setViewportSize( { width, height: 844 } );
+			await page.emulateMedia( { reducedMotion: MotionPreference.NO_PREFERENCE } );
+			const requests: string[] = [];
+			page.on( 'request', ( request ) => requests.push( request.url() ) );
+			await page.route( '**/*', serveAsset );
+			await page.goto( 'http://website.test/' );
+			await expect( page.locator( '.homepage' ) ).toHaveAttribute( 'data-enhanced', 'true' );
+			const scene = page.locator( '.riverside-hero' );
+			await scene.locator( 'img' ).evaluate( ( image: HTMLImageElement ) => image.decode() );
+			await expect( scene ).toHaveAttribute( 'data-status', 'poster' );
+			await expect( scene.locator( 'img' ) ).toBeVisible();
+			await expect( scene.locator( 'canvas' ) ).toHaveCSS( 'opacity', '0' );
+			expect( requests.filter( ( url ) =>
+				/riverside-hero\.[^/]+\.js|\.(?:glb|gltf)(?:\?|$)/u.test( url ),
+			) ).toEqual( [] );
+		} );
+	}
+
+	test( 'releases the scene on small screens and respects reduced motion when growing again', async ( { page } ) => {
+		const shaderErrors = await openAnimatedHero( page );
+		const scene = page.locator( '.riverside-hero' );
+		const canvas = scene.locator( 'canvas' );
+		await page.setViewportSize( { width: 560, height: 844 } );
+		await expect( scene ).toHaveAttribute( 'data-status', 'poster' );
+		await expect( canvas ).toHaveAttribute( 'data-playing', 'false' );
+		await expect( canvas ).toHaveCSS( 'opacity', '0' );
+		await page.emulateMedia( { reducedMotion: MotionPreference.REDUCE } );
+		await page.setViewportSize( { width: 561, height: 844 } );
+		await expect( scene ).toHaveAttribute( 'data-status', 'poster' );
+		await expect( canvas ).toHaveAttribute( 'data-playing', 'false' );
+		await page.emulateMedia( { reducedMotion: MotionPreference.NO_PREFERENCE } );
+		await expect( scene ).toHaveAttribute( 'data-status', 'ready' );
+		await expect( canvas ).toHaveAttribute( 'data-playing', 'true' );
+		expect( shaderErrors ).toEqual( [] );
+	} );
+
 	test( 'orbits with attentive head turns and drifts back to the resting view', async ( { page } ) => {
 		await pauseAnimationClock( page );
 		const shaderErrors = await openAnimatedHero( page );

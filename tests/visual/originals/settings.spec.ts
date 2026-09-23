@@ -128,23 +128,57 @@ for ( const original of settingsSnapshots ) {
 			await waitForStatisticsState( page, name );
 		}
 		await prepareState( page, name );
-		await page.evaluate( () => {
-			window.scrollTo( 0, 0 );
-		} );
+		const privacyHover = name.includes( 'privacy' ) && name.includes( 'hover' );
+		const privacySuccess = name.includes( 'privacy' ) && name.includes( 'success' );
+		if ( ! privacyHover ) {
+			await page.evaluate( () => {
+				window.scrollTo( 0, 0 );
+			} );
+		}
 		const target = name.startsWith( 'protected-site-item-operation-error' ) ? page.getByRole( 'dialog' )
 			: shell ? page.locator( '.settings-layout' ) : name.startsWith( 'protected-site-item' )
 				? page.locator( '.settings-site-item' ).first() : name.startsWith( 'protected-site-list' )
 					? page.locator( '.settings-site-groups' ) : page.locator( '#settings-root' );
-		if ( name.includes( 'privacy' ) && name.includes( 'success' ) ) {
-			await expect( page.getByRole( 'status' ).filter( { hasText: 'Statistics reset.' } ) ).toBeVisible();
+		if ( privacyHover || privacySuccess ) {
+			const reset = page.getByRole( 'button', { name: 'Reset all TOCus data', exact: true } );
+			const notification = page.getByRole( 'status' ).filter( { hasText: 'Statistics reset.' } );
+			if ( privacyHover ) {
+				await expect( reset ).toBeInViewport();
+				expect( await reset.evaluate( ( button ) => button.matches( ':hover' ) ) ).toBe( true );
+			} else {
+				// Intersection can become true while the notification is still translated below its resting position.
+				await expect( notification ).toHaveCSS( 'opacity', '1' );
+				await expect( notification ).toHaveCSS( 'transform', 'matrix(1, 0, 0, 1, 0, 0)' );
+				await expect( notification ).toBeInViewport();
+			}
+			const notificationBounds = privacySuccess ? await notification.boundingBox() : null;
 			const bounds = await target.boundingBox();
 			if ( bounds === null ) {
 				throw new Error( 'The privacy capture root must be visible.' );
 			}
-			// Include the viewport-anchored snackbar without changing the registered capture width.
-			await compareOriginal( page, original.path, undefined, {
-				clip: { ...bounds, height: Math.max( bounds.height, viewportHeight - bounds.y ) },
-			} );
+			const scroll = await page.evaluate( () => ( { x: scrollX, y: scrollY } ) );
+			// A document clip preserves the pointer's scroll position and includes content below the viewport.
+			const clip = {
+				...bounds,
+				x: bounds.x + scroll.x,
+				y: bounds.y + scroll.y,
+				height: privacySuccess ? Math.max( bounds.height, viewportHeight - bounds.y ) : bounds.height,
+			};
+			const resetBounds = await reset.boundingBox();
+			expect( resetBounds ).not.toBeNull();
+			expect( ( resetBounds?.y ?? Infinity ) + ( resetBounds?.height ?? 0 ) + scroll.y )
+				.toBeLessThanOrEqual( clip.y + clip.height );
+			try {
+				await compareOriginal( page, original.path, undefined, { clip, fullPage: true } );
+			} finally {
+				// Screenshot preparation must not silently replace the interaction this scenario covers.
+				if ( privacyHover ) {
+					expect( await reset.evaluate( ( button ) => button.matches( ':hover' ) ) ).toBe( true );
+				} else {
+					await expect( notification ).toBeInViewport();
+					expect( await notification.boundingBox() ).toEqual( notificationBounds );
+				}
+			}
 			return;
 		}
 		await compareOriginal( page, original.path, target );

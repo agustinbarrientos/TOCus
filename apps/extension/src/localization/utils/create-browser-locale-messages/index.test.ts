@@ -12,7 +12,7 @@ describe( 'createBrowserLocaleMessages', () => {
 				description: 'Extension name.',
 			},
 			extensionDescription: {
-				message: 'A gentle pause before distracting websites, designed to help you return to your intentions.',
+				message: 'Pause before visiting addictive websites',
 				description: 'Short extension description shown by the browser and extension store.',
 			},
 		} );

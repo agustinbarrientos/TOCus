@@ -41,7 +41,6 @@ export function PopupCurrentSite( properties: PopupCurrentSiteProperties ) {
 
 	return (
 		<Stack gap={ 0 } className="popup-website-card" aria-busy={ state.adding }>
-			<Text className="popup-eyebrow">{ copy.currentWebsite }</Text>
 			<Group className="popup-site-overview" wrap="nowrap" align="center" gap="var(--tocus-space-3)">
 				<Avatar
 					className="popup-site-mark"

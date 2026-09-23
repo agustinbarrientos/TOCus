@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-09-04 11:22-0500\n"
+"POT-Creation-Date: 2026-09-23 14:44-0500\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,6 +12,18 @@ msgstr ""
 "Last-Translator: \n"
 "Language-Team: \n"
 "Plural-Forms: \n"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid ". Your site list, settings, and statistics stay in your browser. The extension doesn't send them to the developer or Google and has no analytics or tracking."
+msgstr "。サイト一覧、設定、統計はブラウザー内にとどまります。拡張機能はこれらを開発者やGoogleに送信せず、アクセス解析や追跡も行いません。"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "\"Navigation access\" lets TOCus see changes to websites as they happen, but it doesn't look at your saved browsing history."
+msgstr "「ナビゲーションへのアクセス」により、TOCusはウェブサイトへの移動をその都度確認できますが、保存された閲覧履歴を見ることはありません。"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "“Reset statistics” deletes recorded counts and total time while keeping your sites and settings. “Reset all TOCus data” deletes sites, schedules, timing, preferences, active pauses, and statistics, removes allowed website access, and restarts setup."
+msgstr "「統計をリセット」は、登録したサイトや設定を保持したまま、記録された回数と合計時間を削除します。「TOCusのすべてのデータをリセット」は、サイト、スケジュール、時間設定、各種設定、実行中の一時停止、統計を削除し、許可したサイトへのアクセス権を取り消して、初期設定を最初からやり直します。"
 
 #: apps/website/src/localization/index.ts
 msgid "10s pause"
@@ -25,9 +37,25 @@ msgstr "5分のブラウジング"
 msgid "A calmer way to browse"
 msgstr "もっと穏やかなブラウジングを"
 
+#: apps/website/src/localization/privacy/index.ts
+msgid "Absolutely everything."
+msgstr "すべてのデータです。"
+
+#: apps/website/src/localization/index.ts
+msgid "Accept"
+msgstr "許可する"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "After a reset, TOCus may keep a random value in local storage so an old settings page can’t bring back deleted data. The value shows that a reset happened. It doesn’t identify a person, device, account, or browsing activity."
+msgstr "リセット後、古い設定ページが削除済みのデータを元に戻せないように、TOCusがランダムな値をローカルストレージに残すことがあります。この値はリセットが行われたことを示します。個人、端末、アカウント、閲覧行動を識別するものではありません。"
+
 #: apps/website/src/localization/index.ts
 msgid "Also available on"
 msgstr "こちらのブラウザでも利用可能"
+
+#: apps/website/src/localization/index.ts
+msgid "Analytics preferences"
+msgstr "アクセス解析の設定"
 
 #: apps/website/src/localization/index.ts
 msgid "Check how much time you’ve saved"
@@ -36,6 +64,14 @@ msgstr "どれだけ時間を節約できたか確認"
 #: apps/website/src/localization/index.ts
 msgid "Choose the days and hours TOCus is active."
 msgstr "TOCusを有効にする曜日と時間を選べます。"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "Chrome Limited Use disclosure"
+msgstr "Chromeの限定的な使用に関する開示"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "Chrome Web Store User Data Policy, including the Limited Use requirements"
+msgstr "限定的な使用の要件を含むChromeウェブストアのユーザーデータポリシー"
 
 #: apps/website/src/localization/index.ts
 msgid "Coming soon"
@@ -74,22 +110,58 @@ msgstr "Español (vos)"
 msgid "Français"
 msgstr "Français"
 
+#: apps/website/src/localization/privacy/index.ts
+msgid "Google Analytics on this website"
+msgstr "このウェブサイトのGoogle Analytics"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "How Google uses information from websites that use its services"
+msgstr "Googleのサービスを利用するウェブサイトから得た情報の取り扱い"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "How TOCus handles extension-local data, permissions, deletion, and ordinary website requests."
+msgstr "TOCusによる拡張機能内のローカルデータ、権限、削除、ウェブサイトの通常のリクエストの取り扱いについて。"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "If TOCus doesn't have access to a website, it can't pause that site. You can update these permissions in your browser's extension settings."
+msgstr "TOCusにウェブサイトへのアクセス権限がない場合、そのサイトに一時停止画面を表示できません。権限はブラウザーの拡張機能の設定で変更できます。"
+
+#: apps/website/src/localization/index.ts
+msgid "If you feel like it, pick different days and times for each site."
+msgstr "お好みで、サイトごとに異なる曜日と時間を選べます。"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "If you pause while on a website, the address might be saved for a short time so you can go back to it."
+msgstr "ウェブサイトを開いている間に一時停止すると、後でそのページに戻れるよう、アドレスを一時的に保存することがあります。"
+
 #: apps/website/src/localization/index.ts
 msgid "It's 100% private"
 msgstr "プライバシーを100%保護"
+
+#: apps/website/src/localization/index.ts
+msgid "It’s free and open source"
+msgstr "無料でオープンソース"
 
 #. Language-menu autonym. Keep this language name written in Italian.
 #: apps/website/src/localization/index.ts
 msgid "Italiano"
 msgstr "Italiano"
 
-#: apps/website/src/localization/index.ts
-msgid "It’s free and open source"
-msgstr "無料でオープンソース"
+#: apps/website/src/localization/privacy/index.ts
+msgid "Last reviewed September 23, 2026."
+msgstr "最終確認日：2026年9月23日。"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "Links to GitHub, browser rules, extension stores, and the author's website open other sites that have their own privacy rules. Installing or updating TOCus can also connect with your browser or store provider. These connections are separate from the extension sending data to the developer."
+msgstr "GitHub、ブラウザーの規則、拡張機能ストア、作者のウェブサイトへのリンクは、それぞれ独自のプライバシー規則を持つ別のサイトを開きます。TOCusのインストールや更新でも、ブラウザーやストアの提供元に接続する場合があります。これらの接続は、拡張機能が開発者にデータを送信することとは別のものです。"
 
 #: apps/website/src/localization/index.ts
 msgid "Made by"
 msgstr "制作"
+
+#: apps/website/src/localization/index.ts
+msgid "May we use Google Analytics cookies to understand visits to this website? The extension has no analytics or tracking."
+msgstr "このウェブサイトへの訪問を把握するために、Google AnalyticsのCookieを使用してもよろしいですか？拡張機能にはアクセス解析や追跡機能はありません。"
 
 #: apps/website/src/localization/index.ts
 msgid "Open a site"
@@ -98,10 +170,6 @@ msgstr "サイトを開く"
 #: apps/website/src/localization/index.ts
 msgid "Pause before visiting addictive websites"
 msgstr "中毒性のあるサイトを開く前に、ひと呼吸"
-
-#: apps/website/src/localization/index.ts
-msgid "If you feel like it, pick different days and times for each site."
-msgstr "お好みで、サイトごとに異なる曜日と時間を選べます。"
 
 #. Language-menu autonym for Brazilian Portuguese. Keep this language name written in Portuguese.
 #: apps/website/src/localization/index.ts
@@ -121,6 +189,18 @@ msgstr "プライバシー"
 msgid "Privacy policy"
 msgstr "プライバシーポリシー"
 
+#: apps/website/src/localization/privacy/index.ts
+msgid "Privacy Policy"
+msgstr "プライバシーポリシー"
+
+#: apps/website/src/localization/index.ts
+msgid "Reject"
+msgstr "拒否する"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "Reset and deletion controls"
+msgstr "リセットと削除の操作"
+
 #: apps/website/src/localization/index.ts
 msgid "Set a schedule for each site"
 msgstr "サイトごとにスケジュールを設定"
@@ -134,6 +214,50 @@ msgid "Source code"
 msgstr "ソースコード"
 
 #: apps/website/src/localization/index.ts
+msgid "Take a moment to pause."
+msgstr "少し立ち止まって、ひと呼吸。"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "The extension"
+msgstr "拡張機能について"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "The extension uses Chrome's browser features on your device to show pauses on the sites you choose. Its use of this information follows the"
+msgstr "拡張機能は、あなたが選んだサイトで一時停止を表示するために、端末上でChromeのブラウザー機能を使います。この情報の利用は次の規定に従います："
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "The source code is available on GitHub if you want to check for yourself."
+msgstr "自分で確かめたい方のために、ソースコードをGitHubで公開しています。"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "The statistics only keep track of counts and durations. They don't save any page content or web addresses."
+msgstr "統計に記録されるのは回数と時間だけです。ページの内容やウェブアドレスは保存しません。"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "The TOCus extension has no analytics or tracking. Website analytics can't read your extension's site list, settings, or statistics."
+msgstr "TOCus拡張機能にはアクセス解析や追跡機能はありません。ウェブサイトのアクセス解析は、拡張機能のサイト一覧、設定、統計を読み取ることはできません。"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "This includes your website list, pause times, schedules, preferences, and statistics."
+msgstr "ウェブサイトのリスト、一時停止の時間、スケジュール、設定、統計が含まれます。"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "This site"
+msgstr "このサイトについて"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "This website and external links"
+msgstr "このウェブサイトと外部リンク"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "This website only loads Google Analytics after you accept. You can reject it or change your choice using Analytics preferences in the footer. Your choice is saved in this browser."
+msgstr "このウェブサイトは、あなたが許可した後にのみGoogle Analyticsを読み込みます。拒否したり、ページ下部の「アクセス解析の設定」から選択を変更したりできます。選択はこのブラウザーに保存されます。"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "This website uses Google Analytics to understand how visitors use its pages. Google Analytics uses cookies and sends Google information such as pages visited, interactions, approximate location, and browser and device details. The developer can view reports about visits to this website."
+msgstr "このウェブサイトは、訪問者がページをどのように使っているかを把握するためにGoogle Analyticsを使用します。Google AnalyticsはCookieを使い、閲覧したページ、操作、おおよその位置、ブラウザーや端末の情報などをGoogleに送信します。開発者は、このウェブサイトへの訪問に関するレポートを確認できます。"
+
+#: apps/website/src/localization/index.ts
 msgid "TOCus adds a breathing pause to the websites you choose."
 msgstr "TOCusは、選んだサイトを開く前にひと呼吸おける時間をつくります。"
 
@@ -141,9 +265,17 @@ msgstr "TOCusは、選んだサイトを開く前にひと呼吸おける時間�
 msgid "TOCus is an open-source browser extension."
 msgstr "TOCusはオープンソースのブラウザー拡張機能です。"
 
-#: apps/website/src/localization/index.ts
-msgid "Take a moment to pause."
-msgstr "少し立ち止まって、ひと呼吸。"
+#: apps/website/src/localization/privacy/index.ts
+msgid "TOCus needs access to the websites you choose so it can show the pause. You control which sites to allow."
+msgstr "TOCusが一時停止画面を表示するには、選んだウェブサイトへのアクセス権限が必要です。どのサイトへのアクセスを許可するかは、自分で決められます。"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "TOCus saves your choices using local storage. It uses scripts and browser rules to show the pause, and alarms to keep the timing correct."
+msgstr "TOCusはローカルストレージに設定を保存します。スクリプトとブラウザーのルールを使って一時停止画面を表示し、アラームで時間を正確に管理します。"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "TOCus works entirely offline and doesn't track your data on your device."
+msgstr "TOCusは完全にオフラインで動作し、端末上のデータを追跡することもありません。"
 
 #: apps/website/src/localization/index.ts
 msgid "Use it only when you want to"
@@ -162,8 +294,28 @@ msgid "View your completed pauses and visits you changed your mind about."
 msgstr "完了した一時停止と、思い直してやめたアクセスを確認できます。"
 
 #: apps/website/src/localization/index.ts
+msgid "Website analytics"
+msgstr "ウェブサイトのアクセス解析"
+
+#: apps/website/src/localization/index.ts
 msgid "Website language"
 msgstr "ウェブサイトの言語"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "What stays on your device"
+msgstr "端末に保存されるもの"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "When you click the toolbar icon, TOCus gets access to the website you're currently visiting, but only for a short time, and doesn't send that data anywhere."
+msgstr "ツールバーのアイコンをクリックすると、TOCusは現在開いているウェブサイトに一時的にアクセスできます。そのデータをどこかに送信することはありません。"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "When you visit this website, your browser sends messages to the server that runs it. These messages can include your IP address, browser type, the page you want, and the time of the request. The hosting service may keep a record of these messages in server logs."
+msgstr "このウェブサイトにアクセスすると、ブラウザーはサイトを運営するサーバーにメッセージを送信します。メッセージには、IPアドレス、ブラウザーの種類、表示したいページ、リクエストの時刻が含まれる場合があります。ホスティングサービスはこれらのメッセージをサーバーログに記録する場合があります。"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "Why TOCus needs browser access"
+msgstr "TOCusがブラウザーへのアクセスを必要とする理由"
 
 #: apps/website/src/localization/index.ts
 msgid "Works with"
@@ -172,6 +324,14 @@ msgstr "対応サービス"
 #: apps/website/src/localization/index.ts
 msgid "You can read the code, suggest changes, or make it your own. There’s no advertising."
 msgstr "コードを読んだり、改善を提案したり、自分好みに変更できます。広告はありません。"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "You don't have to just take my word for it."
+msgstr "私の言葉をそのまま信じる必要はありません。"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "Your browser tries to use website icons from its own cache whenever it can. Sometimes this doesn't work. I set it up this way to keep TOCus completely private and avoid connecting to any icon service."
+msgstr "ブラウザーはできる限り、自分のキャッシュからウェブサイトのアイコンを表示しようとします。うまくいかないこともあります。TOCusのプライバシーを徹底して守り、アイコン提供サービスに接続しないよう、この仕組みにしています。"
 
 #: apps/website/src/localization/index.ts
 msgid "Your settings and stats stay in your browser. It even works offline and needs no account."

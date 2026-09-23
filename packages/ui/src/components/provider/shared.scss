@@ -454,13 +454,6 @@
 			margin-bottom: var(--tocus-space-6);
 
 			h1 { margin: 0; }
-
-			p {
-				@include typography.apply('body-large');
-
-				margin: var(--tocus-space-3) 0 0;
-				color: var(--tocus-color-on-surface-muted);
-			}
 		}
 		.tocus-preferences-appearance-actions { --tocus-action-height: 3.0625rem; }
 

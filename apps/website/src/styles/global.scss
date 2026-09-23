@@ -11,6 +11,7 @@ body { margin: 0; }
 	@include type.apply('body-large');
 	--tocus-website-ink: #302219;
 	--tocus-website-paper: #fffaf4;
+	--tocus-website-peach: #ffeadb;
 
 	min-height: 100svh;
 	background: var(--tocus-website-paper);
@@ -66,24 +67,28 @@ body { margin: 0; }
 	}
 
 	.site-header {
+		--tocus-color-focus-ring: var(--tocus-website-ink);
+
 		position: relative;
 		z-index: 20;
 		display: flex;
 		align-items: center;
 		gap: clamp(1rem, 2.4vw, 2rem);
 		justify-content: space-between;
-		padding-block: 1.2rem;
+		width: calc(100% - clamp(2.5rem, 12vw, 15rem));
+		padding-block: clamp(1.25rem, 5.4vh, 4rem);
 	}
 
 	&.homepage { position: relative; }
 
 	.hero-header {
-		--tocus-color-focus-ring: var(--tocus-website-ink);
-
 		position: absolute;
 		inset: 0 0 auto;
-		width: calc(100% - clamp(2.5rem, 12vw, 15rem));
-		padding-block: clamp(1.25rem, 5.4vh, 4rem);
+	}
+
+	.site-brand-link {
+		border-radius: var(--tocus-radius-small);
+		text-decoration: none;
 	}
 
 	.tocus-brand {
@@ -100,7 +105,7 @@ body { margin: 0; }
 		color: inherit;
 	}
 
-	.hero-header .site-header-actions {
+	.site-header .site-header-actions {
 		@include type.apply('body-medium');
 	}
 
@@ -206,16 +211,12 @@ body { margin: 0; }
 		.site-header {
 			@include type.apply('body-large', $size: 0.85rem);
 
-			padding-block: 1.1rem;
+			width: calc(100% - 2.5rem);
+			padding-block: 1.25rem;
 			gap: 0.5rem;
 		}
 
-		.hero-header {
-			width: calc(100% - 2.5rem);
-			padding-block: 1.25rem;
-		}
-
-		.hero-header .site-header-actions { gap: 0.35rem; }
+		.site-header .site-header-actions { gap: 0.35rem; }
 		.hero { --tocus-hero-shore-height: 4.5rem; }
 
 		.hero-copy {
@@ -241,8 +242,9 @@ body { margin: 0; }
 }
 
 @media (width >= 48rem) and (height <= 42rem) {
+	.website .site-header { padding-block: 1.1rem; }
+
 	.homepage {
-		.hero-header { padding-block: 1.1rem; }
 		.hero-copy { padding-top: 6rem; }
 		.hero h1 { --tocus-typography-display-large-font-size: clamp(2.4rem, 4vw, 3.6rem); }
 		.hero-actions { margin-top: 1.5rem; }
@@ -250,8 +252,9 @@ body { margin: 0; }
 }
 
 @media (width <= 48rem) and (height <= 44rem) {
+	.website .site-header { padding-block: 0.8rem; }
+
 	.homepage {
-		.hero-header { padding-block: 0.8rem; }
 		.hero-copy { padding-top: clamp(5rem, 14.5svh, 6rem); }
 		.hero h1 { --tocus-typography-display-large-font-size: clamp(1.65rem, 7.2vw, 2.5rem); }
 		.hero-actions { margin-top: 1.1rem; }

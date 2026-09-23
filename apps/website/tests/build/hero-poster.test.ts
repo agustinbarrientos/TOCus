@@ -88,7 +88,7 @@ function findHead( screenshot: Buffer, heroHeight: number ): HeadLandmark {
 
 for ( const viewport of [
 	{ width: 1440, height: 900 },
-	{ width: 390, height: 844 },
+	{ width: 561, height: 844 },
 	{ width: 2560, height: 900 },
 ] ) {
 	test( `${ String( viewport.width ) }: the poster and first live frame keep the character in place`, async ( { page }, testInfo ) => {

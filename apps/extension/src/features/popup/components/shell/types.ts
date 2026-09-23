@@ -34,8 +34,6 @@ export const PopupRetryRequestEventName = 'tocus-popup-retry-request';
  * @since 1.0.0 Initial implementation.
  */
 export interface PopupShellCopy {
-	/** Label above the current website identity. */
-	currentWebsite: string;
 	/** Status shown when the current website is not on the user's list. */
 	siteNotOnList: string;
 	/** Status shown when the current website is configured and idle. */

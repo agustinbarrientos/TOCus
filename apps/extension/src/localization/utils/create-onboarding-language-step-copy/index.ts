@@ -14,7 +14,6 @@ import {
 export function createOnboardingLanguageStepCopy( i18n: I18n ): Readonly<OnboardingLanguageStepCopy> {
 	return Object.freeze( {
 		title: i18n._( msg`Choose your language` ),
-		introduction: i18n._( msg`TOCus will use it everywhere. You can change it later in Settings.` ),
 		languageLegend: i18n._( msg`Language` ),
 		languageLabels: Object.freeze( {
 			[ OnboardingLanguageFamily.ENGLISH ]: i18n._( msg( {

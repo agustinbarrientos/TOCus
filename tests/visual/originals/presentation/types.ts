@@ -23,6 +23,8 @@ declare global {
 	/** Test-only control boundary, never bundled into the extension entrypoints. */
 	interface Window {
 		onboardingOriginal: OnboardingPageShell;
+		/** Calls the mounted production controller without going through its disabled button. */
+		finishOriginalOnboarding: () => Promise<void>;
 		/** Applies the archived locale-copy and unfocused native-input changes in one browser turn. */
 		prepareOriginalSitesInput: ( language: Language, address: string ) => Promise<void>;
 	}

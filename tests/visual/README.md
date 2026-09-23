@@ -132,6 +132,34 @@ The website has 10 retained references under `apps/website/src/components/home-p
 
 On September 22, 2026, the project owner requested repairing the failing comparisons after the approved riverside redesign and mobile feature alignment. The ten website references were visually reviewed and refreshed from the unmodified normal-run captures in CI run 35811402734 at commit f5a4feed368548554f8471bc05280b72a645e120, on macOS 26 ARM64 with pinned Playwright 1.63.0 Chromium. They now cover the riverside hero, four illustrated steps, six features, centered single-column content and landscape download section. Review included translated wrapping, the light page under a dark browser preference, and the open language menu. Each downloaded expected image matched its prior committed bytes before replacement. The 106 extension originals, 12 regional onboarding references, scenario inventory, frame-stability requirements and comparison tolerances are unchanged.
 
+## Approved privacy, onboarding and mobile presentation
+
+On September 23, 2026, the project owner requested new Privacy/About copy, a consistent onboarding slogan, removal of four onboarding helper texts, and at least one selected website before finishing. The same change replaces the small-screen interactive hero with its static preview and displays alternative browser links as accessible icons.
+
+The reviewed captures come from normal macOS 26 ARM64 visual jobs using pinned Playwright 1.63.0 Chromium. CI run 35896778773 at commit d5e504c8 supplied twenty original onboarding references, twelve regional onboarding references and sixteen Privacy/About references. CI run 35899820404 at commit 703903de supplied the final three Privacy references and five narrow website references. Every image was reviewed against its prior expected image and copied without modifying the captured PNG bytes. Updated dimensions reflect the requested text and removal of helper content. All original paths and scenario identities remain present; 39 original inventory hashes changed, while the other 67 remain unchanged.
+
+The longer Privacy content exposed three capture defects. Scrolling after a real hover removed the reset button's hover state, and the success capture's page clip omitted content below the viewport. Those three cases now retain the registered viewport and use a full-page document clip; assertions verify the real hover, complete reset section and viewport-anchored toast. Mobile website review includes keeping the three browser icons together when translated labels wrap. Comparator tolerances, capture counts, retries and original-update restrictions remain unchanged.
+
+The comparator self-tests now use a frozen lossless crop of the historical regional Continue button, matching the existing website-button fixture approach. The recorded edge-color samples and every negative mutation retain their original pixels and extents. This keeps the historical comparison-policy proof independent of current onboarding copy without accepting extra differences.
+
+## Approved navigation, concise copy and hero slogans
+
+The subsequent September 23 refinements share the website header and footer, expand the four illustrated steps to the available page width, and use the owner's exact localized hero slogans. The extension removes the popup's "Current website" label and About's external-links hint, and simplifies the full-reset confirmation.
+
+Fifteen original references and six website references were visually reviewed against their prior expected images and refreshed from unmodified normal-run captures in CI run 35907976613 at commit ee750352, using macOS 26 ARM64 and pinned Playwright 1.63.0 Chromium. The popup captures become 28 pixels shorter after removing the label. Isolated About captures lose the hint's height; Settings shell differences remain confined to that removed sentence. Three full-width reset captures change only the confirmation text, and the narrow confirmation becomes one line shorter. Website differences are confined to the expanded steps and Argentine Spanish slogan.
+
+Each downloaded expected image matched the committed reference bytes before replacement. All 106 original registrations remain, with fifteen updated hashes and the other 91 unchanged. Regional onboarding references, comparator self-test fixtures, comparison tolerances, capture settings and retries are unchanged.
+
+## Approved English contractions
+
+The project owner requested contractions throughout the English copy on September 23, 2026. Twenty-two original references were visually reviewed and refreshed from the unmodified normal-run captures in CI run 35921608101 at commit de7cd61fa3d7631ba59ad1834d18342213073930, using macOS 26 ARM64 and pinned Playwright 1.63.0 Chromium.
+
+The changed text covers onboarding and pause recovery, protected-site save errors, Privacy permissions and reset messages, and Statistics error states. Differences are confined to the requested contractions and their text wrapping, apart from negligible edge-color samples within the existing comparison policy. Every capture retains its prior dimensions, controls and layout.
+
+Each downloaded expected image matched its committed reference bytes before replacement. All 106 original registrations remain, with 22 updated hashes and the other 84 unchanged. Website and regional onboarding references, comparator fixtures, comparison tolerances, capture settings and retries are unchanged.
+
+The follow-up normal comparison in CI run 35923511791 exposed an entry-animation race in the Privacy success scenario: the notification already intersected the viewport while its transform still placed it 80 pixels below its resting position. The case now waits for full opacity and the resting transform before recording its bounds. The existing before/after position assertion and screenshot comparison remain intact; no reference changes are needed for this readiness correction.
+
 ## Case API and commands
 
 Run a bounded original comparison with `pnpm test:visual --project chromium-originals --grep 'interruption-screen-ready.png'`. Explicit grep permits partial investigation, but hash checks always run. Local servers can be reused; CI starts fresh servers.

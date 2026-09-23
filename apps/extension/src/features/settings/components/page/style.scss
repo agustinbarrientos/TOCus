@@ -55,7 +55,6 @@
 		list-style: none;
 	}
 
-	#external-links-hint { @include typography.apply('body-small'); margin-top: var(--tocus-space-3); }
 	summary > span { @include typography.apply('title-large'); }
 
 	summary {

@@ -102,7 +102,6 @@ function Content( props: OnboardingContentProps ) {
 			<header className={ `tocus-page-header tocus-preferences-header ${ controller.step === OnboardingStepIndex.LANGUAGE
 				? 'tocus-preferences-language-header' : controller.step === OnboardingStepIndex.SITES ? 'tocus-preferences-sites-header' : '' }` }>
 				<Title ref={ heading } tabIndex={ -1 } order={ 1 }>{ currentCopy.title }</Title>
-				<Text c="dimmed">{ currentCopy.introduction }</Text>
 			</header>
 			{ controller.step === OnboardingStepIndex.SITES
 				? <SitesStep { ...props } /> : <PreferencesStep { ...props } /> }
@@ -150,7 +149,6 @@ export function OnboardingView( props: OnboardingViewProps ) {
 							controller={ controller } heading={ heading } />
 					</main>
 				</div>
-				<Text component="footer" className="onboarding-footer">{ state.copy.settingsNote }</Text>
 				{ showPreview && <PausePreview state={ state } /> }
 			</div>
 			{ state.notificationCopy && <SnackbarProvider closeLabel={ state.notificationCopy.dismissNotification }>

@@ -147,7 +147,9 @@ test.describe( 'local statistics', () => {
 				await page.setViewportSize( { width, height: 844 } );
 				expect( await amount.evaluate( ( element ) =>
 					element.scrollWidth <= element.clientWidth ) ).toBe( true );
-				expect( await page.evaluate( () => document.documentElement.scrollWidth <= innerWidth ) ).toBe( true );
+				// The responsive chart applies its new width after the viewport resize.
+				await expect.poll( () => page.evaluate( () =>
+					document.documentElement.scrollWidth <= innerWidth ) ).toBe( true );
 			}
 		} );
 	}

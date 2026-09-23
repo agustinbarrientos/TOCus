@@ -134,7 +134,7 @@ export function createStatisticsCopy(
 		loading: i18n._( msg`Loading statistics...` ),
 		unavailableTitle: i18n._( msg`Statistics are unavailable` ),
 		unavailableDescription: i18n._(
-			msg`TOCus could not read your local statistics. No estimates or totals are shown.`,
+			msg`TOCus couldn't read your local statistics. No estimates or totals are shown.`,
 		),
 		retry: i18n._( msg`Try again` ),
 		localDataTitle: i18n._( msg`Local data` ),
@@ -148,9 +148,9 @@ export function createStatisticsCopy(
 		confirmReset: i18n._( msg`Reset statistics` ),
 		resetting: i18n._( msg`Resetting...` ),
 		resetSuccess: i18n._( msg`Statistics were reset. Your totals now start from zero.` ),
-		resetErrorTitle: i18n._( msg`Statistics could not be reset` ),
+		resetErrorTitle: i18n._( msg`Statistics couldn't be reset` ),
 		resetErrorDescription: i18n._(
-			msg`TOCus could not confirm the reset. No totals are shown until your local statistics can be read again.`,
+			msg`TOCus couldn't confirm the reset. No totals are shown until your local statistics can be read again.`,
 		),
 		formatEstimatedDuration,
 		formatDuration,

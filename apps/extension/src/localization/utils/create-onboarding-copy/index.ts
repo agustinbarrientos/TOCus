@@ -32,13 +32,13 @@ export function createOnboardingCopy( i18n: I18n ): Readonly<OnboardingShellCopy
 	}
 
 	return Object.freeze( {
-		introduction: i18n._( msg`Pause before you browse` ),
+		introduction: i18n._( msg`Pause before visiting addictive websites` ),
 		privacyTitle: i18n._( msg`100% private` ),
-		privacyDescription: i18n._( msg`TOCus works offline. Your data stays on this device and is never sent to servers.` ),
+		privacyDescription: i18n._( msg`TOCus works without internet. Your data stays on this device and is never sent to other computers.` ),
 		completionTitle: i18n._( msg`You're all set` ),
 		completionDescription: i18n._( msg`TOCus is ready. You can close this tab or continue in Settings.` ),
 		openSettingsLabel: i18n._( msg`Open Settings` ),
-		startupErrorTitle: i18n._( msg`TOCus could not finish opening` ),
+		startupErrorTitle: i18n._( msg`TOCus couldn't finish opening` ),
 		startupErrorDescription: i18n._( msg`Try again, or continue in Settings.` ),
 		retryLabel: i18n._( msg`Try again` ),
 		progressLabel: i18n._( msg`Setup progress` ),
@@ -47,8 +47,7 @@ export function createOnboardingCopy( i18n: I18n ): Readonly<OnboardingShellCopy
 			[ OnboardingStep.APPEARANCE ]: i18n._( msg`Appearance` ),
 			[ OnboardingStep.SITES ]: i18n._( msg`Websites` ),
 		} ),
-		preferenceSaveError: i18n._( msg`Your choice could not be saved. Try again.` ),
-		settingsNote: i18n._( msg`You can change these choices and fine-tune timing or schedules any time in Settings.` ),
+		preferenceSaveError: i18n._( msg`Your choice couldn't be saved. Try again.` ),
 		language: createOnboardingLanguageStepCopy( i18n ),
 		appearance: createOnboardingAppearanceStepCopy( i18n ),
 		sites: createOnboardingSitesStepCopy( i18n ),

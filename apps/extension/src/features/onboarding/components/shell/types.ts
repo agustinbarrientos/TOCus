@@ -44,7 +44,6 @@ export interface OnboardingShellCopy {
 	progressLabel: string;
 	stepNames: Readonly<Record<OnboardingStep, string>>;
 	preferenceSaveError: string;
-	settingsNote: string;
 	language: Readonly<OnboardingLanguageStepCopy>;
 	appearance: Readonly<OnboardingAppearanceStepCopy>;
 	sites: Readonly<OnboardingSitesStepCopy>;

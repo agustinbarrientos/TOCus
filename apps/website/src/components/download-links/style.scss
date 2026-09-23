@@ -5,6 +5,8 @@
 	flex-direction: column;
 	align-items: center;
 	gap: 1rem;
+	min-width: 0;
+	max-width: 100%;
 	margin: 0;
 	padding: 0;
 
@@ -41,6 +43,8 @@
 		text-align: center;
 	}
 
+	.store-alternative-list { display: contents; }
+
 	.store-alternative [data-store] {
 		@include type.apply('title-medium');
 
@@ -61,5 +65,29 @@
 		flex: 0 0 1.15em;
 		width: 1.15em;
 		height: 1.15em;
+	}
+
+	@media (width <= 35rem) {
+		.store-alternatives { gap: 0.25rem; }
+
+		.store-alternative-list {
+			display: inline-flex;
+			gap: 0.25rem;
+		}
+
+		.store-alternative-name { display: none; }
+
+		.store-alternative [data-store] {
+			justify-content: center;
+			min-width: 2.75rem;
+			min-height: 2.75rem;
+			gap: 0;
+		}
+
+		.store-alternative img {
+			flex-basis: 1.5rem;
+			width: 1.5rem;
+			height: 1.5rem;
+		}
 	}
 }

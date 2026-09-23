@@ -1,13 +1,12 @@
 @use '../../styles/type';
 
 .homepage {
-	--tocus-homepage-peach: #ffeadb;
-
 	.homepage-content {
 		width: min(70rem, calc(100% - clamp(3rem, 14vw, 12rem)));
 	}
 
 	.how-it-works {
+		width: calc(100% - 3rem);
 		padding-top: clamp(4rem, 7vw, 7rem);
 	}
 
@@ -203,7 +202,7 @@
 	.download-landscape-back { fill: #ffeadb; }
 	.download-landscape-middle { fill: #fddcc5; }
 	.download-landscape-front { fill: #fbd0b4; }
-	.download-landscape-bottom { fill: var(--tocus-homepage-peach); }
+	.download-landscape-bottom { fill: var(--tocus-website-peach); }
 
 	.download-panel {
 		display: grid;
@@ -235,48 +234,6 @@
 		width: min(12%, 10rem);
 		translate: 0 -100%;
 	}
-
-	.site-footer {
-		padding-block: 0.75rem 3.5rem;
-		background: var(--tocus-homepage-peach);
-	}
-
-	.footer-main, .footer-links, .maker-credit {
-		display: flex;
-		align-items: center;
-	}
-
-	.footer-main {
-		justify-content: space-between;
-		gap: 1.5rem;
-	}
-
-	.footer-links, .footer-links a {
-		@include type.apply('title-medium', $size: 1rem, $line-height: 1.4, $weight: 400, $spacing: 0);
-
-		color: var(--tocus-website-ink);
-	}
-
-	.footer-links {
-		flex-wrap: wrap;
-		gap: 1rem clamp(1.25rem, 3vw, 2.5rem);
-	}
-
-	.footer-links > a {
-		text-decoration: none;
-
-		&:hover { text-decoration: underline; }
-	}
-
-	.maker-credit {
-		flex-wrap: wrap;
-		gap: 0.6rem;
-	}
-
-	.maker-credit img {
-		width: 1.5rem;
-		height: 1.5rem;
-	}
 }
 
 @media (width <= 48rem) {
@@ -289,13 +246,6 @@
 		.how-progress { height: 1rem; }
 		.download-panel { width: 76%; }
 		.download-plant { bottom: 3%; }
-
-		.footer-main {
-			flex-wrap: wrap;
-			justify-content: center;
-		}
-
-		.footer-links { justify-content: center; }
 	}
 }
 
@@ -327,7 +277,6 @@
 
 		.download-plant { width: 24%; }
 		.download-sun { width: 20%; }
-		.site-footer { padding-bottom: 2rem; }
 	}
 }
 

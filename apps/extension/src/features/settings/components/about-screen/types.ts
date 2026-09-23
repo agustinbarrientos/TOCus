@@ -18,7 +18,6 @@ export interface AboutScreenCopy {
 	license: string;
 	contribute: string;
 	fork: string;
-	externalLinksHint: string;
 	/**
 	 * Formats the installed extension version.
 	 * @param version - Version supplied by the browser manifest.

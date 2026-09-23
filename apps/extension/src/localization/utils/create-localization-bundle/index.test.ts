@@ -7,16 +7,16 @@ import { createLocalizationBundle, loadLocalizationBundle } from '../../index';
 
 describe( 'createLocalizationBundle', () => {
 	it.each( [
-		[ Language.ENGLISH, 'Your browser can supply cached website icons. TOCus does not contact an icon service.' ],
-		[ Language.SPANISH_TU, 'Tu navegador puede proporcionar iconos de sitios web guardados en cach\u00e9. TOCus no se conecta a ning\u00fan servicio de iconos.' ],
-		[ Language.SPANISH_VOS, 'Tu navegador puede proporcionar iconos de sitios web guardados en cach\u00e9. TOCus no se conecta a ning\u00fan servicio de iconos.' ],
-		[ Language.PORTUGUESE_BRAZIL, 'Seu navegador pode fornecer \u00edcones de sites salvos em cache. O TOCus n\u00e3o acessa nenhum servi\u00e7o de \u00edcones.' ],
-		[ Language.PORTUGUESE_PORTUGAL, 'O seu navegador pode fornecer \u00edcones de sites guardados em cache. O TOCus n\u00e3o contacta nenhum servi\u00e7o de \u00edcones.' ],
-		[ Language.ITALIAN, 'Il tuo browser pu\u00f2 fornire le icone dei siti salvate nella cache. TOCus non contatta servizi di icone.' ],
-		[ Language.FRENCH, 'Votre navigateur peut fournir les ic\u00f4nes de sites en cache. TOCus ne contacte aucun service d\'ic\u00f4nes.' ],
-		[ Language.GERMAN, 'Dein Browser kann zwischengespeicherte Website-Symbole bereitstellen. TOCus kontaktiert keinen Symbol-Dienst.' ],
-		[ Language.JAPANESE, '\u30d6\u30e9\u30a6\u30b6\u30fc\u306b\u4fdd\u5b58\u3055\u308c\u305f\u30b5\u30a4\u30c8\u30a2\u30a4\u30b3\u30f3\u3092\u5229\u7528\u3067\u304d\u307e\u3059\u3002TOCus\u304c\u30a2\u30a4\u30b3\u30f3\u30b5\u30fc\u30d3\u30b9\u306b\u63a5\u7d9a\u3059\u308b\u3053\u3068\u306f\u3042\u308a\u307e\u305b\u3093\u3002' ],
-		[ Language.RUSSIAN, '\u0412\u0430\u0448 \u0431\u0440\u0430\u0443\u0437\u0435\u0440 \u043c\u043e\u0436\u0435\u0442 \u043f\u0440\u0435\u0434\u043e\u0441\u0442\u0430\u0432\u0438\u0442\u044c \u0437\u043d\u0430\u0447\u043a\u0438 \u0441\u0430\u0439\u0442\u043e\u0432 \u0438\u0437 \u043a\u0435\u0448\u0430. TOCus \u043d\u0435 \u043e\u0431\u0440\u0430\u0449\u0430\u0435\u0442\u0441\u044f \u043a \u0441\u0435\u0440\u0432\u0438\u0441\u0430\u043c \u0437\u043d\u0430\u0447\u043a\u043e\u0432.' ],
+		[ Language.ENGLISH, 'Your browser tries to use website icons from its own cache whenever it can. Sometimes this doesn\'t work. I set it up this way to keep TOCus completely private and avoid connecting to any icon service.' ],
+		[ Language.SPANISH_TU, 'Tu navegador intenta usar los iconos de los sitios web de su propia cach\u00e9 siempre que puede. A veces esto no funciona. Lo configur\u00e9 as\u00ed para que TOCus sea completamente privado y no se conecte a ning\u00fan servicio de iconos.' ],
+		[ Language.SPANISH_VOS, 'Tu navegador intenta usar los \u00edconos de los sitios web de su propia cach\u00e9 siempre que puede. A veces esto no funciona. Lo configur\u00e9 as\u00ed para que TOCus sea completamente privado y no se conecte a ning\u00fan servicio de \u00edconos.' ],
+		[ Language.PORTUGUESE_BRAZIL, 'Seu navegador tenta usar os \u00edcones dos sites do pr\u00f3prio cache sempre que pode. \u00c0s vezes isso n\u00e3o funciona. Configurei dessa forma para manter o TOCus completamente privado e evitar conex\u00f5es com qualquer servi\u00e7o de \u00edcones.' ],
+		[ Language.PORTUGUESE_PORTUGAL, 'O seu navegador tenta usar os \u00edcones dos sites da sua pr\u00f3pria cache sempre que pode. Por vezes isto n\u00e3o funciona. Configurei-o assim para manter o TOCus completamente privado e evitar liga\u00e7\u00f5es a qualquer servi\u00e7o de \u00edcones.' ],
+		[ Language.ITALIAN, 'Il browser cerca di usare le icone dei siti web dalla propria cache quando pu\u00f2. A volte non funziona. Ho scelto questa soluzione per tutelare completamente la tua privacy con TOCus ed evitare collegamenti a servizi di icone.' ],
+		[ Language.FRENCH, 'Votre navigateur essaie d\'utiliser les ic\u00f4nes des sites web de son propre cache quand c\'est possible. Parfois, cela ne fonctionne pas. J\'ai choisi ce fonctionnement pour pr\u00e9server enti\u00e8rement votre confidentialit\u00e9 avec TOCus et \u00e9viter toute connexion \u00e0 un service d\'ic\u00f4nes.' ],
+		[ Language.GERMAN, 'Dein Browser versucht, Website-Symbole aus seinem eigenen Cache zu verwenden, wann immer das m\u00f6glich ist. Manchmal funktioniert das nicht. Ich habe es so eingerichtet, damit TOCus deine Privatsph\u00e4re vollst\u00e4ndig sch\u00fctzt und keine Verbindung zu einem Symboldienst herstellt.' ],
+		[ Language.JAPANESE, '\u30d6\u30e9\u30a6\u30b6\u30fc\u306f\u3067\u304d\u308b\u9650\u308a\u3001\u81ea\u5206\u306e\u30ad\u30e3\u30c3\u30b7\u30e5\u304b\u3089\u30a6\u30a7\u30d6\u30b5\u30a4\u30c8\u306e\u30a2\u30a4\u30b3\u30f3\u3092\u8868\u793a\u3057\u3088\u3046\u3068\u3057\u307e\u3059\u3002\u3046\u307e\u304f\u3044\u304b\u306a\u3044\u3053\u3068\u3082\u3042\u308a\u307e\u3059\u3002TOCus\u306e\u30d7\u30e9\u30a4\u30d0\u30b7\u30fc\u3092\u5fb9\u5e95\u3057\u3066\u5b88\u308a\u3001\u30a2\u30a4\u30b3\u30f3\u63d0\u4f9b\u30b5\u30fc\u30d3\u30b9\u306b\u63a5\u7d9a\u3057\u306a\u3044\u3088\u3046\u3001\u3053\u306e\u4ed5\u7d44\u307f\u306b\u3057\u3066\u3044\u307e\u3059\u3002' ],
+		[ Language.RUSSIAN, '\u0411\u0440\u0430\u0443\u0437\u0435\u0440 \u043f\u043e \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u0438 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u0435\u0442 \u0437\u043d\u0430\u0447\u043a\u0438 \u0441\u0430\u0439\u0442\u043e\u0432 \u0438\u0437 \u0441\u043e\u0431\u0441\u0442\u0432\u0435\u043d\u043d\u043e\u0433\u043e \u043a\u0435\u0448\u0430. \u0418\u043d\u043e\u0433\u0434\u0430 \u044d\u0442\u043e \u043d\u0435 \u043f\u043e\u043b\u0443\u0447\u0430\u0435\u0442\u0441\u044f. \u042f \u0432\u044b\u0431\u0440\u0430\u043b \u0442\u0430\u043a\u043e\u0439 \u043f\u043e\u0434\u0445\u043e\u0434, \u0447\u0442\u043e\u0431\u044b \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u043f\u043e\u043b\u043d\u0443\u044e \u043a\u043e\u043d\u0444\u0438\u0434\u0435\u043d\u0446\u0438\u0430\u043b\u044c\u043d\u043e\u0441\u0442\u044c TOCus \u0438 \u043d\u0435 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0430\u0442\u044c\u0441\u044f \u043a \u0441\u0435\u0440\u0432\u0438\u0441\u0430\u043c \u0437\u043d\u0430\u0447\u043a\u043e\u0432.' ],
 	] )( 'describes browser-local favicons without Chrome branding in %s', async ( language, expected ) => {
 		const bundle = await loadLocalizationBundle( language );
 		expect( bundle.privacyCopy.faviconPermission ).toBe( expected );
@@ -65,20 +65,19 @@ describe( 'createLocalizationBundle', () => {
 	} );
 
 	it.each( [
-		[ Language.ENGLISH, 'Current website', 'TOCus is active' ],
-		[ Language.SPANISH_TU, 'Sitio web actual', 'TOCus está activo' ],
-		[ Language.SPANISH_VOS, 'Sitio web actual', 'TOCus está activo' ],
-		[ Language.PORTUGUESE_BRAZIL, 'Site atual', 'O TOCus está ativo' ],
-		[ Language.PORTUGUESE_PORTUGAL, 'Site atual', 'O TOCus está ativo' ],
-		[ Language.ITALIAN, 'Sito web attuale', 'TOCus è attivo' ],
-		[ Language.FRENCH, 'Site actuel', 'TOCus est actif' ],
-		[ Language.GERMAN, 'Aktuelle Website', 'TOCus ist aktiv' ],
-		[ Language.JAPANESE, '現在のウェブサイト', 'TOCus は有効です' ],
-		[ Language.RUSSIAN, 'Текущий сайт', 'TOCus активен' ],
-	] )( 'loads translated popup copy for %s', async ( language, currentWebsite, activeStatus ) => {
+		[ Language.ENGLISH, 'TOCus is active' ],
+		[ Language.SPANISH_TU, 'TOCus está activo' ],
+		[ Language.SPANISH_VOS, 'TOCus está activo' ],
+		[ Language.PORTUGUESE_BRAZIL, 'O TOCus está ativo' ],
+		[ Language.PORTUGUESE_PORTUGAL, 'O TOCus está ativo' ],
+		[ Language.ITALIAN, 'TOCus è attivo' ],
+		[ Language.FRENCH, 'TOCus est actif' ],
+		[ Language.GERMAN, 'TOCus ist aktiv' ],
+		[ Language.JAPANESE, 'TOCus は有効です' ],
+		[ Language.RUSSIAN, 'TOCus активен' ],
+	] )( 'loads translated popup copy for %s', async ( language, activeStatus ) => {
 		const bundle = await loadLocalizationBundle( language );
 
-		expect( bundle.popup.currentWebsite ).toBe( currentWebsite );
 		expect( bundle.popup.tocusActive ).toBe( activeStatus );
 	} );
 
@@ -113,7 +112,6 @@ describe( 'createLocalizationBundle', () => {
 		const bundle = await loadLocalizationBundle( Language.ENGLISH );
 
 		expect( bundle.document.settingsTitle ).toBe( 'TOCus settings' );
-		expect( bundle.popup.currentWebsite ).toBe( 'Current website' );
 		expect( bundle.popup.pauseSite ).toBe( 'Pause site' );
 		expect( bundle.settingsShell.navigationLabel ).toBe( 'Settings' );
 		expect( bundle.aboutCopy.formatVersion( '2.3.4' ) ).toBe( 'Version 2.3.4' );

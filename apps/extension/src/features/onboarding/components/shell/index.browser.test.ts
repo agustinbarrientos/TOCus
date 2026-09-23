@@ -1,6 +1,45 @@
 import { expect, test } from '@playwright/test';
 import { Palette, ThemeMode } from '../../../../domains/preferences/types';
+import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
+import { OnboardingCompleteEventName } from './types';
 import type {} from '../../../../../../../tests/visual/originals/presentation/types';
+
+test( 'rejects programmatic Finish when no website is selected', async ( { page } ) => {
+	await page.goto( '/tests/visual/originals/presentation/?sites-step' );
+	await expect( page.getByRole( 'heading', { name: 'Choose websites', exact: true } ) ).toBeVisible();
+	const completions = await page.evaluate( async ( eventName ) => {
+		let completed = 0;
+		window.onboardingOriginal.addEventListener( eventName, () => {
+			completed += 1;
+		} );
+		await window.finishOriginalOnboarding();
+		return completed;
+	}, OnboardingCompleteEventName );
+	expect( completions ).toBe( 0 );
+} );
+
+test( 'checks current saved websites before programmatic Finish when the rendered list is stale', async ( { page } ) => {
+	await page.goto( '/tests/visual/originals/presentation/?sites-step' );
+	await expect( page.getByRole( 'heading', { name: 'Choose websites', exact: true } ) ).toBeVisible();
+	await page.evaluate( ( scopeId ) => {
+		window.onboardingOriginal.protectedSites = [ {
+			identityHost: 'example.com',
+			rule: { host: 'example.com', includeSubdomains: true, scopeId },
+		} ];
+	}, DefaultProtectionScopeId );
+	await expect( page.getByRole( 'button', { name: 'Finish setup', exact: true } ) ).toBeEnabled();
+	const completions = await page.evaluate( async ( eventName ) => {
+		let completed = 0;
+		window.onboardingOriginal.addEventListener( eventName, () => {
+			completed += 1;
+		} );
+		window.onboardingOriginal.protectedSites = [];
+		await window.finishOriginalOnboarding();
+		return completed;
+	}, OnboardingCompleteEventName );
+	expect( completions ).toBe( 0 );
+	await expect( page.getByRole( 'listitem' ) ).toHaveCount( 0 );
+} );
 
 for ( const theme of [ ThemeMode.LIGHT, ThemeMode.DARK ] ) {
 	test( `updates the preview sphere when changing palettes in ${ theme } appearance`, async ( { page } ) => {

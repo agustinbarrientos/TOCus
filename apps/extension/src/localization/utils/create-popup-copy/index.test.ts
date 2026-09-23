@@ -6,7 +6,6 @@ describe( 'createPopupCopy', () => {
 	it( 'creates complete status and action copy for the live popup', () => {
 		const copy = createPopupCopy( createTestI18n() );
 
-		expect( copy.currentWebsite ).toBe( 'Current website' );
 		expect( copy.siteNotOnList ).toBe( 'Site not on the list' );
 		expect( copy.tocusActive ).toBe( 'TOCus is active' );
 		expect( copy.pauseSite ).toBe( 'Pause site' );
@@ -16,7 +15,7 @@ describe( 'createPopupCopy', () => {
 		expect( copy.settings ).toBe( 'Settings' );
 		expect( copy.retrying ).toBe( 'Trying again...' );
 		expect( copy.permissionRetainedError )
-			.toBe( 'This website could not be saved. Its browser access may still be active.' );
+			.toBe( "This website couldn't be saved. Its browser access may still be active." );
 	} );
 
 	it( 'formats nonnegative localized countdowns', () => {
