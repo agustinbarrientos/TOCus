@@ -6,14 +6,14 @@ import type { OnboardingSitesStepCopy } from '../../../features/onboarding/compo
  * Creates localized onboarding Sites-step copy.
  * @param i18n - Locale-specific Lingui instance.
  * @return Complete localized Sites-step copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createOnboardingSitesStepCopy( i18n: I18n ): Readonly<OnboardingSitesStepCopy> {
 	/**
 	 * Formats the accessible action for one available site suggestion.
 	 * @param siteName - Fixed site brand name.
 	 * @return Localized suggestion action.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatAddSuggestionLabel( siteName: string ): string {
 		return i18n._( msg`Add ${ siteName }` );
@@ -23,7 +23,7 @@ export function createOnboardingSitesStepCopy( i18n: I18n ): Readonly<Onboarding
 	 * Formats the accessible status for one pending site suggestion.
 	 * @param siteName - Fixed site brand name.
 	 * @return Localized pending suggestion status.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatAddingSuggestionLabel( siteName: string ): string {
 		return i18n._( msg`Adding ${ siteName }...` );
@@ -33,7 +33,7 @@ export function createOnboardingSitesStepCopy( i18n: I18n ): Readonly<Onboarding
 	 * Formats the accessible status for one protected site suggestion.
 	 * @param siteName - Fixed site brand name.
 	 * @return Localized protected suggestion status.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatAddedSuggestionLabel( siteName: string ): string {
 		return i18n._( msg`${ siteName } added` );
@@ -43,7 +43,7 @@ export function createOnboardingSitesStepCopy( i18n: I18n ): Readonly<Onboarding
 	 * Formats one successful protected-site announcement.
 	 * @param siteName - Site name displayed to the user.
 	 * @return Localized success announcement.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatAddedAnnouncement( siteName: string ): string {
 		return i18n._( msg`${ siteName } was added to your list.` );
@@ -53,7 +53,7 @@ export function createOnboardingSitesStepCopy( i18n: I18n ): Readonly<Onboarding
 	 * Formats one removed-site announcement.
 	 * @param name - Local site display name.
 	 * @return Localized removal status.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatRemovedAnnouncement( name: string ): string {
 		return i18n._( msg`${ { name } } was removed from your list.` );
@@ -63,7 +63,7 @@ export function createOnboardingSitesStepCopy( i18n: I18n ): Readonly<Onboarding
 	 * Formats one removal whose browser access remains granted.
 	 * @param name - Local site display name.
 	 * @return Localized browser-access status.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatPermissionRetainedAnnouncement( name: string ): string {
 		return i18n._( msg`${ { name } } was removed, but its browser access could not be removed automatically.` );

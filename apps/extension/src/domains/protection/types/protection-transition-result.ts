@@ -5,7 +5,7 @@ import { ProtectionStateSchema } from './protection-state';
 
 /**
  * Validates the complete output of one protection-state transition.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionTransitionResultSchema = z.object( {
 	state: ProtectionStateSchema,
@@ -15,6 +15,6 @@ export const ProtectionTransitionResultSchema = z.object( {
 
 /**
  * Complete output of one protection-state transition.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionTransitionResult = z.infer<typeof ProtectionTransitionResultSchema>;

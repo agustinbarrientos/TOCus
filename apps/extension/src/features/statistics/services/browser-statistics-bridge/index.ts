@@ -30,14 +30,14 @@ import type {
 
 /**
  * Cross-browser window identifier emitted when the browser loses operating-system focus.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const UNFOCUSED_BROWSER_WINDOW_ID = -1;
 
 /**
  * Creates an unavailable statistics projection without fabricating local values.
  * @return Unavailable statistics projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createUnavailableStatisticsProjection(): StatisticsProjection {
 	return StatisticsProjectionSchema.parse( { status: StatisticsProjectionStatus.UNAVAILABLE } );
@@ -47,7 +47,7 @@ function createUnavailableStatisticsProjection(): StatisticsProjection {
  * Creates browser observation and persistence coordination for local statistics.
  * @param options - Browser, protection, storage, clock, and statistics dependencies.
  * @return Browser statistics bridge operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createBrowserStatisticsBridge(
 	options: BrowserStatisticsBridgeOptions,
@@ -61,7 +61,7 @@ export function createBrowserStatisticsBridge(
 	/**
 	 * Stops new observations and drains every already-started persistence operation.
 	 * @return Promise resolved after statistics and focus writes settle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function suspendForDataReset(): Promise<void> {
 		suspended = true;
@@ -72,7 +72,7 @@ export function createBrowserStatisticsBridge(
 
 	/**
 	 * Reopens observation intake after persistence and cached authorities have been reset.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function resumeAfterDataReset(): void {
 		suspended = false;
@@ -81,7 +81,7 @@ export function createBrowserStatisticsBridge(
 	/**
 	 * Returns a trustworthy current wall-clock value.
 	 * @return Safe nonnegative epoch milliseconds, or null when unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function getSafeNow(): number | null {
 		try {
@@ -101,7 +101,7 @@ export function createBrowserStatisticsBridge(
 	 * @param focusedTabId - Active tab returned by browser inspection.
 	 * @param tabs - Complete inspected tab collection.
 	 * @return Whether the snapshot may open a new focus anchor.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function focusSnapshotMatchesEvent(
 		focusEvent: BrowserProtectionFocusEventIdentity | null | undefined,
@@ -140,7 +140,7 @@ export function createBrowserStatisticsBridge(
 	 * @param operation - Deferred statistics operation.
 	 * @param suspendedResult - Result returned when a reset invalidates the operation.
 	 * @return Promise for the statistics operation result or the suspended result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function enqueue<T>( operation: () => Promise<T>, suspendedResult: T ): Promise<T> {
 		const generation = dataResetGeneration;
@@ -168,7 +168,7 @@ export function createBrowserStatisticsBridge(
 	 * Runs one statistics boundary without allowing measurement failures to escape.
 	 * @param operation - Deferred statistics operation.
 	 * @return Promise resolved after success or contained failure.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function runOperation( operation: () => Promise<void> ): Promise<void> {
 		try {
@@ -184,7 +184,7 @@ export function createBrowserStatisticsBridge(
 	 * @param navigation - Optional top-level navigation observed by the current operation.
 	 * @param focusEvent - Exact browser focus event identity, null when malformed, or undefined for another boundary.
 	 * @return Privacy-safe browser observation that never rejects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function captureObservation(
 		mode: StatisticsFocusObservationModeValue,
@@ -272,7 +272,7 @@ export function createBrowserStatisticsBridge(
 	 * @param configuration - Trusted configuration after the protection operation, or null after failure.
 	 * @param browserObservation - Browser inputs captured when the event reached the runtime.
 	 * @return Complete privacy-safe checkpoint observation that never rejects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function completeCheckpoint(
 		configuration: ProtectionConfigurationDocument | null,
@@ -307,7 +307,7 @@ export function createBrowserStatisticsBridge(
 	 * @param boundary - Durable fact prefix owned by the completed protection operation.
 	 * @param observation - Event-time focus observation captured before queueing.
 	 * @return Promise resolved after the isolated focus and fact-delivery boundaries.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function reconcileObservation(
 		configuration: ProtectionConfigurationDocument | null,
@@ -334,7 +334,7 @@ export function createBrowserStatisticsBridge(
 	 * Queues one completed protection operation for fact delivery and checkpointing.
 	 * @param configuration - Trusted post-operation configuration, or null after failure.
 	 * @param browserObservation - Browser inputs captured when the event reached the runtime.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function observeProtectionOperation(
 		configuration: ProtectionConfigurationDocument | null,
@@ -357,7 +357,7 @@ export function createBrowserStatisticsBridge(
 	/**
 	 * Queues raw protection configuration reconciliation before later observations.
 	 * @param rawConfiguration - Unknown unfiltered configuration value.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function reconcileConfiguration( rawConfiguration: unknown ): void {
 		void enqueue(
@@ -370,7 +370,7 @@ export function createBrowserStatisticsBridge(
 
 	/**
 	 * Queues removal of focus measurement that cannot remain valid without protection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function discardFocusMeasurement(): void {
 		void enqueue(
@@ -384,7 +384,7 @@ export function createBrowserStatisticsBridge(
 	/**
 	 * Establishes coordinator access needed to inspect or clear durable statistics delivery.
 	 * @return True after current or lazy coordinator initialization succeeds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function ensureCoordinator(): Promise<boolean> {
 		try {
@@ -406,7 +406,7 @@ export function createBrowserStatisticsBridge(
 	/**
 	 * Loads raw revisions and establishes durable-delivery access without enabling protection.
 	 * @return Current configuration when statistics can safely proceed, otherwise null.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function prepareReadAccess(): Promise<ProtectionConfigurationDocument | null> {
 		let rawConfiguration: unknown;
@@ -441,7 +441,7 @@ export function createBrowserStatisticsBridge(
 	/**
 	 * Establishes reset access without requiring readable statistics or protection configuration.
 	 * @return True when current settings were read and durable delivery can be cleared.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function prepareResetAccess(): Promise<boolean> {
 		let rawConfiguration: unknown;
@@ -459,7 +459,7 @@ export function createBrowserStatisticsBridge(
 	/**
 	 * Reads and validates only the public statistics projection from its runtime snapshot.
 	 * @return Available local totals or an unavailable projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function getProjection(): StatisticsProjection {
 		try {
@@ -478,7 +478,7 @@ export function createBrowserStatisticsBridge(
 	/**
 	 * Returns the latest trustworthy all-time statistics projection.
 	 * @return Available local totals or an unavailable projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function readStatistics(): Promise<StatisticsProjection> {
 		const initialBoundary = options.coordinator.getStatisticsDeliveryBoundary();
@@ -511,7 +511,7 @@ export function createBrowserStatisticsBridge(
 	/**
 	 * Clears local statistics and returns the resulting trustworthy projection.
 	 * @return Zero-valued local totals after success or an unavailable projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function resetStatistics(): Promise<StatisticsProjection> {
 		return enqueue( async () => {

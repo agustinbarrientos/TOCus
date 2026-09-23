@@ -7,7 +7,7 @@ import type { PausePreviewProps } from '../../types/presentation';
  * @remarks The browser chrome follows the OS; the page follows the user's TOCus choices.
  * @param props - Current localized pause copy and motion preference.
  * @return A fixed bottom-left browser preview outside the onboarding content grid.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function PausePreview( props: PausePreviewProps ) {
 	const { state } = props;

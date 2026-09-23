@@ -6,7 +6,7 @@ import { createRuntimeLocalizationMessages } from './index.ts';
 
 /**
  * Runtime projections and their complete expected message counts.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const RuntimeProjectionCases = [
 	{
@@ -15,7 +15,7 @@ const RuntimeProjectionCases = [
 		origins: [ 'localization/utils/create-toolbar-copy/index.ts' ],
 	},
 	{
-		expectedMessageCount: 31,
+		expectedMessageCount: 36,
 		label: 'protected page',
 		origins: [
 			'localization/utils/format-localized-duration/index.ts',

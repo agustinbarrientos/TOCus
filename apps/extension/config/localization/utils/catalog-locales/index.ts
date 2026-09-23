@@ -3,7 +3,7 @@ import type { ExtensionCatalog } from './types.ts';
 
 /**
  * Canonical extension PO catalogs and their runtime locale mappings.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ExtensionCatalogs = Object.freeze( [
 	{ language: Language.ENGLISH, locale: 'en', browserLocales: Object.freeze( [ 'en' ] ) },

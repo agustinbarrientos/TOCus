@@ -8,7 +8,7 @@ import type { ProtectionConfigurationStorageService } from '../protection-config
 
 /**
  * Stable outcomes returned by protected-site configuration edits.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionConfigurationEditStatus = {
 	REJECTED: 'rejected',
@@ -17,19 +17,19 @@ export const ProtectionConfigurationEditStatus = {
 
 /**
  * Validates a protected-site configuration edit outcome.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionConfigurationEditStatusSchema = z.enum( ProtectionConfigurationEditStatus );
 
 /**
  * Outcome returned by a protected-site configuration edit.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionConfigurationEditStatus = z.infer<typeof ProtectionConfigurationEditStatusSchema>;
 
 /**
  * Stable reasons why a protected-site configuration edit can be rejected.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionConfigurationEditRejectionReason = {
 	ALREADY_PROTECTED: 'already-protected',
@@ -46,7 +46,7 @@ export const ProtectionConfigurationEditRejectionReason = {
 
 /**
  * Validates a stable protected-site configuration edit rejection reason.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionConfigurationEditRejectionReasonSchema = z.enum(
 	ProtectionConfigurationEditRejectionReason,
@@ -54,7 +54,7 @@ export const ProtectionConfigurationEditRejectionReasonSchema = z.enum(
 
 /**
  * Stable reason why a protected-site configuration edit was rejected.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionConfigurationEditRejectionReason = z.infer<
 	typeof ProtectionConfigurationEditRejectionReasonSchema
@@ -62,7 +62,7 @@ export type ProtectionConfigurationEditRejectionReason = z.infer<
 
 /**
  * Successful immutable protected-site configuration edit.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface UpdatedProtectionConfigurationEditResult {
 	status: typeof ProtectionConfigurationEditStatus.UPDATED;
@@ -71,7 +71,7 @@ export interface UpdatedProtectionConfigurationEditResult {
 
 /**
  * Rejected protected-site configuration edit with a stable explanation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface RejectedProtectionConfigurationEditResult {
 	status: typeof ProtectionConfigurationEditStatus.REJECTED;
@@ -80,7 +80,7 @@ export interface RejectedProtectionConfigurationEditResult {
 
 /**
  * Complete protected-site configuration edit result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionConfigurationEditResult =
 	UpdatedProtectionConfigurationEditResult |
@@ -88,7 +88,7 @@ export type ProtectionConfigurationEditResult =
 
 /**
  * Authoritative settlement observed before one coordinated configuration mutation releases its lock.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectionConfigurationEditSettlement {
 	/** Original authority, verification, or persistence failure needed for coordinated compensation. */
@@ -101,7 +101,7 @@ export interface ProtectionConfigurationEditSettlement {
 
 /**
  * Runs one side effect against an authoritative edit settlement before coordination is released.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionConfigurationEditFinalizer = (
 	settlement: ProtectionConfigurationEditSettlement,
@@ -109,7 +109,7 @@ export type ProtectionConfigurationEditFinalizer = (
 
 /**
  * Authoritative settlement for one coordinated protected-site removal.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectionConfigurationRemovalSettlement extends ProtectionConfigurationEditSettlement {
 	/** Site resolved from authoritative storage, or null when no matching site was found. */
@@ -118,7 +118,7 @@ export interface ProtectionConfigurationRemovalSettlement extends ProtectionConf
 
 /**
  * Runs one side effect against an authoritative removal settlement before coordination is released.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionConfigurationRemovalFinalizer = (
 	settlement: ProtectionConfigurationRemovalSettlement,
@@ -126,7 +126,7 @@ export type ProtectionConfigurationRemovalFinalizer = (
 
 /**
  * Verifies one validated candidate immediately before persistence while mutation coordination is held.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionConfigurationEditPrePersist = (
 	configuration: ProtectionConfigurationDocument,
@@ -134,13 +134,13 @@ export type ProtectionConfigurationEditPrePersist = (
 
 /**
  * One deferred protected-site configuration mutation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionConfigurationMutation = () => Promise<ProtectionConfigurationEditResult>;
 
 /**
  * Coordinates one configuration mutation with every editor context that shares the same authority.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionConfigurationMutationCoordinator = (
 	mutation: ProtectionConfigurationMutation,
@@ -148,7 +148,7 @@ export type ProtectionConfigurationMutationCoordinator = (
 
 /**
  * Dependencies used by protected-site configuration editing.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectionConfigurationEditorOptions {
 	storage: ProtectionConfigurationStorageService;
@@ -157,14 +157,14 @@ export interface ProtectionConfigurationEditorOptions {
 	/**
 	 * Validates addition authority after fresh storage is loaded and before any permission-settlement path.
 	 * @return Promise resolved while the pending addition still belongs to the current data generation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	validateAddition?(): Promise<void>;
 }
 
 /**
  * Validated protected-site configuration editing operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectionConfigurationEditor {
 	/** Replaces the complete site set only while its baseline still matches authoritative storage. */
@@ -177,7 +177,7 @@ export interface ProtectionConfigurationEditor {
 	/**
 	 * Loads the current protected-site configuration without altering malformed data.
 	 * @return Current configuration, an empty document, or null for malformed data.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	load(): Promise<ProtectionConfigurationDocument | null>;
 
@@ -187,7 +187,7 @@ export interface ProtectionConfigurationEditor {
 	 * @param beforePersist - Optional verification performed immediately before persistence.
 	 * @param finalize - Optional side effect completed before mutation coordination is released.
 	 * @return Updated configuration or a stable rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	add(
 		siteInput: unknown,
@@ -201,7 +201,7 @@ export interface ProtectionConfigurationEditor {
 	 * @param beforePersist - Optional verification immediately before persistence.
 	 * @param finalize - Optional effect completed before mutation coordination is released.
 	 * @return Updated configuration or a stable rejection without partial additions.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	addMany(
 		siteInputs: readonly string[],
@@ -214,7 +214,7 @@ export interface ProtectionConfigurationEditor {
 	 * @param identityHost - Exact canonical site identity.
 	 * @param displayNameInput - Unknown editable name input; an empty value restores automatic naming.
 	 * @return Updated configuration or a stable rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	update(
 		identityHost: unknown,
@@ -227,7 +227,7 @@ export interface ProtectionConfigurationEditor {
 	 * @param identityHost - Exact canonical site identity.
 	 * @param finalize - Optional side effect completed before mutation coordination is released.
 	 * @return Updated configuration or a stable rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	remove(
 		identityHost: unknown,
@@ -238,7 +238,7 @@ export interface ProtectionConfigurationEditor {
 	 * Updates the global normalized schedule.
 	 * @param scheduleInput - Unknown editable schedule input.
 	 * @return Updated configuration or a stable rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	updateSchedule(
 		scheduleInput: unknown,
@@ -248,7 +248,7 @@ export interface ProtectionConfigurationEditor {
 	 * Updates the global timing configuration.
 	 * @param timingConfigurationInput - Unknown global timing configuration.
 	 * @return Updated configuration or a stable rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	updateTiming( timingConfigurationInput: unknown ): Promise<ProtectionConfigurationEditResult>;
 }

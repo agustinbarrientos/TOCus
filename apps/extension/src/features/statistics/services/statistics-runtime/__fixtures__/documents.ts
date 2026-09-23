@@ -28,26 +28,26 @@ import {
 
 /**
  * Deterministic current time used by statistics-runtime tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const TEST_NOW_EPOCH_MILLISECONDS = 1_800_000_200_000;
 
 /**
  * Browser-session continuity used by the primary statistics-runtime test instance.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const TEST_SESSION_CONTINUITY_ID = SessionContinuityIdSchema.parse( 'session_current' );
 
 /**
  * Focus epoch used by the primary statistics-runtime test instance.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const TEST_FOCUS_EPOCH_ID = StatisticsFocusEpochIdSchema.parse( 'focus_epoch_current' );
 
 /**
  * Reuses the current generation identifier for an invalid reset scenario.
  * @return Existing statistics generation identifier.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function reuseCurrentGenerationId(): string {
 	return 'generation_test';
@@ -55,7 +55,7 @@ export function reuseCurrentGenerationId(): string {
 
 /**
  * Complete current configuration used by statistics-runtime tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const TEST_CONFIGURATION = ProtectionConfigurationDocumentSchema.parse( {
 	...TestEmptyProtectionConfiguration,
@@ -75,7 +75,7 @@ export const TEST_CONFIGURATION = ProtectionConfigurationDocumentSchema.parse( {
  * @param scopeId - Exact current scope identifier.
  * @param measurementRevision - Current measurement revision.
  * @return Valid local statistics document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createStatisticsDocument(
 	scopeId = 'scope_default',
@@ -109,7 +109,7 @@ export function createStatisticsDocument(
  * @param allowanceDurationMilliseconds - Configured duration captured with the reconsidered visit.
  * @param observedLocalDate - Calendar date captured with the fact, defaulting to the UTC fixture calendar.
  * @return Valid protection-fact batch.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createReconsideredBatch(
 	batchId: string,
@@ -146,7 +146,7 @@ export function createReconsideredBatch(
  * @param scopeId - Exact batch scope.
  * @param measurementRevision - Revision captured with the fact.
  * @return Valid protection-fact batch.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createAllowanceBatch(
 	batchId: string,
@@ -182,7 +182,7 @@ export function createAllowanceBatch(
  * @param confirmedFocusedUseMilliseconds - Already persisted focused use.
  * @param accountedThroughEpochMilliseconds - End of already accounted focus.
  * @return Valid active local statistics document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createActiveStatisticsDocument(
 	scopeId = 'scope_default',
@@ -221,7 +221,7 @@ export function createActiveStatisticsDocument(
  * @param allowanceId - Stable active allowance identifier.
  * @param startedAtEpochMilliseconds - Active allowance start time.
  * @return Valid protection allowance state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createMatchingAllowanceState(
 	scopeId = 'scope_default',
@@ -246,7 +246,7 @@ export function createMatchingAllowanceState(
  * @param sessionContinuityId - Browser session allowed to continue the live anchor.
  * @param focusEpochId - Focus epoch allowed to continue the live anchor.
  * @return Valid session document carrying one focus anchor.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createFocusSession(
 	focusedAtEpochMilliseconds: number,
@@ -282,7 +282,7 @@ export function createFocusSession(
  * @param sessionContinuityId - Browser session allowed to continue the optional live anchor.
  * @param focusEpochId - Focus epoch allowed to continue the optional live anchor.
  * @return Valid session document carrying frozen work.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createPendingSession(
 	startedAtEpochMilliseconds: number,
@@ -325,7 +325,7 @@ export function createPendingSession(
 /**
  * Creates two websites sharing the same measured countdown.
  * @return Valid shared-countdown protection configuration.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createTwoSiteConfiguration(): ProtectionConfigurationDocument {
 	return ProtectionConfigurationDocumentSchema.parse( {

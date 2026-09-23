@@ -14,7 +14,7 @@ import {
  * @param input - Unknown navigation input.
  * @param rules - Unknown stored protected-site rules.
  * @return A protected, unprotected, or unsupported navigation result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function matchProtectedUrl( input: unknown, rules: unknown ): ProtectedUrlMatchResult {
 	const canonicalRules = canonicalizeProtectedSiteRules( rules );

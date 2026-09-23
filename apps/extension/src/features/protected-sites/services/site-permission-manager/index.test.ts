@@ -19,7 +19,7 @@ import {
 
 /**
  * Shared domain rule used by permission manager tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const DOMAIN_RULE = {
 	host: 'example.com',
@@ -28,7 +28,7 @@ const DOMAIN_RULE = {
 } as const;
 /**
  * Independent domain rule used by permission manager tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const INDEPENDENT_RULE = {
 	host: 'independent.test',
@@ -38,7 +38,7 @@ const INDEPENDENT_RULE = {
 
 /**
  * Configuration containing shared and independent site rules.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const MULTI_SITE_CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
@@ -56,7 +56,7 @@ const MULTI_SITE_CONFIGURATION: ProtectionConfigurationDocument = {
 /**
  * Creates a controllable browser permissions API.
  * @return Browser permissions test double.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createPermissionsApi(): SitePermissionApi {
 	return {

@@ -2,6 +2,6 @@ import type { PopupCurrentSiteStatus, PopupCurrentSite } from '../../types/popup
 
 /**
  * Current-site states with enough canonical host metadata to display an identity.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type PopupIdentifiedCurrentSite = Extract<PopupCurrentSite, Record<'status', typeof PopupCurrentSiteStatus.PROTECTED | typeof PopupCurrentSiteStatus.UNPROTECTED>>;

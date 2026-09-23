@@ -12,7 +12,7 @@ import './style.scss';
  * Presents weekly fields without owning persistence or nesting another form.
  * @param props - Controlled windows, unique ID prefix and localized labels.
  * @return Weekly fields with conditional removal and an explicit add action.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function WeeklyScheduleEditor( props: WeeklyScheduleEditorProps ) {
 	const [ confirmingClear, setConfirmingClear ] = useState( false );

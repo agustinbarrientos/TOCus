@@ -7,14 +7,14 @@ import type {
 
 /**
  * Select sentinel for the nullable follow-browser preference.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const BrowserLanguageOption = 'browser';
 
 
 /**
  * Controlled Settings language presentation.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface LanguageControlsProps {
 	copy: Pick<LanguageScreenCopy, 'languageLabel' | 'languageLabels' | 'browserLanguageOption' | 'formatBrowserLanguageDescription'>;

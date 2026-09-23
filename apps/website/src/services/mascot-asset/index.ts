@@ -16,7 +16,7 @@ function isBufferGeometry( value: unknown ): value is BufferGeometry {
  * Prepares the supplied mesh for local GLB export.
  * @param source - Original imported scene.
  * @return Exportable asset.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function prepareMascotAsset( source: Group ): PreparedMascotAsset {
 	const original = source.getObjectByProperty( 'isMesh', true );

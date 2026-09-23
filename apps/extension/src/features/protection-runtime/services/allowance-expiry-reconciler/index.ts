@@ -27,7 +27,7 @@ import type {
  * @param retainedTabIds - Browser tabs already represented by Ready participants.
  * @param tabs - Explicitly ordinary open tabs from the expiry transaction snapshot.
  * @return Protected ordinary pages that should enter the next gentle interruption.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createLivePageCandidates(
 	state: AllowanceProtectionState,
@@ -70,7 +70,7 @@ function createLivePageCandidates(
  * Creates allowance-expiry reconciliation with fresh browser observations.
  * @param options - State, browser, clock, and effect dependencies.
  * @return Elapsed allowance reconciler.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createAllowanceExpiryReconciler(
 	options: AllowanceExpiryReconcilerOptions,
@@ -79,7 +79,7 @@ export function createAllowanceExpiryReconciler(
 	 * Reconciles every elapsed allowance found in the current state snapshot.
 	 * @param configuration - Current validated local configuration.
 	 * @return Promise resolved after every elapsed allowance is reconciled.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function reconcile(
 		configuration: Parameters<AllowanceExpiryReconciler[ 'reconcile' ]>[ 0 ],

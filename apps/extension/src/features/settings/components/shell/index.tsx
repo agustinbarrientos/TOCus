@@ -38,7 +38,7 @@ const Statistics = lazy( loadStatisticsScreen );
  * Creates navigation items from canonical destinations, localized labels, and shared icons.
  * @param copy - Current Settings navigation messages.
  * @return Eight destinations in their approved navigation order.
- * @since 0.1.0
+ * @since 1.0.0
  */
 function getNavigationItems( copy: Readonly<SettingsShellCopy> ): readonly SettingsNavigationItem[] {
 	return [
@@ -57,7 +57,7 @@ function getNavigationItems( copy: Readonly<SettingsShellCopy> ): readonly Setti
  * Mounts one Settings destination with the service dependencies it already consumes.
  * @param properties - Accepted destination, loaded shell, and guard/access bridges.
  * @return Selected Settings page.
- * @since 0.1.0
+ * @since 1.0.0
  */
 function SettingsDestinationContent( properties: SettingsDestinationProperties ) {
 	const { destination, shell, register, accessRef } = properties;
@@ -89,7 +89,7 @@ function SettingsDestinationContent( properties: SettingsDestinationProperties )
  * Composes shared navigation, guarded destination content, and one discard confirmation.
  * @param properties - Loaded page-service contract and current access-refresh bridge.
  * @return One Settings React tree using the shared appearance observer and UI provider.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function SettingsShell( properties: SettingsShellProperties ) {
 	const { shell, accessRef } = properties;
@@ -100,7 +100,7 @@ export function SettingsShell( properties: SettingsShellProperties ) {
 	/**
 	 * Routes a navigation click through draft protection before changing browser history.
 	 * @param event - Click on a packaged navigation anchor.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	function handleNavigation( event: MouseEvent<HTMLAnchorElement> ): void {
 		event.preventDefault();
@@ -109,7 +109,7 @@ export function SettingsShell( properties: SettingsShellProperties ) {
 
 	/**
 	 * Begins the confirmed discard while leaving asynchronous draft ownership with its page.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	function handleDiscard(): void {
 		void navigation.discard();

@@ -8,7 +8,7 @@ import type { DisposableResource, MascotModel } from './types';
 /**
  * Releases resources owned by an imported model or its surrounding studio.
  * @param root - Exclusive owner of the geometries, materials, textures and skeletons.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function disposeObjectResources( root: Object3D ): void {
 	const geometries = new Set<DisposableResource>();
@@ -67,7 +67,7 @@ export function disposeObjectResources( root: Object3D ): void {
  * Loads the user's portable mascot and baked greeting from this website only.
  * @param signal - Cancels network work and discards parsing that completes after disposal.
  * @return The authored mesh hierarchy and its greeting clip.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export async function loadMascotModel( signal: AbortSignal ): Promise<MascotModel> {
 	const response = await fetch( '/models/mascot.glb', { signal } );

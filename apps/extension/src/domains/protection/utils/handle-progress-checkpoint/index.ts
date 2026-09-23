@@ -31,7 +31,7 @@ import { protectionMatchProtectsScope } from '../match-protection-scope';
  * @param pauseTimeFact - Accepted public progress fact, or null when the checkpoint is private.
  * @param completionStatisticsEligible - Whether every accepted progress segment may enter ordinary statistics.
  * @return Ready state or an automatically started allowance, with presentation decisions and accepted statistics.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function completeWait(
 	state: WaitingProtectionState,
@@ -133,7 +133,7 @@ function completeWait(
  * @param state - Current validated protection state for the event scope.
  * @param event - Validated cumulative progress-checkpoint event.
  * @return The unchanged state, accepted partial progress, or delegated atomic completion.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function handleProgressCheckpoint(
 	state: ProtectionState,

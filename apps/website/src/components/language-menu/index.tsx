@@ -6,7 +6,7 @@ import './style.scss';
  * Opens languages next to the initiating control; Mantine manages keyboard focus.
  * @param props - Current locale and localized routes.
  * @return Header-local language menu.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function LanguageMenu( props: LanguageMenuProps ) {
 	const { localization, localizations } = props;

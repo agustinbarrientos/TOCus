@@ -6,7 +6,7 @@ import type { PngComparison } from './types';
  * @param expectedBytes - Immutable original PNG bytes.
  * @param actualBytes - Single captured screenshot's PNG bytes.
  * @return Dimensions and the number of raw pixel differences.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function comparePngPixels(
 	expectedBytes: Buffer, actualBytes: Buffer,

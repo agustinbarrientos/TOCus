@@ -8,7 +8,7 @@ import { createEmptyScopeStatistics } from '../create-statistics-document';
  * @param operation - Validated reset operation.
  * @return Fresh zero-valued statistics document with the replay fence preserved.
  * @throws {RangeError} When the supplied generation is not fresh.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function resetStatistics(
 	document: StatisticsDocument,

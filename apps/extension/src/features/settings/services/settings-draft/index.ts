@@ -22,7 +22,7 @@ import { SettingsFeedbackAction, useSettingsFeedback } from '../settings-feedbac
  * @param save - Page-owned validation and persistence called from the original Save gesture.
  * @param equals - Optional domain-aware comparison for persistence-relevant edits.
  * @return Draft controller and its current immutable snapshot.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function useDraft<T extends object>(
 	initial: T, register: RegisterDraft, save: SaveDraft, equals?: DraftEquality<T>,

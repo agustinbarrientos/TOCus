@@ -17,7 +17,7 @@ const PAGE_ID_PATTERN = /^page_tab_(\d+)_/u;
  * @param tabId - Nonnegative browser tab identifier.
  * @param stableId - Fresh ASCII identifier fragment.
  * @return Validated runtime page identifier.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createRuntimePageId( tabId: number, stableId: string ): PageId {
 	return PageIdSchema.parse( `${ PAGE_ID_PREFIX }${ String( tabId ) }_${ stableId }` );
@@ -27,7 +27,7 @@ export function createRuntimePageId( tabId: number, stableId: string ): PageId {
  * Recovers the browser tab identifier encoded in a runtime-owned page identifier.
  * @param pageId - Stable runtime page identifier.
  * @return Nonnegative tab identifier or null for another identifier format.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function getRuntimeTabId( pageId: string ): number | null {
 	const match = PAGE_ID_PATTERN.exec( pageId );
@@ -41,7 +41,7 @@ export function getRuntimeTabId( pageId: string ): number | null {
  * @param statesByScope - Current authoritative scope states.
  * @param tabId - Browser tab identifier.
  * @return Matching Waiting or Ready context, or null when the tab is not retained.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function findRuntimeParticipantContext(
 	statesByScope: ProtectionCoordinatorStateSnapshot,
@@ -69,7 +69,7 @@ export function findRuntimeParticipantContext(
  * Creates a transaction target for one Waiting, Ready, or Allowance state.
  * @param state - Current non-idle protection state.
  * @return State identity accepted by departure events.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createRuntimeStateTarget(
 	state: WaitingProtectionState | ReadyProtectionState | AllowanceProtectionState,

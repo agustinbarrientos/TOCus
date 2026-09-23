@@ -32,7 +32,7 @@ const TWITCH_SCOPE_ID = 'scope_twitch';
  * @param host - Whole-domain protection boundary.
  * @param scopeId - Scope that owns the website timing state.
  * @return Valid site configuration input.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createSite( identityHost: string, host: string, scopeId: string ) {
 	return {
@@ -49,7 +49,7 @@ function createSite( identityHost: string, host: string, scopeId: string ) {
  * Creates the complete persisted configuration used by popup projection tests.
  * @param inactiveDefaultSchedule - Whether shared timing is inactive at the fixture instant.
  * @return Validated protection configuration.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createConfiguration( inactiveDefaultSchedule = false ): ProtectionConfigurationDocument {
 	return ProtectionConfigurationDocumentSchema.parse( {
@@ -77,7 +77,7 @@ function createConfiguration( inactiveDefaultSchedule = false ): ProtectionConfi
  * Creates one validated protection state with deterministic fixture identifiers.
  * @param input - State input accepted by the protection schema.
  * @return Validated protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createState( input: unknown ): ProtectionState {
 	return ProtectionStateSchema.parse( input );
@@ -88,7 +88,7 @@ function createState( input: unknown ): ProtectionState {
  * @param scopeId - Scope identifier owned by the state.
  * @param completedWaits - Completed waits in the current daily ladder.
  * @return Validated Idle state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createIdleState( scopeId: string, completedWaits = 0 ): ProtectionState {
 	return createState( {
@@ -107,7 +107,7 @@ function createIdleState( scopeId: string, completedWaits = 0 ): ProtectionState
  * @param tabId - Browser tab retained by the waiting participant.
  * @param destination - Intended protected destination retained by the participant.
  * @return Validated Waiting state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createWaitingState( scopeId: string, tabId: number, destination: string ): ProtectionState {
 	return createState( {
@@ -141,7 +141,7 @@ function createWaitingState( scopeId: string, tabId: number, destination: string
  * @param scopeId - Scope identifier owned by the state.
  * @param remainingMilliseconds - Remaining wall-clock allowance duration.
  * @return Validated Allowance state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createAllowanceState( scopeId: string, remainingMilliseconds: number ): ProtectionState {
 	return createState( {
@@ -165,7 +165,7 @@ function createAllowanceState( scopeId: string, remainingMilliseconds: number ):
  * @param configuration - Persisted configuration visible to Settings.
  * @param activeConfiguration - Permission-filtered configuration active in the runtime.
  * @return Complete runtime snapshot.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createSnapshot(
 	states: Readonly<Record<string, ProtectionState>>,

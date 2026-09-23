@@ -13,7 +13,7 @@ import type { AccessRefresh } from '../../../protected-sites/components/screen/t
 
 /**
  * Stable browser families supported by the settings shell.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const SettingsPlatform = {
 	CHROME: 'chrome',
@@ -23,13 +23,13 @@ export const SettingsPlatform = {
 
 /**
  * Browser family whose native visual conventions the settings shell follows.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type SettingsPlatform = typeof SettingsPlatform[ keyof typeof SettingsPlatform ];
 
 /**
  * Localizable messages rendered by the settings shell.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface SettingsShellCopy {
 	navigationLabel: string;
@@ -60,7 +60,7 @@ export interface SettingsShellCopy {
 
 /**
  * Mutable bridge to the currently mounted Protected Sites access refresh operation.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface SettingsAccessReference {
 	/** Current destination-owned refresh operation, returning null when unavailable. */
@@ -69,7 +69,7 @@ export interface SettingsAccessReference {
 
 /**
  * Services and access bridge required by the Settings application shell.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface SettingsShellProperties {
 	/** Fully localized page-controller service contract. */
@@ -80,7 +80,7 @@ export interface SettingsShellProperties {
 
 /**
  * One localized Settings navigation destination and its shared icon.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface SettingsNavigationItem {
 	/** Canonical destination also used as the URL fragment. */
@@ -93,7 +93,7 @@ export interface SettingsNavigationItem {
 
 /**
  * Properties needed to mount exactly one destination with its shared guard registration.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface SettingsDestinationProperties extends SettingsShellProperties {
 	/** Canonical destination selected by the guarded navigation state. */

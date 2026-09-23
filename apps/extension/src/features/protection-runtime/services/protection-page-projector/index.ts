@@ -22,7 +22,7 @@ import type { ProtectionPageProjector, ProtectionPageProjectorOptions } from './
  * Creates live-page projection for authoritative protection decisions.
  * @param options - Browser page effects and interruption-page identity.
  * @return Protection page projection operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createProtectionPageProjector(
 	options: ProtectionPageProjectorOptions,
@@ -31,7 +31,7 @@ export function createProtectionPageProjector(
 	 * Returns the navigation URL that currently owns a tab, preferring an in-flight destination.
 	 * @param tab - Fresh browser tab observation.
 	 * @return Pending or committed URL, or undefined when host access hides both.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function getObservedTabUrl( tab: ProtectionRuntimeTab ): string | undefined {
 		return tab.pendingUrl ?? tab.url;
@@ -41,7 +41,7 @@ export function createProtectionPageProjector(
 	 * Reports whether a fresh tab observation still displays the interruption page.
 	 * @param tab - Fresh browser tab observation.
 	 * @return Whether the interruption page remains the current navigation source.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function isInterruptionTab( tab: ProtectionRuntimeTab ): boolean {
 		return isInterruptionDocumentUrl( getObservedTabUrl( tab ), options.interruptionPageUrl );
@@ -54,7 +54,7 @@ export function createProtectionPageProjector(
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @param statesByScope - Current authoritative protection state.
 	 * @return Whether mutating this ordinary tab cannot replace an unrelated navigation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function matchesParticipantSource(
 		tab: ProtectionRuntimeTab,
@@ -95,7 +95,7 @@ export function createProtectionPageProjector(
 	 * @param tab - Fresh browser tab observation.
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @return Whether the tab displays a locally configured protected URL.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function matchesProtectedSource(
 		tab: ProtectionRuntimeTab,
@@ -119,7 +119,7 @@ export function createProtectionPageProjector(
 	 * @param tabId - Browser tab targeted by the mutation.
 	 * @param matchesExpectedSource - Fresh check for the source page that justified the mutation.
 	 * @return Promise resolved after success or a stale-tab race, and rejected for a live-source failure.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function applyPageEffect(
 		operation: Promise<void>,
@@ -147,7 +147,7 @@ export function createProtectionPageProjector(
 	 * @param statesByScope - Current authoritative protection state.
 	 * @param continuedParticipant - Optional identity whose entry was accepted by a running allowance.
 	 * @return Promise resolved after a supported page effect or no operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function applyPageDecision(
 		decision: ProtectionDecision,
@@ -239,7 +239,7 @@ export function createProtectionPageProjector(
 	 * @param tab - Fresh interruption-tab observation.
 	 * @param retainedDestination - Validated destination to restore, or null for browser-native dismissal.
 	 * @return Promise resolved after release or a verified stale-tab race.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function releaseObservedInterruptionPage(
 		tab: ProtectionRuntimeTab,
@@ -267,7 +267,7 @@ export function createProtectionPageProjector(
 	 * @param carrierUrl - Exact observed carrier URL that authorized cleanup.
 	 * @param destination - Strictly parsed HTTP(S) destination carried by the pause fragment.
 	 * @return Promise resolved after navigation or when the carrier became stale.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function releaseObservedInterruptionCarrier(
 		tab: ProtectionRuntimeTab,
@@ -304,7 +304,7 @@ export function createProtectionPageProjector(
 	 * @param tabId - Browser tab that may still display the interruption page.
 	 * @param retainedDestination - Validated destination to restore, or null for browser-native dismissal.
 	 * @return Promise resolved after release or a verified stale-tab race.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function releaseNavigationIfInterrupted(
 		tabId: Parameters<ProtectionPageProjector[ 'releaseNavigationIfInterrupted' ]>[ 0 ],
@@ -324,7 +324,7 @@ export function createProtectionPageProjector(
 	 * Releases one interruption presentation that no longer has authoritative runtime state.
 	 * @param tabId - Browser tab containing the orphaned standalone page or injected layer.
 	 * @return Promise resolved after release or when the tab is no longer present.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function releaseInterruptionPresentation( tabId: number ): Promise<void> {
 		const tabs = await options.browser.listTabs();
@@ -348,7 +348,7 @@ export function createProtectionPageProjector(
 	 * Removes an injected interruption only for one authoritative allowance-expiry participant.
 	 * @param participant - Known allowance-expiry participant retaining the injected page identity.
 	 * @return Promise resolved after removal or when the owned layer is no longer present.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function releaseInjectedInterruption(
 		participant: AllowanceExpiryProtectionParticipant,
@@ -374,7 +374,7 @@ export function createProtectionPageProjector(
 	 * Removes injected interruptions from every live non-interruption tab without injecting listeners.
 	 * @param requireSuccess - Whether reset cleanup must report unverified removal failures.
 	 * @return Promise resolved after every best-effort removal command is accepted.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function releaseInjectedInterruptions( requireSuccess = false ): Promise<void> {
 		const tabs = await options.browser.listTabs();
@@ -391,7 +391,7 @@ export function createProtectionPageProjector(
 	 * @param statesByScope - Current authoritative state snapshot or unavailable marker.
 	 * @param storedParticipants - Validated session participants retained for reset cleanup after worker restart.
 	 * @return Promise resolved after retained destinations and browser-native dismissals complete.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function releaseInterruptionPages(
 		statesByScope: Parameters<ProtectionPageProjector[ 'releaseInterruptionPages' ]>[ 0 ],
@@ -436,7 +436,7 @@ export function createProtectionPageProjector(
 	 * @param statesByScope - Current authoritative state snapshot or unavailable marker.
 	 * @param continuedParticipant - Optional identity whose entry was accepted by a running allowance.
 	 * @return Promise resolved after supported page effects are applied.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function applyDecisions(
 		decisions: Parameters<ProtectionPageProjector[ 'applyDecisions' ]>[ 0 ],

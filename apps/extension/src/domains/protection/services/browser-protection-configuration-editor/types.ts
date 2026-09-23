@@ -10,7 +10,7 @@ import type {
 
 /**
  * Browser lock boundary used to coordinate protection mutations across extension contexts.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionConfigurationMutationLock {
 	/**
@@ -18,7 +18,7 @@ export interface BrowserProtectionConfigurationMutationLock {
 	 * @param name - Stable lock name.
 	 * @param mutation - Deferred protection configuration mutation.
 	 * @return Exact edit result after the lock is released.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	request(
 		name: string,
@@ -28,20 +28,20 @@ export interface BrowserProtectionConfigurationMutationLock {
 
 /**
  * Browser cryptography boundary used to create collision-resistant identifiers.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionCryptography {
 	/**
 	 * Creates one unprefixed collision-resistant identifier.
 	 * @return Browser-generated identifier.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	randomUUID(): string;
 }
 
 /**
  * Browser dependencies required by coordinated protection configuration editing.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionConfigurationEditorOptions {
 	/** Extension-local storage area. */
@@ -54,7 +54,7 @@ export interface BrowserProtectionConfigurationEditorOptions {
 
 /**
  * Coordinated protection editor and its shared persistence boundary.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionConfigurationEditor {
 	/** Validated protection configuration editing operations. */

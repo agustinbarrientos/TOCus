@@ -24,7 +24,7 @@ import { getRuntimeTabId } from '../runtime-page-context';
  * @param timeZone - Current IANA time-zone identifier.
  * @param matchingDestination - Fresh live URL for scope matching, or the retained navigation destination.
  * @return Current destination, match, and schedule observation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createFreshRuntimeObservation(
 	participant: ProtectionParticipant,
@@ -62,7 +62,7 @@ export function createFreshRuntimeObservation(
  * @param protectionEligibleTabIds - Tabs explicitly observed outside private browsing.
  * @param liveDestinationsByTab - Committed live-page destinations indexed by browser tab.
  * @return Ready-source expiry candidates.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createReadyRuntimeExpiryCandidates(
 	state: AllowanceProtectionState,

@@ -17,7 +17,7 @@ const WILDCARD_PREFIX = '*.';
  * @param domainPattern - Authored exact host or leading-wildcard pattern.
  * @return Canonical host and wildcard mode.
  * @throws {Error} When the pattern is noncanonical or the wildcard base is unsafe.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function parseDomainPattern( domainPattern: string ): SiteDisplayNameCatalogPattern {
 	const isWildcard = domainPattern.startsWith( WILDCARD_PREFIX );
@@ -47,7 +47,7 @@ function parseDomainPattern( domainPattern: string ): SiteDisplayNameCatalogPatt
  * Compiles a local display-name catalog into immutable lookup operations.
  * @param input - Unknown grouped catalog source.
  * @return Compiled exact and wildcard lookup operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function compileSiteDisplayNameCatalog( input: unknown ): SiteDisplayNameCatalog {
 	const source = SiteDisplayNameCatalogSourceSchema.parse( input );
@@ -80,7 +80,7 @@ export function compileSiteDisplayNameCatalog( input: unknown ): SiteDisplayName
 	 * Resolves a site display name using exact and most-specific wildcard precedence.
 	 * @param host - Exact normalized site identity host.
 	 * @return Matching display name, or undefined when the catalog has no entry.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function resolve( host: CanonicalHost ): ProtectedSiteDisplayName | undefined {
 		const canonicalHost = CanonicalHostSchema.parse( host );

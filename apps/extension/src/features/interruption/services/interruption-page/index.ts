@@ -1,4 +1,8 @@
 import { browser } from 'wxt/browser';
+import { createReviewPromptStorageService } from '../../../../domains/preferences/services/review-prompt-storage';
+import { getExtensionReviewUrl } from '../../../../shared/utils/review-url';
+import { ExtensionStoreReviewLinks } from '../../../../shared/utils/review-url/links';
+import { createReviewPromptController, type ReviewPromptController } from '../review-prompt-controller';
 import { createPreferencesStorageService } from '../../../../domains/preferences/services';
 import type { Language } from '../../../../domains/preferences/types';
 import { resolveLanguage } from '../../../../domains/preferences/utils';
@@ -33,7 +37,7 @@ import { registerInterruptionNavigationReplacement } from '../navigation-replace
 
 /**
  * Reveals the interruption document after either successful startup or terminal recovery.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function revealInterruptionPage(): void {
 	document.documentElement.style.removeProperty( 'color-scheme' );
@@ -44,7 +48,7 @@ function revealInterruptionPage(): void {
 /**
  * Starts the interruption page after preferences and localized copy are ready.
  * @return Promise resolved after interruption timing is connected and visible.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export async function startInterruptionPage(): Promise<void> {
 	let controller: InterruptionPageController | null = null;
@@ -52,6 +56,7 @@ export async function startInterruptionPage(): Promise<void> {
 	let languageChangeListener: PreferencesLanguageChangeListener | null = null;
 	let preferencesController: PreferencesController | null = null;
 	let wellbeingSummaryController: WellbeingSummaryController | null = null;
+	let reviewPromptController: ReviewPromptController | null = null;
 
 	try {
 		const interruptionScreenCandidate = document.querySelector( 'tocus-f-interruption-screen' );
@@ -69,7 +74,7 @@ export async function startInterruptionPage(): Promise<void> {
 		 * Sends one interruption-page request through the extension runtime.
 		 * @param request - Validated interruption-page request.
 		 * @return Unknown response awaiting controller validation.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function sendInterruptionPageRequest( request: InterruptionPageRequest ): Promise<unknown> {
 			if ( request.type === InterruptionPageRequestType.RECOVER ) {
@@ -87,7 +92,7 @@ export async function startInterruptionPage(): Promise<void> {
 		/**
 		 * Reports whether the interruption document is currently visible.
 		 * @return Current document visibility.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function isDocumentVisible(): boolean {
 			return document.visibilityState === 'visible';
@@ -96,7 +101,7 @@ export async function startInterruptionPage(): Promise<void> {
 		/**
 		 * Reports whether the interruption document currently owns browser-window focus.
 		 * @return Whether focused progress may advance in the current browser window.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function isWindowFocused(): boolean {
 			return document.hasFocus();
@@ -105,7 +110,7 @@ export async function startInterruptionPage(): Promise<void> {
 		/**
 		 * Returns current epoch time for exact allowance-expiry synchronization.
 		 * @return Current epoch milliseconds.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function getCurrentEpochMilliseconds(): number {
 			return Date.now();
@@ -142,6 +147,14 @@ export async function startInterruptionPage(): Promise<void> {
 			source: statisticsClient,
 			target: activeInterruptionScreen,
 		} );
+		const activeReviewPromptController = createReviewPromptController( {
+			source: statisticsClient,
+			target: activeInterruptionScreen,
+			storage: createReviewPromptStorageService( { area: browser.storage.local } ),
+			storageChanges: browser.storage.onChanged,
+			url: getExtensionReviewUrl( import.meta.env.BROWSER, ExtensionStoreReviewLinks ),
+		} );
+		reviewPromptController = activeReviewPromptController;
 		let localizationRevision = 0;
 
 		preferencesController = activePreferencesController;
@@ -151,7 +164,7 @@ export async function startInterruptionPage(): Promise<void> {
 		 * Applies one complete localization snapshot to the interruption document.
 		 * @param language - Effective browser-derived or explicitly selected language.
 		 * @return Promise resolved after the latest requested language is projected.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		async function applyLocalization( language: Language ): Promise<void> {
 			localizationRevision += 1;
@@ -173,7 +186,7 @@ export async function startInterruptionPage(): Promise<void> {
 		 * Applies a live localization request without replacing the last usable copy on failure.
 		 * @param language - Newly effective preference language.
 		 * @return Promise resolved after the live request settles.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		async function applyLiveLocalization( language: Language ): Promise<void> {
 			try {
@@ -186,7 +199,7 @@ export async function startInterruptionPage(): Promise<void> {
 		/**
 		 * Starts one non-blocking live localization projection.
 		 * @param language - Newly effective preference language.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function handleLanguageChange( language: Language ): void {
 			void applyLiveLocalization( language );
@@ -195,7 +208,7 @@ export async function startInterruptionPage(): Promise<void> {
 		/**
 		 * Waits until the most recently requested localization is projected.
 		 * @return Promise resolved when no newer language request is pending.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		async function synchronizeLocalization(): Promise<void> {
 			let requestedRevision: number;
@@ -207,11 +220,12 @@ export async function startInterruptionPage(): Promise<void> {
 		}
 
 		/**
-		 * Starts a non-blocking footer refresh after an authoritative major-state change.
-		 * @since 0.1.0 Initial implementation.
+		 * Refreshes saved-time presentation and review eligibility without delaying interruption timing.
+		 * @since 1.0.0 Initial implementation.
 		 */
-		function refreshWellbeingSummary(): void {
+		function refreshStatisticsPresentation(): void {
 			void activeWellbeingSummaryController.refresh();
+			void activeReviewPromptController.refresh();
 		}
 
 		languageChangeListener = handleLanguageChange;
@@ -219,11 +233,12 @@ export async function startInterruptionPage(): Promise<void> {
 		await activePreferencesController.start();
 		await synchronizeLocalization();
 		activeWellbeingSummaryController.start();
+		activeReviewPromptController.start();
 		const activeController = createInterruptionPageController( {
 			clock,
 			documentTarget: document,
 			motionPreference: activePreferencesController,
-			onPresentationStateChange: refreshWellbeingSummary,
+			onPresentationStateChange: refreshStatisticsPresentation,
 			runtime,
 			scheduler: window,
 			screen: activeInterruptionScreen,
@@ -237,6 +252,7 @@ export async function startInterruptionPage(): Promise<void> {
 	} catch ( error ) {
 		controller?.stop();
 		wellbeingSummaryController?.stop();
+		reviewPromptController?.stop();
 		if ( preferencesController !== null && languageChangeListener !== null ) {
 			preferencesController.removeLanguageChangeListener( languageChangeListener );
 		}
@@ -255,7 +271,7 @@ export async function startInterruptionPage(): Promise<void> {
 /**
  * Starts interruption while containing terminal bootstrap failures.
  * @return Promise resolved after startup succeeds or recovery reveals the page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export async function bootstrapInterruptionPage(): Promise<void> {
 	registerInterruptionNavigationReplacement( {

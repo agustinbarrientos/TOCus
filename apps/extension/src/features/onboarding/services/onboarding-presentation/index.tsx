@@ -11,7 +11,7 @@ import '../../components/shell/styles.scss';
  * @remarks Storage, localization loading and browser permissions remain service-owned.
  * @param container - Dedicated extension-page React mount point.
  * @return Mutable controller port whose assignments produce coherent React snapshots.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function mountOnboarding( container: HTMLElement ): OnboardingPageShell {
 	const root = createRoot( container );

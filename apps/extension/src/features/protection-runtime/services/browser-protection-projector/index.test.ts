@@ -55,19 +55,19 @@ import type { BrowserProtectionProjector } from './types';
 
 /**
  * Extension-owned interruption URL used by browser-effect fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/interruption.html';
 
 /**
  * Fixed wall-clock instant used by projector fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const NOW_EPOCH_MILLISECONDS = 1_000_000;
 
 /**
  * Protected-site configuration used by projector fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
@@ -87,20 +87,20 @@ afterEach( () => {
 
 /**
  * Mutable authoritative state boundary used by projector tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class ProjectorCoordinatorFixture {
 	/**
 	 * Creates a coordinator fixture with one initial state snapshot.
 	 * @param states - Initial authoritative states or unavailable marker.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor( public states: ProtectionCoordinatorStateSnapshot | null ) {}
 
 	/**
 	 * Returns the current authoritative state fixture.
 	 * @return Current state snapshot or unavailable marker.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getStates(): Promise<ProtectionCoordinatorStateSnapshot | null> {
 		return Promise.resolve( this.states );
@@ -109,7 +109,7 @@ class ProjectorCoordinatorFixture {
 
 /**
  * In-memory browser effects used by projector tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class ProjectorBrowserFixture implements ProtectionRuntimeBrowser {
 	/** Tab identities whose currently owned audio mute should be retained. */
@@ -119,7 +119,7 @@ class ProjectorBrowserFixture implements ProtectionRuntimeBrowser {
 	 * Captures the authoritative set of injected pauses still holding tab audio.
 	 * @param heldTabIds - Tabs whose existing audio receipts must remain held.
 	 * @return Resolved restoration operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	restoreTabAudioExcept = ( heldTabIds: ReadonlySet<number> ): Promise<void> => {
 		this.heldAudioTabIds = new Set( heldTabIds );
@@ -199,7 +199,7 @@ class ProjectorBrowserFixture implements ProtectionRuntimeBrowser {
 	 * Dismisses one interruption page in the fixture.
 	 * @param tabId - Browser tab identifier.
 	 * @return Resolved browser operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	dismissInterruption = ( tabId: number ): Promise<void> => {
 		if ( this.rejectDismissal ) {
@@ -222,7 +222,7 @@ class ProjectorBrowserFixture implements ProtectionRuntimeBrowser {
 	 * Returns the current protected-page presentation for one tab.
 	 * @param tabId - Browser tab identifier.
 	 * @return Current local presentation or absent-listener marker.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getProtectedPagePresentation = (
 		tabId: number,
@@ -233,14 +233,14 @@ class ProjectorBrowserFixture implements ProtectionRuntimeBrowser {
 	/**
 	 * Returns the active tab in the focused browser window.
 	 * @return Focused tab identifier or null.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getFocusedTabId = (): Promise<number | null> => Promise.resolve( this.focusedTabId );
 
 	/**
 	 * Lists current open browser tabs.
 	 * @return Current open tabs.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	listTabs = (): Promise<ReadonlyArray<ProtectionRuntimeTab>> => {
 		this.listTabsCallCount += 1;
@@ -254,7 +254,7 @@ class ProjectorBrowserFixture implements ProtectionRuntimeBrowser {
 	 * @param tabId - Browser tab identifier.
 	 * @param url - Accepted destination.
 	 * @return Resolved browser operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	navigateTab = ( tabId: number, url: string ): Promise<void> => {
 		if ( this.rejectNavigation ) {
@@ -279,7 +279,7 @@ class ProjectorBrowserFixture implements ProtectionRuntimeBrowser {
 	 * @param tabId - Browser tab identifier.
 	 * @param message - Warning or interruption-layer command.
 	 * @return Resolved browser operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	updateProtectedPagePresentation = (
 		tabId: number,
@@ -306,7 +306,7 @@ class ProjectorBrowserFixture implements ProtectionRuntimeBrowser {
 	 * Synchronizes the semantic protection-clock deadlines.
 	 * @param deadlines - Earliest expiry, warning, and badge deadlines.
 	 * @return Promise settled according to the fixture failure mode.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	synchronizeProtectionClock = ( deadlines: ProtectionClockDeadlines ): Promise<void> => {
 		this.synchronizeProtectionClockCallCount += 1;
@@ -320,7 +320,7 @@ class ProjectorBrowserFixture implements ProtectionRuntimeBrowser {
 	 * Replaces extension-owned dynamic navigation rules.
 	 * @param rules - Complete replacement rule set.
 	 * @return Promise settled according to the fixture failure mode.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	replaceNavigationRules = (
 		rules: Parameters<ProtectionRuntimeBrowser[ 'replaceNavigationRules' ]>[ 0 ],
@@ -335,7 +335,7 @@ class ProjectorBrowserFixture implements ProtectionRuntimeBrowser {
 	 * Replaces the global toolbar projection.
 	 * @param projection - Complete browser-neutral badge projection.
 	 * @return Promise settled according to the fixture failure mode.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	updateToolbarBadge = ( projection: ToolbarBadgeProjection ): Promise<void> => {
 		this.updateToolbarBadgeCallCount += 1;
@@ -351,7 +351,7 @@ class ProjectorBrowserFixture implements ProtectionRuntimeBrowser {
  * @param scopeId - Protection scope identifier.
  * @param expiresAtEpochMilliseconds - Exact allowance expiry.
  * @return Validated allowance state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createAllowanceState(
 	scopeId: ProtectionScopeId,
@@ -376,7 +376,7 @@ function createAllowanceState(
  * Creates one Waiting-state snapshot for explicit navigation participants.
  * @param participants - Navigation participants retained by the Waiting state.
  * @return Authoritative coordinator snapshot.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createWaitingSnapshot(
 	participants: ProtectionParticipant[],
@@ -397,7 +397,7 @@ function createWaitingSnapshot(
  * @param tabId - Browser tab identifier encoded in the page identity.
  * @param focusEligible - Whether the page can own focused wait progress.
  * @return Validated-compatible expiry participant fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createExpiryParticipant(
 	tabId: number,
@@ -418,7 +418,7 @@ function createExpiryParticipant(
  * Creates one validated page decision.
  * @param input - Raw decision fixture.
  * @return Validated protection decision.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createDecision( input: unknown ): ProtectionDecision {
 	return ProtectionDecisionSchema.parse( input );
@@ -430,7 +430,7 @@ function createDecision( input: unknown ): ProtectionDecision {
  * @param coordinator - Authoritative state fixture.
  * @param toolbarBadgeCopy - Localized toolbar copy.
  * @return Browser projector under test.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createProjector(
 	browser: ProjectorBrowserFixture,
@@ -440,7 +440,7 @@ function createProjector(
 	/**
 	 * Returns the fixed test time zone.
 	 * @return UTC time-zone identifier.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function getTimeZone(): string {
 		return 'UTC';
@@ -449,7 +449,7 @@ function createProjector(
 	/**
 	 * Returns the fixed test clock instant.
 	 * @return Test epoch milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function now(): number {
 		return NOW_EPOCH_MILLISECONDS;

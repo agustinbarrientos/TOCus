@@ -18,7 +18,57 @@ pnpm install --frozen-lockfile
 pnpm setup:browsers
 ```
 
-See [README.md](README.md) for the available workspace scripts.
+Start the workspace development tasks with `pnpm dev`.
+
+### Useful scripts
+
+| Command                                | Purpose                                                     |
+| -------------------------------------- | ----------------------------------------------------------- |
+| `pnpm dev`                             | Run workspace development tasks in parallel                 |
+| `pnpm setup:browsers`                  | Install pinned Chromium, Firefox and WebKit builds          |
+| `pnpm build`                           | Build all workspaces                                        |
+| `pnpm build:edge`                      | Build the Edge Manifest V3 extension                        |
+| `pnpm build:firefox`                   | Build the extension for Firefox                             |
+| `pnpm build:safari`                    | Build Safari web-extension assets                           |
+| `pnpm zip:chrome`                      | Build and ZIP the Chrome release                            |
+| `pnpm zip:edge`                        | Build and ZIP the Edge release                              |
+| `pnpm zip:firefox`                     | Build and ZIP the Firefox release                           |
+| `pnpm zip:safari`                      | Build and ZIP Safari web-extension assets                   |
+| `pnpm lint`                            | Run script and stylesheet linting                           |
+| `pnpm lint:fix`                        | Fix autofixable script and stylesheet issues                |
+| `pnpm typecheck`                       | Type-check all workspaces                                   |
+| `pnpm test`                            | Run unit coverage, build-contract, and browser tests        |
+| `pnpm test:unit`                       | Run unit tests with protection coverage thresholds          |
+| `pnpm test:build-contract`             | Build all browser targets and validate generated artifacts  |
+| `pnpm test:build-browser`              | Run isolated browser journeys against already-built files   |
+| `pnpm test:browser`                    | Run native media/Canvas coverage and all presentation tests |
+| `pnpm test:ui`                         | Run shared controls and extension UI in all three engines   |
+| `pnpm check`                           | Run linting, type checks, and tests                         |
+
+### Project structure
+
+```text
+.
+|-- apps/
+|   |-- extension/       # WXT + React browser extension and extension-owned tests
+|   `-- website/         # Astro website with React islands
+|-- packages/
+|   |-- theme/           # Shared icons and design tokens
+|   `-- ui/              # Shared Mantine theme, provider and UI compositions
+`-- eslint.config.js     # Repository lint configuration
+```
+
+### Stack
+
+- [WXT](https://wxt.dev/) and [React](https://react.dev/) for the browser extension
+- [Mantine](https://mantine.dev/) with shared TOCus theme tokens for controls across the extension and website
+- [Astro](https://astro.build/) with React islands for the project website
+- pnpm workspaces and [Turborepo](https://turbo.build/repo)
+- TypeScript, Vitest, and ESLint
+
+### Deployment and releases
+
+See [MAINTAINING.md](MAINTAINING.md) for website deployment, browser packaging, verification, source submission, and publication prerequisites.
 
 ## Branches
 

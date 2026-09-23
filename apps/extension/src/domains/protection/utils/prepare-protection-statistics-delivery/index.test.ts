@@ -19,19 +19,19 @@ import {
 
 /**
  * Shared observation instant for statistics-delivery utility tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const TEST_OBSERVATION_TIME = 1_800_000_000_000;
 
 /**
  * Scope shared by every fact in the utility test transition.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const TEST_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope_default' );
 
 /**
  * Valid transition facts covering every kind-specific observation-time field.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const TEST_FACTS = ProtectionFactSchema.array().parse( [
 	{
@@ -79,7 +79,7 @@ const TEST_FACTS = ProtectionFactSchema.array().parse( [
  * Creates one valid retained batch for utility tests.
  * @param index - Unique identifier suffix.
  * @return Validated retained protection-fact batch.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createRetainedBatch( index: number ) {
 	return ProtectionFactBatchSchema.parse( {
@@ -96,7 +96,7 @@ function createRetainedBatch( index: number ) {
  * Creates validated complete delivery around retained batches.
  * @param outbox - Retained FIFO batches.
  * @return Validated complete statistics delivery.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createCompleteDelivery( outbox = [ createRetainedBatch( 1 ) ] ) {
 	return StoredProtectionStatisticsDeliverySchema.parse( {
@@ -108,7 +108,7 @@ function createCompleteDelivery( outbox = [ createRetainedBatch( 1 ) ] ) {
 /**
  * Returns a valid current batch identifier.
  * @return Valid protection-fact batch identifier.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createCurrentBatchId(): string {
 	return 'batch_current';
@@ -117,7 +117,7 @@ function createCurrentBatchId(): string {
 /**
  * Throws the configured batch-factory failure.
  * @throws {Error} Always, to exercise delivery degradation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function throwBatchFactoryFailure(): never {
 	throw new Error( 'factory failed' );
@@ -126,7 +126,7 @@ function throwBatchFactoryFailure(): never {
 /**
  * Returns an invalid batch identifier.
  * @return Invalid identifier fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createInvalidBatchId(): string {
 	return 'bad id';
@@ -135,7 +135,7 @@ function createInvalidBatchId(): string {
 /**
  * Returns an identifier that collides with the retained head batch.
  * @return Colliding identifier fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createCollidingBatchId(): string {
 	return 'retained_1';
@@ -253,7 +253,7 @@ describe( 'prepareProtectionStatisticsDelivery', () => {
 		/**
 		 * Records an unexpected batch-factory call.
 		 * @return Valid current batch identifier.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function createCountedBatchId(): string {
 			factoryCalls += 1;

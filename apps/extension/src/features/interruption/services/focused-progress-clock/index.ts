@@ -25,7 +25,7 @@ function clampProgress( progressMilliseconds: number, durationMilliseconds: numb
  * Creates a presentation-only clock that advances while its screen remains focused.
  * @param options - Timing and update dependencies.
  * @return Focused-progress clock lifecycle.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createFocusedProgressClock(
 	options: FocusedProgressClockOptions,

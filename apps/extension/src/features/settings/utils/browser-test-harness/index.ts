@@ -7,7 +7,7 @@ import type { Language } from '../../../../domains/preferences/types';
 
 /**
  * Provides Settings helpers using Playwright's isolated page and failure diagnostics.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const test = base.extend<SettingsBrowserHarness>( {
 	/**

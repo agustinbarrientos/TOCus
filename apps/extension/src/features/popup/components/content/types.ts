@@ -3,7 +3,7 @@ import type { PopupProjection } from '../../types/popup-projection';
 
 /**
  * Loaded copy and status needed to choose one popup content state.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface PopupContentProperties extends PopupActions {
 	/** Latest controller snapshot, including operation progress and destinations. */
@@ -16,7 +16,7 @@ export interface PopupContentProperties extends PopupActions {
 
 /**
  * Shared retry button contract for unavailable runtime and current-tab states.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface PopupRetryProperties {
 	/** Complete active-language messages. */
@@ -25,7 +25,7 @@ export interface PopupRetryProperties {
 	retrying: boolean;
 	/**
 	 * Starts a controller-owned status refresh.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	onRetry: () => void;
 }

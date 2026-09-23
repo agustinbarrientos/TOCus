@@ -2,7 +2,7 @@ import type { Page, TestInfo } from '@playwright/test';
 
 /**
  * Immutable pre-migration screenshot identity.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface OriginalSnapshot {
 	path: string;
@@ -11,7 +11,7 @@ export interface OriginalSnapshot {
 
 /**
  * Browser case receiving the same real page and artifact context as Playwright.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface OriginalCaseContext {
 	page: Page;
@@ -19,13 +19,13 @@ export interface OriginalCaseContext {
 
 /**
  * Original-input case implementation; expected images cannot be updated.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type OriginalCase = ( context: OriginalCaseContext, info: TestInfo ) => Promise<void>;
 
 /**
  * Original component rectangle measured through a closed-shadow fixture bridge.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface OriginalClip {
 	x: number;
@@ -36,7 +36,7 @@ export interface OriginalClip {
 
 /**
  * Page-only capture options retaining the original closed-shadow component crop.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface OriginalCaptureOptions {
 	clip?: OriginalClip;

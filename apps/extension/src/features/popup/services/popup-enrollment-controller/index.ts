@@ -11,7 +11,7 @@ import type {
  * Delivers an outcome without allowing a closed popup to interrupt the completed operation.
  * @param sendResponse - Browser-owned response channel.
  * @param result - Minimal enrollment outcome.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function respond( sendResponse: PopupEnrollmentSendResponse, result: PopupSiteEnrollmentResult ): void {
 	try {
@@ -25,7 +25,7 @@ function respond( sendResponse: PopupEnrollmentSendResponse, result: PopupSiteEn
  * Creates background-owned enrollment for browsers that transfer click activation through messaging.
  * @param options - Authenticated message boundary and existing enrollment service.
  * @return Synchronous background listener registration.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createPopupEnrollmentController(
 	options: PopupEnrollmentControllerOptions,
@@ -36,7 +36,7 @@ export function createPopupEnrollmentController(
 	 * @param sender - Browser-provided source identity.
 	 * @param sendResponse - Response channel independent of persistence ownership.
 	 * @return True when this controller owns the asynchronous operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	const handleMessage: PopupEnrollmentMessageListener = ( input, sender, sendResponse ) => {
 		const request = PopupSiteEnrollmentRequestSchema.safeParse( input );
@@ -59,7 +59,7 @@ export function createPopupEnrollmentController(
 	return {
 		/**
 		 * Registers the gesture-sensitive listener before asynchronous application startup.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		start(): void {
 			options.runtime.onMessage.addListener( handleMessage );

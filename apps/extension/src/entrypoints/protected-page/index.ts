@@ -4,6 +4,6 @@ import { mountProtectedPageLayer } from '../../features/interruption/services/pr
 
 /**
  * Protected-page script mounted by the browser runtime.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export default defineUnlistedScript( { main: mountProtectedPageLayer } );

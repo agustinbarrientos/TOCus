@@ -224,7 +224,7 @@ function isKeySelection( node ) {
 
 /**
  * Enforces owned constant-object definitions and typed consumers, including tests and JSX.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export default {
 	meta: {

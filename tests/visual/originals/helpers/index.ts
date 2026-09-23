@@ -10,13 +10,13 @@ import { hasFocusedTextCaret } from './focused-text-caret';
 
 /**
  * Exact pre-migration identities, including approved untracked screenshots.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const OriginalSnapshots: readonly OriginalSnapshot[] = inventory;
 
 /**
  * Local server for real React/native production fixtures.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const OriginalFixtureOrigin = 'http://127.0.0.1:4177';
 
@@ -24,7 +24,7 @@ export const OriginalFixtureOrigin = 'http://127.0.0.1:4177';
  * Checks the original bytes before and after every screenshot operation.
  * @param path - Exact repository-relative original screenshot path.
  * @return Verified original inventory entry.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function verifyOriginal( path: string ): OriginalSnapshot {
 	const entry = OriginalSnapshots.find( ( original ) => original.path === path );
@@ -41,7 +41,7 @@ export function verifyOriginal( path: string ): OriginalSnapshot {
  * Registers an actual migrated case under its exact original filename and path.
  * @param path - Original screenshot path from the immutable inventory.
  * @param run - Matching viewport, input, state and capture implementation.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function originalCase( path: string, run: OriginalCase ): void {
 	test( path, async ( { page }, info ) => {
@@ -60,7 +60,7 @@ export function originalCase( path: string, run: OriginalCase ): void {
  * The tolerance preserves exact integer edges while enclosing fractional device-independent bounds.
  * @param clip - Actual element bounds measured by the existing closed-shadow fixture bridge.
  * @return Integer capture rectangle, without changing rendered element geometry.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function encloseOriginalClip( clip: OriginalClip ): OriginalClip {
 	const epsilon = 1e-3;
@@ -80,7 +80,7 @@ export function encloseOriginalClip( clip: OriginalClip ): OriginalClip {
  * @param target - Original component capture target; omit for a viewport screenshot.
  * @param options - Optional page clip measured from the original closed-shadow capture target.
  * @return Completion of a strict original comparison, never a baseline write.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export async function compareOriginal(
 	page: Page, path: string, target?: Locator, options: OriginalCaptureOptions = {},

@@ -6,7 +6,7 @@ import { StoredDurableProtectionStateSchema } from '../../../../../domains/prote
  * Creates a durable storage envelope with an optional running allowance.
  * @param allowance - Running allowance fields, or null when no interval exists.
  * @return Validated durable protection storage envelope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createAllowanceStorageEnvelope( allowance: Record<string, unknown> | null = null ) {
 	return ProtectionStorageEnvelopeSchema.parse( {

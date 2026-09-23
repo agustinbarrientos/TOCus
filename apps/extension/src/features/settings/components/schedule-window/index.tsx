@@ -24,7 +24,7 @@ import './style.scss';
  * Presents one weekly window with local validation and contextual removal.
  * @param props - Controlled window, canonical labels and mutation callbacks.
  * @return Accessible weekday and time inputs in one semantic table row.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function ScheduleWindowControl( props: ScheduleWindowControlProps ) {
 	const { copy, window, index, disabled, validate } = props;

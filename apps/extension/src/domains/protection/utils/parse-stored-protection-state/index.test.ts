@@ -19,19 +19,19 @@ import {
 
 /**
  * Fixed initial instant used by stored-state fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const FIRST_INSTANT = 1_800_000_000_000;
 
 /**
  * Fixed allowance expiry used by stored-state fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ALLOWANCE_EXPIRY = FIRST_INSTANT + 300_000;
 
 /**
  * Complete empty statistics delivery used by current durable-state tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const COMPLETE_STATISTICS_DELIVERY = {
 	status: StoredProtectionStatisticsDeliveryStatus.COMPLETE,
@@ -42,7 +42,7 @@ const COMPLETE_STATISTICS_DELIVERY = {
  * Recursively freezes a test value so mutation attempts fail.
  * @param value - Value to freeze.
  * @return Deeply frozen value.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function freezeDeeply<Value>( value: Value ): Value {
 	if ( typeof value !== 'object' || value === null || Object.isFrozen( value ) ) {
@@ -59,7 +59,7 @@ function freezeDeeply<Value>( value: Value ): Value {
 /**
  * Creates a daily ladder test value.
  * @return Daily ladder test value.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createLadder() {
 	return {
@@ -75,7 +75,7 @@ function createLadder() {
  * @param retainedDestination - Retained HTTP(S) destination.
  * @param joinSequence - Stable join sequence.
  * @return Stored navigation participant test value.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStoredNavigationParticipant(
 	participantId = 'participant-a',
@@ -99,7 +99,7 @@ function createStoredNavigationParticipant(
  * @param pageId - Page identifier.
  * @param joinSequence - Stable join sequence.
  * @return Stored allowance-expiry participant test value.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStoredExpiryParticipant(
 	participantId = 'participant-b',
@@ -120,7 +120,7 @@ function createStoredExpiryParticipant(
  * Creates current durable stored protection state.
  * @param scopes - Durable scopes.
  * @return Current durable stored protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStoredDurableState<Scopes extends object>( scopes: Scopes ) {
 	return {
@@ -135,7 +135,7 @@ function createStoredDurableState<Scopes extends object>( scopes: Scopes ) {
  * @param scopes - Session scopes.
  * @param sessionContinuityId - Stored continuity identifier.
  * @return Current session stored protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStoredSessionState(
 	scopes: unknown = {},
@@ -151,7 +151,7 @@ function createStoredSessionState(
 /**
  * Creates a stored Waiting scope test value.
  * @return Stored Waiting scope test value.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStoredWaitingScope() {
 	return {
@@ -175,7 +175,7 @@ function createStoredWaitingScope() {
  * @param allowanceId - Matching allowance identifier.
  * @param participants - Stored Ready participants.
  * @return Stored Ready scope test value.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStoredReadyScope(
 	allowanceId = 'allowance-a',
@@ -193,7 +193,7 @@ function createStoredReadyScope(
  * Creates a durable stored scope test value.
  * @param allowanceId - Optional allowance identifier.
  * @return Durable stored scope test value.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStoredDurableScope( allowanceId: string | null = null ) {
 	if ( allowanceId === null ) {

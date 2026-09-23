@@ -8,7 +8,7 @@ import type { OriginalAdvanceBoundary } from './types';
  * @param boundary - Promises returned by the fixture's real persistence and readiness adapters.
  * @param language - Whether this step also requires language readiness.
  * @return Completion of React's public act scope and its queued effects.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export async function advanceOriginalOnboarding(
 	action: HTMLButtonElement, boundary: OriginalAdvanceBoundary, language: boolean,

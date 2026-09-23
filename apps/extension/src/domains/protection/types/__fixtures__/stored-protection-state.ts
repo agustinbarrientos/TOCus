@@ -16,7 +16,7 @@ import {
 
 /**
  * Valid durable protection state with one scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const Mock_StoredProtectionState_Durable = StoredDurableProtectionStateSchema.parse( {
 	schemaVersion: DurableStoredProtectionStateVersion,
@@ -36,7 +36,7 @@ export const Mock_StoredProtectionState_Durable = StoredDurableProtectionStateSc
 
 /**
  * Valid stored navigation participant.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const Mock_StoredProtectionParticipant_Navigation = StoredProtectionParticipantSchema.parse( {
 	origin: StoredProtectionParticipantOrigin.NAVIGATION,
@@ -49,7 +49,7 @@ export const Mock_StoredProtectionParticipant_Navigation = StoredProtectionParti
 
 /**
  * Valid session protection state with one Ready scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const Mock_StoredProtectionState_Session = StoredSessionProtectionStateSchema.parse( {
 	schemaVersion: SessionStoredProtectionStateVersion,

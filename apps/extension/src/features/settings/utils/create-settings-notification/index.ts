@@ -7,7 +7,7 @@ import { SettingsFeedbackAction } from '../../services/settings-feedback/types';
  * @param action - Confirmed outcome from the owning settings controller.
  * @param copy - Messages in the active settings language.
  * @return Message and semantic tone for the shared notification provider.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function createSettingsNotification(
 	action: SettingsFeedbackAction, copy: Readonly<SettingsShellCopy>,

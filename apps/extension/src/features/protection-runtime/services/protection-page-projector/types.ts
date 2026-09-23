@@ -8,7 +8,7 @@ import type { ProtectionRuntimeBrowser } from '../../types/browser-runtime';
 
 /**
  * Exact participant and allowance identity authorized by a fresh manual or automatic entry request.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectionContinuationContext {
 	/** Participant that requested entry. */
@@ -23,7 +23,7 @@ export interface ProtectionContinuationContext {
 
 /**
  * Dependencies used to project decisions into live browser pages.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectionPageProjectorOptions {
 	/** Browser page observations and mutations used by protection decisions. */
@@ -41,7 +41,7 @@ export interface ProtectionPageProjectorOptions {
 
 /**
  * Projects authoritative protection decisions into live browser pages.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectionPageProjector {
 	/**
@@ -51,7 +51,7 @@ export interface ProtectionPageProjector {
 	 * @param statesByScope - Current authoritative state snapshot or unavailable marker.
 	 * @param continuedParticipant - Optional participant whose entry is authorized by a running allowance.
 	 * @return Promise resolved after supported page effects are applied.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	applyDecisions(
 		decisions: ReadonlyArray<ProtectionDecision>,
@@ -64,7 +64,7 @@ export interface ProtectionPageProjector {
 	 * Removes an injected interruption only for one authoritative allowance-expiry participant.
 	 * @param participant - Known allowance-expiry participant retaining the injected page identity.
 	 * @return Promise resolved after removal or when the owned layer is no longer present.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	releaseInjectedInterruption: (
 		participant: AllowanceExpiryProtectionParticipant,
@@ -74,7 +74,7 @@ export interface ProtectionPageProjector {
 	 * Removes injected interruptions from every live non-interruption tab without injecting listeners.
 	 * @param requireSuccess - Whether reset cleanup must report unverified removal failures.
 	 * @return Promise resolved after every best-effort removal command is accepted.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	releaseInjectedInterruptions: ( requireSuccess?: boolean ) => Promise<void>;
 
@@ -82,7 +82,7 @@ export interface ProtectionPageProjector {
 	 * Releases one interruption presentation that no longer has authoritative runtime state.
 	 * @param tabId - Browser tab containing the orphaned standalone page or injected layer.
 	 * @return Promise resolved after release or when the tab is no longer present.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	releaseInterruptionPresentation: ( tabId: number ) => Promise<void>;
 
@@ -91,7 +91,7 @@ export interface ProtectionPageProjector {
 	 * @param statesByScope - Current authoritative state snapshot or unavailable marker.
 	 * @param storedParticipants - Validated session participants retained for reset cleanup after worker restart.
 	 * @return Promise resolved after retained destinations and browser-native dismissals complete.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	releaseInterruptionPages: (
 		statesByScope: ProtectionCoordinatorStateSnapshot | null,
@@ -103,7 +103,7 @@ export interface ProtectionPageProjector {
 	 * @param tabId - Browser tab that may still display the interruption page.
 	 * @param retainedDestination - Validated destination to restore, or null for browser-native dismissal.
 	 * @return Promise resolved after release or a verified stale-tab race.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	releaseNavigationIfInterrupted: (
 		tabId: number,

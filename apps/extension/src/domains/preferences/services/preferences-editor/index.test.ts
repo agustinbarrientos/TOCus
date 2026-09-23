@@ -17,7 +17,7 @@ import {
 
 /**
  * In-memory local preferences persistence used by editor tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryPreferencesEditorStorage implements PreferencesStorageService {
 	loads = 0;
@@ -29,14 +29,14 @@ class MemoryPreferencesEditorStorage implements PreferencesStorageService {
 	/**
 	 * Creates persistence with one initial preferences result.
 	 * @param preferences - Preferences returned before the first successful write.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor( public preferences: PreferencesDocument | null ) {}
 
 	/**
 	 * Loads the latest in-memory preferences result.
 	 * @return Current preferences or malformed-data marker.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	load(): Promise<PreferencesDocument | null> {
 		this.loads += 1;
@@ -48,7 +48,7 @@ class MemoryPreferencesEditorStorage implements PreferencesStorageService {
 	 * Persists one complete preferences document.
 	 * @param input - Complete preferences candidate.
 	 * @return Promise resolved after persistence.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	save( input: unknown ): Promise<void> {
 		if ( this.rejectSaves ) {
@@ -69,7 +69,7 @@ class MemoryPreferencesEditorStorage implements PreferencesStorageService {
  * @template Result Mutation result returned after coordination.
  * @param mutation - Deferred preferences mutation.
  * @return Exact mutation result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function coordinateMutationDirectly<Result>(
 	mutation: PreferencesMutation<Result>,
@@ -80,7 +80,7 @@ function coordinateMutationDirectly<Result>(
 /**
  * Resolves one shared mutation queue after either outcome.
  * @return Undefined queue settlement value.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function releaseSharedMutationQueue(): undefined {
 	return undefined;
@@ -89,7 +89,7 @@ function releaseSharedMutationQueue(): undefined {
 /**
  * Creates one coordinator shared by multiple preferences editor contexts.
  * @return Shared mutation coordinator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createSharedMutationCoordinator(): PreferencesMutationCoordinator {
 	let mutationQueue: Promise<void> = Promise.resolve();
@@ -99,7 +99,7 @@ function createSharedMutationCoordinator(): PreferencesMutationCoordinator {
 	 * @template Result Mutation result returned after coordination.
 	 * @param mutation - Deferred preferences mutation.
 	 * @return Exact mutation result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function coordinateMutation<Result>(
 		mutation: PreferencesMutation<Result>,

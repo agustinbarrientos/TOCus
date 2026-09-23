@@ -8,7 +8,7 @@ import type { StatisticsRuntimeDouble } from './types';
 /**
  * Creates an inert statistics runtime for protection-only integration scenarios.
  * @return Statistics runtime whose operations resolve without side effects.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createInertStatisticsRuntime(): StatisticsRuntimeDouble {
 	const focusEpochId = StatisticsFocusEpochIdSchema.parse( 'focus_epoch_current' );

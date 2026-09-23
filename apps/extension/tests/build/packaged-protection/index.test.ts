@@ -30,7 +30,7 @@ async function readChartModuleUrls( extensionRoot: string ): Promise<string[]> {
  * Reads the authoritative durable document from the disposable extension worker.
  * @param worker - Worker running the packaged extension.
  * @return The validated durable protection state without its storage envelope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function readDurableState( worker: Worker ): Promise<StoredDurableProtectionState> {
 	const envelope = await worker.evaluate( async () => {
@@ -48,7 +48,7 @@ async function readDurableState( worker: Worker ): Promise<StoredDurableProtecti
  * @param worker - Worker running the packaged extension.
  * @param url - Exact synthetic destination identifying the tab.
  * @return Whether the browser currently mutes the destination tab.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function readTabMuted( worker: Worker, url: string ): Promise<boolean> {
 	return worker.evaluate( async ( destination ) => {
@@ -366,7 +366,7 @@ test.describe( 'packaged Chrome protection', () => {
 		 * Keeps the accepted destination request pending until the Ready screen is verified.
 		 * @param route - Synthetic destination request intercepted by Playwright.
 		 * @return Promise resolved after the synthetic destination is fulfilled.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		async function handleDestination( route: Route ): Promise<void> {
 			if ( holdDestination ) {

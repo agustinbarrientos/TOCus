@@ -14,7 +14,7 @@ import { createStatisticsFocusSession } from './index';
 /**
  * Returns the stable browser-session continuity used by service tests.
  * @return Current fixture continuity identifier.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getSessionContinuityId(): typeof TEST_SESSION_CONTINUITY_ID {
 	return TEST_SESSION_CONTINUITY_ID;

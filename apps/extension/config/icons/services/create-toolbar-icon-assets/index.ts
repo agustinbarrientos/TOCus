@@ -8,7 +8,7 @@ import { ToolbarIcons } from '../../constants/index.ts';
  * Generates two-tone toolbar icons that remain legible independently of browser theme detection.
  * @param directory - Build directory receiving the generated PNG assets.
  * @return Public files copied into the extension package.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export async function createToolbarIconAssets( directory: string ): Promise<Array<CopiedPublicFile>> {
 	const source = await readFile(

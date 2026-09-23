@@ -8,7 +8,7 @@ const CANONICAL_IPV4_PATTERN = /^(?:\d{1,3}\.){3}\d{1,3}$/;
  * Checks whether a host is already in canonical ASCII form.
  * @param value - Candidate canonical host.
  * @return Whether URL parsing preserves the host and every DNS label is valid.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function isCanonicalHost( value: string ): boolean {
 	if ( value.endsWith( '.' ) ) {
@@ -36,7 +36,7 @@ function isCanonicalHost( value: string ): boolean {
  * Checks whether a canonical host requires exact matching.
  * @param host - Canonical stored host.
  * @return Whether descendants must remain distinct from the stored host.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function requiresExactMatching( host: string ): boolean {
 	return (
@@ -50,19 +50,19 @@ function requiresExactMatching( host: string ): boolean {
 
 /**
  * Validates a canonical ASCII host.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const CanonicalHostSchema = z.string().min( 1 ).max( 253 ).refine( isCanonicalHost );
 
 /**
  * Canonical ASCII host.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type CanonicalHost = z.infer<typeof CanonicalHostSchema>;
 
 /**
  * Validates one canonical protected-site rule.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedSiteRuleSchema = z.object( {
 	host: CanonicalHostSchema,
@@ -80,13 +80,13 @@ export const ProtectedSiteRuleSchema = z.object( {
 
 /**
  * Canonical protected-site rule owned by one protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedSiteRule = z.infer<typeof ProtectedSiteRuleSchema>;
 
 /**
  * Validates canonical protected-site rules and rejects overlapping match ranges.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedSiteRuleSetSchema = z.array( ProtectedSiteRuleSchema ).superRefine( ( rules, context ) => {
 	for ( const [ index, rule ] of rules.entries() ) {
@@ -108,6 +108,6 @@ export const ProtectedSiteRuleSetSchema = z.array( ProtectedSiteRuleSchema ).sup
 
 /**
  * Canonical protected-site rules with non-overlapping host ownership.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedSiteRuleSet = z.infer<typeof ProtectedSiteRuleSetSchema>;

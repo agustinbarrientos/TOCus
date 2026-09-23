@@ -20,7 +20,7 @@ import {
 
 /**
  * Website languages in stable language-menu order.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const WebsiteLanguages: ReadonlyArray<WebsiteLanguageValue> = Object.freeze( [
 	WebsiteLanguage.ENGLISH,
@@ -37,7 +37,7 @@ export const WebsiteLanguages: ReadonlyArray<WebsiteLanguageValue> = Object.free
 
 /**
  * Compiled website messages indexed by stable language value.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const WebsiteMessagesByLanguage: Readonly<Record<WebsiteLanguageValue, Messages>> = Object.freeze( {
 	[ WebsiteLanguage.ENGLISH ]: englishMessages,
@@ -54,7 +54,7 @@ const WebsiteMessagesByLanguage: Readonly<Record<WebsiteLanguageValue, Messages>
 
 /**
  * Non-translatable route metadata indexed by language.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const WebsiteLanguageMetadataByLanguage: Readonly<Record<WebsiteLanguageValue, WebsiteLanguageMetadata>> =
 	Object.freeze( {
@@ -80,7 +80,7 @@ const WebsiteLanguageMetadataByLanguage: Readonly<Record<WebsiteLanguageValue, W
  * Creates the translated website copy used by one static page.
  * @param i18n - Page-local Lingui instance activated for the selected language.
  * @return Complete localized website catalog.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createWebsiteCatalog( i18n: I18n ): Readonly<WebsiteCatalog> {
 	return Object.freeze( {
@@ -167,7 +167,7 @@ function createWebsiteCatalog( i18n: I18n ): Readonly<WebsiteCatalog> {
  * Returns one complete localized website projection.
  * @param language - Stable website language.
  * @return Catalog, route, and document language for the selected language.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function getWebsiteLocalization( language: WebsiteLanguageValue ): Readonly<WebsiteLocalization> {
 	const metadata = WebsiteLanguageMetadataByLanguage[ language ];
@@ -186,7 +186,7 @@ export function getWebsiteLocalization( language: WebsiteLanguageValue ): Readon
 /**
  * Returns every localized website projection in stable language-menu order.
  * @return Complete supported website localizations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function getWebsiteLocalizations(): ReadonlyArray<Readonly<WebsiteLocalization>> {
 	return WebsiteLanguages.map( getWebsiteLocalization );

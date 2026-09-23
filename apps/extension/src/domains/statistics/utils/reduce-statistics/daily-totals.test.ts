@@ -10,7 +10,7 @@ import { StatisticsDocumentSchema } from '../../types/statistics-document';
  * @param date - Recorded local date.
  * @param batchId - Unique FIFO batch identifier.
  * @return Updated statistics document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function recordVisit( document: unknown, date: string, batchId = 'batch_1' ) {
 	return reduceStatistics( document, {

@@ -26,7 +26,7 @@ import type {
  * Returns the committed URL currently owned by one tab document.
  * @param tab - Fresh browser tab observation.
  * @return Committed URL, or undefined when browser access hides it.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getObservedTabUrl( tab: ProtectionRuntimeTab ): string | undefined {
 	return tab.url;
@@ -36,7 +36,7 @@ function getObservedTabUrl( tab: ProtectionRuntimeTab ): string | undefined {
  * Creates quiet allowance-warning reconciliation around browser observations and page effects.
  * @param options - Browser, clock, and schedule dependencies.
  * @return Allowance-warning reconciler.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createAllowanceWarningReconciler(
 	options: AllowanceWarningReconcilerOptions,
@@ -50,7 +50,7 @@ export function createAllowanceWarningReconciler(
 	 * @param expiresAtEpochMilliseconds - Exact allowance expiry.
 	 * @param timeZone - Current local IANA time-zone identifier.
 	 * @return Inclusive start and exclusive end, or null when the warning is never eligible.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function getAllowanceWarningInterval(
 		schedule: NormalizedSchedule,
@@ -76,7 +76,7 @@ export function createAllowanceWarningReconciler(
 	 * @param tabId - Browser tab receiving the command.
 	 * @param message - Validated warning command.
 	 * @return Whether the browser accepted the command.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function updatePresentation( tabId: number, message: ProtectedPageMessage ): Promise<boolean> {
 		try {
@@ -92,7 +92,7 @@ export function createAllowanceWarningReconciler(
 	 * @param tabId - Browser tab containing the warning.
 	 * @param allowanceId - Exact displayed allowance identity.
 	 * @return Promise resolved after best-effort removal.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function removeWarning(
 		tabId: number,
@@ -109,7 +109,7 @@ export function createAllowanceWarningReconciler(
 	 * @param tabId - Browser tab containing the protected page.
 	 * @param presentation - Current presentation reported by the page.
 	 * @return Promise resolved after every best-effort cleanup attempt settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function clearAllowancePresentation(
 		tabId: number,
@@ -134,7 +134,7 @@ export function createAllowanceWarningReconciler(
 	 * @param statesByScope - Current authoritative states or unavailable marker.
 	 * @param nowEpochMilliseconds - Shared wall-clock reconciliation instant.
 	 * @return Promise resolved after the tab effect settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function reconcileTab(
 		tab: ProtectionRuntimeTab,
@@ -252,7 +252,7 @@ export function createAllowanceWarningReconciler(
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @param statesByScope - Current authoritative states or unavailable marker.
 	 * @return Promise resolved after every observable page attempt settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function reconcile(
 		configuration: Parameters<AllowanceWarningReconciler[ 'reconcile' ]>[ 0 ],

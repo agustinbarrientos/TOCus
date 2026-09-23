@@ -12,7 +12,7 @@ import { usePendingOperation } from '../pending-operation';
 
 /**
  * Coordinates guarded step navigation and preference persistence with the existing page service.
- * @since 0.1.0
+ * @since 1.0.0
  * @param state - Current page-service render projection.
  * @param port - Live page port for persistence, localization and lifecycle events.
  * @return Presentation-neutral onboarding state and actions.

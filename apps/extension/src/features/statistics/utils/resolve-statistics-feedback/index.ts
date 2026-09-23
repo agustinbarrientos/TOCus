@@ -6,7 +6,7 @@ import type { StatisticsFailureFeedback, StatisticsRecoveryCopy } from './types'
  * @param state - Authoritative read or reset state from the statistics controller.
  * @param copy - Localized explanations for the two recoverable failure operations.
  * @return Operation-specific failure feedback, or null while no failure is present.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function resolveStatisticsFeedback(
 	state: StatisticsLoadState, copy: StatisticsRecoveryCopy,

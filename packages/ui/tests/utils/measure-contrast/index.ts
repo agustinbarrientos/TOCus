@@ -2,7 +2,7 @@ import type { ContrastMeasurement } from './types';
 
 /**
  * Measures a batch in the browser, sharing color conversion and returning diagnostic text with each result.
- * @since 0.1.0
+ * @since 1.0.0
  * @remarks Self-contained so Playwright can serialize this function into the page.
  * @param elements - Rendered shared-control surfaces, in fixture order.
  * @return Foreground contrast and keyboard eligibility for every supplied surface.

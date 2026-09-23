@@ -3,7 +3,7 @@
 
 /**
  * Authoritative load state without fabricated data.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const LoadState = {
 	LOADING: 'loading',
@@ -14,14 +14,14 @@ export const LoadState = {
 
 /**
  * Current authoritative settings load state.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type LoadState = typeof LoadState[ keyof typeof LoadState ];
 
 
 /**
  * Localized loading and recovery messages shared by editable screens.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface RecoveryCopy {
 	loading: string;
@@ -36,7 +36,7 @@ export interface RecoveryCopy {
 
 /**
  * Explicit retry and optional malformed-preference recovery.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface RecoveryProps {
 	status: LoadState;

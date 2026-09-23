@@ -5,7 +5,7 @@ import type {
 
 /**
  * Deterministic attention and timing environment for interruption-screen tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class ManualInterruptionScreenEnvironmentFixture implements ManualInterruptionScreenEnvironment {
 	private currentTimeMilliseconds = 0;
@@ -23,7 +23,7 @@ class ManualInterruptionScreenEnvironmentFixture implements ManualInterruptionSc
 	/**
 	 * Returns deterministic monotonic time.
 	 * @return Current test time in milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	now(): number {
 		return this.currentTimeMilliseconds;
@@ -32,7 +32,7 @@ class ManualInterruptionScreenEnvironmentFixture implements ManualInterruptionSc
 	/**
 	 * Reports deterministic document visibility.
 	 * @return Whether focused progress may advance.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	isDocumentVisible(): boolean {
 		return this.documentVisible;
@@ -41,7 +41,7 @@ class ManualInterruptionScreenEnvironmentFixture implements ManualInterruptionSc
 	/**
 	 * Reports deterministic window focus.
 	 * @return Whether focused progress may advance.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	isWindowFocused(): boolean {
 		return this.windowFocused;
@@ -51,7 +51,7 @@ class ManualInterruptionScreenEnvironmentFixture implements ManualInterruptionSc
 	 * Queues one deterministic animation frame.
 	 * @param callback - Frame callback to retain.
 	 * @return Deterministic callback handle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	requestAnimationFrame( callback: FrameRequestCallback ): number {
 		const handle = this.nextHandle;
@@ -65,7 +65,7 @@ class ManualInterruptionScreenEnvironmentFixture implements ManualInterruptionSc
 	/**
 	 * Cancels one deterministic animation frame.
 	 * @param handle - Frame callback handle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	cancelAnimationFrame( handle: number ): void {
 		this.frameCallbacks.delete( handle );
@@ -76,7 +76,7 @@ class ManualInterruptionScreenEnvironmentFixture implements ManualInterruptionSc
 	 * @param callback - Timeout callback to retain.
 	 * @param delayMilliseconds - Delay from current test time.
 	 * @return Deterministic callback handle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	setTimeout( callback: () => void, delayMilliseconds: number ): number {
 		const handle = this.nextHandle;
@@ -93,7 +93,7 @@ class ManualInterruptionScreenEnvironmentFixture implements ManualInterruptionSc
 	/**
 	 * Cancels one deterministic timeout.
 	 * @param handle - Timeout callback handle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	clearTimeout( handle: number ): void {
 		this.timerCallbacks.delete( handle );
@@ -102,7 +102,7 @@ class ManualInterruptionScreenEnvironmentFixture implements ManualInterruptionSc
 	/**
 	 * Moves deterministic time without executing callbacks.
 	 * @param milliseconds - Nonnegative time to advance.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	elapse( milliseconds: number ): void {
 		this.currentTimeMilliseconds += milliseconds;
@@ -111,7 +111,7 @@ class ManualInterruptionScreenEnvironmentFixture implements ManualInterruptionSc
 	/**
 	 * Advances deterministic time and runs callbacks already due.
 	 * @param milliseconds - Nonnegative time to advance.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	advance( milliseconds: number ): void {
 		this.elapse( milliseconds );
@@ -135,7 +135,7 @@ class ManualInterruptionScreenEnvironmentFixture implements ManualInterruptionSc
 	/**
 	 * Changes document visibility and emits the real lifecycle event.
 	 * @param visible - New document visibility.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	setDocumentVisible( visible: boolean ): void {
 		this.documentVisible = visible;
@@ -145,7 +145,7 @@ class ManualInterruptionScreenEnvironmentFixture implements ManualInterruptionSc
 	/**
 	 * Changes window focus and emits the real lifecycle event.
 	 * @param focused - New window focus.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	setWindowFocused( focused: boolean ): void {
 		this.windowFocused = focused;
@@ -155,7 +155,7 @@ class ManualInterruptionScreenEnvironmentFixture implements ManualInterruptionSc
 	/**
 	 * Returns the number of queued animation frames.
 	 * @return Queued frame count.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getFrameCount(): number {
 		return this.frameCallbacks.size;
@@ -164,7 +164,7 @@ class ManualInterruptionScreenEnvironmentFixture implements ManualInterruptionSc
 	/**
 	 * Returns the number of queued timeout callbacks.
 	 * @return Queued timeout count.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getTimerCount(): number {
 		return this.timerCallbacks.size;
@@ -173,7 +173,7 @@ class ManualInterruptionScreenEnvironmentFixture implements ManualInterruptionSc
 	/**
 	 * Returns the delay until the next queued timeout.
 	 * @return Next delay or null when no timeout is queued.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getNextTimerDelayMilliseconds(): number | null {
 		const timer = this.timerCallbacks.values().next().value;
@@ -186,7 +186,7 @@ class ManualInterruptionScreenEnvironmentFixture implements ManualInterruptionSc
 	/**
 	 * Captures the next queued frame callback without changing cancellation behavior.
 	 * @return Queued frame callback or null when none exists.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getNextFrameCallback(): FrameRequestCallback | null {
 		return this.frameCallbacks.values().next().value ?? null;
@@ -196,7 +196,7 @@ class ManualInterruptionScreenEnvironmentFixture implements ManualInterruptionSc
 /**
  * Creates one controllable interruption-screen timing environment.
  * @return Deterministic test environment.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createManualInterruptionScreenEnvironment(): ManualInterruptionScreenEnvironment {
 	return new ManualInterruptionScreenEnvironmentFixture();

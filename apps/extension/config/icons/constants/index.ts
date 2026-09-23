@@ -1,6 +1,6 @@
 /**
  * Toolbar-specific artwork, shared by asset generation and every browser manifest.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const ToolbarIcons = Object.freeze( {
 	16: 'icons/toolbar-16.png',

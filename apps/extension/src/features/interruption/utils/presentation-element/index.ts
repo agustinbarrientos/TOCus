@@ -7,7 +7,7 @@ import type { PresentationChanges } from './types';
 /**
  * Retains the controller-facing custom-element boundary while React owns its contents.
  * Only input batching, mount ownership and stylesheet adoption live here; no UI behavior does.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export abstract class PresentationElement extends HTMLElement {
 	readonly renderRoot: ShadowRoot;

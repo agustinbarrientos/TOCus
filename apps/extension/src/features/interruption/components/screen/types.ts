@@ -1,10 +1,11 @@
 import type { FocusedProgressClockTiming } from '../../services/focused-progress-clock/types';
 import type { ComponentInterruptionScreen } from '.';
 import type { CSSProperties } from 'react';
+import type { ReviewPromptPresentation } from '../../services/review-prompt-controller/types';
 
 /**
  * Continuous artwork values applied only to the owned scene.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface SceneStyle extends CSSProperties {
 	'--tocus-breath-bloom-opacity': string;
@@ -14,7 +15,7 @@ export interface SceneStyle extends CSSProperties {
 
 /**
  * Immutable React presentation supplied by the controller-facing adapter.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface ScreenViewProps {
 	host: HTMLElement;
@@ -30,6 +31,8 @@ export interface ScreenViewProps {
 	announcement: string;
 	onContinue: () => void;
 	onRetry: () => void;
+	reviewPrompt: Readonly<ReviewPromptPresentation> | null;
+	onDismissReview: () => void;
 }
 
 declare global {
@@ -45,7 +48,7 @@ import {
 
 /**
  * Presentation states supported by the interruption screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InterruptionScreenState = {
 	READY: 'ready',
@@ -56,25 +59,25 @@ export const InterruptionScreenState = {
 
 /**
  * Presentation state supported by the interruption screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type InterruptionScreenState = typeof InterruptionScreenState[ keyof typeof InterruptionScreenState ];
 
 /**
  * Pause modes supported by the interruption screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InterruptionScreenMode = PauseMode;
 
 /**
  * Pause mode supported by the interruption screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type InterruptionScreenMode = PauseModeValue;
 
 /**
  * Polite announcement states retained across localized-copy changes.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InterruptionScreenAnnouncementKind = {
 	PAUSED: 'paused',
@@ -89,7 +92,7 @@ export const InterruptionScreenAnnouncementKind = {
 
 /**
  * Polite announcement state retained by the interruption screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type InterruptionScreenAnnouncementKind = typeof InterruptionScreenAnnouncementKind[
 	keyof typeof InterruptionScreenAnnouncementKind
@@ -97,7 +100,7 @@ export type InterruptionScreenAnnouncementKind = typeof InterruptionScreenAnnoun
 
 /**
  * Complete localized messages consumed by the interruption screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionScreenCopy {
 	breatheIn: string;
@@ -108,7 +111,7 @@ export interface InterruptionScreenCopy {
 	 * Formats the remaining wait for visible presentation.
 	 * @param remainingSeconds - Nonnegative whole seconds remaining.
 	 * @return Localized remaining-time label.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	formatRemainingTime: ( remainingSeconds: number ) => string;
 	pausedAnnouncement: string;
@@ -118,6 +121,17 @@ export interface InterruptionScreenCopy {
 	recoveryStartedAnnouncement: string;
 	retryLabel: string;
 	retryingLabel: string;
+	/**
+	 * Celebrates the user's current estimated saved duration.
+	 * @param savedMilliseconds - Authoritative all-time estimated time reclaimed.
+	 * @return Localized milestone title with the saved duration.
+	 * @since 1.0.0
+	 */
+	formatReviewTitle: ( savedMilliseconds: number ) => string;
+	reviewMessage: string;
+	reviewActionLabel: string;
+	reviewDismissLabel: string;
+	reviewDismissError: string;
 	resumedAnnouncement: string;
 	spaceKeyLabel: string;
 	sphereAlternative: string;
@@ -130,32 +144,32 @@ export interface InterruptionScreenCopy {
 
 /**
  * Browser timing and attention dependencies used by one interruption screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionScreenEnvironment extends FocusedProgressClockTiming {
 	/**
 	 * Reports whether the document can currently advance focused progress.
 	 * @return Whether the document is visible.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	isDocumentVisible(): boolean;
 
 	/**
 	 * Reports whether the browser window can currently advance focused progress.
 	 * @return Whether the browser window is focused.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	isWindowFocused(): boolean;
 }
 
 /**
  * Name of the plain Continue-request event emitted by the screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InterruptionContinueRequestEventName = 'tocus-continue-request';
 
 /**
  * Name of the plain retry-request event emitted by the unavailable recovery action.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InterruptionRetryRequestEventName = 'tocus-retry-request';

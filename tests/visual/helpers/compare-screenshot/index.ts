@@ -5,7 +5,7 @@ import type { ScreenshotComparisonOptions } from './types';
 
 /**
  * Shared original-extension and website color allowance, with no changed-pixel budget.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const ScreenshotColorOptions = { threshold: 0.01 } as const;
 
@@ -15,7 +15,7 @@ export const ScreenshotColorOptions = { threshold: 0.01 } as const;
  * @param name - Reviewed snapshot name or original path segments.
  * @param options - Explicit opt-in to a perceived-color threshold; otherwise exact RGBA.
  * @return Completion of one baseline comparison, with untouched failure diagnostics.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export async function compareScreenshot(
 	actual: Buffer, name: string | string[], options: ScreenshotComparisonOptions = {},

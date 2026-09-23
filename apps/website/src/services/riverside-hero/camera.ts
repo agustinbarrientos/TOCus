@@ -4,7 +4,7 @@ import { HeroCamera, HeroPoster, type HeroCameraPosition } from './types';
  * Matches the poster's centered cover crop, including wide, shallow windows.
  * @param aspect - Positive width-to-height ratio of the whole hero surface.
  * @return Vertical field of view in degrees.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function cameraFieldOfView( aspect: number ): number {
 	const visibleHeight = Math.min( 1, HeroPoster.WIDTH / HeroPoster.HEIGHT / aspect );
@@ -17,7 +17,7 @@ export function cameraFieldOfView( aspect: number ): number {
  * @param left - Left edge of the hero.
  * @param width - Rendered hero width.
  * @return A bounded position or angle.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function pointerYaw( clientX: number, left: number, width: number ): number {
 	if ( ! Number.isFinite( clientX ) || width <= 0 ) {
@@ -36,7 +36,7 @@ export function pointerYaw( clientX: number, left: number, width: number ): numb
  * @param seconds - Nonnegative elapsed frame time.
  * @param returning - Whether the pointer has left the hero.
  * @return The eased angle, with the same timing at different frame rates.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function easeCameraYaw( current: number, target: number, seconds: number, returning: boolean ): number {
 	const speed = returning ? 1.2 : 4;
@@ -47,7 +47,7 @@ export function easeCameraYaw( current: number, target: number, seconds: number,
  * Keeps orbit radius and elevation invariant at every permitted angle.
  * @param yaw - Desired horizontal angle in radians.
  * @return A bounded position or angle.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function cameraPosition( yaw: number ): HeroCameraPosition {
 	const angle = Math.max( -HeroCamera.MAX_YAW, Math.min( HeroCamera.MAX_YAW, yaw ) );

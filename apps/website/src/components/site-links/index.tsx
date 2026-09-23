@@ -5,7 +5,7 @@ import type { ExternalLinkProps } from './types';
  * Keeps external navigation identifiable and safe without prefetching destinations.
  * @param props - Destination, readable label and optional layout class.
  * @return Underlined external link using the shared icon.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function ExternalLink( props: ExternalLinkProps ) {
 	const { children, className, ...anchorProps } = props;

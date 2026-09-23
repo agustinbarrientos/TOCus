@@ -19,7 +19,7 @@ import { protectionMatchProtectsScope } from '../match-protection-scope';
  * @param state - Current validated protection state for the event scope.
  * @param event - Validated Ready continuation or reconciliation event.
  * @return Updated Ready or Allowance state, a participant decision, and a grant fact only on the first eligible entry.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function handleReadyParticipant(
 	state: ProtectionState,

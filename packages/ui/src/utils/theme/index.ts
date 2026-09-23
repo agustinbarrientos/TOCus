@@ -15,7 +15,7 @@ const suppliedLoader: MantineLoaderComponent = ( { className = '', ...props } ) 
 
 /**
  * Resolve semantic variants against the active scoped palette.
- * @since 0.1.0
+ * @since 1.0.0
  * @param root0 - Mantine variant request.
  * @param root0.color - Semantic color name.
  * @param root0.variant - Packaged component variant.
@@ -56,7 +56,7 @@ export const resolveTocusVariant: VariantColorsResolver = ( { color, variant } )
 
 /**
  * Palette mappings shared by both color schemes.
- * @since 0.1.0
+ * @since 1.0.0
  * @return Variables resolved in each provider's owned root.
  */
 export const tocusCssVariables: CSSVariablesResolver = () => {
@@ -82,7 +82,7 @@ export const tocusCssVariables: CSSVariablesResolver = () => {
 
 /**
  * Shared packaged-control theme; application copy and layout stay with consumers.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const tocusTheme = createTheme( {
 	fontFamily: 'var(--tocus-font-family-body)',

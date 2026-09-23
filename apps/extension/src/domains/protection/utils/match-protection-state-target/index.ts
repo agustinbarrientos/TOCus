@@ -12,7 +12,7 @@ import {
  * @param state - Current validated protection state.
  * @param target - Validated Waiting, Ready, or Allowance transaction target.
  * @return Whether the state and target have the same kind and transaction identifier.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function protectionStateMatchesTarget(
 	state: ProtectionState,

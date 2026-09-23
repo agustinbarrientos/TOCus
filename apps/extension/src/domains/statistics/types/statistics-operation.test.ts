@@ -7,7 +7,7 @@ import {
 
 /**
  * Focus interval without the required protected-site identity.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const FOCUSED_INTERVAL_WITHOUT_SITE_HOST = {
 	type: StatisticsOperationType.RECORD_FOCUSED_INTERVAL,

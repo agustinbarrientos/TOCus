@@ -18,13 +18,13 @@ import type { ResolveFocusedAllowanceInput } from './types';
 
 /**
  * Current instant shared by focused-allowance resolver tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const TEST_NOW_EPOCH_MILLISECONDS = 1_800_000_100_000;
 
 /**
  * Protected configuration shared by focused-allowance resolver tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const TEST_CONFIGURATION = ProtectionConfigurationDocumentSchema.parse( {
 	...TestEmptyProtectionConfiguration,
@@ -44,7 +44,7 @@ const TEST_CONFIGURATION = ProtectionConfigurationDocumentSchema.parse( {
 
 /**
  * Active allowance shared by focused-allowance resolver tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const TEST_ALLOWANCE = AllowanceProtectionStateSchema.parse( {
 	...createAllowanceState(),
@@ -53,7 +53,7 @@ const TEST_ALLOWANCE = AllowanceProtectionStateSchema.parse( {
 
 /**
  * Statistics document containing the allowance eligible for focus measurement.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const TEST_STATISTICS_DOCUMENT = StatisticsDocumentSchema.parse( {
 	schemaVersion: StatisticsDocumentVersion,
@@ -87,7 +87,7 @@ const TEST_STATISTICS_DOCUMENT = StatisticsDocumentSchema.parse( {
  * Creates a complete resolver input with one focused regular protected tab.
  * @param overrides - Input fields to replace for one test.
  * @return Focused-allowance resolver input.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createInput(
 	overrides: Partial<ResolveFocusedAllowanceInput> = {},

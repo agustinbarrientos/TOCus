@@ -4,7 +4,7 @@ import { createLocalizationViteConfig } from '../../config/vite/services/create-
 
 /**
  * Bundles the existing UI fixtures once and serves their original routes to every browser worker.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export default defineConfig( {
 	root: fileURLToPath( new URL( '../../../../', import.meta.url ) ),

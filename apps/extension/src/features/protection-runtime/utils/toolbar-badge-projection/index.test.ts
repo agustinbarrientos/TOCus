@@ -13,13 +13,13 @@ describe( 'createToolbarBadgeProjection', () => {
 			 * Wraps a toolbar title for the projection fixture.
 			 * @param title - Active title content.
 			 * @return Wrapped fixture title.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			formatActiveTitle: ( title: string ) => `[${ title }]`,
 			/**
 			 * Returns the allowance fixture projection.
 			 * @return Allowance fixture copy.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			formatAllowance: () => ( { text: 'allowance', title: 'allowance-title' } ),
 			/**
@@ -27,7 +27,7 @@ describe( 'createToolbarBadgeProjection', () => {
 			 * @param _activeScopeCount - Complete active-scope count.
 			 * @param visibleScopeCount - Visible localized scope count.
 			 * @return Multiple-scope fixture copy.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			formatMultipleActive: ( _activeScopeCount: number, visibleScopeCount: string ) => ( {
 				text: visibleScopeCount,
@@ -37,13 +37,13 @@ describe( 'createToolbarBadgeProjection', () => {
 			 * Formats the multiple-scope fixture indicator.
 			 * @param activeScopeCount - Complete active-scope count.
 			 * @return Visible fixture indicator.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			formatMultipleIndicator: ( activeScopeCount: number ) => `(${ String( activeScopeCount ) })`,
 			/**
 			 * Returns the waiting fixture projection.
 			 * @return Waiting fixture copy.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			formatWaiting: () => ( { text: 'waiting', title: 'waiting-title' } ),
 		};

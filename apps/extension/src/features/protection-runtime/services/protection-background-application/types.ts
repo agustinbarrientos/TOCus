@@ -4,19 +4,19 @@ import type { ExtensionTabContextTab } from '../../../../shared/services/extensi
 
 /**
  * Live originating-tab identity, including a pending browser navigation state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionBackgroundSettingsTab = ExtensionTabContextTab & Pick<Browser.tabs.Tab, 'status'>;
 
 /**
  * Optional live extension context lookup, unavailable in older browser engines.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionBackgroundSettingsRuntime = Partial<Pick<WxtBrowser[ 'runtime' ], 'getContexts'>>;
 
 /**
  * Native tab updates relevant to interruption audio ownership.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectionBackgroundTabAudioChange {
 	/** Changed mute metadata, absent for unrelated tab updates. */
@@ -25,7 +25,7 @@ export interface ProtectionBackgroundTabAudioChange {
 
 /**
  * Dependencies used to construct the extension background application.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectionBackgroundApplicationOptions {
 	/** Browser APIs used by protection, statistics, preferences, and onboarding. */

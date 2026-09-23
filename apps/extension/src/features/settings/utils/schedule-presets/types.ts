@@ -1,6 +1,6 @@
 /**
  * Starting schedules available in the custom schedule editor.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const SchedulePreset = {
 	WEEKDAYS_WORKING_HOURS: 'weekdays-working-hours',
@@ -10,6 +10,6 @@ export const SchedulePreset = {
 
 /**
  * One starting schedule available in the custom schedule editor.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type SchedulePreset = typeof SchedulePreset[ keyof typeof SchedulePreset ];

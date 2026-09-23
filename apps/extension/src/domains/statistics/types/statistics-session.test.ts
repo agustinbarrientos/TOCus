@@ -6,7 +6,7 @@ import {
 
 /**
  * Valid session document carrying one focus anchor and one pending interval.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const VALID_STATISTICS_SESSION = {
 	schemaVersion: 1,

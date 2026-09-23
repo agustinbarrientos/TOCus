@@ -16,7 +16,7 @@ import { WaitDurationMillisecondsSchema } from './wait-duration';
 
 /**
  * Metric-bearing facts emitted by accepted state transitions.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionFactType = {
 	PAUSE_TIME: 'pause-time',
@@ -27,19 +27,19 @@ export const ProtectionFactType = {
 
 /**
  * Validates a protection-fact discriminator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionFactTypeSchema = z.enum( ProtectionFactType );
 
 /**
  * Protection-fact discriminator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionFactType = z.infer<typeof ProtectionFactTypeSchema>;
 
 /**
  * Validates the fields shared by pause-time fact inputs and emitted facts.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const PauseTimeFactFieldsSchema = z.object( {
 	scopeId: ProtectionScopeIdSchema,
@@ -53,7 +53,7 @@ const PauseTimeFactFieldsSchema = z.object( {
 
 /**
  * Fields shared by pause-time fact inputs and emitted facts.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 type PauseTimeFactFields = z.infer<typeof PauseTimeFactFieldsSchema>;
 
@@ -61,7 +61,7 @@ type PauseTimeFactFields = z.infer<typeof PauseTimeFactFieldsSchema>;
  * Adds pause-time consistency issues to one fact refinement context.
  * @param fact - Pause-time values being refined.
  * @param context - Zod refinement context receiving consistency issues.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function refinePauseTimeFact(
 	fact: PauseTimeFactFields,
@@ -78,7 +78,7 @@ function refinePauseTimeFact(
 
 /**
  * Validates a pause-time fact emitted for accepted wait progress.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PauseTimeFactSchema = PauseTimeFactFieldsSchema.extend( {
 	type: z.enum( [ ProtectionFactType.PAUSE_TIME ] ),
@@ -87,25 +87,25 @@ export const PauseTimeFactSchema = PauseTimeFactFieldsSchema.extend( {
 
 /**
  * Pause-time fact emitted for accepted wait progress.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PauseTimeFact = z.infer<typeof PauseTimeFactSchema>;
 
 /**
  * Validates the domain values used to build a pause-time fact.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PauseTimeFactInputSchema = PauseTimeFactFieldsSchema.superRefine( refinePauseTimeFact );
 
 /**
  * Domain values used to build a pause-time fact.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PauseTimeFactInput = z.infer<typeof PauseTimeFactInputSchema>;
 
 /**
  * Validates a reconsidered-visit fact emitted for a qualifying departure.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ReconsideredVisitFactSchema = z.object( {
 	type: z.enum( [ ProtectionFactType.RECONSIDERED_VISIT ] ),
@@ -121,25 +121,25 @@ export const ReconsideredVisitFactSchema = z.object( {
 
 /**
  * Reconsidered-visit fact emitted for a qualifying departure.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ReconsideredVisitFact = z.infer<typeof ReconsideredVisitFactSchema>;
 
 /**
  * Validates the domain values used to build a reconsidered-visit fact.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ReconsideredVisitFactInputSchema = ReconsideredVisitFactSchema.omit( { type: true, factId: true } );
 
 /**
  * Domain values used to build a reconsidered-visit fact.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ReconsideredVisitFactInput = z.infer<typeof ReconsideredVisitFactInputSchema>;
 
 /**
  * Validates a completed-wait fact.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const CompletedWaitFactSchema = z.object( {
 	type: z.enum( [ ProtectionFactType.COMPLETED_WAIT ] ),
@@ -153,25 +153,25 @@ export const CompletedWaitFactSchema = z.object( {
 
 /**
  * Completed-wait fact.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type CompletedWaitFact = z.infer<typeof CompletedWaitFactSchema>;
 
 /**
  * Validates the domain values used to build a completed-wait fact.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const CompletedWaitFactInputSchema = CompletedWaitFactSchema.omit( { type: true, factId: true } );
 
 /**
  * Domain values used to build a completed-wait fact.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type CompletedWaitFactInput = z.infer<typeof CompletedWaitFactInputSchema>;
 
 /**
  * Validates the fields shared by allowance-granted fact inputs and emitted facts.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const AllowanceGrantedFactFieldsSchema = z.object( {
 	scopeId: ProtectionScopeIdSchema,
@@ -183,7 +183,7 @@ const AllowanceGrantedFactFieldsSchema = z.object( {
 
 /**
  * Fields shared by allowance-granted fact inputs and emitted facts.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 type AllowanceGrantedFactFields = z.infer<typeof AllowanceGrantedFactFieldsSchema>;
 
@@ -191,7 +191,7 @@ type AllowanceGrantedFactFields = z.infer<typeof AllowanceGrantedFactFieldsSchem
  * Adds allowance interval consistency issues to one fact refinement context.
  * @param fact - Allowance values being refined.
  * @param context - Zod refinement context receiving consistency issues.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function refineAllowanceGrantedFact(
 	fact: AllowanceGrantedFactFields,
@@ -219,7 +219,7 @@ function refineAllowanceGrantedFact(
 
 /**
  * Validates an allowance-granted fact.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const AllowanceGrantedFactSchema = AllowanceGrantedFactFieldsSchema.extend( {
 	type: z.enum( [ ProtectionFactType.ALLOWANCE_GRANTED ] ),
@@ -228,13 +228,13 @@ export const AllowanceGrantedFactSchema = AllowanceGrantedFactFieldsSchema.exten
 
 /**
  * Allowance-granted fact.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type AllowanceGrantedFact = z.infer<typeof AllowanceGrantedFactSchema>;
 
 /**
  * Validates the domain values used to build an allowance-granted fact.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const AllowanceGrantedFactInputSchema = AllowanceGrantedFactFieldsSchema.superRefine(
 	refineAllowanceGrantedFact,
@@ -242,13 +242,13 @@ export const AllowanceGrantedFactInputSchema = AllowanceGrantedFactFieldsSchema.
 
 /**
  * Domain values used to build an allowance-granted fact.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type AllowanceGrantedFactInput = z.infer<typeof AllowanceGrantedFactInputSchema>;
 
 /**
  * Validates a metric-bearing fact emitted by an accepted protection transition.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionFactSchema = z.discriminatedUnion( 'type', [
 	PauseTimeFactSchema,
@@ -259,6 +259,6 @@ export const ProtectionFactSchema = z.discriminatedUnion( 'type', [
 
 /**
  * Metric-bearing fact emitted by an accepted protection transition.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionFact = z.infer<typeof ProtectionFactSchema>;

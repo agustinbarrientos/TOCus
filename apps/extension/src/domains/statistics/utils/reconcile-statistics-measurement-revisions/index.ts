@@ -8,7 +8,7 @@ import { createEmptyScopeStatistics } from '../create-statistics-document';
  * @param scope - Retained current or historical scope statistics.
  * @param measurementRevision - Current revision, or undefined when the scope is inactive.
  * @return Reconciled scope statistics with historical totals preserved.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function reconcileScopeStatistics(
 	scope: ScopeStatistics,
@@ -35,7 +35,7 @@ function reconcileScopeStatistics(
  * @param document - Current validated statistics document.
  * @param operation - Validated complete revision-map operation.
  * @return Reconciled statistics document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function reconcileStatisticsMeasurementRevisions(
 	document: StatisticsDocument,

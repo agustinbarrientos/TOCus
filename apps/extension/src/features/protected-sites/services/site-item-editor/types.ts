@@ -5,7 +5,7 @@ import type { ProtectedSiteItemOperationErrorReason } from '../../components/sit
 
 /**
  * Editable state for the original item-owned save/cancel transaction.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface SiteItemEditorSnapshot {
 	editing: boolean;
@@ -16,7 +16,7 @@ export interface SiteItemEditorSnapshot {
 
 /**
  * Existing domain boundary and completion notification for a standalone item.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface SiteItemEditorOptions {
 	site: ProtectedSiteConfiguration;
@@ -26,7 +26,7 @@ export interface SiteItemEditorOptions {
 
 /**
  * Observable item-owned transaction, separate from Settings' page-owned draft.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface SiteItemEditor {
 	getSnapshot: () => Readonly<SiteItemEditorSnapshot>;

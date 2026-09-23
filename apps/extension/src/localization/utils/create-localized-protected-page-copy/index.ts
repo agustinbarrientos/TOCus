@@ -12,7 +12,7 @@ import type { ProtectedPageLocalizationBundle } from './types';
  * Creates synchronous protected-page copy from the selected compiled messages.
  * @param language - Browser-derived or explicitly selected language.
  * @return Localized copy required by the injected protected-page layer.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createLocalizedProtectedPageCopy(
 	language: LanguageValue,

@@ -14,7 +14,7 @@ import styles from './web-component-style.scss?inline';
  * @attr breath-progress - Normalized Natural breathing progress.
  * @attr still - Whether the sphere remains still and dimensional.
  * @summary Responsive decorative Breathing Sphere Canvas.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export class ComponentBreathingSphere extends PresentationElement {
 	/**
@@ -121,7 +121,7 @@ export class ComponentBreathingSphere extends PresentationElement {
 
 	/**
 	 * Invalidates cached theme colors after an appearance change.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private readonly handleAppearanceChange = (): void => {
 		this.colors = null;
@@ -130,7 +130,7 @@ export class ComponentBreathingSphere extends PresentationElement {
 
 	/**
 	 * Redraws the sphere after the operating-system color scheme changes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private readonly handleColorSchemeChange = (): void => {
 		this.handleAppearanceChange();
@@ -138,7 +138,7 @@ export class ComponentBreathingSphere extends PresentationElement {
 
 	/**
 	 * Connects theme and size observers after the first render is ready.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	override connectedCallback(): void {
 		this.colors = null;
@@ -155,7 +155,7 @@ export class ComponentBreathingSphere extends PresentationElement {
 
 	/**
 	 * Releases every observer owned by the component.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	override disconnectedCallback(): void {
 		this.appearanceObserver?.disconnect();
@@ -169,7 +169,7 @@ export class ComponentBreathingSphere extends PresentationElement {
 
 	/**
 	 * Redraws when presentation sInput change.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	protected override afterRender(): void {
 		if ( ! this.isConnected ) {
@@ -182,7 +182,7 @@ export class ComponentBreathingSphere extends PresentationElement {
 	/**
 	 * Renders the decorative Canvas owned by the sphere.
 	 * @return Breathing Sphere template.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	protected override renderPresentation(): ReactNode {
 		return <><canvas aria-hidden="true" /><span className="color-probe" aria-hidden="true" /></>;
@@ -190,7 +190,7 @@ export class ComponentBreathingSphere extends PresentationElement {
 
 	/**
 	 * Observes inherited appearance settings across shadow boundaries, system theme, and component size.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private connectObservers(): void {
 		if ( this.appearanceObserver !== null ) {
@@ -225,7 +225,7 @@ export class ComponentBreathingSphere extends PresentationElement {
 
 	/**
 	 * Synchronizes backing pixels and draws the complete sphere frame.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private draw(): void {
 		if ( this.canvasElement === null || this.colorProbe === null ) {

@@ -55,7 +55,7 @@ import {
  * @param nowEpochMilliseconds - Current wall-clock time.
  * @param timeZone - Current IANA time-zone identifier.
  * @return Active, inactive, or failed current schedule evaluation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function evaluateSiteSchedule(
 	configuration: ProtectionConfigurationDocument,
@@ -71,7 +71,7 @@ function evaluateSiteSchedule(
 /**
  * Creates a validated unavailable interruption-page response.
  * @return Authoritative unavailable page projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createUnavailablePageResponse(): InterruptionPageResponse {
 	return InterruptionPageResponseSchema.parse( { state: InterruptionPageResponseState.UNAVAILABLE } );
@@ -81,7 +81,7 @@ function createUnavailablePageResponse(): InterruptionPageResponse {
  * Creates one browser runtime that serializes navigation, focus, progress, and toolbar effects.
  * @param options - Domain, configuration, browser, clock, and identity dependencies.
  * @return Browser protection runtime operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createBrowserProtectionRuntime( options: BrowserProtectionRuntimeOptions ): BrowserProtectionRuntime {
 	let operationQueue: Promise<void> = Promise.resolve();
@@ -185,7 +185,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * Serializes a runtime operation without poisoning later work after a rejection.
 	 * @param operation - Deferred runtime operation.
 	 * @return Promise for the operation result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function enqueueOperation<T>( operation: () => Promise<T> ): Promise<T> {
 		const result = operationQueue.then( operation, operation );
@@ -200,7 +200,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * @param operation - Deferred runtime operation.
 	 * @param suspendedResult - Unavailable result for work invalidated by a reset.
 	 * @return Promise for the current-generation operation result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function enqueue<T>( operation: () => Promise<T>, suspendedResult: T ): Promise<T> {
 		const generation = dataResetGeneration;
@@ -223,7 +223,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	/**
 	 * Stops ingress synchronously, drains started writes, and releases browser effects.
 	 * @return Promise resolved after cleanup, retaining persisted state for safe retries.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function suspendForDataReset(): Promise<void> {
 		suspended = true;
@@ -246,7 +246,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	/**
 	 * Forgets drained runtime authorities without writing and permits a later start.
 	 * @return Promise resolved once the next start can restore fresh persisted state.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function resumeAfterDataReset(): Promise<void> {
 		return enqueueOperation( async () => {
@@ -268,7 +268,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * @param navigation - Optional top-level navigation observed by the operation.
 	 * @param capturedObservation - Browser inputs already captured at event ingress.
 	 * @return Promise for the browser operation result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function enqueueObserved<T>(
 		operation: () => Promise<T>,
@@ -305,7 +305,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	/**
 	 * Loads and validates the current local protection configuration.
 	 * @return Current configuration or null when storage is unavailable or malformed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function loadRawConfiguration(): Promise<ProtectionConfigurationDocument | null> {
 		let configuration: unknown;
@@ -335,7 +335,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	/**
 	 * Loads, validates, and permission-filters the current local protection configuration.
 	 * @return Current runtime-safe configuration or null when unavailable or malformed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function loadConfiguration(): Promise<ProtectionConfigurationDocument | null> {
 		const configuration = await loadRawConfiguration();
@@ -359,7 +359,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	/**
 	 * Removes every browser effect owned by the runtime and marks it unavailable.
 	 * @return Promise resolved after cleanup, or rejected when redirect removal fails.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function failOpenOperation(): Promise<void> {
 		available = false;
@@ -378,7 +378,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	/**
 	 * Removes protected browser projections when configuration cannot be trusted.
 	 * @return Promise resolved after fail-open browser projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function reconcileUnavailableConfiguration(): Promise<void> {
 		available = false;
@@ -395,7 +395,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * @param configuration - Current validated local configuration or unavailable marker.
 	 * @param continuedParticipant - Optional identity from a freshly validated entry request.
 	 * @return Promise resolved after supported browser effects are applied.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function applyDispatchResult(
 		result: ProtectionCoordinatorDispatchResult,
@@ -415,7 +415,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * Reconciles active transactions whose schedule is no longer active or configured.
 	 * @param configuration - Current validated local protection configuration.
 	 * @return Promise resolved after non-active scopes fail open.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function reconcileSchedules( configuration: ProtectionConfigurationDocument ): Promise<void> {
 		const statesByScope = await options.coordinator.getStates();
@@ -467,7 +467,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	/**
 	 * Reconciles configuration, schedules, elapsed allowances, and browser projections.
 	 * @return Promise resolved after current runtime state is projected.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function reconcileOperation(): Promise<void> {
 		if ( ! available ) {
@@ -490,7 +490,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	/**
 	 * Restores authoritative state before any queued browser event is processed.
 	 * @return Promise resolved after startup reconciliation or fail-open cleanup.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function initializeOperation(): Promise<void> {
 		if ( available ) {
@@ -515,7 +515,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * @param navigation - Optional top-level navigation received with the event.
 	 * @param focusEvent - Exact browser focus event identity when available.
 	 * @return Privacy-safe event-ingress browser observation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function captureStatisticsObservation(
 		mode: Parameters<BrowserProtectionRuntime[ 'captureStatisticsObservation' ]>[ 0 ],
@@ -532,7 +532,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * Starts runtime browser-state reconciliation through the serialized queue.
 	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after startup reconciliation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function start(
 		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
@@ -550,7 +550,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * Removes runtime-owned browser effects through the serialized queue.
 	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after fail-open cleanup.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function failOpen(
 		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
@@ -567,7 +567,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	/**
 	 * Reads all-time statistics through the same serialized authority as protection events.
 	 * @return Available local totals or an unavailable projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function readStatistics(): Promise<StatisticsProjection> {
 		return statisticsBridge.readStatistics();
@@ -576,7 +576,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	/**
 	 * Resets all statistics persistence through the serialized runtime authority.
 	 * @return Zero-valued local totals after success or an unavailable projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function resetStatistics(): Promise<StatisticsProjection> {
 		return enqueue( () => statisticsBridge.resetStatistics(), { status: StatisticsProjectionStatus.UNAVAILABLE } );
@@ -587,7 +587,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * @param navigation - Browser navigation details.
 	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after navigation handling.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleNavigation(
 		navigation: Parameters<BrowserProtectionRuntime[ 'handleNavigation' ]>[ 0 ],
@@ -607,7 +607,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * @param protectionEligible - Whether the sender is explicitly outside private browsing.
 	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Authoritative interruption-page response.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handlePageRequest(
 		input: unknown,
@@ -629,7 +629,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * @param tabId - Closed browser tab identifier.
 	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after runtime reconciliation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleTabRemoved(
 		tabId: number,
@@ -660,7 +660,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * Reconciles browser focus through the serialized queue.
 	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after focus reconciliation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleFocusChanged(
 		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
@@ -676,7 +676,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * Processes elapsed wall-clock state through the serialized queue.
 	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after clock reconciliation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleClockTick(
 		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
@@ -693,7 +693,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	/**
 	 * Reprojects the current toolbar state after presentation-only copy changes.
 	 * @return Promise resolved after the serialized toolbar update settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function refreshToolbarBadge(): Promise<void> {
 		return enqueue( async () => {
@@ -711,7 +711,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	/**
 	 * Reads detached protection state through the serialized runtime authority.
 	 * @return Current background-internal state or null while protection is unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function readSnapshot(): Promise<BrowserProtectionRuntimeSnapshot | null> {
 		return enqueue( async () => {
@@ -739,7 +739,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * Reconciles changed local configuration through the serialized queue.
 	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after configuration reconciliation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleConfigurationChanged(
 		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,

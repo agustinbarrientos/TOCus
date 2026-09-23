@@ -6,14 +6,14 @@ import type { AboutScreenCopy } from '../../../features/settings/components/abou
  * Creates localized About-screen copy and version formatting.
  * @param i18n - Locale-specific Lingui instance.
  * @return Complete localized About-screen copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createAboutScreenCopy( i18n: I18n ): Readonly<AboutScreenCopy> {
 	/**
 	 * Formats the installed version without altering its release identifier.
 	 * @param version - Version supplied by the browser manifest.
 	 * @return Localized version label.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatVersion( version: string ): string {
 		return i18n._( msg`Version ${ { version } }` );

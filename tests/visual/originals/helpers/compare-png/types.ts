@@ -1,6 +1,6 @@
 /**
  * Decoded image extent in physical pixels, independent of PNG encoding details.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface PngDimensions {
 	width: number;
@@ -9,7 +9,7 @@ export interface PngDimensions {
 
 /**
  * Raw RGBA comparison, counting each changed or uncovered pixel position once.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface PngComparison {
 	expected: PngDimensions;

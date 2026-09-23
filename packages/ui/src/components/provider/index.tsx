@@ -38,7 +38,7 @@ const memoryManager: MantineColorSchemeManager = {
 
 /**
  * Owns palette, sizing, generated styles and portal placement for one React tree.
- * @since 0.1.0
+ * @since 1.0.0
  * @param root0 - Appearance and ownership configuration.
  * @param root0.children - One shared React tree.
  * @param root0.appearance - App-managed color preference.

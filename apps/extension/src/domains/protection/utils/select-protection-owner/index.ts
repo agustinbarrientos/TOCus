@@ -4,7 +4,7 @@ import type { ProtectionParticipant } from '../../types/protection-participant';
  * Selects the deterministic focused owner from a participant collection.
  * @param participants - Validated wait participants.
  * @return The lowest-sequence focused participant, with lexical identity as the tie-breaker.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function selectOwner(
 	participants: readonly ProtectionParticipant[],

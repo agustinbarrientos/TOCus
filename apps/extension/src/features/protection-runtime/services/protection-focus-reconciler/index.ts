@@ -20,7 +20,7 @@ import type {
  * @param configuration - Current validated protection configuration.
  * @param interruptionPageUrl - Extension-owned interruption page URL.
  * @return Whether the participant has a visible interruption or protected allowance-expiry page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function isParticipantPresentationAvailable(
 	context: ProtectionRuntimeParticipantContext,
@@ -51,7 +51,7 @@ function isParticipantPresentationAvailable(
  * Creates one browser-focus reconciler around participant and projection boundaries.
  * @param options - State, browser, configuration, participant, and projection dependencies.
  * @return Browser focus reconciliation operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createProtectionFocusReconciler(
 	options: ProtectionFocusReconcilerOptions,
@@ -59,7 +59,7 @@ export function createProtectionFocusReconciler(
 	/**
 	 * Reconciles current participant presentation, focus, and toolbar state.
 	 * @return Promise resolved after focus reconciliation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function reconcile(): Promise<void> {
 		const configuration = await options.loadConfiguration();

@@ -17,7 +17,7 @@ import type {
  * Creates one complete redirect rule for adapter boundary tests.
  * @param id - Rule identifier.
  * @return Complete dynamic redirect rule.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createRule( id: number ): Browser.declarativeNetRequest.Rule {
 	return {
@@ -37,7 +37,7 @@ function createRule( id: number ): Browser.declarativeNetRequest.Rule {
 /**
  * Creates an observable toolbar API for adapter boundary tests.
  * @return Toolbar action with mocked browser operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createToolbarAction(): BrowserProtectionToolbarAction {
 	return {
@@ -50,7 +50,7 @@ function createToolbarAction(): BrowserProtectionToolbarAction {
 /**
  * Creates an observable browser API with safe default results.
  * @return Narrow browser boundary used by the adapter.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createBrowserApi(): BrowserProtectionAdapterApi {
 	return {
@@ -85,7 +85,7 @@ function createBrowserApi(): BrowserProtectionAdapterApi {
 /**
  * Creates observable audio effects for the browser adapter.
  * @return Isolated tab audio operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createTabAudioController(): TabAudioController {
 	return {
@@ -750,14 +750,14 @@ describe( 'createBrowserProtectionAdapter', () => {
 			/**
 			 * Simulates one rejected browser operation.
 			 * @return Rejected browser operation.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			setBadgeText: () => Promise.reject( new Error( 'Badge text unavailable.' ) ),
 
 			/**
 			 * Simulates one synchronously rejected browser operation.
 			 * @throws {Error} Always, to verify synchronous failure isolation.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			setBadgeBackgroundColor: () => {
 				throw new Error( 'Badge color unavailable.' );
@@ -766,7 +766,7 @@ describe( 'createBrowserProtectionAdapter', () => {
 			/**
 			 * Records that an independent toolbar operation still runs.
 			 * @return Resolved browser operation.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			setTitle: () => {
 				completedOperations.push( 'title' );

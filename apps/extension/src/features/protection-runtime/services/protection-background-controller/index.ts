@@ -38,13 +38,13 @@ import {
 
 /**
  * Period between wall-clock reconciliation alarms.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const RECONCILIATION_PERIOD_MINUTES = 1;
 
 /**
  * Cross-browser window identifier emitted when the browser loses operating-system focus.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const UNFOCUSED_BROWSER_WINDOW_ID = -1;
 
@@ -52,7 +52,7 @@ const UNFOCUSED_BROWSER_WINDOW_ID = -1;
  * Parses one browser tab-activation identity conservatively.
  * @param activation - Unknown browser activation payload.
  * @return Exact tab and window identity, or null when malformed.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function parseTabActivation(
 	activation: unknown,
@@ -74,7 +74,7 @@ function parseTabActivation(
  * Parses one browser window-focus identity conservatively.
  * @param windowId - Browser-provided focused window identifier.
  * @return Exact window identity, or null when malformed.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function parseWindowFocus(
 	windowId: number,
@@ -87,7 +87,7 @@ function parseWindowFocus(
 /**
  * Creates an unavailable statistics response without fabricating local values.
  * @return Unavailable statistics projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createUnavailableStatisticsResponse(): StatisticsProjection {
 	return StatisticsProjectionSchema.parse( {
@@ -99,7 +99,7 @@ function createUnavailableStatisticsResponse(): StatisticsProjection {
  * Reports whether a runtime request came from an HTTP(S) top-level tab document.
  * @param sender - Browser-provided message sender.
  * @return Whether the sender is an authenticated protected-page controller.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function isAuthenticatedProtectedPageSender(
 	sender: ProtectionBackgroundMessageSender,
@@ -122,7 +122,7 @@ function isAuthenticatedProtectedPageSender(
  * @param sender - Browser-provided message sender.
  * @param interruptionPageUrl - Exact extension-owned interruption page URL.
  * @return Whether the sender is the interruption page or the packaged controller on an HTTP(S) tab.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function isAuthenticatedPageRequestSender(
 	sender: ProtectionBackgroundMessageSender,
@@ -144,7 +144,7 @@ function isAuthenticatedPageRequestSender(
  * @param sender - Browser-provided message sender.
  * @param optionsPageUrl - Exact extension-owned settings page URL.
  * @return Whether the sender is the top-level settings document, allowing only its hash route.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function isAuthenticatedOptionsPageSender(
 	sender: ProtectionBackgroundMessageSender,
@@ -171,7 +171,7 @@ function isAuthenticatedOptionsPageSender(
  * Creates synchronous browser event coordination for the protection runtime.
  * @param options - Browser events and authoritative protection runtime.
  * @return Background registration operation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createProtectionBackgroundController(
 	options: ProtectionBackgroundControllerOptions,
@@ -184,7 +184,7 @@ export function createProtectionBackgroundController(
 
 	/**
 	 * Absorbs a terminal cleanup rejection after the runtime has already attempted to fail open.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleTerminalCleanupFailure(): void {
 		return;
@@ -192,7 +192,7 @@ export function createProtectionBackgroundController(
 
 	/**
 	 * Attempts fail-open cleanup after an asynchronous runtime operation rejects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleRuntimeFailure(): void {
 		void options.runtime.failOpen().catch( handleTerminalCleanupFailure );
@@ -201,7 +201,7 @@ export function createProtectionBackgroundController(
 	/**
 	 * Observes one event-only runtime operation through the fail-open error boundary.
 	 * @param operation - Runtime operation already started by a browser event.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function observeRuntimeOperation( operation: Promise<unknown> ): void {
 		void operation.catch( handleRuntimeFailure );
@@ -210,7 +210,7 @@ export function createProtectionBackgroundController(
 	/**
 	 * Serializes one navigation-capability transition and contains terminal cleanup failures.
 	 * @param operation - Deferred startup, grant, or revocation operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function enqueueCapabilityOperation( operation: () => Promise<void> ): void {
 		const result = capabilityOperation.then( operation );
@@ -228,7 +228,7 @@ export function createProtectionBackgroundController(
 	 * Runs one browser event only after pending navigation-capability transitions settle.
 	 * @param operation - Deferred runtime operation.
 	 * @return Runtime operation result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function runAfterCapability<T>( operation: () => Promise<T> ): Promise<T> {
 		return capabilityOperation.then( operation );
@@ -238,7 +238,7 @@ export function createProtectionBackgroundController(
 	 * Starts restoration only when the optional navigation capability is currently granted.
 	 * @param statisticsObservation - Browser inputs captured before permission lookup.
 	 * @return Promise resolved after restoration or fail-open cleanup.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function initializeRuntime(
 		statisticsObservation: ReturnType<
@@ -261,7 +261,7 @@ export function createProtectionBackgroundController(
 	 * Reconciles configuration only while navigation observation remains granted.
 	 * @param statisticsObservation - Browser inputs captured before capability serialization.
 	 * @return Promise resolved after reconciliation or fail-open cleanup.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function reconcileConfiguration(
 		statisticsObservation: ReturnType<
@@ -286,7 +286,7 @@ export function createProtectionBackgroundController(
 	 * @param navigation - Browser navigation details.
 	 * @param phase - Event phase known from the browser event surface.
 	 * @return Navigation observation consumed by protection runtime.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function createRuntimeNavigation(
 		navigation: ProtectionBackgroundNavigationDetails,
@@ -310,7 +310,7 @@ export function createProtectionBackgroundController(
 	 * Routes one top-level navigation without returning a Promise to the browser event.
 	 * @param navigation - Browser navigation details.
 	 * @param phase - Event phase known from the browser event surface.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleNavigation(
 		navigation: ProtectionBackgroundNavigationDetails,
@@ -335,7 +335,7 @@ export function createProtectionBackgroundController(
 	 * Registers one browser navigation event with its known lifecycle phase.
 	 * @param navigationEvent - Browser event source.
 	 * @param phase - Runtime phase attached to every event observation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function registerNavigationEvent(
 		navigationEvent: ProtectionBackgroundNavigationEvent,
@@ -344,7 +344,7 @@ export function createProtectionBackgroundController(
 		/**
 		 * Routes one navigation observation through the phase-specific listener.
 		 * @param navigation - Browser navigation details.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		const listener: ProtectionBackgroundNavigationListener = ( navigation ) => {
 			handleNavigation( navigation, phase );
@@ -356,7 +356,7 @@ export function createProtectionBackgroundController(
 
 	/**
 	 * Registers navigation observation when the optional browser API is currently available.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function registerNavigationListener(): void {
 		const webNavigation = options.browser.webNavigation;
@@ -398,7 +398,7 @@ export function createProtectionBackgroundController(
 
 	/**
 	 * Stops navigation observation after its optional browser permission is revoked.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function unregisterNavigationListener(): void {
 		registeredNavigationEvents.forEach( ( [ navigationEvent, listener ] ) => {
@@ -417,7 +417,7 @@ export function createProtectionBackgroundController(
 	 * @param sender.url - URL of the page or frame hosting the sending script.
 	 * @param sendResponse - Browser callback for the asynchronous response.
 	 * @return True for one claimed interruption request, otherwise undefined.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleMessage(
 		input: unknown,
@@ -543,7 +543,7 @@ export function createProtectionBackgroundController(
 	/**
 	 * Routes one tab removal through the runtime error boundary.
 	 * @param tabId - Removed browser tab identifier.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleTabRemoved( tabId: number ): void {
 		const statisticsObservation = options.runtime.captureStatisticsObservation(
@@ -558,7 +558,7 @@ export function createProtectionBackgroundController(
 	/**
 	 * Reconciles protection focus after a tab or browser-window focus change.
 	 * @param activation - Browser-provided active tab and window identity.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleTabActivated( activation: unknown ): void {
 		const statisticsObservation = options.runtime.captureStatisticsObservation(
@@ -575,7 +575,7 @@ export function createProtectionBackgroundController(
 	/**
 	 * Reconciles protection focus after the browser window gains or loses focus.
 	 * @param windowId - Browser-provided focused window identifier.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleWindowFocusChanged( windowId: number ): void {
 		const statisticsObservation = options.runtime.captureStatisticsObservation(
@@ -593,7 +593,7 @@ export function createProtectionBackgroundController(
 	 * Reconciles a changed local protection configuration.
 	 * @param changes - Changed browser storage entries.
 	 * @param areaName - Browser storage area containing the changes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleStorageChanged( changes: ProtectionBackgroundStorageChanges, areaName: string ): void {
 		if (
@@ -617,7 +617,7 @@ export function createProtectionBackgroundController(
 	 * @param removal - Removed named and origin permissions.
 	 * @param removal.permissions - Removed named permissions.
 	 * @param removal.origins - Removed host origins.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handlePermissionRemoved( removal: ProtectionBackgroundPermissionChange ): void {
 		if ( removal.permissions?.includes( 'webNavigation' ) ) {
@@ -648,7 +648,7 @@ export function createProtectionBackgroundController(
 	 * @param addition - Newly granted named and origin permissions.
 	 * @param addition.permissions - Newly granted named permissions.
 	 * @param addition.origins - Newly granted host origins.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handlePermissionAdded( addition: ProtectionBackgroundPermissionChange ): void {
 		if ( addition.permissions?.includes( 'webNavigation' ) ) {
@@ -676,7 +676,7 @@ export function createProtectionBackgroundController(
 	 * Routes only protection-owned alarms to wall-clock reconciliation.
 	 * @param alarm - Browser alarm details.
 	 * @param alarm.name - Browser-assigned alarm name.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleAlarm( alarm: ProtectionBackgroundAlarm ): void {
 		if (
@@ -697,7 +697,7 @@ export function createProtectionBackgroundController(
 
 	/**
 	 * Registers listeners synchronously before asynchronous restoration begins.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function start(): void {
 		registerNavigationListener();
@@ -724,7 +724,7 @@ export function createProtectionBackgroundController(
 	/**
 	 * Reconciles configuration through the same capability gate as browser events.
 	 * @return Promise resolved after protection is current, or rejected after fail-open cleanup.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function refresh(): Promise<void> {
 		const statisticsObservation = options.runtime.captureStatisticsObservation(
@@ -742,7 +742,7 @@ export function createProtectionBackgroundController(
 	/**
 	 * Waits for pending navigation-capability startup or transitions to settle.
 	 * @return Promise resolved after the capability barrier settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function waitUntilReady(): Promise<void> {
 		return capabilityOperation;

@@ -6,7 +6,7 @@ import {
 
 /**
  * Complete available projection used to verify its numeric estimate contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const VALID_AVAILABLE_PROJECTION = {
 	status: 'available',

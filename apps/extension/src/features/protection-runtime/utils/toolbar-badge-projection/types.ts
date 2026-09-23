@@ -1,6 +1,6 @@
 /**
  * Runtime phases represented by the browser toolbar badge.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ToolbarBadgePhase = {
 	INACTIVE: 'inactive',
@@ -11,13 +11,13 @@ export const ToolbarBadgePhase = {
 
 /**
  * Runtime phase represented by the browser toolbar badge.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ToolbarBadgePhase = typeof ToolbarBadgePhase[ keyof typeof ToolbarBadgePhase ];
 
 /**
  * Requests an empty global badge when no protection timer is active.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InactiveToolbarBadgeProjectionInput {
 	/** Inactive badge discriminator. */
@@ -26,7 +26,7 @@ export interface InactiveToolbarBadgeProjectionInput {
 
 /**
  * Requests a badge for one active focused pause.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface WaitingToolbarBadgeProjectionInput {
 	/** Waiting badge discriminator. */
@@ -37,7 +37,7 @@ export interface WaitingToolbarBadgeProjectionInput {
 
 /**
  * Requests a badge for one active visit window.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface AllowanceToolbarBadgeProjectionInput {
 	/** Allowance badge discriminator. */
@@ -48,7 +48,7 @@ export interface AllowanceToolbarBadgeProjectionInput {
 
 /**
  * Requests a neutral global badge when several protection scopes are active without a focused match.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface MultipleActiveToolbarBadgeProjectionInput {
 	/** Multiple-active badge discriminator. */
@@ -59,7 +59,7 @@ export interface MultipleActiveToolbarBadgeProjectionInput {
 
 /**
  * Complete input variants accepted by the toolbar badge projector.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ToolbarBadgeProjectionInput =
 	| InactiveToolbarBadgeProjectionInput
@@ -69,7 +69,7 @@ export type ToolbarBadgeProjectionInput =
 
 /**
  * Browser-neutral presentation values for one toolbar badge update.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ToolbarBadgeProjection {
 	/** Semantic protection phase represented by this projection. */
@@ -82,7 +82,7 @@ export interface ToolbarBadgeProjection {
 
 /**
  * Duration units already selected by toolbar projection logic before copy formatting.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ToolbarBadgeDurationUnit = {
 	SECOND: 'second',
@@ -91,13 +91,13 @@ export const ToolbarBadgeDurationUnit = {
 
 /**
  * Duration unit provided to localized toolbar badge copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ToolbarBadgeDurationUnit = typeof ToolbarBadgeDurationUnit[ keyof typeof ToolbarBadgeDurationUnit ];
 
 /**
  * Localized text produced for one semantic toolbar badge phase.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ToolbarBadgeCopyResult {
 	/** Compact localized badge text, or an empty string when inactive. */
@@ -108,7 +108,7 @@ export interface ToolbarBadgeCopyResult {
 
 /**
  * Injectable localized copy contract for toolbar badge projections.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ToolbarBadgeCopy {
 	/** Localized inactive toolbar copy. */

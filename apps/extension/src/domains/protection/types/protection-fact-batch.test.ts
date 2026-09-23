@@ -3,7 +3,7 @@ import { ProtectionFactBatchSchema } from './protection-fact-batch';
 
 /**
  * Valid same-scope protection fact-batch fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const VALID_BATCH = {
 	batchId: 'batch_1',

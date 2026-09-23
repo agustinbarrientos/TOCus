@@ -16,7 +16,7 @@ import {
 /**
  * Finds the deepest focused HTML element reachable through open shadow roots.
  * @return Deepest focused element, or null when the document has no restorable HTML focus owner.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getDeepestActiveElement(): HTMLElement | null {
 	let activeElement = document.activeElement;
@@ -42,7 +42,7 @@ function getDeepestActiveElement(): HTMLElement | null {
  * @cssprop {length} [--tocus-size-unit=16px] - Typography and geometry baseline independent of the protected document root.
  * Emits the bubbling `tocus-protected-page-layer-dismissed` event after native layer dismissal.
  * @summary Isolated protected-page warning and interruption presentation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export class ComponentProtectedPageLayer extends PresentationElement {
 
@@ -193,7 +193,7 @@ export class ComponentProtectedPageLayer extends PresentationElement {
 
 	/**
 	 * Restores the owned host after an unexpected removal from a still-live document.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private readonly restoreConnection = (): void => {
 		if ( this.connectionGuardEnabled && ! this.isConnected && document.documentElement.isConnected ) {
@@ -204,7 +204,7 @@ export class ComponentProtectedPageLayer extends PresentationElement {
 	/**
 	 * Prevents the native Escape action from bypassing an active interruption.
 	 * @param event - Native dialog cancellation request.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private readonly handleDialogCancel = ( event: React.SyntheticEvent<HTMLDialogElement> ): void => {
 		event.preventDefault();
@@ -212,7 +212,7 @@ export class ComponentProtectedPageLayer extends PresentationElement {
 
 	/**
 	 * Repairs an unexpected native closure and freezes local progress during the gap.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private readonly handleDialogClose = (): void => {
 		if ( ! this.interruptionLayerPresented || this.interruptionScreen === null ) {
@@ -225,7 +225,7 @@ export class ComponentProtectedPageLayer extends PresentationElement {
 
 	/**
 	 * Freezes local progress as soon as the protected page detaches its presentation host.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	override disconnectedCallback(): void {
 		if ( this.interruptionLayerPresented && this.interruptionScreen !== null ) {
@@ -241,7 +241,7 @@ export class ComponentProtectedPageLayer extends PresentationElement {
 
 	/**
 	 * Repairs native top-layer presentation after the owned host reconnects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	override connectedCallback(): void {
 		super.connectedCallback();
@@ -256,7 +256,7 @@ export class ComponentProtectedPageLayer extends PresentationElement {
 	 * Returns the interruption screen controlled by the protected-page runtime.
 	 * @return Rendered interruption screen.
 	 * @throws {Error} When localized presentation has not rendered the screen yet.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getInterruptionScreen(): ComponentInterruptionScreen {
 		const interruptionScreen = this.interruptionScreen;
@@ -271,7 +271,7 @@ export class ComponentProtectedPageLayer extends PresentationElement {
 	/**
 	 * Reports whether the requested interruption currently occupies the native top layer.
 	 * @return Whether the host is connected and its modal is open.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	isInterruptionPresentationVisible(): boolean {
 		return this.isConnected && this.interruptionLayerPresented && ( this.dialogElement?.open ?? false );
@@ -281,7 +281,7 @@ export class ComponentProtectedPageLayer extends PresentationElement {
 	 * Waits until a requested interruption is visibly mounted in the native top layer.
 	 * @return Promise resolved after the modal becomes visible.
 	 * @throws {Error} When the requested presentation could not become visible.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async waitForInterruptionPresentation(): Promise<void> {
 		await this.updateComplete;
@@ -294,7 +294,7 @@ export class ComponentProtectedPageLayer extends PresentationElement {
 	/**
 	 * Synchronizes the native top-layer dialog after a presentation-state change.
 	 * @param changedProperties - Reactive properties changed for this update.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	protected override afterRender( changedProperties: PresentationChanges ): void {
 		if ( ! isLocalizationReady( this.copy, this.interruptionCopy ) ) {
@@ -316,7 +316,7 @@ export class ComponentProtectedPageLayer extends PresentationElement {
 	/**
 	 * Renders the isolated warning and native modal container.
 	 * @return Protected-page presentation template.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	protected override renderPresentation(): ReactNode {
 		if ( ! isLocalizationReady( this.copy, this.interruptionCopy ) ) {
@@ -337,7 +337,7 @@ export class ComponentProtectedPageLayer extends PresentationElement {
 
 	/**
 	 * Opens the semantic modal without modifying the underlying document state.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private presentDialog(): void {
 		if ( this.dialogElement === null || this.dialogElement.open || ! this.isConnected ) {
@@ -350,7 +350,7 @@ export class ComponentProtectedPageLayer extends PresentationElement {
 
 	/**
 	 * Closes the semantic modal and restores the previously focused live-page element when possible.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private dismissDialog(): void {
 		if ( this.dialogElement === null || ! this.dialogElement.open ) {
@@ -372,7 +372,7 @@ export class ComponentProtectedPageLayer extends PresentationElement {
 
 	/**
 	 * Moves focus to the document body when the previous focus owner no longer exists.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private focusDocumentFallback(): void {
 		const body = document.body;

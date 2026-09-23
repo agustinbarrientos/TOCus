@@ -8,7 +8,7 @@ import type {
 
 /**
  * Browser and protection observations used to resolve focused allowance work.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ResolveFocusedAllowanceInput {
 	configuration: ProtectionConfigurationDocument;

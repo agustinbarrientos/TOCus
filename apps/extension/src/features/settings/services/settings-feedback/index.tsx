@@ -29,7 +29,7 @@ function SettingsFeedbackBridge( props: SettingsFeedbackProviderProps ) {
  * Keeps settings notifications mounted while the selected destination changes.
  * @param props - Localized shell labels and all settings destinations.
  * @return Settings action feedback backed by the shared snackbar provider.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function SettingsFeedbackProvider( props: SettingsFeedbackProviderProps ) {
 	return <SnackbarProvider closeLabel={ props.copy.dismissNotification }>
@@ -40,7 +40,7 @@ export function SettingsFeedbackProvider( props: SettingsFeedbackProviderProps )
 /**
  * Reads the stable settings action notification boundary.
  * @return Current shell's localized feedback service.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function useSettingsFeedback(): SettingsFeedback {
 	const feedback = useContext( SettingsFeedbackContext );

@@ -2,19 +2,19 @@ import type { ReactNode } from 'react';
 
 /**
  * Semantic tones for transient action feedback.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const SnackbarTone = { SUCCESS: 'success', INFO: 'info' } as const;
 
 /**
  * Snackbar tone inferred from its runtime catalog.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type SnackbarTone = ( typeof SnackbarTone )[ keyof typeof SnackbarTone ];
 
 /**
  * Plain localized feedback displayed after a completed action.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface SnackbarOptions {
 	message: string;
@@ -23,7 +23,7 @@ export interface SnackbarOptions {
 
 /**
  * Stable interface for replacing one provider's current feedback.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface SnackbarApi {
 	/**
@@ -35,7 +35,7 @@ export interface SnackbarApi {
 
 /**
  * Localized notification boundary nested inside the owning TocusProvider.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface SnackbarProviderProps {
 	children: ReactNode;

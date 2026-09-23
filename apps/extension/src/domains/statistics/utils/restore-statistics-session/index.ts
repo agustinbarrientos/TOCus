@@ -23,7 +23,7 @@ import {
  * @param document - Parsed local statistics document.
  * @param scopeId - Exact scope identifier to read.
  * @return Matching own scope statistics, or undefined when absent.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getOwnStatisticsScope(
 	document: StatisticsDocument,
@@ -39,7 +39,7 @@ function getOwnStatisticsScope(
  * @param work - Parsed session work identity.
  * @param document - Parsed local statistics document.
  * @return True when the work belongs to the current active allowance.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function sessionWorkMatchesActiveAllowance(
 	work: StatisticsSessionWorkIdentity,
@@ -61,7 +61,7 @@ function sessionWorkMatchesActiveAllowance(
  * @param sessionContinuityId - Current browser-session continuity identifier.
  * @param focusEpochId - Current focus epoch identifier.
  * @return True when the anchor remains compatible and bounded.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function focusAnchorIsCompatible(
 	anchor: StatisticsFocusAnchor,
@@ -86,7 +86,7 @@ function focusAnchorIsCompatible(
  * @param sessionContinuityIdInput - Unknown current browser-session continuity identifier.
  * @param focusEpochIdInput - Unknown current focus epoch identifier.
  * @return Compatible session work, or null for absent, malformed, future, or stale input.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function restoreStatisticsSession(
 	input: unknown,

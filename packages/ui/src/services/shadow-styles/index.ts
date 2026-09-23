@@ -2,7 +2,7 @@ import { normalizeShadowLengths } from '../../utils/normalize-shadow-lengths';
 
 /**
  * Creates a CSP-compatible stylesheet whose dimensions cannot inherit a site's root font.
- * @since 0.1.0
+ * @since 1.0.0
  * @param css - Compiled extension-owned styles, never protected-page styles.
  * @return An unadopted sheet for the caller's owned shadow root.
  */
@@ -33,7 +33,7 @@ function normalizeInlineLengths( element: Element ): void {
  * Includes Mantine prop-generated inline lengths in the same shadow-only isolation contract.
  * Initial styles normalize immediately; later React writes normalize once per mutation batch before paint.
  * Converted values are stable, so observer delivery cannot create a loop.
- * @since 0.1.0
+ * @since 1.0.0
  * @param scope - Provider-owned element, never the protected document or its ancestors.
  * @return Cleanup releasing observation when this provider unmounts.
  */

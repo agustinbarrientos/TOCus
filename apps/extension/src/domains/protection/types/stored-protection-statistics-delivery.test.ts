@@ -7,7 +7,7 @@ import {
 
 /**
  * Shared observation time for stored delivery test batches.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const TEST_OBSERVATION_TIME = 1_800_000_000_000;
 
@@ -16,7 +16,7 @@ const TEST_OBSERVATION_TIME = 1_800_000_000_000;
  * @param index - Unique batch and fact identifier suffix.
  * @param scopeId - Protection scope carried by the batch and fact.
  * @return Valid stored protection-fact batch input.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createBatch( index: number, scopeId = 'scope_default' ) {
 	return {

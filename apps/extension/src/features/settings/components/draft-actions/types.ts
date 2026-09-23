@@ -6,7 +6,7 @@ import type {
 
 /**
  * Localized common draft actions.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface DraftActionCopy {
 	save: string;
@@ -17,7 +17,7 @@ export interface DraftActionCopy {
 
 /**
  * Consistent Save and Discard actions for one observable draft.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface DraftActionsProps<T extends object> {
 	draft: Draft<T>;

@@ -22,7 +22,7 @@ import './style.scss';
  * Shares the approved miniature theme previews and compact palette swatches.
  * @param props - Controlled appearance choices and canonical localized labels.
  * @return Theme and palette controls for one owned form.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function AppearanceControls( props: AppearanceControlsProps ) {
 	const { copy, theme, palette, disabled = false } = props;

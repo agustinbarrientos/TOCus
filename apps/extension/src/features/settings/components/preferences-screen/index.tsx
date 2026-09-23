@@ -38,7 +38,7 @@ import './style.scss';
  * Adds Settings-owned pause-style controls to shared appearance choices.
  * @param props - Complete controlled appearance draft and canonical localized labels.
  * @return Theme, palette and pause-style controls; motion follows the operating system.
- * @since 0.1.0
+ * @since 1.0.0
  */
 function AppearanceSettingsControls( props: AppearanceSettingsControlsProps ) {
 	const { copy, value, disabled } = props;
@@ -65,7 +65,7 @@ function AppearanceSettingsControls( props: AppearanceSettingsControlsProps ) {
  * Presents either the Language draft or the Appearance draft with consistent recovery and actions.
  * @param props - Canonical destination content and preference editor dependencies.
  * @return Editable preference destination with live preview.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function Preferences( props: PreferencesScreenProps ) {
 	const { shell, language = false } = props;

@@ -6,7 +6,7 @@ import { OnboardingFailure } from '../../types/flow';
 
 /**
  * Filters drafts against the latest persisted collection before enrollment.
- * @since 0.1.0
+ * @since 1.0.0
  * @param persisted - Current page-port sites, which may have changed in another surface.
  * @param drafts - Unsaved local additions.
  * @return Only additions that still need browser access and persistence.
@@ -20,7 +20,7 @@ export function pendingSiteDrafts(
 
 /**
  * Combines authoritative sites and unique local additions for display and validation.
- * @since 0.1.0
+ * @since 1.0.0
  * @param persisted - Current saved configurations.
  * @param drafts - Local additions retained across earlier-step navigation.
  * @return Saved sites followed by additions absent from persistence.
@@ -33,7 +33,7 @@ export function mergeOnboardingSites(
 
 /**
  * Preserves enrollment failure distinctions as language-independent copy keys.
- * @since 0.1.0
+ * @since 1.0.0
  * @param result - Unsuccessful result from the existing enrollment service.
  * @return The corresponding localized failure key.
  */

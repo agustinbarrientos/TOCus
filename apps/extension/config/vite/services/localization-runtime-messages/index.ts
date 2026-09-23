@@ -7,31 +7,31 @@ import type {
 
 /**
  * Public virtual module containing only toolbar localization messages.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ToolbarLocalizationModuleId = 'virtual:tocus/toolbar-localization';
 
 /**
  * Public virtual module containing only protected-page localization messages.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedPageLocalizationModuleId = 'virtual:tocus/protected-page-localization';
 
 /**
  * Internal Vite identifier for the toolbar localization module.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ResolvedToolbarLocalizationModuleId = `\0${ ToolbarLocalizationModuleId }`;
 
 /**
  * Internal Vite identifier for the protected-page localization module.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ResolvedProtectedPageLocalizationModuleId = `\0${ ProtectedPageLocalizationModuleId }`;
 
 /**
  * Source modules whose messages are needed by the toolbar background runtime.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ToolbarMessageOrigins = Object.freeze( [
 	'localization/utils/create-toolbar-copy/index.ts',
@@ -39,7 +39,7 @@ const ToolbarMessageOrigins = Object.freeze( [
 
 /**
  * Source modules whose messages are needed by the injected protected-page runtime.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ProtectedPageMessageOrigins = Object.freeze( [
 	'localization/utils/format-localized-duration/index.ts',
@@ -50,7 +50,7 @@ const ProtectedPageMessageOrigins = Object.freeze( [
 
 /**
  * Default runtime-message dependency for extension builds.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const DefaultOptions: Readonly<LocalizationRuntimeMessagesPluginOptions> = Object.freeze( {
 	createRuntimeMessages: createRuntimeLocalizationMessages,
@@ -60,7 +60,7 @@ const DefaultOptions: Readonly<LocalizationRuntimeMessagesPluginOptions> = Objec
  * Resolves a supported public runtime-localization module identifier.
  * @param source - Imported module identifier.
  * @return Internal virtual identifier or null for another plugin.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function resolveLocalizationRuntimeModuleId( source: string ): string | null {
 	switch ( source ) {
@@ -78,7 +78,7 @@ export function resolveLocalizationRuntimeModuleId( source: string ): string | n
  * @param id - Resolved virtual module identifier.
  * @param options - Injectable runtime-message dependency.
  * @return Generated JavaScript module or null for another plugin.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export async function loadLocalizationRuntimeModule(
 	id: string,
@@ -102,7 +102,7 @@ export async function loadLocalizationRuntimeModule(
  * Creates virtual modules that exclude settings-only translations from classic runtimes.
  * @param options - Injectable runtime-message dependency.
  * @return Vite plugin serving toolbar and protected-page locale projections.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createLocalizationRuntimeMessagesPlugin(
 	options: Readonly<LocalizationRuntimeMessagesPluginOptions> = DefaultOptions,
@@ -114,7 +114,7 @@ export function createLocalizationRuntimeMessagesPlugin(
 		 * Loads one focused runtime localization module.
 		 * @param id - Resolved virtual module identifier.
 		 * @return Generated JavaScript module or null for another plugin.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		async load( id ) {
 			return loadLocalizationRuntimeModule( id, options );

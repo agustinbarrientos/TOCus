@@ -17,7 +17,7 @@ const REQUEST = {
 /**
  * Creates the real enrollment stack with browser storage and native consent boundaries.
  * @return Background controller, pending consent, persisted state, and message delivery.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createHarness() {
 	const values: Record<string, unknown> = {};
@@ -60,7 +60,7 @@ function createHarness() {
 				/**
 				 * Captures the background-owned listener before messages are delivered.
 				 * @param candidate - Runtime listener registered by the controller.
-				 * @since 0.1.0 Initial implementation.
+				 * @since 1.0.0 Initial implementation.
 				 */
 				addListener: ( candidate ) => {
 					listener = candidate;
@@ -84,7 +84,7 @@ function createHarness() {
 		 * @param sender - Browser-authenticated sender URL.
 		 * @param respond - Response callback that may outlive the popup.
 		 * @return Whether the controller owns the asynchronous response.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		deliver( input: unknown = REQUEST, sender = { url: POPUP_PAGE_URL }, respond = vi.fn() ) {
 			if ( listener === null ) {

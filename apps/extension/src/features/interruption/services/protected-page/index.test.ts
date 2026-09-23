@@ -1,3 +1,5 @@
+import { ExtensionBuildBrowser } from '../../../../shared/utils/build-browser/types';
+import { ExtensionStoreReviewLinks } from '../../../../shared/utils/review-url/links';
 import { InterruptionPageResponseState } from '../../../protection-runtime/types/runtime-message';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AllowanceIdSchema } from '../../../../domains/protection/types/protection-value';
@@ -19,13 +21,13 @@ import type { ProtectedPageMessage } from '../../../protection-runtime/types/pro
 
 /**
  * Isolated-world initialization key used by the protected-page service.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const PROTECTED_PAGE_INITIALIZATION_KEY = Symbol.for( 'tocus.protected-page.initialization' );
 
 /**
  * Browser message listener accepted by the protected-page service.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 type ProtectedPageMessageListener = (
 	message: ProtectedPageMessage,
@@ -36,13 +38,13 @@ type ProtectedPageMessageListener = (
 /**
  * Creates test doubles before the protected-page service and its mocks are evaluated.
  * @return Hoisted protected-page service doubles.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const pageMocks = await vi.hoisted( async () => {
 	const { Language: HoistedLanguage } = await import( '../../../../domains/preferences/types' );
 	/**
 	 * Minimal nested interruption screen used to observe localized footer copy.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	class TestInterruptionScreen extends EventTarget {
 		wellbeingSummary = 'Default footer';
@@ -50,7 +52,7 @@ const pageMocks = await vi.hoisted( async () => {
 
 	/**
 	 * Minimal protected-page layer used to verify service composition.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	class TestProtectedPageLayer extends EventTarget {
 		connected = false;
@@ -75,7 +77,7 @@ const pageMocks = await vi.hoisted( async () => {
 		/**
 		 * Reports whether the layer is attached to the test document.
 		 * @return Current attachment state.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		get isConnected(): boolean {
 			return this.connected;
@@ -88,7 +90,7 @@ const pageMocks = await vi.hoisted( async () => {
 		/**
 		 * Returns the screen nested inside the layer.
 		 * @return Test screen object.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		getInterruptionScreen(): TestInterruptionScreen {
 			if ( this.interruptionCopy === undefined ) {
@@ -101,7 +103,7 @@ const pageMocks = await vi.hoisted( async () => {
 		/**
 		 * Reports whether the test layer is connected and requested for presentation.
 		 * @return Current test presentation visibility.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		isInterruptionPresentationVisible(): boolean {
 			return this.connected && this.interruptionLayerPresented;
@@ -110,7 +112,7 @@ const pageMocks = await vi.hoisted( async () => {
 		/**
 		 * Resolves after the in-memory presentation is immediately ready.
 		 * @return Resolved presentation operation.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		waitForInterruptionPresentation(): Promise<void> {
 			return Promise.resolve();
@@ -118,7 +120,7 @@ const pageMocks = await vi.hoisted( async () => {
 
 		/**
 		 * Detaches the layer from the test document.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		remove(): void {
 			this.connected = false;
@@ -157,6 +159,11 @@ const pageMocks = await vi.hoisted( async () => {
 		stop: vi.fn(),
 	} );
 	const preferencesStorage = {};
+	const localStorageArea = {};
+	const reviewPromptStorage = {};
+	const reviewPromptController = {
+		refresh: vi.fn(), start: vi.fn(), stop: vi.fn(),
+	};
 	const statisticsClient = {};
 	const storageChanges = {};
 	const wellbeingSummaryController = {
@@ -186,6 +193,12 @@ const pageMocks = await vi.hoisted( async () => {
 		} ) ),
 		createPreferencesController: vi.fn().mockReturnValue( preferencesController ),
 		createPreferencesStorage: vi.fn().mockReturnValue( preferencesStorage ),
+		createReviewPromptStorageService: vi.fn().mockReturnValue( reviewPromptStorage ),
+		createReviewPromptController: vi.fn().mockReturnValue( reviewPromptController ),
+		getExtensionReviewUrl: vi.fn().mockReturnValue( 'https://example.com/reviews' ),
+		localStorageArea,
+		reviewPromptStorage,
+		reviewPromptController,
 		createStatisticsClient: vi.fn().mockReturnValue( statisticsClient ),
 		createWellbeingSummaryController: vi.fn().mockReturnValue( wellbeingSummaryController ),
 		getUILanguage: vi.fn().mockReturnValue( 'es-AR' ),
@@ -207,14 +220,14 @@ const pageMocks = await vi.hoisted( async () => {
 
 /**
  * Protected-page layer test double exposed by the hoisted module mocks.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 type TestProtectedPageLayer = InstanceType<typeof pageMocks.ComponentProtectedPageLayer>;
 
 /**
  * Provides an inert callback before a pending preference start captures its resolver.
  * @return Undefined inert result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function ignorePreferencesStartResolution(): undefined {
 	return undefined;
@@ -230,11 +243,20 @@ vi.mock( 'wxt/browser', () => ( {
 			},
 			sendMessage: pageMocks.sendMessage,
 		},
-		storage: { local: {}, onChanged: pageMocks.storageChanges },
+		storage: { local: pageMocks.localStorageArea, onChanged: pageMocks.storageChanges },
 	},
 } ) );
 vi.mock( '../../../../domains/preferences/services', () => ( {
 	createPreferencesStorageService: pageMocks.createPreferencesStorage,
+} ) );
+vi.mock( '../../../../domains/preferences/services/review-prompt-storage', () => ( {
+	createReviewPromptStorageService: pageMocks.createReviewPromptStorageService,
+} ) );
+vi.mock( '../review-prompt-controller', () => ( {
+	createReviewPromptController: pageMocks.createReviewPromptController,
+} ) );
+vi.mock( '../../../../shared/utils/review-url', () => ( {
+	getExtensionReviewUrl: pageMocks.getExtensionReviewUrl,
 } ) );
 vi.mock( '../../../../domains/preferences/utils', () => ( {
 	resolveLanguage: pageMocks.resolveLanguage,
@@ -269,6 +291,7 @@ describe( 'protected page service', () => {
 		Reflect.deleteProperty( globalThis, PROTECTED_PAGE_INITIALIZATION_KEY );
 		vi.resetModules();
 		vi.clearAllMocks();
+		vi.stubEnv( 'BROWSER', ExtensionBuildBrowser.CHROME );
 		pageMocks.languageChangeListener.value = null;
 		pageMocks.createLocalizedProtectedPageCopy.mockImplementation( ( language ) =>
 			language === 'ja'
@@ -283,6 +306,7 @@ describe( 'protected page service', () => {
 	afterEach( () => {
 		Reflect.deleteProperty( globalThis, PROTECTED_PAGE_INITIALIZATION_KEY );
 		vi.unstubAllGlobals();
+		vi.unstubAllEnvs();
 		vi.restoreAllMocks();
 	} );
 
@@ -325,6 +349,9 @@ describe( 'protected page service', () => {
 		pageMocks.wellbeingSummaryController.refresh.mockReturnValue(
 			new Promise<void>( ignorePreferencesStartResolution ),
 		);
+		pageMocks.reviewPromptController.refresh.mockReturnValue(
+			new Promise<void>( ignorePreferencesStartResolution ),
+		);
 		let completePreferencesStart: ( value?: void | PromiseLike<void> ) => void =
 			ignorePreferencesStartResolution;
 
@@ -346,6 +373,7 @@ describe( 'protected page service', () => {
 		const pendingLayer = pageMocks.append.mock.calls[ 0 ]?.[ 0 ];
 
 		expect( pendingLayer?.style.visibility ).toBe( 'hidden' );
+		expect( pageMocks.reviewPromptController.start ).not.toHaveBeenCalled();
 		expect( pendingLayer?.style.removeProperty ).not.toHaveBeenCalled();
 		expect( pageMocks.createLocalizedProtectedPageCopy ).toHaveBeenCalledOnce();
 		expect( pageMocks.createLocalizedProtectedPageCopy ).toHaveBeenCalledWith( Language.SPANISH_VOS );
@@ -441,6 +469,23 @@ describe( 'protected page service', () => {
 		expect( interruptionOptions.motionPreference ).toBe( pageMocks.preferencesController );
 		interruptionOptions.onPresentationStateChange?.( InterruptionScreenState.WAITING );
 		interruptionOptions.onPresentationStateChange?.( InterruptionScreenState.READY );
+		expect( pageMocks.createReviewPromptStorageService ).toHaveBeenCalledWith( {
+			area: pageMocks.localStorageArea,
+		} );
+		expect( pageMocks.getExtensionReviewUrl ).toHaveBeenCalledWith(
+			ExtensionBuildBrowser.CHROME, ExtensionStoreReviewLinks,
+		);
+		expect( pageMocks.createReviewPromptController ).toHaveBeenCalledWith( {
+			source: pageMocks.statisticsClient,
+			target: layer.interruptionScreen,
+			storage: pageMocks.reviewPromptStorage,
+			storageChanges: pageMocks.storageChanges,
+			url: 'https://example.com/reviews',
+		} );
+		expect( pageMocks.reviewPromptController.start ).toHaveBeenCalledOnce();
+		expect( pageMocks.reviewPromptController.refresh ).toHaveBeenCalledTimes( 2 );
+		expect( pageMocks.wellbeingSummaryController.setCopy.mock.invocationCallOrder[ 0 ] )
+			.toBeLessThan( pageMocks.reviewPromptController.start.mock.invocationCallOrder[ 0 ] ?? 0 );
 		expect( pageMocks.wellbeingSummaryController.refresh ).toHaveBeenCalledTimes( 2 );
 		expect( pageMocks.wellbeingSummaryController.start ).toHaveBeenCalledOnce();
 		const layerOptions = pageMocks.createProtectedPageLayerController.mock.calls[ 0 ]?.[ 0 ];
@@ -730,6 +775,7 @@ describe( 'protected page service', () => {
 		expect( pageMocks.preferencesController.stop ).toHaveBeenCalledOnce();
 		expect( pageMocks.wellbeingSummaryController.start ).toHaveBeenCalledOnce();
 		expect( pageMocks.wellbeingSummaryController.stop ).toHaveBeenCalledOnce();
+		expect( pageMocks.reviewPromptController.stop ).toHaveBeenCalledOnce();
 		expect( pageMocks.preferencesController.removePreferencesChangeListener )
 			.not.toHaveBeenCalled();
 		expect( pageMocks.preferencesController.removeLanguageChangeListener ).toHaveBeenCalledOnce();

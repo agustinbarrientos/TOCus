@@ -20,7 +20,7 @@ const DNS_LABEL_PATTERN = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
  * Normalizes and validates a hostname produced by URL parsing.
  * @param hostname - A hostname returned by URL.
  * @return A canonical host, or null when the hostname is invalid.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function normalizeHostname( hostname: string ): CanonicalHost | null {
 	const lowerCaseHostname = hostname.toLowerCase();
@@ -52,7 +52,7 @@ function normalizeHostname( hostname: string ): CanonicalHost | null {
  * Normalizes a navigation or protected-site input into one protectable URL and canonical host.
  * @param input - Unknown navigation or protected-site input.
  * @return A normalized URL and host, or a stable rejection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function normalizeProtectableUrl( input: unknown ): ProtectableUrlNormalizationResult {
 	const inputResult = ProtectedSiteInputSchema.safeParse( input );

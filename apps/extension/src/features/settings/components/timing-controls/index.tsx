@@ -21,7 +21,7 @@ import { BehaviorChoices } from '../behavior-choices';
  * Defines approved numeric limits without duplicating domain persistence units in JSX.
  * @param copy - Canonical timing labels, help and unit formatters.
  * @return Four global slider presentations.
- * @since 0.1.0
+ * @since 1.0.0
  */
 function createRanges( copy: TimingScreenCopy ): TimingRange[] {
 	return [
@@ -50,7 +50,7 @@ function createRanges( copy: TimingScreenCopy ): TimingRange[] {
  * Renders accessible packaged sliders and completion choices for global timing.
  * @param props - Current draft, localized controls and mutation callback.
  * @return Form-owned timing controls with units and a live plain-language summary.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function TimingControls( props: TimingControlsProps ) {
 	const { copy, value, disabled } = props;

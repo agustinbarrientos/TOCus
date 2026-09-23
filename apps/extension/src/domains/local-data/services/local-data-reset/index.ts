@@ -1,4 +1,5 @@
 import { PreferencesStorageKey } from '../../../preferences/services/preferences-storage';
+import { ReviewPromptStorageKey } from '../../../preferences/services/review-prompt-storage';
 import { ProtectionConfigurationStorageKey } from '../../../protection/services/protection-configuration-storage';
 import { ProtectionStorageKey } from '../../../protection/services/protection-storage';
 import { StatisticsSessionStorageKey } from '../../../statistics/services/statistics-session-storage';
@@ -15,14 +16,14 @@ import type { LocalDataReset, LocalDataResetOptions } from './types';
  * Coordinates explicit full deletion with settings writers and recoverable browser cleanup.
  * @param options - Persistence, shared locks, and background lifecycle boundaries.
  * @return Reset and interrupted-reset recovery operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createLocalDataReset( options: LocalDataResetOptions ): LocalDataReset {
 	/**
 	 * Completes destructive cleanup while both settings mutation locks are held.
 	 * @param marker - Durable identity of the reset being completed.
 	 * @return Promise resolved after every owned record is removed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function complete( marker: LocalDataGeneration ): Promise<void> {
 		await options.suspend();
@@ -37,6 +38,7 @@ export function createLocalDataReset( options: LocalDataResetOptions ): LocalDat
 		await options.localArea.remove( [
 			ProtectionConfigurationStorageKey.CONFIGURATION,
 			PreferencesStorageKey.PREFERENCES,
+			ReviewPromptStorageKey,
 			ProtectionStorageKey.DURABLE,
 			StatisticsStorageKey.STATISTICS,
 		] );
@@ -49,7 +51,7 @@ export function createLocalDataReset( options: LocalDataResetOptions ): LocalDat
 	 * Starts or recovers a reset under the existing configuration and preferences locks.
 	 * @param requested - Whether the user explicitly requested a new reset.
 	 * @return Whether normal startup can safely proceed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function run( requested: boolean ): Promise<boolean> {
 		try {
@@ -77,13 +79,13 @@ export function createLocalDataReset( options: LocalDataResetOptions ): LocalDat
 		/**
 		 * Starts a user-confirmed full reset.
 		 * @return Whether cleanup completed successfully.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		reset: () => run( true ),
 		/**
 		 * Completes pending cleanup before ordinary startup.
 		 * @return Whether startup may proceed.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		recover: () => run( false ),
 	};

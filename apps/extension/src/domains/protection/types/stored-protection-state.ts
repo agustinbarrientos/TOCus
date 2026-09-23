@@ -19,19 +19,19 @@ import { WaitDurationMillisecondsSchema } from './wait-duration';
 
 /**
  * Current version of durable stored protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const DurableStoredProtectionStateVersion = 2;
 
 /**
  * Current version of session stored protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const SessionStoredProtectionStateVersion = 1;
 
 /**
  * Session scope-state variants retained in stored protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StoredProtectionScopeStateType = {
 	WAITING: 'waiting',
@@ -40,19 +40,19 @@ export const StoredProtectionScopeStateType = {
 
 /**
  * Validates a session scope-state variant retained in stored protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StoredProtectionScopeStateTypeSchema = z.enum( StoredProtectionScopeStateType );
 
 /**
  * Session scope-state variant retained in stored protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StoredProtectionScopeStateType = z.infer<typeof StoredProtectionScopeStateTypeSchema>;
 
 /**
  * Validates a stored allowance interval.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StoredProtectionAllowanceSchema = z.object( {
 	allowanceId: AllowanceIdSchema,
@@ -73,13 +73,13 @@ export const StoredProtectionAllowanceSchema = z.object( {
 
 /**
  * Stored allowance interval.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StoredProtectionAllowance = z.infer<typeof StoredProtectionAllowanceSchema>;
 
 /**
  * Validates a completed pause whose captured allowance has not started.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StoredPendingProtectionAllowanceSchema = z.object( {
 	allowanceId: AllowanceIdSchema,
@@ -90,13 +90,13 @@ export const StoredPendingProtectionAllowanceSchema = z.object( {
 
 /**
  * Durable completed pause awaiting the first accepted entry.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StoredPendingProtectionAllowance = z.infer<typeof StoredPendingProtectionAllowanceSchema>;
 
 /**
  * Validates durable state retained for one protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StoredDurableProtectionScopeStateSchema = z.object( {
 	ladder: DailyLadderSchema,
@@ -114,13 +114,13 @@ export const StoredDurableProtectionScopeStateSchema = z.object( {
 
 /**
  * Durable state retained for one protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StoredDurableProtectionScopeState = z.infer<typeof StoredDurableProtectionScopeStateSchema>;
 
 /**
  * Validates an incomplete Waiting state retained for a continuous session.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StoredWaitingProtectionScopeStateSchema = z.object( {
 	type: z.enum( [ StoredProtectionScopeStateType.WAITING ] ),
@@ -191,13 +191,13 @@ export const StoredWaitingProtectionScopeStateSchema = z.object( {
 
 /**
  * Incomplete Waiting state retained for a continuous session.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StoredWaitingProtectionScopeState = z.infer<typeof StoredWaitingProtectionScopeStateSchema>;
 
 /**
  * Validates Ready participants retained for one durable allowance.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StoredReadyProtectionScopeStateSchema = z.object( {
 	type: z.enum( [ StoredProtectionScopeStateType.READY ] ),
@@ -208,13 +208,13 @@ export const StoredReadyProtectionScopeStateSchema = z.object( {
 
 /**
  * Ready participants retained for one durable allowance.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StoredReadyProtectionScopeState = z.infer<typeof StoredReadyProtectionScopeStateSchema>;
 
 /**
  * Validates session state retained for one protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StoredSessionProtectionScopeStateSchema = z.discriminatedUnion( 'type', [
 	StoredWaitingProtectionScopeStateSchema,
@@ -223,13 +223,13 @@ export const StoredSessionProtectionScopeStateSchema = z.discriminatedUnion( 'ty
 
 /**
  * Session state retained for one protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StoredSessionProtectionScopeState = z.infer<typeof StoredSessionProtectionScopeStateSchema>;
 
 /**
  * Validates the current durable stored-state version.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const DurableStoredProtectionStateVersionSchema = z.number().int().nonnegative().refine(
 	( version ) => version === DurableStoredProtectionStateVersion,
@@ -237,7 +237,7 @@ const DurableStoredProtectionStateVersionSchema = z.number().int().nonnegative()
 
 /**
  * Validates the current session stored-state version.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const SessionStoredProtectionStateVersionSchema = z.number().int().nonnegative().refine(
 	( version ) => version === SessionStoredProtectionStateVersion,
@@ -245,7 +245,7 @@ const SessionStoredProtectionStateVersionSchema = z.number().int().nonnegative()
 
 /**
  * Validates durable protection scopes indexed by scope identifier.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const StoredDurableProtectionScopesSchema = z.preprocess(
 	( input ) => {
@@ -266,7 +266,7 @@ const StoredDurableProtectionScopesSchema = z.preprocess(
 
 /**
  * Validates session protection scopes indexed by scope identifier.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const StoredSessionProtectionScopesSchema = z.preprocess(
 	( input ) => {
@@ -287,7 +287,7 @@ const StoredSessionProtectionScopesSchema = z.preprocess(
 
 /**
  * Validates the current durable stored protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StoredDurableProtectionStateSchema = z.object( {
 	schemaVersion: DurableStoredProtectionStateVersionSchema,
@@ -297,13 +297,13 @@ export const StoredDurableProtectionStateSchema = z.object( {
 
 /**
  * Current durable stored protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StoredDurableProtectionState = z.infer<typeof StoredDurableProtectionStateSchema>;
 
 /**
  * Validates the current session stored protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StoredSessionProtectionStateSchema = z.object( {
 	schemaVersion: SessionStoredProtectionStateVersionSchema,
@@ -313,13 +313,13 @@ export const StoredSessionProtectionStateSchema = z.object( {
 
 /**
  * Current session stored protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StoredSessionProtectionState = z.infer<typeof StoredSessionProtectionStateSchema>;
 
 /**
  * Validates the durable and session values that comprise stored protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StoredProtectionStateSchema = z.object( {
 	durable: StoredDurableProtectionStateSchema,
@@ -328,6 +328,6 @@ export const StoredProtectionStateSchema = z.object( {
 
 /**
  * Durable and session values that comprise stored protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StoredProtectionState = z.infer<typeof StoredProtectionStateSchema>;

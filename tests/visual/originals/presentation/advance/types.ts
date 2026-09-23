@@ -1,6 +1,6 @@
 /**
  * Actual fixture promises returned to the production controller by its external boundaries.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface OriginalAdvanceBoundary {
 	/** Most recent preference persistence operation. */

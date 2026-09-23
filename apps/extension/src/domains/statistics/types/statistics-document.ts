@@ -14,13 +14,13 @@ import {
 
 /**
  * Current local statistics document version.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StatisticsDocumentVersion = 2;
 
 /**
  * Validates the current local statistics document version.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const StatisticsDocumentVersionSchema = z.number().int().nonnegative().refine(
 	( value ) => value === StatisticsDocumentVersion,
@@ -29,7 +29,7 @@ const StatisticsDocumentVersionSchema = z.number().int().nonnegative().refine(
 
 /**
  * Validates the five accumulated values owned by one protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StatisticsTotalsSchema = z.object( {
 	estimatedReclaimedMilliseconds: StatisticsNonNegativeSafeIntegerSchema,
@@ -41,13 +41,13 @@ export const StatisticsTotalsSchema = z.object( {
 
 /**
  * Five accumulated values owned by one protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StatisticsTotals = z.infer<typeof StatisticsTotalsSchema>;
 
 /**
  * Validates one aggregate-only local calendar day.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const DailyStatisticsTotalsSchema = StatisticsTotalsSchema.extend( {
 	date: LocalDateSchema,
@@ -55,13 +55,13 @@ export const DailyStatisticsTotalsSchema = StatisticsTotalsSchema.extend( {
 
 /**
  * Aggregate-only local calendar day without site identifiers.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type DailyStatisticsTotals = z.infer<typeof DailyStatisticsTotalsSchema>;
 
 /**
  * Validates the unrefined shape of one active allowance measurement.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ActiveAllowanceMeasurementFieldsSchema = z.object( {
 	allowanceId: AllowanceIdSchema,
@@ -74,7 +74,7 @@ const ActiveAllowanceMeasurementFieldsSchema = z.object( {
 
 /**
  * Unrefined active allowance measurement values.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 type ActiveAllowanceMeasurementFields = z.infer<
 	typeof ActiveAllowanceMeasurementFieldsSchema
@@ -84,7 +84,7 @@ type ActiveAllowanceMeasurementFields = z.infer<
  * Adds allowance interval consistency issues to one refinement context.
  * @param measurement - Active allowance measurement being refined.
  * @param context - Zod refinement context receiving consistency issues.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function refineActiveAllowanceMeasurement(
 	measurement: ActiveAllowanceMeasurementFields,
@@ -126,7 +126,7 @@ function refineActiveAllowanceMeasurement(
 
 /**
  * Validates one active allowance measurement.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ActiveAllowanceMeasurementSchema = ActiveAllowanceMeasurementFieldsSchema.superRefine(
 	refineActiveAllowanceMeasurement,
@@ -134,13 +134,13 @@ export const ActiveAllowanceMeasurementSchema = ActiveAllowanceMeasurementFields
 
 /**
  * Active allowance measurement retained across focus checkpoints.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ActiveAllowanceMeasurement = z.infer<typeof ActiveAllowanceMeasurementSchema>;
 
 /**
  * Validates the unrefined persisted statistics for one protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ScopeStatisticsFieldsSchema = z.object( {
 	totals: StatisticsTotalsSchema,
@@ -150,7 +150,7 @@ const ScopeStatisticsFieldsSchema = z.object( {
 
 /**
  * Unrefined persisted statistics for one protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 type ScopeStatisticsFields = z.infer<typeof ScopeStatisticsFieldsSchema>;
 
@@ -158,7 +158,7 @@ type ScopeStatisticsFields = z.infer<typeof ScopeStatisticsFieldsSchema>;
  * Adds scope measurement consistency issues to one refinement context.
  * @param scope - Scope statistics being refined.
  * @param context - Zod refinement context receiving consistency issues.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function refineScopeStatistics(
 	scope: ScopeStatisticsFields,
@@ -192,7 +192,7 @@ function refineScopeStatistics(
  * Omits absent optional fields from one scope statistics value.
  * @param scope - Refined scope statistics values.
  * @return Canonical scope statistics without owned undefined properties.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function canonicalizeScopeStatistics( scope: ScopeStatisticsFields ): ScopeStatisticsFields {
 	return {
@@ -208,7 +208,7 @@ function canonicalizeScopeStatistics( scope: ScopeStatisticsFields ): ScopeStati
 
 /**
  * Validates persisted statistics for one active or historical protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ScopeStatisticsSchema = ScopeStatisticsFieldsSchema.superRefine(
 	refineScopeStatistics,
@@ -216,13 +216,13 @@ export const ScopeStatisticsSchema = ScopeStatisticsFieldsSchema.superRefine(
 
 /**
  * Persisted statistics for one active or historical protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ScopeStatistics = z.infer<typeof ScopeStatisticsSchema>;
 
 /**
  * Validates one persisted scope-statistics record entry.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const StatisticsScopeEntrySchema = z.tuple( [
 	ProtectionScopeIdSchema,
@@ -231,7 +231,7 @@ const StatisticsScopeEntrySchema = z.tuple( [
 
 /**
  * One persisted scope-statistics record entry.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 type StatisticsScopeEntry = z.infer<typeof StatisticsScopeEntrySchema>;
 
@@ -239,7 +239,7 @@ type StatisticsScopeEntry = z.infer<typeof StatisticsScopeEntrySchema>;
  * Extracts own entries from one plain record input.
  * @param input - Unknown scope-statistics record input.
  * @return Own entries, or null for a non-plain record.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function extractStatisticsScopeEntries( input: unknown ): unknown {
 	if ( typeof input !== 'object' || input === null || Array.isArray( input ) ) {
@@ -257,7 +257,7 @@ function extractStatisticsScopeEntries( input: unknown ): unknown {
  * Creates one prototype-safe scope-statistics record.
  * @param entries - Validated scope-statistics entries.
  * @return Scope statistics indexed by their exact identifiers.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStatisticsScopeRecord(
 	entries: StatisticsScopeEntry[],
@@ -267,7 +267,7 @@ function createStatisticsScopeRecord(
 
 /**
  * Validates scope statistics indexed by exact supported scope identifiers.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const StatisticsScopesSchema = z.preprocess(
 	extractStatisticsScopeEntries,
@@ -276,7 +276,7 @@ const StatisticsScopesSchema = z.preprocess(
 
 /**
  * Validates one aggregate-first local statistics document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StatisticsDocumentSchema = z.object( {
 	schemaVersion: StatisticsDocumentVersionSchema,
@@ -303,6 +303,6 @@ export const StatisticsDocumentSchema = z.object( {
 
 /**
  * Aggregate-first local statistics document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StatisticsDocument = z.infer<typeof StatisticsDocumentSchema>;

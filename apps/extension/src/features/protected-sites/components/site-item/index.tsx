@@ -30,7 +30,7 @@ import { ScheduleMode } from '../../../../domains/protection/types/protection-sc
  * Presents a website identity, its active hours, and accessible editing or access-recovery actions.
  * @param props - Controlled website values, current access and explicit row actions.
  * @return Website identity, denied-access recovery and optional draft editor.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function WebsiteItem( props: WebsiteItemProps ) {
 	const { site, copy, disabled } = props;

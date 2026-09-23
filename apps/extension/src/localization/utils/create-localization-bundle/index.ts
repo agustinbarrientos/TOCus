@@ -27,7 +27,7 @@ import type { LocalizationBundle } from './types';
  * @param language - Authoritative effective language selected by PreferencesController.
  * @param messages - Compiled Lingui messages for the selected language.
  * @return Complete local copy bundle and valid document metadata.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createLocalizationBundle(
 	language: LanguageValue,

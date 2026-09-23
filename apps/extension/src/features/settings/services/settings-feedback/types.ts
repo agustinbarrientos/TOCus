@@ -3,7 +3,7 @@ import type { SettingsShellCopy } from '../../components/shell/types';
 
 /**
  * Confirmed settings actions with shared localized notification messages.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const SettingsFeedbackAction = {
 	SAVED: 'saved',
@@ -17,13 +17,13 @@ export const SettingsFeedbackAction = {
 
 /**
  * One settings outcome ready to be announced.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type SettingsFeedbackAction = typeof SettingsFeedbackAction[ keyof typeof SettingsFeedbackAction ];
 
 /**
  * Stable notification boundary shared by destination controllers.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface SettingsFeedback {
 	/** Announces one confirmed action using the current settings language. */
@@ -32,7 +32,7 @@ export interface SettingsFeedback {
 
 /**
  * Localized shell copy and destinations sharing one notification lifetime.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface SettingsFeedbackProviderProps {
 	copy: Readonly<SettingsShellCopy>;

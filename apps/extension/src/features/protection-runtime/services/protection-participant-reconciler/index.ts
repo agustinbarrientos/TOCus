@@ -23,7 +23,7 @@ import type {
  * Returns every Waiting and Ready participant with its current scope state.
  * @param statesByScope - Current authoritative protection states.
  * @return Current participant contexts in stable scope and participant order.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getParticipantContexts(
 	statesByScope: ProtectionCoordinatorStateSnapshot,
@@ -45,7 +45,7 @@ function getParticipantContexts(
  * Returns the URL currently represented by one browser tab.
  * @param tab - Current browser tab observation.
  * @return Pending or committed URL, or undefined when host access hides both.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getObservedTabUrl( tab: ProtectionRuntimeTab ): string | undefined {
 	return tab.pendingUrl ?? tab.url;
@@ -57,7 +57,7 @@ function getObservedTabUrl( tab: ProtectionRuntimeTab ): string | undefined {
  * @param context - Current participant and scope state.
  * @param configuration - Current validated protection configuration.
  * @return Whether the URL remains protected by the same scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function matchesParticipantScope(
 	url: string,
@@ -75,7 +75,7 @@ function matchesParticipantScope(
  * @param context - Current participant and scope state.
  * @param configuration - Current validated protection configuration.
  * @return Whether the participant remains owned by its original scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function participantRemainsConfigured(
 	context: ProtectionRuntimeParticipantContext,
@@ -93,7 +93,7 @@ function participantRemainsConfigured(
  * @param configuration - Current validated protection configuration.
  * @param interruptionPageUrl - Extension-owned interruption page URL.
  * @return Observable departure cause, or null while participant ownership remains current.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getParticipantInvalidationCause(
 	context: ProtectionRuntimeParticipantContext,
@@ -133,7 +133,7 @@ function getParticipantInvalidationCause(
  * Creates browser-backed participant reconciliation around the state coordinator.
  * @param options - Browser, state, projection, and clock dependencies.
  * @return Participant reconciliation operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createProtectionParticipantReconciler(
 	options: ProtectionParticipantReconcilerOptions,
@@ -144,7 +144,7 @@ export function createProtectionParticipantReconciler(
 	 * @param cause - Observable departure cause.
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @return Promise resolved after persisted departure and browser projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function departParticipant(
 		context: ProtectionRuntimeParticipantContext,
@@ -186,7 +186,7 @@ export function createProtectionParticipantReconciler(
 	 * @param cause - Observable departure cause.
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @return Promise resolved after matching participant state is removed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function departTab(
 		tabId: Parameters<ProtectionParticipantReconciler[ 'departTab' ]>[ 0 ],
@@ -213,7 +213,7 @@ export function createProtectionParticipantReconciler(
 	 * @param cause - Observable departure cause shared by the invalidated participants.
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @return Promise resolved after every retained participant is removed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function departAll(
 		cause: Parameters<ProtectionParticipantReconciler[ 'departAll' ]>[ 0 ],
@@ -234,7 +234,7 @@ export function createProtectionParticipantReconciler(
 	 * Removes participants whose tab or configured protection ownership is no longer current.
 	 * @param configuration - Current validated local configuration.
 	 * @return Promise resolved after stale participants and interruption pages are released.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function reconcile(
 		configuration: Parameters<ProtectionParticipantReconciler[ 'reconcile' ]>[ 0 ],

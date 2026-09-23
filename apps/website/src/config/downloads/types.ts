@@ -1,6 +1,6 @@
 /**
  * Browser stores supported by TOCus.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const WebsiteBrowser = {
 	CHROME: 'chrome',
@@ -11,13 +11,13 @@ export const WebsiteBrowser = {
 
 /**
  * Supported browser store identifier.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type WebsiteBrowser = typeof WebsiteBrowser[ keyof typeof WebsiteBrowser ];
 
 /**
  * Download availability and destination for one browser store.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface StoreListing {
 	browser: WebsiteBrowser;

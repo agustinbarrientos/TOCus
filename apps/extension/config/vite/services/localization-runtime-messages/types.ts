@@ -2,7 +2,7 @@ import type { RuntimeLocalizationMessages } from '../../../localization/services
 
 /**
  * Creates runtime messages for selected localization source modules.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type RuntimeLocalizationMessagesCreator = (
 	origins: ReadonlyArray<string>,
@@ -10,7 +10,7 @@ export type RuntimeLocalizationMessagesCreator = (
 
 /**
  * Dependencies used by the runtime-localization Vite plugin.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface LocalizationRuntimeMessagesPluginOptions {
 	createRuntimeMessages: RuntimeLocalizationMessagesCreator;
@@ -18,7 +18,7 @@ export interface LocalizationRuntimeMessagesPluginOptions {
 
 /**
  * Focused Vite plugin serving extension runtime translations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface LocalizationRuntimeMessagesPlugin {
 	/** Plugin identifier exposed to Vite diagnostics. */

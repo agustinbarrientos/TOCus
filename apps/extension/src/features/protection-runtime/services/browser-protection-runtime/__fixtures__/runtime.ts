@@ -40,24 +40,24 @@ import type { MutableClock, RuntimeTestHarness } from './types';
 
 /**
  * Promise whose completion is controlled by one runtime integration test.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export class DeferredPromise {
 	/**
 	 * Promise settled through the fixture's resolve method.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	readonly promise: Promise<void>;
 
 	/**
 	 * Captured promise settlement operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private resolvePromise: ( () => void ) | null = null;
 
 	/**
 	 * Creates one unresolved promise.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor() {
 		this.promise = new Promise<void>( ( resolve ) => {
@@ -67,7 +67,7 @@ export class DeferredPromise {
 
 	/**
 	 * Resolves the pending promise once.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	resolve(): void {
 		this.resolvePromise?.();
@@ -78,7 +78,7 @@ export class DeferredPromise {
 /**
  * Lets queued promise continuations settle through one browser task.
  * @return Promise resolved on the next task.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function waitForQueuedWork(): Promise<void> {
 	return new Promise<void>( ( resolve ) => {
@@ -88,7 +88,7 @@ export function waitForQueuedWork(): Promise<void> {
 
 /**
  * Single-site configuration used by focused runtime scenarios.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const EXAMPLE_CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
@@ -104,7 +104,7 @@ export const EXAMPLE_CONFIGURATION: ProtectionConfigurationDocument = {
 
 /**
  * Shared-scope configuration used by grouped-site runtime scenarios.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const GROUPED_CONFIGURATION = ProtectionConfigurationDocumentSchema.parse( {
 	...EXAMPLE_CONFIGURATION,
@@ -123,7 +123,7 @@ export const GROUPED_CONFIGURATION = ProtectionConfigurationDocumentSchema.parse
 
 /**
  * Multiple-scope configuration used by independent-site runtime scenarios.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const MULTI_SCOPE_CONFIGURATION = ProtectionConfigurationDocumentSchema.parse( {
 	...GROUPED_CONFIGURATION,
@@ -146,31 +146,31 @@ export const MULTI_SCOPE_CONFIGURATION = ProtectionConfigurationDocumentSchema.p
 
 /**
  * In-memory state persistence used by runtime integration tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export class MemoryProtectionStorage implements ProtectionStorageService {
 	/**
 	 * Current in-memory protection state.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	state: LoadedProtectionState = {};
 
 	/**
 	 * Whether protection-state reads reject.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	throwOnLoad = false;
 
 	/**
 	 * Whether protection-state writes reject.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	throwOnSave = false;
 
 	/**
 	 * Loads the latest in-memory domain documents.
 	 * @return Stored domain documents.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	load(): Promise<LoadedProtectionState> {
 		if ( this.throwOnLoad ) {
@@ -184,7 +184,7 @@ export class MemoryProtectionStorage implements ProtectionStorageService {
 	 * Retains the prepared session and durable documents.
 	 * @param input - Complete prepared protection state.
 	 * @return Promise resolved after the write.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	save( input: unknown ): Promise<void> {
 		if ( this.throwOnSave ) {
@@ -200,7 +200,7 @@ export class MemoryProtectionStorage implements ProtectionStorageService {
 	 * Retains only a durable statistics-acknowledgement document.
 	 * @param input - Current durable protection state.
 	 * @return Promise resolved after the durable write.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	saveDurableStatisticsDelivery( input: unknown ): Promise<void> {
 		this.state = { ...this.state, durable: input };
@@ -210,44 +210,44 @@ export class MemoryProtectionStorage implements ProtectionStorageService {
 
 /**
  * In-memory protected-site configuration storage.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export class MemoryConfigurationStorage implements ProtectionConfigurationStorageService {
 	/**
 	 * Optional permission-filtered configuration override.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	accessibleConfiguration: ProtectionConfigurationDocument | null = null;
 
 	/**
 	 * Number of permission-filtered configuration reads.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	filterCalls = 0;
 
 	/**
 	 * Whether permission filtering rejects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	throwOnFilter = false;
 
 	/**
 	 * Whether configuration reads reject.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	throwOnLoad = false;
 
 	/**
 	 * Creates configuration storage with one initial document.
 	 * @param configuration - Initial local configuration.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor( public configuration: ProtectionConfigurationDocument | null ) {}
 
 	/**
 	 * Loads current local configuration.
 	 * @return Current test configuration.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	load(): Promise<ProtectionConfigurationDocument | null> {
 		if ( this.throwOnLoad ) {
@@ -261,7 +261,7 @@ export class MemoryConfigurationStorage implements ProtectionConfigurationStorag
 	 * Stores current local configuration.
 	 * @param input - Complete local configuration.
 	 * @return Promise resolved after the write.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	save( input: unknown ): Promise<void> {
 		this.configuration = input as ProtectionConfigurationDocument;
@@ -272,7 +272,7 @@ export class MemoryConfigurationStorage implements ProtectionConfigurationStorag
 	 * Applies the current permission-aware runtime projection.
 	 * @param configuration - Validated persisted configuration.
 	 * @return Accessible configuration override or the original configuration.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	filterForRuntime = (
 		configuration: ProtectionConfigurationDocument,
@@ -289,7 +289,7 @@ export class MemoryConfigurationStorage implements ProtectionConfigurationStorag
 
 /**
  * Browser-effect test double used by runtime integration tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export class MemoryRuntimeBrowser implements ProtectionRuntimeBrowser {
 	/** Tab identities whose existing audio mute is retained by authoritative injected pauses. */
@@ -299,7 +299,7 @@ export class MemoryRuntimeBrowser implements ProtectionRuntimeBrowser {
 	 * Restores owned audio except for the injected participants still retained by protection.
 	 * @param heldTabIds - Tab identities whose current mute must remain held.
 	 * @return Resolved audio restoration operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	restoreTabAudioExcept = ( heldTabIds: ReadonlySet<number> ): Promise<void> => {
 		this.heldAudioTabIds = new Set( heldTabIds );
@@ -308,55 +308,55 @@ export class MemoryRuntimeBrowser implements ProtectionRuntimeBrowser {
 
 	/**
 	 * Latest toolbar badge projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	badge: ToolbarBadgeProjection | null = null;
 
 	/**
 	 * Browser tabs dismissed by interruption cleanup.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	dismissedTabs: number[] = [];
 
 	/**
 	 * Current focused browser tab identifier.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	focusedTabId: number | null = 7;
 
 	/**
 	 * Accepted browser tab navigations.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	navigations: Array<{ tabId: number; url: string }> = [];
 
 	/**
 	 * Protected-page presentation messages sent by the runtime.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	protectedPageUpdates: Array<{ tabId: number; message: ProtectedPageMessage }> = [];
 
 	/**
 	 * Current protected-page presentation by tab.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	protectedPagePresentations = new Map<number, ProtectedPagePresentationStatus>();
 
 	/**
 	 * Current extension-owned navigation rules.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	rules: Browser.declarativeNetRequest.Rule[] = [];
 
 	/**
 	 * Current protection-clock deadlines.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	protectionClockDeadlines: ProtectionClockDeadlines = [];
 
 	/**
 	 * Current browser tab snapshot.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	tabs: ProtectionRuntimeTab[] = [ {
 		id: 7,
@@ -368,7 +368,7 @@ export class MemoryRuntimeBrowser implements ProtectionRuntimeBrowser {
 	 * Returns the current protected-page presentation for one tab.
 	 * @param tabId - Browser tab identifier.
 	 * @return Current presentation state or absent-listener marker.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getProtectedPagePresentation = (
 		tabId: number,
@@ -380,7 +380,7 @@ export class MemoryRuntimeBrowser implements ProtectionRuntimeBrowser {
 	 * Records every active protection-clock deadline.
 	 * @param deadlines - Distinct future allowance deadlines.
 	 * @return Resolved browser operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	synchronizeProtectionClock = ( deadlines: ProtectionClockDeadlines ): Promise<void> => {
 		this.protectionClockDeadlines = deadlines;
@@ -391,7 +391,7 @@ export class MemoryRuntimeBrowser implements ProtectionRuntimeBrowser {
 	 * Replaces all extension-owned dynamic rules.
 	 * @param rules - Complete replacement rule set.
 	 * @return Resolved browser operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	replaceNavigationRules = ( rules: Browser.declarativeNetRequest.Rule[] ): Promise<void> => {
 		this.rules = rules;
@@ -401,14 +401,14 @@ export class MemoryRuntimeBrowser implements ProtectionRuntimeBrowser {
 	/**
 	 * Returns the currently focused test tab.
 	 * @return Focused test tab identifier.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getFocusedTabId = (): Promise<number | null> => Promise.resolve( this.focusedTabId );
 
 	/**
 	 * Lists current test tabs.
 	 * @return Current test tabs.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	listTabs = (): Promise<ReadonlyArray<ProtectionRuntimeTab>> => Promise.resolve( this.tabs );
 
@@ -417,7 +417,7 @@ export class MemoryRuntimeBrowser implements ProtectionRuntimeBrowser {
 	 * @param tabId - Navigated tab identifier.
 	 * @param url - Accepted retained destination.
 	 * @return Resolved browser operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	navigateTab = ( tabId: number, url: string ): Promise<void> => {
 		this.navigations.push( { tabId, url } );
@@ -429,7 +429,7 @@ export class MemoryRuntimeBrowser implements ProtectionRuntimeBrowser {
 	 * Records one dismissed interruption page.
 	 * @param tabId - Dismissed tab identifier.
 	 * @return Resolved browser operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	dismissInterruption = ( tabId: number ): Promise<void> => {
 		this.dismissedTabs.push( tabId );
@@ -441,7 +441,7 @@ export class MemoryRuntimeBrowser implements ProtectionRuntimeBrowser {
 	 * @param tabId - Browser tab identifier.
 	 * @param message - Presentation command.
 	 * @return Resolved browser operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	updateProtectedPagePresentation = (
 		tabId: number,
@@ -472,7 +472,7 @@ export class MemoryRuntimeBrowser implements ProtectionRuntimeBrowser {
 	 * Records the latest global toolbar projection.
 	 * @param projection - Current toolbar projection.
 	 * @return Resolved browser operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	updateToolbarBadge = ( projection: ToolbarBadgeProjection ): Promise<void> => {
 		this.badge = projection;
@@ -490,7 +490,7 @@ export class MemoryRuntimeBrowser implements ProtectionRuntimeBrowser {
  * @param statisticsRuntime - Optional statistics observer under test.
  * @param initiallySuspended - Whether startup waits for local data recovery.
  * @return Initialized browser protection runtime and its coordinator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createRuntime(
 	now: MutableClock,
@@ -504,7 +504,7 @@ export function createRuntime(
 	/**
 	 * Creates the deterministic test session identifier.
 	 * @return Test session identifier.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function createSessionContinuityId(): string {
 		return 'session_runtime';
@@ -515,7 +515,7 @@ export function createRuntime(
 	/**
 	 * Creates one deterministic protection-fact batch identifier.
 	 * @return Fresh test fact-batch identifier.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function createProtectionFactBatchId(): string {
 		factBatchIdentifier += 1;
@@ -532,7 +532,7 @@ export function createRuntime(
 	/**
 	 * Creates one deterministic runtime identifier fragment.
 	 * @return Fresh test identifier fragment.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function createStableId(): string {
 		identifier += 1;
@@ -542,7 +542,7 @@ export function createRuntime(
 	/**
 	 * Returns the test time zone.
 	 * @return UTC time-zone identifier.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function getTimeZone(): string {
 		return 'UTC';
@@ -551,7 +551,7 @@ export function createRuntime(
 	/**
 	 * Returns the mutable test clock instant.
 	 * @return Current test epoch milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function getCurrentTime(): number {
 		return now.value;
@@ -580,7 +580,7 @@ export function createRuntime(
  * @param tabId - Interruption-page tab identifier.
  * @param durationMilliseconds - Displayed focused duration submitted by the page.
  * @return Authoritative interruption-page response after the checkpoint.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function completeFocusedPause(
 	runtime: BrowserProtectionRuntime,
@@ -599,7 +599,7 @@ export function completeFocusedPause(
  * @param runtime - Browser protection runtime under test.
  * @return Expiry instant of the default scope's active allowance.
  * @throws {Error} When no active allowance exists.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export async function readActiveAllowanceExpiry( runtime: BrowserProtectionRuntime ): Promise<number> {
 	const state = ( await runtime.readSnapshot() )?.statesByScope[ DefaultProtectionScopeId ];
@@ -618,7 +618,7 @@ export async function readActiveAllowanceExpiry( runtime: BrowserProtectionRunti
  * @param tabId - Protected browser tab identifier.
  * @return Promise resolved after the injected interruption layer is presented.
  * @throws {Error} When the first pause does not reach Ready.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export async function presentAllowanceExpiryInterruption(
 	runtime: BrowserProtectionRuntime,

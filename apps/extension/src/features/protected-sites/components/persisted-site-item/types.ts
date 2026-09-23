@@ -3,7 +3,7 @@ import type { SiteItemEditorOptions } from '../../services/site-item-editor/type
 
 /**
  * Original item-owned persistence mode with externally owned access and removal actions.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface PersistedWebsiteItemProps extends SiteItemEditorOptions,
 	Omit<WebsiteItemProps, 'editing' | 'onEdit' | 'onChange' | 'persistedEditing'> {}

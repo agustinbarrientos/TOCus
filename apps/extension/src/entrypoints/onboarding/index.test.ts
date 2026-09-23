@@ -5,12 +5,12 @@ import { LocalDataGenerationStorageKey } from '../../domains/local-data/services
 
 /**
  * Hoisted dependencies used by onboarding entrypoint composition tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const entrypointMocks = vi.hoisted( () => {
 	/**
 	 * Minimal onboarding shell recognized by the composition root.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	class TestOnboardingShell extends EventTarget {}
 

@@ -16,7 +16,7 @@ import {
 
 /**
  * Browser permission required to observe protected-site navigations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const NAVIGATION_PERMISSION = 'webNavigation';
 
@@ -24,7 +24,7 @@ const NAVIGATION_PERMISSION = 'webNavigation';
  * Creates the complete browser permission request for one protected-site rule.
  * @param origins - Exact host origins derived from the canonical rule.
  * @return Named and origin permissions required for navigation protection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createRequestDescriptor( origins: string[] ): SitePermissionDescriptor {
 	return {
@@ -37,14 +37,14 @@ function createRequestDescriptor( origins: string[] ): SitePermissionDescriptor 
  * Creates browser permission coordination for protected-site settings.
  * @param options - Browser permissions dependency.
  * @return Protected-site permission operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createSitePermissionManager( options: SitePermissionManagerOptions ): SitePermissionManager {
 	/**
 	 * Reports whether one rule has its complete current browser access.
 	 * @param rule - Canonical protected-site rule to inspect.
 	 * @return Whether navigation observation and every required origin are granted.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function hasAccess( rule: Parameters<SitePermissionManager[ 'hasAccess' ]>[ 0 ] ): Promise<boolean> {
 		try {
@@ -60,7 +60,7 @@ export function createSitePermissionManager( options: SitePermissionManagerOptio
 	 * Removes sites whose browser access is incomplete from one runtime projection.
 	 * @param configuration - Validated persisted protection configuration.
 	 * @return Valid runtime configuration containing only currently accessible sites.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function filterConfiguration(
 		configuration: Parameters<SitePermissionManager[ 'filterConfiguration' ]>[ 0 ],
@@ -97,7 +97,7 @@ export function createSitePermissionManager( options: SitePermissionManagerOptio
 	 * Requests the exact browser capabilities required by one rule.
 	 * @param rule - Canonical protected-site rule selected by the user.
 	 * @return Explicit grant, denial, or browser-error result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function request( rule: Parameters<SitePermissionManager[ 'request' ]>[ 0 ] ) {
 		const descriptor = createRequestDescriptor( createSitePermissionOrigins( rule ) );
@@ -147,7 +147,7 @@ export function createSitePermissionManager( options: SitePermissionManagerOptio
 	 * Requests selected rule origins together without awaiting work before browser consent.
 	 * @param rules - Canonical protected-site rules selected by the user.
 	 * @return Batch grant and its prior access snapshot, denial, or browser error.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function requestMany(
 		rules: Parameters<SitePermissionManager[ 'requestMany' ]>[ 0 ],
@@ -183,7 +183,7 @@ export function createSitePermissionManager( options: SitePermissionManagerOptio
 	 * @param previousGrant - Original access snapshot, or null when unavailable.
 	 * @param configuration - Current configuration held inside mutation coordination.
 	 * @return Released, retained, or browser-error result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function releaseNewAccess(
 		rules: Parameters<SitePermissionManager[ 'releaseNewAccess' ]>[ 0 ],
@@ -229,7 +229,7 @@ export function createSitePermissionManager( options: SitePermissionManagerOptio
 	 * @param rule - Removed canonical protected-site rule.
 	 * @param hasRemainingSites - Whether another configured protected site remains.
 	 * @return Explicit released, retained, or browser-error result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function release(
 		rule: Parameters<SitePermissionManager[ 'release' ]>[ 0 ],

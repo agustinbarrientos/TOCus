@@ -7,7 +7,7 @@ import { hasFocusedTextCaret } from '../../originals/helpers/focused-text-caret'
 
 /**
  * Regional onboarding color policy, with no changed-pixel budget.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const RegionalScreenshotColorOptions = { threshold: 0.025 } as const;
 
@@ -19,7 +19,7 @@ export const RegionalScreenshotColorOptions = { threshold: 0.025 } as const;
  * @param name - Existing regional screenshot filename without the extension.
  * @param fullPage - Whether to include content below the viewport.
  * @return Completion after the supported color matcher and exact RGBA diagnostics.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export async function compareRegionalPage( page: Page, name: string, fullPage = true ): Promise<void> {
 	const info = test.info();

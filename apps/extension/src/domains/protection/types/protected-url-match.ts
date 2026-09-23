@@ -4,7 +4,7 @@ import { UrlParsingFailureReason } from './url-parsing-failure';
 
 /**
  * Stable statuses returned while matching a navigation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedUrlMatchStatus = {
 	PROTECTED: 'protected',
@@ -14,19 +14,19 @@ export const ProtectedUrlMatchStatus = {
 
 /**
  * Validates a navigation match status.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedUrlMatchStatusSchema = z.enum( ProtectedUrlMatchStatus );
 
 /**
  * Status returned while matching a navigation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedUrlMatchStatus = z.infer<typeof ProtectedUrlMatchStatusSchema>;
 
 /**
  * Stable reasons that a navigation cannot be matched.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedUrlUnsupportedReason = {
 	BROWSER_CONTROLLED_SCHEME: UrlParsingFailureReason.BROWSER_CONTROLLED_SCHEME,
@@ -37,19 +37,19 @@ export const ProtectedUrlUnsupportedReason = {
 
 /**
  * Validates a stable unsupported-navigation reason.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedUrlUnsupportedReasonSchema = z.enum( ProtectedUrlUnsupportedReason );
 
 /**
  * Stable reason that a navigation could not be matched.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedUrlUnsupportedReason = z.infer<typeof ProtectedUrlUnsupportedReasonSchema>;
 
 /**
  * Validates a navigation result matched to a protected-site rule.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ProtectedUrlMatchedSchema = z.object( {
 	status: z.enum( [ ProtectedUrlMatchStatus.PROTECTED ] ),
@@ -58,7 +58,7 @@ const ProtectedUrlMatchedSchema = z.object( {
 
 /**
  * Validates a navigation result with no matching protected-site rule.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ProtectedUrlUnmatchedSchema = z.object( {
 	status: z.enum( [ ProtectedUrlMatchStatus.UNPROTECTED ] ),
@@ -66,7 +66,7 @@ const ProtectedUrlUnmatchedSchema = z.object( {
 
 /**
  * Validates a navigation result rejected as unsupported.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ProtectedUrlUnsupportedSchema = z.object( {
 	status: z.enum( [ ProtectedUrlMatchStatus.UNSUPPORTED ] ),
@@ -75,7 +75,7 @@ const ProtectedUrlUnsupportedSchema = z.object( {
 
 /**
  * Validates the complete result of matching a navigation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedUrlMatchResultSchema = z.discriminatedUnion( 'status', [
 	ProtectedUrlMatchedSchema,
@@ -85,6 +85,6 @@ export const ProtectedUrlMatchResultSchema = z.discriminatedUnion( 'status', [
 
 /**
  * Complete result of matching a navigation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedUrlMatchResult = z.infer<typeof ProtectedUrlMatchResultSchema>;

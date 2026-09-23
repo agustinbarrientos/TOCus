@@ -1,15 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createLocalDataReset } from './index';
 import { LocalDataGenerationStorageKey } from '../local-data-generation';
+import { ReviewPromptStorageKey } from '../../../preferences/services/review-prompt-storage';
 import type { LocalDataResetOptions } from './types';
 
 /**
  * Creates isolated storage and lifecycle boundaries for reset behavior.
  * @return Observable reset dependencies and retained records.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createFixture() {
-	const values: Record<string, unknown> = { unrelated: 'keep', 'tocus.statistics.v1': { total: 42 } };
+	const values: Record<string, unknown> = { unrelated: 'keep', 'tocus.statistics.v1': { total: 42 }, [ ReviewPromptStorageKey ]: true };
 	const events: string[] = [];
 	const options = {
 		localArea: {
@@ -38,7 +39,7 @@ function createFixture() {
 			 * @param name - Requested lock identity.
 			 * @param operation - Work executed with lock ownership.
 			 * @return Protected operation result.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			request<Result>( name: string, operation: () => Promise<Result> ): Promise<Result> {
 				events.push( name );
@@ -63,7 +64,7 @@ describe( 'local data reset', () => {
 		const { service, options, values, events } = createFixture();
 		await expect( service.reset() ).resolves.toBe( true );
 		expect( events ).toEqual( [ 'tocus.protection.configuration.v1', 'tocus.preferences.v1', 'marker', 'suspend', 'revoke', 'session', 'local', 'marker' ] );
-		expect( options.localArea.remove ).toHaveBeenCalledWith( [ 'tocus.protection.configuration.v1', 'tocus.preferences.v1', 'tocus.protection.durable.v1', 'tocus.statistics.v1' ] );
+		expect( options.localArea.remove ).toHaveBeenCalledWith( [ 'tocus.protection.configuration.v1', 'tocus.preferences.v1', ReviewPromptStorageKey, 'tocus.protection.durable.v1', 'tocus.statistics.v1' ] );
 		expect( options.sessionArea.remove ).toHaveBeenCalledWith( [ 'tocus.protection.session.v1', 'tocus.statistics.session.v1', 'tocus.statistics.focus-epoch.v1' ] );
 		expect( values ).toEqual( { unrelated: 'keep', [ LocalDataGenerationStorageKey ]: { generation: 'generation-1', pending: false, needsOnboarding: true } } );
 	} );

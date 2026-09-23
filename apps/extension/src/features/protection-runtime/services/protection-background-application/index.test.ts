@@ -21,7 +21,7 @@ import { ExtensionBuildBrowser } from '../../../../shared/utils/build-browser/ty
 
 /**
  * Constructor and startup doubles for the background application composition.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const backgroundMocks = vi.hoisted( () => ( {
 	createBrowserProtectionConfigurationEditor: vi.fn().mockReturnValue( { editor: {} } ),

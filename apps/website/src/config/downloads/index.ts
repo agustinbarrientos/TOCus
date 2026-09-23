@@ -4,7 +4,7 @@ import { WebsiteBrowser, type StoreListing } from './types';
  * The single place to replace all website download destinations.
  * These are deliberate placeholder store URLs, not verified live listings.
  * Replace each placeholder with the official listing URL before launch.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const DownloadStores: Readonly<Record<WebsiteBrowser, StoreListing>> = {
 	[ WebsiteBrowser.CHROME ]: {
@@ -33,7 +33,7 @@ export const DownloadStores: Readonly<Record<WebsiteBrowser, StoreListing>> = {
  * Selects a store locally, including browsers sharing Chromium's extension format.
  * @param userAgent - Browser identity; absent during server rendering.
  * @return Browser store, with Chrome as the fallback for unknown browsers.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function detectDownloadBrowser( userAgent = '' ): WebsiteBrowser {
 	if ( /Firefox\/|FxiOS\//iu.test( userAgent ) ) {
@@ -55,7 +55,7 @@ export function detectDownloadBrowser( userAgent = '' ): WebsiteBrowser {
  * Resolves both full and compact download actions from the shared configuration.
  * @param browser - Preferred store.
  * @return Configured destination for that browser.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function getDownloadStore( browser: WebsiteBrowser ): StoreListing {
 	return DownloadStores[ browser ];

@@ -15,7 +15,7 @@ import {
  * Creates validated preference editing with local and cross-context mutation coordination.
  * @param options - Persistence and mutation coordination dependencies.
  * @return Local preferences editor.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createPreferencesEditor( options: PreferencesEditorOptions ): PreferencesEditor {
 	let mutationQueue: Promise<void> = Promise.resolve();
@@ -23,7 +23,7 @@ export function createPreferencesEditor( options: PreferencesEditorOptions ): Pr
 	/**
 	 * Resolves the internal mutation queue after one edit settles.
 	 * @return Undefined queue settlement value.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function releaseMutationQueue(): undefined {
 		return undefined;
@@ -34,7 +34,7 @@ export function createPreferencesEditor( options: PreferencesEditorOptions ): Pr
 	 * @template Result Mutation result returned after coordination.
 	 * @param mutation - Deferred preferences mutation.
 	 * @return Exact coordinated mutation result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function serializeMutation<Result>(
 		mutation: PreferencesMutation<Result>,
@@ -49,7 +49,7 @@ export function createPreferencesEditor( options: PreferencesEditorOptions ): Pr
 	/**
 	 * Loads current preferences without replacing malformed data.
 	 * @return Current preferences, safe defaults, or null for malformed stored data.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function load(): Promise<PreferencesDocument | null> {
 		return options.storage.load();
@@ -59,7 +59,7 @@ export function createPreferencesEditor( options: PreferencesEditorOptions ): Pr
 	 * Merges one validated update into the latest stored document while coordination is held.
 	 * @param update - Validated fields to update.
 	 * @return Updated preferences, or null when current stored data is malformed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function performUpdate(
 		update: PreferencesUpdate,
@@ -84,7 +84,7 @@ export function createPreferencesEditor( options: PreferencesEditorOptions ): Pr
 	 * Validates and serializes one local preferences update.
 	 * @param input - Unknown preference update input.
 	 * @return Updated preferences, or null when current stored data is malformed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function update( input: unknown ): Promise<PreferencesDocument | null> {
 		const preferencesUpdate = PreferencesUpdateSchema.parse( input );
@@ -95,7 +95,7 @@ export function createPreferencesEditor( options: PreferencesEditorOptions ): Pr
 	/**
 	 * Restores defaults only while current data remains malformed and coordination is held.
 	 * @return Restored defaults or an authoritative valid document repaired by another context.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function restoreDefaults(): Promise<PreferencesDocument> {
 		return serializeMutation( async () => {

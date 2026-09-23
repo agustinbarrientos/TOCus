@@ -3,7 +3,7 @@ import { formatter } from '@lingui/format-po';
 
 /**
  * Configures the canonical translation catalogs shared by the extension and website builds.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export default defineConfig( {
 	catalogs: [

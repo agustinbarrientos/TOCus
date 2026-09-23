@@ -6,7 +6,7 @@ import { readInterruptionNavigationDestination } from '../../utils/interruption-
  * Reports whether a queried tab has the identity required for a redacted URL lookup.
  * @param tab - Fresh browser tab observation.
  * @return Whether live extension context metadata may supply its missing URL.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function needsExtensionContext( tab: ExtensionTabContextTab ): boolean {
 	return tab.url === undefined && tab.pendingUrl === undefined &&
@@ -19,7 +19,7 @@ function needsExtensionContext( tab: ExtensionTabContextTab ): boolean {
  * @param tabs - Fresh queried tabs whose explicit URLs retain precedence.
  * @param runtime - Optional extension document lookup supported by the browser.
  * @return Queried tabs with verified interruption URLs, or the original tabs when lookup is unavailable.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export async function enrichExtensionTabUrls<T extends ExtensionTabContextTab>(
 	tabs: ReadonlyArray<T>,

@@ -15,7 +15,7 @@ import type {
  * Keeps failures inline and announces successful operations with a shared snackbar.
  * @param props - Localized messages, omitted when their state is inactive.
  * @return Contextual error notice while success feedback uses the persistent provider.
- * @since 0.1.0
+ * @since 1.0.0
  */
 function SuccessFeedback( props: FeedbackProps ) {
 	const { show } = useSnackbar();
@@ -34,7 +34,7 @@ function SuccessFeedback( props: FeedbackProps ) {
  * Keeps error-only contexts independent of the notification provider.
  * @param props - Localized error or completed-operation messages.
  * @return Inline errors and an optional success announcement consumer.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function Feedback( props: FeedbackProps ) {
 	return (

@@ -4,7 +4,7 @@ import type { OnboardingPendingOperation } from '../../types/flow';
 /**
  * Shares one synchronous mutation gate across the onboarding flow and site editor.
  * React state supplies rendering; the ref blocks a second action in the same event turn.
- * @since 0.1.0
+ * @since 1.0.0
  * @return Rendered pending state and immediate gate operations.
  */
 export function usePendingOperation(): OnboardingPendingOperation {

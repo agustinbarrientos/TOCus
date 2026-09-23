@@ -4,7 +4,7 @@ import { createLocalizationViteConfig } from '../../config/vite/services/create-
 
 /**
  * Serves existing production-mount fixtures without a duplicate visual-only application.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export default defineConfig( {
 	root: fileURLToPath( new URL( '../../../../', import.meta.url ) ),

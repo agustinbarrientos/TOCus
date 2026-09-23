@@ -33,7 +33,7 @@ import type { OnboardingPageOptions } from './types';
 /**
  * Reveals onboarding after either successful startup or terminal recovery.
  * @param options - Onboarding page dependencies containing the owned document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function revealOnboardingPage( options: OnboardingPageOptions ): void {
 	options.document.documentElement.style.removeProperty( 'color-scheme' );
@@ -45,7 +45,7 @@ function revealOnboardingPage( options: OnboardingPageOptions ): void {
  * Projects one complete onboarding localization snapshot.
  * @param options - Onboarding page dependencies receiving the projection.
  * @param localization - Validated packaged localization bundle.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function applyOnboardingLocalization(
 	options: OnboardingPageOptions,
@@ -65,7 +65,7 @@ function applyOnboardingLocalization(
 /**
  * Restores packaged English copy after an exceptional onboarding startup failure.
  * @param options - Onboarding page dependencies receiving the fallback projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function applyEnglishFallbackLocalization( options: OnboardingPageOptions ): void {
 	applyOnboardingLocalization( options, createEnglishLocalizationBundle() );
@@ -75,7 +75,7 @@ function applyEnglishFallbackLocalization( options: OnboardingPageOptions ): voi
  * Starts the complete first-install onboarding page.
  * @param options - Browser, persistence, localization, and presentation dependencies.
  * @return Promise resolved after initial state and copy settle and the page is revealed.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export async function startOnboardingPage( options: OnboardingPageOptions ): Promise<void> {
 	const preferences = createBrowserPreferencesEditor( {
@@ -104,7 +104,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 	/**
 	 * Projects one complete onboarding localization snapshot.
 	 * @param localization - Validated packaged localization bundle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function applyLocalizationSnapshot( localization: Readonly<LocalizationBundle> ): void {
 		localizationLanguage = localization.language;
@@ -120,7 +120,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 	 * Synchronizes the selected onboarding language before navigation proceeds.
 	 * @param language - Language selected in the onboarding form.
 	 * @return Whether the selected language remains current and is ready.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function synchronizeLanguage( language: LanguageValue ): Promise<boolean> {
 		return localizationCoordinator.synchronize( language );
@@ -134,7 +134,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 	/**
 	 * Projects one validated preference snapshot into onboarding controls.
 	 * @param nextPreferences - Validated preferences or a malformed-data marker.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function applyPreferences( nextPreferences: PreferencesDocument | null ): void {
 		const projectedPreferences = nextPreferences ?? DefaultPreferencesDocument;
@@ -146,7 +146,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 
 	/**
 	 * Projects the current effective reduced-motion state into onboarding previews.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function applyReducedMotion(): void {
 		options.shell.reducedMotion = preferencesController.matches;
@@ -155,7 +155,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 	/**
 	 * Projects persisted protected-site rules into the onboarding final step.
 	 * @param configuration - Validated configuration or a malformed-data marker.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function applyProtectedSites(
 		configuration: ProtectionConfigurationDocument | null,
@@ -167,7 +167,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 	 * Projects validated local protection updates without accepting malformed state.
 	 * @param changes - Browser storage changes indexed by key.
 	 * @param areaName - Storage area containing the change.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleProtectionChange( changes: PreferencesStorageChanges, areaName: string ): void {
 		const change = changes[ ProtectionConfigurationStorageKey.CONFIGURATION ];
@@ -184,7 +184,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 	/**
 	 * Starts one non-blocking localization projection after a live language change.
 	 * @param language - Newly effective preference language.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleLanguageChange( language: LanguageValue ): void {
 		localizationLanguage = language;
@@ -195,7 +195,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 	 * Requests one packaged localization while retaining the last valid copy on failure.
 	 * @param language - Exact supported language to request.
 	 * @return Promise resolved after the request settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function requestLocalization( language: LanguageValue ): Promise<void> {
 		try {
@@ -209,7 +209,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 	 * Reads a supported language from one onboarding selection event.
 	 * @param event - Native event emitted by the onboarding shell.
 	 * @return Supported language or null for another event shape.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function getSelectedLanguage( event: Event ): LanguageValue | null {
 		if ( ! ( event instanceof CustomEvent ) ) {
@@ -230,7 +230,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 	/**
 	 * Applies selected onboarding language copy while the shell persists the choice.
 	 * @param event - Candidate language-selection event.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleOnboardingLanguageSelection( event: Event ): void {
 		const language = getSelectedLanguage( event );
@@ -243,7 +243,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 
 	/**
 	 * Closes the onboarding page after the final step completes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleOnboardingComplete(): void {
 		options.pageWindow.close();
@@ -251,7 +251,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 
 	/**
 	 * Opens Settings from the completion fallback while containing browser rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleOpenSettings(): void {
 		void openSettings();
@@ -260,7 +260,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 	/**
 	 * Opens browser Settings while retaining the completion fallback on failure.
 	 * @return Promise resolved after the Settings request settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function openSettings(): Promise<void> {
 		try {
@@ -273,7 +273,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 	/**
 	 * Waits until the most recently requested localization is projected.
 	 * @return Promise resolved when no newer language request is pending.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function synchronizeLocalization(): Promise<void> {
 		let synchronized = false;
@@ -286,7 +286,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 	/**
 	 * Reads local protection configuration while retaining an empty site list on failure.
 	 * @return Validated configuration or null when local state is unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function loadProtectionConfiguration(): Promise<ProtectionConfigurationDocument | null> {
 		try {
@@ -342,7 +342,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
  * Starts onboarding while containing terminal bootstrap failures.
  * @param options - Browser, persistence, localization, and presentation dependencies.
  * @return Promise resolved after startup succeeds or recovery reveals onboarding.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export async function bootstrapOnboardingPage( options: OnboardingPageOptions ): Promise<void> {
 	try {
@@ -353,7 +353,7 @@ export async function bootstrapOnboardingPage( options: OnboardingPageOptions ):
 
 		/**
 		 * Removes the temporary startup-recovery event listeners.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function removeRecoveryListeners(): void {
 			options.shell.removeEventListener( OnboardingRetryEventName, handleRecoveryRetry );
@@ -365,7 +365,7 @@ export async function bootstrapOnboardingPage( options: OnboardingPageOptions ):
 
 		/**
 		 * Rebuilds onboarding from clean dependencies after the user requests a retry.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function handleRecoveryRetry(): void {
 			removeRecoveryListeners();
@@ -374,7 +374,7 @@ export async function bootstrapOnboardingPage( options: OnboardingPageOptions ):
 
 		/**
 		 * Opens Settings from startup recovery while containing browser rejection.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function handleRecoveryOpenSettings(): void {
 			void openRecoverySettings();
@@ -383,7 +383,7 @@ export async function bootstrapOnboardingPage( options: OnboardingPageOptions ):
 		/**
 		 * Opens browser Settings without removing the available recovery actions.
 		 * @return Promise resolved after the Settings request settles.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		async function openRecoverySettings(): Promise<void> {
 			try {

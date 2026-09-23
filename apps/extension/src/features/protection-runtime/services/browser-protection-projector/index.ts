@@ -32,7 +32,7 @@ const SECONDS_COUNTDOWN_THRESHOLD_MILLISECONDS = 30_000;
  * @param expiresAtEpochMilliseconds - Exact allowance expiry.
  * @param nowEpochMilliseconds - Current wall-clock time.
  * @return Nearest future badge boundary or expiry.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getNextAllowanceBadgeDeadline(
 	expiresAtEpochMilliseconds: number,
@@ -60,7 +60,7 @@ function getNextAllowanceBadgeDeadline(
  * @param nowEpochMilliseconds - Current wall-clock time.
  * @param scheduleTransitionDeadline - Cached next custom-schedule transition.
  * @return Chronological protection-clock deadlines.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getProtectionClockDeadlines(
 	statesByScope: ProtectionCoordinatorStateSnapshot | null,
@@ -105,7 +105,7 @@ function getProtectionClockDeadlines(
  * Creates browser-effect projection for authoritative protection state and decisions.
  * @param options - Browser, state, clock, and interruption-page dependencies.
  * @return Browser protection projector operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createBrowserProtectionProjector(
 	options: BrowserProtectionProjectorOptions,
@@ -143,7 +143,7 @@ export function createBrowserProtectionProjector(
 	 * @param nowEpochMilliseconds - Current wall-clock time.
 	 * @param timeZone - Current local IANA time-zone identifier.
 	 * @return Next custom-schedule transition, or null when none exists safely.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function getScheduleTransitionDeadline(
 		configuration: ProtectionConfigurationDocument | null,
@@ -186,7 +186,7 @@ export function createBrowserProtectionProjector(
 	 * @param configuration - Current validated local configuration or unavailable marker.
 	 * @param statesByScope - Current authoritative states or unavailable marker.
 	 * @return Promise resolved after both best-effort focus-dependent effects settle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function refreshFocusEffects(
 		configuration: Parameters<BrowserProtectionProjector[ 'refreshFocusEffects' ]>[ 0 ],
@@ -203,7 +203,7 @@ export function createBrowserProtectionProjector(
 	 * @param configuration - Current validated local configuration or unavailable marker.
 	 * @param statesByScope - Current authoritative states or unavailable marker.
 	 * @return Promise resolved after every ancillary effect settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function refreshAncillaryEffects(
 		configuration: Parameters<BrowserProtectionProjector[ 'reconcile' ]>[ 0 ],
@@ -250,7 +250,7 @@ export function createBrowserProtectionProjector(
 	 * @param configuration - Current validated local configuration or unavailable marker.
 	 * @param statesByScope - Current authoritative states or unavailable marker.
 	 * @return Promise resolved after the best-effort global badge attempt settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function refreshToolbarBadge(
 		configuration: Parameters<BrowserProtectionProjector[ 'refreshToolbarBadge' ]>[ 0 ],
@@ -263,7 +263,7 @@ export function createBrowserProtectionProjector(
 	 * Reconciles critical dynamic redirects before ancillary browser projections.
 	 * @param configuration - Current validated local configuration or unavailable marker.
 	 * @return Promise resolved after redirects succeed and ancillary attempts settle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function reconcile(
 		configuration: Parameters<BrowserProtectionProjector[ 'reconcile' ]>[ 0 ],
@@ -280,7 +280,7 @@ export function createBrowserProtectionProjector(
 	 * @param configuration - Current validated local configuration or unavailable marker.
 	 * @param continuedParticipant - Optional identity from a freshly validated entry request.
 	 * @return Promise resolved after page effects succeed and ancillary attempts settle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function applyDecisions(
 		decisions: Parameters<BrowserProtectionProjector[ 'applyDecisions' ]>[ 0 ],
@@ -305,7 +305,7 @@ export function createBrowserProtectionProjector(
 	/**
 	 * Removes allowance timers and warnings without swallowing reset cleanup failures.
 	 * @return Promise resolved after every live document accepts removal or has no listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function clearAllowanceGuards(): Promise<void> {
 		const tabs = await options.browser.listTabs();
@@ -319,7 +319,7 @@ export function createBrowserProtectionProjector(
 	 * Attempts to remove every browser effect owned by runtime protection.
 	 * @param cleanup - Optional retained destinations and reset-specific cleanup requirements.
 	 * @return Promise resolved after required effects succeed and all cleanup attempts settle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function failOpen(
 		cleanup: Parameters<BrowserProtectionProjector[ 'failOpen' ]>[ 0 ] = {},
@@ -372,7 +372,7 @@ export function createBrowserProtectionProjector(
 	 * @param configuration - Current validated local configuration or unavailable marker.
 	 * @param continuedParticipant - Optional identity from a freshly validated entry request.
 	 * @return Promise resolved after accepted effects or rejected after fail-open cleanup.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function applyDispatchResult(
 		result: Parameters<BrowserProtectionProjector[ 'applyDispatchResult' ]>[ 0 ],

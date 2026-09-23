@@ -2,7 +2,7 @@ import type { RegisterDraft } from '../../utils/draft-controller/types';
 
 /**
  * Stable destinations available in extension settings.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const SettingsDestination = {
 	ABOUT: 'about',
@@ -17,19 +17,19 @@ export const SettingsDestination = {
 
 /**
  * Active destination rendered by the settings shell.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type SettingsDestination = typeof SettingsDestination[ keyof typeof SettingsDestination ];
 
 /**
  * Browser history state key owned by the Settings draft-navigation guard.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const SettingsHistoryPositionKey = 'tocusSettingsHistoryPosition';
 
 /**
  * Internal movement used to restore a guarded entry or commit a confirmed navigation.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const SettingsHistoryTransition = {
 	RESTORE: 'restore',
@@ -38,14 +38,14 @@ export const SettingsHistoryTransition = {
 
 /**
  * Guard-owned history movement, or null while no movement is pending.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type SettingsHistoryTransition =
 	typeof SettingsHistoryTransition[ keyof typeof SettingsHistoryTransition ] | null;
 
 /**
  * Deferred navigation held while the current destination contains unsaved edits.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface PendingSettingsNavigation {
 	/** Browser hash originally requested by the user. */
@@ -58,7 +58,7 @@ export interface PendingSettingsNavigation {
 
 /**
  * Current destination state and the guarded navigation operations exposed to the shell.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface SettingsNavigationState {
 	/** Destination whose content is currently mounted. */

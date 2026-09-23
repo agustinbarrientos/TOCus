@@ -27,7 +27,7 @@ import {
  * @param input - Current checkpoint inputs.
  * @param statisticsDocument - Validated current local statistics.
  * @return True when both sides identify the same active allowance, generation, and protected site.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function focusAnchorMatchesCurrentAllowance(
 	anchor: StatisticsFocusAnchor,
@@ -48,7 +48,7 @@ function focusAnchorMatchesCurrentAllowance(
  * @param input - Current checkpoint inputs.
  * @param statisticsDocument - Validated current local statistics.
  * @return True when browser-session, focus-epoch, and observation rules preserve continuity.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function focusAnchorCanReachCheckpoint(
 	anchor: StatisticsFocusAnchor,
@@ -80,7 +80,7 @@ function focusAnchorCanReachCheckpoint(
  * @param focusedAtEpochMilliseconds - Validated time captured after focus inspection.
  * @param previousAnchor - Prior compatible focus anchor.
  * @return Next privacy-safe focus anchor, or undefined when focus is ineligible.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createNextFocusAnchor(
 	input: PrepareStatisticsCheckpointInput,
@@ -115,7 +115,7 @@ function createNextFocusAnchor(
  * Creates a canonical compact session document from optional focus work.
  * @param focusAnchor - Optional next focus anchor.
  * @return Canonical session work, or null when empty.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createSessionDocument(
 	focusAnchor?: StatisticsFocusAnchor,
@@ -133,7 +133,7 @@ function createSessionDocument(
  * @param focusAnchor - Optional next focus anchor.
  * @param pendingInterval - Frozen prior interval that must be replayed.
  * @return Canonical non-empty write-ahead session document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createWriteAheadSessionDocument(
 	focusAnchor: StatisticsFocusAnchor | undefined,
@@ -151,7 +151,7 @@ function createWriteAheadSessionDocument(
  * @param focusAnchor - Prior compatible focus anchor.
  * @param nowEpochMilliseconds - Validated checkpoint time.
  * @return Frozen prior interval, or undefined after a backward clock movement.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createPendingInterval(
 	focusAnchor: StatisticsFocusAnchor | undefined,
@@ -178,7 +178,7 @@ function createPendingInterval(
  * @param document - Statistics after applying any prior focused interval.
  * @param nowEpochMilliseconds - Validated checkpoint time.
  * @return Next statistics and whether at least one allowance was finalized.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function finalizeExpiredAllowances(
 	document: StatisticsDocument,
@@ -216,7 +216,7 @@ function finalizeExpiredAllowances(
  * @param input - Valid local statistics and session WAL state.
  * @return Prepared local statistics and captured next anchor state.
  * @throws {RangeError} When the supplied session has no pending interval.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function prepareStatisticsPendingReplay(
 	input: PrepareStatisticsPendingReplayInput,
@@ -243,7 +243,7 @@ export function prepareStatisticsPendingReplay(
  * @param input - Valid current local/session state, resolved focus, and wall clock.
  * @return Pure write-ahead, aggregate, and final-session transition.
  * @throws {RangeError} When prior frozen work was not replayed first.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function prepareStatisticsCheckpoint(
 	input: PrepareStatisticsCheckpointInput,

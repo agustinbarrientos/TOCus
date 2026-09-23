@@ -4,7 +4,7 @@ import type { IconName } from '../icon/types';
 
 /**
  * Text-only native notice composition; richer alerts keep Mantine's ordinary slots.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface NativeNoticeProps {
 	message: string;

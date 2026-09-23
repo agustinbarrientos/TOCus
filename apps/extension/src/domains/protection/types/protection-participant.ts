@@ -9,7 +9,7 @@ import {
 
 /**
  * Participant origins supported by protection transitions.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionParticipantOrigin = {
 	NAVIGATION: 'navigation',
@@ -18,19 +18,19 @@ export const ProtectionParticipantOrigin = {
 
 /**
  * Validates a protection participant origin.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionParticipantOriginSchema = z.enum( ProtectionParticipantOrigin );
 
 /**
  * Origin that attached a participant to a shared wait.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionParticipantOrigin = z.infer<typeof ProtectionParticipantOriginSchema>;
 
 /**
  * Validates a participant created from a protected navigation attempt.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const NavigationProtectionParticipantSchema = z.object( {
 	origin: z.enum( [ ProtectionParticipantOrigin.NAVIGATION ] ),
@@ -46,13 +46,13 @@ export const NavigationProtectionParticipantSchema = z.object( {
 
 /**
  * Navigation-origin participant retained by a protection transaction.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type NavigationProtectionParticipant = z.infer<typeof NavigationProtectionParticipantSchema>;
 
 /**
  * Validates a participant created when an allowance expires.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const AllowanceExpiryProtectionParticipantSchema = z.object( {
 	origin: z.enum( [ ProtectionParticipantOrigin.ALLOWANCE_EXPIRY ] ),
@@ -66,7 +66,7 @@ export const AllowanceExpiryProtectionParticipantSchema = z.object( {
 
 /**
  * Allowance-expiry-origin participant retained by a protection transaction.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type AllowanceExpiryProtectionParticipant = z.infer<
 	typeof AllowanceExpiryProtectionParticipantSchema
@@ -74,7 +74,7 @@ export type AllowanceExpiryProtectionParticipant = z.infer<
 
 /**
  * Validates one participant retained by Waiting or Allowance state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionParticipantSchema = z.discriminatedUnion( 'origin', [
 	NavigationProtectionParticipantSchema,
@@ -83,13 +83,13 @@ export const ProtectionParticipantSchema = z.discriminatedUnion( 'origin', [
 
 /**
  * Participant retained by Waiting or Allowance state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionParticipant = z.infer<typeof ProtectionParticipantSchema>;
 
 /**
  * Validates a participant supplied with a protected visit attempt.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const VisitAttemptParticipantSchema = z.object( {
 	origin: z.enum( [ ProtectionParticipantOrigin.NAVIGATION ] ),
@@ -104,6 +104,6 @@ export const VisitAttemptParticipantSchema = z.object( {
 
 /**
  * Navigation-origin participant supplied with a protected visit attempt.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type VisitAttemptParticipant = z.infer<typeof VisitAttemptParticipantSchema>;

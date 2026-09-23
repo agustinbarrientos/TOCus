@@ -16,7 +16,7 @@ import { createLocalDataMutationGuard } from '../../../local-data/services/local
  * Creates browser-backed preferences editing with shared cross-context coordination.
  * @param options - Browser storage and lock dependencies.
  * @return Coordinated preferences editor and persistence boundary.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createBrowserPreferencesEditor(
 	options: BrowserPreferencesEditorOptions,
@@ -28,7 +28,7 @@ export function createBrowserPreferencesEditor(
 	 * Persists preferences only while their editor belongs to the current installation data.
 	 * @param input - Candidate preferences validated by the storage service.
 	 * @return Promise resolved after guarded persistence.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function save( input: unknown ): Promise<void> {
 		await assertCurrentGeneration();
@@ -40,7 +40,7 @@ export function createBrowserPreferencesEditor(
 	 * @template Result Exact mutation result.
 	 * @param mutation - Deferred preferences mutation.
 	 * @return Exact mutation result after lock release.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function coordinateMutation<Result>(
 		mutation: PreferencesMutation<Result>,
@@ -53,7 +53,7 @@ export function createBrowserPreferencesEditor(
 			/**
 			 * Reads the current persisted document without changing reset identity.
 			 * @return Current settings or a malformed-data marker.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			load: () => storage.load(),
 			save,

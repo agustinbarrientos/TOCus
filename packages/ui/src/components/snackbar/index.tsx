@@ -8,7 +8,7 @@ const SnackbarContext = createContext<SnackbarApi | null>( null );
 
 /**
  * Owns a private Mantine notification store inside the current themed portal boundary.
- * @since 0.1.0
+ * @since 1.0.0
  * @param root0 - Notification ownership and localization.
  * @param root0.children - Consumers of this provider's stable feedback API.
  * @param root0.closeLabel - Localized accessible label for the dismissal button.
@@ -45,7 +45,7 @@ export function SnackbarProvider( { children, closeLabel }: SnackbarProviderProp
 
 /**
  * Returns the stable feedback API for the nearest notification boundary.
- * @since 0.1.0
+ * @since 1.0.0
  * @return Methods targeting only this provider's notifications.
  */
 export function useSnackbar(): SnackbarApi {

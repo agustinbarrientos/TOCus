@@ -58,7 +58,7 @@ import {
  * Reads the captured calendar attribution without consulting a clock during delivery.
  * @param event - Validated transition event.
  * @return Captured date, or null for event kinds that cannot emit statistics facts.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getStatisticsObservedLocalDate( event: ProtectionEvent ): LocalDate | null {
 	switch ( event.type ) {
@@ -78,7 +78,7 @@ function getStatisticsObservedLocalDate( event: ProtectionEvent ): LocalDate | n
  * Clones current runtime state without exposing the coordinator's mutable authority.
  * @param statesByScope - Validated states owned by the coordinator.
  * @return Detached states indexed by protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function cloneProtectionStates(
 	statesByScope: Readonly<Record<string, ProtectionState>>,
@@ -95,7 +95,7 @@ function cloneProtectionStates(
  * Creates a validated failed initialization result without exposing an error object.
  * @param reason - Stable initialization failure reason.
  * @return Failed initialization result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createInitializationFailure(
 	reason: ProtectionCoordinatorFailureReasonValue,
@@ -113,7 +113,7 @@ function createInitializationFailure(
  * Creates a validated rejected dispatch result without unpersisted effects.
  * @param reason - Stable dispatch rejection reason.
  * @return Rejected dispatch result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createDispatchRejection(
 	reason: ProtectionCoordinatorFailureReasonValue,
@@ -130,7 +130,7 @@ function createDispatchRejection(
  * Creates one serialized protection runtime coordinator.
  * @param options - Storage and identifier dependencies.
  * @return Protection coordinator instance.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createProtectionCoordinator( options: ProtectionCoordinatorOptions ): ProtectionCoordinator {
 	let statesByScope: Record<string, ProtectionState> | null = null;
@@ -141,7 +141,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	/**
 	 * Invokes the statistics batch identifier dependency without losing its receiver.
 	 * @return Unknown identifier candidate.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function createProtectionFactBatchId(): unknown {
 		return options.createProtectionFactBatchId();
@@ -151,7 +151,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	 * Serializes one coordinator operation without poisoning the queue after rejection.
 	 * @param operation - Deferred coordinator operation.
 	 * @return Promise for the operation result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function enqueue<T>( operation: () => Promise<T> ): Promise<T> {
 		const result = operationQueue.then( operation, operation );
@@ -167,7 +167,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	/**
 	 * Forgets authority after previous operations settle without changing persistence.
 	 * @return Promise resolved after every cached protection value is unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function forgetForDataReset(): Promise<void> {
 		return enqueue( () => {
@@ -181,7 +181,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	/**
 	 * Reads validated retained destinations without restoring transitions or writing state.
 	 * @return Stored session participants, including expired or otherwise stale Ready participants.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function readParticipantsForDataReset(): Promise<ReadonlyArray<StoredProtectionParticipant>> {
 		return enqueue( async () => {
@@ -198,7 +198,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	 * @param input - Unknown initialization observations.
 	 * @return Validated initialization result after persistence.
 	 * @throws {Error} When input validation or a domain invariant fails unexpectedly.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function initializeOperation( input: unknown ): Promise<ProtectionCoordinatorInitializationResult> {
 		statesByScope = null;
@@ -277,7 +277,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	 * @param measurementRevision - Optional revision captured with an emitted statistics batch.
 	 * @return Validated dispatch result after persistence.
 	 * @throws {Error} When event preparation rejects or a domain invariant fails unexpectedly.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function dispatchOperation(
 		prepareEvent: PrepareProtectionEvent,
@@ -366,7 +366,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	 * @param input - Unknown initialization observations.
 	 * @return Validated initialization result after persistence.
 	 * @throws {Error} When input validation or a domain invariant fails unexpectedly.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function initialize( input: unknown ): Promise<ProtectionCoordinatorInitializationResult> {
 		return enqueue( () => initializeOperation( input ) );
@@ -378,7 +378,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	 * @param measurementRevision - Optional revision captured with an emitted statistics batch.
 	 * @return Validated dispatch result after persistence.
 	 * @throws {Error} When event preparation rejects or a domain invariant fails unexpectedly.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function dispatch(
 		prepareEvent: PrepareProtectionEvent,
@@ -390,7 +390,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	/**
 	 * Returns a detached state snapshot after earlier queued operations settle.
 	 * @return Current runtime states, or null before successful initialization.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function getStates(): Promise<ProtectionCoordinatorStateSnapshot | null> {
 		return enqueue( () => Promise.resolve(
@@ -401,7 +401,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	/**
 	 * Returns detached statistics delivery after earlier queued operations settle.
 	 * @return Current durable delivery, or null before successful initialization.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function getStatisticsDelivery(): Promise<ProtectionCoordinatorStatisticsDeliverySnapshot | null> {
 		return enqueue( () => Promise.resolve(
@@ -414,7 +414,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	/**
 	 * Captures the current durable-delivery tail without entering the coordinator queue.
 	 * @return Current FIFO boundary, or null before successful initialization.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function getStatisticsDeliveryBoundary(): ProtectionCoordinatorStatisticsDeliveryBoundary | null {
 		if ( statisticsDelivery === null ) {
@@ -429,7 +429,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	/**
 	 * Returns the current browser-session continuity identifier without entering the queue.
 	 * @return Current continuity identifier, or null before successful initialization.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function getSessionContinuityId(): SessionContinuityId | null {
 		return sessionContinuityId;
@@ -440,7 +440,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	 * @param batchId - Unknown candidate head batch identifier.
 	 * @return True only after the matching head is durably removed.
 	 * @throws {Error} When durable-only persistence rejects unexpectedly.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function acknowledgeStatisticsDeliveryBatchOperation( batchId: unknown ): Promise<boolean> {
 		const currentStatesByScope = statesByScope;
@@ -483,7 +483,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	 * @param batchId - Unknown candidate head batch identifier.
 	 * @return True only after the matching head is durably removed.
 	 * @throws {Error} When durable-only persistence rejects unexpectedly.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function acknowledgeStatisticsDeliveryBatch( batchId: unknown ): Promise<boolean> {
 		return enqueue( () => acknowledgeStatisticsDeliveryBatchOperation( batchId ) );
@@ -493,7 +493,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	 * Replaces current statistics delivery with an empty incomplete reset marker.
 	 * @return True only after the reset is durably stored.
 	 * @throws {Error} When durable-only persistence rejects unexpectedly.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function resetStatisticsDeliveryOperation(): Promise<boolean> {
 		const currentStatesByScope = statesByScope;
@@ -527,7 +527,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	 * Enqueues one durable statistics-delivery reset.
 	 * @return True only after the reset is durably stored.
 	 * @throws {Error} When durable-only persistence rejects unexpectedly.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function resetStatisticsDelivery(): Promise<boolean> {
 		return enqueue( resetStatisticsDeliveryOperation );
@@ -537,7 +537,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	 * Marks one empty incomplete statistics-delivery reset complete after durable persistence.
 	 * @return True only after the completion is durably stored.
 	 * @throws {Error} When durable-only persistence rejects unexpectedly.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function completeStatisticsDeliveryResetOperation(): Promise<boolean> {
 		const currentStatesByScope = statesByScope;
@@ -570,7 +570,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	 * Enqueues completion of one durable statistics-delivery reset.
 	 * @return True only after the completion is durably stored.
 	 * @throws {Error} When durable-only persistence rejects unexpectedly.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function completeStatisticsDeliveryReset(): Promise<boolean> {
 		return enqueue( completeStatisticsDeliveryResetOperation );

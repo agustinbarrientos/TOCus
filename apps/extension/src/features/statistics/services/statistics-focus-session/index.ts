@@ -23,7 +23,7 @@ import type {
  * Creates crash-safe persistence for focus-session measurements.
  * @param options - Local and session persistence dependencies.
  * @return Focus-session operations serialized by the statistics runtime.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createStatisticsFocusSession(
 	options: StatisticsFocusSessionOptions,
@@ -37,7 +37,7 @@ export function createStatisticsFocusSession(
 	 * Persists one compact session document or removes the owned key when empty.
 	 * @param document - Next compact session work, or null when no work remains.
 	 * @return Promise settled after the exact session persistence operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function persistStatisticsSession(
 		document: StatisticsSessionDocument | null,
@@ -51,7 +51,7 @@ export function createStatisticsFocusSession(
 	 * Persists focus continuity before any asynchronous browser inspection begins.
 	 * @param mode - Relationship between the observation and browser focus state.
 	 * @return Focus epoch context, or null when session persistence is unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function beginFocusObservation(
 		mode: StatisticsFocusObservationModeValue,
@@ -83,7 +83,7 @@ export function createStatisticsFocusSession(
 	 * Replays already-frozen session work before any fact can replace its allowance.
 	 * @param statisticsDocument - Current reconciled local statistics document.
 	 * @return Replay result containing the current aggregate document and completion state.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function replayPendingInterval(
 		statisticsDocument: StatisticsDocument,
@@ -130,7 +130,7 @@ export function createStatisticsFocusSession(
 	 * Loads compatible session work and immediately replays any frozen interval.
 	 * @param statisticsDocument - Current reconciled local statistics document.
 	 * @return Current aggregate document after any successful pending replay.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function initialize(
 		statisticsDocument: StatisticsDocument,
@@ -190,7 +190,7 @@ export function createStatisticsFocusSession(
 	/**
 	 * Closes any retained anchor after focus cannot be observed safely.
 	 * @return Promise resolved after the contained session-removal attempt.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function closeFocusAnchor(): Promise<void> {
 		if ( ! sessionStateKnown || statisticsSession === null ) {
@@ -208,7 +208,7 @@ export function createStatisticsFocusSession(
 	/**
 	 * Removes retained focus work even before aggregate statistics have initialized.
 	 * @return Promise resolved after the contained session-storage attempt.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function discardFocusMeasurement(): Promise<void> {
 		focusDiscardPending = true;
@@ -229,7 +229,7 @@ export function createStatisticsFocusSession(
 	 * Recovers a known session write failure by discarding its unfrozen anchor.
 	 * @param statisticsDocument - Current initialized local statistics document.
 	 * @return Replay result containing the current aggregate document and recovery state.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function recover(
 		statisticsDocument: StatisticsDocument,
@@ -255,7 +255,7 @@ export function createStatisticsFocusSession(
 	 * Checkpoints focused allowance work after aggregate initialization.
 	 * @param input - Current statistics, privacy-filtered configuration, delivery state, and focus observation.
 	 * @return Current aggregate document after any successful focused-use persistence.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function checkpoint(
 		input: StatisticsFocusCheckpointInput,
@@ -402,7 +402,7 @@ export function createStatisticsFocusSession(
 	/**
 	 * Returns whether focus measurement can safely persist new work.
 	 * @return True when the session storage is currently available.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function isAvailable(): boolean {
 		return sessionStorageAvailable;
@@ -411,7 +411,7 @@ export function createStatisticsFocusSession(
 	/**
 	 * Returns whether session work has been loaded or deliberately discarded.
 	 * @return True when current session state is known.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function isStateKnown(): boolean {
 		return sessionStateKnown;
@@ -419,7 +419,7 @@ export function createStatisticsFocusSession(
 
 	/**
 	 * Disables focus work and requires retained anchors to be discarded before reuse.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function markUnavailable(): void {
 		focusDiscardPending = true;
@@ -431,7 +431,7 @@ export function createStatisticsFocusSession(
 	/**
 	 * Clears every retained focus-session measurement safely.
 	 * @return True only after session persistence is empty and ready for new work.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function reset(): Promise<boolean> {
 		try {

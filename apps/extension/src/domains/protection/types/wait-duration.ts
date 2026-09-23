@@ -7,7 +7,7 @@ const ONE_HUNDRED_TWENTY_SECONDS_MILLISECONDS = 120_000;
 
 /**
  * Validates a captured wait duration in milliseconds.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const WaitDurationMillisecondsSchema = DurationMillisecondsSchema
 	.min( TEN_SECONDS_MILLISECONDS )
@@ -16,6 +16,6 @@ export const WaitDurationMillisecondsSchema = DurationMillisecondsSchema
 
 /**
  * Captured wait duration in milliseconds.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type WaitDurationMilliseconds = z.infer<typeof WaitDurationMillisecondsSchema>;

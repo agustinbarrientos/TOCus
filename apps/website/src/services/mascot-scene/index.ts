@@ -31,7 +31,7 @@ function createStudioEnvironment(): Scene {
  * @param onState - Reports loading, availability and animation state to the owner.
  * @param options - Background and playback choices for the homepage or lab.
  * @return Pause, view and disposal operations for the owning component.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function createMascotScene(
 	canvas: HTMLCanvasElement, onState: MascotSceneListener, options: MascotSceneOptions = {},

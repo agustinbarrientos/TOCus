@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 /**
  * Validates the values carried by one browser storage-key change.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InterruptionPageStorageChangeSchema = z.object( {
 	oldValue: z.unknown().optional(),
@@ -13,13 +13,13 @@ export const InterruptionPageStorageChangeSchema = z.object( {
 
 /**
  * Values carried by one browser storage-key change.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type InterruptionPageStorageChange = z.infer<typeof InterruptionPageStorageChangeSchema>;
 
 /**
  * Listener receiving browser storage-area changes.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type InterruptionPageStorageChangeListener = (
 	changes: Readonly<Record<string, InterruptionPageStorageChange>>,
@@ -28,27 +28,27 @@ export type InterruptionPageStorageChangeListener = (
 
 /**
  * Browser storage event source used to refresh shared allowance state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionPageStorageChangeSource {
 	/**
 	 * Starts delivering browser storage events to one listener.
 	 * @param listener - Storage event callback.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	addListener( listener: InterruptionPageStorageChangeListener ): void;
 
 	/**
 	 * Stops delivering browser storage events to one listener.
 	 * @param listener - Previously registered callback.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	removeListener( listener: InterruptionPageStorageChangeListener ): void;
 }
 
 /**
  * Minimal interruption-screen surface coordinated by the extension page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionPageScreen extends EventTarget {
 	/** Authoritative presentation state. */
@@ -72,27 +72,27 @@ export interface InterruptionPageScreen extends EventTarget {
 	/**
 	 * Returns the focused progress currently displayed by the local presentation clock.
 	 * @return Displayed focused progress in milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getFocusedProgressMilliseconds(): number;
 }
 
 /**
  * Epoch clock used to schedule authoritative Ready-state synchronization.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionPageClock {
 	/**
 	 * Returns current epoch time.
 	 * @return Current epoch milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	now(): number;
 }
 
 /**
  * Browser reduced-motion preference observed by the interruption page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionPageMotionPreference {
 	/** Whether reduced motion is currently preferred. */
@@ -102,7 +102,7 @@ export interface InterruptionPageMotionPreference {
 	 * Begins observing effective reduced-motion changes.
 	 * @param type - Effective motion change event name.
 	 * @param listener - Effective motion change listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	addEventListener( type: 'change', listener: EventListenerOrEventListenerObject ): void;
 
@@ -110,28 +110,28 @@ export interface InterruptionPageMotionPreference {
 	 * Stops observing effective reduced-motion changes.
 	 * @param type - Effective motion change event name.
 	 * @param listener - Effective motion change listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	removeEventListener( type: 'change', listener: EventListenerOrEventListenerObject ): void;
 }
 
 /**
  * Runtime message boundary used by the interruption page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionPageRuntime {
 	/**
 	 * Sends one validated interruption-page request to the background runtime.
 	 * @param request - Interruption-page request.
 	 * @return Unknown response awaiting local validation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	sendMessage( request: InterruptionPageRequest ): Promise<unknown>;
 }
 
 /**
  * Timing operations used for progress checkpoints and allowance expiry.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionPageScheduler {
 	/**
@@ -139,14 +139,14 @@ export interface InterruptionPageScheduler {
 	 * @param callback - Callback to execute.
 	 * @param delayMilliseconds - Delay between executions.
 	 * @return Browser interval handle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	setInterval( callback: () => void, delayMilliseconds: number ): number;
 
 	/**
 	 * Stops one recurring callback.
 	 * @param handle - Browser interval handle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	clearInterval( handle: number ): void;
 
@@ -155,41 +155,41 @@ export interface InterruptionPageScheduler {
 	 * @param callback - Callback to execute.
 	 * @param delayMilliseconds - Delay before execution.
 	 * @return Browser timeout handle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	setTimeout( callback: () => void, delayMilliseconds: number ): number;
 
 	/**
 	 * Stops one one-shot callback.
 	 * @param handle - Browser timeout handle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	clearTimeout( handle: number ): void;
 }
 
 /**
  * Current document and browser-window visibility used by focused progress.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionPageVisibility {
 	/**
 	 * Reports whether the interruption document is visible.
 	 * @return Current document visibility.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	isDocumentVisible(): boolean;
 
 	/**
 	 * Reports whether the browser window currently owns operating-system focus.
 	 * @return Whether the browser window is focused.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	isWindowFocused(): boolean;
 }
 
 /**
  * Dependencies used by one interruption-page controller.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionPageControllerOptions {
 	/** Epoch clock used for exact allowance-expiry scheduling. */
@@ -204,7 +204,7 @@ export interface InterruptionPageControllerOptions {
 	/**
 	 * Reports authoritative major presentation changes without repeating timer checkpoints.
 	 * @param state - Newly applied interruption presentation state.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	onPresentationStateChange?( state: InterruptionScreenState ): void;
 
@@ -229,19 +229,19 @@ export interface InterruptionPageControllerOptions {
 
 /**
  * Interruption-page messaging and lifecycle coordinator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionPageController {
 	/**
 	 * Connects the page and begins observing timing, attention, and motion preferences.
 	 * @return Promise resolved after the initial authoritative projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	start(): Promise<void>;
 
 	/**
 	 * Stops scheduled work and releases every page listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	stop(): void;
 }

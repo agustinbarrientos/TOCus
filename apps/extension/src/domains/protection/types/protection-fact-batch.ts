@@ -10,7 +10,7 @@ import {
 
 /**
  * Validates the unrefined shape of one protection-fact batch.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ProtectionFactBatchFieldsSchema = z.object( {
 	batchId: ProtectionFactBatchIdSchema,
@@ -23,7 +23,7 @@ const ProtectionFactBatchFieldsSchema = z.object( {
 
 /**
  * Unrefined protection-fact batch values.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 type ProtectionFactBatchFields = z.infer<typeof ProtectionFactBatchFieldsSchema>;
 
@@ -31,7 +31,7 @@ type ProtectionFactBatchFields = z.infer<typeof ProtectionFactBatchFieldsSchema>
  * Returns the transition timestamp carried by one protection fact.
  * @param fact - Protection fact being inspected.
  * @return Epoch timestamp carried by the fact.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getFactObservedAtEpochMilliseconds(
 	fact: ProtectionFactBatchFields[ 'facts' ][ number ],
@@ -51,7 +51,7 @@ function getFactObservedAtEpochMilliseconds(
  * Adds cross-fact consistency issues to one batch refinement context.
  * @param batch - Batch values being refined.
  * @param context - Zod refinement context receiving consistency issues.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function refineProtectionFactBatch(
 	batch: ProtectionFactBatchFields,
@@ -90,7 +90,7 @@ function refineProtectionFactBatch(
 
 /**
  * Validates one non-empty, same-scope collection of protection facts.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionFactBatchSchema = ProtectionFactBatchFieldsSchema.superRefine(
 	refineProtectionFactBatch,
@@ -98,6 +98,6 @@ export const ProtectionFactBatchSchema = ProtectionFactBatchFieldsSchema.superRe
 
 /**
  * Non-empty, same-scope protection facts captured for durable delivery.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionFactBatch = z.infer<typeof ProtectionFactBatchSchema>;

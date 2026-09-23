@@ -15,22 +15,22 @@ function oneEvent( target: EventTarget, name: string ): Promise<Event> {
 
 /**
  * Native media elements released after each browser scenario.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const videos: HTMLVideoElement[] = [];
 /**
  * In-memory media tracks released after each browser scenario.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const streams: MediaStream[] = [];
 /**
  * Document playback lifecycles released after each browser scenario.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const controllers: MediaPlaybackController[] = [];
 /**
  * Streaming page URLs exercised with native browser playback.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const SUPPORTED_PLAYBACK_URLS = [
 	'https://netflix.com/watch/one',
@@ -45,7 +45,7 @@ const SUPPORTED_PLAYBACK_URLS = [
 /**
  * Creates playable video without external media or network requests.
  * @return A connected, initially paused native video element.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createVideo(): HTMLVideoElement {
 	const canvas = document.createElement( 'canvas' );
@@ -66,7 +66,7 @@ function createVideo(): HTMLVideoElement {
  * Creates a playback lifecycle on the real browser document.
  * @param href - Page URL represented by this browser scenario.
  * @return Playback lifecycle and mutable navigation location.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createController( href = 'https://www.youtube.com/watch?v=one' ) {
 	const location = { hostname: new URL( href ).hostname, href };

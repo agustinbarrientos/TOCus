@@ -4,20 +4,20 @@ import { restoreStatisticsSession } from './index';
 
 /**
  * Browser-session continuity used by compatible session fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const TEST_SESSION_CONTINUITY_ID = 'session_current';
 
 /**
  * Focus epoch used by compatible session fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const TEST_FOCUS_EPOCH_ID = 'focus_epoch_current';
 
 /**
  * Creates one compatible session document with a focus anchor.
  * @return Session document fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createSessionDocument(): Record<string, unknown> {
 	return {

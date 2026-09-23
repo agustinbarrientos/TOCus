@@ -3,7 +3,7 @@ import type { Language } from '../../../../apps/extension/src/domains/preference
 
 /**
  * Original onboarding capture states, all rendered through the production controller.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const OnboardingVisualScenario = {
 	LANGUAGE: 'language',
@@ -15,7 +15,7 @@ export const OnboardingVisualScenario = {
 
 /**
  * A named original onboarding state.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type OnboardingVisualScenario = typeof OnboardingVisualScenario[ keyof typeof OnboardingVisualScenario ];
 

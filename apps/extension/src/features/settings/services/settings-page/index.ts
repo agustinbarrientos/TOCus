@@ -19,7 +19,7 @@ import type {
 /**
  * Reveals settings after either successful startup or terminal recovery.
  * @param options - Settings page dependencies containing the owned document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function revealSettingsPage( options: SettingsPageOptions ): void {
 	options.document.documentElement.style.removeProperty( 'color-scheme' );
@@ -31,7 +31,7 @@ function revealSettingsPage( options: SettingsPageOptions ): void {
  * Starts the complete extension settings page.
  * @param options - Browser, persistence, localization, and presentation dependencies.
  * @return Promise resolved after preferences and localized copy settle and the page is revealed.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export async function startSettingsPage( options: SettingsPageOptions ): Promise<void> {
 	let languageChangeListener: PreferencesLanguageChangeListener | null = null;
@@ -81,7 +81,7 @@ export async function startSettingsPage( options: SettingsPageOptions ): Promise
 		/**
 		 * Refreshes visible Protected Sites access after a relevant browser grant changes.
 		 * @param change - Named and origin permissions added to or removed from the extension.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function handlePermissionChanged( change: SettingsPermissionChange ): void {
 			const changedHostAccess = ( change.origins?.length ?? 0 ) > 0;
@@ -98,7 +98,7 @@ export async function startSettingsPage( options: SettingsPageOptions ): Promise
 		 * Applies one complete localization snapshot when it remains the latest request.
 		 * @param language - Effective selected or browser-derived language.
 		 * @return Promise resolved after the latest requested language is projected.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		async function applyLocalization( language: Language ): Promise<void> {
 			localizationRevision += 1;
@@ -127,7 +127,7 @@ export async function startSettingsPage( options: SettingsPageOptions ): Promise
 		 * Applies a live localization request without replacing the last usable copy on failure.
 		 * @param language - Newly effective preference language.
 		 * @return Promise resolved after the live request settles.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		async function applyLiveLocalization( language: Language ): Promise<void> {
 			try {
@@ -140,7 +140,7 @@ export async function startSettingsPage( options: SettingsPageOptions ): Promise
 		/**
 		 * Starts one non-blocking localization projection after a live language change.
 		 * @param language - Newly effective preference language.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function handleLanguageChange( language: Language ): void {
 			void applyLiveLocalization( language );
@@ -149,7 +149,7 @@ export async function startSettingsPage( options: SettingsPageOptions ): Promise
 		/**
 		 * Waits until the most recently requested localization is projected.
 		 * @return Promise resolved when no newer language request is pending.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		async function synchronizeLocalization(): Promise<void> {
 			let requestedRevision: number;
@@ -187,7 +187,7 @@ export async function startSettingsPage( options: SettingsPageOptions ): Promise
  * Starts settings while containing terminal bootstrap failures.
  * @param options - Browser, persistence, localization, and presentation dependencies.
  * @return Promise resolved after startup succeeds or recovery reveals settings.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export async function bootstrapSettingsPage( options: SettingsPageOptions ): Promise<void> {
 	try {

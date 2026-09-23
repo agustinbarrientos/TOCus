@@ -4,7 +4,7 @@ import type { PopupCurrentSiteStatus, PopupScopeKind, PopupTimerPhase } from '..
 
 /**
  * Browser-test bridge to the unchanged popup controller-facing presentation port.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface PopupFixtureBridge {
 	currentSiteStatuses: typeof PopupCurrentSiteStatus;
@@ -20,7 +20,7 @@ export interface PopupFixtureBridge {
 declare global {
 	/**
 	 * Isolated popup instrumentation unavailable to production entrypoints.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	interface Window {
 		popupTest: PopupFixtureBridge;

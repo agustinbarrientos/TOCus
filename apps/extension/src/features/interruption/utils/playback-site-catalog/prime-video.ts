@@ -2,7 +2,7 @@ import type { PlaybackSiteRule } from './types';
 
 /**
  * Native video control boundaries for Prime Video, excluding Amazon retail pages.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PRIME_VIDEO_PLAYBACK_RULES = [
 	{ domains: [ 'primevideo.com' ] },

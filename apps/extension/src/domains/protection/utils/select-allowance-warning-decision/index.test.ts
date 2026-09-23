@@ -20,7 +20,7 @@ import {
  * Recursively freezes a test value so mutation attempts fail.
  * @param value - Value to freeze.
  * @return Deeply frozen value.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function freezeDeeply<Value>( value: Value ): Value {
 	if ( typeof value !== 'object' || value === null || Object.isFrozen( value ) ) {

@@ -7,31 +7,31 @@ const MaximumDateEpochMilliseconds = 8_640_000_000_000_000;
 
 /**
  * Validates a non-negative whole epoch instant representable by Date.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ScheduleInstantSchema = EpochMillisecondsSchema.max( MaximumDateEpochMilliseconds );
 
 /**
  * Non-negative whole epoch instant representable by Date.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ScheduleInstant = z.infer<typeof ScheduleInstantSchema>;
 
 /**
  * Validates the normalized schedules considered by one transition search.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const NormalizedScheduleListSchema = z.array( NormalizedScheduleSchema );
 
 /**
  * Normalized schedules considered by one transition search.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type NormalizedScheduleList = z.infer<typeof NormalizedScheduleListSchema>;
 
 /**
  * Validates a nonempty named time-zone input rather than a numeric offset.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const TimeZoneInputSchema = z
 	.string()
@@ -41,19 +41,19 @@ export const TimeZoneInputSchema = z
 
 /**
  * Nonempty named time-zone input rather than a numeric offset.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type TimeZoneInput = z.infer<typeof TimeZoneInputSchema>;
 
 /**
  * Locale used for deterministic schedule wall-clock extraction.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ScheduleFormatterLocale = 'en-US-u-ca-iso8601-nu-latn';
 
 /**
  * Formatter options used for deterministic schedule wall-clock extraction.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ScheduleFormatterOptions = {
 	calendar: 'iso8601',
@@ -66,7 +66,7 @@ export const ScheduleFormatterOptions = {
 
 /**
  * Validates and parses an h23 hour emitted with Latin digits.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const FormattedScheduleHourSchema = z
 	.string()
@@ -75,13 +75,13 @@ export const FormattedScheduleHourSchema = z
 
 /**
  * Parsed h23 hour emitted with Latin digits.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type FormattedScheduleHour = z.infer<typeof FormattedScheduleHourSchema>;
 
 /**
  * Validates and parses a two-digit minute emitted with Latin digits.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const FormattedScheduleMinuteSchema = z
 	.string()
@@ -90,6 +90,6 @@ export const FormattedScheduleMinuteSchema = z
 
 /**
  * Parsed two-digit minute emitted with Latin digits.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type FormattedScheduleMinute = z.infer<typeof FormattedScheduleMinuteSchema>;

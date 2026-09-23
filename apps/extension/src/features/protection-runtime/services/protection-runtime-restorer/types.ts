@@ -8,7 +8,7 @@ import type { ProtectionRuntimeTab } from '../../types/browser-runtime';
 
 /**
  * Dependencies used to restore protection runtime state after background startup.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectionRuntimeRestorerOptions {
 	coordinator: Pick<ProtectionCoordinator, 'dispatch' | 'initialize'>;
@@ -19,7 +19,7 @@ export interface ProtectionRuntimeRestorerOptions {
 	 * @param decisions - Persisted restoration decisions.
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @return Promise resolved after browser effects are projected.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	applyDecisions(
 		decisions: ReadonlyArray<ProtectionDecision>,
@@ -31,7 +31,7 @@ export interface ProtectionRuntimeRestorerOptions {
 	 * @param result - Coordinator dispatch result.
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @return Promise resolved after browser effects are projected.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	applyDispatchResult(
 		result: ProtectionCoordinatorDispatchResult,
@@ -41,42 +41,42 @@ export interface ProtectionRuntimeRestorerOptions {
 	/**
 	 * Returns the current local IANA time zone.
 	 * @return Current IANA time-zone identifier.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getTimeZone(): string;
 
 	/**
 	 * Lists open browser tabs visible to the extension.
 	 * @return Current browser tab observations.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	listTabs(): Promise<ReadonlyArray<ProtectionRuntimeTab>>;
 
 	/**
 	 * Loads the current validated local configuration.
 	 * @return Validated configuration or null when it cannot be trusted.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	loadConfiguration(): Promise<ProtectionConfigurationDocument | null>;
 
 	/**
 	 * Returns the current wall-clock epoch time.
 	 * @return Current epoch milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	now(): number;
 }
 
 /**
  * Restores persisted protection state and resolves incomplete Ready participants.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectionRuntimeRestorer {
 	/**
 	 * Restores authoritative state before queued browser events are processed.
 	 * @param preloadedConfiguration - Configuration loaded before coordinator restoration when available.
 	 * @return True after successful restoration, or false after failed initialization.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	restore( preloadedConfiguration?: ProtectionConfigurationDocument | null ): Promise<boolean>;
 }

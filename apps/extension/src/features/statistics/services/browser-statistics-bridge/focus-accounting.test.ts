@@ -26,7 +26,7 @@ import type { BrowserStatisticsBridge } from './types';
  * @param harness - Real runtime with in-memory persistence and browser inputs.
  * @param lastBatchId - Durable fact prefix captured by the browser operation.
  * @return Browser bridge exercising actual focus and aggregate persistence.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createRuntimeBridge(
 	harness: ReturnType<typeof createRuntimeHarness>,

@@ -5,7 +5,7 @@ import { expect, type Page } from '@playwright/test';
  * @param page - Settings fixture showing the production Statistics destination.
  * @param name - Registered original screenshot filename.
  * @return Completion of the requested Statistics state's first mounted render.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export async function waitForStatisticsState( page: Page, name: string ): Promise<void> {
 	const selector = name.includes( 'loading' ) ? '.settings-statistics-loading'

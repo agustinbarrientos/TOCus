@@ -186,7 +186,7 @@ window.onboardingOriginal = port;
  * @param language - Packaged language applied after the English suggestions are selected and decoded.
  * @param address - Original unfocused address draft.
  * @return Completion of the original fixture mutations, without a synthetic keyboard gesture.
- * @since 0.1.0
+ * @since 1.0.0
  */
 async function prepareOriginalSitesInput( language: Language, address: string ): Promise<void> {
 	if ( language !== Language.ENGLISH ) {

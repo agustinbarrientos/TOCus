@@ -3,7 +3,7 @@
  * @param candidate - Browser-reported pause document URL, if available.
  * @param currentUrl - Trusted canonical pause document URL.
  * @return Exact retained HTTP(S) destination, or null when the carrier is invalid.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function readInterruptionNavigationDestination(
 	candidate: string | undefined,

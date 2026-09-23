@@ -10,7 +10,7 @@ import type { Page } from '@playwright/test';
  * Hovers the changed Schedule action after the fixture replays its archived pre-paint radio event.
  * @param page - Current original-only Schedule fixture using the real production controls.
  * @return Completion of the original rounded pointer movement and action animation settlement.
- * @since 0.1.0
+ * @since 1.0.0
  */
 async function prepareScheduleHover( page: Page ): Promise<void> {
 	await expect( page.getByRole( 'radio', { name: 'All the time', exact: true } ) ).toBeChecked();
@@ -33,7 +33,7 @@ async function prepareScheduleHover( page: Page ): Promise<void> {
  * @param page - Real Settings presentation using archived deterministic inputs.
  * @param name - Exact original screenshot filename.
  * @return Settled original interaction state.
- * @since 0.1.0
+ * @since 1.0.0
  */
 async function prepareState( page: Page, name: string ): Promise<void> {
 	if ( name.includes( 'operation-error' ) ) {

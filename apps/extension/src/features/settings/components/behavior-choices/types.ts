@@ -1,6 +1,6 @@
 /**
  * Localized choice in an existing Settings domain catalog.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface BehaviorChoice<Value extends string> {
 	value: Value;
@@ -10,7 +10,7 @@ export interface BehaviorChoice<Value extends string> {
 
 /**
  * Controlled presentation of one mutually exclusive Settings behavior.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface BehaviorChoicesProps<Value extends string> {
 	name: string;

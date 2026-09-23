@@ -1,6 +1,6 @@
 /**
  * Canonical publication documents rendered outside the translated product routes.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InformationDocument = {
 	PRIVACY: 'privacy',
@@ -9,13 +9,13 @@ export const InformationDocument = {
 
 /**
  * Publication document derived from the runtime catalog.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type InformationDocument = typeof InformationDocument[keyof typeof InformationDocument];
 
 /**
  * Stable local routes shared by the information-page navigation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InformationRoute = {
 	HOME: '/',
@@ -25,7 +25,7 @@ export const InformationRoute = {
 
 /**
  * External destinations used by the canonical publication documents.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InformationExternalUrl = {
 	CHROME_LIMITED_USE: 'https://developer.chrome.com/docs/webstore/program-policies/user-data-faq',
@@ -34,7 +34,7 @@ export const InformationExternalUrl = {
 
 /**
  * Public title and description used in generated document metadata.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InformationPageMetadata {
 	/** Browser-tab title. */
@@ -45,7 +45,7 @@ export interface InformationPageMetadata {
 
 /**
  * Metadata indexed by its canonical information document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InformationPageMetadata = {
 	[ InformationDocument.PRIVACY ]: {
@@ -60,7 +60,7 @@ export const InformationPageMetadata = {
 
 /**
  * Information-page selection supplied by its canonical Astro route.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InformationPageProperties {
 	/** Canonical document to render. */

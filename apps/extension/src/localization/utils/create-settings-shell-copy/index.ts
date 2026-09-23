@@ -6,7 +6,7 @@ import type { SettingsShellCopy } from '../../../features/settings/components/sh
  * Creates localized settings-shell navigation and notification copy.
  * @param i18n - Locale-specific Lingui instance.
  * @return Complete localized settings-shell copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createSettingsShellCopy( i18n: I18n ): Readonly<SettingsShellCopy> {
 	return Object.freeze( {

@@ -7,7 +7,7 @@ import type { OnboardingAppearanceStepCopy } from '../../../features/onboarding/
  * Creates localized onboarding Appearance-step copy.
  * @param i18n - Locale-specific Lingui instance.
  * @return Complete localized Appearance-step copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createOnboardingAppearanceStepCopy( i18n: I18n ): Readonly<OnboardingAppearanceStepCopy> {
 	return Object.freeze( {

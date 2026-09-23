@@ -7,7 +7,7 @@ import type { LocalizationMessagesLoader } from './types';
 /**
  * Creates a complete English bundle from the statically packaged source catalog.
  * @return Complete English copy without an asynchronous catalog request.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createEnglishLocalizationBundle(): Readonly<LocalizationBundle> {
 	return createLocalizationBundle( Language.ENGLISH, englishMessages );
@@ -18,7 +18,7 @@ export function createEnglishLocalizationBundle(): Readonly<LocalizationBundle> 
  * @param language - Authoritative effective language selected by preferences.
  * @param messagesLoader - Packaged message boundary used for the requested language.
  * @return Complete local copy bundle for only the requested language.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export async function loadLocalizationBundle(
 	language: LanguageValue,

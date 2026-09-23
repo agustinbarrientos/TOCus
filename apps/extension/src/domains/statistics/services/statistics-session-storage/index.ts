@@ -20,7 +20,7 @@ import {
  * Creates session persistence for focused allowance measurement.
  * @param options - Session browser storage dependency.
  * @return Session statistics persistence operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createStatisticsSessionStorageService(
 	options: StatisticsSessionStorageServiceOptions,
@@ -30,7 +30,7 @@ export function createStatisticsSessionStorageService(
 
 	/**
 	 * Forgets the cached focus epoch after its owner has drained pending observations.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function forgetFocusEpoch(): void {
 		focusEpochId = null;
@@ -40,7 +40,7 @@ export function createStatisticsSessionStorageService(
 	 * Serializes one focus epoch operation without poisoning the queue after rejection.
 	 * @param operation - Deferred focus epoch operation.
 	 * @return Promise for the operation result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function enqueueFocusEpoch<T>( operation: () => Promise<T> ): Promise<T> {
 		const result = focusEpochQueue.then( operation, operation );
@@ -57,7 +57,7 @@ export function createStatisticsSessionStorageService(
 	 * Reads the current validated focus epoch from browser session storage.
 	 * @return Stored focus epoch identifier, or null when absent or invalid.
 	 * @throws {Error} When the browser storage read rejects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function readFocusEpoch(): Promise<StatisticsFocusEpochId | null> {
 		const values = await options.area.get( StatisticsSessionStorageKey.FOCUS_EPOCH );
@@ -78,7 +78,7 @@ export function createStatisticsSessionStorageService(
 	 * @return Newly persisted focus epoch identifier.
 	 * @throws {import('zod').ZodError} When the identifier factory returns invalid data.
 	 * @throws {Error} When the browser storage write rejects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function createAndPersistFocusEpoch(): Promise<StatisticsFocusEpochId> {
 		const nextFocusEpochId = StatisticsFocusEpochIdSchema.parse( options.createFocusEpochId() );
@@ -96,7 +96,7 @@ export function createStatisticsSessionStorageService(
 	/**
 	 * Returns the current focus epoch inside the serialized operation queue.
 	 * @return Current or newly persisted focus epoch identifier.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function getOrCreateFocusEpochOperation(): Promise<StatisticsFocusEpochId> {
 		if ( focusEpochId !== null ) {
@@ -113,7 +113,7 @@ export function createStatisticsSessionStorageService(
 	 * @return Validated current focus epoch identifier.
 	 * @throws {import('zod').ZodError} When the identifier factory returns invalid data.
 	 * @throws {Error} When the browser storage read or write rejects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function getOrCreateFocusEpoch(): Promise<StatisticsFocusEpochId> {
 		return enqueueFocusEpoch( getOrCreateFocusEpochOperation );
@@ -122,7 +122,7 @@ export function createStatisticsSessionStorageService(
 	/**
 	 * Rotates the focus epoch inside the serialized operation queue.
 	 * @return Focus epoch identifiers on both sides of the boundary.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function rotateFocusEpochOperation(): Promise<StatisticsFocusEpochRotation> {
 		const previousFocusEpochId = focusEpochId ?? await readFocusEpoch();
@@ -136,7 +136,7 @@ export function createStatisticsSessionStorageService(
 	 * @return Validated focus epoch identifiers on both sides of the boundary.
 	 * @throws {import('zod').ZodError} When the identifier factory returns invalid data.
 	 * @throws {Error} When the browser storage read or write rejects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function rotateFocusEpoch(): Promise<StatisticsFocusEpochRotation> {
 		return enqueueFocusEpoch( rotateFocusEpochOperation );
@@ -146,7 +146,7 @@ export function createStatisticsSessionStorageService(
 	 * Removes only live focus work while preserving any validated frozen interval.
 	 * @return Remaining pending-only document, or null when no frozen work remains.
 	 * @throws {Error} When the browser storage read, write, or removal rejects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function discardFocusAnchor(): Promise<StatisticsSessionDocument | null> {
 		const values = await options.area.get( StatisticsSessionStorageKey.SESSION );
@@ -181,7 +181,7 @@ export function createStatisticsSessionStorageService(
 	 * @param currentFocusEpochId - Unknown current focus epoch identifier.
 	 * @return Compatible session work, or null when absent or unsafe.
 	 * @throws {Error} When the browser storage read rejects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function load(
 		statisticsDocument: unknown,
@@ -208,7 +208,7 @@ export function createStatisticsSessionStorageService(
 	 * @return Promise resolved after the write completes.
 	 * @throws {import('zod').ZodError} When the document violates its storage contract.
 	 * @throws {Error} When the browser storage write rejects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function save( input: unknown ): Promise<void> {
 		const document = StatisticsSessionDocumentSchema.parse( input );
@@ -222,7 +222,7 @@ export function createStatisticsSessionStorageService(
 	 * Removes only the session statistics document.
 	 * @return Promise resolved after removal completes.
 	 * @throws {Error} When the browser storage removal rejects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function remove(): Promise<void> {
 		await options.area.remove( StatisticsSessionStorageKey.SESSION );

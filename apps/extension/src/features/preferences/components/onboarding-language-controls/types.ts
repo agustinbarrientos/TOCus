@@ -8,7 +8,7 @@ import type {
 
 /**
  * Controlled onboarding family and variant presentation.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface OnboardingLanguageControlsProps {
 	copy: OnboardingLanguageStepCopy;

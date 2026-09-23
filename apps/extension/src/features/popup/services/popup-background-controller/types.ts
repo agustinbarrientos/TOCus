@@ -5,20 +5,20 @@ import type { PopupProjection } from '../../types/popup-projection';
 
 /**
  * Browser event source used to register one popup message listener.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PopupBackgroundEvent<TListener> {
 	/**
 	 * Registers one listener.
 	 * @param listener - Listener receiving future events.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	addListener( listener: TListener ): void;
 }
 
 /**
  * Browser-provided identity for one local popup message sender.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PopupBackgroundMessageSender {
 	/** URL of the extension document that sent the message. */
@@ -27,13 +27,13 @@ export interface PopupBackgroundMessageSender {
 
 /**
  * Delivers one asynchronous popup projection to the local message channel.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupBackgroundSendResponse = ( response: PopupProjection ) => void;
 
 /**
  * Listener receiving one unknown popup runtime message.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupBackgroundMessageListener = (
 	input: unknown,
@@ -43,7 +43,7 @@ export type PopupBackgroundMessageListener = (
 
 /**
  * Local runtime messaging used by the popup background controller.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PopupBackgroundRuntimeApi {
 	/** Browser runtime message event. */
@@ -52,7 +52,7 @@ export interface PopupBackgroundRuntimeApi {
 
 /**
  * Named browser permissions inspected before creating a no-capability popup snapshot.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PopupBackgroundPermissionQuery {
 	/** Named permissions whose current grant state should be inspected. */
@@ -61,21 +61,21 @@ export interface PopupBackgroundPermissionQuery {
 
 /**
  * Browser permission inspection needed by popup fallback projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PopupBackgroundPermissionsApi {
 	/**
 	 * Reports whether every requested named permission is currently granted.
 	 * @param query - Named permission request.
 	 * @return Whether every requested permission is granted.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	contains( query: PopupBackgroundPermissionQuery ): Promise<boolean>;
 }
 
 /**
  * Browser surface used by the popup background controller.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PopupBackgroundBrowser {
 	/** Optional browser-permission inspection. */
@@ -86,33 +86,33 @@ export interface PopupBackgroundBrowser {
 
 /**
  * Read-only local configuration persistence used before navigation access exists.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PopupBackgroundConfigurationStorage {
 	/**
 	 * Loads the validated current local configuration.
 	 * @return Persisted configuration, defaults, or null when malformed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	load(): Promise<ProtectionConfigurationDocument | null>;
 }
 
 /**
  * Serialized protection runtime operations used by popup projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PopupBackgroundProtectionRuntime {
 	/**
 	 * Reads detached background-only protection state.
 	 * @return Current state or null while protection is unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	readSnapshot(): Promise<BrowserProtectionRuntimeSnapshot | null>;
 }
 
 /**
  * Dependencies used by one popup background controller.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PopupBackgroundControllerOptions {
 	/** Browser message event surface. */
@@ -137,12 +137,12 @@ export interface PopupBackgroundControllerOptions {
 
 /**
  * Synchronous popup background-listener registration.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PopupBackgroundController {
 	/**
 	 * Registers the authenticated popup message listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	start(): void;
 }

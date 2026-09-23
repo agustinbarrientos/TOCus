@@ -20,7 +20,7 @@ import type {
  * Renders a user-opened project resource with a visible external-link indicator.
  * @param props - Canonical resource label and URL.
  * @return Safe external link with the shared new-tab explanation.
- * @since 0.1.0
+ * @since 1.0.0
  */
 function ProjectLink( props: ProjectLinkProps ) {
 	return (
@@ -36,7 +36,7 @@ function ProjectLink( props: ProjectLinkProps ) {
  * Presents installed-version information and canonical project resources.
  * @param props - Settings services and complete localized About content.
  * @return Read-only About destination.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function About( props: SettingsScreenProps ) {
 	const { aboutCopy: copy, aboutVersion: version } = props.shell;

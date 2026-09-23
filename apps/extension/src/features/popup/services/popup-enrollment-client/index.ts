@@ -14,7 +14,7 @@ import type {
  * Creates the popup transport for background-owned website enrollment.
  * @param options - Local runtime transport.
  * @return Gesture-preserving enrollment client.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createPopupEnrollmentClient( options: PopupEnrollmentClientOptions ): PopupEnrollmentClient {
 	return {
@@ -22,7 +22,7 @@ export function createPopupEnrollmentClient( options: PopupEnrollmentClientOptio
 		 * Starts enrollment before yielding the popup user gesture.
 		 * @param input - Current website URL supplied by the popup.
 		 * @return Validated enrollment outcome or a save error.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		async add( input: unknown ): Promise<PopupSiteEnrollmentResult> {
 			try {

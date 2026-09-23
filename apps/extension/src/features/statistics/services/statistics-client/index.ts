@@ -20,7 +20,7 @@ import type {
 /**
  * Creates an unavailable projection without fabricating aggregate values.
  * @return Unavailable statistics projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createUnavailableStatisticsProjection(): StatisticsProjection {
 	return { status: StatisticsProjectionStatus.UNAVAILABLE };
@@ -31,7 +31,7 @@ function createUnavailableStatisticsProjection(): StatisticsProjection {
  * @param options - Statistics client dependencies.
  * @param request - Local statistics request.
  * @return Validated projection or an unavailable marker.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function sendStatisticsRequest(
 	options: StatisticsClientOptions,
@@ -50,7 +50,7 @@ async function sendStatisticsRequest(
  * Creates a fail-closed local statistics source for extension interfaces.
  * @param options - Statistics client dependencies.
  * @return Local statistics source.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createStatisticsClient( options: StatisticsClientOptions ): StatisticsClient {
 	const changeListeners = new Set<StatisticsChangeListener>();
@@ -59,7 +59,7 @@ export function createStatisticsClient( options: StatisticsClientOptions ): Stat
 	 * Notifies subscribers after the local statistics document changes.
 	 * @param changes - Changed browser-storage values.
 	 * @param areaName - Browser storage area containing the changes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	const handleStorageChange: StatisticsStorageChangeListener = ( changes, areaName ): void => {
 		if ( areaName !== 'local' || ! Object.hasOwn( changes, StatisticsStorageKey.STATISTICS ) ) {
@@ -75,7 +75,7 @@ export function createStatisticsClient( options: StatisticsClientOptions ): Stat
 		/**
 		 * Subscribes to authoritative local statistics changes.
 		 * @param listener - Listener notified after the statistics document changes.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		addStatisticsChangeListener( listener: StatisticsChangeListener ): void {
 			if ( changeListeners.size === 0 ) {
@@ -88,7 +88,7 @@ export function createStatisticsClient( options: StatisticsClientOptions ): Stat
 		/**
 		 * Stops notifying one statistics-change listener.
 		 * @param listener - Previously subscribed listener.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		removeStatisticsChangeListener( listener: StatisticsChangeListener ): void {
 			changeListeners.delete( listener );
@@ -101,7 +101,7 @@ export function createStatisticsClient( options: StatisticsClientOptions ): Stat
 		/**
 		 * Reads the current authoritative all-time statistics projection.
 		 * @return Validated projection or an unavailable marker.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		readStatistics(): Promise<StatisticsProjection> {
 			return sendStatisticsRequest( options, {
@@ -112,7 +112,7 @@ export function createStatisticsClient( options: StatisticsClientOptions ): Stat
 		/**
 		 * Resets local all-time statistics without changing protection settings.
 		 * @return Validated projection or an unavailable marker.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		resetStatistics(): Promise<StatisticsProjection> {
 			return sendStatisticsRequest( options, {

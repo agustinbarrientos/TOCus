@@ -4,13 +4,13 @@ import type { LocalizationCatalogReader } from '../read-localization-catalog/typ
 
 /**
  * Compiled Lingui messages indexed by extension preference language.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type RuntimeLocalizationMessages = Readonly<Record<Language, Readonly<Messages>>>;
 
 /**
  * Dependencies used to project focused runtime localization messages.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface CreateRuntimeLocalizationMessagesOptions {
 	readCatalog: LocalizationCatalogReader;

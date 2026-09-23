@@ -6,7 +6,7 @@ import type { PrivacyScreenCopy } from '../../../features/settings/components/pr
  * Creates localized explanations and confirmation messages for local data controls.
  * @param i18n - Locale-specific Lingui instance.
  * @return Complete localized Privacy screen copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createPrivacyScreenCopy( i18n: I18n ): Readonly<PrivacyScreenCopy> {
 	return Object.freeze( {

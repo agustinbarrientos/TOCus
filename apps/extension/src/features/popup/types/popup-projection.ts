@@ -12,7 +12,7 @@ import {
 
 /**
  * Availability states for the complete popup projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupProjectionStatus = {
 	AVAILABLE: 'available',
@@ -21,19 +21,19 @@ export const PopupProjectionStatus = {
 
 /**
  * Validates complete popup projection availability.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupProjectionStatusSchema = z.enum( PopupProjectionStatus );
 
 /**
  * Complete popup projection availability.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupProjectionStatus = z.infer<typeof PopupProjectionStatusSchema>;
 
 /**
  * Current website states presented by the popup.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupCurrentSiteStatus = {
 	UNAVAILABLE: 'unavailable',
@@ -44,19 +44,19 @@ export const PopupCurrentSiteStatus = {
 
 /**
  * Validates a current website popup state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupCurrentSiteStatusSchema = z.enum( PopupCurrentSiteStatus );
 
 /**
  * Current website popup state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupCurrentSiteStatus = z.infer<typeof PopupCurrentSiteStatusSchema>;
 
 /**
  * Browser-access states for a configured website.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupCurrentSiteAccess = {
 	GRANTED: 'granted',
@@ -65,19 +65,19 @@ export const PopupCurrentSiteAccess = {
 
 /**
  * Validates browser access for a configured website.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupCurrentSiteAccessSchema = z.enum( PopupCurrentSiteAccess );
 
 /**
  * Browser access for a configured website.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupCurrentSiteAccess = z.infer<typeof PopupCurrentSiteAccessSchema>;
 
 /**
  * Current schedule states for a configured website.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupScheduleStatus = {
 	ACTIVE: 'active',
@@ -87,19 +87,19 @@ export const PopupScheduleStatus = {
 
 /**
  * Validates a current popup schedule state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupScheduleStatusSchema = z.enum( PopupScheduleStatus );
 
 /**
  * Current popup schedule state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupScheduleStatus = z.infer<typeof PopupScheduleStatusSchema>;
 
 /**
  * Timing-scope kinds presented by the popup.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupScopeKind = {
 	SHARED: 'shared',
@@ -107,19 +107,19 @@ export const PopupScopeKind = {
 
 /**
  * Validates a popup timing-scope kind.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupScopeKindSchema = z.enum( PopupScopeKind );
 
 /**
  * Popup timing-scope kind.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupScopeKind = z.infer<typeof PopupScopeKindSchema>;
 
 /**
  * Active timer phases presented by the popup.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupTimerPhase = {
 	WAITING: 'waiting',
@@ -128,19 +128,19 @@ export const PopupTimerPhase = {
 
 /**
  * Validates a popup timer phase.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupTimerPhaseSchema = z.enum( PopupTimerPhase );
 
 /**
  * Popup timer phase.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupTimerPhase = z.infer<typeof PopupTimerPhaseSchema>;
 
 /**
  * Validates unavailable current-tab metadata.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const PopupUnavailableCurrentSiteSchema = z.object( {
 	status: z.enum( [ PopupCurrentSiteStatus.UNAVAILABLE ] ),
@@ -148,7 +148,7 @@ const PopupUnavailableCurrentSiteSchema = z.object( {
 
 /**
  * Validates a browser-controlled current page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const PopupUnsupportedCurrentSiteSchema = z.object( {
 	status: z.enum( [ PopupCurrentSiteStatus.UNSUPPORTED ] ),
@@ -156,7 +156,7 @@ const PopupUnsupportedCurrentSiteSchema = z.object( {
 
 /**
  * Validates a website that is not configured in TOCus.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const PopupUnprotectedCurrentSiteSchema = z.object( {
 	status: z.enum( [ PopupCurrentSiteStatus.UNPROTECTED ] ),
@@ -165,7 +165,7 @@ const PopupUnprotectedCurrentSiteSchema = z.object( {
 
 /**
  * Validates a configured website and its current timing availability.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const PopupProtectedCurrentSiteSchema = z.object( {
 	status: z.enum( [ PopupCurrentSiteStatus.PROTECTED ] ),
@@ -208,7 +208,7 @@ const PopupProtectedCurrentSiteSchema = z.object( {
 
 /**
  * Validates every current website state presented by the popup.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupCurrentSiteSchema = z.discriminatedUnion( 'status', [
 	PopupUnavailableCurrentSiteSchema,
@@ -219,19 +219,19 @@ export const PopupCurrentSiteSchema = z.discriminatedUnion( 'status', [
 
 /**
  * Current website state presented by the popup.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupCurrentSite = z.infer<typeof PopupCurrentSiteSchema>;
 
 /**
  * Current website states that include validated local site metadata.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupProtectedCurrentSite = z.infer<typeof PopupProtectedCurrentSiteSchema>;
 
 /**
  * Fields shared by every active popup scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const PopupActiveScopeFields = {
 	scopeId: ProtectionScopeIdSchema.refine( ( scopeId ) => scopeId === DefaultProtectionScopeId ),
@@ -241,7 +241,7 @@ const PopupActiveScopeFields = {
 
 /**
  * Validates one shared Waiting scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const PopupSharedWaitingScopeSchema = z.object( {
 	...PopupActiveScopeFields,
@@ -253,7 +253,7 @@ const PopupSharedWaitingScopeSchema = z.object( {
 
 /**
  * Validates one shared wall-clock Allowance scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const PopupSharedAllowanceScopeSchema = z.object( {
 	...PopupActiveScopeFields,
@@ -265,7 +265,7 @@ const PopupSharedAllowanceScopeSchema = z.object( {
 
 /**
  * Validates one active Waiting or Allowance scope without permitting mismatched site metadata.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupActiveScopeSchema = z.discriminatedUnion( 'phase', [
 	PopupSharedWaitingScopeSchema,
@@ -274,13 +274,13 @@ export const PopupActiveScopeSchema = z.discriminatedUnion( 'phase', [
 
 /**
  * Active Waiting or Allowance scope presented by the popup.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupActiveScope = z.infer<typeof PopupActiveScopeSchema>;
 
 /**
  * Validates an unavailable popup projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupUnavailableProjectionSchema = z.object( {
 	status: z.enum( [ PopupProjectionStatus.UNAVAILABLE ] ),
@@ -288,13 +288,13 @@ export const PopupUnavailableProjectionSchema = z.object( {
 
 /**
  * Unavailable popup projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupUnavailableProjection = z.infer<typeof PopupUnavailableProjectionSchema>;
 
 /**
  * Validates an available popup projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupAvailableProjectionSchema = z.object( {
 	status: z.enum( [ PopupProjectionStatus.AVAILABLE ] ),
@@ -339,13 +339,13 @@ export const PopupAvailableProjectionSchema = z.object( {
 
 /**
  * Available popup projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupAvailableProjection = z.infer<typeof PopupAvailableProjectionSchema>;
 
 /**
  * Validates every popup projection returned by the background runtime.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupProjectionSchema = z.discriminatedUnion( 'status', [
 	PopupUnavailableProjectionSchema,
@@ -354,6 +354,6 @@ export const PopupProjectionSchema = z.discriminatedUnion( 'status', [
 
 /**
  * Complete popup projection returned by the background runtime.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupProjection = z.infer<typeof PopupProjectionSchema>;

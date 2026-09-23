@@ -30,7 +30,7 @@ const MAXIMUM_DATE_EPOCH_MILLISECONDS = 8_640_000_000_000_000;
  * Creates the deterministic formatter shared by one schedule operation.
  * @param timeZone - Validated IANA time-zone identifier.
  * @return Date-time formatter, or null when the runtime rejects the time zone.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createScheduleFormatter( timeZone: TimeZoneInput ): Intl.DateTimeFormat | null {
 	try {
@@ -48,7 +48,7 @@ function createScheduleFormatter( timeZone: TimeZoneInput ): Intl.DateTimeFormat
  * @param instant - Validated epoch-millisecond instant.
  * @param formatter - Formatter bound to the requested time zone.
  * @return Local weekday and minute from midnight.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getLocalSchedulePosition(
 	instant: number,
@@ -68,7 +68,7 @@ function getLocalSchedulePosition(
  * @param weekday - Local weekday at the evaluated instant.
  * @param localMinute - Local minute from midnight at the evaluated instant.
  * @return Whether the schedule is active at the local weekly position.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function isScheduleActive(
 	schedule: NormalizedSchedule,
@@ -89,7 +89,7 @@ function isScheduleActive(
  * Reports whether a normalized custom schedule covers every minute of the week.
  * @param schedule - Validated normalized schedule.
  * @return Whether the schedule can never change state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function isPermanentlyActive( schedule: NormalizedSchedule ): boolean {
 	if ( schedule.mode === ScheduleMode.ALWAYS ) {
@@ -109,7 +109,7 @@ function isPermanentlyActive( schedule: NormalizedSchedule ): boolean {
  * @param instant - Candidate epoch-millisecond instant.
  * @param formatter - Formatter bound to the requested time zone.
  * @return Whether at least one schedule changed status.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function hasScheduleStatusChanged(
 	schedules: ReadonlyArray<NormalizedSchedule>,
@@ -132,7 +132,7 @@ function hasScheduleStatusChanged(
  * @param changedInstant - Earliest sampled instant known to contain a changed status.
  * @param formatter - Formatter bound to the requested time zone.
  * @return First epoch millisecond where at least one schedule changed.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function findFirstChangedInstant(
 	schedules: ReadonlyArray<NormalizedSchedule>,
@@ -164,7 +164,7 @@ function findFirstChangedInstant(
  * @param timeZone - Unknown IANA time-zone input.
  * @return An active or inactive result, or a stable invalid-time-zone error.
  * @throws {import('zod').ZodError} When the schedule or instant does not match its public contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function evaluateSchedule( schedule: unknown, instant: unknown, timeZone: unknown ): ScheduleEvaluationResult {
 	const parsedSchedule = NormalizedScheduleSchema.parse( schedule );
@@ -203,7 +203,7 @@ export function evaluateSchedule( schedule: unknown, instant: unknown, timeZone:
  * @param timeZone - Unknown IANA time-zone input.
  * @return Earliest transition deadline, or null when no transition can be found safely.
  * @throws {import('zod').ZodError} When the schedules or instant do not match their public contracts.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function getNextScheduleTransitionDeadline(
 	schedules: unknown,

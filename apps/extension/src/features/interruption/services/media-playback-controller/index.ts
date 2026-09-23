@@ -9,7 +9,7 @@ import type {
  * Creates the native video interruption lifecycle for one document.
  * @param options - Document and live location dependencies.
  * @return Playback lifecycle for the content document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createMediaPlaybackController(
 	options: MediaPlaybackControllerOptions,
@@ -21,7 +21,7 @@ export function createMediaPlaybackController(
 	/**
 	 * Reports whether the current page supports native playback control.
 	 * @return Whether this document may have its playback controlled.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function isSupportedPage(): boolean {
 		return isPlaybackSite( new URL( options.location.href ) );
@@ -29,7 +29,7 @@ export function createMediaPlaybackController(
 
 	/**
 	 * Suppresses native playback attempts while the interruption owns the hold.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function enforcePause(): void {
 		if ( ! isSupportedPage() ) {
@@ -44,7 +44,7 @@ export function createMediaPlaybackController(
 
 	/**
 	 * Captures playing media once before holding subsequent playback attempts.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function pause(): void {
 		if ( stopped || held || ! isSupportedPage() ) {
@@ -70,7 +70,7 @@ export function createMediaPlaybackController(
 	/**
 	 * Releases the document listener and consumes every playback snapshot.
 	 * @return Previously owned playback snapshots.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function release(): MediaPlaybackSnapshot[] {
 		if ( held ) {
@@ -85,7 +85,7 @@ export function createMediaPlaybackController(
 	/**
 	 * Attempts restoration only while the original element, source, and page remain unchanged.
 	 * @return Completion of native playback attempts, including browser denials.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function resume(): Promise<void> {
 		const previous = release();
@@ -108,7 +108,7 @@ export function createMediaPlaybackController(
 
 	/**
 	 * Ends the lifecycle without starting media playback.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function stop(): void {
 		stopped = true;

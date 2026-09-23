@@ -6,7 +6,7 @@ import type { NavigationRedirectOptions } from './types';
  * Resolves a navigation carrier before the ordinary interruption page authenticates or mounts.
  * @param options - Current location and extension runtime boundaries.
  * @return Whether the current document is a navigation carrier owned by this handshake.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export async function resolveNavigationRedirect( options: NavigationRedirectOptions ): Promise<boolean> {
 	const currentUrl = options.runtime.getURL( InterruptionDocumentPath.CURRENT );

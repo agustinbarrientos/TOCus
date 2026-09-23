@@ -15,7 +15,7 @@ import './style.scss';
  * Shares a packaged language selector across all ten supported language variants.
  * @param props - Controlled exact language or browser-following preference.
  * @return Accessible language selection and the browser language explanation.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function LanguageControls( props: LanguageControlsProps ) {
 	const { copy, value, browserLanguage, disabled = false } = props;

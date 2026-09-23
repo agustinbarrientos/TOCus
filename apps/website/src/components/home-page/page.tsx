@@ -11,7 +11,7 @@ import './style.scss';
  * Introduces TOCus through a riverside scene, illustrated steps and concise feature explanations.
  * @param props - Current locale, routes and packaged product messages.
  * @return Progressively enhanced website without visitor tracking.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export default function HomePage( props: LocalizedHomePageProperties ) {
 	const { localization, localizations } = props;

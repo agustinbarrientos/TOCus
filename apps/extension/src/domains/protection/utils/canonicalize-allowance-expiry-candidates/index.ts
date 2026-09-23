@@ -13,7 +13,7 @@ import type { CanonicalAllowanceExpiryCandidates } from './types';
  * @param left - First validated URL-match result.
  * @param right - Second validated URL-match result.
  * @return Whether both results contain the same complete observation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function protectedUrlMatchesAreEqual(
 	left: AllowanceExpiryEvent['candidates'][number]['match'],
@@ -42,7 +42,7 @@ function protectedUrlMatchesAreEqual(
  * @param left - First validated candidate observation.
  * @param right - Second validated candidate observation.
  * @return Whether destination, focus eligibility, and complete match details are equal.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function candidateObservationsAreEqual(
 	left: AllowanceExpiryEvent['candidates'][number],
@@ -58,7 +58,7 @@ function candidateObservationsAreEqual(
  * @param participants - Current authoritative Ready participants.
  * @param candidates - Validated Ready-source observations from the expiry batch.
  * @return Deduplicated current Ready observations, or null for any identity or observation conflict.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function canonicalizeReadyCandidates(
 	participants: readonly ProtectionParticipant[],
@@ -110,7 +110,7 @@ function canonicalizeReadyCandidates(
  * @param participants - Current authoritative Ready participants.
  * @param candidates - Validated live-source observations from the expiry batch.
  * @return Deduplicated live observations, or null for any identity or observation conflict.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function canonicalizeLiveCandidates(
 	participants: readonly ProtectionParticipant[],
@@ -160,7 +160,7 @@ function canonicalizeLiveCandidates(
  * @param readyParticipants - Current authoritative Ready participants.
  * @param event - Validated allowance-expiry transaction carrying the complete fresh candidate batch.
  * @return Canonical source-partitioned observations, or null when any identity or observation conflicts.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function canonicalizeAllowanceExpiryCandidates(
 	readyParticipants: readonly ProtectionParticipant[],

@@ -8,7 +8,7 @@ import type { OnboardingController, OnboardingState } from './flow';
 
 /**
  * Immutable page projection and its controller-facing mutable event port.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface OnboardingViewProps {
 	readonly state: Readonly<OnboardingState>;
@@ -17,7 +17,7 @@ export interface OnboardingViewProps {
 
 /**
  * Shared inputs for the three onboarding step presentations.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface OnboardingStepProps {
 	readonly state: Readonly<OnboardingState>;
@@ -27,7 +27,7 @@ export interface OnboardingStepProps {
 
 /**
  * Heading ownership used for focus restoration after step transitions.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface OnboardingContentProps extends OnboardingStepProps {
 	readonly heading: RefObject<HTMLHeadingElement | null>;
@@ -35,7 +35,7 @@ export interface OnboardingContentProps extends OnboardingStepProps {
 
 /**
  * Localized suggestion and the currently selected matching rule, when present.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface OnboardingSuggestionProps {
 	readonly suggestion: Readonly<OnboardingSiteSuggestion>;
@@ -45,7 +45,7 @@ export interface OnboardingSuggestionProps {
 
 /**
  * One selected website with its optional bundled icon and localized removal action.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface OnboardingSiteRowProps {
 	readonly site: ProtectedSiteConfiguration;
@@ -56,7 +56,7 @@ export interface OnboardingSiteRowProps {
 
 /**
  * Authoritative appearance and localized copy for the analytics-free preview.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface PausePreviewProps {
 	readonly state: Readonly<OnboardingState>;

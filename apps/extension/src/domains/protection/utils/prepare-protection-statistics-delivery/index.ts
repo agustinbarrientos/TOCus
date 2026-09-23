@@ -19,7 +19,7 @@ import type { PrepareStatisticsDeliveryForTransitionInput } from './types';
  * Returns one fact's observation time regardless of its kind-specific field name.
  * @param fact - Validated protection fact.
  * @return Fact observation time in epoch milliseconds.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getProtectionFactObservationTime( fact: ProtectionFact ): number {
 	switch ( fact.type ) {
@@ -36,7 +36,7 @@ function getProtectionFactObservationTime( fact: ProtectionFact ): number {
 /**
  * Returns a detached empty complete statistics-delivery value.
  * @return Empty complete durable statistics delivery.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createEmptyProtectionStatisticsDelivery(): StoredProtectionStatisticsDelivery {
 	return StoredProtectionStatisticsDeliverySchema.parse( {
@@ -49,7 +49,7 @@ export function createEmptyProtectionStatisticsDelivery(): StoredProtectionStati
  * Clones durable statistics delivery without exposing coordinator-owned values.
  * @param delivery - Validated coordinator-owned delivery value.
  * @return Detached validated delivery value.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function cloneProtectionStatisticsDelivery(
 	delivery: StoredProtectionStatisticsDelivery,
@@ -61,7 +61,7 @@ export function cloneProtectionStatisticsDelivery(
  * Marks delivery incomplete while retaining every queued batch unchanged.
  * @param delivery - Current validated delivery value.
  * @return Detached incomplete delivery with the same outbox.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function markProtectionStatisticsDeliveryIncomplete(
 	delivery: StoredProtectionStatisticsDelivery,
@@ -76,7 +76,7 @@ function markProtectionStatisticsDeliveryIncomplete(
  * Appends one validated fact batch or marks delivery incomplete while retaining queued batches.
  * @param input - Current delivery, emitted facts, captured local date, revision, scope, and batch factory.
  * @return Next validated durable statistics delivery.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function prepareStatisticsDeliveryForTransition(
 	input: PrepareStatisticsDeliveryForTransitionInput,

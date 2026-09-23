@@ -11,7 +11,7 @@ import type {
  * Creates dynamic-rule reconciliation for protected top-level navigation.
  * @param options - Browser, clock, and time-zone dependencies.
  * @return Navigation-rule reconciliation operation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createNavigationRuleReconciler(
 	options: NavigationRuleReconcilerOptions,
@@ -21,7 +21,7 @@ export function createNavigationRuleReconciler(
 	 * @param configuration - Current validated local configuration or unavailable marker.
 	 * @param statesByScope - Current authoritative states or unavailable marker.
 	 * @return Promise resolved after atomic browser reconciliation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function reconcile(
 		configuration: Parameters<NavigationRuleReconciler[ 'reconcile' ]>[ 0 ],

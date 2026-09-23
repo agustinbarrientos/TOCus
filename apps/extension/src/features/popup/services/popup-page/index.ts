@@ -23,7 +23,7 @@ const COUNTDOWN_INTERVAL_MILLISECONDS = 1_000;
 /**
  * Reveals the popup after its initial state becomes coherent.
  * @param options - Popup page dependencies containing the owned document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function revealPopupPage( options: PopupPageOptions ): void {
 	options.document.documentElement.style.removeProperty( 'color-scheme' );
@@ -35,7 +35,7 @@ function revealPopupPage( options: PopupPageOptions ): void {
  * Projects one complete localization snapshot into the popup.
  * @param options - Popup presentation dependencies.
  * @param localization - Validated packaged localization bundle.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function applyLocalization(
 	options: PopupPageOptions,
@@ -50,7 +50,7 @@ function applyLocalization(
  * Returns the current website host eligible for a cached favicon.
  * @param projection - Current semantic popup projection.
  * @return Current website identity host or null when unavailable.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getCurrentIdentityHost( projection: PopupProjection ): string | null {
 	if ( projection.status !== PopupProjectionStatus.AVAILABLE ) {
@@ -70,7 +70,7 @@ function getCurrentIdentityHost( projection: PopupProjection ): string | null {
  * Maps one enrollment result to stable popup recovery copy.
  * @param result - Protected-site enrollment result.
  * @return Popup operation error or null after successful enrollment.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getEnrollmentError(
 	result: PopupSiteEnrollmentResult,
@@ -103,7 +103,7 @@ function getEnrollmentError(
  * Starts the complete popup page and its popup-lifetime observers.
  * @param options - Local services, browser lifecycle, and popup presentation dependencies.
  * @return Promise resolved after initial preferences, copy, and status are visible.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export async function startPopupPage( options: PopupPageOptions ): Promise<void> {
 	let active = true;
@@ -116,7 +116,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 	/**
 	 * Reports whether this popup instance still owns asynchronous work.
 	 * @return Whether the popup lifecycle remains active.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function isActive(): boolean {
 		return active;
@@ -126,7 +126,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 	 * Reports whether one status request still owns the current projection.
 	 * @param requestedRevision - Revision captured before asynchronous work.
 	 * @return Whether the request can safely project its result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function isCurrentStatusRequest( requestedRevision: number ): boolean {
 		return isActive() && requestedRevision === statusRevision;
@@ -134,7 +134,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 
 	/**
 	 * Stops the current allowance display interval when present.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function clearCountdown(): void {
 		if ( countdownIntervalId === null ) {
@@ -148,7 +148,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 	/**
 	 * Applies a local cached-favicon source without allowing provider failure to hide status.
 	 * @param projection - Current validated semantic projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function applyFavicon( projection: PopupProjection ): void {
 		const identityHost = getCurrentIdentityHost( projection );
@@ -169,7 +169,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 	 * Returns the shared wall-clock Allowance expiry in one projection.
 	 * @param projection - Current semantic popup projection.
 	 * @return Shared expiry or null when no Allowance is open.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function getNextAllowanceExpiry( projection: PopupProjection ): number | null {
 		if ( projection.status !== PopupProjectionStatus.AVAILABLE ) {
@@ -182,7 +182,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 
 	/**
 	 * Refreshes status after one wall-clock Allowance expires.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleCountdownExpiry(): void {
 		void refreshProjection( true );
@@ -191,7 +191,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 	/**
 	 * Starts local display updates only for absolute Allowance expiry.
 	 * @param projection - Current semantic popup projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function configureCountdown( projection: PopupProjection ): void {
 		clearCountdown();
@@ -216,7 +216,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 	/**
 	 * Projects one authoritative status into all popup presentation properties.
 	 * @param projection - Current validated semantic projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function applyProjection( projection: PopupProjection ): void {
 		options.shell.projection = projection;
@@ -231,7 +231,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 	 * Loads and applies one packaged localization if it remains current.
 	 * @param language - Effective selected or browser-derived language.
 	 * @return Promise resolved after this localization request settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function requestLocalization( language: Language ): Promise<void> {
 		localizationRevision += 1;
@@ -247,7 +247,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 	 * Applies live language changes while retaining the last usable copy on failure.
 	 * @param language - Newly effective preference language.
 	 * @return Promise resolved after the live localization request settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function applyLiveLocalization( language: Language ): Promise<void> {
 		try {
@@ -260,7 +260,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 	/**
 	 * Starts one non-blocking live localization projection.
 	 * @param language - Newly effective preference language.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleLanguageChange( language: Language ): void {
 		void applyLiveLocalization( language );
@@ -269,7 +269,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 	/**
 	 * Waits until the most recently requested startup localization is projected.
 	 * @return Promise resolved when no newer language request is pending.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function synchronizeLocalization(): Promise<void> {
 		let requestedRevision: number;
@@ -284,7 +284,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 	 * Refreshes the current status while discarding stale asynchronous results.
 	 * @param rereadCurrentTab - Whether to read current active-tab metadata first.
 	 * @return Whether a fresh projection was applied.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function refreshProjection( rereadCurrentTab: boolean ): Promise<boolean> {
 		statusRevision += 1;
@@ -318,7 +318,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 	/**
 	 * Completes one direct-gesture enrollment request.
 	 * @param request - Enrollment operation already started by the click handler.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function completeEnrollment(
 		request: Promise<PopupSiteEnrollmentResult>,
@@ -353,7 +353,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 
 	/**
 	 * Starts enrollment synchronously from the user's click before any asynchronous work.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleAddSite(): void {
 		if ( ! active || options.shell.adding || currentTab === null ) {
@@ -376,7 +376,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 	/**
 	 * Completes one user-requested status recovery and restores focus after rerendering.
 	 * @return Promise resolved after recovery settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function completeRetry(): Promise<void> {
 		const refreshed = await refreshProjection( true );
@@ -396,7 +396,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 
 	/**
 	 * Re-reads the active tab and refreshes status after a user recovery request.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleRetry(): void {
 		if ( retryPending ) {
@@ -411,7 +411,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 
 	/**
 	 * Releases every observer and interval owned by this popup instance.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function stop(): void {
 		if ( ! active ) {
@@ -431,7 +431,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
 
 	/**
 	 * Stops popup-lifetime work when the browser dismisses the popup.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handlePageHide(): void {
 		stop();
@@ -479,7 +479,7 @@ export async function startPopupPage( options: PopupPageOptions ): Promise<void>
  * Starts the popup while presenting branded local recovery after terminal failure.
  * @param options - Local services, browser lifecycle, and popup presentation dependencies.
  * @return Promise resolved after ordinary startup or recovery becomes visible.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export async function bootstrapPopupPage( options: PopupPageOptions ): Promise<void> {
 	try {
@@ -493,7 +493,7 @@ export async function bootstrapPopupPage( options: PopupPageOptions ): Promise<v
 		/**
 		 * Completes a full popup restart and restores focus to its resulting action.
 		 * @return Promise resolved after startup and focus restoration settle.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		async function completeRecoveryRetry(): Promise<void> {
 			try {
@@ -506,7 +506,7 @@ export async function bootstrapPopupPage( options: PopupPageOptions ): Promise<v
 
 		/**
 		 * Retries complete popup startup from the visible recovery action.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function handleRecoveryRetry(): void {
 			options.shell.retrying = true;

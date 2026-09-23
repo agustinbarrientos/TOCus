@@ -5,7 +5,7 @@ import { LocalDateSchema, type LocalDate } from '../../../protection/types/prote
  * @param date - Valid local date, represented without a time zone.
  * @param days - Whole calendar days to add or subtract.
  * @return Shifted valid local date.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function shiftStatisticsDate( date: LocalDate, days: number ): LocalDate {
 	const calendar = new Date( `${ date }T00:00:00.000Z` );

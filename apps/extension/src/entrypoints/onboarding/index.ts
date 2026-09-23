@@ -19,7 +19,7 @@ const onboardingShell = mountOnboarding( container );
 /**
  * Opens the browser-managed extension Settings page.
  * @return Promise resolved after the browser accepts the request.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function openSettings(): Promise<void> {
 	return browser.runtime.openOptionsPage();
@@ -28,7 +28,7 @@ function openSettings(): Promise<void> {
 /**
  * Verifies and consumes the completed-reset handoff in this onboarding tab.
  * @return Whether the loaded page may announce reset completion once.
- * @since 0.1.0
+ * @since 1.0.0
  */
 function readResetCompletion(): Promise<boolean> {
 	return consumeOnboardingResetCompletion( { storageArea: browser.storage.local, pageWindow: window } );

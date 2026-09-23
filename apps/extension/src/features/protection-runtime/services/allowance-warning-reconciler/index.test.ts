@@ -23,19 +23,19 @@ import {
 
 /**
  * Fixed allowance expiry used by warning reconciliation fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ALLOWANCE_EXPIRY_EPOCH_MILLISECONDS = 300_001;
 
 /**
  * Fixed warning-window start used by warning reconciliation fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const WARNING_START_EPOCH_MILLISECONDS = ALLOWANCE_EXPIRY_EPOCH_MILLISECONDS - 10_000;
 
 /**
  * Configuration containing one protected host in the default scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
@@ -51,7 +51,7 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
 
 /**
  * Active allowance used by warning reconciliation tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ALLOWANCE_STATE = AllowanceProtectionStateSchema.parse( {
 	type: ProtectionStateType.ALLOWANCE,
@@ -70,7 +70,7 @@ afterEach( () => {
 
 /**
  * Observable browser boundary used by allowance-warning tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class AllowanceWarningBrowserFixture {
 	focusedTabId: number | null = 7;
@@ -92,7 +92,7 @@ class AllowanceWarningBrowserFixture {
 	/**
 	 * Returns the focused test tab identifier.
 	 * @return Focused tab identifier.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getFocusedTabId = (): Promise<number | null> => Promise.resolve( this.focusedTabId );
 
@@ -100,7 +100,7 @@ class AllowanceWarningBrowserFixture {
 	 * Returns the current presentation for one test tab.
 	 * @param tabId - Browser tab identifier.
 	 * @return Current protected-page presentation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getProtectedPagePresentation = (
 		tabId: number,
@@ -113,7 +113,7 @@ class AllowanceWarningBrowserFixture {
 	/**
 	 * Returns the test browser tabs.
 	 * @return Current browser tabs.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	listTabs = (): Promise<ReadonlyArray<ProtectionRuntimeTab>> => Promise.resolve( this.tabs );
 
@@ -122,7 +122,7 @@ class AllowanceWarningBrowserFixture {
 	 * @param tabId - Browser tab identifier.
 	 * @param message - Protected-page command.
 	 * @return Resolved browser operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	updateProtectedPagePresentation = (
 		tabId: number,
@@ -139,7 +139,7 @@ class AllowanceWarningBrowserFixture {
  * @param browser - Browser fixture receiving presentation effects.
  * @param getTimeZone - Time-zone provider override.
  * @return Allowance-warning reconciler under test.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createFixtureReconciler(
 	browser: AllowanceWarningBrowserFixture,
@@ -151,7 +151,7 @@ function createFixtureReconciler(
 		/**
 		 * Returns the fixture's current epoch time.
 		 * @return Current epoch milliseconds.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		now: () => browser.nowEpochMilliseconds,
 	} );

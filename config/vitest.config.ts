@@ -3,7 +3,7 @@ import { createLocalizationViteConfig } from '../apps/extension/config/vite/serv
 
 /**
  * Configures the repository's unit and build-contract test projects.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export default defineConfig( {
 	test: {
@@ -67,6 +67,7 @@ export default defineConfig( {
 				'apps/extension/src/features/onboarding/utils/site-drafts/**/*.ts',
 				'apps/extension/src/features/interruption/services/interruption-page/**/*.ts',
 				'apps/extension/src/features/interruption/services/interruption-page-controller/**/*.ts',
+				'apps/extension/src/features/interruption/services/review-prompt-controller/**/*.ts',
 				'apps/extension/src/features/interruption/services/protected-page/**/*.ts',
 				'apps/extension/src/features/interruption/services/protected-page-layer-controller/**/*.ts',
 				'apps/extension/src/features/interruption/services/media-playback-controller/**/*.ts',

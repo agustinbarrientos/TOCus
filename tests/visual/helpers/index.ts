@@ -13,27 +13,27 @@ import type {} from '../../../apps/extension/src/features/interruption/component
 
 /**
  * Local production-fixture server used only during visual comparisons.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const ExtensionOrigin = 'http://127.0.0.1:4177';
 /**
  * Local preview of the freshly built Astro output.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const WebsiteOrigin = 'http://127.0.0.1:4178';
 /**
  * Existing typed Settings fixture with real production editors.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const SettingsFixture = `${ ExtensionOrigin }/apps/extension/src/features/settings/components/shell/__fixtures__/index.html`;
 /**
  * Existing production onboarding and popup mounting fixture.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const PresentationFixture = `${ ExtensionOrigin }/apps/extension/tests/ui/index.html`;
 /**
  * Existing production pause adapter with its deterministic test clock.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const PauseFixture = `${ ExtensionOrigin }/apps/extension/src/features/interruption/components/screen/__fixtures__/browser.html`;
 
@@ -48,7 +48,7 @@ test.beforeAll( () => {
  * @param page - Existing Settings fixture page.
  * @param appearance - Valid product appearance to display.
  * @return Completion after the shared provider observes both attributes.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export async function setAppearance( page: Page, appearance: VisualAppearance ): Promise<void> {
 	await page.evaluate( ( value ) => {
@@ -64,7 +64,7 @@ export async function setAppearance( page: Page, appearance: VisualAppearance ):
  * @param page - Onboarding Language page before the preview mounts.
  * @param showPreview - Real user action that mounts the production Appearance preview.
  * @return Completion after a deterministic still frame renders.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export async function freezePreview( page: Page, showPreview: () => Promise<void> ): Promise<void> {
 	const observer = await page.evaluateHandle( () => {
@@ -103,7 +103,7 @@ export async function freezePreview( page: Page, showPreview: () => Promise<void
  * @param name - Reviewed golden filename.
  * @param fullPage - Whether document content rather than a fixed-position viewport is captured.
  * @return Completion of the strict Playwright screenshot comparison.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export async function comparePage( page: Page, name: string, fullPage = true ): Promise<void> {
 	await page.evaluate( () => document.fonts.ready );

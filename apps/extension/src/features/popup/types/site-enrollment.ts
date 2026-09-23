@@ -4,13 +4,13 @@ import { ProtectedSiteEnrollmentStatus } from '../../protected-sites/services/pr
 
 /**
  * Local request identifying a popup-owned user gesture for website enrollment.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupSiteEnrollmentRequestType = 'add-popup-site';
 
 /**
  * Validates a website addition before the background requests browser access.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupSiteEnrollmentRequestSchema = z.object( {
 	type: z.enum( [ PopupSiteEnrollmentRequestType ] ),
@@ -19,13 +19,13 @@ export const PopupSiteEnrollmentRequestSchema = z.object( {
 
 /**
  * Validated popup website addition request.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupSiteEnrollmentRequest = z.infer<typeof PopupSiteEnrollmentRequestSchema>;
 
 /**
  * Validates the enrollment outcome without exposing the saved configuration.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupSiteEnrollmentResultSchema = z.discriminatedUnion( 'status', [
 	z.object( {
@@ -47,6 +47,6 @@ export const PopupSiteEnrollmentResultSchema = z.discriminatedUnion( 'status', [
 
 /**
  * Presentation-neutral enrollment outcome returned to the popup.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupSiteEnrollmentResult = z.infer<typeof PopupSiteEnrollmentResultSchema>;

@@ -6,7 +6,7 @@ import { createStatisticsClient } from './index';
 
 /**
  * Browser storage-change listener used by the statistics-client fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 type TestStorageChangeListener = (
 	changes: Readonly<Record<string, { readonly newValue?: unknown }>>,
@@ -15,19 +15,19 @@ type TestStorageChangeListener = (
 
 /**
  * Mutable browser storage-change source used by statistics-client tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryStorageChangeSource {
 	/**
 	 * Storage-change listeners registered with the source.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private readonly listeners = new Set<TestStorageChangeListener>();
 
 	/**
 	 * Begins delivering browser storage changes to one listener.
 	 * @param listener - Browser storage-change listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	addListener( listener: TestStorageChangeListener ): void {
 		this.listeners.add( listener );
@@ -36,7 +36,7 @@ class MemoryStorageChangeSource {
 	/**
 	 * Stops delivering browser storage changes to one listener.
 	 * @param listener - Previously registered listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	removeListener( listener: TestStorageChangeListener ): void {
 		this.listeners.delete( listener );
@@ -46,7 +46,7 @@ class MemoryStorageChangeSource {
 	 * Emits one browser storage change to every active listener.
 	 * @param changes - Changed values indexed by storage key.
 	 * @param areaName - Browser storage area containing the changes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	emit(
 		changes: Readonly<Record<string, { readonly newValue?: unknown }>>,
@@ -60,7 +60,7 @@ class MemoryStorageChangeSource {
 
 /**
  * Complete available projection returned by a trusted statistics runtime.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const AVAILABLE_STATISTICS_PROJECTION = Object.freeze( {
 	status: StatisticsProjectionStatus.AVAILABLE,

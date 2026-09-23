@@ -10,7 +10,7 @@ import type { ResolveFocusedAllowanceInput } from './types';
  * @param input - Current browser and protection observations.
  * @param focusedTabId - Browser-assigned focused tab identifier.
  * @return Explicit navigating, pending, or committed URL when observable.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getFocusedTabUrl(
 	input: ResolveFocusedAllowanceInput,
@@ -33,7 +33,7 @@ function getFocusedTabUrl(
  * Resolves the allowance receiving confirmed focus without retaining browsing details.
  * @param input - Current browser, configuration, state, and clock observations.
  * @return Current allowance measurement identity, or null when focus is ineligible.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function resolveFocusedAllowance(
 	input: ResolveFocusedAllowanceInput,

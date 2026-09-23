@@ -34,7 +34,7 @@ import type {
  * @param left - First validated protection configuration.
  * @param right - Second validated protection configuration.
  * @return True when both configurations carry the same scope revisions.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function haveMatchingMeasurementRevisions(
 	left: ProtectionConfigurationDocument,
@@ -54,7 +54,7 @@ function haveMatchingMeasurementRevisions(
  * Creates stateful statistics coordination without adding a second runtime queue.
  * @param options - Local/session storage and protection dependencies.
  * @return Statistics runtime serialized by its caller.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): StatisticsRuntime {
 	let configuration: ProtectionConfigurationDocument | null = null;
@@ -64,7 +64,7 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 	/**
 	 * Reads the current browser-session continuity identifier from protection state.
 	 * @return Current continuity identifier, or null before protection initializes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function getSessionContinuityId(): SessionContinuityId | null {
 		return options.coordinator.getSessionContinuityId();
@@ -78,7 +78,7 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 
 	/**
 	 * Forgets statistics and focus caches after their owner has drained pending operations.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function forgetForDataReset(): void {
 		configuration = null;
@@ -96,7 +96,7 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 	 * Persists focus continuity before any asynchronous browser inspection begins.
 	 * @param mode - Relationship between the observation and browser focus state.
 	 * @return Focus epoch context, or null when session persistence is unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function beginFocusObservation(
 		mode: Parameters<StatisticsRuntime['beginFocusObservation']>[0],
@@ -107,7 +107,7 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 	/**
 	 * Removes retained focus work even before aggregate statistics have initialized.
 	 * @return Promise resolved after the contained session-storage attempt.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function discardFocusMeasurement(): Promise<void> {
 		return focusSession.discardFocusMeasurement();
@@ -115,7 +115,7 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 
 	/**
 	 * Disables all work that depends on a successfully reconciled local document.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function markConfigurationUnavailable(): void {
 		configuration = null;
@@ -124,7 +124,7 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 
 	/**
 	 * Disables statistics work while retaining an independently validated raw configuration.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function markStatisticsUnavailable(): void {
 		focusSession.markUnavailable();
@@ -135,7 +135,7 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 	/**
 	 * Returns whether current state permits creation of new focus measurement work.
 	 * @return True only after complete delivery and healthy session initialization.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function focusMeasurementIsEnabled(): boolean {
 		return configuration !== null &&
@@ -148,7 +148,7 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 	 * Loads and durably reconciles local statistics before enabling downstream work.
 	 * @param rawConfiguration - Unknown unfiltered protection configuration.
 	 * @return Promise resolved after the contained reconciliation attempt.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function reconcileConfiguration( rawConfiguration: unknown ): Promise<void> {
 		const parsedConfiguration = ProtectionConfigurationDocumentSchema.safeParse( rawConfiguration );
@@ -211,7 +211,7 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 	 * Chooses the externally visible status after one interrupted drain.
 	 * @param sourceStatus - Completeness status read before the interrupted drain.
 	 * @return Incomplete when already known incomplete, otherwise unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function getInterruptedDeliveryStatus(
 		sourceStatus: StoredProtectionStatisticsDeliveryStatusValue,
@@ -225,7 +225,7 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 	 * Applies and acknowledges retained protection facts in durable FIFO order.
 	 * @param boundary - Optional protection-operation boundary limiting the retained prefix.
 	 * @return Promise resolved after the contained drain attempt.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function drainProtectionFacts(
 		boundary?: ProtectionCoordinatorStatisticsDeliveryBoundary | null,
@@ -307,7 +307,7 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 	 * @param filteredConfiguration - Current permission-filtered configuration.
 	 * @param observation - Focus and event time captured before queued persistence.
 	 * @return Promise resolved after the contained checkpoint attempt.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function checkpoint(
 		filteredConfiguration: ProtectionConfigurationDocument | null,
@@ -328,7 +328,7 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 	/**
 	 * Clears every statistics persistence layer in an order that prevents stale replay.
 	 * @return True only after durable delivery, session work, and local totals are reset.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function reset(): Promise<boolean> {
 		const currentConfiguration = configuration;
@@ -394,7 +394,7 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 	/**
 	 * Returns a detached aggregate-only view of current runtime state.
 	 * @return Current projection, delivery status, and focus-measurement availability.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function getSnapshot(): StatisticsRuntimeSnapshot {
 		return {

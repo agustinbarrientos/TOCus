@@ -20,7 +20,7 @@ import { hasAllowanceIntervalChange } from '../../utils/allowance-interval-chang
 
 /**
  * Interval between focused waiting-progress checkpoints.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const CHECKPOINT_INTERVAL_MILLISECONDS = 1_000;
 
@@ -28,7 +28,7 @@ const CHECKPOINT_INTERVAL_MILLISECONDS = 1_000;
  * Creates one interruption-page messaging and lifecycle coordinator.
  * @param options - Page, runtime, attention, and timing dependencies.
  * @return Interruption-page controller lifecycle.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createInterruptionPageController(
 	options: InterruptionPageControllerOptions,
@@ -46,7 +46,7 @@ export function createInterruptionPageController(
 
 	/**
 	 * Reports a newly applied authoritative major state without repeating timer checkpoints.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function reportPresentationStateChange(): void {
 		if ( reportedPresentationState === options.screen.state ) {
@@ -59,7 +59,7 @@ export function createInterruptionPageController(
 
 	/**
 	 * Stops the recurring checkpoint when one is active.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function stopCheckpointInterval(): void {
 		if ( checkpointIntervalHandle === null ) {
@@ -72,7 +72,7 @@ export function createInterruptionPageController(
 
 	/**
 	 * Stops the one-shot Ready-state synchronization when one is active.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function stopReadyExpiryTimeout(): void {
 		if ( readyExpiryTimeoutHandle === null ) {
@@ -85,7 +85,7 @@ export function createInterruptionPageController(
 
 	/**
 	 * Runs recurring checkpoints only while authoritative Waiting progress may advance.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function synchronizeCheckpointInterval(): void {
 		const shouldCheckpoint = observing &&
@@ -109,7 +109,7 @@ export function createInterruptionPageController(
 
 	/**
 	 * Shows the recoverable presentation when runtime state remains unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function showUnavailable(): void {
 		pendingRequest = null;
@@ -125,7 +125,7 @@ export function createInterruptionPageController(
 	/**
 	 * Applies one validated authoritative runtime projection to the interruption screen.
 	 * @param response - Validated interruption-page response.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function applyResponse( response: InterruptionPageResponse ): void {
 		options.screen.recovering = false;
@@ -172,7 +172,7 @@ export function createInterruptionPageController(
 	 * Requests and validates one authoritative runtime projection.
 	 * @param request - Validated request to send.
 	 * @return Validated response, or null when transport or validation fails.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function requestResponse(
 		request: InterruptionPageRequest,
@@ -192,7 +192,7 @@ export function createInterruptionPageController(
 	 * @param generation - Controller lifecycle that owns the response.
 	 * @param recoverInitialFailure - Whether to request one silent recovery after an unavailable initial result.
 	 * @return Promise resolved after one response or safe fallback is applied.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function sendRequest(
 		request: InterruptionPageRequest,
@@ -233,7 +233,7 @@ export function createInterruptionPageController(
 
 	/**
 	 * Starts the next retained request after the current operation settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleRequestCompletion(): void {
 		const nextRequest = pendingRequest;
@@ -252,7 +252,7 @@ export function createInterruptionPageController(
 	 * @param request - Validated request to send.
 	 * @param recoverInitialFailure - Whether this initial request owns one silent recovery attempt.
 	 * @return Promise resolved after the request is projected.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function startRequest(
 		request: InterruptionPageRequest,
@@ -269,7 +269,7 @@ export function createInterruptionPageController(
 	/**
 	 * Creates an explicit runtime recovery request for automatic or user-requested recovery.
 	 * @return Recovery request carrying current document visibility.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function createRecoveryRequest(): InterruptionPageRequest {
 		return {
@@ -283,7 +283,7 @@ export function createInterruptionPageController(
 	 * @param request - Validated request to enqueue.
 	 * @param recoverInitialFailure - Whether this initial request owns one silent recovery attempt.
 	 * @return Promise resolved after the operation active at submission time settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function enqueueRequest(
 		request: InterruptionPageRequest,
@@ -313,7 +313,7 @@ export function createInterruptionPageController(
 	/**
 	 * Creates the current checkpoint or synchronization request for page state.
 	 * @return Request carrying current visibility and any locally displayed Waiting progress.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function createSynchronizationRequest(): InterruptionPageRequest {
 		const documentVisible = options.visibility.isDocumentVisible();
@@ -332,7 +332,7 @@ export function createInterruptionPageController(
 
 	/**
 	 * Queues current progress or state synchronization after attention changes and timer ticks.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleSynchronizationRequest(): void {
 		if ( options.screen.state === InterruptionScreenState.UNAVAILABLE ) {
@@ -346,7 +346,7 @@ export function createInterruptionPageController(
 	 * Refreshes a mounted Ready page when shared running allowance intervals change.
 	 * @param changes - Old and new values indexed by browser storage key.
 	 * @param areaName - Browser storage area that changed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleStorageChange(
 		changes: Readonly<Record<string, InterruptionPageStorageChange>>,
@@ -370,7 +370,7 @@ export function createInterruptionPageController(
 
 	/**
 	 * Pauses local checkpoints while document visibility is reconciled.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleDocumentVisibilityChange(): void {
 		stopCheckpointInterval();
@@ -379,7 +379,7 @@ export function createInterruptionPageController(
 
 	/**
 	 * Stops local checkpoints as soon as the browser loses operating-system focus.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleWindowBlur(): void {
 		windowFocused = false;
@@ -389,7 +389,7 @@ export function createInterruptionPageController(
 
 	/**
 	 * Requests authoritative state when the browser regains operating-system focus.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleWindowFocus(): void {
 		windowFocused = true;
@@ -398,7 +398,7 @@ export function createInterruptionPageController(
 
 	/**
 	 * Requests authoritative state when the locally scheduled Ready allowance expires.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleReadyExpiry(): void {
 		readyExpiryTimeoutHandle = null;
@@ -412,7 +412,7 @@ export function createInterruptionPageController(
 	/**
 	 * Replaces any existing Ready expiry timeout with the current authoritative boundary.
 	 * @param expiresAtEpochMilliseconds - Exact allowance expiry, or null before the visit starts.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function synchronizeReadyExpiryTimeout( expiresAtEpochMilliseconds: number | null ): void {
 		stopReadyExpiryTimeout();
@@ -428,7 +428,7 @@ export function createInterruptionPageController(
 
 	/**
 	 * Projects the latest browser reduced-motion preference to the screen.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleMotionPreferenceChange(): void {
 		options.screen.reducedMotion = options.motionPreference.matches;
@@ -436,7 +436,7 @@ export function createInterruptionPageController(
 
 	/**
 	 * Queues one explicit Continue request from the Ready screen.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleContinueRequest(): void {
 		void enqueueRequest( {
@@ -447,7 +447,7 @@ export function createInterruptionPageController(
 
 	/**
 	 * Requests one explicit recovery after automatic recovery remains unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleRetryRequest(): void {
 		if (
@@ -466,7 +466,7 @@ export function createInterruptionPageController(
 	/**
 	 * Connects the page and begins observing timing, attention, and motion preferences.
 	 * @return Promise resolved after the initial authoritative projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function start(): Promise<void> {
 		lifecycleGeneration += 1;
@@ -502,7 +502,7 @@ export function createInterruptionPageController(
 
 	/**
 	 * Stops scheduled work and releases every page listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function stop(): void {
 		lifecycleGeneration += 1;

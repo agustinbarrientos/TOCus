@@ -13,7 +13,7 @@ import {
 
 /**
  * Participant origins retained in stored protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StoredProtectionParticipantOrigin = {
 	NAVIGATION: 'navigation',
@@ -22,19 +22,19 @@ export const StoredProtectionParticipantOrigin = {
 
 /**
  * Validates an origin retained for a stored protection participant.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StoredProtectionParticipantOriginSchema = z.enum( StoredProtectionParticipantOrigin );
 
 /**
  * Origin retained for a stored protection participant.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StoredProtectionParticipantOrigin = z.infer<typeof StoredProtectionParticipantOriginSchema>;
 
 /**
  * Maps each runtime participant origin to its stored representation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StoredProtectionParticipantOriginByProtectionParticipantOrigin = {
 	[ ProtectionParticipantOrigin.NAVIGATION ]: StoredProtectionParticipantOrigin.NAVIGATION,
@@ -43,7 +43,7 @@ export const StoredProtectionParticipantOriginByProtectionParticipantOrigin = {
 
 /**
  * Maps each stored participant origin to its runtime representation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionParticipantOriginByStoredProtectionParticipantOrigin = {
 	[ StoredProtectionParticipantOrigin.NAVIGATION ]: ProtectionParticipantOrigin.NAVIGATION,
@@ -52,7 +52,7 @@ export const ProtectionParticipantOriginByStoredProtectionParticipantOrigin = {
 
 /**
  * Validates a stored navigation participant.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const StoredNavigationProtectionParticipantSchema = z.object( {
 	origin: z.enum( [ StoredProtectionParticipantOrigin.NAVIGATION ] ),
@@ -67,7 +67,7 @@ const StoredNavigationProtectionParticipantSchema = z.object( {
 
 /**
  * Validates a stored allowance-expiry participant.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const StoredAllowanceExpiryProtectionParticipantSchema = z.object( {
 	origin: z.enum( [ StoredProtectionParticipantOrigin.ALLOWANCE_EXPIRY ] ),
@@ -80,7 +80,7 @@ const StoredAllowanceExpiryProtectionParticipantSchema = z.object( {
 
 /**
  * Validates a stored protection participant without volatile focus state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StoredProtectionParticipantSchema = z.discriminatedUnion( 'origin', [
 	StoredNavigationProtectionParticipantSchema,
@@ -89,13 +89,13 @@ export const StoredProtectionParticipantSchema = z.discriminatedUnion( 'origin',
 
 /**
  * Stored protection participant without volatile focus state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StoredProtectionParticipant = z.infer<typeof StoredProtectionParticipantSchema>;
 
 /**
  * Validates a non-empty collection of uniquely identified stored protection participants.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StoredProtectionParticipantsSchema = z.array( StoredProtectionParticipantSchema ).min( 1 ).superRefine(
 	( participants, context ) => {
@@ -127,6 +127,6 @@ export const StoredProtectionParticipantsSchema = z.array( StoredProtectionParti
 
 /**
  * Non-empty collection of uniquely identified stored protection participants.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StoredProtectionParticipants = z.infer<typeof StoredProtectionParticipantsSchema>;

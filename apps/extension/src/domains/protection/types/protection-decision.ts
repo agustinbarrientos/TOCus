@@ -14,7 +14,7 @@ import {
 
 /**
  * Declarative effects returned by protection-state transitions.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionDecisionType = {
 	PRESENT_WAITING: 'present-waiting',
@@ -26,19 +26,19 @@ export const ProtectionDecisionType = {
 
 /**
  * Validates a declarative protection-decision discriminator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionDecisionTypeSchema = z.enum( ProtectionDecisionType );
 
 /**
  * Declarative protection-decision discriminator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionDecisionType = z.infer<typeof ProtectionDecisionTypeSchema>;
 
 /**
  * Validates a decision to present the waiting experience.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PresentWaitingDecisionSchema = z.object( {
 	type: z.enum( [ ProtectionDecisionType.PRESENT_WAITING ] ),
@@ -49,13 +49,13 @@ export const PresentWaitingDecisionSchema = z.object( {
 
 /**
  * Decision to present the Waiting experience.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PresentWaitingDecision = z.infer<typeof PresentWaitingDecisionSchema>;
 
 /**
  * Validates a decision to present the Ready experience.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PresentReadyDecisionSchema = z.object( {
 	type: z.enum( [ ProtectionDecisionType.PRESENT_READY ] ),
@@ -66,13 +66,13 @@ export const PresentReadyDecisionSchema = z.object( {
 
 /**
  * Decision to present the Ready experience.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PresentReadyDecision = z.infer<typeof PresentReadyDecisionSchema>;
 
 /**
  * Validates a decision to release a retained navigation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ReleaseNavigationDecisionSchema = z.object( {
 	type: z.enum( [ ProtectionDecisionType.RELEASE_NAVIGATION ] ),
@@ -83,13 +83,13 @@ export const ReleaseNavigationDecisionSchema = z.object( {
 
 /**
  * Decision to release a retained navigation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ReleaseNavigationDecision = z.infer<typeof ReleaseNavigationDecisionSchema>;
 
 /**
  * Validates a decision to dismiss the current interruption.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const DismissInterruptionDecisionSchema = z.object( {
 	type: z.enum( [ ProtectionDecisionType.DISMISS_INTERRUPTION ] ),
@@ -99,13 +99,13 @@ export const DismissInterruptionDecisionSchema = z.object( {
 
 /**
  * Decision to dismiss the current interruption.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type DismissInterruptionDecision = z.infer<typeof DismissInterruptionDecisionSchema>;
 
 /**
  * Validates a declarative decision returned by a protection-state transition.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionDecisionSchema = z.discriminatedUnion( 'type', [
 	PresentWaitingDecisionSchema,
@@ -118,6 +118,6 @@ export const ProtectionDecisionSchema = z.discriminatedUnion( 'type', [
 
 /**
  * Declarative decision returned by a protection-state transition.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionDecision = z.infer<typeof ProtectionDecisionSchema>;

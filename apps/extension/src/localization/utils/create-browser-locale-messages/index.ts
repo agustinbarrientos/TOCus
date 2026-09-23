@@ -6,7 +6,7 @@ import type { BrowserLocaleMessages } from './types';
  * Projects canonical extension metadata into the browser localization format.
  * @param i18n - Locale-specific Lingui instance.
  * @return Browser-managed extension messages for the locale.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createBrowserLocaleMessages( i18n: I18n ): BrowserLocaleMessages {
 	return {

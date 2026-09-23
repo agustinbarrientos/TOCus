@@ -15,7 +15,7 @@ import type { AllowanceWarningInterval } from './types';
  * @param timeZone - Unknown IANA time-zone input.
  * @return Inclusive start and exclusive end, or null when the warning is never eligible.
  * @throws {import('zod').ZodError} When the schedule or expiry does not match its public contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function calculateAllowanceWarningInterval(
 	schedule: unknown,

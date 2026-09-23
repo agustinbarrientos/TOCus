@@ -8,7 +8,7 @@ import type { SiteItemEditor, SiteItemEditorOptions, SiteItemEditorSnapshot } fr
  * Restores the original standalone item transaction while leaving page drafts independent.
  * @param options - Exact site, real domain editor and committed-configuration notification.
  * @return Observable local editor with retained failures and explicit save/cancel operations.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function createSiteItemEditor( options: SiteItemEditorOptions ): SiteItemEditor {
 	const initial: SiteItemEditorSnapshot = { editing: false, saving: false, error: null,

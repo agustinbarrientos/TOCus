@@ -46,9 +46,29 @@ for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 									const range = document.createRange();
 									range.selectNodeContents( node );
 									for ( const line of range.getClientRects() ) {
-										if ( line.left < box.left - 1 || line.right > box.right + 1 ||
-											line.top < box.top - 1 || line.bottom > box.bottom + 1 ) {
+										if ( line.left < box.left - 1 || line.right > box.right + 1 ) {
 											failures.push( `Text exceeds item ${ String( index ) }: ${ text.textContent }` );
+										}
+										// Font metrics can extend past a line box without clipping when overflow is visible.
+										for ( let ancestor: Element | null = text; ancestor;
+											ancestor = ancestor.parentElement ) {
+											const style = getComputedStyle( ancestor );
+											const clip = ancestor.getBoundingClientRect();
+											if ( ( style.overflowX !== 'visible' &&
+												( line.left < clip.left - 1 || line.right > clip.right + 1 ) ) ||
+												( style.overflowY !== 'visible' &&
+												( line.top < clip.top - 1 || line.bottom > clip.bottom + 1 ) ) ) {
+												failures.push( `Text is clipped in item ${ String( index ) }: ${ text.textContent }` );
+											}
+										}
+										for ( const [ otherIndex, other ] of bounds.entries() ) {
+											const width = Math.min( line.right, other.right ) -
+												Math.max( line.left, other.left );
+											const height = Math.min( line.bottom, other.bottom ) -
+												Math.max( line.top, other.top );
+											if ( otherIndex !== index && width > 1 && height > 1 ) {
+												failures.push( `Text in item ${ String( index ) } overlaps another item` );
+											}
 										}
 									}
 								}

@@ -41,7 +41,7 @@ const typedConfigs = tseslint.configs.strictTypeChecked.map( ( config ) => ( {
 
 /**
  * Defines the repository's JavaScript, TypeScript, documentation and Astro linting contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export default tseslint.config(
 	{

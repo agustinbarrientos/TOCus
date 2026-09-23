@@ -20,7 +20,7 @@ function readAppearance() {
  * Observes extension-owned appearance without maintaining another preference store.
  * @remarks Injected UI must use its owned root instead of this document-level hook.
  * @return The current effective document appearance.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function useDocumentAppearance() {
 	const [ appearance, setAppearance ] = useState( readAppearance );

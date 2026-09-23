@@ -9,7 +9,7 @@ import {
  * @param match - Current validated URL-match result.
  * @param scopeId - Scope that must own the protected match.
  * @return Whether the match is Protected for the supplied scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function protectionMatchProtectsScope(
 	match: ProtectedUrlMatchResult,

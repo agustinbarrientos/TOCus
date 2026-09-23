@@ -3,20 +3,20 @@ import type { ProtectionBackgroundMessageListener } from '../../../protection-ru
 
 /**
  * Synchronous extension message listener registration.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface LocalDataResetMessageEvent {
 	/**
 	 * Registers a handler before asynchronous recovery begins.
 	 * @param listener - Authenticated local-data message handler.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	addListener( listener: ProtectionBackgroundMessageListener ): void;
 }
 
 /**
  * Authenticated browser messaging and reset lifecycle dependencies.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface LocalDataResetControllerOptions {
 	/** Exact extension-owned settings page URL. */
@@ -30,39 +30,39 @@ export interface LocalDataResetControllerOptions {
 	/**
 	 * Clears cached authorities and restarts capability-aware protection after cleanup.
 	 * @return Completion of clean runtime startup.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	resume(): Promise<void>;
 	/**
 	 * Opens the packaged onboarding page without requesting additional permissions.
 	 * @param generation - Completed reset identity verified by the receiving page.
 	 * @return Completion of browser tab creation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	openOnboarding( generation: string ): Promise<void>;
 	/**
 	 * Closes the originating tab when it still displays settings, tolerating browser failures.
 	 * @param tabId - Browser-authenticated originating settings tab identifier.
 	 * @return Completion of the best-effort settings tab handoff.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	closeSettingsTab( tabId: number ): Promise<void>;
 }
 
 /**
  * Synchronous reset request registration with asynchronous startup recovery.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface LocalDataResetController {
 	/**
 	 * Registers reset requests and starts recovery exactly once.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	start(): void;
 	/**
 	 * Waits for initial reset recovery and clean runtime startup.
 	 * @return Whether startup completed successfully.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	waitUntilReady(): Promise<boolean>;
 }

@@ -32,7 +32,7 @@ vec3 turnHeadNormal(vec3 p, vec3 n) {
  * Turns the head after the exported pose deformation, leaving the body and limbs anchored.
  * @param root - The exclusive scene loaded from the self-contained hero asset.
  * @return A shared shader control and disposal boundary for the matching shadow material.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function createHeadMotion( root: Object3D ): HeroHeadMotion {
 	const uniform = { value: 0 };

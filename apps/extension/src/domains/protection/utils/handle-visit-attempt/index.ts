@@ -23,7 +23,7 @@ import { handleScheduleReevaluation } from '../handle-schedule-reevaluation';
  * @param left - First participant.
  * @param right - Second participant.
  * @return Negative or positive ordering value for distinct participants.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function compareParticipantJoinOrder(
 	left: ProtectionParticipant,
@@ -41,7 +41,7 @@ function compareParticipantJoinOrder(
  * @param participants - Current validated Waiting participants.
  * @param participant - New validated visit-attempt participant.
  * @return Existing participants and the safely sequenced new participant.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function appendVisitParticipant(
 	participants: readonly ProtectionParticipant[],
@@ -72,7 +72,7 @@ function appendVisitParticipant(
  * @param state - Current validated protection state for the event scope.
  * @param participant - Incoming visit participant that observed the non-active schedule.
  * @return The participant-only fail-open transition without metric facts.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function releaseInactiveVisit(
 	state: ProtectionState,
@@ -100,7 +100,7 @@ function releaseInactiveVisit(
  * @param state - Current validated protection state for the event scope.
  * @param event - Validated protected visit-attempt event.
  * @return The next state with presentation decisions and no metric facts.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function handleVisitAttempt(
 	state: ProtectionState,

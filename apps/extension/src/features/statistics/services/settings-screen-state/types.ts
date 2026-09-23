@@ -1,6 +1,6 @@
 /**
  * Authoritative statistics state, including failed reset recovery.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const StatisticsLoadState = {
 	LOADING: 'loading',
@@ -11,6 +11,6 @@ export const StatisticsLoadState = {
 
 /**
  * Current statistics presentation state.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type StatisticsLoadState = typeof StatisticsLoadState[ keyof typeof StatisticsLoadState ];

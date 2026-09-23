@@ -3,7 +3,7 @@ declare module '*.po' {
 
 	/**
 	 * Compiled Lingui messages exported by the Vite catalog loader.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	export const messages: Messages;
 }

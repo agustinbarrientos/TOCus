@@ -25,7 +25,7 @@ import type { DraftSaveResult } from '../../utils/draft-controller/types';
  * Coordinates preference reads, external changes, live previews and partial saves.
  * @param props - Preference services and the subset edited by this destination.
  * @return Observable draft, recovery state and explicit persistence actions.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function usePreferencesState( props: PreferencesScreenProps ) {
 	const { shell, register, language = false } = props;

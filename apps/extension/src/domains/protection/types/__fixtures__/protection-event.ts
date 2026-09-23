@@ -23,13 +23,13 @@ import {
 
 /**
  * Stable wall-clock instant used by protection transition tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const TestInstant = 1_800_000_000_000;
 
 /**
  * Stable timing configuration used by protection transition tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const TestTimingConfiguration = Object.freeze( {
 	initialWaitMilliseconds: 10_000,
@@ -46,7 +46,7 @@ export const TestTimingConfiguration = Object.freeze( {
  * @param focusEligible - Whether the attempted page may own progress.
  * @param overrides - Top-level event values overriding the defaults before validation.
  * @return A protected visit-attempt event.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createVisitAttempt(
 	participantId = 'participant-a',
@@ -87,7 +87,7 @@ export function createVisitAttempt(
  * @param ownerEpoch - Current owner epoch supplied by the coordinator.
  * @param overrides - Top-level event values overriding the defaults before validation.
  * @return A participant focus-change event.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createFocusChange(
 	participantId = 'participant-a',
@@ -117,7 +117,7 @@ export function createFocusChange(
  * @param cumulativeCheckpointMilliseconds - Cumulative checkpoint for the current owner epoch.
  * @param overrides - Top-level event values overriding the defaults before validation.
  * @return A progress-checkpoint event.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createProgressCheckpoint(
 	cumulativeCheckpointMilliseconds = 2_000,
@@ -153,7 +153,7 @@ export function createProgressCheckpoint(
  * @param observedDestination - Fresh absolute destination or null interruption destination.
  * @param overrides - Observation values overriding the defaults before validation.
  * @return A fresh active protected observation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createFreshObservation(
 	participantId = 'participant-a',
@@ -183,7 +183,7 @@ export function createFreshObservation(
  * @param observation - Fresh participant observation.
  * @param overrides - Top-level event values overriding the defaults before validation.
  * @return A parsed Ready-continuation event.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createReadyContinuation(
 	observation: FreshParticipantObservation = createFreshObservation(),
@@ -211,7 +211,7 @@ export function createReadyContinuation(
  * @param observation - Fresh participant observation.
  * @param overrides - Top-level event values overriding the defaults before validation.
  * @return A parsed Ready-reconciliation event.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createReadyReconciliation(
 	observation: FreshParticipantObservation = createFreshObservation(),
@@ -241,7 +241,7 @@ export function createReadyReconciliation(
  * @param focusEligible - Whether the page may own focused progress.
  * @param match - Current rule-match result.
  * @return A validated live-page expiry candidate.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createLiveExpiryCandidate(
 	participantId = 'participant-live',
@@ -276,7 +276,7 @@ export function createLiveExpiryCandidate(
  * @param focusEligible - Whether the page may own focused progress.
  * @param match - Current rule-match result.
  * @return A validated Ready expiry candidate.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createReadyExpiryCandidate(
 	participantId = 'participant-a',
@@ -308,7 +308,7 @@ export function createReadyExpiryCandidate(
  * @param schedule - Current scope-level schedule result.
  * @param overrides - Top-level event values overriding the defaults before validation.
  * @return A parsed allowance-expiry event.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createAllowanceExpiry(
 	candidates: AllowanceExpiryCandidate[] = [ createReadyExpiryCandidate() ],
@@ -342,7 +342,7 @@ export function createAllowanceExpiry(
  * @param pageId - Stable page identifier.
  * @param overrides - Top-level event values overriding the defaults before validation.
  * @return A current-Wait participant-departure event.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createDeparture(
 	cause: ParticipantDepartureEvent['cause'],
@@ -378,7 +378,7 @@ export function createDeparture(
  * @param schedule - Fresh schedule evaluation result.
  * @param overrides - Top-level event values overriding the defaults before validation.
  * @return A current-Wait schedule-reevaluation event.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createScheduleReevaluation(
 	schedule: ScheduleReevaluationEvent['schedule'] = { status: ScheduleEvaluationStatus.INACTIVE },

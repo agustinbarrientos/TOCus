@@ -8,18 +8,18 @@ import {
 
 /**
  * In-memory browser storage used to verify local statistics persistence.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryStatisticsStorageArea implements StatisticsStorageArea {
 	/**
 	 * Storage keys requested by the service.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	readonly readKeys: string[] = [];
 
 	/**
 	 * Value records written by the service.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	readonly writtenValues: Record<string, unknown>[] = [];
 
@@ -30,7 +30,7 @@ class MemoryStatisticsStorageArea implements StatisticsStorageArea {
 	/**
 	 * Creates one in-memory area with initial values.
 	 * @param values - Values available before the first read.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor( private readonly values: Record<string, unknown> = {} ) {}
 
@@ -38,7 +38,7 @@ class MemoryStatisticsStorageArea implements StatisticsStorageArea {
 	 * Reads one key or rejects with the configured error.
 	 * @param key - Requested storage key.
 	 * @return Matching record or an empty record.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	get( key: string ): Promise<Record<string, unknown>> {
 		this.readKeys.push( key );
@@ -54,7 +54,7 @@ class MemoryStatisticsStorageArea implements StatisticsStorageArea {
 	 * Writes one record or rejects with the configured error.
 	 * @param values - Values to persist.
 	 * @return Promise resolved after the write.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	set( values: Record<string, unknown> ): Promise<void> {
 		if ( this.writeError !== null ) {
@@ -72,7 +72,7 @@ class MemoryStatisticsStorageArea implements StatisticsStorageArea {
 /**
  * Creates the deterministic generation used by storage tests.
  * @return Stable test generation identifier.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createTestGenerationId(): string {
 	return 'generation_created';

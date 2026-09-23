@@ -4,7 +4,7 @@ import type { WebsiteAccessRevocationApi } from './types';
  * Revokes every actual website grant and optional live-navigation capability, including orphaned grants.
  * @param permissions - Browser inventory and optional-permission removal operations.
  * @return Whether no website or optional navigation access remains.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export async function revokeWebsiteAccess( permissions: WebsiteAccessRevocationApi ): Promise<boolean> {
 	const granted = await permissions.getAll();

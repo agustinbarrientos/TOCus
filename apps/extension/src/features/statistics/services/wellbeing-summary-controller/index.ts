@@ -12,7 +12,7 @@ import type {
 /**
  * Creates one unavailable projection for failed local reads.
  * @return Unavailable projection without fabricated values.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createUnavailableProjection(): StatisticsProjection {
 	return { status: StatisticsProjectionStatus.UNAVAILABLE };
@@ -22,7 +22,7 @@ function createUnavailableProjection(): StatisticsProjection {
  * Creates a controller that projects authoritative all-time statistics into one interruption footer.
  * @param options - Statistics source, footer target, and optional localized copy.
  * @return Footer refresh operation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createWellbeingSummaryController(
 	options: WellbeingSummaryControllerOptions,
@@ -36,7 +36,7 @@ export function createWellbeingSummaryController(
 	/**
 	 * Formats and applies one authoritative projection.
 	 * @param nextProjection - Projection to render in the footer.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function applyProjection( nextProjection: StatisticsProjection ): void {
 		if ( copy === undefined ) {
@@ -53,7 +53,7 @@ export function createWellbeingSummaryController(
 	/**
 	 * Replaces localized summary grammar and immediately reformats the latest projection.
 	 * @param nextCopy - Complete localized wellbeing-summary copy.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function setCopy( nextCopy: Readonly<WellbeingSummaryCopy> ): void {
 		copy = nextCopy;
@@ -66,7 +66,7 @@ export function createWellbeingSummaryController(
 	/**
 	 * Reads and projects the latest authoritative all-time statistics.
 	 * @return Promise resolved after the latest applicable read settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function refresh(): Promise<void> {
 		const generation = ++refreshGeneration;
@@ -88,7 +88,7 @@ export function createWellbeingSummaryController(
 
 	/**
 	 * Refreshes the footer after the authoritative statistics document changes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleStatisticsChange(): void {
 		void refresh();
@@ -96,7 +96,7 @@ export function createWellbeingSummaryController(
 
 	/**
 	 * Begins refreshing the footer after authoritative statistics changes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function start(): void {
 		if ( started ) {
@@ -109,7 +109,7 @@ export function createWellbeingSummaryController(
 
 	/**
 	 * Stops refreshing the footer after authoritative statistics changes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function stop(): void {
 		if ( ! started ) {

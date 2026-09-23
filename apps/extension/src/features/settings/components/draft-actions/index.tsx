@@ -12,7 +12,7 @@ import type {
  * Keeps Save and Discard availability consistent across all editable pages.
  * @param props - Observable draft, canonical button labels and save callback.
  * @return Shared actions disabled while unchanged or being persisted.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function DraftActions<T extends object>( props: DraftActionsProps<T> ) {
 	const { dirty, saving } = props.draft.snapshot;

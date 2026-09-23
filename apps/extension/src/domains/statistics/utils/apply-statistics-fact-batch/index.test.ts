@@ -11,7 +11,7 @@ import { applyStatisticsFactBatch } from './index';
  * @param startedAtEpochMilliseconds - Allowance start time.
  * @param scopeId - Protection scope identifier.
  * @return Allowance-granted fact fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createAllowanceFact(
 	factId: string,
@@ -36,7 +36,7 @@ function createAllowanceFact(
  * @param observedAtEpochMilliseconds - Departure observation time.
  * @param scopeId - Protection scope identifier.
  * @return Reconsidered-visit fact fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createReconsideredFact(
 	factId: string,
@@ -63,7 +63,7 @@ function createReconsideredFact(
  * @param measurementRevision - Captured measurement revision.
  * @param scopeId - Protection scope identifier.
  * @return Validated fact-batch operation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createBatchOperation(
 	batchId: string,

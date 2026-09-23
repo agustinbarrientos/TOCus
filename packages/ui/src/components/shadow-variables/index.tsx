@@ -8,7 +8,7 @@ import type { ShadowVariablesProps } from './types';
 /**
  * Adopts Mantine-generated variables without relying on a host page's inline-style policy.
  * Uses the installed library's public resolvers and the same shared theme mapping as full pages.
- * @since 0.1.0
+ * @since 1.0.0
  * @param props - Extension-owned shadow boundary and unique provider selector.
  * @return No additional DOM nodes.
  */

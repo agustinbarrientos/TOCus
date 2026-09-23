@@ -20,7 +20,7 @@ import '../appearance-controls/style.scss';
  * Retains regional choices when the current language family is selected again.
  * @param props - Controlled onboarding language family, variant and local copy.
  * @return Language families followed by applicable regional variants.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function OnboardingLanguageControls( props: OnboardingLanguageControlsProps ) {
 	const { copy, value, disabled = false } = props;

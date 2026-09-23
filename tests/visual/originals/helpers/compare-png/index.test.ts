@@ -9,7 +9,7 @@ import { comparePngPixels } from './index';
  * @param pixels - Row-major RGBA bytes, including transparent pixels.
  * @param level - PNG compression level, unrelated to decoded pixel equality.
  * @return Encoded fixture without filesystem or screenshot baseline writes.
- * @since 0.1.0
+ * @since 1.0.0
  */
 function encode( width: number, height: number, pixels: readonly number[], level = 9 ): Buffer {
 	const image = new PNG( { width, height } );

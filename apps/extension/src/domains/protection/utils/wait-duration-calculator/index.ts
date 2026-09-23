@@ -11,7 +11,7 @@ import {
  * @param ladder - Unknown daily ladder input.
  * @return The captured duration for the next wait.
  * @throws {import('zod').ZodError} When either input does not match its public contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function getNextWaitDuration( configuration: unknown, ladder: unknown ): WaitDurationMilliseconds {
 	const parsedConfiguration = TimingConfigurationSchema.parse( configuration );

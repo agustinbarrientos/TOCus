@@ -8,7 +8,7 @@ import {
 /**
  * Creates valid current statistics for the default scope.
  * @return Fresh current scope statistics fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createMockScopeStatistics(): ScopeStatistics {
 	return ScopeStatisticsSchema.parse( {
@@ -26,7 +26,7 @@ export function createMockScopeStatistics(): ScopeStatistics {
 /**
  * Creates valid active statistics for the default scope.
  * @return Fresh active scope statistics fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createMockActiveScopeStatistics(): ScopeStatistics {
 	return ScopeStatisticsSchema.parse( {
@@ -45,7 +45,7 @@ export function createMockActiveScopeStatistics(): ScopeStatistics {
 /**
  * Creates one valid statistics document with a current default scope.
  * @return Fresh statistics document fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createMockStatisticsDocument(): StatisticsDocument {
 	return StatisticsDocumentSchema.parse( {
@@ -63,7 +63,7 @@ export function createMockStatisticsDocument(): StatisticsDocument {
 /**
  * Creates one valid statistics document with an active default-scope allowance.
  * @return Fresh active statistics document fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createMockActiveStatisticsDocument(): StatisticsDocument {
 	return StatisticsDocumentSchema.parse( {

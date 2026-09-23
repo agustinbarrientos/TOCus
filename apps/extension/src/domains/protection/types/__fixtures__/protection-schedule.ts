@@ -6,7 +6,7 @@ import {
 
 /**
  * Valid custom schedule with an overnight window.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const Mock_ProtectionSchedule_Custom = CustomScheduleSchema.parse( {
 	mode: ScheduleMode.CUSTOM,
@@ -19,7 +19,7 @@ export const Mock_ProtectionSchedule_Custom = CustomScheduleSchema.parse( {
 
 /**
  * Valid normalized schedule with deterministic weekday order.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const Mock_ProtectionSchedule_Normalized = NormalizedCustomScheduleSchema.parse( {
 	mode: ScheduleMode.CUSTOM,

@@ -60,7 +60,7 @@ function raisedArm( geometry: BufferGeometry ): Set<number> {
  * Adds normalized smooth arm weights and a short greeting, preserving the original raised bind pose.
  * @param geometry - Geometry whose positions remain untouched.
  * @return Ordered bones and a deterministic six-second greeting clip.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function rigMascot( geometry: BufferGeometry ): MascotRig {
 	const root = new Bone(); root.name = MascotJoint.ROOT;

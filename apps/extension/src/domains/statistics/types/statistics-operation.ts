@@ -11,7 +11,7 @@ import { StatisticsGenerationIdSchema, StatisticsNonNegativeSafeIntegerSchema } 
 
 /**
  * Closed vocabulary of statistics reducer operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StatisticsOperationType = {
 	APPLY_FACT_BATCH: 'apply-fact-batch',
@@ -23,19 +23,19 @@ export const StatisticsOperationType = {
 
 /**
  * Validates one statistics reducer operation discriminator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StatisticsOperationTypeSchema = z.enum( StatisticsOperationType );
 
 /**
  * Statistics reducer operation discriminator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StatisticsOperationType = z.infer<typeof StatisticsOperationTypeSchema>;
 
 /**
  * Validates one current scope measurement-revision entry.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const StatisticsMeasurementRevisionEntrySchema = z.tuple( [
 	ProtectionScopeIdSchema,
@@ -44,7 +44,7 @@ const StatisticsMeasurementRevisionEntrySchema = z.tuple( [
 
 /**
  * One current scope measurement-revision entry.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 type StatisticsMeasurementRevisionEntry = z.infer<
 	typeof StatisticsMeasurementRevisionEntrySchema
@@ -54,7 +54,7 @@ type StatisticsMeasurementRevisionEntry = z.infer<
  * Extracts own entries from one plain measurement-revision record input.
  * @param input - Unknown measurement-revision record input.
  * @return Own entries, or null for a non-plain record.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function extractStatisticsMeasurementRevisionEntries( input: unknown ): unknown {
 	if ( typeof input !== 'object' || input === null || Array.isArray( input ) ) {
@@ -72,7 +72,7 @@ function extractStatisticsMeasurementRevisionEntries( input: unknown ): unknown 
  * Creates one prototype-safe measurement-revision record.
  * @param entries - Validated measurement-revision entries.
  * @return Current revisions indexed by their exact scope identifiers.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStatisticsMeasurementRevisionRecord(
 	entries: StatisticsMeasurementRevisionEntry[],
@@ -82,7 +82,7 @@ function createStatisticsMeasurementRevisionRecord(
 
 /**
  * Validates a complete map of current protection-scope measurement revisions.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StatisticsMeasurementRevisionsByScopeSchema = z.preprocess(
 	extractStatisticsMeasurementRevisionEntries,
@@ -91,7 +91,7 @@ export const StatisticsMeasurementRevisionsByScopeSchema = z.preprocess(
 
 /**
  * Complete map of current protection-scope measurement revisions.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StatisticsMeasurementRevisionsByScope = z.infer<
 	typeof StatisticsMeasurementRevisionsByScopeSchema
@@ -99,7 +99,7 @@ export type StatisticsMeasurementRevisionsByScope = z.infer<
 
 /**
  * Validates one durable FIFO-head fact-batch application.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ApplyStatisticsFactBatchOperationSchema = z.object( {
 	type: z.enum( [ StatisticsOperationType.APPLY_FACT_BATCH ] ),
@@ -108,7 +108,7 @@ export const ApplyStatisticsFactBatchOperationSchema = z.object( {
 
 /**
  * Durable FIFO-head fact-batch application.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ApplyStatisticsFactBatchOperation = z.infer<
 	typeof ApplyStatisticsFactBatchOperationSchema
@@ -116,7 +116,7 @@ export type ApplyStatisticsFactBatchOperation = z.infer<
 
 /**
  * Validates the unrefined focused-interval operation shape.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const RecordFocusedIntervalOperationFieldsSchema = z.object( {
 	type: z.enum( [ StatisticsOperationType.RECORD_FOCUSED_INTERVAL ] ),
@@ -131,7 +131,7 @@ const RecordFocusedIntervalOperationFieldsSchema = z.object( {
 
 /**
  * Unrefined focused-interval operation values.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 type RecordFocusedIntervalOperationFields = z.infer<
 	typeof RecordFocusedIntervalOperationFieldsSchema
@@ -141,7 +141,7 @@ type RecordFocusedIntervalOperationFields = z.infer<
  * Adds focused-interval consistency issues to one refinement context.
  * @param operation - Focused-interval operation being refined.
  * @param context - Zod refinement context receiving consistency issues.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function refineRecordFocusedIntervalOperation(
 	operation: RecordFocusedIntervalOperationFields,
@@ -158,7 +158,7 @@ function refineRecordFocusedIntervalOperation(
 
 /**
  * Validates one focused allowance interval checkpoint.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const RecordFocusedIntervalOperationSchema = RecordFocusedIntervalOperationFieldsSchema.superRefine(
 	refineRecordFocusedIntervalOperation,
@@ -166,7 +166,7 @@ export const RecordFocusedIntervalOperationSchema = RecordFocusedIntervalOperati
 
 /**
  * Focused allowance interval checkpoint.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type RecordFocusedIntervalOperation = z.infer<
 	typeof RecordFocusedIntervalOperationSchema
@@ -174,7 +174,7 @@ export type RecordFocusedIntervalOperation = z.infer<
 
 /**
  * Validates one active allowance finalization operation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const FinalizeActiveAllowanceOperationSchema = z.object( {
 	type: z.enum( [ StatisticsOperationType.FINALIZE_ACTIVE_ALLOWANCE ] ),
@@ -187,7 +187,7 @@ export const FinalizeActiveAllowanceOperationSchema = z.object( {
 
 /**
  * Active allowance finalization operation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type FinalizeActiveAllowanceOperation = z.infer<
 	typeof FinalizeActiveAllowanceOperationSchema
@@ -195,7 +195,7 @@ export type FinalizeActiveAllowanceOperation = z.infer<
 
 /**
  * Validates one complete measurement-revision reconciliation operation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ReconcileMeasurementRevisionsOperationSchema = z.object( {
 	type: z.enum( [ StatisticsOperationType.RECONCILE_MEASUREMENT_REVISIONS ] ),
@@ -204,7 +204,7 @@ export const ReconcileMeasurementRevisionsOperationSchema = z.object( {
 
 /**
  * Complete measurement-revision reconciliation operation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ReconcileMeasurementRevisionsOperation = z.infer<
 	typeof ReconcileMeasurementRevisionsOperationSchema
@@ -212,7 +212,7 @@ export type ReconcileMeasurementRevisionsOperation = z.infer<
 
 /**
  * Validates one statistics reset operation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ResetStatisticsOperationSchema = z.object( {
 	type: z.enum( [ StatisticsOperationType.RESET ] ),
@@ -222,13 +222,13 @@ export const ResetStatisticsOperationSchema = z.object( {
 
 /**
  * Statistics reset operation under one fresh generation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ResetStatisticsOperation = z.infer<typeof ResetStatisticsOperationSchema>;
 
 /**
  * Validates one operation accepted by the deterministic statistics reducer.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StatisticsOperationSchema = z.discriminatedUnion( 'type', [
 	ApplyStatisticsFactBatchOperationSchema,
@@ -240,6 +240,6 @@ export const StatisticsOperationSchema = z.discriminatedUnion( 'type', [
 
 /**
  * Operation accepted by the deterministic statistics reducer.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StatisticsOperation = z.infer<typeof StatisticsOperationSchema>;

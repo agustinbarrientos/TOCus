@@ -11,7 +11,7 @@ import type { ExtensionManifest, ExtensionWorkerGlobal, FaviconTestFixture, Pack
 /**
  * Creates a distinctive website icon unrelated to any TOCus artwork.
  * @return Opaque blue pixels with dimensions matching Chrome's requested favicon.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createWebsiteIcon(): PNG {
 	const icon = new PNG( { width: 32, height: 32 } );
@@ -27,7 +27,7 @@ function createWebsiteIcon(): PNG {
  * @param page - An extension document allowed to read the favicon endpoint.
  * @param source - Extension-local image URL.
  * @return SHA-256 fingerprint of the decoded 32-pixel image.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function readImageHash( page: Page, source: string ): Promise<string> {
 	const pixels = await page.evaluate( async ( url ) => {
@@ -52,7 +52,7 @@ async function readImageHash( page: Page, source: string ): Promise<string> {
  * @param fixture - Disposable installation with favicon permission.
  * @param pageUrl - Document whose cached icon should be inspected.
  * @return Decoded pixel fingerprint supplied by Chromium's favicon service.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function readCachedFavicon( fixture: FaviconTestFixture, pageUrl: string ): Promise<string> {
 	const source = new URL( '/_favicon/', fixture.extensionRoot );
@@ -115,7 +115,7 @@ const test = base.extend<PackagedFaviconFixtures>( {
 			/**
 			 * Opens the same test-owned profile and reinstalls its loopback-only network boundary.
 			 * @return Packaged browser handles with the latest context retained for teardown.
-			 * @since 0.1.0
+			 * @since 1.0.0
 			 */
 			async function launchBrowser(): Promise<Pick<FaviconTestFixture, 'context' | 'extensionRoot' | 'reader' | 'worker'>> {
 				context = await playwright.chromium.launchPersistentContext( profilePath, {
@@ -149,7 +149,7 @@ const test = base.extend<PackagedFaviconFixtures>( {
 				/**
 				 * Reopens the same browser profile so native favicon history survives a fresh runtime.
 				 * @return Ready replacement handles after the old context closes completely.
-				 * @since 0.1.0
+				 * @since 1.0.0
 				 */
 				async restartBrowser(): Promise<void> {
 					await fixture.context.close();
@@ -191,7 +191,7 @@ const test = base.extend<PackagedFaviconFixtures>( {
  * Recreates the explicit favicon declaration made by the former pause document.
  * @param page - Actual pause tab whose redirected URL Chrome will associate with this icon.
  * @return Promise resolved once the document declares the old branded favicon.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function declareLegacyFavicon( page: Page ): Promise<void> {
 	await page.evaluate( () => {
@@ -210,7 +210,7 @@ async function declareLegacyFavicon( page: Page ): Promise<void> {
  * Recreates a favicon stored by an older installation without rewriting browser databases.
  * @param fixture - Isolated installation whose legacy document should acquire a branded icon.
  * @return Promise resolved once Chromium serves the old branded document icon from its cache.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function seedLegacyFavicon( fixture: FaviconTestFixture ): Promise<void> {
 	const legacyPage = await fixture.context.newPage();
@@ -235,7 +235,7 @@ async function seedLegacyFavicon( fixture: FaviconTestFixture ): Promise<void> {
  * Enables real packaged protection with the shared countdown.
  * @param fixture - Disposable extension whose stored configuration should change.
  * @return Promise resolved once the browser has installed its navigation rules.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function enableProtection( fixture: FaviconTestFixture ): Promise<void> {
 	await fixture.worker.evaluate( async () => {
@@ -262,7 +262,7 @@ async function enableProtection( fixture: FaviconTestFixture ): Promise<void> {
  * Only this disposable extension's runtime state is cleared; real waits and navigation remain intact.
  * @param fixture - Test-owned profile whose completed allowance should not carry into the next scenario.
  * @return Ready packaged worker and icon-reader page after relaunching the same browser profile.
- * @since 0.1.0
+ * @since 1.0.0
  */
 async function restartVisitFixture( fixture: FaviconTestFixture ): Promise<void> {
 	await fixture.reader.close();
@@ -278,7 +278,7 @@ async function restartVisitFixture( fixture: FaviconTestFixture ): Promise<void>
  * Visits a protected website and completes the actual focused pause.
  * @param fixture - Browser whose website is protected by packaged navigation rules.
  * @return Interruption tab with its real Continue button visible.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function openReadyPause( fixture: FaviconTestFixture ): Promise<Page> {
 	const pause = await fixture.context.newPage();

@@ -4,7 +4,7 @@ import type { TocusColorScheme } from '../../components/provider/types';
 /**
  * Creates a portal mount inside the caller's container without using document.body.
  * A nested scheme element lets scoped Mantine descendant selectors match correctly.
- * @since 0.1.0
+ * @since 1.0.0
  * @param target - Optional caller-owned portal container.
  * @param scheme - Resolved light or dark appearance.
  * @return The provider-owned mount, removed during cleanup.
@@ -28,7 +28,7 @@ export function useOwnedPortal( target: HTMLElement | undefined, scheme: TocusCo
 
 /**
  * Applies attributes only to explicitly supplied roots and restores previous values.
- * @since 0.1.0
+ * @since 1.0.0
  * @param target - Caller-owned element, never a default document root.
  * @param attributes - Stable provider attributes to apply for this render.
  */

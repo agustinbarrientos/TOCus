@@ -4,7 +4,7 @@ import type { ProtectionCoordinatorStateSnapshot } from '../../../../domains/pro
 
 /**
  * Dependencies used to reconcile extension-owned navigation redirects.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface NavigationRuleReconcilerOptions {
 	/** Trusted packaged interruption-page URL receiving protected navigations. */
@@ -19,7 +19,7 @@ export interface NavigationRuleReconcilerOptions {
 
 /**
  * Reconciles dynamic navigation redirects with configuration, schedules, and allowances.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface NavigationRuleReconciler {
 	/**
@@ -27,7 +27,7 @@ export interface NavigationRuleReconciler {
 	 * @param configuration - Current validated local configuration or unavailable marker.
 	 * @param statesByScope - Current authoritative states or unavailable marker.
 	 * @return Promise resolved after atomic browser reconciliation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	reconcile(
 		configuration: ProtectionConfigurationDocument | null,

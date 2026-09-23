@@ -7,7 +7,7 @@ import { addStatisticsValues } from '../add-statistics-values';
  * @param document - Current validated statistics document.
  * @param operation - Validated focused-interval operation.
  * @return Updated statistics document, or the original document for stale work.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function recordStatisticsFocusedInterval(
 	document: StatisticsDocument,

@@ -1,7 +1,7 @@
 
 /**
  * Localized messages displayed by the About settings screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface AboutScreenCopy {
 	title: string;
@@ -23,7 +23,7 @@ export interface AboutScreenCopy {
 	 * Formats the installed extension version.
 	 * @param version - Version supplied by the browser manifest.
 	 * @return Localized version label.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	formatVersion( version: string ): string;
 }
@@ -31,7 +31,7 @@ export interface AboutScreenCopy {
 
 /**
  * User-opened project resource from the canonical About content.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface ProjectLinkProps {
 	label: string;

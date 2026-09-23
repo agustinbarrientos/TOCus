@@ -4,7 +4,7 @@ import type { PopupIdentifiedCurrentSite } from '../../utils/popup-presentation/
 
 /**
  * Current-site presentation with validated identity and related active timers.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface PopupCurrentSiteProperties extends Pick<PopupActions, 'onAddSite'> {
 	/** Current controller state, including the cached local favicon. */

@@ -3,7 +3,7 @@ import type { LocalizationBundle } from '../create-localization-bundle/types';
 
 /**
  * Synchronous localization projection required by an injected protected page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectedPageLocalizationBundle {
 	language: Language;

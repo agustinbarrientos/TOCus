@@ -26,7 +26,7 @@ import type {
  * @param interruptionPageUrl - Extension-owned interruption page URL.
  * @param nowEpochMilliseconds - Current wall-clock time.
  * @return Selected active state, a multiple marker, or null when inactive.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function selectToolbarState(
 	statesByScope: ProtectionCoordinatorStateSnapshot,
@@ -80,7 +80,7 @@ function selectToolbarState(
  * @param nowEpochMilliseconds - Current wall-clock time.
  * @param copy - Localized toolbar copy.
  * @return Complete compact badge projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createSelectedProjection(
 	selectedState: ProtectionState | number | null,
@@ -116,7 +116,7 @@ function createSelectedProjection(
  * Creates authoritative toolbar-badge coordination.
  * @param options - Browser tab, toolbar, and clock dependencies.
  * @return Toolbar badge refresh operation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createToolbarBadgeCoordinator(
 	options: ToolbarBadgeCoordinatorOptions,
@@ -126,7 +126,7 @@ export function createToolbarBadgeCoordinator(
 	 * @param configuration - Current validated local configuration or unavailable marker.
 	 * @param statesByScope - Current authoritative states or unavailable marker.
 	 * @return Promise resolved after the global toolbar badge is updated.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function refresh(
 		configuration: ProtectionConfigurationDocument | null,

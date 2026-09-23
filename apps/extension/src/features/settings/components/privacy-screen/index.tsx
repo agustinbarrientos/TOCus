@@ -26,7 +26,7 @@ import './style.scss';
  * Groups one reset explanation with the action that requests confirmation.
  * @param props - Localized description, availability and confirmation trigger.
  * @return Consistent full-width reset section.
- * @since 0.1.0
+ * @since 1.0.0
  */
 function ResetSection( props: ResetSectionProps ) {
 	return (
@@ -44,7 +44,7 @@ function ResetSection( props: ResetSectionProps ) {
  * Explains local data and runs only explicitly confirmed reset operations.
  * @param props - Canonical privacy content and background-owned reset actions.
  * @return Read-only privacy disclosures and confirmed data controls.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function Privacy( props: SettingsScreenProps ) {
 	const { privacyCopy: copy, privacyActions: actions, supportsCachedFavicons } = props.shell;

@@ -6,7 +6,7 @@ import type {
 
 /**
  * Browser message sender fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface TestMessageSender {
 	/** Sending frame identifier when the message came from a tab. */
@@ -24,7 +24,7 @@ export interface TestMessageSender {
 
 /**
  * Browser permission-change fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface TestPermissionChange {
 	/** Changed named permissions. */
@@ -35,7 +35,7 @@ export interface TestPermissionChange {
 
 /**
  * Fully spied runtime returned to controller tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface RuntimeHarness {
 	/** Runtime contract supplied to the controller. */
@@ -64,12 +64,12 @@ export interface RuntimeHarness {
 	failOpen: Mock;
 	/**
 	 * Statistics read spy.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	readStatistics: Mock;
 	/**
 	 * Statistics reset spy.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	resetStatistics: Mock;
 }

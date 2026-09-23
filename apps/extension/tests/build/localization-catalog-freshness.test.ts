@@ -11,7 +11,7 @@ import { describe, expect, it } from 'vitest';
 
 /**
  * Absolute repository root used to resolve the shared Lingui configuration.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const repositoryRoot = fileURLToPath( new URL( '../../../../', import.meta.url ) );
 
@@ -19,7 +19,7 @@ const repositoryRoot = fileURLToPath( new URL( '../../../../', import.meta.url )
  * Normalizes one Lingui origin to its repository-relative source filename.
  * @param origin - Source filename and optional source line.
  * @return Repository-relative source filename.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function normalizeOrigin( origin: MessageOrigin ): string {
 	const [ filename ] = origin;
@@ -34,7 +34,7 @@ function normalizeOrigin( origin: MessageOrigin ): string {
  * Projects catalog metadata that must stay synchronized with its app source.
  * @param catalog - Extracted or committed Lingui catalog.
  * @return Stable catalog projection indexed by message identifier.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function projectCatalogMetadata<Message extends MessageType | ExtractedMessageType>(
 	catalog: Readonly<Record<string, Message>>,
@@ -61,7 +61,7 @@ function projectCatalogMetadata<Message extends MessageType | ExtractedMessageTy
  * @param name - App name used in diagnostics.
  * @param relativePath - Repository-relative Lingui catalog path.
  * @return Promise resolved when every committed catalog is current and fully translated.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function verifyLocalizationCatalogFreshness( name: string, relativePath: string ): Promise<void> {
 	const config = getConfig( {

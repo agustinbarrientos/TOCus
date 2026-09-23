@@ -22,7 +22,7 @@ const NAVIGATION_PERMISSION = 'webNavigation';
 /**
  * Creates a validated unavailable popup response.
  * @return Unavailable semantic popup projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createUnavailableProjection(): PopupProjection {
 	return PopupProjectionSchema.parse( { status: PopupProjectionStatus.UNAVAILABLE } );
@@ -33,7 +33,7 @@ function createUnavailableProjection(): PopupProjection {
  * @param sender - Browser-provided message sender.
  * @param popupPageUrl - Exact extension-owned popup URL.
  * @return Whether the sender is authorized to read popup state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function isAuthenticatedPopupSender(
 	sender: PopupBackgroundMessageSender,
@@ -46,7 +46,7 @@ function isAuthenticatedPopupSender(
  * Loads popup-readable configuration only when optional navigation access is absent.
  * @param options - Popup background dependencies.
  * @return Read-only snapshot with no active enforcement, or null for a runtime failure.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function readNoCapabilitySnapshot(
 	options: PopupBackgroundControllerOptions,
@@ -76,7 +76,7 @@ async function readNoCapabilitySnapshot(
  * @param options - Popup background dependencies.
  * @param request - Validated popup runtime request.
  * @return Current validated semantic projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function readProjection(
 	options: PopupBackgroundControllerOptions,
@@ -104,7 +104,7 @@ async function readProjection(
  * Creates authenticated local messaging for popup status projection.
  * @param options - Browser messaging and authoritative protection runtime.
  * @return Synchronous background-listener registration.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createPopupBackgroundController(
 	options: PopupBackgroundControllerOptions,
@@ -115,7 +115,7 @@ export function createPopupBackgroundController(
 	 * @param sender - Browser-provided sender identity.
 	 * @param sendResponse - Asynchronous response callback.
 	 * @return True when this controller claims the asynchronous request.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleMessage(
 		input: unknown,
@@ -139,7 +139,7 @@ export function createPopupBackgroundController(
 
 	/**
 	 * Registers the popup message listener synchronously.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function start(): void {
 		options.browser.runtime.onMessage.addListener( handleMessage );

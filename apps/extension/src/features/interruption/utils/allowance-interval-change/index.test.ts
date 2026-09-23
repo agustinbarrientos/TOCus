@@ -5,7 +5,7 @@ import { hasAllowanceIntervalChange } from './index';
 
 /**
  * Running allowance whose three interval fields are independently observable.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const RUNNING_ALLOWANCE = {
 	allowanceId: 'allowance-a',

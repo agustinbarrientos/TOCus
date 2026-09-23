@@ -13,7 +13,7 @@ import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtur
  * Formats one wellbeing summary with centralized test localization.
  * @param projection - Projection rendered by the formatter.
  * @return Localized wellbeing summary.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function formatTestWellbeingSummary( projection: StatisticsProjection ): string {
 	return formatWellbeingSummary( projection, TestEnglishLocalizationBundle.wellbeing );
@@ -23,7 +23,7 @@ function formatTestWellbeingSummary( projection: StatisticsProjection ): string 
  * Exposes duration input for localized-copy delegation tests.
  * @param milliseconds - Duration supplied by the formatter.
  * @return Stable test representation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function formatTestDuration( milliseconds: number ): string {
 	return `duration:${ String( milliseconds ) }`;
@@ -33,7 +33,7 @@ function formatTestDuration( milliseconds: number ): string {
  * Exposes compact summary input for localized-copy delegation tests.
  * @param duration - Duration supplied by the formatter.
  * @return Stable test representation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function formatTestShortSummary( duration: string ): string {
 	return `short:${ duration }`;
@@ -43,7 +43,7 @@ function formatTestShortSummary( duration: string ): string {
  * Exposes complete summary values for localized-copy delegation tests.
  * @param values - Values supplied to localized grammar.
  * @return Serialized test representation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function formatTestSummary( values: WellbeingSummaryValues ): string {
 	return JSON.stringify( { values } );
@@ -53,7 +53,7 @@ function formatTestSummary( values: WellbeingSummaryValues ): string {
  * Creates one available all-time projection for footer-formatting tests.
  * @param overrides - Metric values that replace the zero projection.
  * @return Complete available statistics projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createProjection(
 	overrides: Partial<AvailableStatisticsProjection> = {},

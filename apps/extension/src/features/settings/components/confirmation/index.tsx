@@ -20,7 +20,7 @@ import { Feedback } from '../feedback';
  * Shares focus containment, Escape and safe-first-action behavior for confirmations.
  * @param props - Localized decision, pending state and explicit confirmation callbacks.
  * @return Packaged dialog hosted in the owned extension document.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function Confirmation( props: ConfirmationProps ) {
 	const pending = props.pending ?? false;

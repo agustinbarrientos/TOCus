@@ -5,7 +5,7 @@ import type {
 
 /**
  * Optional non-destructive persistence decision beside Stay and Discard.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface ConfirmationSaveAction {
 	label: string;
@@ -16,7 +16,7 @@ export interface ConfirmationSaveAction {
 
 /**
  * Focus-trapped confirmation with a safe first action.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface ConfirmationProps {
 	opened: boolean;

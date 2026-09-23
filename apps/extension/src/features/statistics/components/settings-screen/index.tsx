@@ -37,7 +37,7 @@ import { StatisticsRange, StatisticsRangeSchema } from '../../utils/select-stati
  * Presents all five metrics and the chart for one selected local calendar period.
  * @param props - Canonical labels, formatters and authoritative totals.
  * @return Metric definition list with an explicit estimate and empty-state guidance.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function StatisticsSummary( props: StatisticsSummaryProps ) {
 	const { copy, projection } = props;
@@ -87,7 +87,7 @@ export function StatisticsSummary( props: StatisticsSummaryProps ) {
  * Displays authoritative local statistics and separately confirmed reset actions.
  * @param props - Current statistics source and complete localized destination content.
  * @return Read-only statistics destination with actionable recovery.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function Statistics( props: SettingsScreenProps ) {
 	const { statisticsCopy: copy, statisticsSource: source } = props.shell;

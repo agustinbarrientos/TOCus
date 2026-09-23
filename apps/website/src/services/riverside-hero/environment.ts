@@ -76,7 +76,7 @@ function waterGeometry(): BufferGeometry {
 /**
  * Creates an inexpensive sky, animated water and one warm shadow-casting sun.
  * @return Owned scene objects and water controls.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function createEnvironment(): RiversideEnvironment {
 	const sky = new Mesh( new SphereGeometry( 900, 24, 12 ), new ShaderMaterial( {

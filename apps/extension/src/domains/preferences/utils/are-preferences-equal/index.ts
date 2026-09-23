@@ -5,7 +5,7 @@ import type { PreferencesDocument } from '../../types';
  * @param first - First complete preferences document.
  * @param second - Second complete preferences document.
  * @return Whether every persisted preference is equal.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function arePreferencesEqual(
 	first: Readonly<PreferencesDocument>,

@@ -17,19 +17,19 @@ import type { ProtectionFocusReconcilerOptions } from './types';
 
 /**
  * Extension-owned interruption page used by focus tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/interruption.html';
 
 /**
  * Protection scope used by focus tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const TEST_SCOPE_ID = DefaultProtectionScopeId;
 
 /**
  * Protected-site configuration used by focus tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
@@ -52,7 +52,7 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
  * Creates one Waiting state snapshot with the supplied participant.
  * @param participant - Participant retained by the Waiting state.
  * @return Current Waiting state snapshot.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createSnapshot(
 	participant: ProtectionParticipant,

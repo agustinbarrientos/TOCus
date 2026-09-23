@@ -4,7 +4,7 @@ import { UrlParsingFailureReasonSchema } from '../../types/url-parsing-failure';
 
 /**
  * HTTP protocols supported by protected-site rules.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectableProtocol = {
 	HTTP: 'http:',
@@ -13,19 +13,19 @@ export const ProtectableProtocol = {
 
 /**
  * Validates a protocol supported by protected-site rules.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectableProtocolSchema = z.enum( ProtectableProtocol );
 
 /**
  * Protocol supported by protected-site rules.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectableProtocol = z.infer<typeof ProtectableProtocolSchema>;
 
 /**
  * Browser-owned protocols that extensions cannot protect as ordinary pages.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const BrowserControlledProtocol = {
 	ABOUT: 'about:',
@@ -43,31 +43,31 @@ export const BrowserControlledProtocol = {
 
 /**
  * Validates a browser-owned protocol.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const BrowserControlledProtocolSchema = z.enum( BrowserControlledProtocol );
 
 /**
  * Browser-owned protocol that cannot be protected as an ordinary page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type BrowserControlledProtocol = z.infer<typeof BrowserControlledProtocolSchema>;
 
 /**
  * Validates a non-empty protected-site or navigation input string.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedSiteInputSchema = z.string().trim().min( 1 );
 
 /**
  * Non-empty protected-site or navigation input string.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedSiteInput = z.infer<typeof ProtectedSiteInputSchema>;
 
 /**
  * Stable statuses returned by protectable URL normalization.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectableUrlNormalizationStatus = {
 	NORMALIZED: 'normalized',
@@ -76,19 +76,19 @@ export const ProtectableUrlNormalizationStatus = {
 
 /**
  * Validates a protectable URL normalization status.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectableUrlNormalizationStatusSchema = z.enum( ProtectableUrlNormalizationStatus );
 
 /**
  * Protectable URL normalization status.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectableUrlNormalizationStatus = z.infer<typeof ProtectableUrlNormalizationStatusSchema>;
 
 /**
  * Validates a normalized protectable URL.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const NormalizedProtectableUrlSchema = z.object( {
 	status: z.enum( [ ProtectableUrlNormalizationStatus.NORMALIZED ] ),
@@ -98,7 +98,7 @@ const NormalizedProtectableUrlSchema = z.object( {
 
 /**
  * Validates a rejected protectable URL normalization.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const RejectedProtectableUrlSchema = z.object( {
 	status: z.enum( [ ProtectableUrlNormalizationStatus.REJECTED ] ),
@@ -107,7 +107,7 @@ const RejectedProtectableUrlSchema = z.object( {
 
 /**
  * Validates the result of protectable URL normalization.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectableUrlNormalizationResultSchema = z.discriminatedUnion( 'status', [
 	NormalizedProtectableUrlSchema,
@@ -116,6 +116,6 @@ export const ProtectableUrlNormalizationResultSchema = z.discriminatedUnion( 'st
 
 /**
  * Result of protectable URL normalization.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectableUrlNormalizationResult = z.infer<typeof ProtectableUrlNormalizationResultSchema>;

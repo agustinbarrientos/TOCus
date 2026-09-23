@@ -17,7 +17,7 @@ import {
 
 /**
  * Explicit modes for restoring runtime protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionStateRestoreMode = {
 	NEW_SESSION: 'new-session',
@@ -26,19 +26,19 @@ export const ProtectionStateRestoreMode = {
 
 /**
  * Validates an explicit runtime protection-state restore mode.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionStateRestoreModeSchema = z.enum( ProtectionStateRestoreMode );
 
 /**
  * Explicit runtime protection-state restore mode.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionStateRestoreMode = z.infer<typeof ProtectionStateRestoreModeSchema>;
 
 /**
  * Outcomes produced by runtime protection-state restoration.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionStateRestoreStatus = {
 	RESTORED: 'restored',
@@ -48,19 +48,19 @@ export const ProtectionStateRestoreStatus = {
 
 /**
  * Validates a runtime protection-state restoration outcome.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionStateRestoreStatusSchema = z.enum( ProtectionStateRestoreStatus );
 
 /**
  * Runtime protection-state restoration outcome.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionStateRestoreStatus = z.infer<typeof ProtectionStateRestoreStatusSchema>;
 
 /**
  * Stable reasons that one Ready participant still needs reconciliation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionStateReconciliationRequirementReason = {
 	OBSERVATION_UNAVAILABLE: 'observation-unavailable',
@@ -69,7 +69,7 @@ export const ProtectionStateReconciliationRequirementReason = {
 
 /**
  * Validates a stable Ready reconciliation requirement reason.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionStateReconciliationRequirementReasonSchema = z.enum(
 	ProtectionStateReconciliationRequirementReason,
@@ -77,7 +77,7 @@ export const ProtectionStateReconciliationRequirementReasonSchema = z.enum(
 
 /**
  * Stable reason that one Ready participant still needs reconciliation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionStateReconciliationRequirementReason = z.infer<
 	typeof ProtectionStateReconciliationRequirementReasonSchema
@@ -85,7 +85,7 @@ export type ProtectionStateReconciliationRequirementReason = z.infer<
 
 /**
  * Validates runtime protection states indexed by their scope identifiers.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const RestoredProtectionStatesByScopeSchema = z.preprocess(
 	( input ) => {
@@ -116,7 +116,7 @@ const RestoredProtectionStatesByScopeSchema = z.preprocess(
 
 /**
  * Validates one fresh Ready observation with durable transaction identity.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ReadyProtectionStateRestoreObservationSchema = z.object( {
 	scopeId: ProtectionScopeIdSchema,
@@ -126,7 +126,7 @@ export const ReadyProtectionStateRestoreObservationSchema = z.object( {
 
 /**
  * Fresh Ready observation with durable transaction identity.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ReadyProtectionStateRestoreObservation = z.infer<
 	typeof ReadyProtectionStateRestoreObservationSchema
@@ -134,7 +134,7 @@ export type ReadyProtectionStateRestoreObservation = z.infer<
 
 /**
  * Validates uniquely identified Ready observations supplied during restoration.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ReadyProtectionStateRestoreObservationsSchema = z.array(
 	ReadyProtectionStateRestoreObservationSchema,
@@ -163,7 +163,7 @@ const ReadyProtectionStateRestoreObservationsSchema = z.array(
 
 /**
  * Validates a new-session runtime protection-state restore input.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const NewSessionProtectionStateRestoreInputSchema = z.object( {
 	mode: z.enum( [ ProtectionStateRestoreMode.NEW_SESSION ] ),
@@ -173,7 +173,7 @@ const NewSessionProtectionStateRestoreInputSchema = z.object( {
 
 /**
  * Validates a continued-session runtime protection-state restore input.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ContinuedSessionProtectionStateRestoreInputSchema = z.object( {
 	mode: z.enum( [ ProtectionStateRestoreMode.CONTINUED_SESSION ] ),
@@ -185,7 +185,7 @@ const ContinuedSessionProtectionStateRestoreInputSchema = z.object( {
 
 /**
  * Validates an explicit runtime protection-state restore input.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const RestoreProtectionStateInputSchema = z.discriminatedUnion( 'mode', [
 	NewSessionProtectionStateRestoreInputSchema,
@@ -194,13 +194,13 @@ export const RestoreProtectionStateInputSchema = z.discriminatedUnion( 'mode', [
 
 /**
  * Explicit runtime protection-state restore input.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type RestoreProtectionStateInput = z.infer<typeof RestoreProtectionStateInputSchema>;
 
 /**
  * Validates one unresolved Ready reconciliation requirement.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionStateReconciliationRequirementSchema = z.object( {
 	scopeId: ProtectionScopeIdSchema,
@@ -212,7 +212,7 @@ export const ProtectionStateReconciliationRequirementSchema = z.object( {
 
 /**
  * Unresolved Ready reconciliation requirement.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionStateReconciliationRequirement = z.infer<
 	typeof ProtectionStateReconciliationRequirementSchema
@@ -220,13 +220,13 @@ export type ProtectionStateReconciliationRequirement = z.infer<
 
 /**
  * Validates an empty restoration collection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const EmptyProtectionStateRestoreCollectionSchema = z.tuple( [] );
 
 /**
  * Validates an empty runtime-state mapping.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const EmptyRestoredProtectionStatesByScopeSchema = RestoredProtectionStatesByScopeSchema.refine(
 	( statesByScope ) => Object.keys( statesByScope ).length === 0,
@@ -234,7 +234,7 @@ const EmptyRestoredProtectionStatesByScopeSchema = RestoredProtectionStatesBySco
 
 /**
  * Validates a successful runtime protection-state restore result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const RestoredProtectionStateResultSchema = z.object( {
 	status: z.enum( [ ProtectionStateRestoreStatus.RESTORED ] ),
@@ -246,7 +246,7 @@ const RestoredProtectionStateResultSchema = z.object( {
 
 /**
  * Validates a runtime protection-state result requiring reconciliation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ReconciliationRequiredProtectionStateResultSchema = z.object( {
 	status: z.enum( [ ProtectionStateRestoreStatus.RECONCILIATION_REQUIRED ] ),
@@ -258,7 +258,7 @@ const ReconciliationRequiredProtectionStateResultSchema = z.object( {
 
 /**
  * Validates a failed runtime protection-state restore result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const FailedProtectionStateRestoreResultSchema = z.object( {
 	status: z.enum( [ ProtectionStateRestoreStatus.FAILURE ] ),
@@ -271,7 +271,7 @@ const FailedProtectionStateRestoreResultSchema = z.object( {
 
 /**
  * Validates every runtime protection-state restore result with structurally empty facts.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const RestoreProtectionStateResultSchema = z.discriminatedUnion( 'status', [
 	RestoredProtectionStateResultSchema,
@@ -281,6 +281,6 @@ export const RestoreProtectionStateResultSchema = z.discriminatedUnion( 'status'
 
 /**
  * Complete runtime protection-state restore result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type RestoreProtectionStateResult = z.infer<typeof RestoreProtectionStateResultSchema>;

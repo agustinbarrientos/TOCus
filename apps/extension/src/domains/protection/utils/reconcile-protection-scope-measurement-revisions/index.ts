@@ -15,7 +15,7 @@ import type { ReconcileProtectionScopeMeasurementRevisionsOptions } from './type
  * Collects every active protection scope from one protected-site set.
  * @param sites - Protected-site configurations whose scopes are active.
  * @return Unique active scope identifiers, including the shared default scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function collectActiveProtectionScopeIds(
 	sites: ProtectedSiteConfigurationSet,
@@ -32,7 +32,7 @@ function collectActiveProtectionScopeIds(
  * @param currentRevisionsByScope - Complete revisions for the source configuration.
  * @return Source revisions restricted to projected active scopes.
  * @throws {Error} When the source configuration omits an active scope revision.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function retainActiveProtectionScopeMeasurementRevisions(
 	sites: ProtectedSiteConfigurationSet,
@@ -53,7 +53,7 @@ export function retainActiveProtectionScopeMeasurementRevisions(
  * Reconciles measurement revisions with active scopes and requested invalidations.
  * @param options - Active sites, current revisions, invalidated scopes, and revision factory.
  * @return Reconciled revisions or null when the factory returns an invalid value.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function reconcileProtectionScopeMeasurementRevisions(
 	options: ReconcileProtectionScopeMeasurementRevisionsOptions,

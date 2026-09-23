@@ -9,7 +9,7 @@ import type {
 
 /**
  * Inputs used to reconcile active protection scope measurement revisions.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ReconcileProtectionScopeMeasurementRevisionsOptions {
 	/** Candidate protected-site configurations. */

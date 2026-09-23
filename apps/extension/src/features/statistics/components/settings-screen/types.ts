@@ -6,7 +6,7 @@ import type { StatisticsProjection } from '../../../../domains/statistics/types/
 
 /**
  * Stable loading states rendered by the Statistics settings screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StatisticsScreenLoadStatus = {
 	LOADING: 'loading',
@@ -16,14 +16,14 @@ export const StatisticsScreenLoadStatus = {
 
 /**
  * Current Statistics settings-screen loading state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StatisticsScreenLoadStatus =
 	typeof StatisticsScreenLoadStatus[ keyof typeof StatisticsScreenLoadStatus ];
 
 /**
  * Stable operations whose failure can make statistics unavailable.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StatisticsRecoveryReason = {
 	LOAD: 'load',
@@ -32,27 +32,27 @@ export const StatisticsRecoveryReason = {
 
 /**
  * Operation represented by the current Statistics recovery state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StatisticsRecoveryReason =
 	typeof StatisticsRecoveryReason[ keyof typeof StatisticsRecoveryReason ];
 
 /**
  * Reads, observes, and resets the authoritative all-time statistics projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface StatisticsSource extends StatisticsChangeSource {
 	/**
 	 * Resets all-time statistics without changing protection settings.
 	 * @return Authoritative projection after the reset attempt.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	resetStatistics(): Promise<StatisticsProjection>;
 }
 
 /**
  * Localizable messages and value formatters rendered by the Statistics screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface StatisticsSettingsScreenCopy {
 	title: string;
@@ -72,7 +72,7 @@ export interface StatisticsSettingsScreenCopy {
 	dateLabel: string;
 	/**
 	 * Formats a recorded local calendar date without shifting its day.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	formatDate( date: string ): string;
 	/** Formats the inclusive local date interval represented by one chart bucket. */
@@ -96,28 +96,28 @@ export interface StatisticsSettingsScreenCopy {
 	 * Formats one estimated reclaimed-time value.
 	 * @param milliseconds - Non-negative estimated duration in milliseconds.
 	 * @return Localized zero-estimate guidance, approximation rounded to the nearest minute, or explicit subminute duration.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	formatEstimatedDuration( milliseconds: number ): string;
 	/**
 	 * Formats one focused-pause duration.
 	 * @param milliseconds - Non-negative duration in milliseconds.
 	 * @return Human-readable duration.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	formatDuration( milliseconds: number ): string;
 	/**
 	 * Formats a chart-axis duration using compact localized units without minute rounding.
 	 * @param milliseconds - Non-negative axis tick in milliseconds.
 	 * @return Compact seconds, minutes or hours suitable for an axis label.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	formatAxisDuration( milliseconds: number ): string;
 	/**
 	 * Formats one non-negative metric count.
 	 * @param count - Non-negative metric count.
 	 * @return Human-readable count.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	formatCount( count: number ): string;
 }
@@ -125,7 +125,7 @@ export interface StatisticsSettingsScreenCopy {
 
 /**
  * Validated metrics and localized formatters for the all-time summary.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface StatisticsSummaryProps {
 	copy: StatisticsSettingsScreenCopy;

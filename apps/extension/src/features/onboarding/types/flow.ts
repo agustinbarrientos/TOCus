@@ -7,13 +7,13 @@ import type { OnboardingPageShell } from '../services/onboarding-page/types';
 
 /**
  * Observable page-service state consumed by the onboarding presentation.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type OnboardingState = Omit<OnboardingPageShell, keyof EventTarget>;
 
 /**
  * The three supported onboarding destinations.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const OnboardingStepIndex = {
 	LANGUAGE: 0,
@@ -23,13 +23,13 @@ export const OnboardingStepIndex = {
 
 /**
  * Numeric index expected by the shared stepper control.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type OnboardingStepIndex = typeof OnboardingStepIndex[ keyof typeof OnboardingStepIndex ];
 
 /**
  * Stable localization keys for site failures, retained across language changes.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const OnboardingFailure = {
 	INVALID_SITE: 'invalidSiteError',
@@ -44,13 +44,13 @@ export const OnboardingFailure = {
 
 /**
  * Stable localized failure key carried by the site controller.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type OnboardingFailure = typeof OnboardingFailure[ keyof typeof OnboardingFailure ];
 
 /**
  * Semantic outcomes announced after a site addition or removal.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const OnboardingAnnouncementKind = {
 	ADDED: 'added',
@@ -60,14 +60,14 @@ export const OnboardingAnnouncementKind = {
 
 /**
  * Site outcome retained across localization changes.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type OnboardingAnnouncementKind =
 	typeof OnboardingAnnouncementKind[ keyof typeof OnboardingAnnouncementKind ];
 
 /**
  * Semantic site feedback; its sequence lets repeated announcements reach assistive technology.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface OnboardingAnnouncement {
 	kind: OnboardingAnnouncementKind;
@@ -77,7 +77,7 @@ export interface OnboardingAnnouncement {
 
 /**
  * Synchronous mutation gate shared by preference and site operations.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface OnboardingOperationGate {
 	/** Reports the current gate without waiting for a React render. */
@@ -90,7 +90,7 @@ export interface OnboardingOperationGate {
 
 /**
  * Rendered pending state paired with the synchronous mutation gate.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface OnboardingPendingOperation extends OnboardingOperationGate {
 	pending: boolean;
@@ -98,7 +98,7 @@ export interface OnboardingPendingOperation extends OnboardingOperationGate {
 
 /**
  * Retains the removing row while browser permission cleanup outlives a storage notification.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface OnboardingPendingRemoval {
 	site: ProtectedSiteConfiguration;
@@ -107,7 +107,7 @@ export interface OnboardingPendingRemoval {
 
 /**
  * Site draft state and operations, separated from page composition.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface OnboardingSitesController {
 	sites: readonly ProtectedSiteConfiguration[];
@@ -128,7 +128,7 @@ export interface OnboardingSitesController {
 
 /**
  * Complete presentation contract for onboarding views.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface OnboardingController extends OnboardingSitesController {
 	step: OnboardingStepIndex;

@@ -7,7 +7,7 @@ import type { PopupContentProperties, PopupRetryProperties } from './types';
  * Keeps recovery labels and disabled/loading behavior identical across unavailable states.
  * @param properties - Localized recovery labels, pending state, and controller action.
  * @return Accessible packaged retry action.
- * @since 0.1.0
+ * @since 1.0.0
  */
 function PopupRetryAction( properties: PopupRetryProperties ) {
 	const { copy, retrying, onRetry } = properties;
@@ -23,7 +23,7 @@ function PopupRetryAction( properties: PopupRetryProperties ) {
  * Selects the runtime-recovery, current-site, or unsupported-page presentation.
  * @param properties - Loaded authoritative projection, copy, and controller actions.
  * @return One complete popup content state with a stable focus-recovery target.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function PopupContent( properties: PopupContentProperties ) {
 	const { state, copy, projection, onAddSite, onRetry } = properties;

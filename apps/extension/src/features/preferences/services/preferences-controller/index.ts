@@ -20,7 +20,7 @@ import type {
  * Creates a live projection of local preferences for one extension context.
  * @param options - Persistence, browser preference, and presentation dependencies.
  * @return Preference lifecycle with effective language and reduced-motion sources.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createPreferencesController(
 	options: PreferencesControllerOptions,
@@ -38,7 +38,7 @@ export function createPreferencesController(
 
 	/**
 	 * Synchronizes the effective reduced-motion value and notifies active consumers.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function synchronizeReducedMotion(): void {
 		const nextReducedMotion = options.systemMotionPreference.matches;
@@ -57,7 +57,7 @@ export function createPreferencesController(
 
 	/**
 	 * Synchronizes effective language metadata and notifies active consumers after a change.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function synchronizeLanguage(): void {
 		const nextLanguage = preferences.language ?? options.browserLanguage;
@@ -78,7 +78,7 @@ export function createPreferencesController(
 	/**
 	 * Projects one complete preference document into this extension context.
 	 * @param nextPreferences - Complete validated preferences to project.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function projectPreferences( nextPreferences: PreferencesDocument ): void {
 		preferences = nextPreferences;
@@ -96,7 +96,7 @@ export function createPreferencesController(
 	/**
 	 * Projects one validated storage result and publishes its recoverability state.
 	 * @param nextPreferences - Valid preferences or a malformed-data marker.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function applyStoredPreferences( nextPreferences: PreferencesDocument | null ): void {
 		projectionRevision += 1;
@@ -110,7 +110,7 @@ export function createPreferencesController(
 	/**
 	 * Projects one in-memory preference preview and publishes its validated state.
 	 * @param nextPreferences - Complete preferences to preview.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function apply( nextPreferences: PreferencesDocument ): void {
 		projectionRevision += 1;
@@ -120,7 +120,7 @@ export function createPreferencesController(
 	/**
 	 * Begins delivering the accepted initial read and later preferences projections to one listener.
 	 * @param listener - Preferences projection listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function addPreferencesChangeListener( listener: PreferencesChangeListener ): void {
 		preferencesChangeListeners.add( listener );
@@ -129,7 +129,7 @@ export function createPreferencesController(
 	/**
 	 * Begins delivering effective language changes to one listener.
 	 * @param listener - Effective language listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function addLanguageChangeListener( listener: PreferencesLanguageChangeListener ): void {
 		languageChangeListeners.add( listener );
@@ -139,7 +139,7 @@ export function createPreferencesController(
 	 * Resolves one unknown stored value to validated preferences or a malformed-data marker.
 	 * @param input - Unknown value supplied by browser storage.
 	 * @return Valid preferences, safe defaults for a removed key, or null for malformed data.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function resolveStoredPreferences( input: unknown ): PreferencesDocument | null {
 		if ( input === undefined ) {
@@ -151,7 +151,7 @@ export function createPreferencesController(
 
 	/**
 	 * Recomputes effective motion after an operating-system preference change.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleSystemMotionChange(): void {
 		synchronizeReducedMotion();
@@ -161,7 +161,7 @@ export function createPreferencesController(
 	 * Applies one relevant local preferences change from another extension context.
 	 * @param changes - Browser storage changes indexed by key.
 	 * @param areaName - Browser storage area that changed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleStorageChange( changes: PreferencesStorageChanges, areaName: string ): void {
 		if (
@@ -181,7 +181,7 @@ export function createPreferencesController(
 	 * Begins delivering effective motion changes to one listener.
 	 * @param type - Effective motion change event name.
 	 * @param listener - Effective motion change listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function addEventListener(
 		type: 'change',
@@ -194,7 +194,7 @@ export function createPreferencesController(
 	 * Stops delivering effective motion changes to one listener.
 	 * @param type - Effective motion change event name.
 	 * @param listener - Effective motion change listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function removeEventListener(
 		type: 'change',
@@ -206,7 +206,7 @@ export function createPreferencesController(
 	/**
 	 * Stops delivering accepted initial and later preferences projections to one listener.
 	 * @param listener - Preferences projection listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function removePreferencesChangeListener( listener: PreferencesChangeListener ): void {
 		preferencesChangeListeners.delete( listener );
@@ -215,7 +215,7 @@ export function createPreferencesController(
 	/**
 	 * Stops delivering effective language changes to one listener.
 	 * @param listener - Effective language listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function removeLanguageChangeListener( listener: PreferencesLanguageChangeListener ): void {
 		languageChangeListeners.delete( listener );
@@ -224,7 +224,7 @@ export function createPreferencesController(
 	/**
 	 * Reads local preferences and converts read failures to the safe runtime fallback.
 	 * @return Stored preferences or null when the read is unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function loadPreferences(): Promise<PreferencesDocument | null> {
 		try {
@@ -239,7 +239,7 @@ export function createPreferencesController(
 	 * @param currentGeneration - Lifecycle generation that started the read.
 	 * @param initialProjectionRevision - Projection revision observed before the read.
 	 * @return Promise resolved after the initial local read settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function completeStart(
 		currentGeneration: number,
@@ -260,7 +260,7 @@ export function createPreferencesController(
 	/**
 	 * Releases the retained startup operation when the same operation settles.
 	 * @param operation - Startup operation that settled.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function releaseStartPromise( operation: Promise<void> ): void {
 		if ( startPromise === operation ) {
@@ -270,7 +270,7 @@ export function createPreferencesController(
 
 	/**
 	 * Disconnects active browser preference observers and invalidates pending startup work.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function disconnectObservers(): void {
 		observing = false;
@@ -281,7 +281,7 @@ export function createPreferencesController(
 
 	/**
 	 * Rolls back observers when the active startup operation fails.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleStartFailure(): void {
 		disconnectObservers();
@@ -291,7 +291,7 @@ export function createPreferencesController(
 	/**
 	 * Loads and begins observing preferences without allowing a stale read to win.
 	 * @return Promise resolved after the initial local read settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function start(): Promise<void> {
 		if ( startPromise !== null ) {
@@ -334,7 +334,7 @@ export function createPreferencesController(
 
 	/**
 	 * Stops every preference observer owned by this context.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function stop(): void {
 		if ( ! observing ) {
@@ -349,7 +349,7 @@ export function createPreferencesController(
 		/**
 		 * Reports the browser-derived or explicitly selected language currently projected by this context.
 		 * @return Effective TOCus language.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		get language(): Language {
 			return effectiveLanguage;
@@ -357,7 +357,7 @@ export function createPreferencesController(
 		/**
 		 * Reports whether the operating system currently requests reduced motion.
 		 * @return Effective reduced-motion preference.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		get matches(): boolean {
 			return effectiveReducedMotion;

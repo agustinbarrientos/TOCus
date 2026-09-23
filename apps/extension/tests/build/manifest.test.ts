@@ -110,7 +110,7 @@ const expectedOnboardingSiteNames = [
 
 /**
  * PO formatter used to inspect translator-authored extension metadata.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const poFormatter = formatter( {
 	foldLength: 0,
@@ -119,19 +119,19 @@ const poFormatter = formatter( {
 
 /**
  * Settings-only copy that classic runtimes must not bundle.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const settingsOnlyMessage = 'Choose the language TOCus uses across the extension.';
 
 /**
  * Maximum generated size for each classic-script runtime that cannot load locale chunks.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const maximumClassicRuntimeBytes = 450_000;
 /**
  * Bounds the injected React/Mantine renderer, including its isolated library CSS.
  * Background scripts retain the smaller engine-only budget above.
- * @since 0.1.0 React presentation migration.
+ * @since 1.0.0 React presentation migration.
  */
 const maximumProtectedPageBytes = 750_000;
 const pngSignature = Buffer.from( [ 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a ] );
@@ -172,7 +172,7 @@ async function readOutputBuffer( outputUrl: URL, filePath: string ): Promise<Buf
  * Parses one extension PO catalog from its canonical app-root location.
  * @param locale - Lingui locale filename to parse.
  * @return Parsed translator catalog.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function readExtensionCatalog( locale: string ): Promise<CatalogType> {
 	const filename = fileURLToPath( new URL( `../../locales/${ locale }.po`, import.meta.url ) );
@@ -191,7 +191,7 @@ async function readExtensionCatalog( locale: string ): Promise<CatalogType> {
  * @param message - English source message.
  * @param context - Translator context that distinguishes the message.
  * @return Nonempty translated message.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getCatalogTranslation( catalog: CatalogType, locale: string, message: string, context: string ): string {
 	const translation = Object.values( catalog ).find( ( entry ) => (
@@ -210,7 +210,7 @@ function getCatalogTranslation( catalog: CatalogType, locale: string, message: s
  * @param catalog - Parsed translator catalog for one locale.
  * @param locale - Locale used to identify invalid metadata.
  * @return Browser-managed message file contents.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createExpectedManifestMessages( catalog: CatalogType, locale: string ): object {
 	return {
@@ -234,7 +234,7 @@ function createExpectedManifestMessages( catalog: CatalogType, locale: string ):
  * Verifies that browser-managed extension metadata has complete local translations.
  * @param outputUrl - Browser output-directory URL.
  * @return Promise resolved after every bundled manifest locale is validated.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function expectLocalizedManifestMessages( outputUrl: URL ): Promise<void> {
 	for ( const locale of expectedManifestLocales ) {
@@ -269,7 +269,7 @@ function expectSquarePng( icon: Buffer, expectedSize: number ): void {
 /**
  * Verifies that an extension document starts on a hidden, non-bright canvas until preferences load.
  * @param html - Generated extension document markup.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function expectPreferencesBootstrap( html: string ): void {
 	expect( html ).toContain( 'color-scheme: dark' );
@@ -304,7 +304,7 @@ async function expectPopupComposition( outputUrl: URL ): Promise<void> {
  * Verifies that the generated options page loads the settings shell component.
  * @param outputUrl - Browser output-directory URL.
  * @return Promise resolved after all options-page composition assertions pass.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function expectOptionsComposition( outputUrl: URL ): Promise<void> {
 	const optionsHtml = await readOutputFile( outputUrl, 'options.html' );
@@ -342,7 +342,7 @@ async function expectOptionsComposition( outputUrl: URL ): Promise<void> {
  * Verifies that generated onboarding loads its shell and all local suggestion icons.
  * @param outputUrl - Browser output-directory URL.
  * @return Promise resolved after onboarding composition assertions pass.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function expectOnboardingComposition( outputUrl: URL ): Promise<void> {
 	const onboardingHtml = await readOutputFile( outputUrl, 'onboarding.html' );
@@ -409,7 +409,7 @@ async function expectInterruptionComposition( outputUrl: URL, document: string )
  * Verifies that on-demand protected-page resources contain the isolated layer and bundled brand font.
  * @param outputUrl - Browser output-directory URL.
  * @return Promise resolved after protected-page resource assertions pass.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function expectProtectedPageComposition( outputUrl: URL ): Promise<void> {
 	const moduleCode = await readOutputFile( outputUrl, 'protected-page.js' );
@@ -457,7 +457,7 @@ async function expectProtectedPageComposition( outputUrl: URL ): Promise<void> {
  * @param outputUrl - Browser output-directory URL.
  * @param filePath - Classic background or injected-script path.
  * @return Promise resolved after compatibility and size assertions pass.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function expectClassicRuntimeLocalization(
 	outputUrl: URL,
@@ -476,7 +476,7 @@ async function expectClassicRuntimeLocalization(
 /**
  * Verifies that a generated manifest avoids unnecessary browsing permissions.
  * @param manifest - Parsed generated manifest.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function expectNoUnnecessaryBrowsingPermissions( manifest: unknown ): void {
 	expect( manifest ).not.toHaveProperty( 'host_permissions' );
