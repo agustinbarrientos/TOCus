@@ -1,7 +1,7 @@
 import { LoadingManager, Mesh } from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
-import { disposeObjectResources } from '../mascot-scene/model';
+import { disposeObjectResources } from './dispose';
 import type { RiversideModel } from './types';
 
 /**

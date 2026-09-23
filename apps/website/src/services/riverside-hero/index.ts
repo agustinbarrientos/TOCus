@@ -4,7 +4,7 @@ import {
 	type Object3D, PCFSoftShadowMap, PerspectiveCamera,
 	Plane, Raycaster, Scene, SRGBColorSpace, Vector2, Vector3, WebGLRenderer,
 } from 'three';
-import { disposeObjectResources } from '../mascot-scene/model';
+import { disposeObjectResources } from './dispose';
 import { cameraFieldOfView, cameraPosition, easeCameraYaw, pointerYaw } from './camera';
 import { createEnvironment } from './environment';
 import { createHeadMotion } from './head-motion';
