@@ -50,8 +50,30 @@ async function openAnimatedHero( page: Page ): Promise<string[]> {
 	return shaderErrors;
 }
 
+/**
+ * Makes animation timestamps independent of software GPU throughput.
+ * @param page - Isolated browser page before the scene is loaded.
+ */
+async function pauseAnimationClock( page: Page ): Promise<void> {
+	const start = new Date( '2026-09-07T12:00:00Z' );
+	await page.clock.install( { time: new Date( start.getTime() - 1000 ) } );
+	await page.clock.pauseAt( start );
+}
+
+/**
+ * Advances real render callbacks without exceeding the mixer's animation-delta cap.
+ * @param page - Browser page with its animation clock paused.
+ * @param frames - Number of 250 ms frames to render.
+ */
+async function advanceAnimationFrames( page: Page, frames: number ): Promise<void> {
+	for ( let frame = 0; frame < frames; frame++ ) {
+		await page.clock.fastForward( 250 );
+	}
+}
+
 test.describe( 'homepage riverside hero', () => {
 	test( 'orbits with attentive head turns and drifts back to the resting view', async ( { page } ) => {
+		await pauseAnimationClock( page );
 		const shaderErrors = await openAnimatedHero( page );
 		const canvas = page.locator( '.riverside-hero canvas' );
 		const restYaw = 42 * Math.PI / 180;
@@ -60,75 +82,72 @@ test.describe( 'homepage riverside hero', () => {
 			throw new Error( 'The loaded scene must expose its camera height.' );
 		}
 		expect( Number( height ) ).toBeGreaterThan( 0 );
+		// The first callback initializes the scene's previous-frame timestamp.
+		await advanceAnimationFrames( page, 1 );
 
 		await test.step( 'horizontal orbit turns the head visibly toward the viewer in each direction', async () => {
 			const headLimit = 35 * Math.PI / 180;
 			await page.mouse.move( 0, 320 );
-			await expect.poll( async () => Number( await canvas.getAttribute( 'data-yaw' ) ) ).toBeLessThan( -0.84 );
-			expect( Number( await canvas.getAttribute( 'data-yaw' ) ) ).toBeGreaterThanOrEqual( -50 * Math.PI / 180 );
-			await expect.poll( async () => Number( await canvas.getAttribute( 'data-head-yaw' ) ), {
-				timeout: 15_000,
-				message: 'The head follows left independently of the drinking pose.',
-			} ).toBeLessThan( -0.3 );
-			const leftHeadYaw = Number( await canvas.getAttribute( 'data-head-yaw' ) );
-			expect( leftHeadYaw ).toBeGreaterThanOrEqual( -headLimit );
-			expect( Math.abs( leftHeadYaw ) ).toBeLessThan( Math.abs( Number( await canvas.getAttribute( 'data-yaw' ) ) ) );
-			await expect( canvas ).toHaveAttribute( 'data-camera-height', height );
+			await advanceAnimationFrames( page, 5 );
+			const left = await canvas.evaluate( ( element: HTMLCanvasElement ) => ( {
+				yaw: Number( element.dataset.yaw ), head: Number( element.dataset.headYaw ),
+				height: element.dataset.cameraHeight,
+			} ) );
+			expect( left.yaw ).toBeLessThan( -0.84 );
+			expect( left.yaw ).toBeGreaterThanOrEqual( -50 * Math.PI / 180 );
+			expect( left.head, 'The head follows left independently of the drinking pose.' ).toBeLessThan( -0.3 );
+			expect( left.head ).toBeGreaterThanOrEqual( -headLimit );
+			expect( Math.abs( left.head ) ).toBeLessThan( Math.abs( left.yaw ) );
+			expect( left.height ).toBe( height );
 			await page.mouse.move( 959, 320 );
-			await expect.poll( async () => Number( await canvas.getAttribute( 'data-yaw' ) ) ).toBeGreaterThan( 0.84 );
-			expect( Number( await canvas.getAttribute( 'data-yaw' ) ) ).toBeLessThanOrEqual( 50 * Math.PI / 180 );
-			await expect.poll( async () => Number( await canvas.getAttribute( 'data-head-yaw' ) ), {
-				timeout: 15_000,
-				message: 'The head follows right independently of the drinking pose.',
-			} ).toBeGreaterThan( 0.3 );
-			const rightHeadYaw = Number( await canvas.getAttribute( 'data-head-yaw' ) );
-			expect( rightHeadYaw ).toBeLessThanOrEqual( headLimit );
-			expect( rightHeadYaw ).toBeLessThan( Number( await canvas.getAttribute( 'data-yaw' ) ) );
+			await advanceAnimationFrames( page, 5 );
+			const right = await canvas.evaluate( ( element: HTMLCanvasElement ) => ( {
+				yaw: Number( element.dataset.yaw ), head: Number( element.dataset.headYaw ),
+			} ) );
+			expect( right.yaw ).toBeGreaterThan( 0.84 );
+			expect( right.yaw ).toBeLessThanOrEqual( 50 * Math.PI / 180 );
+			expect( right.head, 'The head follows right independently of the drinking pose.' ).toBeGreaterThan( 0.3 );
+			expect( right.head ).toBeLessThanOrEqual( headLimit );
+			expect( right.head ).toBeLessThan( right.yaw );
 			await page.mouse.move( 959, 100 );
-			await expect( canvas ).toHaveAttribute( 'data-camera-height', height );
-			expect( Math.abs( Number( await canvas.getAttribute( 'data-head-yaw' ) ) ) ).toBeLessThanOrEqual( headLimit );
+			await advanceAnimationFrames( page, 1 );
+			const raised = await canvas.evaluate( ( element: HTMLCanvasElement ) => ( {
+				head: Number( element.dataset.headYaw ), height: element.dataset.cameraHeight,
+			} ) );
+			expect( raised.height ).toBe( height );
+			expect( Math.abs( raised.head ) ).toBeLessThanOrEqual( headLimit );
 		} );
 
 		await test.step( 'leaving the hero returns more slowly than following the pointer', async () => {
-			const returning = await canvas.evaluate( async ( element: HTMLCanvasElement ) => {
-				const departure = Number( element.dataset.yaw );
-				const started = performance.now();
+			const departure = await canvas.evaluate( ( element: HTMLCanvasElement ) => {
 				element.closest( '.hero' )?.dispatchEvent( new PointerEvent( 'pointerleave' ) );
-				await new Promise<void>( ( resolve ) => {
-					/**
-					 * Samples the real animation after a short interval without changing its clock.
-					 * @param now - Current browser animation timestamp.
-					 */
-					function sampleReturn( now: number ): void {
-						if ( now - started >= 600 ) {
-							resolve();
-						} else {
-							requestAnimationFrame( sampleReturn );
-						}
-					}
-					requestAnimationFrame( sampleReturn );
-				} );
-				return {
-					departure, yaw: Number( element.dataset.yaw ), seconds: ( performance.now() - started ) / 1000,
-				};
+				return { yaw: Number( element.dataset.yaw ), time: performance.now() };
 			} );
-			const remaining = ( returning.yaw - restYaw ) / ( returning.departure - restYaw );
-			const returnRate = -Math.log( remaining ) / returning.seconds;
+			await advanceAnimationFrames( page, 3 );
+			const returning = await canvas.evaluate( ( element: HTMLCanvasElement ) => ( {
+				yaw: Number( element.dataset.yaw ), time: performance.now(),
+			} ) );
+			const remaining = ( returning.yaw - restYaw ) / ( departure.yaw - restYaw );
+			const seconds = ( returning.time - departure.time ) / 1000;
+			const returnRate = -Math.log( remaining ) / seconds;
 			expect( returnRate, 'Leaving the hero drifts home instead of using the fast pointer-follow speed.' ).toBeLessThan( 1.8 );
 			expect( returnRate ).toBeGreaterThan( 0.9 );
-			await expect.poll( async () => Math.abs( Number( await canvas.getAttribute( 'data-yaw' ) ) - restYaw ) ).toBeLessThan( 0.01 );
+			await advanceAnimationFrames( page, 8 );
+			expect( Math.abs( Number( await canvas.getAttribute( 'data-yaw' ) ) - restYaw ) ).toBeLessThan( 0.01 );
 			await page.mouse.move( 480, 280 );
-			await expect.poll( async () => Math.abs( Number( await canvas.getAttribute( 'data-yaw' ) ) - restYaw ) ).toBeLessThan( 0.01 );
-			await expect.poll( async () => Math.abs( Number( await canvas.getAttribute( 'data-head-yaw' ) ) - restYaw * 35 / 50 ) ).toBeLessThan( 0.005 );
+			await advanceAnimationFrames( page, 4 );
+			const centered = await canvas.evaluate( ( element: HTMLCanvasElement ) => ( {
+				yaw: Number( element.dataset.yaw ), head: Number( element.dataset.headYaw ),
+			} ) );
+			expect( Math.abs( centered.yaw - restYaw ) ).toBeLessThan( 0.01 );
+			expect( Math.abs( centered.head - restYaw * 35 / 50 ) ).toBeLessThan( 0.005 );
 			expect( shaderErrors ).toEqual( [] );
 		} );
 	} );
 
 	test( 'head following stays active throughout a complete twelve-second sip and blink cycle', async ( { page } ) => {
 		test.setTimeout( 45_000 );
-		const start = new Date( '2026-09-07T12:00:00Z' );
-		await page.clock.install( { time: new Date( start.getTime() - 1000 ) } );
-		await page.clock.pauseAt( start );
+		await pauseAnimationClock( page );
 		const shaderErrors = await openAnimatedHero( page );
 		const canvas = page.locator( '.riverside-hero canvas' );
 		const animationStart = Number( await canvas.getAttribute( 'data-animation-time' ) );
