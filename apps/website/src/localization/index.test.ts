@@ -28,74 +28,18 @@ const WebsiteCatalogLocales = Object.freeze( [
 ] );
 
 /**
- * Product-story fields consumed directly by the website experience.
+ * Homepage copy consumed by the static feature and download sections.
  * @since 0.1.0 Initial implementation.
  */
-const WebsiteProductStoryFields = Object.freeze( [
-	'getExtension',
-	'howLink',
-	'alsoAvailable',
-	'chooseLabel',
-	'visitLabel',
-	'pauseLabel',
-	'continueLabel',
-	'browseLabel',
-	'visitTitle',
-	'visitDescription',
-	'browseTitle',
-	'browseDescription',
-	'timingPause',
-	'timingBrowse',
-	'storyPlay',
-	'storyPause',
-	'storyReplay',
-	'comingSoon',
-	'downloadTitle',
-	'downloadDescription',
-	'downloadFor',
-	'freeLabel',
-	'mascotAlt',
-	'mascotInteractionLabel',
-	'demoNewTab',
-	'demoReady',
-	'demoTakeAMoment',
-	'demoBreatheIn',
-	'demoBreatheOut',
-	'demoContinue',
-	'demoSphere',
-	'demoSecondsRemaining',
-	'demoLabel',
-	'demoSiteSelected',
-	'statisticsTitle',
-	'statisticsDescription',
-	'statsTitle',
-	'statsEstimated',
-	'statsFocused',
-	'statsReconsidered',
-	'statsCompleted',
-	'statsAllowances',
-	'statsPeriod',
-	'statsAllTime',
-	'statsThisMonth',
-	'statsThisWeek',
-	'statsActivity',
-	'statsDate',
-	'statsEstimateDescription',
-	'mediaTitle',
-	'mediaDescription',
-	'sitesTitle',
-	'sitesDescription',
-	'demoTimeLeft',
-	'privacyLink',
-	'supportLink',
-	'madeBy',
-	'privacyShort',
-	'privacyAccounts',
-	'privacyTracking',
-	'privacyCalls',
-	'privacyLocal',
-	'readPrivacy',
-	'sourceShort',
+const WebsiteHomepageFields = Object.freeze( [
+	'stepOpen', 'stepPause', 'stepContinue', 'stepBrowse',
+	'featuresTitle', 'scheduleTitle', 'scheduleDescription',
+	'sitesTitle', 'sitesDescription', 'mediaTitle', 'mediaDescription', 'mediaServices',
+	'statisticsTitle', 'statisticsDescription',
+	'privacyLocal', 'privacy', 'readPrivacy',
+	'openSourceTitle', 'openSourceDescription', 'sourceShort',
+	'alsoAvailable', 'comingSoon', 'downloadTitle', 'downloadFor',
+	'privacyLink', 'madeBy', 'sourceLink',
 ] as const );
 
 /**
@@ -173,7 +117,7 @@ describe( 'website localization', () => {
 		expect( french.catalog.metadata.description ).toBe(
 			'TOCus est une extension de navigateur open source.',
 		);
-		expect( french.catalog.sourceLink ).toBe( 'Explorer le code source sur GitHub' );
+		expect( french.catalog.sourceLink ).toBe( 'Code source' );
 		expect( french.catalog.languageMenuLabel ).toBe( 'Langue du site' );
 	} );
 
@@ -194,11 +138,11 @@ describe( 'website localization', () => {
 		} );
 	} );
 
-	it( 'provides localized product-story actions and status copy for every website language', () => {
+	it( 'provides localized homepage copy for every website language', () => {
 		const english = getWebsiteLocalization( WebsiteLanguage.ENGLISH );
 
 		for ( const localization of getWebsiteLocalizations() ) {
-			for ( const field of WebsiteProductStoryFields ) {
+			for ( const field of WebsiteHomepageFields ) {
 				const value = localization.catalog[ field ];
 
 				expect( value, `${ localization.language }:${ field }` ).toEqual( expect.any( String ) );
@@ -206,34 +150,27 @@ describe( 'website localization', () => {
 			}
 
 			if ( localization.language !== WebsiteLanguage.ENGLISH ) {
-				expect( localization.catalog.visitDescription ).not.toBe( english.catalog.visitDescription );
+				expect( localization.catalog.scheduleDescription ).not.toBe( english.catalog.scheduleDescription );
 			}
 		}
 
-		expect( getWebsiteLocalization( WebsiteLanguage.SPANISH_TU ).catalog.chooseTitle ).not.toBe(
-			getWebsiteLocalization( WebsiteLanguage.SPANISH_VOS ).catalog.chooseTitle,
+		expect( getWebsiteLocalization( WebsiteLanguage.SPANISH_TU ).catalog.scheduleDescription ).not.toBe(
+			getWebsiteLocalization( WebsiteLanguage.SPANISH_VOS ).catalog.scheduleDescription,
 		);
-		expect( getWebsiteLocalization( WebsiteLanguage.PORTUGUESE_BRAZIL ).catalog.chooseTitle ).not.toBe(
-			getWebsiteLocalization( WebsiteLanguage.PORTUGUESE_PORTUGAL ).catalog.chooseTitle,
+		expect( getWebsiteLocalization( WebsiteLanguage.PORTUGUESE_BRAZIL ).catalog.scheduleDescription ).not.toBe(
+			getWebsiteLocalization( WebsiteLanguage.PORTUGUESE_PORTUGAL ).catalog.scheduleDescription,
 		);
 	} );
 
 	it( 'keeps concise claims aligned with local product behavior', () => {
 		const { catalog } = getWebsiteLocalization( WebsiteLanguage.ENGLISH );
 
-		expect( catalog.intro.length ).toBeLessThanOrEqual( 32 );
+		expect( catalog.intro ).toBe( 'Pause before visiting addictive websites' );
 		expect( catalog.description.length ).toBeLessThanOrEqual( 64 );
-		expect( catalog.pauseDescription ).toMatch( /\bnot started\b/iu );
-		expect( catalog.continueDescription ).toMatch( /\bContinue\b/u );
-		expect( catalog.browseDescription ).toMatch( /\bContinue\b/u );
 		expect( catalog.statisticsDescription ).not.toMatch( /\b(?:actual|estimated|reclaimed|saved)\b/iu );
 		expect( catalog.privacy ).toMatch( /\boffline\b/iu );
-		expect( [
-			catalog.privacyAccounts,
-			catalog.privacyTracking,
-			catalog.privacyCalls,
-			catalog.privacyLocal,
-		] ).toHaveLength( 4 );
+		expect( catalog.privacy ).toContain( 'needs no account' );
+		expect( catalog.openSourceDescription ).toContain( 'no advertising.' );
 		for ( const value of Object.values( catalog ) ) {
 			if ( typeof value === 'string' ) {
 				expect( value ).not.toMatch( /\bprotect(?:ed|ion)?\b/iu );
@@ -241,61 +178,45 @@ describe( 'website localization', () => {
 		}
 	} );
 
-	it( 'explains each step from choosing a website to starting the browsing interval', () => {
+	it( 'describes the four-step browsing flow and removes the retired walkthrough catalog', () => {
 		const { catalog } = getWebsiteLocalization( WebsiteLanguage.ENGLISH );
-		const chapterLabels = [
-			catalog.chooseLabel,
-			catalog.visitLabel,
-			catalog.pauseLabel,
-			catalog.continueLabel,
-			catalog.browseLabel,
-		];
 
-		expect( chapterLabels ).toHaveLength( 5 );
-		expect( new Set( chapterLabels ).size ).toBe( chapterLabels.length );
-		expect( catalog.pauseDescription ).toMatch( /\bnot started\b/iu );
-		expect( catalog.continueDescription ).toMatch( /\bContinue\b/u );
-		expect( catalog.browseDescription ).toMatch( /\bContinue\b/u );
-		for ( const field of [ 'seeItInAction', 'demoAppearance', 'demoTiming', 'demoEntered', 'demoReplay', 'demoStart', 'demoSiteTitle', 'demoNextPause' ] ) {
+		expect( [ catalog.stepOpen, catalog.stepPause, catalog.stepContinue, catalog.stepBrowse ] ).toEqual( [
+			'Open a site', '10s pause', 'Continue', '5m browsing',
+		] );
+		for ( const field of Object.keys( catalog ) ) {
+			expect( field ).not.toMatch( /^(?:demo|story|stats|timing|preview)/u );
+		}
+		for ( const field of [ 'chooseTitle', 'chooseLabel', 'visitTitle', 'visitLabel', 'browseDescription', 'appearanceDescription' ] ) {
 			expect( catalog ).not.toHaveProperty( field );
 		}
 	} );
 
-	it( 'translates every new feature and demo label without English fallbacks', () => {
+	it( 'translates the new feature descriptions without English fallbacks', () => {
 		const english = getWebsiteLocalization( WebsiteLanguage.ENGLISH ).catalog;
 		const fields = [
-			'statisticsTitle', 'statisticsDescription', 'mediaTitle',
-			'mediaDescription', 'sitesTitle', 'sitesDescription', 'demoSiteSelected',
-			'demoTimeLeft', 'getExtension', 'howLink', 'alsoAvailable', 'comingSoon', 'visitTitle',
-			'visitDescription', 'pauseDescription', 'continueTitle', 'continueDescription',
-			'browseTitle', 'browseDescription', 'chooseLabel', 'visitLabel', 'pauseLabel',
-			'continueLabel', 'browseLabel', 'timingPause', 'timingBrowse',
-			'privacyAccounts', 'privacyTracking', 'privacyCalls', 'privacyLocal', 'downloadFor',
-			'readPrivacy', 'mascotInteractionLabel', 'storyPlay', 'storyPause', 'storyReplay',
-			'demoNewTab', 'demoReady', 'demoTakeAMoment', 'demoBreatheIn', 'demoBreatheOut',
-			'demoContinue', 'demoSphere', 'demoSecondsRemaining', 'statsTitle', 'statsEstimated',
-			'statsFocused', 'statsReconsidered', 'statsCompleted', 'statsAllowances', 'statsPeriod',
-			'statsAllTime', 'statsThisMonth', 'statsThisWeek', 'statsActivity', 'statsEstimateDescription',
+			'featuresTitle', 'mediaDescription', 'mediaServices',
+			'statisticsDescription', 'privacy',
+			'openSourceDescription', 'downloadTitle', 'readPrivacy', 'sourceLink',
 		] as const;
 
 		for ( const { language, catalog } of getWebsiteLocalizations() ) {
 			for ( const field of fields ) {
 				expect( catalog[ field ], `${ language }:${ field }` ).toEqual( expect.any( String ) );
-				if ( language !== WebsiteLanguage.ENGLISH && field !== 'demoSecondsRemaining' ) {
+				if ( language !== WebsiteLanguage.ENGLISH ) {
 					expect( catalog[ field ], `${ language }:${ field }` ).not.toBe( english[ field ] );
 				}
 			}
 		}
 	} );
 
-	it( 'keeps localized headings concise and preserves the countdown replacement token', () => {
+	it( 'keeps feature headings concise', () => {
 		for ( const { language, catalog } of getWebsiteLocalizations() ) {
 			for ( const [ field, value ] of Object.entries( catalog ) ) {
-				if ( field.endsWith( 'Title' ) || field === 'intro' || field === 'privacyLocal' ) {
+				if ( ( field.endsWith( 'Title' ) && field !== 'downloadTitle' ) || field === 'intro' || field === 'privacyLocal' ) {
 					expect( value, `${ language }:${ field }` ).not.toMatch( /[.\u3002\uff0e]$/u );
 				}
 			}
-			expect( catalog.demoSecondsRemaining, language ).toContain( '{seconds}' );
 		}
 	} );
 

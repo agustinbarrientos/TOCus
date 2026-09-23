@@ -13,16 +13,17 @@ async function waitForMenuFocus( menu: Locator ): Promise<void> {
 	} ).toBe( true );
 }
 
-test.describe( 'website navigation and statistics presentation', () => {
+test.describe( 'website navigation and statistics explanation', () => {
+	test.use( { reducedMotion: 'reduce' } );
 	for ( const engine of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 		const engineTest = test.extend( { browserName: engine } );
 
 		engineTest.describe( () => {
 			engineTest.use( { contextOptions: {
-				viewport: { width: 390, height: 844 }, colorScheme: 'dark',
+				viewport: { width: 390, height: 844 }, colorScheme: 'dark', reducedMotion: 'reduce',
 			} } );
 
-			engineTest( `${ engine }: light pages keep the header focused on downloading and locales reachable`, async ( { page } ) => {
+			engineTest( `${ engine }: light pages keep a minimal header and locales reachable`, async ( { page } ) => {
 				engineTest.setTimeout( 30_000 );
 				await page.route( 'http://website.test/**', async ( route ) => {
 					const url = new URL( route.request().url() );
@@ -32,8 +33,7 @@ test.describe( 'website navigation and statistics presentation', () => {
 				await engineTest.step( 'Load the light header and hydrate navigation', async () => {
 					await page.goto( 'http://website.test/' );
 					const header = page.locator( '.site-header' );
-					expect( await header.locator( 'a' ).count() ).toBe( 1 );
-					expect( await header.locator( 'a' ).getAttribute( 'href' ) ).toMatch( /^https:/u );
+					await expect( header.locator( 'a' ) ).toHaveCount( 0 );
 					expect( await page.locator( '.website' ).evaluate( ( element ) =>
 						getComputedStyle( element ).getPropertyValue( 'color-scheme' ) ) ).toBe( 'light' );
 					await page.waitForFunction(
@@ -96,31 +96,28 @@ test.describe( 'website navigation and statistics presentation', () => {
 					expect( await page.locator( 'html' ).getAttribute( 'lang' ) ).toBe( 'es-AR' );
 					await expect( page.locator( '.site-header .language-shortcut' ) )
 						.toHaveAttribute( 'aria-label', /Espa\u00f1ol \(vos\)/u );
-					expect( await page.locator( '.site-header a' ).getAttribute( 'href' ) ).toMatch( /^https:/u );
+					await expect( page.locator( '.site-header [data-download-primary]' ) ).toHaveCount( 0 );
 				} );
 			} );
 		} );
 	}
 
-	test( 'statistics show product metrics without collecting data', async ( { page } ) => {
-		test.setTimeout( 30_000 );
+	test( 'statistics are explained without example totals or visitor metrics', async ( { page } ) => {
 		await page.route( 'http://website.test/**', async ( route ) => {
 			const url = new URL( route.request().url() );
 			const path = url.pathname.endsWith( '/' ) ? `${ url.pathname }index.html` : url.pathname;
 			await route.fulfill( { path: fileURLToPath( new URL( `.${ path }`, WebsiteOutput ) ) } );
 		} );
 		await page.goto( 'http://website.test/' );
-		const statistics = page.locator( '#statistics' );
-		await statistics.waitFor( { timeout: 5000 } );
-		await expect( statistics.getByRole( 'heading', { name: 'See how much time you saved', exact: true } ) )
-			.toBeVisible();
-		await expect( page.getByText( 'Example data', { exact: true } ) ).toHaveCount( 0 );
-		await expect( page.getByText( 'Example timing', { exact: true } ) ).toHaveCount( 0 );
-		expect( await statistics.locator( 'dt' ).count() ).toBe( 5 );
-		await expect( statistics.locator( 'dt' ).filter( { hasText: /^Estimated time reclaimed$/ } ) ).toHaveCount( 1 );
-		await expect( statistics.getByRole( 'columnheader', { name: 'Estimated time reclaimed', exact: true } ) )
-			.toHaveCount( 1 );
-		expect( await statistics.getByText( 'Reconsidered visits', { exact: true } ).count() ).toBe( 1 );
+		await expect( page.locator( '.homepage' ) ).toHaveAttribute( 'data-enhanced', 'true' );
+		const statistics = page.locator( '#features .feature-grid > li' ).filter( {
+			has: page.getByRole( 'heading', { name: 'Check how much time you\u2019ve saved', exact: true } ),
+		} );
+		await expect( statistics ).toBeVisible();
+		await expect( statistics.locator( 'p' ) ).not.toHaveText( /^\s*$/u );
+		await expect( statistics.locator( '.feature-detail' ) ).toHaveCount( 0 );
+		await expect( statistics ).not.toContainText( /24h 40m|254 reconsidered visits|Example:/u );
+		await expect( statistics.locator( 'select, button, table, canvas, [role="application"]' ) ).toHaveCount( 0 );
 		expect( await page.evaluate( () => ( { local: localStorage.length, session: sessionStorage.length } ) ) )
 			.toEqual( { local: 0, session: 0 } );
 	} );

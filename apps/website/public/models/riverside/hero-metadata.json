@@ -1,0 +1,79 @@
+{
+  "asset": "hero.glb",
+  "fileBytes": 2380036,
+  "gzipBytes": 1439237,
+  "triangles": 96155,
+  "meshObjects": 45,
+  "drawCalls": 48,
+  "clip": "Mate sip and blink",
+  "durationSeconds": 12,
+  "meshopt": true,
+  "waterIncluded": false,
+  "coordinateSystem": "Y up; capybara faces -Z; rear camera at +Z",
+  "plantMeshesAreShared": true,
+  "eyePlacement": {
+    "forwardShift": 0.16,
+    "symmetric": true,
+    "blinkPreserved": true,
+    "visibleClosedLids": {
+      "closedHeightRatio": 0.17,
+      "restHeightWorldUnits": 0.030995,
+      "sipHeightWorldUnits": 0.033096,
+      "openBasisPreserved": true,
+      "blinkTimingPreserved": true
+    }
+  },
+  "characterRefinement": {
+    "grip": "Compact palm and three short curled fingers around the cup with a tucked opposing thumb",
+    "roundedElbow": true,
+    "feetLoweredWorldUnits": {
+      "left": 0.156917,
+      "right": 0.074786
+    },
+    "soleGroundClearanceWorldUnits": -0.004,
+    "version": 7,
+    "headTurnDegrees": 35,
+    "strawStraighteningDegrees": 24,
+    "continuousShallowArmArc": true,
+    "maximumArmBowWorldUnits": {
+      "rest": 0.183966,
+      "sip": 0.256288
+    },
+    "armCenterlineLengthWorldUnits": {
+      "rest": 1.476567,
+      "sip": 2.053975
+    },
+    "sideMountedShoulder": true,
+    "shoulderGltf": [
+      0.8,
+      1.94,
+      -0.02
+    ],
+    "drinkingContact": {
+      "location": "Lower smile curve",
+      "gltf": [
+        0.059832,
+        2.810938,
+        -1.691732
+      ],
+      "loweredWorldUnits": 0.092606,
+      "sipArmLengthPreserved": true,
+      "restPosePreserved": true
+    },
+    "compactHand": {
+      "palmScaleRatio": 0.82,
+      "fingerThicknessRatio": 0.82,
+      "thumbWrapDegrees": 27,
+      "previousThumbWrapDegrees": 59,
+      "armGeometryPreserved": true,
+      "drinkingContactPreserved": true
+    }
+  },
+  "foregroundClearing": {
+    "resizedPlant": "Pack plant 016",
+    "scaleRatio": 0.7071067811865476,
+    "areaRatioFromFullSize": 0.5,
+    "basePositionPreserved": true,
+    "remainingCharacterAndPlantMeshesPreserved": true
+  }
+}

@@ -99,11 +99,11 @@ test.describe( 'isolated real 3D mascot comparison', () => {
 			await page.emulateMedia( { reducedMotion: 'reduce' } );
 			expect( await canvas.getAttribute( 'data-still' ) ).toBe( 'true' );
 		} );
-		await test.step( 'Keep the reference visible after losing the WebGL context', async () => {
+		await test.step( 'Keep the current capybara image visible after losing the WebGL context', async () => {
 			await canvas.evaluate( ( element ) => element.dispatchEvent( new Event( 'webglcontextlost' ) ) );
 			expect( await canvas.getAttribute( 'data-status' ) ).toBe( 'unavailable' );
-			await expect( page.getByText( '3D is unavailable in this browser. The reference remains visible.' ) ).toBeVisible();
-			await expect( page.getByRole( 'img', { name: 'Supplied capybara reference' } ) ).toBeVisible();
+			await expect( page.getByText( '3D is unavailable in this browser. The capybara image remains visible.' ) ).toBeVisible();
+			await expect( page.getByRole( 'img', { name: 'Current capybara holding a mate' } ) ).toBeVisible();
 		} );
 		expect( errors ).toEqual( [] );
 		expect( externalRequests ).toEqual( [] );

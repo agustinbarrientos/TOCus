@@ -1,424 +1,114 @@
 ---
 name: TOCus website
-description: A calm clay product world built from the shared TOCus theme and real extension components.
+description: A warm riverside hero followed by clear illustrated product explanations.
 colors:
-  action: "#744331"
-  on-action: "#fff8f0"
-  surface: "#fffdf9"
-  on-surface: "#3c281f"
-  on-surface-muted: "#6a554a"
-  surface-container: "#f1e4d9"
-  stage-start: "#fff8f0"
-  stage-middle: "#f3e4d5"
-  stage-end: "#d8ad8a"
-  on-stage-muted: "#584035"
-  breathing-sphere: "#b86f46"
-  breathing-sphere-highlight: "#e9b47f"
-  breathing-sphere-shadow: "#7a4634"
+  paper: "#fffaf4"
+  ink: "#302219"
+  hero-heading: "#302016"
+  description: "#71665d"
+  peach: "#ffeadb"
+  landscape-middle: "#fddcc5"
+  landscape-front: "#fbd0b4"
+  clay: "#bc704b"
 typography:
   display-hero:
     fontFamily: "'Fredoka Variable', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif"
-    fontSize: "clamp(3rem, 5.6vw, 4.5rem)"
-    fontWeight: 600
-    lineHeight: 1.02
-    letterSpacing: "-0.025em"
+    fontSize: "clamp(2.5rem, 4.2vw, 5.4rem)"
+    fontWeight: 700
+    lineHeight: 1.13
+    letterSpacing: "0.005em"
   display-section:
     fontFamily: "'Fredoka Variable', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif"
-    fontSize: "clamp(2.3rem, 4.2vw, 4rem)"
-    fontWeight: 600
-    lineHeight: 1.12
-    letterSpacing: "-0.02em"
-  headline-large:
+    fontSize: "clamp(2.2rem, 4.4vw, 3.4rem)"
+    fontWeight: 650
+    lineHeight: 1.15
+    letterSpacing: "-0.015em"
+  feature-heading:
     fontFamily: "'Fredoka Variable', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif"
-    fontSize: "2.3rem"
+    fontSize: "clamp(1.35rem, 2.5vw, 1.8rem)"
     fontWeight: 600
-    lineHeight: "2.875rem"
-    letterSpacing: "0"
-  headline-medium:
-    fontFamily: "'Fredoka Variable', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif"
-    fontSize: "2.0125rem"
-    fontWeight: 600
-    lineHeight: "2.5875rem"
-    letterSpacing: "0"
-  headline-small:
-    fontFamily: "'Fredoka Variable', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif"
-    fontSize: "1.725rem"
-    fontWeight: 600
-    lineHeight: "2.3rem"
-    letterSpacing: "0"
-  title-large:
-    fontFamily: "'Fredoka Variable', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif"
-    fontSize: "1.58125rem"
-    fontWeight: 600
-    lineHeight: "2.0125rem"
-    letterSpacing: "0"
-  body-large:
+    lineHeight: 1.2
+    letterSpacing: "-0.015em"
+  feature-body:
     fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-    fontSize: "1.15rem"
+    fontSize: "clamp(1rem, 1.7vw, 1.2rem)"
     fontWeight: 400
-    lineHeight: "1.725rem"
-    letterSpacing: "0.0359375rem"
-  body-medium:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-    fontSize: "1.00625rem"
+    lineHeight: 1.55
+  browser-availability:
+    fontFamily: "'Fredoka Variable', ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif"
+    fontSize: "clamp(16px, calc(14px + 0.25vw), 18px)"
     fontWeight: 400
-    lineHeight: "1.4375rem"
-    letterSpacing: "0.01796875rem"
-  body-small:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-    fontSize: "0.8625rem"
-    fontWeight: 400
-    lineHeight: "1.15rem"
-    letterSpacing: "0.02875rem"
-  label-large:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-    fontSize: "1.00625rem"
-    fontWeight: 500
-    lineHeight: "1.4375rem"
-    letterSpacing: "0.0071875rem"
-  label-medium:
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-    fontSize: "0.8625rem"
-    fontWeight: 500
-    lineHeight: "1.15rem"
-    letterSpacing: "0.0359375rem"
-rounded:
-  small: "0.75rem"
-  medium: "1.25rem"
-  large: "2rem"
-  full: "999px"
-spacing:
-  "1": "0.25rem"
-  "2": "0.5rem"
-  "3": "0.75rem"
-  "4": "1rem"
-  "5": "1.5rem"
-  "6": "2rem"
-  "7": "3rem"
-  website-section: "clamp(3.5rem, 7vw, 6rem)"
-components:
-  button-primary:
-    backgroundColor: "{colors.action}"
-    textColor: "{colors.on-action}"
-    typography: "{typography.label-large}"
-    rounded: "{rounded.full}"
-    padding: "0 1.5rem"
-    height: "2.75rem"
-  button-outline:
-    backgroundColor: "transparent"
-    textColor: "{colors.action}"
-    typography: "{typography.label-large}"
-    rounded: "{rounded.full}"
-    padding: "0 1.5rem"
-    height: "2.75rem"
-  button-subtle:
-    backgroundColor: "transparent"
-    textColor: "{colors.on-surface}"
-    typography: "{typography.label-large}"
-    rounded: "{rounded.full}"
-    padding: "0 1.5rem"
-    height: "2.75rem"
-  button-light:
-    backgroundColor: "{colors.surface-container}"
-    textColor: "{colors.on-surface}"
-    typography: "{typography.label-large}"
-    rounded: "{rounded.full}"
-    padding: "0 1.5rem"
-    height: "2.75rem"
-  input-text:
-    backgroundColor: "{colors.surface}"
-    textColor: "{colors.on-surface}"
-    typography: "{typography.body-medium}"
-    rounded: "{rounded.small}"
-    height: "3rem"
-  header-navigation:
-    textColor: "{colors.action}"
-    typography: "{typography.label-large}"
-  badge:
-    backgroundColor: "{colors.surface-container}"
-    textColor: "{colors.on-surface-muted}"
-    typography: "{typography.label-medium}"
-    padding: "0.25rem 0.75rem"
-  statistics-metric:
-    backgroundColor: "{colors.surface-container}"
-    textColor: "{colors.on-surface}"
-    rounded: "{rounded.medium}"
-    padding: "1.5rem"
+    lineHeight: 1.4
+    letterSpacing: "0"
 ---
 
-# Design System: TOCus website
-
-## Approved usability refinement - September 15, 2026
-
-Keep the existing light brand, raster mascot, direct store actions, and real product
-components. Put the changing caption and chapter controls above a single browser
-frame so every step can be read and selected together. Animate actions inside that
-frame; never scale or translate the browser while scrolling.
-
-Pin the complete story only when its measured height fits the viewport. Otherwise
-use normal document flow, with no empty scroll runway and no clipped controls.
-Keep all five chapter buttons usable in either layout and with reduced motion.
-
-Move the language picker beside the header download link, bound its menu to the
-available screen, and preserve native names, keyboard navigation and static links.
-Use brief, factual copy in all ten homepage languages. Keep canonical privacy and
-support in English and do not invent hosting or retention guarantees.
-
-The September 7 record below describes the original implementation. The layout,
-navigation, and product demonstration contracts later in this document describe
-the current refinement. Local development uses port 4322, leaving 4321 untouched.
-
-## Approved homepage implementation - September 7, 2026
-
-The user approved the desktop and mobile visual concepts in this task. The previous
-split hero and long side-by-side story are superseded. This section is the original
-implementation plan and progress record; no separate artifact directory is needed.
-
-**Goal:** Build the approved light homepage around a large peeking raster capybara
-and one stable browser that tells the complete product story as the visitor scrolls.
-
-**Architecture:** Astro renders useful localized HTML; React and the existing
-Mantine/shared TOCus components enhance it. Native CSS sticky positioning owns
-the browser geometry. Native scroll observation drives chapter progress; GSAP
-drives only decorative transforms and fades.
-The real breathing renderer and statistics component remain read-only consumers.
-
-**Constraints:** Website files only. Do not modify the extension or shared theme.
-Keep all ten locales, local assets, author UTM links and favicon, accessible controls,
-direct browser-specific download links, and existing visual baseline paths/names.
-No homepage GLB, new component library, scroll hijacking, inert settings form, or
-repository artifact folders. Original model assets remain available in their lab.
-No commits or publishing are part of this approval.
+# Design system: TOCus website
 
-### Task 1 - Approved image and page composition
-
-Files: `src/components/home-page/page.tsx`, `src/styles/global.scss`,
-`src/components/mascot/*`, `public/images/mascot-peek.webp`,
-`src/components/download-links/*`, `tests/build/homepage-mascot.test.ts`.
+The September 22, 2026 direction pairs the retained interactive riverside hero with an open, illustrated page below it. Warm paper, brown ink, rounded Fredoka headings and soft clay artwork connect the product explanation to the capybara's world. This is the current page contract; the older pinned browser story, chapter player, chart preview and raster beach composition have been removed.
 
-- [x] Add a browser test that rejects homepage model requests and verifies a decoded,
-  prominent raster mascot on desktop and mobile; observe failure on the current build.
-- [x] Prepare the approved peeking character, without changing its identity. Keep
-  generated experiments outside the repository and place only the selected asset here.
-- [x] Replace the split hero with centered literal copy, direct store CTA, and large
-  character whose paws meet the single browser frame below it.
-- [x] Build concise timing cause/effect, actual example statistics, typographic privacy,
-  creator/source, repeat CTA, and compact language-menu sections using shared controls.
-- [x] Verify light rendering, desktop/mobile geometry, keyboard operation and no overflow.
+## Page composition
 
-### Task 2 - Stable scroll narrative
+1. A full-width riverside hero with the brand, language selector, headline and browser download links.
+2. A four-step row without a section heading: open a site, pause for 10 seconds, Continue, and browse for 5 minutes. The durations illustrate the product sequence; they are configurable in the extension.
+3. "A calmer way to browse": six open feature blocks describing active hours, per-site schedules, video pausing, statistics, local storage and open source.
+4. "Take a moment to pause": a repeated download group inside a cream rounded panel, surrounded by peach landscape waves and supplied plant and sun illustrations.
+5. A compact peach footer with the brand, Privacy, Source code and the existing author credit. Static locale links remain available without JavaScript.
 
-Files: `src/services/story-motion/*`, `tests/build/story-motion.test.ts`.
-Interface: preserve `createStoryMotion(root, onChapterChange, onProgressChange)`.
-The root contains `.story-layout`, a sticky `.experience-stage`, and five compact
-`[data-story-chapter]` items with native buttons in `DemoChapter` order. The service
-must not derive progress from chapter list heights. Set `data-story-active` on the
-root once the browser enters its sticky reading position; remove it before then.
+The content follows normal document flow. There is no pinned section, simulated browser, chapter navigation, statistics selector or homepage settings form. The illustrated steps are explanations, not focusable controls. Feature blocks use whitespace rather than cards or borders around every item.
 
-- [x] Test natural wheel traversal/reversal, unchanged frame width/position at rest,
-  one visible caption, clickable/keyboard chapters and readable small viewports.
-- [x] Map the stable story scroll interval to choose → visit → pause → Continue → browse.
-  Bound its desktop scroll distance to roughly three viewports, not five long lists.
-- [x] Keep reduced-motion navigation immediate and disable decorative transforms.
-  Skip updates outside the story; clean up observers/listeners on unmount.
-- [x] Run real Chromium, Firefox and WebKit tests after the integrated build.
+## Hero and motion
 
-### Task 3 - Concise localized narrative
+The hero occupies `100dvh` plus its transition height, with `100svh` as the fallback. The transition begins after the first viewport: it is 7rem high on desktop and 4.5rem at widths up to 48rem. The SVG extends 2px past the clipped hero edge to prevent a seam at fractional pixel boundaries. The live scene and poster fill the entire height. Centered copy sits above the capybara; layered peach and cream waves meet the page paper below.
 
-Files: `src/localization/*`, `locales/*.po` (website only).
+The header contains the shared brand and a pill-shaped language selector with 18px Fredoka text. It has no separate download action. The language menu uses native language names, marks the selected locale and supports keyboard navigation. The hero and lower download panel provide the download actions.
 
-- [x] Update hero to “Pause before you scroll.” and “TOCus adds a breathing pause to
-  the websites you choose.” Keep brief chapter rail labels separate from full captions.
-- [x] Add timing-diagram labels and privacy facts. Clearly label example statistics;
-  never imply actual visitor data or measured savings. Browsing starts on Continue.
-- [x] Translate the affected website copy in all ten locales and run localization tests.
+The initial camera rests at a 42-degree yaw, matching the authored three-quarter view. Horizontal pointer movement maps the center of the page to this resting view while preserving the -50 and +50 degree endpoints; the leftward orbit therefore covers more distance. Leaving the hero returns to the resting view with a slower ease. Camera height, target and orbit radius stay fixed. Touch input does not orbit the camera. The sunset lights the seated character from behind, water waves wash the shoreline, and clicking visible water adds a bounded ripple. Plants retain a subtle ambient sway without a hover response. The local model includes an automatic 12-second mate-drinking and blinking animation. A separate head turn follows the camera continuously, including during a sip, with the cup and hand following the mouth as the mate rises.
 
-### Task 4 - Visual and interaction verification
+`public/models/riverside/hero.glb` contains the character, mate, land and vegetation. The website supplies sky and water through `src/services/riverside-hero/`. The meshopt-compressed model is 2,380,036 bytes and contains 96,155 triangles; these asset counts exclude the runtime environment and do not establish a frame-rate guarantee.
 
-- [x] Build with `pnpm --filter @tocus/website build` and run website build-contract tests.
-- [x] Run website lint, style lint and typecheck. Resolve failures rather than weakening checks.
-- [x] Inspect actual desktop and mobile browser screenshots against the approved concepts.
-  Capture temporary review images only outside the repository; update approved website
-  baselines in their original locations, never extension baselines.
-- [x] Have an independent reviewer check the changed website files and interactions.
-- [x] Confirm this redesign made no extension source or extension visual-baseline edits;
-  refresh the website output used by the local preview.
+`public/images/riverside-hero.webp` is a 2560 by 1440 capture of the web renderer at animation time zero and the 42-degree resting view, with the initial head turn already applied. Its centered cover crop matches the live camera framing on narrow and ultrawide screens. Recapture it after model, camera, lighting or initial-pose changes to keep the loading handoff aligned. The poster is visible during loading and remains the presentation without JavaScript, with reduced motion or after a graphics failure. Reduced motion avoids loading the scene. Rendering pauses when the hero is offscreen, the page is hidden or a history entry is cached. Disposal releases owned graphics, event listeners, observers and pending requests. The decorative canvas is hidden from the accessibility tree; ordinary HTML contains all product information and actions.
 
-**Review outcomes:** Resolved the first-chapter mascot/caption collision, the missing
-no-JavaScript explanation, and the compact-screen chapter rail overflow. All five
-static explanations remain readable without JavaScript. At 1280×720, the compact
-desktop hero keeps the browser edge in the first viewport. Independent review closed
-without remaining findings. The selected raster is encoded as a 175 KB WebP; the
-generation prompt and provenance are stored beside it. No repository artifact folder
-was created. Existing extension build output was not used as a source-change check.
+## Typography and color
 
-**Final verification:** 49/49 website build-contract tests passed across Chromium,
-Firefox and WebKit on the frozen final build (179.95 seconds). Website unit tests:
-35/35. Visual comparisons: 20/20 at zero allowed pixel difference, retaining the
-original nine filenames and adding ten chapter views plus the language menu.
-Website ESLint, Stylelint, Astro typecheck and whitespace checks passed. The local
-preview is open at `http://127.0.0.1:4178/`. Store URLs remain intentional placeholders.
+Use Fredoka for the brand, headings, step labels and the complete browser-availability line. Descriptive prose and primary download controls use the shared system UI stack. Both the "Also available on" label and browser links share one fluid 16-18px Fredoka treatment, consistent weight and aligned local icons. Text links underline on hover; they do not inherit mismatched heading or button styles.
 
-**Coordination:** Task 2 owns the motion service/tests, Task 3 owns website copy/locales,
-and Task 1 owns the page/CSS/asset. Their shared interface is the selectors and callbacks
-documented above. Existing dirty changes are preserved; execution stays in this checkout.
+The hero's desktop heading uses a maximum measure of 25 characters. At widths up to 48rem it uses `clamp(2.25rem, 8.3vw, 4.1rem)` and a maximum measure of 18 characters, with tighter overrides for short viewports. Step labels and feature titles share `clamp(1.35rem, 2.5vw, 1.8rem)` Fredoka at weight 600. Let translated text wrap naturally; balance headings and use pretty wrapping for prose.
 
-## Overview
+The website explicitly uses the shared light appearance regardless of the browser's color preference. Its local paper is `#fffaf4` and ink is `#302219`. The tab favicon switches between local light- and dark-appearance SVGs to remain readable without changing the page theme. Warm peach landscape layers are decorative materials; shared controls still use semantic theme roles and the existing focus treatment. Feature descriptions use a quieter brown, while links remain distinguishable and keyboard focus stays visible.
 
-**Creative North Star: "TOCus"**
+## Responsive layout
 
-The approved homepage uses warm cream surfaces, cocoa download actions, rounded Fredoka headings, and the supplied capybara identity. A large peeking character introduces one browser that tells the product story through scroll.
+The general shell is capped at 76rem with fluid gutters. The illustrated content has a narrower 70rem maximum and generous vertical spacing. The four steps use equal columns with short connecting rules on wide screens. At widths up to 35rem they form two rows and the connectors disappear.
 
-The website shares its visual foundations and controls with the extension. Product demonstrations use the real breathing renderer and statistics presentation. The public homepage, Privacy, and Support stay light independently of browser appearance; the browser demonstration also owns an explicit light brown theme. The homepage does not import or load a 3D model. The original model remains isolated in `/mascot-lab`.
+The feature section is centered within a 56.25rem (900px at the default root size) maximum width. Features form two columns with three rows on wide screens and one column at widths up to 35rem. Icons, headings, descriptions and links are left aligned at every viewport width. Each block has one supplied image, a short heading and a compact description. The media feature includes a compact service-icon row; there are no example statistics. Privacy and source links sit below their respective descriptions. The feature headings include "Set a schedule for each site" and "It's 100% private"; the privacy description explains local storage, offline use and the absence of accounts.
 
-**Key Characteristics:**
+The final cream download panel has a broad rounded silhouette and stays above the decorative landscape. The sun sits above its upper-right edge with 24px of clearance at rest. A native scroll timeline gives it a bounded 96px vertical drift, from 12px below its base position to 84px above it; reduced motion and browsers without scroll-timeline support keep it still. The final foreground wave overlaps the plant roots, with the illustrations behind that wave and the download panel above it. The plants and sun do not intercept input. On narrow screens the panel widens, decorations move toward its edges and the footer wraps without horizontal overflow. No content relies on a fixed-height text container.
 
-- Light cream surfaces, brown ink, and terracotta actions.
-- Fredoka headings paired with the shared system body stack.
-- Pill actions, gently rounded product surfaces, and fine semantic dividers.
-- Spacious responsive composition around five matching product scenes.
-- Scroll-owned progress within a stable native-sticky browser, with reduced-motion support.
+## Artwork and downloads
 
-**Source evidence:** [shared palette, radius, and spacing tokens](../../packages/theme/src/styles/tokens/index.scss), [shared type scale](../../packages/theme/src/utils/typography/_scale.scss), [shared control theme](../../packages/ui/src/utils/theme/index.ts), [shared component styles](../../packages/ui/src/components/provider/style.scss), [homepage](src/components/home-page/page.tsx), [website styles](src/styles/global.scss), [product demonstration](src/components/product-demo/index.tsx), [demo styles](src/components/product-demo/style.scss), and [story motion](src/services/story-motion/index.ts). Brand commitments come from [PRODUCT.md](PRODUCT.md). Approval and the implementation checklist are recorded above.
+The user-supplied page illustrations live in `public/images/homepage/`:
 
-The frontmatter records the active light brown palette and observed website type values. The extension's dark palette remains outside the public website contract. Runtime ownership remains in `@tocus/theme` and `@tocus/ui`: use their semantic CSS variables and components in implementation.
+- `icon-clock.webp`, `icon-schedule.webp`, `icon-video-pause.webp`, `icon-stats.webp`, `icon-computer.webp` and `icon-open-source.webp` illustrate the six features.
+- `decoration-plant-1.webp`, `decoration-plant-2.webp` and `decoration-sun.webp` frame the lower download section.
 
-## Colors
+Artwork has explicit dimensions, empty alternative text when the neighboring text already provides its meaning, and lazy loading below the hero. The four-step row uses the supplied YouTube mark, a CSS clay sphere, an SVG check and an illustrative progress bar. Browser and supplied YouTube, Netflix and Twitch icons remain local SVG assets under `public/badges/`. Service icons have named alternative text and visually hidden duplicate text for ordinary text selection, with the duplicate excluded from the accessibility tree.
 
-The palette moves between warm paper, clay, and deep brown, with contrast assigned through semantic foreground and background pairs.
+Both download groups use `DownloadLinks`: one filled pill for the detected browser followed by consistent text links for the alternatives. Browser detection runs locally after hydration; static and unknown-browser output defaults to Chrome. Store destinations stay centralized in `src/config/downloads/index.ts`. The development placeholder URLs, including Edge, are intentional and must be replaced with verified listings before publication.
 
-### Primary
+The shared `Brand` supplies the wordmark and capybara mark. Both use the same dark ink and responsive sizing in the header and footer. Footer links and the author credit share 16px Fredoka text at weight 400 in dark ink. Privacy and Source code open in a new tab with visible external-link icons. The footer retains the bundled author favicon and existing tagged author URL. `public/images/capybara-mate.webp`, `public/models/mascot.glb` and their authoring source remain in use by `/mascot-lab`; they are not the homepage footer artwork.
 
-- **Terracotta action:** `action` marks filled and outlined actions, links, the brand, current story headings, and selected product values. Pair filled actions with `on-action`.
-- **Clay sphere:** `breathing-sphere`, its highlight, and its shadow describe the real breathing object.
+## Content, privacy and accessibility
 
-### Neutral
+Keep the ten supported locales complete and use short, factual product copy. Website copy must not imply access to the visitor's extension settings or activity. Supported video services are examples of playback integration, not partnerships.
 
-- **Warm paper:** `surface` is the page canvas and statistics frame. `surface-container` groups product information with a quiet tonal change.
-- **Brown ink:** `on-surface` carries headings and ordinary text. `on-surface-muted` carries descriptions, annotations, and secondary labels.
-- **Clay stage:** `stage-start`, `stage-middle`, and `stage-end` form the breathing environment. Privacy stays on the page paper; stage supporting copy uses `on-stage-muted`.
+Preserve the skip link, semantic headings and lists, visible focus, real link destinations and useful server-rendered content. Without JavaScript, the hero poster, every explanation, download links and footer locale navigation remain available. Reduced motion removes optional animation without hiding information. Privacy and Support retain their own canonical English content and shared light styling.
 
-The shared theme derives divider, outline, glass, and focus colors from these roles. Keep its existing CSS `color-mix()` expressions and fallback behavior. The demo's neutral browser chrome and illustrative YouTube colors are local scene materials, not additional brand palettes.
+No extension permissions, local data handling or shared extension interfaces are changed by this layout. Do not add accounts, analytics, remote asset requests or fabricated endorsements. Do not introduce nonfunctional controls to make the static explanation look interactive.
 
-**The Shared Palette Rule.** Use the existing semantic theme roles; explicitly select light appearance for public website pages and light brown for the demonstration.
+## Source ownership and verification
 
-## Typography
+The homepage lives in `src/components/home-page/page.tsx` and its colocated `style.scss`. Shared page and retained hero layout live in `src/styles/global.scss`; download and language controls retain their component styles. The scene is owned by `src/components/riverside-hero/` and `src/services/riverside-hero/`. Brand and controls remain shared through `@tocus/theme` and `@tocus/ui`.
 
-**Display Font:** Fredoka Variable with the shared rounded and sans-serif fallbacks.
+The former ProductStory, ProductDemo, TimingIllustration, StatisticsPreview, SupportedServices, homepage-motion and beach-scene implementations are removed, along with their owned styles, assets and tests. GSAP is no longer a website dependency. Keep future changes free of unused replacement variants.
 
-**Body Font:** the shared system UI stack. No separate monospace identity is established.
-
-Fredoka gives the product a soft, friendly heading voice. Body and control text stay familiar and direct. Heading weight remains consistent, while size and spacing establish hierarchy.
-
-### Hierarchy
-
-- **Hero display:** the `display-hero` role is the homepage's fluid override of the shared display style; its desktop measure is capped at 23 characters.
-- **Section display:** `display-section` is the smaller fluid heading used across major website sections.
-- **Headlines:** `headline-medium` serves story and feature titles and the breathing phase. `headline-small` supports compact headings and secondary statistics; `headline-large` gives the primary statistic more emphasis.
-- **Titles:** `title-large` is used for statistics headings, narrower story headings, and the narrow breathing phase.
-- **Body:** `body-large` is the website baseline; `body-medium` supports compact prose; `body-small` handles annotations and secondary information.
-- **Labels:** `label-large` describes controls and navigation. The shared badge uses `label-medium` with natural casing.
-
-The frontmatter's shared-role values include the existing noncompact scale factor (1.15) at the normal size unit (1rem). They are not the unscaled literals in the Sass role map. The fluid website display overrides bypass that size calculation while retaining the shared family and weight.
-
-At widths up to 48rem, the hero uses `clamp(2.7rem, 10.4vw, 4.5rem)` and a maximum measure of 15 characters. The introductory description is capped at 43 characters on desktop and 32 on mobile. Headings balance wrapping; prose uses pretty wrapping. Keep all ten locales in these roles with plain, natural copy. Compact chapter labels wrap within equal-width mobile navigation cells.
-
-**The Two Voices Rule.** Use Fredoka for brand and heading roles and the shared body stack for prose and controls.
-
-## Layout
-
-The centered shell has a maximum width of 76rem and fluid outer gutters through `min(76rem, calc(100% - clamp(2.5rem, 8vw, 8rem)))`. Section spacing follows the website section token; component spacing follows the shared quarter-rem-based scale.
-
-The hero centers the headline and direct download action above the peeking mascot. The story follows with a changing caption, a compact five-step rail, and one browser frame, in that order. Captions reserve space for the longest translation so scene changes do not move navigation. There is no side-by-side instruction list. A four-part timing diagram explains the pause and allowance; schedule and site exceptions use an open two-column strip.
-
-At widths up to 48rem, supporting sections and the timing diagram stack; the mascot occupies almost the full content width. The header retains its direct download link and uses an icon-only language trigger with an accessible name. The shared statistics grid collapses to one column at 42rem. Below a 28rem container width the browser stage has a 4:5 minimum proportion and grows for its content, without a viewport-height cap that could crop it.
-
-The controller measures the complete caption, rail, and browser after layout, fonts, and viewport changes. The browser grid reserves the largest real scene; inactive scenes are inert and hidden from vision and accessibility. Scene height can grow for enlarged text instead of clipping to an aspect ratio. If the complete story fits with a 1rem inset on each edge, CSS pins it within a 320svh track. Otherwise, normal document flow keeps all content reachable and chapter buttons change the scene without moving the page. The desktop frame grows from 47rem to 62rem when screen height permits; mobile uses the available width. Scrolling never scales the frame or applies JavaScript pinning.
-
-## Elevation & Depth
-
-Most reading surfaces use open space, fine borders, and tonal changes. Physical depth belongs to the clay imagery, breathing sphere, browser demonstration, and packaged overlays. The product stage uses the existing three-stop diagonal gradient; gradients are part of this world.
-
-The browser frame has one diffuse shadow (`0 1.6rem 3.5rem -1.6rem #39261e3d`). The shared theme also defines `--tocus-shadow-soft` for components that explicitly request soft elevation. The website styles and story-motion service own the corresponding implementation.
-
-**The Purposeful Depth Rule.** Use tonal surfaces and dividers for ordinary content; reserve ambient elevation for an actual stage, overlay, or shared component that requests it.
-
-Desktop section reveals move upward into place and the mascot has a small scroll-linked drift. Scroll position selects the scene and scrubs the production breathing frame; no wall clock drives the demonstration. System reduced motion removes optional transforms and retains a still sphere, chapter navigation, and Continue. There is no separate motion toggle.
-
-## Shapes
-
-Shared small and medium radii soften fields and product information; the large radius defines larger website containers. Primary, outline, light, and subtle buttons use the full pill radius. The statistics grid retains its actual medium-radius product tiles.
-
-The browser frame uses its own rounded window silhouette, with a smaller radius on narrow screens. Circular window dots are decorative browser context. The supplied capybara silhouette and clay sphere provide the organic forms; they do not require every text section to become a rounded box.
-
-## Components
-
-### Buttons
-
-Pill actions use the shared Mantine-backed `Button`, including keyboard semantics and focus handling.
-
-- **Primary:** filled action and on-action pair, used for Continue in the pause scene.
-- **Outline:** transparent surface with the action-colored border and label; retained as an available shared primitive.
-- **Subtle:** transparent surface with ordinary text; hover uses the container tone. Chapter navigation adapts this variant to wrapping heading text and automatic height.
-- **Light:** the shared informational surface and border; retained as an available shared primitive.
-- **States:** filled hover mixes the action color toward the ordinary foreground; outlined and subtle hover use the container tone. Disabled buttons retain their semantic colors at reduced opacity (0.6). Keyboard focus uses the shared focus ring (3px) with an offset (2px).
-
-The default geometry is recorded in frontmatter. Explicit large and compact sizes remain owned by the component library; do not force the default height over them.
-
-### Inputs / Fields
-
-The shared text field uses a paper surface, ordinary foreground, a semantic divider border, and the small radius. Focus changes the border to the shared focus color and adds the visible keyboard ring. Disabled and error roles remain owned by the shared theme. These are available product primitives; the homepage does not add a settings form.
-
-### Chips
-
-The shared badge is a compact, naturally cased label with a container background and muted foreground. It belongs to the existing component library. Its presence in this record does not prescribe badges or eyebrows for the homepage.
-
-### Cards / Containers
-
-The website-owned statistics preview matches the extension's visual hierarchy without importing extension runtime components. The estimate uses a bordered surface, followed by a duration chart and four metric tiles. Two complete months of deterministic sample activity include inactive days and varied visit counts. Current week, current month, and all-time selections update the chart and every metric together. The visible dates identify the sample period; values are illustrative, not visitor measurements.
-
-Use the [extension statistics component](../extension/src/features/statistics/components/settings-screen/index.tsx) and [its styles](../extension/src/features/statistics/components/settings-screen/style.scss) as visual references. Share theme tokens and controls through their public package exports. Keep extension business rules and storage out of the website dependency graph.
-
-### Navigation
-
-The homepage, Privacy, and Support headers contain the brand and a direct “Download TOCus” link. The homepage also has a Mantine language menu beside downloading, with native language names, an indicated current locale, keyboard operation, and viewport-bounded scrolling. Underlines and the shared action color identify links. The footer carries Privacy, Support, source, and all ten locale links when JavaScript is unavailable. The current locale is marked with `aria-current`. External links include the shared external-link SVG and open in a new tab. The creator link uses a bundled favicon and the existing UTM-tagged destination.
-
-The hero and final download section use one filled text button with a bundled icon for the detected browser, followed by plain text links to the other stores. Browser detection runs locally after hydration; static and unknown-browser output defaults to Chrome. Every download destination comes from [the shared download configuration](src/config/downloads/index.ts). Its deliberate placeholder URLs are authorized development content and remain marked for replacement before publication.
-
-Use shared SVG artwork for icons. Browser context uses drawn SVG paths rather than text glyphs.
-
-### Product Demonstration
-
-The browser stage has five chapters: choose websites, click a YouTube shortcut in a new tab, breathe before the website opens, Continue, and browse with the five-minute toolbar allowance. A foreground-only clock advances the demonstration while its frame is visible. Scrolling never scrubs or pins content. A fake pointer makes illustrated clicks visible; waiting has a compact countdown, while the Continue state replaces the breathing artwork.
-
-Chapter buttons select scenes in place and pause automatic playback. The active chapter exposes its description beside the player on wide screens and above it on narrow screens. Play, pause, and replay controls remain available. Reduced motion disables automatic animation but retains chapter navigation. Without JavaScript, all five chapter headings and descriptions remain readable, with the initial illustration and ordinary download links.
-
-**The Real Interaction Rule.** Match the real product's sequence and visual hierarchy using website-owned replicas and shared controls. Give every focusable control its advertised effect; decorative simulated controls must not enter the tab order.
-
-### Brand and Mascot
-
-Use the shared `Brand` component for the TOCus wordmark and capybara mark. The hero uses `public/images/capybara-lounge.webp` with restrained pointer movement, breathing, and shoreline motion. The original `public/images/mascot-peek.webp` remains in the footer. Both images remain visible without JavaScript, and reduced motion removes the optional hero interaction. The homepage has no canvas or model dependency; the separate mascot lab retains its original model assets.
-
-Supported-media artwork is locally packaged and accompanies explicit names for YouTube, Netflix, Twitch, HBO Max, Prime Video, and Disney+. These identify playback support, not partnerships. Preserve the existing raster provenance records when reusing the mascot, creator favicon, and service artwork.
-
-## Do's and Don'ts
-
-### Do:
-
-- **Do** implement colors, type, radii, and controls through the shared TOCus theme and UI package.
-- **Do** pair Fredoka headings with the shared body stack and allow localized copy to wrap.
-- **Do** preserve the approved capybara identity, peeking pose, and warm materials.
-- **Do** match the real breathing and statistics presentation without importing extension runtime components.
-- **Do** identify example statistics and retain the distinction between estimates and measured totals.
-- **Do** keep links, keyboard focus, header language selection, and chapter controls operable.
-- **Do** let reduced motion remove optional animation while preserving the stable frame and chapter navigation.
-
-### Don't:
-
-- **Don't** turn the demo's illustrative YouTube scene, browser chrome, or the mascot prototype into a new global visual system.
-- **Don't** replace SVG icons with decorative text glyphs.
-- **Don't** turn the statistics tiles into a universal marketing card template.
-- **Don't** use nonfunctional focusable controls to imply an interaction.
-- **Don't** invent testimonials, partner claims, or visitor statistics; keep development store placeholders explicit in their central configuration.
-
-Not canonized: the inherited Privacy and Support eyebrow labels are a craft-floor exception in those documents, not a heading pattern for future surfaces.
+Verify the production website with lint, type checks and browser tests for responsive geometry, local assets, language selection, downloads, static/reduced-motion content and hero lifecycle. Ten website screenshot cases cover localized desktop/narrow pages, the English dark-browser page and the narrow language menu. The obsolete ten story-chapter captures are removed. Refresh website references only with deliberate review on pinned macOS 26 ARM64; the extension's immutable screenshot policy remains separate and unchanged.

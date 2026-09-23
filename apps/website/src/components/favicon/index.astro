@@ -1,0 +1,18 @@
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" data-theme-favicon />
+
+<script>
+	const favicon = document.querySelector<HTMLLinkElement>( '[data-theme-favicon]' );
+	const appearance = window.matchMedia( '(prefers-color-scheme: dark)' );
+
+	/**
+	 * Keeps the tab icon readable when the system appearance changes.
+	 */
+	function updateFavicon(): void {
+		if ( favicon ) {
+			favicon.href = appearance.matches ? '/favicon-dark.svg' : '/favicon.svg';
+		}
+	}
+
+	updateFavicon();
+	appearance.addEventListener( 'change', updateFavicon );
+</script>

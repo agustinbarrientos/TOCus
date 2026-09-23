@@ -1,0 +1,29 @@
+.riverside-hero {
+	position: absolute;
+	z-index: 0;
+	inset: 0;
+	overflow: hidden;
+	background: #cbb0a0;
+
+	// Leave only page paper beneath the transition's antialiased bottom edge.
+	clip-path: inset(0 0 2px);
+}
+
+.riverside-hero-poster,
+.riverside-hero-canvas {
+	position: absolute;
+	inset: 0;
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.website .riverside-hero-poster {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.riverside-hero-canvas { opacity: 0; }
+
+.riverside-hero[data-status='ready'] .riverside-hero-canvas { opacity: 1; }

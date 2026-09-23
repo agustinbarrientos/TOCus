@@ -60,7 +60,8 @@ export function DownloadLinks( props: DownloadLinksProps ) {
 	return <div className="store-links" aria-label={ props.label }>
 		{ store.href === null
 			? <Button disabled aria-disabled="true" className="store-primary" data-download-primary
-				data-store={ store.browser }>
+				data-store={ store.browser }
+				leftSection={ <img src={ `/badges/browser-${ store.browser }.svg` } alt="" width="36" height="36" /> }>
 				{ props.label } { store.name } - { props.comingSoon }
 			</Button>
 			: <Button component="a" href={ store.href } target="_blank" rel="noopener noreferrer"
@@ -72,13 +73,14 @@ export function DownloadLinks( props: DownloadLinksProps ) {
 		<p className="store-alternatives">
 			<span>{ props.alsoAvailable }</span>{ ' ' }
 			{ Object.values( DownloadStores ).filter( ( alternative ) => alternative.browser !== store.browser )
-				.map( ( alternative, index ) => <span key={ alternative.browser }>
-					{ index > 0 && <span aria-hidden="true"> · </span> }
+				.map( ( alternative ) => <span className="store-alternative" key={ alternative.browser }>
 					{ alternative.href === null
 						? <span aria-disabled="true" data-store={ alternative.browser }>
+							<img src={ `/badges/browser-${ alternative.browser }.svg` } alt="" width="22" height="22" />
 							{ alternative.name } - { props.comingSoon }
 						</span>
 						: <ExternalLink href={ alternative.href } data-store={ alternative.browser }>
+							<img src={ `/badges/browser-${ alternative.browser }.svg` } alt="" width="22" height="22" />
 							{ alternative.name }
 						</ExternalLink> }
 				</span> ) }

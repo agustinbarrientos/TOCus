@@ -15,7 +15,7 @@ export const DownloadStores: Readonly<Record<WebsiteBrowser, StoreListing>> = {
 	[ WebsiteBrowser.EDGE ]: {
 		browser: WebsiteBrowser.EDGE,
 		name: 'Edge',
-		href: null,
+		href: 'https://microsoftedge.microsoft.com/addons/detail/tocus/placeholder-listing-id',
 	},
 	[ WebsiteBrowser.FIREFOX ]: {
 		browser: WebsiteBrowser.FIREFOX,

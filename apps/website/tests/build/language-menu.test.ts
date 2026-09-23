@@ -34,15 +34,17 @@ for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 			viewport: { width: 320, height: 360 }, reducedMotion: MotionPreference.REDUCE,
 		} } );
 
-		browserTest( 'keeps the menu beside downloading and navigates native names on a short screen', async ( { page } ) => {
+		browserTest( 'keeps a compact language menu and navigates native names on a short screen', async ( { page } ) => {
 			const header = page.locator( '.site-header' );
 			const trigger = header.getByRole( 'button', { name: 'Website language: English', exact: true } );
 			const menu = page.getByRole( 'menu' );
-			await browserTest.step( 'Keep language selection beside the header download', async () => {
+			await browserTest.step( 'Keep language selection as the only header control', async () => {
 				await page.goto( 'http://website.test/' );
 				await expect( page.locator( '.homepage' ) ).toHaveAttribute( 'data-enhanced', 'true' );
 				await expect( trigger ).toBeVisible();
-				await expect( header.locator( '[data-download-primary]' ) ).toHaveAttribute( 'href', /^https:/u );
+				await expect( header.locator( '[data-download-primary]' ) ).toHaveCount( 0 );
+				await expect( trigger.locator( '.language-shortcut-chevron' ) ).toBeVisible();
+				await expect( trigger.locator( '.language-shortcut-label' ) ).toBeVisible();
 				await expect( page.locator( '.site-footer .language-shortcut' ) ).toHaveCount( 0 );
 				expect( await page.evaluate( () => document.documentElement.scrollWidth <= innerWidth ) ).toBe( true );
 			} );

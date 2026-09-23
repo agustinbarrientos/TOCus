@@ -2,12 +2,11 @@
 import '@tocus/ui/styles.scss';
 import '../../styles/global.scss';
 import HomePage from './page';
-import { createStatisticsPreviewFormatting } from '../statistics-preview/formatting';
+import Favicon from '../favicon/index.astro';
 import { type LocalizedHomePageProperties as Props } from '../../localization';
 
 const { localization, localizations } = Astro.props;
 const { catalog } = localization;
-const statisticsFormatting = createStatisticsPreviewFormatting( localization.languageTag );
 ---
 
 <!doctype html>
@@ -20,9 +19,9 @@ const statisticsFormatting = createStatisticsPreviewFormatting( localization.lan
 		<meta property="og:type" content="website" />
 		<meta property="og:title" content={`TOCus · ${catalog.intro}`} />
 		<meta property="og:description" content={catalog.description} />
-		<meta property="og:image" content="/images/mascot-peek.webp" />
+		<meta property="og:image" content="/images/riverside-hero.webp" />
 		<meta name="twitter:card" content="summary_large_image" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<Favicon />
 		<title>{`TOCus - ${catalog.intro}`}</title>
 		<link rel="alternate" hreflang="x-default" href="/" />
 		{localizations.map( ( option ) => (
@@ -30,7 +29,6 @@ const statisticsFormatting = createStatisticsPreviewFormatting( localization.lan
 		) )}
 	</head>
 	<body>
-		<HomePage localization={localization} localizations={localizations}
-			statisticsFormatting={statisticsFormatting} client:load />
+		<HomePage localization={localization} localizations={localizations} client:load />
 	</body>
 </html>

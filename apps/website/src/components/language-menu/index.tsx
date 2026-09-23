@@ -14,10 +14,12 @@ export function LanguageMenu( props: LanguageMenuProps ) {
 	const current = catalog.languageLabels[ localization.language ];
 	return <div className="website-language-picker"><Menu position="bottom-end" withinPortal={ false } shadow="md" width="auto">
 		<Menu.Target>
-			<Button variant="subtle" size="sm" className="language-shortcut"
+			<Button variant="default" size="xs" className="language-shortcut"
+				styles={ { root: { fontSize: 'var(--tocus-typography-title-medium-font-size)' } } }
 				classNames={ { section: 'language-shortcut-section' } }
 				aria-label={ `${ catalog.languageMenuLabel }: ${ current }` }
-				leftSection={ <Icon name={ IconName.LANGUAGE } /> }>
+				leftSection={ <Icon name={ IconName.LANGUAGE } /> }
+				rightSection={ <Icon name={ IconName.ANGLE_DOWN } className="language-shortcut-chevron" /> }>
 				<span className="language-shortcut-label">{ current }</span>
 			</Button>
 		</Menu.Target>

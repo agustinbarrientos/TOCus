@@ -6,7 +6,7 @@ import {
 import './style.scss';
 
 /**
- * Presents the experimental real 3D mascot next to the supplied reference image.
+ * Compares the earlier interactive mascot with the current riverside character.
  * @return A local, accessible comparison with explicit motion and view controls.
  * @since 0.1.0
  */
@@ -44,7 +44,7 @@ export function MascotPrototype() {
 			<header className="mascot-lab-intro">
 				<a href="/" className="mascot-lab-back">TOCus</a>
 				<h1>Mascot, in three dimensions.</h1>
-				<p>3D prototype beside your supplied reference.
+				<p>An earlier 3D prototype beside the current capybara.
 					Pause the wave, then turn the model to compare its shape.</p>
 			</header>
 			<div className="mascot-lab-comparison">
@@ -58,7 +58,7 @@ export function MascotPrototype() {
 							aria-describedby="prototype-description" />
 						{! ready && <p className="mascot-prototype-status" role="status">
 							{unavailable
-								? '3D is unavailable in this browser. The reference remains visible.'
+								? '3D is unavailable in this browser. The capybara image remains visible.'
 								: 'Preparing the 3D prototype...'}
 						</p>}
 					</div>
@@ -77,20 +77,20 @@ export function MascotPrototype() {
 						</div>
 					</div>
 					<p id="prototype-description" className="mascot-lab-caption">
-						The supplied capybara model with its baked greeting animation.
+						The earlier capybara model with its baked greeting animation.
 					</p>
 				</section>
 				<section aria-labelledby="reference-heading">
 					<div className="mascot-lab-panel-heading">
-						<h2 id="reference-heading">Your reference</h2>
-						<span>Original image</span>
+						<h2 id="reference-heading">Current capybara</h2>
+						<span>Riverside character</span>
 					</div>
 					<div className="mascot-lab-reference">
-						<img src="/images/mascot-reference.png" alt="Supplied capybara reference"
-							width="920" height="1250" />
+						<img src="/images/capybara-mate.webp" alt="Current capybara holding a mate"
+							width="700" height="800" />
 					</div>
 					<p className="mascot-lab-caption mascot-lab-reference-caption">
-						The visual target for proportions, expression, color, and surface character.
+						The current riverside character with its warm clay material and mate.
 					</p>
 				</section>
 			</div>
@@ -98,8 +98,8 @@ export function MascotPrototype() {
 				<p>Compare at 0&deg; with animation paused: the head-to-body ratio,
 					broad muzzle, eye placement, and paw shape.
 					Turn the view to inspect volume and the shoulder joint.</p>
-				<p>The same locally loaded model appears on the homepage.
-					Its material and animation are embedded in one portable GLB.</p>
+				<p>The homepage uses a separate riverside scene with a drinking animation.
+					Both models load locally without external services.</p>
 			</footer>
 		</main>
 	</TocusProvider>;
