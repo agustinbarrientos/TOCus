@@ -15,7 +15,7 @@ describe( 'createPopupCopy', () => {
 		expect( copy.settings ).toBe( 'Settings' );
 		expect( copy.retrying ).toBe( 'Trying again...' );
 		expect( copy.permissionRetainedError )
-			.toBe( 'This website could not be saved. Its browser access may still be active.' );
+			.toBe( "This website couldn't be saved. Its browser access may still be active." );
 	} );
 
 	it( 'formats nonnegative localized countdowns', () => {

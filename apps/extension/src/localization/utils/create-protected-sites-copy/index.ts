@@ -84,7 +84,7 @@ export function createProtectedSitesCopy(
 	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatPermissionRetainedAnnouncement( name: string ): string {
-		return i18n._( msg`${ { name } } was removed, but its browser access could not be removed automatically.` );
+		return i18n._( msg`${ { name } } was removed, but its browser access couldn't be removed automatically.` );
 	}
 
 	/**
@@ -101,7 +101,7 @@ export function createProtectedSitesCopy(
 		...listCopy,
 		save: i18n._( msg`Save` ),
 		discard: i18n._( msg`Discard` ),
-		savedWithRetainedAccess: i18n._( msg`Your website changes were saved, but some unused browser access could not be removed.` ),
+		savedWithRetainedAccess: i18n._( msg`Your website changes were saved, but some unused browser access couldn't be removed.` ),
 		configurationChangedError: i18n._( msg`Your website list changed elsewhere. Discard your draft and reopen Websites before trying again.` ),
 		title: i18n._( msg`Websites` ),
 		addressLabel: i18n._( msg`Website address` ),
@@ -116,17 +116,17 @@ export function createProtectedSitesCopy(
 		invalidSiteError: i18n._( msg`Enter a valid website address, such as example.com.` ),
 		alreadyProtectedError: i18n._( msg`This website is already on your list.` ),
 		invalidConfigurationError: i18n._( msg`Your website list changed. Retry before adding this site.` ),
-		invalidScopeError: i18n._( msg`TOCus could not create separate timing for this site.` ),
-		invalidDisplayNameError: i18n._( msg`The website name is not valid.` ),
+		invalidScopeError: i18n._( msg`TOCus couldn't create separate timing for this site.` ),
+		invalidDisplayNameError: i18n._( msg`The website name isn't valid.` ),
 		siteNotFoundError: i18n._( msg`This website is no longer on your list.` ),
-		saveError: i18n._( msg`This website could not be saved. Your entry is still here.` ),
+		saveError: i18n._( msg`This website couldn't be saved. Your entry is still here.` ),
 		permissionDeniedError: i18n._( msg`Browser access to show the pause on this website is required. Nothing was saved.` ),
-		permissionRequestError: i18n._( msg`Browser access could not be requested. Nothing was saved.` ),
-		permissionRetainedError: i18n._( msg`This website could not be saved. Its browser access may still be active.` ),
+		permissionRequestError: i18n._( msg`Browser access couldn't be requested. Nothing was saved.` ),
+		permissionRetainedError: i18n._( msg`This website couldn't be saved. Its browser access may still be active.` ),
 		malformedDataTitle: i18n._( msg`Your website list needs attention` ),
-		malformedDataDescription: i18n._( msg`Your local website list is not valid, so it was not replaced.` ),
-		loadErrorTitle: i18n._( msg`Websites could not load` ),
-		loadErrorDescription: i18n._( msg`TOCus could not load local settings. Nothing was changed.` ),
+		malformedDataDescription: i18n._( msg`Your local website list isn't valid, so it wasn't replaced.` ),
+		loadErrorTitle: i18n._( msg`Websites couldn't load` ),
+		loadErrorDescription: i18n._( msg`TOCus couldn't load local settings. Nothing was changed.` ),
 		retry: i18n._( msg`Try again` ),
 		removeSelectedDescription: i18n._( msg`These websites will be removed when you save your changes.` ),
 		cancelRemoveSelected: i18n._( msg`Cancel` ),

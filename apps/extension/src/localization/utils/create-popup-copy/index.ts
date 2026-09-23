@@ -61,11 +61,11 @@ export function createPopupCopy( i18n: I18n ): Readonly<PopupShellCopy> {
 		statusUnavailable: i18n._( msg`Status unavailable` ),
 		unsupportedPage: i18n._( msg( {
 			comment: 'Popup explanation shown for browser-owned pages that extensions cannot manage.',
-			message: 'TOCus cannot add a pause to this browser page.',
+			message: "TOCus can't add a pause to this browser page.",
 		} ) ),
 		currentWebsiteUnavailable: i18n._( msg( {
 			comment: 'Popup explanation shown when the current website cannot be identified.',
-			message: 'TOCus cannot read the current website.',
+			message: "TOCus can't read the current website.",
 		} ) ),
 		timeLeft: i18n._( msg( {
 			comment: 'Popup label above the remaining time for the current website.',
@@ -84,11 +84,11 @@ export function createPopupCopy( i18n: I18n ): Readonly<PopupShellCopy> {
 		} ) ),
 		unavailableDescription: i18n._( msg`Your websites and settings are unchanged. Try again.` ),
 		permissionDeniedError: i18n._( msg`Browser access is needed to add a pause here.` ),
-		permissionError: i18n._( msg`Browser access could not be confirmed. Try again.` ),
+		permissionError: i18n._( msg`Browser access couldn't be confirmed. Try again.` ),
 		permissionRetainedError: i18n._(
-			msg`This website could not be saved. Its browser access may still be active.`,
+			msg`This website couldn't be saved. Its browser access may still be active.`,
 		),
-		saveError: i18n._( msg`This website could not be added. Nothing was changed.` ),
+		saveError: i18n._( msg`This website couldn't be added. Nothing was changed.` ),
 		formatCountdown,
 	} );
 }

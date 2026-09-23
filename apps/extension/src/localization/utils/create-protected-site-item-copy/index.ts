@@ -45,7 +45,7 @@ export function createProtectedSiteItemCopy( i18n: I18n ): Readonly<ProtectedSit
 		removeSite: i18n._( msg`Remove site` ),
 		keepSite: i18n._( msg`Keep site` ),
 		confirmRemove: i18n._( msg`Remove` ),
-		operationError: i18n._( msg`Your changes could not be saved. Nothing was replaced.` ),
+		operationError: i18n._( msg`Your changes couldn't be saved. Nothing was replaced.` ),
 		configurationChangedError: i18n._( msg`This site changed elsewhere. Reload settings and try again.` ),
 		formatSelectSite,
 		formatRemoveQuestion,
