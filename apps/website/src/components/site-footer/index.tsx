@@ -1,5 +1,6 @@
 import { Anchor, Brand } from '@tocus/ui';
 import { ExternalLink, WebsiteLink } from '../site-links';
+import { AnalyticsConsent } from '../analytics-consent';
 import type { SiteFooterProps } from './types';
 import './style.scss';
 
@@ -29,6 +30,7 @@ export function SiteFooter( props: SiteFooterProps ) {
 						</div>
 					</div>
 				</div>
+				<AnalyticsConsent localization={ localization } />
 				<div id="languages" hidden={ enhanced }>
 					<nav aria-label={ catalog.languageMenuLabel }>
 						<ul role="list">
