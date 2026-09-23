@@ -68,7 +68,6 @@ function PrivacyContent( { catalog }: PrivacyContentProperties ) {
 				<h3 id="website-analytics-title">{ catalog.analyticsTitle }</h3>
 				<p>{ catalog.analyticsDescription }</p>
 				<p>{ catalog.analyticsBoundary }</p>
-				<p>{ catalog.analyticsConsent }</p>
 				<p><ExternalLink href={ InformationExternalUrl.GOOGLE_DATA_USE }>
 					{ catalog.analyticsLink }
 				</ExternalLink></p>

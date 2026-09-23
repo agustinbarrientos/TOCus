@@ -203,7 +203,6 @@ test.describe( 'generated website publication pages', () => {
 			const analyticsText = await page.locator( '#website-analytics' ).innerText();
 			expect( analyticsText ).toContain( 'Google Analytics' );
 			expect( analyticsText ).toContain( 'The TOCus extension has no analytics or tracking.' );
-			expect( analyticsText ).toContain( 'only loads Google Analytics after you accept' );
 			expect( await page.locator( `a[href="${ ChromeLimitedUseUrl }"]` ).count() ).toBe( 1 );
 			expect( await page.locator( '#limited-use' ).innerText() ).toMatch( /Limited Use/iu );
 		} );

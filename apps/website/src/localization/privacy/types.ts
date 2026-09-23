@@ -35,7 +35,6 @@ export interface PrivacyCatalog {
 	analyticsTitle: string;
 	analyticsDescription: string;
 	analyticsBoundary: string;
-	analyticsConsent: string;
 	analyticsLink: string;
 	externalLinks: string;
 }
