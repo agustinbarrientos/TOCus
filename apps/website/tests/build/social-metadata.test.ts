@@ -16,7 +16,7 @@ test( 'every generated page shares the matching localized image without JavaScri
 		for ( const [ path, imageLanguage ] of [
 			[ '/', 'en' ], [ '/es/', 'es-tu' ], [ '/es-ar/', 'es-vos' ], [ '/de/', 'de' ],
 			[ '/fr/', 'fr' ], [ '/it/', 'it' ], [ '/ja/', 'ja' ], [ '/pt-br/', 'pt-br' ],
-			[ '/pt-pt/', 'pt-pt' ], [ '/ru/', 'ru' ], [ '/privacy/', 'en' ], [ '/support/', 'en' ],
+			[ '/pt-pt/', 'pt-pt' ], [ '/ru/', 'ru' ], [ '/privacy/', 'en' ],
 		] as const ) {
 			await test.step( `Check social preview for ${ path }`, async () => {
 				await page.goto( `http://website.test${ path }` );

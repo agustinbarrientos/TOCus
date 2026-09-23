@@ -4,7 +4,7 @@ import { expect, test, type Page, type Route } from '@playwright/test';
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 const SourceUrl = 'https://github.com/agustinbarrientos/TOCus';
 const ChromeLimitedUseUrl = 'https://developer.chrome.com/docs/webstore/program-policies/user-data-faq';
-const PublicationRoutes = [ '/privacy/', '/support/' ] as const;
+const PublicationRoutes = [ '/privacy/' ] as const;
 
 /**
  * Serves one generated website asset without a live application server.
@@ -64,22 +64,6 @@ async function expectInlineLinkTypography( page: Page ): Promise<void> {
 }
 
 test.describe( 'generated website publication pages', () => {
-	test( 'support exposes the contact email in every language and preserves the page when switching', async ( { page } ) => {
-		await page.route( 'http://website.test/**', serveGeneratedAsset );
-		for ( const locale of [ '', 'de/', 'es/', 'es-ar/', 'fr/', 'it/', 'ja/', 'pt-br/', 'pt-pt/', 'ru/' ] ) {
-			await page.goto( `http://website.test/${ locale }support/` );
-			await expect( page.locator( '.support-contact a' ) ).toHaveAttribute( 'href', 'mailto:hi@agustinbarrientos.com' );
-			await expect( page.locator( '.support-contact a' ) ).toHaveText( 'hi@agustinbarrientos.com' );
-			await expect( page.locator( 'link[rel="alternate"][hreflang="en"]' ) ).toHaveAttribute( 'href', '/support/' );
-			await expect( page.locator( 'meta[property="og:url"]' ) ).toHaveAttribute( 'content', `https://tocus.uo.ar/${ locale }support/` );
-		}
-		await page.goto( 'http://website.test/support/' );
-		await page.locator( '.language-shortcut' ).click();
-		await page.getByRole( 'menuitem', { name: 'Deutsch', exact: true } ).click();
-		await expect( page ).toHaveURL( 'http://website.test/de/support/' );
-		await expect( page.locator( '.site-header .site-brand-link' ) ).toHaveAttribute( 'href', '/de/' );
-	} );
-
 	test( 'privacy shares homepage header and footer presentation', async ( { page } ) => {
 		await page.emulateMedia( { reducedMotion: 'reduce' } );
 		await page.route( 'http://website.test/**', serveGeneratedAsset );
@@ -142,7 +126,7 @@ test.describe( 'generated website publication pages', () => {
 				for ( const route of PublicationRoutes ) {
 					await engineTest.step( `Inspect ${ route }`, async () => {
 						await page.goto( `http://website.test${ route }` );
-						expect( ( await page.locator( 'h1' ).innerText() ).trim().length, route ).toBeGreaterThan( 0 );
+						await expect( page.locator( 'h1' ) ).toHaveText( 'Privacy Policy' );
 						expect( await page.locator( 'link[rel="icon"][href="/favicon.svg"]' ).count(), route ).toBe( 1 );
 						expect( await page.locator( '[data-tocus-ui] .website > .information-shell' ).count(), route ).toBe( 1 );
 						expect( await page.locator( 'header .tocus-brand' ).count(), route ).toBe( 1 );

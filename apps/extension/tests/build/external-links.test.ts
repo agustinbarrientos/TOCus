@@ -14,10 +14,10 @@ describe( 'external website links', () => {
 			`../../../../packages/theme/assets/icons/${ IconName.ARROW_UP_RIGHT_FROM_SQUARE }.svg`, import.meta.url,
 		), 'utf8' ) ).trim();
 		const paths = ( await readdir( websiteOutput, { recursive: true } ) ).filter( ( path ) => path.endsWith( '.html' ) );
-		// Only the homepage, Privacy Policy and email support page belong in production.
+		// Only the homepage and Privacy Policy belong in production.
 		const locales = [ '', 'de/', 'es/', 'es-ar/', 'fr/', 'it/', 'ja/', 'pt-br/', 'pt-pt/', 'ru/' ];
 		const expectedPages = locales.flatMap( ( locale ) => [
-			`${ locale }index.html`, `${ locale }privacy/index.html`, `${ locale }support/index.html`,
+			`${ locale }index.html`, `${ locale }privacy/index.html`,
 		] );
 		expect( paths.sort() ).toEqual( expectedPages.sort() );
 		for ( const path of paths ) {
