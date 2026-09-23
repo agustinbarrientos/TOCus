@@ -8,6 +8,8 @@ import {
 	WebsiteLanguages,
 	getWebsiteLocalization,
 	getWebsiteLocalizations,
+	getPrivacyCatalog,
+	getSupportCatalog,
 } from './index';
 
 /**
@@ -68,6 +70,31 @@ async function readWebsiteCatalog( locale: string ): Promise<CatalogType> {
 }
 
 describe( 'website localization', () => {
+	it( 'provides localized email support copy in every website language', () => {
+		const english = getSupportCatalog( WebsiteLanguage.ENGLISH );
+		for ( const language of WebsiteLanguages ) {
+			const support = getSupportCatalog( language );
+			expect( support.title.trim() ).not.toBe( '' );
+			expect( support.description.trim() ).not.toBe( '' );
+			if ( language !== WebsiteLanguage.ENGLISH ) {
+				expect( support.description ).not.toBe( english.description );
+			}
+		}
+	} );
+
+	it( 'provides every public privacy paragraph without English fallbacks', () => {
+		const english = getPrivacyCatalog( WebsiteLanguage.ENGLISH );
+		for ( const language of WebsiteLanguages ) {
+			const privacy = getPrivacyCatalog( language );
+			for ( const [ field, value ] of Object.entries( privacy ) ) {
+				expect( value.trim(), `${ language }:${ field }` ).not.toBe( '' );
+				if ( language !== WebsiteLanguage.ENGLISH ) {
+					expect( value, `${ language }:${ field }` ).not.toBe( english[ field as keyof typeof english ] );
+				}
+			}
+		}
+	} );
+
 	it( 'keeps em dashes out of every localized website string', () => {
 		for ( const localization of getWebsiteLocalizations() ) {
 			expect( JSON.stringify( localization ) ).not.toContain( '\u2014' );

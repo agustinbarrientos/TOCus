@@ -1,5 +1,9 @@
 import { setupI18n, type I18n, type Messages } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
+import { createPrivacyCatalog } from './privacy';
+import type { PrivacyCatalog } from './privacy/types';
+import { createSupportCatalog } from './support';
+import type { SupportCatalog } from './support/types';
 import { messages as germanMessages } from '../../locales/de.po';
 import { messages as englishMessages } from '../../locales/en.po';
 import { messages as spanishTuMessages } from '../../locales/es.po';
@@ -164,17 +168,48 @@ function createWebsiteCatalog( i18n: I18n ): Readonly<WebsiteCatalog> {
 }
 
 /**
- * Returns one complete localized website projection.
+ * Activates one isolated website translation catalog.
  * @param language - Stable website language.
- * @return Catalog, route, and document language for the selected language.
- * @since 1.0.0 Initial implementation.
+ * @return Page-local Lingui instance.
+ * @since 1.0.0
  */
-export function getWebsiteLocalization( language: WebsiteLanguageValue ): Readonly<WebsiteLocalization> {
+function createWebsiteI18n( language: WebsiteLanguageValue ): I18n {
 	const metadata = WebsiteLanguageMetadataByLanguage[ language ];
-	const i18n = setupI18n( {
+	return setupI18n( {
 		locale: metadata.languageTag,
 		messages: { [ metadata.languageTag ]: WebsiteMessagesByLanguage[ language ] },
 	} );
+}
+
+/**
+ * Returns the complete translated public privacy document.
+ * @param language - Stable website language.
+ * @return Privacy copy without English fallbacks.
+ * @since 1.0.0
+ */
+export function getPrivacyCatalog( language: WebsiteLanguageValue ): Readonly<PrivacyCatalog> {
+	return createPrivacyCatalog( createWebsiteI18n( language ) );
+}
+
+/**
+ * Resolves support copy in the requested website language.
+ * @param language - Selected website language.
+ * @return Localized support contact copy.
+ * @since 1.0.0
+ */
+export function getSupportCatalog( language: WebsiteLanguageValue ): Readonly<SupportCatalog> {
+	return createSupportCatalog( createWebsiteI18n( language ) );
+}
+
+/**
+ * Returns one complete localized website projection.
+ * @param language - Stable website language.
+ * @return Catalog, route, and document language for the selected language.
+ * @since 1.0.0
+ */
+export function getWebsiteLocalization( language: WebsiteLanguageValue ): Readonly<WebsiteLocalization> {
+	const metadata = WebsiteLanguageMetadataByLanguage[ language ];
+	const i18n = createWebsiteI18n( language );
 
 	return Object.freeze( {
 		language,
