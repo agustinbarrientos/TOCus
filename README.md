@@ -86,6 +86,21 @@ pnpm dev
 | `pnpm test:ui`                         | Run shared controls and extension UI in all three engines  |
 | `pnpm check`                           | Run linting, type checks, and tests                         |
 
+## Deploy the website
+
+The website uses Cloudflare Workers Static Assets. The root `wrangler.jsonc` publishes only `apps/website/dist`; it contains no Worker script or credentials. Build from the repository root so Astro can resolve shared packages and build tooling:
+
+```sh
+pnpm --filter @tocus/website build
+npx wrangler deploy
+```
+
+For Cloudflare's Git integration, use project name `tocus`, production branch `main`, root path `/`, build command `pnpm --filter @tocus/website build`, and deploy command `npx wrangler deploy`. Set build variables `NODE_VERSION=24.20.0` and `PNPM_VERSION=12.5.1`. Disable preview builds when they are unnecessary, and restrict build watch paths to `apps/website/*`, `packages/*`, `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `lingui.config.ts`, `tsconfig.json`, `tsconfig.base.json`, `.node-version`, and `wrangler.jsonc`.
+
+Keep deployment credentials in Cloudflare's build settings or CI secrets. Wrangler's local state and `.dev.vars` files are ignored. The compatibility date selects known platform behavior and does not expire; update it deliberately after checking relevant changes. The website deployment does not run the extension builds or browser tests; those remain in the repository's CI workflow.
+
+See Cloudflare's [static-site configuration](https://developers.cloudflare.com/workers/static-assets/routing/static-site-generation/), [build settings](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/), and [compatibility-date guidance](https://developers.cloudflare.com/workers/configuration/compatibility-dates/).
+
 ## Prepare a release
 
 Use a clean checkout of the reviewed release commit, the Node.js version in `.node-version`, and the pinned pnpm version. Install dependencies with `pnpm install --frozen-lockfile`, then run `pnpm check` and `pnpm test:visual` in the supported environments described in [CONTRIBUTING.md](CONTRIBUTING.md). Record the commit, operating system and architecture, tool versions, check results, and artifact SHA-256 values with the release.
@@ -162,7 +177,7 @@ The following release inputs were unresolved on September 9, 2026:
 
 - [ ] Supply the final public Chrome, Firefox, and Safari listing URLs. The approved temporary URLs remain centralized in `apps/website/src/config/downloads/index.ts`; replace each when its listing is public and verify the destination while signed out.
 - [ ] Complete native desktop Edge acceptance and the separate Microsoft Edge Add-ons submission. Replace Edge's null URL only when the actual listing is public, the signed-out destination and installation are verified, and the available state has been tested with approved locally bundled Edge artwork or an approved badge used according to Microsoft's conditions and the actual listing link.
-- [ ] Choose the canonical HTTPS website origin and hosting provider. The repository has no production host configuration or Astro `site` origin; the repository homepage is empty, GitHub reports `has_pages: false`, and its Pages endpoint returns 404. These checks do not rule out an externally configured host.
+- [ ] Choose the canonical HTTPS website origin and configure Astro's `site` origin. Cloudflare Workers Static Assets is configured in `wrangler.jsonc`; the production custom domain and live deployment still need verification.
 - [ ] Confirm the host/CDN request-log fields, retention and deletion behavior, access controls, subprocessors, and region; update the website privacy copy using those verified facts. Configure canonical URLs, redirects, and production headers, then inspect the deployed site's cookies, scripts, and network requests.
 - [ ] Enable GitHub private vulnerability reporting and verify the private report route from an account without repository access. A read-only check of `repos/agustinbarrientos/tocus/private-vulnerability-reporting` returned `{"enabled":false}` on September 9, 2026. [GitHub documents the repository setting](https://docs.github.com/en/code-security/security-advisories/working-with-repository-security-advisories/configuring-private-vulnerability-reporting-for-a-repository).
 - [ ] Confirm Apple release identifiers and signing details and finish the Safari app packaging steps above.
