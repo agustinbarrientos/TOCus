@@ -109,10 +109,13 @@ test.describe( 'shared snackbar', () => {
 						const previous = messages.find( ( element ) => element.textContent.includes( 'Preferences saved' ) );
 						const current = messages.find( ( element ) => element.textContent.includes( 'No changes to save' ) );
 						if ( current ) {
+							if ( ! ( current instanceof HTMLElement ) || ! current.offsetParent ) {
+								throw new Error( 'Missing feedback layout anchor.' );
+							}
 							const style = getComputedStyle( current );
-							const translation = new DOMMatrixReadOnly( style.transform ).m42;
-							// Remove the intended slide-in transform to detect layout jumps, not easing overshoot.
-							anchors.push( current.getBoundingClientRect().bottom - translation );
+							// Read layout directly; animated transforms and visual bounds can sample different instants.
+							anchors.push( current.offsetParent.getBoundingClientRect().top
+								+ current.offsetTop + current.offsetHeight );
 							if ( previous ) {
 								overlapFrames += 1;
 							} else if ( style.opacity === '1' && current.getAnimations().length === 0 ) {

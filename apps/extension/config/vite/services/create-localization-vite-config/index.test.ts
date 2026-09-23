@@ -59,7 +59,7 @@ describe( 'createLocalizationViteConfig', () => {
 			const logged = () => undefined;
 			@logged
 			class MessageView {}
-			export const descriptor = msg\`A gentle pause\`;
+			export const descriptor = msg\`Pause before visiting addictive websites\`;
 		`;
 		const sourceIds = [
 			`${ fileURLToPath( new URL( '../../../../src/localization/example.tsx', import.meta.url ) ) }?direct`,
@@ -74,7 +74,7 @@ describe( 'createLocalizationViteConfig', () => {
 			}
 
 			expect( result.code ).toContain( 'export const descriptor' );
-			expect( result.code ).toContain( 'A gentle pause' );
+			expect( result.code ).toContain( 'Pause before visiting addictive websites' );
 			expect( result.code ).not.toContain( '/macro' );
 			expect( result.code ).not.toContain( '@logged' );
 		}

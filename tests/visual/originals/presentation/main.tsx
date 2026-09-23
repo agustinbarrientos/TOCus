@@ -1,6 +1,6 @@
 import '../../../../packages/ui/src/components/provider/style.scss';
 import { createRoot } from 'react-dom/client';
-import { Text, Title, TocusProvider } from '../../../../packages/ui/src';
+import { Title, TocusProvider } from '../../../../packages/ui/src';
 import {
 	DefaultPreferencesDocument, Language, Palette, PreferencesDocumentSchema, ThemeMode,
 } from '../../../../apps/extension/src/domains/preferences/types';
@@ -28,13 +28,14 @@ import '../../../../apps/extension/src/features/onboarding/components/shell/styl
  */
 function StandaloneSites( { state, port }: OnboardingViewProps ) {
 	const controller = useOnboardingController( state, port );
+	window.finishOriginalOnboarding = controller.finish;
 	if ( ! state.copy ) {
 		return null;
 	}
 	return <TocusProvider appearance={ state.theme } palette={ state.palette } reducedMotion transparent>
 		<div className="onboarding-standalone-step">
 			<header className="tocus-preferences-header tocus-preferences-sites-header">
-				<Title order={ 1 }>{ state.copy.sites.title }</Title><Text>{ state.copy.sites.introduction }</Text>
+				<Title order={ 1 }>{ state.copy.sites.title }</Title>
 			</header>
 			<SitesStep state={ state } copy={ state.copy } controller={ controller } />
 		</div>

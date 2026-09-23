@@ -1,7 +1,7 @@
 import '../../../../packages/ui/src/components/provider/style.scss';
 import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Alert, Button, Icon, IconName, Radio, Text, Title, TocusAppearance, TocusPalette, TocusProvider } from '../../../../packages/ui/src';
+import { Alert, Button, Icon, IconName, Radio, Title, TocusAppearance, TocusPalette, TocusProvider } from '../../../../packages/ui/src';
 import { AppearanceControls } from '../../../../apps/extension/src/features/preferences/components/appearance-controls';
 import { OnboardingLanguageControls } from '../../../../apps/extension/src/features/preferences/components/onboarding-language-controls';
 import { Page } from '../../../../apps/extension/src/features/settings/components/page';
@@ -63,13 +63,11 @@ function SharedFixture() {
 		...TestEnglishLocalizationBundle.onboarding.language,
 		...( language === Language.SPANISH_TU ? {
 			title: 'Elige tu idioma',
-			introduction: 'TOCus usar\u00e1 este idioma en toda la extensi\u00f3n. Puedes cambiarlo m\u00e1s adelante en Configuraci\u00f3n.',
 			languageLegend: 'Idioma',
 			spanishVariantLegend: '\u00bfQu\u00e9 variante de espa\u00f1ol quieres que use TOCus?',
 			continueLabel: 'Continuar',
 		} : language === Language.PORTUGUESE_BRAZIL ? {
 			title: 'Escolha seu idioma',
-			introduction: 'O TOCus usar\u00e1 esse idioma em toda a extens\u00e3o. Voc\u00ea pode alter\u00e1-lo depois nas Configura\u00e7\u00f5es.',
 			languageLegend: 'Idioma',
 			portugueseVariantLegend: 'Qual variante do portugu\u00eas o TOCus deve usar?',
 			continueLabel: 'Continuar',
@@ -80,7 +78,7 @@ function SharedFixture() {
 		<div id="original-shared-capture" className={ step ? 'original-step' : 'original-controls' }>
 			{ surface === SharedOriginalSurface.NOTICES ? <Notices /> : <>
 				{ step && <header className={ `tocus-preferences-header ${ languageStep ? 'tocus-preferences-language-header' : '' }` }>
-					<Title order={ 1 }>{ copy.title }</Title><Text>{ copy.introduction }</Text>
+					<Title order={ 1 }>{ copy.title }</Title>
 				</header> }
 				{ languageStep ? <OnboardingLanguageControls copy={ languageCopy }
 					value={ language } onChange={ setLanguage } />

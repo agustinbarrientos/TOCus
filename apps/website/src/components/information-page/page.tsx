@@ -23,48 +23,47 @@ function PrivacyContent() {
 					The TOCus extension keeps its settings and statistics in your browser. It has no accounts,
 					advertising, or analytics and does not send this information to the developer.
 				</p>
-				<p className="information-page-reviewed">Last reviewed September 15, 2026.</p>
+				<p className="information-page-reviewed">Last reviewed September 23, 2026.</p>
 			</header>
 
 			<section id="extension-data" aria-labelledby="extension-data-title">
-				<h2 id="extension-data-title">What the extension keeps locally</h2>
+				<h2 id="extension-data-title">What stays on your device</h2>
+				<p>Absolutely everything.</p>
+				<p>This includes your website list, pause times, schedules, preferences, and statistics.</p>
 				<p>
-					TOCus stores the rules and labels for your selected websites, shared pause timing, schedules,
-					and your appearance and language preferences in your browser. Your settings remain available after
-					the browser restarts. TOCus follows your operating system&apos;s motion preference.
+					{ "The statistics only keep track of counts and durations. They don't save any page content or web addresses." }
+				</p>
+				<p>TOCus works entirely offline and doesn&apos;t track your data on your device.</p>
+				<p>
+					{ 'If you pause while on a website, the address might be saved for a short time so you can go back to it.' }
 				</p>
 				<p>
-					Statistics are local counts and durations: completed pauses, reconsidered visits, granted visits,
-					focused pause time, and estimated reclaimed time.
-					Lifetime and daily totals stay in your browser until you reset them.
-					They do not contain page content or a history of web addresses.
-					TOCus also stores the timing of active pauses and allowed browsing periods so they can continue.
-				</p>
-				<p>
-					During a pause, TOCus may temporarily store the destination URL in browser session storage so
-					Continue can open the page you requested. TOCus does not send that address, your settings,
-					or your statistics to the developer or to an analytics, advertising, or data
-					service.
+					You don&apos;t have to just take my word for it.{' '}
+					<ExternalLink href={ WebsiteLink.SOURCE }>
+						The source code is available on GitHub if you want to check for yourself.
+					</ExternalLink>
 				</p>
 			</section>
 
 			<section id="permissions" aria-labelledby="permissions-title">
-				<h2 id="permissions-title">Why TOCus asks for browser permissions</h2>
+				<h2 id="permissions-title">Why TOCus needs browser access</h2>
 				<p>
-					TOCus asks for access to the selected websites where you want a pause. That site-specific access,
-					scripting, and browser navigation rules let it detect a matching visit and show the pause. The
-					optional navigation permission detects changes as they happen; it does not read your saved browsing
-					history.
+					{ 'TOCus needs access to the websites you choose so it can show the pause. You control which sites to allow.' }
 				</p>
 				<p>
-					Storage permission lets TOCus save your settings, and alarms keep its timers up to date. When you
-					add a site from the toolbar, TOCus can use temporary access to the current tab. On Chrome, the
-					favicon permission reads the site icon cached by your browser.
-					TOCus does not contact an icon service.
+					{ "When you click the toolbar icon, TOCus gets access to the website you are currently visiting, but only for a short time, and doesn't send that data anywhere." }
 				</p>
 				<p>
-					Without access to a site, TOCus cannot show its pause there. You can remove a site in TOCus or
-					change access through your browser&apos;s extension settings.
+					{ "\"Navigation access\" lets TOCus see changes to websites as they happen, but it doesn't look at your saved browsing history." }
+				</p>
+				<p>
+					{ 'TOCus saves your choices using local storage. It uses scripts and browser rules to show the pause, and alarms to keep the timing correct.' }
+				</p>
+				<p>
+					{ "Your browser tries to use website icons from its own cache whenever it can. Sometimes this doesn't work. I set it up this way to keep TOCus completely private and avoid connecting to any icon service." }
+				</p>
+				<p>
+					{ "If TOCus doesn't have access to a website, it can't pause that site. You can update these permissions in your browser's extension settings." }
 				</p>
 			</section>
 

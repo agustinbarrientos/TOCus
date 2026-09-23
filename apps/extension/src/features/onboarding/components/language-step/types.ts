@@ -29,7 +29,6 @@ export type OnboardingLanguageFamily = typeof OnboardingLanguageFamily[
  */
 export interface OnboardingLanguageStepCopy {
 	title: string;
-	introduction: string;
 	languageLegend: string;
 	languageLabels: Readonly<Record<OnboardingLanguageFamily, string>>;
 	spanishVariantLegend: string;

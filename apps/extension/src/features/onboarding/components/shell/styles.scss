@@ -3,7 +3,7 @@
 .onboarding-view {
 	position: relative;
 	display: grid;
-	grid-template-rows: auto 1fr auto;
+	grid-template-rows: auto 1fr;
 	min-height: 100dvh;
 	overflow: hidden;
 	color: var(--tocus-color-on-stage);
@@ -14,8 +14,7 @@
 }
 
 .onboarding-header,
-.onboarding-layout,
-.onboarding-footer {
+.onboarding-layout {
 	position: relative;
 	z-index: 1;
 	width: min(100% - 2rem, 78rem);
@@ -92,15 +91,6 @@
 .onboarding-form .tocus-form-actions {
 	justify-content: flex-end;
 	padding-bottom: 0;
-}
-
-.onboarding-view .onboarding-footer {
-	@include typography.apply('body-small');
-
-	margin-inline: auto;
-	padding-block: var(--tocus-space-4) var(--tocus-space-5);
-	color: var(--tocus-color-on-stage-muted);
-	text-align: center;
 }
 
 .onboarding-progress {
@@ -479,7 +469,7 @@
 
 @media (width <= 60rem) {
 	.onboarding-with-preview {
-		grid-template-rows: auto minmax(0, 1fr) auto;
+		grid-template-rows: auto minmax(0, 1fr);
 		height: 100dvh;
 		padding-bottom: 17rem;
 
@@ -547,7 +537,7 @@
 
 @media (width < 38rem) and (height <= 30rem) {
 	.onboarding-with-preview {
-		grid-template-rows: auto 1fr auto;
+		grid-template-rows: auto 1fr;
 		height: auto;
 
 		.onboarding-layout { overflow: visible; }

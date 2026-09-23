@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"private": true,
 	"type": "module",
-	"description": "A gentle pause before distracting websites, designed to help you return to your intentions.",
+	"description": "Pause before visiting addictive websites",
 	"scripts": {
 		"dev": "wxt",
 		"dev:firefox": "wxt -b firefox",

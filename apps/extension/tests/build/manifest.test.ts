@@ -222,7 +222,7 @@ function createExpectedManifestMessages( catalog: CatalogType, locale: string ):
 			message: getCatalogTranslation(
 				catalog,
 				locale,
-				'A gentle pause before distracting websites, designed to help you return to your intentions.',
+				'Pause before visiting addictive websites',
 				'Extension description',
 			),
 			description: 'Short extension description shown by the browser and extension store.',

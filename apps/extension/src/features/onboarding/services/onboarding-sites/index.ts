@@ -180,7 +180,9 @@ export function useOnboardingSites(
 		}
 		const additions = pendingSiteDrafts( port.protectedSites, draftRef.current );
 		if ( additions.length === 0 ) {
-			complete();
+			if ( port.protectedSites.length > 0 ) {
+				complete();
+			}
 			return;
 		}
 		if ( ! port.enrollment || ! operation.begin() ) {

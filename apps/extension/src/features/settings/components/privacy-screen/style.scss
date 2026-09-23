@@ -3,6 +3,19 @@
 [data-tocus-ui] .settings-page {
 	.settings-privacy-reset:last-of-type { padding-bottom: 0; }
 
+	.settings-privacy-source .tocus-external-link {
+		display: inline;
+		font: inherit;
+		/* stylelint-disable-next-line property-disallowed-list -- Inline prose inherits its existing typography tokens. */
+		letter-spacing: inherit;
+
+		.tocus-icon {
+			display: inline-block;
+			margin-inline-start: 0.3em;
+			vertical-align: 0;
+		}
+	}
+
 	.settings-privacy-permissions ul {
 		display: grid;
 		gap: var(--tocus-space-3);

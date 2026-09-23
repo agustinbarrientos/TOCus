@@ -159,7 +159,8 @@ export function SitesStep( props: OnboardingStepProps ) {
 			<SiteFeedback { ...props } />
 			{ controller.drafts.length > 0 && <p className="field-help">{ copy.sites.finishHelp }</p> }
 			<div className="actions">
-				<Button className="finish-action tocus-action-raised" loading={ controller.pending } disabled={ controller.pending }
+				<Button className="finish-action tocus-action-raised" loading={ controller.pending }
+					disabled={ controller.pending || controller.sites.length === 0 }
 					h="auto" px="var(--tocus-space-6)"
 					onClick={ () => {
 						void controller.finish();

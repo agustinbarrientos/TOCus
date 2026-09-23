@@ -2,7 +2,10 @@ import {
 	useState,
 } from 'react';
 import {
+	Anchor,
 	Button,
+	Icon,
+	IconName,
 } from '@tocus/ui';
 import {
 	Confirmation,
@@ -126,9 +129,18 @@ export function Privacy( props: SettingsScreenProps ) {
 		<Page title={ copy.title }>
 			<section className="tocus-section">
 				<h2>{ copy.storedTitle }</h2>
+				<p>{ copy.storedSummary }</p>
 				<p>{ copy.storedDescription }</p>
 				<p>{ copy.statisticsPrivacy }</p>
+				<p>{ copy.offlinePrivacy }</p>
 				<p>{ copy.recoveryPrivacy }</p>
+				<p className="settings-privacy-source">
+					{ copy.trustPrivacy }{ ' ' }
+					<Anchor className="tocus-external-link" href="https://github.com/agustinbarrientos/TOCus"
+						target="_blank" rel="noopener noreferrer">
+						{ copy.sourcePrivacy }<Icon name={ IconName.ARROW_UP_RIGHT_FROM_SQUARE } />
+					</Anchor>
+				</p>
 			</section>
 			<section className="tocus-section settings-privacy-permissions">
 				<h2>{ copy.permissionsTitle }</h2>

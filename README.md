@@ -2,38 +2,41 @@
 
 <img src="./packages/theme/assets/logo.svg" alt="TOCus" width="230" />
 
-### A gentle pause before distracting websites
+### Pause before visiting addictive websites
 
-TOCus is a browser extension that gives you a short breathing pause before opening the websites you choose, so you can notice the impulse and decide what to do next.
+[tocus.uo.ar](https://tocus.uo.ar/)
+
+[![CI](https://github.com/agustinbarrientos/TOCus/actions/workflows/ci.yml/badge.svg)](https://github.com/agustinbarrientos/TOCus/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 </div>
 
 ---
 
-[![CI](https://github.com/agustinbarrientos/TOCus/actions/workflows/ci.yml/badge.svg)](https://github.com/agustinbarrientos/TOCus/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-
 ## How it works
 
-1. Choose the websites where you want a pause.
-2. Take a brief breathing moment when you visit one.
-3. Decide whether to continue browsing or do something else.
+1. Open a site.
+2. Take a 10-second pause.
+3. Choose whether to continue.
+4. Browse for 5 minutes.
+
+You choose which websites to include and can adjust the pause and browsing times.
 
 ## A calmer way to browse
 
-- **Pause at your own pace.** Adjust the wait and how long you can browse afterward.
-- **Use it when you want.** Choose active days and hours, with a separate schedule for each site if you like.
-- **Let your videos pause, too.** Supported videos pause while you wait and resume when you continue.
-- **See your progress.** Review completed pauses, reconsidered visits, and an estimate of the time you saved.
-- **Make it feel like yours.** Choose your language and appearance, with reduced-motion options.
-- **Keep it yours.** Free and open source, with no advertising or account required.
+- **Use it only when you want to.** Choose the days and hours TOCus is active.
+- **Set a schedule for each site.** If you feel like it, pick different days and times for each site.
+- **Your videos will pause automatically.** Videos pause while you wait and resume when you're ready. Works with YouTube, Netflix, Twitch, and more.
+- **Check how much time you've saved.** View your completed pauses and visits you changed your mind about.
+- **It's 100% private.** Your settings and stats stay in your browser. It even works offline and needs no account.
+- **It's free and open source.** You can read the code, suggest changes, or make it your own. There's no advertising.
 
 ## Your privacy
 
-Your settings and statistics stay in your browser. TOCus works offline, with no TOCus server, cloud synchronization, telemetry, or product analytics. The extension does not access your saved browsing history or make external network requests of its own. Websites, your browser, and external links you choose to open generate their own traffic.
+TOCus works without internet. Your data stays on this device and is never sent to other computers. There are no accounts, tracking, or cloud links. Statistics keep counts and durations, without page content or web addresses. An active pause may temporarily keep its destination address so you can return to the website.
 
 You choose which websites TOCus can access. In **Privacy and local data**, you can review permissions, reset statistics, or remove all TOCus data.
 
-TOCus is a wellbeing tool and makes no claims to diagnose or treat medical conditions.
+Read the [privacy policy](https://tocus.uo.ar/privacy/) for details, including how visiting the website or opening external links differs from using the extension.
 
 ## Contributing
 

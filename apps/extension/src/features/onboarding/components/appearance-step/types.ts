@@ -10,7 +10,6 @@ import type { AppearanceControlsCopy } from '../../../preferences/components/app
  */
 export interface OnboardingAppearanceStepCopy extends AppearanceControlsCopy {
 	title: string;
-	introduction: string;
 	previewTitle: string;
 	continueLabel: string;
 }

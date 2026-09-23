@@ -7,6 +7,11 @@ test.describe( 'privacy resets', () => {
 		const page = await open( SettingsDestination.PRIVACY );
 		const heading = page.locator( '.tocus-section h2' ).first();
 		const permissions = page.locator( '.settings-privacy-permissions' );
+		const source = page.locator( '.settings-privacy-source' ).getByRole( 'link' );
+		await expect( source ).toHaveAttribute( 'href', 'https://github.com/agustinbarrientos/TOCus' );
+		await expect( source ).toHaveAttribute( 'target', '_blank' );
+		await expect( source ).toHaveAttribute( 'rel', 'noopener noreferrer' );
+		await expect( source.locator( '.tocus-icon' ) ).toHaveCount( 1 );
 		await expect( permissions.getByRole( 'heading', { level: 2 } ) ).toBeVisible();
 		await expect( permissions.locator( 'li' ) ).toHaveCount( 5 );
 		await expect( page.locator( 'details, summary' ) ).toHaveCount( 0 );
@@ -21,6 +26,21 @@ test.describe( 'privacy resets', () => {
 		expect( permissionTypography ).toEqual( typography );
 		for ( const width of [ 768, 390 ] ) {
 			await page.setViewportSize( { width, height: 900 } );
+			await expect( source ).toBeVisible();
+			const sourceTypography = await source.evaluate( ( element ) => {
+				const paragraph = element.closest( 'p' );
+				if ( ! paragraph ) {
+					throw new Error( 'The source link must remain inside the Privacy paragraph.' );
+				}
+				const linkStyle = getComputedStyle( element );
+				const paragraphStyle = getComputedStyle( paragraph );
+				return {
+					link: [ linkStyle.fontFamily, linkStyle.fontSize, linkStyle.fontWeight, linkStyle.lineHeight ],
+					paragraph: [ paragraphStyle.fontFamily, paragraphStyle.fontSize, paragraphStyle.fontWeight,
+						paragraphStyle.lineHeight ],
+				};
+			} );
+			expect( sourceTypography.link ).toEqual( sourceTypography.paragraph );
 			for ( const item of await permissions.getByRole( 'listitem' ).all() ) {
 				await expect( item ).toBeVisible();
 			}

@@ -52,12 +52,14 @@ async function expectInlineLinkTypography( page: Page ): Promise<void> {
 			const paragraphStyle = getComputedStyle( paragraph );
 			return {
 				label: element.textContent,
-				link: [ linkStyle.fontFamily, linkStyle.fontSize, linkStyle.fontWeight, linkStyle.lineHeight, linkStyle.letterSpacing ],
-				paragraph: [ paragraphStyle.fontFamily, paragraphStyle.fontSize, paragraphStyle.fontWeight, paragraphStyle.lineHeight, paragraphStyle.letterSpacing ],
+				link: [ linkStyle.fontFamily, linkStyle.fontSize, linkStyle.fontWeight,
+					linkStyle.lineHeight, linkStyle.letterSpacing ],
+				paragraph: [ paragraphStyle.fontFamily, paragraphStyle.fontSize, paragraphStyle.fontWeight,
+					paragraphStyle.lineHeight, paragraphStyle.letterSpacing ],
 			};
 		} ) );
 		for ( const measurement of measurements ) {
-			expect( measurement.link, `${ width }px: ${ measurement.label }` ).toEqual( measurement.paragraph );
+			expect( measurement.link, `${ String( width ) }px: ${ measurement.label }` ).toEqual( measurement.paragraph );
 		}
 	}
 	await page.setViewportSize( { width: 360, height: 800 } );
@@ -142,18 +144,19 @@ test.describe( 'generated website publication pages', () => {
 			const extensionPolicy = page.locator( '#extension-data' );
 			const extensionPolicyText = await extensionPolicy.innerText();
 			expect( extensionPolicyText ).toMatch( /choices|preferences/iu );
-			expect( extensionPolicyText ).toMatch( /timing/iu );
+			expect( extensionPolicyText ).toMatch( /pause times/iu );
 			expect( extensionPolicyText ).toMatch( /schedule/iu );
 			expect( extensionPolicyText ).toMatch( /statistics/iu );
-			expect( extensionPolicyText ).toMatch( /shared pause timing/iu );
-			expect( extensionPolicyText ).toMatch(
-				/lifetime and daily totals stay in your browser until you reset them/iu,
-			);
-			expect( extensionPolicyText ).toMatch( /follows your operating system's motion preference/iu );
-			expect( extensionPolicyText ).not.toMatch( /separate timing|appearance, motion/iu );
-			expect( extensionPolicyText ).toMatch( /destination (?:address|URL)/iu );
+			expect( extensionPolicyText ).toMatch( /counts and durations/iu );
+			expect( extensionPolicyText ).toMatch( /don't save any page content or web addresses/iu );
+			expect( extensionPolicyText ).toMatch( /works entirely offline/iu );
+			expect( extensionPolicyText ).toMatch( /address might be saved for a short time/iu );
 			expect( extensionPolicyText ).toMatch( /device|browser/iu );
-			expect( await page.locator( '#permissions' ).innerText() ).toMatch( /selected (?:sites|websites)/iu );
+			await expect( extensionPolicy.getByRole( 'link' ) ).toHaveAttribute( 'href', SourceUrl );
+			const permissionsText = await page.locator( '#permissions' ).innerText();
+			expect( permissionsText ).toMatch( /websites you choose/iu );
+			expect( permissionsText ).toMatch( /doesn't look at your saved browsing history/iu );
+			expect( permissionsText ).toMatch( /avoid connecting to any icon service/iu );
 			expect( await page.locator( '#deletion' ).innerText() ).toMatch( /reset/iu );
 			const websiteText = await page.locator( '#website-and-links' ).innerText();
 			expect( websiteText ).toMatch( /hosting|server/iu );

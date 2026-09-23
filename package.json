@@ -1,7 +1,7 @@
 {
 	"name": "tocus",
 	"private": true,
-	"description": "A gentle, local-first pause before distracting websites.",
+	"description": "Pause before visiting addictive websites",
 	"license": "MIT",
 	"repository": {
 		"type": "git",

@@ -16,7 +16,7 @@ describe( 'createBrowserLocaleAssets', () => {
 			},
 			description: {
 				context: 'Extension description',
-				message: 'A gentle pause before distracting websites, designed to help you return to your intentions.',
+				message: 'Pause before visiting addictive websites',
 				translation: 'Localized description',
 			},
 		};

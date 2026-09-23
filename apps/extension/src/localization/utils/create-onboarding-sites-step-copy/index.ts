@@ -71,7 +71,6 @@ export function createOnboardingSitesStepCopy( i18n: I18n ): Readonly<Onboarding
 
 	return Object.freeze( {
 		title: i18n._( msg`Choose websites` ),
-		introduction: i18n._( msg`Pick any suggestions or add a site yourself. You can finish without choosing one.` ),
 		suggestionsLegend: i18n._( msg`Popular choices` ),
 		manualLegend: i18n._( msg`Add another site` ),
 		addressLabel: i18n._( msg`Website address` ),

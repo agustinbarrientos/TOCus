@@ -89,6 +89,12 @@
 				vertical-align: 0;
 			}
 		}
+
+		p .tocus-external-link {
+			font: inherit;
+			/* stylelint-disable-next-line property-disallowed-list -- Inline prose inherits its existing typography tokens. */
+			letter-spacing: inherit;
+		}
 	}
 
 	.information-footer {

@@ -22,7 +22,7 @@ const ExtensionNameMessage = Object.freeze( {
  */
 const ExtensionDescriptionMessage = Object.freeze( {
 	context: 'Extension description',
-	message: 'A gentle pause before distracting websites, designed to help you return to your intentions.',
+	message: 'Pause before visiting addictive websites',
 } );
 
 /**
