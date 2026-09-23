@@ -16,6 +16,7 @@ declare global {
 			environment: ManualInterruptionScreenEnvironment;
 			continues: number;
 			retries: number;
+			reviewDismissals: number;
 		};
 	}
 }

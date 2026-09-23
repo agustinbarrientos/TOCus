@@ -473,6 +473,10 @@ msgstr "破棄"
 msgid "Dismiss notification"
 msgstr "通知を閉じる"
 
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Don't ask again"
+msgstr "今後表示しない"
+
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Done"
 msgstr "完了"
@@ -599,6 +603,10 @@ msgstr "言語設定"
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Language settings could not load"
 msgstr "言語設定を読み込めませんでした"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Leave a review"
+msgstr "レビューを書く"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Less than 1 minute"
@@ -1414,6 +1422,10 @@ msgstr "待ち時間は {initialWait} のままです。待ち時間の後にサ
 msgid "Want more control over the code you run? Fork the project, inspect it, and build your own copy. You don't have to take anyone's word for how your data is handled."
 msgstr "実行するコードをもっと自分で管理したいですか？プロジェクトをフォークし、コードを確認して、自分でビルドすることもできます。データの扱いについて、誰かの言葉をそのまま信じる必要はありません。"
 
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "We couldn't save your choice. Please try again."
+msgstr "設定を保存できませんでした。もう一度お試しください。"
+
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Website address"
@@ -1465,6 +1477,10 @@ msgstr "TOCusがブラウザーへのアクセスを必要とする理由"
 msgid "Without website access, TOCus cannot pause that website. You can change access in your browser's extension settings."
 msgstr "サイトへのアクセスを許可しないと、そのサイトに一時停止画面を表示できません。アクセス許可はブラウザーの拡張機能の設定で変更できます。"
 
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Would you help TOCus with a quick review, please?"
+msgstr "よろしければ、短いレビューでTOCusを応援していただけませんか？"
+
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "You can change these choices and fine-tune timing or schedules any time in Settings."
 msgstr "これらの選択は設定でいつでも変更でき、待ち時間やスケジュールも細かく調整できます。"
@@ -1472,6 +1488,10 @@ msgstr "これらの選択は設定でいつでも変更でき、待ち時間や
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "You can continue when you are ready."
 msgstr "準備ができたら続けられます。"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "You saved {duration}! Congrats!"
+msgstr "{duration}節約できました！おめでとうございます！"
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "You're all set"

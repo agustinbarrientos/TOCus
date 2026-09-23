@@ -3,6 +3,7 @@ import { PresentationElement } from '../../utils/presentation-element';
 import type { PresentationChanges } from '../../utils/presentation-element/types';
 import { observePresentationAppearance } from '../../utils/presentation-appearance';
 import { ScreenView } from './view';
+import { ReviewPromptDismissRequestEventName, type ReviewPromptPresentation } from '../../services/review-prompt-controller/types';
 import { isLocalizationReady } from '../../../../localization/utils/is-localization-ready';
 import {
 	createFocusedProgressClock,
@@ -355,6 +356,45 @@ export class ComponentInterruptionScreen extends PresentationElement {
 
 	private wellbeingSummaryInput: string = '';
 
+	/**
+	 * Eligible review invitation supplied by local statistics and preferences.
+	 * @return Current invitation, or null when ineligible or permanently dismissed.
+	 * @since 0.1.0
+	 */
+	get reviewPrompt(): Readonly<ReviewPromptPresentation> | null {
+		return this.reviewPromptInput;
+	}
+
+	/**
+	 * Applies invitation changes without resetting breathing progress or focus.
+	 * @param value - Latest review invitation state.
+	 * @since 0.1.0
+	 */
+	set reviewPrompt( value: Readonly<ReviewPromptPresentation> | null ) {
+		const previous = this.reviewPromptInput;
+		if ( Object.is( previous, value ) ) {
+			return;
+		}
+		if ( ( value === null || value.dismissing ) &&
+			this.renderRoot.activeElement?.closest( '.review-prompt' ) ) {
+			this.returnFocusAfterReviewDismissal = true;
+		}
+		this.reviewPromptInput = value;
+		this.requestUpdate( 'reviewPrompt', previous );
+	}
+
+	private reviewPromptInput: Readonly<ReviewPromptPresentation> | null = null;
+
+	private returnFocusAfterReviewDismissal = false;
+
+	/**
+	 * Persists the user's choice to stop asking after dismissal or opening the store.
+	 * @since 0.1.0
+	 */
+	private requestReviewDismissal = (): void => {
+		this.dispatchEvent( new Event( ReviewPromptDismissRequestEventName, { bubbles: true } ) );
+	};
+
 	private releaseAppearance: ( () => void ) | null = null;
 
 	/**
@@ -572,6 +612,12 @@ export class ComponentInterruptionScreen extends PresentationElement {
 		if ( ! isLocalizationReady( this.copy ) ) {
 			return;
 		}
+		if ( this.reviewPrompt === null && this.returnFocusAfterReviewDismissal ) {
+			this.returnFocusAfterReviewDismissal = false;
+			if ( this.renderRoot.activeElement === null ) {
+				this.focusElement( this.state === InterruptionScreenState.READY ? '.continue-button' : '.scene' );
+			}
+		}
 
 		if ( this.focusedState !== this.state ) {
 			const previousFocusedState = this.focusedState;
@@ -583,7 +629,9 @@ export class ComponentInterruptionScreen extends PresentationElement {
 			) {
 				this.focusElement( '.scene' );
 			} else if ( this.state === InterruptionScreenState.READY ) {
-				this.focusElement( '.continue-button' );
+				if ( ! this.renderRoot.activeElement?.closest( '.review-prompt' ) ) {
+					this.focusElement( '.continue-button' );
+				}
 			} else if (
 				this.state === InterruptionScreenState.READY_EXPIRED
 			) {
@@ -618,6 +666,9 @@ export class ComponentInterruptionScreen extends PresentationElement {
 			progressMilliseconds={this.progressClock.getProgressMilliseconds()}
 			waitDurationMilliseconds={this.waitDurationMilliseconds} reducedMotion={this.reducedMotion}
 			recovering={this.recovering} wellbeingSummary={this.wellbeingSummary} announcement={this.announcement}
+			reviewPrompt={this.preview || (
+				this.state !== InterruptionScreenState.WAITING && this.state !== InterruptionScreenState.READY )
+				? null : this.reviewPrompt} onDismissReview={this.requestReviewDismissal}
 			onContinue={this.requestContinue} onRetry={this.requestRetry} />;
 	}
 

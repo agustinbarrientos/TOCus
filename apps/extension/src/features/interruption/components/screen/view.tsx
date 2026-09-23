@@ -4,6 +4,7 @@ import { Button, TocusProvider } from '@tocus/ui';
 import { getBreathingMotionFrame, BreathingMotionPhase } from '../../utils/breathing-motion';
 import { readPresentationAppearance } from '../../utils/presentation-appearance';
 import '../breathing-sphere';
+import { ReviewPrompt } from '../review-prompt';
 import type {} from '../breathing-sphere/types';
 import { InterruptionScreenMode, InterruptionScreenState, type ScreenViewProps, type SceneStyle } from './types';
 
@@ -70,7 +71,10 @@ export function ScreenView( props: ScreenViewProps ) {
 						disabled={recovering} onClick={props.onRetry}>
 						{recovering ? copy.retryingLabel : copy.retryLabel}</Button></section>}
 			</section></main>
-			{props.wellbeingSummary && <footer>{props.wellbeingSummary}</footer>}
+			{( props.wellbeingSummary || props.reviewPrompt ) && <footer className={props.reviewPrompt ? 'review-footer' : undefined}>
+				{props.reviewPrompt ? <ReviewPrompt copy={copy}
+					presentation={props.reviewPrompt} onDismiss={props.onDismissReview} /> : props.wellbeingSummary}
+			</footer>}
 		</div>
 		<p className="visually-hidden" aria-atomic="true" aria-live="polite">{props.announcement}</p>
 	</TocusProvider>;

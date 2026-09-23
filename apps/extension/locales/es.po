@@ -473,6 +473,10 @@ msgstr "Descartar"
 msgid "Dismiss notification"
 msgstr "Cerrar notificación"
 
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Don't ask again"
+msgstr "No volver a preguntar"
+
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Done"
 msgstr "Listo"
@@ -599,6 +603,10 @@ msgstr "Preferencias de idioma"
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Language settings could not load"
 msgstr "No se pudo cargar la configuración de idioma"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Leave a review"
+msgstr "Dejar una reseña"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Less than 1 minute"
@@ -1414,6 +1422,10 @@ msgstr "Las esperas se mantienen en {initialWait}. Cuando el sitio se abre autom
 msgid "Want more control over the code you run? Fork the project, inspect it, and build your own copy. You don't have to take anyone's word for how your data is handled."
 msgstr "¿Quieres tener más control sobre el código que ejecutas? Haz un fork del proyecto, revisa el código y compila tu propia versión. No tienes que confiar solo en lo que otros digan sobre cómo se manejan tus datos."
 
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "We couldn't save your choice. Please try again."
+msgstr "No pudimos guardar tu elección. Inténtalo de nuevo."
+
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Website address"
@@ -1465,6 +1477,10 @@ msgstr "Por qué TOCus necesita acceso al navegador"
 msgid "Without website access, TOCus cannot pause that website. You can change access in your browser's extension settings."
 msgstr "Sin acceso al sitio, TOCus no puede mostrar la pausa. Puedes cambiar el acceso en la configuración de extensiones de tu navegador."
 
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Would you help TOCus with a quick review, please?"
+msgstr "¿Podrías ayudar a TOCus con una breve reseña, por favor?"
+
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "You can change these choices and fine-tune timing or schedules any time in Settings."
 msgstr "Puedes cambiar estas opciones y ajustar los tiempos o los horarios cuando quieras en Configuración."
@@ -1472,6 +1488,10 @@ msgstr "Puedes cambiar estas opciones y ajustar los tiempos o los horarios cuand
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "You can continue when you are ready."
 msgstr "Puedes continuar cuando estés listo."
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "You saved {duration}! Congrats!"
+msgstr "¡Has ahorrado {duration}! ¡Felicidades!"
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "You're all set"

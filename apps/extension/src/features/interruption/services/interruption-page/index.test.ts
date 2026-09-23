@@ -1,3 +1,5 @@
+import { ExtensionBuildBrowser } from '../../../../shared/utils/build-browser/types';
+import { ExtensionStoreReviewLinks } from '../../../../shared/utils/review-url/links';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { InterruptionPageResponseState,
 	InterruptionPageRequestType,
@@ -80,6 +82,11 @@ const pageMocks = await vi.hoisted( async () => {
 		stop: vi.fn(),
 	} );
 	const preferencesStorage = {};
+	const localStorageArea = {};
+	const reviewPromptStorage = {};
+	const reviewPromptController = {
+		refresh: vi.fn(), start: vi.fn(), stop: vi.fn(),
+	};
 	const removeDocumentVisibility = vi.fn();
 	const storageChanges = {};
 	const statisticsClient = {};
@@ -106,6 +113,12 @@ const pageMocks = await vi.hoisted( async () => {
 		),
 		createPreferencesController: vi.fn().mockReturnValue( preferencesController ),
 		createPreferencesStorage: vi.fn().mockReturnValue( preferencesStorage ),
+		createReviewPromptStorageService: vi.fn().mockReturnValue( reviewPromptStorage ),
+		createReviewPromptController: vi.fn().mockReturnValue( reviewPromptController ),
+		getExtensionReviewUrl: vi.fn().mockReturnValue( 'https://example.com/reviews' ),
+		localStorageArea,
+		reviewPromptStorage,
+		reviewPromptController,
 		createStatisticsClient: vi.fn().mockReturnValue( statisticsClient ),
 		createWellbeingSummaryController: vi.fn<(
 			options: WellbeingSummaryControllerOptions,
@@ -134,11 +147,20 @@ vi.mock( 'wxt/browser', () => ( {
 	browser: {
 		i18n: { getUILanguage: pageMocks.getUILanguage },
 		runtime: pageMocks.runtime,
-		storage: { local: {}, onChanged: pageMocks.storageChanges },
+		storage: { local: pageMocks.localStorageArea, onChanged: pageMocks.storageChanges },
 	},
 } ) );
 vi.mock( '../../../../domains/preferences/services', () => ( {
 	createPreferencesStorageService: pageMocks.createPreferencesStorage,
+} ) );
+vi.mock( '../../../../domains/preferences/services/review-prompt-storage', () => ( {
+	createReviewPromptStorageService: pageMocks.createReviewPromptStorageService,
+} ) );
+vi.mock( '../review-prompt-controller', () => ( {
+	createReviewPromptController: pageMocks.createReviewPromptController,
+} ) );
+vi.mock( '../../../../shared/utils/review-url', () => ( {
+	getExtensionReviewUrl: pageMocks.getExtensionReviewUrl,
 } ) );
 vi.mock( '../../../../domains/preferences/utils', () => ( {
 	resolveLanguage: pageMocks.resolveLanguage,
@@ -198,6 +220,7 @@ describe( 'interruption page service', () => {
 	beforeEach( () => {
 		vi.resetModules();
 		vi.clearAllMocks();
+		vi.stubEnv( 'BROWSER', ExtensionBuildBrowser.CHROME );
 		pageMocks.languageChangeListener.value = null;
 		pageMocks.loadLocalizationBundle.mockImplementation( ( language ) =>
 			Promise.resolve( language === Language.JAPANESE
@@ -211,6 +234,7 @@ describe( 'interruption page service', () => {
 
 	afterEach( () => {
 		vi.unstubAllGlobals();
+		vi.unstubAllEnvs();
 		vi.restoreAllMocks();
 	} );
 
@@ -249,6 +273,9 @@ describe( 'interruption page service', () => {
 		} );
 		pageMocks.start.mockImplementation( startControllerAndReportWaiting );
 		pageMocks.wellbeingSummaryController.refresh.mockReturnValue(
+			new Promise<void>( ignorePreferencesStartResolution ),
+		);
+		pageMocks.reviewPromptController.refresh.mockReturnValue(
 			new Promise<void>( ignorePreferencesStartResolution ),
 		);
 		let completePreferencesStart: ( value?: void | PromiseLike<void> ) => void =
@@ -292,6 +319,7 @@ describe( 'interruption page service', () => {
 			completedWaitCount: 0,
 			allowanceGrantedCount: 0,
 		}, TestEnglishLocalizationBundle.wellbeing ) ).toBe( '' );
+		expect( pageMocks.reviewPromptController.start ).not.toHaveBeenCalled();
 		expect( pageMocks.createInterruptionPageController ).not.toHaveBeenCalled();
 		expect( pageMocks.loadLocalizationBundle ).not.toHaveBeenCalled();
 		expect( pageMocks.wellbeingSummaryController.setCopy ).not.toHaveBeenCalled();
@@ -322,6 +350,23 @@ describe( 'interruption page service', () => {
 			3,
 			'visibility',
 		);
+		expect( pageMocks.createReviewPromptStorageService ).toHaveBeenCalledWith( {
+			area: pageMocks.localStorageArea,
+		} );
+		expect( pageMocks.getExtensionReviewUrl ).toHaveBeenCalledWith(
+			ExtensionBuildBrowser.CHROME, ExtensionStoreReviewLinks,
+		);
+		expect( pageMocks.createReviewPromptController ).toHaveBeenCalledWith( {
+			source: pageMocks.statisticsClient,
+			target: interruptionScreen,
+			storage: pageMocks.reviewPromptStorage,
+			storageChanges: pageMocks.storageChanges,
+			url: 'https://example.com/reviews',
+		} );
+		expect( pageMocks.reviewPromptController.start ).toHaveBeenCalledOnce();
+		expect( pageMocks.reviewPromptController.refresh ).toHaveBeenCalledOnce();
+		expect( pageMocks.wellbeingSummaryController.setCopy.mock.invocationCallOrder[ 0 ] )
+			.toBeLessThan( pageMocks.reviewPromptController.start.mock.invocationCallOrder[ 0 ] ?? 0 );
 		expect( pageMocks.wellbeingSummaryController.refresh ).toHaveBeenCalledOnce();
 		expect( pageMocks.wellbeingSummaryController.start ).toHaveBeenCalledOnce();
 		expect( pageMocks.createInterruptionPageController ).toHaveBeenCalledOnce();
@@ -487,6 +532,7 @@ describe( 'interruption page service', () => {
 		await expect( startInterruptionPage() ).rejects.toBe( startupError );
 		expect( controllerStop ).toHaveBeenCalledOnce();
 		expect( pageMocks.wellbeingSummaryController.stop ).toHaveBeenCalledOnce();
+		expect( pageMocks.reviewPromptController.stop ).toHaveBeenCalledOnce();
 		expect( pageMocks.preferencesController.removeLanguageChangeListener )
 			.toHaveBeenCalledWith( pageMocks.languageChangeListener.value );
 		expect( pageMocks.preferencesController.stop ).toHaveBeenCalledOnce();

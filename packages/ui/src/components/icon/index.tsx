@@ -2,6 +2,7 @@ import angleDown from '@tocus/theme/icons/angle-down.svg?raw';
 import angleUp from '@tocus/theme/icons/angle-up.svg?raw';
 import spinnerThird from '@tocus/theme/icons/spinner-third.svg?raw';
 import heart from '@tocus/theme/icons/heart.svg?raw';
+import star from '@tocus/theme/icons/star.svg?raw';
 import brush from '@tocus/theme/icons/brush.svg?raw';
 import arrowUpRightFromSquare from '@tocus/theme/icons/arrow-up-right-from-square.svg?raw';
 import language from '@tocus/theme/icons/language.svg?raw';
@@ -27,6 +28,7 @@ const icons = {
 	[ IconName.ANGLE_UP ]: angleUp,
 	[ IconName.SPINNER_THIRD ]: spinnerThird,
 	[ IconName.HEART ]: heart,
+	[ IconName.STAR ]: star,
 	[ IconName.BRUSH ]: brush,
 	[ IconName.ARROW_UP_RIGHT_FROM_SQUARE ]: arrowUpRightFromSquare,
 	[ IconName.LANGUAGE ]: language,

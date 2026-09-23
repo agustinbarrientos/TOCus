@@ -67,6 +67,7 @@ export default defineConfig( {
 				'apps/extension/src/features/onboarding/utils/site-drafts/**/*.ts',
 				'apps/extension/src/features/interruption/services/interruption-page/**/*.ts',
 				'apps/extension/src/features/interruption/services/interruption-page-controller/**/*.ts',
+				'apps/extension/src/features/interruption/services/review-prompt-controller/**/*.ts',
 				'apps/extension/src/features/interruption/services/protected-page/**/*.ts',
 				'apps/extension/src/features/interruption/services/protected-page-layer-controller/**/*.ts',
 				'apps/extension/src/features/interruption/services/media-playback-controller/**/*.ts',

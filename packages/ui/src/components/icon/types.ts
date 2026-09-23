@@ -5,6 +5,7 @@
 export const IconName = {
 	CAPYBARA: 'capybara',
 	HEART: 'heart',
+	STAR: 'star',
 	BRUSH: 'brush',
 	ARROW_UP_RIGHT_FROM_SQUARE: 'arrow-up-right-from-square',
 	LANGUAGE: 'language',

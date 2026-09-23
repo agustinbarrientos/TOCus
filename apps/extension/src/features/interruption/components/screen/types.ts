@@ -1,6 +1,7 @@
 import type { FocusedProgressClockTiming } from '../../services/focused-progress-clock/types';
 import type { ComponentInterruptionScreen } from '.';
 import type { CSSProperties } from 'react';
+import type { ReviewPromptPresentation } from '../../services/review-prompt-controller/types';
 
 /**
  * Continuous artwork values applied only to the owned scene.
@@ -30,6 +31,8 @@ export interface ScreenViewProps {
 	announcement: string;
 	onContinue: () => void;
 	onRetry: () => void;
+	reviewPrompt: Readonly<ReviewPromptPresentation> | null;
+	onDismissReview: () => void;
 }
 
 declare global {
@@ -118,6 +121,17 @@ export interface InterruptionScreenCopy {
 	recoveryStartedAnnouncement: string;
 	retryLabel: string;
 	retryingLabel: string;
+	/**
+	 * Celebrates the user's current estimated saved duration.
+	 * @param savedMilliseconds - Authoritative all-time estimated time reclaimed.
+	 * @return Localized milestone title with the saved duration.
+	 * @since 0.1.0
+	 */
+	formatReviewTitle: ( savedMilliseconds: number ) => string;
+	reviewMessage: string;
+	reviewActionLabel: string;
+	reviewDismissLabel: string;
+	reviewDismissError: string;
 	resumedAnnouncement: string;
 	spaceKeyLabel: string;
 	sphereAlternative: string;

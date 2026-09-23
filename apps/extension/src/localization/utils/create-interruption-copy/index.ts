@@ -1,6 +1,8 @@
 import type { I18n } from '@lingui/core';
 import { msg, plural } from '@lingui/core/macro';
 import type { InterruptionScreenCopy } from '../../../features/interruption/components/screen/types';
+import { createLocalizationFormatters } from '../create-localization-formatters';
+import { formatMinuteDuration, MILLISECONDS_PER_MINUTE } from '../format-localized-duration';
 
 /**
  * Creates localized interruption-screen copy.
@@ -9,6 +11,23 @@ import type { InterruptionScreenCopy } from '../../../features/interruption/comp
  * @since 0.1.0 Initial implementation.
  */
 export function createInterruptionCopy( i18n: I18n ): Readonly<InterruptionScreenCopy> {
+	const formatters = createLocalizationFormatters( i18n.locale );
+
+	/**
+	 * Celebrates the user's saved time using completed whole minutes.
+	 * @param savedMilliseconds - Authoritative all-time estimated reclaimed duration.
+	 * @return Localized milestone title with hour and minute grammar.
+	 * @since 0.1.0 Initial implementation.
+	 */
+	function formatReviewTitle( savedMilliseconds: number ): string {
+		const duration = formatMinuteDuration(
+			i18n,
+			Math.floor( savedMilliseconds / MILLISECONDS_PER_MINUTE ),
+			formatters,
+		);
+		return i18n._( msg`You saved ${ duration }! Congrats!` );
+	}
+
 	/**
 	 * Formats one visible remaining-time label.
 	 * @param remainingSeconds - Nonnegative whole seconds remaining.
@@ -33,6 +52,7 @@ export function createInterruptionCopy( i18n: I18n ): Readonly<InterruptionScree
 		continueLabel: i18n._( msg`Continue` ),
 		continueShortcut: i18n._( msg`Or press ${ key }` ),
 		formatRemainingTime,
+		formatReviewTitle,
 		pausedAnnouncement: i18n._( msg`Your pause is paused.` ),
 		readyAnnouncement: i18n._( msg`You can continue when you are ready.` ),
 		readyExpiredMessage: i18n._( msg`This visit window has ended. Start another pause when you are ready.` ),
@@ -41,6 +61,10 @@ export function createInterruptionCopy( i18n: I18n ): Readonly<InterruptionScree
 		retryLabel: i18n._( msg`Try again` ),
 		retryingLabel: i18n._( msg`Trying again...` ),
 		resumedAnnouncement: i18n._( msg`Your pause has resumed.` ),
+		reviewActionLabel: i18n._( msg`Leave a review` ),
+		reviewDismissError: i18n._( msg`We couldn't save your choice. Please try again.` ),
+		reviewDismissLabel: i18n._( msg`Don't ask again` ),
+		reviewMessage: i18n._( msg`Would you help TOCus with a quick review, please?` ),
 		spaceKeyLabel: i18n._( msg( {
 			comment: 'Label printed inside the keyboard-key visual for the space bar.',
 			message: 'Space',

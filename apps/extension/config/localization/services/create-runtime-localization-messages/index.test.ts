@@ -15,7 +15,7 @@ const RuntimeProjectionCases = [
 		origins: [ 'localization/utils/create-toolbar-copy/index.ts' ],
 	},
 	{
-		expectedMessageCount: 31,
+		expectedMessageCount: 36,
 		label: 'protected page',
 		origins: [
 			'localization/utils/format-localized-duration/index.ts',

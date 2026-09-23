@@ -1,4 +1,5 @@
 import { PreferencesStorageKey } from '../../../preferences/services/preferences-storage';
+import { ReviewPromptStorageKey } from '../../../preferences/services/review-prompt-storage';
 import { ProtectionConfigurationStorageKey } from '../../../protection/services/protection-configuration-storage';
 import { ProtectionStorageKey } from '../../../protection/services/protection-storage';
 import { StatisticsSessionStorageKey } from '../../../statistics/services/statistics-session-storage';
@@ -37,6 +38,7 @@ export function createLocalDataReset( options: LocalDataResetOptions ): LocalDat
 		await options.localArea.remove( [
 			ProtectionConfigurationStorageKey.CONFIGURATION,
 			PreferencesStorageKey.PREFERENCES,
+			ReviewPromptStorageKey,
 			ProtectionStorageKey.DURABLE,
 			StatisticsStorageKey.STATISTICS,
 		] );

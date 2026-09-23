@@ -1,4 +1,8 @@
 import { browser } from 'wxt/browser';
+import { createReviewPromptStorageService } from '../../../../domains/preferences/services/review-prompt-storage';
+import { getExtensionReviewUrl } from '../../../../shared/utils/review-url';
+import { ExtensionStoreReviewLinks } from '../../../../shared/utils/review-url/links';
+import { createReviewPromptController, type ReviewPromptController } from '../review-prompt-controller';
 import { createPreferencesStorageService } from '../../../../domains/preferences/services';
 import type { Language } from '../../../../domains/preferences/types';
 import { resolveLanguage } from '../../../../domains/preferences/utils';
@@ -113,6 +117,7 @@ async function initializeProtectedPageLayer(): Promise<void> {
 	let languageChangeListener: PreferencesLanguageChangeListener | null = null;
 	let preferencesController: PreferencesController | null = null;
 	let wellbeingSummaryController: WellbeingSummaryController | null = null;
+	let reviewPromptController: ReviewPromptController | null = null;
 
 	layer.connectionGuardEnabled = true;
 	layer.style.visibility = 'hidden';
@@ -150,6 +155,15 @@ async function initializeProtectedPageLayer(): Promise<void> {
 			target: interruptionScreen,
 		} );
 		const activeWellbeingSummaryController = wellbeingSummaryController;
+		const activeReviewPromptController = createReviewPromptController( {
+			source: statisticsClient,
+			target: interruptionScreen,
+			storage: createReviewPromptStorageService( { area: browser.storage.local } ),
+			storageChanges: browser.storage.onChanged,
+			url: getExtensionReviewUrl( import.meta.env.BROWSER, ExtensionStoreReviewLinks ),
+		} );
+		reviewPromptController = activeReviewPromptController;
+
 
 		/**
 		 * Applies one complete localization snapshot to the owned protected-page layer.
@@ -170,16 +184,18 @@ async function initializeProtectedPageLayer(): Promise<void> {
 		preferencesController.addLanguageChangeListener( languageChangeListener );
 
 		/**
-		 * Starts a non-blocking footer refresh after an authoritative major-state change.
+		 * Refreshes saved-time presentation and review eligibility without delaying interruption timing.
 		 * @since 0.1.0 Initial implementation.
 		 */
-		function refreshWellbeingSummary(): void {
+		function refreshStatisticsPresentation(): void {
 			void activeWellbeingSummaryController.refresh();
+			void activeReviewPromptController.refresh();
 		}
 
 		await preferencesController.start();
 		applyLocalization( preferencesController.language );
 		activeWellbeingSummaryController.start();
+		activeReviewPromptController.start();
 		const visibility: InterruptionPageVisibility = {
 			/**
 			 * Reports whether the live protected page and native interruption are both visible.
@@ -203,7 +219,7 @@ async function initializeProtectedPageLayer(): Promise<void> {
 			clock: { now: getCurrentEpochMilliseconds },
 			documentTarget: document,
 			motionPreference: preferencesController,
-			onPresentationStateChange: refreshWellbeingSummary,
+			onPresentationStateChange: refreshStatisticsPresentation,
 			runtime: { sendMessage: sendInterruptionPageRequest },
 			scheduler: window,
 			screen: interruptionScreen,
@@ -254,6 +270,7 @@ async function initializeProtectedPageLayer(): Promise<void> {
 		layerController?.stop();
 		interruptionController?.stop();
 		wellbeingSummaryController?.stop();
+		reviewPromptController?.stop();
 		if ( preferencesController !== null && languageChangeListener !== null ) {
 			preferencesController.removeLanguageChangeListener( languageChangeListener );
 		}

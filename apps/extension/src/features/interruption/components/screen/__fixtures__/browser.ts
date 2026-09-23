@@ -6,6 +6,7 @@ import { ComponentInterruptionScreen } from '..';
 import { createManualInterruptionScreenEnvironment } from '.';
 import { InterruptionContinueRequestEventName, InterruptionRetryRequestEventName, InterruptionScreenState } from '../types';
 import { ThemeMode, Palette } from '../../../../../domains/preferences/types';
+import { ReviewPromptDismissRequestEventName } from '../../../services/review-prompt-controller/types';
 import './browser-types';
 
 const environment = createManualInterruptionScreenEnvironment();
@@ -54,7 +55,7 @@ if ( layer ) {
 	document.body.append( screen );
 }
 window.pauseFixture = {
-	screen, layer, environment, continues: 0, retries: 0,
+	screen, layer, environment, continues: 0, retries: 0, reviewDismissals: 0,
 	states: InterruptionScreenState, themes: ThemeMode, palettes: Palette,
 };
 screen.addEventListener( InterruptionContinueRequestEventName, () => {
@@ -62,6 +63,9 @@ screen.addEventListener( InterruptionContinueRequestEventName, () => {
 } );
 screen.addEventListener( InterruptionRetryRequestEventName, () => {
 	window.pauseFixture.retries += 1;
+} );
+screen.addEventListener( ReviewPromptDismissRequestEventName, () => {
+	window.pauseFixture.reviewDismissals += 1;
 } );
 await screen.updateComplete;
 document.documentElement.dataset.ready = 'true';

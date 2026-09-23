@@ -1,4 +1,8 @@
 import { browser } from 'wxt/browser';
+import { createReviewPromptStorageService } from '../../../../domains/preferences/services/review-prompt-storage';
+import { getExtensionReviewUrl } from '../../../../shared/utils/review-url';
+import { ExtensionStoreReviewLinks } from '../../../../shared/utils/review-url/links';
+import { createReviewPromptController, type ReviewPromptController } from '../review-prompt-controller';
 import { createPreferencesStorageService } from '../../../../domains/preferences/services';
 import type { Language } from '../../../../domains/preferences/types';
 import { resolveLanguage } from '../../../../domains/preferences/utils';
@@ -52,6 +56,7 @@ export async function startInterruptionPage(): Promise<void> {
 	let languageChangeListener: PreferencesLanguageChangeListener | null = null;
 	let preferencesController: PreferencesController | null = null;
 	let wellbeingSummaryController: WellbeingSummaryController | null = null;
+	let reviewPromptController: ReviewPromptController | null = null;
 
 	try {
 		const interruptionScreenCandidate = document.querySelector( 'tocus-f-interruption-screen' );
@@ -142,6 +147,14 @@ export async function startInterruptionPage(): Promise<void> {
 			source: statisticsClient,
 			target: activeInterruptionScreen,
 		} );
+		const activeReviewPromptController = createReviewPromptController( {
+			source: statisticsClient,
+			target: activeInterruptionScreen,
+			storage: createReviewPromptStorageService( { area: browser.storage.local } ),
+			storageChanges: browser.storage.onChanged,
+			url: getExtensionReviewUrl( import.meta.env.BROWSER, ExtensionStoreReviewLinks ),
+		} );
+		reviewPromptController = activeReviewPromptController;
 		let localizationRevision = 0;
 
 		preferencesController = activePreferencesController;
@@ -207,11 +220,12 @@ export async function startInterruptionPage(): Promise<void> {
 		}
 
 		/**
-		 * Starts a non-blocking footer refresh after an authoritative major-state change.
+		 * Refreshes saved-time presentation and review eligibility without delaying interruption timing.
 		 * @since 0.1.0 Initial implementation.
 		 */
-		function refreshWellbeingSummary(): void {
+		function refreshStatisticsPresentation(): void {
 			void activeWellbeingSummaryController.refresh();
+			void activeReviewPromptController.refresh();
 		}
 
 		languageChangeListener = handleLanguageChange;
@@ -219,11 +233,12 @@ export async function startInterruptionPage(): Promise<void> {
 		await activePreferencesController.start();
 		await synchronizeLocalization();
 		activeWellbeingSummaryController.start();
+		activeReviewPromptController.start();
 		const activeController = createInterruptionPageController( {
 			clock,
 			documentTarget: document,
 			motionPreference: activePreferencesController,
-			onPresentationStateChange: refreshWellbeingSummary,
+			onPresentationStateChange: refreshStatisticsPresentation,
 			runtime,
 			scheduler: window,
 			screen: activeInterruptionScreen,
@@ -237,6 +252,7 @@ export async function startInterruptionPage(): Promise<void> {
 	} catch ( error ) {
 		controller?.stop();
 		wellbeingSummaryController?.stop();
+		reviewPromptController?.stop();
 		if ( preferencesController !== null && languageChangeListener !== null ) {
 			preferencesController.removeLanguageChangeListener( languageChangeListener );
 		}

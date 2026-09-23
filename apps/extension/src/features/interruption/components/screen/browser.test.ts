@@ -4,6 +4,91 @@ import type {} from './__fixtures__/browser-types';
 const origin = '/apps/extension/src/features/interruption/components/screen/__fixtures__/browser.html';
 
 test.describe( 'React pause', () => {
+	test( 'keeps the review invitation separate from breathing and Continue controls', async ( { page } ) => {
+		await page.goto( origin );
+		await page.locator( 'html[data-ready]' ).waitFor();
+		await expect( page.getByRole( 'link', { name: 'Leave a review' } ) ).toHaveCount( 0 );
+		await page.evaluate( async () => {
+			window.pauseFixture.screen.wellbeingSummary = 'About 1 hr, 30 min saved.';
+			window.pauseFixture.screen.reviewPrompt = {
+				url: 'https://chromewebstore.google.com/detail/test/reviews',
+				savedMilliseconds: 5_400_000,
+				dismissing: false, dismissalFailed: false,
+			};
+			await window.pauseFixture.screen.updateComplete;
+		} );
+		const review = page.getByRole( 'link', { name: 'Leave a review' } );
+		await expect( review ).toBeVisible();
+		await expect( page.getByRole( 'heading', { name: 'You saved 1 hour, 30 minutes! Congrats!' } ) ).toBeVisible();
+		await expect( page.getByText( 'Would you help TOCus with a quick review, please?' ) ).toBeVisible();
+		await expect( page.locator( 'footer' ) ).not.toContainText( 'About 1 hr, 30 min saved.' );
+		await expect( review ).toHaveAttribute( 'target', '_blank' );
+		await expect( review ).toHaveAttribute( 'rel', 'noopener noreferrer' );
+		await expect( review ).toHaveAttribute( 'href', 'https://chromewebstore.google.com/detail/test/reviews' );
+		await page.evaluate( async () => {
+			window.pauseFixture.environment.advance( 2000 );
+			await window.pauseFixture.screen.updateComplete;
+		} );
+		await expect( page.locator( '.remaining' ) ).toHaveText( '8s' );
+		await review.focus();
+		await page.evaluate( async () => {
+			window.pauseFixture.screen.state = window.pauseFixture.states.READY;
+			await window.pauseFixture.screen.updateComplete;
+		} );
+		await expect( review ).toBeFocused();
+		const dismiss = page.getByRole( 'button', { name: "Don't ask again" } );
+		await dismiss.focus();
+		await page.keyboard.press( 'Space' );
+		expect( await page.evaluate( () => window.pauseFixture.continues ) ).toBe( 0 );
+		expect( await page.evaluate( () => window.pauseFixture.reviewDismissals ) ).toBe( 1 );
+		await page.evaluate( async () => {
+			window.pauseFixture.screen.reviewPrompt = null;
+			await window.pauseFixture.screen.updateComplete;
+		} );
+		await expect( page.locator( 'footer' ) ).toHaveText( 'About 1 hr, 30 min saved.' );
+		await expect( page.getByRole( 'button', { name: 'Continue', exact: true } ) ).toBeFocused();
+		await page.getByRole( 'button', { name: 'Continue', exact: true } ).click();
+		expect( await page.evaluate( () => window.pauseFixture.continues ) ).toBe( 1 );
+	} );
+
+	test( 'keeps the review invitation reachable on mobile and hides it in previews and recovery', async ( { page } ) => {
+		await page.setViewportSize( { width: 320, height: 568 } );
+		await page.goto( origin );
+		await page.locator( 'html[data-ready]' ).waitFor();
+		await page.evaluate( async () => {
+			window.pauseFixture.screen.reviewPrompt = {
+				url: 'https://addons.mozilla.org/firefox/addon/test/reviews/',
+				savedMilliseconds: 3_600_000,
+				dismissing: true, dismissalFailed: false,
+			};
+			await window.pauseFixture.screen.updateComplete;
+		} );
+		await expect( page.getByRole( 'button', { name: "Don't ask again" } ) ).toBeDisabled();
+		await expect( page.getByRole( 'button', { name: "Don't ask again" } ) ).toBeInViewport();
+		await page.evaluate( async () => {
+			const { screen } = window.pauseFixture;
+			if ( screen.reviewPrompt === null ) {
+				throw new Error( 'Expected an eligible review invitation.' );
+			}
+			screen.reviewPrompt = { ...screen.reviewPrompt, dismissing: false, dismissalFailed: true };
+			await screen.updateComplete;
+		} );
+		await expect( page.getByRole( 'alert' ) ).toHaveText( "We couldn't save your choice. Please try again." );
+		await page.getByRole( 'button', { name: "Don't ask again" } ).click();
+		expect( await page.locator( '.scene' ).evaluate( ( scene ) => scene.scrollWidth <= scene.clientWidth ) ).toBe( true );
+		await page.evaluate( async () => {
+			window.pauseFixture.screen.preview = true;
+			await window.pauseFixture.screen.updateComplete;
+		} );
+		await expect( page.getByRole( 'link', { name: 'Leave a review' } ) ).toHaveCount( 0 );
+		await page.evaluate( async () => {
+			window.pauseFixture.screen.preview = false;
+			window.pauseFixture.screen.state = window.pauseFixture.states.UNAVAILABLE;
+			await window.pauseFixture.screen.updateComplete;
+		} );
+		await expect( page.getByRole( 'link', { name: 'Leave a review' } ) ).toHaveCount( 0 );
+	} );
+
 	test( 'removes an empty wellbeing footer and restores it for a visible summary', async ( { page } ) => {
 		await page.goto( origin );
 		await page.locator( 'html[data-ready]' ).waitFor();
