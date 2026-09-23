@@ -25,7 +25,7 @@ export function createSettingsShellCopy( i18n: I18n ): Readonly<SettingsShellCop
 		discard: i18n._( msg`Discard` ),
 		save: i18n._( msg`Save` ),
 		saving: i18n._( msg`Saving...` ),
-		saveFailed: i18n._( msg`Changes could not be saved. Check the fields and try again.` ),
+		saveFailed: i18n._( msg`Changes couldn't be saved. Check the fields and try again.` ),
 		dismissNotification: i18n._( msg`Dismiss notification` ),
 		changesSaved: i18n._( msg`Changes saved.` ),
 		changesDiscarded: i18n._( msg`Changes discarded.` ),
