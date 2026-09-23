@@ -16,7 +16,7 @@ import {
  * Creates local persistence for protected-site configuration and editable display names.
  * @param options - Local browser storage dependency.
  * @return Protected-site configuration persistence operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createProtectionConfigurationStorageService(
 	options: ProtectionConfigurationStorageServiceOptions,
@@ -25,7 +25,7 @@ export function createProtectionConfigurationStorageService(
 	 * Loads the current protected-site configuration without replacing malformed stored data.
 	 * @return Current configuration, an empty document, or null for malformed stored data.
 	 * @throws {Error} When the browser storage read rejects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function load(): Promise<ProtectionConfigurationDocument | null> {
 		const values = await options.area.get( ProtectionConfigurationStorageKey.CONFIGURATION );
@@ -52,7 +52,7 @@ export function createProtectionConfigurationStorageService(
 	 * @return Promise resolved after the write completes.
 	 * @throws {import('zod').ZodError} When the configuration violates its storage contract.
 	 * @throws {Error} When the browser storage write rejects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function save( input: unknown ): Promise<void> {
 		const configuration = ProtectionConfigurationDocumentSchema.parse( input );

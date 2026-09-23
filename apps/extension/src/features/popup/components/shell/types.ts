@@ -2,7 +2,7 @@ import type { PopupPageShell } from '../../services/popup-page/types';
 
 /**
  * Stable enrollment errors rendered by the popup.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupOperationError = {
 	PERMISSION_DENIED: 'permission-denied',
@@ -13,25 +13,25 @@ export const PopupOperationError = {
 
 /**
  * Enrollment error rendered by the popup.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupOperationError = typeof PopupOperationError[ keyof typeof PopupOperationError ];
 
 /**
  * Name of the composed event requesting enrollment of the current website.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupAddSiteRequestEventName = 'tocus-popup-add-site-request';
 
 /**
  * Name of the composed event requesting a fresh popup projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupRetryRequestEventName = 'tocus-popup-retry-request';
 
 /**
  * Localizable messages and duration formatters rendered by the extension popup.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PopupShellCopy {
 	/** Label above the current website identity. */
@@ -84,20 +84,20 @@ export interface PopupShellCopy {
 	 * Formats one nonnegative timer duration as localized minutes and seconds.
 	 * @param milliseconds - Remaining duration in milliseconds.
 	 * @return Compact localized countdown.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	formatCountdown( milliseconds: number ): string;
 }
 
 /**
  * Controller-owned popup fields and focus operations, excluding its event transport.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type PopupState = Omit<PopupPageShell, keyof EventTarget>;
 
 /**
  * Immutable presentation snapshot paired with the synchronous controller event port.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface PopupViewProperties {
 	/** Latest controller snapshot. */
@@ -108,17 +108,17 @@ export interface PopupViewProperties {
 
 /**
  * Explicit user actions forwarded to the existing popup controller.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface PopupActions {
 	/**
 	 * Requests enrollment synchronously while preserving browser user activation.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	onAddSite: () => void;
 	/**
 	 * Requests recovery of the authoritative background status.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	onRetry: () => void;
 }

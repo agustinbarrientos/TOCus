@@ -2,7 +2,7 @@ import type { AnchorHTMLAttributes, ReactNode } from 'react';
 
 /**
  * One explicitly chosen external destination, never a passive network request.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface ExternalLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
 	href: string;
@@ -12,7 +12,7 @@ export interface ExternalLinkProps extends AnchorHTMLAttributes<HTMLAnchorElemen
 
 /**
  * Public project destinations shared by the home page.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const WebsiteLink = {
 	SOURCE: 'https://github.com/agustinbarrientos/TOCus',

@@ -4,13 +4,13 @@ import type { PopupBackgroundEvent, PopupBackgroundMessageSender } from '../popu
 
 /**
  * Delivers a minimal enrollment result to a popup that may already be closed.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupEnrollmentSendResponse = ( result: PopupSiteEnrollmentResult ) => void;
 
 /**
  * Browser message listener claiming authenticated popup additions.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupEnrollmentMessageListener = (
 	input: unknown,
@@ -20,7 +20,7 @@ export type PopupEnrollmentMessageListener = (
 
 /**
  * Runtime message event used by background-owned enrollment.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PopupEnrollmentRuntimeApi {
 	/** Receives local messages with browser-authenticated sender identities. */
@@ -29,7 +29,7 @@ export interface PopupEnrollmentRuntimeApi {
 
 /**
  * Background-owned website enrollment and its authenticated message boundary.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PopupEnrollmentControllerOptions {
 	/** Existing consent-aware enrollment with coordinated persistence. */
@@ -42,12 +42,12 @@ export interface PopupEnrollmentControllerOptions {
 
 /**
  * Registers background ownership of website additions independently of popup lifetime.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PopupEnrollmentController {
 	/**
 	 * Registers the user-gesture message listener synchronously.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	start(): void;
 }

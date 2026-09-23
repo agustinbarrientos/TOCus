@@ -3,7 +3,7 @@ import { fakeBrowser } from 'wxt/testing/fake-browser';
 
 /**
  * Background application startup double used by the entrypoint smoke test.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const startProtectionBackgroundApplication = vi.hoisted( () => vi.fn() );
 

@@ -6,7 +6,7 @@ import { createRuntimeLocalizationMessages } from './index.ts';
 
 /**
  * Runtime projections and their complete expected message counts.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const RuntimeProjectionCases = [
 	{

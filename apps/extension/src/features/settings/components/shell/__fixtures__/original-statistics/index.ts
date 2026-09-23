@@ -3,7 +3,7 @@
  * @remarks The original browser-side fixture clicked both production buttons between component updates; Node-side keyboard commands introduce additional painted intermediate states.
  * @param root - Owned fixture mount observed before production rendering begins.
  * @param original - Immutable original screenshot filename.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function stageOriginalStatisticsReset( root: HTMLElement, original: string ): void {
 	if ( ! original.startsWith( 'statistics-settings-screen-resetting-' ) ) {

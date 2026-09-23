@@ -7,7 +7,7 @@ import type {
 
 /**
  * Privacy-safe identity of one allowance currently receiving confirmed focus.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface FocusedAllowanceIdentity {
 	scopeId: ProtectionScopeId;
@@ -15,7 +15,7 @@ export interface FocusedAllowanceIdentity {
 	allowanceId: AllowanceId;
 	/**
 	 * Matched protected-rule host used to identify focus continuity.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	siteHost: CanonicalHost;
 }

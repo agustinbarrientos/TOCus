@@ -11,7 +11,7 @@ import type {
 
 /**
  * Selects the subset of preferences owned by one editable destination.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface PreferencesScreenProps extends EditableSettingsScreenProps {
 	language?: boolean;
@@ -20,7 +20,7 @@ export interface PreferencesScreenProps extends EditableSettingsScreenProps {
 
 /**
  * Controlled appearance controls specific to the Settings destination.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface AppearanceSettingsControlsProps {
 	copy: AppearanceScreenCopy;

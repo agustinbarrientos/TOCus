@@ -8,7 +8,7 @@ import type { LocalizationFormatters } from '../create-localization-formatters';
  * @param i18n - Locale-specific Lingui instance.
  * @param formatters - Locale-sensitive formatters for the bundle.
  * @return Complete localized protected-site list copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createProtectedSiteListCopy(
 	i18n: I18n,
@@ -19,7 +19,7 @@ export function createProtectedSiteListCopy(
 	 * @param firstName - First protected-site name.
 	 * @param secondName - Second protected-site name.
 	 * @return Locale-sensitive collation result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function compareNames( firstName: string, secondName: string ): number {
 		return formatters.collator.compare( firstName, secondName );

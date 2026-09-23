@@ -124,7 +124,7 @@ Object.assign( shell, {
 
 /**
  * Publishes persisted or external preferences through the production subscription port.
- * @since 0.1.0
+ * @since 1.0.0
  */
 function notifyPreferences(): void {
 	listeners.forEach( ( listener ) => {
@@ -137,7 +137,7 @@ function notifyPreferences(): void {
  * @template Result - Value produced by the coordinated mutation.
  * @param mutation - Mutation requested by the production editor.
  * @return Settled mutation result.
- * @since 0.1.0
+ * @since 1.0.0
  */
 function coordinateMutation<Result>( mutation: () => Promise<Result> ): Promise<Result> {
 	return mutation();
@@ -145,7 +145,7 @@ function coordinateMutation<Result>( mutation: () => Promise<Result> ): Promise<
 
 /**
  * Counts accepted writes without changing state when rejection is enabled.
- * @since 0.1.0
+ * @since 1.0.0
  */
 function recordWrite(): void {
 	if ( controls.rejectSaves ) {
@@ -156,7 +156,7 @@ function recordWrite(): void {
 
 /**
  * Records whether simulated browser access was requested within user activation.
- * @since 0.1.0
+ * @since 1.0.0
  */
 function recordAccessRequest(): void {
 	controls.requests++;
@@ -168,14 +168,14 @@ shell.editor = createProtectionConfigurationEditor( {
 		/**
 		 * Reads the current isolated configuration.
 		 * @return Persisted fixture configuration.
-		 * @since 0.1.0
+		 * @since 1.0.0
 		 */
 		load: () => Promise.resolve( configuration ),
 		/**
 		 * Validates and persists an accepted editor write.
 		 * @param value - Submitted configuration.
 		 * @return Completion of the accepted fixture write.
-		 * @since 0.1.0
+		 * @since 1.0.0
 		 */
 		save: async ( value ) => {
 			if ( controls.holdConfigurationWrites ) {
@@ -190,7 +190,7 @@ shell.editor = createProtectionConfigurationEditor( {
 	/**
 	 * Marks each configuration revision.
 	 * @return Distinct fixture revision identifier.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	createMeasurementRevision: () => `revision_${ String( ++sequence ) }`,
 	coordinateMutation,
@@ -201,14 +201,14 @@ shell.preferencesEditor = createPreferencesEditor( {
 		/**
 		 * Reads preferences shared with the external-update bridge.
 		 * @return Persisted fixture preferences.
-		 * @since 0.1.0
+		 * @since 1.0.0
 		 */
 		load: () => Promise.resolve( controls.malformedPreferences ? null : preferences ),
 		/**
 		 * Validates and publishes an accepted preferences write.
 		 * @param value - Submitted preferences.
 		 * @return Completion of the accepted fixture write.
-		 * @since 0.1.0
+		 * @since 1.0.0
 		 */
 		save: async ( value ) => {
 			if ( controls.holdPreferenceWrites ) {
@@ -229,7 +229,7 @@ shell.preferencesSource = {
 	/**
 	 * Registers a mounted screen subscription.
 	 * @param listener - Preferences change observer.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	addPreferencesChangeListener: ( listener ) => {
 		listeners.add( listener );
@@ -237,7 +237,7 @@ shell.preferencesSource = {
 	/**
 	 * Releases a screen subscription.
 	 * @param listener - Previously registered observer.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	removePreferencesChangeListener: ( listener ) => {
 		listeners.delete( listener );
@@ -248,7 +248,7 @@ shell.preferencesPreview = {
 	/**
 	 * Mirrors document attributes used to inspect unsaved previews.
 	 * @param value - Draft appearance preferences.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	apply: ( value ) => {
 		document.documentElement.setAttribute( 'data-tocus-theme', value.theme );
@@ -263,7 +263,7 @@ shell.permissionManager = {
 	 * Excludes websites with revoked browser grants.
 	 * @param value - Persisted configuration.
 	 * @return Configuration filtered by current grants.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	filterConfiguration: ( value ) => Promise.resolve( {
 		...value,
@@ -273,14 +273,14 @@ shell.permissionManager = {
 	 * Reads the separate simulated browser grant store.
 	 * @param rule - Website matching rule.
 	 * @return Whether browser access is granted.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	hasAccess: ( rule ) => Promise.resolve( grants.has( rule.host ) ),
 	/**
 	 * Simulates the browser decision inside a user-initiated save.
 	 * @param rule - Requested website rule.
 	 * @return Granted or denied access outcome.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	request: ( rule ) => {
 		recordAccessRequest();
@@ -296,7 +296,7 @@ shell.permissionManager = {
 	 * Simulates a batch browser decision.
 	 * @param rules - Requested website rules.
 	 * @return Batch access outcome without prior grants.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	requestMany: ( rules ) => {
 		recordAccessRequest();
@@ -309,13 +309,13 @@ shell.permissionManager = {
 	/**
 	 * Acknowledges rollback cleanup in this isolated fixture.
 	 * @return Successful release acknowledgement.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	releaseNewAccess: () => Promise.resolve( SitePermissionReleaseStatus.RELEASED ),
 	/**
 	 * Acknowledges explicit release in scenarios without cleanup assertions.
 	 * @return Successful release acknowledgement.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	release: () => Promise.resolve( SitePermissionReleaseStatus.RELEASED ),
 };
@@ -350,7 +350,7 @@ shell.statisticsSource = {
 	/**
 	 * Supplies deterministic local counters.
 	 * @return Available fixture statistics.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	readStatistics: () => original.includes( 'statistics-settings-screen-loading' )
 		? Promise.withResolvers<StatisticsProjection>().promise : Promise.resolve( controls.unavailableStatistics
@@ -358,7 +358,7 @@ shell.statisticsSource = {
 	/**
 	 * Records a reset and returns cleared local counters.
 	 * @return Cleared fixture statistics.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	resetStatistics: () => {
 		if ( original.includes( 'resetting' ) ) {
@@ -382,7 +382,7 @@ shell.statisticsSource = {
 	/**
 	 * Retains production subscriptions for lifecycle cleanup.
 	 * @param listener - Statistics invalidation observer.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	addStatisticsChangeListener: ( listener ) => {
 		statisticsListeners.add( listener );
@@ -390,7 +390,7 @@ shell.statisticsSource = {
 	/**
 	 * Removes a screen's statistics subscription.
 	 * @param listener - Previously registered observer.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	removeStatisticsChangeListener: ( listener ) => {
 		statisticsListeners.delete( listener );
@@ -400,7 +400,7 @@ shell.statisticsSource = {
 /**
  * Acknowledges privacy resets without touching real storage.
  * @return Successful local reset acknowledgement.
- * @since 0.1.0
+ * @since 1.0.0
  */
 function resetFixtureData(): Promise<boolean> {
 	controls.resetCount++;
@@ -446,7 +446,7 @@ const bridge: SettingsFixtureBridge = {
 	/**
 	 * Publishes replacement statistics through production subscriptions.
 	 * @param update - New counter values for this browser scenario.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	externalStatistics: ( update ) => {
 		statistics = AvailableStatisticsProjectionSchema.parse( { ...statistics, ...update } );
@@ -457,19 +457,19 @@ const bridge: SettingsFixtureBridge = {
 	/**
 	 * Reads persisted configuration separately from React drafts.
 	 * @return Current fixture configuration.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	getConfiguration: () => configuration,
 	/**
 	 * Reads persisted preferences separately from previews.
 	 * @return Current fixture preferences.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	getPreferences: () => preferences,
 	/**
 	 * Simulates browser revocation then refreshes production access state.
 	 * @return Access refresh completion.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	revoke: async () => {
 		grants.clear();
@@ -478,7 +478,7 @@ const bridge: SettingsFixtureBridge = {
 	/**
 	 * Publishes a validated change from another extension context.
 	 * @param update - Externally updated preference fields.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	externalPreferences: ( update ) => {
 		preferences = PreferencesDocumentSchema.parse( { ...preferences, ...update } );

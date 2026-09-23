@@ -14,7 +14,7 @@ import {
  * @param i18n - Locale-specific Lingui instance.
  * @param formatters - Locale-sensitive formatters for the bundle.
  * @return Complete localized Statistics-screen copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createStatisticsCopy(
 	i18n: I18n,
@@ -31,7 +31,7 @@ export function createStatisticsCopy(
 	 * Keeps numeric axis ticks distinct without fitting full prose into a narrow chart margin.
 	 * @param milliseconds - Nonnegative numeric axis tick.
 	 * @return Compact localized duration in scale-appropriate units.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatAxisDuration( milliseconds: number ): string {
 		if ( milliseconds < MILLISECONDS_PER_MINUTE ) {
@@ -65,7 +65,7 @@ export function createStatisticsCopy(
 	 * Formats one rounded focused-pause duration.
 	 * @param milliseconds - Nonnegative duration in milliseconds.
 	 * @return Localized duration.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatDuration( milliseconds: number ): string {
 		if ( milliseconds > 0 && milliseconds < MILLISECONDS_PER_MINUTE ) {
@@ -83,7 +83,7 @@ export function createStatisticsCopy(
 	 * Formats a reclaimed-time estimate rounded to the nearest minute.
 	 * @param milliseconds - Nonnegative estimated duration in milliseconds.
 	 * @return Localized zero-estimate guidance, approximation, or explicit subminute duration.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatEstimatedDuration( milliseconds: number ): string {
 		if ( milliseconds === 0 ) {
@@ -107,7 +107,7 @@ export function createStatisticsCopy(
 	 * Formats one metric count.
 	 * @param count - Nonnegative metric count.
 	 * @return Locale-sensitive decimal count.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatCount( count: number ): string {
 		return formatters.number.format( count );

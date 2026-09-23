@@ -19,7 +19,7 @@ function appearanceOwners( element: Element ): Element[] {
 
 /**
  * Reads controlled preferences without modifying the protected document.
- * @since 0.1.0
+ * @since 1.0.0
  * @param element - Extension-owned presentation element.
  * @return Validated appearance preferences.
  */
@@ -37,7 +37,7 @@ export function readPresentationAppearance( element: Element ): PresentationAppe
 
 /**
  * Observes only attributes that affect extension appearance.
- * @since 0.1.0
+ * @since 1.0.0
  * @param element - Extension-owned presentation element.
  * @param onChange - Requests a fresh React projection after an appearance change.
  * @return Cleanup that releases every observed owner.

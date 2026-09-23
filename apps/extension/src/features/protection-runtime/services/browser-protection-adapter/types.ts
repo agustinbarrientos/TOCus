@@ -3,7 +3,7 @@ import type { ExtensionTabContextRuntime } from '../../../../shared/services/ext
 
 /**
  * Exact one-shot alarm deadline accepted by the browser.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionAlarmCreationDetails {
 	/** Absolute epoch-millisecond deadline for the one-shot alarm. */
@@ -12,7 +12,7 @@ export interface BrowserProtectionAlarmCreationDetails {
 
 /**
  * Existing browser alarm details needed to preserve an accurate deadline.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionAlarm {
 	/** Stable browser alarm name. */
@@ -23,14 +23,14 @@ export interface BrowserProtectionAlarm {
 
 /**
  * Alarm operations required for exact protection-clock reconciliation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionAlarmsApi {
 	/**
 	 * Clears one named alarm when present.
 	 * @param name - Stable extension-owned alarm name.
 	 * @return Whether an existing alarm was cleared.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	clear: ( name: string ) => Promise<boolean>;
 
@@ -39,21 +39,21 @@ export interface BrowserProtectionAlarmsApi {
 	 * @param name - Stable extension-owned alarm name.
 	 * @param details - Exact absolute deadline without a periodic interval.
 	 * @return Browser completion promise when supported.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	create: ( name: string, details: BrowserProtectionAlarmCreationDetails ) => Promise<void> | void;
 
 	/**
 	 * Lists every alarm currently registered by the extension.
 	 * @return Current extension alarms.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getAll: () => Promise<ReadonlyArray<BrowserProtectionAlarm>>;
 }
 
 /**
  * Complete dynamic-rule replacement accepted by the browser.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionDynamicRuleUpdate {
 	/** Rules that replace the extension's current dynamic redirects. */
@@ -64,13 +64,13 @@ export interface BrowserProtectionDynamicRuleUpdate {
 
 /**
  * Dynamic declarative-navigation operations required by the adapter.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionDynamicRulesApi {
 	/**
 	 * Lists every dynamic rule currently owned by the extension.
 	 * @return Current extension-owned dynamic rules.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getDynamicRules: () => Promise<Browser.declarativeNetRequest.Rule[]>;
 
@@ -78,14 +78,14 @@ export interface BrowserProtectionDynamicRulesApi {
 	 * Atomically removes current rules and installs their replacements.
 	 * @param update - Complete dynamic-rule replacement.
 	 * @return Promise resolved after the browser applies the replacement.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	updateDynamicRules: ( update: BrowserProtectionDynamicRuleUpdate ) => Promise<void>;
 }
 
 /**
  * Browser tab data visible through granted host access.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionAdapterTab {
 	/** Browser-assigned tab identifier when the tab is live. */
@@ -102,7 +102,7 @@ export interface BrowserProtectionAdapterTab {
 
 /**
  * Tab filters used by protection runtime queries.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionTabQuery {
 	/** Whether only the active tab in a window should be returned. */
@@ -113,7 +113,7 @@ export interface BrowserProtectionTabQuery {
 
 /**
  * Browser tab navigation update owned by the adapter.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionTabUpdate {
 	/** Retained HTTP or HTTPS destination. */
@@ -122,14 +122,14 @@ export interface BrowserProtectionTabUpdate {
 
 /**
  * Tab operations required by the protection runtime.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionTabsApi {
 	/**
 	 * Returns one tab to its previous history entry when the current browser supports the operation.
 	 * @param tabId - Browser-assigned tab identifier.
 	 * @return Browser completion promise when supported.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	goBack?: ( tabId: number ) => Promise<unknown>;
 
@@ -137,7 +137,7 @@ export interface BrowserProtectionTabsApi {
 	 * Lists tabs matching one local browser query.
 	 * @param query - Active-tab and window filters.
 	 * @return Matching open tabs.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	query: ( query: BrowserProtectionTabQuery ) => Promise<ReadonlyArray<BrowserProtectionAdapterTab>>;
 
@@ -146,7 +146,7 @@ export interface BrowserProtectionTabsApi {
 	 * @param tabId - Browser-assigned target tab identifier.
 	 * @param message - Structured-clone message payload.
 	 * @return Unknown listener response awaiting boundary validation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	sendMessage: ( tabId: number, message: unknown ) => Promise<unknown>;
 
@@ -155,14 +155,14 @@ export interface BrowserProtectionTabsApi {
 	 * @param tabId - Browser-assigned tab identifier.
 	 * @param update - Retained navigation destination.
 	 * @return Promise resolved after the browser accepts the update.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	update: ( tabId: number, update: BrowserProtectionTabUpdate ) => Promise<unknown>;
 }
 
 /**
  * Last-focused browser window details needed to detect application focus.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionAdapterWindow {
 	/** Whether the browser window currently owns operating-system focus. */
@@ -173,20 +173,20 @@ export interface BrowserProtectionAdapterWindow {
 
 /**
  * Browser-window operations required by the protection runtime.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionWindowsApi {
 	/**
 	 * Returns the browser window that most recently held focus.
 	 * @return Last-focused browser window details.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getLastFocused: () => Promise<BrowserProtectionAdapterWindow>;
 }
 
 /**
  * Global badge text update.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionBadgeTextDetails {
 	/** Compact badge text, or an empty string to clear it. */
@@ -195,7 +195,7 @@ export interface BrowserProtectionBadgeTextDetails {
 
 /**
  * Global badge background update.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionBadgeColorDetails {
 	/** Accessible solid badge background color. */
@@ -204,7 +204,7 @@ export interface BrowserProtectionBadgeColorDetails {
 
 /**
  * Global toolbar title update.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionToolbarTitleDetails {
 	/** Accessible toolbar title describing the current protection phase. */
@@ -213,14 +213,14 @@ export interface BrowserProtectionToolbarTitleDetails {
 
 /**
  * Toolbar operations shared by Manifest V3 action and Manifest V2 browserAction.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionToolbarAction {
 	/**
 	 * Applies one global badge background.
 	 * @param details - Accessible solid color.
 	 * @return Browser completion promise when supported.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	setBadgeBackgroundColor: ( details: BrowserProtectionBadgeColorDetails ) => Promise<void> | void;
 
@@ -228,7 +228,7 @@ export interface BrowserProtectionToolbarAction {
 	 * Applies or clears one global badge label.
 	 * @param details - Compact label.
 	 * @return Browser completion promise when supported.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	setBadgeText: ( details: BrowserProtectionBadgeTextDetails ) => Promise<void> | void;
 
@@ -236,14 +236,14 @@ export interface BrowserProtectionToolbarAction {
 	 * Applies one accessible global toolbar title.
 	 * @param details - Complete title.
 	 * @return Browser completion promise when supported.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	setTitle: ( details: BrowserProtectionToolbarTitleDetails ) => Promise<void> | void;
 }
 
 /**
  * Narrow browser surface required by the protection adapter.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionAdapterApi {
 	/** Live extension-document lookup when supported by the browser. */

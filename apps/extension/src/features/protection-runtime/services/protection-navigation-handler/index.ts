@@ -21,7 +21,7 @@ import { ProtectionRuntimeNavigationPhase } from '../../types/browser-runtime';
 
 /**
  * Browser transition qualifiers understood by reconsidered-visit classification.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const RECOGNIZED_TRANSITION_QUALIFIERS = new Set( [
 	'client_redirect',
@@ -32,7 +32,7 @@ const RECOGNIZED_TRANSITION_QUALIFIERS = new Set( [
 
 /**
  * Browser transition types that cannot establish a user navigation away safely.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const NONQUALIFYING_TRANSITION_TYPES = new Set( [
 	'auto_subframe',
@@ -43,7 +43,7 @@ const NONQUALIFYING_TRANSITION_TYPES = new Set( [
 
 /**
  * Browser transition types that establish a user navigation away after exclusions.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const QUALIFYING_TRANSITION_TYPES = new Set( [
 	'link',
@@ -58,7 +58,7 @@ const QUALIFYING_TRANSITION_TYPES = new Set( [
  * Classifies a completed browser navigation without inferring missing provenance.
  * @param navigation - Top-level browser navigation observation.
  * @return Observable departure cause.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function classifyNavigationDeparture(
 	navigation: Parameters<ProtectionNavigationHandler[ 'handle' ]>[ 0 ],
@@ -117,14 +117,14 @@ function classifyNavigationDeparture(
  * Creates one browser-navigation handler around runtime orchestration boundaries.
  * @param options - State, browser, configuration, projection, clock, and identity dependencies.
  * @return Browser navigation handling operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createProtectionNavigationHandler(
 	options: ProtectionNavigationHandlerOptions,
 ): ProtectionNavigationHandler {
 	/**
 	 * Pending top-level destinations awaiting a committed or failed browser outcome.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	const pendingDestinationsByTabId = new Map<number, string>();
 
@@ -132,7 +132,7 @@ export function createProtectionNavigationHandler(
 	 * Reports whether a live tab may enter browser protection.
 	 * @param tabId - Browser tab whose privacy context must be observed.
 	 * @return True only for an explicitly ordinary tab observation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function isTabProtectionEligible( tabId: number ): Promise<boolean> {
 		try {
@@ -152,7 +152,7 @@ export function createProtectionNavigationHandler(
 	 * @param scopeId - Matched protection scope.
 	 * @param siteHost - Matched protected rule host used for site-specific attribution.
 	 * @return Promise resolved after the visit transaction and browser effects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function dispatchVisitAttempt(
 		tabId: number,
@@ -196,7 +196,7 @@ export function createProtectionNavigationHandler(
 	 * @param navigation - Browser navigation details.
 	 * @param redirectDestination - Validated destination carried by a committed redirect, when present.
 	 * @return Safe next document for a redirect, or undefined when no transition was authorized.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function reconcileNavigation(
 		navigation: Parameters<ProtectionNavigationHandler[ 'handle' ]>[ 0 ],
@@ -398,7 +398,7 @@ export function createProtectionNavigationHandler(
 	 * @param tabId - Browser-assigned tab identifier.
 	 * @param redirectUrl - Exact committed redirect document including its destination.
 	 * @return Whether the same redirect document remains current.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function ownsRedirect( tabId: number, redirectUrl: string ): Promise<boolean> {
 		const tabs = await options.browser.listTabs();
@@ -411,7 +411,7 @@ export function createProtectionNavigationHandler(
 	 * Resolves a network redirect only after policy and persistence succeed.
 	 * @param navigation - Browser-provided navigation observation.
 	 * @return Verified URL for the document to replace itself with, avoiding an extra history entry.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function handle(
 		navigation: Parameters<ProtectionNavigationHandler[ 'handle' ]>[ 0 ],

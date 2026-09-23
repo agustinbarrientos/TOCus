@@ -6,7 +6,7 @@ import type { NormalizedSchedule } from '../../types/protection-schedule';
  * @param configuration - Current shared protection configuration.
  * @param ruleHost - Canonical matching-rule host.
  * @return The site's override or global schedule, or undefined when the rule was removed.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function resolveSiteSchedule(
 	configuration: ProtectionConfigurationDocument,

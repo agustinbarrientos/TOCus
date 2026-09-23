@@ -15,7 +15,7 @@ const CURRENT_CONFIGURATION = { ...TestEmptyProtectionConfiguration, sites: [ {
 
 /**
  * In-memory storage area used to verify configuration persistence.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryProtectionConfigurationStorageArea implements ProtectionConfigurationStorageArea {
 	readonly readKeys: string[] = [];
@@ -25,7 +25,7 @@ class MemoryProtectionConfigurationStorageArea implements ProtectionConfiguratio
 	/**
 	 * Creates an in-memory storage area with initial values.
 	 * @param values - Values available before the first read.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor( private readonly values: Record<string, unknown> = {} ) {}
 
@@ -33,7 +33,7 @@ class MemoryProtectionConfigurationStorageArea implements ProtectionConfiguratio
 	 * Reads one stored value.
 	 * @param key - Requested storage key.
 	 * @return Matching record or an empty record.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	get( key: string ): Promise<Record<string, unknown>> {
 		this.readKeys.push( key );
@@ -45,7 +45,7 @@ class MemoryProtectionConfigurationStorageArea implements ProtectionConfiguratio
 	 * Writes one record into memory.
 	 * @param values - Values to persist.
 	 * @return Promise resolved after the write.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	set( values: Record<string, unknown> ): Promise<void> {
 		this.writtenValues.push( values );

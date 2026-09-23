@@ -2,7 +2,7 @@ import type { CompletionAction as CompletionActionValue } from '../../../../doma
 
 /**
  * Stable loading states rendered by the Timing settings screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const TimingScreenLoadStatus = {
 	FAILED: 'failed',
@@ -13,14 +13,14 @@ export const TimingScreenLoadStatus = {
 
 /**
  * Current loading state rendered by the Timing settings screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type TimingScreenLoadStatus =
 	typeof TimingScreenLoadStatus[ keyof typeof TimingScreenLoadStatus ];
 
 /**
  * Stable save failures retained by the Timing settings screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const TimingScreenSaveErrorReason = {
 	INVALID_CONFIGURATION: 'invalid-configuration',
@@ -30,7 +30,7 @@ export const TimingScreenSaveErrorReason = {
 
 /**
  * Save failure retained by the Timing settings screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type TimingScreenSaveErrorReason = typeof TimingScreenSaveErrorReason[
 	keyof typeof TimingScreenSaveErrorReason
@@ -38,7 +38,7 @@ export type TimingScreenSaveErrorReason = typeof TimingScreenSaveErrorReason[
 
 /**
  * Timing form event whose current target is the rendered global form.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface TimingFormEvent extends Event {
 	readonly currentTarget: HTMLFormElement;
@@ -46,7 +46,7 @@ export interface TimingFormEvent extends Event {
 
 /**
  * Localizable messages rendered by the Timing settings screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface TimingScreenCopy {
 	title: string;
@@ -80,14 +80,14 @@ export interface TimingScreenCopy {
 	 * Formats one whole-second native option.
 	 * @param seconds - Allowed whole-second duration.
 	 * @return Human-readable second duration.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	formatSecondsOption( seconds: number ): string;
 	/**
 	 * Formats one whole-minute native option.
 	 * @param minutes - Allowed whole-minute duration.
 	 * @return Human-readable minute duration.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	formatMinutesOption( minutes: number ): string;
 	/**
@@ -98,7 +98,7 @@ export interface TimingScreenCopy {
 	 * @param allowanceMinutes - Draft allowance in whole minutes.
 	 * @param completionAction - Draft post-wait action.
 	 * @return Human-readable global timing summary.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	formatSummary(
 		initialWaitSeconds: number,

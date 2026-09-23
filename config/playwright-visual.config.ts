@@ -9,7 +9,7 @@ const extensionOnly = process.argv.some( ( argument ) =>
 
 /**
  * Compares reviewed React pixels on the pinned macOS ARM Chromium capture platform.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export default defineConfig( {
 	testDir: '../tests/visual',

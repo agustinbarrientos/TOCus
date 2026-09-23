@@ -6,7 +6,7 @@ import type { SettingsPageShell } from '../settings-page/types';
  * Declares the page service's two-phase initialization without fabricating localized copy.
  * The controller assigns every copy field before the readiness check permits a React render.
  * Class fields remain enumerable so the shared presentation port can observe their later assignments.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export class SettingsPresentationState implements SettingsPageShell {
 	/** About copy supplied by the controller's first complete localization snapshot. */
@@ -81,7 +81,7 @@ export class SettingsPresentationState implements SettingsPageShell {
 	/**
 	 * Retains a live access bridge while the controller fills the declared copy and service fields.
 	 * @param refreshAccessState - Operation forwarding access refresh to the active destination.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	constructor( refreshAccessState: SettingsPageShell['refreshAccessState'] ) {
 		this.refreshAccessState = refreshAccessState;

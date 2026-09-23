@@ -8,7 +8,7 @@ import type { PopupIdentifiedCurrentSite } from './types';
  * Resolves identity metadata without creating or persisting a protection rule.
  * @param current - Current site with validated host metadata.
  * @return Name-resolution input using the existing rule or a display-only boundary.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function getPopupSiteIdentityInput( current: PopupIdentifiedCurrentSite ): SiteDisplayNameResolutionInput {
 	if ( current.status === PopupCurrentSiteStatus.PROTECTED ) {
@@ -25,7 +25,7 @@ export function getPopupSiteIdentityInput( current: PopupIdentifiedCurrentSite )
  * @param current - Current website identity and optional scope membership.
  * @param scopes - Active background-owned timers.
  * @return Current scope timer, or undefined when the current site has no active timer.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function getPopupCurrentScope(
 	current: PopupIdentifiedCurrentSite,
@@ -44,7 +44,7 @@ export function getPopupCurrentScope(
  * @param scope - Current site's active timer, when present.
  * @param copy - Active-language status messages.
  * @return Plain status copy, or null when the countdown already supplies the status.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function getPopupSiteStatus(
 	current: PopupIdentifiedCurrentSite,
@@ -77,7 +77,7 @@ export function getPopupSiteStatus(
  * @param scope - Current site's active timer, when present.
  * @param nowEpochMilliseconds - Controller-provided display clock.
  * @return Nonnegative remaining duration, or null when no timer is active.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function getPopupRemainingTime(
 	scope: PopupActiveScope | undefined,
@@ -94,7 +94,7 @@ export function getPopupRemainingTime(
  * @param error - Controller-owned enrollment failure.
  * @param copy - Active-language error messages.
  * @return Explanation appropriate to permission denial, retention, or persistence failure.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function getPopupOperationMessage( error: PopupOperationError, copy: Readonly<PopupShellCopy> ): string {
 	switch ( error ) {

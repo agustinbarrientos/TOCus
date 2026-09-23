@@ -35,19 +35,19 @@ import type { AllowanceExpiryReconcilerOptions } from './types';
 
 /**
  * Fixed wall-clock instant used by allowance-expiry fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const NOW_EPOCH_MILLISECONDS = Date.UTC( 2026, 8, 2, 12 );
 
 /**
  * Independent protection scope used by multi-scope fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const OTHER_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope_other' );
 
 /**
  * Applied coordinator result returned by successful dispatch fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const APPLIED_RESULT: ProtectionCoordinatorDispatchResult = {
 	status: ProtectionCoordinatorDispatchStatus.APPLIED,
@@ -57,7 +57,7 @@ const APPLIED_RESULT: ProtectionCoordinatorDispatchResult = {
 
 /**
  * Protected-site configuration used by allowance-expiry fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
@@ -91,7 +91,7 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
  * Creates an allowance state at a configurable expiry instant.
  * @param expiresAtEpochMilliseconds - Allowance expiry instant.
  * @return Allowance state owned by the default protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createTestAllowanceState(
 	expiresAtEpochMilliseconds: number,
@@ -117,7 +117,7 @@ function createTestAllowanceState(
  * @param dispatchStatesByScope - Snapshot supplied while preparing an event.
  * @param tabs - Open browser tabs returned to the reconciler.
  * @return Reconciler and observable dependency doubles.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createReconcilerHarness(
 	statesByScope: ProtectionCoordinatorStateSnapshot | null,

@@ -7,7 +7,7 @@ import {
 
 /**
  * Dedicated command sent to an interruption document before releasing it.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InterruptionNavigationReplacementMessageType = {
 	REPLACE: 'replace-interruption-navigation',
@@ -15,7 +15,7 @@ export const InterruptionNavigationReplacementMessageType = {
 
 /**
  * Validates the exact source document and HTTP(S) destination selected by the background.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InterruptionNavigationReplacementRequestSchema = z.object( {
 	type: z.literal( InterruptionNavigationReplacementMessageType.REPLACE ),
@@ -25,7 +25,7 @@ export const InterruptionNavigationReplacementRequestSchema = z.object( {
 
 /**
  * Background-to-page command that preserves native history during an authorized release.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type InterruptionNavigationReplacementRequest = z.infer<
 	typeof InterruptionNavigationReplacementRequestSchema
@@ -33,7 +33,7 @@ export type InterruptionNavigationReplacementRequest = z.infer<
 
 /**
  * Validates the acknowledgement emitted before the interruption document replaces itself.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InterruptionNavigationReplacementResponseSchema = z.object( {
 	replaced: z.literal( true ),
@@ -41,7 +41,7 @@ export const InterruptionNavigationReplacementResponseSchema = z.object( {
 
 /**
  * Positive acknowledgement from the exact interruption document selected for release.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type InterruptionNavigationReplacementResponse = z.infer<
 	typeof InterruptionNavigationReplacementResponseSchema
@@ -50,7 +50,7 @@ export type InterruptionNavigationReplacementResponse = z.infer<
 /**
  * Validates the destination-resolution handshake before a redirect document mounts its UI.
  * The destination is taken from the browser sender, never supplied as a message field.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const NavigationRedirectRequestSchema = z.object( {
 	type: z.literal( 'resolve-navigation-redirect' ),
@@ -58,7 +58,7 @@ export const NavigationRedirectRequestSchema = z.object( {
 
 /**
  * Destination permitted by authoritative navigation reconciliation, or an unavailable result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface NavigationRedirectResponse {
 	/** Exact replacement document; the page also checks it against its own original destination. */
@@ -67,7 +67,7 @@ export interface NavigationRedirectResponse {
 
 /**
  * Requests supported by the extension-owned interruption page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InterruptionPageRequestType = {
 	CHECKPOINT: 'checkpoint',
@@ -79,19 +79,19 @@ export const InterruptionPageRequestType = {
 
 /**
  * Validates an interruption-page request discriminator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InterruptionPageRequestTypeSchema = z.enum( InterruptionPageRequestType );
 
 /**
  * Interruption-page request discriminator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type InterruptionPageRequestType = z.infer<typeof InterruptionPageRequestTypeSchema>;
 
 /**
  * Validates an interruption-page connection request.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ConnectInterruptionPageRequestSchema = z.object( {
 	type: z.enum( [ InterruptionPageRequestType.CONNECT ] ),
@@ -100,13 +100,13 @@ export const ConnectInterruptionPageRequestSchema = z.object( {
 
 /**
  * Interruption-page connection request.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ConnectInterruptionPageRequest = z.infer<typeof ConnectInterruptionPageRequestSchema>;
 
 /**
  * Validates an explicit interruption-page runtime recovery request.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const RecoverInterruptionPageRequestSchema = z.object( {
 	type: z.enum( [ InterruptionPageRequestType.RECOVER ] ),
@@ -115,13 +115,13 @@ export const RecoverInterruptionPageRequestSchema = z.object( {
 
 /**
  * Explicit interruption-page runtime recovery request.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type RecoverInterruptionPageRequest = z.infer<typeof RecoverInterruptionPageRequestSchema>;
 
 /**
  * Validates an interruption-page synchronization request.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const SynchronizeInterruptionPageRequestSchema = z.object( {
 	type: z.enum( [ InterruptionPageRequestType.SYNCHRONIZE ] ),
@@ -130,13 +130,13 @@ export const SynchronizeInterruptionPageRequestSchema = z.object( {
 
 /**
  * Interruption-page synchronization request.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type SynchronizeInterruptionPageRequest = z.infer<typeof SynchronizeInterruptionPageRequestSchema>;
 
 /**
  * Validates an interruption-page progress checkpoint.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const CheckpointInterruptionPageRequestSchema = z.object( {
 	type: z.enum( [ InterruptionPageRequestType.CHECKPOINT ] ),
@@ -146,13 +146,13 @@ export const CheckpointInterruptionPageRequestSchema = z.object( {
 
 /**
  * Interruption-page progress checkpoint.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type CheckpointInterruptionPageRequest = z.infer<typeof CheckpointInterruptionPageRequestSchema>;
 
 /**
  * Validates an interruption-page Continue request.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ContinueInterruptionPageRequestSchema = z.object( {
 	type: z.enum( [ InterruptionPageRequestType.CONTINUE ] ),
@@ -161,13 +161,13 @@ export const ContinueInterruptionPageRequestSchema = z.object( {
 
 /**
  * Interruption-page Continue request.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ContinueInterruptionPageRequest = z.infer<typeof ContinueInterruptionPageRequestSchema>;
 
 /**
  * Validates every request accepted from an interruption page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InterruptionPageRequestSchema = z.discriminatedUnion( 'type', [
 	ConnectInterruptionPageRequestSchema,
@@ -179,13 +179,13 @@ export const InterruptionPageRequestSchema = z.discriminatedUnion( 'type', [
 
 /**
  * Request accepted from an interruption page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type InterruptionPageRequest = z.infer<typeof InterruptionPageRequestSchema>;
 
 /**
  * Protected-page requests that reconcile authoritative wall-clock state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionClockRequestType = {
 	RECONCILE_ALLOWANCE_EXPIRY: 'reconcile-allowance-expiry',
@@ -193,19 +193,19 @@ export const ProtectionClockRequestType = {
 
 /**
  * Validates a protected-page clock-reconciliation request discriminator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionClockRequestTypeSchema = z.enum( ProtectionClockRequestType );
 
 /**
  * Protected-page clock-reconciliation request discriminator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionClockRequestType = z.infer<typeof ProtectionClockRequestTypeSchema>;
 
 /**
  * Validates a local allowance-expiry reconciliation request.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionClockRequestSchema = z.object( {
 	type: ProtectionClockRequestTypeSchema,
@@ -214,13 +214,13 @@ export const ProtectionClockRequestSchema = z.object( {
 
 /**
  * Allowance-keyed request for authoritative wall-clock reconciliation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionClockRequest = z.infer<typeof ProtectionClockRequestSchema>;
 
 /**
  * Presentation states returned to the interruption page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InterruptionPageResponseState = {
 	RELEASED: 'released',
@@ -232,19 +232,19 @@ export const InterruptionPageResponseState = {
 
 /**
  * Validates an interruption-page response discriminator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InterruptionPageResponseStateSchema = z.enum( InterruptionPageResponseState );
 
 /**
  * Interruption-page response discriminator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type InterruptionPageResponseState = z.infer<typeof InterruptionPageResponseStateSchema>;
 
 /**
  * Validates an authoritative Waiting presentation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const WaitingInterruptionPageResponseSchema = z.object( {
 	state: z.enum( [ InterruptionPageResponseState.WAITING ] ),
@@ -255,13 +255,13 @@ export const WaitingInterruptionPageResponseSchema = z.object( {
 
 /**
  * Authoritative Waiting presentation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type WaitingInterruptionPageResponse = z.infer<typeof WaitingInterruptionPageResponseSchema>;
 
 /**
  * Validates an authoritative Ready presentation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ReadyInterruptionPageResponseSchema = z.object( {
 	state: z.enum( [ InterruptionPageResponseState.READY ] ),
@@ -270,13 +270,13 @@ export const ReadyInterruptionPageResponseSchema = z.object( {
 
 /**
  * Authoritative Ready presentation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ReadyInterruptionPageResponse = z.infer<typeof ReadyInterruptionPageResponseSchema>;
 
 /**
  * Validates a Ready page whose visit window has elapsed.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ReadyExpiredInterruptionPageResponseSchema = z.object( {
 	state: z.enum( [ InterruptionPageResponseState.READY_EXPIRED ] ),
@@ -284,13 +284,13 @@ export const ReadyExpiredInterruptionPageResponseSchema = z.object( {
 
 /**
  * Ready page whose visit window has elapsed.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ReadyExpiredInterruptionPageResponse = z.infer<typeof ReadyExpiredInterruptionPageResponseSchema>;
 
 /**
  * Validates an interruption page without recoverable runtime context.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const UnavailableInterruptionPageResponseSchema = z.object( {
 	state: z.enum( [ InterruptionPageResponseState.UNAVAILABLE ] ),
@@ -298,13 +298,13 @@ export const UnavailableInterruptionPageResponseSchema = z.object( {
 
 /**
  * Interruption page without recoverable runtime context.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type UnavailableInterruptionPageResponse = z.infer<typeof UnavailableInterruptionPageResponseSchema>;
 
 /**
  * Validates an acknowledgement that the participant's interruption was released.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ReleasedInterruptionPageResponseSchema = z.object( {
 	state: z.enum( [ InterruptionPageResponseState.RELEASED ] ),
@@ -312,13 +312,13 @@ export const ReleasedInterruptionPageResponseSchema = z.object( {
 
 /**
  * Acknowledgement that the participant's interruption was released.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ReleasedInterruptionPageResponse = z.infer<typeof ReleasedInterruptionPageResponseSchema>;
 
 /**
  * Validates every response returned to an interruption page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InterruptionPageResponseSchema = z.discriminatedUnion( 'state', [
 	ReleasedInterruptionPageResponseSchema,
@@ -330,6 +330,6 @@ export const InterruptionPageResponseSchema = z.discriminatedUnion( 'state', [
 
 /**
  * Response returned to an interruption page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type InterruptionPageResponse = z.infer<typeof InterruptionPageResponseSchema>;

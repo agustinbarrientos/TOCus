@@ -9,7 +9,7 @@ import {
 
 /**
  * One hour of estimated reclaimed time required before asking for a review.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ReviewPromptThresholdMilliseconds = 3_600_000;
 
@@ -17,7 +17,7 @@ const ReviewPromptThresholdMilliseconds = 3_600_000;
  * Keeps an optional review invitation separate from interruption timing and continuation.
  * @param options - Authoritative statistics, local dismissal and presentation dependencies.
  * @return Invitation lifecycle and refresh operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createReviewPromptController(
 	options: ReviewPromptControllerOptions,
@@ -31,7 +31,7 @@ export function createReviewPromptController(
 	/**
 	 * Reads eligibility without letting older results reopen a dismissed invitation.
 	 * @return Completion after the read is either applied or safely discarded.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function refresh(): Promise<void> {
 		if ( ! started || options.url === null || dismissing || dismissed ) {
@@ -65,7 +65,7 @@ export function createReviewPromptController(
 
 	/**
 	 * Refreshes eligibility after an authoritative statistics invalidation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleStatisticsChange(): void {
 		void refresh();
@@ -75,7 +75,7 @@ export function createReviewPromptController(
 	 * Immediately applies dismissals from other tabs and rechecks explicit removals.
 	 * @param changes - Changed browser-storage records.
 	 * @param areaName - Browser storage area that changed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	const handleStorageChange: StatisticsStorageChangeListener = ( changes, areaName ): void => {
 		if ( ! started || areaName !== 'local' || ! Object.hasOwn( changes, ReviewPromptStorageKey ) ) {
@@ -90,7 +90,7 @@ export function createReviewPromptController(
 	/**
 	 * Saves permanent dismissal once and exposes a retry if persistence fails.
 	 * @return Completion after durable dismissal or visible recovery.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function dismiss(): Promise<void> {
 		const presentation = options.target.reviewPrompt;
@@ -120,7 +120,7 @@ export function createReviewPromptController(
 
 	/**
 	 * Starts one nonblocking durable dismissal from a user action.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleDismissRequest(): void {
 		void dismiss();
@@ -128,7 +128,7 @@ export function createReviewPromptController(
 
 	/**
 	 * Begins observing local changes only when a store destination exists.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function start(): void {
 		if ( started || options.url === null ) {
@@ -144,7 +144,7 @@ export function createReviewPromptController(
 
 	/**
 	 * Stops listeners and prevents pending reads or writes from repainting the screen.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function stop(): void {
 		if ( ! started ) {

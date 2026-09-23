@@ -14,14 +14,14 @@ import {
  * Creates localized Timing-screen copy.
  * @param i18n - Locale-specific Lingui instance.
  * @return Complete localized Timing-screen copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createTimingCopy( i18n: I18n ): Readonly<TimingScreenCopy> {
 	/**
 	 * Formats one whole-second option.
 	 * @param seconds - Allowed whole seconds.
 	 * @return Localized duration option.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatSecondsOption( seconds: number ): string {
 		return formatDurationUnit( i18n, seconds, DurationUnit.SECOND );
@@ -31,7 +31,7 @@ export function createTimingCopy( i18n: I18n ): Readonly<TimingScreenCopy> {
 	 * Formats one whole-minute option.
 	 * @param minutes - Allowed whole minutes.
 	 * @return Localized duration option.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatMinutesOption( minutes: number ): string {
 		return formatDurationUnit( i18n, minutes, DurationUnit.MINUTE );
@@ -45,7 +45,7 @@ export function createTimingCopy( i18n: I18n ): Readonly<TimingScreenCopy> {
 	 * @param allowanceMinutes - Draft allowance.
 	 * @param completionAction - Draft post-wait action.
 	 * @return Complete localized timing summary.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatSummary(
 		initialWaitSeconds: number,

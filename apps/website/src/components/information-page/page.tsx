@@ -11,7 +11,7 @@ import {
 /**
  * Renders the canonical privacy statement for the current local-first extension behavior.
  * @return Readable privacy sections with explicit product and website boundaries.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function PrivacyContent() {
 	return (
@@ -115,7 +115,7 @@ function PrivacyContent() {
 /**
  * Renders canonical troubleshooting and reporting routes without inventing a private contact.
  * @return Actionable setup, public issue, and security-reporting guidance.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function SupportContent() {
 	return (
@@ -192,7 +192,7 @@ const InformationContent = {
 /**
  * Renders publication navigation shared by both canonical documents.
  * @return Branded site header.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function InformationHeader() {
 	return (
@@ -208,7 +208,7 @@ function InformationHeader() {
 /**
  * Renders the stable publication footer and local author artwork.
  * @return Internal documents plus source and author destinations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function InformationFooter() {
 	return (
@@ -232,7 +232,7 @@ function InformationFooter() {
  * @param properties - Canonical publication document selection.
  * @param properties.document - Canonical document to render.
  * @return Server-rendered information page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export default function InformationPage( { document }: InformationPageProperties ) {
 	const Content = InformationContent[ document ];

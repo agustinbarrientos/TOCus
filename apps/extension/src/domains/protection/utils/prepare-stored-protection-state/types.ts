@@ -10,7 +10,7 @@ import {
 
 /**
  * Validates runtime protection states indexed by their scope identifiers.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const RuntimeProtectionStatesByScopeSchema = z.preprocess(
 	( input ) => {
@@ -31,7 +31,7 @@ const RuntimeProtectionStatesByScopeSchema = z.preprocess(
 
 /**
  * Validates runtime protection state supplied for stored-state preparation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PrepareStoredProtectionStateInputSchema = z.object( {
 	statesByScope: RuntimeProtectionStatesByScopeSchema,
@@ -51,6 +51,6 @@ export const PrepareStoredProtectionStateInputSchema = z.object( {
 
 /**
  * Runtime protection state supplied for stored-state preparation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PrepareStoredProtectionStateInput = z.infer<typeof PrepareStoredProtectionStateInputSchema>;

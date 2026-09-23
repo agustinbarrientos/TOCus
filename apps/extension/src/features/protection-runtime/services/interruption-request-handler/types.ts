@@ -8,7 +8,7 @@ import type { ProtectionContinuationContext } from '../protection-page-projector
 
 /**
  * Dependencies used to handle interruption-page requests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionRequestHandlerOptions {
 	/** Browser focus observation required for waiting ownership. */
@@ -21,7 +21,7 @@ export interface InterruptionRequestHandlerOptions {
 	 * @param configuration - Current validated configuration.
 	 * @param continuedParticipant - Optional identity from a freshly validated entry request.
 	 * @return Promise resolved after browser effects are current.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	applyDispatchResult(
 		result: ProtectionCoordinatorDispatchResult,
@@ -31,7 +31,7 @@ export interface InterruptionRequestHandlerOptions {
 	/**
 	 * Creates one fresh runtime identifier fragment.
 	 * @return Collision-resistant identifier fragment.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	createStableId(): string;
 	/**
@@ -40,7 +40,7 @@ export interface InterruptionRequestHandlerOptions {
 	 * @param cause - Observable departure cause.
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @return Promise resolved after matching participant state is removed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	departTab(
 		tabId: number,
@@ -50,33 +50,33 @@ export interface InterruptionRequestHandlerOptions {
 	/**
 	 * Returns the current local IANA time zone.
 	 * @return Current IANA time-zone identifier.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getTimeZone(): string;
 	/**
 	 * Loads the current validated configuration.
 	 * @return Current configuration or null when unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	loadConfiguration(): Promise<ProtectionConfigurationDocument | null>;
 	/**
 	 * Returns the current wall-clock epoch time.
 	 * @return Current epoch milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	now(): number;
 	/**
 	 * Reconciles every allowance whose wall-clock interval has ended.
 	 * @param configuration - Current validated configuration.
 	 * @return Promise resolved after elapsed allowances are reconciled.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	reconcileExpiredAllowances( configuration: ProtectionConfigurationDocument ): Promise<void>;
 	/**
 	 * Releases one interruption presentation that no longer has authoritative runtime state.
 	 * @param tabId - Browser tab containing the orphaned presentation.
 	 * @return Promise resolved after local release or a verified stale-tab race.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	releaseInterruptionPresentation( tabId: number ): Promise<void>;
 	/**
@@ -84,7 +84,7 @@ export interface InterruptionRequestHandlerOptions {
 	 * @param configuration - Current validated configuration.
 	 * @param statesByScope - Current authoritative state snapshot.
 	 * @return Promise resolved after toolbar presentation is current.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	refreshToolbarBadge(
 		configuration: ProtectionConfigurationDocument,
@@ -93,14 +93,14 @@ export interface InterruptionRequestHandlerOptions {
 	/**
 	 * Removes browser projections when configuration is unavailable.
 	 * @return Promise resolved after fail-open browser projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	reconcileUnavailableConfiguration(): Promise<void>;
 }
 
 /**
  * Authoritative interruption-page request and focus handling.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionRequestHandler {
 	/**
@@ -109,7 +109,7 @@ export interface InterruptionRequestHandler {
 	 * @param senderTabId - Browser-provided sender tab identifier.
 	 * @param protectionEligible - Whether the sender is explicitly outside private browsing.
 	 * @return Current authoritative page projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	handle(
 		input: unknown,
@@ -122,7 +122,7 @@ export interface InterruptionRequestHandler {
 	 * @param documentVisible - Whether the interruption document is visible.
 	 * @param configuration - Current validated configuration.
 	 * @return Promise resolved after any focus ownership change.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	synchronizeParticipantFocus: (
 		context: ProtectionRuntimeParticipantContext,

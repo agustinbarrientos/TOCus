@@ -7,7 +7,7 @@ import { LocalDataGenerationStorageKey } from '../../../local-data/services/loca
 
 /**
  * Records browser-lock requests while executing their protected mutations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryProtectionConfigurationMutationLock implements BrowserProtectionConfigurationMutationLock {
 	/** Requested lock names in execution order. */
@@ -18,7 +18,7 @@ class MemoryProtectionConfigurationMutationLock implements BrowserProtectionConf
 	 * @param name - Requested browser lock name.
 	 * @param mutation - Deferred protection configuration mutation.
 	 * @return Exact protected-site edit result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	request(
 		name: string,

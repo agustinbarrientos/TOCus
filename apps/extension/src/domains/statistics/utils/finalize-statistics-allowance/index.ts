@@ -6,7 +6,7 @@ import type { FinalizeActiveAllowanceOperation } from '../../types/statistics-op
  * @param scope - Current scope statistics.
  * @param observedAtEpochMilliseconds - Current deterministic observation time.
  * @return Updated scope statistics, or the original scope before expiry.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function finalizeExpiredStatisticsAllowance(
 	scope: ScopeStatistics,
@@ -33,7 +33,7 @@ export function finalizeExpiredStatisticsAllowance(
  * @param operation - Validated explicit finalization operation.
  * @return Updated scope statistics, or the original scope for stale work.
  * @throws {RangeError} When the matching allowance has not expired.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function finalizeMatchingStatisticsAllowance(
 	scope: ScopeStatistics,

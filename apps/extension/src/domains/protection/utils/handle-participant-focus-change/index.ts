@@ -14,7 +14,7 @@ import { selectOwner } from '../select-protection-owner';
  * @param state - Current validated protection state for the event scope.
  * @param event - Validated participant focus-change event.
  * @return The next state and any replacement-owner presentation decision.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function handleParticipantFocusChange(
 	state: ProtectionState,

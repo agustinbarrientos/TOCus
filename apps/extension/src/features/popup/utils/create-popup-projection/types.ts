@@ -7,7 +7,7 @@ import type { PopupCurrentTabContext } from '../../types/current-tab-context';
 
 /**
  * Inputs required to create one deterministic popup projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface CreatePopupProjectionOptions {
 	/** Current active-tab metadata, or null when the browser does not expose it. */
@@ -20,7 +20,7 @@ export interface CreatePopupProjectionOptions {
 
 /**
  * Popup projection inputs with one available protection-runtime snapshot.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface CreatePopupProjectionAvailableOptions extends CreatePopupProjectionOptions {
 	/** Current detached protection runtime state. */
@@ -29,7 +29,7 @@ export interface CreatePopupProjectionAvailableOptions extends CreatePopupProjec
 
 /**
  * Available popup projection inputs with complete current-tab metadata.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface CreatePopupProjectionCurrentTabOptions extends CreatePopupProjectionAvailableOptions {
 	/** Current non-private or private top-level tab metadata. */
@@ -38,7 +38,7 @@ export interface CreatePopupProjectionCurrentTabOptions extends CreatePopupProje
 
 /**
  * Discriminator shared by Waiting and Allowance protection states.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 interface PopupActiveProtectionStateDiscriminator {
 	/** Active timer state kind. */
@@ -47,13 +47,13 @@ interface PopupActiveProtectionStateDiscriminator {
 
 /**
  * Runtime protection states that expose a visible popup timer.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupActiveProtectionState = Extract<ProtectionState, PopupActiveProtectionStateDiscriminator>;
 
 /**
  * Discriminator owned by one Waiting protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 interface PopupWaitingProtectionStateDiscriminator {
 	/** Waiting timer state kind. */
@@ -62,6 +62,6 @@ interface PopupWaitingProtectionStateDiscriminator {
 
 /**
  * Waiting runtime state whose focused remainder is displayed without local ticking.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupWaitingProtectionState = Extract<ProtectionState, PopupWaitingProtectionStateDiscriminator>;

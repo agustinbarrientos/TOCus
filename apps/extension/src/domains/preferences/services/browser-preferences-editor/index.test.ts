@@ -12,7 +12,7 @@ import { LocalDataGenerationStorageKey } from '../../../local-data/services/loca
 
 /**
  * Records browser-lock requests while executing their protected mutations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryPreferencesMutationLock implements BrowserPreferencesMutationLock {
 	/** Requested lock names in execution order. */
@@ -24,7 +24,7 @@ class MemoryPreferencesMutationLock implements BrowserPreferencesMutationLock {
 	 * @param name - Requested browser lock name.
 	 * @param mutation - Deferred preferences mutation.
 	 * @return Exact mutation result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	request<Result>( name: string, mutation: () => Promise<Result> ): Promise<Result> {
 		this.names.push( name );

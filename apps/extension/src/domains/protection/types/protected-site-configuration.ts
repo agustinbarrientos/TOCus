@@ -15,37 +15,37 @@ import { TimingConfigurationSchema } from './timing-configuration';
 
 /**
  * Current protected-site configuration document version.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionConfigurationDocumentVersion = 5;
 
 /**
  * Validates editable protected-site display-name input, including an empty cleared value.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedSiteDisplayNameInputSchema = z.string().trim().max( 80 );
 
 /**
  * Editable protected-site display-name input.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedSiteDisplayNameInput = z.infer<typeof ProtectedSiteDisplayNameInputSchema>;
 
 /**
  * Validates one persisted protected-site display-name override.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedSiteDisplayNameSchema = ProtectedSiteDisplayNameInputSchema.min( 1 );
 
 /**
  * Persisted protected-site display-name override.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedSiteDisplayName = z.infer<typeof ProtectedSiteDisplayNameSchema>;
 
 /**
  * Validates one protected-site configuration without mixing presentation data into its matching rule.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedSiteConfigurationSchema = z.object( {
 	identityHost: CanonicalHostSchema,
@@ -72,13 +72,13 @@ export const ProtectedSiteConfigurationSchema = z.object( {
 
 /**
  * Protected-site configuration with separate identity, matching, and optional presentation data.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedSiteConfiguration = z.infer<typeof ProtectedSiteConfigurationSchema>;
 
 /**
  * Validates protected-site configurations with non-overlapping matching ranges.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedSiteConfigurationSetSchema = z.array( ProtectedSiteConfigurationSchema ).superRefine(
 	( configurations, context ) => {
@@ -97,13 +97,13 @@ export const ProtectedSiteConfigurationSetSchema = z.array( ProtectedSiteConfigu
 
 /**
  * Protected-site configurations with non-overlapping matching ranges.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedSiteConfigurationSet = z.infer<typeof ProtectedSiteConfigurationSetSchema>;
 
 /**
  * Validates the current protected-site configuration document version.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ProtectionConfigurationDocumentVersionSchema = z.number().int().nonnegative().refine(
 	( version ) => version === ProtectionConfigurationDocumentVersion,
@@ -113,7 +113,7 @@ const ProtectionConfigurationDocumentVersionSchema = z.number().int().nonnegativ
  * Extracts own entries from one plain protection-scope record input.
  * @param input - Unknown protection-scope record input.
  * @return Own entries, or null for a non-plain record.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function extractProtectionScopeRecordEntries( input: unknown ): unknown {
 	if ( typeof input !== 'object' || input === null || Array.isArray( input ) ) {
@@ -131,7 +131,7 @@ function extractProtectionScopeRecordEntries( input: unknown ): unknown {
  * Creates one prototype-safe protection-scope record.
  * @param entries - Validated entries indexed by exact protection-scope identifiers.
  * @return Values indexed by their exact protection-scope identifiers.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createProtectionScopeRecord<Value>(
 	entries: Array<[ProtectionScopeId, Value]>,
@@ -141,7 +141,7 @@ function createProtectionScopeRecord<Value>(
 
 /**
  * Validates one protection-scope measurement-revision entry.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ProtectionScopeMeasurementRevisionEntrySchema = z.tuple( [
 	ProtectionScopeIdSchema,
@@ -150,7 +150,7 @@ const ProtectionScopeMeasurementRevisionEntrySchema = z.tuple( [
 
 /**
  * Validates measurement revisions indexed by protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionScopeMeasurementRevisionMapSchema = z.preprocess(
 	extractProtectionScopeRecordEntries,
@@ -159,7 +159,7 @@ export const ProtectionScopeMeasurementRevisionMapSchema = z.preprocess(
 
 /**
  * Measurement revisions indexed by protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionScopeMeasurementRevisionMap = z.infer<
 	typeof ProtectionScopeMeasurementRevisionMapSchema
@@ -167,7 +167,7 @@ export type ProtectionScopeMeasurementRevisionMap = z.infer<
 
 /**
  * Validates one complete local protected-site configuration document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionConfigurationDocumentSchema = z.object( {
 	schemaVersion: ProtectionConfigurationDocumentVersionSchema,
@@ -204,6 +204,6 @@ export const ProtectionConfigurationDocumentSchema = z.object( {
 
 /**
  * Complete local protected-site configuration document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionConfigurationDocument = z.infer<typeof ProtectionConfigurationDocumentSchema>;

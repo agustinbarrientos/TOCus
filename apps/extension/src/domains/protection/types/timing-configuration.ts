@@ -13,7 +13,7 @@ const TWENTY_MINUTES_MILLISECONDS = 20 * ONE_MINUTE_MILLISECONDS;
 
 /**
  * Validates a permitted initial wait selected in five-second increments.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const InitialWaitMillisecondsSchema = DurationMillisecondsSchema
 	.min( TEN_SECONDS_MILLISECONDS )
@@ -22,7 +22,7 @@ const InitialWaitMillisecondsSchema = DurationMillisecondsSchema
 
 /**
  * Validates a permitted daily-ladder wait increase.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const LadderIncreaseMillisecondsSchema = DurationMillisecondsSchema
 	.max( FIVE_SECONDS_MILLISECONDS )
@@ -30,7 +30,7 @@ const LadderIncreaseMillisecondsSchema = DurationMillisecondsSchema
 
 /**
  * Validates a permitted maximum wait selected in thirty-second increments.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const MaximumWaitMillisecondsSchema = DurationMillisecondsSchema
 	.min( THIRTY_SECONDS_MILLISECONDS )
@@ -39,7 +39,7 @@ const MaximumWaitMillisecondsSchema = DurationMillisecondsSchema
 
 /**
  * Validates a configured allowance selected in whole minutes.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const TimingAllowanceMillisecondsSchema = DurationMillisecondsSchema
 	.min( TWO_MINUTES_MILLISECONDS )
@@ -48,7 +48,7 @@ const TimingAllowanceMillisecondsSchema = DurationMillisecondsSchema
 
 /**
  * Validates the global timing configuration.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const TimingConfigurationSchema = z.object( {
 	initialWaitMilliseconds: InitialWaitMillisecondsSchema,
@@ -68,13 +68,13 @@ export const TimingConfigurationSchema = z.object( {
 
 /**
  * Global wait and allowance timing configuration.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type TimingConfiguration = z.infer<typeof TimingConfigurationSchema>;
 
 /**
  * Default global timing configuration.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const DefaultTimingConfiguration = Object.freeze(
 	TimingConfigurationSchema.parse( {

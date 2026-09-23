@@ -3,7 +3,7 @@ import { createLocalizationViteConfig } from '../apps/extension/config/vite/serv
 
 /**
  * Configures the repository's unit and build-contract test projects.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export default defineConfig( {
 	test: {

@@ -7,7 +7,7 @@ import type {
 
 /**
  * Current waiting or Ready participant associated with one browser tab.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectionRuntimeParticipantContext {
 	participant: ProtectionParticipant;

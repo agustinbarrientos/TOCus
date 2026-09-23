@@ -35,7 +35,7 @@ import type {
 
 /**
  * Mutable storage-change source used by onboarding startup tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryStorageChanges {
 	/** Active browser storage listeners. */
@@ -47,7 +47,7 @@ class MemoryStorageChanges {
 	/**
 	 * Registers one browser storage listener.
 	 * @param listener - Listener to register.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	addListener(
 		listener: (
@@ -61,7 +61,7 @@ class MemoryStorageChanges {
 	/**
 	 * Removes one browser storage listener.
 	 * @param listener - Listener to remove.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	removeListener(
 		listener: (
@@ -75,7 +75,7 @@ class MemoryStorageChanges {
 	/**
 	 * Emits one preferences storage update.
 	 * @param preferences - Complete preferences delivered by the browser.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	emitPreferences( preferences: PreferencesDocument ): void {
 		for ( const listener of this.listeners ) {
@@ -89,7 +89,7 @@ class MemoryStorageChanges {
 	 * Emits one candidate protection snapshot from an arbitrary storage area.
 	 * @param configuration - Raw protection document supplied by storage.
 	 * @param areaName - Browser storage area containing the update.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	emitProtection( configuration: unknown, areaName = 'local' ): void {
 		for ( const listener of this.listeners ) {
@@ -100,7 +100,7 @@ class MemoryStorageChanges {
 
 /**
  * Mutable operating-system motion preference used by page tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryMotionPreference extends EventTarget {
 	/** Whether reduced motion is currently requested. */
@@ -109,7 +109,7 @@ class MemoryMotionPreference extends EventTarget {
 
 /**
  * Executes every browser mutation immediately for page-service tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class ImmediateMutationLock {
 	/**
@@ -118,7 +118,7 @@ class ImmediateMutationLock {
 	 * @param _name - Stable lock name.
 	 * @param mutation - Deferred browser mutation.
 	 * @return Exact mutation result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	request<Result>( _name: string, mutation: () => Promise<Result> ): Promise<Result> {
 		return mutation();
@@ -127,7 +127,7 @@ class ImmediateMutationLock {
 
 /**
  * Observable onboarding shell used by page-service tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryOnboardingShell extends EventTarget implements OnboardingPageShell {
 	copy: OnboardingPageShell[ 'copy' ];
@@ -163,7 +163,7 @@ class MemoryOnboardingShell extends EventTarget implements OnboardingPageShell {
  * Creates complete page dependencies with immediate local defaults.
  * @param overrides - Dependencies replaced for one scenario.
  * @return Complete onboarding page options.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createOptions(
 	overrides: Partial<OnboardingPageOptions> = {},

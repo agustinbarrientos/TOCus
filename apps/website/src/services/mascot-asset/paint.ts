@@ -77,7 +77,7 @@ function clayTextures() {
  * Paints existing features with portable vertex colors and embedded PBR textures.
  * @param geometry - Original indexed geometry, owned by the authoring operation.
  * @return Clay and glossy-eye materials; two draw groups keep rendering inexpensive.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function paintMascot( geometry: BufferGeometry ): MeshPhysicalMaterial[] {
 	const positions = geometry.getAttribute( 'position' );

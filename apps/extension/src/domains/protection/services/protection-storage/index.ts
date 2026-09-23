@@ -17,7 +17,7 @@ import {
  * Creates browser-backed durable and session protection persistence.
  * @param options - Browser storage areas used by the service.
  * @return Focused protection storage operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createProtectionStorageService(
 	options: ProtectionStorageServiceOptions,
@@ -28,7 +28,7 @@ export function createProtectionStorageService(
 	 * Loads one complete durable and session snapshot for domain parsing.
 	 * @return Compatible domain documents from the latest complete snapshot.
 	 * @throws {Error} When either browser storage read rejects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function load(): Promise<LoadedProtectionState> {
 		currentSnapshotId = null;
@@ -70,7 +70,7 @@ export function createProtectionStorageService(
 	 * @param input - Unknown complete stored-state input.
 	 * @return Promise resolved after both writes complete.
 	 * @throws {Error} When validation fails or either browser storage write rejects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function save( input: unknown ): Promise<void> {
 		const state = StoredProtectionStateSchema.parse( input );
@@ -99,7 +99,7 @@ export function createProtectionStorageService(
 	 * @param input - Unknown current durable-state input.
 	 * @return Promise resolved after the durable write completes.
 	 * @throws {Error} When validation fails, no current snapshot is established, or storage rejects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function saveDurableStatisticsDelivery( input: unknown ): Promise<void> {
 		const durableState = StoredDurableProtectionStateSchema.parse( input );

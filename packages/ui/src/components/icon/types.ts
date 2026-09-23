@@ -1,6 +1,6 @@
 /**
  * Supplied icon shapes, independent of application destinations or feedback meaning.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const IconName = {
 	CAPYBARA: 'capybara',
@@ -28,12 +28,12 @@ export const IconName = {
 
 /**
  * Icon shape inferred from the single runtime catalog.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type IconName = ( typeof IconName )[ keyof typeof IconName ];
 /**
  * Decorative icon presentation.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface IconProps {
 	name: IconName;

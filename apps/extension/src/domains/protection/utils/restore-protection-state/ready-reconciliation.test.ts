@@ -31,13 +31,13 @@ import {
 
 /**
  * Fixed initial instant used by Ready-state restoration fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const FIRST_INSTANT = 1_800_000_000_000;
 
 /**
  * Fixed allowance expiry used by Ready-state restoration fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ALLOWANCE_EXPIRY = FIRST_INSTANT + 300_000;
 
@@ -45,7 +45,7 @@ const ALLOWANCE_EXPIRY = FIRST_INSTANT + 300_000;
  * Recursively freezes a fixture so mutation attempts fail.
  * @param value - Fixture value to freeze.
  * @return The deeply frozen fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function freezeDeeply<Value>( value: Value ): Value {
 	if ( typeof value !== 'object' || value === null || Object.isFrozen( value ) ) {
@@ -64,7 +64,7 @@ function freezeDeeply<Value>( value: Value ): Value {
  * @param completedWaits - Completed waits on the greatest observed date.
  * @param greatestObservedLocalDate - Greatest observed local date.
  * @return A daily ladder.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createLadder( completedWaits = 2, greatestObservedLocalDate = '2026-08-31' ) {
 	return { completedWaits, greatestObservedLocalDate };
@@ -78,7 +78,7 @@ function createLadder( completedWaits = 2, greatestObservedLocalDate = '2026-08-
  * @param focusEligible - Whether the participant can own progress.
  * @param joinSequence - Stable join sequence.
  * @return A runtime navigation participant.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createRuntimeNavigationParticipant(
 	participantId = 'participant-a',
@@ -105,7 +105,7 @@ function createRuntimeNavigationParticipant(
  * @param focusEligible - Whether the participant can own progress.
  * @param joinSequence - Stable join sequence.
  * @return A runtime allowance-expiry participant.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createRuntimeExpiryParticipant(
 	participantId = 'participant-b',
@@ -131,7 +131,7 @@ function createRuntimeExpiryParticipant(
  * @param retainedDestination - Retained HTTP(S) destination.
  * @param joinSequence - Stable join sequence.
  * @return A stored navigation participant.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStoredNavigationParticipant(
 	participantId = 'participant-a',
@@ -154,7 +154,7 @@ function createStoredNavigationParticipant(
  * @param pageId - Page identifier.
  * @param joinSequence - Stable join sequence.
  * @return A stored allowance-expiry participant.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStoredExpiryParticipant(
 	participantId = 'participant-b',
@@ -175,7 +175,7 @@ function createStoredExpiryParticipant(
  * @param scopeId - Scope identifier.
  * @param readyParticipants - Ready participant collection.
  * @return An Allowance state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createAllowanceState(
 	scopeId = 'scope-allowance',
@@ -197,7 +197,7 @@ function createAllowanceState(
  * Creates a current durable state fixture.
  * @param scopes - Durable scope record.
  * @return A current durable state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStoredDurableState<Scopes extends object>( scopes: Scopes ) {
 	return {
@@ -215,7 +215,7 @@ function createStoredDurableState<Scopes extends object>( scopes: Scopes ) {
  * @param scopes - Session scope record.
  * @param sessionContinuityId - Stored continuity identifier.
  * @return A current session state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStoredSessionState(
 	scopes: unknown = {},
@@ -233,7 +233,7 @@ function createStoredSessionState(
  * @param allowanceId - Matching allowance identifier.
  * @param participants - Stored Ready participant collection.
  * @return A stored Ready scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStoredReadyScope(
 	allowanceId = 'allowance-a',
@@ -251,7 +251,7 @@ function createStoredReadyScope(
  * Creates a durable scope fixture.
  * @param allowanceId - Optional allowance identifier.
  * @return A durable scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStoredDurableScope( allowanceId: string | null = null ) {
 	if ( allowanceId === null ) {
@@ -273,7 +273,7 @@ function createStoredDurableScope( allowanceId: string | null = null ) {
  * @param durable - Parsed durable result.
  * @param session - Parsed session result.
  * @return Parsed stored protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createParsedStoredState(
 	durable: unknown = {
@@ -289,7 +289,7 @@ function createParsedStoredState(
  * Creates a protected same-scope observation result.
  * @param scopeId - Scope returned by the fresh match.
  * @return A protected rule match.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createProtectedMatch( scopeId = 'scope-allowance' ) {
 	return {
@@ -310,7 +310,7 @@ function createProtectedMatch( scopeId = 'scope-allowance' ) {
  * @param match - Fresh rule-match result.
  * @param schedule - Fresh schedule result.
  * @return A fresh participant observation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createFreshObservation(
 	participantId = 'participant-a',
@@ -334,7 +334,7 @@ function createFreshObservation(
  * @param scopeId - Durable scope identifier.
  * @param allowanceId - Durable allowance identifier.
  * @return A Ready restoration observation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createReadyObservation(
 	observation: unknown = createFreshObservation(),
@@ -351,7 +351,7 @@ function createReadyObservation(
  * @param nowEpochMilliseconds - Current wall-clock instant.
  * @param sessionContinuityId - Coordinator continuity identifier.
  * @return A continued-session restoration input.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createContinuedRestoreInput(
 	parsedState: unknown,

@@ -6,7 +6,7 @@ import { ExtensionBuildBrowser } from '../../shared/utils/build-browser/types';
 
 /**
  * Hoisted dependencies used by settings entrypoint composition tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const entrypointMocks = vi.hoisted( () => {
 	const shell = { fixture: true };
@@ -60,7 +60,7 @@ vi.mock( '../../localization', () => ( {
  * Imports the settings entrypoint for one browser environment.
  * @param browser - Browser build target exposed by WXT.
  * @return Promise resolved after entrypoint evaluation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function importSettingsEntrypoint(
 	browser: string,

@@ -94,7 +94,7 @@ function hasInteractiveShortcutTarget( event: KeyboardEvent ): boolean {
  * @fires ComponentInterruptionScreen#event:continueRequest - Emits the plain bubbling `tocus-continue-request` event from Ready.
  * @fires ComponentInterruptionScreen#event:retryRequest - Emits the plain bubbling `tocus-retry-request` event from Unavailable.
  * @summary Accessible full-viewport interruption presentation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export class ComponentInterruptionScreen extends PresentationElement {
 	/**
@@ -359,7 +359,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 	/**
 	 * Eligible review invitation supplied by local statistics and preferences.
 	 * @return Current invitation, or null when ineligible or permanently dismissed.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	get reviewPrompt(): Readonly<ReviewPromptPresentation> | null {
 		return this.reviewPromptInput;
@@ -368,7 +368,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 	/**
 	 * Applies invitation changes without resetting breathing progress or focus.
 	 * @param value - Latest review invitation state.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	set reviewPrompt( value: Readonly<ReviewPromptPresentation> | null ) {
 		const previous = this.reviewPromptInput;
@@ -389,7 +389,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 
 	/**
 	 * Persists the user's choice to stop asking after dismissal or opening the store.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	private requestReviewDismissal = (): void => {
 		this.dispatchEvent( new Event( ReviewPromptDismissRequestEventName, { bubbles: true } ) );
@@ -443,7 +443,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 	/**
 	 * Creates one interruption screen with browser timing defaults.
 	 * @param environment - Presentation timing and attention dependencies.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor(
 		environment: InterruptionScreenEnvironment = DefaultInterruptionScreenEnvironment,
@@ -459,7 +459,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 	/**
 	 * Handles the guarded global Space shortcut.
 	 * @param event - Global keyboard event.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private readonly handleGlobalKeydown = ( event: KeyboardEvent ): void => {
 		if (
@@ -484,7 +484,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 
 	/**
 	 * Requests a render after locally displayed focused progress changes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private readonly handleClockProgress = (): void => {
 		this.requestUpdate();
@@ -492,7 +492,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 
 	/**
 	 * Reconciles focused progress after document visibility or window focus changes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private readonly handleAttentionChange = (): void => {
 		const transition = this.progressClock.update(
@@ -506,7 +506,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 
 	/**
 	 * Starts global keyboard observation while the screen is connected.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	override connectedCallback(): void {
 		super.connectedCallback();
@@ -525,7 +525,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 
 	/**
 	 * Releases global keyboard observation when the screen disconnects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	override disconnectedCallback(): void {
 		this.progressClock.disconnect();
@@ -541,7 +541,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 	/**
 	 * Returns the focused progress currently displayed by the local presentation clock.
 	 * @return Displayed focused progress in milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getFocusedProgressMilliseconds(): number {
 		return this.progressClock.getProgressMilliseconds();
@@ -550,7 +550,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 	/**
 	 * Updates the major-state announcement before rendering.
 	 * @param changedProperties - Reactive properties changed for this update.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private prepareUpdate( changedProperties: PresentationChanges ): void {
 		if (
@@ -606,7 +606,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 	/**
 	 * Moves focus after authoritative state and recovery transitions.
 	 * @param changedProperties - Reactive properties changed for this update.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	protected override afterRender( changedProperties: PresentationChanges ): void {
 		if ( ! isLocalizationReady( this.copy ) ) {
@@ -655,7 +655,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 	 * Commits the authoritative adapter snapshot to the shared React scene.
 	 * @param changes - Inputs changed together in this controller projection.
 	 * @return React scene, or no content until localization is ready.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	protected override renderPresentation( changes: PresentationChanges ): ReactNode {
 		this.prepareUpdate( changes );
@@ -675,7 +675,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 	/**
 	 * Returns the announcement kind for the current major state.
 	 * @return Current major-state announcement kind.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private getStateAnnouncementKind(): InterruptionScreenAnnouncementKindValue {
 		if ( this.state === InterruptionScreenState.READY ) {
@@ -696,7 +696,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 	/**
 	 * Resolves the retained announcement kind through the current localized copy.
 	 * @return Complete localized live-region message.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private resolveAnnouncement(): string {
 		if ( this.announcementKind === InterruptionScreenAnnouncementKind.PAUSED ) {
@@ -733,7 +733,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 	/**
 	 * Builds current presentation conditions for the focused-progress clock.
 	 * @return Current focused-progress clock input.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private createProgressClockInput(): FocusedProgressClockInput {
 		return {
@@ -751,7 +751,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 	/**
 	 * Applies one user-facing transition reported by the focused-progress clock.
 	 * @param transition - Clock transition to announce, or null when none occurred.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private applyClockTransition( transition: FocusedProgressClockTransitionValue | null ): void {
 		if ( transition === FocusedProgressClockTransition.PAUSED ) {
@@ -764,7 +764,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 	/**
 	 * Replaces the retained polite announcement kind and localized message.
 	 * @param announcementKind - New polite announcement kind.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private setAnnouncementKind( announcementKind: InterruptionScreenAnnouncementKindValue ): void {
 		this.announcementKind = announcementKind;
@@ -774,7 +774,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 	/**
 	 * Focuses one stable control or status without moving the viewport.
 	 * @param selector - Selector of the focus target in the shadow tree.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private focusElement( selector: string ): void {
 		const target = this.renderRoot.querySelector( selector );
@@ -786,7 +786,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 
 	/**
 	 * Emits one plain Continue request while Ready.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private readonly requestContinue = (): void => {
 		if ( this.state !== InterruptionScreenState.READY ) {
@@ -801,7 +801,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 
 	/**
 	 * Emits one plain retry request while recovery is available.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private readonly requestRetry = (): void => {
 		if ( this.state !== InterruptionScreenState.UNAVAILABLE || this.recovering ) {

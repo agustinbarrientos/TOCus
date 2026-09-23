@@ -5,7 +5,7 @@ import './style.scss';
 /**
  * Presents a local poster until the interactive scene is ready.
  * @return A decorative poster and progressively enhanced canvas.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function RiversideHero() {
 	const canvas = useRef<HTMLCanvasElement>( null );

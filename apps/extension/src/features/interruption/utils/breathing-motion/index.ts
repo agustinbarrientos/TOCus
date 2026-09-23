@@ -31,7 +31,7 @@ function applyNaturalCurve( progress: number ): number {
  * @param reducedMotion - Whether continuous sphere movement is disabled.
  * @return Current phase, sphere progress, remaining duration, and completion status.
  * @throws {import('zod').ZodError} When the wait duration is outside the protection-domain contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function getBreathingMotionFrame(
 	elapsedMilliseconds: number,

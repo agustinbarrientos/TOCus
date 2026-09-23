@@ -1,6 +1,6 @@
 /**
  * Cartesian point used by breathing-sphere paths.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface CartesianPoint {
 	x: number;
@@ -9,7 +9,7 @@ export interface CartesianPoint {
 
 /**
  * Inputs used to calculate one breathing-sphere perimeter point.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BreathingSpherePointInput {
 	angle: number;
@@ -21,7 +21,7 @@ export interface BreathingSpherePointInput {
 
 /**
  * Inputs used to calculate one organic contour point.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BreathingSphereContourPointInput {
 	breathProgress: number;

@@ -13,7 +13,7 @@ const CACHED_FAVICON_SIZE = 32;
  * Creates a provider for browser-cached favicons with a local-only fallback.
  * @param options - Browser capability and extension URL dependency.
  * @return Cached-favicon provider without network access.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createSiteFaviconProvider(
 	options: SiteFaviconProviderOptions,
@@ -22,7 +22,7 @@ export function createSiteFaviconProvider(
 	 * Creates an extension-local cached favicon source for one exact identity host.
 	 * @param input - Unknown canonical identity host input.
 	 * @return Extension-local source or null when cached favicons are unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function getSource( input: unknown ): SiteFaviconSource {
 		const identityHost = CanonicalHostSchema.parse( input );

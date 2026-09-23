@@ -23,7 +23,7 @@ import {
  * Checks for URL navigation syntax or disallowed ASCII characters that cannot be stored as host data.
  * @param input - Unnormalized stored host.
  * @return Whether the host contains a forbidden character.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function containsForbiddenStoredHostCharacter( input: string ): boolean {
 	for ( const character of input ) {
@@ -45,7 +45,7 @@ function containsForbiddenStoredHostCharacter( input: string ): boolean {
  * Canonicalizes a stored rule host without applying public-suffix reduction.
  * @param input - An unnormalized stored host.
  * @return The canonical stored host, or null when navigation details or invalid syntax are present.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function canonicalizeStoredHost( input: string ): CanonicalHost | null {
 	const isBracketedIpv6 = /^\[[^\]]+\]$/.test( input );
@@ -66,7 +66,7 @@ function canonicalizeStoredHost( input: string ): CanonicalHost | null {
  * Canonicalizes an unknown stored rule set without mutating it.
  * @param input - Unknown stored rule-set input.
  * @return Canonical rules, or null when any rule or match range is invalid.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function canonicalizeProtectedSiteRules( input: unknown ): ProtectedSiteRuleSet | null {
 	const inputResult = ProtectedSiteRuleInputSetSchema.safeParse( input );
@@ -100,7 +100,7 @@ export function canonicalizeProtectedSiteRules( input: unknown ): ProtectedSiteR
  * @param input - Unknown protected-site input.
  * @param scopeId - Unknown protection scope identifier.
  * @return An accepted identity and matching rule or a stable rejection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function canonicalizeProtectedSite( input: unknown, scopeId: unknown ): ProtectedSiteCanonicalizationResult {
 	const inputResult = ProtectedSiteInputSchema.safeParse( input );

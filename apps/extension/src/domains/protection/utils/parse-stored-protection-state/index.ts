@@ -24,7 +24,7 @@ import {
 
 /**
  * Statistics delivery used when protection state is valid but its observational data is not.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const IncompleteStatisticsDelivery = Object.freeze( {
 	status: StoredProtectionStatisticsDeliveryStatus.INCOMPLETE,
@@ -35,7 +35,7 @@ const IncompleteStatisticsDelivery = Object.freeze( {
  * Recovers valid protection fields while replacing untrusted statistics delivery.
  * @param input - Unknown durable document whose complete parse failed.
  * @return Current protection state with incomplete statistics, or null when protection is invalid.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function recoverDurableProtectionWithoutStatistics(
 	input: unknown,
@@ -56,7 +56,7 @@ function recoverDurableProtectionWithoutStatistics(
  * Parses one unknown durable stored value without exposing raw failure details.
  * @param input - Unknown durable stored value.
  * @return Typed durable parse result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function parseDurableStoredProtectionState( input: unknown ): ParsedDurableStoredProtectionState {
 	if ( input === undefined ) {
@@ -106,7 +106,7 @@ function parseDurableStoredProtectionState( input: unknown ): ParsedDurableStore
  * Parses one unknown session stored value without exposing raw failure details.
  * @param input - Unknown session stored value.
  * @return Typed session parse result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function parseSessionStoredProtectionState( input: unknown ): ParsedSessionStoredProtectionState {
 	if ( input === undefined ) {
@@ -148,7 +148,7 @@ function parseSessionStoredProtectionState( input: unknown ): ParsedSessionStore
  * @param input - Optional unknown durable and session stored values.
  * @return Typed independent parse results.
  * @throws {import('zod').ZodError} When the input wrapper or a computed result violates its contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function parseStoredProtectionState( input: unknown ): ParsedStoredProtectionState {
 	const parsedInput = ParseStoredProtectionStateInputSchema.parse( input );

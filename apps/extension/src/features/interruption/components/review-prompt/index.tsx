@@ -8,7 +8,7 @@ import type { ReviewPromptProps } from './types';
  * @param props.presentation - Store destination and dismissal state.
  * @param props.onDismiss - Persist the choice to stop asking for a review.
  * @return Non-modal review invitation.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function ReviewPrompt( { copy, presentation, onDismiss }: ReviewPromptProps ) {
 	return <aside className="review-prompt" aria-labelledby="review-title" onFocus={( event ) => {

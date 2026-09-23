@@ -10,7 +10,7 @@ import type { OriginalAuditResult } from './types';
  * @remarks Missing, wildcard, unknown and mixed original selections keep the complete original gate.
  * @param arguments_ - Playwright command-line arguments, including repeated or variadic project options.
  * @return Whether the caller deliberately omitted the original project.
- * @since 0.1.0
+ * @since 1.0.0
  */
 function isSupplementalOnlyRun( arguments_: readonly string[] ): boolean {
 	const projects: string[] = [];
@@ -45,7 +45,7 @@ function isSupplementalOnlyRun( arguments_: readonly string[] ): boolean {
 /**
  * Makes immutable-original integrity and complete case registration part of the normal visual gate.
  * Explicit case or supplemental-only runs may omit original registrations, never their hash checks.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export default class OriginalSnapshotAudit implements Reporter {
 	private failed = false;
@@ -55,7 +55,7 @@ export default class OriginalSnapshotAudit implements Reporter {
 	 * @remarks Missing original discovery is a failure, not an implicit supplemental-only selection.
 	 * @param config - Resolved project filters and comparison configuration.
 	 * @param suite - Registered tests remaining after explicit command-line filtering.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	onBegin( config: FullConfig, suite: Suite ): void {
 		const failures: string[] = [];
@@ -100,7 +100,7 @@ export default class OriginalSnapshotAudit implements Reporter {
 	 * Keeps registration or integrity errors from appearing as a passing partial migration.
 	 * @param result - Browser comparison result before completeness enforcement.
 	 * @return Final visual gate result.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	onEnd( result: FullResult ): Promise<OriginalAuditResult> {
 		return Promise.resolve( { status: this.failed ? 'failed' : result.status } );

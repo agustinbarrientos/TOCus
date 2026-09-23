@@ -14,7 +14,7 @@ import type {
 
 /**
  * Default catalog dependency for runtime projections.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const DefaultOptions: Readonly<CreateRuntimeLocalizationMessagesOptions> = Object.freeze( {
 	readCatalog: readLocalizationCatalog,
@@ -25,7 +25,7 @@ const DefaultOptions: Readonly<CreateRuntimeLocalizationMessagesOptions> = Objec
  * @param entry - Parsed Lingui catalog entry.
  * @param origins - Source-module suffixes included in the runtime projection.
  * @return Whether the selected runtime needs the entry.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function hasSelectedOrigin(
 	entry: CatalogType[ string ],
@@ -42,7 +42,7 @@ function hasSelectedOrigin(
  * @param locale - Canonical catalog locale.
  * @param origins - Source-module suffixes included in the runtime projection.
  * @return Complete runtime message projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function projectRuntimeMessages(
 	catalog: CatalogType,
@@ -72,7 +72,7 @@ function projectRuntimeMessages(
  * @param origins - Source-module suffixes included in the runtime projection.
  * @param options - Injectable catalog dependency.
  * @return Focused translated messages for the catalog language.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function loadRuntimeMessages(
 	definition: Readonly<ExtensionCatalog>,
@@ -91,7 +91,7 @@ async function loadRuntimeMessages(
  * @param origins - Source-module suffixes included in the runtime projection.
  * @param options - Injectable catalog dependency.
  * @return Runtime messages indexed by every supported preference language.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export async function createRuntimeLocalizationMessages(
 	origins: ReadonlyArray<string>,

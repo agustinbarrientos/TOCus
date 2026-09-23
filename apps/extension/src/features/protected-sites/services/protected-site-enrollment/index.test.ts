@@ -47,13 +47,13 @@ import { LocalDataGenerationStorageKey } from '../../../../domains/local-data/se
 
 /**
  * Empty protection configuration used by enrollment service tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const EMPTY_CONFIGURATION: ProtectionConfigurationDocument = { ...TestEmptyProtectionConfiguration };
 
 /**
  * Empty configuration after one measurement-affecting membership edit.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const UPDATED_EMPTY_CONFIGURATION = ProtectionConfigurationDocumentSchema.parse( {
 	...TestEmptyProtectionConfiguration,
@@ -63,7 +63,7 @@ const UPDATED_EMPTY_CONFIGURATION = ProtectionConfigurationDocumentSchema.parse(
 } );
 /**
  * Example shared site used by enrollment service tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const EXAMPLE_SITE: ProtectedSiteConfiguration = {
 	identityHost: 'example.com',
@@ -75,7 +75,7 @@ const EXAMPLE_SITE: ProtectedSiteConfiguration = {
 };
 /**
  * Complete configuration containing the example shared site.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const POPULATED_CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
@@ -84,13 +84,13 @@ const POPULATED_CONFIGURATION: ProtectionConfigurationDocument = {
 
 /**
  * Scope returned by authoritative configuration removal.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const AUTHORITATIVE_SCOPE_ID = DefaultProtectionScopeId;
 
 /**
  * Site returned by authoritative configuration removal.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const AUTHORITATIVE_SITE: ProtectedSiteConfiguration = {
 	...EXAMPLE_SITE,
@@ -102,7 +102,7 @@ const AUTHORITATIVE_SITE: ProtectedSiteConfiguration = {
 
 /**
  * Configuration containing the authoritative independent site.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const AUTHORITATIVE_CONFIGURATION = ProtectionConfigurationDocumentSchema.parse( {
 	...TestEmptyProtectionConfiguration,
@@ -118,7 +118,7 @@ const AUTHORITATIVE_CONFIGURATION = ProtectionConfigurationDocumentSchema.parse(
 
 /**
  * In-memory configuration storage used by enrollment service tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryEnrollmentStorage implements ProtectionConfigurationStorageService {
 	rejectLoads = false;
@@ -132,14 +132,14 @@ class MemoryEnrollmentStorage implements ProtectionConfigurationStorageService {
 	/**
 	 * Creates storage with one initial configuration.
 	 * @param configuration - Configuration returned by reads.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor( public configuration: ProtectionConfigurationDocument ) {}
 
 	/**
 	 * Loads the current configuration.
 	 * @return Current protected-site configuration.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	load(): Promise<ProtectionConfigurationDocument | null> {
 		if ( this.rejectLoads ) {
@@ -153,7 +153,7 @@ class MemoryEnrollmentStorage implements ProtectionConfigurationStorageService {
 	 * Stores one configuration unless the test requests a failure.
 	 * @param input - Configuration candidate to store.
 	 * @return Promise resolved after persistence.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	save( input: unknown ): Promise<void> {
 		if ( this.rejectSaves ) {
@@ -169,7 +169,7 @@ class MemoryEnrollmentStorage implements ProtectionConfigurationStorageService {
 
 /**
  * Controllable permission manager used by enrollment service tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryEnrollmentPermissionManager implements SitePermissionManager {
 	requestResult: SitePermissionRequestResult = {
@@ -199,7 +199,7 @@ class MemoryEnrollmentPermissionManager implements SitePermissionManager {
 	 * Returns the supplied configuration unchanged for enrollment-only fixtures.
 	 * @param configuration - Validated persisted configuration.
 	 * @return Unchanged configuration.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	filterConfiguration(
 		configuration: ProtectionConfigurationDocument,
@@ -210,7 +210,7 @@ class MemoryEnrollmentPermissionManager implements SitePermissionManager {
 	/**
 	 * Reports complete access for the default enrollment fixture.
 	 * @return True for the default granted-access fixture.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	hasAccess(): Promise<boolean> {
 		return Promise.resolve( this.hasAccessResult );
@@ -218,7 +218,7 @@ class MemoryEnrollmentPermissionManager implements SitePermissionManager {
 
 	/**
 	 * Defers the next permission release until the test explicitly completes it.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	deferNextRelease(): void {
 		this.releaseStarted = new Promise<void>( ( resolve ) => {
@@ -231,7 +231,7 @@ class MemoryEnrollmentPermissionManager implements SitePermissionManager {
 
 	/**
 	 * Completes one deferred permission release.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	completeDeferredRelease(): void {
 		if ( this.completeReleaseBarrier === null ) {
@@ -246,7 +246,7 @@ class MemoryEnrollmentPermissionManager implements SitePermissionManager {
 	 * Records and returns one configured permission request result.
 	 * @param rule - Canonical rule whose browser access is requested.
 	 * @return Configured permission result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	request( rule: ProtectedSiteRule ): Promise<SitePermissionRequestResult> {
 		this.requestedRules.push( rule );
@@ -258,7 +258,7 @@ class MemoryEnrollmentPermissionManager implements SitePermissionManager {
 	 * Returns configured consent for a group of canonical rules.
 	 * @param rules - Canonical rules whose browser access is requested.
 	 * @return Batch permission result with a known original grant snapshot.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	requestMany( rules: readonly ProtectedSiteRule[] ): Promise<SitePermissionBatchRequestResult> {
 		this.requestedRules.push( ...rules );
@@ -271,7 +271,7 @@ class MemoryEnrollmentPermissionManager implements SitePermissionManager {
 	/**
 	 * Returns the configured batch permission compensation outcome.
 	 * @return Configured permission release result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	releaseNewAccess(): Promise<SitePermissionReleaseStatus> {
 		return Promise.resolve( this.releaseResult );
@@ -282,7 +282,7 @@ class MemoryEnrollmentPermissionManager implements SitePermissionManager {
 	 * @param rule - Canonical rule whose browser access is released.
 	 * @param hasRemainingSites - Whether another protected site remains.
 	 * @return Configured release result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async release(
 		rule: ProtectedSiteRule,
@@ -304,7 +304,7 @@ class MemoryEnrollmentPermissionManager implements SitePermissionManager {
 
 /**
  * Browser permission state shared by concurrent enrollment and removal operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class SharedPermissionStateApi implements SitePermissionApi {
 	readonly origins = new Set( [
@@ -327,7 +327,7 @@ class SharedPermissionStateApi implements SitePermissionApi {
 	 * Reports whether every requested named and origin permission is currently granted.
 	 * @param descriptor - Complete permission descriptor to inspect.
 	 * @return Whether every descriptor entry exists in shared state.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	contains( descriptor: SitePermissionDescriptor ): Promise<boolean> {
 		return Promise.resolve(
@@ -339,7 +339,7 @@ class SharedPermissionStateApi implements SitePermissionApi {
 	/**
 	 * Returns one copy of the complete shared permission state.
 	 * @return Current named and origin grants.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getAll(): Promise<{ origins: string[]; permissions: NonNullable<SitePermissionDescriptor[ 'permissions' ]> }> {
 		return Promise.resolve( {
@@ -352,7 +352,7 @@ class SharedPermissionStateApi implements SitePermissionApi {
 	 * Grants every requested entry synchronously before returning browser completion.
 	 * @param descriptor - Permission descriptor granted by the user gesture.
 	 * @return Successful browser permission request.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	request( descriptor: SitePermissionDescriptor ): Promise<boolean> {
 		for ( const permission of descriptor.permissions ?? [] ) {
@@ -370,7 +370,7 @@ class SharedPermissionStateApi implements SitePermissionApi {
 	 * Removes every requested entry after any configured concurrency barrier.
 	 * @param descriptor - Permission descriptor being released.
 	 * @return Successful browser permission removal.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async remove( descriptor: SitePermissionDescriptor ): Promise<boolean> {
 		this.completeRemovalStart?.();
@@ -394,7 +394,7 @@ class SharedPermissionStateApi implements SitePermissionApi {
 
 	/**
 	 * Defers the next permission removal until the test explicitly releases it.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	deferNextRemoval(): void {
 		this.removalStarted = new Promise<void>( ( resolve ) => {
@@ -407,7 +407,7 @@ class SharedPermissionStateApi implements SitePermissionApi {
 
 	/**
 	 * Completes one deferred permission removal.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	completeDeferredRemoval(): void {
 		if ( this.completeRemovalBarrier === null ) {
@@ -423,7 +423,7 @@ class SharedPermissionStateApi implements SitePermissionApi {
  * Runs one configuration mutation immediately.
  * @param mutation - Deferred configuration edit.
  * @return Exact mutation result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function coordinateMutationDirectly(
 	mutation: ProtectionConfigurationMutation,
@@ -434,7 +434,7 @@ function coordinateMutationDirectly(
 /**
  * Resolves a coordinated test queue after either mutation outcome.
  * @return Undefined queue settlement value.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function releaseMutationQueue(): undefined {
 	return undefined;
@@ -443,7 +443,7 @@ function releaseMutationQueue(): undefined {
 /**
  * Creates one shared cross-editor mutation coordinator.
  * @return Coordinator that serializes every supplied mutation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createSharedMutationCoordinator(): ProtectionConfigurationMutationCoordinator {
 	let queue: Promise<void> = Promise.resolve();
@@ -452,7 +452,7 @@ function createSharedMutationCoordinator(): ProtectionConfigurationMutationCoord
 	 * Runs one mutation after every earlier coordinated mutation settles.
 	 * @param mutation - Deferred protected-site configuration mutation.
 	 * @return Exact mutation result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function coordinateMutation(
 		mutation: ProtectionConfigurationMutation,
@@ -474,7 +474,7 @@ function createSharedMutationCoordinator(): ProtectionConfigurationMutationCoord
  * @param coordinateMutation - Shared cross-editor mutation coordinator.
  * @param createMeasurementRevision - Measurement revision factory shared by coordinated editors.
  * @return Protected-site enrollment service.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createService(
 	storage: MemoryEnrollmentStorage,
@@ -612,7 +612,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 				/**
 				 * Rejects this draft because another validation requirement failed.
 				 * @return Rejected generation validation.
-				 * @since 0.1.0 Initial implementation.
+				 * @since 1.0.0 Initial implementation.
 				 */
 				validateAddition: () => Promise.reject( new Error( 'Draft validation failed.' ) ),
 			} ),
@@ -714,7 +714,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 				 * @param _name - Configuration lock identity.
 				 * @param mutation - Coordinated edit.
 				 * @return Serialized edit result.
-				 * @since 0.1.0 Initial implementation.
+				 * @since 1.0.0 Initial implementation.
 				 */
 				request: ( _name: string, mutation: ProtectionConfigurationMutation ) => coordinate( mutation ),
 			},
@@ -778,7 +778,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 				 * @param _name - Configuration lock identity.
 				 * @param mutation - Coordinated edit.
 				 * @return Edit result.
-				 * @since 0.1.0 Initial implementation.
+				 * @since 1.0.0 Initial implementation.
 				 */
 				request: ( _name: string, mutation: ProtectionConfigurationMutation ) => mutation(),
 			},
@@ -875,7 +875,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 				 * @param _name - Existing configuration lock identity.
 				 * @param operation - Protected mutation.
 				 * @return Mutation result.
-				 * @since 0.1.0 Initial implementation.
+				 * @since 1.0.0 Initial implementation.
 				 */
 				request: ( _name, operation ) => operation(),
 			},
@@ -1026,7 +1026,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		 * Revokes only the second rule after browser consent and before the batch mutation.
 		 * @param mutation - Deferred protected-site configuration mutation.
 		 * @return Coordinated configuration edit result.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		async function coordinateMutation(
 			mutation: ProtectionConfigurationMutation,

@@ -7,7 +7,7 @@ import type { AppearanceScreenCopy } from '../../../features/settings/components
  * Creates localized Appearance-screen copy.
  * @param i18n - Locale-specific Lingui instance.
  * @return Complete localized Appearance-screen copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createAppearanceCopy( i18n: I18n ): Readonly<AppearanceScreenCopy> {
 	return Object.freeze( {

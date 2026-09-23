@@ -8,7 +8,7 @@ import './style.scss';
 /**
  * Compares the earlier interactive mascot with the current riverside character.
  * @return A local, accessible comparison with explicit motion and view controls.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function MascotPrototype() {
 	const canvas = useRef<HTMLCanvasElement>( null );

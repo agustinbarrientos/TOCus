@@ -13,7 +13,7 @@ import { LoadState,
  * Preserves malformed data until an explicit supported recovery action.
  * @param props - Current load state, localized guidance and safe recovery callbacks.
  * @return Loading announcement, actionable failure notice or no extra content.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function Recovery( props: RecoveryProps ) {
 	if ( props.status === LoadState.READY ) {

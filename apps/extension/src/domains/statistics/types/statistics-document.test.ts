@@ -3,7 +3,7 @@ import { StatisticsDocumentSchema } from './statistics-document';
 
 /**
  * Complete valid statistics document used by schema refinement tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const VALID_STATISTICS_DOCUMENT = {
 	schemaVersion: 2,

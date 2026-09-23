@@ -6,7 +6,7 @@ import type {
 
 /**
  * Localized label and supporting text for one appearance choice.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface AppearanceControlsOptionCopy {
 	/** Visible option label. */
@@ -17,7 +17,7 @@ export interface AppearanceControlsOptionCopy {
 
 /**
  * Localized copy required by the always-visible appearance controls.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface AppearanceControlsCopy {
 	/** Theme-section legend. */
@@ -34,7 +34,7 @@ export interface AppearanceControlsCopy {
 
 /**
  * Controlled theme value selected by the user.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface AppearanceControlsThemeUpdate {
 	/** Selected theme mode. */
@@ -43,7 +43,7 @@ export interface AppearanceControlsThemeUpdate {
 
 /**
  * Controlled palette value selected by the user.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface AppearanceControlsPaletteUpdate {
 	/** Selected full-scene palette. */
@@ -52,7 +52,7 @@ export interface AppearanceControlsPaletteUpdate {
 
 /**
  * One controlled appearance value selected by the user.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type AppearanceControlsUpdate =
 	| Readonly<AppearanceControlsThemeUpdate>
@@ -60,7 +60,7 @@ export type AppearanceControlsUpdate =
 
 /**
  * Detail emitted after one controlled appearance value changes.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface AppearanceControlsChangeDetail {
 	/** Exact partial preference update selected by the user. */
@@ -69,7 +69,7 @@ export interface AppearanceControlsChangeDetail {
 
 /**
  * Native input event emitted by one appearance control.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface AppearanceControlsInputEvent extends Event {
 	/** Native input that owns the changed value. */
@@ -78,14 +78,14 @@ export interface AppearanceControlsInputEvent extends Event {
 
 /**
  * Name of the composed event emitted after one appearance value changes.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const AppearanceControlsChangeEventName = 'tocus-appearance-controls-change';
 
 
 /**
  * Controlled reusable appearance presentation.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface AppearanceControlsProps {
 	copy: AppearanceControlsCopy;

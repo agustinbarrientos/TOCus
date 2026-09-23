@@ -6,13 +6,13 @@ import type { StatisticsFocusEpochId } from '../../types/statistics-value';
 
 /**
  * Longest interval that can be attributed to continuously observed browser focus.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const MaximumFocusedObservationGapMilliseconds = 90_000;
 
 /**
  * Supported relationships between one checkpoint and browser focus state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StatisticsFocusObservationMode = Object.freeze( {
 	BOUNDARY: 'boundary',
@@ -22,7 +22,7 @@ export const StatisticsFocusObservationMode = Object.freeze( {
 
 /**
  * Relationship between one checkpoint and browser focus state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StatisticsFocusObservationMode = typeof StatisticsFocusObservationMode[
 	keyof typeof StatisticsFocusObservationMode
@@ -30,7 +30,7 @@ export type StatisticsFocusObservationMode = typeof StatisticsFocusObservationMo
 
 /**
  * Focus epoch context captured before one browser observation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface StatisticsFocusEpochTransition {
 	mode: StatisticsFocusObservationMode;
@@ -40,7 +40,7 @@ export interface StatisticsFocusEpochTransition {
 
 /**
  * Valid state used to prepare one crash-safe focus checkpoint.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PrepareStatisticsCheckpointInput {
 	sessionContinuityId: SessionContinuityId;
@@ -54,7 +54,7 @@ export interface PrepareStatisticsCheckpointInput {
 
 /**
  * Pure local/session state transition for one focus checkpoint.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PreparedStatisticsCheckpoint {
 	statisticsDocument: StatisticsDocument;
@@ -66,7 +66,7 @@ export interface PreparedStatisticsCheckpoint {
 
 /**
  * Valid local and session state containing an already-frozen interval.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PrepareStatisticsPendingReplayInput {
 	statisticsDocument: StatisticsDocument;
@@ -75,7 +75,7 @@ export interface PrepareStatisticsPendingReplayInput {
 
 /**
  * Pure local/session state after applying one already-frozen interval.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PreparedStatisticsPendingReplay {
 	statisticsDocument: StatisticsDocument;

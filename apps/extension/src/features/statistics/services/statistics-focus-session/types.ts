@@ -15,7 +15,7 @@ import type {
 
 /**
  * Browser and protection state captured at one trustworthy observation boundary.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface StatisticsCheckpointFocusObservation {
 	/** Wall-clock time captured only after browser focus inspection completed. */
@@ -32,7 +32,7 @@ export interface StatisticsCheckpointFocusObservation {
 
 /**
  * Event-time input consumed later by serialized statistics persistence.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface StatisticsCheckpointObservation {
 	/** Wall-clock time captured at the protection event, or null when unsafe. */
@@ -45,7 +45,7 @@ export interface StatisticsCheckpointObservation {
 
 /**
  * Dependencies used by crash-safe focus-session persistence.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface StatisticsFocusSessionOptions {
 	storage: StatisticsStorageService;
@@ -54,14 +54,14 @@ export interface StatisticsFocusSessionOptions {
 	/**
 	 * Reads the current browser-session continuity identifier.
 	 * @return Current continuity identifier, or null before protection initializes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getSessionContinuityId(): SessionContinuityId | null;
 }
 
 /**
  * Result of replaying any crash-safe pending focus interval.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface StatisticsFocusReplayResult {
 	statisticsDocument: StatisticsDocument;
@@ -70,7 +70,7 @@ export interface StatisticsFocusReplayResult {
 
 /**
  * Inputs used to persist one focused-allowance checkpoint.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface StatisticsFocusCheckpointInput {
 	configuration: ProtectionConfigurationDocument | null;
@@ -81,14 +81,14 @@ export interface StatisticsFocusCheckpointInput {
 
 /**
  * Stateful crash-safe focus-session persistence operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface StatisticsFocusSession {
 	/**
 	 * Persists focus continuity before any asynchronous browser inspection begins.
 	 * @param mode - Relationship between the observation and browser focus state.
 	 * @return Focus epoch context, or null when session persistence is unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	beginFocusObservation( mode: StatisticsFocusObservationMode ): Promise<StatisticsFocusEpochTransition | null>;
 
@@ -96,14 +96,14 @@ export interface StatisticsFocusSession {
 	 * Checkpoints focused allowance work after aggregate initialization.
 	 * @param input - Current statistics, privacy-filtered configuration, delivery state, and focus observation.
 	 * @return Current aggregate document after any successful focused-use persistence.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	checkpoint( input: StatisticsFocusCheckpointInput ): Promise<StatisticsDocument>;
 
 	/**
 	 * Removes retained focus work even before aggregate statistics have initialized.
 	 * @return Promise resolved after the contained session-storage attempt.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	discardFocusMeasurement(): Promise<void>;
 
@@ -111,27 +111,27 @@ export interface StatisticsFocusSession {
 	 * Loads compatible session work and immediately replays any frozen interval.
 	 * @param statisticsDocument - Current reconciled local statistics document.
 	 * @return Current aggregate document after any successful pending replay.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	initialize( statisticsDocument: StatisticsDocument ): Promise<StatisticsDocument>;
 
 	/**
 	 * Returns whether focus measurement can safely persist new work.
 	 * @return True when the session storage is currently available.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	isAvailable(): boolean;
 
 	/**
 	 * Returns whether session work has been loaded or deliberately discarded.
 	 * @return True when current session state is known.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	isStateKnown(): boolean;
 
 	/**
 	 * Disables focus work and requires retained anchors to be discarded before reuse.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	markUnavailable(): void;
 
@@ -139,14 +139,14 @@ export interface StatisticsFocusSession {
 	 * Replays already-frozen focus work before protection facts can replace its allowance.
 	 * @param statisticsDocument - Current reconciled local statistics document.
 	 * @return Replay result containing the current aggregate document and completion state.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	replayPendingInterval( statisticsDocument: StatisticsDocument ): Promise<StatisticsFocusReplayResult>;
 
 	/**
 	 * Clears every retained focus-session measurement safely.
 	 * @return True only after session persistence is empty and ready for new work.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	reset(): Promise<boolean>;
 }

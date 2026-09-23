@@ -19,31 +19,31 @@ import type {
 
 /**
  * Packaged interruption page accepted by authenticated message tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/interruption.html';
 
 /**
  * Extension options page accepted by privileged message tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const OPTIONS_PAGE_URL = 'chrome-extension://extension-id/options.html';
 
 /**
  * Synchronous browser-event fixture that captures one registered listener.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class TestEvent<TArguments extends unknown[], TResult> {
 	/**
 	 * Registered browser-event listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private listener: ( ( ...arguments_: TArguments ) => TResult ) | null = null;
 
 	/**
 	 * Registers one event listener.
 	 * @param listener - Listener under test.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	addListener( listener: ( ...arguments_: TArguments ) => TResult ): void {
 		this.listener = listener;
@@ -52,7 +52,7 @@ class TestEvent<TArguments extends unknown[], TResult> {
 	/**
 	 * Removes the matching registered listener.
 	 * @param listener - Listener that should no longer receive events.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	removeListener( listener: ( ...arguments_: TArguments ) => TResult ): void {
 		if ( this.listener === listener ) {
@@ -63,7 +63,7 @@ class TestEvent<TArguments extends unknown[], TResult> {
 	/**
 	 * Reports whether one listener was registered.
 	 * @return Whether the event has a listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	hasListener(): boolean {
 		return this.listener !== null;
@@ -73,7 +73,7 @@ class TestEvent<TArguments extends unknown[], TResult> {
 	 * Emits one event through the registered listener.
 	 * @param arguments_ - Browser-event arguments.
 	 * @return Listener result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	emit( ...arguments_: TArguments ): TResult {
 		if ( this.listener === null ) {
@@ -86,31 +86,31 @@ class TestEvent<TArguments extends unknown[], TResult> {
 
 /**
  * Controllable optional-permission result used to verify startup ordering.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export class DeferredPermissionResult {
 	/**
 	 * Permission lookup that remains pending until explicitly resolved.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	readonly promise: Promise<boolean>;
 
 	/**
 	 * Captured promise settlement operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private resolvePromise: ( ( granted: boolean ) => void ) | null = null;
 
 	/**
 	 * Creates one pending permission lookup.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor() {
 		this.promise = new Promise<boolean>(
 			/**
 			 * Captures the lookup settlement operation.
 			 * @param resolve - Promise settlement operation.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			( resolve ) => {
 				this.resolvePromise = resolve;
@@ -121,7 +121,7 @@ export class DeferredPermissionResult {
 	/**
 	 * Resolves the pending permission lookup.
 	 * @param granted - Whether navigation observation is granted.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	resolve( granted: boolean ): void {
 		if ( this.resolvePromise === null ) {
@@ -135,7 +135,7 @@ export class DeferredPermissionResult {
 /**
  * Creates a fully spied protection runtime.
  * @return Browser protection runtime test double and operation spies.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createRuntime(): RuntimeHarness {
 	const capturedStatisticsObservations: Array<Promise<BrowserProtectionStatisticsObservation>> = [];
@@ -206,7 +206,7 @@ function createRuntime(): RuntimeHarness {
  * @param includeWebNavigation - Whether optional navigation observation is initially available.
  * @param hasNavigationPermission - Whether startup permission inspection succeeds.
  * @return Controller, runtime, events, and alarm creation spy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createHarness( includeWebNavigation = true, hasNavigationPermission = includeWebNavigation ) {
 	const runtimeHarness = createRuntime();

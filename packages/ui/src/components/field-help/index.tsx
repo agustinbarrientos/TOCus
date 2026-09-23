@@ -7,7 +7,7 @@ import type { FieldHelpProps } from './types';
  * Reuses the packaged tooltip for hover, keyboard and touch field help.
  * @param props - Localized field name and stable screen-reader description.
  * @return Help trigger with a persistent nonvisual description for the field.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function FieldHelp( props: FieldHelpProps ) {
 	return <>

@@ -10,7 +10,7 @@ import {
  * @param facts - Metric-bearing accepted-transition facts.
  * @return A validated transition result.
  * @throws {import('zod').ZodError} When the state, decisions, or facts violate their contracts.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createTransitionResult(
 	state: unknown,

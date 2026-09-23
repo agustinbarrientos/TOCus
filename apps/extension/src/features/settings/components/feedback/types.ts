@@ -3,7 +3,7 @@
 
 /**
  * Semantic persistence feedback with localized messages.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface FeedbackProps {
 	/** Shared presentation modifiers for the notice's surrounding context. */

@@ -96,7 +96,7 @@ function SiteFeedback( props: OnboardingStepProps ) {
  * Collects a local website draft and submits all new domains through one Finish gesture.
  * @param props - Authoritative sites, local draft controller and packaged localized copy.
  * @return The suggestion picker, address form, selected list and final action.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function SitesStep( props: OnboardingStepProps ) {
 	const { state, copy, controller } = props;

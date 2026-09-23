@@ -9,7 +9,7 @@ import { createReviewPromptController, ReviewPromptDismissRequestEventName, type
  * Creates an authoritative saved-time projection.
  * @param saved - Total estimated reclaimed milliseconds.
  * @return Available all-time projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function projection( saved = 3_600_000 ): StatisticsProjection {
 	return {
@@ -24,7 +24,7 @@ function projection( saved = 3_600_000 ): StatisticsProjection {
  * Creates isolated storage, statistics and screen boundaries.
  * @param url - Configured store URL or unsupported-browser marker.
  * @return Controller and observable dependencies.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function fixture( url: string | null = 'https://example.com/reviews' ) {
 	const target = Object.assign( new EventTarget(), {
@@ -46,7 +46,7 @@ function fixture( url: string | null = 'https://example.com/reviews' ) {
 /**
  * Settles queued storage, controller and event continuations.
  * @return Completion after current promise work.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function settle(): Promise<void> {
 	await new Promise<void>( ( resolve ) => {

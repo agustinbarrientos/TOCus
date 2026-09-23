@@ -11,7 +11,7 @@ import type {
 
 /**
  * Services and localized copy for one Settings destination.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface SettingsScreenProps {
 	shell: SettingsPageShell;
@@ -20,7 +20,7 @@ export interface SettingsScreenProps {
 
 /**
  * Shared dependencies for editable destinations.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface EditableSettingsScreenProps extends SettingsScreenProps {
 	register: RegisterDraft;
@@ -29,7 +29,7 @@ export interface EditableSettingsScreenProps extends SettingsScreenProps {
 
 /**
  * Consistent document hierarchy around destination content.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface SettingsPageProps {
 	title: string;

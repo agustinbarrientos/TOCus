@@ -8,7 +8,7 @@ const REGEX_SPECIAL_CHARACTERS = /[.*+?^${}()|[\]\\]/gu;
 
 /**
  * First dynamic-rule identifier reserved for protected-site redirects.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionNavigationRuleIdStart = 1_000_000;
 
@@ -16,7 +16,7 @@ export const ProtectionNavigationRuleIdStart = 1_000_000;
  * Reports whether a dynamic-rule identifier belongs to protected-site navigation.
  * @param ruleId - Dynamic browser rule identifier.
  * @return Whether the identifier falls inside the reserved protection range.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function isProtectionNavigationRuleId( ruleId: number ): boolean {
 	return ruleId >= ProtectionNavigationRuleIdStart &&
@@ -27,7 +27,7 @@ export function isProtectionNavigationRuleId( ruleId: number ): boolean {
  * Escapes one canonical host for literal use in a declarative request regex.
  * @param host - Canonical host selected by the user.
  * @return Regex-safe literal host.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function escapeRegexHost( host: string ): string {
 	return host.replace( REGEX_SPECIAL_CHARACTERS, '\\$&' );
@@ -37,7 +37,7 @@ function escapeRegexHost( host: string ): string {
  * Creates one full-URL regex restricted to an exact canonical host.
  * @param host - Canonical host selected by the user.
  * @return Anchored HTTP(S) URL regex preserving credentials, ports, paths, queries, and fragments.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createExactHostRegexFilter( host: string ): string {
 	return `^https?://([^/?#@]*@)?${ escapeRegexHost( host ) }(:[0-9]+)?([/?#].*)?$`;
@@ -49,7 +49,7 @@ function createExactHostRegexFilter( host: string ): string {
  * @param condition - Browser navigation condition for the protected match range.
  * @param interruptionPageUrl - Trusted packaged interruption-page URL.
  * @return Main-frame redirect to the interruption page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createNavigationRule(
 	id: number,
@@ -77,7 +77,7 @@ function createNavigationRule(
  * @param rules - Canonical protected-site rules selected by the user.
  * @param interruptionPageUrl - Trusted packaged interruption-page URL.
  * @return Deterministic main-frame redirect rules.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createProtectionNavigationRules(
 	rules: readonly ProtectedSiteRule[],

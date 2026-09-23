@@ -39,7 +39,7 @@ import {
 import type { ProtectedPageResponseSender } from './types';
 /**
  * Isolated-world key that prevents duplicate protected-page initialization.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const PROTECTED_PAGE_INITIALIZATION_KEY = Symbol.for( 'tocus.protected-page.initialization' );
 
@@ -47,7 +47,7 @@ const PROTECTED_PAGE_INITIALIZATION_KEY = Symbol.for( 'tocus.protected-page.init
  * Reports whether an isolated-world value is a protected-page initialization promise.
  * @param value - Isolated-world value to inspect.
  * @return Whether the value can be reused for shared initialization.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function isProtectedPageInitialization( value: unknown ): value is Promise<void> {
 	return value instanceof Promise;
@@ -57,7 +57,7 @@ function isProtectedPageInitialization( value: unknown ): value is Promise<void>
  * Sends one interruption request through the extension runtime.
  * @param request - Validated interruption request.
  * @return Unknown response awaiting controller validation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function sendInterruptionPageRequest( request: InterruptionPageRequest ): Promise<unknown> {
 	return browser.runtime.sendMessage( request );
@@ -67,7 +67,7 @@ function sendInterruptionPageRequest( request: InterruptionPageRequest ): Promis
  * Requests authoritative clock reconciliation after one page-local allowance expiry.
  * @param allowanceId - Allowance identity that armed the local expiry guard.
  * @return Promise resolved after extension messaging accepts the request.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function reconcileAllowanceExpiry( allowanceId: AllowanceId ): Promise<void> {
 	await browser.runtime.sendMessage( {
@@ -79,7 +79,7 @@ async function reconcileAllowanceExpiry( allowanceId: AllowanceId ): Promise<voi
 /**
  * Returns the current wall-clock epoch time.
  * @return Current epoch milliseconds.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getCurrentEpochMilliseconds(): number {
 	return Date.now();
@@ -88,7 +88,7 @@ function getCurrentEpochMilliseconds(): number {
 /**
  * Creates native playback ownership for one interruption in the current protected document.
  * @return Fresh playback controller using the live page location.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createProtectedPagePlaybackController(): MediaPlaybackController {
 	return createMediaPlaybackController( { document, location: window.location } );
@@ -97,7 +97,7 @@ function createProtectedPagePlaybackController(): MediaPlaybackController {
 /**
  * Reads the current isolated-world protected-page initialization.
  * @return Existing initialization promise, or null before initialization begins.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getProtectedPageInitialization(): Promise<void> | null {
 	const initialization: unknown = Reflect.get( globalThis, PROTECTED_PAGE_INITIALIZATION_KEY );
@@ -108,7 +108,7 @@ function getProtectedPageInitialization(): Promise<void> | null {
 /**
  * Creates one owned warning and interruption layer in an authorized protected document.
  * @return Promise resolved after the layer and its message listener are ready.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function initializeProtectedPageLayer(): Promise<void> {
 	const layer = new ComponentProtectedPageLayer();
@@ -168,7 +168,7 @@ async function initializeProtectedPageLayer(): Promise<void> {
 		/**
 		 * Applies one complete localization snapshot to the owned protected-page layer.
 		 * @param language - Effective browser-derived or explicitly selected language.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function applyLocalization( language: Language ): void {
 			const localization = createLocalizedProtectedPageCopy( language );
@@ -185,7 +185,7 @@ async function initializeProtectedPageLayer(): Promise<void> {
 
 		/**
 		 * Refreshes saved-time presentation and review eligibility without delaying interruption timing.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function refreshStatisticsPresentation(): void {
 			void activeWellbeingSummaryController.refresh();
@@ -200,7 +200,7 @@ async function initializeProtectedPageLayer(): Promise<void> {
 			/**
 			 * Reports whether the live protected page and native interruption are both visible.
 			 * @return Current protected-page presentation visibility.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			isDocumentVisible(): boolean {
 				return document.visibilityState === 'visible' && layer.isInterruptionPresentationVisible();
@@ -208,7 +208,7 @@ async function initializeProtectedPageLayer(): Promise<void> {
 			/**
 			 * Reports whether the protected document currently owns browser-window focus.
 			 * @return Whether focused progress may advance in the current browser window.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			isWindowFocused(): boolean {
 				return document.hasFocus();
@@ -243,7 +243,7 @@ async function initializeProtectedPageLayer(): Promise<void> {
 		 * @param sender - Browser-provided sender details.
 		 * @param sendResponse - Browser response callback.
 		 * @return True while the asynchronous response remains pending.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function handleProtectedPageMessage(
 			input: unknown,
@@ -284,7 +284,7 @@ async function initializeProtectedPageLayer(): Promise<void> {
 /**
  * Mounts one isolated warning and interruption layer in an authorized protected document.
  * @return Shared isolated-world initialization promise.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function mountProtectedPageLayer(): Promise<void> {
 	const existingInitialization = getProtectedPageInitialization();

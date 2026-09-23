@@ -11,7 +11,7 @@ import {
  * @param durationMilliseconds - Unknown captured wait-duration input.
  * @return A breathing plan containing only complete cycles.
  * @throws {import('zod').ZodError} When the duration does not match the wait-duration contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createBreathingPlan( durationMilliseconds: unknown ): BreathingPlan {
 	const parsedDuration = WaitDurationMillisecondsSchema.parse( durationMilliseconds );

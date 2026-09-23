@@ -3,7 +3,7 @@ import type { ExtensionReviewLinks } from './types';
 
 /**
  * Published store review URLs. An unpublished listing keeps its invitation hidden.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const ExtensionStoreReviewLinks: ExtensionReviewLinks = {
 	[ ExtensionBuildBrowser.CHROME ]: null,

@@ -5,7 +5,7 @@ const bootstrapMocks = vi.hoisted( () => {
 	 * Returns one unlisted-script definition without changing it.
 	 * @param definition - Unlisted-script definition under test.
 	 * @return Original unlisted-script definition.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function defineUnlistedScript<Definition>( definition: Definition ): Definition {
 		return definition;

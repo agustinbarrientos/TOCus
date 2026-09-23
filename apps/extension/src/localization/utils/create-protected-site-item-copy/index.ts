@@ -6,14 +6,14 @@ import type { ProtectedSiteItemCopy } from '../../../features/protected-sites/co
  * Creates localized protected-site item copy.
  * @param i18n - Locale-specific Lingui instance.
  * @return Complete localized protected-site item copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createProtectedSiteItemCopy( i18n: I18n ): Readonly<ProtectedSiteItemCopy> {
 	/**
 	 * Formats one accessible selection label.
 	 * @param name - Current resolved display name.
 	 * @return Complete localized selection label.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatSelectSite( name: string ): string {
 		return i18n._( msg`Select ${ { name } }` );
@@ -23,7 +23,7 @@ export function createProtectedSiteItemCopy( i18n: I18n ): Readonly<ProtectedSit
 	 * Formats one removal question.
 	 * @param name - Current resolved display name.
 	 * @return Complete localized question.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatRemoveQuestion( name: string ): string {
 		return i18n._( msg`Remove ${ { name } }?` );

@@ -6,7 +6,7 @@ import type { ProtectionRuntimeBrowser, ProtectionRuntimeNavigation } from '../.
 
 /**
  * Dependencies used to reconcile observed browser navigation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectionNavigationHandlerOptions {
 	/** Browser privacy and focus observations used to admit and initialize participants. */
@@ -21,7 +21,7 @@ export interface ProtectionNavigationHandlerOptions {
 	 * @param result - Persisted coordinator result.
 	 * @param configuration - Current validated configuration.
 	 * @return Promise resolved after browser effects are current.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	applyDispatchResult(
 		result: ProtectionCoordinatorDispatchResult,
@@ -31,7 +31,7 @@ export interface ProtectionNavigationHandlerOptions {
 	/**
 	 * Creates one fresh runtime identifier fragment.
 	 * @return Collision-resistant identifier fragment.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	createStableId(): string;
 
@@ -41,7 +41,7 @@ export interface ProtectionNavigationHandlerOptions {
 	 * @param cause - Observable departure cause.
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @return Promise resolved after matching participant state is removed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	departTab(
 		tabId: number,
@@ -56,7 +56,7 @@ export interface ProtectionNavigationHandlerOptions {
 	 * @param nowEpochMilliseconds - Current wall-clock time.
 	 * @param timeZone - Current IANA time-zone identifier.
 	 * @return Current schedule evaluation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	evaluateSiteSchedule(
 		configuration: ProtectionConfigurationDocument,
@@ -68,21 +68,21 @@ export interface ProtectionNavigationHandlerOptions {
 	/**
 	 * Returns the current local IANA time zone.
 	 * @return Current IANA time-zone identifier.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getTimeZone(): string;
 
 	/**
 	 * Loads the current validated configuration.
 	 * @return Current configuration or null when unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	loadConfiguration(): Promise<ProtectionConfigurationDocument | null>;
 
 	/**
 	 * Returns the current wall-clock epoch time.
 	 * @return Current epoch milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	now(): number;
 
@@ -90,7 +90,7 @@ export interface ProtectionNavigationHandlerOptions {
 	 * Reconciles browser effects from current configuration and state.
 	 * @param configuration - Current validated configuration.
 	 * @return Promise resolved after browser projection is current.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	reconcileBrowserState( configuration: ProtectionConfigurationDocument ): Promise<void>;
 
@@ -98,7 +98,7 @@ export interface ProtectionNavigationHandlerOptions {
 	 * Reconciles every allowance whose wall-clock interval has ended.
 	 * @param configuration - Current validated configuration.
 	 * @return Promise resolved after elapsed allowances are reconciled.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	reconcileExpiredAllowances( configuration: ProtectionConfigurationDocument ): Promise<void>;
 
@@ -106,14 +106,14 @@ export interface ProtectionNavigationHandlerOptions {
 	 * Reconciles active transactions against current schedules.
 	 * @param configuration - Current validated configuration.
 	 * @return Promise resolved after inactive schedules fail open.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	reconcileSchedules( configuration: ProtectionConfigurationDocument ): Promise<void>;
 
 	/**
 	 * Removes browser projections when configuration is unavailable.
 	 * @return Promise resolved after fail-open browser projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	reconcileUnavailableConfiguration(): Promise<void>;
 
@@ -122,21 +122,21 @@ export interface ProtectionNavigationHandlerOptions {
 	 * @param tabId - Browser tab that may display the interruption page.
 	 * @param retainedDestination - Validated destination to restore.
 	 * @return Promise resolved after release or a verified stale-tab race.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	releaseNavigationIfInterrupted( tabId: number, retainedDestination: string ): Promise<void>;
 }
 
 /**
  * Reconciles observed browser navigation with authoritative protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectionNavigationHandler {
 	/**
 	 * Handles one observed top-level browser navigation.
 	 * @param navigation - Browser navigation details.
 	 * @return Verified replacement URL for a redirect document, or no page-side action.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	handle( navigation: ProtectionRuntimeNavigation ): Promise<string | undefined>;
 }

@@ -46,7 +46,7 @@ import type { StatisticsSettingsScreenCopy } from '../../../statistics/component
 
 /**
  * Browser permission change relevant to settings access refresh.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface SettingsPermissionChange {
 	/** Named browser permissions that changed. */
@@ -57,32 +57,32 @@ export interface SettingsPermissionChange {
 
 /**
  * Receives one browser permission change.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type SettingsPermissionChangeListener = ( change: SettingsPermissionChange ) => void;
 
 /**
  * Browser permission event that accepts settings listeners.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface SettingsPermissionChangeEvent {
 	/**
 	 * Registers one permission-change listener.
 	 * @param listener - Listener to register.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	addListener( listener: SettingsPermissionChangeListener ): void;
 	/**
 	 * Removes one permission-change listener.
 	 * @param listener - Listener to remove.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	removeListener( listener: SettingsPermissionChangeListener ): void;
 }
 
 /**
  * Permission operations and events required by the settings page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface SettingsPermissionApi extends SitePermissionApi {
 	/** Newly granted permissions. */
@@ -93,20 +93,20 @@ export interface SettingsPermissionApi extends SitePermissionApi {
 
 /**
  * Protected-sites destination capable of refreshing browser access state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectedSitesAccessRefresher {
 	/**
 	 * Refreshes visible access from current browser permission grants.
 	 * @return Current access values or null when unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	refreshAccessState(): Promise<ReadonlyMap<string, boolean> | null>;
 }
 
 /**
  * Settings shell properties coordinated by the page service.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface SettingsPageShell extends ProtectedSitesAccessRefresher {
 	/** Localized About destination copy. */
@@ -157,7 +157,7 @@ export interface SettingsPageShell extends ProtectedSitesAccessRefresher {
 
 /**
  * Settings document root that receives appearance state and becomes visible after startup.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface SettingsPageDocumentElement extends PreferencesAppearanceTarget {
 	/** Inline startup styles removed when settings are ready. */
@@ -166,7 +166,7 @@ export interface SettingsPageDocumentElement extends PreferencesAppearanceTarget
 
 /**
  * Browser document surface owned by settings.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface SettingsPageDocument {
 	/** Root element receiving appearance state and startup visibility. */
@@ -177,21 +177,21 @@ export interface SettingsPageDocument {
 
 /**
  * Browser window surface used to observe operating-system preferences.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface SettingsPageWindow {
 	/**
 	 * Creates one observable media-query result.
 	 * @param query - Media query to evaluate.
 	 * @return Observable media-query preference.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	matchMedia( query: string ): PreferencesSystemMotionPreference;
 }
 
 /**
  * Loads one complete extension localization bundle for settings.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type SettingsLocalizationLoader = (
 	language: Language,
@@ -199,7 +199,7 @@ export type SettingsLocalizationLoader = (
 
 /**
  * Browser and presentation dependencies required by extension settings.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface SettingsPageOptions {
 	/** Supported language derived from the browser UI locale. */

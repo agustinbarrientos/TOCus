@@ -4,7 +4,7 @@
 /**
  * Emits shared provider tokens and control overrides around the selected library stylesheet.
  * @content Packaged library rules scoped inside the provider before shared overrides.
- * @since 0.1.0
+ * @since 1.0.0
  */
 @mixin styles {
 	@include typography.emit-tokens('[data-tocus-ui][data-tocus-compact="true"]', 1);

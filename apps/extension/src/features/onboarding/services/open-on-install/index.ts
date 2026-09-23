@@ -6,14 +6,14 @@ import {
 
 /**
  * Number of immediate tab attempts made for each recoverable onboarding open.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const MaximumOnboardingOpenAttempts = 2;
 
 /**
  * Registers the first-install listener that opens the onboarding page.
  * @param options - Browser APIs used by the installation flow.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function registerOnboardingOpenOnInstall( options: OpenOnInstallOptions ): void {
 	let openQueue = Promise.resolve();
@@ -21,7 +21,7 @@ export function registerOnboardingOpenOnInstall( options: OpenOnInstallOptions )
 	/**
 	 * Attempts to open onboarding without allowing a browser rejection to escape.
 	 * @return Whether one onboarding tab was created.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function openOnboardingTab(): Promise<boolean> {
 		for ( let attempt = 0; attempt < MaximumOnboardingOpenAttempts; attempt += 1 ) {
@@ -42,7 +42,7 @@ export function registerOnboardingOpenOnInstall( options: OpenOnInstallOptions )
 	/**
 	 * Opens a locally pending onboarding page and clears recovery after success.
 	 * @return Promise resolved after local recovery settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function openPendingOnboarding(): Promise<void> {
 		try {
@@ -64,7 +64,7 @@ export function registerOnboardingOpenOnInstall( options: OpenOnInstallOptions )
 
 	/**
 	 * Serializes recovery checks so one worker cannot open duplicate onboarding tabs.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function enqueuePendingOnboarding(): void {
 		openQueue = openQueue.then( openPendingOnboarding );
@@ -73,7 +73,7 @@ export function registerOnboardingOpenOnInstall( options: OpenOnInstallOptions )
 	/**
 	 * Persists first-install onboarding before requesting its browser tab.
 	 * @return Promise resolved after the request is queued or directly attempted.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function openFirstInstallOnboarding(): Promise<void> {
 		try {
@@ -92,7 +92,7 @@ export function registerOnboardingOpenOnInstall( options: OpenOnInstallOptions )
 	/**
 	 * Opens onboarding only for a fresh extension installation.
 	 * @param details - Browser installation event details.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleExtensionInstalled( details: ExtensionInstallationDetails ): void {
 		if ( details.reason !== 'install' ) {

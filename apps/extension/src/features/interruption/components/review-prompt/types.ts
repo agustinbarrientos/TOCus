@@ -3,7 +3,7 @@ import type { ReviewPromptPresentation } from '../../services/review-prompt-cont
 
 /**
  * Localized review invitation and its persistent dismissal action.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface ReviewPromptProps {
 	copy: Readonly<InterruptionScreenCopy>;

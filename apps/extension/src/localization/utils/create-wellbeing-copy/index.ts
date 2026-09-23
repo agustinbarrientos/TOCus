@@ -15,7 +15,7 @@ import {
  * @param i18n - Locale-specific Lingui instance.
  * @param formatters - Locale-sensitive formatters for the bundle.
  * @return Complete localized wellbeing-summary copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createWellbeingCopy(
 	i18n: I18n,
@@ -36,7 +36,7 @@ export function createWellbeingCopy(
 	 * Formats one nonzero all-time duration.
 	 * @param milliseconds - Positive duration in milliseconds.
 	 * @return Localized natural duration.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatDuration( milliseconds: number ): string {
 		const totalSeconds = Math.max( 1, Math.round( milliseconds / MILLISECONDS_PER_SECOND ) );
@@ -56,7 +56,7 @@ export function createWellbeingCopy(
 	 * Formats one nonzero all-time duration with locale-native compact units.
 	 * @param milliseconds - Positive duration in milliseconds.
 	 * @return Localized compact duration.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatShortDuration( milliseconds: number ): string {
 		const totalSeconds = Math.max( 1, Math.round( milliseconds / MILLISECONDS_PER_SECOND ) );
@@ -83,7 +83,7 @@ export function createWellbeingCopy(
 	 * Composes the concise new-tab estimate.
 	 * @param duration - Localized compact estimated duration.
 	 * @return Complete concise estimate sentence.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatShortSummary( duration: string ): string {
 		return i18n._( msg`About ${ duration } saved.` );
@@ -93,7 +93,7 @@ export function createWellbeingCopy(
 	 * Composes one complete wellbeing sentence from available values.
 	 * @param values - Available formatted all-time values.
 	 * @return Complete localized wellbeing sentence.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatSummary( values: Parameters<WellbeingSummaryCopy[ 'formatSummary' ]>[ 0 ] ): string {
 		const { estimatedReclaimedTime, focusedPauseTime } = values;

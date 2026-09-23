@@ -19,7 +19,7 @@ import { OnboardingAnnouncementKind,
 
 /**
  * Manages local site additions while delegating permission and persistence to existing services.
- * @since 0.1.0
+ * @since 1.0.0
  * @param state - Current render projection from the page service.
  * @param port - Live mutable page-service port, authoritative at mutation time.
  * @param operation - Shared synchronous pending gate.

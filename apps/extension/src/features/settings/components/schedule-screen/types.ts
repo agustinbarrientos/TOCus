@@ -3,7 +3,7 @@ import type { Weekday } from '../../../../domains/protection/types/protection-sc
 
 /**
  * Stable local-configuration loading states for the Schedule screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ScheduleScreenLoadStatus = {
 	FAILED: 'failed',
@@ -14,13 +14,13 @@ export const ScheduleScreenLoadStatus = {
 
 /**
  * Local-configuration loading state for the Schedule screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ScheduleScreenLoadStatus = typeof ScheduleScreenLoadStatus[ keyof typeof ScheduleScreenLoadStatus ];
 
 /**
  * Stable end-time validation failures retained by the Schedule screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ScheduleWindowEndErrorReason = {
 	EQUAL_TIME: 'equal-time',
@@ -29,7 +29,7 @@ export const ScheduleWindowEndErrorReason = {
 
 /**
  * End-time validation failure retained by the Schedule screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ScheduleWindowEndErrorReason = typeof ScheduleWindowEndErrorReason[
 	keyof typeof ScheduleWindowEndErrorReason
@@ -37,7 +37,7 @@ export type ScheduleWindowEndErrorReason = typeof ScheduleWindowEndErrorReason[
 
 /**
  * Stable save failures retained by the Schedule screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ScheduleSaveErrorReason = {
 	GENERIC: 'generic',
@@ -48,7 +48,7 @@ export const ScheduleSaveErrorReason = {
 
 /**
  * Save failure retained by the Schedule screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ScheduleSaveErrorReason = typeof ScheduleSaveErrorReason[
 	keyof typeof ScheduleSaveErrorReason
@@ -56,7 +56,7 @@ export type ScheduleSaveErrorReason = typeof ScheduleSaveErrorReason[
 
 /**
  * Editable weekly time-window presentation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ScheduleWindowDraft {
 	id: number;
@@ -68,7 +68,7 @@ export interface ScheduleWindowDraft {
 
 /**
  * Semantic validation state associated with one editable time window.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ScheduleWindowDraftErrors {
 	startTimeRequired: boolean;
@@ -77,7 +77,7 @@ export interface ScheduleWindowDraftErrors {
 
 /**
  * One protection scope presented in the settings selector.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PresentedScheduleScope {
 	id: ProtectionScopeId;
@@ -86,7 +86,7 @@ export interface PresentedScheduleScope {
 
 /**
  * Native Schedule selector event whose current target is the bound select.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ScheduleSelectChangeEvent extends Event {
 	readonly currentTarget: HTMLSelectElement;
@@ -94,7 +94,7 @@ export interface ScheduleSelectChangeEvent extends Event {
 
 /**
  * Native Schedule input event whose current target is the bound input.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ScheduleInputEvent extends Event {
 	readonly currentTarget: HTMLInputElement;
@@ -102,7 +102,7 @@ export interface ScheduleInputEvent extends Event {
 
 /**
  * Native Schedule action event whose current target is the bound button.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ScheduleButtonEvent extends Event {
 	readonly currentTarget: HTMLButtonElement;
@@ -110,7 +110,7 @@ export interface ScheduleButtonEvent extends Event {
 
 /**
  * Localizable messages rendered by the Schedule screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ScheduleScreenCopy {
 	title: string;
@@ -118,21 +118,21 @@ export interface ScheduleScreenCopy {
 	 * Formats one weekday for native schedule options.
 	 * @param weekday - Domain weekday to present.
 	 * @return Localized weekday label.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	formatWeekday( weekday: Weekday ): string;
 	/**
 	 * Formats one accessible time-window group label.
 	 * @param position - One-based visual window position.
 	 * @return Localized time-window group label.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	formatWindowLabel( position: number ): string;
 	/**
 	 * Formats one contextual remove-window action label.
 	 * @param position - One-based visual window position.
 	 * @return Localized remove-window action label.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	formatRemoveWindowLabel( position: number ): string;
 	scheduleLegend: string;

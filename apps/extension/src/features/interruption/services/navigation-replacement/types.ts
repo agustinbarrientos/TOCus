@@ -2,7 +2,7 @@ import type { InterruptionNavigationReplacementResponse } from '../../../protect
 
 /**
  * Browser-provided sender identity needed to authenticate a background command.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionNavigationReplacementSender {
 	/** Extension identifier owning the sending context. */
@@ -13,7 +13,7 @@ export interface InterruptionNavigationReplacementSender {
 
 /**
  * Browser response channel for a navigation replacement acknowledgement.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionNavigationReplacementResponseSender {
 	/**
@@ -25,7 +25,7 @@ export interface InterruptionNavigationReplacementResponseSender {
 
 /**
  * Synchronous runtime message listener owned by the interruption document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionNavigationReplacementListener {
 	/**
@@ -44,7 +44,7 @@ export interface InterruptionNavigationReplacementListener {
 
 /**
  * Runtime message subscription used by the interruption document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionNavigationReplacementMessageEvent {
 	/** Registers the replacement listener before page bootstrap begins. */
@@ -53,7 +53,7 @@ export interface InterruptionNavigationReplacementMessageEvent {
 
 /**
  * Runtime boundary needed by the interruption-document replacement listener.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionNavigationReplacementRuntime {
 	/** Current extension identifier. */
@@ -66,7 +66,7 @@ export interface InterruptionNavigationReplacementRuntime {
 
 /**
  * Narrow location boundary used to preserve native browser history during release.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionNavigationReplacementLocation {
 	/** Exact current document URL. */
@@ -77,7 +77,7 @@ export interface InterruptionNavigationReplacementLocation {
 
 /**
  * Dependencies for installing the interruption-document replacement listener.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface InterruptionNavigationReplacementOptions {
 	/** Current interruption document location. */

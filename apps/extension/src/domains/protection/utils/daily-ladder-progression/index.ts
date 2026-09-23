@@ -6,7 +6,7 @@ import { LocalDateSchema, type LocalDate } from '../../types/protection-value';
  * @param ladder - Validated daily ladder.
  * @param observedLocalDate - Validated observed local date.
  * @return A copied ladder that resets only for a later local date.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function synchronizeValidatedDailyLadder( ladder: DailyLadder, observedLocalDate: LocalDate ): DailyLadder {
 	if ( observedLocalDate > ladder.greatestObservedLocalDate ) {
@@ -25,7 +25,7 @@ function synchronizeValidatedDailyLadder( ladder: DailyLadder, observedLocalDate
  * @param observedLocalDate - Unknown observed local-date input.
  * @return A synchronized daily ladder.
  * @throws {import('zod').ZodError} When either input does not match its public contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function synchronizeDailyLadder( ladder: unknown, observedLocalDate: unknown ): DailyLadder {
 	const parsedLadder = DailyLadderSchema.parse( ladder );
@@ -40,7 +40,7 @@ export function synchronizeDailyLadder( ladder: unknown, observedLocalDate: unkn
  * @param completionLocalDate - Unknown completion local-date input.
  * @return A daily ladder with the accepted completion recorded.
  * @throws {import('zod').ZodError} When either input does not match its public contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function advanceDailyLadder( ladder: unknown, completionLocalDate: unknown ): DailyLadder {
 	const parsedLadder = DailyLadderSchema.parse( ladder );

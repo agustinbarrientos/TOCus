@@ -46,7 +46,7 @@ function isMesh( object: Object3D ): object is Mesh {
  * Adds the viewer-facing turn to the raised cup and grip while keeping the shoulder anchored.
  * @param root - The flat, world-space character export, before its animation mixer is created.
  * @return An overlay updated after the mixer and head, plus its owned-resource cleanup.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function createSipHeadFollow( root: Object3D ): HeroSipFollow {
 	const yaw = { value: 0 };

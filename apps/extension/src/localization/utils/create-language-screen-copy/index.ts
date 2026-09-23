@@ -7,14 +7,14 @@ import type { LanguageScreenCopy } from '../../../features/settings/components/l
  * Creates localized Language-screen copy.
  * @param i18n - Locale-specific Lingui instance.
  * @return Complete localized Language-screen copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createLanguageScreenCopy( i18n: I18n ): Readonly<LanguageScreenCopy> {
 	/**
 	 * Formats the current browser-derived language explanation.
 	 * @param name - Autonym for the resolved browser language.
 	 * @return Complete localized helper sentence.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatBrowserLanguageDescription( name: string ): string {
 		return i18n._( msg`Your browser currently selects ${ { name } }.` );

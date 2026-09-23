@@ -17,7 +17,7 @@ const testThemes = readFileSync( path.join( extensionRoot, 'config/wtr/test-them
  * Keeps native video and Canvas assertions independent from React presentation tests.
  * @remarks Real React controls and injected boundaries run through the Vitest/Playwright presentation suite instead.
  * @type {import('@web/test-runner').TestRunnerConfig}
- * @since 0.1.0
+ * @since 1.0.0
  */
 export default {
 	rootDir: extensionRoot,

@@ -32,19 +32,19 @@ import type {
 
 /**
  * Namespace reserved for authoritative protection-clock alarms.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionClockAlarmNamePrefix = 'tocus.protection.clock.';
 
 /**
  * Extension script injected into protected pages.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const PROTECTED_PAGE_SCRIPT_PATH = '/protected-page.js';
 
 /**
  * Extension font stylesheet injected into protected pages.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const PROTECTED_PAGE_FONT_PATH = 'assets/protected-page-font.css';
 
@@ -52,7 +52,7 @@ const PROTECTED_PAGE_FONT_PATH = 'assets/protected-page-font.css';
  * Reports whether an alarm name belongs to one encoded protection-clock deadline.
  * @param name - Browser alarm name.
  * @return Whether the name contains the reserved prefix and a safe epoch-millisecond suffix.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function isProtectionClockAlarmName( name: string ): boolean {
 	if ( ! name.startsWith( ProtectionClockAlarmNamePrefix ) ) {
@@ -69,7 +69,7 @@ export function isProtectionClockAlarmName( name: string ): boolean {
  * Selects the toolbar API exposed by the current manifest version.
  * @param browserApi - Narrow injected browser operations.
  * @return Manifest V3 action, Manifest V2 browser action, or undefined when neither API is available.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getToolbarAction( browserApi: BrowserProtectionAdapterApi ): BrowserProtectionToolbarAction | undefined {
 	return browserApi.action ?? browserApi.browserAction;
@@ -80,7 +80,7 @@ function getToolbarAction( browserApi: BrowserProtectionAdapterApi ): BrowserPro
  * @param operation - Deferred toolbar operation that may fail synchronously or asynchronously.
  * @param requireSuccess - Whether reset cleanup must report a failed toolbar write.
  * @return Promise resolved after the operation succeeds or its failure is isolated.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function isolateToolbarOperationFailure(
 	operation: () => Promise<void> | void,
@@ -100,7 +100,7 @@ async function isolateToolbarOperationFailure(
  * @param browserApi - Narrow injected browser operations.
  * @param tabAudio - Session-aware ownership of interruption mute changes.
  * @return Browser effects consumed by the protection runtime.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createBrowserProtectionAdapter(
 	browserApi: BrowserProtectionAdapterApi,
@@ -110,7 +110,7 @@ export function createBrowserProtectionAdapter(
 	 * Creates the stable name for one exact protection-clock deadline.
 	 * @param epochMilliseconds - Exact wall-clock deadline encoded into the name.
 	 * @return Stable extension-owned alarm name.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function createProtectionClockAlarmName( epochMilliseconds: number ): string {
 		return `${ ProtectionClockAlarmNamePrefix }${ String( epochMilliseconds ) }`;
@@ -120,7 +120,7 @@ export function createBrowserProtectionAdapter(
 	 * Synchronizes every active deadline while preserving alarms that were scheduled early enough.
 	 * @param deadlines - Distinct future expiry, warning, and badge deadlines.
 	 * @return Promise resolved after extension-owned clock alarms match the requested deadlines.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function synchronizeProtectionClock( deadlines: ProtectionClockDeadlines ): Promise<void> {
 		const currentAlarms = await browserApi.alarms.getAll();
@@ -147,7 +147,7 @@ export function createBrowserProtectionAdapter(
 	 * Replaces every reserved protection redirect in one browser transaction without disturbing unrelated dynamic rules.
 	 * @param rules - Complete deterministic navigation-rule set.
 	 * @return Promise resolved after atomic browser replacement.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function replaceNavigationRules(
 		rules: Browser.declarativeNetRequest.Rule[],
@@ -165,7 +165,7 @@ export function createBrowserProtectionAdapter(
 	/**
 	 * Returns the active tab only while its browser window owns operating-system focus.
 	 * @return Focused browser tab identifier or null.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function getFocusedTabId(): Promise<number | null> {
 		const focusedWindow = await browserApi.windows.getLastFocused();
@@ -185,7 +185,7 @@ export function createBrowserProtectionAdapter(
 	/**
 	 * Lists open browser tabs with live identifiers and any locally accessible URL.
 	 * @return Browser tabs suitable for local protection matching.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function listTabs(): Promise<ReadonlyArray<ProtectionRuntimeTab>> {
 		const queriedTabs = await browserApi.tabs.query( {} );
@@ -210,7 +210,7 @@ export function createBrowserProtectionAdapter(
 	 * Reads the local state of an already injected protected-page presentation.
 	 * @param tabId - Browser tab containing the protected page.
 	 * @return Validated presentation status, or null when no listener is available.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function getProtectedPagePresentation(
 		tabId: number,
@@ -231,7 +231,7 @@ export function createBrowserProtectionAdapter(
 	 * Reports whether a presentation command requires an injected page listener.
 	 * @param message - Validated protected-page command.
 	 * @return Whether absence of a listener requires on-demand injection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function requiresProtectedPageInjection( message: ProtectedPageMessage ): boolean {
 		return message.type === ProtectedPageMessageType.PRESENT_ALLOWANCE_WARNING ||
@@ -243,7 +243,7 @@ export function createBrowserProtectionAdapter(
 	 * Injects the packaged page listener and attempts to register its local font without touching page styles.
 	 * @param tabId - Authorized browser tab receiving packaged extension resources.
 	 * @return Promise resolved after the listener is available.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function injectProtectedPagePresentation( tabId: number ): Promise<void> {
 		const [ scriptResult ] = await Promise.allSettled( [
@@ -269,7 +269,7 @@ export function createBrowserProtectionAdapter(
 	 * @param tabId - Browser tab targeted by cleanup.
 	 * @param error - Native message-delivery failure.
 	 * @return Whether one recognized absence can safely complete reset cleanup.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function isAbsentRemovalTarget( tabId: number, error: unknown ): Promise<boolean> {
 		if ( ! ( error instanceof Error ) ) {
@@ -298,7 +298,7 @@ export function createBrowserProtectionAdapter(
 	 * @param input - Protected-page command awaiting boundary validation.
 	 * @param requireSuccess - Whether reset cleanup must report unverified delivery failures.
 	 * @return Promise resolved after presentation or an absent removal is ignored.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function updateProtectedPagePresentation(
 		tabId: number,
@@ -348,7 +348,7 @@ export function createBrowserProtectionAdapter(
 	 * @param tabId - Browser-assigned target tab identifier.
 	 * @param url - Retained HTTP(S) destination authorized by the runtime.
 	 * @return Whether the page handled navigation or its source became stale during delivery.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function replaceInterruptionNavigation( tabId: number, url: string ): Promise<boolean> {
 		const currentUrl = browserApi.runtime?.getURL( InterruptionDocumentPath.CURRENT );
@@ -391,7 +391,7 @@ export function createBrowserProtectionAdapter(
 	 * @param tabId - Browser-assigned tab identifier.
 	 * @param url - Retained navigation destination.
 	 * @return Promise resolved after the browser accepts the update.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function navigateTab( tabId: number, url: string ): Promise<void> {
 		if ( ! await replaceInterruptionNavigation( tabId, url ) ) {
@@ -404,7 +404,7 @@ export function createBrowserProtectionAdapter(
 	 * Dismisses one interruption through browser-native history when the browser supports it.
 	 * @param tabId - Browser-assigned tab identifier.
 	 * @return Promise resolved after back navigation is accepted or immediately when unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function dismissInterruption( tabId: number ): Promise<void> {
 		await tabAudio.restore( tabId );
@@ -425,7 +425,7 @@ export function createBrowserProtectionAdapter(
 	 * @param projection - Compact text, accessible title, and semantic phase.
 	 * @param requireSuccess - Whether reset cleanup must report a failed toolbar write.
 	 * @return Promise resolved after every independent toolbar update is attempted.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function updateToolbarBadge(
 		projection: ToolbarBadgeProjection,

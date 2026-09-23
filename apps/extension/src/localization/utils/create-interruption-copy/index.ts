@@ -8,7 +8,7 @@ import { formatMinuteDuration, MILLISECONDS_PER_MINUTE } from '../format-localiz
  * Creates localized interruption-screen copy.
  * @param i18n - Locale-specific Lingui instance.
  * @return Complete localized interruption-screen copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createInterruptionCopy( i18n: I18n ): Readonly<InterruptionScreenCopy> {
 	const formatters = createLocalizationFormatters( i18n.locale );
@@ -17,7 +17,7 @@ export function createInterruptionCopy( i18n: I18n ): Readonly<InterruptionScree
 	 * Celebrates the user's saved time using completed whole minutes.
 	 * @param savedMilliseconds - Authoritative all-time estimated reclaimed duration.
 	 * @return Localized milestone title with hour and minute grammar.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatReviewTitle( savedMilliseconds: number ): string {
 		const duration = formatMinuteDuration(
@@ -32,7 +32,7 @@ export function createInterruptionCopy( i18n: I18n ): Readonly<InterruptionScree
 	 * Formats one visible remaining-time label.
 	 * @param remainingSeconds - Nonnegative whole seconds remaining.
 	 * @return Complete localized remaining-time label.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatRemainingTime( remainingSeconds: number ): string {
 		return i18n._( msg( {

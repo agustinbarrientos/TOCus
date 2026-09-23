@@ -15,7 +15,7 @@ const SITE_DISPLAY_NAME_CATALOG = compileSiteDisplayNameCatalog( siteDisplayName
  * @param identityHost - Exact canonical site identity.
  * @param protectionHost - Canonical protection boundary used for ordinary fallback names.
  * @return Readable fallback name derived without external metadata.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function deriveDisplayName( identityHost: string, protectionHost: string ): string {
 	if ( identityHost.split( '.' ).some( ( label ) => label.startsWith( 'xn--' ) ) ) {
@@ -42,7 +42,7 @@ function deriveDisplayName( identityHost: string, protectionHost: string ): stri
  * Creates one Unicode-aware monogram from a resolved display name.
  * @param displayName - Resolved nonempty display name.
  * @return First letter or number in uppercase, or a neutral fallback mark.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createMonogram( displayName: string ): string {
 	for ( const character of displayName ) {
@@ -58,7 +58,7 @@ function createMonogram( displayName: string ): string {
  * Selects one stable local monogram color slot from a canonical host.
  * @param host - Canonical protected-site host.
  * @return Integer color slot from zero through five.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function selectColorIndex( host: string ): number {
 	let hash = 2_166_136_261;
@@ -75,7 +75,7 @@ function selectColorIndex( host: string ): number {
  * Resolves a protected site's editable name and deterministic local monogram.
  * @param input - Exact identity host, complete protection rule, and optional editable display name.
  * @return Local site identity without page-title or network access.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function resolveSiteDisplayIdentity(
 	input: SiteDisplayNameResolutionInput,

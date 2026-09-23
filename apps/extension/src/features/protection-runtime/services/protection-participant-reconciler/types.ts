@@ -6,7 +6,7 @@ import type { ProtectionRuntimeBrowser } from '../../types/browser-runtime';
 
 /**
  * Dependencies used to reconcile browser-backed protection participants.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectionParticipantReconcilerOptions {
 	/** Browser observations used to validate live participant ownership. */
@@ -20,7 +20,7 @@ export interface ProtectionParticipantReconcilerOptions {
 	 * @param result - Persisted coordinator result.
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @return Promise resolved after browser effects are current.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	applyDispatchResult(
 		result: ProtectionCoordinatorDispatchResult,
@@ -30,7 +30,7 @@ export interface ProtectionParticipantReconcilerOptions {
 	 * Removes an injected interruption only for one authoritative allowance-expiry participant.
 	 * @param participant - Known allowance-expiry participant retaining the injected page identity.
 	 * @return Promise resolved after removal or when the owned layer is no longer present.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	releaseInjectedInterruption: BrowserProtectionProjector[ 'releaseInjectedInterruption' ];
 	/**
@@ -38,26 +38,26 @@ export interface ProtectionParticipantReconcilerOptions {
 	 * @param tabId - Browser tab that may display the interruption page.
 	 * @param retainedDestination - Validated destination to restore, or null for browser-native dismissal.
 	 * @return Promise resolved after release or a verified stale-tab race.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	releaseNavigationIfInterrupted: BrowserProtectionProjector[ 'releaseNavigationIfInterrupted' ];
 	/**
 	 * Returns the current wall-clock epoch time.
 	 * @return Current epoch milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	now(): number;
 	/**
 	 * Returns the OS timezone used when recording a departure.
 	 * @return Current IANA timezone identifier.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getTimeZone(): string;
 }
 
 /**
  * Reconciles persisted protection participants with current browser ownership.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectionParticipantReconciler {
 	/**
@@ -66,7 +66,7 @@ export interface ProtectionParticipantReconciler {
 	 * @param cause - Observable departure cause.
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @return Promise resolved after matching participant state is removed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	departTab: (
 		tabId: number,
@@ -78,7 +78,7 @@ export interface ProtectionParticipantReconciler {
 	 * @param cause - Observable departure cause shared by the invalidated participants.
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @return Promise resolved after every retained participant is removed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	departAll(
 		cause: DepartureCause,
@@ -88,7 +88,7 @@ export interface ProtectionParticipantReconciler {
 	 * Removes participants whose tab or configured protection ownership is no longer current.
 	 * @param configuration - Current validated local configuration.
 	 * @return Promise resolved after stale participants and interruption pages are released.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	reconcile: ( configuration: ProtectionConfigurationDocument ) => Promise<void>;
 }

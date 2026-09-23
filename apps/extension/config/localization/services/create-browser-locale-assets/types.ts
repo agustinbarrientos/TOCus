@@ -3,7 +3,7 @@ import type { LocalizationCatalogReader } from '../read-localization-catalog/typ
 
 /**
  * Dependencies used to create browser-managed localization assets.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface CreateBrowserLocaleAssetsOptions {
 	readCatalog: LocalizationCatalogReader;
@@ -11,6 +11,6 @@ export interface CreateBrowserLocaleAssetsOptions {
 
 /**
  * Browser-managed localization asset generated from one canonical PO catalog.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type BrowserLocaleAsset = GeneratedPublicFile;

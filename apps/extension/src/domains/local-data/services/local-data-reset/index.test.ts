@@ -7,7 +7,7 @@ import type { LocalDataResetOptions } from './types';
 /**
  * Creates isolated storage and lifecycle boundaries for reset behavior.
  * @return Observable reset dependencies and retained records.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createFixture() {
 	const values: Record<string, unknown> = { unrelated: 'keep', 'tocus.statistics.v1': { total: 42 }, [ ReviewPromptStorageKey ]: true };
@@ -39,7 +39,7 @@ function createFixture() {
 			 * @param name - Requested lock identity.
 			 * @param operation - Work executed with lock ownership.
 			 * @return Protected operation result.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			request<Result>( name: string, operation: () => Promise<Result> ): Promise<Result> {
 				events.push( name );

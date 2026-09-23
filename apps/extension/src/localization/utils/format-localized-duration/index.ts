@@ -5,19 +5,19 @@ import { DurationUnit, type DurationUnit as DurationUnitValue } from './types';
 
 /**
  * Milliseconds contained in one second.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const MILLISECONDS_PER_SECOND = 1_000;
 
 /**
  * Milliseconds contained in one minute.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const MILLISECONDS_PER_MINUTE = 60_000;
 
 /**
  * Minutes contained in one hour.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const MINUTES_PER_HOUR = 60;
 
@@ -27,7 +27,7 @@ const MINUTES_PER_HOUR = 60;
  * @param count - Whole unit count.
  * @param unit - Stable duration unit.
  * @return Localized duration unit.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function formatDurationUnit( i18n: I18n, count: number, unit: DurationUnitValue ): string {
 	switch ( unit ) {
@@ -64,7 +64,7 @@ export function formatDurationUnit( i18n: I18n, count: number, unit: DurationUni
  * @param totalMinutes - Nonnegative rounded whole minutes.
  * @param formatters - Locale-sensitive formatters for the bundle.
  * @return Localized duration.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function formatMinuteDuration(
 	i18n: I18n,

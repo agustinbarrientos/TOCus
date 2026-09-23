@@ -23,7 +23,7 @@ function shortcutHint( template: string, key: string ) {
 /**
  * Projects authoritative pause state with shared packaged controls and local canvas artwork.
  * The adapter owns progress and focus; this component performs no runtime or permission work.
- * @since 0.1.0
+ * @since 1.0.0
  * @param props - Immutable presentation snapshot and guarded adapter actions.
  * @return Scoped React pause scene.
  */

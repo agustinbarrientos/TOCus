@@ -7,7 +7,7 @@ import type { PersistedWebsiteItemProps } from './types';
  * Binds the original standalone item presentation to the real atomic domain editor.
  * @param props - Saved site, editor boundary and owner-provided access/removal actions.
  * @return Reusable standalone editor without changing Settings' page-wide draft transaction.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function PersistedWebsiteItem( props: PersistedWebsiteItemProps ) {
 	const editor = useMemo( () => createSiteItemEditor( props ), [ props.site, props.editor, props.onSaved ] );

@@ -6,13 +6,13 @@ import type {
 
 /**
  * Event requested by either the review link or permanent-dismissal button.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ReviewPromptDismissRequestEventName = 'tocus-dismiss-review-request';
 
 /**
  * Visible review invitation and its durable-dismissal feedback.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ReviewPromptPresentation {
 	/** Browser-specific store review destination. */
@@ -27,7 +27,7 @@ export interface ReviewPromptPresentation {
 
 /**
  * Interruption screen boundary for an optional review invitation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ReviewPromptTarget extends Pick<EventTarget, 'addEventListener' | 'removeEventListener'> {
 	/** Current invitation, or null while ineligible or permanently dismissed. */
@@ -36,7 +36,7 @@ export interface ReviewPromptTarget extends Pick<EventTarget, 'addEventListener'
 
 /**
  * Local-only dependencies for the interruption review invitation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ReviewPromptControllerOptions {
 	/** Authoritative all-time statistics with invalidation events. */
@@ -53,23 +53,23 @@ export interface ReviewPromptControllerOptions {
 
 /**
  * Lifecycle and authoritative refresh operations for one invitation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ReviewPromptController {
 	/**
 	 * Observes changes and starts a nonblocking eligibility read.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	start(): void;
 	/**
 	 * Removes listeners and invalidates all pending presentation updates.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	stop(): void;
 	/**
 	 * Refreshes eligibility using authoritative statistics and local dismissal.
 	 * @return Completion after the newest relevant read settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	refresh(): Promise<void>;
 }

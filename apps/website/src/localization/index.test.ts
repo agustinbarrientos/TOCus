@@ -12,7 +12,7 @@ import {
 
 /**
  * Canonical Lingui locale filenames used by the website.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const WebsiteCatalogLocales = Object.freeze( [
 	'en',
@@ -29,7 +29,7 @@ const WebsiteCatalogLocales = Object.freeze( [
 
 /**
  * Homepage copy consumed by the static feature and download sections.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const WebsiteHomepageFields = Object.freeze( [
 	'stepOpen', 'stepPause', 'stepContinue', 'stepBrowse',
@@ -44,7 +44,7 @@ const WebsiteHomepageFields = Object.freeze( [
 
 /**
  * PO formatter used to inspect translator-authored source files.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const poFormatter = formatter( {
 	foldLength: 0,
@@ -55,7 +55,7 @@ const poFormatter = formatter( {
  * Parses one website PO catalog from its canonical app-root location.
  * @param locale - Lingui locale filename to parse.
  * @return Parsed translator catalog.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function readWebsiteCatalog( locale: string ): Promise<CatalogType> {
 	const filename = fileURLToPath( new URL( `../../locales/${ locale }.po`, import.meta.url ) );

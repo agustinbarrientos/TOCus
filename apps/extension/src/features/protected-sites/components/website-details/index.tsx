@@ -8,7 +8,7 @@ import type { WebsiteDetailsProps } from './types';
  * Presents optional naming and immediately editable custom active hours.
  * @param props - Complete controlled website details owned by the surrounding form.
  * @return Shared inline fields without persistence side effects.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function WebsiteDetails( props: WebsiteDetailsProps ) {
 	const { copy, value } = props;

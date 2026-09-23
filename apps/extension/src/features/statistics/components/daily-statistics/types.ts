@@ -4,7 +4,7 @@ import type { StatisticsSettingsScreenCopy } from '../settings-screen/types';
 
 /**
  * Recorded daily aggregates and localized chart presentation.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface DailyStatisticsProps {
 	totals: readonly StatisticsChartBucket[];
@@ -13,6 +13,6 @@ export interface DailyStatisticsProps {
 
 /**
  * Accessible naming attributes forwarded by the chart library to its root SVG.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type DailyStatisticsChartAccessibility = Pick<SVGProps<SVGSVGElement>, 'aria-labelledby'>;

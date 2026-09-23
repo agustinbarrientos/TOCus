@@ -58,7 +58,7 @@ export type { AccessRefresh } from './types';
  * Presents grouped website identities and their complete page-level draft.
  * @param props - Canonical site services, localized content and access-refresh registration.
  * @return Editable websites destination with gesture-safe Save and access recovery.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function Websites( props: WebsitesScreenProps ) {
 	const { shell } = props;

@@ -16,7 +16,7 @@ import type {
 /**
  * Creates an unavailable projection without fabricating website or timing data.
  * @return Unavailable popup projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createUnavailableProjection(): PopupProjection {
 	return { status: PopupProjectionStatus.UNAVAILABLE };
@@ -27,7 +27,7 @@ function createUnavailableProjection(): PopupProjection {
  * @param options - Local runtime transport.
  * @param request - Validated popup runtime request.
  * @return Validated projection or an unavailable marker.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function sendRequest(
 	options: PopupStatusClientOptions,
@@ -44,7 +44,7 @@ async function sendRequest(
  * Creates a fail-closed local client for semantic popup projections.
  * @param options - Local runtime transport.
  * @return Popup status client.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createPopupStatusClient( options: PopupStatusClientOptions ): PopupStatusClient {
 	return {
@@ -52,7 +52,7 @@ export function createPopupStatusClient( options: PopupStatusClientOptions ): Po
 		 * Reads the latest semantic popup projection.
 		 * @param currentTab - Ephemeral current-tab context.
 		 * @return Valid projection or an unavailable marker.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		readStatus( currentTab: PopupCurrentTabContext | null ): Promise<PopupProjection> {
 			return sendRequest( options, {
@@ -65,7 +65,7 @@ export function createPopupStatusClient( options: PopupStatusClientOptions ): Po
 		 * Reconciles changed configuration before reading popup status.
 		 * @param currentTab - Ephemeral current-tab context.
 		 * @return Valid projection or an unavailable marker.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		refreshStatus( currentTab: PopupCurrentTabContext | null ): Promise<PopupProjection> {
 			return sendRequest( options, {

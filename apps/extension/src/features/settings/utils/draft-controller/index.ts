@@ -10,7 +10,7 @@ import { DraftSaveResult } from './types';
  * @param initial - Safe initial value used before the first authoritative load.
  * @param equals - Optional domain-aware comparison, defaulting to structural JSON equality.
  * @return Controller whose immutable snapshots integrate with React subscriptions.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function createDraft<T extends object>( initial: T, equals?: DraftEquality<T> ) {
 	let baseline = initial;

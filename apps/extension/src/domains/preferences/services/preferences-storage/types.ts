@@ -2,7 +2,7 @@ import type { PreferencesDocument } from '../../types';
 
 /**
  * Stable key for the current local preferences document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PreferencesStorageKey = Object.freeze( {
 	PREFERENCES: 'tocus.preferences.v1',
@@ -10,14 +10,14 @@ export const PreferencesStorageKey = Object.freeze( {
 
 /**
  * Local browser storage operations used by preferences persistence.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PreferencesStorageArea {
 	/**
 	 * Reads one storage key.
 	 * @param key - Requested storage key.
 	 * @return Stored values indexed by key.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	get( key: string ): Promise<Record<string, unknown>>;
 
@@ -25,14 +25,14 @@ export interface PreferencesStorageArea {
 	 * Writes values indexed by storage key.
 	 * @param values - Values to store.
 	 * @return Promise resolved after the write completes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	set( values: Record<string, unknown> ): Promise<void>;
 }
 
 /**
  * Dependencies used by local preferences persistence.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PreferencesStorageServiceOptions {
 	area: PreferencesStorageArea;
@@ -40,14 +40,14 @@ export interface PreferencesStorageServiceOptions {
 
 /**
  * Local preferences persistence operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PreferencesStorageService {
 	/**
 	 * Loads the current local preferences document.
 	 * @return Current preferences, safe defaults, or null for malformed stored data.
 	 * @throws {Error} When the browser storage read rejects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	load(): Promise<PreferencesDocument | null>;
 
@@ -57,7 +57,7 @@ export interface PreferencesStorageService {
 	 * @return Promise resolved after the write completes.
 	 * @throws {import('zod').ZodError} When the preferences violate their storage contract.
 	 * @throws {Error} When the browser storage write rejects.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	save( input: unknown ): Promise<void>;
 }

@@ -20,7 +20,7 @@ import {
  * Encodes one fact-identity component without delimiter ambiguity.
  * @param value - Stable identifier or numeric checkpoint component.
  * @return A length-prefixed component.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function encodeFactComponent( value: string | number ): string {
 	const serializedValue = String( value );
@@ -33,7 +33,7 @@ function encodeFactComponent( value: string | number ): string {
  * @param factType - Closed fact-kind prefix.
  * @param components - Stable identity components in kind-specific order.
  * @return A collision-safe fact identifier.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createFactId(
 	factType: ProtectionFactTypeValue,
@@ -50,7 +50,7 @@ function createFactId(
  * @param input - Unknown pause-time fact values.
  * @return A validated pause-time fact.
  * @throws {import('zod').ZodError} When the supplied values or generated fact violate the contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createPauseTimeFact( input: unknown ): PauseTimeFact {
 	const parsedInput = PauseTimeFactInputSchema.parse( input );
@@ -72,7 +72,7 @@ export function createPauseTimeFact( input: unknown ): PauseTimeFact {
  * @param input - Unknown reconsidered-visit fact values.
  * @return A validated reconsidered-visit fact.
  * @throws {import('zod').ZodError} When the supplied values or generated fact violate the contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createReconsideredVisitFact( input: unknown ): ReconsideredVisitFact {
 	const parsedInput = ReconsideredVisitFactInputSchema.parse( input );
@@ -93,7 +93,7 @@ export function createReconsideredVisitFact( input: unknown ): ReconsideredVisit
  * @param input - Unknown completed-wait fact values.
  * @return A validated completed-wait fact.
  * @throws {import('zod').ZodError} When the supplied values or generated fact violate the contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createCompletedWaitFact( input: unknown ): CompletedWaitFact {
 	const parsedInput = CompletedWaitFactInputSchema.parse( input );
@@ -113,7 +113,7 @@ export function createCompletedWaitFact( input: unknown ): CompletedWaitFact {
  * @param input - Unknown allowance-granted fact values.
  * @return A validated allowance-granted fact.
  * @throws {import('zod').ZodError} When the supplied values or generated fact violate the contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createAllowanceGrantedFact( input: unknown ): AllowanceGrantedFact {
 	const parsedInput = AllowanceGrantedFactInputSchema.parse( input );

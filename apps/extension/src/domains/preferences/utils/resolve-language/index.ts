@@ -2,7 +2,7 @@ import { Language } from '../../types';
 
 /**
  * Valid BCP-47 metadata tags indexed by supported TOCus language.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const LanguageTags: Readonly<Record<Language, string>> = Object.freeze( {
 	[ Language.ENGLISH ]: 'en',
@@ -21,7 +21,7 @@ const LanguageTags: Readonly<Record<Language, string>> = Object.freeze( {
  * Resolves one browser locale tag to a supported TOCus language.
  * @param localeTag - Unknown browser locale tag.
  * @return Exact regional match, supported base language, or English.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function resolveLanguage( localeTag: unknown ): Language {
 	if ( typeof localeTag !== 'string' || localeTag.length === 0 ) {
@@ -65,7 +65,7 @@ export function resolveLanguage( localeTag: unknown ): Language {
  * Projects one supported TOCus language to valid BCP-47 metadata.
  * @param language - Supported TOCus language.
  * @return Valid language metadata tag.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function getLanguageTag( language: Language ): string {
 	return LanguageTags[ language ];

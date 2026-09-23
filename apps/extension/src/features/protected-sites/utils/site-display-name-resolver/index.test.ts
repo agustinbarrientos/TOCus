@@ -12,7 +12,7 @@ const DEFAULT_SCOPE_ID = 'scope_default';
  * @param host - Canonical protection boundary.
  * @param includeSubdomains - Whether the rule owns descendant hosts.
  * @return Complete protected-site rule.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createRule( host: string, includeSubdomains = true ): ProtectedSiteRule {
 	return ProtectedSiteRuleSchema.parse( {

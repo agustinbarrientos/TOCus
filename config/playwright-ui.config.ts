@@ -2,7 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 /**
  * Shares fixture compilation and worker browsers across production UI regressions.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export default defineConfig( {
 	testDir: '..',

@@ -17,7 +17,7 @@ import { OnboardingSiteSuggestionId, type OnboardingSiteSuggestion } from './typ
 
 /**
  * Fixed local site suggestions shown during onboarding in approved product order.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const OnboardingSiteSuggestions: readonly Readonly<OnboardingSiteSuggestion>[] = Object.freeze( [
 	Object.freeze( {

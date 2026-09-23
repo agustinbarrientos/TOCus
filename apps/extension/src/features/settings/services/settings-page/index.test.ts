@@ -17,7 +17,7 @@ import type {
 
 /**
  * Mutable browser permission boundary used by settings page tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemorySettingsPermissions {
 	/** Listener for newly granted permissions. */
@@ -38,7 +38,7 @@ class MemorySettingsPermissions {
 		/**
 		 * Registers the permission-addition listener.
 		 * @param listener - Listener to register.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		addListener: ( listener: SettingsPermissionChangeListener ): void => {
 			this.addedListener = listener;
@@ -46,7 +46,7 @@ class MemorySettingsPermissions {
 		/**
 		 * Removes the permission-addition listener.
 		 * @param listener - Listener to remove.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		removeListener: ( listener: SettingsPermissionChangeListener ): void => {
 			if ( this.addedListener === listener ) {
@@ -59,7 +59,7 @@ class MemorySettingsPermissions {
 		/**
 		 * Registers the permission-removal listener.
 		 * @param listener - Listener to register.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		addListener: ( listener: SettingsPermissionChangeListener ): void => {
 			this.removedListener = listener;
@@ -67,7 +67,7 @@ class MemorySettingsPermissions {
 		/**
 		 * Removes the permission-removal listener.
 		 * @param listener - Listener to remove.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		removeListener: ( listener: SettingsPermissionChangeListener ): void => {
 			if ( this.removedListener === listener ) {
@@ -79,7 +79,7 @@ class MemorySettingsPermissions {
 	/**
 	 * Emits one permission addition.
 	 * @param change - Added browser permissions.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	emitAdded( change: SettingsPermissionChange ): void {
 		this.addedListener?.( change );
@@ -88,7 +88,7 @@ class MemorySettingsPermissions {
 	/**
 	 * Emits one permission removal.
 	 * @param change - Removed browser permissions.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	emitRemoved( change: SettingsPermissionChange ): void {
 		this.removedListener?.( change );
@@ -97,7 +97,7 @@ class MemorySettingsPermissions {
 
 /**
  * Mutable browser storage-change source used by settings page tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemorySettingsStorageChanges {
 	/** Active local storage listeners. */
@@ -109,7 +109,7 @@ class MemorySettingsStorageChanges {
 	/**
 	 * Reports the number of active local storage listeners.
 	 * @return Active local storage listener count.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	get listenerCount(): number {
 		return this.listeners.size;
@@ -118,7 +118,7 @@ class MemorySettingsStorageChanges {
 	/**
 	 * Registers one browser storage listener.
 	 * @param listener - Listener to register.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	addListener(
 		listener: (
@@ -132,7 +132,7 @@ class MemorySettingsStorageChanges {
 	/**
 	 * Removes one browser storage listener.
 	 * @param listener - Listener to remove.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	removeListener(
 		listener: (
@@ -146,7 +146,7 @@ class MemorySettingsStorageChanges {
 	/**
 	 * Emits one preferences storage change.
 	 * @param language - Explicit language stored for settings.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	emitLanguage( language: Language ): void {
 		for ( const listener of this.listeners ) {
@@ -161,7 +161,7 @@ class MemorySettingsStorageChanges {
 
 /**
  * Mutable operating-system motion preference used by settings tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemorySettingsMotionPreference extends EventTarget {
 	/** Whether reduced motion is currently requested. */
@@ -170,7 +170,7 @@ class MemorySettingsMotionPreference extends EventTarget {
 
 /**
  * Executes every browser mutation immediately for page-service tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class ImmediateSettingsMutationLock {
 	/**
@@ -179,7 +179,7 @@ class ImmediateSettingsMutationLock {
 	 * @param _name - Stable lock name.
 	 * @param mutation - Deferred browser mutation.
 	 * @return Exact mutation result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	request<Result>( _name: string, mutation: () => Promise<Result> ): Promise<Result> {
 		return mutation();
@@ -188,7 +188,7 @@ class ImmediateSettingsMutationLock {
 
 /**
  * Observable protected-sites screen used by permission refresh tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryProtectedSitesScreen {
 	/** Refreshes current browser access for visible protected sites. */
@@ -197,7 +197,7 @@ class MemoryProtectedSitesScreen {
 
 /**
  * Mutable settings shell used by page-service tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemorySettingsShell implements SettingsPageShell {
 	aboutCopy = TestEnglishLocalizationBundle.aboutCopy;
@@ -254,7 +254,7 @@ class MemorySettingsShell implements SettingsPageShell {
  * Creates complete settings page dependencies with local defaults.
  * @param overrides - Dependencies replaced for one scenario.
  * @return Complete settings page options.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createOptions( overrides: Partial<SettingsPageOptions> = {} ): SettingsPageOptions {
 	return {

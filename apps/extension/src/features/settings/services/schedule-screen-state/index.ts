@@ -34,7 +34,7 @@ import type {
  * Coordinates editing of one selected schedule and its authoritative configuration.
  * @param props - Domain editor, localized schedule content and draft registration.
  * @return Observable window draft, selectable destinations and explicit editing actions.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function useScheduleState( props: EditableSettingsScreenProps ) {
 	const { shell, register } = props;

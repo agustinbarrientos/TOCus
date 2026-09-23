@@ -8,7 +8,7 @@ const LOCAL_DATE_FORMAT_LOCALE = 'en-US';
  * @param timeZone - Current IANA time zone.
  * @return Local date in YYYY-MM-DD form.
  * @throws {RangeError} When the supplied time zone is invalid.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createRuntimeLocalDate( epochMilliseconds: number, timeZone: string ): LocalDate {
 	const parts = new Intl.DateTimeFormat( LOCAL_DATE_FORMAT_LOCALE, {

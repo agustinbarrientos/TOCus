@@ -15,7 +15,7 @@ import { resetStatistics } from '../reset-statistics';
  * @param document - Current validated statistics document.
  * @param operation - Validated statistics operation.
  * @return Next statistics document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function dispatchStatisticsOperation(
 	document: StatisticsDocument,
@@ -67,7 +67,7 @@ function dispatchStatisticsOperation(
  * @return Validated next statistics document.
  * @throws {import('zod').ZodError} When an input or computed result violates its contract.
  * @throws {RangeError} When a valid operation violates arithmetic or lifecycle invariants.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function reduceStatistics( document: unknown, operation: unknown ): StatisticsDocument {
 	const parsedDocument = StatisticsDocumentSchema.parse( document );

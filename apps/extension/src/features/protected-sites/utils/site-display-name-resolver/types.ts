@@ -11,7 +11,7 @@ import {
 
 /**
  * Validates one local site display-name resolution request against its complete protection rule.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const SiteDisplayNameResolutionInputSchema = z.object( {
 	identityHost: CanonicalHostSchema,
@@ -33,13 +33,13 @@ export const SiteDisplayNameResolutionInputSchema = z.object( {
 
 /**
  * Local site display-name resolution request with its complete protection rule.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type SiteDisplayNameResolutionInput = z.infer<typeof SiteDisplayNameResolutionInputSchema>;
 
 /**
  * Validates one resolved local site identity.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const SiteDisplayIdentitySchema = z.object( {
 	name: ProtectedSiteDisplayNameSchema,
@@ -49,6 +49,6 @@ export const SiteDisplayIdentitySchema = z.object( {
 
 /**
  * Resolved local site identity for protected-site presentation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type SiteDisplayIdentity = z.infer<typeof SiteDisplayIdentitySchema>;

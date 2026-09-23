@@ -9,7 +9,7 @@ import {
  * Creates localized onboarding Language-step copy.
  * @param i18n - Locale-specific Lingui instance.
  * @return Complete localized Language-step copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createOnboardingLanguageStepCopy( i18n: I18n ): Readonly<OnboardingLanguageStepCopy> {
 	return Object.freeze( {

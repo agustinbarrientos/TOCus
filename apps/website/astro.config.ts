@@ -6,13 +6,13 @@ import { defineConfig } from 'astro/config';
 
 /**
  * Absolute path to the repository's shared Lingui configuration.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const linguiConfigPath = fileURLToPath( new URL( '../../lingui.config.ts', import.meta.url ) );
 
 /**
  * Configures the static website build.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export default defineConfig( {
 	output: 'static',

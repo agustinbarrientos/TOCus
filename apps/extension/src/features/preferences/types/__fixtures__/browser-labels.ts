@@ -2,7 +2,7 @@ import { Language, Palette, ThemeMode } from '../../../../domains/preferences/ty
 
 /**
  * Literal English accessible palette names expected by production browser tests.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const BrowserPaletteLabels = {
 	[ Palette.BROWN ]: 'Brown',
@@ -15,7 +15,7 @@ export const BrowserPaletteLabels = {
 
 /**
  * Literal English accessible theme names expected by production browser tests.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const BrowserThemeLabels = {
 	[ ThemeMode.SYSTEM ]: 'System',
@@ -25,7 +25,7 @@ export const BrowserThemeLabels = {
 
 /**
  * Literal autonyms expected for every language in the native preference selector.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const BrowserLanguageLabels = {
 	[ Language.ENGLISH ]: 'English',

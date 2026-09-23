@@ -5,33 +5,33 @@ import type { MediaPlaybackController } from '../media-playback-controller';
 
 /**
  * Epoch clock used to derive the local final allowance countdown.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectedPageLayerClock {
 	/**
 	 * Returns the current epoch time.
 	 * @return Current epoch milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	now(): number;
 }
 
 /**
  * Local scheduling operations used by the protected-page presentation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectedPageLayerScheduler {
 	/**
 	 * Stops one recurring callback.
 	 * @param handle - Browser interval handle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	clearInterval( handle: number ): void;
 
 	/**
 	 * Stops one one-shot callback.
 	 * @param handle - Browser timeout handle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	clearTimeout( handle: number ): void;
 
@@ -40,7 +40,7 @@ export interface ProtectedPageLayerScheduler {
 	 * @param callback - Callback to execute.
 	 * @param delayMilliseconds - Delay between executions.
 	 * @return Browser interval handle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	setInterval( callback: () => void, delayMilliseconds: number ): number;
 
@@ -49,14 +49,14 @@ export interface ProtectedPageLayerScheduler {
 	 * @param callback - Callback to execute.
 	 * @param delayMilliseconds - Delay before execution.
 	 * @return Browser timeout handle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	setTimeout( callback: () => void, delayMilliseconds: number ): number;
 }
 
 /**
  * Isolated view state controlled inside one protected top-level document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectedPageLayerView {
 	/** Whether the semantic modal interruption covers the live page. */
@@ -67,20 +67,20 @@ export interface ProtectedPageLayerView {
 	/**
 	 * Waits until a requested interruption is visibly mounted in the native top layer.
 	 * @return Promise resolved after the interruption presentation becomes visible.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	waitForInterruptionPresentation(): Promise<void>;
 }
 
 /**
  * Dependencies used to coordinate one injected protected-page presentation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectedPageLayerControllerOptions {
 	/**
 	 * Creates one playback lifecycle for each interruption presentation.
 	 * @return Fresh native video playback lifecycle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	createPlaybackController(): MediaPlaybackController;
 	/** Epoch clock used for exact warning expiry. */
@@ -91,7 +91,7 @@ export interface ProtectedPageLayerControllerOptions {
 	 * Requests authoritative background reconciliation at one locally observed allowance expiry.
 	 * @param allowanceId - Allowance identity that armed the local expiry guard.
 	 * @return Promise resolved after the request is accepted by extension messaging.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	reconcileAllowanceExpiry( allowanceId: AllowanceId ): Promise<void>;
 	/** Local timer operations released with the content lifecycle. */
@@ -102,20 +102,20 @@ export interface ProtectedPageLayerControllerOptions {
 
 /**
  * Injected protected-page message and timer coordinator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectedPageLayerController {
 	/**
 	 * Handles one unknown protected-page command.
 	 * @param input - Unknown browser message payload.
 	 * @return Current status for a status request, otherwise undefined.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	handleMessage( input: unknown ): Promise<ProtectedPagePresentationStatus | undefined>;
 
 	/**
 	 * Releases warning timers and interruption listeners during content teardown.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	stop(): void;
 }

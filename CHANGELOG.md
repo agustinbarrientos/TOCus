@@ -2,7 +2,9 @@
 
 All notable changes to TOCus will be documented in this file.
 
-## 0.1.0 - Alpha
+## 1.0.0 - Unreleased
+
+First public release.
 
 ### Added
 
@@ -23,6 +25,7 @@ All notable changes to TOCus will be documented in this file.
 - Added first-install language, appearance, and website setup with local draft selections, a removable website list, bundled suggestion icons, and one permission request for the selected websites when setup finishes.
 - Added clickable onboarding steps with completed checkmarks and retained choices when revisiting earlier steps.
 - Added local-only statistics for estimated time reclaimed, focused pause time, reconsidered visits, completed waits, and allowances granted, with all-time interruption summaries and a reset that leaves protection settings untouched.
+- Added a localized review invitation after one hour of estimated time saved, with permanent local dismissal and browser-specific destinations; invitations remain hidden until the corresponding store URL is configured.
 - Added Privacy and local data settings with separate confirmed statistics and full-data resets, website-access revocation, interrupted-reset recovery, and a return to onboarding.
 - Added About settings with the installed version, MIT license, source code, and contribution links.
 - Added the initial project website, contribution guidance, and public project documentation.

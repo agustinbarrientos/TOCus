@@ -9,7 +9,7 @@ import type { LocalizationFormatters } from '../create-localization-formatters';
  * @param i18n - Locale-specific Lingui instance.
  * @param formatters - Locale-sensitive formatters for the bundle.
  * @return Complete localized Schedule-screen copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createScheduleCopy(
 	i18n: I18n,
@@ -29,7 +29,7 @@ export function createScheduleCopy(
 	 * Resolves one stable domain weekday to its localized label.
 	 * @param weekday - Stable weekday domain value.
 	 * @return Localized weekday label.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatWeekday( weekday: Weekday ): string {
 		return weekdays[ weekday ];
@@ -39,7 +39,7 @@ export function createScheduleCopy(
 	 * Formats one accessible time-window group label.
 	 * @param position - One-based visual position.
 	 * @return Complete localized group label.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatWindowLabel( position: number ): string {
 		const formattedPosition = formatters.number.format( position );
@@ -51,7 +51,7 @@ export function createScheduleCopy(
 	 * Formats one contextual remove-window action.
 	 * @param position - One-based visual position.
 	 * @return Complete localized action label.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatRemoveWindowLabel( position: number ): string {
 		const formattedPosition = formatters.number.format( position );

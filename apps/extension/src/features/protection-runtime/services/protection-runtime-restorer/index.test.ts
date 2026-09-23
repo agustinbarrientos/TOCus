@@ -39,19 +39,19 @@ import type { ProtectionRuntimeRestorerOptions } from './types';
 
 /**
  * Fixed wall-clock instant used by restoration fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const NOW_EPOCH_MILLISECONDS = 1_800_000_100_000;
 
 /**
  * Extension-owned interruption URL used by restoration fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/interruption.html';
 
 /**
  * Ready participant retained by allowance restoration fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const READY_PARTICIPANT = createNavigationParticipant(
 	'participant_ready',
@@ -63,7 +63,7 @@ const READY_PARTICIPANT = createNavigationParticipant(
 
 /**
  * Allowance state retained by restoration fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ALLOWANCE_STATE = {
 	...createAllowanceState(),
@@ -73,7 +73,7 @@ const ALLOWANCE_STATE = {
 
 /**
  * Reconciliation requirement returned by interrupted allowance fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const REQUIREMENT = {
 	scopeId: DefaultProtectionScopeId,
@@ -85,7 +85,7 @@ const REQUIREMENT = {
 
 /**
  * Expiry-origin Ready participant whose interruption layer preserves its live page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const EXPIRY_READY_PARTICIPANT = createAllowanceExpiryParticipant(
 	'participant_expiry_ready',
@@ -96,7 +96,7 @@ const EXPIRY_READY_PARTICIPANT = createAllowanceExpiryParticipant(
 
 /**
  * Reconciliation requirement for the preserved expiry-origin participant.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const EXPIRY_REQUIREMENT = {
 	...REQUIREMENT,
@@ -106,7 +106,7 @@ const EXPIRY_REQUIREMENT = {
 
 /**
  * Protected-site configuration used by restoration fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
@@ -122,7 +122,7 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
 
 /**
  * Applied coordinator result returned by successful restoration dispatches.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const APPLIED_RESULT: ProtectionCoordinatorDispatchResult = {
 	status: ProtectionCoordinatorDispatchStatus.APPLIED,
@@ -135,7 +135,7 @@ const APPLIED_RESULT: ProtectionCoordinatorDispatchResult = {
  * @param status - Successful initialization status.
  * @param requirement - Ready reconciliation requirement used when requested.
  * @return Successful initialization result with one observable decision.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createSuccessfulInitialization(
 	status: typeof ProtectionCoordinatorInitializationStatus.READY |
@@ -170,7 +170,7 @@ function createSuccessfulInitialization(
  * @param tabs - Current browser tab observations.
  * @param interruptionPageUrl - Current packaged interruption document URL.
  * @return Restorer and observable dependency doubles.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createRestorerHarness(
 	initialization: ProtectionCoordinatorInitializationResult,

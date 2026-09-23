@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 /**
  * Supported appearance preference.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const TocusAppearance = {
 	LIGHT: 'light',
@@ -12,12 +12,12 @@ export const TocusAppearance = {
 
 /**
  * Supported appearance inferred from its runtime catalog.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type TocusAppearance = ( typeof TocusAppearance )[ keyof typeof TocusAppearance ];
 /**
  * Existing brand palettes.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const TocusPalette = {
 	BROWN: 'brown',
@@ -30,18 +30,18 @@ export const TocusPalette = {
 
 /**
  * Brand palette inferred from its runtime catalog.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type TocusPalette = ( typeof TocusPalette )[ keyof typeof TocusPalette ];
 
 /**
  * Resolved appearance excludes the system preference.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type TocusColorScheme = Exclude<TocusAppearance, typeof TocusAppearance.SYSTEM>;
 /**
  * Provider ownership and appearance contract.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface TocusProviderProps {
 	children: ReactNode;

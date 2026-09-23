@@ -8,7 +8,7 @@ import './style.scss';
  * Applies the same page hierarchy and width to every Settings destination.
  * @param props - Localized heading, optional brand content and destination content.
  * @return Owned-document main landmark.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function Page( props: SettingsPageProps ) {
 	return (

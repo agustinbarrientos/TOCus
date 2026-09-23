@@ -4,7 +4,7 @@ import type { StatisticsProjection } from '../../../../domains/statistics/types/
 
 /**
  * Converts one authoritative projection into localized footer content.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type WellbeingSummaryFormatter = (
 	projection: StatisticsProjection,
@@ -13,7 +13,7 @@ export type WellbeingSummaryFormatter = (
 
 /**
  * Interruption presentation that receives one complete wellbeing footer.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface WellbeingSummaryTarget {
 	/** Complete footer sentence shown by the interruption presentation. */
@@ -22,7 +22,7 @@ export interface WellbeingSummaryTarget {
 
 /**
  * Dependencies used to keep one interruption footer current.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface WellbeingSummaryControllerOptions {
 	/** Optional localized summary grammar and duration formatting. */
@@ -37,32 +37,32 @@ export interface WellbeingSummaryControllerOptions {
 
 /**
  * Refresh operation for one wellbeing footer.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface WellbeingSummaryController {
 	/**
 	 * Replaces localized summary grammar and immediately reformats the latest projection.
 	 * @param copy - Complete localized wellbeing-summary copy.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	setCopy( copy: Readonly<WellbeingSummaryCopy> ): void;
 
 	/**
 	 * Begins refreshing the footer after authoritative statistics changes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	start(): void;
 
 	/**
 	 * Stops refreshing the footer after authoritative statistics changes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	stop(): void;
 
 	/**
 	 * Reads and projects the latest authoritative all-time statistics.
 	 * @return Promise resolved after the latest applicable read settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	refresh(): Promise<void>;
 }

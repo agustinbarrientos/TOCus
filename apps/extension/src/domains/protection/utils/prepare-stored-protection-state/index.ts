@@ -23,7 +23,7 @@ import { PrepareStoredProtectionStateInputSchema } from './types';
  * @param left - First string.
  * @param right - Second string.
  * @return Negative or positive ordering value for distinct strings.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function compareLexically( left: string, right: string ): number {
 	return left < right ? -1 : 1;
@@ -34,7 +34,7 @@ function compareLexically( left: string, right: string ): number {
  * @param left - First stored participant.
  * @param right - Second stored participant.
  * @return Negative, zero, or positive ordering value.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function compareStoredParticipants(
 	left: StoredProtectionParticipant,
@@ -51,7 +51,7 @@ function compareStoredParticipants(
  * Removes volatile focus state from one runtime participant.
  * @param participant - Validated runtime participant.
  * @return Validated stored participant.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function prepareStoredParticipant( participant: ProtectionParticipant ): StoredProtectionParticipant {
 	return StoredProtectionParticipantSchema.parse( {
@@ -70,7 +70,7 @@ function prepareStoredParticipant( participant: ProtectionParticipant ): StoredP
  * @param input - Unknown runtime-state mapping and session-continuity identifier.
  * @return Current durable and session stored protection state.
  * @throws {import('zod').ZodError} When the input or prepared state violates its contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function prepareStoredProtectionState( input: unknown ): StoredProtectionState {
 	const parsedInput = PrepareStoredProtectionStateInputSchema.parse( input );

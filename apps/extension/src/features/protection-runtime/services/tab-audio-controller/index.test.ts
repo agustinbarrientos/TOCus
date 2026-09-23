@@ -3,30 +3,30 @@ import { createTabAudioController, TAB_AUDIO_STORAGE_KEY, type TabAudioTab, type
 
 /**
  * Browser tab boundary retaining native ownership across controller instances.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class TabAudioBrowserFixture implements TabAudioTabsApi {
 	/**
 	 * Browser tab state.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	tab: TabAudioTab = { id: 7, incognito: false, mutedInfo: { muted: false } };
 
 	/**
 	 * Accepted mute updates.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	updates: TabAudioUpdate[] = [];
 
 	/**
 	 * Tab identifiers requested through the single-tab browser boundary.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	readTabIds: number[] = [];
 
 	/**
 	 * Whether native ownership metadata is available.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	ownershipAvailable = true;
 
@@ -34,7 +34,7 @@ class TabAudioBrowserFixture implements TabAudioTabsApi {
 	 * Reads a snapshot of the tab state.
 	 * @param tabId - Browser tab identifier.
 	 * @return Current tab state.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	get = ( tabId: number ): Promise<TabAudioTab> => {
 		this.readTabIds.push( tabId );
@@ -46,7 +46,7 @@ class TabAudioBrowserFixture implements TabAudioTabsApi {
 	/**
 	 * Lists current tab snapshots.
 	 * @return Current tab state.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	query = (): Promise<TabAudioTab[]> => Promise.resolve( [ structuredClone( this.tab ) ] );
 
@@ -55,7 +55,7 @@ class TabAudioBrowserFixture implements TabAudioTabsApi {
 	 * @param tabId - Browser tab identifier.
 	 * @param update - Requested native audio state.
 	 * @return Browser completion.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	update = ( tabId: number, update: TabAudioUpdate ): Promise<void> => {
 		if ( tabId !== this.tab.id ) {
@@ -71,31 +71,31 @@ class TabAudioBrowserFixture implements TabAudioTabsApi {
 
 /**
  * Session storage boundary shared by restarted controller instances.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class TabAudioStorageFixture implements TabAudioStorageApi {
 	/**
 	 * Persisted session values.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	values: Record<string, unknown> = {};
 
 	/**
 	 * Number of session reads.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	readCount = 0;
 
 	/**
 	 * Number of session writes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	writeCount = 0;
 
 	/**
 	 * Reads persisted session values.
 	 * @return Current session values.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	get = (): Promise<Record<string, unknown>> => {
 		this.readCount += 1;
@@ -106,7 +106,7 @@ class TabAudioStorageFixture implements TabAudioStorageApi {
 	 * Replaces session values.
 	 * @param values - Session values to persist.
 	 * @return Storage completion.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	set = ( values: Record<string, unknown> ): Promise<void> => {
 		this.writeCount += 1;
@@ -257,7 +257,7 @@ describe( 'tab audio controller', () => {
 		/**
 		 * Rejects an unavailable session operation.
 		 * @return Rejected storage completion.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		const rejectStorage = (): Promise<never> => Promise.reject( new Error( 'Session unavailable.' ) );
 		Object.assign( storage, { [ operation ]: rejectStorage } );

@@ -8,14 +8,14 @@ import type {
 
 /**
  * Numeric timing field expressed in milliseconds by the domain.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type TimingField = keyof Omit<TimingConfiguration, 'completionAction'>;
 
 
 /**
  * Approved timing range bounds and localized presentation.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface TimingRange {
 	key: TimingField;
@@ -32,7 +32,7 @@ export interface TimingRange {
 
 /**
  * Controlled global timing form contents.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface TimingControlsProps {
 	copy: TimingScreenCopy;

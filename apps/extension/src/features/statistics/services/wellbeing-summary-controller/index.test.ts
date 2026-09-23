@@ -12,31 +12,31 @@ import { formatNewTabWellbeingSummary } from '../../utils/format-wellbeing-summa
 
 /**
  * Statistics-change listener used by the controller fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 type TestStatisticsChangeListener = () => void;
 
 /**
  * Observable statistics source used by wellbeing-summary controller tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryStatisticsSource {
 	/**
 	 * Statistics-change listeners registered with the source.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	private readonly listeners = new Set<TestStatisticsChangeListener>();
 
 	/**
 	 * Reads the next configured statistics projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	readonly readStatistics: () => Promise<StatisticsProjection>;
 
 	/**
 	 * Creates an observable statistics source.
 	 * @param readStatistics - Read implementation used by the test.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor( readStatistics: () => Promise<StatisticsProjection> ) {
 		this.readStatistics = readStatistics;
@@ -45,7 +45,7 @@ class MemoryStatisticsSource {
 	/**
 	 * Begins notifying one statistics-change listener.
 	 * @param listener - Statistics-change listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	addStatisticsChangeListener( listener: TestStatisticsChangeListener ): void {
 		this.listeners.add( listener );
@@ -54,7 +54,7 @@ class MemoryStatisticsSource {
 	/**
 	 * Stops notifying one statistics-change listener.
 	 * @param listener - Previously subscribed listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	removeStatisticsChangeListener( listener: TestStatisticsChangeListener ): void {
 		this.listeners.delete( listener );
@@ -62,7 +62,7 @@ class MemoryStatisticsSource {
 
 	/**
 	 * Notifies every active listener that statistics changed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	emitChange(): void {
 		for ( const listener of this.listeners ) {
@@ -76,7 +76,7 @@ class MemoryStatisticsSource {
  * @param estimatedReclaimedMilliseconds - Estimated reclaimed duration.
  * @param focusedPauseMilliseconds - Observed focused-pause duration.
  * @return Complete available statistics projection.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createProjection(
 	estimatedReclaimedMilliseconds: number,
@@ -97,7 +97,7 @@ function createProjection(
 /**
  * Creates one interruption-footer target for controller tests.
  * @return Mutable test target.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createTarget(): WellbeingSummaryTarget {
 	return {
@@ -109,7 +109,7 @@ function createTarget(): WellbeingSummaryTarget {
  * Formats one deterministic localized duration for controller tests.
  * @param milliseconds - Positive fixture duration.
  * @return Deterministic localized duration.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function formatLocalizedDuration( milliseconds: number ): string {
 	return `${ String( milliseconds / 60_000 ) } minutos`;
@@ -119,7 +119,7 @@ function formatLocalizedDuration( milliseconds: number ): string {
  * Composes one deterministic compact localized sentence for controller tests.
  * @param duration - Formatted fixture duration.
  * @return Deterministic compact sentence.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function formatLocalizedShortSummary( duration: string ): string {
 	return `Aproximadamente ${ duration } recuperados.`;
@@ -129,7 +129,7 @@ function formatLocalizedShortSummary( duration: string ): string {
  * Composes one deterministic localized wellbeing sentence for controller tests.
  * @param values - Formatted fixture values.
  * @return Deterministic localized sentence.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function formatLocalizedSummary( values: WellbeingSummaryValues ): string {
 	return `Tiempo recuperado: ${ values.estimatedReclaimedTime ?? 'ninguno' }; pausa: ${ values.focusedPauseTime ?? 'ninguna' }.`;

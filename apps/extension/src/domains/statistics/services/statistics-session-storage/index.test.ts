@@ -8,7 +8,7 @@ import {
 
 /**
  * Valid session statistics persistence fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const VALID_SESSION_DOCUMENT = {
 	schemaVersion: 1,
@@ -26,13 +26,13 @@ const VALID_SESSION_DOCUMENT = {
 
 /**
  * Stable browser-session continuity fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const SESSION_CONTINUITY_ID = 'session_current';
 
 /**
  * Stable focus epoch fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const FOCUS_EPOCH_ID = 'focus_epoch_current';
 
@@ -41,7 +41,7 @@ const FOCUS_EPOCH_ID = 'focus_epoch_current';
  * @param area - In-memory browser session storage area.
  * @param focusEpochIds - Focus epoch identifiers returned in order.
  * @return Session statistics persistence under test.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createTestStorage(
 	area: StatisticsSessionStorageArea,
@@ -58,24 +58,24 @@ function createTestStorage(
 
 /**
  * In-memory browser storage used to verify session statistics persistence.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryStatisticsSessionStorageArea implements StatisticsSessionStorageArea {
 	/**
 	 * Storage keys requested by the service.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	readonly readKeys: string[] = [];
 
 	/**
 	 * Value records written by the service.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	readonly writtenValues: Record<string, unknown>[] = [];
 
 	/**
 	 * Storage keys removed by the service.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	readonly removedKeys: string[] = [];
 
@@ -88,7 +88,7 @@ class MemoryStatisticsSessionStorageArea implements StatisticsSessionStorageArea
 	/**
 	 * Creates one in-memory area with initial values.
 	 * @param values - Values available before the first read.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor( private readonly values: Record<string, unknown> = {} ) {}
 
@@ -96,7 +96,7 @@ class MemoryStatisticsSessionStorageArea implements StatisticsSessionStorageArea
 	 * Reads one key or rejects with the configured error.
 	 * @param key - Requested storage key.
 	 * @return Matching record or an empty record.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	get( key: string ): Promise<Record<string, unknown>> {
 		this.readKeys.push( key );
@@ -112,7 +112,7 @@ class MemoryStatisticsSessionStorageArea implements StatisticsSessionStorageArea
 	 * Writes one record or rejects with the configured error.
 	 * @param values - Values to persist.
 	 * @return Promise resolved after the write.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	set( values: Record<string, unknown> ): Promise<void> {
 		if ( this.writeError !== null ) {
@@ -129,7 +129,7 @@ class MemoryStatisticsSessionStorageArea implements StatisticsSessionStorageArea
 	 * Removes one key or rejects with the configured error.
 	 * @param key - Exact storage key to remove.
 	 * @return Promise resolved after removal.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	remove( key: string ): Promise<void> {
 		if ( this.removeError !== null ) {

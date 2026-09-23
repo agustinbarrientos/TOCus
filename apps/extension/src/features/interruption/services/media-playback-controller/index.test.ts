@@ -4,7 +4,7 @@ import { createMediaPlaybackController } from '.';
 /**
  * Creates a native media boundary with mutable playback state for unit scenarios.
  * @return Video boundary and observable browser operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createMedia() {
 	const media = {
@@ -30,7 +30,7 @@ function createMedia() {
  * @param hostname - Current document hostname.
  * @param pathname - Current document path.
  * @return Mutable document, media, and playback lifecycle.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createHarness( hostname = 'www.youtube.com', pathname = '/watch?v=one' ) {
 	const media = createMedia();

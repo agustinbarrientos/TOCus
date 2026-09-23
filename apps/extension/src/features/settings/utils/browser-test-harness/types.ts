@@ -5,7 +5,7 @@ import type { Language } from '../../../../domains/preferences/types';
 
 /**
  * Reusable page setup and typed fault injection for all Settings browser suites.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface SettingsBrowserHarness {
 	open: ( destination?: SettingsDestination, language?: Language ) => Promise<Page>;

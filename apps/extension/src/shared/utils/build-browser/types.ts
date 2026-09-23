@@ -1,6 +1,6 @@
 /**
  * Browser targets supported by the extension build.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ExtensionBuildBrowser = {
 	CHROME: 'chrome',

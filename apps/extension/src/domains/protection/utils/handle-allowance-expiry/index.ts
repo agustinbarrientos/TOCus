@@ -35,7 +35,7 @@ import type { ReadyCandidateProjection } from './types';
  * @param state - Current validated Allowance state with authoritative Ready participants.
  * @param candidates - Canonical complete Ready-source observations.
  * @return Retained protected participants and fail-open decisions, or null for an unsafe destination.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function projectReadyCandidates(
 	state: AllowanceProtectionState,
@@ -72,7 +72,7 @@ function projectReadyCandidates(
  * @param state - Current validated Allowance state whose Ready pages take precedence.
  * @param candidates - Canonical complete live-source observations.
  * @return New expiry-origin participants retained for the next wait.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function projectLiveCandidates(
 	state: AllowanceProtectionState,
@@ -106,7 +106,7 @@ function projectLiveCandidates(
  * @param state - Current validated protection state for the event scope.
  * @param event - Validated allowance-expiry transaction with fresh schedule and candidate observations.
  * @return Idle, unchanged Allowance, or one newly captured shared wait with declarative decisions and no facts.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function handleAllowanceExpiry(
 	state: ProtectionState,

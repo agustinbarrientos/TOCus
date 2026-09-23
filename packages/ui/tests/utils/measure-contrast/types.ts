@@ -1,6 +1,6 @@
 /**
  * Rendered colors and diagnostics captured together for a shared-control surface.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface ContrastMeasurement {
 	/** Visible label used to identify a failing surface without another browser call. */

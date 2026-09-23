@@ -16,7 +16,7 @@ const shadowLengthTokens = new RegExp( [
  * Resolves owned CSS dimensions against the extension's fixed 16px root baseline.
  * Keeps Mantine's scale expressions intact and never rewrites strings or resource URLs.
  * This is an injection boundary transform, not a replacement for the library stylesheet.
- * @since 0.1.0
+ * @since 1.0.0
  * @param css - Packaged stylesheet or inline declaration value owned by the provider.
  * @return Host-independent CSS with all other units and tokens unchanged.
  */

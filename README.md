@@ -114,24 +114,24 @@ pnpm zip:firefox
 pnpm zip:safari
 ```
 
-Each command uses [WXT's built-in ZIP command](https://wxt.dev/guide/essentials/publishing) to rebuild its target before archiving it. These commands create local files; store submission is a separate step. With extension version `0.1.0`, the outputs under `apps/extension/.output/` are:
+Each command uses [WXT's built-in ZIP command](https://wxt.dev/guide/essentials/publishing) to rebuild its target before archiving it. These commands create local files; store submission is a separate step. With extension version `1.0.0`, the outputs under `apps/extension/.output/` are:
 
 | Archive | Manifest | Intended use |
 | --- | --- | --- |
-| `tocusextension-0.1.0-chrome.zip` | V3, Chrome 120+ | Chrome Web Store upload |
-| `tocusextension-0.1.0-edge.zip` | V3, Chromium 120 compatibility floor | Microsoft Edge Add-ons upload after native verification |
-| `tocusextension-0.1.0-firefox.zip` | V2, Firefox 140+ | Firefox Add-ons upload |
-| `tocusextension-0.1.0-safari.zip` | V2, Safari 16.4+ | Input to Apple's Safari packaging workflow |
+| `tocusextension-1.0.0-chrome.zip` | V3, Chrome 120+ | Chrome Web Store upload |
+| `tocusextension-1.0.0-edge.zip` | V3, Chromium 120 compatibility floor | Microsoft Edge Add-ons upload after native verification |
+| `tocusextension-1.0.0-firefox.zip` | V2, Firefox 140+ | Firefox Add-ons upload |
+| `tocusextension-1.0.0-safari.zip` | V2, Safari 16.4+ | Input to Apple's Safari packaging workflow |
 
 Verify ZIP integrity with `unzip -t`, inspect each archive's root `manifest.json` with `unzip -p`, and confirm the packaged icons, locale messages, page resources, and permissions match the reviewed build. For example:
 
 ```sh
-unzip -t apps/extension/.output/tocusextension-0.1.0-firefox.zip
-unzip -p apps/extension/.output/tocusextension-0.1.0-firefox.zip manifest.json
-shasum -a 256 apps/extension/.output/tocusextension-0.1.0-chrome.zip apps/extension/.output/tocusextension-0.1.0-edge.zip apps/extension/.output/tocusextension-0.1.0-firefox.zip apps/extension/.output/tocusextension-0.1.0-safari.zip
+unzip -t apps/extension/.output/tocusextension-1.0.0-firefox.zip
+unzip -p apps/extension/.output/tocusextension-1.0.0-firefox.zip manifest.json
+shasum -a 256 apps/extension/.output/tocusextension-1.0.0-chrome.zip apps/extension/.output/tocusextension-1.0.0-edge.zip apps/extension/.output/tocusextension-1.0.0-firefox.zip apps/extension/.output/tocusextension-1.0.0-safari.zip
 ```
 
-Re-run `pnpm exec vitest run --config config/vitest.config.ts --project build-contract` for static artifact checks and `pnpm test:build-browser` for packaged browser journeys after packaging. Browser journeys run sequentially with no retries and retain traces and screenshots only on failure under `test-results/build-browser/`; their HTML report is under `playwright-report/build-browser/`. The separate `pnpm test:ui` command uses Playwright Test for shared controls and extension presentation, reusing one fixture server and worker-owned browsers with isolated test contexts. Its diagnostics are under `test-results/ui/` and `playwright-report/ui/`. CI uploads both suites' diagnostics on failure. Replace `0.1.0` in filenames when the extension version changes. The declared minimum browser versions are compatibility targets; successful builds do not establish runtime support across every version.
+Re-run `pnpm exec vitest run --config config/vitest.config.ts --project build-contract` for static artifact checks and `pnpm test:build-browser` for packaged browser journeys after packaging. Browser journeys run sequentially with no retries and retain traces and screenshots only on failure under `test-results/build-browser/`; their HTML report is under `playwright-report/build-browser/`. The separate `pnpm test:ui` command uses Playwright Test for shared controls and extension presentation, reusing one fixture server and worker-owned browsers with isolated test contexts. Its diagnostics are under `test-results/ui/` and `playwright-report/ui/`. CI uploads both suites' diagnostics on failure. Replace `1.0.0` in filenames when the extension version changes. The declared minimum browser versions are compatibility targets; successful builds do not establish runtime support across every version.
 
 ### Edge verification and publication
 
@@ -152,15 +152,15 @@ Until a public listing is available, desktop Edge visitors see `Edge - Coming so
 
 ### Firefox review source
 
-WXT also creates `tocusextension-0.1.0-sources.zip` when packaging Firefox. Its default source root is `apps/extension`, so it omits this monorepo's root lockfile, build configuration, and shared packages. That automatic archive is insufficient for Mozilla to reproduce this build.
+WXT also creates `tocusextension-1.0.0-sources.zip` when packaging Firefox. Its default source root is `apps/extension`, so it omits this monorepo's root lockfile, build configuration, and shared packages. That automatic archive is insufficient for Mozilla to reproduce this build.
 
 After confirming `git status --short` is empty and `HEAD` is the reviewed release commit used above, create a complete tracked-workspace source archive instead:
 
 ```sh
 git rev-parse HEAD
-git archive --format=zip --output=apps/extension/.output/tocus-0.1.0-workspace-sources.zip HEAD
-unzip -t apps/extension/.output/tocus-0.1.0-workspace-sources.zip
-shasum -a 256 apps/extension/.output/tocus-0.1.0-workspace-sources.zip
+git archive --format=zip --output=apps/extension/.output/tocus-1.0.0-workspace-sources.zip HEAD
+unzip -t apps/extension/.output/tocus-1.0.0-workspace-sources.zip
+shasum -a 256 apps/extension/.output/tocus-1.0.0-workspace-sources.zip
 ```
 
 Supply that workspace archive and these build instructions with the Firefox submission. Before submitting, extract it into an empty directory, install the pinned tools and dependencies with `pnpm install --frozen-lockfile`, and run `pnpm zip:firefox` from its root. Compare the extracted release file contents with the submitted Firefox ZIP and investigate any differences. The source archive includes `README.md`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `lingui.config.ts`, `apps/extension`, and `packages`; it excludes ignored output, installed dependencies, and uncommitted changes. Follow Mozilla's [source-code submission instructions](https://extensionworkshop.com/documentation/publish/source-code-submission/) for the actual review.

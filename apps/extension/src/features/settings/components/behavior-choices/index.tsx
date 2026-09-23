@@ -6,7 +6,7 @@ import './style.scss';
  * Keeps behavior choices readable as cards while sharing every interaction state with Mantine.
  * @param props - Existing domain values, localized explanations and draft mutation callback.
  * @return Accessible radio group with responsive Settings-only composition.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function BehaviorChoices<Value extends string>( props: BehaviorChoicesProps<Value> ) {
 	/**

@@ -18,7 +18,7 @@ import { WaitDurationMillisecondsSchema } from './wait-duration';
 
 /**
  * Runtime states owned by one protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionStateType = {
 	IDLE: 'idle',
@@ -29,19 +29,19 @@ export const ProtectionStateType = {
 
 /**
  * Validates a protection runtime-state discriminator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionStateTypeSchema = z.enum( ProtectionStateType );
 
 /**
  * Protection runtime-state discriminator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionStateType = z.infer<typeof ProtectionStateTypeSchema>;
 
 /**
  * Validates a transaction target identifying a waiting state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const WaitingProtectionStateTargetSchema = z.object( {
 	stateType: z.enum( [ ProtectionStateType.WAITING ] ),
@@ -50,13 +50,13 @@ export const WaitingProtectionStateTargetSchema = z.object( {
 
 /**
  * Transaction target identifying a Waiting state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type WaitingProtectionStateTarget = z.infer<typeof WaitingProtectionStateTargetSchema>;
 
 /**
  * Validates a transaction target identifying an allowance state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const AllowanceProtectionStateTargetSchema = z.object( {
 	stateType: z.enum( [ ProtectionStateType.ALLOWANCE ] ),
@@ -65,13 +65,13 @@ export const AllowanceProtectionStateTargetSchema = z.object( {
 
 /**
  * Transaction target identifying an Allowance state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type AllowanceProtectionStateTarget = z.infer<typeof AllowanceProtectionStateTargetSchema>;
 
 /**
  * Validates a transaction target identifying a completed pause awaiting entry.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ReadyProtectionStateTargetSchema = z.object( {
 	stateType: z.enum( [ ProtectionStateType.READY ] ),
@@ -80,13 +80,13 @@ export const ReadyProtectionStateTargetSchema = z.object( {
 
 /**
  * Transaction target identifying a completed pause awaiting entry.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ReadyProtectionStateTarget = z.infer<typeof ReadyProtectionStateTargetSchema>;
 
 /**
  * Validates a transaction target for Waiting, Ready, or Allowance state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionStateTargetSchema = z.discriminatedUnion( 'stateType', [
 	WaitingProtectionStateTargetSchema,
@@ -96,7 +96,7 @@ export const ProtectionStateTargetSchema = z.discriminatedUnion( 'stateType', [
 
 /**
  * Transaction target for Waiting, Ready, or Allowance state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionStateTarget = z.infer<typeof ProtectionStateTargetSchema>;
 
@@ -106,7 +106,7 @@ export type ProtectionStateTarget = z.infer<typeof ProtectionStateTargetSchema>;
  * @param context - Zod refinement context receiving collision issues.
  * @param collectionLabel - Human-readable participant collection label.
  * @param collectionPath - State property containing the participants.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function refineParticipantUniqueness(
 	participants: ProtectionParticipant[],
@@ -141,7 +141,7 @@ function refineParticipantUniqueness(
 
 /**
  * Validates an idle protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const IdleProtectionStateSchema = z.object( {
 	type: z.enum( [ ProtectionStateType.IDLE ] ),
@@ -151,13 +151,13 @@ export const IdleProtectionStateSchema = z.object( {
 
 /**
  * Idle protection state for one scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type IdleProtectionState = z.infer<typeof IdleProtectionStateSchema>;
 
 /**
  * Validates a waiting protection state and its participant invariants.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const WaitingProtectionStateSchema = z.object( {
 	type: z.enum( [ ProtectionStateType.WAITING ] ),
@@ -251,13 +251,13 @@ export const WaitingProtectionStateSchema = z.object( {
 
 /**
  * Waiting protection state retaining participants and confirmed progress.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type WaitingProtectionState = z.infer<typeof WaitingProtectionStateSchema>;
 
 /**
  * Validates a completed pause whose allowance starts at the first accepted entry.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ReadyProtectionStateSchema = z.object( {
 	type: z.enum( [ ProtectionStateType.READY ] ),
@@ -274,13 +274,13 @@ export const ReadyProtectionStateSchema = z.object( {
 
 /**
  * Completed pause retaining its allowance duration without a running interval.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ReadyProtectionState = z.infer<typeof ReadyProtectionStateSchema>;
 
 /**
  * Validates an allowance protection state and its participant invariants.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const AllowanceProtectionStateSchema = z.object( {
 	type: z.enum( [ ProtectionStateType.ALLOWANCE ] ),
@@ -316,13 +316,13 @@ export const AllowanceProtectionStateSchema = z.object( {
 
 /**
  * Active allowance state retaining participants awaiting an action.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type AllowanceProtectionState = z.infer<typeof AllowanceProtectionStateSchema>;
 
 /**
  * Validates exactly one Idle, Waiting, Ready, or Allowance state for a protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectionStateSchema = z.discriminatedUnion( 'type', [
 	IdleProtectionStateSchema,
@@ -333,6 +333,6 @@ export const ProtectionStateSchema = z.discriminatedUnion( 'type', [
 
 /**
  * Exactly one Idle, Waiting, Ready, or Allowance state for a protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectionState = z.infer<typeof ProtectionStateSchema>;

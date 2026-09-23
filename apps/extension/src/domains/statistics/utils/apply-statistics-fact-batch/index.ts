@@ -17,7 +17,7 @@ import { finalizeExpiredStatisticsAllowance } from '../finalize-statistics-allow
  * @param scope - Current scope statistics.
  * @param fact - Accepted pause-time fact.
  * @return Updated scope statistics.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function applyPauseTimeFact(
 	scope: ScopeStatistics,
@@ -40,7 +40,7 @@ function applyPauseTimeFact(
  * @param scope - Current scope statistics.
  * @param fact - Qualifying departure and its configured browsing allowance.
  * @return Updated scope statistics.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function applyReconsideredVisitFact(
 	scope: ScopeStatistics,
@@ -66,7 +66,7 @@ function applyReconsideredVisitFact(
  * Applies one completed-wait fact to scope totals.
  * @param scope - Current scope statistics.
  * @return Updated scope statistics.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function applyCompletedWaitFact( scope: ScopeStatistics ): ScopeStatistics {
 	return {
@@ -85,7 +85,7 @@ function applyCompletedWaitFact( scope: ScopeStatistics ): ScopeStatistics {
  * @param measurementRevision - Revision captured with the fact.
  * @return Updated scope statistics.
  * @throws {RangeError} When a current allowance would overlap another active allowance.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function applyAllowanceGrantedFact(
 	scope: ScopeStatistics,
@@ -125,7 +125,7 @@ function applyAllowanceGrantedFact(
  * @param fact - Accepted protection fact.
  * @param measurementRevision - Revision captured with the fact.
  * @return Updated scope statistics.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function applyStatisticsFact(
 	scope: ScopeStatistics,
@@ -149,7 +149,7 @@ function applyStatisticsFact(
  * @param document - Current validated statistics document.
  * @param operation - Validated fact-batch operation supplied from the durable FIFO head.
  * @return Updated statistics document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function applyStatisticsFactBatch(
 	document: StatisticsDocument,

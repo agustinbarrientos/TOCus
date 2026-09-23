@@ -9,7 +9,7 @@ import type { LocalizationFormatters } from '../create-localization-formatters';
 
 /**
  * Largest complete active-scope count that fits the toolbar badge.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const MaximumVisibleScopeCount = 99;
 
@@ -18,7 +18,7 @@ const MaximumVisibleScopeCount = 99;
  * @param i18n - Locale-specific Lingui instance.
  * @param formatters - Locale-sensitive formatters for the bundle.
  * @return Typed toolbar badge copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createToolbarCopy(
 	i18n: I18n,
@@ -28,7 +28,7 @@ export function createToolbarCopy(
 	 * Wraps one active-state title in the locale's complete product-title template.
 	 * @param title - Localized active-state title content.
 	 * @return Complete browser-action title.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatActiveTitle( title: string ): string {
 		return i18n._( msg`TOCus: ${ title }` );
@@ -39,7 +39,7 @@ export function createToolbarCopy(
 	 * @param amount - Rounded duration amount.
 	 * @param unit - Semantic compact-badge unit.
 	 * @return Localized badge text and complete title content.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatWaiting( amount: number, unit: ToolbarBadgeDurationUnit ): ToolbarBadgeCopyResult {
 		const usesMinutes = unit === ToolbarBadgeDurationUnit.MINUTE;
@@ -87,7 +87,7 @@ export function createToolbarCopy(
 	 * @param amount - Rounded duration amount.
 	 * @param unit - Semantic compact-badge unit.
 	 * @return Localized badge text and complete title content.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatAllowance( amount: number, unit: ToolbarBadgeDurationUnit ): ToolbarBadgeCopyResult {
 		const usesMinutes = unit === ToolbarBadgeDurationUnit.MINUTE;
@@ -135,7 +135,7 @@ export function createToolbarCopy(
 	 * Formats one active-scope count for the constrained toolbar badge.
 	 * @param activeScopeCount - Complete active scope count.
 	 * @return Localized compact count with overflow notation when needed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatMultipleIndicator( activeScopeCount: number ): string {
 		const visibleCount = Math.min( activeScopeCount, MaximumVisibleScopeCount );
@@ -157,7 +157,7 @@ export function createToolbarCopy(
 	 * @param activeScopeCount - Complete active scope count.
 	 * @param visibleScopeCount - Already capped compact badge count.
 	 * @return Localized badge text and complete title content.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatMultipleActive( activeScopeCount: number, visibleScopeCount: string ): ToolbarBadgeCopyResult {
 		return Object.freeze( {

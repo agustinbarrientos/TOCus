@@ -15,7 +15,7 @@ import { handleParticipantDeparture } from '../handle-participant-departure';
  * @param state - Current validated protection state for the event scope.
  * @param event - Validated schedule-reevaluation event.
  * @return The unchanged active transaction or its atomic fail-open result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function handleScheduleReevaluation(
 	state: ProtectionState,

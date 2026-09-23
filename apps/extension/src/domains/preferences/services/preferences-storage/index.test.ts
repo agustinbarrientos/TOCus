@@ -8,7 +8,7 @@ import {
 
 /**
  * In-memory browser storage used to verify preferences persistence.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryPreferencesStorageArea implements PreferencesStorageArea {
 	readonly readKeys: string[] = [];
@@ -22,7 +22,7 @@ class MemoryPreferencesStorageArea implements PreferencesStorageArea {
 	/**
 	 * Creates an in-memory storage area with initial values.
 	 * @param values - Values available before the first read.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor( private readonly values: Record<string, unknown> = {} ) {}
 
@@ -30,7 +30,7 @@ class MemoryPreferencesStorageArea implements PreferencesStorageArea {
 	 * Reads one stored value or rejects with the configured error.
 	 * @param key - Requested storage key.
 	 * @return Matching record or an empty record.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	get( key: string ): Promise<Record<string, unknown>> {
 		this.readKeys.push( key );
@@ -46,7 +46,7 @@ class MemoryPreferencesStorageArea implements PreferencesStorageArea {
 	 * Writes one record into memory or rejects with the configured error.
 	 * @param values - Values to persist.
 	 * @return Promise resolved after the write.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	set( values: Record<string, unknown> ): Promise<void> {
 		if ( this.writeError !== null ) {

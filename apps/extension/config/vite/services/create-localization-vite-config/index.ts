@@ -6,13 +6,13 @@ import type { LocalizationViteConfig } from './types.ts';
 
 /**
  * Absolute path to the repository shared Lingui configuration.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const LinguiConfigPath = fileURLToPath( new URL( '../../../../../../lingui.config.ts', import.meta.url ) );
 
 /**
  * Babel-compatible matcher for JavaScript and TypeScript source inside this repository.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const RepositorySourcePattern = new RegExp( `^${ fileURLToPath( new URL( '../../../../../../', import.meta.url ) )
 	.split( /[\\/]/u )
@@ -22,7 +22,7 @@ const RepositorySourcePattern = new RegExp( `^${ fileURLToPath( new URL( '../../
 /**
  * Creates the localization Vite pipeline for every WXT build group.
  * @return Vite configuration containing runtime projections and Lingui compilation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createLocalizationViteConfig(): LocalizationViteConfig {
 	return {

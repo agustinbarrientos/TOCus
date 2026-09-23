@@ -76,13 +76,13 @@ import { TestEmptyProtectionConfiguration } from './protection-configuration';
 
 /**
  * Fixed allowance start instant used by fixture validation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const AllowanceStartInstant = 1_800_000_000_000;
 
 /**
  * Allowance durations outside the supported whole-minute range.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const InvalidAllowanceDurations = [
 	{ label: 'less than one minute', durationMilliseconds: 59_999 },

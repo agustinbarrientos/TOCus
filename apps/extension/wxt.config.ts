@@ -22,14 +22,14 @@ const PROTECTED_PAGE_RESOURCES = [
 ];
 /**
  * Configures extension metadata and browser build behavior.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export default defineConfig( {
 	srcDir: 'src',
 	/**
 	 * Creates the extension build pipeline without duplicating large imported domain tables.
 	 * @return Vite configuration shared by every entrypoint group.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	vite: () => ( {
 		plugins: createLocalizationViteConfig().plugins,
@@ -58,7 +58,7 @@ export default defineConfig( {
 		 * @param wxt - Active extension build context.
 		 * @param files - Public assets copied into the extension package.
 		 * @return Promise resolved after shared assets are generated.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		'build:publicAssets': async ( wxt, files ) => {
 			await addBrowserLocaleAssets( wxt, files );
@@ -70,7 +70,7 @@ export default defineConfig( {
 	 * Creates browser-specific extension metadata.
 	 * @param context - WXT manifest context.
 	 * @return Extension metadata for the target browser.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	manifest: ( context ) => ( {
 		default_locale: 'en',

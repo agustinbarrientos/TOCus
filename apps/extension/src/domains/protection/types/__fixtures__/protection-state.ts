@@ -22,7 +22,7 @@ import {
  * @param completedWaits - Completed waits on the greatest observed date.
  * @param greatestObservedLocalDate - Greatest observed local calendar date.
  * @return A validated daily ladder.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createDailyLadder(
 	completedWaits = 0,
@@ -40,7 +40,7 @@ export function createDailyLadder(
  * @param retainedDestination - Retained absolute navigation destination.
  * @param statisticsEligible - Whether participant events may enter ordinary statistics.
  * @return A navigation-origin runtime participant.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createNavigationParticipant(
 	participantId = 'participant-a',
@@ -69,7 +69,7 @@ export function createNavigationParticipant(
  * @param joinSequence - Domain-assigned join order.
  * @param statisticsEligible - Whether participant events may enter ordinary statistics.
  * @return An allowance-expiry runtime participant.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createAllowanceExpiryParticipant(
 	participantId = 'participant-a',
@@ -92,7 +92,7 @@ export function createAllowanceExpiryParticipant(
 /**
  * Creates an Idle state fixture.
  * @return A valid Idle protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createIdleState(): IdleProtectionState {
 	const state = ProtectionStateSchema.parse( {
@@ -111,7 +111,7 @@ export function createIdleState(): IdleProtectionState {
 /**
  * Creates a focused Waiting state fixture.
  * @return A valid Waiting protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createWaitingState(): WaitingProtectionState {
 	const state = ProtectionStateSchema.parse( {
@@ -138,7 +138,7 @@ export function createWaitingState(): WaitingProtectionState {
 /**
  * Creates an Allowance state fixture with one Ready participant.
  * @return A valid Allowance protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createAllowanceState(): AllowanceProtectionState {
 	const state = ProtectionStateSchema.parse( {
@@ -162,7 +162,7 @@ export function createAllowanceState(): AllowanceProtectionState {
 /**
  * Creates a completed pause awaiting its first entry.
  * @return A validated Ready state with one navigation participant.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createReadyState(): ReadyProtectionState {
 	return ReadyProtectionStateSchema.parse( {

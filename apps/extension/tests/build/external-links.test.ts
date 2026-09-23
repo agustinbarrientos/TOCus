@@ -4,7 +4,7 @@ import { IconName } from '@tocus/ui/types';
 
 /**
  * Generated website pages checked for shared external-link artwork.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const websiteOutput = new URL( '../../../website/dist/', import.meta.url );
 

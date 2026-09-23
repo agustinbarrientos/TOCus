@@ -8,7 +8,7 @@ import { YOUTUBE_PLAYBACK_RULES } from './youtube';
 
 /**
  * Local native-video rules, with each streaming service defined in its own module.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const PLAYBACK_SITE_RULES: readonly PlaybackSiteRule[] = [
 	...YOUTUBE_PLAYBACK_RULES,
@@ -23,7 +23,7 @@ const PLAYBACK_SITE_RULES: readonly PlaybackSiteRule[] = [
  * Checks exact domain and path boundaries before controlling a page's native videos.
  * @param url - Current document URL.
  * @return Whether native playback may be held on this document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function isPlaybackSite( url: URL ): boolean {
 	return ( url.protocol === 'https:' || url.protocol === 'http:' ) &&

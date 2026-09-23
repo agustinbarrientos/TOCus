@@ -17,7 +17,7 @@ const WARNING_REFRESH_INTERVAL_MILLISECONDS = 1_000;
  * Creates one injected warning and interruption-layer coordinator.
  * @param options - Clock, timers, view, and authoritative wait controller.
  * @return Protected-page message and teardown operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createProtectedPageLayerController(
 	options: ProtectedPageLayerControllerOptions,
@@ -37,7 +37,7 @@ export function createProtectedPageLayerController(
 
 	/**
 	 * Stops warning refreshes and clears the quiet warning presentation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function clearAllowanceWarning(): void {
 		if ( allowanceWarningTimeoutHandle !== null ) {
@@ -61,7 +61,7 @@ export function createProtectedPageLayerController(
 
 	/**
 	 * Clears the current allowance-keyed local expiry guard and related warning.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function clearAllowanceExpiryGuard(): void {
 		if ( allowanceExpiryTimeoutHandle !== null ) {
@@ -80,7 +80,7 @@ export function createProtectedPageLayerController(
 	 * Reports whether the warning timer or presentation matches the current warning boundary.
 	 * @param nowEpochMilliseconds - Current wall-clock instant.
 	 * @return Whether the warning portion of the guard is already synchronized.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function isAllowanceWarningSynchronized( nowEpochMilliseconds: number ): boolean {
 		if (
@@ -115,7 +115,7 @@ export function createProtectedPageLayerController(
 
 	/**
 	 * Absorbs a local expiry-reconciliation messaging failure while browser alarms remain available as fallback.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleAllowanceExpiryReconciliationFailure(): void {
 		return;
@@ -125,7 +125,7 @@ export function createProtectedPageLayerController(
 	 * Requests authoritative background reconciliation for one still-current local allowance expiry.
 	 * @param expectedAllowanceId - Allowance identity captured by the scheduled callback.
 	 * @param expectedExpiryEpochMilliseconds - Exact expiry captured by the scheduled callback.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleAllowanceExpiry(
 		expectedAllowanceId: SynchronizeAllowanceExpiryGuardMessage[ 'allowanceId' ],
@@ -146,7 +146,7 @@ export function createProtectedPageLayerController(
 	/**
 	 * Refreshes the locally displayed whole-second allowance warning.
 	 * @return Whether the warning remains active after the refresh.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function refreshAllowanceWarning(): boolean {
 		if ( allowanceWarningId === null || allowanceExpiryEpochMilliseconds === null ) {
@@ -178,7 +178,7 @@ export function createProtectedPageLayerController(
 	/**
 	 * Presents one allowance warning and starts its whole-second refresh interval.
 	 * @param allowanceId - Allowance identity whose guard owns the warning.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function activateAllowanceWarning(
 		allowanceId: SynchronizeAllowanceExpiryGuardMessage[ 'allowanceId' ],
@@ -234,7 +234,7 @@ export function createProtectedPageLayerController(
 	 * @param expectedAllowanceId - Allowance identity captured by the timeout.
 	 * @param expectedExpiryEpochMilliseconds - Exact expiry captured by the timeout.
 	 * @param expectedWarningEndEpochMilliseconds - Exact warning end captured by the timeout.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleAllowanceWarningEnd(
 		expectedAllowanceId: SynchronizeAllowanceExpiryGuardMessage[ 'allowanceId' ],
@@ -259,7 +259,7 @@ export function createProtectedPageLayerController(
 	 * @param expectedExpiryEpochMilliseconds - Exact expiry captured by the timeout.
 	 * @param expectedWarningStartEpochMilliseconds - Exact warning boundary captured by the timeout.
 	 * @param expectedWarningEndEpochMilliseconds - Exact warning end captured by the timeout.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleAllowanceWarningStart(
 		expectedAllowanceId: SynchronizeAllowanceExpiryGuardMessage[ 'allowanceId' ],
@@ -283,7 +283,7 @@ export function createProtectedPageLayerController(
 	/**
 	 * Arms one exact page-local expiry guard and its optional focused warning boundary.
 	 * @param message - Validated allowance identity, expiry, and warning boundary.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function synchronizeAllowanceExpiryGuard(
 		message: SynchronizeAllowanceExpiryGuardMessage,
@@ -357,7 +357,7 @@ export function createProtectedPageLayerController(
 	/**
 	 * Presents one warning and schedules its exact local removal.
 	 * @param message - Validated allowance warning command.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function presentAllowanceWarning( message: PresentAllowanceWarningMessage ): void {
 		if (
@@ -379,7 +379,7 @@ export function createProtectedPageLayerController(
 	/**
 	 * Recovers from a failed asynchronous wait connection when its presentation is still current.
 	 * @param generation - Presentation generation associated with the failed connection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleInterruptionStartFailure( generation: number ): void {
 		if ( generation !== interruptionPresentationGeneration || ! interruptionControllerStarted ) {
@@ -393,7 +393,7 @@ export function createProtectedPageLayerController(
 	 * Connects the authoritative wait only after its native modal is visibly mounted.
 	 * @param generation - Presentation generation that owns the connection.
 	 * @return Promise resolved after connection or stale-presentation cancellation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function startInterruptionController( generation: number ): Promise<void> {
 		try {
@@ -410,7 +410,7 @@ export function createProtectedPageLayerController(
 
 	/**
 	 * Presents the semantic modal and starts authoritative wait synchronization once.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function presentInterruptionLayer(): void {
 		clearAllowanceExpiryGuard();
@@ -431,7 +431,7 @@ export function createProtectedPageLayerController(
 	/**
 	 * Stops authoritative synchronization and uncovers the preserved live document.
 	 * @param resumePlayback - Whether an explicit entry request authorizes restoring prior video playback.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function removeInterruptionLayer( resumePlayback: boolean ): void {
 		if ( ! interruptionControllerStarted ) {
@@ -452,7 +452,7 @@ export function createProtectedPageLayerController(
 	/**
 	 * Creates the current non-sensitive content presentation status.
 	 * @return Current warning identity and modal visibility.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function createPresentationStatus(): ProtectedPagePresentationStatus {
 		return {
@@ -465,7 +465,7 @@ export function createProtectedPageLayerController(
 	 * Handles one unknown protected-page command.
 	 * @param input - Unknown browser message payload.
 	 * @return Current status for a status request, otherwise undefined.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleMessage(
 		input: unknown,
@@ -510,7 +510,7 @@ export function createProtectedPageLayerController(
 
 	/**
 	 * Releases every local presentation resource during content teardown.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function stop(): void {
 		clearAllowanceExpiryGuard();

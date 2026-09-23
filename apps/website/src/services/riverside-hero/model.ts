@@ -8,7 +8,7 @@ import type { RiversideModel } from './types';
  * Loads only the packaged scene, retaining its baked soft deformation.
  * @param signal - Cancels downloading and discards stale parsing.
  * @return The native geometry and baked animation clips.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export async function loadRiversideModel( signal: AbortSignal ): Promise<RiversideModel> {
 	const response = await fetch( '/models/riverside/hero.glb', { signal } );

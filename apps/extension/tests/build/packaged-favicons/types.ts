@@ -4,7 +4,7 @@ export type { ExtensionManifest, ExtensionWorkerGlobal } from '../packaged-prote
 
 /**
  * Disposable browser and loopback website used to exercise native favicon caching.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface FaviconTestFixture {
 	/** Persistent browser isolated from every user profile. */
@@ -20,14 +20,14 @@ export interface FaviconTestFixture {
 	/**
 	 * Relaunches this disposable profile without changing its native favicon or bookmark data.
 	 * @return Ready replacement browser, worker, and reader handles on this fixture.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	restartBrowser(): Promise<void>;
 }
 
 /**
  * Test-scoped packaged browser owned by the browser contract runner.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PackagedFaviconFixtures {
 	/** Disposable packaged installation with a real native favicon cache. */

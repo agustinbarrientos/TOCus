@@ -21,7 +21,7 @@ import { handleParticipantDeparture } from './index';
 
 /**
  * Departure causes that must not count as a reconsidered visit.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ExcludedDepartureCauses = [
 	DepartureCause.REDIRECT,
@@ -38,7 +38,7 @@ const ExcludedDepartureCauses = [
 ];
 /**
  * Complete set of supported departure causes.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const AllDepartureCauses = Object.values( DepartureCause );
 

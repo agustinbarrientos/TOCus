@@ -7,7 +7,7 @@ const MATCH_PATTERN = /^(\*|https?):\/\/[^/]+\/\*$/;
  * Parses one HTTP(S) browser permission match pattern.
  * @param origin - Unknown permission origin pattern.
  * @return Parsed scheme and host, or null for unsupported patterns.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function parseSitePermissionOrigin( origin: string ) {
 	if ( ! MATCH_PATTERN.test( origin ) ) {
@@ -26,7 +26,7 @@ function parseSitePermissionOrigin( origin: string ) {
  * Creates the optional host origins required by one protected-site rule.
  * @param rule - Canonical protected-site rule selected by the user.
  * @return Exact runtime permission origins for the rule.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createSitePermissionOrigins( rule: ProtectedSiteRule ): string[] {
 	return rule.includeSubdomains
@@ -39,7 +39,7 @@ export function createSitePermissionOrigins( rule: ProtectedSiteRule ): string[]
  * @param requiredOrigin - Exact origin pattern TOCus requires for a protected site.
  * @param grantedOrigins - Origin patterns currently granted by the browser.
  * @return Whether the grants cover both HTTP and HTTPS access for the required hosts.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function isSitePermissionOriginCovered(
 	requiredOrigin: string,

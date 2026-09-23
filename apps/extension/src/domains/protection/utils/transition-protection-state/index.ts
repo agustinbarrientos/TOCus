@@ -24,7 +24,7 @@ import { handleVisitAttempt } from '../handle-visit-attempt';
  * Rejects a protection event that escaped the closed event vocabulary at runtime.
  * @param event - Event proven unreachable by the exhaustive dispatcher switch.
  * @throws {Error} Always, because the runtime event is not part of the closed contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function throwUnhandledProtectionEvent( event: never ): never {
 	throw new Error( `Unhandled protection event: ${ JSON.stringify( event ) }` );
@@ -35,7 +35,7 @@ function throwUnhandledProtectionEvent( event: never ): never {
  * @param state - Current validated protection state.
  * @param event - Validated protection event from the closed event vocabulary.
  * @return The transition result produced by the selected handler, or a cross-scope no-op.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function dispatchProtectionTransition(
 	state: ProtectionState,
@@ -72,7 +72,7 @@ export function dispatchProtectionTransition(
  * @param event - Unknown protection-event input.
  * @return The next state with declarative decisions and metric-bearing facts.
  * @throws {import('zod').ZodError} When either public argument or a computed result violates its contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function transitionProtectionState( state: unknown, event: unknown ): ProtectionTransitionResult {
 	const parsedState = ProtectionStateSchema.parse( state );

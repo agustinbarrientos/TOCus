@@ -36,7 +36,7 @@ import {
  * Creates one stable rejected edit result.
  * @param reason - Stable edit rejection reason.
  * @return Rejected edit result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createRejectedResult(
 	reason: ProtectionConfigurationEditRejectionReasonValue,
@@ -51,7 +51,7 @@ function createRejectedResult(
  * Creates one validated successful edit result.
  * @param configurationInput - Candidate updated configuration.
  * @return Successful edit result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createUpdatedResult( configurationInput: unknown ): UpdatedProtectionConfigurationEditResult {
 	return {
@@ -65,7 +65,7 @@ function createUpdatedResult( configurationInput: unknown ): UpdatedProtectionCo
  * @param configuration - Current validated configuration.
  * @param identityHostInput - Unknown exact canonical identity.
  * @return Matching site or undefined when absent or invalid.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function findSite(
 	configuration: ProtectionConfigurationDocument,
@@ -87,7 +87,7 @@ function findSite(
  * @param configuration - Current validated configuration.
  * @param site - Complete replacement site.
  * @return Protected-site configurations with the exact site replaced.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function replaceSite(
 	configuration: ProtectionConfigurationDocument,
@@ -105,7 +105,7 @@ function replaceSite(
  * @param rotatedScopeIds - Active scopes whose measurement contract changed.
  * @param options - Editor dependencies containing the revision factory.
  * @return Updated configuration result or null when revision creation fails.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createMembershipUpdatedResult(
 	configuration: ProtectionConfigurationDocument,
@@ -133,7 +133,7 @@ function createMembershipUpdatedResult(
  * Creates validated protected-site editing with local persistence coordination.
  * @param options - Storage and coordinated-edit dependencies.
  * @return Protected-site configuration editor.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createProtectionConfigurationEditor(
 	options: ProtectionConfigurationEditorOptions,
@@ -143,7 +143,7 @@ export function createProtectionConfigurationEditor(
 	/**
 	 * Resolves the internal mutation queue after one successful or rejected edit.
 	 * @return Undefined queue settlement value.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function releaseMutationQueue(): undefined {
 		return undefined;
@@ -153,7 +153,7 @@ export function createProtectionConfigurationEditor(
 	 * Runs one mutation after every earlier mutation has finished persistence.
 	 * @param mutation - Deferred configuration mutation.
 	 * @return Exact result promise returned to the caller.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function serializeMutation(
 		mutation: ProtectionConfigurationMutation,
@@ -167,7 +167,7 @@ export function createProtectionConfigurationEditor(
 	/**
 	 * Loads one current configuration without replacing malformed data.
 	 * @return Current configuration, an empty document, or null for malformed data.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function load(): Promise<ProtectionConfigurationDocument | null> {
 		return options.storage.load();
@@ -177,7 +177,7 @@ export function createProtectionConfigurationEditor(
 	 * Persists one successful edit and leaves rejected edits untouched.
 	 * @param result - Candidate edit result.
 	 * @return Original edit result after any required write.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function saveUpdatedResult(
 		result: UpdatedProtectionConfigurationEditResult,
@@ -193,7 +193,7 @@ export function createProtectionConfigurationEditor(
 	 * @param configuration - Latest configuration known by the coordinated mutation.
 	 * @param finalize - Optional settlement effect.
 	 * @return Original edit result after the effect completes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function finalizeResult(
 		result: ProtectionConfigurationEditResult,
@@ -211,7 +211,7 @@ export function createProtectionConfigurationEditor(
 	 * @param finalize - Optional settlement effect.
 	 * @param error - Original pre-persist or persistence failure.
 	 * @return Promise resolved after the effect completes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function finalizeFailedMutation(
 		configuration: ProtectionConfigurationDocument | null,
@@ -228,7 +228,7 @@ export function createProtectionConfigurationEditor(
 	 * @param removedSite - Site resolved from authoritative storage, or null when none matched.
 	 * @param finalize - Optional removal settlement effect.
 	 * @return Original edit result after the effect completes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function finalizeRemovalResult(
 		result: ProtectionConfigurationEditResult,
@@ -247,7 +247,7 @@ export function createProtectionConfigurationEditor(
 	 * @param removedSite - Site resolved from authoritative storage.
 	 * @param finalize - Optional removal settlement effect.
 	 * @return Promise resolved after the effect completes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function finalizeFailedRemoval(
 		configuration: ProtectionConfigurationDocument,
@@ -263,7 +263,7 @@ export function createProtectionConfigurationEditor(
 	 * @param beforePersist - Optional verification performed immediately before persistence.
 	 * @param finalize - Optional effect completed before mutation coordination is released.
 	 * @return Updated configuration or a stable rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function performAdd(
 		siteInputs: readonly unknown[],
@@ -361,7 +361,7 @@ export function createProtectionConfigurationEditor(
 	 * @param beforePersist - Optional verification performed immediately before persistence.
 	 * @param finalize - Optional effect completed before mutation coordination is released.
 	 * @return Serialized updated configuration or a stable rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function add(
 		siteInput: unknown,
@@ -377,7 +377,7 @@ export function createProtectionConfigurationEditor(
 	 * @param beforePersist - Optional verification immediately before persistence.
 	 * @param finalize - Optional effect completed before mutation coordination is released.
 	 * @return Serialized updated configuration or a stable rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function addMany(
 		siteInputs: readonly string[],
@@ -393,7 +393,7 @@ export function createProtectionConfigurationEditor(
 	 * @param displayNameInput - Unknown editable name input.
 	 * @param scheduleInput - Optional site-specific active hours; omitted to use the global schedule.
 	 * @return Updated configuration or a stable rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function performUpdate(
 		identityHostInput: unknown,
@@ -439,7 +439,7 @@ export function createProtectionConfigurationEditor(
 	 * @param displayNameInput - Unknown editable name input.
 	 * @param scheduleInput - Optional site-specific active hours; omitted to use the global schedule.
 	 * @return Serialized updated configuration or a stable rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function update(
 		identityHostInput: unknown,
@@ -458,7 +458,7 @@ export function createProtectionConfigurationEditor(
 	 * @param identityHostInput - Unknown exact canonical identity.
 	 * @param finalize - Optional effect completed before mutation coordination is released.
 	 * @return Updated configuration or a stable rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function performRemove(
 		identityHostInput: unknown,
@@ -522,7 +522,7 @@ export function createProtectionConfigurationEditor(
 	 * @param identityHostInput - Unknown exact canonical identity.
 	 * @param finalize - Optional effect completed before mutation coordination is released.
 	 * @return Serialized updated configuration or a stable rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function remove(
 		identityHostInput: unknown,
@@ -538,7 +538,7 @@ export function createProtectionConfigurationEditor(
 	 * Updates the global schedule atomically.
 	 * @param scheduleInput - Unknown editable schedule input.
 	 * @return Updated configuration or a stable rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function performUpdateSchedule(
 		scheduleInput: unknown,
@@ -565,7 +565,7 @@ export function createProtectionConfigurationEditor(
 	 * Queues the global schedule update.
 	 * @param scheduleInput - Unknown editable schedule input.
 	 * @return Serialized updated configuration or a stable rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function updateSchedule(
 		scheduleInput: unknown,
@@ -577,7 +577,7 @@ export function createProtectionConfigurationEditor(
 	 * Updates the global timing configuration atomically.
 	 * @param timingConfigurationInput - Unknown global timing configuration.
 	 * @return Updated configuration or a stable rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function performUpdateTiming(
 		timingConfigurationInput: unknown,
@@ -628,7 +628,7 @@ export function createProtectionConfigurationEditor(
 	 * Queues one global timing configuration update.
 	 * @param timingConfigurationInput - Unknown global timing configuration.
 	 * @return Serialized updated configuration or a stable rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function updateTiming(
 		timingConfigurationInput: unknown,
@@ -643,7 +643,7 @@ export function createProtectionConfigurationEditor(
 	 * @param beforePersist - Permission verification before the single write.
 	 * @param finalize - Permission settlement before releasing coordination.
 	 * @return Authoritative update or rejection without partial writes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function replaceSites(
 		expectedSites: unknown,

@@ -9,7 +9,7 @@ import type { InterruptionNavigationReplacementOptions } from './types';
  * Reports whether a destination is a complete literal HTTP or HTTPS URL.
  * @param candidate - Untrusted replacement destination.
  * @return Whether the destination may be assigned to the interruption document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function isHttpDestination( candidate: string ): boolean {
 	if ( ! candidate.startsWith( 'http://' ) && ! candidate.startsWith( 'https://' ) ) {
@@ -28,7 +28,7 @@ function isHttpDestination( candidate: string ): boolean {
 /**
  * Registers the earliest interruption-page listener that can replace an authorized release in place.
  * @param options - Current document and extension runtime boundaries.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function registerInterruptionNavigationReplacement(
 	options: InterruptionNavigationReplacementOptions,

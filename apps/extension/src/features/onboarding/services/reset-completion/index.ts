@@ -5,7 +5,7 @@ import { OnboardingResetQueryParameter, type OnboardingResetCompletionOptions } 
  * Consumes a reset handoff only when durable metadata confirms that exact cleanup completed.
  * @param options - Current extension-page URL, history, and local reset metadata.
  * @return Whether this page should announce a completed reset once.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export async function consumeOnboardingResetCompletion( options: OnboardingResetCompletionOptions ): Promise<boolean> {
 	try {

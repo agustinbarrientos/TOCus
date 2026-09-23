@@ -73,7 +73,7 @@ function deformRadialPoint(
  * @param minimumDimension - Smaller artboard dimension.
  * @param breathProgress - Normalized Natural breathing progress.
  * @return Sphere radius in CSS pixels.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function getBreathingSphereRadius( minimumDimension: number, breathProgress: number ): number {
 	return minimumDimension * interpolate( 0.155, 0.235, clamp( breathProgress, 0, 1 ) );
@@ -83,7 +83,7 @@ export function getBreathingSphereRadius( minimumDimension: number, breathProgre
  * Calculates how strongly the sphere deforms while settling on exhale.
  * @param breathProgress - Normalized Natural breathing progress.
  * @return Normalized deformation strength.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function getBreathingSphereDeformation( breathProgress: number ): number {
 	return 1 - smoothstep( breathProgress );
@@ -93,7 +93,7 @@ export function getBreathingSphereDeformation( breathProgress: number ): number 
  * Calculates a deformed point on the breathing-sphere perimeter.
  * @param input - Sphere geometry and deformation inputs.
  * @return Deformed perimeter coordinates.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function getBreathingSpherePoint( input: BreathingSpherePointInput ): CartesianPoint {
 	return deformRadialPoint(
@@ -111,7 +111,7 @@ export function getBreathingSpherePoint( input: BreathingSpherePointInput ): Car
  * @param input - Contour layer, center, point, and breathing progress.
  * @return Deformed contour coordinates.
  * @throws {RangeError} When the contour layer is unsupported.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function getBreathingSphereContourPoint(
 	input: BreathingSphereContourPointInput,

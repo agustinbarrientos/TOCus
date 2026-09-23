@@ -95,7 +95,7 @@ function createAllowanceProjection(
  * @param copy - Localized toolbar copy.
  * @return Compact badge text, accessible title, and semantic color phase.
  * @throws {RangeError} When countdown or multiple-active values are not finite valid measurements.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createToolbarBadgeProjection(
 	input: ToolbarBadgeProjectionInput,

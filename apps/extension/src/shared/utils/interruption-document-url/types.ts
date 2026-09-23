@@ -1,6 +1,6 @@
 /**
  * Packaged pause document identities, including the pre-favicon-fix upgrade entrypoint.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const InterruptionDocumentPath = {
 	CURRENT: '/pause.html',
@@ -9,6 +9,6 @@ export const InterruptionDocumentPath = {
 
 /**
  * Packaged path accepted by the pause document compatibility boundary.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type InterruptionDocumentPath = typeof InterruptionDocumentPath[ keyof typeof InterruptionDocumentPath ];

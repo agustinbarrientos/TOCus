@@ -5,7 +5,7 @@
  * Only real DOM handlers run: the missing-editor error still comes from the production save boundary.
  * @param root - Original-only fixture mount, observed before its React tree is created.
  * @param original - Exact archived filename; unrelated standalone states are left untouched.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function stageOriginalSiteItemError( root: HTMLElement, original: string ): void {
 	if ( ! original.startsWith( 'protected-site-item-operation-error-' ) ) {

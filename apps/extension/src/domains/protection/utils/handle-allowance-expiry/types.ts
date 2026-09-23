@@ -3,7 +3,7 @@ import type { ProtectionParticipant } from '../../types/protection-participant';
 
 /**
  * Protected Ready participants and fail-open decisions projected from fresh observations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ReadyCandidateProjection {
 	/** Ready participants retained for the next wait. */

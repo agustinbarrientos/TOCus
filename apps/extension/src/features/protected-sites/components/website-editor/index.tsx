@@ -9,7 +9,7 @@ import type { WebsiteEditorProps } from './types';
  * Keeps tentative website edits inside a focus-contained dialog until explicitly applied.
  * @param props - Initial draft, localized content and existing transaction callbacks.
  * @return Cancel-safe form fields and schedule validation.
- * @since 0.1.0
+ * @since 1.0.0
  */
 function WebsiteEditorForm( props: WebsiteEditorProps ) {
 	const [ value, setValue ] = useState( props.value );
@@ -51,7 +51,7 @@ function WebsiteEditorForm( props: WebsiteEditorProps ) {
  * Retains the packaged dialog lifecycle for focus restoration while resetting fields on every open.
  * @param props - Current visibility, starting values and transaction callbacks.
  * @return Shared modal with an isolated draft for this editing session.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function WebsiteEditor( props: WebsiteEditorProps ) {
 	const stackId = useId();

@@ -6,7 +6,7 @@ import type {
 
 /**
  * Browser lock boundary used to coordinate preferences mutations across extension contexts.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserPreferencesMutationLock {
 	/**
@@ -15,14 +15,14 @@ export interface BrowserPreferencesMutationLock {
 	 * @param name - Stable lock name.
 	 * @param mutation - Deferred preferences mutation.
 	 * @return Exact result after the lock is released.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	request<Result>( name: string, mutation: () => Promise<Result> ): Promise<Result>;
 }
 
 /**
  * Browser dependencies required by coordinated local preferences editing.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserPreferencesEditorOptions {
 	/** Extension-local storage area. */
@@ -33,7 +33,7 @@ export interface BrowserPreferencesEditorOptions {
 
 /**
  * Coordinated preferences editor and its shared persistence boundary.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserPreferencesEditor {
 	/** Validated preferences editing operations. */

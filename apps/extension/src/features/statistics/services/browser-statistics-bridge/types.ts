@@ -12,7 +12,7 @@ import type { StatisticsRuntime } from '../statistics-runtime';
 
 /**
  * Browser focus inputs captured when one protection event reaches the runtime.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionStatisticsFocusObservation {
 	/** Wall-clock time captured only after browser focus inspection completed. */
@@ -27,7 +27,7 @@ export interface BrowserProtectionStatisticsFocusObservation {
 
 /**
  * Browser event identity used to reject an asynchronously stale focus snapshot.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionFocusEventIdentity {
 	/** Activated browser tab when supplied by a tab-focus event. */
@@ -38,7 +38,7 @@ export interface BrowserProtectionFocusEventIdentity {
 
 /**
  * Event-time browser inputs awaiting authoritative post-operation protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionStatisticsObservation {
 	/** Wall-clock time captured at event ingress, or null when unsafe. */
@@ -51,7 +51,7 @@ export interface BrowserProtectionStatisticsObservation {
 
 /**
  * Dependencies used by one browser statistics bridge.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserStatisticsBridgeOptions {
 	/** Whether observations wait for local data recovery before any persistence. */
@@ -79,26 +79,26 @@ export interface BrowserStatisticsBridgeOptions {
 	/**
 	 * Returns the current wall-clock epoch time.
 	 * @return Current epoch milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	now(): number;
 }
 
 /**
  * Browser observation and persistence coordination for local statistics.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserStatisticsBridge {
 	/**
 	 * Stops ingress persistence synchronously and drains started statistics and focus writes.
 	 * @return Promise resolved when storage is safe for local data removal.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	suspendForDataReset(): Promise<void>;
 
 	/**
 	 * Reopens observation intake after drained authorities and persistence have been reset.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	resumeAfterDataReset(): void;
 
@@ -108,7 +108,7 @@ export interface BrowserStatisticsBridge {
 	 * @param navigation - Optional top-level navigation received with the event.
 	 * @param focusEvent - Exact browser focus event identity, null when malformed, or undefined for another boundary.
 	 * @return Privacy-safe event-ingress browser observation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	captureObservation(
 		mode: StatisticsFocusObservationMode,
@@ -118,7 +118,7 @@ export interface BrowserStatisticsBridge {
 
 	/**
 	 * Queues removal of focus measurement that cannot remain valid without protection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	discardFocusMeasurement(): void;
 
@@ -126,7 +126,7 @@ export interface BrowserStatisticsBridge {
 	 * Queues one completed protection operation for fact delivery and checkpointing.
 	 * @param configuration - Trusted post-operation configuration, or null after failure.
 	 * @param observation - Browser inputs captured when the event reached the runtime.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	observeProtectionOperation(
 		configuration: ProtectionConfigurationDocument | null,
@@ -136,21 +136,21 @@ export interface BrowserStatisticsBridge {
 	/**
 	 * Returns the latest trustworthy all-time statistics projection.
 	 * @return Available local totals or an unavailable projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	readStatistics(): Promise<StatisticsProjection>;
 
 	/**
 	 * Queues raw protection configuration reconciliation.
 	 * @param rawConfiguration - Unknown unfiltered configuration value.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	reconcileConfiguration( rawConfiguration: unknown ): void;
 
 	/**
 	 * Clears local statistics and returns the resulting trustworthy projection.
 	 * @return Zero-valued local totals after success or an unavailable projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	resetStatistics(): Promise<StatisticsProjection>;
 

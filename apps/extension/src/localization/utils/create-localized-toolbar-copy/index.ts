@@ -10,7 +10,7 @@ import { createToolbarCopy } from '../create-toolbar-copy';
  * Creates synchronous localized toolbar copy from the selected compiled messages.
  * @param language - Browser-derived or explicitly selected language.
  * @return Localized toolbar copy for the selected language.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createLocalizedToolbarCopy(
 	language: LanguageValue,

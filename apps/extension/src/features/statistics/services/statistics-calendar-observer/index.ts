@@ -4,7 +4,7 @@ import type { StatisticsCalendarObserverOptions } from './types';
  * Re-reads a mounted Statistics screen at local midnight or after calendar changes during sleep.
  * @param options - Screen lifecycle and authoritative refresh callback.
  * @return Cleanup that removes listeners and the single pending midnight timeout.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function observeStatisticsCalendar( options: StatisticsCalendarObserverOptions ): () => void {
 	let observedDate = new Date().toDateString();

@@ -7,7 +7,7 @@ import type { ThemeMode, Palette, Language } from '../../../../../domains/prefer
 
 /**
  * Observable counters and failure switches for browser-only Settings scenarios.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface SettingsFixtureControls {
 	rejectSaves: boolean;
@@ -25,7 +25,7 @@ export interface SettingsFixtureControls {
 
 /**
  * Typed bridge between Playwright and the mounted production Settings presentation.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface SettingsFixtureBridge {
 	themes: typeof ThemeMode;
@@ -44,14 +44,14 @@ export interface SettingsFixtureBridge {
 
 /**
  * Observable counters supported by the statistics fixture's live-update bridge.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type SettingsFixtureStatistics = Omit<z.input<typeof AvailableStatisticsProjectionSchema>, 'status'>;
 
 declare global {
 	/**
 	 * Browser fixture instrumentation, unavailable to production entrypoints.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	interface Window {
 		settingsTest: SettingsFixtureBridge;

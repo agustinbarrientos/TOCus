@@ -40,7 +40,7 @@ import { LocalDataResetError } from '../../../../domains/local-data/services/loc
  * @param configuration - Fresh configuration loaded inside mutation coordination.
  * @param rule - Rule whose permission would otherwise be released.
  * @return Whether a configured site still owns the same browser access.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function requiresRulePermission(
 	configuration: ProtectionConfigurationDocument,
@@ -59,7 +59,7 @@ function requiresRulePermission(
  * @param provenance - Whether access existed, was newly granted, or could not be determined.
  * @param configuration - Fresh configuration observed inside mutation coordination.
  * @return Whether browser access was retained or its ownership remains uncertain.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function reconcilePermissionAfterFailure(
 	options: ProtectedSiteEnrollmentServiceOptions,
@@ -95,7 +95,7 @@ async function reconcilePermissionAfterFailure(
  * Creates protected-site enrollment with browser-permission rollback.
  * @param options - Editor and browser permission dependencies.
  * @return Protected-site enrollment operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createProtectedSiteEnrollmentService(
 	options: ProtectedSiteEnrollmentServiceOptions,
@@ -104,7 +104,7 @@ export function createProtectedSiteEnrollmentService(
 	 * Adds one protected site after securing its required browser access.
 	 * @param siteInput - Unknown user-entered hostname or URL.
 	 * @return Successful enrollment or a presentation-neutral failure.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function add(
 		siteInput: unknown,
@@ -134,7 +134,7 @@ export function createProtectedSiteEnrollmentService(
 		/**
 		 * Verifies the complete grant again while configuration mutation coordination is held.
 		 * @return Promise resolved only while the site remains protectable.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		async function verifyPermissionBeforePersistence(): Promise<void> {
 			if ( await options.permissionManager.hasAccess( canonicalRule ) ) {
@@ -148,7 +148,7 @@ export function createProtectedSiteEnrollmentService(
 		/**
 		 * Reports whether the configuration mutation reached its coordinated finalizer.
 		 * @return Whether authoritative finalization completed.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function wasMutationFinalized(): boolean {
 			return mutationFinalized;
@@ -157,7 +157,7 @@ export function createProtectedSiteEnrollmentService(
 		/**
 		 * Reports whether the coordinated pre-persist permission verification failed.
 		 * @return Whether permission access changed before persistence.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function didPermissionVerificationFail(): boolean {
 			return permissionVerificationFailed;
@@ -166,7 +166,7 @@ export function createProtectedSiteEnrollmentService(
 		/**
 		 * Reports whether failed enrollment left unnecessary browser access behind.
 		 * @return Whether the browser retained an unnecessary grant.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function wasPermissionRetained(): boolean {
 			return permissionRetained;
@@ -176,7 +176,7 @@ export function createProtectedSiteEnrollmentService(
 		 * Restores a new grant after a rejected or failed edit while authoritative coordination is held.
 		 * @param settlement - Fresh edit settlement from the configuration editor.
 		 * @return Promise resolved after any required permission release.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		const finalizeEdit: ProtectionConfigurationEditFinalizer = async ( settlement ): Promise<void> => {
 			mutationFinalized = true;
@@ -250,7 +250,7 @@ export function createProtectedSiteEnrollmentService(
 	 * Enrolls unique shared-site rules with one browser request and one coordinated save.
 	 * @param siteInputs - User-entered hostnames or HTTP(S) URLs.
 	 * @return Successful batch enrollment or a stable recoverable failure.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function addMany( siteInputs: readonly string[] ): Promise<ProtectedSiteBatchEnrollmentResult> {
 		const inputs = ProtectedSiteBatchInputsSchema.safeParse( siteInputs );
@@ -298,7 +298,7 @@ export function createProtectedSiteEnrollmentService(
 		/**
 		 * Verifies every selected rule while configuration mutation coordination is held.
 		 * @return Promise resolved only when every rule remains accessible.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		async function verifyPermissions(): Promise<void> {
 			const grants = await Promise.all(
@@ -315,7 +315,7 @@ export function createProtectedSiteEnrollmentService(
 		 * Reconciles newly acquired access before the configuration mutation lock is released.
 		 * @param settlement - Authoritative batch edit result and configuration.
 		 * @return Promise resolved after permission compensation completes.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		const finalize: ProtectionConfigurationEditFinalizer = async ( settlement ): Promise<void> => {
 			settlementState.finalized = true;
@@ -362,7 +362,7 @@ export function createProtectedSiteEnrollmentService(
 	 * Removes one protected site and reconciles its browser access inside configuration coordination.
 	 * @param site - Protected-site configuration selected for removal.
 	 * @return Successful removal and permission outcome, or a stable rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function remove(
 		site: Parameters<ProtectedSiteEnrollmentService[ 'remove' ]>[ 0 ],
@@ -374,7 +374,7 @@ export function createProtectedSiteEnrollmentService(
 		 * Releases obsolete browser access before the coordinated removal lock is released.
 		 * @param settlement - Fresh edit settlement from the configuration editor.
 		 * @return Promise resolved after any required permission release.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		const finalizeEdit: ProtectionConfigurationRemovalFinalizer = async (
 			settlement,
@@ -411,7 +411,7 @@ export function createProtectedSiteEnrollmentService(
 	 * @param expectedSites - Authoritative baseline observed when the draft started.
 	 * @param nextSites - Complete candidate website set.
 	 * @return Saved configuration or a recoverable failure preserving the caller's draft.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function saveDraft( expectedSites: unknown, nextSites: unknown ): Promise<ProtectedSiteDraftSaveResult> {
 		const expected = ProtectedSiteConfigurationSetSchema.safeParse( expectedSites );

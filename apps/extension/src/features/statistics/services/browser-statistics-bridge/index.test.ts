@@ -36,7 +36,7 @@ import type { BrowserStatisticsBridge } from './types';
 
 /**
  * Single-site configuration used by bridge tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const EXAMPLE_CONFIGURATION = ProtectionConfigurationDocumentSchema.parse( {
 	...TestEmptyProtectionConfiguration,
@@ -52,7 +52,7 @@ const EXAMPLE_CONFIGURATION = ProtectionConfigurationDocumentSchema.parse( {
 
 /**
  * Available projection returned by read and reset tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const AVAILABLE_PROJECTION: StatisticsProjection = {
 	status: StatisticsProjectionStatus.AVAILABLE,
@@ -67,7 +67,7 @@ const AVAILABLE_PROJECTION: StatisticsProjection = {
 
 /**
  * Mutable wall clock used by bridge tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 interface MutableClock {
 	error: Error | null;
@@ -76,7 +76,7 @@ interface MutableClock {
 
 /**
  * Inspectable browser boundary used by bridge tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 interface BrowserDouble extends Pick<ProtectionRuntimeBrowser, 'getFocusedTabId' | 'listTabs'> {
 	getFocusedTabId: ReturnType<typeof vi.fn<ProtectionRuntimeBrowser[ 'getFocusedTabId' ]>>;
@@ -85,7 +85,7 @@ interface BrowserDouble extends Pick<ProtectionRuntimeBrowser, 'getFocusedTabId'
 
 /**
  * Inspectable coordinator boundary used by bridge tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 interface CoordinatorDouble extends Pick<
 	ProtectionCoordinator,
@@ -104,7 +104,7 @@ interface CoordinatorDouble extends Pick<
 
 /**
  * Inspectable statistics runtime used by bridge tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 interface StatisticsRuntimeDouble extends StatisticsRuntime {
 	beginFocusObservation: ReturnType<typeof vi.fn<StatisticsRuntime[ 'beginFocusObservation' ]>>;
@@ -118,7 +118,7 @@ interface StatisticsRuntimeDouble extends StatisticsRuntime {
 
 /**
  * Complete dependencies returned to one bridge test.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 interface BridgeHarness {
 	bridge: BrowserStatisticsBridge;
@@ -133,12 +133,12 @@ interface BridgeHarness {
 
 /**
  * Promise whose completion is controlled by one bridge test.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class DeferredPromise {
 	/**
 	 * Promise controlled by this deferred test boundary.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	readonly promise: Promise<void>;
 
@@ -146,7 +146,7 @@ class DeferredPromise {
 
 	/**
 	 * Creates one unresolved promise.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor() {
 		this.promise = new Promise<void>( ( resolve ) => {
@@ -156,7 +156,7 @@ class DeferredPromise {
 
 	/**
 	 * Resolves the pending promise once.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	resolve(): void {
 		this.resolvePromise?.();
@@ -167,7 +167,7 @@ class DeferredPromise {
 /**
  * Creates an inspectable statistics runtime for bridge tests.
  * @return Statistics runtime with deterministic default behavior.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStatisticsRuntime(): StatisticsRuntimeDouble {
 	const focusEpochId = StatisticsFocusEpochIdSchema.parse( 'focus_epoch_current' );
@@ -200,7 +200,7 @@ function createStatisticsRuntime(): StatisticsRuntimeDouble {
  * Creates one bridge with deterministic local dependencies.
  * @param rawConfiguration - Raw protection configuration returned by storage.
  * @return Inspectable bridge test harness.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createBridgeHarness(
 	rawConfiguration: ProtectionConfigurationDocument | null = EXAMPLE_CONFIGURATION,
@@ -237,7 +237,7 @@ function createBridgeHarness(
 	/**
 	 * Returns the mutable test clock or its configured failure.
 	 * @return Current test epoch milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function now(): number {
 		if ( clock.error !== null ) {

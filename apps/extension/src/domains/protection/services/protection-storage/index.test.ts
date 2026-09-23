@@ -11,7 +11,7 @@ import {
 
 /**
  * Promise whose completion is controlled by a test.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class DeferredPromise {
 	readonly promise: Promise<void>;
@@ -20,7 +20,7 @@ class DeferredPromise {
 
 	/**
 	 * Creates an unresolved promise.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor() {
 		this.promise = new Promise( ( resolve ) => {
@@ -30,7 +30,7 @@ class DeferredPromise {
 
 	/**
 	 * Resolves the controlled promise once.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	resolve(): void {
 		this.resolver?.();
@@ -40,7 +40,7 @@ class DeferredPromise {
 
 /**
  * In-memory browser storage area used to observe storage-service behavior.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryProtectionStorageArea {
 	readonly readKeys: string[] = [];
@@ -58,7 +58,7 @@ class MemoryProtectionStorageArea {
 	 * @param label - Area label recorded for each write.
 	 * @param readFailure - Optional read failure.
 	 * @param writeFailure - Optional write failure.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor(
 		private readonly values: Record<string, unknown> = {},
@@ -74,7 +74,7 @@ class MemoryProtectionStorageArea {
 	 * Reads one key from the in-memory storage area.
 	 * @param key - Requested storage key.
 	 * @return Matching record or an empty record.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async get( key: string ): Promise<Record<string, unknown>> {
 		if ( this.readFailure !== null ) {
@@ -94,7 +94,7 @@ class MemoryProtectionStorageArea {
 	 * Writes values to the in-memory storage area.
 	 * @param values - Values to store.
 	 * @return Promise resolved after the values are stored.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	set( values: Record<string, unknown> ): Promise<void> {
 		this.writeOrder.push( this.label );
@@ -112,7 +112,7 @@ class MemoryProtectionStorageArea {
 
 /**
  * Complete persisted protection state used by storage tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const STORED_PROTECTION_STATE = StoredProtectionStateSchema.parse( {
 	durable: Mock_StoredProtectionState_Durable,
@@ -121,20 +121,20 @@ const STORED_PROTECTION_STATE = StoredProtectionStateSchema.parse( {
 
 /**
  * Primary valid storage snapshot identifier.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const TEST_SNAPSHOT_ID = '00000000-0000-4000-8000-000000000001';
 
 /**
  * Second valid storage snapshot identifier used to detect accidental advancement.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const SECOND_TEST_SNAPSHOT_ID = '00000000-0000-4000-8000-000000000002';
 
 /**
  * Supplies a deterministic storage snapshot identifier.
  * @return Stable snapshot identifier.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createTestSnapshotId(): string {
 	return TEST_SNAPSHOT_ID;
@@ -145,7 +145,7 @@ function createTestSnapshotId(): string {
  * @param snapshotId - Shared storage snapshot identifier.
  * @param document - Domain persistence document.
  * @return Storage snapshot envelope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStoredEnvelope( snapshotId: string, document: unknown ): Record<string, unknown> {
 	return { snapshotId, document };
@@ -380,7 +380,7 @@ describe( 'protection storage service', () => {
 		/**
 		 * Returns the mutable snapshot identifier selected by this test.
 		 * @return Current test snapshot identifier.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function createMutableSnapshotId(): string {
 			return snapshotId;

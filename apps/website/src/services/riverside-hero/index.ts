@@ -20,7 +20,7 @@ import {
  * @param canvas - Dedicated background canvas.
  * @param onStatus - Reports availability to the image fallback.
  * @return A disposal boundary for the mounted hero.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function createRiversideHero( canvas: HTMLCanvasElement, onStatus: HeroListener ): HeroController {
 	const renderer = new WebGLRenderer( { canvas, antialias: true, powerPreference: 'low-power' } );

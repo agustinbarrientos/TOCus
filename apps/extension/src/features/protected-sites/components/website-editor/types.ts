@@ -4,7 +4,7 @@ import type { ScheduleScreenCopy } from '../../../settings/components/schedule-s
 
 /**
  * An isolated website draft submitted to its existing page or persistence owner.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface WebsiteEditorProps {
 	opened: boolean;

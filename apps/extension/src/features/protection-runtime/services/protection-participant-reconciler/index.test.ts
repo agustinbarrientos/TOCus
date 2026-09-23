@@ -25,19 +25,19 @@ import type { ProtectionParticipantReconciler } from './types';
 
 /**
  * Extension-owned interruption page used by participant reconciliation tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/interruption.html';
 
 /**
  * Protection scope used by the shared domain fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const TEST_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope-default' );
 
 /**
  * Protected-site configuration used by participant reconciliation tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
@@ -58,7 +58,7 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
 
 /**
  * Coordinator fixture that exposes prepared departure events without duplicating transitions.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class ParticipantCoordinatorFixture {
 	/** Protection events prepared by the reconciler. */
@@ -70,14 +70,14 @@ class ParticipantCoordinatorFixture {
 	/**
 	 * Creates a coordinator fixture around one current state snapshot.
 	 * @param states - Current authoritative protection states.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor( private readonly states: ProtectionCoordinatorStateSnapshot ) {}
 
 	/**
 	 * Returns the current authoritative state snapshot.
 	 * @return Current protection states.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getStates(): Promise<ProtectionCoordinatorStateSnapshot> {
 		return Promise.resolve( this.states );
@@ -88,7 +88,7 @@ class ParticipantCoordinatorFixture {
 	 * @param prepareEvent - Deferred protection-event preparation.
 	 * @param measurementRevision - Optional statistics measurement revision.
 	 * @return Applied coordinator result without browser decisions.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	dispatch(
 		prepareEvent: PrepareProtectionEvent,
@@ -107,7 +107,7 @@ class ParticipantCoordinatorFixture {
 
 /**
  * Complete participant-reconciler test harness.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 interface ParticipantReconcilerHarness {
 	/** Coordinator fixture receiving prepared departure events. */
@@ -127,7 +127,7 @@ interface ParticipantReconcilerHarness {
  * @param interruptionPageUrl - Configured interruption document URL.
  * @param timeZone - OS timezone used by captured departure events.
  * @return Reconciler, coordinator fixture, and release spy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createHarness(
 	states: ProtectionCoordinatorStateSnapshot,
@@ -142,7 +142,7 @@ function createHarness(
 	/**
 	 * Returns the current test browser tabs.
 	 * @return Current browser-tab observations.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function listTabs(): Promise<ReadonlyArray<ProtectionRuntimeTab>> {
 		return Promise.resolve( tabs );
@@ -151,7 +151,7 @@ function createHarness(
 	/**
 	 * Accepts one applied coordinator result in the focused service fixture.
 	 * @return Resolved browser projection operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function applyDispatchResult(): Promise<void> {
 		return Promise.resolve();
@@ -160,7 +160,7 @@ function createHarness(
 	/**
 	 * Returns the deterministic test clock instant.
 	 * @return Current test epoch milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function now(): number {
 		return 1_800_000_000_000;
@@ -181,7 +181,7 @@ function createHarness(
 			/**
 			 * Returns the deterministic calendar for captured departures.
 			 * @return IANA timezone identifier.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			getTimeZone: () => timeZone,
 		} ),
@@ -502,7 +502,7 @@ describe( 'createProtectionParticipantReconciler', () => {
 				/**
 				 * Returns no live browser tabs.
 				 * @return Empty browser-tab collection.
-				 * @since 0.1.0 Initial implementation.
+				 * @since 1.0.0 Initial implementation.
 				 */
 				listTabs: () => Promise.resolve( [] ),
 			},
@@ -511,13 +511,13 @@ describe( 'createProtectionParticipantReconciler', () => {
 				 * Rejects an unexpected dispatch against unavailable state.
 				 * @return Rejected coordinator operation.
 				 * @throws {Error} Always, because unavailable snapshots cannot accept events.
-				 * @since 0.1.0 Initial implementation.
+				 * @since 1.0.0 Initial implementation.
 				 */
 				dispatch: () => Promise.reject( new Error( 'Unexpected dispatch.' ) ),
 				/**
 				 * Returns the unavailable coordinator marker.
 				 * @return Unavailable state marker.
-				 * @since 0.1.0 Initial implementation.
+				 * @since 1.0.0 Initial implementation.
 				 */
 				getStates: () => Promise.resolve( null ),
 			},
@@ -526,33 +526,33 @@ describe( 'createProtectionParticipantReconciler', () => {
 			 * Rejects an unexpected projection against unavailable state.
 			 * @return Rejected browser projection operation.
 			 * @throws {Error} Always, because unavailable snapshots cannot produce results.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			applyDispatchResult: () => Promise.reject( new Error( 'Unexpected projection.' ) ),
 			/**
 			 * Rejects an unexpected injected-layer release against unavailable state.
 			 * @return Rejected page release operation.
 			 * @throws {Error} Always, because unavailable snapshots own no pages.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			releaseInjectedInterruption: () => Promise.reject( new Error( 'Unexpected release.' ) ),
 			/**
 			 * Rejects an unexpected page release against unavailable state.
 			 * @return Rejected page release operation.
 			 * @throws {Error} Always, because unavailable snapshots own no pages.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			releaseNavigationIfInterrupted: () => Promise.reject( new Error( 'Unexpected release.' ) ),
 			/**
 			 * Returns the deterministic test clock instant.
 			 * @return Current test epoch milliseconds.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			now: () => 1_800_000_000_000,
 			/**
 			 * Returns the deterministic calendar for this inert instance.
 			 * @return IANA timezone identifier.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			getTimeZone: () => 'UTC',
 		} );

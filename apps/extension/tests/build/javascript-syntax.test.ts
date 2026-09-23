@@ -6,13 +6,13 @@ import { describe, expect, test } from 'vitest';
 
 /**
  * Executes a file without invoking a shell.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const executeFile = promisify( execFile );
 
 /**
  * Production output directories validated by the build contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const browserOutputs = [
 	[ 'Chrome', new URL( '../../.output/chrome-mv3/', import.meta.url ) ],
@@ -25,7 +25,7 @@ const browserOutputs = [
  * Finds every generated JavaScript file below an extension output directory.
  * @param directoryUrl - Directory inspected recursively.
  * @return Sorted URLs for generated JavaScript files.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function findGeneratedJavaScriptFiles( directoryUrl: URL ): Promise<URL[]> {
 	const entries = await readdir( directoryUrl, { withFileTypes: true } );

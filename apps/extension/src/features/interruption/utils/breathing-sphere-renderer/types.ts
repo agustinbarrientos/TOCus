@@ -1,6 +1,6 @@
 /**
  * Theme colors required to render the clay breathing sphere.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BreathingSphereColors {
 	clay: string;
@@ -17,7 +17,7 @@ export interface BreathingSphereColors {
 
 /**
  * Inputs required to render one breathing-sphere Canvas frame.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BreathingSphereFrameInput {
 	breathProgress: number;

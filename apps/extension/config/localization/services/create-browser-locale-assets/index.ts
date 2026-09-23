@@ -9,7 +9,7 @@ import type {
 
 /**
  * Source message and translator context identifying the extension name.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ExtensionNameMessage = Object.freeze( {
 	context: 'Extension name',
@@ -18,7 +18,7 @@ const ExtensionNameMessage = Object.freeze( {
 
 /**
  * Source message and translator context identifying the extension description.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const ExtensionDescriptionMessage = Object.freeze( {
 	context: 'Extension description',
@@ -27,7 +27,7 @@ const ExtensionDescriptionMessage = Object.freeze( {
 
 /**
  * Default catalog dependency for extension builds.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const DefaultOptions: Readonly<CreateBrowserLocaleAssetsOptions> = Object.freeze( {
 	readCatalog: readLocalizationCatalog,
@@ -40,7 +40,7 @@ const DefaultOptions: Readonly<CreateBrowserLocaleAssetsOptions> = Object.freeze
  * @param context - Translator context disambiguating the source message.
  * @param locale - Locale reported when the translation is missing.
  * @return Complete translated browser metadata value.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getBrowserMetadataTranslation(
 	catalog: CatalogType,
@@ -64,7 +64,7 @@ function getBrowserMetadataTranslation(
  * @param catalog - Parsed canonical Lingui catalog.
  * @param locale - Canonical catalog locale.
  * @return Pretty-printed browser localization file contents.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function serializeBrowserLocaleMessages( catalog: CatalogType, locale: string ): string {
 	const name = getBrowserMetadataTranslation(
@@ -96,7 +96,7 @@ function serializeBrowserLocaleMessages( catalog: CatalogType, locale: string ):
  * Creates browser-managed metadata assets from canonical PO catalogs.
  * @param options - Injectable catalog dependency.
  * @return Complete generated browser locale assets.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export async function createBrowserLocaleAssets(
 	options: Readonly<CreateBrowserLocaleAssetsOptions> = DefaultOptions,
@@ -127,7 +127,7 @@ export async function createBrowserLocaleAssets(
  * @param _wxt - Active WXT build context.
  * @param files - Mutable public-asset collection for the build.
  * @return Promise resolved after every locale asset is appended.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export async function addBrowserLocaleAssets(
 	_wxt: unknown,

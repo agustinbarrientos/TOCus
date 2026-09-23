@@ -170,7 +170,7 @@ function createHarness( now?: () => number ) {
 /**
  * Creates observable media lifecycle operations for presentation orchestration tests.
  * @return Fresh playback lifecycle with independently observable operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createPlaybackBoundary() {
 	return {

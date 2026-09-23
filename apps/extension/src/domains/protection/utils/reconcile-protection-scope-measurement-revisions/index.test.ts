@@ -11,13 +11,13 @@ import {
 
 /**
  * Independent scope used by measurement-revision tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const INDEPENDENT_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope_independent' );
 
 /**
  * Independent site used by measurement-revision tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const INDEPENDENT_SITE: ProtectedSiteConfigurationSet[ number ] = {
 	identityHost: 'youtube.com',
@@ -30,7 +30,7 @@ const INDEPENDENT_SITE: ProtectedSiteConfigurationSet[ number ] = {
 
 /**
  * Current revisions containing active and inactive scopes.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const CURRENT_REVISIONS = ProtectionScopeMeasurementRevisionMapSchema.parse( {
 	[ DefaultProtectionScopeId ]: 'revision_default',
@@ -40,7 +40,7 @@ const CURRENT_REVISIONS = ProtectionScopeMeasurementRevisionMapSchema.parse( {
 
 /**
  * Current default-scope revision used by retention tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const DEFAULT_REVISION = ProtectionScopeMeasurementRevisionMapSchema.parse( {
 	[ DefaultProtectionScopeId ]: 'revision_default_current',
@@ -49,7 +49,7 @@ const DEFAULT_REVISION = ProtectionScopeMeasurementRevisionMapSchema.parse( {
 /**
  * Creates an intentionally invalid measurement revision.
  * @return Invalid revision containing spaces.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createInvalidMeasurementRevision(): string {
 	return 'not a valid revision';
@@ -58,7 +58,7 @@ function createInvalidMeasurementRevision(): string {
 /**
  * Reuses the current default-scope revision.
  * @return Current revision instead of a fresh value.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function reuseCurrentMeasurementRevision(): string {
 	return 'revision_default_current';
@@ -67,7 +67,7 @@ function reuseCurrentMeasurementRevision(): string {
 /**
  * Reuses one generated revision across active scopes.
  * @return Colliding generated revision.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createCollidingMeasurementRevision(): string {
 	return 'revision_collision';

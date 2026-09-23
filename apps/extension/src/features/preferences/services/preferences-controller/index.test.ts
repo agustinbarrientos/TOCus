@@ -18,7 +18,7 @@ import {
 
 /**
  * Mutable system motion preference used by controller tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemorySystemMotionPreference extends EventTarget implements PreferencesSystemMotionPreference {
 	matches = false;
@@ -26,7 +26,7 @@ class MemorySystemMotionPreference extends EventTarget implements PreferencesSys
 	/**
 	 * Updates the preference and emits its native change event.
 	 * @param matches - Whether the operating system requests reduced motion.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	setMatches( matches: boolean ): void {
 		this.matches = matches;
@@ -36,7 +36,7 @@ class MemorySystemMotionPreference extends EventTarget implements PreferencesSys
 
 /**
  * Mutable storage-change source used by controller tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryPreferencesStorageChangeSource implements PreferencesStorageChangeSource {
 	private readonly listeners = new Set<PreferencesStorageChangeListener>();
@@ -44,7 +44,7 @@ class MemoryPreferencesStorageChangeSource implements PreferencesStorageChangeSo
 	/**
 	 * Reports the number of currently active storage-change listeners.
 	 * @return Active listener count.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	get listenerCount(): number {
 		return this.listeners.size;
@@ -53,7 +53,7 @@ class MemoryPreferencesStorageChangeSource implements PreferencesStorageChangeSo
 	/**
 	 * Begins delivering storage changes to one listener.
 	 * @param listener - Preferences storage listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	addListener( listener: PreferencesStorageChangeListener ): void {
 		this.listeners.add( listener );
@@ -62,7 +62,7 @@ class MemoryPreferencesStorageChangeSource implements PreferencesStorageChangeSo
 	/**
 	 * Stops delivering storage changes to one listener.
 	 * @param listener - Preferences storage listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	removeListener( listener: PreferencesStorageChangeListener ): void {
 		this.listeners.delete( listener );
@@ -72,7 +72,7 @@ class MemoryPreferencesStorageChangeSource implements PreferencesStorageChangeSo
 	 * Emits one local preference change.
 	 * @param newValue - New value stored under the preferences key.
 	 * @param areaName - Browser storage area that changed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	emit( newValue: unknown, areaName = 'local' ): void {
 		for ( const listener of this.listeners ) {
@@ -84,7 +84,7 @@ class MemoryPreferencesStorageChangeSource implements PreferencesStorageChangeSo
 
 	/**
 	 * Emits one unrelated local storage change.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	emitUnrelated(): void {
 		for ( const listener of this.listeners ) {
@@ -97,7 +97,7 @@ class MemoryPreferencesStorageChangeSource implements PreferencesStorageChangeSo
  * Creates one complete nondefault preferences fixture.
  * @param overrides - Preference fields to replace.
  * @return Valid complete preferences fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createPreferences(
 	overrides: Partial<PreferencesDocument> = {},
@@ -114,7 +114,7 @@ function createPreferences(
 /**
  * Provides an inert initial callback before a deferred load captures its resolver.
  * @return Undefined inert result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function ignoreDeferredResolution(): undefined {
 	return undefined;
@@ -123,7 +123,7 @@ function ignoreDeferredResolution(): undefined {
 /**
  * Provides an inert initial callback before a deferred load captures its rejection.
  * @return Undefined inert result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function ignoreDeferredRejection(): undefined {
 	return undefined;
@@ -133,7 +133,7 @@ function ignoreDeferredRejection(): undefined {
  * Creates one controller fixture around injected test doubles.
  * @param preferences - Preferences returned by the initial local read.
  * @return Controller and observable dependencies.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createFixture( preferences: PreferencesDocument | null = createPreferences() ) {
 	const attributes = new Map<string, string>();
@@ -218,7 +218,7 @@ describe( 'createPreferencesController', () => {
 		/**
 		 * Records the language and metadata visible during one effective-language notification.
 		 * @param language - Effective language delivered by the controller.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		const listener: PreferencesLanguageChangeListener = ( language ) => {
 			observedLanguageTags.push( `${ language }:${ fixture.attributes.get( 'lang' ) ?? '' }` );

@@ -39,7 +39,7 @@ import type {
  * @param result - Coordinator result whose browser projection has settled.
  * @param context - Participant retained when the request began.
  * @return Whether the request released this interruption.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function hasParticipantReleaseDecision(
 	result: ProtectionCoordinatorDispatchResult | null,
@@ -58,7 +58,7 @@ function hasParticipantReleaseDecision(
  * @param allowanceId - Reserved allowance expected to authorize the entry.
  * @param observation - Fresh URL and schedule observation used by the domain event.
  * @return Exact entry identity, or undefined when the observation does not authorize entry.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createContinuationContext(
 	context: ProtectionRuntimeParticipantContext,
@@ -80,7 +80,7 @@ function createContinuationContext(
  * Creates authoritative interruption-page request handling.
  * @param options - State, browser, clock, and projection dependencies.
  * @return Interruption request and focus operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createInterruptionRequestHandler(
 	options: InterruptionRequestHandlerOptions,
@@ -89,7 +89,7 @@ export function createInterruptionRequestHandler(
 	 * Reads the current URL used to validate a participant's protection scope.
 	 * @param context - Current interruption participant and transaction.
 	 * @return Retained navigation URL or freshly observed ordinary live-page URL.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function readMatchingDestination( context: ProtectionRuntimeParticipantContext ): Promise<string | null> {
 		if ( context.participant.origin === ProtectionParticipantOrigin.NAVIGATION ) {
@@ -106,7 +106,7 @@ export function createInterruptionRequestHandler(
 	 * Creates the current interruption-page projection for one sender tab.
 	 * @param tabId - Browser-provided sender tab identifier.
 	 * @return Validated authoritative page projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function createPageResponse( tabId: number ): Promise<InterruptionPageResponse> {
 		const statesByScope = await options.coordinator.getStates();
@@ -148,7 +148,7 @@ export function createInterruptionRequestHandler(
 	 * @param documentVisible - Whether the interruption document is visible.
 	 * @param configuration - Current validated local configuration.
 	 * @return Whether a browser projection was applied after an ownership transition.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function synchronizeParticipantFocusAndReport(
 		context: ProtectionRuntimeParticipantContext,
@@ -188,7 +188,7 @@ export function createInterruptionRequestHandler(
 	 * @param documentVisible - Whether the interruption document is visible.
 	 * @param configuration - Current validated local configuration.
 	 * @return Promise resolved after any focus ownership transition is projected.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function synchronizeParticipantFocus(
 		context: ProtectionRuntimeParticipantContext,
@@ -205,7 +205,7 @@ export function createInterruptionRequestHandler(
 	 * @param statisticsEligible - Whether the current sender is explicitly outside private browsing.
 	 * @param configuration - Current validated local configuration.
 	 * @return Projected coordinator result, or null when no checkpoint was dispatched.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function checkpointWaitingParticipant(
 		context: ProtectionRuntimeParticipantContext,
@@ -277,7 +277,7 @@ export function createInterruptionRequestHandler(
 	 * @param context - Current Ready participant context.
 	 * @param configuration - Current validated local configuration.
 	 * @return Projected coordinator result, or null when continuation was not dispatched.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function continueReadyParticipant(
 		context: ProtectionRuntimeParticipantContext,
@@ -329,7 +329,7 @@ export function createInterruptionRequestHandler(
 	 * @param senderTabId - Browser-provided sender tab identifier.
 	 * @param protectionEligible - Whether the sender is explicitly outside private browsing.
 	 * @return Authoritative interruption-page projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function handle(
 		input: unknown,

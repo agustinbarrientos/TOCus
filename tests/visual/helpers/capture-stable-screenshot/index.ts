@@ -7,7 +7,7 @@ import type { ScreenshotCapture } from './types';
  * @param capture - Fresh browser screenshot operation.
  * @param timeoutMilliseconds - Maximum duration of the stabilization check.
  * @return The settled frame, without reading or changing a reference image.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export async function captureStableScreenshot(
 	capture: ScreenshotCapture, timeoutMilliseconds = 15000,

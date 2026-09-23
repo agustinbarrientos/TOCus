@@ -10,7 +10,7 @@ import type { LocalDataResetController, LocalDataResetControllerOptions } from '
  * Owns authenticated full reset and incomplete-reset recovery in the background.
  * @param options - Local metadata, reset authority, and browser lifecycle boundaries.
  * @return Synchronous listener registration and startup completion.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createLocalDataResetController( options: LocalDataResetControllerOptions ): LocalDataResetController {
 	let startup: Promise<boolean> | null = null;
@@ -19,7 +19,7 @@ export function createLocalDataResetController( options: LocalDataResetControlle
 	/**
 	 * Reopens onboarding after clean startup, retaining retry intent if tab creation fails.
 	 * @return Whether clean startup and any requested onboarding launch succeeded.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function finish(): Promise<boolean> {
 		await options.resume();
@@ -36,7 +36,7 @@ export function createLocalDataResetController( options: LocalDataResetControlle
 	/**
 	 * Recovers pending deletion before permitting ordinary runtime initialization.
 	 * @return Whether initial recovery and startup succeeded.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function recover(): Promise<boolean> {
 		try {
@@ -50,7 +50,7 @@ export function createLocalDataResetController( options: LocalDataResetControlle
 	 * Performs one confirmed reset even when an earlier onboarding launch failed.
 	 * @param settingsTabId - Browser-authenticated first requester tab when available.
 	 * @return Whether the requested operation completed successfully.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function reset( settingsTabId: number | undefined ): Promise<boolean> {
 		try {
@@ -74,7 +74,7 @@ export function createLocalDataResetController( options: LocalDataResetControlle
 	 * @param sender - Browser-authenticated sending document.
 	 * @param sendResponse - Response channel that may outlive its settings page.
 	 * @return True only when this controller owns the asynchronous operation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	const handleMessage: ProtectionBackgroundMessageListener = ( input, sender, sendResponse ) => {
 		if ( sender.frameId !== 0 || sender.tab?.incognito === true ||
@@ -97,7 +97,7 @@ export function createLocalDataResetController( options: LocalDataResetControlle
 	return {
 		/**
 		 * Registers requests synchronously before beginning asynchronous startup recovery.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		start(): void {
 			if ( startup !== null ) {
@@ -109,7 +109,7 @@ export function createLocalDataResetController( options: LocalDataResetControlle
 		/**
 		 * Returns current initial reset recovery completion.
 		 * @return Whether startup succeeded, or false before registration.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		waitUntilReady(): Promise<boolean> {
 			return startup ?? Promise.resolve( false );

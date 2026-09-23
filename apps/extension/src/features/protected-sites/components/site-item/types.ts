@@ -13,19 +13,19 @@ import type { SiteItemEditorSnapshot } from '../../services/site-item-editor/typ
 
 /**
  * Stable event name emitted after one protected-site configuration change is persisted.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedSiteConfigurationChangedEventName = 'tocus-protected-site-configuration-changed';
 
 /**
  * Stable event name emitted after browser access is restored for one protected site.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedSiteAccessRestoredEventName = 'tocus-protected-site-access-restored';
 
 /**
  * Details emitted after browser access is restored for one protected site.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectedSiteAccessRestoredEventDetail {
 	identityHost: CanonicalHost;
@@ -33,7 +33,7 @@ export interface ProtectedSiteAccessRestoredEventDetail {
 
 /**
  * Stable protected-site change kinds announced to the owning screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedSiteConfigurationChangeKind = {
 	REMOVED: 'removed',
@@ -42,14 +42,14 @@ export const ProtectedSiteConfigurationChangeKind = {
 
 /**
  * Protected-site change kind announced to the owning screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedSiteConfigurationChangeKind =
 	typeof ProtectedSiteConfigurationChangeKind[ keyof typeof ProtectedSiteConfigurationChangeKind ];
 
 /**
  * Stable operation failures retained by one protected-site item.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedSiteItemOperationErrorReason = {
 	ACCESS_REQUEST: 'access-request',
@@ -59,7 +59,7 @@ export const ProtectedSiteItemOperationErrorReason = {
 
 /**
  * Operation failure retained by one protected-site item.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedSiteItemOperationErrorReason = typeof ProtectedSiteItemOperationErrorReason[
 	keyof typeof ProtectedSiteItemOperationErrorReason
@@ -67,7 +67,7 @@ export type ProtectedSiteItemOperationErrorReason = typeof ProtectedSiteItemOper
 
 /**
  * Details emitted after one protected-site configuration change is persisted.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface UpdatedProtectedSiteConfigurationChangedEventDetail {
 	kind: typeof ProtectedSiteConfigurationChangeKind.UPDATED;
@@ -77,7 +77,7 @@ export interface UpdatedProtectedSiteConfigurationChangedEventDetail {
 
 /**
  * Details emitted after one protected-site removal and its permission cleanup complete.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface RemovedProtectedSiteConfigurationChangedEventDetail {
 	kind: typeof ProtectedSiteConfigurationChangeKind.REMOVED;
@@ -89,7 +89,7 @@ export interface RemovedProtectedSiteConfigurationChangedEventDetail {
 
 /**
  * Details emitted after one protected-site configuration change is persisted.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedSiteConfigurationChangedEventDetail =
 	UpdatedProtectedSiteConfigurationChangedEventDetail |
@@ -97,7 +97,7 @@ export type ProtectedSiteConfigurationChangedEventDetail =
 
 /**
  * Form submission event whose current target is the protected-site edit form.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectedSiteEditSubmitEvent extends SubmitEvent {
 	readonly currentTarget: HTMLFormElement;
@@ -105,7 +105,7 @@ export interface ProtectedSiteEditSubmitEvent extends SubmitEvent {
 
 /**
  * Edit input event whose current target is the form owning the listener.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectedSiteEditInputEvent extends Event {
 	readonly currentTarget: HTMLFormElement;
@@ -113,7 +113,7 @@ export interface ProtectedSiteEditInputEvent extends Event {
 
 /**
  * Localizable protected-site item messages.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectedSiteItemCopy {
 	done: string;
@@ -137,20 +137,20 @@ export interface ProtectedSiteItemCopy {
 	 * Formats the accessible selection label for one website.
 	 * @param name - Current resolved display name.
 	 * @return Human-readable selection label.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	formatSelectSite( name: string ): string;
 	/**
 	 * Formats one removal confirmation heading.
 	 * @param name - Current resolved display name.
 	 * @return Human-readable removal question.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	formatRemoveQuestion( name: string ): string;
 }
 /**
  * Controlled page-draft changes emitted without persistence or permission side effects.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectedSiteDraftChangedEventDetail {
 	identityHost: string;
@@ -162,7 +162,7 @@ export interface ProtectedSiteDraftChangedEventDetail {
 
 /**
  * Controlled flat website row and its explicit edit/access actions.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface WebsiteItemProps {
 	/** Optional selection owned by the settings page, outside the row's identity grid. */
@@ -193,7 +193,7 @@ export interface WebsiteItemProps {
 
 /**
  * Page-local selection state with no persistence or permission side effects.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface WebsiteItemSelection {
 	checked: boolean;
@@ -203,7 +203,7 @@ export interface WebsiteItemSelection {
 
 /**
  * Optional item-owned transaction presentation supplied by the standalone binding.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface WebsiteItemPersistence {
 	state: Readonly<SiteItemEditorSnapshot>;

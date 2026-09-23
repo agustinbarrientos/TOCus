@@ -2,7 +2,7 @@ import type { InterruptionDocumentPath } from '../../utils/interruption-document
 
 /**
  * Browser tab fields required to match a live extension document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ExtensionTabContextTab {
 	/** Browser-assigned identifier of one queried tab. */
@@ -17,7 +17,7 @@ export interface ExtensionTabContextTab {
 
 /**
  * Live extension document metadata reported by the browser runtime.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ExtensionTabContext {
 	/** Browser context category containing the document. */
@@ -34,7 +34,7 @@ export interface ExtensionTabContext {
 
 /**
  * Runtime filter restricted to extension documents hosted in tabs.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ExtensionTabContextFilter {
 	/** Extension document category required by the lookup. */
@@ -43,14 +43,14 @@ export interface ExtensionTabContextFilter {
 
 /**
  * Optional browser-runtime operations for identifying extension interruption tabs.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ExtensionTabContextRuntime {
 	/**
 	 * Queries live extension documents when the browser supports context lookup.
 	 * @param filter - Extension tab context filter.
 	 * @return Current matching extension documents.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getContexts?: ( filter: ExtensionTabContextFilter ) => Promise<ReadonlyArray<ExtensionTabContext>>;
 
@@ -58,7 +58,7 @@ export interface ExtensionTabContextRuntime {
 	 * Resolves the packaged interruption document within this extension.
 	 * @param path - Packaged interruption document path.
 	 * @return Exact extension-owned interruption URL.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getURL: ( path: InterruptionDocumentPath ) => string;
 }

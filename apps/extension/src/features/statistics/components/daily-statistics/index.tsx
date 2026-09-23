@@ -11,7 +11,7 @@ const MILLISECONDS_PER_HOUR = 60 * MILLISECONDS_PER_MINUTE;
  * Shows accepted local daily estimates without inventing data before recording began.
  * @param props - Authoritative calendar buckets and localized labels.
  * @return Packaged daily chart with the same values available as a screen-reader table.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function DailyStatistics( props: DailyStatisticsProps ) {
 	const headingId = useId();

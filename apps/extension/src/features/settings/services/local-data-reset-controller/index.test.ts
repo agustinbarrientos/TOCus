@@ -6,7 +6,7 @@ import type { ProtectionBackgroundMessageListener, ProtectionBackgroundMessageSe
 /**
  * Creates an isolated background reset boundary with observable message ownership.
  * @return Controller dependencies and message dispatch helper.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createFixture() {
 	let listener: ProtectionBackgroundMessageListener | undefined;
@@ -35,7 +35,7 @@ function createFixture() {
 	 * @param sender - Sender metadata supplied by the browser.
 	 * @param input - Unknown message payload.
 	 * @return Listener ownership and response boundary.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function send( sender: ProtectionBackgroundMessageSender = {
 		url: `${ options.optionsPageUrl }#privacy`, frameId: 0, tab: { id: 7, incognito: false },

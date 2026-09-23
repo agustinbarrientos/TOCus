@@ -48,7 +48,7 @@ const icons = {
 
 /**
  * Renders only trusted repository SVG assets as decorative section icons.
- * @since 0.1.0
+ * @since 1.0.0
  * @param root0 - Icon presentation.
  * @param root0.name - Supplied asset name.
  * @param root0.className - Optional composition class.

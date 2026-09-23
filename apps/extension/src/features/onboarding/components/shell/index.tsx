@@ -114,7 +114,7 @@ function Content( props: OnboardingContentProps ) {
  * Composes onboarding layout while the controller owns draft and persistence transitions.
  * @param props - Immutable service projection and synchronous user-event port.
  * @return The branded onboarding surface, or nothing before localization is ready.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function OnboardingView( props: OnboardingViewProps ) {
 	const { state, port } = props;

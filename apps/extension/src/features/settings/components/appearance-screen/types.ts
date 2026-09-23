@@ -9,7 +9,7 @@ import type {
 
 /**
  * Stable loading states rendered by the Appearance settings screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const AppearanceScreenLoadStatus = {
 	FAILED: 'failed',
@@ -20,7 +20,7 @@ export const AppearanceScreenLoadStatus = {
 
 /**
  * Current loading state rendered by the Appearance settings screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type AppearanceScreenLoadStatus = typeof AppearanceScreenLoadStatus[
 	keyof typeof AppearanceScreenLoadStatus
@@ -28,7 +28,7 @@ export type AppearanceScreenLoadStatus = typeof AppearanceScreenLoadStatus[
 
 /**
  * Native input change whose current target is one appearance control.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface AppearanceInputEvent extends Event {
 	readonly currentTarget: HTMLInputElement;
@@ -36,20 +36,20 @@ export interface AppearanceInputEvent extends Event {
 
 /**
  * Live appearance projection used while preferences are edited.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PreferencesPreview {
 	/**
 	 * Projects complete preferences without persisting them.
 	 * @param preferences - Preferences selected by the user.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	apply( preferences: PreferencesDocument ): void;
 }
 
 /**
  * Receives one validated preferences projection or a malformed-data marker from another local context.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type AppearancePreferencesChangeListener = (
 	preferences: PreferencesDocument | null,
@@ -57,27 +57,27 @@ export type AppearancePreferencesChangeListener = (
 
 /**
  * Validated preferences projections and malformed-data markers observed by the Appearance screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PreferencesSource {
 	/**
 	 * Begins observing validated preferences projections and malformed-data markers.
 	 * @param listener - Preferences projection listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	addPreferencesChangeListener( listener: AppearancePreferencesChangeListener ): void;
 
 	/**
 	 * Stops observing validated preferences projections and malformed-data markers.
 	 * @param listener - Preferences projection listener.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	removePreferencesChangeListener( listener: AppearancePreferencesChangeListener ): void;
 }
 
 /**
  * Localizable messages rendered by the Appearance settings screen.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface AppearanceScreenCopy extends AppearanceControlsCopy {
 	/** Settings-page heading. */

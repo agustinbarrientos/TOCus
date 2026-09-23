@@ -1,6 +1,6 @@
 /**
  * Request that asks the background runtime to resolve the sender's navigation carrier.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface NavigationRedirectRequest {
 	/** Dedicated pre-bootstrap request discriminator. */
@@ -9,7 +9,7 @@ export interface NavigationRedirectRequest {
 
 /**
  * Browser runtime boundary used before interruption-page authentication.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface NavigationRedirectRuntime {
 	/** Resolves one packaged extension path. */
@@ -20,7 +20,7 @@ export interface NavigationRedirectRuntime {
 
 /**
  * Narrow location boundary used to replace carrier history in place.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface NavigationRedirectLocation {
 	/** Exact current document URL. */
@@ -31,7 +31,7 @@ export interface NavigationRedirectLocation {
 
 /**
  * Dependencies for the pre-bootstrap navigation redirect handshake.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface NavigationRedirectOptions {
 	/** Current document location. */

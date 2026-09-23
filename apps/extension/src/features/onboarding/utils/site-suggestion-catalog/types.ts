@@ -2,7 +2,7 @@ import type { CanonicalHost } from '../../../../domains/protection/types/protect
 
 /**
  * Stable identifier for one site shown in the onboarding suggestion catalog.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const OnboardingSiteSuggestionId = {
 	CHESS: 'chess',
@@ -24,14 +24,14 @@ export const OnboardingSiteSuggestionId = {
 
 /**
  * Canonical key of one locally packaged onboarding suggestion.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type OnboardingSiteSuggestionId =
 	typeof OnboardingSiteSuggestionId[ keyof typeof OnboardingSiteSuggestionId ];
 
 /**
  * One locally packaged site suggestion available during onboarding.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface OnboardingSiteSuggestion {
 	readonly id: OnboardingSiteSuggestionId;

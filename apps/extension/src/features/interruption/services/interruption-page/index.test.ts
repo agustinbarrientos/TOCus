@@ -25,13 +25,13 @@ import type {
 
 /**
  * Hoisted dependencies used by interruption page tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const pageMocks = await vi.hoisted( async () => {
 	const { Language: HoistedLanguage, LanguageSchema } = await import( '../../../../domains/preferences/types' );
 	/**
 	 * Minimal interruption screen used to verify page composition.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	class TestInterruptionScreen extends EventTarget {
 		/** Localized interruption copy. */
@@ -193,7 +193,7 @@ vi.mock( '../navigation-replacement', () => ( {
 /**
  * Provides an inert initial callback before a pending preference start captures its resolver.
  * @return Undefined inert result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function ignorePreferencesStartResolution(): undefined {
 	return undefined;
@@ -202,7 +202,7 @@ function ignorePreferencesStartResolution(): undefined {
 /**
  * Reports one authoritative Waiting state while leaving footer refresh work pending.
  * @return Immediately resolved interruption-controller startup.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function startControllerAndReportWaiting(): Promise<void> {
 	const options = pageMocks.createInterruptionPageController.mock.calls[ 0 ]?.[ 0 ];

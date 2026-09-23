@@ -3,7 +3,7 @@ import type { ScheduleDraft } from '../../../settings/utils/schedule-draft/types
 
 /**
  * Editable website details, including incomplete weekly fields.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface WebsiteDetailsDraft {
 	displayName: string;
@@ -12,7 +12,7 @@ export interface WebsiteDetailsDraft {
 
 /**
  * Complete page draft guarded during Settings navigation.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface WebsitesDraft {
 	sites: ProtectedSiteConfiguration[];

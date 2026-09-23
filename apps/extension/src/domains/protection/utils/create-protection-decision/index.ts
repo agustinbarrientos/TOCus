@@ -13,7 +13,7 @@ import {
  * Creates the safe fail-open action for one retained participant.
  * @param participant - Current validated participant.
  * @return A release or dismissal decision.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createFailOpenDecision(
 	participant: ProtectionParticipant,
@@ -39,7 +39,7 @@ export function createFailOpenDecision(
  * @param participant - Current validated participant.
  * @param observedDestination - Current observed destination.
  * @return A release or dismissal decision, or null when the observation cannot act safely.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createObservedParticipantActionDecision(
 	participant: ProtectionParticipant,

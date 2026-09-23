@@ -6,7 +6,7 @@ import './style.scss';
  * Orders custom active-hour exceptions first using the selected language's collation.
  * @param props - Current sites, canonical grouping copy and the owning row editor renderer.
  * @return Compact website list or the canonical empty state.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function WebsiteList( props: WebsiteListProps ) {
 	const { copy } = props;

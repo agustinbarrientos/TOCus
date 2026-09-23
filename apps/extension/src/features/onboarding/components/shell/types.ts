@@ -5,7 +5,7 @@ import type { OnboardingSitesStepCopy } from '../sites-step/types';
 
 /**
  * Stable steps shown by onboarding in approved product order.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const OnboardingStep = {
 	LANGUAGE: 'language',
@@ -15,13 +15,13 @@ export const OnboardingStep = {
 
 /**
  * Current onboarding step.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type OnboardingStep = typeof OnboardingStep[ keyof typeof OnboardingStep ];
 
 /**
  * Waits for one exact onboarding language to become the applied localization.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type OnboardingLanguageSynchronizer = (
 	language: Language,
@@ -29,7 +29,7 @@ export type OnboardingLanguageSynchronizer = (
 
 /**
  * Complete localizable messages rendered by onboarding and its three steps.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface OnboardingShellCopy {
 	introduction: string;
@@ -54,25 +54,25 @@ export interface OnboardingShellCopy {
 	 * @param totalSteps - Total number of onboarding steps.
 	 * @param stepName - Localized current-step name.
 	 * @return Localized onboarding progress.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	formatStepProgress( currentStep: number, totalSteps: number, stepName: string ): string;
 }
 
 /**
  * Name of the composed event emitted after all onboarding steps finish.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const OnboardingCompleteEventName = 'tocus-onboarding-complete';
 
 /**
  * Name of the composed event emitted from the completion fallback Settings action.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const OnboardingOpenSettingsEventName = 'tocus-onboarding-open-settings';
 
 /**
  * Name of the composed event emitted from the startup-recovery Retry action.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const OnboardingRetryEventName = 'tocus-onboarding-retry';

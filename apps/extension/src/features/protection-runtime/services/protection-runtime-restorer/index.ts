@@ -33,7 +33,7 @@ import type { ProtectionRuntimeRestorer, ProtectionRuntimeRestorerOptions } from
  * @param statesByScope - Current states held by the coordinator dispatch barrier.
  * @param requirement - Persisted Ready participant identity requiring reconciliation.
  * @return Exact Ready participant or null when its transaction identity changed.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function findRequiredParticipant(
 	statesByScope: ProtectionCoordinatorStateSnapshot,
@@ -62,7 +62,7 @@ function findRequiredParticipant(
  * @param observedAtEpochMilliseconds - Current wall-clock time.
  * @param timeZone - OS timezone captured with the recovery observation.
  * @return Participant departure event targeting the restored allowance transaction.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createRecoveryDeparture(
 	requirement: ProtectionStateReconciliationRequirement,
@@ -99,7 +99,7 @@ function createRecoveryDeparture(
  * @param nowEpochMilliseconds - Current wall-clock instant.
  * @param timeZone - Current IANA time-zone identifier.
  * @return Fresh participant observation or null when its ordinary expected page is absent.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createRestoredReadyObservation(
 	participant: ProtectionParticipant,
@@ -146,7 +146,7 @@ function createRestoredReadyObservation(
  * Creates one focused startup restorer around coordinator and browser boundaries.
  * @param options - Coordinator, browser observations, configuration, and effect callbacks.
  * @return Startup restoration service.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createProtectionRuntimeRestorer(
 	options: ProtectionRuntimeRestorerOptions,
@@ -157,7 +157,7 @@ export function createProtectionRuntimeRestorer(
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @param tabs - Current browser tabs used to recover navigation and expiry-layer pages.
 	 * @return Promise resolved after the reconciliation result is projected.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function resolveRequirement(
 		requirement: ProtectionStateReconciliationRequirement,
@@ -203,7 +203,7 @@ export function createProtectionRuntimeRestorer(
 	 * Restores authoritative state and resolves incomplete Ready observations.
 	 * @param preloadedConfiguration - Configuration loaded before coordinator restoration when available.
 	 * @return True after successful restoration, or false after failed initialization.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function restore(
 		preloadedConfiguration?: Parameters<ProtectionRuntimeRestorer[ 'restore' ]>[ 0 ],

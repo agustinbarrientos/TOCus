@@ -9,7 +9,7 @@ import { createProtectedSiteListCopy } from '../create-protected-site-list-copy'
  * @param i18n - Locale-specific Lingui instance.
  * @param formatters - Locale-sensitive formatters for the bundle.
  * @return Complete localized Protected-sites screen copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createProtectedSitesCopy(
 	i18n: I18n,
@@ -21,7 +21,7 @@ export function createProtectedSitesCopy(
 	 * Formats the bulk-removal action for the selected website count.
 	 * @param count - Number of selected websites.
 	 * @return Complete localized action label.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatRemoveSelected( count: number ): string {
 		return i18n._( msg( {
@@ -36,7 +36,7 @@ export function createProtectedSitesCopy(
 	 * Formats the bulk-removal confirmation heading for the selected website count.
 	 * @param count - Number of selected websites.
 	 * @return Complete localized removal question.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatRemoveSelectedQuestion( count: number ): string {
 		return i18n._( msg( {
@@ -51,7 +51,7 @@ export function createProtectedSitesCopy(
 	 * Formats one addition announcement.
 	 * @param name - Resolved local site name.
 	 * @return Complete localized announcement.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatAddedAnnouncement( name: string ): string {
 		return i18n._( msg`${ { name } } was added to your list.` );
@@ -61,7 +61,7 @@ export function createProtectedSitesCopy(
 	 * Formats one update announcement.
 	 * @param name - Resolved local site name.
 	 * @return Complete localized announcement.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatUpdatedAnnouncement( name: string ): string {
 		return i18n._( msg`${ { name } } was updated.` );
@@ -71,7 +71,7 @@ export function createProtectedSitesCopy(
 	 * Formats one removal announcement.
 	 * @param name - Resolved local site name.
 	 * @return Complete localized announcement.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatRemovedAnnouncement( name: string ): string {
 		return i18n._( msg`${ { name } } was removed from your list.` );
@@ -81,7 +81,7 @@ export function createProtectedSitesCopy(
 	 * Formats one retained-permission announcement.
 	 * @param name - Resolved local site name.
 	 * @return Complete localized announcement.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatPermissionRetainedAnnouncement( name: string ): string {
 		return i18n._( msg`${ { name } } was removed, but its browser access could not be removed automatically.` );
@@ -91,7 +91,7 @@ export function createProtectedSitesCopy(
 	 * Formats one restored-access announcement.
 	 * @param name - Resolved local site name.
 	 * @return Complete localized announcement.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatAccessRestoredAnnouncement( name: string ): string {
 		return i18n._( msg`${ { name } } access was restored.` );

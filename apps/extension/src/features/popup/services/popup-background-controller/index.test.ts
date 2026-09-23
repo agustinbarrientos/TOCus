@@ -15,7 +15,7 @@ const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/interruption.html
 /**
  * Returns the deterministic test time zone.
  * @return IANA time zone used by popup projections.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getTestTimeZone(): string {
 	return 'America/New_York';
@@ -24,7 +24,7 @@ function getTestTimeZone(): string {
 /**
  * Returns the deterministic test wall-clock time.
  * @return Epoch milliseconds used by popup projections.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getTestTime(): number {
 	return 1_800_000_000_000;
@@ -33,7 +33,7 @@ function getTestTime(): number {
 /**
  * Creates one popup background-controller harness with an inspectable message listener.
  * @return Controller dependencies, runtime spies, and captured listener access.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createHarness() {
 	let listener: PopupBackgroundMessageListener | null = null;
@@ -71,7 +71,7 @@ function createHarness() {
 		/**
 		 * Returns the listener registered by the controller under test.
 		 * @return Registered popup message listener.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		getListener(): PopupBackgroundMessageListener {
 			if ( listener === null ) {
@@ -87,7 +87,7 @@ function createHarness() {
  * Creates an authenticated popup-page sender without tab-only metadata.
  * @param overrides - Sender fields replaced for one test.
  * @return Browser message sender input.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createSender(
 	overrides: Partial<PopupBackgroundMessageSender> = {},

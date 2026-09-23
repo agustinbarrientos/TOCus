@@ -4,7 +4,7 @@ import type { LocalDate, ProtectionScopeId } from '../../types/protection-value'
 
 /**
  * Inputs used to retain one fact-emitting transition for durable statistics delivery.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PrepareStatisticsDeliveryForTransitionInput {
 	delivery: StoredProtectionStatisticsDelivery;
@@ -16,7 +16,7 @@ export interface PrepareStatisticsDeliveryForTransitionInput {
 	/**
 	 * Creates one unique protection-fact batch identifier.
 	 * @return Unknown identifier input for boundary validation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	createProtectionFactBatchId: () => unknown;
 }

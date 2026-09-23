@@ -74,7 +74,7 @@ const UNAVAILABLE_PROJECTION: PopupProjection = Object.freeze( {
 /**
  * Returns a widened default language for the mutable controller test double.
  * @return Default popup language.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createDefaultLanguage(): Language {
 	return Language.ENGLISH;
@@ -82,7 +82,7 @@ function createDefaultLanguage(): Language {
 
 /**
  * Minimal popup shell that records page-service projections and events.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class TestPopupShell extends EventTarget {
 	copy: PopupPageOptions[ 'fallbackLocalization' ][ 'popup' ] | null = null;
@@ -111,7 +111,7 @@ class TestPopupShell extends EventTarget {
 /**
  * Creates a controllable page-window boundary for lifecycle and countdown tests.
  * @return Window boundary, captured interval callback, and lifecycle dispatcher.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createPageWindowHarness() {
 	const lifecycle = new EventTarget();
@@ -131,14 +131,14 @@ function createPageWindowHarness() {
 		pageWindow,
 		/**
 		 * Dispatches popup dismissal to registered lifecycle observers.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		dispatchPageHide(): void {
 			lifecycle.dispatchEvent( new Event( 'pagehide' ) );
 		},
 		/**
 		 * Invokes the currently registered countdown callback.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		tick(): void {
 			if ( intervalCallback === null ) {
@@ -154,7 +154,7 @@ function createPageWindowHarness() {
  * Creates one complete popup-page harness with replaceable service outcomes.
  * @param initialProjection - Initial status returned by the background client.
  * @return Popup page options and every observable dependency.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createHarness( initialProjection: PopupProjection = UNPROTECTED_PROJECTION ) {
 	const localization = createEnglishLocalizationBundle();
@@ -226,7 +226,7 @@ function createHarness( initialProjection: PopupProjection = UNPROTECTED_PROJECT
 		/**
 		 * Returns the currently registered live-language observer.
 		 * @return Current language observer or null before registration.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		languageListener: (): ( ( language: Language ) => void ) | null => languageListener,
 		liveLocalization,
@@ -245,7 +245,7 @@ function createHarness( initialProjection: PopupProjection = UNPROTECTED_PROJECT
 /**
  * Waits until queued page work reaches its next observable boundary.
  * @return Promise resolved after queued microtasks settle.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function settlePageWork(): Promise<void> {
 	await new Promise<void>( ( resolve ) => {

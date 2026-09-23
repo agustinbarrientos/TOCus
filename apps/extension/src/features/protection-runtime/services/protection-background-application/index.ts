@@ -42,7 +42,7 @@ import type { LocalDate } from '../../../../domains/protection/types/protection-
 /**
  * Creates one collision-resistant runtime identifier fragment.
  * @return Fresh browser-local identifier fragment.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStableId(): string {
 	return crypto.randomUUID();
@@ -51,7 +51,7 @@ function createStableId(): string {
 /**
  * Returns the current wall-clock epoch time.
  * @return Current epoch milliseconds.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getCurrentTime(): number {
 	return Date.now();
@@ -60,7 +60,7 @@ function getCurrentTime(): number {
 /**
  * Returns the browser's current IANA time zone.
  * @return Current IANA time-zone identifier.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getTimeZone(): string {
 	return Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -69,7 +69,7 @@ function getTimeZone(): string {
 /**
  * Resolves today's date in the current operating-system calendar.
  * @return Local calendar date.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getLocalDate(): LocalDate {
 	return createRuntimeLocalDate( getCurrentTime(), getTimeZone() );
@@ -78,7 +78,7 @@ function getLocalDate(): LocalDate {
 /**
  * Constructs browser-backed protection services and starts their synchronous controllers.
  * @param options - Browser APIs used by the background application.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function startProtectionBackgroundApplication(
 	options: ProtectionBackgroundApplicationOptions,
@@ -114,7 +114,7 @@ export function startProtectionBackgroundApplication(
 		 * Creates one generation-scoped enrollment before synchronously requesting website access.
 		 * @param siteInput - Website selected through the popup.
 		 * @return Consent-aware persistence result.
-		 * @since 0.1.0 Initial implementation.
+		 * @since 1.0.0 Initial implementation.
 		 */
 		function addWebsite( siteInput: unknown ): Promise<ProtectedSiteEnrollmentResult> {
 			const protection = createBrowserProtectionConfigurationEditor( {
@@ -145,7 +145,7 @@ export function startProtectionBackgroundApplication(
 	 * Observes native mute changes before ordinary tab reconciliation can restore audio.
 	 * @param tabId - Browser tab whose state changed.
 	 * @param change - Browser-reported properties that changed.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function observeTabAudio( tabId: number, change: ProtectionBackgroundTabAudioChange ): void {
 		if ( change.mutedInfo !== undefined ) {
@@ -175,7 +175,7 @@ export function startProtectionBackgroundApplication(
 	 * Filters runtime configuration without detaching the permission-manager method.
 	 * @param configuration - Validated persisted protection configuration.
 	 * @return Valid permission-aware runtime configuration.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function filterConfiguration(
 		configuration: Parameters<typeof permissionManager.filterConfiguration>[ 0 ],
@@ -207,7 +207,7 @@ export function startProtectionBackgroundApplication(
 	/**
 	 * Refreshes capability-aware protection through its owning controller.
 	 * @return Promise resolved after protection reconciliation settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function refreshProtection(): Promise<void> {
 		return protectionController.refresh();
@@ -216,7 +216,7 @@ export function startProtectionBackgroundApplication(
 	/**
 	 * Waits for initial protection-capability detection to settle.
 	 * @return Promise resolved after the capability barrier settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function waitForProtectionReady(): Promise<void> {
 		return protectionController.waitUntilReady();
@@ -237,7 +237,7 @@ export function startProtectionBackgroundApplication(
 	/**
 	 * Reprojects the toolbar through the active browser protection runtime.
 	 * @return Promise resolved after the toolbar update settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function refreshToolbarBadge(): Promise<void> {
 		return runtime.refreshToolbarBadge();
@@ -246,7 +246,7 @@ export function startProtectionBackgroundApplication(
 	/**
 	 * Removes website grants and optional live-navigation access through the browser.
 	 * @return Whether browser access was fully revoked.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function revokeAccess(): Promise<boolean> {
 		return revokeWebsiteAccess( options.browser.permissions );
@@ -255,7 +255,7 @@ export function startProtectionBackgroundApplication(
 	/**
 	 * Stops runtime authorities before removing their durable state.
 	 * @return Completion of runtime suspension.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function suspendProtection(): Promise<void> {
 		return runtime.suspendForDataReset();
@@ -264,7 +264,7 @@ export function startProtectionBackgroundApplication(
 	/**
 	 * Restarts runtime authorities before reconciling current browser capabilities.
 	 * @return Completion of clean runtime startup.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function resumeProtection(): Promise<void> {
 		await runtime.resumeAfterDataReset();
@@ -275,7 +275,7 @@ export function startProtectionBackgroundApplication(
 	 * Opens the packaged onboarding page after a complete local reset.
 	 * @param generation - Completed reset identity passed to the receiving page.
 	 * @return Completion of browser tab creation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function openOnboarding( generation: string ): Promise<void> {
 		const url = new URL( options.browser.runtime.getURL( '/onboarding.html' ) );
@@ -289,7 +289,7 @@ export function startProtectionBackgroundApplication(
 	 * Closes the originating settings tab only while it still shows an extension settings document.
 	 * @param tabId - Browser-authenticated originating settings tab identifier.
 	 * @return Completion without changing a completed reset when the tab is unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function closeSettingsTab( tabId: number ): Promise<void> {
 		try {

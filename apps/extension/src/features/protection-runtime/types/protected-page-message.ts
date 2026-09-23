@@ -6,7 +6,7 @@ import {
 
 /**
  * Commands exchanged with an authorized protected top-level document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedPageMessageType = {
 	GET_PRESENTATION_STATUS: 'get-protected-page-presentation-status',
@@ -20,19 +20,19 @@ export const ProtectedPageMessageType = {
 
 /**
  * Validates a protected-page command discriminator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedPageMessageTypeSchema = z.enum( ProtectedPageMessageType );
 
 /**
  * Protected-page command discriminator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedPageMessageType = z.infer<typeof ProtectedPageMessageTypeSchema>;
 
 /**
  * Validates a request for the current protected-page presentation status.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const GetProtectedPagePresentationStatusMessageSchema = z.object( {
 	type: z.enum( [ ProtectedPageMessageType.GET_PRESENTATION_STATUS ] ),
@@ -40,7 +40,7 @@ export const GetProtectedPagePresentationStatusMessageSchema = z.object( {
 
 /**
  * Request for the current protected-page presentation status.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type GetProtectedPagePresentationStatusMessage = z.infer<
 	typeof GetProtectedPagePresentationStatusMessageSchema
@@ -48,7 +48,7 @@ export type GetProtectedPagePresentationStatusMessage = z.infer<
 
 /**
  * Validates a command to present the quiet final allowance warning.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PresentAllowanceWarningMessageSchema = z.object( {
 	type: z.enum( [ ProtectedPageMessageType.PRESENT_ALLOWANCE_WARNING ] ),
@@ -58,13 +58,13 @@ export const PresentAllowanceWarningMessageSchema = z.object( {
 
 /**
  * Command to present the quiet final allowance warning.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PresentAllowanceWarningMessage = z.infer<typeof PresentAllowanceWarningMessageSchema>;
 
 /**
  * Validates a command to remove one exact allowance warning.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const RemoveAllowanceWarningMessageSchema = z.object( {
 	type: z.enum( [ ProtectedPageMessageType.REMOVE_ALLOWANCE_WARNING ] ),
@@ -73,13 +73,13 @@ export const RemoveAllowanceWarningMessageSchema = z.object( {
 
 /**
  * Command to remove one exact allowance warning.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type RemoveAllowanceWarningMessage = z.infer<typeof RemoveAllowanceWarningMessageSchema>;
 
 /**
  * Validates a command to arm one allowance-keyed local expiry guard and optional warning boundary.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const SynchronizeAllowanceExpiryGuardMessageSchema = z.object( {
 	type: z.enum( [ ProtectedPageMessageType.SYNCHRONIZE_ALLOWANCE_EXPIRY_GUARD ] ),
@@ -126,7 +126,7 @@ export const SynchronizeAllowanceExpiryGuardMessageSchema = z.object( {
 
 /**
  * Command to arm one allowance-keyed local expiry guard and optional warning boundary.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type SynchronizeAllowanceExpiryGuardMessage = z.infer<
 	typeof SynchronizeAllowanceExpiryGuardMessageSchema
@@ -134,7 +134,7 @@ export type SynchronizeAllowanceExpiryGuardMessage = z.infer<
 
 /**
  * Validates a command to clear the current local allowance-expiry guard.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const RemoveAllowanceExpiryGuardMessageSchema = z.object( {
 	type: z.enum( [ ProtectedPageMessageType.REMOVE_ALLOWANCE_EXPIRY_GUARD ] ),
@@ -142,13 +142,13 @@ export const RemoveAllowanceExpiryGuardMessageSchema = z.object( {
 
 /**
  * Command to clear the current local allowance-expiry guard.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type RemoveAllowanceExpiryGuardMessage = z.infer<typeof RemoveAllowanceExpiryGuardMessageSchema>;
 
 /**
  * Validates a command to present the non-destructive interruption layer.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PresentInterruptionLayerMessageSchema = z.object( {
 	type: z.enum( [ ProtectedPageMessageType.PRESENT_INTERRUPTION_LAYER ] ),
@@ -156,13 +156,13 @@ export const PresentInterruptionLayerMessageSchema = z.object( {
 
 /**
  * Command to present the non-destructive interruption layer.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PresentInterruptionLayerMessage = z.infer<typeof PresentInterruptionLayerMessageSchema>;
 
 /**
  * Validates a command to remove the non-destructive interruption layer.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const RemoveInterruptionLayerMessageSchema = z.object( {
 	type: z.enum( [ ProtectedPageMessageType.REMOVE_INTERRUPTION_LAYER ] ),
@@ -172,13 +172,13 @@ export const RemoveInterruptionLayerMessageSchema = z.object( {
 
 /**
  * Command to remove the non-destructive interruption layer.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type RemoveInterruptionLayerMessage = z.infer<typeof RemoveInterruptionLayerMessageSchema>;
 
 /**
  * Validates every command accepted by an authorized protected page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedPageMessageSchema = z.discriminatedUnion( 'type', [
 	GetProtectedPagePresentationStatusMessageSchema,
@@ -192,13 +192,13 @@ export const ProtectedPageMessageSchema = z.discriminatedUnion( 'type', [
 
 /**
  * Command accepted by an authorized protected page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedPageMessage = z.infer<typeof ProtectedPageMessageSchema>;
 
 /**
  * Validates the non-sensitive presentation status returned by a protected page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedPagePresentationStatusSchema = z.object( {
 	allowanceWarningId: z.union( [ AllowanceIdSchema, z.null() ] ),
@@ -207,6 +207,6 @@ export const ProtectedPagePresentationStatusSchema = z.object( {
 
 /**
  * Non-sensitive presentation status returned by a protected page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedPagePresentationStatus = z.infer<typeof ProtectedPagePresentationStatusSchema>;

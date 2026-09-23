@@ -6,7 +6,7 @@ import { messages as englishMessages } from '../../../../locales/en.po';
  * Loads one compiled Lingui catalog from packaged extension resources.
  * @param language - Effective language whose messages are required.
  * @return Requested local messages without loading other language catalogs.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export async function loadLocalizationMessages( language: LanguageValue ): Promise<Messages> {
 	switch ( language ) {

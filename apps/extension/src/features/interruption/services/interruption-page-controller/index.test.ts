@@ -42,7 +42,7 @@ import type {
 
 /**
  * Mutable interruption screen used to observe controller projections.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryInterruptionPageScreen extends EventTarget implements InterruptionPageScreen {
 	state: InterruptionScreenStateValue = InterruptionScreenState.WAITING;
@@ -62,7 +62,7 @@ class MemoryInterruptionPageScreen extends EventTarget implements InterruptionPa
 	/**
 	 * Returns the focused progress currently displayed by the test screen.
 	 * @return Displayed focused progress in milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getFocusedProgressMilliseconds(): number {
 		return this.displayedFocusedProgressMilliseconds;
@@ -71,7 +71,7 @@ class MemoryInterruptionPageScreen extends EventTarget implements InterruptionPa
 
 /**
  * Mutable epoch clock used by controller tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryInterruptionPageClock implements InterruptionPageClock {
 	epochMilliseconds = 0;
@@ -79,7 +79,7 @@ class MemoryInterruptionPageClock implements InterruptionPageClock {
 	/**
 	 * Returns the current test epoch time.
 	 * @return Current epoch milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	now(): number {
 		return this.epochMilliseconds;
@@ -88,7 +88,7 @@ class MemoryInterruptionPageClock implements InterruptionPageClock {
 
 /**
  * Mutable reduced-motion preference used by controller tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryInterruptionPageMotionPreference extends EventTarget implements InterruptionPageMotionPreference {
 	matches = false;
@@ -96,7 +96,7 @@ class MemoryInterruptionPageMotionPreference extends EventTarget implements Inte
 	/**
 	 * Updates the test preference and emits its browser change event.
 	 * @param matches - Whether reduced motion is preferred.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	setMatches( matches: boolean ): void {
 		this.matches = matches;
@@ -106,7 +106,7 @@ class MemoryInterruptionPageMotionPreference extends EventTarget implements Inte
 
 /**
  * Deterministic runtime message boundary used by controller tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryInterruptionPageRuntime implements InterruptionPageRuntime {
 	readonly requests: InterruptionPageRequest[] = [];
@@ -117,7 +117,7 @@ class MemoryInterruptionPageRuntime implements InterruptionPageRuntime {
 	/**
 	 * Creates one deterministic runtime boundary.
 	 * @param responses - Ordered responses or errors returned to the controller.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor( responses: unknown[] ) {
 		this.responses = [ ...responses ];
@@ -127,7 +127,7 @@ class MemoryInterruptionPageRuntime implements InterruptionPageRuntime {
 	 * Records one request and resolves its queued response.
 	 * @param request - Valid interruption-page request.
 	 * @return Queued runtime response.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	sendMessage( request: InterruptionPageRequest ): Promise<unknown> {
 		this.requests.push( request );
@@ -140,12 +140,12 @@ class MemoryInterruptionPageRuntime implements InterruptionPageRuntime {
 
 /**
  * One recurring callback retained by the deterministic scheduler.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 interface ScheduledTestInterval {
 	/**
 	 * Callback invoked for one deterministic interval tick.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	callback: () => void;
 	delayMilliseconds: number;
@@ -153,12 +153,12 @@ interface ScheduledTestInterval {
 
 /**
  * One one-shot callback retained by the deterministic scheduler.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 interface ScheduledTestTimeout {
 	/**
 	 * Callback invoked when the deterministic timeout elapses.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	callback: () => void;
 	delayMilliseconds: number;
@@ -166,7 +166,7 @@ interface ScheduledTestTimeout {
 
 /**
  * Deterministic interval scheduler used by controller tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class ManualInterruptionPageScheduler implements InterruptionPageScheduler, FocusedProgressClockTiming {
 	/** Current high-resolution presentation timestamp. */
@@ -185,7 +185,7 @@ class ManualInterruptionPageScheduler implements InterruptionPageScheduler, Focu
 	/**
 	 * Returns current high-resolution presentation time.
 	 * @return Current monotonic milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	now(): number {
 		return this.monotonicMilliseconds;
@@ -195,7 +195,7 @@ class ManualInterruptionPageScheduler implements InterruptionPageScheduler, Focu
 	 * Retains one callback for the next animation frame.
 	 * @param callback - Presentation callback receiving a high-resolution timestamp.
 	 * @return Deterministic frame handle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	requestAnimationFrame( callback: FrameRequestCallback ): number {
 		const handle = this.nextHandle;
@@ -209,7 +209,7 @@ class ManualInterruptionPageScheduler implements InterruptionPageScheduler, Focu
 	/**
 	 * Removes one queued animation frame.
 	 * @param handle - Frame handle to cancel.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	cancelAnimationFrame( handle: number ): void {
 		this.frameCallbacks.delete( handle );
@@ -218,7 +218,7 @@ class ManualInterruptionPageScheduler implements InterruptionPageScheduler, Focu
 	/**
 	 * Advances high-resolution time and executes every queued animation frame once.
 	 * @param timestampMilliseconds - Absolute monotonic timestamp for the frame.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	runAnimationFrame( timestampMilliseconds: number ): void {
 		this.monotonicMilliseconds = timestampMilliseconds;
@@ -235,7 +235,7 @@ class ManualInterruptionPageScheduler implements InterruptionPageScheduler, Focu
 	 * @param callback - Callback executed by the manual scheduler.
 	 * @param delayMilliseconds - Configured recurrence delay.
 	 * @return Deterministic interval handle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	setInterval( callback: () => void, delayMilliseconds: number ): number {
 		const handle = this.nextHandle;
@@ -249,7 +249,7 @@ class ManualInterruptionPageScheduler implements InterruptionPageScheduler, Focu
 	/**
 	 * Removes one retained recurring callback.
 	 * @param handle - Deterministic interval handle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	clearInterval( handle: number ): void {
 		this.intervals.delete( handle );
@@ -260,7 +260,7 @@ class ManualInterruptionPageScheduler implements InterruptionPageScheduler, Focu
 	 * @param callback - Callback executed by the manual scheduler.
 	 * @param delayMilliseconds - Delay before execution.
 	 * @return Deterministic timeout handle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	setTimeout( callback: () => void, delayMilliseconds: number ): number {
 		const handle = this.nextHandle;
@@ -274,7 +274,7 @@ class ManualInterruptionPageScheduler implements InterruptionPageScheduler, Focu
 	/**
 	 * Removes one retained one-shot callback.
 	 * @param handle - Deterministic timeout handle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	clearTimeout( handle: number ): void {
 		const timeout = this.timeouts.get( handle );
@@ -287,7 +287,7 @@ class ManualInterruptionPageScheduler implements InterruptionPageScheduler, Focu
 
 	/**
 	 * Executes every currently retained interval callback once.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	runIntervals(): void {
 		for ( const interval of this.intervals.values() ) {
@@ -297,7 +297,7 @@ class ManualInterruptionPageScheduler implements InterruptionPageScheduler, Focu
 
 	/**
 	 * Executes and removes every currently retained timeout callback.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	runTimeouts(): void {
 		const timeouts = [ ...this.timeouts.values() ];
@@ -310,7 +310,7 @@ class ManualInterruptionPageScheduler implements InterruptionPageScheduler, Focu
 
 	/**
 	 * Executes callbacks retained before their cancellation to simulate an already queued browser task.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	runClearedTimeouts(): void {
 		const timeouts = this.clearedTimeouts.splice( 0 );
@@ -323,7 +323,7 @@ class ManualInterruptionPageScheduler implements InterruptionPageScheduler, Focu
 	/**
 	 * Returns every retained recurrence delay.
 	 * @return Configured interval delays in milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getDelaysMilliseconds(): number[] {
 		return [ ...this.intervals.values() ].map( ( interval ) => interval.delayMilliseconds );
@@ -332,7 +332,7 @@ class ManualInterruptionPageScheduler implements InterruptionPageScheduler, Focu
 	/**
 	 * Returns every retained one-shot delay.
 	 * @return Configured timeout delays in milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getTimeoutDelaysMilliseconds(): number[] {
 		return [ ...this.timeouts.values() ].map( ( timeout ) => timeout.delayMilliseconds );
@@ -341,7 +341,7 @@ class ManualInterruptionPageScheduler implements InterruptionPageScheduler, Focu
 
 /**
  * Mutable document visibility observed by controller tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryInterruptionPageVisibility implements InterruptionPageVisibility {
 	documentVisible = true;
@@ -351,7 +351,7 @@ class MemoryInterruptionPageVisibility implements InterruptionPageVisibility {
 	/**
 	 * Reports current test-document visibility.
 	 * @return Whether the test document is visible.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	isDocumentVisible(): boolean {
 		return this.documentVisible;
@@ -360,7 +360,7 @@ class MemoryInterruptionPageVisibility implements InterruptionPageVisibility {
 	/**
 	 * Reports current test-window focus.
 	 * @return Whether the test window is focused.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	isWindowFocused(): boolean {
 		return this.windowFocused;
@@ -369,7 +369,7 @@ class MemoryInterruptionPageVisibility implements InterruptionPageVisibility {
 
 /**
  * Complete deterministic controller fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 interface InterruptionPageControllerFixture {
 	storageChanges: MemoryInterruptionStorageChanges;
@@ -386,7 +386,7 @@ interface InterruptionPageControllerFixture {
 
 /**
  * Browser storage event source retaining controller listeners.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryInterruptionStorageChanges {
 	/** Registered browser storage event callbacks. */
@@ -395,7 +395,7 @@ class MemoryInterruptionStorageChanges {
 	/**
 	 * Registers one listener.
 	 * @param listener - Storage event callback.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	addListener( listener: InterruptionPageStorageChangeListener ): void {
 		this.listeners.add( listener );
@@ -404,7 +404,7 @@ class MemoryInterruptionStorageChanges {
 	/**
 	 * Removes one listener.
 	 * @param listener - Storage event callback.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	removeListener( listener: InterruptionPageStorageChangeListener ): void {
 		this.listeners.delete( listener );
@@ -414,7 +414,7 @@ class MemoryInterruptionStorageChanges {
 	 * Delivers a browser event to current listeners.
 	 * @param changes - Changed storage keys.
 	 * @param area - Browser storage area name.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	emit( changes: Record<string, InterruptionPageStorageChange>, area = 'local' ): void {
 		for ( const listener of this.listeners ) {
@@ -428,7 +428,7 @@ class MemoryInterruptionStorageChanges {
  * @param responses - Ordered runtime responses or failures.
  * @param onPresentationStateChange - Optional major-state observer.
  * @return Complete controller fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createControllerFixture(
 	responses: unknown[],
@@ -474,7 +474,7 @@ function createControllerFixture(
  * Connects the real presentation clock to the fixture screen's displayed-progress boundary.
  * @param fixture - Started controller and deterministic browser timing.
  * @return Connected focused-progress clock.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function connectFocusedProgressClock( fixture: InterruptionPageControllerFixture ): FocusedProgressClock {
 	const clock = createFocusedProgressClock( {
@@ -504,7 +504,7 @@ function connectFocusedProgressClock( fixture: InterruptionPageControllerFixture
 /**
  * Waits for queued controller requests and projections to settle.
  * @return Promise resolved after the next task.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function settleControllerRequests(): Promise<void> {
 	return new Promise( ( resolve ) => {

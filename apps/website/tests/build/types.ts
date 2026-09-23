@@ -1,6 +1,6 @@
 /**
  * Browser-resolved foreground and background with their measured contrast.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface ContrastMeasurement {
 	background: string;
@@ -10,7 +10,7 @@ export interface ContrastMeasurement {
 
 /**
  * Foreground paint inspected by the real-browser interaction audit.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const ForegroundSource = {
 	BOX_SHADOW: 'box-shadow',
@@ -20,13 +20,13 @@ export const ForegroundSource = {
 
 /**
  * Foreground paint derived from its runtime catalog.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type ForegroundSource = typeof ForegroundSource[keyof typeof ForegroundSource];
 
 /**
  * Operating-system motion preference used by generated website browser checks.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const MotionPreference = {
 	NO_PREFERENCE: 'no-preference',
@@ -35,13 +35,13 @@ export const MotionPreference = {
 
 /**
  * Motion preference derived from its runtime catalog.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type MotionPreference = typeof MotionPreference[keyof typeof MotionPreference];
 
 /**
  * Readonly viewport dimensions used to select responsive website behavior.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface WebsiteViewport {
 	/** CSS viewport width in pixels. */

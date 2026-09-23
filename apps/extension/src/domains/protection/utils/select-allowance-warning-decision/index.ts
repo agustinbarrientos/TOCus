@@ -15,7 +15,7 @@ import { protectionMatchProtectsScope } from '../match-protection-scope';
  * @param input - Unknown allowance-warning observation.
  * @return A warning decision when presentation must change, otherwise null.
  * @throws {import('zod').ZodError} When either public argument or a derived decision violates its contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function selectAllowanceWarningDecision(
 	state: unknown,

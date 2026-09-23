@@ -33,25 +33,25 @@ import { ProtectionRuntimeNavigationPhase } from '../../types/browser-runtime';
 
 /**
  * Extension-owned interruption page used by navigation tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/interruption.html';
 
 /**
  * Default protection scope used by navigation tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const DEFAULT_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope-default' );
 
 /**
  * Independent protection scope used by cross-scope navigation tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const INDEPENDENT_SCOPE_ID = ProtectionScopeIdSchema.parse( 'scope-independent' );
 
 /**
  * Protected-site configuration used by navigation tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
@@ -83,7 +83,7 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
 
 /**
  * Mutable coordinator boundary used by focused navigation tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class NavigationCoordinatorFixture {
 	/** Prepared protection events. */
@@ -95,7 +95,7 @@ class NavigationCoordinatorFixture {
 	/**
 	 * Creates a fixture with one current state snapshot.
 	 * @param states - Initial authoritative protection states.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor( states: ProtectionCoordinatorStateSnapshot | null ) {
 		this.states = states;
@@ -104,7 +104,7 @@ class NavigationCoordinatorFixture {
 	/**
 	 * Returns the current authoritative state snapshot.
 	 * @return Current protection states.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getStates(): Promise<ProtectionCoordinatorStateSnapshot | null> {
 		return Promise.resolve( this.states );
@@ -114,7 +114,7 @@ class NavigationCoordinatorFixture {
 	 * Records one event prepared under the coordinator boundary.
 	 * @param prepareEvent - Deferred protection-event preparation.
 	 * @return Applied coordinator result without browser decisions.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	dispatch( prepareEvent: PrepareProtectionEvent ): Promise<ProtectionCoordinatorDispatchResult> {
 		this.events.push( prepareEvent( this.states ?? {} ) );
@@ -129,7 +129,7 @@ class NavigationCoordinatorFixture {
 
 /**
  * Focused navigation-handler test harness.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 interface NavigationHandlerHarness {
 	/** Coordinator fixture used by the handler. */
@@ -157,7 +157,7 @@ interface NavigationHandlerHarness {
  * @param states - Current authoritative protection states.
  * @param interruptionPageUrl - Configured interruption document URL.
  * @return Navigation handler, coordinator, and effect spies.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createHarness(
 	states: ProtectionCoordinatorStateSnapshot | null,
@@ -214,7 +214,7 @@ function createHarness(
 /**
  * Creates one Waiting state owned by an allowance-expiry participant.
  * @return Current Waiting state for the default scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createExpiryWaitingSnapshot(): ProtectionCoordinatorStateSnapshot {
 	const waiting = createWaitingState();
@@ -231,7 +231,7 @@ function createExpiryWaitingSnapshot(): ProtectionCoordinatorStateSnapshot {
 /**
  * Creates one Waiting state retaining a navigation participant for tab 7.
  * @return Current Waiting state for the default scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createNavigationWaitingSnapshot(): ProtectionCoordinatorStateSnapshot {
 	const waiting = createWaitingState();

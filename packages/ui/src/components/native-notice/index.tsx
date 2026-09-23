@@ -8,7 +8,7 @@ import type { NativeNoticeProps } from './types';
  * Content is explicit; titled, closable and richer notices continue to use the ordinary Alert.
  * @param props - Localized message, decorative shape and shared semantic presentation.
  * @return The real packaged Alert root with a directly wrapping native message.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function NativeNotice( props: NativeNoticeProps ) {
 	/**

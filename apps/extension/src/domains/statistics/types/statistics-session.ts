@@ -14,13 +14,13 @@ import {
 
 /**
  * Current focus epoch document version.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StatisticsFocusEpochDocumentVersion = 1;
 
 /**
  * Validates the current focus epoch document version.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const StatisticsFocusEpochDocumentVersionSchema = z.number().int().nonnegative().refine(
 	( value ) => value === StatisticsFocusEpochDocumentVersion,
@@ -29,7 +29,7 @@ const StatisticsFocusEpochDocumentVersionSchema = z.number().int().nonnegative()
 
 /**
  * Validates one session-persisted focus observation epoch.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StatisticsFocusEpochDocumentSchema = z.object( {
 	schemaVersion: StatisticsFocusEpochDocumentVersionSchema,
@@ -38,7 +38,7 @@ export const StatisticsFocusEpochDocumentSchema = z.object( {
 
 /**
  * Session-persisted focus observation epoch.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StatisticsFocusEpochDocument = z.infer<
 	typeof StatisticsFocusEpochDocumentSchema
@@ -46,13 +46,13 @@ export type StatisticsFocusEpochDocument = z.infer<
 
 /**
  * Current session statistics document version.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StatisticsSessionDocumentVersion = 1;
 
 /**
  * Validates the current session statistics document version.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const StatisticsSessionDocumentVersionSchema = z.number().int().nonnegative().refine(
 	( value ) => value === StatisticsSessionDocumentVersion,
@@ -61,7 +61,7 @@ const StatisticsSessionDocumentVersionSchema = z.number().int().nonnegative().re
 
 /**
  * Validates the identity shared by one piece of session focus work.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StatisticsSessionWorkIdentitySchema = z.object( {
 	generationId: StatisticsGenerationIdSchema,
@@ -73,7 +73,7 @@ export const StatisticsSessionWorkIdentitySchema = z.object( {
 
 /**
  * Identity shared by one piece of session focus work.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StatisticsSessionWorkIdentity = z.infer<
 	typeof StatisticsSessionWorkIdentitySchema
@@ -81,7 +81,7 @@ export type StatisticsSessionWorkIdentity = z.infer<
 
 /**
  * Validates one active focus anchor.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StatisticsFocusAnchorSchema = StatisticsSessionWorkIdentitySchema.extend( {
 	sessionContinuityId: SessionContinuityIdSchema,
@@ -91,13 +91,13 @@ export const StatisticsFocusAnchorSchema = StatisticsSessionWorkIdentitySchema.e
 
 /**
  * Active focus anchor retained in session storage.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StatisticsFocusAnchor = z.infer<typeof StatisticsFocusAnchorSchema>;
 
 /**
  * Validates the unrefined shape of one frozen pending focus interval.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const StatisticsPendingFocusIntervalFieldsSchema = StatisticsSessionWorkIdentitySchema.extend( {
 	startedAtEpochMilliseconds: StatisticsNonNegativeSafeIntegerSchema,
@@ -106,7 +106,7 @@ const StatisticsPendingFocusIntervalFieldsSchema = StatisticsSessionWorkIdentity
 
 /**
  * Unrefined frozen pending focus interval values.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 type StatisticsPendingFocusIntervalFields = z.infer<
 	typeof StatisticsPendingFocusIntervalFieldsSchema
@@ -116,7 +116,7 @@ type StatisticsPendingFocusIntervalFields = z.infer<
  * Adds pending focus interval consistency issues to one refinement context.
  * @param interval - Pending focus interval being refined.
  * @param context - Zod refinement context receiving consistency issues.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function refineStatisticsPendingFocusInterval(
 	interval: StatisticsPendingFocusIntervalFields,
@@ -133,7 +133,7 @@ function refineStatisticsPendingFocusInterval(
 
 /**
  * Validates one frozen pending focus interval.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StatisticsPendingFocusIntervalSchema = StatisticsPendingFocusIntervalFieldsSchema.superRefine(
 	refineStatisticsPendingFocusInterval,
@@ -141,7 +141,7 @@ export const StatisticsPendingFocusIntervalSchema = StatisticsPendingFocusInterv
 
 /**
  * Frozen pending focus interval retained until durable aggregation succeeds.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StatisticsPendingFocusInterval = z.infer<
 	typeof StatisticsPendingFocusIntervalSchema
@@ -149,7 +149,7 @@ export type StatisticsPendingFocusInterval = z.infer<
 
 /**
  * Validates the unrefined shape of one compact session statistics document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const StatisticsSessionDocumentFieldsSchema = z.object( {
 	schemaVersion: StatisticsSessionDocumentVersionSchema,
@@ -159,7 +159,7 @@ const StatisticsSessionDocumentFieldsSchema = z.object( {
 
 /**
  * Unrefined compact session statistics document values.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 type StatisticsSessionDocumentFields = z.infer<
 	typeof StatisticsSessionDocumentFieldsSchema
@@ -169,7 +169,7 @@ type StatisticsSessionDocumentFields = z.infer<
  * Omits absent optional work from one session statistics document.
  * @param document - Refined session statistics values.
  * @return Canonical session document without owned undefined properties.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function canonicalizeStatisticsSessionDocument(
 	document: StatisticsSessionDocumentFields,
@@ -187,7 +187,7 @@ function canonicalizeStatisticsSessionDocument(
 
 /**
  * Validates one compact session statistics document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const StatisticsSessionDocumentSchema = StatisticsSessionDocumentFieldsSchema.transform(
 	canonicalizeStatisticsSessionDocument,
@@ -195,6 +195,6 @@ export const StatisticsSessionDocumentSchema = StatisticsSessionDocumentFieldsSc
 
 /**
  * Compact session statistics document with at most one anchor and pending interval.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type StatisticsSessionDocument = z.infer<typeof StatisticsSessionDocumentSchema>;

@@ -33,7 +33,7 @@ function SnackbarControls( props: SnackbarFixtureControlsProps ) {
 
 /**
  * Exercises locale updates without replacing the feedback provider or consumer.
- * @since 0.1.0
+ * @since 1.0.0
  * @return One localized private feedback boundary.
  */
 export function SnackbarFixture() {

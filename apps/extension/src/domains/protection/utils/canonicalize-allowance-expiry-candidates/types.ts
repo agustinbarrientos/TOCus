@@ -5,7 +5,7 @@ import type {
 
 /**
  * Canonical source-partitioned observations for one complete expiry batch.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface CanonicalAllowanceExpiryCandidates {
 	/** Complete current Ready-source observations. */

@@ -9,7 +9,7 @@ const SECONDS_PER_MINUTE = 60;
  * Creates localized popup copy and compact duration formatters.
  * @param i18n - Locale-specific Lingui instance.
  * @return Complete localized popup copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createPopupCopy( i18n: I18n ): Readonly<PopupShellCopy> {
 	const minutesFormatter = new Intl.NumberFormat( i18n.locale, {
@@ -26,7 +26,7 @@ export function createPopupCopy( i18n: I18n ): Readonly<PopupShellCopy> {
 	 * Formats one nonnegative timer duration without extending partial seconds.
 	 * @param milliseconds - Remaining duration in milliseconds.
 	 * @return Localized minutes-and-seconds countdown.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatCountdown( milliseconds: number ): string {
 		const safeMilliseconds = Number.isFinite( milliseconds ) ? Math.max( 0, milliseconds ) : 0;

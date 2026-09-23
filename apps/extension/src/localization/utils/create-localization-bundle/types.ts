@@ -19,7 +19,7 @@ import type { WellbeingSummaryCopy } from '../../../features/statistics/utils/fo
 
 /**
  * Localized browser-document titles owned by extension entrypoints.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface DocumentCopy {
 	interruptionTitle: string;
@@ -30,7 +30,7 @@ export interface DocumentCopy {
 
 /**
  * Complete typed copy bundle consumed by extension composition roots.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface LocalizationBundle {
 	language: Language;

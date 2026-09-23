@@ -11,7 +11,7 @@ import type { ProtectionMeasurementRevision } from '../../../protection/types/pr
 /**
  * Creates a fresh set of zero-valued scope totals.
  * @return Five zero-valued statistics totals.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createEmptyStatisticsTotals(): StatisticsTotals {
 	return {
@@ -27,7 +27,7 @@ export function createEmptyStatisticsTotals(): StatisticsTotals {
  * Creates fresh statistics for one active or historical scope.
  * @param measurementRevision - Current revision, or undefined for a historical scope.
  * @return Zero-valued scope statistics.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createEmptyScopeStatistics(
 	measurementRevision?: ProtectionMeasurementRevision,
@@ -45,7 +45,7 @@ export function createEmptyScopeStatistics(
  * @param generationId - Unknown fresh statistics generation identifier.
  * @return Empty validated statistics document.
  * @throws {import('zod').ZodError} When the generation identifier is invalid.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createStatisticsDocument( generationId: unknown ): StatisticsDocument {
 	return StatisticsDocumentSchema.parse( {

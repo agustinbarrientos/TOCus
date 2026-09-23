@@ -3,19 +3,19 @@ import { WaitDurationMillisecondsSchema } from '../../types/wait-duration';
 
 /**
  * Maximum duration of one complete breathing cycle.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const BreathingCycleMaximumMilliseconds = 10_000;
 
 /**
  * Share of each breathing cycle devoted to inhalation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const BreathingInhaleProportion = 0.4;
 
 /**
  * Validates one complete inhale and exhale cycle.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const BreathingCycleSchema = z.object( {
 	inhaleDurationMilliseconds: z.number().positive().max( BreathingCycleMaximumMilliseconds ),
@@ -52,13 +52,13 @@ export const BreathingCycleSchema = z.object( {
 
 /**
  * One complete inhale and exhale cycle.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type BreathingCycle = z.infer<typeof BreathingCycleSchema>;
 
 /**
  * Validates a complete breathing plan for one wait.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const BreathingPlanSchema = z.object( {
 	durationMilliseconds: WaitDurationMillisecondsSchema,
@@ -100,6 +100,6 @@ export const BreathingPlanSchema = z.object( {
 
 /**
  * Complete breathing plan whose durationMilliseconds is the authoritative captured total and whose phase numbers are its deterministic floating-point allocation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type BreathingPlan = z.infer<typeof BreathingPlanSchema>;

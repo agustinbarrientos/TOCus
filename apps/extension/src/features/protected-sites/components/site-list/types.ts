@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 
 /**
  * Domain-backed list presentation independent of page-level or item-level edit ownership.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface WebsiteListProps {
 	copy: ProtectedSiteListCopy;
@@ -21,7 +21,7 @@ export interface WebsiteListProps {
 
 /**
  * Protected site with its fully resolved local presentation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface PresentedProtectedSite {
 	site: ProtectedSiteConfiguration;
@@ -32,7 +32,7 @@ export interface PresentedProtectedSite {
 
 /**
  * Localizable messages rendered by the grouped protected-site list.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectedSiteListCopy {
 	emptyTitle: string;
@@ -42,7 +42,7 @@ export interface ProtectedSiteListCopy {
 	 * @param firstName - First display name.
 	 * @param secondName - Second display name.
 	 * @return Negative, zero, or positive locale-aware ordering result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	compareNames( firstName: string, secondName: string ): number;
 }

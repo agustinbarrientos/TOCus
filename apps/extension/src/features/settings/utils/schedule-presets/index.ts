@@ -6,7 +6,7 @@ import { SchedulePreset } from './types';
  * Creates independent editable windows for a selected starting schedule.
  * @param preset - Starting schedule that replaces the current draft windows.
  * @return Fresh weekday windows with deterministic draft identifiers.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function createSchedulePresetWindows( preset: SchedulePreset ): ScheduleWindowDraft[] {
 	const weekdays = preset === SchedulePreset.WEEKENDS_ALL_DAY

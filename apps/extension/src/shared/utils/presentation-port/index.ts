@@ -3,7 +3,7 @@
  * @param initial - Initial presentation state.
  * @param onChange - Receives each coherent immutable projection.
  * @return Mutable controller-facing state and synchronous user events.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function createPresentationPort<T extends object>(
 	initial: T,

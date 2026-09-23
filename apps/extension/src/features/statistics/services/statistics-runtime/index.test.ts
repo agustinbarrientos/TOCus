@@ -46,7 +46,7 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 			/**
 			 * Retains the identifier across the durable-delivery boundary.
 			 * @return Stable batch identifier.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			createProtectionFactBatchId: () => 'batch_travel',
 		};
@@ -58,7 +58,7 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 			/**
 			 * Reads the current OS timezone independently of the captured fact date.
 			 * @return Current local calendar date.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			getLocalDate: () => createRuntimeLocalDate( harness.clock.now(), timeZone ),
 		};
@@ -102,7 +102,7 @@ describe( 'statistics runtime initialization and fact delivery', () => {
 			/**
 			 * Resolves today's date in a zone whose midnight differs from UTC.
 			 * @return Local calendar date.
-			 * @since 0.1.0 Initial implementation.
+			 * @since 1.0.0 Initial implementation.
 			 */
 			getLocalDate: () => createRuntimeLocalDate( harness.clock.now(), 'America/Bogota' ),
 		} );

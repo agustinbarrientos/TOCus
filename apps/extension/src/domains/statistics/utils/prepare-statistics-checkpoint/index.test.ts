@@ -21,7 +21,7 @@ import {
 
 /**
  * Valid allowance identity used by pure checkpoint transition tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const TEST_FOCUSED_ALLOWANCE = {
 	scopeId: ProtectionScopeIdSchema.parse( 'scope_default' ),
@@ -32,19 +32,19 @@ const TEST_FOCUSED_ALLOWANCE = {
 
 /**
  * Browser-session continuity used by pure focus-checkpoint fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const TEST_SESSION_CONTINUITY_ID = SessionContinuityIdSchema.parse( 'session_current' );
 
 /**
  * Current focus epoch used by pure focus-checkpoint fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const TEST_FOCUS_EPOCH_ID = StatisticsFocusEpochIdSchema.parse( 'focus_epoch_current' );
 
 /**
  * Next focus epoch used by browser-boundary fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const TEST_NEXT_FOCUS_EPOCH_ID = StatisticsFocusEpochIdSchema.parse( 'focus_epoch_next' );
 
@@ -54,7 +54,7 @@ const TEST_NEXT_FOCUS_EPOCH_ID = StatisticsFocusEpochIdSchema.parse( 'focus_epoc
  * @param previousFocusEpochId - Focus epoch before this observation.
  * @param currentFocusEpochId - Focus epoch after this observation.
  * @return Focus epoch transition fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createFocusEpochTransition(
 	mode: StatisticsFocusEpochTransition['mode'] = StatisticsFocusObservationMode.SAMPLE,
@@ -72,7 +72,7 @@ function createFocusEpochTransition(
  * @param focusEpochId - Persisted focus epoch identifier.
  * @param siteHost - Protected-rule host retained by current focus work.
  * @return Valid session focus work.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createSession(
 	focusedAtEpochMilliseconds: number,

@@ -12,7 +12,7 @@ import { addStatisticsValues } from '../add-statistics-values';
 /**
  * Creates an unavailable statistics projection.
  * @return Projection without fabricated metric values.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createUnavailableProjection(): StatisticsProjection {
 	return { status: StatisticsProjectionStatus.UNAVAILABLE };
@@ -23,7 +23,7 @@ function createUnavailableProjection(): StatisticsProjection {
  * @param input - Unknown persisted statistics document.
  * @param today - Current local calendar date used to bound the graph.
  * @return Available aggregate values, or an unavailable projection for unsafe persistence.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function projectStatistics( input: unknown, today: unknown ): StatisticsProjection {
 	const result = StatisticsDocumentSchema.safeParse( input );

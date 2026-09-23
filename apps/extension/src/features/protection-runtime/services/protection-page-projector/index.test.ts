@@ -15,7 +15,7 @@ import { createProtectionPageProjector } from './index';
 
 /**
  * Extension-owned interruption URL used by page-projector tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/interruption.html';
 

@@ -41,7 +41,7 @@ import {
  * @param left - First string.
  * @param right - Second string.
  * @return Negative or positive ordering value for distinct strings.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function compareLexically( left: string, right: string ): number {
 	return left < right ? -1 : 1;
@@ -52,7 +52,7 @@ function compareLexically( left: string, right: string ): number {
  * @param left - First stored participant.
  * @param right - Second stored participant.
  * @return Negative, zero, or positive ordering value.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function compareStoredParticipants(
 	left: StoredProtectionParticipant,
@@ -69,7 +69,7 @@ function compareStoredParticipants(
  * Clears volatile focus state while restoring one stored participant.
  * @param participant - Validated stored participant.
  * @return Validated runtime participant.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function restoreParticipant( participant: StoredProtectionParticipant ): ProtectionParticipant {
 	return ProtectionParticipantSchema.parse( {
@@ -89,7 +89,7 @@ function restoreParticipant( participant: StoredProtectionParticipant ): Protect
  * @param input - Restore mode, parsed stored state, current time, and optional continuity evidence.
  * @return Restored states, decisions, fixed-empty facts, and reconciliation requirements.
  * @throws {import('zod').ZodError} When the input or restored result violates its contract.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function restoreProtectionState( input: unknown ): RestoreProtectionStateResult {
 	const parsedInput = RestoreProtectionStateInputSchema.parse( input );

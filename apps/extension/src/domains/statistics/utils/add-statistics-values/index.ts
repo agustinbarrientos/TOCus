@@ -4,7 +4,7 @@
  * @param right - Accepted increment.
  * @return Safe aggregate sum.
  * @throws {RangeError} When the sum is not a non-negative safe integer.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function addStatisticsValues( left: number, right: number ): number {
 	const sum = left + right;

@@ -2,7 +2,7 @@ import { Language, type Language as LanguageValue } from '../../../domains/prefe
 
 /**
  * Supported languages in stable preference-screen order.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const SupportedLanguages: ReadonlyArray<LanguageValue> = Object.freeze( [
 	Language.ENGLISH,

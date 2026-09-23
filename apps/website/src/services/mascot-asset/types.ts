@@ -2,7 +2,7 @@ import type { AnimationClip, Bone, Group } from 'three';
 
 /**
  * Portable repaired model and its embedded skeletal animation.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface PreparedMascotAsset {
 	root: Group;
@@ -11,7 +11,7 @@ export interface PreparedMascotAsset {
 
 /**
  * Named deformation joints, also used by portable glTF animation tracks.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const MascotJoint = {
 	ROOT: 'MascotRoot', SHOULDER: 'WaveShoulder', ELBOW: 'WaveElbow', WRIST: 'WaveWrist',
@@ -19,7 +19,7 @@ export const MascotJoint = {
 
 /**
  * Ordered skeleton with one stationary root and three waving joints.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface MascotRig {
 	bones: [ Bone, Bone, Bone, Bone ];

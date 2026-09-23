@@ -3,7 +3,7 @@ import { PopupCurrentTabContextSchema } from './current-tab-context';
 
 /**
  * Requests accepted by the local popup background controller.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupRuntimeRequestType = {
 	READ_STATUS: 'read-popup-status',
@@ -12,19 +12,19 @@ export const PopupRuntimeRequestType = {
 
 /**
  * Validates a popup runtime request discriminator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupRuntimeRequestTypeSchema = z.enum( PopupRuntimeRequestType );
 
 /**
  * Popup runtime request discriminator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupRuntimeRequestType = z.infer<typeof PopupRuntimeRequestTypeSchema>;
 
 /**
  * Fields shared by every popup runtime request.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const PopupRuntimeRequestFields = {
 	currentTab: z.union( [ PopupCurrentTabContextSchema, z.null() ] ),
@@ -32,7 +32,7 @@ const PopupRuntimeRequestFields = {
 
 /**
  * Validates a request for the latest popup status.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ReadPopupStatusRequestSchema = z.object( {
 	...PopupRuntimeRequestFields,
@@ -41,13 +41,13 @@ export const ReadPopupStatusRequestSchema = z.object( {
 
 /**
  * Request for the latest popup status.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ReadPopupStatusRequest = z.infer<typeof ReadPopupStatusRequestSchema>;
 
 /**
  * Validates a request that reconciles changed configuration before reading popup status.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const RefreshPopupStatusRequestSchema = z.object( {
 	...PopupRuntimeRequestFields,
@@ -56,13 +56,13 @@ export const RefreshPopupStatusRequestSchema = z.object( {
 
 /**
  * Request that reconciles changed configuration before reading popup status.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type RefreshPopupStatusRequest = z.infer<typeof RefreshPopupStatusRequestSchema>;
 
 /**
  * Validates every local popup runtime request.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PopupRuntimeRequestSchema = z.discriminatedUnion( 'type', [
 	ReadPopupStatusRequestSchema,
@@ -71,6 +71,6 @@ export const PopupRuntimeRequestSchema = z.discriminatedUnion( 'type', [
 
 /**
  * Local popup runtime request.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PopupRuntimeRequest = z.infer<typeof PopupRuntimeRequestSchema>;

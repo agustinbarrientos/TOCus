@@ -14,7 +14,7 @@ import type { ProtectionContinuationContext } from '../protection-page-projector
 
 /**
  * Dependencies used to project authoritative protection state into browser effects.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionProjectorOptions {
 	/** Browser capabilities receiving protection effects. */
@@ -32,21 +32,21 @@ export interface BrowserProtectionProjectorOptions {
 	/**
 	 * Returns the current local IANA time zone.
 	 * @return Current IANA time-zone identifier.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getTimeZone: () => string;
 
 	/**
 	 * Returns the current wall-clock epoch time.
 	 * @return Current epoch milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	now: () => number;
 }
 
 /**
  * Retained destinations and required cleanup guarantees for removing browser effects.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionFailOpenOptions {
 	/** Validated session participants retained after worker restart. */
@@ -57,14 +57,14 @@ export interface BrowserProtectionFailOpenOptions {
 
 /**
  * Browser-effect projection for authoritative protection state and decisions.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionProjector {
 	/**
 	 * Releases one interruption presentation that no longer has authoritative runtime state.
 	 * @param tabId - Browser tab containing the orphaned standalone page or injected layer.
 	 * @return Promise resolved after release or when the tab is no longer present.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	releaseInterruptionPresentation: ( tabId: number ) => Promise<void>;
 
@@ -72,7 +72,7 @@ export interface BrowserProtectionProjector {
 	 * Removes an injected interruption only for one authoritative allowance-expiry participant.
 	 * @param participant - Known allowance-expiry participant retaining the injected page identity.
 	 * @return Promise resolved after removal or when the owned layer is no longer present.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	releaseInjectedInterruption: (
 		participant: AllowanceExpiryProtectionParticipant,
@@ -83,7 +83,7 @@ export interface BrowserProtectionProjector {
 	 * @param tabId - Browser tab that may still display the interruption page.
 	 * @param retainedDestination - Validated destination to restore, or null for browser-native dismissal.
 	 * @return Promise resolved after release or a verified stale-tab race.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	releaseNavigationIfInterrupted: (
 		tabId: number,
@@ -94,7 +94,7 @@ export interface BrowserProtectionProjector {
 	 * Reconciles dynamic redirects, protection-clock alarms, allowance warnings, and the global toolbar badge.
 	 * @param configuration - Current validated local configuration or unavailable marker.
 	 * @return Promise resolved after redirects succeed and ancillary attempts settle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	reconcile: ( configuration: ProtectionConfigurationDocument | null ) => Promise<void>;
 
@@ -104,7 +104,7 @@ export interface BrowserProtectionProjector {
 	 * @param configuration - Current validated local configuration or unavailable marker.
 	 * @param continuedParticipant - Optional identity from a freshly validated entry request.
 	 * @return Promise resolved after page effects succeed and ancillary attempts settle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	applyDecisions: (
 		decisions: ReadonlyArray<ProtectionDecision>,
@@ -118,7 +118,7 @@ export interface BrowserProtectionProjector {
 	 * @param configuration - Current validated local configuration or unavailable marker.
 	 * @param continuedParticipant - Optional identity from a freshly validated entry request.
 	 * @return Promise resolved after accepted effects or rejected after fail-open cleanup.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	applyDispatchResult(
 		result: ProtectionCoordinatorDispatchResult,
@@ -131,7 +131,7 @@ export interface BrowserProtectionProjector {
 	 * @param configuration - Current validated local configuration or unavailable marker.
 	 * @param statesByScope - Current authoritative state snapshot or unavailable marker.
 	 * @return Promise resolved after both best-effort focus-dependent effects settle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	refreshFocusEffects: (
 		configuration: ProtectionConfigurationDocument | null,
@@ -143,7 +143,7 @@ export interface BrowserProtectionProjector {
 	 * @param configuration - Current validated local configuration or unavailable marker.
 	 * @param statesByScope - Current authoritative states or unavailable marker.
 	 * @return Promise resolved after the best-effort global badge attempt settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	refreshToolbarBadge: (
 		configuration: ProtectionConfigurationDocument | null,
@@ -154,7 +154,7 @@ export interface BrowserProtectionProjector {
 	 * Attempts to remove every browser effect owned by runtime protection.
 	 * @param cleanup - Optional retained destinations and reset-specific cleanup requirements.
 	 * @return Promise resolved after required effects succeed and all cleanup attempts settle.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	failOpen( cleanup?: BrowserProtectionFailOpenOptions ): Promise<void>;
 }

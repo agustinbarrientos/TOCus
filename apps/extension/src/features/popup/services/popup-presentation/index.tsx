@@ -9,7 +9,7 @@ import { PopupView } from '../../components/shell';
  * Mounts the popup presentation without changing background-owned enrollment or status coordination.
  * @param container - Popup-owned element receiving the React tree and focus-recovery queries.
  * @return Mutable shell contract consumed by the existing popup page controller.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function mountPopup( container: HTMLElement ): PopupPageShell {
 	const root = createRoot( container );
@@ -20,7 +20,7 @@ export function mountPopup( container: HTMLElement ): PopupPageShell {
 	 * Commits the latest controller snapshot before focusing a recovery target.
 	 * @param selector - Ordered selector list for the best currently available popup action.
 	 * @return Promise resolved after focus is restored if the popup remains mounted.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	async function focusRenderedAction( selector: string ): Promise<void> {
 		await Promise.resolve();
@@ -38,7 +38,7 @@ export function mountPopup( container: HTMLElement ): PopupPageShell {
 	/**
 	 * Moves focus to website management after successful enrollment replaces its trigger.
 	 * @return Promise resolved when the rendered management action has been considered for focus.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	function focusManageAction(): Promise<void> {
 		if ( port.settingsPageUrl === '' ) {
@@ -50,7 +50,7 @@ export function mountPopup( container: HTMLElement ): PopupPageShell {
 	/**
 	 * Restores focus to the first meaningful action or explanation after recovery.
 	 * @return Promise resolved after the newly rendered recovery state receives focus.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	function focusAfterRetry(): Promise<void> {
 		return focusRenderedAction( '.manage-action, .primary-action, .retry-action, .neutral-message' );
@@ -59,7 +59,7 @@ export function mountPopup( container: HTMLElement ): PopupPageShell {
 	/**
 	 * Renders each coherent controller snapshot while the popup document remains active.
 	 * @param state - Immutable snapshot batched by the shared presentation port.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	function renderSnapshot( state: Readonly<PopupState> ): void {
 		if ( ! disposed ) {
@@ -70,7 +70,7 @@ export function mountPopup( container: HTMLElement ): PopupPageShell {
 
 	/**
 	 * Stops React rendering and appearance observers when the browser closes the popup.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	function disposePopup(): void {
 		disposed = true;

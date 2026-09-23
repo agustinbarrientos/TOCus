@@ -9,7 +9,7 @@ import './styles.scss';
  * Composes the compact popup and forwards direct gestures through its existing event port.
  * @param properties - Immutable controller state and live event boundary.
  * @return The themed popup, or null until copy and status are coherent.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function PopupView( properties: PopupViewProperties ) {
 	const { state, port } = properties;
@@ -18,7 +18,7 @@ export function PopupView( properties: PopupViewProperties ) {
 
 	/**
 	 * Starts the existing status-recovery flow without changing protection state locally.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	function handleRetry(): void {
 		port.dispatchEvent( new Event( PopupRetryRequestEventName ) );
@@ -26,7 +26,7 @@ export function PopupView( properties: PopupViewProperties ) {
 
 	/**
 	 * Preserves user activation and checks live enrollment state before sending another request.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	function handleAddSite(): void {
 		if ( ! port.adding ) {

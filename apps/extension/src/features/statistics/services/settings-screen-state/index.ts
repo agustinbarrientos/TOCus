@@ -20,7 +20,7 @@ import { observeStatisticsCalendar } from '../statistics-calendar-observer';
  * Keeps Statistics synchronized with the authoritative source and ignores stale reads.
  * @param source - Local statistics service, or null when unavailable.
  * @return Projection, interaction state and explicit read/reset operation.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function useStatisticsState( source: StatisticsSource | null ) {
 	const [ projection, setProjection ] = useState<AvailableStatisticsProjection | null>( null );

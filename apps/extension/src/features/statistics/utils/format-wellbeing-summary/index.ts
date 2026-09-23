@@ -14,7 +14,7 @@ const NEW_TAB_MINIMUM_ESTIMATED_RECLAIMED_MILLISECONDS = 15 * 60_000;
  * @param projection - Validated all-time statistics projection.
  * @param copy - Localizable compact duration and sentence formatter.
  * @return Concise footer sentence, or an empty string below the raw threshold.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function formatNewTabWellbeingSummary(
 	projection: StatisticsProjection,
@@ -37,7 +37,7 @@ export function formatNewTabWellbeingSummary(
  * @param projection - Validated all-time statistics projection.
  * @param copy - Localizable duration and sentence formatter.
  * @return Complete footer sentence or the neutral fallback.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function formatWellbeingSummary(
 	projection: StatisticsProjection,

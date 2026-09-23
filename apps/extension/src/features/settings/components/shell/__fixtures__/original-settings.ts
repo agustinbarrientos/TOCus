@@ -7,7 +7,7 @@ import { TestEmptyProtectionConfiguration } from '../../../../../domains/protect
  * Reconstructs the approved screenshot's persisted input, without changing presentation behavior.
  * @param name - Original screenshot filename selected by the visual runner.
  * @return Validated configuration matching the archived fixture.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function originalConfiguration( name: string ) {
 	const populated = name.includes( 'protected-site' ) && ! name.includes( 'empty' ) || name.includes( 'schedule' );

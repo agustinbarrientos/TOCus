@@ -32,13 +32,13 @@ import type { OnboardingNotificationCopy } from '../reset-completion';
 
 /**
  * Opens the extension Settings surface from onboarding.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type OnboardingSettingsOpener = () => Promise<void>;
 
 /**
  * Onboarding shell properties and events coordinated by the page service.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface OnboardingPageShell extends EventTarget {
 	/** Complete localized onboarding copy. */
@@ -73,7 +73,7 @@ export interface OnboardingPageShell extends EventTarget {
 
 /**
  * Onboarding document root that receives appearance state and becomes visible after startup.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface OnboardingPageDocumentElement extends PreferencesAppearanceTarget {
 	/** Inline startup styles removed when onboarding is ready. */
@@ -82,7 +82,7 @@ export interface OnboardingPageDocumentElement extends PreferencesAppearanceTarg
 
 /**
  * Browser document surface owned by onboarding.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface OnboardingPageDocument {
 	/** Root element receiving appearance state and startup visibility. */
@@ -93,7 +93,7 @@ export interface OnboardingPageDocument {
 
 /**
  * Browser window surface owned by onboarding.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface OnboardingPageWindow {
 	/** Closes the onboarding page after successful completion. */
@@ -102,14 +102,14 @@ export interface OnboardingPageWindow {
 	 * Creates one observable media-query result.
 	 * @param query - Media query to evaluate.
 	 * @return Observable media-query preference.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	matchMedia( query: string ): PreferencesSystemMotionPreference;
 }
 
 /**
  * Browser and presentation dependencies required by first-install onboarding.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface OnboardingPageOptions {
 	/** Supported language derived from the browser UI locale. */

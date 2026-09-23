@@ -44,7 +44,7 @@ import type {
  * Coordinates a complete website draft with authoritative permission-aware enrollment.
  * @param props - Canonical editor, permission manager, localized feedback and service refresh port.
  * @return Observable website state and explicit stage/save/access actions.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function useWebsitesState( props: WebsitesScreenProps ) {
 	const { shell, register, accessRef } = props;

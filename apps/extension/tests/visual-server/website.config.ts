@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 
 /**
  * Serves the already-built static Astro output without changing its HTML or assets.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export default defineConfig( {
 	root: fileURLToPath( new URL( '../../../website/', import.meta.url ) ),

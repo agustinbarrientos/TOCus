@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 /**
  * Weekdays supported by weekly protection schedules.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const Weekday = {
 	MONDAY: 'Monday',
@@ -16,19 +16,19 @@ export const Weekday = {
 
 /**
  * Validates a weekday supported by weekly protection schedules.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const WeekdaySchema = z.enum( Weekday );
 
 /**
  * Weekday supported by weekly protection schedules.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type Weekday = z.infer<typeof WeekdaySchema>;
 
 /**
  * Sort position for each schedule weekday.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const WeekdayOrder = {
 	[ Weekday.MONDAY ]: 0,
@@ -42,7 +42,7 @@ export const WeekdayOrder = {
 
 /**
  * Following weekday for overnight schedule normalization.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const NextWeekday = {
 	[ Weekday.MONDAY ]: Weekday.TUESDAY,
@@ -56,7 +56,7 @@ export const NextWeekday = {
 
 /**
  * Schedule modes available to one protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ScheduleMode = {
 	ALWAYS: 'always',
@@ -65,19 +65,19 @@ export const ScheduleMode = {
 
 /**
  * Validates a protection schedule mode.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ScheduleModeSchema = z.enum( ScheduleMode );
 
 /**
  * Protection schedule mode.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ScheduleMode = z.infer<typeof ScheduleModeSchema>;
 
 /**
  * Validates a whole start minute from local midnight through 23:59.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ScheduleStartMinuteSchema = z
 	.number()
@@ -88,13 +88,13 @@ export const ScheduleStartMinuteSchema = z
 
 /**
  * Whole start minute from local midnight through 23:59.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ScheduleStartMinute = z.infer<typeof ScheduleStartMinuteSchema>;
 
 /**
  * Validates a whole end minute from local midnight through the end of day.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ScheduleEndMinuteSchema = z
 	.number()
@@ -105,13 +105,13 @@ export const ScheduleEndMinuteSchema = z
 
 /**
  * Whole end minute from local midnight through the end of day.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ScheduleEndMinute = z.infer<typeof ScheduleEndMinuteSchema>;
 
 /**
  * Validates one weekly schedule window, including an overnight range.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ScheduleWindowSchema = z.object( {
 	weekday: WeekdaySchema,
@@ -129,13 +129,13 @@ export const ScheduleWindowSchema = z.object( {
 
 /**
  * One weekly schedule window, including an overnight range.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ScheduleWindow = z.infer<typeof ScheduleWindowSchema>;
 
 /**
  * Validates an Always protection schedule.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const AlwaysScheduleSchema = z.object( {
 	mode: z.enum( [ ScheduleMode.ALWAYS ] ),
@@ -143,13 +143,13 @@ export const AlwaysScheduleSchema = z.object( {
 
 /**
  * Protection schedule that remains active at every valid instant.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type AlwaysSchedule = z.infer<typeof AlwaysScheduleSchema>;
 
 /**
  * Validates a custom weekly protection schedule with at least one window.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const CustomScheduleSchema = z.object( {
 	mode: z.enum( [ ScheduleMode.CUSTOM ] ),
@@ -158,13 +158,13 @@ export const CustomScheduleSchema = z.object( {
 
 /**
  * Custom weekly protection schedule with at least one window.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type CustomSchedule = z.infer<typeof CustomScheduleSchema>;
 
 /**
  * Validates an Always or custom weekly protection schedule.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ScheduleSchema = z.discriminatedUnion( 'mode', [
 	AlwaysScheduleSchema,
@@ -173,13 +173,13 @@ export const ScheduleSchema = z.discriminatedUnion( 'mode', [
 
 /**
  * Always or custom weekly protection schedule.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type Schedule = z.infer<typeof ScheduleSchema>;
 
 /**
  * Validates one nonempty same-day normalized schedule window.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const NormalizedScheduleWindowSchema = z.object( {
 	weekday: WeekdaySchema,
@@ -197,13 +197,13 @@ export const NormalizedScheduleWindowSchema = z.object( {
 
 /**
  * One nonempty same-day normalized schedule window.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type NormalizedScheduleWindow = z.infer<typeof NormalizedScheduleWindowSchema>;
 
 /**
  * Validates a normalized custom schedule in deterministic merged order.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const NormalizedCustomScheduleSchema = z.object( {
 	mode: z.enum( [ ScheduleMode.CUSTOM ] ),
@@ -240,13 +240,13 @@ export const NormalizedCustomScheduleSchema = z.object( {
 
 /**
  * Normalized custom schedule in deterministic merged order.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type NormalizedCustomSchedule = z.infer<typeof NormalizedCustomScheduleSchema>;
 
 /**
  * Validates a normalized Always or custom weekly schedule.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const NormalizedScheduleSchema = z.discriminatedUnion( 'mode', [
 	AlwaysScheduleSchema,
@@ -255,13 +255,13 @@ export const NormalizedScheduleSchema = z.discriminatedUnion( 'mode', [
 
 /**
  * Normalized Always or custom weekly schedule.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type NormalizedSchedule = z.infer<typeof NormalizedScheduleSchema>;
 
 /**
  * Default schedule for every newly created protection scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const DefaultProtectionSchedule = Object.freeze(
 	NormalizedScheduleSchema.parse( { mode: ScheduleMode.ALWAYS } ),

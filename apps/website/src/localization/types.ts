@@ -1,6 +1,6 @@
 /**
  * Languages supported by the public website.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const WebsiteLanguage = {
 	ENGLISH: 'en',
@@ -17,13 +17,13 @@ export const WebsiteLanguage = {
 
 /**
  * Language supported by the public website.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type WebsiteLanguage = typeof WebsiteLanguage[ keyof typeof WebsiteLanguage ];
 
 /**
  * Localized metadata rendered by the website document.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface WebsiteMetadataCatalog {
 	description: string;
@@ -31,7 +31,7 @@ export interface WebsiteMetadataCatalog {
 
 /**
  * Complete translator-authored copy for the current website.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface WebsiteCatalog {
 	metadata: WebsiteMetadataCatalog;
@@ -71,7 +71,7 @@ export interface WebsiteCatalog {
 
 /**
  * Stable routing metadata for one website language.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface WebsiteLanguageMetadata {
 	languageTag: string;
@@ -80,7 +80,7 @@ export interface WebsiteLanguageMetadata {
 
 /**
  * Complete localized website projection used by static pages.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface WebsiteLocalization extends WebsiteLanguageMetadata {
 	language: WebsiteLanguage;
@@ -89,7 +89,7 @@ export interface WebsiteLocalization extends WebsiteLanguageMetadata {
 
 /**
  * Properties consumed by one localized home page.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface LocalizedHomePageProperties {
 	localization: Readonly<WebsiteLocalization>;
@@ -98,7 +98,7 @@ export interface LocalizedHomePageProperties {
 
 /**
  * Properties generated for one non-English static website route.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface LocalizedWebsitePageProperties {
 	language: WebsiteLanguage;

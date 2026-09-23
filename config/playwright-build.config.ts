@@ -2,7 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 /**
  * Runs built browser journeys with isolated fixtures and retained failure evidence.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export default defineConfig( {
 	testDir: '../apps',

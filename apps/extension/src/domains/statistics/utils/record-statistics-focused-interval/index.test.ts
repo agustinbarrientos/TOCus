@@ -6,7 +6,7 @@ import { recordStatisticsFocusedInterval } from './index';
 /**
  * Creates one valid focused-interval operation.
  * @return Focused-interval operation fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createFocusedIntervalOperation() {
 	return RecordFocusedIntervalOperationSchema.parse( {

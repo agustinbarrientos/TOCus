@@ -4,7 +4,7 @@ import type { ProtectionRuntimeBrowser } from '../../types/browser-runtime';
 
 /**
  * Dependencies used to reconcile elapsed visit allowances.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface AllowanceExpiryReconcilerOptions {
 	/** Browser observations required to discover protected live pages. */
@@ -40,7 +40,7 @@ export interface AllowanceExpiryReconcilerOptions {
 
 /**
  * Reconciles every allowance whose wall-clock interval has ended.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface AllowanceExpiryReconciler {
 	/**

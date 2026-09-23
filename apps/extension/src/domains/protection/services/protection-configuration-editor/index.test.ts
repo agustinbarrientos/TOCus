@@ -27,7 +27,7 @@ import type { ProtectionConfigurationStorageService } from '../protection-config
 
 /**
  * Primary protected-site fixture used by editor tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const CONFIGURED_SITE: ProtectedSiteConfiguration = {
 	identityHost: 'www.instagram.com',
@@ -39,7 +39,7 @@ const CONFIGURED_SITE: ProtectedSiteConfiguration = {
 };
 /**
  * Secondary protected-site fixture used by multi-site editor tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const CONFIGURED_SECOND_SITE: ProtectedSiteConfiguration = {
 	identityHost: 'www.youtube.com',
@@ -51,7 +51,7 @@ const CONFIGURED_SECOND_SITE: ProtectedSiteConfiguration = {
 };
 /**
  * Protection configuration containing the primary site fixture.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const CONFIGURATION_WITH_SITE: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
@@ -60,7 +60,7 @@ const CONFIGURATION_WITH_SITE: ProtectionConfigurationDocument = {
 
 /**
  * Configuration whose default-scope membership revision has changed.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const CONFIGURATION_WITH_SITE_AFTER_MEMBERSHIP_CHANGE: ProtectionConfigurationDocument = {
 	...CONFIGURATION_WITH_SITE,
@@ -71,7 +71,7 @@ const CONFIGURATION_WITH_SITE_AFTER_MEMBERSHIP_CHANGE: ProtectionConfigurationDo
 
 /**
  * Empty configuration whose default-scope membership revision has changed.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const CONFIGURATION_WITHOUT_SITE_AFTER_MEMBERSHIP_CHANGE: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
@@ -82,7 +82,7 @@ const CONFIGURATION_WITHOUT_SITE_AFTER_MEMBERSHIP_CHANGE: ProtectionConfiguratio
 
 /**
  * In-memory configuration storage used to verify complete editor behavior.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryProtectionConfigurationEditorStorage implements ProtectionConfigurationStorageService {
 	readonly writes: unknown[] = [];
@@ -90,14 +90,14 @@ class MemoryProtectionConfigurationEditorStorage implements ProtectionConfigurat
 	/**
 	 * Creates in-memory storage with one initial load result.
 	 * @param configuration - Configuration returned before the first write.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor( private configuration: ProtectionConfigurationDocument | null ) {}
 
 	/**
 	 * Loads the latest in-memory configuration.
 	 * @return Current configuration or malformed-data marker.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	load(): Promise<ProtectionConfigurationDocument | null> {
 		return Promise.resolve( this.configuration );
@@ -107,7 +107,7 @@ class MemoryProtectionConfigurationEditorStorage implements ProtectionConfigurat
 	 * Stores one configuration and records the exact write.
 	 * @param input - Configuration to persist.
 	 * @return Promise resolved after the in-memory write.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	save( input: unknown ): Promise<void> {
 		this.writes.push( input );
@@ -119,7 +119,7 @@ class MemoryProtectionConfigurationEditorStorage implements ProtectionConfigurat
 
 /**
  * In-memory storage that holds its first write until a concurrency test releases it.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class DeferredFirstWriteStorage implements ProtectionConfigurationStorageService {
 	configuration: ProtectionConfigurationDocument = { ...TestEmptyProtectionConfiguration };
@@ -135,7 +135,7 @@ class DeferredFirstWriteStorage implements ProtectionConfigurationStorageService
 	/**
 	 * Loads the configuration that has fully completed persistence.
 	 * @return Current persisted configuration.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	load(): Promise<ProtectionConfigurationDocument> {
 		this.loads += 1;
@@ -147,7 +147,7 @@ class DeferredFirstWriteStorage implements ProtectionConfigurationStorageService
 	 * Defers the first write and completes every later write immediately.
 	 * @param input - Complete configuration candidate.
 	 * @return Promise resolved when the write completes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	save( input: unknown ): Promise<void> {
 		const configuration = input as ProtectionConfigurationDocument;
@@ -168,7 +168,7 @@ class DeferredFirstWriteStorage implements ProtectionConfigurationStorageService
 
 	/**
 	 * Completes the deferred first write.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	completeFirstSave(): void {
 		if ( this.pendingConfiguration === null || this.resolvePendingSave === null ) {
@@ -184,7 +184,7 @@ class DeferredFirstWriteStorage implements ProtectionConfigurationStorageService
 
 /**
  * In-memory storage that rejects its first write and accepts later writes.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class RejectingFirstWriteStorage implements ProtectionConfigurationStorageService {
 	configuration: ProtectionConfigurationDocument = { ...TestEmptyProtectionConfiguration };
@@ -194,7 +194,7 @@ class RejectingFirstWriteStorage implements ProtectionConfigurationStorageServic
 	/**
 	 * Loads the latest successfully persisted configuration.
 	 * @return Current persisted configuration.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	load(): Promise<ProtectionConfigurationDocument> {
 		return Promise.resolve( this.configuration );
@@ -204,7 +204,7 @@ class RejectingFirstWriteStorage implements ProtectionConfigurationStorageServic
 	 * Rejects the first write and persists each later write.
 	 * @param input - Complete configuration candidate.
 	 * @return Promise resolved after a successful write.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	save( input: unknown ): Promise<void> {
 		this.writes += 1;
@@ -222,7 +222,7 @@ class RejectingFirstWriteStorage implements ProtectionConfigurationStorageServic
 /**
  * Creates one deterministic valid measurement revision.
  * @return Stable measurement revision.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createValidMeasurementRevision(): string {
 	return 'revision_test_next';
@@ -232,7 +232,7 @@ function createValidMeasurementRevision(): string {
  * Runs one mutation immediately when cross-context coordination is irrelevant to a test.
  * @param mutation - Deferred protected-site configuration mutation.
  * @return Exact mutation result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function coordinateMutationDirectly(
 	mutation: ProtectionConfigurationMutation,
@@ -243,7 +243,7 @@ function coordinateMutationDirectly(
 /**
  * Resolves a test mutation queue after either mutation outcome.
  * @return Undefined queue settlement value.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function releaseTestMutationQueue(): undefined {
 	return undefined;
@@ -252,7 +252,7 @@ function releaseTestMutationQueue(): undefined {
 /**
  * Creates one shared coordinator that serializes mutations across editor instances.
  * @return Cross-instance mutation coordinator.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createSharedMutationCoordinator(): (
 	mutation: ProtectionConfigurationMutation,
@@ -263,7 +263,7 @@ function createSharedMutationCoordinator(): (
 	 * Runs one mutation after all earlier coordinated mutations settle.
 	 * @param mutation - Deferred protected-site configuration mutation.
 	 * @return Exact mutation result.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function coordinateMutation(
 		mutation: ProtectionConfigurationMutation,
@@ -281,7 +281,7 @@ function createSharedMutationCoordinator(): (
  * Attempts to remove one absent site through the supplied editor.
  * @param editor - Protected-site configuration editor under test.
  * @return Rejected removal result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function removeMissingSite(
 	editor: ReturnType<typeof createProtectionConfigurationEditor>,
@@ -293,7 +293,7 @@ function removeMissingSite(
  * Attempts to update one absent site through the supplied editor.
  * @param editor - Protected-site configuration editor under test.
  * @return Rejected update result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function updateMissingSite(
 	editor: ReturnType<typeof createProtectionConfigurationEditor>,
@@ -305,7 +305,7 @@ function updateMissingSite(
  * Attempts to remove an invalid site identity through the supplied editor.
  * @param editor - Protected-site configuration editor under test.
  * @return Rejected removal result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function removeInvalidSite(
 	editor: ReturnType<typeof createProtectionConfigurationEditor>,
@@ -317,7 +317,7 @@ function removeInvalidSite(
  * Attempts to update an invalid site identity through the supplied editor.
  * @param editor - Protected-site configuration editor under test.
  * @return Rejected update result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function updateInvalidSite(
 	editor: ReturnType<typeof createProtectionConfigurationEditor>,
@@ -330,7 +330,7 @@ function updateInvalidSite(
  * @param configuration - Initial configuration or malformed-data marker.
  * @param createMeasurementRevision - Measurement revision factory used by edits.
  * @return Editor and observable in-memory storage.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createEditor(
 	configuration: ProtectionConfigurationDocument | null = CONFIGURATION_WITH_SITE,

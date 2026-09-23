@@ -41,7 +41,7 @@ import type { DraftSaveResult } from '../../utils/draft-controller/types';
  * Edits global timing through the existing validated configuration editor.
  * @param props - Localized destination content, editor and navigation registration.
  * @return Timing form with persistence feedback and an authoritative discard baseline.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function Timing( props: EditableSettingsScreenProps ) {
 	const { shell, register } = props;

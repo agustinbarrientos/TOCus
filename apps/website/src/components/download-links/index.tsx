@@ -35,7 +35,7 @@ function useDownloadStore() {
  * Shared compact download action for page headers.
  * @param props - Localized download label.
  * @return Direct store link or unavailable text for the selected browser.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function DownloadLink( props: DownloadLinkProps ) {
 	const store = useDownloadStore();
@@ -53,7 +53,7 @@ export function DownloadLink( props: DownloadLinkProps ) {
  * Shows the primary browser availability followed by the other browser stores.
  * @param props - Localized download and alternate-store labels.
  * @return Primary store action and text alternatives.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function DownloadLinks( props: DownloadLinksProps ) {
 	const store = useDownloadStore();

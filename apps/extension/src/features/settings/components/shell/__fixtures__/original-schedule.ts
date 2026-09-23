@@ -7,7 +7,7 @@ import { ScheduleMode } from '../../../../../domains/protection/types/protection
  * This observer invokes the real input handler once and never changes production styles or state directly.
  * @param root - Original-only fixture container, observed before the production tree mounts.
  * @param original - Exact original scenario filename; unrelated fixtures remain untouched.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function stageOriginalScheduleChange( root: HTMLElement, original: string ): void {
 	if ( ! original.startsWith( 'settings-schedule-hover-blue-' ) ) {

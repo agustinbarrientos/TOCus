@@ -6,14 +6,14 @@ import type { ProtectedPageLayerCopy } from '../../../features/interruption/comp
  * Creates localized protected-page layer copy.
  * @param i18n - Locale-specific Lingui instance.
  * @return Complete localized protected-page layer copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createProtectedPageLayerCopy( i18n: I18n ): Readonly<ProtectedPageLayerCopy> {
 	/**
 	 * Formats one final allowance warning.
 	 * @param remainingSeconds - Whole allowance seconds remaining.
 	 * @return Complete localized warning sentence.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatAllowanceWarning( remainingSeconds: number ): string {
 		return i18n._( msg( {

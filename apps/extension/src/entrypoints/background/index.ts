@@ -6,7 +6,7 @@ import {
 
 /**
  * Starts the browser-backed background application.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function startBackground(): void {
 	startProtectionBackgroundApplication( { browser } );
@@ -14,7 +14,7 @@ function startBackground(): void {
 
 /**
  * Registers the non-persistent extension background entrypoint.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export default defineBackground( {
 	persistent: false,

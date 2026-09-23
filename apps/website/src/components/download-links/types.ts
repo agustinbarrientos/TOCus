@@ -1,6 +1,6 @@
 /**
  * Localized copy for the compact browser download action.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface DownloadLinkProps {
 	label: string;
@@ -9,7 +9,7 @@ export interface DownloadLinkProps {
 
 /**
  * Localized copy for a primary download badge and alternate browser links.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface DownloadLinksProps extends DownloadLinkProps {
 	alsoAvailable: string;

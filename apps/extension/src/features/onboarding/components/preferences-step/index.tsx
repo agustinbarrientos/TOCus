@@ -8,7 +8,7 @@ import type { OnboardingStepProps } from '../../types/presentation';
  * Uses the same packaged appearance controls as Settings, with onboarding's Continue flow.
  * @param props - Current choices, localized labels and service-backed save action.
  * @return The Language or Appearance form; neither offers a breathing-disable control.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function PreferencesStep( props: OnboardingStepProps ) {
 	const { state, copy, controller } = props;

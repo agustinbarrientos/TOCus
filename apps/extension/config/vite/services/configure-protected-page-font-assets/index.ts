@@ -11,7 +11,7 @@ const ProtectedPageFontAssets = new Map( [
  * Assigns stable font identities to the protected-page CSS entrypoint's assets.
  * @param entrypoints - WXT entrypoints in the current build group.
  * @param config - Merged Vite build configuration for that group.
- * @since 0.1.0 Deterministic release font assets.
+ * @since 1.0.0 Deterministic release font assets.
  */
 export function configureProtectedPageFontAssets( entrypoints: readonly Entrypoint[], config: WxtViteConfig ): void {
 	const entrypoint = entrypoints[ 0 ];

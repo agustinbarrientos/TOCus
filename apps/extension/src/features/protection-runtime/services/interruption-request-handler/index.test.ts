@@ -39,13 +39,13 @@ import type { InterruptionRequestHandlerOptions } from './types';
 
 /**
  * Fixed wall-clock instant used by interruption-request fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const NOW_EPOCH_MILLISECONDS = Date.UTC( 2026, 8, 2, 12 );
 
 /**
  * Applied coordinator result returned by successful dispatch fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const APPLIED_RESULT: ProtectionCoordinatorDispatchResult = {
 	status: ProtectionCoordinatorDispatchStatus.APPLIED,
@@ -55,7 +55,7 @@ const APPLIED_RESULT: ProtectionCoordinatorDispatchResult = {
 
 /**
  * Protected-site configuration used by interruption-request fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const CONFIGURATION: ProtectionConfigurationDocument = {
 	...TestEmptyProtectionConfiguration,
@@ -75,7 +75,7 @@ const CONFIGURATION: ProtectionConfigurationDocument = {
  * @param pageId - Runtime participant page identifier.
  * @param confirmedFocusedDurationMilliseconds - Authoritative focused progress.
  * @return Waiting state owned by the default scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createTestWaitingState(
 	focusEligible = true,
@@ -104,7 +104,7 @@ function createTestWaitingState(
 /**
  * Creates one Waiting state in which the requested tab is not the progress owner.
  * @return Waiting state retaining owner and non-owner participants.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createNonOwnerWaitingState(): WaitingProtectionState {
 	const owner = createNavigationParticipant(
@@ -134,7 +134,7 @@ function createNonOwnerWaitingState(): WaitingProtectionState {
  * Creates one Allowance state whose Ready participant belongs to tab 7.
  * @param expiresAtEpochMilliseconds - Allowance expiry instant.
  * @return Allowance state owned by the default scope.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createTestAllowanceState(
 	expiresAtEpochMilliseconds = NOW_EPOCH_MILLISECONDS + 300_000,
@@ -159,7 +159,7 @@ function createTestAllowanceState(
  * @param statesByScope - Coordinator snapshot returned by default.
  * @param configuration - Configuration returned by local storage.
  * @return Handler and observable dependency doubles.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createHandlerHarness(
 	statesByScope: ProtectionCoordinatorStateSnapshot | null,

@@ -4,7 +4,7 @@ import type { LocalDate } from '../../../../domains/protection/types/protection-
 
 /**
  * Calendar periods shared by every Statistics metric and chart.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const StatisticsRange = {
 	CURRENT_WEEK: 'current-week',
@@ -14,19 +14,19 @@ export const StatisticsRange = {
 
 /**
  * Validates a user-selected calendar period.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export const StatisticsRangeSchema = z.enum( StatisticsRange );
 
 /**
  * Supported calendar period.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export type StatisticsRange = z.infer<typeof StatisticsRangeSchema>;
 
 /**
  * One chart interval containing the complete sum of its recorded days.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface StatisticsChartBucket extends DailyStatisticsTotals {
 	endDate: LocalDate;
@@ -34,7 +34,7 @@ export interface StatisticsChartBucket extends DailyStatisticsTotals {
 
 /**
  * Selected calendar period with bounded chart intervals and matching totals.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface StatisticsRangeView {
 	range: StatisticsRange;

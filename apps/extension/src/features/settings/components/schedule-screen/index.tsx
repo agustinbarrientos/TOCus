@@ -33,7 +33,7 @@ import './style.scss';
  * Edits a weekly schedule with explicit save/discard and contextual field guidance.
  * @param props - Canonical localized copy, configuration editor and draft registration.
  * @return Schedule destination with consistent page composition.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function ScheduleScreen( props: EditableSettingsScreenProps ) {
 	const copy = props.shell.scheduleCopy;

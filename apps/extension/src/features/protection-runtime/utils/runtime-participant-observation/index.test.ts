@@ -19,7 +19,7 @@ import {
 
 /**
  * Protected-site configuration used by runtime-observation fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const CONFIGURATION = {
 	...TestEmptyProtectionConfiguration,
@@ -35,7 +35,7 @@ const CONFIGURATION = {
 
 /**
  * Navigation participant used by runtime-observation fixtures.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const PARTICIPANT = {
 	origin: 'navigation' as const,

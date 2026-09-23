@@ -7,7 +7,7 @@ import { PackagedExtensionBuild, type ExtensionManifest, type ExtensionWorkerGlo
 
 /**
  * Owns the complete lifetime of each disposable packaged extension, including failed setup.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const test = base.extend<ProtectionTestFixtures>( {
 	pregrantSite: [ true, { option: true } ],

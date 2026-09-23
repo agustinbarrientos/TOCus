@@ -21,7 +21,7 @@ export type {
 
 /**
  * Dependencies used by one stateful statistics runtime.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface StatisticsRuntimeOptions {
 	coordinator: Pick<
@@ -38,21 +38,21 @@ export interface StatisticsRuntimeOptions {
 	/**
 	 * Creates a fresh statistics generation identifier for an explicit reset.
 	 * @return Unknown identifier validated by the statistics reducer.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	createGenerationId(): unknown;
 
 	/**
 	 * Resolves today's date in the operating system's local calendar for the graph boundary.
 	 * @return Local calendar date without any site information.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getLocalDate(): LocalDate;
 }
 
 /**
  * Privacy-safe current statistics runtime projection and availability.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface StatisticsRuntimeSnapshot {
 	deliveryStatus: StoredProtectionStatisticsDeliveryStatus | null;
@@ -62,12 +62,12 @@ export interface StatisticsRuntimeSnapshot {
 
 /**
  * Stateful statistics operations serialized by their browser-runtime caller.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface StatisticsRuntime {
 	/**
 	 * Forgets cached statistics and focus work without persistence after all operations have drained.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	forgetForDataReset(): void;
 
@@ -75,7 +75,7 @@ export interface StatisticsRuntime {
 	 * Persists focus continuity before any asynchronous browser inspection begins.
 	 * @param mode - Relationship between the observation and browser focus state.
 	 * @return Focus epoch context, or null when session persistence is unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	beginFocusObservation(
 		mode: StatisticsFocusObservationMode,
@@ -84,7 +84,7 @@ export interface StatisticsRuntime {
 	/**
 	 * Removes any retained focus anchor when protection becomes unavailable.
 	 * @return Promise resolved after the contained session-storage attempt.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	discardFocusMeasurement(): Promise<void>;
 
@@ -92,7 +92,7 @@ export interface StatisticsRuntime {
 	 * Loads local/session state and durably reconciles current raw configuration revisions.
 	 * @param rawConfiguration - Unknown unfiltered protection configuration.
 	 * @return Promise resolved after the contained reconciliation attempt.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	reconcileConfiguration( rawConfiguration: unknown ): Promise<void>;
 
@@ -100,7 +100,7 @@ export interface StatisticsRuntime {
 	 * Applies and acknowledges every currently retained durable fact batch in FIFO order.
 	 * @param boundary - Optional protection-operation boundary limiting the retained prefix.
 	 * @return Promise resolved after the contained drain attempt.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	drainProtectionFacts(
 		boundary?: ProtectionCoordinatorStatisticsDeliveryBoundary | null,
@@ -111,7 +111,7 @@ export interface StatisticsRuntime {
 	 * @param configuration - Current permission-filtered configuration, or null when unavailable.
 	 * @param observation - Browser focus and event time captured before queued persistence.
 	 * @return Promise resolved after the contained checkpoint attempt.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	checkpoint(
 		configuration: ProtectionConfigurationDocument | null,
@@ -121,14 +121,14 @@ export interface StatisticsRuntime {
 	/**
 	 * Returns the current privacy-safe aggregate projection and runtime availability.
 	 * @return Detached current statistics runtime snapshot.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getSnapshot(): StatisticsRuntimeSnapshot;
 
 	/**
 	 * Clears durable delivery, session measurement work, and local aggregate values.
 	 * @return True only after every owned reset write completes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	reset(): Promise<boolean>;
 }

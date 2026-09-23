@@ -14,13 +14,13 @@ import type {
 
 /**
  * Validates user-entered site strings before batch canonicalization and browser consent.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedSiteBatchInputsSchema = z.array( z.string() );
 
 /**
  * Stable outcomes returned by protected-site enrollment.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ProtectedSiteEnrollmentStatus = {
 	ADDED: 'added',
@@ -35,14 +35,14 @@ export const ProtectedSiteEnrollmentStatus = {
 
 /**
  * Outcome returned by protected-site enrollment.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedSiteEnrollmentStatus =
 	typeof ProtectedSiteEnrollmentStatus[ keyof typeof ProtectedSiteEnrollmentStatus ];
 
 /**
  * Successful protected-site enrollment result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface AddedProtectedSiteEnrollmentResult {
 	status: typeof ProtectedSiteEnrollmentStatus.ADDED;
@@ -52,7 +52,7 @@ export interface AddedProtectedSiteEnrollmentResult {
 
 /**
  * Successful atomic enrollment of shared protected sites.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface AddedProtectedSiteBatchEnrollmentResult {
 	status: typeof ProtectedSiteEnrollmentStatus.ADDED;
@@ -62,7 +62,7 @@ export interface AddedProtectedSiteBatchEnrollmentResult {
 
 /**
  * Domain-rejected protected-site enrollment result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface RejectedProtectedSiteEnrollmentResult {
 	status: typeof ProtectedSiteEnrollmentStatus.REJECTED;
@@ -71,7 +71,7 @@ export interface RejectedProtectedSiteEnrollmentResult {
 
 /**
  * Protected-site enrollment result that failed outside domain validation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface FailedProtectedSiteEnrollmentResult {
 	status:
@@ -83,7 +83,7 @@ export interface FailedProtectedSiteEnrollmentResult {
 
 /**
  * Complete protected-site enrollment result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedSiteEnrollmentResult =
 	AddedProtectedSiteEnrollmentResult |
@@ -92,7 +92,7 @@ export type ProtectedSiteEnrollmentResult =
 
 /**
  * Protected-site enrollment result that can be presented as an error.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type UnsuccessfulProtectedSiteEnrollmentResult =
 	RejectedProtectedSiteEnrollmentResult |
@@ -100,14 +100,14 @@ export type UnsuccessfulProtectedSiteEnrollmentResult =
 
 /**
  * Complete result from one atomic protected-site batch enrollment.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedSiteBatchEnrollmentResult =
 	AddedProtectedSiteBatchEnrollmentResult | UnsuccessfulProtectedSiteEnrollmentResult;
 
 /**
  * Saved website draft including any obsolete access retained by the browser.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface SavedProtectedSiteDraftResult {
 	status: typeof ProtectedSiteEnrollmentStatus.SAVED;
@@ -117,13 +117,13 @@ export interface SavedProtectedSiteDraftResult {
 
 /**
  * Result of committing a page draft.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedSiteDraftSaveResult = UnsuccessfulProtectedSiteEnrollmentResult | SavedProtectedSiteDraftResult;
 
 /**
  * Mutable permission settlement tracked across the coordinated draft save.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectedSiteDraftSettlementState {
 	finalized: boolean;
@@ -134,7 +134,7 @@ export interface ProtectedSiteDraftSettlementState {
 
 /**
  * Successful protected-site removal with its permission cleanup outcome.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface RemovedProtectedSiteEnrollmentResult {
 	status: typeof ProtectedSiteEnrollmentStatus.REMOVED;
@@ -145,7 +145,7 @@ export interface RemovedProtectedSiteEnrollmentResult {
 
 /**
  * Complete protected-site removal result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ProtectedSiteRemovalResult =
 	RemovedProtectedSiteEnrollmentResult |
@@ -153,7 +153,7 @@ export type ProtectedSiteRemovalResult =
 
 /**
  * Dependencies used by protected-site enrollment.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectedSiteEnrollmentServiceOptions {
 	editor: ProtectionConfigurationEditor;
@@ -162,7 +162,7 @@ export interface ProtectedSiteEnrollmentServiceOptions {
 
 /**
  * Coordinates browser access and protected-site persistence.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface ProtectedSiteEnrollmentService {
 	/** Requests new origins from the current gesture and persists one complete site draft. */
@@ -171,7 +171,7 @@ export interface ProtectedSiteEnrollmentService {
 	 * Adds one protected site after securing its required browser access.
 	 * @param siteInput - Unknown user-entered hostname or URL.
 	 * @return Successful enrollment or a presentation-neutral failure.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	add(
 		siteInput: unknown,
@@ -181,7 +181,7 @@ export interface ProtectedSiteEnrollmentService {
 	 * Adds unique shared sites with one browser permission request and one configuration write.
 	 * @param siteInputs - User-entered hostnames or HTTP(S) URLs.
 	 * @return Successful batch enrollment or a presentation-neutral failure.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	addMany( siteInputs: readonly string[] ): Promise<ProtectedSiteBatchEnrollmentResult>;
 
@@ -189,7 +189,7 @@ export interface ProtectedSiteEnrollmentService {
 	 * Removes one protected site and reconciles its browser access before coordination is released.
 	 * @param site - Protected-site configuration selected for removal.
 	 * @return Successful removal and permission outcome, or a stable rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	remove( site: ProtectedSiteConfiguration ): Promise<ProtectedSiteRemovalResult>;
 }

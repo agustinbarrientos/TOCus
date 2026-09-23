@@ -2,7 +2,7 @@ import type { Language, Palette, ThemeMode } from '../../../apps/extension/src/d
 
 /**
  * Named, product-valid appearance covered by the screenshot matrix.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface VisualAppearance {
 	name: string;
@@ -12,7 +12,7 @@ export interface VisualAppearance {
 
 /**
  * Regional onboarding selection exercised through the real language controls.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export interface VisualLanguage {
 	name: string;

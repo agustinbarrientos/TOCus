@@ -20,7 +20,7 @@ import type { StatisticsProjection } from '../../../../domains/statistics/types/
 
 /**
  * Detached protection state used only inside the trusted background process.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionRuntimeSnapshot {
 	/** Persisted configuration, including websites whose optional browser access is currently missing. */
@@ -37,7 +37,7 @@ export interface BrowserProtectionRuntimeSnapshot {
 
 /**
  * Dependencies used by one browser protection runtime.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionRuntimeOptions {
 	/** Suppresses runtime ingress until reset recovery explicitly resumes and starts protection. */
@@ -55,7 +55,7 @@ export interface BrowserProtectionRuntimeOptions {
 	 * Filters persisted sites to those with complete current browser access.
 	 * @param configuration - Validated persisted protection configuration.
 	 * @return Valid configuration safe for runtime matching and projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	filterConfiguration: (
 		configuration: ProtectionConfigurationDocument,
@@ -64,35 +64,35 @@ export interface BrowserProtectionRuntimeOptions {
 	/**
 	 * Creates one fresh ASCII identifier fragment.
 	 * @return Collision-resistant identifier fragment.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	createStableId: () => string;
 
 	/**
 	 * Returns the current wall-clock epoch time.
 	 * @return Current epoch milliseconds.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	now: () => number;
 
 	/**
 	 * Returns the current local IANA time zone.
 	 * @return Current IANA time-zone identifier.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	getTimeZone: () => string;
 }
 
 /**
  * Browser-facing operations that connect navigation and interruption pages to protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionRuntime {
 	/**
 	 * Stops new work synchronously, drains started writes, and releases browser effects.
 	 * Remains suspended after failure; repeated calls safely retry browser cleanup.
 	 * @return Promise resolved before the caller may remove persisted local data.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	suspendForDataReset(): Promise<void>;
 
@@ -101,7 +101,7 @@ export interface BrowserProtectionRuntime {
 	 * Call after successful suspension and data removal, or after suspended startup recovery.
 	 * Does not start protection; the caller must subsequently call start.
 	 * @return Promise resolved once a later start can load fresh persisted state.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	resumeAfterDataReset(): Promise<void>;
 
@@ -111,7 +111,7 @@ export interface BrowserProtectionRuntime {
 	 * @param navigation - Optional top-level navigation received with the event.
 	 * @param focusEvent - Exact browser focus event identity, null when malformed, or undefined for another boundary.
 	 * @return Privacy-safe event-ingress browser observation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	captureStatisticsObservation(
 		mode: StatisticsFocusObservationMode,
@@ -123,7 +123,7 @@ export interface BrowserProtectionRuntime {
 	 * Removes runtime-owned browser effects when startup cannot establish authoritative protection state.
 	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after fail-open cleanup completes.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	failOpen(
 		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
@@ -132,28 +132,28 @@ export interface BrowserProtectionRuntime {
 	/**
 	 * Returns the latest trustworthy all-time statistics projection.
 	 * @return Available local totals or an unavailable projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	readStatistics(): Promise<StatisticsProjection>;
 
 	/**
 	 * Clears local statistics and returns the resulting trustworthy projection.
 	 * @return Zero-valued local totals after success or an unavailable projection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	resetStatistics(): Promise<StatisticsProjection>;
 
 	/**
 	 * Reprojects the current toolbar state after presentation-only copy changes.
 	 * @return Promise resolved after the serialized toolbar update settles.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	refreshToolbarBadge(): Promise<void>;
 
 	/**
 	 * Returns one detached snapshot for trusted local extension surfaces.
 	 * @return Current protection state, or null when the runtime is unavailable.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	readSnapshot(): Promise<BrowserProtectionRuntimeSnapshot | null>;
 
@@ -161,7 +161,7 @@ export interface BrowserProtectionRuntime {
 	 * Restores navigation rules and toolbar state from local configuration and runtime state.
 	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after startup reconciliation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	start(
 		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
@@ -172,7 +172,7 @@ export interface BrowserProtectionRuntime {
 	 * @param navigation - Browser navigation details.
 	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Verified redirect replacement URL, or no document-side action after reconciliation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	handleNavigation(
 		navigation: ProtectionRuntimeNavigation,
@@ -186,7 +186,7 @@ export interface BrowserProtectionRuntime {
 	 * @param protectionEligible - Whether the sender is explicitly outside private browsing.
 	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Authoritative interruption-page presentation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	handlePageRequest(
 		input: unknown,
@@ -200,7 +200,7 @@ export interface BrowserProtectionRuntime {
 	 * @param tabId - Closed browser tab identifier.
 	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after state and badges are reconciled.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	handleTabRemoved(
 		tabId: number,
@@ -211,7 +211,7 @@ export interface BrowserProtectionRuntime {
 	 * Reconciles participant ownership after browser focus changes.
 	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after focus and badge state are updated.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	handleFocusChanged(
 		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
@@ -221,7 +221,7 @@ export interface BrowserProtectionRuntime {
 	 * Processes elapsed allowances and refreshes wall-clock toolbar countdowns.
 	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after clock reconciliation.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	handleClockTick(
 		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
@@ -231,7 +231,7 @@ export interface BrowserProtectionRuntime {
 	 * Reconciles navigation rules after protected-site configuration or permissions change.
 	 * @param statisticsObservation - Browser inputs captured at controller event ingress.
 	 * @return Promise resolved after browser capabilities reflect current local state.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	handleConfigurationChanged(
 		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,

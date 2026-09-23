@@ -45,7 +45,7 @@ import {
 
 /**
  * Promise whose completion is controlled by a test.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class DeferredPromise {
 	readonly promise: Promise<void>;
@@ -54,7 +54,7 @@ class DeferredPromise {
 
 	/**
 	 * Creates an unresolved promise.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor() {
 		this.promise = new Promise( ( resolve ) => {
@@ -64,7 +64,7 @@ class DeferredPromise {
 
 	/**
 	 * Resolves the controlled promise once.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	resolve(): void {
 		this.resolver?.();
@@ -74,14 +74,14 @@ class DeferredPromise {
 
 /**
  * In-memory protection storage used to exercise coordinator behavior.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryProtectionStorage implements ProtectionStorageService {
 	readonly savedStates: StoredProtectionState[] = [];
 
 	/**
 	 * Durable acknowledgements written by the coordinator.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	readonly savedDurableAcknowledgements: StoredDurableProtectionState[] = [];
 
@@ -98,14 +98,14 @@ class MemoryProtectionStorage implements ProtectionStorageService {
 	/**
 	 * Creates in-memory storage with optional initial documents.
 	 * @param loadedState - Initial durable and session values.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor( private loadedState: LoadedProtectionState = {} ) {}
 
 	/**
 	 * Loads the current in-memory documents.
 	 * @return Loaded documents or a configured rejection.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	load(): Promise<LoadedProtectionState> {
 		return this.loadFailure === null
@@ -117,7 +117,7 @@ class MemoryProtectionStorage implements ProtectionStorageService {
 	 * Stores validated documents after any configured barrier.
 	 * @param input - Unknown complete stored-state input.
 	 * @return Promise resolved after the state is stored.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async save( input: unknown ): Promise<void> {
 		this.saveStarted?.resolve();
@@ -143,7 +143,7 @@ class MemoryProtectionStorage implements ProtectionStorageService {
 	 * Stores only a validated durable document for statistics acknowledgement tests.
 	 * @param input - Unknown current durable-state input.
 	 * @return Promise resolved after the durable state is stored.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	saveDurableStatisticsDelivery( input: unknown ): Promise<void> {
 		if ( this.saveDurableFailure !== null ) {
@@ -164,7 +164,7 @@ class MemoryProtectionStorage implements ProtectionStorageService {
 
 /**
  * Independent in-memory browser storage area used for restart recovery tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class MemoryBrowserStorageArea implements ProtectionStorageArea {
 	writeFailure: Error | null = null;
@@ -172,7 +172,7 @@ class MemoryBrowserStorageArea implements ProtectionStorageArea {
 	/**
 	 * Creates an in-memory browser storage area.
 	 * @param values - Mutable values retained across storage-service instances.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor( private readonly values: Record<string, unknown> = {} ) {}
 
@@ -180,7 +180,7 @@ class MemoryBrowserStorageArea implements ProtectionStorageArea {
 	 * Reads one key from the in-memory area.
 	 * @param key - Requested storage key.
 	 * @return Matching record or an empty record.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	get( key: string ): Promise<Record<string, unknown>> {
 		return Promise.resolve( Object.hasOwn( this.values, key ) ? { [ key ]: this.values[ key ] } : {} );
@@ -190,7 +190,7 @@ class MemoryBrowserStorageArea implements ProtectionStorageArea {
 	 * Writes values unless a failure is configured.
 	 * @param values - Values to retain.
 	 * @return Promise resolved after the values are retained.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	set( values: Record<string, unknown> ): Promise<void> {
 		if ( this.writeFailure !== null ) {
@@ -205,7 +205,7 @@ class MemoryBrowserStorageArea implements ProtectionStorageArea {
 
 /**
  * Durable allowance state used by restoration tests.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const DURABLE_ALLOWANCE = StoredDurableProtectionStateSchema.parse( {
 	schemaVersion: DurableStoredProtectionStateVersion,
@@ -230,7 +230,7 @@ const DURABLE_ALLOWANCE = StoredDurableProtectionStateSchema.parse( {
 
 /**
  * Session document containing a partially completed wait.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const SESSION_WAITING = StoredSessionProtectionStateSchema.parse( {
 	schemaVersion: SessionStoredProtectionStateVersion,
@@ -252,7 +252,7 @@ const SESSION_WAITING = StoredSessionProtectionStateSchema.parse( {
 /**
  * Supplies a deterministic new-session continuity identifier.
  * @return Stable continuity identifier.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createTestSessionContinuityId(): string {
 	return 'session-new';
@@ -262,7 +262,7 @@ function createTestSessionContinuityId(): string {
  * Creates a deterministic sequence of valid storage snapshot identifiers.
  * @param initialSequence - Sequence value before the first identifier.
  * @return Snapshot identifier factory.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createSnapshotIdSequence( initialSequence = 0 ): () => string {
 	let sequence = initialSequence;
@@ -279,7 +279,7 @@ function createSnapshotIdSequence( initialSequence = 0 ): () => string {
  * @param storage - In-memory protection storage.
  * @param sessionContinuityId - New-session continuity identifier.
  * @return Protection coordinator under test.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createTestCoordinator(
 	storage: ProtectionStorageService,
@@ -290,7 +290,7 @@ function createTestCoordinator(
 	/**
 	 * Supplies this coordinator's deterministic continuity identifier.
 	 * @return Stable continuity identifier.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function createSessionContinuityId(): string {
 		return sessionContinuityId;
@@ -299,7 +299,7 @@ function createTestCoordinator(
 	/**
 	 * Creates one deterministic fact-batch identifier.
 	 * @return Fresh fact-batch identifier.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function createProtectionFactBatchId(): string {
 		factBatchSequence += 1;
@@ -318,7 +318,7 @@ function createTestCoordinator(
  * Returns the most recently persisted complete state.
  * @param storage - In-memory protection storage.
  * @return Latest persisted state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getLatestSavedState( storage: MemoryProtectionStorage ): StoredProtectionState {
 	const state = storage.savedStates.at( -1 );

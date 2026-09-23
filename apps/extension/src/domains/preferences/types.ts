@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 /**
  * Languages available throughout TOCus.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const Language = {
 	ENGLISH: 'en',
@@ -19,19 +19,19 @@ export const Language = {
 
 /**
  * Validates a supported TOCus language.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const LanguageSchema = z.enum( Language );
 
 /**
  * Supported TOCus language.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type Language = z.infer<typeof LanguageSchema>;
 
 /**
  * Theme modes available throughout TOCus.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ThemeMode = {
 	SYSTEM: 'system',
@@ -41,19 +41,19 @@ export const ThemeMode = {
 
 /**
  * Validates a supported theme mode.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const ThemeModeSchema = z.enum( ThemeMode );
 
 /**
  * User-selected theme mode.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type ThemeMode = z.infer<typeof ThemeModeSchema>;
 
 /**
  * Curated color palettes available throughout TOCus.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const Palette = {
 	BROWN: 'brown',
@@ -66,19 +66,19 @@ export const Palette = {
 
 /**
  * Validates a supported color palette.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PaletteSchema = z.enum( Palette );
 
 /**
  * User-selected color palette.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type Palette = z.infer<typeof PaletteSchema>;
 
 /**
  * Pause presentation modes available during a protected-site wait.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PauseMode = {
 	BREATHING: 'breathing',
@@ -87,25 +87,25 @@ export const PauseMode = {
 
 /**
  * Validates a supported pause presentation mode.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PauseModeSchema = z.enum( PauseMode );
 
 /**
  * User-selected pause presentation mode.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PauseMode = z.infer<typeof PauseModeSchema>;
 
 /**
  * Current local preferences document version.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PreferencesDocumentVersion = 3;
 
 /**
  * Validates the current local preferences document version.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 const PreferencesDocumentVersionSchema = z.number().int().nonnegative().refine(
 	( value ) => value === PreferencesDocumentVersion,
@@ -114,7 +114,7 @@ const PreferencesDocumentVersionSchema = z.number().int().nonnegative().refine(
 
 /**
  * Validates all locally persisted user preferences.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const PreferencesDocumentSchema = z.object( {
 	schemaVersion: PreferencesDocumentVersionSchema,
@@ -126,13 +126,13 @@ export const PreferencesDocumentSchema = z.object( {
 
 /**
  * Complete locally persisted user preferences.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type PreferencesDocument = z.infer<typeof PreferencesDocumentSchema>;
 
 /**
  * Safe preferences used before the user makes an explicit choice.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const DefaultPreferencesDocument: Readonly<PreferencesDocument> = Object.freeze(
 	PreferencesDocumentSchema.parse( {

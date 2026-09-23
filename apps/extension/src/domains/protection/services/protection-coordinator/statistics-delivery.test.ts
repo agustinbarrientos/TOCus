@@ -32,18 +32,18 @@ import {
 
 /**
  * In-memory persistence focused on coordinator statistics-delivery behavior.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 class StatisticsDeliveryMemoryStorage implements ProtectionStorageService {
 	/**
 	 * Complete state snapshots written by the coordinator.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	readonly savedStates: StoredProtectionState[] = [];
 
 	/**
 	 * Durable acknowledgements written by the coordinator.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	readonly savedDurableAcknowledgements: StoredDurableProtectionState[] = [];
 
@@ -54,14 +54,14 @@ class StatisticsDeliveryMemoryStorage implements ProtectionStorageService {
 	/**
 	 * Creates in-memory storage with optional initial documents.
 	 * @param loadedState - Initial durable and session values.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	constructor( private loadedState: LoadedProtectionState = {} ) {}
 
 	/**
 	 * Replaces the documents returned by the next coordinator initialization.
 	 * @param loadedState - Durable and session values for the next load.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	setLoadedState( loadedState: LoadedProtectionState ): void {
 		this.loadedState = loadedState;
@@ -70,7 +70,7 @@ class StatisticsDeliveryMemoryStorage implements ProtectionStorageService {
 	/**
 	 * Loads the current in-memory documents.
 	 * @return Current loaded documents.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	load(): Promise<LoadedProtectionState> {
 		return Promise.resolve( this.loadedState );
@@ -80,7 +80,7 @@ class StatisticsDeliveryMemoryStorage implements ProtectionStorageService {
 	 * Stores a validated complete snapshot unless configured to reject.
 	 * @param input - Unknown complete stored protection state.
 	 * @return Promise resolved after persistence.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	save( input: unknown ): Promise<void> {
 		if ( this.saveFailure !== null ) {
@@ -102,7 +102,7 @@ class StatisticsDeliveryMemoryStorage implements ProtectionStorageService {
 	 * Stores a validated durable acknowledgement unless configured to reject.
 	 * @param input - Unknown current durable protection state.
 	 * @return Promise resolved after durable persistence.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	saveDurableStatisticsDelivery( input: unknown ): Promise<void> {
 		if ( this.saveDurableFailure !== null ) {
@@ -121,7 +121,7 @@ class StatisticsDeliveryMemoryStorage implements ProtectionStorageService {
 /**
  * Supplies the deterministic coordinator session identifier.
  * @return Stable test session identifier.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createTestSessionContinuityId(): string {
 	return 'session_statistics_delivery';
@@ -132,7 +132,7 @@ function createTestSessionContinuityId(): string {
  * @param storage - Focused in-memory protection storage.
  * @param createProtectionFactBatchId - Batch identifier factory.
  * @return Coordinator under test.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStatisticsDeliveryCoordinator(
 	storage: ProtectionStorageService,
@@ -150,7 +150,7 @@ function createStatisticsDeliveryCoordinator(
  * @param index - Unique batch and fact identifier suffix.
  * @param scopeId - Exact scope associated with the batch.
  * @return Valid retained protection-fact batch.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createStoredFactBatch( index: number, scopeId = 'scope-default' ) {
 	return {
@@ -177,7 +177,7 @@ function createStoredFactBatch( index: number, scopeId = 'scope-default' ) {
  * @param statisticsDelivery - Unknown delivery value retained in the durable document.
  * @param scopes - Durable protection scopes retained beside statistics delivery.
  * @return Valid current durable protection state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createDurableStateWithStatisticsDelivery(
 	statisticsDelivery: unknown,
@@ -194,7 +194,7 @@ function createDurableStateWithStatisticsDelivery(
  * Initializes a coordinator with the standard observation fixture.
  * @param coordinator - Coordinator to initialize.
  * @return Promise resolved after initialization persistence.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function initializeCoordinator( coordinator: ProtectionCoordinator ): Promise<void> {
 	await coordinator.initialize( {
@@ -208,7 +208,7 @@ async function initializeCoordinator( coordinator: ProtectionCoordinator ): Prom
  * @param coordinator - Initialized coordinator under test.
  * @param measurementRevision - Optional revision supplied to the fact transition.
  * @return Applied departure dispatch result.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 async function dispatchReconsideredVisit(
 	coordinator: ProtectionCoordinator,

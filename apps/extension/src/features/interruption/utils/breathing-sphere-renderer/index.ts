@@ -25,7 +25,7 @@ function resolveThemeColor( colorProbe: HTMLElement, colorExpression: string ): 
  * Reads every theme color needed by the Canvas renderer.
  * @param colorProbe - Hidden element that resolves inherited custom properties.
  * @return Resolved Breathing Sphere palette.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function readBreathingSphereColors( colorProbe: HTMLElement ): BreathingSphereColors {
 	return {
@@ -273,7 +273,7 @@ function drawContours(
 /**
  * Synchronizes Canvas backing pixels with its displayed size.
  * @param canvas - Responsive Canvas whose backing size is synchronized.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function resizeBreathingSphereCanvas( canvas: HTMLCanvasElement ): void {
 	const bounds = canvas.getBoundingClientRect();
@@ -292,7 +292,7 @@ export function resizeBreathingSphereCanvas( canvas: HTMLCanvasElement ): void {
 /**
  * Draws one complete breathing-sphere frame from explicit presentation inputs.
  * @param input - Canvas, color probe, and current motion inputs.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function renderBreathingSphereFrame( input: BreathingSphereFrameInput ): void {
 	const context = input.canvas.getContext( '2d' );

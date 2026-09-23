@@ -61,7 +61,7 @@ function createChartBuckets( days: DailyStatisticsTotals[] ): StatisticsChartBuc
  * @param projection - Authoritative lifetime totals and recorded daily values.
  * @param range - Desired period, defaulting to all time.
  * @return Period totals and complete chart intervals without reconstructed history.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function selectStatisticsRange(
 	projection: AvailableStatisticsProjection,

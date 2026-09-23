@@ -22,7 +22,7 @@ import { selectOwner } from '../select-protection-owner';
  * @param state - Current validated protection state for the event scope.
  * @param event - Validated participant-departure state fields; the capture date is coordinator metadata.
  * @return The updated transaction with reconsidered-visit facts when applicable.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function handleParticipantDeparture(
 	state: ProtectionState,

@@ -1,6 +1,6 @@
 /**
  * Stable duration units supported by localized copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export const DurationUnit = {
 	SECOND: 'second',
@@ -10,6 +10,6 @@ export const DurationUnit = {
 
 /**
  * Stable duration unit supported by localized copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export type DurationUnit = typeof DurationUnit[ keyof typeof DurationUnit ];

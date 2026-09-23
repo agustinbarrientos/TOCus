@@ -8,7 +8,7 @@ import {
  * Projects a durable storage envelope to its running allowance intervals.
  * @param input - Unknown previous or current durable storage value.
  * @return Intervals indexed by scope, or null when a present value is invalid.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getAllowanceIntervals( input: unknown ): Map<string, StoredProtectionAllowance> | null {
 	if ( input === undefined ) {
@@ -40,7 +40,7 @@ function getAllowanceIntervals( input: unknown ): Map<string, StoredProtectionAl
  * @param oldValue - Previous durable storage envelope, or undefined before creation.
  * @param newValue - Current durable storage envelope, or undefined after removal.
  * @return Whether allowance identity, scope, start, or expiry changed between valid values.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function hasAllowanceIntervalChange( oldValue: unknown, newValue: unknown ): boolean {
 	const previous = getAllowanceIntervals( oldValue );

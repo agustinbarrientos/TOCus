@@ -3,7 +3,7 @@ declare module '*.po' {
 
 	/**
 	 * Compiled Lingui messages exported by the Vite catalog loader.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	export const messages: Messages;
 }
@@ -13,7 +13,7 @@ declare module 'virtual:tocus/protected-page-localization' {
 
 	/**
 	 * Compiled protected-page messages indexed by every supported language.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	interface ProtectedPageLocalizationMessages {
 		readonly en: Readonly<Messages>;
@@ -30,7 +30,7 @@ declare module 'virtual:tocus/protected-page-localization' {
 
 	/**
 	 * Protected-page messages projected from canonical extension PO catalogs.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	export const messagesByLanguage: Readonly<ProtectedPageLocalizationMessages>;
 }
@@ -40,7 +40,7 @@ declare module 'virtual:tocus/toolbar-localization' {
 
 	/**
 	 * Compiled toolbar messages indexed by every supported language.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	interface ToolbarLocalizationMessages {
 		readonly en: Readonly<Messages>;
@@ -57,7 +57,7 @@ declare module 'virtual:tocus/toolbar-localization' {
 
 	/**
 	 * Toolbar messages projected from canonical extension PO catalogs.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	export const messagesByLanguage: Readonly<ToolbarLocalizationMessages>;
 }

@@ -46,7 +46,7 @@ import type {
  * @param url - Current protectable top-level URL.
  * @param configuration - Persisted or permission-filtered configuration.
  * @return Matching website configuration, or null when the URL is not configured.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function findMatchingSite(
 	url: string,
@@ -69,7 +69,7 @@ function findMatchingSite(
  * Resolves the current website URL, including a destination retained by the interruption page.
  * @param options - Popup projection inputs.
  * @return Current protectable destination candidate, or null when no metadata is available.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function resolveCurrentUrl( options: CreatePopupProjectionCurrentTabOptions ): string {
 	if ( ! isInterruptionDocumentUrl( options.currentTab.url, options.interruptionPageUrl ) ) {
@@ -88,7 +88,7 @@ function resolveCurrentUrl( options: CreatePopupProjectionCurrentTabOptions ): s
  * @param capturedAtEpochMilliseconds - Snapshot wall-clock instant.
  * @param timeZone - Snapshot IANA time zone.
  * @return Current schedule state for presentation.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function resolveScheduleStatus(
 	configuration: ProtectionConfigurationDocument,
@@ -113,7 +113,7 @@ function resolveScheduleStatus(
  * @param state - Current state for one configured scope.
  * @param capturedAtEpochMilliseconds - Snapshot wall-clock instant.
  * @return Whether the state contains a visible active timer.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function hasActiveTimer(
 	state: ProtectionState,
@@ -129,7 +129,7 @@ function hasActiveTimer(
  * Returns the focused duration remaining for one Waiting timer.
  * @param state - Current Waiting state.
  * @return Nonnegative remaining focused duration.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function getRemainingMilliseconds(
 	state: PopupWaitingProtectionState,
@@ -142,7 +142,7 @@ function getRemainingMilliseconds(
  * @param options - Popup projection inputs with an available runtime snapshot.
  * @param state - Current scope state, or undefined before the scope creates state.
  * @return Next wait duration for the current local date.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function resolveNextWaitMilliseconds(
 	options: CreatePopupProjectionAvailableOptions,
@@ -164,7 +164,7 @@ function resolveNextWaitMilliseconds(
  * @param options - Popup projection inputs with an available runtime snapshot.
  * @param isCurrentScope - Whether the current website belongs to the shared countdown.
  * @return The shared Waiting or Allowance timer, or an empty list.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createActiveScopes(
 	options: CreatePopupProjectionAvailableOptions,
@@ -197,7 +197,7 @@ function createActiveScopes(
  * @param options - Popup projection inputs with an available runtime snapshot.
  * @param currentUrl - Current or recovered top-level destination.
  * @return Current website presentation state.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function createCurrentSite(
 	options: CreatePopupProjectionCurrentTabOptions,
@@ -260,7 +260,7 @@ function createCurrentSite(
  * Creates one validated, privacy-safe popup projection from current runtime state.
  * @param options - Runtime snapshot, current tab metadata, and interruption page identity.
  * @return Deterministic popup presentation without retained navigation URLs.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createPopupProjection( options: CreatePopupProjectionOptions ): PopupProjection {
 	if ( options.snapshot === null ) {

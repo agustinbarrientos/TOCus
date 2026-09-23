@@ -14,7 +14,7 @@ import { createTransitionResult } from '../create-protection-transition-result';
  * @param participants - Current participants requiring release or dismissal.
  * @param facts - Facts already accepted before abandonment became necessary.
  * @return Idle state with fail-open decisions and preserved accepted facts.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function abandonWaitingState(
 	state: WaitingProtectionState,

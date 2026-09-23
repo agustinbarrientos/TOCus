@@ -12,7 +12,7 @@ import { createOnboardingSitesStepCopy } from '../create-onboarding-sites-step-c
  * Creates complete localized first-install onboarding copy.
  * @param i18n - Locale-specific Lingui instance.
  * @return Complete localized onboarding-shell copy.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createOnboardingCopy( i18n: I18n ): Readonly<OnboardingShellCopy> {
 	/**
@@ -21,7 +21,7 @@ export function createOnboardingCopy( i18n: I18n ): Readonly<OnboardingShellCopy
 	 * @param totalSteps - Total number of onboarding steps.
 	 * @param stepName - Localized current-step name.
 	 * @return Localized onboarding progress.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function formatStepProgress(
 		currentStep: number,

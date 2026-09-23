@@ -16,7 +16,7 @@ import type { PopupCurrentSiteProperties } from './types';
  * Presents one current website and forwards enrollment to the controller-owned flow.
  * @param properties - Validated site, local favicon, localized copy, and synchronous enrollment action.
  * @return Current-site identity, status, optional timer, and enrollment or management action.
- * @since 0.1.0
+ * @since 1.0.0
  */
 export function PopupCurrentSite( properties: PopupCurrentSiteProperties ) {
 	const { state, copy, current, scopes, onAddSite } = properties;
@@ -33,7 +33,7 @@ export function PopupCurrentSite( properties: PopupCurrentSiteProperties ) {
 
 	/**
 	 * Replaces an unavailable cached favicon with the site's deterministic local monogram.
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	function handleFaviconError(): void {
 		setFailedFavicon( true );

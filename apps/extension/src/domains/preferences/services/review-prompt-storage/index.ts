@@ -8,7 +8,7 @@ import {
  * Creates local persistence for a review invitation's permanent dismissal.
  * @param options - Existing browser-local storage boundary.
  * @return Independent dismissal read and write operations.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 export function createReviewPromptStorageService(
 	options: ReviewPromptStorageServiceOptions,
@@ -16,7 +16,7 @@ export function createReviewPromptStorageService(
 	/**
 	 * Reads the stored flag without altering missing or malformed data.
 	 * @return Dismissal flag or a malformed-data marker.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	async function load(): Promise<boolean | null> {
 		const values = await options.area.get( ReviewPromptStorageKey );
@@ -30,7 +30,7 @@ export function createReviewPromptStorageService(
 	/**
 	 * Writes only the permanent dismissal flag.
 	 * @return Completion after browser storage accepts the dismissal.
-	 * @since 0.1.0 Initial implementation.
+	 * @since 1.0.0 Initial implementation.
 	 */
 	function dismiss(): Promise<void> {
 		return options.area.set( { [ ReviewPromptStorageKey ]: true } );

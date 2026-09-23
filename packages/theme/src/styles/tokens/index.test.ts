@@ -54,7 +54,7 @@ const themeRoot = fileURLToPath( new URL( '..', import.meta.url ) );
 /**
  * Compiles the complete theme-token stylesheet.
  * @return Compiled theme-token CSS.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function compileTokens(): string {
 	return sass.compileString( "@use 'tokens';", { loadPaths: [ themeRoot ] } ).css;
@@ -63,7 +63,7 @@ function compileTokens(): string {
 /**
  * Compiles theme tokens for one isolated Shadow DOM host.
  * @return Compiled host-scoped theme-token CSS.
- * @since 0.1.0 Initial implementation.
+ * @since 1.0.0 Initial implementation.
  */
 function compileHostTokens(): string {
 	return sass.compileString(
