@@ -281,11 +281,11 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-privacy-dark.png",
-    "sha256": "53044928b4d59bec12a90e3df57b2e9d4061968a63501316c4c9d902619cdb8e"
+    "sha256": "8cc62156a3c377939cf31d632e99767812ab9041dc588132b14c9a1e35b1ad1f"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-privacy-light.png",
-    "sha256": "fe3e8777c24282d4b9c8c240baca42819184f0714781ba129aeb396a3fd1f8c6"
+    "sha256": "506cb3b7ae52695caed4696929abd2a46f85dc64ca2a19c6924b81beeee68cc8"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-protected-sites-editing-dark.png",
