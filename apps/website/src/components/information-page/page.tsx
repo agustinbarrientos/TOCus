@@ -4,7 +4,6 @@ import { SiteHeader } from '../site-header';
 import { SiteFooter } from '../site-footer';
 import { ExternalLink, WebsiteLink } from '../site-links';
 import {
-	InformationDocument,
 	InformationExternalUrl,
 	type LocalizedInformationPageProperties,
 	type PrivacyContentProperties,
@@ -97,17 +96,7 @@ export default function InformationPage( properties: LocalizedInformationPagePro
 				<SiteHeader { ...properties } enhanced={ enhanced } />
 				<div className="page-shell information-shell">
 					<main className="information-page" id="main-content" aria-labelledby="page-title" tabIndex={ -1 }>
-						{ properties.document === InformationDocument.PRIVACY
-							? <PrivacyContent catalog={ properties.privacyCatalog } />
-							: <>
-								<h1 id="page-title">{ properties.supportCatalog.title }</h1>
-								<div className="support-contact">
-									<p>{ properties.supportCatalog.description }</p>
-									<p><Anchor href={ InformationExternalUrl.SUPPORT_EMAIL } underline="always">
-										hi@agustinbarrientos.com
-									</Anchor></p>
-								</div>
-							</> }
+						<PrivacyContent catalog={ properties.privacyCatalog } />
 					</main>
 				</div>
 				<SiteFooter { ...properties } enhanced={ enhanced } />

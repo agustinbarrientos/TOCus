@@ -5,20 +5,17 @@ import './style.scss';
 import InformationPage from './page';
 import Favicon from '../favicon/index.astro';
 import SocialMetadata from '../social-metadata/index.astro';
-import { WebsiteLanguage, getWebsiteLocalization, getWebsiteLocalizations, getPrivacyCatalog, getSupportCatalog } from '../../localization';
-import { InformationDocument, type InformationPageProperties as Props } from './types';
+import { WebsiteLanguage, getWebsiteLocalization, getWebsiteLocalizations, getPrivacyCatalog } from '../../localization';
+import type { InformationPageProperties as Props } from './types';
 
-const { language = WebsiteLanguage.ENGLISH, document = InformationDocument.PRIVACY } = Astro.props;
+const { language = WebsiteLanguage.ENGLISH } = Astro.props;
 const localization = getWebsiteLocalization( language );
 const localizations = getWebsiteLocalizations().map( ( option ) => ( {
 	...option,
-	path: `${ option.path }${ document }/`,
+	path: `${ option.path }privacy/`,
 } ) );
-const documentProperties = document === InformationDocument.SUPPORT
-	? { document, supportCatalog: getSupportCatalog( language ) }
-	: { document, privacyCatalog: getPrivacyCatalog( language ) };
-const catalog = documentProperties.privacyCatalog ?? documentProperties.supportCatalog;
-const metadata = { title: `${ catalog.title } - TOCus`, description: catalog.description };
+const privacyCatalog = getPrivacyCatalog( language );
+const metadata = { title: `${ privacyCatalog.title } - TOCus`, description: privacyCatalog.description };
 ---
 
 <!doctype html>
@@ -32,12 +29,12 @@ const metadata = { title: `${ catalog.title } - TOCus`, description: catalog.des
 			description={metadata.description} imageAlt={localization.catalog.intro} />
 		<Favicon />
 		<title>{metadata.title}</title>
-		<link rel="alternate" hreflang="x-default" href={`/${ document }/`} />
+		<link rel="alternate" hreflang="x-default" href="/privacy/" />
 		{localizations.map( ( option ) => (
 			<link rel="alternate" hreflang={option.languageTag} href={option.path} />
 		) )}
 	</head>
 	<body>
-		<InformationPage {...documentProperties} {localization} {localizations} client:load />
+		<InformationPage {privacyCatalog} {localization} {localizations} client:load />
 	</body>
 </html>
