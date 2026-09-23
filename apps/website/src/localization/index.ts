@@ -2,8 +2,6 @@ import { setupI18n, type I18n, type Messages } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import { createPrivacyCatalog } from './privacy';
 import type { PrivacyCatalog } from './privacy/types';
-import { createSupportCatalog } from './support';
-import type { SupportCatalog } from './support/types';
 import { messages as germanMessages } from '../../locales/de.po';
 import { messages as englishMessages } from '../../locales/en.po';
 import { messages as spanishTuMessages } from '../../locales/es.po';
@@ -194,16 +192,6 @@ function createWebsiteI18n( language: WebsiteLanguageValue ): I18n {
  */
 export function getPrivacyCatalog( language: WebsiteLanguageValue ): Readonly<PrivacyCatalog> {
 	return createPrivacyCatalog( createWebsiteI18n( language ) );
-}
-
-/**
- * Resolves support copy in the requested website language.
- * @param language - Selected website language.
- * @return Localized support contact copy.
- * @since 1.0.0
- */
-export function getSupportCatalog( language: WebsiteLanguageValue ): Readonly<SupportCatalog> {
-	return createSupportCatalog( createWebsiteI18n( language ) );
 }
 
 /**
