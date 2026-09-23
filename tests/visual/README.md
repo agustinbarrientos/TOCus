@@ -158,6 +158,8 @@ The changed text covers onboarding and pause recovery, protected-site save error
 
 Each downloaded expected image matched its committed reference bytes before replacement. All 106 original registrations remain, with 22 updated hashes and the other 84 unchanged. Website and regional onboarding references, comparator fixtures, comparison tolerances, capture settings and retries are unchanged.
 
+The follow-up normal comparison in CI run 35923511791 exposed an entry-animation race in the Privacy success scenario: the notification already intersected the viewport while its transform still placed it 80 pixels below its resting position. The case now waits for full opacity and the resting transform before recording its bounds. The existing before/after position assertion and screenshot comparison remain intact; no reference changes are needed for this readiness correction.
+
 ## Case API and commands
 
 Run a bounded original comparison with `pnpm test:visual --project chromium-originals --grep 'interruption-screen-ready.png'`. Explicit grep permits partial investigation, but hash checks always run. Local servers can be reused; CI starts fresh servers.

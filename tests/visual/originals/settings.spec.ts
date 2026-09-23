@@ -146,6 +146,9 @@ for ( const original of settingsSnapshots ) {
 				await expect( reset ).toBeInViewport();
 				expect( await reset.evaluate( ( button ) => button.matches( ':hover' ) ) ).toBe( true );
 			} else {
+				// Intersection can become true while the notification is still translated below its resting position.
+				await expect( notification ).toHaveCSS( 'opacity', '1' );
+				await expect( notification ).toHaveCSS( 'transform', 'matrix(1, 0, 0, 1, 0, 0)' );
 				await expect( notification ).toBeInViewport();
 			}
 			const notificationBounds = privacySuccess ? await notification.boundingBox() : null;
