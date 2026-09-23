@@ -193,10 +193,6 @@ msgstr "Política de privacidad"
 msgid "Privacy Policy"
 msgstr "Política de privacidad"
 
-#: apps/website/src/localization/support/index.ts
-msgid "Questions or problems with TOCus? Get in touch by email."
-msgstr "¿Tienes preguntas o problemas con TOCus? Ponte en contacto por correo electrónico."
-
 #: apps/website/src/localization/index.ts
 msgid "Reject"
 msgstr "Rechazar"
@@ -216,10 +212,6 @@ msgstr "Saltar al contenido"
 #: apps/website/src/localization/index.ts
 msgid "Source code"
 msgstr "Código fuente"
-
-#: apps/website/src/localization/support/index.ts
-msgid "Support"
-msgstr "Ayuda"
 
 #: apps/website/src/localization/index.ts
 msgid "Take a moment to pause."
