@@ -150,6 +150,14 @@ Fifteen original references and six website references were visually reviewed ag
 
 Each downloaded expected image matched the committed reference bytes before replacement. All 106 original registrations remain, with fifteen updated hashes and the other 91 unchanged. Regional onboarding references, comparator self-test fixtures, comparison tolerances, capture settings and retries are unchanged.
 
+## Approved English contractions
+
+The project owner requested contractions throughout the English copy on September 23, 2026. Twenty-two original references were visually reviewed and refreshed from the unmodified normal-run captures in CI run 35921608101 at commit de7cd61fa3d7631ba59ad1834d18342213073930, using macOS 26 ARM64 and pinned Playwright 1.63.0 Chromium.
+
+The changed text covers onboarding and pause recovery, protected-site save errors, Privacy permissions and reset messages, and Statistics error states. Differences are confined to the requested contractions and their text wrapping, apart from negligible edge-color samples within the existing comparison policy. Every capture retains its prior dimensions, controls and layout.
+
+Each downloaded expected image matched its committed reference bytes before replacement. All 106 original registrations remain, with 22 updated hashes and the other 84 unchanged. Website and regional onboarding references, comparator fixtures, comparison tolerances, capture settings and retries are unchanged.
+
 ## Case API and commands
 
 Run a bounded original comparison with `pnpm test:visual --project chromium-originals --grep 'interruption-screen-ready.png'`. Explicit grep permits partial investigation, but hash checks always run. Local servers can be reused; CI starts fresh servers.

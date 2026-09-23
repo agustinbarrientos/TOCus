@@ -17,11 +17,11 @@
   },
   {
     "path": "apps/extension/src/features/interruption/components/screen/__snapshots__/chromium/interruption-screen-unavailable-dark.png",
-    "sha256": "4a9000464881b239ac8515e1108b3fe3e889abcf65215832c325d35e0197f582"
+    "sha256": "be6d19ae1cdb40ee71ed209e323e68ee33ef43a2df114f474647640017828243"
   },
   {
     "path": "apps/extension/src/features/interruption/components/screen/__snapshots__/chromium/interruption-screen-unavailable.png",
-    "sha256": "1ed9328d24bb1ea679ab6b6e0064ece9d102732109af2d0f119ca2153451875e"
+    "sha256": "44818bbc6da0730deddea1a42a62db82ae7bce9a8ef8c9a423e9c40fecd61c4a"
   },
   {
     "path": "apps/extension/src/features/interruption/components/screen/__snapshots__/chromium/interruption-screen-waiting-dark.png",
@@ -81,7 +81,7 @@
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-recovery-brown-dark.png",
-    "sha256": "206bb07616dc293fcf33eb51919671dba74da0eccd59531456d21e36663ef76f"
+    "sha256": "3e1e6f75c180d1bebeff2bf4f033c64ddf99b184c05ca59c495ed29f40e82e7f"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-sites-brown-light.png",
