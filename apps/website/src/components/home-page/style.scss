@@ -308,8 +308,15 @@
 
 		.how-symbol::before, .how-symbol::after { display: none; }
 		.how-progress { width: 6rem; }
-		.feature-grid { grid-template-columns: 1fr; }
+
+		.feature-grid {
+			grid-template-columns: 1fr;
+			text-align: center;
+		}
+
+		.feature-art { margin-inline: auto; }
 		.feature-grid p { max-width: 100%; }
+		.feature-grid .feature-services { justify-content: center; }
 		.download-section { padding-block: var(--tocus-download-top-space) 5.5rem; }
 
 		.download-panel {
