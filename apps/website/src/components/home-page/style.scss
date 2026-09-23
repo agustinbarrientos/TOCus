@@ -138,8 +138,6 @@
 		text-wrap: pretty;
 	}
 
-	.how-step-label { --tocus-typography-headline-medium-line-height: normal; }
-
 	.feature-grid p {
 		@include type.apply('body-large', $size: clamp(1rem, 1.7vw, 1.2rem), $line-height: 1.55);
 
