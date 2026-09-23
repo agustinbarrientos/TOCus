@@ -8,6 +8,7 @@ node_modules/
 # Build and task output
 .turbo/
 .wxt/
+.wrangler/
 .astro/
 .output/
 dist/
@@ -21,6 +22,8 @@ test-results/
 .env
 .env.*
 !.env.example
+.dev.vars
+.dev.vars.*
 
 # Editors and operating systems
 .DS_Store
