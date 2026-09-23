@@ -412,11 +412,6 @@ msgstr "Contribuir"
 msgid "Current month"
 msgstr "Mes actual"
 
-#. Heading above the current browser website in the extension popup.
-#: apps/extension/src/localization/utils/create-popup-copy/index.ts
-msgid "Current website"
-msgstr "Sitio web actual"
-
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Current week"
 msgstr "Semana actual"
@@ -518,10 +513,6 @@ msgstr "Tiempo recuperado estimado"
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "example.com"
 msgstr "example.com"
-
-#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
-msgid "External links connect to their websites only when you choose to open them."
-msgstr "Los enlaces externos se conectan con sus sitios web solo cuando elegís abrirlos."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Finish setup"
@@ -1611,8 +1602,8 @@ msgid "Your websites and settings are unchanged. Try again."
 msgstr "Tus sitios web y tu configuración no cambiaron. Probá de nuevo."
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
-msgid "Your websites, schedules, pause timing, preferences, active pauses, and statistics will be deleted. Website access will be removed and setup will reopen. This cannot be undone."
-msgstr "Se eliminarán tus sitios web, horarios, tiempos de pausa, preferencias, pausas activas y estadísticas. Se quitarán los permisos de acceso a los sitios web y se abrirá la configuración inicial. Esta acción no se puede deshacer."
+msgid "Your websites, schedules, pause times, preferences, active pauses, and statistics will be erased. The setup will begin again. This can't be reversed."
+msgstr "Se borrarán tus sitios web, horarios, tiempos de pausa, preferencias, pausas activas y estadísticas. La configuración inicial comenzará de nuevo. Esto no se puede revertir."
 
 #. Language autonym. Keep the language name written in Russian.
 #. Language-menu autonym. Keep this language name written in Russian.

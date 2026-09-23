@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 import { Button, Icon, IconName } from '@tocus/ui';
 import { detectDownloadBrowser, DownloadStores, getDownloadStore, WebsiteBrowser } from '../../config/downloads';
 import { ExternalLink } from '../site-links';
-import type { DownloadLinkProps, DownloadLinksProps } from './types';
+import type { DownloadLinksProps } from './types';
 import './style.scss';
 
 /**
@@ -29,24 +29,6 @@ const getServerSnapshot = () => WebsiteBrowser.CHROME;
  */
 function useDownloadStore() {
 	return getDownloadStore( useSyncExternalStore( subscribe, getBrowserSnapshot, getServerSnapshot ) );
-}
-
-/**
- * Shared compact download action for page headers.
- * @param props - Localized download label.
- * @return Direct store link or unavailable text for the selected browser.
- * @since 1.0.0
- */
-export function DownloadLink( props: DownloadLinkProps ) {
-	const store = useDownloadStore();
-	if ( store.href === null ) {
-		return <span aria-disabled="true" data-download-primary data-store={ store.browser }>
-			{ store.name } - { props.comingSoon }
-		</span>;
-	}
-	return <ExternalLink href={ store.href } data-download-primary data-store={ store.browser }>
-		{ props.label }
-	</ExternalLink>;
 }
 
 /**

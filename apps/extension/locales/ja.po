@@ -412,11 +412,6 @@ msgstr "開発に参加"
 msgid "Current month"
 msgstr "今月"
 
-#. Heading above the current browser website in the extension popup.
-#: apps/extension/src/localization/utils/create-popup-copy/index.ts
-msgid "Current website"
-msgstr "現在のウェブサイト"
-
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Current week"
 msgstr "今週"
@@ -518,10 +513,6 @@ msgstr "取り戻した推定時間"
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "example.com"
 msgstr "example.com"
-
-#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
-msgid "External links connect to their websites only when you choose to open them."
-msgstr "外部リンクは、開くことを選んだときだけリンク先のウェブサイトに接続します。"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Finish setup"
@@ -1611,8 +1602,8 @@ msgid "Your websites and settings are unchanged. Try again."
 msgstr "ウェブサイトと設定は変更されていません。もう一度お試しください。"
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
-msgid "Your websites, schedules, pause timing, preferences, active pauses, and statistics will be deleted. Website access will be removed and setup will reopen. This cannot be undone."
-msgstr "サイト、スケジュール、一時停止の時間設定、設定、進行中の一時停止、統計情報が削除されます。サイトへのアクセス権限が削除され、初期設定が開きます。この操作は取り消せません。"
+msgid "Your websites, schedules, pause times, preferences, active pauses, and statistics will be erased. The setup will begin again. This can't be reversed."
+msgstr "サイト、スケジュール、一時停止の時間、設定、進行中の一時停止、統計情報が消去されます。初期設定が最初から始まります。この操作は取り消せません。"
 
 #. Language autonym. Keep the language name written in Russian.
 #. Language-menu autonym. Keep this language name written in Russian.

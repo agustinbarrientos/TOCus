@@ -75,17 +75,21 @@ msgid "Français"
 msgstr "Français"
 
 #: apps/website/src/localization/index.ts
+msgid "If you feel like it, pick different days and times for each site."
+msgstr "Si vous en avez envie, choisissez des jours et des horaires différents pour chaque site."
+
+#: apps/website/src/localization/index.ts
 msgid "It's 100% private"
 msgstr "C’est 100% privé"
+
+#: apps/website/src/localization/index.ts
+msgid "It’s free and open source"
+msgstr "C’est gratuit et open source"
 
 #. Language-menu autonym. Keep this language name written in Italian.
 #: apps/website/src/localization/index.ts
 msgid "Italiano"
 msgstr "Italiano"
-
-#: apps/website/src/localization/index.ts
-msgid "It’s free and open source"
-msgstr "C’est gratuit et open source"
 
 #: apps/website/src/localization/index.ts
 msgid "Made by"
@@ -98,10 +102,6 @@ msgstr "Ouvrez un site"
 #: apps/website/src/localization/index.ts
 msgid "Pause before visiting addictive websites"
 msgstr "Faites une pause avant de visiter des sites web addictifs"
-
-#: apps/website/src/localization/index.ts
-msgid "If you feel like it, pick different days and times for each site."
-msgstr "Si vous en avez envie, choisissez des jours et des horaires différents pour chaque site."
 
 #. Language-menu autonym for Brazilian Portuguese. Keep this language name written in Portuguese.
 #: apps/website/src/localization/index.ts
@@ -134,16 +134,16 @@ msgid "Source code"
 msgstr "Code source"
 
 #: apps/website/src/localization/index.ts
+msgid "Take a moment to pause."
+msgstr "Prenez un moment pour faire une pause."
+
+#: apps/website/src/localization/index.ts
 msgid "TOCus adds a breathing pause to the websites you choose."
 msgstr "TOCus ajoute une pause pour respirer aux sites web de votre choix."
 
 #: apps/website/src/localization/index.ts
 msgid "TOCus is an open-source browser extension."
 msgstr "TOCus est une extension de navigateur open source."
-
-#: apps/website/src/localization/index.ts
-msgid "Take a moment to pause."
-msgstr "Prenez un moment pour faire une pause."
 
 #: apps/website/src/localization/index.ts
 msgid "Use it only when you want to"

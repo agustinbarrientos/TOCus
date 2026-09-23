@@ -34,7 +34,7 @@ export function createPrivacyScreenCopy( i18n: I18n ): Readonly<PrivacyScreenCop
 		allTitle: i18n._( msg`Start fresh` ),
 		allDescription: i18n._( msg`Remove all TOCus data and set it up again.` ),
 		allConfirmationTitle: i18n._( msg`Reset all TOCus data?` ),
-		allConfirmation: i18n._( msg`Your websites, schedules, pause timing, preferences, active pauses, and statistics will be deleted. Website access will be removed and setup will reopen. This cannot be undone.` ),
+		allConfirmation: i18n._( msg`Your websites, schedules, pause times, preferences, active pauses, and statistics will be erased. The setup will begin again. This can't be reversed.` ),
 		resetAll: i18n._( msg`Reset all TOCus data` ),
 		cancel: i18n._( msg`Cancel` ),
 		resetting: i18n._( msg`Resetting...` ),

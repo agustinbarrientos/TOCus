@@ -4,10 +4,13 @@ import '../../styles/global.scss';
 import './style.scss';
 import InformationPage from './page';
 import Favicon from '../favicon/index.astro';
+import { WebsiteLanguage, getWebsiteLocalization, getWebsiteLocalizations } from '../../localization';
 import { InformationPageMetadata, type InformationPageProperties as Props } from './types';
 
 const { document } = Astro.props;
 const metadata = InformationPageMetadata[ document ];
+const localization = getWebsiteLocalization( WebsiteLanguage.ENGLISH );
+const localizations = getWebsiteLocalizations();
 ---
 
 <!doctype html>
@@ -21,6 +24,6 @@ const metadata = InformationPageMetadata[ document ];
 		<title>{metadata.title}</title>
 	</head>
 	<body>
-		<InformationPage {document} client:load />
+		<InformationPage {document} {localization} {localizations} client:load />
 	</body>
 </html>

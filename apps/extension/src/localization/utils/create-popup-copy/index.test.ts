@@ -6,7 +6,6 @@ describe( 'createPopupCopy', () => {
 	it( 'creates complete status and action copy for the live popup', () => {
 		const copy = createPopupCopy( createTestI18n() );
 
-		expect( copy.currentWebsite ).toBe( 'Current website' );
 		expect( copy.siteNotOnList ).toBe( 'Site not on the list' );
 		expect( copy.tocusActive ).toBe( 'TOCus is active' );
 		expect( copy.pauseSite ).toBe( 'Pause site' );

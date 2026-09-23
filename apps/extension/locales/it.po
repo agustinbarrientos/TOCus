@@ -412,11 +412,6 @@ msgstr "Contribuisci"
 msgid "Current month"
 msgstr "Mese corrente"
 
-#. Heading above the current browser website in the extension popup.
-#: apps/extension/src/localization/utils/create-popup-copy/index.ts
-msgid "Current website"
-msgstr "Sito web attuale"
-
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Current week"
 msgstr "Settimana corrente"
@@ -518,10 +513,6 @@ msgstr "Tempo recuperato stimato"
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "example.com"
 msgstr "example.com"
-
-#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
-msgid "External links connect to their websites only when you choose to open them."
-msgstr "I link esterni si collegano ai rispettivi siti solo quando scegli di aprirli."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Finish setup"
@@ -1611,8 +1602,8 @@ msgid "Your websites and settings are unchanged. Try again."
 msgstr "I tuoi siti web e le impostazioni non sono stati modificati. Riprova."
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
-msgid "Your websites, schedules, pause timing, preferences, active pauses, and statistics will be deleted. Website access will be removed and setup will reopen. This cannot be undone."
-msgstr "I siti, gli orari, i tempi di pausa, le preferenze, le pause attive e le statistiche verranno eliminati. Le autorizzazioni di accesso ai siti verranno rimosse e si aprirà la configurazione iniziale. Questa azione non può essere annullata."
+msgid "Your websites, schedules, pause times, preferences, active pauses, and statistics will be erased. The setup will begin again. This can't be reversed."
+msgstr "I tuoi siti, gli orari, i tempi di pausa, le preferenze, le pause attive e le statistiche verranno cancellati. La configurazione iniziale ricomincerà. Questa azione non può essere annullata."
 
 #. Language autonym. Keep the language name written in Russian.
 #. Language-menu autonym. Keep this language name written in Russian.

@@ -34,7 +34,6 @@ export function createAboutScreenCopy( i18n: I18n ): Readonly<AboutScreenCopy> {
 		license: i18n._( msg`MIT license` ),
 		contribute: i18n._( msg`Contribute` ),
 		fork: i18n._( msg`Fork the project` ),
-		externalLinksHint: i18n._( msg`External links connect to their websites only when you choose to open them.` ),
 		formatVersion,
 	} );
 }

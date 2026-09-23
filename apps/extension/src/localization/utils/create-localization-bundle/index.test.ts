@@ -65,20 +65,19 @@ describe( 'createLocalizationBundle', () => {
 	} );
 
 	it.each( [
-		[ Language.ENGLISH, 'Current website', 'TOCus is active' ],
-		[ Language.SPANISH_TU, 'Sitio web actual', 'TOCus está activo' ],
-		[ Language.SPANISH_VOS, 'Sitio web actual', 'TOCus está activo' ],
-		[ Language.PORTUGUESE_BRAZIL, 'Site atual', 'O TOCus está ativo' ],
-		[ Language.PORTUGUESE_PORTUGAL, 'Site atual', 'O TOCus está ativo' ],
-		[ Language.ITALIAN, 'Sito web attuale', 'TOCus è attivo' ],
-		[ Language.FRENCH, 'Site actuel', 'TOCus est actif' ],
-		[ Language.GERMAN, 'Aktuelle Website', 'TOCus ist aktiv' ],
-		[ Language.JAPANESE, '現在のウェブサイト', 'TOCus は有効です' ],
-		[ Language.RUSSIAN, 'Текущий сайт', 'TOCus активен' ],
-	] )( 'loads translated popup copy for %s', async ( language, currentWebsite, activeStatus ) => {
+		[ Language.ENGLISH, 'TOCus is active' ],
+		[ Language.SPANISH_TU, 'TOCus está activo' ],
+		[ Language.SPANISH_VOS, 'TOCus está activo' ],
+		[ Language.PORTUGUESE_BRAZIL, 'O TOCus está ativo' ],
+		[ Language.PORTUGUESE_PORTUGAL, 'O TOCus está ativo' ],
+		[ Language.ITALIAN, 'TOCus è attivo' ],
+		[ Language.FRENCH, 'TOCus est actif' ],
+		[ Language.GERMAN, 'TOCus ist aktiv' ],
+		[ Language.JAPANESE, 'TOCus は有効です' ],
+		[ Language.RUSSIAN, 'TOCus активен' ],
+	] )( 'loads translated popup copy for %s', async ( language, activeStatus ) => {
 		const bundle = await loadLocalizationBundle( language );
 
-		expect( bundle.popup.currentWebsite ).toBe( currentWebsite );
 		expect( bundle.popup.tocusActive ).toBe( activeStatus );
 	} );
 
@@ -113,7 +112,6 @@ describe( 'createLocalizationBundle', () => {
 		const bundle = await loadLocalizationBundle( Language.ENGLISH );
 
 		expect( bundle.document.settingsTitle ).toBe( 'TOCus settings' );
-		expect( bundle.popup.currentWebsite ).toBe( 'Current website' );
 		expect( bundle.popup.pauseSite ).toBe( 'Pause site' );
 		expect( bundle.settingsShell.navigationLabel ).toBe( 'Settings' );
 		expect( bundle.aboutCopy.formatVersion( '2.3.4' ) ).toBe( 'Version 2.3.4' );

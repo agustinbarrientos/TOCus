@@ -1,21 +1,6 @@
 @use '@tocus/theme/typography' as typography;
 
 .information-shell {
-	.information-site-header {
-		border-bottom: 1px solid var(--tocus-color-outline);
-	}
-
-	.information-brand-link {
-		border-radius: var(--tocus-radius-small);
-		text-decoration: none;
-	}
-
-	.information-footer nav {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.75rem 1.5rem;
-	}
-
 	.information-page {
 		width: min(100%, 47rem);
 		margin-inline: auto;
@@ -96,39 +81,10 @@
 			letter-spacing: inherit;
 		}
 	}
-
-	.information-footer {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 2rem;
-
-		.information-author {
-			display: inline-flex;
-			align-items: center;
-			gap: 0.65rem;
-			white-space: nowrap;
-		}
-
-		img {
-			border-radius: 50%;
-		}
-	}
 }
 
 @media (width <= 42rem) {
-	.information-shell {
-		.information-footer {
-			align-items: flex-start;
-			flex-direction: column;
-		}
-
-		.information-page h1 {
-			@include typography.apply('display-small');
-		}
-
-		.information-footer .information-author {
-			white-space: normal;
-		}
+	.information-shell .information-page h1 {
+		@include typography.apply('display-small');
 	}
 }

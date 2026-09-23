@@ -412,11 +412,6 @@ msgstr "Участвовать"
 msgid "Current month"
 msgstr "Текущий месяц"
 
-#. Heading above the current browser website in the extension popup.
-#: apps/extension/src/localization/utils/create-popup-copy/index.ts
-msgid "Current website"
-msgstr "Текущий сайт"
-
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Current week"
 msgstr "Текущая неделя"
@@ -518,10 +513,6 @@ msgstr "Оценка возвращённого времени"
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "example.com"
 msgstr "example.com"
-
-#: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
-msgid "External links connect to their websites only when you choose to open them."
-msgstr "Внешние ссылки соединяют с соответствующими сайтами только тогда, когда ты решаешь их открыть."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Finish setup"
@@ -1611,8 +1602,8 @@ msgid "Your websites and settings are unchanged. Try again."
 msgstr "Ваши сайты и настройки не изменились. Попробуйте ещё раз."
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
-msgid "Your websites, schedules, pause timing, preferences, active pauses, and statistics will be deleted. Website access will be removed and setup will reopen. This cannot be undone."
-msgstr "Ваши сайты, расписания, время пауз, настройки, активные паузы и статистика будут удалены. Разрешения на доступ к сайтам будут отозваны, и откроется первоначальная настройка. Это действие нельзя отменить."
+msgid "Your websites, schedules, pause times, preferences, active pauses, and statistics will be erased. The setup will begin again. This can't be reversed."
+msgstr "Ваши сайты, расписания, время пауз, настройки, активные паузы и статистика будут удалены. Первоначальная настройка начнётся заново. Это действие нельзя отменить."
 
 #. Language autonym. Keep the language name written in Russian.
 #. Language-menu autonym. Keep this language name written in Russian.

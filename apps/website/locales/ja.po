@@ -75,17 +75,21 @@ msgid "Français"
 msgstr "Français"
 
 #: apps/website/src/localization/index.ts
+msgid "If you feel like it, pick different days and times for each site."
+msgstr "お好みで、サイトごとに異なる曜日と時間を選べます。"
+
+#: apps/website/src/localization/index.ts
 msgid "It's 100% private"
 msgstr "プライバシーを100%保護"
+
+#: apps/website/src/localization/index.ts
+msgid "It’s free and open source"
+msgstr "無料でオープンソース"
 
 #. Language-menu autonym. Keep this language name written in Italian.
 #: apps/website/src/localization/index.ts
 msgid "Italiano"
 msgstr "Italiano"
-
-#: apps/website/src/localization/index.ts
-msgid "It’s free and open source"
-msgstr "無料でオープンソース"
 
 #: apps/website/src/localization/index.ts
 msgid "Made by"
@@ -98,10 +102,6 @@ msgstr "サイトを開く"
 #: apps/website/src/localization/index.ts
 msgid "Pause before visiting addictive websites"
 msgstr "中毒性のあるサイトを開く前に、ひと呼吸"
-
-#: apps/website/src/localization/index.ts
-msgid "If you feel like it, pick different days and times for each site."
-msgstr "お好みで、サイトごとに異なる曜日と時間を選べます。"
 
 #. Language-menu autonym for Brazilian Portuguese. Keep this language name written in Portuguese.
 #: apps/website/src/localization/index.ts
@@ -134,16 +134,16 @@ msgid "Source code"
 msgstr "ソースコード"
 
 #: apps/website/src/localization/index.ts
+msgid "Take a moment to pause."
+msgstr "少し立ち止まって、ひと呼吸。"
+
+#: apps/website/src/localization/index.ts
 msgid "TOCus adds a breathing pause to the websites you choose."
 msgstr "TOCusは、選んだサイトを開く前にひと呼吸おける時間をつくります。"
 
 #: apps/website/src/localization/index.ts
 msgid "TOCus is an open-source browser extension."
 msgstr "TOCusはオープンソースのブラウザー拡張機能です。"
-
-#: apps/website/src/localization/index.ts
-msgid "Take a moment to pause."
-msgstr "少し立ち止まって、ひと呼吸。"
 
 #: apps/website/src/localization/index.ts
 msgid "Use it only when you want to"

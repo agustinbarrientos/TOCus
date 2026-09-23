@@ -1,0 +1,60 @@
+@use '../../styles/type';
+
+.website {
+	.site-footer {
+		padding-block: 0.75rem 3.5rem;
+		background: var(--tocus-website-peach);
+	}
+
+	.footer-main, .footer-links, .maker-credit {
+		display: flex;
+		align-items: center;
+	}
+
+	.footer-main {
+		justify-content: space-between;
+		gap: 1.5rem;
+	}
+
+	.footer-links, .footer-links a {
+		@include type.apply('title-medium', $size: 1rem, $line-height: 1.4, $weight: 400, $spacing: 0);
+
+		color: var(--tocus-website-ink);
+	}
+
+	.footer-links {
+		flex-wrap: wrap;
+		gap: 1rem clamp(1.25rem, 3vw, 2.5rem);
+	}
+
+	.footer-links > a {
+		text-decoration: none;
+
+		&:hover { text-decoration: underline; }
+	}
+
+	.maker-credit {
+		flex-wrap: wrap;
+		gap: 0.6rem;
+	}
+
+	.maker-credit img {
+		width: 1.5rem;
+		height: 1.5rem;
+	}
+}
+
+@media (width <= 48rem) {
+	.website {
+		.footer-main {
+			flex-wrap: wrap;
+			justify-content: center;
+		}
+
+		.footer-links { justify-content: center; }
+	}
+}
+
+@media (width <= 35rem) {
+	.website .site-footer { padding-bottom: 2rem; }
+}

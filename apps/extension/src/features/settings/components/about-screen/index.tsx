@@ -19,13 +19,13 @@ import type {
 /**
  * Renders a user-opened project resource with a visible external-link indicator.
  * @param props - Canonical resource label and URL.
- * @return Safe external link with the shared new-tab explanation.
+ * @return External link with a visible new-tab indicator.
  * @since 1.0.0
  */
 function ProjectLink( props: ProjectLinkProps ) {
 	return (
 		<Anchor className="tocus-external-link" href={ props.href } target="_blank"
-			rel="noopener noreferrer" aria-describedby="external-links-hint">
+			rel="noopener noreferrer">
 			{ props.label }<Icon name={ IconName.ARROW_UP_RIGHT_FROM_SQUARE } />
 		</Anchor>
 	);
@@ -71,7 +71,6 @@ export function About( props: SettingsScreenProps ) {
 				<Group component="ul" className="settings-about-links">
 					{ resources.map( ( resource ) => <li key={ resource.href }><ProjectLink { ...resource } /></li> ) }
 				</Group>
-				<p id="external-links-hint">{ copy.externalLinksHint }</p>
 			</section>
 		</Page>
 	);

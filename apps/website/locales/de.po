@@ -75,17 +75,21 @@ msgid "Français"
 msgstr "Français"
 
 #: apps/website/src/localization/index.ts
+msgid "If you feel like it, pick different days and times for each site."
+msgstr "Wenn du möchtest, wähle für jede Website andere Tage und Uhrzeiten."
+
+#: apps/website/src/localization/index.ts
 msgid "It's 100% private"
 msgstr "100% privat"
+
+#: apps/website/src/localization/index.ts
+msgid "It’s free and open source"
+msgstr "Es ist kostenlos und Open Source"
 
 #. Language-menu autonym. Keep this language name written in Italian.
 #: apps/website/src/localization/index.ts
 msgid "Italiano"
 msgstr "Italiano"
-
-#: apps/website/src/localization/index.ts
-msgid "It’s free and open source"
-msgstr "Es ist kostenlos und Open Source"
 
 #: apps/website/src/localization/index.ts
 msgid "Made by"
@@ -98,10 +102,6 @@ msgstr "Website öffnen"
 #: apps/website/src/localization/index.ts
 msgid "Pause before visiting addictive websites"
 msgstr "Mach eine Pause, bevor du süchtig machende Websites besuchst"
-
-#: apps/website/src/localization/index.ts
-msgid "If you feel like it, pick different days and times for each site."
-msgstr "Wenn du möchtest, wähle für jede Website andere Tage und Uhrzeiten."
 
 #. Language-menu autonym for Brazilian Portuguese. Keep this language name written in Portuguese.
 #: apps/website/src/localization/index.ts
@@ -134,16 +134,16 @@ msgid "Source code"
 msgstr "Quellcode"
 
 #: apps/website/src/localization/index.ts
+msgid "Take a moment to pause."
+msgstr "Nimm dir einen Moment für eine Pause."
+
+#: apps/website/src/localization/index.ts
 msgid "TOCus adds a breathing pause to the websites you choose."
 msgstr "TOCus fügt den von dir gewählten Websites eine Atempause hinzu."
 
 #: apps/website/src/localization/index.ts
 msgid "TOCus is an open-source browser extension."
 msgstr "TOCus ist eine Open-Source-Browsererweiterung."
-
-#: apps/website/src/localization/index.ts
-msgid "Take a moment to pause."
-msgstr "Nimm dir einen Moment für eine Pause."
 
 #: apps/website/src/localization/index.ts
 msgid "Use it only when you want to"

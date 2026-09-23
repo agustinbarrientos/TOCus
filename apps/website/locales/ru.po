@@ -75,17 +75,21 @@ msgid "Français"
 msgstr "Français"
 
 #: apps/website/src/localization/index.ts
+msgid "If you feel like it, pick different days and times for each site."
+msgstr "Если хотите, выберите для каждого сайта свои дни и время."
+
+#: apps/website/src/localization/index.ts
 msgid "It's 100% private"
 msgstr "100% конфиденциально"
+
+#: apps/website/src/localization/index.ts
+msgid "It’s free and open source"
+msgstr "Бесплатно и с открытым исходным кодом"
 
 #. Language-menu autonym. Keep this language name written in Italian.
 #: apps/website/src/localization/index.ts
 msgid "Italiano"
 msgstr "Italiano"
-
-#: apps/website/src/localization/index.ts
-msgid "It’s free and open source"
-msgstr "Бесплатно и с открытым исходным кодом"
 
 #: apps/website/src/localization/index.ts
 msgid "Made by"
@@ -98,10 +102,6 @@ msgstr "Открыть сайт"
 #: apps/website/src/localization/index.ts
 msgid "Pause before visiting addictive websites"
 msgstr "Сделайте паузу перед посещением сайтов, вызывающих зависимость"
-
-#: apps/website/src/localization/index.ts
-msgid "If you feel like it, pick different days and times for each site."
-msgstr "Если хотите, выберите для каждого сайта свои дни и время."
 
 #. Language-menu autonym for Brazilian Portuguese. Keep this language name written in Portuguese.
 #: apps/website/src/localization/index.ts
@@ -134,16 +134,16 @@ msgid "Source code"
 msgstr "Исходный код"
 
 #: apps/website/src/localization/index.ts
+msgid "Take a moment to pause."
+msgstr "Найдите минутку для паузы."
+
+#: apps/website/src/localization/index.ts
 msgid "TOCus adds a breathing pause to the websites you choose."
 msgstr "TOCus добавляет паузу для дыхания на выбранных вами сайтах."
 
 #: apps/website/src/localization/index.ts
 msgid "TOCus is an open-source browser extension."
 msgstr "TOCus - расширение для браузера с открытым исходным кодом."
-
-#: apps/website/src/localization/index.ts
-msgid "Take a moment to pause."
-msgstr "Найдите минутку для паузы."
 
 #: apps/website/src/localization/index.ts
 msgid "Use it only when you want to"

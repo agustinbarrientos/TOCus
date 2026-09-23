@@ -1,11 +1,12 @@
-import { Anchor, Brand, TocusAppearance, TocusProvider } from '@tocus/ui';
-import { DownloadLink } from '../download-links';
+import { useEffect, useState } from 'react';
+import { Anchor, TocusAppearance, TocusProvider } from '@tocus/ui';
+import { SiteHeader } from '../site-header';
+import { SiteFooter } from '../site-footer';
 import { ExternalLink, WebsiteLink } from '../site-links';
 import {
 	InformationDocument,
 	InformationExternalUrl,
-	InformationRoute,
-	type InformationPageProperties,
+	type LocalizedInformationPageProperties,
 } from './types';
 
 /**
@@ -17,8 +18,7 @@ function PrivacyContent() {
 	return (
 		<>
 			<header className="information-page-introduction">
-				<p className="information-page-eyebrow">Privacy</p>
-				<h1 id="page-title">How TOCus handles your data</h1>
+				<h1 id="page-title">Privacy Policy</h1>
 				<p className="information-page-lede">
 					The TOCus extension keeps its settings and statistics in your browser. It has no accounts,
 					advertising, or analytics and does not send this information to the developer.
@@ -189,64 +189,30 @@ const InformationContent = {
 } as const;
 
 /**
- * Renders publication navigation shared by both canonical documents.
- * @return Branded site header.
- * @since 1.0.0 Initial implementation.
- */
-function InformationHeader() {
-	return (
-		<header className="site-header information-site-header">
-			<Anchor aria-label="TOCus home" className="information-brand-link" href={ InformationRoute.HOME }>
-				<Brand />
-			</Anchor>
-			<DownloadLink label="Download TOCus" comingSoon="Coming soon" />
-		</header>
-	);
-}
-
-/**
- * Renders the stable publication footer and local author artwork.
- * @return Internal documents plus source and author destinations.
- * @since 1.0.0 Initial implementation.
- */
-function InformationFooter() {
-	return (
-		<footer className="information-footer">
-			<nav aria-label="TOCus information">
-				<Anchor href={ InformationRoute.HOME }>Home</Anchor>
-				<Anchor href={ InformationRoute.PRIVACY }>Privacy</Anchor>
-				<Anchor href={ InformationRoute.SUPPORT }>Support</Anchor>
-				<ExternalLink href={ WebsiteLink.SOURCE }>Source</ExternalLink>
-			</nav>
-			<ExternalLink className="information-author" href={ WebsiteLink.AUTHOR }>
-				<img src="/images/author-favicon.png" width="28" height="28" alt="" />
-				<span>Made by Agustin Barrientos</span>
-			</ExternalLink>
-		</footer>
-	);
-}
-
-/**
  * Renders one canonical information document in the shared public-site shell.
  * @param properties - Canonical publication document selection.
  * @param properties.document - Canonical document to render.
  * @return Server-rendered information page.
  * @since 1.0.0 Initial implementation.
  */
-export default function InformationPage( { document }: InformationPageProperties ) {
-	const Content = InformationContent[ document ];
+export default function InformationPage( properties: LocalizedInformationPageProperties ) {
+	const Content = InformationContent[ properties.document ];
+	const [ enhanced, setEnhanced ] = useState( false );
+	useEffect( () => {
+		setEnhanced( true );
+	}, [] );
 
 	return (
 		<TocusProvider appearance={ TocusAppearance.LIGHT }>
-			<div className="website">
+			<div className="website information-website" data-enhanced={ enhanced }>
 				<Anchor className="skip-link" href="#main-content">Skip to content</Anchor>
+				<SiteHeader { ...properties } enhanced={ enhanced } />
 				<div className="page-shell information-shell">
-					<InformationHeader />
 					<main className="information-page" id="main-content" aria-labelledby="page-title" tabIndex={ -1 }>
 						<Content />
 					</main>
-					<InformationFooter />
 				</div>
+				<SiteFooter { ...properties } enhanced={ enhanced } />
 			</div>
 		</TocusProvider>
 	);

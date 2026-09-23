@@ -61,15 +61,6 @@
 	}
 }
 
-.popup-view .popup-eyebrow {
-	@include typography.apply('label-medium');
-
-	position: relative;
-	margin: 0 0 var(--tocus-space-3);
-	color: var(--tocus-color-on-surface-muted);
-	text-transform: uppercase;
-}
-
 .popup-site-overview {
 	position: relative;
 }

@@ -75,17 +75,21 @@ msgid "Français"
 msgstr "Français"
 
 #: apps/website/src/localization/index.ts
+msgid "If you feel like it, pick different days and times for each site."
+msgstr "Se quiser, escolha dias e horários diferentes para cada site."
+
+#: apps/website/src/localization/index.ts
 msgid "It's 100% private"
 msgstr "É 100% privado"
+
+#: apps/website/src/localization/index.ts
+msgid "It’s free and open source"
+msgstr "É grátis e de código aberto"
 
 #. Language-menu autonym. Keep this language name written in Italian.
 #: apps/website/src/localization/index.ts
 msgid "Italiano"
 msgstr "Italiano"
-
-#: apps/website/src/localization/index.ts
-msgid "It’s free and open source"
-msgstr "É grátis e de código aberto"
 
 #: apps/website/src/localization/index.ts
 msgid "Made by"
@@ -98,10 +102,6 @@ msgstr "Abra um site"
 #: apps/website/src/localization/index.ts
 msgid "Pause before visiting addictive websites"
 msgstr "Faça uma pausa antes de visitar sites viciantes"
-
-#: apps/website/src/localization/index.ts
-msgid "If you feel like it, pick different days and times for each site."
-msgstr "Se quiser, escolha dias e horários diferentes para cada site."
 
 #. Language-menu autonym for Brazilian Portuguese. Keep this language name written in Portuguese.
 #: apps/website/src/localization/index.ts
@@ -134,16 +134,16 @@ msgid "Source code"
 msgstr "Código-fonte"
 
 #: apps/website/src/localization/index.ts
+msgid "Take a moment to pause."
+msgstr "Tire um momento para fazer uma pausa."
+
+#: apps/website/src/localization/index.ts
 msgid "TOCus adds a breathing pause to the websites you choose."
 msgstr "O TOCus adiciona uma pausa para respirar aos sites que você escolher."
 
 #: apps/website/src/localization/index.ts
 msgid "TOCus is an open-source browser extension."
 msgstr "O TOCus é uma extensão de navegador de código aberto."
-
-#: apps/website/src/localization/index.ts
-msgid "Take a moment to pause."
-msgstr "Tire um momento para fazer uma pausa."
 
 #: apps/website/src/localization/index.ts
 msgid "Use it only when you want to"

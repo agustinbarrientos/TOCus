@@ -75,17 +75,21 @@ msgid "Français"
 msgstr "Français"
 
 #: apps/website/src/localization/index.ts
+msgid "If you feel like it, pick different days and times for each site."
+msgstr "Si quieres, elige días y horarios distintos para cada sitio."
+
+#: apps/website/src/localization/index.ts
 msgid "It's 100% private"
 msgstr "Es 100% privado"
+
+#: apps/website/src/localization/index.ts
+msgid "It’s free and open source"
+msgstr "Es gratis y de código abierto"
 
 #. Language-menu autonym. Keep this language name written in Italian.
 #: apps/website/src/localization/index.ts
 msgid "Italiano"
 msgstr "Italiano"
-
-#: apps/website/src/localization/index.ts
-msgid "It’s free and open source"
-msgstr "Es gratis y de código abierto"
 
 #: apps/website/src/localization/index.ts
 msgid "Made by"
@@ -98,10 +102,6 @@ msgstr "Abre un sitio"
 #: apps/website/src/localization/index.ts
 msgid "Pause before visiting addictive websites"
 msgstr "Haz una pausa antes de visitar sitios web adictivos"
-
-#: apps/website/src/localization/index.ts
-msgid "If you feel like it, pick different days and times for each site."
-msgstr "Si quieres, elige días y horarios distintos para cada sitio."
 
 #. Language-menu autonym for Brazilian Portuguese. Keep this language name written in Portuguese.
 #: apps/website/src/localization/index.ts
@@ -134,16 +134,16 @@ msgid "Source code"
 msgstr "Código fuente"
 
 #: apps/website/src/localization/index.ts
+msgid "Take a moment to pause."
+msgstr "Tómate un momento para hacer una pausa."
+
+#: apps/website/src/localization/index.ts
 msgid "TOCus adds a breathing pause to the websites you choose."
 msgstr "TOCus añade una pausa para respirar a los sitios web que eliges."
 
 #: apps/website/src/localization/index.ts
 msgid "TOCus is an open-source browser extension."
 msgstr "TOCus es una extensión de navegador de código abierto."
-
-#: apps/website/src/localization/index.ts
-msgid "Take a moment to pause."
-msgstr "Tómate un momento para hacer una pausa."
 
 #: apps/website/src/localization/index.ts
 msgid "Use it only when you want to"

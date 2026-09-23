@@ -44,7 +44,6 @@ const port = mountPopup( root );
 const copy = createEnglishLocalizationBundle().popup;
 port.copy = longContent ? {
 	...copy,
-	currentWebsite: 'Website currently open',
 	pauseInProgress: 'Your mindful pause is currently in progress',
 	timeLeft: 'Time remaining for this website',
 	statistics: 'View statistics',

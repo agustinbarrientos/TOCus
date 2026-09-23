@@ -38,10 +38,6 @@ export function createPopupCopy( i18n: I18n ): Readonly<PopupShellCopy> {
 	}
 
 	return Object.freeze( {
-		currentWebsite: i18n._( msg( {
-			comment: 'Heading above the current browser website in the extension popup.',
-			message: 'Current website',
-		} ) ),
 		siteNotOnList: i18n._( msg( {
 			comment: 'Popup status when the current website is not on the user\'s TOCus list.',
 			message: 'Site not on the list',

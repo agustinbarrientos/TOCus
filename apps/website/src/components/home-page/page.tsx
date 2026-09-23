@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Anchor, Brand, TocusAppearance, TocusProvider, VisuallyHidden } from '@tocus/ui';
+import { Anchor, TocusAppearance, TocusProvider, VisuallyHidden } from '@tocus/ui';
 import { DownloadLinks } from '../download-links';
 import { ExternalLink, WebsiteLink } from '../site-links';
 import { RiversideHero } from '../riverside-hero';
-import { LanguageMenu } from '../language-menu';
+import { SiteHeader } from '../site-header';
+import { SiteFooter } from '../site-footer';
 import type { LocalizedHomePageProperties } from '../../localization';
 import './style.scss';
 
@@ -14,7 +15,7 @@ import './style.scss';
  * @since 1.0.0
  */
 export default function HomePage( props: LocalizedHomePageProperties ) {
-	const { localization, localizations } = props;
+	const { localization } = props;
 	const { catalog } = localization;
 	const [ enhanced, setEnhanced ] = useState( false );
 	useEffect( () => {
@@ -23,12 +24,7 @@ export default function HomePage( props: LocalizedHomePageProperties ) {
 	return <TocusProvider appearance={ TocusAppearance.LIGHT }>
 		<div className="website homepage" data-enhanced={ enhanced }>
 			<Anchor className="skip-link" href="#main-content">{ catalog.skipLink }</Anchor>
-			<header className="site-header hero-header page-shell">
-				<Brand />
-				<div className="site-header-actions">
-					{ enhanced && <LanguageMenu localization={ localization } localizations={ localizations } /> }
-				</div>
-			</header>
+			<SiteHeader { ...props } enhanced={ enhanced } overlayHero />
 			<main id="main-content" tabIndex={ -1 }>
 				<section className="hero" aria-labelledby="page-title">
 					<RiversideHero />
@@ -47,24 +43,24 @@ export default function HomePage( props: LocalizedHomePageProperties ) {
 							d="M0 60C180 30 320 92 530 66S860 26 1090 62S1330 94 1440 61V100H0Z" />
 					</svg>
 				</section>
+				<div className="how-it-works page-shell" id="how-it-works">
+					<ol className="how-steps" role="list">
+						<li><span className="how-symbol" aria-hidden="true">
+							<img src="/badges/service-youtube.svg" width="64" height="64" alt="" loading="lazy" />
+						</span><p className="how-step-label">{ catalog.stepOpen }</p></li>
+						<li><span className="how-symbol" aria-hidden="true"><span className="how-sphere" /></span>
+							<p className="how-step-label">{ catalog.stepPause }</p></li>
+						<li><span className="how-symbol" aria-hidden="true">
+							<svg className="how-check" viewBox="0 0 64 64" focusable="false">
+								<circle cx="32" cy="32" r="26" />
+								<path d="m21 32 8 8 15-18" />
+							</svg>
+						</span><p className="how-step-label">{ catalog.stepContinue }</p></li>
+						<li><span className="how-symbol" aria-hidden="true"><span className="how-progress" /></span>
+							<p className="how-step-label">{ catalog.stepBrowse }</p></li>
+					</ol>
+				</div>
 				<div className="homepage-content page-shell">
-					<div className="how-it-works" id="how-it-works">
-						<ol className="how-steps" role="list">
-							<li><span className="how-symbol" aria-hidden="true">
-								<img src="/badges/service-youtube.svg" width="64" height="64" alt="" loading="lazy" />
-							</span><p className="how-step-label">{ catalog.stepOpen }</p></li>
-							<li><span className="how-symbol" aria-hidden="true"><span className="how-sphere" /></span>
-								<p className="how-step-label">{ catalog.stepPause }</p></li>
-							<li><span className="how-symbol" aria-hidden="true">
-								<svg className="how-check" viewBox="0 0 64 64" focusable="false">
-									<circle cx="32" cy="32" r="26" />
-									<path d="m21 32 8 8 15-18" />
-								</svg>
-							</span><p className="how-step-label">{ catalog.stepContinue }</p></li>
-							<li><span className="how-symbol" aria-hidden="true"><span className="how-progress" /></span>
-								<p className="how-step-label">{ catalog.stepBrowse }</p></li>
-						</ol>
-					</div>
 					<section className="homepage-features" id="features" aria-labelledby="features-title">
 						<h2 id="features-title">{ catalog.featuresTitle }</h2>
 						<ul className="feature-grid" role="list">
@@ -141,36 +137,7 @@ export default function HomePage( props: LocalizedHomePageProperties ) {
 					</div>
 				</section>
 			</main>
-			<footer className="site-footer">
-				<div className="page-shell">
-					<div className="footer-main">
-						<Brand />
-						<div className="footer-links">
-							<ExternalLink href="/privacy/">{ catalog.privacyLink }</ExternalLink>
-							<ExternalLink href={ WebsiteLink.SOURCE }>{ catalog.sourceLink }</ExternalLink>
-							<div className="maker-credit">
-								<span>{ catalog.madeBy }</span>
-								<ExternalLink href={ WebsiteLink.AUTHOR }>
-									<img src="/images/author-favicon.png" width="28" height="28" alt="" loading="lazy" />
-									Agustin Barrientos
-								</ExternalLink>
-							</div>
-						</div>
-					</div>
-					<div id="languages" hidden={ enhanced }>
-						<nav aria-label={ catalog.languageMenuLabel }>
-							<ul role="list">
-								{ localizations.map( ( option ) => <li key={ option.language }>
-									<Anchor href={ option.path } lang={ option.languageTag }
-										aria-current={ option.language === localization.language ? 'page' : undefined }>
-										{ catalog.languageLabels[ option.language ] }
-									</Anchor>
-								</li> ) }
-							</ul>
-						</nav>
-					</div>
-				</div>
-			</footer>
+			<SiteFooter { ...props } enhanced={ enhanced } />
 		</div>
 	</TocusProvider>;
 }

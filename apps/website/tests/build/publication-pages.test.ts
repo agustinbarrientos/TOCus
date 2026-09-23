@@ -66,6 +66,42 @@ async function expectInlineLinkTypography( page: Page ): Promise<void> {
 }
 
 test.describe( 'generated website publication pages', () => {
+	test( 'privacy shares homepage header and footer presentation', async ( { page } ) => {
+		await page.emulateMedia( { reducedMotion: 'reduce' } );
+		await page.route( 'http://website.test/**', serveGeneratedAsset );
+		for ( const viewport of [ { width: 360, height: 800 }, { width: 1280, height: 800 },
+			{ width: 360, height: 640 }, { width: 1280, height: 600 } ] ) {
+			await page.setViewportSize( viewport );
+			const measurements = [];
+			for ( const route of [ '/', '/privacy/' ] ) {
+				await page.goto( `http://website.test${ route }` );
+				await expect( page.getByRole( 'button', { name: 'Website language: English', exact: true } ) ).toBeVisible();
+				await page.evaluate( () => document.fonts.ready );
+				measurements.push( await page.evaluate( () => [
+					'.site-header', '.site-header .tocus-brand', '.site-header .language-shortcut',
+					'.site-footer', '.footer-main', '.site-footer .tocus-brand', '.footer-links > a',
+				].map( ( selector ) => {
+					const element = document.querySelector( selector );
+					if ( ! element ) {
+						throw new Error( `Missing shared navigation element: ${ selector }` );
+					}
+					const style = getComputedStyle( element );
+					const bounds = element.getBoundingClientRect();
+					return [ selector, bounds.x, bounds.width, style.fontFamily, style.fontSize, style.color,
+						style.backgroundColor, style.paddingTop, style.paddingBottom ];
+				} ) ) );
+			}
+			expect( measurements[ 1 ], `${ String( viewport.width ) }x${ String( viewport.height ) } shared navigation` ).toEqual( measurements[ 0 ] );
+			await expect( page.getByRole( 'heading', { level: 1 } ) ).toHaveText( 'Privacy Policy' );
+			await expect( page.locator( '.information-page-eyebrow' ) ).toHaveCount( 0 );
+			await expect( page.locator( '.site-header [data-download-primary]' ) ).toHaveCount( 0 );
+			await expect( page.locator( '.site-header a[aria-label="TOCus home"]' ) ).toHaveAttribute( 'href', '/' );
+			await page.getByRole( 'button', { name: 'Website language: English', exact: true } ).click();
+			await expect( page.getByRole( 'menuitem' ) ).toHaveCount( 10 );
+			await page.keyboard.press( 'Escape' );
+		}
+	} );
+
 	for ( const engine of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 		const engineTest = test.extend( { browserName: engine } );
 
@@ -94,9 +130,9 @@ test.describe( 'generated website publication pages', () => {
 						await page.goto( `http://website.test${ route }` );
 						expect( ( await page.locator( 'h1' ).innerText() ).trim().length, route ).toBeGreaterThan( 8 );
 						expect( await page.locator( 'link[rel="icon"][href="/favicon.svg"]' ).count(), route ).toBe( 1 );
-						expect( await page.locator( '[data-tocus-ui] .website > .page-shell' ).count(), route ).toBe( 1 );
+						expect( await page.locator( '[data-tocus-ui] .website > .information-shell' ).count(), route ).toBe( 1 );
 						expect( await page.locator( 'header .tocus-brand' ).count(), route ).toBe( 1 );
-						for ( const href of [ '/', '/privacy/', '/support/', SourceUrl ] ) {
+						for ( const href of [ '/', '/privacy/', SourceUrl ] ) {
 							expect( await page.locator( `footer a[href="${ href }"]` ).count(), `${ route } ${ href }` ).toBe( 1 );
 						}
 						expect( await page.locator( 'a[href*="utm_source=tocus"][href*="utm_medium=website"][href*="utm_campaign=about"] img[src="/images/author-favicon.png"]' ).count(), route ).toBe( 1 );

@@ -1,3 +1,5 @@
+import type { LocalizedHomePageProperties } from '../../localization';
+
 /**
  * Canonical publication documents rendered outside the translated product routes.
  * @since 1.0.0 Initial implementation.
@@ -12,16 +14,6 @@ export const InformationDocument = {
  * @since 1.0.0 Initial implementation.
  */
 export type InformationDocument = typeof InformationDocument[keyof typeof InformationDocument];
-
-/**
- * Stable local routes shared by the information-page navigation.
- * @since 1.0.0 Initial implementation.
- */
-export const InformationRoute = {
-	HOME: '/',
-	PRIVACY: '/privacy/',
-	SUPPORT: '/support/',
-} as const;
 
 /**
  * External destinations used by the canonical publication documents.
@@ -49,7 +41,7 @@ export interface InformationPageMetadata {
  */
 export const InformationPageMetadata = {
 	[ InformationDocument.PRIVACY ]: {
-		title: 'TOCus privacy',
+		title: 'Privacy Policy - TOCus',
 		description: 'How TOCus handles extension-local data, permissions, deletion, and ordinary website requests.',
 	},
 	[ InformationDocument.SUPPORT ]: {
@@ -66,3 +58,9 @@ export interface InformationPageProperties {
 	/** Canonical document to render. */
 	document: InformationDocument;
 }
+
+/**
+ * Information document and static navigation copy supplied to the React page.
+ * @since 1.0.0
+ */
+export interface LocalizedInformationPageProperties extends InformationPageProperties, LocalizedHomePageProperties {}
