@@ -41,6 +41,10 @@ msgstr "Более спокойный интернет"
 msgid "Absolutely everything."
 msgstr "Абсолютно всё."
 
+#: apps/website/src/localization/index.ts
+msgid "Accept"
+msgstr "Принять"
+
 #: apps/website/src/localization/privacy/index.ts
 msgid "After a reset, TOCus may keep a random value in local storage so an old settings page can’t bring back deleted data. The value shows that a reset happened. It doesn’t identify a person, device, account, or browsing activity."
 msgstr "После сброса TOCus может сохранить случайное значение в локальном хранилище, чтобы старая страница настроек не смогла вернуть удалённые данные. Это значение показывает, что произошёл сброс. Оно не идентифицирует человека, устройство, аккаунт или действия в браузере."
@@ -48,6 +52,10 @@ msgstr "После сброса TOCus может сохранить случай
 #: apps/website/src/localization/index.ts
 msgid "Also available on"
 msgstr "Также доступно для"
+
+#: apps/website/src/localization/index.ts
+msgid "Analytics preferences"
+msgstr "Настройки аналитики"
 
 #: apps/website/src/localization/index.ts
 msgid "Check how much time you’ve saved"
@@ -103,6 +111,14 @@ msgid "Français"
 msgstr "Français"
 
 #: apps/website/src/localization/privacy/index.ts
+msgid "Google Analytics on this website"
+msgstr "Google Analytics на этом сайте"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "How Google uses information from websites that use its services"
+msgstr "Как Google использует информацию с сайтов, использующих его сервисы"
+
+#: apps/website/src/localization/privacy/index.ts
 msgid "How TOCus handles extension-local data, permissions, deletion, and ordinary website requests."
 msgstr "Как TOCus обрабатывает локальные данные расширения, разрешения, удаление и обычные запросы сайта."
 
@@ -144,6 +160,10 @@ msgid "Made by"
 msgstr "Автор"
 
 #: apps/website/src/localization/index.ts
+msgid "May we use Google Analytics cookies to understand visits to this website? The extension has no analytics or tracking."
+msgstr "Можно использовать файлы cookie Google Analytics, чтобы понимать, как посещают этот сайт? В расширении нет аналитики или отслеживания."
+
+#: apps/website/src/localization/index.ts
 msgid "Open a site"
 msgstr "Открыть сайт"
 
@@ -176,6 +196,10 @@ msgstr "Политика конфиденциальности"
 #: apps/website/src/localization/support/index.ts
 msgid "Questions or problems with TOCus? Get in touch by email."
 msgstr "Есть вопросы или проблемы с TOCus? Напиши мне по электронной почте."
+
+#: apps/website/src/localization/index.ts
+msgid "Reject"
+msgstr "Отклонить"
 
 #: apps/website/src/localization/privacy/index.ts
 msgid "Reset and deletion controls"
@@ -218,6 +242,10 @@ msgid "The statistics only keep track of counts and durations. They don't save a
 msgstr "Статистика хранит только количество действий и их продолжительность. Содержимое страниц и веб-адреса не сохраняются."
 
 #: apps/website/src/localization/privacy/index.ts
+msgid "The TOCus extension has no analytics or tracking. Website analytics can't read your extension's site list, settings, or statistics."
+msgstr "В расширении TOCus нет аналитики или отслеживания. Аналитика сайта не может читать список сайтов, настройки или статистику твоего расширения."
+
+#: apps/website/src/localization/privacy/index.ts
 msgid "This includes your website list, pause times, schedules, preferences, and statistics."
 msgstr "Это список сайтов, длительность пауз, расписания, настройки и статистика."
 
@@ -228,6 +256,14 @@ msgstr "Этот сайт"
 #: apps/website/src/localization/privacy/index.ts
 msgid "This website and external links"
 msgstr "Этот сайт и внешние ссылки"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "This website only loads Google Analytics after you accept. You can reject it or change your choice using Analytics preferences in the footer. Your choice is saved in this browser."
+msgstr "Этот сайт загружает Google Analytics только после твоего согласия. Ты можешь отказаться или изменить выбор в разделе «Настройки аналитики» внизу страницы. Твой выбор сохраняется в этом браузере."
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "This website uses Google Analytics to understand how visitors use its pages. Google Analytics uses cookies and sends Google information such as pages visited, interactions, approximate location, and browser and device details. The developer can view reports about visits to this website."
+msgstr "Этот сайт использует Google Analytics, чтобы понимать, как посетители пользуются его страницами. Google Analytics использует файлы cookie и отправляет Google информацию о посещённых страницах, взаимодействиях, примерном местоположении, браузере и устройстве. Разработчик может просматривать отчёты о посещениях этого сайта."
 
 #: apps/website/src/localization/index.ts
 msgid "TOCus adds a breathing pause to the websites you choose."
@@ -264,6 +300,10 @@ msgstr "Посмотреть исходный код"
 #: apps/website/src/localization/index.ts
 msgid "View your completed pauses and visits you changed your mind about."
 msgstr "Смотрите завершённые паузы и посещения, от которых вы решили отказаться."
+
+#: apps/website/src/localization/index.ts
+msgid "Website analytics"
+msgstr "Аналитика сайта"
 
 #: apps/website/src/localization/index.ts
 msgid "Website language"

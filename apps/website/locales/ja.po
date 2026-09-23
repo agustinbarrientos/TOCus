@@ -41,6 +41,10 @@ msgstr "もっと穏やかなブラウジングを"
 msgid "Absolutely everything."
 msgstr "すべてのデータです。"
 
+#: apps/website/src/localization/index.ts
+msgid "Accept"
+msgstr "許可する"
+
 #: apps/website/src/localization/privacy/index.ts
 msgid "After a reset, TOCus may keep a random value in local storage so an old settings page can’t bring back deleted data. The value shows that a reset happened. It doesn’t identify a person, device, account, or browsing activity."
 msgstr "リセット後、古い設定ページが削除済みのデータを元に戻せないように、TOCusがランダムな値をローカルストレージに残すことがあります。この値はリセットが行われたことを示します。個人、端末、アカウント、閲覧行動を識別するものではありません。"
@@ -48,6 +52,10 @@ msgstr "リセット後、古い設定ページが削除済みのデータを元
 #: apps/website/src/localization/index.ts
 msgid "Also available on"
 msgstr "こちらのブラウザでも利用可能"
+
+#: apps/website/src/localization/index.ts
+msgid "Analytics preferences"
+msgstr "アクセス解析の設定"
 
 #: apps/website/src/localization/index.ts
 msgid "Check how much time you’ve saved"
@@ -103,6 +111,14 @@ msgid "Français"
 msgstr "Français"
 
 #: apps/website/src/localization/privacy/index.ts
+msgid "Google Analytics on this website"
+msgstr "このウェブサイトのGoogle Analytics"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "How Google uses information from websites that use its services"
+msgstr "Googleのサービスを利用するウェブサイトから得た情報の取り扱い"
+
+#: apps/website/src/localization/privacy/index.ts
 msgid "How TOCus handles extension-local data, permissions, deletion, and ordinary website requests."
 msgstr "TOCusによる拡張機能内のローカルデータ、権限、削除、ウェブサイトの通常のリクエストの取り扱いについて。"
 
@@ -144,6 +160,10 @@ msgid "Made by"
 msgstr "制作"
 
 #: apps/website/src/localization/index.ts
+msgid "May we use Google Analytics cookies to understand visits to this website? The extension has no analytics or tracking."
+msgstr "このウェブサイトへの訪問を把握するために、Google AnalyticsのCookieを使用してもよろしいですか？拡張機能にはアクセス解析や追跡機能はありません。"
+
+#: apps/website/src/localization/index.ts
 msgid "Open a site"
 msgstr "サイトを開く"
 
@@ -176,6 +196,10 @@ msgstr "プライバシーポリシー"
 #: apps/website/src/localization/support/index.ts
 msgid "Questions or problems with TOCus? Get in touch by email."
 msgstr "TOCusについてのご質問や不具合は、メールでお問い合わせください。"
+
+#: apps/website/src/localization/index.ts
+msgid "Reject"
+msgstr "拒否する"
 
 #: apps/website/src/localization/privacy/index.ts
 msgid "Reset and deletion controls"
@@ -218,6 +242,10 @@ msgid "The statistics only keep track of counts and durations. They don't save a
 msgstr "統計に記録されるのは回数と時間だけです。ページの内容やウェブアドレスは保存しません。"
 
 #: apps/website/src/localization/privacy/index.ts
+msgid "The TOCus extension has no analytics or tracking. Website analytics can't read your extension's site list, settings, or statistics."
+msgstr "TOCus拡張機能にはアクセス解析や追跡機能はありません。ウェブサイトのアクセス解析は、拡張機能のサイト一覧、設定、統計を読み取ることはできません。"
+
+#: apps/website/src/localization/privacy/index.ts
 msgid "This includes your website list, pause times, schedules, preferences, and statistics."
 msgstr "ウェブサイトのリスト、一時停止の時間、スケジュール、設定、統計が含まれます。"
 
@@ -228,6 +256,14 @@ msgstr "このサイトについて"
 #: apps/website/src/localization/privacy/index.ts
 msgid "This website and external links"
 msgstr "このウェブサイトと外部リンク"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "This website only loads Google Analytics after you accept. You can reject it or change your choice using Analytics preferences in the footer. Your choice is saved in this browser."
+msgstr "このウェブサイトは、あなたが許可した後にのみGoogle Analyticsを読み込みます。拒否したり、ページ下部の「アクセス解析の設定」から選択を変更したりできます。選択はこのブラウザーに保存されます。"
+
+#: apps/website/src/localization/privacy/index.ts
+msgid "This website uses Google Analytics to understand how visitors use its pages. Google Analytics uses cookies and sends Google information such as pages visited, interactions, approximate location, and browser and device details. The developer can view reports about visits to this website."
+msgstr "このウェブサイトは、訪問者がページをどのように使っているかを把握するためにGoogle Analyticsを使用します。Google AnalyticsはCookieを使い、閲覧したページ、操作、おおよその位置、ブラウザーや端末の情報などをGoogleに送信します。開発者は、このウェブサイトへの訪問に関するレポートを確認できます。"
 
 #: apps/website/src/localization/index.ts
 msgid "TOCus adds a breathing pause to the websites you choose."
@@ -264,6 +300,10 @@ msgstr "ソースを見る"
 #: apps/website/src/localization/index.ts
 msgid "View your completed pauses and visits you changed your mind about."
 msgstr "完了した一時停止と、思い直してやめたアクセスを確認できます。"
+
+#: apps/website/src/localization/index.ts
+msgid "Website analytics"
+msgstr "ウェブサイトのアクセス解析"
 
 #: apps/website/src/localization/index.ts
 msgid "Website language"
