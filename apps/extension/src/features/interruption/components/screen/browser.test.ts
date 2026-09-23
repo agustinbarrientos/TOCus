@@ -173,7 +173,7 @@ test.describe( 'React pause', () => {
 			window.pauseFixture.screen.recovering = false;
 			await window.pauseFixture.screen.updateComplete;
 		} );
-		expect( await page.locator( '[aria-live]' ).textContent() ).toBe( 'TOCus still could not restore this pause.' );
+		expect( await page.locator( '[aria-live]' ).textContent() ).toBe( "TOCus still couldn't restore this pause." );
 		expect( await retry.evaluate( ( button ) =>
 			button === window.pauseFixture.screen.shadowRoot?.activeElement ) ).toBe( true );
 		await page.evaluate( async () => {
