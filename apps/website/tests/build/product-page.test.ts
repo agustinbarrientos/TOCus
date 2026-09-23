@@ -108,7 +108,6 @@ test.describe( 'static illustrated product presentation', () => {
 		await expect( privacyPage.getByRole( 'heading', { level: 1 } ) ).toHaveText( 'Privacy Policy' );
 		await privacyPage.close();
 		await expect( page.locator( '.site-footer a[href*="utm_medium=website"]' ) ).toContainText( 'Agustin Barrientos' );
-		await expect( page.locator( 'a[href="/support/"]' ) ).toHaveCount( 0 );
 	} );
 
 	for ( const engine of [ 'chromium', 'firefox', 'webkit' ] as const ) {

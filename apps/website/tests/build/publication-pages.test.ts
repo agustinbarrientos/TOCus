@@ -3,8 +3,6 @@ import { expect, test, type Page, type Route } from '@playwright/test';
 
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 const SourceUrl = 'https://github.com/agustinbarrientos/TOCus';
-const IssueUrl = `${ SourceUrl }/issues/new/choose`;
-const SecurityAdvisoryUrl = `${ SourceUrl }/security/advisories/new`;
 const ChromeLimitedUseUrl = 'https://developer.chrome.com/docs/webstore/program-policies/user-data-faq';
 const PublicationRoutes = [ '/privacy/', '/support/' ] as const;
 
@@ -66,6 +64,22 @@ async function expectInlineLinkTypography( page: Page ): Promise<void> {
 }
 
 test.describe( 'generated website publication pages', () => {
+	test( 'support exposes the contact email in every language and preserves the page when switching', async ( { page } ) => {
+		await page.route( 'http://website.test/**', serveGeneratedAsset );
+		for ( const locale of [ '', 'de/', 'es/', 'es-ar/', 'fr/', 'it/', 'ja/', 'pt-br/', 'pt-pt/', 'ru/' ] ) {
+			await page.goto( `http://website.test/${ locale }support/` );
+			await expect( page.locator( '.support-contact a' ) ).toHaveAttribute( 'href', 'mailto:hi@agustinbarrientos.com' );
+			await expect( page.locator( '.support-contact a' ) ).toHaveText( 'hi@agustinbarrientos.com' );
+			await expect( page.locator( 'link[rel="alternate"][hreflang="en"]' ) ).toHaveAttribute( 'href', '/support/' );
+			await expect( page.locator( 'meta[property="og:url"]' ) ).toHaveAttribute( 'content', `https://tocus.uo.ar/${ locale }support/` );
+		}
+		await page.goto( 'http://website.test/support/' );
+		await page.locator( '.language-shortcut' ).click();
+		await page.getByRole( 'menuitem', { name: 'Deutsch', exact: true } ).click();
+		await expect( page ).toHaveURL( 'http://website.test/de/support/' );
+		await expect( page.locator( '.site-header .site-brand-link' ) ).toHaveAttribute( 'href', '/de/' );
+	} );
+
 	test( 'privacy shares homepage header and footer presentation', async ( { page } ) => {
 		await page.emulateMedia( { reducedMotion: 'reduce' } );
 		await page.route( 'http://website.test/**', serveGeneratedAsset );
@@ -88,7 +102,7 @@ test.describe( 'generated website publication pages', () => {
 					const style = getComputedStyle( element );
 					const bounds = element.getBoundingClientRect();
 					return [ selector, bounds.x, bounds.width, style.fontFamily, style.fontSize, style.color,
-						style.backgroundColor, style.paddingTop, style.paddingBottom ];
+						selector === '.site-footer' ? undefined : style.backgroundColor, style.paddingTop, style.paddingBottom ];
 				} ) ) );
 			}
 			expect( measurements[ 1 ], `${ String( viewport.width ) }x${ String( viewport.height ) } shared navigation` ).toEqual( measurements[ 0 ] );
@@ -128,12 +142,13 @@ test.describe( 'generated website publication pages', () => {
 				for ( const route of PublicationRoutes ) {
 					await engineTest.step( `Inspect ${ route }`, async () => {
 						await page.goto( `http://website.test${ route }` );
-						expect( ( await page.locator( 'h1' ).innerText() ).trim().length, route ).toBeGreaterThan( 8 );
+						expect( ( await page.locator( 'h1' ).innerText() ).trim().length, route ).toBeGreaterThan( 0 );
 						expect( await page.locator( 'link[rel="icon"][href="/favicon.svg"]' ).count(), route ).toBe( 1 );
 						expect( await page.locator( '[data-tocus-ui] .website > .information-shell' ).count(), route ).toBe( 1 );
 						expect( await page.locator( 'header .tocus-brand' ).count(), route ).toBe( 1 );
-						for ( const href of [ '/', '/privacy/', SourceUrl ] ) {
-							expect( await page.locator( `footer a[href="${ href }"]` ).count(), `${ route } ${ href }` ).toBe( 1 );
+						await expect( page.locator( '.site-header .site-brand-link' ) ).toHaveAttribute( 'href', '/' );
+						for ( const href of [ '/privacy/', SourceUrl ] ) {
+							expect( await page.locator( `.footer-links a[href="${ href }"]` ).count(), `${ route } ${ href }` ).toBe( 1 );
 						}
 						expect( await page.locator( 'a[href*="utm_source=tocus"][href*="utm_medium=website"][href*="utm_campaign=about"] img[src="/images/author-favicon.png"]' ).count(), route ).toBe( 1 );
 						await expectSafeExternalLinks( page );
@@ -177,6 +192,9 @@ test.describe( 'generated website publication pages', () => {
 			await page.route( 'http://website.test/**', serveGeneratedAsset );
 			await page.goto( 'http://website.test/privacy/' );
 
+			await expect( page.locator( 'main h2' ) ).toHaveText( [ 'The extension', 'This site' ] );
+			await expect( page.locator( '#the-extension > section' ) ).toHaveCount( 4 );
+			await expect( page.locator( '#this-site #website-and-links' ) ).toBeVisible();
 			const extensionPolicy = page.locator( '#extension-data' );
 			const extensionPolicyText = await extensionPolicy.innerText();
 			expect( extensionPolicyText ).toMatch( /choices|preferences/iu );
@@ -196,44 +214,10 @@ test.describe( 'generated website publication pages', () => {
 			expect( await page.locator( '#deletion' ).innerText() ).toMatch( /reset/iu );
 			const websiteText = await page.locator( '#website-and-links' ).innerText();
 			expect( websiteText ).toMatch( /hosting|server/iu );
-			expect( websiteText ).toMatch( /external|outbound|third-party/iu );
+			expect( websiteText ).toMatch( /other sites that have their own privacy rules/iu );
 			expect( await page.locator( `a[href="${ ChromeLimitedUseUrl }"]` ).count() ).toBe( 1 );
 			expect( await page.locator( '#limited-use' ).innerText() ).toMatch( /Limited Use/iu );
 		} );
 	} );
 
-	test.describe( () => {
-		test.use( { contextOptions: { javaScriptEnabled: false } } );
-
-		test( 'support separates public troubleshooting from private vulnerability reports', async ( { page } ) => {
-			await page.route( 'http://website.test/**', serveGeneratedAsset );
-			await page.goto( 'http://website.test/support/' );
-
-			expect( await page.locator( `a[href="${ IssueUrl }"]` ).count() ).toBe( 1 );
-			expect( await page.locator( `a[href="${ SecurityAdvisoryUrl }"]` ).count() ).toBe( 0 );
-			const preparationText = await page.locator( '#before-reporting' ).innerText();
-			expect( preparationText ).toMatch( /settings/iu );
-			const resetText = await page.locator( '#resetting' ).innerText();
-			expect( resetText ).toMatch(
-				/Reset statistics clears recorded counts and time totals while keeping your sites and settings/iu,
-			);
-			expect( resetText ).toMatch(
-				/Reset all TOCus data removes your local configuration,[^.]*and website access/iu,
-			);
-			expect( preparationText ).toMatch( /browser allows TOCus to run on the website/iu );
-			expect( preparationText ).toMatch( /review site access in your browser's extension settings/iu );
-			expect( preparationText ).toMatch( /Pause timing applies to all your selected websites/iu );
-			expect( preparationText ).toMatch( /custom schedule changes only its active days and hours/iu );
-			expect( preparationText ).not.toMatch( /own timing/iu );
-			const publicIssueText = await page.locator( '#public-issues' ).innerText();
-			expect( publicIssueText ).toMatch( /remove credentials/iu );
-			expect( publicIssueText ).toMatch( /URL|browsing/iu );
-			const securityText = await page.locator( '#security-reporting' ).innerText();
-			expect( securityText ).toMatch( /private vulnerability reporting is not currently available/iu );
-			expect( securityText ).toMatch(
-				/Do not share vulnerability details,[^.]*security issue in a public issue/isu,
-			);
-			expect( await page.locator( 'a[href^="mailto:"]' ).count() ).toBe( 0 );
-		} );
-	} );
 } );

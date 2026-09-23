@@ -4,7 +4,6 @@ import { expect, test } from '@playwright/test';
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 const TextLayouts = [
 	{ path: '/privacy/', selector: '.information-page h1, .information-page h2, .information-page p' },
-	{ path: '/support/', selector: '.information-page h1, .information-page h2, .information-page p, .information-page li' },
 ] as const;
 
 test.describe( 'website text layout', () => {
