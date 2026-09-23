@@ -96,7 +96,7 @@ export default function HomePage( props: LocalizedHomePageProperties ) {
 								<img className="feature-art" src="/images/homepage/icon-computer.webp"
 									width="500" height="500" alt="" loading="lazy" />
 								<h3>{ catalog.privacyLocal }</h3><p>{ catalog.privacy }</p>
-								<ExternalLink className="feature-link" href="/privacy/">{ catalog.readPrivacy }</ExternalLink>
+								<ExternalLink className="feature-link" href={ `${ localization.path }privacy/` }>{ catalog.readPrivacy }</ExternalLink>
 							</li>
 							<li>
 								<img className="feature-art" src="/images/homepage/icon-open-source.webp"

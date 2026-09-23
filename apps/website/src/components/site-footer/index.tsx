@@ -18,7 +18,7 @@ export function SiteFooter( props: SiteFooterProps ) {
 				<div className="footer-main">
 					<Brand />
 					<div className="footer-links">
-						<ExternalLink href="/privacy/">{ catalog.privacyLink }</ExternalLink>
+						<ExternalLink href={ `${ localization.path }privacy/` }>{ catalog.privacyLink }</ExternalLink>
 						<ExternalLink href={ WebsiteLink.SOURCE }>{ catalog.sourceLink }</ExternalLink>
 						<div className="maker-credit">
 							<span>{ catalog.madeBy }</span>

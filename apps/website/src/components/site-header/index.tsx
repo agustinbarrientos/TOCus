@@ -10,7 +10,7 @@ import type { SiteHeaderProps } from './types';
  */
 export function SiteHeader( props: SiteHeaderProps ) {
 	return <header className={ `site-header page-shell${ props.overlayHero ? ' hero-header' : '' }` }>
-		{ props.overlayHero ? <Brand /> : <Anchor className="site-brand-link" aria-label="TOCus home" href="/">
+		{ props.overlayHero ? <Brand /> : <Anchor className="site-brand-link" aria-label="TOCus home" href={ props.localization.path }>
 			<Brand />
 		</Anchor> }
 		<div className="site-header-actions">
