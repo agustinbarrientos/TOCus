@@ -1,0 +1,23 @@
+---
+import type { SocialMetadataProperties as Props } from './types';
+
+const { language, title, description, imageAlt } = Astro.props;
+const imageUrl = new URL( `/images/og/${ language.toLowerCase() }.png`, Astro.site );
+const pageUrl = new URL( Astro.url.pathname, Astro.site );
+---
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="TOCus" />
+<meta property="og:url" content={pageUrl.href} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={imageUrl.href} />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="628" />
+<meta property="og:image:alt" content={imageAlt} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageUrl.href} />
+<meta name="twitter:image:alt" content={imageAlt} />

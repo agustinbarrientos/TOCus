@@ -2,6 +2,10 @@
 import '@tocus/ui/styles.scss';
 import { MascotPrototype } from '../components/mascot-prototype';
 import Favicon from '../components/favicon/index.astro';
+import SocialMetadata from '../components/social-metadata/index.astro';
+import { WebsiteLanguage, getWebsiteLocalization } from '../localization';
+
+const localization = getWebsiteLocalization( WebsiteLanguage.ENGLISH );
 ---
 
 <!doctype html>
@@ -12,6 +16,9 @@ import Favicon from '../components/favicon/index.astro';
 		<meta name="robots" content="noindex, nofollow" />
 		<meta name="color-scheme" content="light" />
 		<meta name="description" content="An isolated 3D mascot prototype and reference comparison for visual review." />
+		<SocialMetadata language={localization.language} title="TOCus mascot | 3D prototype"
+			description="An isolated 3D mascot prototype and reference comparison for visual review."
+			imageAlt={localization.catalog.intro} />
 		<Favicon />
 		<title>TOCus mascot | 3D prototype</title>
 	</head>

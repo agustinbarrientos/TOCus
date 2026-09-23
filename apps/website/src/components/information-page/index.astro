@@ -4,6 +4,7 @@ import '../../styles/global.scss';
 import './style.scss';
 import InformationPage from './page';
 import Favicon from '../favicon/index.astro';
+import SocialMetadata from '../social-metadata/index.astro';
 import { WebsiteLanguage, getWebsiteLocalization, getWebsiteLocalizations } from '../../localization';
 import { InformationPageMetadata, type InformationPageProperties as Props } from './types';
 
@@ -20,6 +21,8 @@ const localizations = getWebsiteLocalizations();
 		<meta name="viewport" content="width=device-width" />
 		<meta name="color-scheme" content="light" />
 		<meta name="description" content={metadata.description} />
+		<SocialMetadata language={localization.language} title={metadata.title}
+			description={metadata.description} imageAlt={localization.catalog.intro} />
 		<Favicon />
 		<title>{metadata.title}</title>
 	</head>

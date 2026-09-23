@@ -142,6 +142,14 @@ The longer Privacy content exposed three capture defects. Scrolling after a real
 
 The comparator self-tests now use a frozen lossless crop of the historical regional Continue button, matching the existing website-button fixture approach. The recorded edge-color samples and every negative mutation retain their original pixels and extents. This keeps the historical comparison-policy proof independent of current onboarding copy without accepting extra differences.
 
+## Approved navigation, concise copy and hero slogans
+
+The subsequent September 23 refinements share the website header and footer, expand the four illustrated steps to the available page width, and use the owner's exact localized hero slogans. The extension removes the popup's "Current website" label and About's external-links hint, and simplifies the full-reset confirmation.
+
+Fifteen original references and six website references were visually reviewed against their prior expected images and refreshed from unmodified normal-run captures in CI run 35907976613 at commit ee750352, using macOS 26 ARM64 and pinned Playwright 1.63.0 Chromium. The popup captures become 28 pixels shorter after removing the label. Isolated About captures lose the hint's height; Settings shell differences remain confined to that removed sentence. Three full-width reset captures change only the confirmation text, and the narrow confirmation becomes one line shorter. Website differences are confined to the expanded steps and Argentine Spanish slogan.
+
+Each downloaded expected image matched the committed reference bytes before replacement. All 106 original registrations remain, with fifteen updated hashes and the other 91 unchanged. Regional onboarding references, comparator self-test fixtures, comparison tolerances, capture settings and retries are unchanged.
+
 ## Case API and commands
 
 Run a bounded original comparison with `pnpm test:visual --project chromium-originals --grep 'interruption-screen-ready.png'`. Explicit grep permits partial investigation, but hash checks always run. Local servers can be reused; CI starts fresh servers.
