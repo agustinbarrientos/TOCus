@@ -41,10 +41,6 @@ msgstr "Entspannter surfen"
 msgid "Absolutely everything."
 msgstr "Absolut alles."
 
-#: apps/website/src/localization/index.ts
-msgid "Accept"
-msgstr "Akzeptieren"
-
 #: apps/website/src/localization/privacy/index.ts
 msgid "After a reset, TOCus may keep a random value in local storage so an old settings page can’t bring back deleted data. The value shows that a reset happened. It doesn’t identify a person, device, account, or browsing activity."
 msgstr "Nach dem Zurücksetzen kann TOCus einen Zufallswert im lokalen Speicher behalten, damit eine alte Einstellungsseite gelöschte Daten nicht zurückholen kann. Der Wert zeigt, dass ein Zurücksetzen stattgefunden hat. Er identifiziert keine Person, kein Gerät, kein Konto und keine Browseraktivität."
@@ -52,10 +48,6 @@ msgstr "Nach dem Zurücksetzen kann TOCus einen Zufallswert im lokalen Speicher 
 #: apps/website/src/localization/index.ts
 msgid "Also available on"
 msgstr "Auch verfügbar für"
-
-#: apps/website/src/localization/index.ts
-msgid "Analytics preferences"
-msgstr "Analyse-Einstellungen"
 
 #: apps/website/src/localization/index.ts
 msgid "Check how much time you’ve saved"
@@ -160,10 +152,6 @@ msgid "Made by"
 msgstr "Von"
 
 #: apps/website/src/localization/index.ts
-msgid "May we use Google Analytics cookies to understand visits to this website? The extension has no analytics or tracking."
-msgstr "Dürfen wir Google-Analytics-Cookies verwenden, um Besuche auf dieser Website zu verstehen? Die Erweiterung enthält weder Nutzungsanalysen noch Tracking."
-
-#: apps/website/src/localization/index.ts
 msgid "Open a site"
 msgstr "Website öffnen"
 
@@ -192,10 +180,6 @@ msgstr "Datenschutzerklärung"
 #: apps/website/src/localization/privacy/index.ts
 msgid "Privacy Policy"
 msgstr "Datenschutzerklärung"
-
-#: apps/website/src/localization/index.ts
-msgid "Reject"
-msgstr "Ablehnen"
 
 #: apps/website/src/localization/privacy/index.ts
 msgid "Reset and deletion controls"
@@ -250,10 +234,6 @@ msgid "This website and external links"
 msgstr "Diese Website und externe Links"
 
 #: apps/website/src/localization/privacy/index.ts
-msgid "This website only loads Google Analytics after you accept. You can reject it or change your choice using Analytics preferences in the footer. Your choice is saved in this browser."
-msgstr "Diese Website lädt Google Analytics erst nach deiner Zustimmung. Du kannst ablehnen oder deine Auswahl unter Analyse-Einstellungen in der Fußzeile ändern. Deine Auswahl wird in diesem Browser gespeichert."
-
-#: apps/website/src/localization/privacy/index.ts
 msgid "This website uses Google Analytics to understand how visitors use its pages. Google Analytics uses cookies and sends Google information such as pages visited, interactions, approximate location, and browser and device details. The developer can view reports about visits to this website."
 msgstr "Diese Website nutzt Google Analytics, um zu verstehen, wie Besucher ihre Seiten nutzen. Google Analytics verwendet Cookies und sendet Informationen wie besuchte Seiten, Interaktionen, den ungefähren Standort sowie Browser- und Gerätedetails an Google. Der Entwickler kann Berichte über Besuche auf dieser Website einsehen."
 
@@ -292,10 +272,6 @@ msgstr "Quellcode ansehen"
 #: apps/website/src/localization/index.ts
 msgid "View your completed pauses and visits you changed your mind about."
 msgstr "Sieh dir deine abgeschlossenen Pausen und die Besuche an, gegen die du dich entschieden hast."
-
-#: apps/website/src/localization/index.ts
-msgid "Website analytics"
-msgstr "Website-Analyse"
 
 #: apps/website/src/localization/index.ts
 msgid "Website language"
