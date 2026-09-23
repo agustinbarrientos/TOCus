@@ -112,7 +112,7 @@ msgstr "{name} se eliminó de tu lista."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "{name} was removed, but its browser access could not be removed automatically."
+msgid "{name} was removed, but its browser access couldn't be removed automatically."
 msgstr "Se eliminó {name}, pero su acceso del navegador no se pudo retirar automáticamente."
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
@@ -216,7 +216,7 @@ msgid "All day"
 msgstr "Todo el día"
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
-msgid "All recorded counts and time totals will be deleted. This cannot be undone."
+msgid "All recorded counts and time totals will be deleted. This can't be undone."
 msgstr "Se borrarán todos los recuentos y tiempos registrados. Esta acción no se puede deshacer."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -259,7 +259,7 @@ msgid "Appearance preferences"
 msgstr "Preferencias de apariencia"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "Appearance settings could not load"
+msgid "Appearance settings couldn't load"
 msgstr "No se pudo cargar la configuración de apariencia"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
@@ -298,11 +298,11 @@ msgid "Brown"
 msgstr "Marrón"
 
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
-msgid "Browser access could not be confirmed. Try again."
+msgid "Browser access couldn't be confirmed. Try again."
 msgstr "No se pudo confirmar el acceso del navegador. Inténtalo de nuevo."
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "Browser access could not be requested. Nothing was saved."
+msgid "Browser access couldn't be requested. Nothing was saved."
 msgstr "No se pudo solicitar acceso al navegador. No se guardó nada."
 
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
@@ -335,7 +335,7 @@ msgid "Change when TOCus pauses this site, or rename it"
 msgstr "Cambia cuándo TOCus pausa este sitio web o cambia su nombre"
 
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
-msgid "Changes could not be saved. Check the fields and try again."
+msgid "Changes couldn't be saved. Check the fields and try again."
 msgstr "No se pudieron guardar los cambios. Revisa los campos e inténtalo de nuevo."
 
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
@@ -586,7 +586,7 @@ msgid "Language preference"
 msgstr "Preferencias de idioma"
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
-msgid "Language settings could not load"
+msgid "Language settings couldn't load"
 msgstr "No se pudo cargar la configuración de idioma"
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
@@ -910,7 +910,7 @@ msgid "Schedule"
 msgstr "Horario"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Schedule could not load"
+msgid "Schedule couldn't load"
 msgstr "No se pudo cargar el horario"
 
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
@@ -1005,7 +1005,7 @@ msgid "Statistics are unavailable"
 msgstr "Las estadísticas no están disponibles"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Statistics could not be reset"
+msgid "Statistics couldn't be reset"
 msgstr "No se pudieron restablecer las estadísticas"
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
@@ -1058,11 +1058,11 @@ msgid "The internet has a lot of great things, but it can feel like everything i
 msgstr "Internet tiene muchas cosas estupendas, pero a veces parece que todo compite por tu atención. Creé TOCus para quienes se sienten estresados, para darles un momento para hacer una pausa, respirar y elegir qué hacer después."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "The local configuration could not be updated safely."
+msgid "The local configuration couldn't be updated safely."
 msgstr "No se pudo actualizar la configuración local de forma segura."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "The schedule could not be saved. Your settings were not changed."
+msgid "The schedule couldn't be saved. Your settings weren't changed."
 msgstr "No se pudo guardar el horario. Tu configuración no cambió."
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
@@ -1074,11 +1074,11 @@ msgid "The statistics only keep track of counts and durations. They don't save a
 msgstr "Las estadísticas solo registran cantidades y duraciones. No guardan contenido de las páginas ni direcciones web."
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
-msgid "The wait will not grow beyond this duration."
+msgid "The wait won't grow beyond this duration."
 msgstr "La espera no superará esta duración."
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "The website name is not valid."
+msgid "The website name isn't valid."
 msgstr "El nombre del sitio web no es válido."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
@@ -1086,7 +1086,7 @@ msgid "Theme"
 msgstr "Tema"
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
-msgid "These timing choices are not valid. Review them before saving."
+msgid "These timing choices aren't valid. Review them before saving."
 msgstr "Estas elecciones de tiempos no son válidas. Revísalas antes de guardar."
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
@@ -1094,7 +1094,7 @@ msgid "These websites will be removed when you save your changes."
 msgstr "Estos sitios web se eliminarán cuando guardes los cambios."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "This clears the rows you are editing. Your saved schedule stays unchanged until you save."
+msgid "This clears the rows you're editing. Your saved schedule stays unchanged until you save."
 msgstr "Se borran las filas que editas. Tu horario guardado no cambiará hasta que guardes."
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
@@ -1118,7 +1118,7 @@ msgid "This site is already in your list."
 msgstr "Este sitio ya está en tu lista."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
-msgid "This site was not saved, but TOCus may still have browser access to it. Add it again to finish setup, or remove that access from your browser's extension settings."
+msgid "This site wasn't saved, but TOCus may still have browser access to it. Add it again to finish setup, or remove that access from your browser's extension settings."
 msgstr "Este sitio no se guardó, pero es posible que TOCus todavía tenga acceso a él desde el navegador. Añádelo de nuevo para terminar la configuración o elimina ese acceso desde la configuración de extensiones de tu navegador."
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
@@ -1130,20 +1130,20 @@ msgid "This timing group is no longer available. Reload the page and try again."
 msgstr "Este grupo de tiempos ya no está disponible. Recarga la página e inténtalo de nuevo."
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
-msgid "This visit window has ended. Start another pause when you are ready."
+msgid "This visit window has ended. Start another pause when you're ready."
 msgstr "Este tiempo de visita terminó. Inicia otra pausa cuando estés listo."
 
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
-msgid "This website could not be added. Nothing was changed."
+msgid "This website couldn't be added. Nothing was changed."
 msgstr "No se pudo añadir este sitio web. No se cambió nada."
 
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "This website could not be saved. Its browser access may still be active."
+msgid "This website couldn't be saved. Its browser access may still be active."
 msgstr "No se pudo guardar este sitio web. Es posible que su acceso del navegador siga activo."
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "This website could not be saved. Your entry is still here."
+msgid "This website couldn't be saved. Your entry is still here."
 msgstr "No se pudo guardar este sitio web. Tu entrada sigue aquí."
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
@@ -1176,11 +1176,11 @@ msgid "Time you took to pause"
 msgstr "Tiempo que dedicaste a hacer una pausa"
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
-msgid "Timing settings could not be saved. Your choices are still here."
+msgid "Timing settings couldn't be saved. Your choices are still here."
 msgstr "No se pudo guardar la configuración de tiempos. Tus elecciones siguen aquí."
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
-msgid "Timing settings could not load"
+msgid "Timing settings couldn't load"
 msgstr "No se pudo cargar la configuración de tiempos"
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
@@ -1204,65 +1204,65 @@ msgstr "TOCus"
 
 #. Popup explanation shown for browser-owned pages that extensions cannot manage.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
-msgid "TOCus cannot add a pause to this browser page."
+msgid "TOCus can't add a pause to this browser page."
 msgstr "TOCus no puede añadir una pausa a esta página del navegador."
 
 #. Popup explanation shown when the current website cannot be identified.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
-msgid "TOCus cannot read the current website."
+msgid "TOCus can't read the current website."
 msgstr "TOCus no puede leer el sitio web actual."
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "TOCus could not confirm the reset. No totals are shown until your local statistics can be read again."
+msgid "TOCus couldn't confirm the reset. No totals are shown until your local statistics can be read again."
 msgstr "TOCus no pudo confirmar el restablecimiento. No se mostrarán totales hasta que se puedan leer de nuevo tus estadísticas locales."
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "TOCus could not create separate timing for this site."
+msgid "TOCus couldn't create separate timing for this site."
 msgstr "TOCus no pudo crear tiempos independientes para este sitio."
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
-msgid "TOCus could not finish opening"
+msgid "TOCus couldn't finish opening"
 msgstr "TOCus no pudo terminar de abrirse"
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
-msgid "TOCus could not finish the reset. Try again to complete it."
+msgid "TOCus couldn't finish the reset. Try again to complete it."
 msgstr "TOCus no ha podido terminar el restablecimiento. Inténtalo de nuevo para completarlo."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "TOCus could not load local appearance settings. Nothing was changed."
+msgid "TOCus couldn't load local appearance settings. Nothing was changed."
 msgstr "TOCus no pudo cargar la configuración local de apariencia. No se cambió nada."
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "TOCus could not load local settings. Nothing was changed."
+msgid "TOCus couldn't load local settings. Nothing was changed."
 msgstr "TOCus no pudo cargar la configuración local. No se cambió nada."
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
-msgid "TOCus could not load local timing settings. Nothing was changed."
+msgid "TOCus couldn't load local timing settings. Nothing was changed."
 msgstr "TOCus no pudo cargar la configuración local de tiempos. No se cambió nada."
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
-msgid "TOCus could not load your local language setting. Nothing was changed."
+msgid "TOCus couldn't load your local language setting. Nothing was changed."
 msgstr "TOCus no pudo cargar la configuración local de idioma. No se cambió nada."
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "TOCus could not read your local statistics. No estimates or totals are shown."
+msgid "TOCus couldn't read your local statistics. No estimates or totals are shown."
 msgstr "TOCus no pudo leer tus estadísticas locales. No se muestran estimaciones ni totales."
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
-msgid "TOCus could not restore this pause."
+msgid "TOCus couldn't restore this pause."
 msgstr "TOCus no pudo restaurar esta pausa."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
-msgid "TOCus could not restore your personalization defaults. Nothing was changed."
+msgid "TOCus couldn't restore your personalization defaults. Nothing was changed."
 msgstr "TOCus no pudo restaurar tus valores predeterminados de personalización. No se cambió nada."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
-msgid "TOCus could not save that site. Try again."
+msgid "TOCus couldn't save that site. Try again."
 msgstr "TOCus no pudo guardar ese sitio. Inténtalo de nuevo."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "TOCus found local settings it could not read. They were not replaced."
+msgid "TOCus found local settings it couldn't read. They weren't replaced."
 msgstr "TOCus encontró una configuración local que no pudo leer. No se reemplazó."
 
 #. Popup status when TOCus is currently active for the selected website.
@@ -1308,7 +1308,7 @@ msgid "TOCus settings"
 msgstr "Configuración de TOCus"
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
-msgid "TOCus still could not restore this pause."
+msgid "TOCus still couldn't restore this pause."
 msgstr "TOCus todavía no pudo restaurar esta pausa."
 
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
@@ -1433,7 +1433,7 @@ msgid "Websites"
 msgstr "Sitios web"
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "Websites could not load"
+msgid "Websites couldn't load"
 msgstr "No se pudieron cargar los sitios web"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -1457,7 +1457,7 @@ msgid "When the wait finishes"
 msgstr "Cuando termina la espera"
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
-msgid "When you click the toolbar icon, TOCus gets access to the website you are currently visiting, but only for a short time, and doesn't send that data anywhere."
+msgid "When you click the toolbar icon, TOCus gets access to the website you're currently visiting, but only for a short time, and doesn't send that data anywhere."
 msgstr "Cuando haces clic en el icono de la barra de herramientas, TOCus obtiene acceso al sitio web que estás visitando, pero solo durante un breve periodo, y no envía esos datos a ningún sitio."
 
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
@@ -1477,7 +1477,7 @@ msgid "Would you help TOCus with a quick review, please?"
 msgstr "¿Podrías ayudar a TOCus con una breve reseña, por favor?"
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
-msgid "You can continue when you are ready."
+msgid "You can continue when you're ready."
 msgstr "Puedes continuar cuando estés listo."
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
@@ -1493,11 +1493,11 @@ msgid "You're all set"
 msgstr "Ya está todo listo"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "Your appearance could not be saved. Your choice is still shown here."
+msgid "Your appearance couldn't be saved. Your choice is still shown here."
 msgstr "No se pudo guardar tu apariencia. Tu elección sigue visible aquí."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
-msgid "Your browser could not request access for that site. Try again."
+msgid "Your browser couldn't request access for that site. Try again."
 msgstr "Tu navegador no pudo solicitar acceso a ese sitio. Inténtalo de nuevo."
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
@@ -1514,11 +1514,11 @@ msgstr "Tu navegador pedirá acceso a los sitios seleccionados cuando termines."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
-msgid "Your changes could not be saved. Nothing was replaced."
+msgid "Your changes couldn't be saved. Nothing was replaced."
 msgstr "No se pudieron guardar tus cambios. No se reemplazó nada."
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
-msgid "Your choice could not be saved. Try again."
+msgid "Your choice couldn't be saved. Try again."
 msgstr "No se pudo guardar tu elección. Inténtalo de nuevo."
 
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
@@ -1526,15 +1526,15 @@ msgid "Your data stays with you"
 msgstr "Tus datos se quedan contigo"
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
-msgid "Your language could not be saved. Your choice is still shown here."
+msgid "Your language couldn't be saved. Your choice is still shown here."
 msgstr "No se pudo guardar el idioma. Tu elección sigue visible aquí."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "Your local personalization data is not valid. Restoring defaults will reset appearance, pause, and language preferences."
+msgid "Your local personalization data isn't valid. Restoring defaults will reset appearance, pause, and language preferences."
 msgstr "Tus datos de personalización no son válidos. Restaurar los valores predeterminados restablecerá la apariencia, las pausas y el idioma."
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
-msgid "Your local personalization data is not valid. Restoring defaults will reset appearance, pause, motion, and language preferences."
+msgid "Your local personalization data isn't valid. Restoring defaults will reset appearance, pause, motion, and language preferences."
 msgstr "Tus datos locales de personalización no son válidos. Restaurar los valores predeterminados restablecerá tus preferencias de apariencia, pausa, movimiento e idioma."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -1542,15 +1542,15 @@ msgid "Your local settings need attention"
 msgstr "Tu configuración local necesita atención"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Your local settings were not changed. Try loading them again."
+msgid "Your local settings weren't changed. Try loading them again."
 msgstr "Tu configuración local no cambió. Intenta cargarla de nuevo."
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
-msgid "Your local timing data is not valid, so it was not replaced."
+msgid "Your local timing data isn't valid, so it wasn't replaced."
 msgstr "Tus datos locales de tiempos no son válidos, por lo que no se reemplazaron."
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "Your local website list is not valid, so it was not replaced."
+msgid "Your local website list isn't valid, so it wasn't replaced."
 msgstr "Tu lista local de sitios web no es válida, por lo que no se reemplazó."
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
@@ -1582,7 +1582,7 @@ msgid "Your visit window is ending soon."
 msgstr "Tu tiempo de visita terminará pronto."
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "Your website changes were saved, but some unused browser access could not be removed."
+msgid "Your website changes were saved, but some unused browser access couldn't be removed."
 msgstr "Se guardaron los cambios, pero no se pudo quitar parte del acceso del navegador que ya no se usa."
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
