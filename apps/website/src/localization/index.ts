@@ -120,11 +120,6 @@ function createWebsiteCatalog( i18n: I18n ): Readonly<WebsiteCatalog> {
 		sourceShort: i18n._( msg`View the source` ),
 		skipLink: i18n._( msg`Skip to content` ),
 		languageMenuLabel: i18n._( msg`Website language` ),
-		analyticsPromptTitle: i18n._( msg( { message: 'Website analytics' } ) ),
-		analyticsPromptDescription: i18n._( msg( { message: 'May we use Google Analytics cookies to understand visits to this website? The extension has no analytics or tracking.' } ) ),
-		analyticsAccept: i18n._( msg( { message: 'Accept' } ) ),
-		analyticsReject: i18n._( msg( { message: 'Reject' } ) ),
-		analyticsPreferences: i18n._( msg( { message: 'Analytics preferences' } ) ),
 		languageLabels: Object.freeze( {
 			[ WebsiteLanguage.ENGLISH ]: i18n._( msg( {
 				comment: 'Language-menu autonym. Keep this language name written in English.',
