@@ -4,6 +4,8 @@
 
 ### Pause before visiting addictive websites
 
+TOCus is a browser extension that gives you a short pause before opening the websites you choose, so you can notice the impulse and decide what to do next.
+
 [tocus.uo.ar](https://tocus.uo.ar/)
 
 [![CI](https://github.com/agustinbarrientos/TOCus/actions/workflows/ci.yml/badge.svg)](https://github.com/agustinbarrientos/TOCus/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
