@@ -17,6 +17,7 @@ export const InformationDocument = {
  */
 export const InformationExternalUrl = {
 	CHROME_LIMITED_USE: 'https://developer.chrome.com/docs/webstore/program-policies/user-data-faq',
+	GOOGLE_DATA_USE: 'https://policies.google.com/technologies/partner-sites',
 	SUPPORT_EMAIL: 'mailto:hi@agustinbarrientos.com',
 } as const;
 

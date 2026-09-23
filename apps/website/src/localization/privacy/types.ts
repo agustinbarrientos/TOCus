@@ -32,5 +32,10 @@ export interface PrivacyCatalog {
 	limitedUseAfter: string;
 	websiteTitle: string;
 	websiteRequests: string;
+	analyticsTitle: string;
+	analyticsDescription: string;
+	analyticsBoundary: string;
+	analyticsConsent: string;
+	analyticsLink: string;
 	externalLinks: string;
 }

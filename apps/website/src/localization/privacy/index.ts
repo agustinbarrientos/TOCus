@@ -39,6 +39,11 @@ export function createPrivacyCatalog( i18n: I18n ): Readonly<PrivacyCatalog> {
 		limitedUseAfter: i18n._( msg( { message: ". Your site list, settings, and statistics stay in your browser. The extension doesn't send them to the developer or Google and has no analytics or tracking." } ) ),
 		websiteTitle: i18n._( msg( { message: 'This website and external links' } ) ),
 		websiteRequests: i18n._( msg( { message: 'When you visit this website, your browser sends messages to the server that runs it. These messages can include your IP address, browser type, the page you want, and the time of the request. The hosting service may keep a record of these messages in server logs.' } ) ),
+		analyticsTitle: i18n._( msg( { message: 'Google Analytics on this website' } ) ),
+		analyticsDescription: i18n._( msg( { message: 'This website uses Google Analytics to understand how visitors use its pages. Google Analytics uses cookies and sends Google information such as pages visited, interactions, approximate location, and browser and device details. The developer can view reports about visits to this website.' } ) ),
+		analyticsBoundary: i18n._( msg( { message: "The TOCus extension has no analytics or tracking. Website analytics can't read your extension's site list, settings, or statistics." } ) ),
+		analyticsConsent: i18n._( msg( { message: 'This website only loads Google Analytics after you accept. You can reject it or change your choice using Analytics preferences in the footer. Your choice is saved in this browser.' } ) ),
+		analyticsLink: i18n._( msg( { message: 'How Google uses information from websites that use its services' } ) ),
 		externalLinks: i18n._( msg( { message: "Links to GitHub, browser rules, extension stores, and the author's website open other sites that have their own privacy rules. Installing or updating TOCus can also connect with your browser or store provider. These connections are separate from the extension sending data to the developer." } ) ),
 	} );
 }

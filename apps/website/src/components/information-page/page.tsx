@@ -65,6 +65,15 @@ function PrivacyContent( { catalog }: PrivacyContentProperties ) {
 				<p>{ catalog.websiteRequests }</p>
 				<p>{ catalog.externalLinks }</p>
 			</section>
+			<section id="website-analytics" aria-labelledby="website-analytics-title">
+				<h3 id="website-analytics-title">{ catalog.analyticsTitle }</h3>
+				<p>{ catalog.analyticsDescription }</p>
+				<p>{ catalog.analyticsBoundary }</p>
+				<p>{ catalog.analyticsConsent }</p>
+				<p><ExternalLink href={ InformationExternalUrl.GOOGLE_DATA_USE }>
+					{ catalog.analyticsLink }
+				</ExternalLink></p>
+			</section>
 		</section>
 	</>;
 }

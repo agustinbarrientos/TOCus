@@ -195,6 +195,7 @@ test.describe( 'generated website publication pages', () => {
 			await expect( page.locator( 'main h2' ) ).toHaveText( [ 'The extension', 'This site' ] );
 			await expect( page.locator( '#the-extension > section' ) ).toHaveCount( 4 );
 			await expect( page.locator( '#this-site #website-and-links' ) ).toBeVisible();
+			await expect( page.locator( '#this-site #website-analytics' ) ).toBeVisible();
 			const extensionPolicy = page.locator( '#extension-data' );
 			const extensionPolicyText = await extensionPolicy.innerText();
 			expect( extensionPolicyText ).toMatch( /choices|preferences/iu );
@@ -215,6 +216,10 @@ test.describe( 'generated website publication pages', () => {
 			const websiteText = await page.locator( '#website-and-links' ).innerText();
 			expect( websiteText ).toMatch( /hosting|server/iu );
 			expect( websiteText ).toMatch( /other sites that have their own privacy rules/iu );
+			const analyticsText = await page.locator( '#website-analytics' ).innerText();
+			expect( analyticsText ).toContain( 'Google Analytics' );
+			expect( analyticsText ).toContain( 'The TOCus extension has no analytics or tracking.' );
+			expect( analyticsText ).toContain( 'only loads Google Analytics after you accept' );
 			expect( await page.locator( `a[href="${ ChromeLimitedUseUrl }"]` ).count() ).toBe( 1 );
 			expect( await page.locator( '#limited-use' ).innerText() ).toMatch( /Limited Use/iu );
 		} );
