@@ -1,7 +1,7 @@
 {
   "asset": "hero.glb",
-  "fileBytes": 2379896,
-  "gzipBytes": 1438981,
+  "fileBytes": 2380036,
+  "gzipBytes": 1439237,
   "triangles": 96155,
   "meshObjects": 45,
   "drawCalls": 48,
@@ -24,14 +24,14 @@
     }
   },
   "characterRefinement": {
-    "grip": "Three curled fingers around the cup with an opposing thumb",
+    "grip": "Compact palm and three short curled fingers around the cup with a tucked opposing thumb",
     "roundedElbow": true,
     "feetLoweredWorldUnits": {
       "left": 0.156917,
       "right": 0.074786
     },
     "soleGroundClearanceWorldUnits": -0.004,
-    "version": 6,
+    "version": 7,
     "headTurnDegrees": 35,
     "strawStraighteningDegrees": 24,
     "continuousShallowArmArc": true,
@@ -59,6 +59,21 @@
       "loweredWorldUnits": 0.092606,
       "sipArmLengthPreserved": true,
       "restPosePreserved": true
+    },
+    "compactHand": {
+      "palmScaleRatio": 0.82,
+      "fingerThicknessRatio": 0.82,
+      "thumbWrapDegrees": 27,
+      "previousThumbWrapDegrees": 59,
+      "armGeometryPreserved": true,
+      "drinkingContactPreserved": true
     }
+  },
+  "foregroundClearing": {
+    "resizedPlant": "Pack plant 016",
+    "scaleRatio": 0.7071067811865476,
+    "areaRatioFromFullSize": 0.5,
+    "basePositionPreserved": true,
+    "remainingCharacterAndPlantMeshesPreserved": true
   }
 }

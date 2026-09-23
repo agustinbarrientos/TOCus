@@ -6,11 +6,18 @@ import type { AnimationClip, Group, Object3D, ShaderMaterial, Vector4 } from 'th
  */
 export const HeroCamera = {
 	MAX_YAW: Math.PI * 50 / 180,
+	REST_YAW: 42 * Math.PI / 180,
 	RADIUS: 11,
 	HEIGHT: 4.8,
 	TARGET_HEIGHT: 4.8,
 	FOV: 60,
 } as const;
+
+/**
+ * Dimensions of the resting-view capture used before WebGL is ready.
+ * @since 0.1.0
+ */
+export const HeroPoster = { WIDTH: 2560, HEIGHT: 1440 } as const;
 
 /**
  * A six-second swell reaches above both soles and recedes below them.

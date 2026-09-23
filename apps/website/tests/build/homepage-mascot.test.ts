@@ -38,9 +38,11 @@ test.describe( 'homepage riverside hero', () => {
 		await page.goto( 'http://website.test/' );
 		const scene = page.locator( '.riverside-hero' );
 		const canvas = scene.locator( 'canvas' );
+		const restYaw = 42 * Math.PI / 180;
 		await expect( scene ).toHaveAttribute( 'data-status', 'ready' );
 		await expect( canvas ).toHaveAttribute( 'data-playing', 'true' );
-		await expect( canvas ).toHaveAttribute( 'data-head-yaw', '0' );
+		expect( Number( await canvas.getAttribute( 'data-yaw' ) ) ).toBeCloseTo( restYaw );
+		expect( Number( await canvas.getAttribute( 'data-head-yaw' ) ) ).toBeCloseTo( restYaw * 35 / 50 );
 		await expect.poll( async () => Number( await canvas.getAttribute( 'data-triangles' ) ) ).toBeGreaterThan( 0 );
 		const height = await canvas.getAttribute( 'data-camera-height' );
 		if ( height === null ) {
@@ -90,9 +92,36 @@ test.describe( 'homepage riverside hero', () => {
 			await page.mouse.move( 959, 100 );
 			await expect( canvas ).toHaveAttribute( 'data-camera-height', height );
 			expect( Math.abs( Number( await canvas.getAttribute( 'data-head-yaw' ) ) ) ).toBeLessThanOrEqual( headLimit );
+			const returning = await canvas.evaluate( async ( element: HTMLCanvasElement ) => {
+				const departure = Number( element.dataset.yaw );
+				const started = performance.now();
+				element.closest( '.hero' )?.dispatchEvent( new PointerEvent( 'pointerleave' ) );
+				await new Promise<void>( ( resolve ) => {
+					/**
+					 * Samples the real animation after a short interval without changing its clock.
+					 * @param now - Current browser animation timestamp.
+					 */
+					function sampleReturn( now: number ): void {
+						if ( now - started >= 600 ) {
+							resolve();
+						} else {
+							requestAnimationFrame( sampleReturn );
+						}
+					}
+					requestAnimationFrame( sampleReturn );
+				} );
+				return {
+					departure, yaw: Number( element.dataset.yaw ), seconds: ( performance.now() - started ) / 1000,
+				};
+			} );
+			const remaining = ( returning.yaw - restYaw ) / ( returning.departure - restYaw );
+			const returnRate = -Math.log( remaining ) / returning.seconds;
+			expect( returnRate, 'Leaving the hero drifts home instead of using the fast pointer-follow speed.' ).toBeLessThan( 1.8 );
+			expect( returnRate ).toBeGreaterThan( 0.9 );
+			await expect.poll( async () => Math.abs( Number( await canvas.getAttribute( 'data-yaw' ) ) - restYaw ) ).toBeLessThan( 0.01 );
 			await page.mouse.move( 480, 280 );
-			await expect.poll( async () => Math.abs( Number( await canvas.getAttribute( 'data-yaw' ) ) ) ).toBeLessThan( 0.01 );
-			await expect.poll( async () => Math.abs( Number( await canvas.getAttribute( 'data-head-yaw' ) ) ) ).toBeLessThan( 0.005 );
+			await expect.poll( async () => Math.abs( Number( await canvas.getAttribute( 'data-yaw' ) ) - restYaw ) ).toBeLessThan( 0.01 );
+			await expect.poll( async () => Math.abs( Number( await canvas.getAttribute( 'data-head-yaw' ) ) - restYaw * 35 / 50 ) ).toBeLessThan( 0.005 );
 			expect( shaderErrors ).toEqual( [] );
 		} );
 

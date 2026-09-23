@@ -4,8 +4,8 @@ import { expect, test, type Route } from '@playwright/test';
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 const PublicRoutes = [ '/', '/de/', '/es/', '/es-ar/', '/fr/', '/it/', '/ja/', '/pt-br/', '/pt-pt/', '/ru/' ];
 const FeatureTitles = [
-	'Use it only when you want to', 'Set a custom schedule for each site', 'Your videos will pause automatically',
-	'Check how much time you\u2019ve saved', 'Everything is stored on your device', 'It\u2019s free and open source',
+	'Use it only when you want to', 'Set a schedule for each site', 'Your videos will pause automatically',
+	'Check how much time you\u2019ve saved', 'It\'s 100% private', 'It\u2019s free and open source',
 ];
 
 /**
@@ -78,7 +78,7 @@ test.describe( 'static illustrated product presentation', () => {
 			expect( typography ).toHaveLength( 10 );
 			expect( new Set( typography.map( ( values ) => JSON.stringify( values ) ) ).size ).toBe( 1 );
 			for ( const text of await features.locator( 'h3, p' ).all() ) {
-				await expect( text ).toHaveCSS( 'text-align', 'start' );
+				await expect( text ).toHaveCSS( 'text-align', /^(?:start|left)$/u );
 			}
 		}
 		await expect( page.locator( '#how-it-works button, #features button, #features select, #features canvas' ) )

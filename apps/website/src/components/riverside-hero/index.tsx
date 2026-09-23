@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { HeroStatus, type HeroController } from '../../services/riverside-hero/types';
+import { HeroPoster, HeroStatus, type HeroController } from '../../services/riverside-hero/types';
 import './style.scss';
 
 /**
@@ -59,7 +59,7 @@ export function RiversideHero() {
 	}, [] );
 	return <div className="riverside-hero" data-status={ status } aria-hidden="true">
 		<img className="riverside-hero-poster" src="/images/riverside-hero.webp" alt=""
-			width="6000" height="2160" fetchPriority="high" />
+			width={ HeroPoster.WIDTH } height={ HeroPoster.HEIGHT } fetchPriority="high" />
 		<canvas ref={ canvas } className="riverside-hero-canvas" />
 	</div>;
 }

@@ -69,14 +69,14 @@ msgstr "Español (tú)"
 msgid "Español (vos)"
 msgstr "Español (vos)"
 
-#: apps/website/src/localization/index.ts
-msgid "Everything is stored on your device"
-msgstr "Tutto resta sul tuo dispositivo"
-
 #. Language-menu autonym. Keep this language name written in French.
 #: apps/website/src/localization/index.ts
 msgid "Français"
 msgstr "Français"
+
+#: apps/website/src/localization/index.ts
+msgid "It's 100% private"
+msgstr "È 100% privato"
 
 #. Language-menu autonym. Keep this language name written in Italian.
 #: apps/website/src/localization/index.ts
@@ -100,8 +100,8 @@ msgid "Pause before visiting addictive websites"
 msgstr "Fai una pausa prima di visitare siti che creano dipendenza"
 
 #: apps/website/src/localization/index.ts
-msgid "Pick different days and times for each site."
-msgstr "Scegli giorni e orari diversi per ogni sito."
+msgid "If you feel like it, pick different days and times for each site."
+msgstr "Se ti va, scegli giorni e orari diversi per ogni sito."
 
 #. Language-menu autonym for Brazilian Portuguese. Keep this language name written in Portuguese.
 #: apps/website/src/localization/index.ts
@@ -122,7 +122,7 @@ msgid "Privacy policy"
 msgstr "Informativa sulla privacy"
 
 #: apps/website/src/localization/index.ts
-msgid "Set a custom schedule for each site"
+msgid "Set a schedule for each site"
 msgstr "Imposta un orario per ogni sito"
 
 #: apps/website/src/localization/index.ts

@@ -107,8 +107,10 @@
 	}
 
 	.homepage-features {
+		max-width: 56.25rem;
 		padding-top: clamp(6rem, 11vw, 10rem);
 		padding-bottom: clamp(6rem, 12vw, 11rem);
+		margin-inline: auto;
 	}
 
 	.feature-grid {

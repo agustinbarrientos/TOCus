@@ -2,6 +2,7 @@
 import '@tocus/ui/styles.scss';
 import '../../styles/global.scss';
 import HomePage from './page';
+import Favicon from '../favicon/index.astro';
 import { type LocalizedHomePageProperties as Props } from '../../localization';
 
 const { localization, localizations } = Astro.props;
@@ -20,7 +21,7 @@ const { catalog } = localization;
 		<meta property="og:description" content={catalog.description} />
 		<meta property="og:image" content="/images/riverside-hero.webp" />
 		<meta name="twitter:card" content="summary_large_image" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<Favicon />
 		<title>{`TOCus - ${catalog.intro}`}</title>
 		<link rel="alternate" hreflang="x-default" href="/" />
 		{localizations.map( ( option ) => (

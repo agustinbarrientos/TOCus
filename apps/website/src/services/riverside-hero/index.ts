@@ -5,7 +5,7 @@ import {
 	Plane, Raycaster, Scene, SRGBColorSpace, Vector2, Vector3, WebGLRenderer,
 } from 'three';
 import { disposeObjectResources } from '../mascot-scene/model';
-import { cameraPosition, pointerYaw } from './camera';
+import { cameraFieldOfView, cameraPosition, easeCameraYaw, pointerYaw } from './camera';
 import { createEnvironment } from './environment';
 import { createHeadMotion } from './head-motion';
 import { loadRiversideModel } from './model';
@@ -43,8 +43,9 @@ export function createRiversideHero( canvas: HTMLCanvasElement, onStatus: HeroLi
 	let request = 0;
 	let previous = 0;
 	let elapsed = 0;
-	let yaw = 0;
-	let targetYaw = 0;
+	let yaw = HeroCamera.REST_YAW;
+	let targetYaw = HeroCamera.REST_YAW;
+	let returning = true;
 	let model: RiversideModel | undefined;
 	let mixer: AnimationMixer | undefined;
 	let head: HeroHeadMotion | undefined;
@@ -87,7 +88,7 @@ export function createRiversideHero( canvas: HTMLCanvasElement, onStatus: HeroLi
 		const dt = Math.min( wallDelta, 0.25 );
 		previous = now;
 		elapsed += dt;
-		yaw += ( targetYaw - yaw ) * ( 1 - Math.exp( -wallDelta * 4 ) );
+		yaw = easeCameraYaw( yaw, targetYaw, wallDelta, returning );
 		mixer?.update( dt );
 		canvas.dataset.animationTime = String( mixer?.time ?? 0 );
 		const headYaw = head?.update( yaw ) ?? 0;
@@ -123,6 +124,7 @@ export function createRiversideHero( canvas: HTMLCanvasElement, onStatus: HeroLi
 		const width = Math.max( 1, canvas.clientWidth );
 		const height = Math.max( 1, canvas.clientHeight );
 		camera.aspect = width / height;
+		camera.fov = cameraFieldOfView( camera.aspect );
 		camera.updateProjectionMatrix();
 		renderer.setPixelRatio( Math.min( devicePixelRatio, width < 700 ? 1 : 1.5 ) );
 		renderer.setSize( width, height, false );
@@ -139,11 +141,13 @@ export function createRiversideHero( canvas: HTMLCanvasElement, onStatus: HeroLi
 		}
 		const bounds = hero.getBoundingClientRect();
 		targetYaw = pointerYaw( event.clientX, bounds.left, bounds.width );
+		returning = false;
 	}
 
-	/** Returns gently to the centered rear view when the pointer leaves. */
+	/** Drifts back to the authored resting view when the pointer leaves. */
 	function leavePointer(): void {
-		targetYaw = 0;
+		targetYaw = HeroCamera.REST_YAW;
+		returning = true;
 	}
 
 	/**
@@ -261,16 +265,21 @@ export function createRiversideHero( canvas: HTMLCanvasElement, onStatus: HeroLi
 		model = loaded;
 		head = createHeadMotion( model.root );
 		sipFollow = createSipHeadFollow( model.root );
-		canvas.dataset.headYaw = String( head.update( 0 ) );
 		scene.add( model.root );
 		mixer = new AnimationMixer( model.root );
 		for ( const clip of model.clips ) {
 			mixer.clipAction( clip ).play();
 		}
+		mixer.update( 0 );
+		const initialHeadYaw = head.update( yaw );
+		sipFollow.update( initialHeadYaw );
+		canvas.dataset.headYaw = String( initialHeadYaw );
+		canvas.dataset.animationTime = '0';
 		model.root.traverse( ( object ) => {
 			if ( object instanceof Mesh && /plant|vegetation/i.test( object.name ) ) {
 				plants.push( object );
 				plantRotations.push( object.rotation.z );
+				object.rotation.z += Math.sin( ( plants.length - 1 ) * 1.9 ) * 0.004;
 			}
 		} );
 		let geometryTriangles = 0;
