@@ -1,0 +1,26 @@
+---
+import InformationPage from '../../components/information-page/index.astro';
+import {
+	WebsiteLanguage,
+	getWebsiteLocalizations,
+	type LocalizedWebsitePageProperties as Props,
+} from '../../localization';
+
+/**
+ * Generates one static route for every non-English Privacy Policy translation.
+ * @return Astro route parameters and stable language properties.
+ * @since 1.0.0 Initial implementation.
+ */
+export function getStaticPaths() {
+	return getWebsiteLocalizations()
+		.filter( ( localization ) => localization.language !== WebsiteLanguage.ENGLISH )
+		.map( ( localization ) => ( {
+			params: { language: localization.path.slice( 1, -1 ) },
+			props: { language: localization.language },
+		} ) );
+}
+
+const { language } = Astro.props;
+---
+
+<InformationPage {language} />

@@ -1,0 +1,27 @@
+---
+import InformationPage from '../../components/information-page/index.astro';
+import { InformationDocument } from '../../components/information-page/types';
+import {
+	WebsiteLanguage,
+	getWebsiteLocalizations,
+	type LocalizedWebsitePageProperties as Props,
+} from '../../localization';
+
+/**
+ * Generates each non-English support page with a stable localized URL.
+ * @return Astro route parameters and language properties.
+ * @since 1.0.0
+ */
+export function getStaticPaths() {
+	return getWebsiteLocalizations()
+		.filter( ( localization ) => localization.language !== WebsiteLanguage.ENGLISH )
+		.map( ( localization ) => ( {
+			params: { language: localization.path.slice( 1, -1 ) },
+			props: { language: localization.language },
+		} ) );
+}
+
+const { language } = Astro.props;
+---
+
+<InformationPage {language} document={InformationDocument.SUPPORT} />
