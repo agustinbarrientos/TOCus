@@ -130,8 +130,9 @@ test.describe( 'static illustrated product presentation', () => {
 				for ( const route of PublicRoutes ) {
 					await engineTest.step( `Read ${ route } without JavaScript`, async () => {
 						await page.goto( `http://website.test${ route }` );
-						await page.evaluate( async () => {
-							await document.fonts.ready;
+						// Poll from the runner so no-JavaScript pages need only synchronous evaluation.
+						await expect.poll( () => page.evaluate( () => document.fonts.status ) ).toBe( 'loaded' );
+						await page.evaluate( () => {
 							document.documentElement.style.fontSize = '20px';
 						} );
 						await expect( page.locator( '.hero h1' ) ).toBeVisible();
