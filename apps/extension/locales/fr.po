@@ -1173,7 +1173,7 @@ msgstr "Plage horaire {position}"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Time you took to pause"
-msgstr "Temps consacré à vos pauses"
+msgstr "Temps consacré à tes pauses"
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Timing settings couldn't be saved. Your choices are still here."

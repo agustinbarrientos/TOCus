@@ -241,7 +241,7 @@ msgstr "利用可能時間"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Allowances granted"
-msgstr "付与された利用可能時間"
+msgstr "アクセスを許可した回数"
 
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Allowing..."
@@ -396,7 +396,7 @@ msgstr "カラーパレット"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Completed waits"
-msgstr "完了した待ち時間"
+msgstr "待機を完了した回数"
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
