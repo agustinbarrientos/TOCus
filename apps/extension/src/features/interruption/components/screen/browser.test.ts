@@ -19,7 +19,7 @@ test.describe( 'React pause', () => {
 		} );
 		const review = page.getByRole( 'link', { name: 'Leave a review' } );
 		await expect( review ).toBeVisible();
-		await expect( page.getByRole( 'heading', { name: 'You saved 1 hour, 30 minutes! Congrats!' } ) ).toBeVisible();
+		await expect( page.getByRole( 'heading', { name: 'You saved 1 hour, 30 minutes!' } ) ).toBeVisible();
 		await expect( page.getByText( 'Would you help TOCus with a quick review, please?' ) ).toBeVisible();
 		await expect( page.locator( 'footer' ) ).not.toContainText( 'About 1 hr, 30 min saved.' );
 		await expect( review ).toHaveAttribute( 'target', '_blank' );

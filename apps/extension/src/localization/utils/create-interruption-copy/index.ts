@@ -25,7 +25,7 @@ export function createInterruptionCopy( i18n: I18n ): Readonly<InterruptionScree
 			Math.floor( savedMilliseconds / MILLISECONDS_PER_MINUTE ),
 			formatters,
 		);
-		return i18n._( msg`You saved ${ duration }! Congrats!` );
+		return i18n._( msg`You saved ${ duration }!` );
 	}
 
 	/**
