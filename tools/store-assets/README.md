@@ -3,6 +3,7 @@
 A local capture and composition tool for TOCus's browser-store listings. It renders the current production UI, adds localized captions, and exports opaque RGB PNGs:
 
 - Five **1280 x 800** screenshots per language, in listing order.
+- Firefox exports: five **2400 x 1800** screenshots per language.
 - One **440 x 280** small promo tile and one **1400 x 560** marquee tile, in English.
 - Edge exports: both promo sizes in all ten languages and a transparent **300 x 300** listing logo.
 - OG exports: **1200 x 628** website share cards in all ten languages.
@@ -37,6 +38,17 @@ Upload `extension-logo-300x300.png` to the Extension logo field, then use Edge's
 `search-terms.txt` contains comma-separated terms for every selected language. The catalog tests enforce at most seven terms, 30 characters per term, and 21 words in total. In Partner Center, add each term individually. Omitting `--only promos` also generates the five existing screenshots for each selected language.
 
 See Microsoft's [Edge listing requirements](https://learn.microsoft.com/en-us/microsoft-edge/extensions/publish/publish-extension#step-7-enter-store-listing-details) for the localized image slots and dimensions.
+
+## Firefox listing screenshots
+
+```sh
+pnpm store:assets --store firefox
+pnpm store:assets --store firefox --locale en
+```
+
+Firefox exports default to `.output/firefox/`, with five opaque RGB PNGs in each selected language folder. The canvas uses a 4:3 layout at 1200 x 900 CSS pixels, rendered at twice the pixel density for 2400 x 1800 output. Production UI is also captured at twice the pixel density, so interface text remains sharp. The approved riverside artwork, localized headlines and foreground mascot poses are reused. The screenshot keeps its aspect ratio and reaches the bottom of the composition.
+
+Open `.output/firefox/index.html` to review the batch. This store exports screenshots only; it doesn't generate Chrome or Edge promotional tiles. Existing Chrome, Edge and OG files remain in their separate output directories.
 
 ## Website OG images
 
