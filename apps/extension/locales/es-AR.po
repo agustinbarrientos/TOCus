@@ -717,6 +717,10 @@ msgstr "O apretá {key}"
 msgid "Orange"
 msgstr "Naranja"
 
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "Pause"
+msgstr "Pausa"
+
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Pause before visiting addictive websites"
 msgstr "Hacé una pausa antes de visitar sitios web adictivos"
@@ -800,10 +804,6 @@ msgstr "Privacidad y datos locales"
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Purple"
 msgstr "Violeta"
-
-#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "Quiet pause"
-msgstr "Pausa tranquila"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Reconsidered visits"
@@ -1485,8 +1485,8 @@ msgid "You don't have to just take my word for it."
 msgstr "No tenés que quedarte solo con mi palabra."
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
-msgid "You saved {duration}! Congrats!"
-msgstr "¡Ahorraste {duration}! ¡Felicitaciones!"
+msgid "You saved {duration}!"
+msgstr "¡Ahorraste {duration}!"
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "You're all set"
