@@ -45,7 +45,7 @@ export function createAppearanceCopy( i18n: I18n ): Readonly<AppearanceScreenCop
 			} ),
 			[ PauseMode.QUIET ]: Object.freeze( {
 				label: i18n._( msg`Pause` ),
-				description: i18n._( msg`A still pause with no breathing cue.` ),
+				description: i18n._( msg`A static screen without breathing guidance.` ),
 			} ),
 		} ),
 		loading: i18n._( msg`Loading appearance settings...` ),
