@@ -8,6 +8,16 @@
 	gap: var(--tocus-space-4);
 }
 
+[data-tocus-ui] .settings-statistics-period-select {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	align-items: center;
+	gap: var(--tocus-space-3);
+	max-width: 100%;
+
+	.settings-statistics-period-label { margin: 0; }
+}
+
 .settings-statistics-estimate, .settings-statistics-summary .settings-metrics {
 	margin: var(--tocus-space-4) 0 0;
 	dt { @include typography.apply('body-medium'); color: var(--tocus-color-on-surface-muted); }
