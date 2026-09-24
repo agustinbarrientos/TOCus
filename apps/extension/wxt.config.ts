@@ -7,6 +7,7 @@ import { createToolbarIconAssets } from './config/icons/services/create-toolbar-
 import { addBrowserLocaleAssets } from './config/localization/services/create-browser-locale-assets/index.ts';
 import { configureProtectedPageFontAssets } from './config/vite/services/configure-protected-page-font-assets/index.ts';
 import { createLocalizationViteConfig } from './config/vite/services/create-localization-vite-config/index.ts';
+import { createInterpretedValidationPlugin } from './config/vite/services/create-interpreted-validation-plugin/index.ts';
 import { isChromiumBuild } from './src/shared/utils/build-browser/index.ts';
 import { InterruptionDocumentPath } from './src/shared/utils/interruption-document-url/types.ts';
 
@@ -33,7 +34,11 @@ export default defineConfig( {
 	 * @since 1.0.0 Initial implementation.
 	 */
 	vite: () => ( {
-		plugins: createLocalizationViteConfig().plugins,
+		plugins: [ ...createLocalizationViteConfig().plugins, createInterpretedValidationPlugin() ],
+		resolve: {
+			// The official ESM entry avoids the legacy UMD global lookup through Function.
+			alias: [ { find: /^decimal\.js-light$/u, replacement: 'decimal.js-light/decimal.mjs' } ],
+		},
 		build: {
 			// Chromium cannot reuse module preloads across extension resource worlds.
 			modulePreload: false,
