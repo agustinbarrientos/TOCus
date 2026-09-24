@@ -6,7 +6,6 @@ export const WebsiteBrowser = {
 	CHROME: 'chrome',
 	EDGE: 'edge',
 	FIREFOX: 'firefox',
-	SAFARI: 'safari',
 } as const;
 
 /**

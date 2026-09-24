@@ -13,8 +13,8 @@ describe( 'download store selection', () => {
 		[ 'Mozilla/5.0 EdgA/130.0 Mobile Safari/537.36', WebsiteBrowser.CHROME, 'chromewebstore.google.com' ],
 		[ 'Mozilla/5.0 Firefox/130.0', WebsiteBrowser.FIREFOX, 'addons.mozilla.org' ],
 		[ 'Mozilla/5.0 FxiOS/130.0 Mobile/15E148 Safari/605.1', WebsiteBrowser.FIREFOX, 'addons.mozilla.org' ],
-		[ 'Mozilla/5.0 Version/18.0 Safari/605.1.15', WebsiteBrowser.SAFARI, 'apps.apple.com' ],
-		[ 'Mozilla/5.0 Version/18.0 Mobile/15E148 Safari/604.1', WebsiteBrowser.SAFARI, 'apps.apple.com' ],
+		[ 'Mozilla/5.0 Version/18.0 Safari/605.1.15', WebsiteBrowser.CHROME, 'chromewebstore.google.com' ],
+		[ 'Mozilla/5.0 Version/18.0 Mobile/15E148 Safari/604.1', WebsiteBrowser.CHROME, 'chromewebstore.google.com' ],
 	] )( 'selects the appropriate destination for %s', ( userAgent, browser, hostname ) => {
 		const store = getDownloadStore( detectDownloadBrowser( userAgent ) );
 		expect( store.browser ).toBe( browser );
@@ -25,6 +25,10 @@ describe( 'download store selection', () => {
 		expect( destination.protocol ).toBe( 'https:' );
 		expect( destination.hostname ).toBe( hostname );
 		expect( destination.hash ).toBe( '' );
+	} );
+
+	test( 'offers only the three published browser targets', () => {
+		expect( Object.keys( DownloadStores ).sort() ).toEqual( [ 'chrome', 'edge', 'firefox' ] );
 	} );
 
 	test( 'resolves a usable static-render destination without browser globals', () => {

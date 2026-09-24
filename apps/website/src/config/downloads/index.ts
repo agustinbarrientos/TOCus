@@ -51,8 +51,7 @@ const FirefoxStoreLanguages: Readonly<Record<WebsiteLanguage, string>> = {
 
 /**
  * The single place to replace all website download destinations.
- * Chrome, Edge and Firefox have their listing URLs; Safari still uses a placeholder.
- * Replace the Safari placeholder with the official listing URL before launch.
+ * Only browsers with a public release are offered as download options.
  * @since 1.0.0
  */
 export const DownloadStores: Readonly<Record<WebsiteBrowser, StoreListing>> = {
@@ -71,11 +70,6 @@ export const DownloadStores: Readonly<Record<WebsiteBrowser, StoreListing>> = {
 		name: 'Firefox',
 		href: 'https://addons.mozilla.org/firefox/addon/tocus/',
 	},
-	[ WebsiteBrowser.SAFARI ]: {
-		browser: WebsiteBrowser.SAFARI,
-		name: 'Safari',
-		href: 'https://apps.apple.com/app/tocus/id0000000000',
-	},
 };
 
 /**
@@ -91,12 +85,6 @@ export function detectDownloadBrowser( userAgent = '' ): WebsiteBrowser {
 	if ( /Edg\//iu.test( userAgent ) ) {
 		return WebsiteBrowser.EDGE;
 	}
-	if ( /Chrome\/|Chromium\/|CriOS\/|EdgA\/|EdgiOS\/|OPR\/|OPiOS\//iu.test( userAgent ) ) {
-		return WebsiteBrowser.CHROME;
-	}
-	if ( /Safari\//iu.test( userAgent ) ) {
-		return WebsiteBrowser.SAFARI;
-	}
 	return WebsiteBrowser.CHROME;
 }
 
@@ -111,8 +99,7 @@ export function getDownloadStore(
 	browser: WebsiteBrowser, language: WebsiteLanguage = WebsiteLanguage.ENGLISH,
 ): StoreListing {
 	const store = DownloadStores[ browser ];
-	if ( store.href === null || ( browser !== WebsiteBrowser.CHROME && browser !== WebsiteBrowser.EDGE &&
-			browser !== WebsiteBrowser.FIREFOX ) ) {
+	if ( store.href === null ) {
 		return store;
 	}
 	const url = new URL( store.href );

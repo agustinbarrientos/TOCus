@@ -232,7 +232,7 @@ for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 						root.setAttribute( 'data-tocus-palette', value );
 					}, palette );
 					const alternatives = page.locator( '.hero-actions .store-alternatives a' );
-					await expect( alternatives ).toHaveCount( 3 );
+					await expect( alternatives ).toHaveCount( 2 );
 					for ( const [ name, target ] of [
 						[ 'source link', page.locator( '.site-footer a[href="https://github.com/agustinbarrientos/TOCus"]' ) ],
 						[ 'download action', page.locator( '.hero-actions [data-download-primary]' ) ],
@@ -261,7 +261,7 @@ for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 				test( `${ route }: supports keyboard order, local hydration and mobile layout`, async ( { page } ) => {
 					await openHomepage( page, route );
 					const alternatives = page.locator( '.hero-actions .store-alternatives a' );
-					await expect( alternatives ).toHaveCount( 3 );
+					await expect( alternatives ).toHaveCount( 2 );
 					await focusNextControl( page, page.locator( '.skip-link' ), `${ route } skip link` );
 					await focusNextControl( page, page.locator( '.site-header .language-shortcut' ), `${ route } language menu` );
 					await focusNextControl( page, page.locator( '.hero-actions [data-download-primary]' ), `${ route } download action` );

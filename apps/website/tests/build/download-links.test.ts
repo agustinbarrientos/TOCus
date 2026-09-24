@@ -24,6 +24,8 @@ test.describe( 'browser-specific download links', () => {
 			expect( html ).toContain( `https://chromewebstore.google.com/detail/tocus/gagjpniodbnbjdggjlkliabjffcnnfmh?hl=${ chromeLocale }` );
 			expect( html ).toContain( `https://microsoftedge.microsoft.com/addons/detail/ifpmfcopmabjjgggeefgoejnlbjpaehh?hl=${ edgeLocale }` );
 			expect( html ).toContain( `https://addons.mozilla.org/${ firefoxLocale }/firefox/addon/tocus/` );
+			expect( html ).not.toContain( 'apps.apple.com' );
+			expect( html ).not.toContain( 'browser-safari' );
 			await page.route( '**/*', async ( route ) => {
 				const url = new URL( route.request().url() );
 				if ( url.origin !== 'http://website.test' ) {
@@ -50,7 +52,7 @@ test.describe( 'browser-specific download links', () => {
 				await page.setViewportSize( { width, height: 844 } );
 				for ( const group of await groups.all() ) {
 					const links = group.locator( '[data-store]' );
-					await expect( links ).toHaveCount( 3 );
+					await expect( links ).toHaveCount( 2 );
 					const bounds = await links.evaluateAll( ( elements ) => elements.map( ( element ) => {
 						const { top, left, right } = element.getBoundingClientRect();
 						return { top, left, right };
@@ -114,8 +116,10 @@ test.describe( 'browser-specific download links', () => {
 			userAgent: 'Mozilla/5.0 Chrome/140.0.0.0 Safari/537.36' },
 		{ name: 'Firefox desktop', browser: WebsiteBrowser.FIREFOX,
 			userAgent: 'Mozilla/5.0 Firefox/140.0' },
-		{ name: 'Safari desktop', browser: WebsiteBrowser.SAFARI,
+		{ name: 'Safari desktop falls back to Chrome', browser: WebsiteBrowser.CHROME,
 			userAgent: 'Mozilla/5.0 Version/18.0 Safari/605.1.15' },
+		{ name: 'Unknown browser falls back to Chrome', browser: WebsiteBrowser.CHROME,
+			userAgent: 'UnknownBrowser/1.0' },
 		{ name: 'Edge desktop', browser: WebsiteBrowser.EDGE,
 			userAgent: 'Mozilla/5.0 Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0' },
 		{ name: 'Edge on iOS', browser: WebsiteBrowser.CHROME,
@@ -152,8 +156,8 @@ test.describe( 'browser-specific download links', () => {
 					const primary = group.locator( '[data-download-primary]' );
 					expect( await primary.getAttribute( 'data-store' ) ).toBe( scenario.browser );
 					const alternatives = group.locator( '.store-alternatives a[data-store]' );
-					expect( await alternatives.count() ).toBe( 3 );
-					await expect( alternatives.locator( 'img' ) ).toHaveCount( 3 );
+					expect( await alternatives.count() ).toBe( 2 );
+					await expect( alternatives.locator( 'img' ) ).toHaveCount( 2 );
 					for ( const alternative of await alternatives.all() ) {
 						const browser = await alternative.getAttribute( 'data-store' );
 						const icon = alternative.locator( 'img' );
