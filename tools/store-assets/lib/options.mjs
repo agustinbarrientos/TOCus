@@ -16,6 +16,7 @@ export function readOptions( args, root ) {
 		input: { type: 'string' },
 		output: { type: 'string' },
 		only: { type: 'string', default: 'all' },
+		'sync-website': { type: 'boolean', default: false },
 		help: { type: 'boolean', default: false },
 	} } );
 	if ( ! [ 'chrome', 'edge' ].includes( values.store ) ) {
@@ -25,10 +26,17 @@ export function readOptions( args, root ) {
 	if ( selected.some( ( locale ) => ! Object.hasOwn( locales, locale ) ) ) {
 		throw new Error( `Unknown locale. Choose: ${ Object.keys( locales ).join( ', ' ) }` );
 	}
-	if ( ! [ 'all', 'screenshots', 'promos' ].includes( values.only ) ) {
-		throw new Error( '--only must be all, screenshots, or promos.' );
+	if ( ! [ 'all', 'screenshots', 'promos', 'og' ].includes( values.only ) ) {
+		throw new Error( '--only must be all, screenshots, promos, or og.' );
 	}
-	const defaultOutput = `${ root }/tools/store-assets/.output${ values.store === 'edge' ? '/edge' : '' }`;
+	if ( values[ 'sync-website' ] && values.only !== 'og' ) {
+		throw new Error( '--sync-website requires --only og.' );
+	}
+	if ( values.only === 'og' && ( values.input || values.store !== 'chrome' ) ) {
+		throw new Error( 'OG generation does not use --input or a browser-specific --store.' );
+	}
+	const subdirectory = values.only === 'og' ? '/og' : ( values.store === 'edge' ? '/edge' : '' );
+	const defaultOutput = `${ root }/tools/store-assets/.output${ subdirectory }`;
 	const output = resolve( values.output ?? defaultOutput );
 	const appsDirectory = resolve( root, 'apps' );
 	if ( output === appsDirectory || output.startsWith( `${ appsDirectory }/` ) ) {
@@ -40,6 +48,7 @@ export function readOptions( args, root ) {
 		input: values.input ? resolve( values.input ) : null,
 		output,
 		only: values.only,
+		syncWebsite: values[ 'sync-website' ],
 		help: values.help,
 	};
 }

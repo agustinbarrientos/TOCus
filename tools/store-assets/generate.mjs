@@ -9,6 +9,7 @@ import { createEdgePromos, edgeListings } from './lib/edge.mjs';
 import { readOptions } from './lib/options.mjs';
 import { captureScene } from './lib/capture.mjs';
 import { loadMasters, renderAsset, escapeHtml } from './lib/render.mjs';
+import { createOgAssets, loadOgMasters, renderOgAsset, syncOgImages } from './lib/og.mjs';
 
 const root = fileURLToPath( new URL( '../../', import.meta.url ) );
 const extensionRequire = createRequire( new URL( '../../apps/extension/package.json', import.meta.url ) );
@@ -25,16 +26,22 @@ pnpm store:assets --input /path/to/images   Compose existing 1-en.png \u2026 5-r
 pnpm store:assets --only promos             Render the 440\u00d7280 and 1400\u00d7560 English tiles
 pnpm store:assets --store edge --only promos Render localized Edge tiles, logo and search terms
 pnpm store:assets --only screenshots        Skip promotional tiles
+pnpm store:assets --only og                 Generate all 10 localized 1200\u00d7628 OG images
+pnpm store:assets --only og --sync-website  Also replace the website's finished OG PNGs
 pnpm store:assets --output /path/to/output  Choose a local output directory
 
 Default output: tools/store-assets/.output (ignored by Git).
 Edge output: tools/store-assets/.output/edge (also ignored).
+OG output: tools/store-assets/.output/og (also ignored).
 No account, installed extension, user profile, remote API, or image generation is used.` );
 	process.exit( 0 );
 }
 
 await mkdir( options.output, { recursive: true } );
-const masters = await loadMasters( root );
+const og = options.only === 'og';
+const screenshots = [ 'all', 'screenshots' ].includes( options.only );
+const promotional = [ 'all', 'promos' ].includes( options.only );
+const masters = og ? await loadOgMasters( root ) : await loadMasters( root );
 const artifacts = [];
 let server;
 let browser;
@@ -80,7 +87,7 @@ async function createCaptureContext( browser, origin, locale ) {
 
 try {
 	let origin;
-	if ( ! options.input && options.only !== 'promos' ) {
+	if ( ! options.input && screenshots ) {
 		const { createServer } = await import( pathToFileURL( extensionRequire.resolve( 'vite' ) ) );
 		server = await createServer( {
 			configFile: join( root, 'apps/extension/tests/visual-server/vite.config.ts' ),
@@ -93,7 +100,7 @@ try {
 	browser = await chromium.launch( { headless: true } );
 	const context = await createCaptureContext( browser, origin, 'en-US' );
 	const compositor = await context.newPage();
-	if ( options.only !== 'promos' ) {
+	if ( screenshots ) {
 		for ( const locale of options.locales ) {
 			const captureContext = options.input ? null
 				: await createCaptureContext( browser, origin, locales[ locale ].browserLocale );
@@ -127,7 +134,7 @@ try {
 			}
 		}
 	}
-	if ( options.only !== 'screenshots' ) {
+	if ( promotional ) {
 		const promotionalAssets = options.store === 'edge' ? createEdgePromos( options.locales ) : promos;
 		for ( const asset of promotionalAssets ) {
 			await saveAsset( await renderAsset( compositor, masters, asset ), asset );
@@ -140,10 +147,19 @@ try {
 			await writeFile( join( options.output, 'search-terms.txt' ), `${ terms }\n` );
 		}
 	}
+	if ( og ) {
+		for ( const asset of createOgAssets( options.locales ) ) {
+			await saveAsset( await renderOgAsset( compositor, masters, asset ), asset );
+		}
+		if ( options.syncWebsite ) {
+			await syncOgImages( root, options.output, options.locales );
+			console.log( 'Updated website OG images; only finished locale PNGs were copied.' );
+		}
+	}
 	await writeFile( join( options.output, 'manifest.json' ), `${ JSON.stringify( {
-		store: options.store,
-		captureSource: options.input ? 'provided-screenshots' : 'production-ui-fixtures',
-		statistics: 'Deterministic example data, not measured usage or a promised outcome.',
+		store: og ? null : options.store,
+		captureSource: og ? 'local-og-masters' : ( options.input ? 'provided-screenshots' : 'production-ui-fixtures' ),
+		...( screenshots ? { statistics: 'Deterministic example data, not measured usage or a promised outcome.' } : {} ),
 		artifacts,
 	}, null, 2 ) }\n` );
 	const cards = artifacts.map( ( asset ) => `<figure><img src="${ asset.file }" loading="lazy" alt="${ escapeHtml( asset.caption ?? asset.kind ) }"><figcaption>${ escapeHtml( asset.file ) }</figcaption></figure>` ).join( '\n' );

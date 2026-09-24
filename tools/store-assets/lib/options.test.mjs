@@ -43,3 +43,13 @@ test( 'refuses to generate into the website or extension source trees', () => {
 	assert.throws( () => readOptions( [ '--output', '/project/apps/website/public/store' ], '/project' ), /outside apps/ );
 	assert.throws( () => readOptions( [ '--output', '/project/apps/extension/public/store' ], '/project' ), /outside apps/ );
 } );
+
+test( 'isolates OG exports and requires an explicit opt-in to copy finished images into the website', () => {
+	const options = readOptions( [ '--only', 'og' ], '/project' );
+	assert.equal( options.output, '/project/tools/store-assets/.output/og' );
+	assert.equal( options.syncWebsite, false );
+	assert.equal( readOptions( [ '--only', 'og', '--sync-website' ], '/project' ).syncWebsite, true );
+	assert.throws( () => readOptions( [ '--sync-website' ], '/project' ), /only og/ );
+	assert.throws( () => readOptions( [ '--only', 'og', '--input', '/tmp/captures' ], '/project' ), /does not use/ );
+	assert.throws( () => readOptions( [ '--only', 'og', '--store', 'edge' ], '/project' ), /does not use/ );
+} );
