@@ -148,8 +148,8 @@ msgid "A soft sphere guides your breathing."
 msgstr "Una esfera suave guía tu respiración."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "A still pause with no breathing cue."
-msgstr "Una pausa inmóvil sin indicaciones para respirar."
+msgid "A static screen without breathing guidance."
+msgstr "Una pantalla estática, sin indicaciones para respirar."
 
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
@@ -571,7 +571,7 @@ msgid "Keep site"
 msgstr "Conservar sitio"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Keep TOCus active every day and at every time."
+msgid "Keep TOCus active all day, every day."
 msgstr "Mantén TOCus activo todos los días y a toda hora."
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
