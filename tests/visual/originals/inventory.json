@@ -409,18 +409,18 @@
   },
   {
     "path": "apps/extension/src/shared/utils/shared-theme-styles/__snapshots__/chromium/shared-notices-blue-dark.png",
-    "sha256": "143385d8e162d1d25733e9686d5fbfc9573e28e91ffc595dd89aa92bc695cace"
+    "sha256": "a3c84eec8a4d401bd4a661e233ad74fa696afee210e736fa885d6bd0c6f6818a"
   },
   {
     "path": "apps/extension/src/shared/utils/shared-theme-styles/__snapshots__/chromium/shared-notices-blue-light.png",
-    "sha256": "7334e93223cf830e3f60a6dfecd93eb333fdc464826875f2704fa350a25e010a"
+    "sha256": "b74236c9cf6632b1435e40f04ba874129488c400a8b3a89f609cab18432d06dd"
   },
   {
     "path": "apps/extension/src/shared/utils/shared-theme-styles/__snapshots__/chromium/shared-notices-green-dark.png",
-    "sha256": "3c96e8941f782cbc3d52339c9884c0bbb423adeff6a65c8ca58fef0a3faf4f73"
+    "sha256": "e701c06bcd983af79c5d0a87016a02af0ed78419b64b63e15d143b97f5e8d126"
   },
   {
     "path": "apps/extension/src/shared/utils/shared-theme-styles/__snapshots__/chromium/shared-notices-green-light.png",
-    "sha256": "0e8b730a8f084abc67783bf9fe7dd70575457a697c560f6ccdd3c1d896ed3196"
+    "sha256": "e29cac0c094a61575b55f819a670a51b42dc70499034f6403b93ebdc9a6ff95c"
   }
 ]
