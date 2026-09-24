@@ -717,6 +717,10 @@ msgstr "または {key} キーを押す"
 msgid "Orange"
 msgstr "オレンジ"
 
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "Pause"
+msgstr "一時停止"
+
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Pause before visiting addictive websites"
 msgstr "中毒性のあるサイトを開く前に、ひと呼吸"
@@ -800,10 +804,6 @@ msgstr "プライバシーとローカルデータ"
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Purple"
 msgstr "紫"
-
-#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "Quiet pause"
-msgstr "静かな一時停止"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Reconsidered visits"
@@ -1485,8 +1485,8 @@ msgid "You don't have to just take my word for it."
 msgstr "私の言葉をそのまま信じる必要はありません。"
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
-msgid "You saved {duration}! Congrats!"
-msgstr "{duration}節約できました！おめでとうございます！"
+msgid "You saved {duration}!"
+msgstr "{duration}節約できました！"
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "You're all set"
