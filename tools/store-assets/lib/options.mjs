@@ -11,12 +11,16 @@ import { locales } from './catalog.mjs';
  */
 export function readOptions( args, root ) {
 	const { values } = parseArgs( { args, options: {
+		store: { type: 'string', default: 'chrome' },
 		locale: { type: 'string', default: 'all' },
 		input: { type: 'string' },
 		output: { type: 'string' },
 		only: { type: 'string', default: 'all' },
 		help: { type: 'boolean', default: false },
 	} } );
+	if ( ! [ 'chrome', 'edge' ].includes( values.store ) ) {
+		throw new Error( '--store must be chrome or edge.' );
+	}
 	const selected = values.locale === 'all' ? Object.keys( locales ) : values.locale.split( ',' ).map( ( value ) => value.trim() );
 	if ( selected.some( ( locale ) => ! Object.hasOwn( locales, locale ) ) ) {
 		throw new Error( `Unknown locale. Choose: ${ Object.keys( locales ).join( ', ' ) }` );
@@ -24,12 +28,14 @@ export function readOptions( args, root ) {
 	if ( ! [ 'all', 'screenshots', 'promos' ].includes( values.only ) ) {
 		throw new Error( '--only must be all, screenshots, or promos.' );
 	}
-	const output = resolve( values.output ?? `${ root }/tools/store-assets/.output` );
+	const defaultOutput = `${ root }/tools/store-assets/.output${ values.store === 'edge' ? '/edge' : '' }`;
+	const output = resolve( values.output ?? defaultOutput );
 	const appsDirectory = resolve( root, 'apps' );
 	if ( output === appsDirectory || output.startsWith( `${ appsDirectory }/` ) ) {
 		throw new Error( 'Store assets must stay outside apps/ so they cannot become public routes or packaged assets.' );
 	}
 	return {
+		store: values.store,
 		locales: [ ...new Set( selected ) ],
 		input: values.input ? resolve( values.input ) : null,
 		output,

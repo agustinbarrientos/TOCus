@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { chromium } from '@playwright/test';
 import { locales, scenes, promos } from './lib/catalog.mjs';
+import { createEdgePromos, edgeListings } from './lib/edge.mjs';
 import { readOptions } from './lib/options.mjs';
 import { captureScene } from './lib/capture.mjs';
 import { loadMasters, renderAsset, escapeHtml } from './lib/render.mjs';
@@ -22,10 +23,12 @@ pnpm store:assets --locale en               Capture one language and both promo 
 pnpm store:assets --locale es-tu,es-vos      Capture selected languages
 pnpm store:assets --input /path/to/images   Compose existing 1-en.png \u2026 5-ru.png captures
 pnpm store:assets --only promos             Render the 440\u00d7280 and 1400\u00d7560 English tiles
+pnpm store:assets --store edge --only promos Render localized Edge tiles, logo and search terms
 pnpm store:assets --only screenshots        Skip promotional tiles
 pnpm store:assets --output /path/to/output  Choose a local output directory
 
 Default output: tools/store-assets/.output (ignored by Git).
+Edge output: tools/store-assets/.output/edge (also ignored).
 No account, installed extension, user profile, remote API, or image generation is used.` );
 	process.exit( 0 );
 }
@@ -37,7 +40,7 @@ let server;
 let browser;
 
 /**
- * Encodes exactly 24-bit RGB PNG and records the output contract.
+ * Encodes opaque RGB artwork or a transparent logo and records the output contract.
  * @param {Buffer} image - Rendered browser pixels.
  * @param {object} asset - Expected dimensions, locale, kind and filename.
  * @return {Promise<void>} Completed file and manifest entry.
@@ -45,15 +48,16 @@ let browser;
 async function saveAsset( image, asset ) {
 	const path = join( options.output, asset.file );
 	await mkdir( fileURLToPath( new URL( './', pathToFileURL( path ) ) ), { recursive: true } );
-	const png = await sharp( image ).removeAlpha().png( { palette: false } ).toBuffer();
+	const pixels = asset.transparent ? sharp( image ).ensureAlpha() : sharp( image ).removeAlpha();
+	const png = await pixels.png( { palette: false } ).toBuffer();
 	const metadata = await sharp( png ).metadata();
 	if ( metadata.width !== asset.width || metadata.height !== asset.height
-		|| metadata.hasAlpha || metadata.channels !== 3 ) {
+		|| metadata.hasAlpha !== Boolean( asset.transparent ) || metadata.channels !== ( asset.transparent ? 4 : 3 ) ) {
 		throw new Error( `Invalid output dimensions or color format: ${ asset.file }` );
 	}
 	await writeFile( path, png );
 	artifacts.push( { ...asset, bytes: png.length, sha256: createHash( 'sha256' ).update( png ).digest( 'hex' ) } );
-	console.log( `Created ${ asset.file } (${ asset.width }\u00d7${ asset.height }, RGB PNG)` );
+	console.log( `Created ${ asset.file } (${ asset.width }\u00d7${ asset.height }, ${ asset.transparent ? 'RGBA' : 'RGB' } PNG)` );
 }
 
 /**
@@ -124,11 +128,20 @@ try {
 		}
 	}
 	if ( options.only !== 'screenshots' ) {
-		for ( const asset of promos ) {
+		const promotionalAssets = options.store === 'edge' ? createEdgePromos( options.locales ) : promos;
+		for ( const asset of promotionalAssets ) {
 			await saveAsset( await renderAsset( compositor, masters, asset ), asset );
+		}
+		if ( options.store === 'edge' ) {
+			await saveAsset( await sharp( masters.icon, { density: 450 } ).resize( 300, 300, { fit: 'fill' } ).png().toBuffer(), {
+				kind: 'logo', width: 300, height: 300, transparent: true, file: 'extension-logo-300x300.png',
+			} );
+			const terms = options.locales.map( ( locale ) => `${ locale }\n${ edgeListings[ locale ].searchTerms.join( ', ' ) }` ).join( '\n\n' );
+			await writeFile( join( options.output, 'search-terms.txt' ), `${ terms }\n` );
 		}
 	}
 	await writeFile( join( options.output, 'manifest.json' ), `${ JSON.stringify( {
+		store: options.store,
 		captureSource: options.input ? 'provided-screenshots' : 'production-ui-fixtures',
 		statistics: 'Deterministic example data, not measured usage or a promised outcome.',
 		artifacts,

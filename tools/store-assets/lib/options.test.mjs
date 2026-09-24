@@ -26,6 +26,15 @@ test( 'deduplicates selected languages and defaults to ignored local output', ()
 	assert.equal( options.input, null );
 } );
 
+test( 'isolates Edge exports while retaining the original Chrome output directory', () => {
+	const edge = readOptions( [ '--store', 'edge', '--only', 'promos' ], '/project' );
+	assert.equal( edge.store, 'edge' );
+	assert.equal( edge.output, '/project/tools/store-assets/.output/edge' );
+	assert.equal( readOptions( [], '/project' ).store, 'chrome' );
+	assert.equal( readOptions( [ '--store', 'edge', '--output', '/tmp/edge-assets' ], '/project' ).output, '/tmp/edge-assets' );
+	assert.throws( () => readOptions( [ '--store', 'unknown' ], '/project' ), /--store/ );
+} );
+
 test( 'escapes caption markup instead of executing it in the composition', () => {
 	assert.equal( escapeHtml( '<script>"a" & \'b\'</script>' ), '&lt;script&gt;&quot;a&quot; &amp; &#39;b&#39;&lt;/script&gt;' );
 } );

@@ -4,6 +4,7 @@ A local capture and composition tool for TOCus's browser-store listings. It rend
 
 - Five **1280 x 800** screenshots per language, in listing order.
 - One **440 x 280** small promo tile and one **1400 x 560** marquee tile, in English.
+- Edge exports: both promo sizes in all ten languages and a transparent **300 x 300** listing logo.
 - A local HTML contact sheet and a manifest with dimensions, file sizes, and SHA-256 hashes.
 
 ## Generate
@@ -21,6 +22,21 @@ The default captures real extension components through the existing browser-test
 
 Outputs go to `tools/store-assets/.output/`, which Git ignores. Open `.output/index.html` to review the full batch. Upload the PNGs under each language folder and `promos/`; the files under `captures/` are undecorated originals retained for inspection.
 
+## Edge listing assets
+
+```sh
+pnpm store:assets --store edge --only promos
+pnpm store:assets --store edge --only promos --locale en,fr
+```
+
+Edge exports default to `.output/edge/`, with `small-440x280.png` and `large-1400x560.png` in each selected language folder. They reuse the approved promo artwork and dark wordmark with translated headlines. Text fits on one line, shrinking only when needed. The existing Chrome output and English designs remain unchanged.
+
+Upload `extension-logo-300x300.png` to the Extension logo field, then use Edge's Duplicate option for the other languages. It renders the gradient face directly from the existing vector wordmark, without Chrome's extra padding. The background is transparent; promo tiles remain opaque RGB PNGs. This is a separate listing image and doesn't change the icon packaged in the extension.
+
+`search-terms.txt` contains comma-separated terms for every selected language. The catalog tests enforce at most seven terms, 30 characters per term, and 21 words in total. In Partner Center, add each term individually. Omitting `--only promos` also generates the five existing screenshots for each selected language.
+
+See Microsoft's [Edge listing requirements](https://learn.microsoft.com/en-us/microsoft-edge/extensions/publish/publish-extension#step-7-enter-store-listing-details) for the localized image slots and dimensions.
+
 ## Use manually captured screenshots
 
 ```sh
@@ -35,6 +51,7 @@ The input is read without modification. Filenames use `1-<language>.png` through
 | File | Responsibility |
 | --- | --- |
 | `lib/catalog.mjs` | Order, mascot pose and side, language aliases, localized captions, and promo headlines. |
+| `lib/edge.mjs` | Localized Edge promo copy, search terms, and output filenames. |
 | `lib/capture.mjs` | Production UI states, viewport, and readiness conditions. |
 | `lib/composition.css` | Editable backgrounds, caption sizes, frame, and promo layout. |
 | `lib/render.mjs` | Offline HTML composition using the existing brand logo and fonts. |
@@ -73,6 +90,6 @@ pnpm exec stylelint tools/store-assets/lib/composition.css
 pnpm store:assets --locale en
 ```
 
-Each export checks dimensions and RGB color channels. Captions must fit one line, and missing source images, page errors, or broken image decodes fail the run. The contact sheet is for local review only.
+Each export checks dimensions and color channels: RGB for screenshots and promos, RGBA for the Edge logo. Captions and localized promo headlines must fit one line, and missing source images, page errors, or broken image decodes fail the run. The contact sheet is for local review only.
 
 The CLI tests also run through the repository's unit-test command, and the composition stylesheet is included in its style lint command.
