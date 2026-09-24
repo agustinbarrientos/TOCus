@@ -13,7 +13,7 @@ import type {
  */
 const ExtensionNameMessage = Object.freeze( {
 	context: 'Extension name',
-	message: 'TOCus',
+	message: 'TOCus - Pause before visiting addictive websites',
 } );
 
 /**
@@ -22,7 +22,7 @@ const ExtensionNameMessage = Object.freeze( {
  */
 const ExtensionDescriptionMessage = Object.freeze( {
 	context: 'Extension description',
-	message: 'Pause before visiting addictive websites',
+	message: 'TOCus adds a short breathing pause before the websites you choose, so you can notice the impulse and decide what to do next.',
 } );
 
 /**

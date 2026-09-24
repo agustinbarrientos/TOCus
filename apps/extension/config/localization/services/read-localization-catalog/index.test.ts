@@ -6,7 +6,7 @@ describe( 'readLocalizationCatalog', () => {
 		const catalog = await readLocalizationCatalog( 'en' );
 		const extensionName = Object.values( catalog ).find( ( entry ) => entry.context === 'Extension name' );
 
-		expect( extensionName?.message ).toBe( 'TOCus' );
-		expect( extensionName?.translation ).toBe( 'TOCus' );
+		expect( extensionName?.message ).toBe( 'TOCus - Pause before visiting addictive websites' );
+		expect( extensionName?.translation ).toBe( 'TOCus - Pause before visiting addictive websites' );
 	} );
 } );

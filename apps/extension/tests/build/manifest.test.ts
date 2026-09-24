@@ -215,14 +215,14 @@ function getCatalogTranslation( catalog: CatalogType, locale: string, message: s
 function createExpectedManifestMessages( catalog: CatalogType, locale: string ): object {
 	return {
 		extensionName: {
-			message: getCatalogTranslation( catalog, locale, 'TOCus', 'Extension name' ),
+			message: getCatalogTranslation( catalog, locale, 'TOCus - Pause before visiting addictive websites', 'Extension name' ),
 			description: 'Extension name.',
 		},
 		extensionDescription: {
 			message: getCatalogTranslation(
 				catalog,
 				locale,
-				'Pause before visiting addictive websites',
+				'TOCus adds a short breathing pause before the websites you choose, so you can notice the impulse and decide what to do next.',
 				'Extension description',
 			),
 			description: 'Short extension description shown by the browser and extension store.',
