@@ -89,8 +89,8 @@ test.describe( 'static illustrated product presentation', () => {
 		await expect( primaryDownload ).toHaveCount( 1 );
 		await expect( primaryDownload ).toHaveAttribute( 'href', /^https:/u );
 		await expect( primaryDownload.locator( 'img' ) ).toHaveCount( 1 );
-		await expect( page.locator( '#downloads a[href]' ) ).toHaveCount( 4 );
-		await expect( page.locator( '.hero-actions a[data-store]' ) ).toHaveCount( 4 );
+		await expect( page.locator( '#downloads a[href]' ) ).toHaveCount( 3 );
+		await expect( page.locator( '.hero-actions a[data-store]' ) ).toHaveCount( 3 );
 		await expect( page.locator( '.riverside-hero img' ) ).toHaveAttribute( 'src', '/images/riverside-hero.webp' );
 		await expect( page.locator( '.site-footer a[href="/privacy/"]' ) ).toHaveCount( 1 );
 		await expect( page.locator( '.site-footer a[href="https://github.com/agustinbarrientos/TOCus"]' ) ).toHaveCount( 1 );
