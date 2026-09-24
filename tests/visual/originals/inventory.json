@@ -329,19 +329,19 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-schedule-dark.png",
-    "sha256": "8f767441a9ea24b86936ddd2b91d727103f1fb8a274cff5b0320f18c8b1b7711"
+    "sha256": "7a7f0b77d28a3db7881e667fa0c112d0bc2ffcc843e7fc91578360de691820f9"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-schedule-hover-blue-dark.png",
-    "sha256": "ba91803a0d4fad0951f75ea9bcfc8e996e636b823331545873bf830574108c79"
+    "sha256": "3879c63c703432cc71bb5ae371de72caf3ef8918ef8320a14cceb3df9ca134c9"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-schedule-hover-blue-light.png",
-    "sha256": "c9cceddf41158f04a8495c07151f519ce2ef728c47e847b9f8f6f8001aa1c9c4"
+    "sha256": "c55f64a54ee0bba850a84bf1f87bcd2fb3ce400e13ac8dbda86b0af43c2c8b12"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-schedule-light.png",
-    "sha256": "0e08b0bfe57cb364637fbacda839b2dcdd77ee1791b2d17163d9aedc3bbf0338"
+    "sha256": "2c03b19ccb14a705f228e8e408e3b79d7a4930ca8cb71a00ba185ca22c7edf80"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-statistics-dark.png",
