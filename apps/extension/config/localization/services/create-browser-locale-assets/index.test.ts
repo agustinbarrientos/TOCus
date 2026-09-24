@@ -51,4 +51,16 @@ describe( 'createBrowserLocaleAssets', () => {
 
 		expect( files ).toHaveLength( 10 );
 	} );
+
+	it.each( [
+		[ 'es', 'TOCus - Haz una pausa antes de visitar sitios adictivos', 'TOCus a\u00f1ade una pausa' ],
+		[ 'es_419', 'TOCus - Hac\u00e9 una pausa antes de visitar sitios adictivos', 'TOCus agrega una pausa' ],
+	] )( 'exports the intended Spanish name and description for %s', async ( locale, name, description ) => {
+		const assets = await createBrowserLocaleAssets();
+		const asset = assets.find( ( candidate ) => candidate.relativeDest === `_locales/${ locale }/messages.json` );
+		const messages: unknown = JSON.parse( asset?.contents ?? '' );
+
+		expect( messages ).toHaveProperty( 'extensionName.message', name );
+		expect( messages ).toHaveProperty( 'extensionDescription.message', expect.stringContaining( description ) );
+	} );
 } );

@@ -104,10 +104,6 @@ export async function createBrowserLocaleAssets(
 	const assets: Array<BrowserLocaleAsset> = [];
 
 	for ( const catalogDefinition of ExtensionCatalogs ) {
-		if ( catalogDefinition.browserLocales.length === 0 ) {
-			continue;
-		}
-
 		const catalog = await options.readCatalog( catalogDefinition.locale );
 		const contents = serializeBrowserLocaleMessages( catalog, catalogDefinition.locale );
 

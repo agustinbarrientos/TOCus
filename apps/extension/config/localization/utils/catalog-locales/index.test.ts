@@ -6,8 +6,8 @@ describe( 'ExtensionCatalogs', () => {
 	it( 'maps every preference language and browser locale to one canonical PO file', () => {
 		expect( ExtensionCatalogs ).toEqual( [
 			{ language: Language.ENGLISH, locale: 'en', browserLocales: [ 'en' ] },
-			{ language: Language.SPANISH_TU, locale: 'es', browserLocales: [ 'es', 'es_419' ] },
-			{ language: Language.SPANISH_VOS, locale: 'es-AR', browserLocales: [] },
+			{ language: Language.SPANISH_TU, locale: 'es', browserLocales: [ 'es' ] },
+			{ language: Language.SPANISH_VOS, locale: 'es-AR', browserLocales: [ 'es_419' ] },
 			{ language: Language.PORTUGUESE_BRAZIL, locale: 'pt-BR', browserLocales: [ 'pt_BR' ] },
 			{ language: Language.PORTUGUESE_PORTUGAL, locale: 'pt-PT', browserLocales: [ 'pt_PT' ] },
 			{ language: Language.ITALIAN, locale: 'it', browserLocales: [ 'it' ] },
