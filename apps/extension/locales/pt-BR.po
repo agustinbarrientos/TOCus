@@ -725,12 +725,6 @@ msgstr "Pausa"
 msgid "Pause before visiting addictive websites"
 msgstr "Faça uma pausa antes de visitar sites viciantes"
 
-#. Short extension description shown by the browser and extension store.
-#: apps/extension/src/localization/utils/create-browser-locale-messages/index.ts
-msgctxt "Extension description"
-msgid "Pause before visiting addictive websites"
-msgstr "Faça uma pausa antes de visitar sites viciantes"
-
 #. Popup status while the user is completing a timed pause before a website.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Pause in progress"
@@ -1199,8 +1193,14 @@ msgstr "TOCus"
 #. Extension name.
 #: apps/extension/src/localization/utils/create-browser-locale-messages/index.ts
 msgctxt "Extension name"
-msgid "TOCus"
-msgstr "TOCus"
+msgid "TOCus - Pause before visiting addictive websites"
+msgstr "TOCus - Faça uma pausa antes de visitar sites viciantes"
+
+#. Short extension description shown by the browser and extension store.
+#: apps/extension/src/localization/utils/create-browser-locale-messages/index.ts
+msgctxt "Extension description"
+msgid "TOCus adds a short breathing pause before the websites you choose, so you can notice the impulse and decide what to do next."
+msgstr "TOCus dá um tempo para respirar antes de abrir os sites que você escolhe, perceber o impulso e decidir o que fazer."
 
 #. Popup explanation shown for browser-owned pages that extensions cannot manage.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
