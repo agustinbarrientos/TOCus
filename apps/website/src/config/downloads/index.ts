@@ -2,7 +2,7 @@ import { WebsiteBrowser, type StoreListing } from './types';
 
 /**
  * The single place to replace all website download destinations.
- * Chrome points to its store listing; the other stores still use placeholders.
+ * Chrome and Edge have their listing URLs; Firefox and Safari still use placeholders.
  * Replace each placeholder with the official listing URL before launch.
  * @since 1.0.0
  */
@@ -15,7 +15,7 @@ export const DownloadStores: Readonly<Record<WebsiteBrowser, StoreListing>> = {
 	[ WebsiteBrowser.EDGE ]: {
 		browser: WebsiteBrowser.EDGE,
 		name: 'Edge',
-		href: 'https://microsoftedge.microsoft.com/addons/detail/tocus/placeholder-listing-id',
+		href: 'https://microsoftedge.microsoft.com/addons/detail/ifpmfcopmabjjgggeefgoejnlbjpaehh',
 	},
 	[ WebsiteBrowser.FIREFOX ]: {
 		browser: WebsiteBrowser.FIREFOX,

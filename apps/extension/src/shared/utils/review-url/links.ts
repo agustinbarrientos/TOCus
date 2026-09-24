@@ -7,7 +7,7 @@ import type { ExtensionReviewLinks } from './types';
  */
 export const ExtensionStoreReviewLinks: ExtensionReviewLinks = {
 	[ ExtensionBuildBrowser.CHROME ]: 'https://chromewebstore.google.com/detail/tocus/gagjpniodbnbjdggjlkliabjffcnnfmh/reviews',
-	[ ExtensionBuildBrowser.EDGE ]: null,
+	[ ExtensionBuildBrowser.EDGE ]: 'https://microsoftedge.microsoft.com/addons/detail/ifpmfcopmabjjgggeefgoejnlbjpaehh',
 	[ ExtensionBuildBrowser.FIREFOX ]: null,
 	[ ExtensionBuildBrowser.SAFARI ]: null,
 };
