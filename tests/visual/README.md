@@ -160,6 +160,30 @@ Each downloaded expected image matched its committed reference bytes before repl
 
 The follow-up normal comparison in CI run 35923511791 exposed an entry-animation race in the Privacy success scenario: the notification already intersected the viewport while its transform still placed it 80 pixels below its resting position. The case now waits for full opacity and the resting transform before recording its bounds. The existing before/after position assertion and screenshot comparison remain intact; no reference changes are needed for this readiness correction.
 
+## Approved release Settings spacing and period layout
+
+On September 24, 2026, the project owner requested a consistent gap below every Settings title and a Statistics period label beside its selector. Forty-one references were reviewed and refreshed from unmodified normal-run captures in CI run 36030599332 at commit 82986ca0, using macOS 26 ARM64 and pinned Playwright 1.63.0 Chromium.
+
+The changes cover About, Privacy, protected-site Settings, Statistics, and shared notices rendered inside a Settings page. About content moves up 24 pixels after removing its extra margin. Privacy and shared-notice captures lose 32 pixels of duplicated heading spacing. The Statistics selector's horizontal label reduces the standalone content height by 31 pixels. Review included desktop and narrow layouts, both themes, pending/error states, confirmation controls, and notification placement.
+
+Each downloaded expected image matched its committed bytes before replacement. All 106 original registrations remain, with 41 updated hashes and the other 65 unchanged. Appearance copy references are handled separately after the translation review. Website and regional onboarding references, comparator fixtures, capture settings, retries, and comparison tolerances are unchanged.
+
+## Approved pause and schedule wording review
+
+The September 24 translation review replaces the literal static-pause description, uses informal breathing instructions where requested, and simplifies the always-active schedule description. Nine original references and two Portuguese onboarding references were reviewed and refreshed from unmodified normal-run captures in CI run 36032724697 at commit 5e88ccf9, using macOS 26 ARM64 and pinned Playwright 1.63.0 Chromium.
+
+Five Appearance references change only the shorter Pause label and static-screen description. Four Schedule references change only the all-day, every-day sentence. The two Portuguese onboarding references change only the breathing instruction in the preview. All eleven images retain their dimensions, and every changed decoded RGBA pixel is confined to those text regions.
+
+Each downloaded expected image matched its committed bytes before replacement. The 106 original registrations remain, with nine updated inventory hashes and the other 97 unchanged in this copy refresh. The other ten regional references, website references, comparator fixtures, capture settings, retries, and comparison tolerances are unchanged.
+
+## Approved Safari website removal
+
+On September 24, 2026, the project owner requested hiding Safari downloads while retaining its extension source and build support. Ten website references were reviewed and refreshed from unmodified normal-run captures in CI run 36061365915 at commit fc7458e2, using macOS 26 ARM64 and pinned Playwright 1.63.0 Chromium.
+
+The changes remove Safari from the hero and final download rows and recenter the remaining browser links. The two narrow Portuguese pages become 27 pixels shorter because the final download alternatives now fit on one line; the surrounding artwork and footer follow that layout change. The other eight captures retain their dimensions. The open language-menu capture also has twenty one-level RGB edge differences within the existing comparison policy.
+
+Each downloaded expected image matched its committed reference bytes before replacement. All 106 extension originals, regional onboarding references, scenario registrations, comparator fixtures, capture settings, retries and comparison tolerances are unchanged.
+
 ## Case API and commands
 
 Run a bounded original comparison with `pnpm test:visual --project chromium-originals --grep 'interruption-screen-ready.png'`. Explicit grep permits partial investigation, but hash checks always run. Local servers can be reused; CI starts fresh servers.

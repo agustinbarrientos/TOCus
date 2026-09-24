@@ -66,7 +66,7 @@ export function createScheduleCopy(
 		formatRemoveWindowLabel,
 		scheduleLegend: i18n._( msg`When should TOCus be active?` ),
 		alwaysLabel: i18n._( msg`All the time` ),
-		alwaysDescription: i18n._( msg`Keep TOCus active every day and at every time.` ),
+		alwaysDescription: i18n._( msg`Keep TOCus active all day, every day.` ),
 		customLabel: i18n._( msg`On a weekly schedule` ),
 		customDescription: i18n._( msg`Choose the days and times when TOCus should be active.` ),
 		windowsLegend: i18n._( msg`Active time windows` ),

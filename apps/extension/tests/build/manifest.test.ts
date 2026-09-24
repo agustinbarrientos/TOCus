@@ -82,7 +82,7 @@ const expectedManifestCatalogLocales = Object.freeze( {
 	de: 'de',
 	en: 'en',
 	es: 'es',
-	es_419: 'es',
+	es_419: 'es-AR',
 	fr: 'fr',
 	it: 'it',
 	ja: 'ja',
@@ -215,14 +215,14 @@ function getCatalogTranslation( catalog: CatalogType, locale: string, message: s
 function createExpectedManifestMessages( catalog: CatalogType, locale: string ): object {
 	return {
 		extensionName: {
-			message: getCatalogTranslation( catalog, locale, 'TOCus', 'Extension name' ),
+			message: getCatalogTranslation( catalog, locale, 'TOCus - Pause before visiting addictive websites', 'Extension name' ),
 			description: 'Extension name.',
 		},
 		extensionDescription: {
 			message: getCatalogTranslation(
 				catalog,
 				locale,
-				'Pause before visiting addictive websites',
+				'TOCus adds a short breathing pause before the websites you choose, so you can notice the impulse and decide what to do next.',
 				'Extension description',
 			),
 			description: 'Short extension description shown by the browser and extension store.',
@@ -408,10 +408,11 @@ async function expectInterruptionComposition( outputUrl: URL, document: string )
 /**
  * Verifies that on-demand protected-page resources contain the isolated layer and bundled brand font.
  * @param outputUrl - Browser output-directory URL.
+ * @param browser - Browser receiving the injected font stylesheet.
  * @return Promise resolved after protected-page resource assertions pass.
  * @since 1.0.0 Initial implementation.
  */
-async function expectProtectedPageComposition( outputUrl: URL ): Promise<void> {
+async function expectProtectedPageComposition( outputUrl: URL, browser: string ): Promise<void> {
 	const moduleCode = await readOutputFile( outputUrl, 'protected-page.js' );
 	const fontStyles = await readOutputFile( outputUrl, 'assets/protected-page-font.css' );
 	const fontResourceUrls = fontStyles.match( /\/assets\/protected-page-font\d*\.woff2/gu ) ?? [];
@@ -448,7 +449,8 @@ async function expectProtectedPageComposition( outputUrl: URL ): Promise<void> {
 		const fontFace = fontStyles.split( '@font-face' ).find( ( face ) => face.includes( unicodeRange ) );
 
 		expect( packaged.equals( source ), `${ resource } must always contain the ${ subset } subset` ).toBe( true );
-		expect( fontFace ).toContain( `url(/${ resource })` );
+		const origin = browser === 'Chrome' || browser === 'Edge' ? 'chrome-extension://__MSG_@@extension_id__' : '';
+		expect( fontFace ).toContain( `url(${ origin }/${ resource })` );
 	}
 }
 
@@ -590,7 +592,7 @@ describe( 'extension build manifest', () => {
 			options_ui: { page: 'options.html', open_in_tab: true },
 			browser_specific_settings: {
 				gecko: {
-					id: 'tocus@agustinbarrientos.github.io',
+					id: 'tocus@agustinbarrientos.com',
 					strict_min_version: '140.0',
 					data_collection_permissions: { required: [ 'none' ] },
 				},
@@ -676,8 +678,8 @@ describe( 'extension build manifest', () => {
 	);
 
 	test.each( browserOutputs )(
-		'packages the isolated %s protected-page layer and brand font', async ( _browser, outputUrl ) => {
-			await expectProtectedPageComposition( outputUrl );
+		'packages the isolated %s protected-page layer and brand font', async ( browser, outputUrl ) => {
+			await expectProtectedPageComposition( outputUrl, browser );
 		},
 	);
 

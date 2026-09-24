@@ -148,8 +148,8 @@ msgid "A soft sphere guides your breathing."
 msgstr "やわらかな球体が呼吸を導きます。"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "A still pause with no breathing cue."
-msgstr "呼吸の案内がない、動きのない一時停止です。"
+msgid "A static screen without breathing guidance."
+msgstr "呼吸ガイドのない静止画面です。"
 
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
@@ -241,7 +241,7 @@ msgstr "利用可能時間"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Allowances granted"
-msgstr "付与された利用可能時間"
+msgstr "アクセスを許可した回数"
 
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Allowing..."
@@ -396,7 +396,7 @@ msgstr "カラーパレット"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Completed waits"
-msgstr "完了した待ち時間"
+msgstr "待機を完了した回数"
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
@@ -507,7 +507,7 @@ msgstr "Español (vos)"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Estimated time reclaimed"
-msgstr "取り戻した推定時間"
+msgstr "取り戻した時間の推定値"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
@@ -571,7 +571,7 @@ msgid "Keep site"
 msgstr "サイトを残す"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Keep TOCus active every day and at every time."
+msgid "Keep TOCus active all day, every day."
 msgstr "TOCus を毎日、終日有効にします。"
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
@@ -717,13 +717,11 @@ msgstr "または {key} キーを押す"
 msgid "Orange"
 msgstr "オレンジ"
 
-#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
-msgid "Pause before visiting addictive websites"
-msgstr "中毒性のあるサイトを開く前に、ひと呼吸"
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "Pause"
+msgstr "一時停止"
 
-#. Short extension description shown by the browser and extension store.
-#: apps/extension/src/localization/utils/create-browser-locale-messages/index.ts
-msgctxt "Extension description"
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Pause before visiting addictive websites"
 msgstr "中毒性のあるサイトを開く前に、ひと呼吸"
 
@@ -800,10 +798,6 @@ msgstr "プライバシーとローカルデータ"
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Purple"
 msgstr "紫"
-
-#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "Quiet pause"
-msgstr "静かな一時停止"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Reconsidered visits"
@@ -1199,8 +1193,14 @@ msgstr "TOCus"
 #. Extension name.
 #: apps/extension/src/localization/utils/create-browser-locale-messages/index.ts
 msgctxt "Extension name"
-msgid "TOCus"
-msgstr "TOCus"
+msgid "TOCus - Pause before visiting addictive websites"
+msgstr "TOCus - 中毒性のあるサイトを開く前に、ひと呼吸"
+
+#. Short extension description shown by the browser and extension store.
+#: apps/extension/src/localization/utils/create-browser-locale-messages/index.ts
+msgctxt "Extension description"
+msgid "TOCus adds a short breathing pause before the websites you choose, so you can notice the impulse and decide what to do next."
+msgstr "TOCusは、選んだサイトを開く前にひと呼吸おく時間をつくります。衝動に気づき、次にどうするかを考えるきっかけになります。"
 
 #. Popup explanation shown for browser-owned pages that extensions cannot manage.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
@@ -1485,8 +1485,8 @@ msgid "You don't have to just take my word for it."
 msgstr "私の言葉をそのまま信じる必要はありません。"
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
-msgid "You saved {duration}! Congrats!"
-msgstr "{duration}節約できました！おめでとうございます！"
+msgid "You saved {duration}!"
+msgstr "{duration}節約できました！"
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "You're all set"

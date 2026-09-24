@@ -152,7 +152,7 @@ export async function startInterruptionPage(): Promise<void> {
 			target: activeInterruptionScreen,
 			storage: createReviewPromptStorageService( { area: browser.storage.local } ),
 			storageChanges: browser.storage.onChanged,
-			url: getExtensionReviewUrl( import.meta.env.BROWSER, ExtensionStoreReviewLinks ),
+			url: getExtensionReviewUrl( import.meta.env.BROWSER, ExtensionStoreReviewLinks, browserLanguage ),
 		} );
 		reviewPromptController = activeReviewPromptController;
 		let localizationRevision = 0;
@@ -180,6 +180,9 @@ export async function startInterruptionPage(): Promise<void> {
 			activeInterruptionScreen.copy = localization.interruption;
 			activeInterruptionScreen.wellbeingSummary = '';
 			activeWellbeingSummaryController.setCopy( localization.wellbeing );
+			activeReviewPromptController.setUrl(
+				getExtensionReviewUrl( import.meta.env.BROWSER, ExtensionStoreReviewLinks, language ),
+			);
 		}
 
 		/**

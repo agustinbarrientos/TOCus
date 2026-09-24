@@ -1,5 +1,6 @@
+import { WebsiteLanguage } from '../../localization/types';
 import { describe, expect, test } from 'vitest';
-import { detectDownloadBrowser, getDownloadStore, WebsiteBrowser } from './index';
+import { DownloadStores, detectDownloadBrowser, getDownloadStore, WebsiteBrowser } from './index';
 
 describe( 'download store selection', () => {
 	test.each( [
@@ -12,8 +13,8 @@ describe( 'download store selection', () => {
 		[ 'Mozilla/5.0 EdgA/130.0 Mobile Safari/537.36', WebsiteBrowser.CHROME, 'chromewebstore.google.com' ],
 		[ 'Mozilla/5.0 Firefox/130.0', WebsiteBrowser.FIREFOX, 'addons.mozilla.org' ],
 		[ 'Mozilla/5.0 FxiOS/130.0 Mobile/15E148 Safari/605.1', WebsiteBrowser.FIREFOX, 'addons.mozilla.org' ],
-		[ 'Mozilla/5.0 Version/18.0 Safari/605.1.15', WebsiteBrowser.SAFARI, 'apps.apple.com' ],
-		[ 'Mozilla/5.0 Version/18.0 Mobile/15E148 Safari/604.1', WebsiteBrowser.SAFARI, 'apps.apple.com' ],
+		[ 'Mozilla/5.0 Version/18.0 Safari/605.1.15', WebsiteBrowser.CHROME, 'chromewebstore.google.com' ],
+		[ 'Mozilla/5.0 Version/18.0 Mobile/15E148 Safari/604.1', WebsiteBrowser.CHROME, 'chromewebstore.google.com' ],
 	] )( 'selects the appropriate destination for %s', ( userAgent, browser, hostname ) => {
 		const store = getDownloadStore( detectDownloadBrowser( userAgent ) );
 		expect( store.browser ).toBe( browser );
@@ -26,11 +27,15 @@ describe( 'download store selection', () => {
 		expect( destination.hash ).toBe( '' );
 	} );
 
+	test( 'offers only the three published browser targets', () => {
+		expect( Object.keys( DownloadStores ).sort() ).toEqual( [ 'chrome', 'edge', 'firefox' ] );
+	} );
+
 	test( 'resolves a usable static-render destination without browser globals', () => {
 		expect( getDownloadStore( detectDownloadBrowser() ).browser ).toBe( WebsiteBrowser.CHROME );
 	} );
 
-	test( 'selects the configured placeholder listing for desktop Edge', () => {
+	test( 'selects the official listing for desktop Edge', () => {
 		const browser = detectDownloadBrowser(
 			'Mozilla/5.0 Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0',
 		);
@@ -39,7 +44,7 @@ describe( 'download store selection', () => {
 		expect( getDownloadStore( browser ) ).toEqual( {
 			browser: WebsiteBrowser.EDGE,
 			name: 'Edge',
-			href: 'https://microsoftedge.microsoft.com/addons/detail/tocus/placeholder-listing-id',
+			href: 'https://microsoftedge.microsoft.com/addons/detail/ifpmfcopmabjjgggeefgoejnlbjpaehh?hl=en-US',
 		} );
 	} );
 
@@ -48,5 +53,32 @@ describe( 'download store selection', () => {
 		'Mozilla/5.0 EdgA/140.0 Mobile Safari/537.36',
 	] )( 'keeps mobile Edge on the existing Chrome fallback for %s', ( userAgent ) => {
 		expect( detectDownloadBrowser( userAgent ) ).toBe( WebsiteBrowser.CHROME );
+	} );
+} );
+
+describe( 'localized download destinations', () => {
+	test.each( [
+		[ WebsiteLanguage.ENGLISH, 'en', 'en-US', 'en-US' ],
+		[ WebsiteLanguage.SPANISH_TU, 'es', 'es-ES', 'es-ES' ],
+		[ WebsiteLanguage.SPANISH_VOS, 'es-419', 'es-MX', 'es-AR' ],
+		[ WebsiteLanguage.PORTUGUESE_BRAZIL, 'pt-BR', 'pt-BR', 'pt-BR' ],
+		[ WebsiteLanguage.PORTUGUESE_PORTUGAL, 'pt-PT', 'pt-PT', 'pt-PT' ],
+		[ WebsiteLanguage.ITALIAN, 'it', 'it-IT', 'it' ],
+		[ WebsiteLanguage.FRENCH, 'fr', 'fr-FR', 'fr' ],
+		[ WebsiteLanguage.GERMAN, 'de', 'de-DE', 'de' ],
+		[ WebsiteLanguage.JAPANESE, 'ja', 'ja-JP', 'ja' ],
+		[ WebsiteLanguage.RUSSIAN, 'ru', 'ru-RU', 'ru' ],
+	] )( 'uses the selected %s language for Chrome, Edge and Firefox', ( language, chromeLocale, edgeLocale, firefoxLocale ) => {
+		expect( getDownloadStore( WebsiteBrowser.CHROME, language ).href ).toBe(
+			`https://chromewebstore.google.com/detail/tocus/gagjpniodbnbjdggjlkliabjffcnnfmh?hl=${ chromeLocale }`,
+		);
+		expect( getDownloadStore( WebsiteBrowser.EDGE, language ).href ).toBe(
+			`https://microsoftedge.microsoft.com/addons/detail/ifpmfcopmabjjgggeefgoejnlbjpaehh?hl=${ edgeLocale }`,
+		);
+		expect( getDownloadStore( WebsiteBrowser.FIREFOX, language ).href ).toBe(
+			`https://addons.mozilla.org/${ firefoxLocale }/firefox/addon/tocus/`,
+		);
+		expect( DownloadStores[ WebsiteBrowser.CHROME ].href ).not.toContain( '?' );
+		expect( DownloadStores[ WebsiteBrowser.EDGE ].href ).not.toContain( '?' );
 	} );
 } );

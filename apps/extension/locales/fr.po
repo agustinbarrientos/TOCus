@@ -145,11 +145,11 @@ msgstr "Une douce sphère d'argile repose au centre de l'écran."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "A soft sphere guides your breathing."
-msgstr "Une sphère douce guide votre respiration."
+msgstr "Une sphère douce guide ta respiration."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "A still pause with no breathing cue."
-msgstr "Une pause immobile sans indication de respiration."
+msgid "A static screen without breathing guidance."
+msgstr "Un écran fixe, sans guide de respiration."
 
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
@@ -282,11 +282,11 @@ msgstr "Brasil"
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Breathe in"
-msgstr "Inspirez"
+msgstr "Inspire"
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Breathe out"
-msgstr "Expirez"
+msgstr "Expire"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Breathing"
@@ -352,19 +352,19 @@ msgstr "Vérifiez le planning et réessayez."
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Choose a day and valid start and end times."
-msgstr "Choisissez un jour et des heures de début et de fin valides."
+msgstr "Choisis un jour et des heures de début et de fin valides."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Choose a start time."
-msgstr "Choisissez une heure de début."
+msgstr "Choisis une heure de début."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Choose an end time."
-msgstr "Choisissez une heure de fin."
+msgstr "Choisis une heure de fin."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Choose the days and times when TOCus should be active."
-msgstr "Choisissez les jours et les heures où TOCus doit être actif."
+msgstr "Choisis les jours et les heures où TOCus doit être actif."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Choose websites"
@@ -521,7 +521,7 @@ msgstr "Terminer la configuration"
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Follow your device appearance."
-msgstr "Suivre l'apparence de votre appareil."
+msgstr "Suivre l'apparence de ton appareil."
 
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "Fork the project"
@@ -571,7 +571,7 @@ msgid "Keep site"
 msgstr "Conserver le site"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Keep TOCus active every day and at every time."
+msgid "Keep TOCus active all day, every day."
 msgstr "Garder TOCus actif tous les jours, à toute heure."
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
@@ -717,13 +717,11 @@ msgstr "Ou appuyez sur {key}"
 msgid "Orange"
 msgstr "Orange"
 
-#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
-msgid "Pause before visiting addictive websites"
-msgstr "Faites une pause avant de visiter des sites web addictifs"
+#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+msgid "Pause"
+msgstr "Pause"
 
-#. Short extension description shown by the browser and extension store.
-#: apps/extension/src/localization/utils/create-browser-locale-messages/index.ts
-msgctxt "Extension description"
+#: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Pause before visiting addictive websites"
 msgstr "Faites une pause avant de visiter des sites web addictifs"
 
@@ -800,10 +798,6 @@ msgstr "Confidentialité et données locales"
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Purple"
 msgstr "Violet"
-
-#: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "Quiet pause"
-msgstr "Pause calme"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Reconsidered visits"
@@ -1165,7 +1159,7 @@ msgstr "Temps restant"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Time spent pausing plus estimated browsing time avoided, based on your configured visit time."
-msgstr "Temps consacré aux pauses, plus une estimation du temps de navigation évité basée sur la durée de visite que vous avez configurée."
+msgstr "Temps consacré aux pauses, plus une estimation du temps de navigation évité basée sur la durée de visite que tu as configurée."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Time window {position}"
@@ -1173,7 +1167,7 @@ msgstr "Plage horaire {position}"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Time you took to pause"
-msgstr "Temps consacré à vos pauses"
+msgstr "Temps consacré à tes pauses"
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Timing settings couldn't be saved. Your choices are still here."
@@ -1199,8 +1193,14 @@ msgstr "TOCus"
 #. Extension name.
 #: apps/extension/src/localization/utils/create-browser-locale-messages/index.ts
 msgctxt "Extension name"
-msgid "TOCus"
-msgstr "TOCus"
+msgid "TOCus - Pause before visiting addictive websites"
+msgstr "TOCus - Fais une pause avant d'ouvrir des sites addictifs"
+
+#. Short extension description shown by the browser and extension store.
+#: apps/extension/src/localization/utils/create-browser-locale-messages/index.ts
+msgctxt "Extension description"
+msgid "TOCus adds a short breathing pause before the websites you choose, so you can notice the impulse and decide what to do next."
+msgstr "TOCus te laisse souffler avant d'ouvrir les sites de ton choix, pour prendre conscience de ton envie et décider de la suite."
 
 #. Popup explanation shown for browser-owned pages that extensions cannot manage.
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
@@ -1485,8 +1485,8 @@ msgid "You don't have to just take my word for it."
 msgstr "Vous n'avez pas à me croire sur parole."
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
-msgid "You saved {duration}! Congrats!"
-msgstr "Vous avez gagné {duration} ! Bravo !"
+msgid "You saved {duration}!"
+msgstr "Vous avez gagné {duration} !"
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "You're all set"

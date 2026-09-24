@@ -1,31 +1,74 @@
+import { WebsiteLanguage } from '../../localization/types';
 import { WebsiteBrowser, type StoreListing } from './types';
 
 /**
+ * Chrome store language tags corresponding to TOCus preferences.
+ */
+const ChromeStoreLanguages: Readonly<Record<WebsiteLanguage, string>> = {
+	[ WebsiteLanguage.ENGLISH ]: 'en',
+	[ WebsiteLanguage.SPANISH_TU ]: 'es',
+	[ WebsiteLanguage.SPANISH_VOS ]: 'es-419',
+	[ WebsiteLanguage.PORTUGUESE_BRAZIL ]: 'pt-BR',
+	[ WebsiteLanguage.PORTUGUESE_PORTUGAL ]: 'pt-PT',
+	[ WebsiteLanguage.ITALIAN ]: 'it',
+	[ WebsiteLanguage.FRENCH ]: 'fr',
+	[ WebsiteLanguage.GERMAN ]: 'de',
+	[ WebsiteLanguage.JAPANESE ]: 'ja',
+	[ WebsiteLanguage.RUSSIAN ]: 'ru',
+};
+
+/**
+ * Edge store language tags corresponding to TOCus preferences.
+ */
+const EdgeStoreLanguages: Readonly<Record<WebsiteLanguage, string>> = {
+	[ WebsiteLanguage.ENGLISH ]: 'en-US',
+	[ WebsiteLanguage.SPANISH_TU ]: 'es-ES',
+	[ WebsiteLanguage.SPANISH_VOS ]: 'es-MX',
+	[ WebsiteLanguage.PORTUGUESE_BRAZIL ]: 'pt-BR',
+	[ WebsiteLanguage.PORTUGUESE_PORTUGAL ]: 'pt-PT',
+	[ WebsiteLanguage.ITALIAN ]: 'it-IT',
+	[ WebsiteLanguage.FRENCH ]: 'fr-FR',
+	[ WebsiteLanguage.GERMAN ]: 'de-DE',
+	[ WebsiteLanguage.JAPANESE ]: 'ja-JP',
+	[ WebsiteLanguage.RUSSIAN ]: 'ru-RU',
+};
+
+/**
+ * Firefox Add-ons locale paths corresponding to TOCus preferences.
+ */
+const FirefoxStoreLanguages: Readonly<Record<WebsiteLanguage, string>> = {
+	[ WebsiteLanguage.ENGLISH ]: 'en-US',
+	[ WebsiteLanguage.SPANISH_TU ]: 'es-ES',
+	[ WebsiteLanguage.SPANISH_VOS ]: 'es-AR',
+	[ WebsiteLanguage.PORTUGUESE_BRAZIL ]: 'pt-BR',
+	[ WebsiteLanguage.PORTUGUESE_PORTUGAL ]: 'pt-PT',
+	[ WebsiteLanguage.ITALIAN ]: 'it',
+	[ WebsiteLanguage.FRENCH ]: 'fr',
+	[ WebsiteLanguage.GERMAN ]: 'de',
+	[ WebsiteLanguage.JAPANESE ]: 'ja',
+	[ WebsiteLanguage.RUSSIAN ]: 'ru',
+};
+
+/**
  * The single place to replace all website download destinations.
- * These are deliberate placeholder store URLs, not verified live listings.
- * Replace each placeholder with the official listing URL before launch.
+ * Only browsers with a public release are offered as download options.
  * @since 1.0.0
  */
 export const DownloadStores: Readonly<Record<WebsiteBrowser, StoreListing>> = {
 	[ WebsiteBrowser.CHROME ]: {
 		browser: WebsiteBrowser.CHROME,
 		name: 'Chrome',
-		href: 'https://chromewebstore.google.com/detail/tocus/placeholder-listing-id',
+		href: 'https://chromewebstore.google.com/detail/tocus/gagjpniodbnbjdggjlkliabjffcnnfmh',
 	},
 	[ WebsiteBrowser.EDGE ]: {
 		browser: WebsiteBrowser.EDGE,
 		name: 'Edge',
-		href: 'https://microsoftedge.microsoft.com/addons/detail/tocus/placeholder-listing-id',
+		href: 'https://microsoftedge.microsoft.com/addons/detail/ifpmfcopmabjjgggeefgoejnlbjpaehh',
 	},
 	[ WebsiteBrowser.FIREFOX ]: {
 		browser: WebsiteBrowser.FIREFOX,
 		name: 'Firefox',
-		href: 'https://addons.mozilla.org/firefox/addon/tocus-placeholder/',
-	},
-	[ WebsiteBrowser.SAFARI ]: {
-		browser: WebsiteBrowser.SAFARI,
-		name: 'Safari',
-		href: 'https://apps.apple.com/app/tocus/id0000000000',
+		href: 'https://addons.mozilla.org/firefox/addon/tocus/',
 	},
 };
 
@@ -42,23 +85,32 @@ export function detectDownloadBrowser( userAgent = '' ): WebsiteBrowser {
 	if ( /Edg\//iu.test( userAgent ) ) {
 		return WebsiteBrowser.EDGE;
 	}
-	if ( /Chrome\/|Chromium\/|CriOS\/|EdgA\/|EdgiOS\/|OPR\/|OPiOS\//iu.test( userAgent ) ) {
-		return WebsiteBrowser.CHROME;
-	}
-	if ( /Safari\//iu.test( userAgent ) ) {
-		return WebsiteBrowser.SAFARI;
-	}
 	return WebsiteBrowser.CHROME;
 }
 
 /**
  * Resolves both full and compact download actions from the shared configuration.
  * @param browser - Preferred store.
- * @return Configured destination for that browser.
+ * @param language - Current website language.
+ * @return Configured destination localized for that browser store.
  * @since 1.0.0
  */
-export function getDownloadStore( browser: WebsiteBrowser ): StoreListing {
-	return DownloadStores[ browser ];
+export function getDownloadStore(
+	browser: WebsiteBrowser, language: WebsiteLanguage = WebsiteLanguage.ENGLISH,
+): StoreListing {
+	const store = DownloadStores[ browser ];
+	if ( store.href === null ) {
+		return store;
+	}
+	const url = new URL( store.href );
+	if ( browser === WebsiteBrowser.FIREFOX ) {
+		url.pathname = url.pathname.replace( /^\/(?:[^/]+\/)?firefox\//u,
+			`/${ FirefoxStoreLanguages[ language ] }/firefox/` );
+		return { ...store, href: url.href };
+	}
+	url.searchParams.set( 'hl', browser === WebsiteBrowser.CHROME
+		? ChromeStoreLanguages[ language ] : EdgeStoreLanguages[ language ] );
+	return { ...store, href: url.href };
 }
 
 export { WebsiteBrowser } from './types';

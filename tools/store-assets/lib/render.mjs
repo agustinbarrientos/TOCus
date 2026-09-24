@@ -1,0 +1,131 @@
+/* global document, getComputedStyle */
+import { readFile } from 'node:fs/promises';
+import { scenes } from './catalog.mjs';
+
+/**
+ * Escapes copy before it enters the local composition document.
+ * @param {string} value - Caption or filename to escape.
+ * @return {string} Safe HTML text.
+ * @since 1.0.0
+ */
+export function escapeHtml( value ) {
+	return value.replaceAll( '&', '&amp;' ).replaceAll( '<', '&lt;' ).replaceAll( '>', '&gt;' )
+		.replaceAll( '"', '&quot;' ).replaceAll( "'", '&#39;' );
+}
+
+/**
+ * Encodes an existing local asset without fetching any remote resources.
+ * @param {Buffer} bytes - Encoded asset bytes.
+ * @param {string} mime - Asset media type.
+ * @return {string} Self-contained data URL.
+ * @since 1.0.0
+ */
+export function dataUrl( bytes, mime = 'image/png' ) {
+	return `data:${ mime };base64,${ bytes.toString( 'base64' ) }`;
+}
+
+/**
+ * Loads the shared vector logo in one ink and retains its transparent face details.
+ * @param {string} root - Repository root.
+ * @param {string} ink - Composition ink color.
+ * @return {Promise<object>} Wordmark URL and original extension icon SVG bytes.
+ * @since 1.0.0
+ */
+export async function loadBrand( root, ink = '#332216' ) {
+	const source = await readFile( `${ root }/packages/theme/assets/logo.svg`, 'utf8' );
+	const icon = Buffer.from( source.replace( 'viewBox="0 0 214.64 64.01"', 'viewBox="0 0 64 64.01"' ) );
+	const logo = source.replace( /<defs>.*?<\/defs>/s, '' )
+		.replace( /<path[^>]+style="fill:#ffd5c2;"\/>/, '' )
+		.replaceAll( 'fill:url(#b)', `fill:${ ink }` ).replaceAll( 'fill:#b56e46', `fill:${ ink }` );
+	return { logo: dataUrl( Buffer.from( logo ), 'image/svg+xml' ), icon };
+}
+
+/**
+ * Loads reusable brand assets once for the entire batch.
+ * @param {string} root - Repository root.
+ * @return {Promise<object>} Local composition styles and masters.
+ * @since 1.0.0
+ */
+export async function loadMasters( root ) {
+	const font = await readFile( `${ root }/packages/theme/node_modules/@fontsource-variable/fredoka/files/fredoka-latin-ext-wght-normal.woff2` );
+	const latin = await readFile( `${ root }/packages/theme/node_modules/@fontsource-variable/fredoka/files/fredoka-latin-wght-normal.woff2` );
+	let css = await readFile( new URL( './composition.css', import.meta.url ), 'utf8' );
+	css = css.replace( '__FONT__', dataUrl( latin, 'font/woff2' ) );
+	css += `\n@font-face{font-family:Fredoka;src:url('${ dataUrl( font, 'font/woff2' ) }');font-weight:300 700;unicode-range:U+0100-02FF,U+1E00-1EFF;}`;
+	const brand = await loadBrand( root );
+	const artwork = {};
+	for ( const name of [
+		'riverside-background', 'capybara-thumbs-up', 'capybara-tango', 'capybara-point', 'capybara-agenda', 'capybara-medals',
+		'promo-riverside', 'promo-closeup',
+	] ) {
+		artwork[ name ] = dataUrl( await readFile( new URL( `../assets/${ name }.png`, import.meta.url ) ) );
+	}
+	return { css, ...brand, artwork };
+}
+
+/**
+ * Renders a full-bleed composition with editable text and a centered, undistorted capture.
+ * @param {import('playwright').Page} page - Offline composition document.
+ * @param {object} masters - Local brand artwork and CSS.
+ * @param {object} asset - Output kind, dimensions, locale and optional screenshot bytes.
+ * @return {Promise<Buffer>} Rendered canvas ready to encode as an opaque PNG.
+ * @since 1.0.0
+ */
+export async function renderAsset( page, masters, asset ) {
+	const scale = asset.scale ?? 1;
+	await page.setViewportSize( { width: asset.width / scale, height: asset.height / scale } );
+	const promo = asset.kind !== 'screenshot';
+	const companion = promo ? null : scenes.find( ( scene ) => scene.id === asset.scene ).companion;
+	const backdrop = promo ? ( asset.kind === 'small' ? 'promo-closeup' : 'promo-riverside' ) : 'riverside-background';
+	const content = promo
+		? `<img class="brand" src="${ masters.logo }" alt="TOCus">
+			<h1>${ asset.headline.map( escapeHtml ).join( '<br>' ) }</h1>`
+		: `<h1 class="caption">${ escapeHtml( asset.caption ) }</h1>
+			<div class="frame-area"><img class="capture" src="${ dataUrl( asset.capture ) }" alt=""></div>
+			<div class="companion companion-${ companion.side } ${ companion.pose }">
+				<img src="${ masters.artwork[ `capybara-${ companion.pose }` ] }" alt="">
+			</div>`;
+	await page.setContent( `<!doctype html>
+		<html lang="${ asset.locale ?? 'en' }">
+			<head><meta charset="utf-8"><style>${ masters.css }</style></head>
+			<body>
+				<main class="canvas ${ promo ? 'promo' : '' } ${ asset.kind === 'small' ? 'small' : '' } ${ asset.store === 'firefox' ? 'firefox' : '' }">
+					<img class="scenery" src="${ masters.artwork[ backdrop ] }" alt="">
+					${ content }
+				</main>
+			</body>
+		</html>` );
+	await page.evaluate( async ( fitHeadline ) => {
+		await document.fonts.ready;
+		await Promise.all( Array.from( document.images, ( image ) => image.decode() ) );
+		const caption = document.querySelector( '.caption' );
+		if ( caption ) {
+			let size = 48;
+			while ( caption.scrollWidth > caption.clientWidth && size > 28 ) {
+				caption.style.fontSize = `${ --size }px`;
+			}
+			if ( caption.scrollWidth > caption.clientWidth ) {
+				throw new Error( 'Caption exceeds the single-line canvas width.' );
+			}
+		}
+		if ( fitHeadline ) {
+			const headline = document.querySelector( '.promo h1' );
+			const small = Boolean( document.querySelector( '.small' ) );
+			// Keep longer translations clear of the foreground palm leaves.
+			if ( ! small ) {
+				headline.style.left = '300px';
+				headline.style.right = '300px';
+			}
+			headline.style.whiteSpace = 'nowrap';
+			let size = parseFloat( getComputedStyle( headline ).fontSize );
+			const minimum = small ? 16 : 32;
+			while ( headline.scrollWidth > headline.clientWidth && size > minimum ) {
+				headline.style.fontSize = `${ --size }px`;
+			}
+			if ( headline.scrollWidth > headline.clientWidth ) {
+				throw new Error( 'Localized promo headline exceeds its canvas width.' );
+			}
+		}
+	}, asset.fitHeadline ?? false );
+	return page.screenshot( { type: 'png', animations: 'disabled' } );
+}

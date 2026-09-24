@@ -16,11 +16,11 @@ describe( 'createInterruptionCopy', () => {
 	} );
 
 	it.each( [
-		[ 3_600_000, 'You saved 1 hour! Congrats!' ],
-		[ 5_400_000, 'You saved 1 hour, 30 minutes! Congrats!' ],
-		[ 7_200_000, 'You saved 2 hours! Congrats!' ],
-		[ 7_260_000, 'You saved 2 hours, 1 minute! Congrats!' ],
-		[ 3_659_999, 'You saved 1 hour! Congrats!' ],
+		[ 3_600_000, 'You saved 1 hour!' ],
+		[ 5_400_000, 'You saved 1 hour, 30 minutes!' ],
+		[ 7_200_000, 'You saved 2 hours!' ],
+		[ 7_260_000, 'You saved 2 hours, 1 minute!' ],
+		[ 3_659_999, 'You saved 1 hour!' ],
 	] )( 'shows the actual saved duration without rounding up at %i milliseconds', ( milliseconds, expected ) => {
 		const copy = createInterruptionCopy( createTestI18n() );
 

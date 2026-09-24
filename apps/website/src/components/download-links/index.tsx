@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { Button, Icon, IconName } from '@tocus/ui';
 import { detectDownloadBrowser, DownloadStores, getDownloadStore, WebsiteBrowser } from '../../config/downloads';
+import type { WebsiteLanguage } from '../../localization/types';
 import { ExternalLink } from '../site-links';
 import type { DownloadLinksProps } from './types';
 import './style.scss';
@@ -25,10 +26,11 @@ const getServerSnapshot = () => WebsiteBrowser.CHROME;
 
 /**
  * Resolves the browser after hydration while preserving usable static links.
+ * @param language - Current website language.
  * @return Configured store for the current browser.
  */
-function useDownloadStore() {
-	return getDownloadStore( useSyncExternalStore( subscribe, getBrowserSnapshot, getServerSnapshot ) );
+function useDownloadStore( language: WebsiteLanguage ) {
+	return getDownloadStore( useSyncExternalStore( subscribe, getBrowserSnapshot, getServerSnapshot ), language );
 }
 
 /**
@@ -38,7 +40,7 @@ function useDownloadStore() {
  * @since 1.0.0
  */
 export function DownloadLinks( props: DownloadLinksProps ) {
-	const store = useDownloadStore();
+	const store = useDownloadStore( props.language );
 	return <div className="store-links" aria-label={ props.label }>
 		{ store.href === null
 			? <Button disabled aria-disabled="true" className="store-primary" data-download-primary
@@ -56,6 +58,7 @@ export function DownloadLinks( props: DownloadLinksProps ) {
 			<span>{ props.alsoAvailable }</span>{ ' ' }
 			<span className="store-alternative-list">
 				{ Object.values( DownloadStores ).filter( ( alternative ) => alternative.browser !== store.browser )
+					.map( ( alternative ) => getDownloadStore( alternative.browser, props.language ) )
 					.map( ( alternative ) => <span className="store-alternative" key={ alternative.browser }>
 						{ alternative.href === null
 							? <span role="link" aria-disabled="true" data-store={ alternative.browser }

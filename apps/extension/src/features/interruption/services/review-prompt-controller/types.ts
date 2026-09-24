@@ -72,4 +72,10 @@ export interface ReviewPromptController {
 	 * @since 1.0.0 Initial implementation.
 	 */
 	refresh(): Promise<void>;
+	/**
+	 * Updates the store destination without changing eligibility or permanent dismissal.
+	 * @param destination - Localized browser store URL, or null if unavailable.
+	 * @since 1.0.0
+	 */
+	setUrl( destination: string | null ): void;
 }

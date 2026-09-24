@@ -8,11 +8,11 @@ describe( 'createBrowserLocaleMessages', () => {
 
 		expect( createBrowserLocaleMessages( i18n ) ).toEqual( {
 			extensionName: {
-				message: 'TOCus',
+				message: 'TOCus - Pause before visiting addictive websites',
 				description: 'Extension name.',
 			},
 			extensionDescription: {
-				message: 'Pause before visiting addictive websites',
+				message: 'TOCus adds a short breathing pause before the websites you choose, so you can notice the impulse and decide what to do next.',
 				description: 'Short extension description shown by the browser and extension store.',
 			},
 		} );

@@ -1,0 +1,153 @@
+@font-face {
+	font-family: Fredoka;
+	src: url('__FONT__') format('woff2');
+	font-weight: 300 700;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html, body {
+	margin: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+body {
+	color: #332216;
+	font-family: Fredoka, ui-rounded, 'SF Pro Rounded', 'Arial Rounded MT Bold', system-ui, sans-serif;
+}
+
+.canvas {
+	position: relative;
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+	background: #dfc6ae;
+}
+
+.scenery {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.caption {
+	position: absolute;
+	z-index: 3;
+	top: 42px;
+	left: 48px;
+	right: 48px;
+	margin: 0;
+	font-size: 48px;
+	font-weight: 650;
+	line-height: 1.15;
+	text-align: center;
+	white-space: nowrap;
+	letter-spacing: -.015em;
+}
+
+.frame-area {
+	position: absolute;
+	z-index: 1;
+	inset: 134px 140px 0;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+}
+
+.capture {
+	display: block;
+	max-width: 100%;
+	max-height: 100%;
+	width: auto;
+	height: 100%;
+	border-radius: 15px 15px 0 0;
+	box-shadow: 0 16px 40px #61463133, 0 0 0 1px #593d2320;
+}
+
+.firefox .frame-area {
+	left: 90px;
+	right: 90px;
+}
+
+.firefox .capture {
+	height: auto;
+}
+
+.companion {
+	position: absolute;
+	z-index: 2;
+	width: 320px;
+	height: 320px;
+	right: -16px;
+	bottom: -8px;
+}
+
+.companion-left {
+	left: -16px;
+	right: auto;
+	transform: scaleX(-1);
+}
+
+.companion img {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+.companion::before {
+	content: '';
+	position: absolute;
+	left: 32%;
+	right: 17%;
+	bottom: 13px;
+	height: 9px;
+	border-radius: 50%;
+	background: #49311e6e;
+	filter: blur(4px);
+}
+
+.companion.tango {
+	right: -34px;
+}
+
+.promo .brand {
+	position: absolute;
+	left: 50%;
+	top: 32px;
+	width: 150px;
+	height: auto;
+	transform: translateX(-50%);
+}
+
+.promo h1 {
+	position: absolute;
+	margin: 0;
+	left: 160px;
+	right: 160px;
+	top: 98px;
+	text-align: center;
+	font-size: 55px;
+	font-weight: 650;
+	line-height: 1.06;
+	letter-spacing: -.02em;
+}
+
+.small .brand {
+	width: 100px;
+	top: 18px;
+}
+
+.small h1 {
+	left: 20px;
+	right: 20px;
+	top: 60px;
+	font-size: 22px;
+	line-height: 1.08;
+}

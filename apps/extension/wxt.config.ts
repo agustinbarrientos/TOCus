@@ -1,3 +1,4 @@
+import { copyFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { defineConfig } from 'wxt';
 import { ToolbarIcons } from './config/icons/constants/index.ts';
@@ -6,6 +7,7 @@ import { createToolbarIconAssets } from './config/icons/services/create-toolbar-
 import { addBrowserLocaleAssets } from './config/localization/services/create-browser-locale-assets/index.ts';
 import { configureProtectedPageFontAssets } from './config/vite/services/configure-protected-page-font-assets/index.ts';
 import { createLocalizationViteConfig } from './config/vite/services/create-localization-vite-config/index.ts';
+import { createInterpretedValidationPlugin } from './config/vite/services/create-interpreted-validation-plugin/index.ts';
 import { isChromiumBuild } from './src/shared/utils/build-browser/index.ts';
 import { InterruptionDocumentPath } from './src/shared/utils/interruption-document-url/types.ts';
 
@@ -32,7 +34,11 @@ export default defineConfig( {
 	 * @since 1.0.0 Initial implementation.
 	 */
 	vite: () => ( {
-		plugins: createLocalizationViteConfig().plugins,
+		plugins: [ ...createLocalizationViteConfig().plugins, createInterpretedValidationPlugin() ],
+		resolve: {
+			// The official ESM entry avoids the legacy UMD global lookup through Function.
+			alias: [ { find: /^decimal\.js-light$/u, replacement: 'decimal.js-light/decimal.mjs' } ],
+		},
 		build: {
 			// Chromium cannot reuse module preloads across extension resource worlds.
 			modulePreload: false,
@@ -52,7 +58,27 @@ export default defineConfig( {
 		sizes: [ 16, 19, 24, 32, 38, 48, 64, 96, 128, 256, 512 ],
 	},
 	hooks: {
-		'vite:build:extendConfig': configureProtectedPageFontAssets,
+		/**
+		 * Registers browser-specific font handling only for the injected stylesheet build.
+		 * @param wxt - Ready extension build context.
+		 */
+		ready: ( wxt ) => {
+			wxt.hooks.hook( 'vite:build:extendConfig', ( entrypoints, config ) => {
+				configureProtectedPageFontAssets( entrypoints, config, wxt.config.browser );
+			} );
+		},
+		/**
+		 * Keeps the supplied store icon and its transparent padding intact.
+		 * @param wxt - Active extension build context.
+		 * @return Promise resolved after the generated 128px icon is replaced.
+		 * @since 1.0.0 Initial implementation.
+		 */
+		'build:done': async ( wxt ) => {
+			await copyFile(
+				join( wxt.config.root, 'config/icons/assets/128.png' ),
+				join( wxt.config.outDir, 'icons/128.png' ),
+			);
+		},
 		/**
 		 * Creates local assets shared by the extension documents.
 		 * @param wxt - Active extension build context.
@@ -103,7 +129,7 @@ export default defineConfig( {
 			? {
 				browser_specific_settings: {
 					gecko: {
-						id: 'tocus@agustinbarrientos.github.io',
+						id: 'tocus@agustinbarrientos.com',
 						strict_min_version: '140.0',
 						data_collection_permissions: { required: [ 'none' ] },
 					},

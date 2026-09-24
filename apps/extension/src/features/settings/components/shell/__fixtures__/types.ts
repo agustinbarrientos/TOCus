@@ -4,6 +4,7 @@ import type { AvailableStatisticsProjectionSchema } from '../../../../../domains
 import type { ProtectionConfigurationDocument } from '../../../../../domains/protection/types/protected-site-configuration';
 import type { PreferencesDocument } from '../../../../../domains/preferences/types';
 import type { ThemeMode, Palette, Language } from '../../../../../domains/preferences/types';
+import type { SiteFaviconProvider } from '../../../../protected-sites/services/site-favicon-provider/types';
 
 /**
  * Observable counters and failure switches for browser-only Settings scenarios.
@@ -34,6 +35,7 @@ export interface SettingsFixtureBridge {
 	controls: SettingsFixtureControls;
 	getConfiguration: () => ProtectionConfigurationDocument;
 	getPreferences: () => PreferencesDocument;
+	setFaviconProvider: ( provider: SiteFaviconProvider ) => void;
 	revoke: () => Promise<void>;
 	externalPreferences: ( update: Partial<PreferencesDocument> ) => void;
 	externalStatistics: ( update: Partial<SettingsFixtureStatistics> ) => void;

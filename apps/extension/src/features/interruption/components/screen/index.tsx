@@ -83,7 +83,7 @@ function hasInteractiveShortcutTarget( event: KeyboardEvent ): boolean {
  * Renders the approved full-screen Waiting, Ready, Ready-expired, and unavailable presentation.
  * @element tocus-f-interruption-screen
  * @attr state - Authoritative presentation state.
- * @attr mode - Breathing or Quiet pause presentation.
+ * @attr mode - Breathing or pause presentation.
  * @attr wait-duration-milliseconds - Captured wait duration.
  * @attr focused-progress-milliseconds - Latest authoritative focused progress.
  * @attr progressing - Whether the presentation owner currently permits progress.

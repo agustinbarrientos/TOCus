@@ -22,6 +22,7 @@ const ReviewPromptThresholdMilliseconds = 3_600_000;
 export function createReviewPromptController(
 	options: ReviewPromptControllerOptions,
 ): ReviewPromptController {
+	let url = options.url;
 	let started = false;
 	let dismissed = false;
 	let dismissing = false;
@@ -34,7 +35,7 @@ export function createReviewPromptController(
 	 * @since 1.0.0 Initial implementation.
 	 */
 	async function refresh(): Promise<void> {
-		if ( ! started || options.url === null || dismissing || dismissed ) {
+		if ( ! started || url === null || dismissing || dismissed ) {
 			return;
 		}
 		const revision = ++readRevision;
@@ -50,7 +51,7 @@ export function createReviewPromptController(
 				statistics.status === StatisticsProjectionStatus.AVAILABLE &&
 				statistics.estimatedReclaimedMilliseconds >= ReviewPromptThresholdMilliseconds
 				? {
-					url: options.url,
+					url,
 					savedMilliseconds: statistics.estimatedReclaimedMilliseconds,
 					dismissing: false,
 					dismissalFailed: false,
@@ -108,8 +109,8 @@ export function createReviewPromptController(
 				options.target.reviewPrompt = null;
 			}
 		} catch {
-			if ( lifecycle === lifecycleRevision && ! dismissed ) {
-				options.target.reviewPrompt = { ...presentation, dismissing: false, dismissalFailed: true };
+			if ( lifecycle === lifecycleRevision && ! dismissed && url !== null ) {
+				options.target.reviewPrompt = { ...presentation, url, dismissing: false, dismissalFailed: true };
 			}
 		} finally {
 			if ( lifecycle === lifecycleRevision ) {
@@ -131,7 +132,7 @@ export function createReviewPromptController(
 	 * @since 1.0.0 Initial implementation.
 	 */
 	function start(): void {
-		if ( started || options.url === null ) {
+		if ( started || url === null ) {
 			return;
 		}
 		started = true;
@@ -160,7 +161,23 @@ export function createReviewPromptController(
 		options.target.reviewPrompt = null;
 	}
 
-	return { start, stop, refresh };
+	/**
+	 * Updates an existing invitation without rereading statistics or clearing dismissal.
+	 * @param destination - Store URL for the newly selected language, or null if unavailable.
+	 * @since 1.0.0
+	 */
+	function setUrl( destination: string | null ): void {
+		url = destination;
+		const presentation = options.target.reviewPrompt;
+		if ( url === null ) {
+			readRevision += 1;
+			options.target.reviewPrompt = null;
+		} else if ( presentation !== null ) {
+			options.target.reviewPrompt = { ...presentation, url };
+		}
+	}
+
+	return { start, stop, refresh, setUrl };
 }
 
 export * from './types';

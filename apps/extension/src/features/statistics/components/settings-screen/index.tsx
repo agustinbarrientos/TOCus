@@ -59,7 +59,8 @@ export function StatisticsSummary( props: StatisticsSummaryProps ) {
 		<section className="settings-statistics-summary">
 			<div className="settings-statistics-period">
 				<h2>{ rangeLabels[ range ] }</h2>
-				<NativeSelect label={ copy.periodLabel } value={ range }
+				<NativeSelect className="settings-statistics-period-select" label={ copy.periodLabel } value={ range }
+					classNames={ { label: 'settings-statistics-period-label' } }
 					data={ Object.entries( rangeLabels ).map( ( [ value, label ] ) => ( { value, label } ) ) }
 					onChange={ ( event ) => {
 						setRange( StatisticsRangeSchema.parse( event.currentTarget.value ) );

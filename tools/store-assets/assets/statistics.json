@@ -1,0 +1,250 @@
+{
+  "currentDate": "2026-09-23",
+  "estimatedReclaimedMilliseconds": 51240000,
+  "focusedPauseMilliseconds": 3685788,
+  "reconsideredVisitCount": 123,
+  "completedWaitCount": 302,
+  "allowanceGrantedCount": 302,
+  "dailyTotals": [
+    {
+      "estimatedReclaimedMilliseconds": 2520000,
+      "focusedPauseMilliseconds": 193775,
+      "reconsideredVisitCount": 5,
+      "completedWaitCount": 17,
+      "allowanceGrantedCount": 17,
+      "date": "2026-08-25"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 2160000,
+      "focusedPauseMilliseconds": 108960,
+      "reconsideredVisitCount": 3,
+      "completedWaitCount": 9,
+      "allowanceGrantedCount": 9,
+      "date": "2026-08-26"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 1860000,
+      "focusedPauseMilliseconds": 186579,
+      "reconsideredVisitCount": 3,
+      "completedWaitCount": 18,
+      "allowanceGrantedCount": 18,
+      "date": "2026-08-27"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 2700000,
+      "focusedPauseMilliseconds": 136968,
+      "reconsideredVisitCount": 6,
+      "completedWaitCount": 9,
+      "allowanceGrantedCount": 9,
+      "date": "2026-08-28"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 480000,
+      "focusedPauseMilliseconds": 46797,
+      "reconsideredVisitCount": 1,
+      "completedWaitCount": 4,
+      "allowanceGrantedCount": 4,
+      "date": "2026-08-29"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 420000,
+      "focusedPauseMilliseconds": 45632,
+      "reconsideredVisitCount": 2,
+      "completedWaitCount": 3,
+      "allowanceGrantedCount": 3,
+      "date": "2026-08-30"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 2220000,
+      "focusedPauseMilliseconds": 118462,
+      "reconsideredVisitCount": 3,
+      "completedWaitCount": 10,
+      "allowanceGrantedCount": 10,
+      "date": "2026-08-31"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 2700000,
+      "focusedPauseMilliseconds": 172614,
+      "reconsideredVisitCount": 6,
+      "completedWaitCount": 15,
+      "allowanceGrantedCount": 15,
+      "date": "2026-09-01"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 2220000,
+      "focusedPauseMilliseconds": 183985,
+      "reconsideredVisitCount": 7,
+      "completedWaitCount": 15,
+      "allowanceGrantedCount": 15,
+      "date": "2026-09-02"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 2580000,
+      "focusedPauseMilliseconds": 188940,
+      "reconsideredVisitCount": 6,
+      "completedWaitCount": 15,
+      "allowanceGrantedCount": 15,
+      "date": "2026-09-03"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 2280000,
+      "focusedPauseMilliseconds": 199750,
+      "reconsideredVisitCount": 5,
+      "completedWaitCount": 17,
+      "allowanceGrantedCount": 17,
+      "date": "2026-09-04"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 540000,
+      "focusedPauseMilliseconds": 43800,
+      "reconsideredVisitCount": 1,
+      "completedWaitCount": 4,
+      "allowanceGrantedCount": 4,
+      "date": "2026-09-05"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 300000,
+      "focusedPauseMilliseconds": 38372,
+      "reconsideredVisitCount": 2,
+      "completedWaitCount": 3,
+      "allowanceGrantedCount": 3,
+      "date": "2026-09-06"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 1860000,
+      "focusedPauseMilliseconds": 199484,
+      "reconsideredVisitCount": 6,
+      "completedWaitCount": 17,
+      "allowanceGrantedCount": 17,
+      "date": "2026-09-07"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 2280000,
+      "focusedPauseMilliseconds": 111453,
+      "reconsideredVisitCount": 3,
+      "completedWaitCount": 9,
+      "allowanceGrantedCount": 9,
+      "date": "2026-09-08"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 2400000,
+      "focusedPauseMilliseconds": 150173,
+      "reconsideredVisitCount": 3,
+      "completedWaitCount": 14,
+      "allowanceGrantedCount": 14,
+      "date": "2026-09-09"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 2040000,
+      "focusedPauseMilliseconds": 120620,
+      "reconsideredVisitCount": 4,
+      "completedWaitCount": 10,
+      "allowanceGrantedCount": 10,
+      "date": "2026-09-10"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 1620000,
+      "focusedPauseMilliseconds": 108270,
+      "reconsideredVisitCount": 6,
+      "completedWaitCount": 9,
+      "allowanceGrantedCount": 9,
+      "date": "2026-09-11"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 360000,
+      "focusedPauseMilliseconds": 52860,
+      "reconsideredVisitCount": 2,
+      "completedWaitCount": 4,
+      "allowanceGrantedCount": 4,
+      "date": "2026-09-12"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 420000,
+      "focusedPauseMilliseconds": 65966,
+      "reconsideredVisitCount": 2,
+      "completedWaitCount": 5,
+      "allowanceGrantedCount": 5,
+      "date": "2026-09-13"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 1680000,
+      "focusedPauseMilliseconds": 165118,
+      "reconsideredVisitCount": 7,
+      "completedWaitCount": 11,
+      "allowanceGrantedCount": 11,
+      "date": "2026-09-14"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 1620000,
+      "focusedPauseMilliseconds": 172264,
+      "reconsideredVisitCount": 6,
+      "completedWaitCount": 13,
+      "allowanceGrantedCount": 13,
+      "date": "2026-09-15"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 2340000,
+      "focusedPauseMilliseconds": 99910,
+      "reconsideredVisitCount": 5,
+      "completedWaitCount": 8,
+      "allowanceGrantedCount": 8,
+      "date": "2026-09-16"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 2520000,
+      "focusedPauseMilliseconds": 145924,
+      "reconsideredVisitCount": 3,
+      "completedWaitCount": 13,
+      "allowanceGrantedCount": 13,
+      "date": "2026-09-17"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 2220000,
+      "focusedPauseMilliseconds": 137080,
+      "reconsideredVisitCount": 6,
+      "completedWaitCount": 10,
+      "allowanceGrantedCount": 10,
+      "date": "2026-09-18"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 300000,
+      "focusedPauseMilliseconds": 57426,
+      "reconsideredVisitCount": 1,
+      "completedWaitCount": 5,
+      "allowanceGrantedCount": 5,
+      "date": "2026-09-19"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 480000,
+      "focusedPauseMilliseconds": 52886,
+      "reconsideredVisitCount": 1,
+      "completedWaitCount": 5,
+      "allowanceGrantedCount": 5,
+      "date": "2026-09-20"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 1980000,
+      "focusedPauseMilliseconds": 137910,
+      "reconsideredVisitCount": 5,
+      "completedWaitCount": 10,
+      "allowanceGrantedCount": 10,
+      "date": "2026-09-21"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 1560000,
+      "focusedPauseMilliseconds": 146992,
+      "reconsideredVisitCount": 7,
+      "completedWaitCount": 12,
+      "allowanceGrantedCount": 12,
+      "date": "2026-09-22"
+    },
+    {
+      "estimatedReclaimedMilliseconds": 2580000,
+      "focusedPauseMilliseconds": 96818,
+      "reconsideredVisitCount": 6,
+      "completedWaitCount": 8,
+      "allowanceGrantedCount": 8,
+      "date": "2026-09-23"
+    }
+  ]
+}

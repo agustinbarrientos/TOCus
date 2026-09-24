@@ -44,8 +44,8 @@ export function createAppearanceCopy( i18n: I18n ): Readonly<AppearanceScreenCop
 				description: i18n._( msg`A soft sphere guides your breathing.` ),
 			} ),
 			[ PauseMode.QUIET ]: Object.freeze( {
-				label: i18n._( msg`Quiet pause` ),
-				description: i18n._( msg`A still pause with no breathing cue.` ),
+				label: i18n._( msg`Pause` ),
+				description: i18n._( msg`A static screen without breathing guidance.` ),
 			} ),
 		} ),
 		loading: i18n._( msg`Loading appearance settings...` ),

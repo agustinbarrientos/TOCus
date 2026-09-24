@@ -79,7 +79,7 @@ export interface PreferencesAppearanceTarget {
  * @since 1.0.0 Initial implementation.
  */
 export interface PreferencesPresentation {
-	/** User-selected breathing or Quiet pause mode. */
+	/** User-selected breathing or pause mode. */
 	mode: PauseMode;
 }
 

@@ -13,7 +13,7 @@ export function createBrowserLocaleMessages( i18n: I18n ): BrowserLocaleMessages
 		extensionName: {
 			message: i18n._( msg( {
 				comment: 'Extension name.',
-				message: 'TOCus',
+				message: 'TOCus - Pause before visiting addictive websites',
 				context: 'Extension name',
 			} ) ),
 			description: 'Extension name.',
@@ -21,7 +21,7 @@ export function createBrowserLocaleMessages( i18n: I18n ): BrowserLocaleMessages
 		extensionDescription: {
 			message: i18n._( msg( {
 				comment: 'Short extension description shown by the browser and extension store.',
-				message: 'Pause before visiting addictive websites',
+				message: 'TOCus adds a short breathing pause before the websites you choose, so you can notice the impulse and decide what to do next.',
 				context: 'Extension description',
 			} ) ),
 			description: 'Short extension description shown by the browser and extension store.',
