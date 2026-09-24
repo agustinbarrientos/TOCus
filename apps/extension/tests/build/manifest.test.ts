@@ -592,7 +592,7 @@ describe( 'extension build manifest', () => {
 			options_ui: { page: 'options.html', open_in_tab: true },
 			browser_specific_settings: {
 				gecko: {
-					id: 'tocus@agustinbarrientos.github.io',
+					id: 'tocus@agustinbarrientos.com',
 					strict_min_version: '140.0',
 					data_collection_permissions: { required: [ 'none' ] },
 				},
