@@ -31,8 +31,8 @@ export default function HomePage( props: LocalizedHomePageProperties ) {
 					<div className="hero-copy">
 						<h1 id="page-title">{ catalog.intro }</h1>
 						<div className="hero-actions">
-							<DownloadLinks label={ catalog.downloadFor } alsoAvailable={ catalog.alsoAvailable }
-								comingSoon={ catalog.comingSoon } />
+							<DownloadLinks language={ localization.language } label={ catalog.downloadFor }
+								alsoAvailable={ catalog.alsoAvailable } comingSoon={ catalog.comingSoon } />
 						</div>
 					</div>
 					<svg className="hero-shore-transition" viewBox="0 0 1440 100" preserveAspectRatio="none"
@@ -132,8 +132,8 @@ export default function HomePage( props: LocalizedHomePageProperties ) {
 					</svg>
 					<div className="download-panel">
 						<h2 id="download-title">{ catalog.downloadTitle }</h2>
-						<DownloadLinks label={ catalog.downloadFor } alsoAvailable={ catalog.alsoAvailable }
-							comingSoon={ catalog.comingSoon } />
+						<DownloadLinks language={ localization.language } label={ catalog.downloadFor }
+							alsoAvailable={ catalog.alsoAvailable } comingSoon={ catalog.comingSoon } />
 					</div>
 				</section>
 			</main>
