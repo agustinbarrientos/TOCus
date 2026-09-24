@@ -128,6 +128,42 @@ test.describe( 'packaged Settings loading', () => {
 } );
 
 test.describe( 'packaged Chrome protection', () => {
+	for ( const strictCsp of [ false, true ] ) {
+		test( `loads the packaged brand font on a protected website with strict CSP ${ String( strictCsp ) }`, async ( { page, worker } ) => {
+			const websiteFontRequests: string[] = [];
+			page.on( 'request', ( request ) => {
+				if ( request.url().startsWith( 'https://example.test/' ) && request.resourceType() === 'font' ) {
+					websiteFontRequests.push( request.url() );
+				}
+			} );
+			if ( strictCsp ) {
+				await page.route( 'https://example.test/font-check', ( route ) => route.fulfill( {
+					contentType: 'text/html', body: '<!doctype html><h1>Destination loaded</h1>',
+					headers: { 'Content-Security-Policy': "default-src 'none'; style-src 'none'; font-src 'none'" },
+				} ) );
+			}
+			await page.goto( 'https://example.test/font-check' );
+			await worker.evaluate( async () => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				const tab = ( await chrome.tabs.query( {} ) ).find( ( candidate ) => candidate.url === 'https://example.test/font-check' );
+				if ( tab?.id === undefined ) {
+					throw new Error( 'The synthetic website tab is unavailable.' );
+				}
+				await chrome.scripting.insertCSS( { files: [ 'assets/protected-page-font.css' ], target: { tabId: tab.id } } );
+			} );
+			const fonts = await page.evaluate( async () => {
+				try {
+					return ( await document.fonts.load( '600 36.8px "Fredoka Variable"', 'Breathe out' ) )
+						.map( ( font ) => ( { family: font.family, status: font.status } ) );
+				} catch ( error ) {
+					return String( error );
+				}
+			} );
+			expect( fonts ).toEqual( [ { family: 'Fredoka Variable', status: 'loaded' } ] );
+			expect( websiteFontRequests ).toEqual( [] );
+		} );
+	}
+
 	test( 'saves website changes through the departure dialog using the native permission API', async ( { page, worker, extensionRoot } ) => {
 		await page.goto( new URL( 'options.html#protected-sites', extensionRoot ).href );
 		await page.getByLabel( 'Website address', { exact: true } ).fill( 'example.test' );
@@ -505,11 +541,14 @@ test.describe( 'packaged Chrome protection', () => {
 	/* Native two-minute expiry is verified locally to keep CI duration bounded. */
 	test.describe( 'real-time expiry', () => {
 		test.skip( process.env.CI === 'true', 'The real two-minute expiry remains covered locally.' );
-		test( 'holds tab audio through expiry and Ready, then restores playback after Continue without reloading', async ( { context, worker } ) => {
+		test( 'holds tab audio through expiry and Ready, then restores playback after Continue without reloading', async ( { context, worker }, testInfo ) => {
 			test.setTimeout( 165_000 );
-			await worker.evaluate( async () => {
+			const totals = { estimatedReclaimedMilliseconds: 29 * 60_000, focusedPauseMilliseconds: 60_000,
+				reconsideredVisitCount: 6, completedWaitCount: 6, allowanceGrantedCount: 6 };
+			await worker.evaluate( async ( statistics ) => {
 				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
 				await chrome.storage.local.set( {
+					'tocus.statistics.v1': statistics,
 					'tocus.protection.configuration.v1': {
 						schemaVersion: 5,
 						sites: [ { identityHost: 'example.test', rule: { host: 'example.test', includeSubdomains: true, scopeId: 'scope_default' } } ],
@@ -518,7 +557,8 @@ test.describe( 'packaged Chrome protection', () => {
 						measurementRevisionsByScope: { scope_default: 'revision_packaged_audio' },
 					},
 				} );
-			} );
+			}, { ...createMockStatisticsDocument(), firstRecordedDate: '2026-09-24',
+				dailyTotals: [ { date: '2026-09-24', ...totals } ], scopes: { [ DefaultProtectionScopeId ]: { totals } } } );
 			await expect.poll( () => worker.evaluate( async () => {
 				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
 				return ( await chrome.declarativeNetRequest.getDynamicRules() ).length;
@@ -553,6 +593,17 @@ test.describe( 'packaged Chrome protection', () => {
 				await expect.poll( () => readTabMuted( worker, destination ) ).toBe( true );
 				const waitingTree = await accessibility.send( 'Accessibility.getFullAXTree' );
 				expect( waitingTree.nodes.some( ( node ) => ! node.ignored && node.role?.value === 'button' && node.name?.value === 'Continue' ) ).toBe( false );
+				expect( waitingTree.nodes.some( ( node ) => node.name?.value === 'About 30 min saved.' ) ).toBe( true );
+				await accessibility.send( 'DOM.enable' );
+				await accessibility.send( 'CSS.enable' );
+				const { nodes } = await accessibility.send( 'DOM.getFlattenedDocument', { depth: -1, pierce: true } );
+				const cue = nodes.find( ( node ) => node.localName === 'h1' && node.attributes?.includes( 'breathing-cue' ) );
+				if ( cue === undefined ) {
+					throw new Error( 'Expected the real on-page breathing heading.' );
+				}
+				const { fonts } = await accessibility.send( 'CSS.getPlatformFontsForNode', { nodeId: cue.nodeId } );
+				expect( fonts.some( ( font ) => font.isCustomFont && font.familyName.includes( 'Fredoka' ) ) ).toBe( true );
+				await page.screenshot( { path: testInfo.outputPath( 'on-page-pause.png' ) } );
 				expect( page.url() ).toBe( destination );
 				expect( await page.getByRole( 'textbox', { name: 'Unfinished work', includeHidden: true } ).inputValue() ).toBe( 'Preserve my current work' );
 

@@ -54,6 +54,15 @@ export default defineConfig( {
 	},
 	hooks: {
 		/**
+		 * Registers browser-specific font handling only for the injected stylesheet build.
+		 * @param wxt - Ready extension build context.
+		 */
+		ready: ( wxt ) => {
+			wxt.hooks.hook( 'vite:build:extendConfig', ( entrypoints, config ) => {
+				configureProtectedPageFontAssets( entrypoints, config, wxt.config.browser );
+			} );
+		},
+		/**
 		 * Keeps the supplied store icon and its transparent padding intact.
 		 * @param wxt - Active extension build context.
 		 * @return Promise resolved after the generated 128px icon is replaced.
@@ -65,7 +74,6 @@ export default defineConfig( {
 				join( wxt.config.outDir, 'icons/128.png' ),
 			);
 		},
-		'vite:build:extendConfig': configureProtectedPageFontAssets,
 		/**
 		 * Creates local assets shared by the extension documents.
 		 * @param wxt - Active extension build context.

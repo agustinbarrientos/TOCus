@@ -2,7 +2,8 @@ import { fileURLToPath } from 'node:url';
 import { mergeConfig } from 'vite';
 import { describe, expect, it } from 'vitest';
 import type { Entrypoint, WxtViteConfig } from 'wxt';
-import { configureProtectedPageFontAssets } from './index.ts';
+import { ExtensionBuildBrowser } from '../../../../src/shared/utils/build-browser/types';
+import { configureProtectedPageFontAssets, resolveProtectedPageFontUrl } from './index.ts';
 
 const fontEntrypoint: Entrypoint = {
 	name: 'protected-page-font',
@@ -59,6 +60,29 @@ function getAssetFilename( config: WxtViteConfig, names: string[] ): string {
 }
 
 describe( 'configureProtectedPageFontAssets', () => {
+	it.each( [ ExtensionBuildBrowser.CHROME, ExtensionBuildBrowser.EDGE ] )(
+		'resolves %s font URLs from the installed extension rather than the website', ( browser ) => {
+			const config = createFontConfig();
+			configureProtectedPageFontAssets( [ fontEntrypoint ], config, browser );
+			for ( const [ , filename ] of fontCases ) {
+				expect( config.experimental?.renderBuiltUrl?.( filename, {
+					hostId: 'assets/protected-page-font.css', hostType: 'css', type: 'asset', ssr: false,
+				} ) )
+					.toBe( `chrome-extension://__MSG_@@extension_id__/${ filename }` );
+			}
+			expect( resolveProtectedPageFontUrl( 'assets/unrelated.svg', browser ) ).toBeUndefined();
+		},
+	);
+
+	it.each( [ ExtensionBuildBrowser.FIREFOX, ExtensionBuildBrowser.SAFARI ] )(
+		'preserves native injected-stylesheet URL resolution in %s', ( browser ) => {
+			const config = createFontConfig();
+			configureProtectedPageFontAssets( [ fontEntrypoint ], config, browser );
+			expect( config.experimental?.renderBuiltUrl ).toBeUndefined();
+			expect( resolveProtectedPageFontUrl( latinFont[ 1 ], browser ) ).toBeUndefined();
+		},
+	);
+
 	it.each( [
 		{ order: [ hebrewFont, latinExtendedFont, latinFont ] },
 		{ order: [ hebrewFont, latinFont, latinExtendedFont ] },
@@ -68,7 +92,7 @@ describe( 'configureProtectedPageFontAssets', () => {
 		{ order: [ latinFont, latinExtendedFont, hebrewFont ] },
 	] )( 'keeps font identity stable for emission order %#', ( { order } ) => {
 		const config = createFontConfig();
-		configureProtectedPageFontAssets( [ fontEntrypoint ], config );
+		configureProtectedPageFontAssets( [ fontEntrypoint ], config, ExtensionBuildBrowser.CHROME );
 
 		for ( const [ source, destination ] of order ) {
 			expect( getAssetFilename( config, [ source ] ) ).toBe( destination );
@@ -77,7 +101,7 @@ describe( 'configureProtectedPageFontAssets', () => {
 
 	it( 'preserves CSS naming and the remaining build configuration', () => {
 		const config = createFontConfig();
-		configureProtectedPageFontAssets( [ fontEntrypoint ], config );
+		configureProtectedPageFontAssets( [ fontEntrypoint ], config, ExtensionBuildBrowser.CHROME );
 
 		expect( getAssetFilename( config, [ 'protected-page-font.css' ] ) ).toBe( 'assets/protected-page-font.[ext]' );
 		expect( config.build?.modulePreload ).toBe( false );
@@ -94,9 +118,10 @@ describe( 'configureProtectedPageFontAssets', () => {
 	] )( 'leaves unrelated entrypoint groups unchanged: %j', ( ...entrypoints ) => {
 		const config = createFontConfig();
 		const originalOutput = config.build?.rolldownOptions?.output;
-		configureProtectedPageFontAssets( entrypoints, config );
+		configureProtectedPageFontAssets( entrypoints, config, ExtensionBuildBrowser.CHROME );
 
 		expect( config.build?.rolldownOptions?.output ).toBe( originalOutput );
+		expect( config.experimental?.renderBuiltUrl ).toBeUndefined();
 		expect( getAssetFilename( config, [ 'fredoka-latin-wght-normal.woff2' ] ) )
 			.toBe( 'assets/protected-page-font.[ext]' );
 	} );
@@ -109,7 +134,7 @@ describe( 'configureProtectedPageFontAssets', () => {
 		{ build: { rolldownOptions: { output: {} } } },
 	] )( 'rejects a changed WXT output contract: %j', ( config ) => {
 		expect( () => {
-			configureProtectedPageFontAssets( [ fontEntrypoint ], config );
+			configureProtectedPageFontAssets( [ fontEntrypoint ], config, ExtensionBuildBrowser.CHROME );
 		} )
 			.toThrow( 'Expected WXT to configure one protected-page font output with asset filenames.' );
 	} );
@@ -118,7 +143,7 @@ describe( 'configureProtectedPageFontAssets', () => {
 		const config: WxtViteConfig = {
 			build: { rolldownOptions: { output: { assetFileNames: 'assets/[name].[ext]' } } },
 		};
-		configureProtectedPageFontAssets( [ fontEntrypoint ], config );
+		configureProtectedPageFontAssets( [ fontEntrypoint ], config, ExtensionBuildBrowser.CHROME );
 
 		expect( getAssetFilename( config, [ 'protected-page-font.css' ] ) ).toBe( 'assets/[name].[ext]' );
 		expect( getAssetFilename( config, [ 'fredoka-latin-wght-normal.woff2' ] ) )
@@ -130,7 +155,7 @@ describe( 'configureProtectedPageFontAssets', () => {
 		[ 'fredoka-hebrew-wght-normal.woff2', 'fredoka-latin-wght-normal.woff2' ],
 	] )( 'rejects unrecognized or ambiguous font identities: %j', ( ...names ) => {
 		const config = createFontConfig();
-		configureProtectedPageFontAssets( [ fontEntrypoint ], config );
+		configureProtectedPageFontAssets( [ fontEntrypoint ], config, ExtensionBuildBrowser.CHROME );
 
 		expect( () => getAssetFilename( config, names ) ).toThrow( 'Unexpected protected-page font asset:' );
 	} );

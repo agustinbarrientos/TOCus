@@ -408,10 +408,11 @@ async function expectInterruptionComposition( outputUrl: URL, document: string )
 /**
  * Verifies that on-demand protected-page resources contain the isolated layer and bundled brand font.
  * @param outputUrl - Browser output-directory URL.
+ * @param browser - Browser receiving the injected font stylesheet.
  * @return Promise resolved after protected-page resource assertions pass.
  * @since 1.0.0 Initial implementation.
  */
-async function expectProtectedPageComposition( outputUrl: URL ): Promise<void> {
+async function expectProtectedPageComposition( outputUrl: URL, browser: string ): Promise<void> {
 	const moduleCode = await readOutputFile( outputUrl, 'protected-page.js' );
 	const fontStyles = await readOutputFile( outputUrl, 'assets/protected-page-font.css' );
 	const fontResourceUrls = fontStyles.match( /\/assets\/protected-page-font\d*\.woff2/gu ) ?? [];
@@ -448,7 +449,8 @@ async function expectProtectedPageComposition( outputUrl: URL ): Promise<void> {
 		const fontFace = fontStyles.split( '@font-face' ).find( ( face ) => face.includes( unicodeRange ) );
 
 		expect( packaged.equals( source ), `${ resource } must always contain the ${ subset } subset` ).toBe( true );
-		expect( fontFace ).toContain( `url(/${ resource })` );
+		const origin = browser === 'Chrome' || browser === 'Edge' ? 'chrome-extension://__MSG_@@extension_id__' : '';
+		expect( fontFace ).toContain( `url(${ origin }/${ resource })` );
 	}
 }
 
@@ -676,8 +678,8 @@ describe( 'extension build manifest', () => {
 	);
 
 	test.each( browserOutputs )(
-		'packages the isolated %s protected-page layer and brand font', async ( _browser, outputUrl ) => {
-			await expectProtectedPageComposition( outputUrl );
+		'packages the isolated %s protected-page layer and brand font', async ( browser, outputUrl ) => {
+			await expectProtectedPageComposition( outputUrl, browser );
 		},
 	);
 

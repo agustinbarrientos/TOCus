@@ -1,4 +1,5 @@
 import type { Entrypoint, WxtViteConfig } from 'wxt';
+import { isChromiumBuild } from '../../../../src/shared/utils/build-browser/index.ts';
 
 /** Stable destinations already exposed by the protected-page resource allowlist. */
 const ProtectedPageFontAssets = new Map( [
@@ -11,9 +12,14 @@ const ProtectedPageFontAssets = new Map( [
  * Assigns stable font identities to the protected-page CSS entrypoint's assets.
  * @param entrypoints - WXT entrypoints in the current build group.
  * @param config - Merged Vite build configuration for that group.
+ * @param browser - Browser receiving the injected font stylesheet.
  * @since 1.0.0 Deterministic release font assets.
  */
-export function configureProtectedPageFontAssets( entrypoints: readonly Entrypoint[], config: WxtViteConfig ): void {
+export function configureProtectedPageFontAssets(
+	entrypoints: readonly Entrypoint[],
+	config: WxtViteConfig,
+	browser: string,
+): void {
 	const entrypoint = entrypoints[ 0 ];
 
 	if ( entrypoint === undefined || entrypoints.length !== 1 || entrypoint.name !== 'protected-page-font'
@@ -28,6 +34,17 @@ export function configureProtectedPageFontAssets( entrypoints: readonly Entrypoi
 	}
 
 	const originalAssetFileNames = output.assetFileNames;
+	if ( isChromiumBuild( browser ) ) {
+		config.experimental = {
+			...config.experimental,
+			/**
+			 * Resolves this stylesheet's font assets from the installed extension.
+			 * @param filename - Emitted asset destination.
+			 * @return Absolute font URL or Vite's default asset resolution.
+			 */
+			renderBuiltUrl: ( filename ) => resolveProtectedPageFontUrl( filename, browser ),
+		};
+	}
 
 	/**
 	 * Resolves font identity without relying on asynchronous emission order.
@@ -50,4 +67,17 @@ export function configureProtectedPageFontAssets( entrypoints: readonly Entrypoi
 
 		return destination;
 	};
+}
+
+/**
+ * Resolves Chromium's injected font URLs from the installation, not the visited website.
+ * @param filename - Packaged asset destination.
+ * @param browser - Browser receiving the generated stylesheet.
+ * @return Absolute extension font URL, or Vite's default for other assets and browsers.
+ * @since 1.0.0 Initial implementation.
+ */
+export function resolveProtectedPageFontUrl( filename: string, browser: string ): string | undefined {
+	return isChromiumBuild( browser ) && Array.from( ProtectedPageFontAssets.values() ).includes( filename )
+		? `chrome-extension://__MSG_@@extension_id__/${ filename }`
+		: undefined;
 }
