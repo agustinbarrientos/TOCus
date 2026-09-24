@@ -1,0 +1,63 @@
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	width: 1200px;
+	height: 628px;
+	overflow: hidden;
+	background: #d4c1b2;
+}
+
+main {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	color: #2d2017;
+}
+
+.og-background {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.og-brand {
+	position: absolute;
+	top: 60px;
+	left: 60px;
+	width: 205px;
+	height: 61px;
+}
+
+h1 {
+	position: absolute;
+	top: 148px;
+	left: 60px;
+	width: 636px;
+	margin: 0;
+	line-height: 81px;
+	font-synthesis: none;
+}
+
+h1 span {
+	display: block;
+	white-space: nowrap;
+}
+
+.og-browsers {
+	position: absolute;
+	top: 424px;
+	left: 60px;
+	display: flex;
+	gap: 30px;
+}
+
+.og-browsers img {
+	width: 76px;
+	height: 76px;
+}
