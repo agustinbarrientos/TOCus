@@ -1,4 +1,4 @@
-/* global document */
+/* global document, getComputedStyle */
 import { readFile } from 'node:fs/promises';
 import { scenes } from './catalog.mjs';
 
@@ -37,7 +37,10 @@ export async function loadMasters( root ) {
 	css = css.replace( '__FONT__', dataUrl( latin, 'font/woff2' ) );
 	css += `\n@font-face{font-family:Fredoka;src:url('${ dataUrl( font, 'font/woff2' ) }');font-weight:300 700;unicode-range:U+0100-02FF,U+1E00-1EFF;}`;
 	// Keep the original vector paths, with transparent face details and one dark ink.
-	const logo = ( await readFile( `${ root }/packages/theme/assets/logo.svg`, 'utf8' ) )
+	const sourceLogo = await readFile( `${ root }/packages/theme/assets/logo.svg`, 'utf8' );
+	// The face occupies the first square of the original gradient wordmark.
+	const icon = Buffer.from( sourceLogo.replace( 'viewBox="0 0 214.64 64.01"', 'viewBox="0 0 64 64.01"' ) );
+	const logo = sourceLogo
 		.replace( /<defs>.*?<\/defs>/s, '' )
 		.replace( /<path[^>]+style="fill:#ffd5c2;"\/>/, '' )
 		.replaceAll( 'fill:url(#b)', 'fill:#332216' )
@@ -49,7 +52,7 @@ export async function loadMasters( root ) {
 	] ) {
 		artwork[ name ] = dataUrl( await readFile( new URL( `../assets/${ name }.png`, import.meta.url ) ) );
 	}
-	return { css, logo: dataUrl( Buffer.from( logo ), 'image/svg+xml' ), artwork };
+	return { css, logo: dataUrl( Buffer.from( logo ), 'image/svg+xml' ), icon, artwork };
 }
 
 /**
@@ -83,7 +86,7 @@ export async function renderAsset( page, masters, asset ) {
 				</main>
 			</body>
 		</html>` );
-	await page.evaluate( async () => {
+	await page.evaluate( async ( fitHeadline ) => {
 		await document.fonts.ready;
 		await Promise.all( Array.from( document.images, ( image ) => image.decode() ) );
 		const caption = document.querySelector( '.caption' );
@@ -96,6 +99,24 @@ export async function renderAsset( page, masters, asset ) {
 				throw new Error( 'Caption exceeds the single-line canvas width.' );
 			}
 		}
-	} );
+		if ( fitHeadline ) {
+			const headline = document.querySelector( '.promo h1' );
+			const small = Boolean( document.querySelector( '.small' ) );
+			// Keep longer translations clear of the foreground palm leaves.
+			if ( ! small ) {
+				headline.style.left = '300px';
+				headline.style.right = '300px';
+			}
+			headline.style.whiteSpace = 'nowrap';
+			let size = parseFloat( getComputedStyle( headline ).fontSize );
+			const minimum = small ? 16 : 32;
+			while ( headline.scrollWidth > headline.clientWidth && size > minimum ) {
+				headline.style.fontSize = `${ --size }px`;
+			}
+			if ( headline.scrollWidth > headline.clientWidth ) {
+				throw new Error( 'Localized promo headline exceeds its canvas width.' );
+			}
+		}
+	}, asset.fitHeadline ?? false );
 	return page.screenshot( { type: 'png', animations: 'disabled' } );
 }
