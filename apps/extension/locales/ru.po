@@ -148,8 +148,8 @@ msgid "A soft sphere guides your breathing."
 msgstr "Мягкая сфера направляет дыхание."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "A still pause with no breathing cue."
-msgstr "Неподвижная пауза без подсказок для дыхания."
+msgid "A static screen without breathing guidance."
+msgstr "Статичный экран без подсказок для дыхания."
 
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
@@ -282,11 +282,11 @@ msgstr "Brasil"
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Breathe in"
-msgstr "Вдохните"
+msgstr "Вдохни"
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Breathe out"
-msgstr "Выдохните"
+msgstr "Выдохни"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Breathing"
@@ -364,7 +364,7 @@ msgstr "Выберите время окончания."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Choose the days and times when TOCus should be active."
-msgstr "Выберите дни и время, когда TOCus должен быть активен."
+msgstr "Выбери дни и время, когда TOCus должен быть активен."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Choose websites"
@@ -571,7 +571,7 @@ msgid "Keep site"
 msgstr "Оставить сайт"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
-msgid "Keep TOCus active every day and at every time."
+msgid "Keep TOCus active all day, every day."
 msgstr "TOCus будет активен каждый день круглосуточно."
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
@@ -1165,7 +1165,7 @@ msgstr "Оставшееся время"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Time spent pausing plus estimated browsing time avoided, based on your configured visit time."
-msgstr "Время на паузы плюс оценка времени, сэкономленного на просмотре сайтов, на основе заданной вами длительности посещения."
+msgstr "Время на паузы плюс оценка времени, сэкономленного на просмотре сайтов, на основе заданной тобой длительности посещения."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Time window {position}"
