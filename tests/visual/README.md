@@ -168,6 +168,14 @@ The changes cover About, Privacy, protected-site Settings, Statistics, and share
 
 Each downloaded expected image matched its committed bytes before replacement. All 106 original registrations remain, with 41 updated hashes and the other 65 unchanged. Appearance copy references are handled separately after the translation review. Website and regional onboarding references, comparator fixtures, capture settings, retries, and comparison tolerances are unchanged.
 
+## Approved pause and schedule wording review
+
+The September 24 translation review replaces the literal static-pause description, uses informal breathing instructions where requested, and simplifies the always-active schedule description. Nine original references and two Portuguese onboarding references were reviewed and refreshed from unmodified normal-run captures in CI run 36032724697 at commit 5e88ccf9, using macOS 26 ARM64 and pinned Playwright 1.63.0 Chromium.
+
+Five Appearance references change only the shorter Pause label and static-screen description. Four Schedule references change only the all-day, every-day sentence. The two Portuguese onboarding references change only the breathing instruction in the preview. All eleven images retain their dimensions, and every changed decoded RGBA pixel is confined to those text regions.
+
+Each downloaded expected image matched its committed bytes before replacement. The 106 original registrations remain, with nine updated inventory hashes and the other 97 unchanged in this copy refresh. The other ten regional references, website references, comparator fixtures, capture settings, retries, and comparison tolerances are unchanged.
+
 ## Case API and commands
 
 Run a bounded original comparison with `pnpm test:visual --project chromium-originals --grep 'interruption-screen-ready.png'`. Explicit grep permits partial investigation, but hash checks always run. Local servers can be reused; CI starts fresh servers.
