@@ -18,6 +18,7 @@ import {
 	type InterruptionPageRequest,
 } from '../../../protection-runtime/types/runtime-message';
 import { createStatisticsClient } from '../../../statistics/services/statistics-client';
+import { formatNewTabWellbeingSummary } from '../../../statistics/utils/format-wellbeing-summary';
 import {
 	createWellbeingSummaryController,
 	type WellbeingSummaryController,
@@ -133,7 +134,7 @@ async function initializeProtectedPageLayer(): Promise<void> {
 		await layer.updateComplete;
 		const interruptionScreen = layer.getInterruptionScreen();
 
-		interruptionScreen.wellbeingSummary = bootstrapLocalization.wellbeing.neutral;
+		interruptionScreen.wellbeingSummary = '';
 		const preferencesStorage = createPreferencesStorageService( {
 			area: browser.storage.local,
 		} );
@@ -151,6 +152,7 @@ async function initializeProtectedPageLayer(): Promise<void> {
 			storageChanges: browser.storage.onChanged,
 		} );
 		wellbeingSummaryController = createWellbeingSummaryController( {
+			formatSummary: formatNewTabWellbeingSummary,
 			source: statisticsClient,
 			target: interruptionScreen,
 		} );
@@ -176,7 +178,7 @@ async function initializeProtectedPageLayer(): Promise<void> {
 			layer.lang = localization.languageTag;
 			layer.copy = localization.protectedPageLayer;
 			layer.interruptionCopy = localization.interruption;
-			interruptionScreen.wellbeingSummary = localization.wellbeing.neutral;
+			interruptionScreen.wellbeingSummary = '';
 			activeWellbeingSummaryController.setCopy( localization.wellbeing );
 		}
 

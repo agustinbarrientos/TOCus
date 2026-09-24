@@ -2,7 +2,10 @@ import { ExtensionBuildBrowser } from '../../../../shared/utils/build-browser/ty
 import { ExtensionStoreReviewLinks } from '../../../../shared/utils/review-url/links';
 import { InterruptionPageResponseState } from '../../../protection-runtime/types/runtime-message';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AllowanceIdSchema } from '../../../../domains/protection/types/protection-value';
+import { AllowanceIdSchema, LocalDateSchema } from '../../../../domains/protection/types/protection-value';
+import { StatisticsProjectionStatus } from '../../../../domains/statistics/types/statistics-projection';
+import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
+import type { WellbeingSummaryController, WellbeingSummaryControllerOptions } from '../../../statistics/services/wellbeing-summary-controller';
 import { Language } from '../../../../domains/preferences/types';
 import type {
 	InterruptionPageController,
@@ -200,7 +203,10 @@ const pageMocks = await vi.hoisted( async () => {
 		reviewPromptStorage,
 		reviewPromptController,
 		createStatisticsClient: vi.fn().mockReturnValue( statisticsClient ),
-		createWellbeingSummaryController: vi.fn().mockReturnValue( wellbeingSummaryController ),
+		createWellbeingSummaryController: vi.fn<(
+			options: WellbeingSummaryControllerOptions,
+		) => WellbeingSummaryController>()
+			.mockReturnValue( wellbeingSummaryController ),
 		getUILanguage: vi.fn().mockReturnValue( 'es-AR' ),
 		handleMessage: vi.fn<ProtectedPageLayerController[ 'handleMessage' ]>(),
 		initialLocalization,
@@ -444,10 +450,22 @@ describe( 'protected page service', () => {
 			},
 			storageChanges: pageMocks.storageChanges,
 		} );
-		expect( pageMocks.createWellbeingSummaryController ).toHaveBeenCalledWith( {
-			source: pageMocks.statisticsClient,
-			target: layer.interruptionScreen,
-		} );
+		const wellbeingOptions = pageMocks.createWellbeingSummaryController.mock.calls[ 0 ]?.[ 0 ];
+		expect( wellbeingOptions?.source ).toBe( pageMocks.statisticsClient );
+		expect( wellbeingOptions?.target ).toBe( layer.interruptionScreen );
+		const formatSummary = wellbeingOptions?.formatSummary;
+		if ( formatSummary === undefined ) {
+			throw new TypeError( 'Expected the shared concise pause summary formatter.' );
+		}
+		for ( const [ milliseconds, expected ] of [ [ 899_999, '' ], [ 900_000, 'About 15 min saved.' ],
+			[ 51_900_000, 'About 14 hr, 25 min saved.' ] ] as const ) {
+			expect( formatSummary( {
+				status: StatisticsProjectionStatus.AVAILABLE,
+				currentDate: LocalDateSchema.parse( '2026-09-24' ), dailyTotals: [],
+				estimatedReclaimedMilliseconds: milliseconds, focusedPauseMilliseconds: 60_000,
+				reconsideredVisitCount: 1, completedWaitCount: 1, allowanceGrantedCount: 1,
+			}, TestEnglishLocalizationBundle.wellbeing ) ).toBe( expected );
+		}
 		expect( pageMocks.preferencesController.addPreferencesChangeListener )
 			.not.toHaveBeenCalled();
 		expect( pageMocks.getUILanguage ).toHaveBeenCalledOnce();
@@ -458,7 +476,7 @@ describe( 'protected page service', () => {
 		expect( layer.copy ).toBe( pageMocks.initialLocalization.protectedPageLayer );
 		expect( layer.interruptionCopy ).toBe( pageMocks.initialLocalization.interruption );
 		expect( layer.interruptionScreen.wellbeingSummary )
-			.toBe( pageMocks.initialLocalization.wellbeing.neutral );
+			.toBe( '' );
 		expect( pageMocks.wellbeingSummaryController.setCopy )
 			.toHaveBeenCalledWith( pageMocks.initialLocalization.wellbeing );
 		expect( pageMocks.wellbeingSummaryController.setCopy.mock.invocationCallOrder[ 0 ] )
@@ -569,7 +587,7 @@ describe( 'protected page service', () => {
 		expect( layer.lang ).toBe( 'ja' );
 		expect( layer.interruptionCopy ).toBe( pageMocks.liveLocalization.interruption );
 		expect( layer.interruptionScreen.wellbeingSummary )
-			.toBe( pageMocks.liveLocalization.wellbeing.neutral );
+			.toBe( '' );
 		expect( pageMocks.wellbeingSummaryController.setCopy )
 			.toHaveBeenLastCalledWith( pageMocks.liveLocalization.wellbeing );
 		expect( documentTarget.title ).toBe( 'Visited page title' );
