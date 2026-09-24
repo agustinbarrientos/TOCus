@@ -165,7 +165,7 @@ const pageMocks = await vi.hoisted( async () => {
 	const localStorageArea = {};
 	const reviewPromptStorage = {};
 	const reviewPromptController = {
-		refresh: vi.fn(), start: vi.fn(), stop: vi.fn(),
+		refresh: vi.fn(), start: vi.fn(), stop: vi.fn(), setUrl: vi.fn(),
 	};
 	const statisticsClient = {};
 	const storageChanges = {};
@@ -491,8 +491,12 @@ describe( 'protected page service', () => {
 			area: pageMocks.localStorageArea,
 		} );
 		expect( pageMocks.getExtensionReviewUrl ).toHaveBeenCalledWith(
-			ExtensionBuildBrowser.CHROME, ExtensionStoreReviewLinks,
+			ExtensionBuildBrowser.CHROME, ExtensionStoreReviewLinks, Language.SPANISH_VOS,
 		);
+		expect( pageMocks.getExtensionReviewUrl ).toHaveBeenLastCalledWith(
+			ExtensionBuildBrowser.CHROME, ExtensionStoreReviewLinks, Language.FRENCH,
+		);
+		expect( pageMocks.reviewPromptController.setUrl ).toHaveBeenCalledWith( 'https://example.com/reviews' );
 		expect( pageMocks.createReviewPromptController ).toHaveBeenCalledWith( {
 			source: pageMocks.statisticsClient,
 			target: layer.interruptionScreen,
@@ -590,6 +594,10 @@ describe( 'protected page service', () => {
 			.toBe( '' );
 		expect( pageMocks.wellbeingSummaryController.setCopy )
 			.toHaveBeenLastCalledWith( pageMocks.liveLocalization.wellbeing );
+		expect( pageMocks.getExtensionReviewUrl ).toHaveBeenLastCalledWith(
+			ExtensionBuildBrowser.CHROME, ExtensionStoreReviewLinks, Language.JAPANESE,
+		);
+		expect( pageMocks.reviewPromptController.setUrl ).toHaveBeenLastCalledWith( 'https://example.com/reviews' );
 		expect( documentTarget.title ).toBe( 'Visited page title' );
 		expect( documentTarget.documentElement.lang ).toBe( 'pt-BR' );
 	} );

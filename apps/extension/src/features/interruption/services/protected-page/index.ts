@@ -162,7 +162,7 @@ async function initializeProtectedPageLayer(): Promise<void> {
 			target: interruptionScreen,
 			storage: createReviewPromptStorageService( { area: browser.storage.local } ),
 			storageChanges: browser.storage.onChanged,
-			url: getExtensionReviewUrl( import.meta.env.BROWSER, ExtensionStoreReviewLinks ),
+			url: getExtensionReviewUrl( import.meta.env.BROWSER, ExtensionStoreReviewLinks, browserLanguage ),
 		} );
 		reviewPromptController = activeReviewPromptController;
 
@@ -180,6 +180,9 @@ async function initializeProtectedPageLayer(): Promise<void> {
 			layer.interruptionCopy = localization.interruption;
 			interruptionScreen.wellbeingSummary = '';
 			activeWellbeingSummaryController.setCopy( localization.wellbeing );
+			activeReviewPromptController.setUrl(
+				getExtensionReviewUrl( import.meta.env.BROWSER, ExtensionStoreReviewLinks, language ),
+			);
 		}
 
 		languageChangeListener = applyLocalization;

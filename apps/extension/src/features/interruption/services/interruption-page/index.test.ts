@@ -85,7 +85,7 @@ const pageMocks = await vi.hoisted( async () => {
 	const localStorageArea = {};
 	const reviewPromptStorage = {};
 	const reviewPromptController = {
-		refresh: vi.fn(), start: vi.fn(), stop: vi.fn(),
+		refresh: vi.fn(), start: vi.fn(), stop: vi.fn(), setUrl: vi.fn(),
 	};
 	const removeDocumentVisibility = vi.fn();
 	const storageChanges = {};
@@ -354,8 +354,12 @@ describe( 'interruption page service', () => {
 			area: pageMocks.localStorageArea,
 		} );
 		expect( pageMocks.getExtensionReviewUrl ).toHaveBeenCalledWith(
-			ExtensionBuildBrowser.CHROME, ExtensionStoreReviewLinks,
+			ExtensionBuildBrowser.CHROME, ExtensionStoreReviewLinks, Language.SPANISH_VOS,
 		);
+		expect( pageMocks.getExtensionReviewUrl ).toHaveBeenLastCalledWith(
+			ExtensionBuildBrowser.CHROME, ExtensionStoreReviewLinks, Language.FRENCH,
+		);
+		expect( pageMocks.reviewPromptController.setUrl ).toHaveBeenCalledWith( 'https://example.com/reviews' );
 		expect( pageMocks.createReviewPromptController ).toHaveBeenCalledWith( {
 			source: pageMocks.statisticsClient,
 			target: interruptionScreen,
@@ -452,6 +456,10 @@ describe( 'interruption page service', () => {
 		expect( interruptionScreen.wellbeingSummary ).toBe( '' );
 		expect( pageMocks.wellbeingSummaryController.setCopy )
 			.toHaveBeenLastCalledWith( pageMocks.liveLocalization.wellbeing );
+		expect( pageMocks.getExtensionReviewUrl ).toHaveBeenLastCalledWith(
+			ExtensionBuildBrowser.CHROME, ExtensionStoreReviewLinks, Language.JAPANESE,
+		);
+		expect( pageMocks.reviewPromptController.setUrl ).toHaveBeenLastCalledWith( 'https://example.com/reviews' );
 	} );
 
 	it( 'waits for the latest language before revealing and connecting interruption timing', async () => {
