@@ -14,6 +14,7 @@
 		"pnpm": ">=12.5.1 <13"
 	},
 	"scripts": {
+		"store:assets": "node tools/store-assets/generate.mjs",
 		"dev": "turbo run dev --parallel",
 		"setup:browsers": "pnpm --filter @tocus/extension exec playwright install chromium firefox webkit",
 		"build": "turbo run build",
@@ -26,19 +27,20 @@
 		"zip:safari": "pnpm --filter @tocus/extension zip:safari",
 		"lint": "pnpm lint:scripts && pnpm lint:styles",
 		"lint:scripts": "eslint . --max-warnings 0",
-		"lint:styles": "stylelint \"apps/*/src/**/*.{css,scss}\" \"apps/extension/config/**/*.css\" \"packages/theme/**/*.{css,scss}\" \"packages/ui/src/**/*.{css,scss}\"",
+		"lint:styles": "stylelint \"apps/*/src/**/*.{css,scss}\" \"apps/extension/config/**/*.css\" \"packages/theme/**/*.{css,scss}\" \"packages/ui/src/**/*.{css,scss}\" \"tools/store-assets/**/*.css\"",
 		"lint:fix": "pnpm lint:scripts --fix && pnpm lint:styles --fix",
 		"locales:extract": "lingui extract --clean",
 		"typecheck": "tsc --project tsconfig.json --noEmit && tsc --project tests/visual/tsconfig.json --noEmit && turbo run typecheck",
 		"test": "pnpm test:unit && pnpm test:build-contract && pnpm test:browser",
-		"test:unit": "vitest run --coverage --config config/vitest.config.ts --project unit",
+		"test:unit": "pnpm test:store-assets && vitest run --coverage --config config/vitest.config.ts --project unit",
 		"test:build-contract": "pnpm build && pnpm build:edge && pnpm build:firefox && pnpm build:safari && vitest run --config config/vitest.config.ts --project build-contract && pnpm test:build-browser",
 		"test:build-browser": "playwright test --config config/playwright-build.config.ts",
 		"test:browser": "pnpm --filter @tocus/extension test:browser && pnpm test:ui",
 		"test:ui": "playwright test --config config/playwright-ui.config.ts",
 		"test:visual": "playwright test --config config/playwright-visual.config.ts",
 		"test:visual:update": "playwright test --config config/playwright-visual.config.ts --project chromium-website --update-snapshots=all",
-		"check": "pnpm lint && pnpm typecheck && pnpm test"
+		"check": "pnpm lint && pnpm typecheck && pnpm test",
+		"test:store-assets": "node --test tools/store-assets/lib/*.test.mjs"
 	},
 	"devDependencies": {
 		"@babel/core": "8.0.6",

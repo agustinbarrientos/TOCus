@@ -1,0 +1,76 @@
+# Store assets
+
+A local capture and composition tool for TOCus's browser-store listings. It renders the current production UI, adds localized captions, and exports opaque RGB PNGs:
+
+- Five **1280 x 800** screenshots per language, in listing order.
+- One **440 x 280** small promo tile and one **1400 x 560** marquee tile, in English.
+- A local HTML contact sheet and a manifest with dimensions, file sizes, and SHA-256 hashes.
+
+## Generate
+
+Run from the repository root after `pnpm install --frozen-lockfile`. If Playwright's Chromium isn't installed, run `pnpm --filter @tocus/extension exec playwright install chromium` once.
+
+```sh
+pnpm store:assets
+pnpm store:assets --locale en
+pnpm store:assets --locale es-tu,es-vos
+pnpm store:assets --only promos
+```
+
+The default captures real extension components through the existing browser-test fixtures. It uses a temporary Chromium profile and an automatically assigned loopback port; it never opens or changes an installed extension or personal browser profile. The generator shuts down its browser and server on completion or failure.
+
+Outputs go to `tools/store-assets/.output/`, which Git ignores. Open `.output/index.html` to review the full batch. Upload the PNGs under each language folder and `promos/`; the files under `captures/` are undecorated originals retained for inspection.
+
+## Use manually captured screenshots
+
+```sh
+pnpm store:assets --input /path/to/screenshots
+pnpm store:assets --input /path/to/screenshots --locale en --output tools/store-assets/.output/manual
+```
+
+The input is read without modification. Filenames use `1-<language>.png` through `5-<language>.png`, ordered as breathing, websites, schedule, statistics, and appearance. Original language suffixes are `en`, `es`, `es_ar`, `de`, `fr`, `it`, `ja`, `pt_br`, `pt`, and `ru`. CLI language codes follow the app: `en`, `es-tu`, `es-vos`, `de`, `fr`, `it`, `ja`, `pt-BR`, `pt-PT`, and `ru`.
+
+## Change a composition
+
+| File | Responsibility |
+| --- | --- |
+| `lib/catalog.mjs` | Order, mascot pose and side, language aliases, localized captions, and promo headlines. |
+| `lib/capture.mjs` | Production UI states, viewport, and readiness conditions. |
+| `lib/composition.css` | Editable backgrounds, caption sizes, frame, and promo layout. |
+| `lib/render.mjs` | Offline HTML composition using the existing brand logo and fonts. |
+| `assets/capybara-*.png` | Transparent thumbs-up, pointing, agenda-reading, medal celebration, and tango tuxedo poses, plus the original character reference. |
+| `assets/riverside-background.png` | Reusable water, foliage, and sandy-shore background. |
+| `assets/promo-*.png` | Separate panoramic and close-up promo scenes, with the character grounded in the setting. |
+| `assets/art-direction.md` | Master artwork prompts; ordinary runs never generate new artwork. |
+| `assets/statistics.json` | Fixed illustrative data matching the approved screenshot's 14 h 14 min over 30 days. |
+
+The automatic scenes mirror the supplied references: a light breathing pause at seven seconds remaining; Instagram, Reddit, X, and YouTube; the global weekly schedule with weekend rows; populated all-time statistics; and blue appearance settings in dark mode. They retain production copy, controls, and layout rather than recreating UI inside the template. The website list uses the current UI's shared timing behavior; no per-site timing controls are fabricated.
+
+The isolated browser-cache adapter returns the bundled site logos instead of contacting websites. The statistics capture expands vertically to include all lifetime totals.
+
+Mascots alternate sides across the five screenshots: a thumbs-up on the right, pointing from the left, reading an agenda on the right, celebrating with three medals on the left, and a tango tuxedo pose on the right. Left-side characters face inward toward the centered screenshot. Windows reach the canvas bottom without cropping or stretching the capture. Mascots sit in a separate foreground layer so their hands can overlap the window. The tango pose has a small additional right offset to keep its shoe clear of the frame. Change each scene's `companion` entry in `lib/catalog.mjs` to adjust its pose or placement.
+
+Promos have their own artwork and centered compositions. The marquee uses a riverside scene with the mascot resting on a rock; the small tile uses a close-up of its face and folded arms. Edit `promos` in `lib/catalog.mjs` for the headlines. Each headline array entry is an intentional line. Ordinary exports reuse the saved masters and don't generate images.
+
+Statistics are sample data for demonstrating the screen, not measured use, a testimonial, or a promised result. They remain confined to capture fixtures and aren't written to extension storage.
+
+Capture rendering depends on the installed browser and system font fallback, especially Japanese and Cyrillic. Use the same OS and Playwright version when exact pixel reproducibility matters. Review all languages after layout or copy changes. Store assets don't replace the application's visual regression baselines.
+
+## Publication boundary
+
+This directory is developer tooling committed to the repository. It isn't an Astro route, isn't in either app's public directory, and isn't imported by production entrypoints. No preview page or generator is deployed. The CLI refuses output paths inside `apps/`. Its only server binds to `127.0.0.1`, and captures block external network requests. Marketing images and the mascot don't increase the website or extension package size.
+
+Chrome's [image guidelines](https://developer.chrome.com/docs/webstore/images) describe the output dimensions and the shared, non-localized promo slots. The outer canvas is full bleed and opaque; screenshot frames are part of the composition.
+
+## Validate
+
+```sh
+pnpm test:store-assets
+pnpm exec eslint tools/store-assets --max-warnings 0
+pnpm exec stylelint tools/store-assets/lib/composition.css
+pnpm store:assets --locale en
+```
+
+Each export checks dimensions and RGB color channels. Captions must fit one line, and missing source images, page errors, or broken image decodes fail the run. The contact sheet is for local review only.
+
+The CLI tests also run through the repository's unit-test command, and the composition stylesheet is included in its style lint command.
