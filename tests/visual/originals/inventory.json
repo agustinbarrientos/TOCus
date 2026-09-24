@@ -313,19 +313,19 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-protected-sites-populated-dark.png",
-    "sha256": "1d0f21e8ff4cf1d4287c2d0ee9fb05efdd9ff0680513ccbe3eac287faf4fd67c"
+    "sha256": "cc17ccf24a5524f86495db381bc67982b7ba3feef42e2f68deed3e429c970c1e"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-protected-sites-populated-light.png",
-    "sha256": "e5adb33cd82823373a90b52b81cb62c186fdc6cfbcea7fd01b0533e30d03fe75"
+    "sha256": "a489155f6a008e726e0020559a2a4f6a957bbd41fdae8e601417db31e8679496"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-protected-sites-removal-confirmation-dark.png",
-    "sha256": "b6aafeaeec8ac8541c35b10f45435cd22d0cc5a5d97cdd970e0c6b91fda35584"
+    "sha256": "6b3c19c42dbcd7dacb23da108a480aa56db3f373d020018ae61474022f6f663f"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-protected-sites-removal-confirmation-light.png",
-    "sha256": "35f6f882b49740e54894becd15402d437d9c410f9630a6c0499e20893304eae8"
+    "sha256": "cfa9a1d98ec5bf28dd84cbdc4990de140ea035c7d90dd8900d75b4919ad25f90"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-schedule-dark.png",
