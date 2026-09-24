@@ -46,6 +46,8 @@ The input is read without modification. Filenames use `1-<language>.png` through
 
 The automatic scenes mirror the supplied references: a light breathing pause at seven seconds remaining; Instagram, Reddit, X, and YouTube; the global weekly schedule with weekend rows; populated all-time statistics; and blue appearance settings in dark mode. They retain production copy, controls, and layout rather than recreating UI inside the template. The website list uses the current UI's shared timing behavior; no per-site timing controls are fabricated.
 
+Each language gets a fresh browser context with its matching locale. Statistics always selects All time and uses the same 30-day sample. Schedule fields remain native time controls: their 12/24-hour display follows the browser and system clock preference, so changing TOCus's language alone may not change their display.
+
 The isolated browser-cache adapter returns the bundled site logos instead of contacting websites. The statistics capture expands vertically to include all lifetime totals.
 
 Mascots alternate sides across the five screenshots: a thumbs-up on the right, pointing from the left, reading an agenda on the right, celebrating with three medals on the left, and a tango tuxedo pose on the right. Left-side characters face inward toward the centered screenshot. Windows reach the canvas bottom without cropping or stretching the capture. Mascots sit in a separate foreground layer so their hands can overlap the window. The tango pose has a small additional right offset to keep its shoe clear of the frame. Change each scene's `companion` entry in `lib/catalog.mjs` to adjust its pose or placement.

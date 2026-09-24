@@ -8,6 +8,7 @@ test( 'every supported language has exactly five nonempty one-line captions', ()
 	assert.equal( Object.keys( locales ).length, 10 );
 	for ( const locale of Object.values( locales ) ) {
 		assert.equal( locale.captions.length, scenes.length );
+		assert.equal( new Intl.Locale( locale.browserLocale ).baseName, locale.browserLocale );
 		assert.ok( locale.captions.every( ( caption ) => caption.trim() && ! caption.includes( '\n' ) ) );
 	}
 } );

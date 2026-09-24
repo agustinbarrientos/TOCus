@@ -66,6 +66,7 @@ export async function captureScene( page, origin, scene, locale ) {
 		} else if ( scene.id === 'statistics' ) {
 			const statistics = JSON.parse( await readFile( new URL( '../assets/statistics.json', import.meta.url ), 'utf8' ) );
 			await page.evaluate( ( values ) => window.settingsTest.externalStatistics( values ), statistics );
+			await page.locator( '.settings-statistics-period select' ).selectOption( 'all-time' );
 			await page.locator( '.recharts-wrapper svg' ).waitFor();
 			const metrics = await page.locator( '.settings-statistics-lifetime' ).boundingBox();
 			await page.setViewportSize( {

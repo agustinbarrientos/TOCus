@@ -56,6 +56,24 @@ async function saveAsset( image, asset ) {
 	console.log( `Created ${ asset.file } (${ asset.width }\u00d7${ asset.height }, RGB PNG)` );
 }
 
+/**
+ * Isolates each locale while keeping all browser requests on the local fixture server.
+ * @param {import('playwright').Browser} browser - Temporary capture browser.
+ * @param {string|undefined} origin - Allowed fixture origin, absent for supplied captures.
+ * @param {string} locale - Browser locale matching the production language.
+ * @return {Promise<import('playwright').BrowserContext>} Localized offline context.
+ */
+async function createCaptureContext( browser, origin, locale ) {
+	const context = await browser.newContext( {
+		deviceScaleFactor: 1, locale, timezoneId: 'UTC', reducedMotion: 'reduce',
+	} );
+	await context.route( '**/*', ( route ) => {
+		const url = new URL( route.request().url() );
+		return url.origin === origin || [ 'data:', 'blob:' ].includes( url.protocol ) ? route.continue() : route.abort();
+	} );
+	return context;
+}
+
 try {
 	let origin;
 	if ( ! options.input && options.only !== 'promos' ) {
@@ -69,40 +87,39 @@ try {
 		origin = server.resolvedUrls.local[ 0 ].replace( /\/$/, '' );
 	}
 	browser = await chromium.launch( { headless: true } );
-	const context = await browser.newContext( {
-		deviceScaleFactor: 1, locale: 'en-US', timezoneId: 'UTC', reducedMotion: 'reduce',
-	} );
-	// Captures may use only the loopback fixture server and embedded assets.
-	await context.route( '**/*', ( route ) => {
-		const url = new URL( route.request().url() );
-		return url.origin === origin || [ 'data:', 'blob:' ].includes( url.protocol ) ? route.continue() : route.abort();
-	} );
+	const context = await createCaptureContext( browser, origin, 'en-US' );
 	const compositor = await context.newPage();
 	if ( options.only !== 'promos' ) {
 		for ( const locale of options.locales ) {
-			for ( const scene of scenes ) {
-				let capture;
-				if ( options.input ) {
-					capture = await readFile( join( options.input, `${ scene.number }-${ locales[ locale ].input }.png` ) );
-				} else {
-					const page = await context.newPage();
-					const errors = [];
-					page.on( 'pageerror', ( error ) => errors.push( error.message ) );
-					try {
-						capture = await captureScene( page, origin, scene, locale );
-						if ( errors.length ) {
-							throw new Error( errors.join( '\n' ) );
+			const captureContext = options.input ? null
+				: await createCaptureContext( browser, origin, locales[ locale ].browserLocale );
+			try {
+				for ( const scene of scenes ) {
+					let capture;
+					if ( options.input ) {
+						capture = await readFile( join( options.input, `${ scene.number }-${ locales[ locale ].input }.png` ) );
+					} else {
+						const page = await captureContext.newPage();
+						const errors = [];
+						page.on( 'pageerror', ( error ) => errors.push( error.message ) );
+						try {
+							capture = await captureScene( page, origin, scene, locale );
+							if ( errors.length ) {
+								throw new Error( errors.join( '\n' ) );
+							}
+						} finally {
+							await page.close();
 						}
-					} finally {
-						await page.close();
 					}
+					const rawDirectory = join( options.output, 'captures', locale );
+					await mkdir( rawDirectory, { recursive: true } );
+					await writeFile( join( rawDirectory, `${ scene.number }-${ scene.id }.png` ), capture );
+					const asset = { kind: 'screenshot', scene: scene.id, locale, width: 1280, height: 800,
+						caption: locales[ locale ].captions[ scene.number - 1 ], file: `${ locale }/${ scene.number }-${ scene.id }.png` };
+					await saveAsset( await renderAsset( compositor, masters, { ...asset, capture } ), asset );
 				}
-				const rawDirectory = join( options.output, 'captures', locale );
-				await mkdir( rawDirectory, { recursive: true } );
-				await writeFile( join( rawDirectory, `${ scene.number }-${ scene.id }.png` ), capture );
-				const asset = { kind: 'screenshot', scene: scene.id, locale, width: 1280, height: 800,
-					caption: locales[ locale ].captions[ scene.number - 1 ], file: `${ locale }/${ scene.number }-${ scene.id }.png` };
-				await saveAsset( await renderAsset( compositor, masters, { ...asset, capture } ), asset );
+			} finally {
+				await captureContext?.close();
 			}
 		}
 	}
