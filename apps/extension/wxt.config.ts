@@ -1,3 +1,4 @@
+import { copyFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { defineConfig } from 'wxt';
 import { ToolbarIcons } from './config/icons/constants/index.ts';
@@ -52,6 +53,18 @@ export default defineConfig( {
 		sizes: [ 16, 19, 24, 32, 38, 48, 64, 96, 128, 256, 512 ],
 	},
 	hooks: {
+		/**
+		 * Keeps the supplied store icon and its transparent padding intact.
+		 * @param wxt - Active extension build context.
+		 * @return Promise resolved after the generated 128px icon is replaced.
+		 * @since 1.0.0 Initial implementation.
+		 */
+		'build:done': async ( wxt ) => {
+			await copyFile(
+				join( wxt.config.root, 'config/icons/assets/128.png' ),
+				join( wxt.config.outDir, 'icons/128.png' ),
+			);
+		},
 		'vite:build:extendConfig': configureProtectedPageFontAssets,
 		/**
 		 * Creates local assets shared by the extension documents.
