@@ -232,3 +232,54 @@ describe( 'review prompt controller', () => {
 		expect( harness.target.reviewPrompt ).not.toBeNull();
 	} );
 } );
+
+describe( 'review destination changes', () => {
+	it( 'applies the selected language before startup and immediately updates an open invitation', async () => {
+		const harness = fixture();
+		harness.controller.setUrl( 'https://example.com/reviews?hl=es' );
+		harness.controller.start();
+		await settle();
+		expect( harness.target.reviewPrompt?.url ).toBe( 'https://example.com/reviews?hl=es' );
+		harness.controller.setUrl( 'https://example.com/reviews?hl=ja' );
+		expect( harness.target.reviewPrompt?.url ).toBe( 'https://example.com/reviews?hl=ja' );
+		expect( harness.source.readStatistics ).toHaveBeenCalledOnce();
+	} );
+
+	it.each( [ 'https://example.com/reviews?hl=fr', null ] )(
+		'uses the latest destination %s when an eligibility read finishes', async ( url ) => {
+			const harness = fixture();
+			const read = Promise.withResolvers<StatisticsProjection>();
+			harness.source.readStatistics.mockReturnValueOnce( read.promise );
+			harness.controller.start();
+			harness.controller.setUrl( url );
+			read.resolve( projection() );
+			await settle();
+			expect( harness.target.reviewPrompt?.url ?? null ).toBe( url );
+		},
+	);
+
+	it.each( [ 'https://example.com/reviews?hl=fr', null ] )(
+		'keeps the latest destination %s after a dismissal fails', async ( url ) => {
+			const harness = fixture();
+			harness.controller.start();
+			await settle();
+			const write = Promise.withResolvers<undefined>();
+			harness.storage.dismiss.mockReturnValue( write.promise );
+			harness.target.dispatchEvent( new Event( ReviewPromptDismissRequestEventName ) );
+			harness.controller.setUrl( url );
+			write.reject( new Error( 'Storage unavailable' ) );
+			await settle();
+			expect( harness.target.reviewPrompt?.url ?? null ).toBe( url );
+		},
+	);
+
+	it( 'does not reopen a permanently dismissed invitation when the language changes', async () => {
+		const harness = fixture();
+		harness.controller.start();
+		await settle();
+		harness.target.dispatchEvent( new Event( ReviewPromptDismissRequestEventName ) );
+		await settle();
+		harness.controller.setUrl( 'https://example.com/reviews?hl=de' );
+		expect( harness.target.reviewPrompt ).toBeNull();
+	} );
+} );
