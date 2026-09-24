@@ -1,9 +1,58 @@
+import { WebsiteLanguage } from '../../localization/types';
 import { WebsiteBrowser, type StoreListing } from './types';
 
 /**
+ * Chrome store language tags corresponding to TOCus preferences.
+ */
+const ChromeStoreLanguages: Readonly<Record<WebsiteLanguage, string>> = {
+	[ WebsiteLanguage.ENGLISH ]: 'en',
+	[ WebsiteLanguage.SPANISH_TU ]: 'es',
+	[ WebsiteLanguage.SPANISH_VOS ]: 'es-419',
+	[ WebsiteLanguage.PORTUGUESE_BRAZIL ]: 'pt-BR',
+	[ WebsiteLanguage.PORTUGUESE_PORTUGAL ]: 'pt-PT',
+	[ WebsiteLanguage.ITALIAN ]: 'it',
+	[ WebsiteLanguage.FRENCH ]: 'fr',
+	[ WebsiteLanguage.GERMAN ]: 'de',
+	[ WebsiteLanguage.JAPANESE ]: 'ja',
+	[ WebsiteLanguage.RUSSIAN ]: 'ru',
+};
+
+/**
+ * Edge store language tags corresponding to TOCus preferences.
+ */
+const EdgeStoreLanguages: Readonly<Record<WebsiteLanguage, string>> = {
+	[ WebsiteLanguage.ENGLISH ]: 'en-US',
+	[ WebsiteLanguage.SPANISH_TU ]: 'es-ES',
+	[ WebsiteLanguage.SPANISH_VOS ]: 'es-MX',
+	[ WebsiteLanguage.PORTUGUESE_BRAZIL ]: 'pt-BR',
+	[ WebsiteLanguage.PORTUGUESE_PORTUGAL ]: 'pt-PT',
+	[ WebsiteLanguage.ITALIAN ]: 'it-IT',
+	[ WebsiteLanguage.FRENCH ]: 'fr-FR',
+	[ WebsiteLanguage.GERMAN ]: 'de-DE',
+	[ WebsiteLanguage.JAPANESE ]: 'ja-JP',
+	[ WebsiteLanguage.RUSSIAN ]: 'ru-RU',
+};
+
+/**
+ * Firefox Add-ons locale paths corresponding to TOCus preferences.
+ */
+const FirefoxStoreLanguages: Readonly<Record<WebsiteLanguage, string>> = {
+	[ WebsiteLanguage.ENGLISH ]: 'en-US',
+	[ WebsiteLanguage.SPANISH_TU ]: 'es-ES',
+	[ WebsiteLanguage.SPANISH_VOS ]: 'es-AR',
+	[ WebsiteLanguage.PORTUGUESE_BRAZIL ]: 'pt-BR',
+	[ WebsiteLanguage.PORTUGUESE_PORTUGAL ]: 'pt-PT',
+	[ WebsiteLanguage.ITALIAN ]: 'it',
+	[ WebsiteLanguage.FRENCH ]: 'fr',
+	[ WebsiteLanguage.GERMAN ]: 'de',
+	[ WebsiteLanguage.JAPANESE ]: 'ja',
+	[ WebsiteLanguage.RUSSIAN ]: 'ru',
+};
+
+/**
  * The single place to replace all website download destinations.
- * Chrome and Edge have their listing URLs; Firefox and Safari still use placeholders.
- * Replace each placeholder with the official listing URL before launch.
+ * Chrome, Edge and Firefox have their listing URLs; Safari still uses a placeholder.
+ * Replace the Safari placeholder with the official listing URL before launch.
  * @since 1.0.0
  */
 export const DownloadStores: Readonly<Record<WebsiteBrowser, StoreListing>> = {
@@ -20,7 +69,7 @@ export const DownloadStores: Readonly<Record<WebsiteBrowser, StoreListing>> = {
 	[ WebsiteBrowser.FIREFOX ]: {
 		browser: WebsiteBrowser.FIREFOX,
 		name: 'Firefox',
-		href: 'https://addons.mozilla.org/firefox/addon/tocus-placeholder/',
+		href: 'https://addons.mozilla.org/firefox/addon/tocus/',
 	},
 	[ WebsiteBrowser.SAFARI ]: {
 		browser: WebsiteBrowser.SAFARI,
@@ -54,11 +103,27 @@ export function detectDownloadBrowser( userAgent = '' ): WebsiteBrowser {
 /**
  * Resolves both full and compact download actions from the shared configuration.
  * @param browser - Preferred store.
- * @return Configured destination for that browser.
+ * @param language - Current website language.
+ * @return Configured destination localized for that browser store.
  * @since 1.0.0
  */
-export function getDownloadStore( browser: WebsiteBrowser ): StoreListing {
-	return DownloadStores[ browser ];
+export function getDownloadStore(
+	browser: WebsiteBrowser, language: WebsiteLanguage = WebsiteLanguage.ENGLISH,
+): StoreListing {
+	const store = DownloadStores[ browser ];
+	if ( store.href === null || ( browser !== WebsiteBrowser.CHROME && browser !== WebsiteBrowser.EDGE &&
+			browser !== WebsiteBrowser.FIREFOX ) ) {
+		return store;
+	}
+	const url = new URL( store.href );
+	if ( browser === WebsiteBrowser.FIREFOX ) {
+		url.pathname = url.pathname.replace( /^\/(?:[^/]+\/)?firefox\//u,
+			`/${ FirefoxStoreLanguages[ language ] }/firefox/` );
+		return { ...store, href: url.href };
+	}
+	url.searchParams.set( 'hl', browser === WebsiteBrowser.CHROME
+		? ChromeStoreLanguages[ language ] : EdgeStoreLanguages[ language ] );
+	return { ...store, href: url.href };
 }
 
 export { WebsiteBrowser } from './types';

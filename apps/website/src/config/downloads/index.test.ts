@@ -1,5 +1,6 @@
+import { WebsiteLanguage } from '../../localization/types';
 import { describe, expect, test } from 'vitest';
-import { detectDownloadBrowser, getDownloadStore, WebsiteBrowser } from './index';
+import { DownloadStores, detectDownloadBrowser, getDownloadStore, WebsiteBrowser } from './index';
 
 describe( 'download store selection', () => {
 	test.each( [
@@ -39,7 +40,7 @@ describe( 'download store selection', () => {
 		expect( getDownloadStore( browser ) ).toEqual( {
 			browser: WebsiteBrowser.EDGE,
 			name: 'Edge',
-			href: 'https://microsoftedge.microsoft.com/addons/detail/ifpmfcopmabjjgggeefgoejnlbjpaehh',
+			href: 'https://microsoftedge.microsoft.com/addons/detail/ifpmfcopmabjjgggeefgoejnlbjpaehh?hl=en-US',
 		} );
 	} );
 
@@ -48,5 +49,32 @@ describe( 'download store selection', () => {
 		'Mozilla/5.0 EdgA/140.0 Mobile Safari/537.36',
 	] )( 'keeps mobile Edge on the existing Chrome fallback for %s', ( userAgent ) => {
 		expect( detectDownloadBrowser( userAgent ) ).toBe( WebsiteBrowser.CHROME );
+	} );
+} );
+
+describe( 'localized download destinations', () => {
+	test.each( [
+		[ WebsiteLanguage.ENGLISH, 'en', 'en-US', 'en-US' ],
+		[ WebsiteLanguage.SPANISH_TU, 'es', 'es-ES', 'es-ES' ],
+		[ WebsiteLanguage.SPANISH_VOS, 'es-419', 'es-MX', 'es-AR' ],
+		[ WebsiteLanguage.PORTUGUESE_BRAZIL, 'pt-BR', 'pt-BR', 'pt-BR' ],
+		[ WebsiteLanguage.PORTUGUESE_PORTUGAL, 'pt-PT', 'pt-PT', 'pt-PT' ],
+		[ WebsiteLanguage.ITALIAN, 'it', 'it-IT', 'it' ],
+		[ WebsiteLanguage.FRENCH, 'fr', 'fr-FR', 'fr' ],
+		[ WebsiteLanguage.GERMAN, 'de', 'de-DE', 'de' ],
+		[ WebsiteLanguage.JAPANESE, 'ja', 'ja-JP', 'ja' ],
+		[ WebsiteLanguage.RUSSIAN, 'ru', 'ru-RU', 'ru' ],
+	] )( 'uses the selected %s language for Chrome, Edge and Firefox', ( language, chromeLocale, edgeLocale, firefoxLocale ) => {
+		expect( getDownloadStore( WebsiteBrowser.CHROME, language ).href ).toBe(
+			`https://chromewebstore.google.com/detail/tocus/gagjpniodbnbjdggjlkliabjffcnnfmh?hl=${ chromeLocale }`,
+		);
+		expect( getDownloadStore( WebsiteBrowser.EDGE, language ).href ).toBe(
+			`https://microsoftedge.microsoft.com/addons/detail/ifpmfcopmabjjgggeefgoejnlbjpaehh?hl=${ edgeLocale }`,
+		);
+		expect( getDownloadStore( WebsiteBrowser.FIREFOX, language ).href ).toBe(
+			`https://addons.mozilla.org/${ firefoxLocale }/firefox/addon/tocus/`,
+		);
+		expect( DownloadStores[ WebsiteBrowser.CHROME ].href ).not.toContain( '?' );
+		expect( DownloadStores[ WebsiteBrowser.EDGE ].href ).not.toContain( '?' );
 	} );
 } );
