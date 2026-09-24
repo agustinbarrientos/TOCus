@@ -25,6 +25,22 @@ export function dataUrl( bytes, mime = 'image/png' ) {
 }
 
 /**
+ * Loads the shared vector logo in one ink and retains its transparent face details.
+ * @param {string} root - Repository root.
+ * @param {string} ink - Composition ink color.
+ * @return {Promise<object>} Wordmark URL and original extension icon SVG bytes.
+ * @since 1.0.0
+ */
+export async function loadBrand( root, ink = '#332216' ) {
+	const source = await readFile( `${ root }/packages/theme/assets/logo.svg`, 'utf8' );
+	const icon = Buffer.from( source.replace( 'viewBox="0 0 214.64 64.01"', 'viewBox="0 0 64 64.01"' ) );
+	const logo = source.replace( /<defs>.*?<\/defs>/s, '' )
+		.replace( /<path[^>]+style="fill:#ffd5c2;"\/>/, '' )
+		.replaceAll( 'fill:url(#b)', `fill:${ ink }` ).replaceAll( 'fill:#b56e46', `fill:${ ink }` );
+	return { logo: dataUrl( Buffer.from( logo ), 'image/svg+xml' ), icon };
+}
+
+/**
  * Loads reusable brand assets once for the entire batch.
  * @param {string} root - Repository root.
  * @return {Promise<object>} Local composition styles and masters.
@@ -36,15 +52,7 @@ export async function loadMasters( root ) {
 	let css = await readFile( new URL( './composition.css', import.meta.url ), 'utf8' );
 	css = css.replace( '__FONT__', dataUrl( latin, 'font/woff2' ) );
 	css += `\n@font-face{font-family:Fredoka;src:url('${ dataUrl( font, 'font/woff2' ) }');font-weight:300 700;unicode-range:U+0100-02FF,U+1E00-1EFF;}`;
-	// Keep the original vector paths, with transparent face details and one dark ink.
-	const sourceLogo = await readFile( `${ root }/packages/theme/assets/logo.svg`, 'utf8' );
-	// The face occupies the first square of the original gradient wordmark.
-	const icon = Buffer.from( sourceLogo.replace( 'viewBox="0 0 214.64 64.01"', 'viewBox="0 0 64 64.01"' ) );
-	const logo = sourceLogo
-		.replace( /<defs>.*?<\/defs>/s, '' )
-		.replace( /<path[^>]+style="fill:#ffd5c2;"\/>/, '' )
-		.replaceAll( 'fill:url(#b)', 'fill:#332216' )
-		.replaceAll( 'fill:#b56e46', 'fill:#332216' );
+	const brand = await loadBrand( root );
 	const artwork = {};
 	for ( const name of [
 		'riverside-background', 'capybara-thumbs-up', 'capybara-tango', 'capybara-point', 'capybara-agenda', 'capybara-medals',
@@ -52,7 +60,7 @@ export async function loadMasters( root ) {
 	] ) {
 		artwork[ name ] = dataUrl( await readFile( new URL( `../assets/${ name }.png`, import.meta.url ) ) );
 	}
-	return { css, logo: dataUrl( Buffer.from( logo ), 'image/svg+xml' ), icon, artwork };
+	return { css, ...brand, artwork };
 }
 
 /**
