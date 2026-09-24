@@ -82,7 +82,7 @@ const expectedManifestCatalogLocales = Object.freeze( {
 	de: 'de',
 	en: 'en',
 	es: 'es',
-	es_419: 'es',
+	es_419: 'es-AR',
 	fr: 'fr',
 	it: 'it',
 	ja: 'ja',
