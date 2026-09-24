@@ -176,6 +176,14 @@ Five Appearance references change only the shorter Pause label and static-screen
 
 Each downloaded expected image matched its committed bytes before replacement. The 106 original registrations remain, with nine updated inventory hashes and the other 97 unchanged in this copy refresh. The other ten regional references, website references, comparator fixtures, capture settings, retries, and comparison tolerances are unchanged.
 
+## Approved Safari website removal
+
+On September 24, 2026, the project owner requested hiding Safari downloads while retaining its extension source and build support. Ten website references were reviewed and refreshed from unmodified normal-run captures in CI run 36061365915 at commit fc7458e2, using macOS 26 ARM64 and pinned Playwright 1.63.0 Chromium.
+
+The changes remove Safari from the hero and final download rows and recenter the remaining browser links. The two narrow Portuguese pages become 27 pixels shorter because the final download alternatives now fit on one line; the surrounding artwork and footer follow that layout change. The other eight captures retain their dimensions. The open language-menu capture also has twenty one-level RGB edge differences within the existing comparison policy.
+
+Each downloaded expected image matched its committed reference bytes before replacement. All 106 extension originals, regional onboarding references, scenario registrations, comparator fixtures, capture settings, retries and comparison tolerances are unchanged.
+
 ## Case API and commands
 
 Run a bounded original comparison with `pnpm test:visual --project chromium-originals --grep 'interruption-screen-ready.png'`. Explicit grep permits partial investigation, but hash checks always run. Local servers can be reused; CI starts fresh servers.
