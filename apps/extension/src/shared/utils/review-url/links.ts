@@ -2,11 +2,11 @@ import { ExtensionBuildBrowser } from '../build-browser/types';
 import type { ExtensionReviewLinks } from './types';
 
 /**
- * Published store review URLs. An unpublished listing keeps its invitation hidden.
+ * Configured store review URLs. A missing URL keeps its invitation hidden.
  * @since 1.0.0
  */
 export const ExtensionStoreReviewLinks: ExtensionReviewLinks = {
-	[ ExtensionBuildBrowser.CHROME ]: null,
+	[ ExtensionBuildBrowser.CHROME ]: 'https://chromewebstore.google.com/detail/tocus/gagjpniodbnbjdggjlkliabjffcnnfmh/reviews',
 	[ ExtensionBuildBrowser.EDGE ]: null,
 	[ ExtensionBuildBrowser.FIREFOX ]: null,
 	[ ExtensionBuildBrowser.SAFARI ]: null,

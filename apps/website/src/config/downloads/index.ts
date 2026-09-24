@@ -2,7 +2,7 @@ import { WebsiteBrowser, type StoreListing } from './types';
 
 /**
  * The single place to replace all website download destinations.
- * These are deliberate placeholder store URLs, not verified live listings.
+ * Chrome points to its store listing; the other stores still use placeholders.
  * Replace each placeholder with the official listing URL before launch.
  * @since 1.0.0
  */
@@ -10,7 +10,7 @@ export const DownloadStores: Readonly<Record<WebsiteBrowser, StoreListing>> = {
 	[ WebsiteBrowser.CHROME ]: {
 		browser: WebsiteBrowser.CHROME,
 		name: 'Chrome',
-		href: 'https://chromewebstore.google.com/detail/tocus/placeholder-listing-id',
+		href: 'https://chromewebstore.google.com/detail/tocus/gagjpniodbnbjdggjlkliabjffcnnfmh',
 	},
 	[ WebsiteBrowser.EDGE ]: {
 		browser: WebsiteBrowser.EDGE,
