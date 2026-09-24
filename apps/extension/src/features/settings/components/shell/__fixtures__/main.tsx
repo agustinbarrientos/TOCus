@@ -420,6 +420,14 @@ if ( original.includes( 'privacy-screen-unavailable' ) ) {
 const bridge: SettingsFixtureBridge = {
 	themes: ThemeMode, palettes: Palette, languages: Language,
 	controls,
+	/**
+	 * Supplies deterministic cached icons without contacting a favicon service.
+	 * @param provider - Browser-only icon source for this scenario.
+	 * @since 1.0.0
+	 */
+	setFaviconProvider: ( provider ) => {
+		shell.faviconProvider = provider;
+	},
 	/** Completes held configuration writes through the production editor's pending state. */
 	releaseConfigurationWrites: () => {
 		controls.holdConfigurationWrites = false;
