@@ -25,6 +25,7 @@ pnpm store:assets --locale es-tu,es-vos      Capture selected languages
 pnpm store:assets --input /path/to/images   Compose existing 1-en.png \u2026 5-ru.png captures
 pnpm store:assets --only promos             Render the 440\u00d7280 and 1400\u00d7560 English tiles
 pnpm store:assets --store edge --only promos Render localized Edge tiles, logo and search terms
+pnpm store:assets --store firefox           Render all 10 languages at 2400\u00d71800
 pnpm store:assets --only screenshots        Skip promotional tiles
 pnpm store:assets --only og                 Generate all 10 localized 1200\u00d7628 OG images
 pnpm store:assets --only og --sync-website  Also replace the website's finished OG PNGs
@@ -32,6 +33,7 @@ pnpm store:assets --output /path/to/output  Choose a local output directory
 
 Default output: tools/store-assets/.output (ignored by Git).
 Edge output: tools/store-assets/.output/edge (also ignored).
+Firefox output: tools/store-assets/.output/firefox (also ignored).
 OG output: tools/store-assets/.output/og (also ignored).
 No account, installed extension, user profile, remote API, or image generation is used.` );
 	process.exit( 0 );
@@ -72,11 +74,12 @@ async function saveAsset( image, asset ) {
  * @param {import('playwright').Browser} browser - Temporary capture browser.
  * @param {string|undefined} origin - Allowed fixture origin, absent for supplied captures.
  * @param {string} locale - Browser locale matching the production language.
+ * @param {number} scale - Device pixel ratio for sharp captures and composition.
  * @return {Promise<import('playwright').BrowserContext>} Localized offline context.
  */
-async function createCaptureContext( browser, origin, locale ) {
+async function createCaptureContext( browser, origin, locale, scale = 1 ) {
 	const context = await browser.newContext( {
-		deviceScaleFactor: 1, locale, timezoneId: 'UTC', reducedMotion: 'reduce',
+		deviceScaleFactor: scale, locale, timezoneId: 'UTC', reducedMotion: 'reduce',
 	} );
 	await context.route( '**/*', ( route ) => {
 		const url = new URL( route.request().url() );
@@ -98,12 +101,14 @@ try {
 		origin = server.resolvedUrls.local[ 0 ].replace( /\/$/, '' );
 	}
 	browser = await chromium.launch( { headless: true } );
-	const context = await createCaptureContext( browser, origin, 'en-US' );
+	const context = await createCaptureContext( browser, origin, 'en-US', options.screenshot.scale );
 	const compositor = await context.newPage();
 	if ( screenshots ) {
 		for ( const locale of options.locales ) {
 			const captureContext = options.input ? null
-				: await createCaptureContext( browser, origin, locales[ locale ].browserLocale );
+				: await createCaptureContext(
+					browser, origin, locales[ locale ].browserLocale, options.screenshot.scale,
+				);
 			try {
 				for ( const scene of scenes ) {
 					let capture;
@@ -125,7 +130,7 @@ try {
 					const rawDirectory = join( options.output, 'captures', locale );
 					await mkdir( rawDirectory, { recursive: true } );
 					await writeFile( join( rawDirectory, `${ scene.number }-${ scene.id }.png` ), capture );
-					const asset = { kind: 'screenshot', scene: scene.id, locale, width: 1280, height: 800,
+					const asset = { kind: 'screenshot', scene: scene.id, locale, store: options.store, ...options.screenshot,
 						caption: locales[ locale ].captions[ scene.number - 1 ], file: `${ locale }/${ scene.number }-${ scene.id }.png` };
 					await saveAsset( await renderAsset( compositor, masters, { ...asset, capture } ), asset );
 				}

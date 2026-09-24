@@ -19,8 +19,8 @@ export function readOptions( args, root ) {
 		'sync-website': { type: 'boolean', default: false },
 		help: { type: 'boolean', default: false },
 	} } );
-	if ( ! [ 'chrome', 'edge' ].includes( values.store ) ) {
-		throw new Error( '--store must be chrome or edge.' );
+	if ( ! [ 'chrome', 'edge', 'firefox' ].includes( values.store ) ) {
+		throw new Error( '--store must be chrome, edge, or firefox.' );
 	}
 	const selected = values.locale === 'all' ? Object.keys( locales ) : values.locale.split( ',' ).map( ( value ) => value.trim() );
 	if ( selected.some( ( locale ) => ! Object.hasOwn( locales, locale ) ) ) {
@@ -35,7 +35,11 @@ export function readOptions( args, root ) {
 	if ( values.only === 'og' && ( values.input || values.store !== 'chrome' ) ) {
 		throw new Error( 'OG generation does not use --input or a browser-specific --store.' );
 	}
-	const subdirectory = values.only === 'og' ? '/og' : ( values.store === 'edge' ? '/edge' : '' );
+	const firefox = values.store === 'firefox';
+	if ( firefox && values.only === 'promos' ) {
+		throw new Error( 'Firefox exports screenshots only; promotional tiles use Chrome or Edge.' );
+	}
+	const subdirectory = values.only === 'og' ? '/og' : ( values.store === 'chrome' ? '' : `/${ values.store }` );
 	const defaultOutput = `${ root }/tools/store-assets/.output${ subdirectory }`;
 	const output = resolve( values.output ?? defaultOutput );
 	const appsDirectory = resolve( root, 'apps' );
@@ -47,7 +51,8 @@ export function readOptions( args, root ) {
 		locales: [ ...new Set( selected ) ],
 		input: values.input ? resolve( values.input ) : null,
 		output,
-		only: values.only,
+		only: firefox && values.only === 'all' ? 'screenshots' : values.only,
+		screenshot: firefox ? { width: 2400, height: 1800, scale: 2 } : { width: 1280, height: 800, scale: 1 },
 		syncWebsite: values[ 'sync-website' ],
 		help: values.help,
 	};

@@ -72,7 +72,8 @@ export async function loadMasters( root ) {
  * @since 1.0.0
  */
 export async function renderAsset( page, masters, asset ) {
-	await page.setViewportSize( { width: asset.width, height: asset.height } );
+	const scale = asset.scale ?? 1;
+	await page.setViewportSize( { width: asset.width / scale, height: asset.height / scale } );
 	const promo = asset.kind !== 'screenshot';
 	const companion = promo ? null : scenes.find( ( scene ) => scene.id === asset.scene ).companion;
 	const backdrop = promo ? ( asset.kind === 'small' ? 'promo-closeup' : 'promo-riverside' ) : 'riverside-background';
@@ -88,7 +89,7 @@ export async function renderAsset( page, masters, asset ) {
 		<html lang="${ asset.locale ?? 'en' }">
 			<head><meta charset="utf-8"><style>${ masters.css }</style></head>
 			<body>
-				<main class="canvas ${ promo ? 'promo' : '' } ${ asset.kind === 'small' ? 'small' : '' }">
+				<main class="canvas ${ promo ? 'promo' : '' } ${ asset.kind === 'small' ? 'small' : '' } ${ asset.store === 'firefox' ? 'firefox' : '' }">
 					<img class="scenery" src="${ masters.artwork[ backdrop ] }" alt="">
 					${ content }
 				</main>

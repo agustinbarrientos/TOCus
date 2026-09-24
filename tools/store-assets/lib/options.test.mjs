@@ -35,6 +35,19 @@ test( 'isolates Edge exports while retaining the original Chrome output director
 	assert.throws( () => readOptions( [ '--store', 'unknown' ], '/project' ), /--store/ );
 } );
 
+test( 'exports Firefox screenshots at 2400 by 1800 in a separate directory without promo tiles', () => {
+	const firefox = readOptions( [ '--store', 'firefox', '--locale', 'en,ja' ], '/project' );
+	assert.equal( firefox.store, 'firefox' );
+	assert.equal( firefox.output, '/project/tools/store-assets/.output/firefox' );
+	assert.equal( firefox.only, 'screenshots' );
+	assert.deepEqual( firefox.screenshot, { width: 2400, height: 1800, scale: 2 } );
+	assert.deepEqual( firefox.locales, [ 'en', 'ja' ] );
+	assert.deepEqual( readOptions( [], '/project' ).screenshot, { width: 1280, height: 800, scale: 1 } );
+	assert.deepEqual( readOptions( [ '--store', 'edge' ], '/project' ).screenshot, { width: 1280, height: 800, scale: 1 } );
+	assert.throws( () => readOptions( [ '--store', 'firefox', '--only', 'promos' ], '/project' ), /screenshots only/ );
+	assert.throws( () => readOptions( [ '--store', 'firefox', '--only', 'og' ], '/project' ), /does not use/ );
+} );
+
 test( 'escapes caption markup instead of executing it in the composition', () => {
 	assert.equal( escapeHtml( '<script>"a" & \'b\'</script>' ), '&lt;script&gt;&quot;a&quot; &amp; &#39;b&#39;&lt;/script&gt;' );
 } );

@@ -70,6 +70,15 @@ body {
 	box-shadow: 0 16px 40px #61463133, 0 0 0 1px #593d2320;
 }
 
+.firefox .frame-area {
+	left: 90px;
+	right: 90px;
+}
+
+.firefox .capture {
+	height: auto;
+}
+
 .companion {
 	position: absolute;
 	z-index: 2;
