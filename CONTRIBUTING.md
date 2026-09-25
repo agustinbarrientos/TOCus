@@ -1,144 +1,45 @@
-# Contributing to TOCus
+# Contributing
 
-Thanks for helping build TOCus. Focused bug reports, design feedback, documentation, tests, and implementation work are all valuable.
+Bug reports, translations, documentation, and code contributions are welcome. Search existing issues first; discuss substantial changes before starting. Report vulnerabilities through [SECURITY.md](SECURITY.md).
 
-## Before you start
+## Setup
 
-- Search the existing issues and pull requests before opening a duplicate.
-- Open an issue before a substantial behavior or architecture change so the direction can be discussed.
-- Follow [SECURITY.md](SECURITY.md) for suspected vulnerabilities. Never put vulnerability details in a public issue.
-
-## Development setup
-
-Use Node.js 24.16.0 or newer within the Node.js 24 release line and pnpm 12.5.1, then install the locked dependencies. The `.node-version` file pins the 24.20.0 version used in CI.
+Use the Node.js version in [.node-version](.node-version) and pnpm 12.5.1.
 
 ```sh
 corepack enable
 pnpm install --frozen-lockfile
 pnpm setup:browsers
+pnpm dev
 ```
 
-Start the workspace development tasks with `pnpm dev`.
+On Linux, install missing browser dependencies with `pnpm exec playwright install --with-deps chromium firefox webkit`.
 
-### Useful scripts
+## Changes
 
-| Command                                | Purpose                                                     |
-| -------------------------------------- | ----------------------------------------------------------- |
-| `pnpm dev`                             | Run workspace development tasks in parallel                 |
-| `pnpm setup:browsers`                  | Install pinned Chromium, Firefox and WebKit builds          |
-| `pnpm build`                           | Build all workspaces                                        |
-| `pnpm build:edge`                      | Build the Edge Manifest V3 extension                        |
-| `pnpm build:firefox`                   | Build the extension for Firefox                             |
-| `pnpm build:safari`                    | Build Safari web-extension assets                           |
-| `pnpm zip:chrome`                      | Build and ZIP the Chrome release                            |
-| `pnpm zip:edge`                        | Build and ZIP the Edge release                              |
-| `pnpm zip:firefox`                     | Build and ZIP the Firefox release                           |
-| `pnpm zip:safari`                      | Build and ZIP Safari web-extension assets                   |
-| `pnpm lint`                            | Run script and stylesheet linting                           |
-| `pnpm lint:fix`                        | Fix autofixable script and stylesheet issues                |
-| `pnpm typecheck`                       | Type-check all workspaces                                   |
-| `pnpm test`                            | Run unit coverage, build-contract, and browser tests        |
-| `pnpm test:unit`                       | Run unit tests with protection coverage thresholds          |
-| `pnpm test:build-contract`             | Build all browser targets and validate generated artifacts  |
-| `pnpm test:build-browser`              | Run isolated browser journeys against already-built files   |
-| `pnpm test:browser`                    | Run native media/Canvas coverage and all presentation tests |
-| `pnpm test:ui`                         | Run shared controls and extension UI in all three engines   |
-| `pnpm check`                           | Run linting, type checks, and tests                         |
+- Name branches `<username>/<type>/<short-description>`; types are `enhancement`, `chore`, `fix`, and `feature`.
+- Keep business logic in its domain, screen composition in features, and reusable controls in `packages/ui/`. Colocate tests.
+- Develop behavioral changes test-first. Use shared components and tokens through `@tocus/ui`.
+- Document declared types and functions with TSDoc/JSDoc, including `@since` for exports.
+- Keep source and docs ASCII-only; translations use UTF-8. Do not hard-wrap prose.
+- Preserve local-only operation, narrowly scoped permissions, keyboard access, contrast, and reduced motion. Do not add tracking, browsing-history collection, or medical claims.
+- Keep builds, ZIPs, caches, secrets, and personal browsing data out of commits.
 
-### Project structure
+## Validation and pull requests
 
-```text
-.
-|-- apps/
-|   |-- extension/       # WXT + React browser extension and extension-owned tests
-|   `-- website/         # Astro website with React islands
-|-- packages/
-|   |-- theme/           # Shared icons and design tokens
-|   `-- ui/              # Shared Mantine theme, provider and UI compositions
-`-- eslint.config.js     # Repository lint configuration
-```
+Run `pnpm check` for lint, types, unit coverage, builds, and browser tests. Describe the change and relevant validation in the PR; explain skipped checks and permission or storage changes. Include screenshots for visual changes.
 
-### Stack
+Visual comparisons require macOS 26 ARM64 and explicit approval before replacing baselines. See the [visual testing guide](tests/visual/README.md).
 
-- [WXT](https://wxt.dev/) and [React](https://react.dev/) for the browser extension
-- [Mantine](https://mantine.dev/) with shared TOCus theme tokens for controls across the extension and website
-- [Astro](https://astro.build/) with React islands for the project website
-- pnpm workspaces and [Turborepo](https://turbo.build/repo)
-- TypeScript, Vitest, and ESLint
-
-### Deployment and releases
-
-See [MAINTAINING.md](MAINTAINING.md) for website deployment, browser packaging, verification, source submission, and publication prerequisites.
-
-## Branches
-
-Name branches with this pattern:
-
-```text
-<username>/(enhancement|chore|fix|feature)/*
-```
-
-Replace `<username>` with your GitHub username, choose one category, and replace `*` with a short kebab-case name. The angle brackets, parentheses, and pipe characters describe placeholders or allowed choices and are not part of the branch name.
-
-- `enhancement`: improve existing behavior
-- `chore`: maintenance, documentation, or tooling
-- `fix`: correct a defect
-- `feature`: add new user-facing behavior
-
-For example, a contributor named Sam could use `sam/feature/local-schedules`.
-
-## Make a focused change
-
-- Keep the change as small as practical and avoid unrelated refactors.
-- Develop behavioral changes test-first: write or update a failing test before implementation, then make it pass.
-- Keep business rules inside their domain and keep feature folders focused on user-interface composition.
-- Within a domain, place shared contracts in `types`, pure behavior in `utils`, browser or external I/O in `services`, and rendered elements in `components`.
-- Keep each domain contract in a focused direct file under `types`, use nested type groups only for genuinely related multi-file contracts, and place reusable test data under `types/__fixtures__`.
-- Give each utility or service leaf folder one cohesive responsibility and colocate its `index.ts`, `index.test.ts`, and optional `types.ts`. React lifecycle services are the exception to Node unit tests: exercise them through the owning component's real-browser tests, including failure and cleanup paths, instead of mocking React hooks.
-- Give each component leaf folder one cohesive responsibility and colocate its React `index.tsx`, `types.ts` when needed, and `index.browser.test.ts`. Independently testable pure logic belongs in a feature utility with its own `index.test.ts`. Native media and Canvas tests use `index.wtr.test.ts` without a component framework.
-- Keep component props and service contracts in the owning `types.ts` or canonical feature/domain `types/` folder. Do not declare interfaces, type aliases or inline object contracts in implementation entrypoints. Do not create parallel framework-named folders such as `react/` beside the canonical feature structure.
-- Define finite domain values as a named `as const` object in the owning type module, then infer the type from that object or its validation schema. Use members such as `IconName.HEART` in application code, fixtures, and assertions; do not duplicate their raw values or maintain a handwritten literal union. Name icons by their artwork, not the screen or action using them. ESLint enforces declarations and typed consumers, including schema-inferred values. Ordinary copy, CSS and third-party library API values are not new domain catalogs; intentionally invalid validation inputs remain literal test data.
-- Reuse Mantine through `@tocus/ui`; shared defaults and styles live there. Application styles own layout and branded artwork, not copied inputs, buttons, alerts or interaction states. The injected pause must keep all styles and portals inside its Shadow DOM.
-- Preserve the permanent privacy contract: local-only operation, no account or TOCus server, no cloud backup or synchronization, no telemetry or product analytics, no access to or analysis of saved browsing history, and no external network requests by the extension. Browsers may describe the optional permission used to observe current navigation as access to browsing history; request it only when the user protects a site, and never retain or transmit a browsing history. Distinguish the extension's own traffic from traffic generated by websites, the browser, and external pages the user chooses to open. Explain and narrowly scope any browser permission or local storage change.
-- Use accessible, gentle, and non-judgmental language.
-- Do not describe TOCus as diagnosing, preventing, or treating OCD or another medical condition.
-- Do not commit disposable generated output such as `.output`, `dist`, coverage, reports, or caches. Reviewed visual-regression baselines are test fixtures and are the only current exception.
-- Do not hard-wrap prose, comments, or commit-message paragraphs in the middle of a sentence.
-- Document every declared type, schema, named function, assigned function, and method with TSDoc or JSDoc. Add an appropriate `@since` tag to every exported declaration.
-- Keep authored source and documentation files ASCII-only. Use HTML entities when an intentional rendered glyph or accent is required.
-
-## Validate your work
-
-Before opening a pull request, run:
+## Builds
 
 ```sh
-pnpm check
+pnpm build
+pnpm zip:chrome
+pnpm zip:edge
+pnpm zip:firefox
 ```
 
-If a check cannot run in your environment, explain why in the pull request.
+ZIPs go to `apps/extension/.output/`; the website goes to `apps/website/dist/`. Build release packages from the tagged commit. See [Firefox review instructions](apps/extension/FIREFOX-REVIEW.md), [store assets](tools/store-assets/README.md), and [shared UI usage](packages/ui/README.md).
 
-The Node unit suite enforces 100% statements, branches, functions and lines for the configured domain/runtime services and state utilities. React lifecycle adapters are exercised through production mounts in the Chromium, Firefox and WebKit presentation suite, not counted as Node execution. Native media and Canvas keep a separate 100% browser coverage gate. Browser tests also verify keyboard behavior, accessibility, responsive layout, contrast and Shadow DOM isolation; they run as part of `pnpm check`.
-
-Built website and installed-extension journeys use Playwright Test through `pnpm test:build-browser`; Vitest's build-contract project only checks static generated artifacts. Keep browser contexts test-scoped, use web-first assertions and named steps, and bound long phases within a coherent overall test budget. Run these journeys with one worker and no retries. Failure traces and screenshots are retained automatically and uploaded by CI. Test shared style matrices once per engine while checking locale behavior separately; do not multiply identical style checks across locales or system preferences that resolve to the same appearance.
-
-Shared controls and extension presentation tests use `pnpm test:ui`, with Chromium, Firefox and WebKit projects in Playwright Test. Vite bundles the existing HTML fixtures once into ignored `test-results/ui-fixtures/` and previews their original routes; worker-owned browsers are reused while each test gets isolated page/context fixtures. The fixture compiler retains development-mode React and Lingui behavior, source maps, and shared-control CSS before feature overrides. This avoids repeating development-module transfers in every fresh context without replacing real components or weakening assertions. Do not launch a server or browser from each test file, or close the runner-owned page before failure diagnostics can be captured. Settings helpers extend the same fixtures. Assert completed-step state and rendered artwork instead of counting outgoing animation nodes. The UI runner retains failure evidence under `test-results/ui/` and its HTML report under `playwright-report/ui/`; CI uploads both with the compiled fixture source maps under a browser-specific artifact name on failure.
-
-CI runs each UI browser project in its own parallel job, installing only that project's browser. Build, lint, types, unit coverage and native-media checks run separately, and the visual gate retains its reviewed macOS environment. Every suite runs once: the non-UI job must not call the root `test:browser` script, which would repeat the UI matrix. The required `Check and build` aggregate passes only when every job succeeds; failed, cancelled or skipped jobs keep it red. Local `pnpm check` still executes the complete functional gate. Keep bounded worker counts, zero retries and the existing timeouts instead of concealing slow test construction.
-
-Register each palette/appearance combination as its own named contrast case, not one long test containing the entire matrix. Batch resting color measurements with their diagnostic labels, then use real hover and keyboard input for interaction states. Assert the surface inventory and focusable controls explicitly so a missing fixture cannot silently reduce coverage. Open localized fixtures directly in their target language, and reuse pages within a single built-page journey when each navigation already reloads the document. Keep contexts isolated between tests; do not hide inefficient test construction with retries or larger timeouts.
-
-The 106 original extension screenshots remain at their exact component-owned `__snapshots__/chromium/*.png` paths. Their approved bytes are immutable except for the specifically approved Statistics corrections and supplied-icon replacements documented in the visual-test workflow: the visual gate checks every SHA-256 and requires every original scenario to be registered. Original extension and website comparisons share Playwright's perceived-color `threshold: 0.01` with `maxDiffPixels: 0`, tolerating tiny color differences rather than a quota of changed pixels. This approved allowance applies across each image, not only at edges; the obsolete custom edge classifier is removed. Regional onboarding uses its separately approved `threshold: 0.025`, also with `maxDiffPixels: 0`, while retaining exact RGBA counts as diagnostics. Website screenshots live under `apps/website/src/components/home-page/__snapshots__/chromium/`. Run `pnpm test:visual` on macOS26 ARM64 with pinned Chromium (`pnpm exec playwright install chromium`); CI uses its dedicated `macos-26` job. Missing images, unapproved byte changes, missing cases and differences outside each surface's policy fail. Fix real regressions instead of updating references. `pnpm test:visual:update` targets only website captures; original-extension cases reject update flags. See [the visual-test inventory and workflow](tests/visual/README.md) for comparison policies, matching inputs/framing and expected/actual/diff artifacts. Superseded centralized diagnostic captures have been removed; active regional onboarding references remain alongside their full-flow comparison tests.
-
-## Open a pull request
-
-Use the pull request template and include:
-
-- what changed and why;
-- the related issue, when one exists;
-- how the change was validated;
-- screenshots or recordings only for visual changes; and
-- privacy, permissions, accessibility, or wellbeing implications.
-
-Keep follow-up changes within the original scope when possible, and open a separate issue for unrelated work.
-
-By contributing, you agree that your contribution is licensed under the repository's [MIT License](LICENSE).
+Contributions are licensed under the [MIT License](LICENSE).
