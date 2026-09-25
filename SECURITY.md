@@ -1,27 +1,9 @@
-# Security Policy
+# Security
 
-Security fixes currently target the latest code on the `main` branch.
+Report vulnerabilities privately through [GitHub Security Advisories](https://github.com/agustinbarrientos/TOCus/security/advisories/new), not public issues.
 
-## Report a vulnerability privately
+Include the affected version and browser, reproduction steps, and potential impact. Remove credentials, private URLs, and personal data from attachments.
 
-Use the repository's [GitHub Security Advisories](https://github.com/agustinbarrientos/TOCus/security/advisories/new) to report a suspected vulnerability.
+Fixes target the latest code on `main`. This volunteer project cannot promise a response time; remediation and disclosure are coordinated through the advisory.
 
-Do **not** open a public issue, pull request, or discussion with vulnerability details. Private reporting gives maintainers time to investigate and coordinate a fix before disclosure.
-
-Include as much of the following as is safe to share:
-
-- the affected version, commit, or browser;
-- a clear description of the issue and its possible impact;
-- minimal steps or a proof of concept that reproduces it;
-- relevant configuration or environment details; and
-- any suggested mitigation.
-
-Remove credentials, private URLs, browsing history, and other personal data from reports and attachments.
-
-## What to expect
-
-A maintainer will review the report, clarify details when needed, and coordinate remediation and disclosure through the advisory. TOCus is a volunteer project and cannot promise a fixed response or resolution time, but reports will be handled as promptly and carefully as possible.
-
-Please avoid accessing other people's data, disrupting services, or using social engineering while researching a report.
-
-For ordinary bugs and feature requests that do not expose a security risk, use the public issue forms.
+Use [GitHub issues](https://github.com/agustinbarrientos/TOCus/issues/new/choose) for ordinary bugs and feature requests.
