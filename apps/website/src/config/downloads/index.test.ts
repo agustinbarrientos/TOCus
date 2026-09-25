@@ -70,7 +70,7 @@ describe( 'localized download destinations', () => {
 		[ WebsiteLanguage.RUSSIAN, 'ru', 'ru-RU', 'ru' ],
 	] )( 'uses the selected %s language for Chrome, Edge and Firefox', ( language, chromeLocale, edgeLocale, firefoxLocale ) => {
 		expect( getDownloadStore( WebsiteBrowser.CHROME, language ).href ).toBe(
-			`https://chromewebstore.google.com/detail/tocus/gagjpniodbnbjdggjlkliabjffcnnfmh?hl=${ chromeLocale }`,
+			`https://chromewebstore.google.com/detail/tocus-pause-before-visiti/gagjpniodbnbjdggjlkliabjffcnnfmh?hl=${ chromeLocale }`,
 		);
 		expect( getDownloadStore( WebsiteBrowser.EDGE, language ).href ).toBe(
 			`https://microsoftedge.microsoft.com/addons/detail/ifpmfcopmabjjgggeefgoejnlbjpaehh?hl=${ edgeLocale }`,

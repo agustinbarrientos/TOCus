@@ -58,7 +58,7 @@ export const DownloadStores: Readonly<Record<WebsiteBrowser, StoreListing>> = {
 	[ WebsiteBrowser.CHROME ]: {
 		browser: WebsiteBrowser.CHROME,
 		name: 'Chrome',
-		href: 'https://chromewebstore.google.com/detail/tocus/gagjpniodbnbjdggjlkliabjffcnnfmh',
+		href: 'https://chromewebstore.google.com/detail/tocus-pause-before-visiti/gagjpniodbnbjdggjlkliabjffcnnfmh',
 	},
 	[ WebsiteBrowser.EDGE ]: {
 		browser: WebsiteBrowser.EDGE,

@@ -21,7 +21,7 @@ test.describe( 'browser-specific download links', () => {
 	] as const ) {
 		test( `${ locale || 'en' }: small-screen alternative browser icons stay together`, async ( { page } ) => {
 			const html = readFileSync( new URL( `${ locale ? `${ locale }/` : '' }index.html`, WebsiteOutput ), 'utf8' );
-			expect( html ).toContain( `https://chromewebstore.google.com/detail/tocus/gagjpniodbnbjdggjlkliabjffcnnfmh?hl=${ chromeLocale }` );
+			expect( html ).toContain( `https://chromewebstore.google.com/detail/tocus-pause-before-visiti/gagjpniodbnbjdggjlkliabjffcnnfmh?hl=${ chromeLocale }` );
 			expect( html ).toContain( `https://microsoftedge.microsoft.com/addons/detail/ifpmfcopmabjjgggeefgoejnlbjpaehh?hl=${ edgeLocale }` );
 			expect( html ).toContain( `https://addons.mozilla.org/${ firefoxLocale }/firefox/addon/tocus/` );
 			expect( html ).not.toContain( 'apps.apple.com' );
@@ -39,7 +39,7 @@ test.describe( 'browser-specific download links', () => {
 			await expect( page.locator( '.homepage' ) ).toHaveAttribute( 'data-enhanced', 'true' );
 			for ( const group of await page.locator( '.store-links' ).all() ) {
 				await expect( group.locator( 'a[data-store="chrome"]' ) ).toHaveAttribute( 'href',
-					`https://chromewebstore.google.com/detail/tocus/gagjpniodbnbjdggjlkliabjffcnnfmh?hl=${ chromeLocale }` );
+					`https://chromewebstore.google.com/detail/tocus-pause-before-visiti/gagjpniodbnbjdggjlkliabjffcnnfmh?hl=${ chromeLocale }` );
 				await expect( group.locator( 'a[data-store="firefox"]' ) ).toHaveAttribute( 'href',
 					`https://addons.mozilla.org/${ firefoxLocale }/firefox/addon/tocus/` );
 				await expect( group.locator( 'a[data-store="edge"]' ) ).toHaveAttribute( 'href',
