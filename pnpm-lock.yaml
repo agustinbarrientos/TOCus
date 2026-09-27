@@ -226,6 +226,9 @@ importers:
       pngjs:
         specifier: 7.0.0
         version: 7.0.0
+      puppeteer-core:
+        specifier: 25.9.0
+        version: 25.9.0
       sass:
         specifier: 1.104.1
         version: 1.104.1
