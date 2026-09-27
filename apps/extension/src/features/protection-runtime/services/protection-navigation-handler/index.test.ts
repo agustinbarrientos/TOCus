@@ -249,6 +249,27 @@ function createNavigationWaitingSnapshot(): ProtectionCoordinatorStateSnapshot {
 }
 
 describe( 'createProtectionNavigationHandler', () => {
+	it.each( [ 'allowance', 'inactive schedule' ] )( 'does not restart an accepted navigation during %s when Firefox still reports the pause URL', async ( reason ) => {
+		const allowance = createAllowanceState();
+		allowance.readyParticipants = [];
+		allowance.expiresAtEpochMilliseconds = Date.UTC( 2026, 8, 2, 13 );
+		const pauseUrl = 'moz-extension://extension-id/pause.html';
+		const harness = createHarness( { [ DEFAULT_SCOPE_ID ]: allowance }, pauseUrl );
+		harness.listTabs.mockResolvedValue( [ { id: 7, incognito: false, url: pauseUrl } ] );
+		if ( reason === 'inactive schedule' ) {
+			harness.coordinator.states = {};
+			harness.evaluateSiteSchedule.mockReturnValue( { status: ScheduleEvaluationStatus.INACTIVE } );
+		}
+
+		await harness.handler.handle( {
+			tabId: 7, frameId: 0, url: 'https://example.com/',
+			phase: ProtectionRuntimeNavigationPhase.BEFORE_NAVIGATE,
+		} );
+
+		expect( harness.reconcileBrowserState ).toHaveBeenCalledOnce();
+		expect( harness.releaseNavigationIfInterrupted ).not.toHaveBeenCalled();
+		expect( harness.coordinator.events ).toEqual( [] );
+	} );
 	describe( 'destination-bearing redirects', () => {
 		const currentUrl = 'chrome-extension://extension-id/pause.html';
 		const destination = 'https://example.com/private';
