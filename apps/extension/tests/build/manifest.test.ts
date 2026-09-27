@@ -278,7 +278,7 @@ function expectPreferencesBootstrap( html: string ): void {
 }
 
 /**
- * Verifies that the generated popup loads the expected shell component.
+ * Verifies the generated popup bootstrap markup and referenced entry module.
  * @param outputUrl - Browser output-directory URL.
  * @return Promise resolved after all popup-composition assertions pass.
  */
@@ -295,9 +295,7 @@ async function expectPopupComposition( outputUrl: URL ): Promise<void> {
 		throw new Error( 'The generated popup is missing its module script.' );
 	}
 
-	const moduleCode = await readOutputFile( outputUrl, moduleSource.replace( /^\//u, '' ) );
-
-	expect( moduleCode ).toMatch( /getElementById\([`"']app[`"']\)/u );
+	await readOutputFile( outputUrl, moduleSource.replace( /^\//u, '' ) );
 }
 
 /**

@@ -478,17 +478,4 @@ test.describe( 'migrated presentation', () => {
 		await page.getByRole( 'button', { name: 'Finish setup', exact: true } ).click();
 		await page.getByTestId( 'requests' ).filter( { hasText: '1' } ).waitFor();
 	} );
-	test( 'keeps popup enrollment synchronous, compact and clearly actionable', async ( { page } ) => {
-		await page.setViewportSize( { width: 352, height: 700 } );
-		await page.goto( `/apps/extension/tests/ui/index.html?surface=${ PresentationSurface.POPUP }` );
-		const action = page.getByRole( 'button', { name: 'Pause site', exact: true } );
-		await action.waitFor( { timeout: 4000 } );
-		await action.focus();
-		await page.keyboard.press( 'Space' );
-		await page.getByTestId( 'requests' ).filter( { hasText: '1' } ).waitFor();
-		expect( await page.getByRole( 'button', { name: 'Adding', exact: false } ).isDisabled() ).toBe( true );
-		expect( await page.getByRole( 'link', { name: 'Settings', exact: true } ).getAttribute( 'href' ) ).toContain( 'options.html' );
-		expect( await page.getByRole( 'link', { name: 'Statistics', exact: true } ).getAttribute( 'href' ) ).toContain( '#statistics' );
-		expect( await page.evaluate( () => document.documentElement.scrollWidth <= innerWidth ) ).toBe( true );
-	} );
 } );

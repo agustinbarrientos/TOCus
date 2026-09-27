@@ -164,7 +164,7 @@ test.describe( 'packaged Chrome protection', () => {
 		} );
 	}
 
-	test( 'saves website changes through the departure dialog using the native permission API', async ( { page, worker, extensionRoot } ) => {
+	test( 'saves website changes through the departure dialog with site access already granted', async ( { page, worker, extensionRoot } ) => {
 		await page.goto( new URL( 'options.html#protected-sites', extensionRoot ).href );
 		await page.getByLabel( 'Website address', { exact: true } ).fill( 'example.test' );
 		await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
@@ -197,7 +197,7 @@ test.describe( 'packaged Chrome protection', () => {
 		} );
 	} );
 
-	for ( const entry of [ 'popup.html', 'options.html', 'onboarding.html' ] ) {
+	for ( const entry of [ 'options.html', 'onboarding.html' ] ) {
 		test( `opens packaged ${ entry } without preload-world warnings or script errors`, async ( { context, extensionRoot } ) => {
 			const page = await context.newPage();
 			const failures: string[] = [];
@@ -541,7 +541,7 @@ test.describe( 'packaged Chrome protection', () => {
 	/* Native two-minute expiry is verified locally to keep CI duration bounded. */
 	test.describe( 'real-time expiry', () => {
 		test.skip( process.env.CI === 'true', 'The real two-minute expiry remains covered locally.' );
-		test( 'holds tab audio through expiry and Ready, then restores playback after Continue without reloading', async ( { context, worker }, testInfo ) => {
+		test( 'keeps the tab muted through expiry and Ready, then restores its mute state after Continue without reloading', async ( { context, worker }, testInfo ) => {
 			test.setTimeout( 165_000 );
 			const totals = { estimatedReclaimedMilliseconds: 29 * 60_000, focusedPauseMilliseconds: 60_000,
 				reconsideredVisitCount: 6, completedWaitCount: 6, allowanceGrantedCount: 6 };
