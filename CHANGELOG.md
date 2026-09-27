@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+- Fix a Firefox navigation loop that prevented websites from opening after Continue.
+
 ## 1.0.0
 
 First public release of TOCus for desktop Chrome, Microsoft Edge, and Firefox.

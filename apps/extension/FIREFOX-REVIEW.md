@@ -1,4 +1,4 @@
-# Building TOCus 1.0.0 for Firefox review
+# Building TOCus 1.0.1 for Firefox review
 
 The reviewer source archive includes the shared workspace packages and dependency lockfile. Run the commands below from the directory containing `pnpm-workspace.yaml`.
 
@@ -12,7 +12,7 @@ pnpm install --frozen-lockfile
 pnpm build:firefox
 ```
 
-Compare `apps/extension/.output/firefox-mv2/` with the contents of `tocusextension-1.0.0-firefox.zip`. The manifest is at the root of that output directory. The website doesn't need to be built. No credentials, signing keys, environment secrets, or paid services are needed.
+Compare `apps/extension/.output/firefox-mv2/` with the contents of `tocusextension-1.0.1-firefox.zip`. The manifest is at the root of that output directory. The website doesn't need to be built. No credentials, signing keys, environment secrets, or paid services are needed.
 
 WXT and Vite bundle TypeScript, React, Sass, and Lingui. Workspace package manifests declare dependencies and `pnpm-lock.yaml` pins them. Local packages are included under `packages/`.
 
