@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium, expect, test } from '@playwright/test';
-import puppeteer from 'puppeteer-core';
+import puppeteer, { LocatorEvent } from 'puppeteer-core';
 
 /**
  * Resolves installed product executables without using any existing browser profile.
@@ -94,6 +94,22 @@ async function measurePopup( popup ) {
 	} );
 }
 
+/**
+ * Closes the disposable browser and stops only its owned process if graceful shutdown stalls.
+ * @param {import('puppeteer-core').Browser | undefined} browser - Browser launched by this test.
+ */
+async function closeBrowser( browser ) {
+	if ( ! browser ) {
+		return;
+	}
+	const shutdownDeadline = setTimeout( () => browser.process()?.kill( 'SIGKILL' ), 5_000 );
+	try {
+		await browser.close();
+	} finally {
+		clearTimeout( shutdownDeadline );
+	}
+}
+
 for ( const product of browsers ) {
 	test( `${ product.name }: native toolbar popup has usable dimensions, reads the current site, and opens navigation`, async () => {
 		test.skip( product.installed && ! existsSync( product.executable ),
@@ -102,6 +118,7 @@ for ( const product of browsers ) {
 		const testInfo = test.info();
 		const directory = await mkdtemp( join( tmpdir(), 'tocus-packaged-toolbar-' ) );
 		const errors = [];
+		const navigationActions = [];
 		let browser;
 		let popup;
 		let geometry;
@@ -172,7 +189,8 @@ for ( const product of browsers ) {
 						popup = await openToolbarPopup( browser, site, extension, errors );
 					}
 					const destinationUrl = `chrome-extension://${ extensionId }/options.html#${ navigation.route }`;
-					await popup.locator( `a[href="${ destinationUrl }"]` ).click();
+					await popup.locator( `a[href="${ destinationUrl }"]` )
+						.on( LocatorEvent.Action, () => navigationActions.push( navigation.label ) ).click();
 					const target = await browser.waitForTarget( ( candidate ) => candidate.url() === destinationUrl );
 					const settings = await target.asPage();
 					settings.on( 'pageerror', ( error ) => errors.push( error.message ) );
@@ -188,11 +206,13 @@ for ( const product of browsers ) {
 				body: JSON.stringify( {
 					product: product.name, executable: product.executable, build: product.build,
 					version, geometry, errors,
+					navigationActions, popupClosed: popup?.isClosed(),
+					targets: browser?.targets().map( ( target ) => ( { type: target.type(), url: target.url() } ) ),
 				}, null, 2 ),
 				contentType: 'application/json',
 			} );
 			try {
-				await browser?.close();
+				await closeBrowser( browser );
 			} finally {
 				server.closeAllConnections();
 				await new Promise( ( resolve ) => server.close( resolve ) );
