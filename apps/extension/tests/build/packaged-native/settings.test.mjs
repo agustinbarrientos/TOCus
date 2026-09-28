@@ -29,6 +29,17 @@ async function visible( browser, selector ) {
 }
 
 /**
+ * Waits for a replacement document so persistence checks cannot read the previous page.
+ * @param {object} browser - Installed browser driver.
+ */
+async function reload( browser ) {
+	const previousTimeOrigin = await browser.viewScript( 'selected', 'return performance.timeOrigin;' );
+	await browser.reload();
+	await expect.poll( () => readView( browser, 'selected', `return performance.timeOrigin !== ${ previousTimeOrigin }
+		&& document.readyState === 'complete';` ) ).toBe( true );
+}
+
+/**
  * Waits until a completed dialog releases its overlay before the next page action.
  * @param {object} browser - Installed browser driver.
  */
@@ -124,11 +135,11 @@ test( 'Settings timing preserves discarded drafts and persists keyboard edits af
 			maximumWaitMilliseconds: 120_000, allowanceMilliseconds: 120_000,
 			completionAction: 'open-automatically',
 		} );
-		await browser.reload();
+		await reload( browser );
 		await visible( browser, '#initial-wait' );
-		expect( await readView( browser, 'selected', `return ['initial-wait','wait-increase','maximum-wait','allowance']
-			.map(id => document.getElementById(id).getAttribute('aria-valuenow'));` ) ).toEqual( [ '15', '1', '120', '2' ] );
-		expect( await readView( browser, 'selected', 'return document.querySelector("input[name=completion-action]:checked")?.value;' ) ).toBe( 'open-automatically' );
+		await expect.poll( () => readView( browser, 'selected', `return ['initial-wait','wait-increase','maximum-wait','allowance']
+			.map(id => document.getElementById(id)?.getAttribute('aria-valuenow'));` ) ).toEqual( [ '15', '1', '120', '2' ] );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("input[name=completion-action]:checked")?.value;' ) ).toBe( 'open-automatically' );
 	} );
 } );
 
@@ -149,9 +160,9 @@ test( 'Saved global and website schedules control real visits and website edits 
 		await save( browser );
 		const outsideSchedule = ( await stored( browser, configurationKey ) ).schedule;
 		expect( outsideSchedule.mode ).toBe( 'custom' );
-		await browser.reload();
+		await reload( browser );
 		await visible( browser, '.settings-schedule-window' );
-		expect( await readView( browser, 'selected', 'return document.querySelector("input[name=schedule-mode]:checked")?.value;' ) ).toBe( 'custom' );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("input[name=schedule-mode]:checked")?.value;' ) ).toBe( 'custom' );
 		await unpausedVisit( browser, `${ url }global-outside` );
 		await clickButton( browser, inside, '.settings-schedule-presets' );
 		await save( browser );
@@ -162,7 +173,7 @@ test( 'Saved global and website schedules control real visits and website edits 
 		await visible( browser, '.settings-site-manage' );
 		await browser.viewClick( 'selected', '.settings-site-manage' );
 		await visible( browser, '.settings-site-editor' );
-		await fill( browser, '.settings-site-editor input[type="text"]', 'Local focus site' );
+		await fill( browser, '.settings-site-editor input[id$="-name"]', 'Local focus site' );
 		await browser.viewClick( 'selected', '.settings-site-editor input[type="checkbox"]' );
 		await clickButton( browser, outside, '.settings-site-editor' );
 		await clickButton( browser, 'Done', '.settings-site-editor' );
@@ -212,7 +223,7 @@ test( 'Saved global and website schedules control real visits and website edits 
 		await save( browser );
 		await expect.poll( () => protectionState( browser ) )
 			.toEqual( { origins: [], navigation: false, sites: [], rules: 0 } );
-		await browser.reload();
+		await reload( browser );
 		await visible( browser, '#site-address' );
 		expect( await readView( browser, 'selected', 'return document.querySelectorAll(".settings-site-item").length;' ) ).toBe( 0 );
 	} );
@@ -229,7 +240,7 @@ test( 'Appearance, pause style and every packaged language survive Settings relo
 		await browser.viewClick( 'selected', 'input[name="pause-mode"][value="quiet"]' );
 		await save( browser );
 		await expect.poll( () => stored( browser, preferencesKey ) ).toMatchObject( { theme: 'dark', palette: 'purple', pauseMode: 'quiet' } );
-		await browser.reload();
+		await reload( browser );
 		await visible( browser, '.preferences-theme-card[aria-label="Dark"]' );
 		expect( await readView( browser, 'selected', 'return [document.documentElement.dataset.tocusTheme, document.documentElement.dataset.tocusPalette];' ) ).toEqual( [ 'dark', 'purple' ] );
 		await browser.viewClick( 'selected', '.preferences-theme-card[aria-label="Light"]' );
@@ -252,7 +263,7 @@ test( 'Appearance, pause style and every packaged language survive Settings relo
 				await setSelect( browser, '#language', language );
 				await save( browser );
 				await expect.poll( async () => ( await stored( browser, preferencesKey ) )?.language ).toBe( language );
-				await browser.reload();
+				await reload( browser );
 				await visible( browser, '#language' );
 				await expect.poll( () => readView( browser, 'selected', 'return document.documentElement.lang;' ) ).toBe( tag );
 				expect( await readView( browser, 'selected', 'return document.querySelector("#language").value;' ) ).toBe( language );
@@ -299,7 +310,7 @@ test( 'Statistics records a real Continue and resets totals without changing pro
 		expect( await stored( browser, configurationKey ) ).toEqual( configuration );
 		expect( await stored( browser, preferencesKey ) ).toEqual( preferences );
 		expect( await protectionState( browser ) ).toEqual( grants );
-		await browser.reload();
+		await reload( browser );
 		await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed waits': '0', 'Allowances granted': '0' } );
 	} );
 } );
@@ -342,7 +353,7 @@ test( 'Privacy reset requires confirmation and clears real grants, settings and 
 			expect( remaining ).toContain( id );
 		}
 		await expect.poll( () => readView( browser, 'selected', 'return document.body.innerText;' ) ).toContain( 'All TOCus data reset.' );
-		await browser.reload();
+		await reload( browser );
 		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Choose your language' );
 		expect( await readView( browser, 'selected', 'return document.body.innerText;' ) ).not.toContain( 'All TOCus data reset.' );
 	} );
