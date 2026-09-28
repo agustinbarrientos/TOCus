@@ -1,6 +1,14 @@
 # Changelog
 
-## 1.0.0
+## 1.0.1 - Unreleased
+
+- Firefox: Fix a navigation loop that prevented websites from opening after Continue.
+- Firefox: Restore the on-page pause when browsing time expires.
+- Firefox: Finish resetting all data after browser permissions are removed.
+- Chrome, Edge, Firefox: Fix toolbar popup sizing so its controls remain visible.
+- Chrome, Edge, Firefox: Report website access that remains after a permission removal.
+
+## 1.0.0 - 2026-09-25
 
 First public release of TOCus for desktop Chrome, Microsoft Edge, and Firefox.
 

@@ -3,8 +3,8 @@ import { Palette, ThemeMode } from '../../../../domains/preferences/types';
 import { PopupOperationError } from './types';
 
 /**
- * Opens the production popup on the runner-owned page.
- * @param page - Test-scoped popup page.
+ * Opens the popup component fixture in a regular page with a fixed viewport.
+ * @param page - Test-scoped component page.
  * @return Completion when the primary popup action is ready.
  */
 async function open( page: Page ): Promise<void> {
@@ -14,8 +14,8 @@ async function open( page: Page ): Promise<void> {
 	await page.getByRole( 'button', { name: 'Pause site', exact: true } ).waitFor();
 }
 
-test.describe( 'popup contracts', () => {
-	test( 'keeps enrollment synchronous and prevents duplicate requests while pending', async ( { page } ) => {
+test.describe( 'popup component contracts', () => {
+	test( 'dispatches one add-site event and disables repeated keyboard activation while pending', async ( { page } ) => {
 		test.setTimeout( 20000 );
 		await open( page );
 		const action = page.getByRole( 'button', { name: 'Pause site', exact: true } );

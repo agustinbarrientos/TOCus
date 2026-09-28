@@ -10,13 +10,13 @@ export default defineConfig( {
 		'website/tests/build/**/*.test.ts',
 		'extension/tests/build/packaged-protection/index.test.ts',
 		'extension/tests/build/packaged-favicons/index.test.ts',
-		'extension/tests/build/packaged-edge/index.test.ts',
 	],
-	// Native browsers share the runner's CPU and memory; never overlap these journeys in CI.
+	// Keep specialized packaged checks serial; installed-product journeys run in their own CI matrix.
 	workers: 1,
 	fullyParallel: false,
 	forbidOnly: Boolean( process.env.CI ),
 	retries: 0,
+	maxFailures: process.env.CI ? 1 : 0,
 	timeout: 30_000,
 	expect: { timeout: 5_000 },
 	outputDir: '../test-results/build-browser',

@@ -251,18 +251,18 @@ export type ProtectionBackgroundNavigationListener = (
 ) => void;
 
 /**
- * Optional navigation event that supports listener removal after permission revocation.
+ * Optional navigation event whose methods can be removed by permission revocation.
  * @since 1.0.0 Initial implementation.
  */
 export interface ProtectionBackgroundNavigationEvent extends ProtectionBackgroundEvent<
 	ProtectionBackgroundNavigationListener
 > {
 	/**
-	 * Removes one previously registered navigation listener.
+	 * Removes one previously registered navigation listener while the event API remains available.
 	 * @param listener - Previously registered navigation listener.
 	 * @since 1.0.0 Initial implementation.
 	 */
-	removeListener( listener: ProtectionBackgroundNavigationListener ): void;
+	removeListener?( listener: ProtectionBackgroundNavigationListener ): void;
 }
 
 /**

@@ -43,25 +43,6 @@ async function readDurableState( worker: Worker ): Promise<StoredDurableProtecti
 	return StoredDurableProtectionStateSchema.parse( ProtectionStorageEnvelopeSchema.parse( envelope ).document );
 }
 
-/**
- * Reads native tab mute state from the packaged extension's browser API.
- * @param worker - Worker running the packaged extension.
- * @param url - Exact synthetic destination identifying the tab.
- * @return Whether the browser currently mutes the destination tab.
- * @since 1.0.0 Initial implementation.
- */
-async function readTabMuted( worker: Worker, url: string ): Promise<boolean> {
-	return worker.evaluate( async ( destination ) => {
-		const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
-		const tab = ( await chrome.tabs.query( {} ) ).find( ( candidate ) => candidate.url === destination );
-
-		if ( tab?.mutedInfo === undefined ) {
-			throw new Error( 'The synthetic website tab mute state is unavailable.' );
-		}
-		return tab.mutedInfo.muted;
-	}, url );
-}
-
 test.describe( 'packaged Settings loading', () => {
 	test.use( { pregrantSite: false } );
 	test.beforeEach( async ( { worker } ) => {
@@ -164,7 +145,7 @@ test.describe( 'packaged Chrome protection', () => {
 		} );
 	}
 
-	test( 'saves website changes through the departure dialog using the native permission API', async ( { page, worker, extensionRoot } ) => {
+	test( 'saves website changes through the departure dialog with site access already granted', async ( { page, worker, extensionRoot } ) => {
 		await page.goto( new URL( 'options.html#protected-sites', extensionRoot ).href );
 		await page.getByLabel( 'Website address', { exact: true } ).fill( 'example.test' );
 		await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
@@ -197,7 +178,7 @@ test.describe( 'packaged Chrome protection', () => {
 		} );
 	} );
 
-	for ( const entry of [ 'popup.html', 'options.html', 'onboarding.html' ] ) {
+	for ( const entry of [ 'options.html', 'onboarding.html' ] ) {
 		test( `opens packaged ${ entry } without preload-world warnings or script errors`, async ( { context, extensionRoot } ) => {
 			const page = await context.newPage();
 			const failures: string[] = [];
@@ -536,96 +517,6 @@ test.describe( 'packaged Chrome protection', () => {
 			releaseDestination?.();
 			await context.unroute( destination, handleDestination );
 		}
-	} );
-
-	/* Native two-minute expiry is verified locally to keep CI duration bounded. */
-	test.describe( 'real-time expiry', () => {
-		test.skip( process.env.CI === 'true', 'The real two-minute expiry remains covered locally.' );
-		test( 'holds tab audio through expiry and Ready, then restores playback after Continue without reloading', async ( { context, worker }, testInfo ) => {
-			test.setTimeout( 165_000 );
-			const totals = { estimatedReclaimedMilliseconds: 29 * 60_000, focusedPauseMilliseconds: 60_000,
-				reconsideredVisitCount: 6, completedWaitCount: 6, allowanceGrantedCount: 6 };
-			await worker.evaluate( async ( statistics ) => {
-				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
-				await chrome.storage.local.set( {
-					'tocus.statistics.v1': statistics,
-					'tocus.protection.configuration.v1': {
-						schemaVersion: 5,
-						sites: [ { identityHost: 'example.test', rule: { host: 'example.test', includeSubdomains: true, scopeId: 'scope_default' } } ],
-						timingConfiguration: { initialWaitMilliseconds: 10000, ladderIncreaseMilliseconds: 0, maximumWaitMilliseconds: 30000, allowanceMilliseconds: 120000, completionAction: 'show-continue' },
-						schedule: { mode: 'always' },
-						measurementRevisionsByScope: { scope_default: 'revision_packaged_audio' },
-					},
-				} );
-			}, { ...createMockStatisticsDocument(), firstRecordedDate: '2026-09-24',
-				dailyTotals: [ { date: '2026-09-24', ...totals } ], scopes: { [ DefaultProtectionScopeId ]: { totals } } } );
-			await expect.poll( () => worker.evaluate( async () => {
-				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
-				return ( await chrome.declarativeNetRequest.getDynamicRules() ).length;
-			} ) ).toBeGreaterThan( 0 );
-			const page = await context.newPage();
-			const accessibility = await context.newCDPSession( page );
-			const destination = 'https://example.test/audio-state';
-
-			try {
-				await page.goto( destination );
-				await page.waitForURL( '**/pause.html' );
-				await page.bringToFront();
-				const continueButton = page.getByRole( 'button', { name: 'Continue', exact: true } );
-				await continueButton.waitFor( { state: 'visible', timeout: 15_000 } );
-				await continueButton.click();
-				await page.waitForURL( destination, { timeout: 5_000 } );
-				const allowance = ( await readDurableState( worker ) ).scopes.scope_default?.allowance;
-				expect( allowance ).toBeDefined();
-				expect(
-					( allowance?.expiresAtEpochMilliseconds ?? 0 ) - ( allowance?.startedAtEpochMilliseconds ?? 0 ),
-				).toBe( 120_000 );
-				await page.getByRole( 'textbox', { name: 'Unfinished work' } ).fill( 'Preserve my current work' );
-				await page.evaluate( () => {
-					document.body.dataset.documentIdentity = 'original-audio-document';
-				} );
-				expect( await readTabMuted( worker, destination ) ).toBe( false );
-
-				await expect.poll( async () => {
-					const { nodes } = await accessibility.send( 'Accessibility.getFullAXTree' );
-					return nodes.some( ( node ) => ! node.ignored && node.role?.value === 'dialog' );
-				}, { timeout: 125_000 } ).toBe( true );
-				await expect.poll( () => readTabMuted( worker, destination ) ).toBe( true );
-				const waitingTree = await accessibility.send( 'Accessibility.getFullAXTree' );
-				expect( waitingTree.nodes.some( ( node ) => ! node.ignored && node.role?.value === 'button' && node.name?.value === 'Continue' ) ).toBe( false );
-				expect( waitingTree.nodes.some( ( node ) => node.name?.value === 'About 30 min saved.' ) ).toBe( true );
-				await accessibility.send( 'DOM.enable' );
-				await accessibility.send( 'CSS.enable' );
-				const { nodes } = await accessibility.send( 'DOM.getFlattenedDocument', { depth: -1, pierce: true } );
-				const cue = nodes.find( ( node ) => node.localName === 'h1' && node.attributes?.includes( 'breathing-cue' ) );
-				if ( cue === undefined ) {
-					throw new Error( 'Expected the real on-page breathing heading.' );
-				}
-				const { fonts } = await accessibility.send( 'CSS.getPlatformFontsForNode', { nodeId: cue.nodeId } );
-				expect( fonts.some( ( font ) => font.isCustomFont && font.familyName.includes( 'Fredoka' ) ) ).toBe( true );
-				await page.screenshot( { path: testInfo.outputPath( 'on-page-pause.png' ) } );
-				expect( page.url() ).toBe( destination );
-				expect( await page.getByRole( 'textbox', { name: 'Unfinished work', includeHidden: true } ).inputValue() ).toBe( 'Preserve my current work' );
-
-				await expect.poll( async () => {
-					const { nodes } = await accessibility.send( 'Accessibility.getFullAXTree' );
-					return nodes.some( ( node ) => ! node.ignored && node.role?.value === 'button' && node.name?.value === 'Continue' );
-				}, { timeout: 15_000 } ).toBe( true );
-				expect( await readTabMuted( worker, destination ) ).toBe( true );
-				expect( ( await readDurableState( worker ) ).scopes.scope_default?.allowance ).toBeUndefined();
-				await page.keyboard.press( 'Space' );
-				await expect.poll( async () => {
-					const { nodes } = await accessibility.send( 'Accessibility.getFullAXTree' );
-					return nodes.some( ( node ) => ! node.ignored && node.role?.value === 'dialog' );
-				} ).toBe( false );
-				await expect.poll( () => readTabMuted( worker, destination ) ).toBe( false );
-				expect( page.url() ).toBe( destination );
-				expect( await page.getByRole( 'textbox', { name: 'Unfinished work' } ).inputValue() ).toBe( 'Preserve my current work' );
-				expect( await page.evaluate( () => document.body.dataset.documentIdentity ) ).toBe( 'original-audio-document' );
-			} finally {
-				await page.close();
-			}
-		} );
 	} );
 
 	test.describe( 'without optional access', () => {

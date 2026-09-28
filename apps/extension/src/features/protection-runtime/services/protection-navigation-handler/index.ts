@@ -361,18 +361,17 @@ export function createProtectionNavigationHandler(
 		);
 		const matchedState = statesByScope?.[ match.rule.scopeId ];
 
-		if ( schedule.status !== ScheduleEvaluationStatus.ACTIVE ) {
-			await options.reconcileBrowserState( configuration );
-			await options.releaseNavigationIfInterrupted( navigation.tabId, destination );
-			return destination;
-		}
-
 		if (
-			matchedState?.type === ProtectionStateType.ALLOWANCE &&
-			options.now() < matchedState.expiresAtEpochMilliseconds
+			schedule.status !== ScheduleEvaluationStatus.ACTIVE ||
+			( matchedState?.type === ProtectionStateType.ALLOWANCE &&
+				options.now() < matchedState.expiresAtEpochMilliseconds )
 		) {
 			await options.reconcileBrowserState( configuration );
-			await options.releaseNavigationIfInterrupted( navigation.tabId, destination );
+			// Firefox retains the pause URL until the destination commits. Releasing it again
+			// during onBeforeNavigate cancels the accepted request and starts a navigation loop.
+			if ( navigation.phase !== ProtectionRuntimeNavigationPhase.BEFORE_NAVIGATE ) {
+				await options.releaseNavigationIfInterrupted( navigation.tabId, destination );
+			}
 			return destination;
 		}
 

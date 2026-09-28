@@ -15,6 +15,7 @@ import {
 	SitePermissionReleaseStatus,
 	SitePermissionRequestStatus,
 	type SitePermissionApi,
+	type SitePermissionGrantSnapshot,
 } from './types';
 
 /**
@@ -65,6 +66,27 @@ function createPermissionsApi(): SitePermissionApi {
 		request: vi.fn().mockResolvedValue( true ),
 		remove: vi.fn().mockResolvedValue( true ),
 	};
+}
+
+/**
+ * Models Firefox's successful removal of exact origin grants while broader grants remain.
+ * @param initialGrant - Browser permissions present before removal.
+ * @return Browser API backed by the remaining grants.
+ */
+function createExactRemovalPermissionsApi( initialGrant: SitePermissionGrantSnapshot ): SitePermissionApi {
+	let grant = structuredClone( initialGrant );
+	const permissions = createPermissionsApi();
+	vi.mocked( permissions.getAll ).mockImplementation( () => Promise.resolve( structuredClone( grant ) ) );
+	vi.mocked( permissions.remove ).mockImplementation( ( descriptor ) => {
+		grant = {
+			origins: ( grant.origins ?? [] ).filter( ( origin ) => ! descriptor.origins.includes( origin ) ),
+			permissions: ( grant.permissions ?? [] ).filter( ( permission ) =>
+				! descriptor.permissions?.includes( permission ),
+			),
+		};
+		return Promise.resolve( true );
+	} );
+	return permissions;
 }
 
 describe( 'createSitePermissionManager', () => {
@@ -140,6 +162,76 @@ describe( 'createSitePermissionManager', () => {
 		await expect( manager.releaseNewAccess( [ DOMAIN_RULE ], {}, MULTI_SITE_CONFIGURATION ) )
 			.resolves.toBe( SitePermissionReleaseStatus.RELEASED );
 		expect( permissions.remove ).not.toHaveBeenCalled();
+	} );
+
+	it.each( [ '*://*/*', 'https://*/*', 'https://www.example.com/*' ] )(
+		'reports access retained after successful batch removal leaves %s granted',
+		async ( retainedOrigin ) => {
+			const permissions = createExactRemovalPermissionsApi( {
+				origins: [ '*://*.example.com/*', retainedOrigin ],
+				permissions: [ 'webNavigation' ],
+			} );
+			const manager = createSitePermissionManager( { permissions } );
+
+			await expect( manager.releaseNewAccess( [ DOMAIN_RULE ], {}, TestEmptyProtectionConfiguration ) )
+				.resolves.toBe( SitePermissionReleaseStatus.RETAINED );
+			await expect( permissions.getAll() ).resolves.toEqual( { origins: [ retainedOrigin ], permissions: [] } );
+		},
+	);
+
+	it( 'reports successful batch compensation after restoring a preexisting HTTPS-wide grant', async () => {
+		const previousGrant: SitePermissionGrantSnapshot = {
+			origins: [ 'https://*/*' ], permissions: [ 'webNavigation' ],
+		};
+		const permissions = createExactRemovalPermissionsApi( {
+			origins: [ 'https://*/*', '*://*.example.com/*' ], permissions: [ 'webNavigation' ],
+		} );
+		const manager = createSitePermissionManager( { permissions } );
+
+		await expect( manager.releaseNewAccess( [ DOMAIN_RULE ], previousGrant, TestEmptyProtectionConfiguration ) )
+			.resolves.toBe( SitePermissionReleaseStatus.RELEASED );
+		await expect( permissions.getAll() ).resolves.toEqual( previousGrant );
+	} );
+
+	it( 'reports new HTTP access retained when batch compensation preserves a preexisting HTTPS-wide grant', async () => {
+		const previousGrant: SitePermissionGrantSnapshot = {
+			origins: [ 'https://*/*' ], permissions: [ 'webNavigation' ],
+		};
+		const permissions = createExactRemovalPermissionsApi( {
+			origins: [ 'https://*/*', 'http://*/*', '*://*.example.com/*' ], permissions: [ 'webNavigation' ],
+		} );
+		const manager = createSitePermissionManager( { permissions } );
+
+		await expect( manager.releaseNewAccess( [ DOMAIN_RULE ], previousGrant, TestEmptyProtectionConfiguration ) )
+			.resolves.toBe( SitePermissionReleaseStatus.RETAINED );
+		await expect( permissions.getAll() ).resolves.toEqual( {
+			origins: [ 'https://*/*', 'http://*/*' ], permissions: [ 'webNavigation' ],
+		} );
+	} );
+
+	it( 'releases a batch site without removing another configured site or its shared navigation grant', async () => {
+		const permissions = createExactRemovalPermissionsApi( {
+			origins: [ '*://*.example.com/*', '*://independent.test/*' ],
+			permissions: [ 'webNavigation' ],
+		} );
+		const manager = createSitePermissionManager( { permissions } );
+
+		await expect( manager.releaseNewAccess( [ DOMAIN_RULE ], {}, {
+			...TestEmptyProtectionConfiguration,
+			sites: [ { identityHost: 'independent.test', rule: INDEPENDENT_RULE } ],
+		} ) ).resolves.toBe( SitePermissionReleaseStatus.RELEASED );
+		await expect( permissions.getAll() ).resolves.toEqual( {
+			origins: [ '*://independent.test/*' ], permissions: [ 'webNavigation' ],
+		} );
+	} );
+
+	it( 'reports an error when remaining batch access cannot be verified after removal', async () => {
+		const permissions = createPermissionsApi();
+		vi.mocked( permissions.getAll ).mockRejectedValue( new Error( 'Unavailable.' ) );
+
+		await expect( createSitePermissionManager( { permissions } ).releaseNewAccess(
+			[ DOMAIN_RULE ], {}, TestEmptyProtectionConfiguration,
+		) ).resolves.toBe( SitePermissionReleaseStatus.ERROR );
 	} );
 
 	it( 'retains batch access when configuration ownership cannot be read', async () => {
@@ -372,7 +464,10 @@ describe( 'createSitePermissionManager', () => {
 	} );
 
 	it( 'releases a removed rule while retaining shared navigation access for remaining sites', async () => {
-		const permissions = createPermissionsApi();
+		const permissions = createExactRemovalPermissionsApi( {
+			origins: [ '*://*.example.com/*', '*://independent.test/*' ],
+			permissions: [ 'webNavigation' ],
+		} );
 		const manager = createSitePermissionManager( { permissions } );
 
 		await expect( manager.release( DOMAIN_RULE, true ) ).resolves.toBe(
@@ -381,10 +476,44 @@ describe( 'createSitePermissionManager', () => {
 		expect( permissions.remove ).toHaveBeenCalledWith( {
 			origins: [ '*://*.example.com/*' ],
 		} );
+		await expect( permissions.getAll() ).resolves.toEqual( {
+			origins: [ '*://independent.test/*' ], permissions: [ 'webNavigation' ],
+		} );
+	} );
+
+	it.each( [ '*://*/*', 'https://*/*', 'https://www.example.com/*' ] )(
+		'reports access retained after successful final-site removal leaves %s granted',
+		async ( retainedOrigin ) => {
+			const permissions = createExactRemovalPermissionsApi( {
+				origins: [ '*://*.example.com/*', retainedOrigin ],
+				permissions: [ 'webNavigation' ],
+			} );
+			const manager = createSitePermissionManager( { permissions } );
+
+			await expect( manager.release( DOMAIN_RULE, false ) ).resolves.toBe( SitePermissionReleaseStatus.RETAINED );
+			await expect( permissions.getAll() ).resolves.toEqual( { origins: [ retainedOrigin ], permissions: [] } );
+		},
+	);
+
+	it( 'reports navigation retained even when all removed-site origins are gone', async () => {
+		const permissions = createPermissionsApi();
+		vi.mocked( permissions.getAll ).mockResolvedValue( { origins: [], permissions: [ 'webNavigation' ] } );
+
+		await expect( createSitePermissionManager( { permissions } ).release( DOMAIN_RULE, false ) )
+			.resolves.toBe( SitePermissionReleaseStatus.RETAINED );
+	} );
+
+	it( 'reports an error when remaining site access cannot be verified after removal', async () => {
+		const permissions = createPermissionsApi();
+		vi.mocked( permissions.getAll ).mockRejectedValue( new Error( 'Unavailable.' ) );
+
+		await expect( createSitePermissionManager( { permissions } ).release( DOMAIN_RULE, false ) )
+			.resolves.toBe( SitePermissionReleaseStatus.ERROR );
 	} );
 
 	it( 'releases shared navigation access with the final protected site', async () => {
 		const permissions = createPermissionsApi();
+		vi.mocked( permissions.getAll ).mockResolvedValue( {} );
 		const manager = createSitePermissionManager( { permissions } );
 
 		await expect( manager.release( DOMAIN_RULE, false ) ).resolves.toBe(

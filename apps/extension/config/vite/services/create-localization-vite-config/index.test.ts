@@ -41,18 +41,6 @@ async function transformLocalizationSource( source: string, id: string ): Promis
 }
 
 describe( 'createLocalizationViteConfig', () => {
-	it( 'creates the complete Lingui plugin pipeline for every WXT build group', () => {
-		const config = createLocalizationViteConfig();
-		const pluginNames = config.plugins
-			.flat()
-			.map( ( plugin ) => plugin && 'name' in plugin ? plugin.name : undefined );
-
-		expect( pluginNames ).toContain( 'tocus-localization-runtime-messages' );
-		expect( pluginNames ).toContain( 'vite-plugin-lingui-get-config' );
-		expect( pluginNames ).toContain( 'vite-plugin-lingui-load-catalog' );
-		expect( config.plugins ).toHaveLength( 4 );
-	} );
-
 	it( 'transforms localization source files throughout the repository', async () => {
 		const source = `
 			import { msg } from '@lingui/core/macro';

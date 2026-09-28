@@ -41,6 +41,35 @@ function createRequestDescriptor( origins: string[] ): SitePermissionDescriptor 
  */
 export function createSitePermissionManager( options: SitePermissionManagerOptions ): SitePermissionManager {
 	/**
+	 * Checks remaining grants because successful removal may leave overlapping host access.
+	 * @param descriptor - Named grants and wildcard-scheme site origins requested for removal.
+	 * @param previousOrigins - Known host access that batch compensation must preserve.
+	 * @return Verified released or retained status for the requested access.
+	 */
+	async function verifyRelease(
+		descriptor: SitePermissionDescriptor,
+		previousOrigins: readonly string[] = [],
+	): Promise<SitePermissionReleaseStatus> {
+		const remainingGrant = await options.permissions.getAll();
+		const remainingOrigins = ( remainingGrant.origins ?? [] ).filter( ( origin ) =>
+			! isSitePermissionOriginCovered( origin, previousOrigins ),
+		);
+		const retainedPermission = descriptor.permissions?.some( ( permission ) =>
+			remainingGrant.permissions?.includes( permission ),
+		);
+		const retainedOrigin = descriptor.origins.some( ( origin ) =>
+			remainingOrigins.some( ( grantedOrigin ) => isSitePermissionOriginCovered( grantedOrigin, [ origin ] ) ) ||
+			[ 'http', 'https' ].some( ( scheme ) => isSitePermissionOriginCovered(
+				origin.replace( '*://', `${ scheme }://` ), remainingOrigins,
+			) ),
+		);
+
+		return retainedPermission || retainedOrigin
+			? SitePermissionReleaseStatus.RETAINED
+			: SitePermissionReleaseStatus.RELEASED;
+	}
+
+	/**
 	 * Reports whether one rule has its complete current browser access.
 	 * @param rule - Canonical protected-site rule to inspect.
 	 * @return Whether navigation observation and every required origin are granted.
@@ -213,11 +242,12 @@ export function createSitePermissionManager( options: SitePermissionManagerOptio
 		}
 
 		try {
-			return await options.permissions.remove( {
+			const descriptor: SitePermissionDescriptor = {
 				origins,
 				...( removeNavigation ? { permissions: [ NAVIGATION_PERMISSION ] } : {} ),
-			} ) && ! hasOverlappingGrants
-				? SitePermissionReleaseStatus.RELEASED
+			};
+			return await options.permissions.remove( descriptor ) && ! hasOverlappingGrants
+				? await verifyRelease( descriptor, previousGrant.origins )
 				: SitePermissionReleaseStatus.RETAINED;
 		} catch {
 			return SitePermissionReleaseStatus.ERROR;
@@ -242,7 +272,7 @@ export function createSitePermissionManager( options: SitePermissionManagerOptio
 
 		try {
 			return await options.permissions.remove( descriptor )
-				? SitePermissionReleaseStatus.RELEASED
+				? await verifyRelease( descriptor )
 				: SitePermissionReleaseStatus.RETAINED;
 		} catch {
 			return SitePermissionReleaseStatus.ERROR;

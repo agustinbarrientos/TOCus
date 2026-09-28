@@ -1,0 +1,408 @@
+import {
+	clickButton, continuePause, enroll, expect, fill, protectionState, readView, reload,
+	setSelect, settings, test, withBrowser,
+} from './__fixtures__/journey.mjs';
+
+const configurationKey = 'tocus.protection.configuration.v1';
+const preferencesKey = 'tocus.preferences.v1';
+const saveSelector = '.settings-page > .tocus-form-actions > button:first-child, .settings-page form .tocus-form-actions > button:first-child';
+
+/**
+ * Reads authoritative extension storage without creating or replacing test state.
+ * @param {object} browser - Installed browser driver.
+ * @param {string} key - Stored product document.
+ * @return {Promise<object | null>} Persisted document, or null when absent.
+ */
+function stored( browser, key ) {
+	return readView( browser, 'selected', `return browser.storage.local.get(${ JSON.stringify( key ) })
+		.then(values => values[${ JSON.stringify( key ) }] ?? null);` );
+}
+
+/**
+ * Accepts deletion or a fresh empty aggregate recreated by background reconciliation.
+ * @param {object | null} statistics - Statistics read from real extension storage after reset.
+ * @param {string} previousGeneration - Identity of the document containing the recorded visit.
+ */
+function expectClearedStatistics( statistics, previousGeneration ) {
+	if ( statistics === null ) {
+		return;
+	}
+	expect( statistics ).toEqual( {
+		schemaVersion: 2,
+		generationId: expect.stringMatching( /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu ),
+		lastAppliedBatchId: null,
+		firstRecordedDate: null,
+		dailyTotals: [],
+		scopes: {
+			scope_default: {
+				currentMeasurementRevision: 'revision_initial_scope_default',
+				totals: { allowanceGrantedCount: 0, completedWaitCount: 0,
+					estimatedReclaimedMilliseconds: 0, focusedPauseMilliseconds: 0, reconsideredVisitCount: 0 },
+			},
+		},
+	} );
+	expect( statistics.generationId ).not.toBe( previousGeneration );
+}
+
+/**
+ * Waits for a mounted visible control before sending one native input action.
+ * @param {object} browser - Installed browser driver.
+ * @param {string} selector - Product control selector.
+ */
+async function visible( browser, selector ) {
+	await expect.poll( () => readView( browser, 'selected', `const node = document.querySelector(${ JSON.stringify( selector ) });
+		return Boolean(node && node.getBoundingClientRect().width > 0 && getComputedStyle(node).visibility === 'visible');` ) ).toBe( true );
+}
+
+/**
+ * Waits until a completed dialog releases its overlay before the next page action.
+ * @param {object} browser - Installed browser driver.
+ */
+async function dialogClosed( browser ) {
+	await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("[role=dialog]") === null;' ) ).toBe( true );
+}
+
+/**
+ * Saves the current Settings draft through its primary native button.
+ * @param {object} browser - Installed browser driver.
+ */
+async function save( browser ) {
+	await visible( browser, saveSelector );
+	await expect.poll( () => readView( browser, 'selected', `return document.querySelector(${ JSON.stringify( saveSelector ) })?.disabled;` ) ).toBe( false );
+	await browser.viewClick( 'selected', saveSelector );
+	await expect.poll( () => readView( browser, 'selected', `const button = document.querySelector(${ JSON.stringify( saveSelector ) });
+		return Boolean(button?.disabled && !button.hasAttribute('data-loading'));` ) ).toBe( true );
+}
+
+/**
+ * Checks an actual destination document while it is outside active protection.
+ * @param {object} browser - Installed browser driver.
+ * @param {string} url - Real loopback destination.
+ */
+async function unpausedVisit( browser, url ) {
+	await browser.openPage( url );
+	await expect.poll( () => browser.currentUrl() ).toBe( url );
+	await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Protected destination' );
+	const presentation = await browser.viewScript( 'onboarding', `return browser.tabs.query({active:true,currentWindow:true})
+		.then(([tab]) => browser.tabs.sendMessage(tab.id,
+			{type:'get-protected-page-presentation-status'}).catch(error => {
+				if (error.message.includes('Receiving end does not exist')) return {interruptionLayerPresented:false};
+				throw error;
+			}));` );
+	expect( presentation.interruptionLayerPresented ).toBe( false );
+	await fill( browser, 'input[aria-label="Preserved text"]', 'Schedule permits this visit' );
+	expect( await readView( browser, 'selected', 'return document.querySelector("input").value;' ) )
+		.toBe( 'Schedule permits this visit' );
+	await browser.closePage();
+}
+
+/**
+ * Checks that a saved schedule actually redirects a new visit into a pause.
+ * @param {object} browser - Installed browser driver.
+ * @param {string} url - Real loopback destination.
+ */
+async function pausedVisit( browser, url ) {
+	await browser.openPage( url );
+	await expect.poll( () => browser.currentUrl() ).toContain( '/pause.html' );
+	await expect.poll( () => readView( browser, 'selected', `return Boolean(document.querySelector('tocus-f-interruption-screen')
+		?.shadowRoot?.querySelector('#breathing-cue, .continue-button'));` ) ).toBe( true );
+	await browser.closePage();
+}
+
+/**
+ * Reads the visible statistics generated by actual protected visits.
+ * @param {object} browser - Installed browser driver.
+ * @return {Promise<object>} Metric labels and rendered values.
+ */
+function metrics( browser ) {
+	return readView( browser, 'selected', `return Object.fromEntries([...document.querySelectorAll('.settings-metrics > div')]
+		.map(row => [row.querySelector('dt').textContent, row.querySelector('dd').textContent]));` );
+}
+
+test( 'Settings timing preserves discarded drafts and persists keyboard edits after reload', async () => {
+	await withBrowser( async ( browser ) => {
+		await settings( browser, 'timing' );
+		await visible( browser, '#initial-wait' );
+		const before = await stored( browser, configurationKey );
+		await browser.viewKey( 'selected', '#initial-wait', 'End' );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("#initial-wait")?.getAttribute("aria-valuenow");' ) ).toBe( '30' );
+		await browser.viewClick( 'selected', 'nav a[href="#schedule"]' );
+		await visible( browser, '[role="dialog"]' );
+		await clickButton( browser, 'Stay', '[role="dialog"]' );
+		await dialogClosed( browser );
+		await expect.poll( () => browser.currentUrl() ).toContain( '#timing' );
+		await clickButton( browser, 'Discard', '.settings-page' );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("#initial-wait")?.getAttribute("aria-valuenow");' ) ).toBe( '10' );
+		expect( await stored( browser, configurationKey ) ).toEqual( before );
+		await browser.viewKey( 'selected', '#initial-wait', 'Home' );
+		await browser.viewKey( 'selected', '#initial-wait', 'ArrowRight' );
+		await browser.viewKey( 'selected', '#wait-increase', 'Home' );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("#maximum-wait") === null;' ) ).toBe( true );
+		await browser.viewKey( 'selected', '#wait-increase', 'ArrowRight' );
+		await visible( browser, '#maximum-wait' );
+		await browser.viewKey( 'selected', '#maximum-wait', 'End' );
+		await browser.viewKey( 'selected', '#allowance', 'Home' );
+		await browser.viewClick( 'selected', 'input[name="completion-action"][value="open-automatically"]' );
+		await save( browser );
+		await expect.poll( async () => ( await stored( browser, configurationKey ) )?.timingConfiguration ).toEqual( {
+			initialWaitMilliseconds: 15_000, ladderIncreaseMilliseconds: 1_000,
+			maximumWaitMilliseconds: 120_000, allowanceMilliseconds: 120_000,
+			completionAction: 'open-automatically',
+		} );
+		await reload( browser );
+		await visible( browser, '#initial-wait' );
+		await expect.poll( () => readView( browser, 'selected', `return ['initial-wait','wait-increase','maximum-wait','allowance']
+			.map(id => document.getElementById(id)?.getAttribute('aria-valuenow'));` ) ).toEqual( [ '15', '1', '120', '2' ] );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("input[name=completion-action]:checked")?.value;' ) ).toBe( 'open-automatically' );
+	} );
+} );
+
+test( 'Settings Save retains a denied website draft and retry enables real protection', async () => {
+	await withBrowser( async ( browser, url ) => {
+		await settings( browser, 'protected-sites' );
+		await visible( browser, '#site-address' );
+		const empty = { origins: [], navigation: false, sites: [], rules: 0 };
+		expect( await protectionState( browser ) ).toEqual( empty );
+		await fill( browser, '#site-address', '127.0.0.1' );
+		await browser.viewClick( 'selected', saveSelector );
+		await browser.consent( false );
+		await expect.poll( () => readView( browser, 'selected', 'return document.body.innerText;' ) )
+			.toContain( 'Browser access to show the pause on this website is required. Nothing was saved.' );
+		expect( await protectionState( browser ) ).toEqual( empty );
+		expect( await readView( browser, 'selected', 'return document.querySelector(".settings-site-identity p")?.textContent;' ) ).toBe( '127.0.0.1' );
+		await unpausedVisit( browser, `${ url }denied-settings-site` );
+		await expect.poll( () => readView( browser, 'selected', `return document.querySelector(${ JSON.stringify( saveSelector ) })?.disabled;` ) ).toBe( false );
+		await browser.viewClick( 'selected', saveSelector );
+		await browser.consent( true );
+		await expect.poll( () => protectionState( browser ) ).toEqual( {
+			origins: [ '*://127.0.0.1/*' ], navigation: true, sites: [ '127.0.0.1' ], rules: 1,
+		} );
+		await reload( browser );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector(".settings-site-identity p")?.textContent;' ) ).toBe( '127.0.0.1' );
+		await pausedVisit( browser, `${ url }saved-settings-site` );
+	} );
+} );
+
+test( 'Saved global and website schedules control real visits and website edits remain transactional', async () => {
+	test.setTimeout( 120_000 );
+	await withBrowser( async ( browser, url ) => {
+		await enroll( browser, url );
+		await settings( browser, 'schedule' );
+		await visible( browser, 'input[name="schedule-mode"][value="custom"]' );
+		const weekend = await readView( browser, 'selected', 'return [0, 6].includes(new Date().getDay());' );
+		const inside = weekend ? 'Sat - Sun, all day' : 'Mon - Fri, all day';
+		const outside = weekend ? 'Mon - Fri, all day' : 'Sat - Sun, all day';
+		await browser.viewClick( 'selected', 'input[name="schedule-mode"][value="custom"]' );
+		await clickButton( browser, 'Save', '.settings-page' );
+		await expect.poll( () => readView( browser, 'selected', 'return document.body.innerText;' ) ).toContain( 'Choose a start time.' );
+		expect( ( await stored( browser, configurationKey ) ).schedule ).toEqual( { mode: 'always' } );
+		await clickButton( browser, outside, '.settings-schedule-presets' );
+		await save( browser );
+		const outsideSchedule = ( await stored( browser, configurationKey ) ).schedule;
+		expect( outsideSchedule.mode ).toBe( 'custom' );
+		await reload( browser );
+		await visible( browser, '.settings-schedule-window' );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("input[name=schedule-mode]:checked")?.value;' ) ).toBe( 'custom' );
+		await unpausedVisit( browser, `${ url }global-outside` );
+		await clickButton( browser, inside, '.settings-schedule-presets' );
+		await save( browser );
+		const insideSchedule = ( await stored( browser, configurationKey ) ).schedule;
+		await pausedVisit( browser, `${ url }global-inside` );
+
+		await settings( browser, 'protected-sites' );
+		await visible( browser, '.settings-site-manage' );
+		await browser.viewClick( 'selected', '.settings-site-manage' );
+		await visible( browser, '.settings-site-editor' );
+		await fill( browser, '.settings-site-editor input[id$="-name"]', 'Local focus site' );
+		await browser.viewClick( 'selected', '.settings-site-editor input[type="checkbox"]' );
+		await clickButton( browser, outside, '.settings-site-editor' );
+		await clickButton( browser, 'Done', '.settings-site-editor' );
+		await dialogClosed( browser );
+		expect( ( await stored( browser, configurationKey ) ).sites[ 0 ].displayNameOverride ).toBeUndefined();
+		await save( browser );
+		await expect.poll( async () => ( await stored( browser, configurationKey ) )?.sites[ 0 ] ).toMatchObject( {
+			displayNameOverride: 'Local focus site', schedule: outsideSchedule,
+		} );
+		await unpausedVisit( browser, `${ url }site-outside` );
+		await browser.viewClick( 'selected', '.settings-site-manage' );
+		await visible( browser, '.settings-site-editor' );
+		await clickButton( browser, inside, '.settings-site-editor' );
+		await clickButton( browser, 'Done', '.settings-site-editor' );
+		await dialogClosed( browser );
+		await save( browser );
+		await settings( browser, 'schedule' );
+		await visible( browser, '.settings-schedule-presets' );
+		await clickButton( browser, outside, '.settings-schedule-presets' );
+		await save( browser );
+		await pausedVisit( browser, `${ url }site-overrides-global` );
+		await settings( browser, 'protected-sites' );
+		await visible( browser, '.settings-site-manage' );
+		expect( ( await stored( browser, configurationKey ) ).sites[ 0 ].schedule ).toEqual( insideSchedule );
+		await browser.viewClick( 'selected', '.settings-site-manage' );
+		await visible( browser, '.settings-site-editor' );
+		await browser.viewClick( 'selected', '.settings-site-editor input[type="checkbox"]' );
+		await clickButton( browser, 'Done', '.settings-site-editor' );
+		await dialogClosed( browser );
+		await save( browser );
+		await unpausedVisit( browser, `${ url }site-inherits-global` );
+		await fill( browser, '#site-address', '127.0.0.1' );
+		await clickButton( browser, 'Add site', '.settings-site-form' );
+		await expect.poll( () => readView( browser, 'selected', 'return document.body.innerText;' ) ).toContain( 'This site is already in your list.' );
+		expect( await readView( browser, 'selected', 'return document.querySelectorAll(".settings-site-item").length;' ) ).toBe( 1 );
+		await fill( browser, '#site-address', '' );
+		await browser.viewClick( 'selected', '.settings-site-remove' );
+		await visible( browser, '[role="dialog"]' );
+		await clickButton( browser, 'Keep site', '[role="dialog"]' );
+		await dialogClosed( browser );
+		expect( ( await protectionState( browser ) ).sites ).toEqual( [ '127.0.0.1' ] );
+		await browser.viewClick( 'selected', '.settings-site-remove' );
+		await visible( browser, '[role="dialog"]' );
+		await clickButton( browser, 'Remove', '[role="dialog"]' );
+		await dialogClosed( browser );
+		expect( ( await protectionState( browser ) ).sites ).toEqual( [ '127.0.0.1' ] );
+		await save( browser );
+		await expect.poll( () => protectionState( browser ) )
+			.toEqual( { origins: [], navigation: false, sites: [], rules: 0 } );
+		await reload( browser );
+		await visible( browser, '#site-address' );
+		expect( await readView( browser, 'selected', 'return document.querySelectorAll(".settings-site-item").length;' ) ).toBe( 0 );
+	} );
+} );
+
+test( 'Appearance, pause style and every packaged language survive Settings reloads', async () => {
+	test.setTimeout( 120_000 );
+	await withBrowser( async ( browser, url ) => {
+		await enroll( browser, url );
+		await settings( browser, 'appearance' );
+		await visible( browser, '.preferences-theme-card[aria-label="Dark"]' );
+		await browser.viewClick( 'selected', '.preferences-theme-card[aria-label="Dark"]' );
+		await browser.viewClick( 'selected', '.preferences-palette-card[data-palette="purple"]' );
+		await browser.viewClick( 'selected', 'input[name="pause-mode"][value="quiet"]' );
+		await save( browser );
+		await expect.poll( () => stored( browser, preferencesKey ) ).toMatchObject( { theme: 'dark', palette: 'purple', pauseMode: 'quiet' } );
+		await reload( browser );
+		await visible( browser, '.preferences-theme-card[aria-label="Dark"]' );
+		expect( await readView( browser, 'selected', 'return [document.documentElement.dataset.tocusTheme, document.documentElement.dataset.tocusPalette];' ) ).toEqual( [ 'dark', 'purple' ] );
+		await browser.viewClick( 'selected', '.preferences-theme-card[aria-label="Light"]' );
+		await browser.viewClick( 'selected', '.preferences-palette-card[data-palette="green"]' );
+		await clickButton( browser, 'Discard', '.settings-page' );
+		await expect.poll( () => readView( browser, 'selected', 'return [document.documentElement.dataset.tocusTheme, document.documentElement.dataset.tocusPalette];' ) ).toEqual( [ 'dark', 'purple' ] );
+		await browser.openPage( `${ url }quiet-style` );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("tocus-f-interruption-screen")?.shadowRoot?.querySelector("h1")?.textContent;' ) ).toBe( 'Take a moment' );
+		await browser.closePage();
+		await browser.viewClick( 'selected', 'input[name="pause-mode"][value="breathing"]' );
+		await save( browser );
+		await browser.openPage( `${ url }breathing-style` );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("tocus-f-interruption-screen")?.shadowRoot?.querySelector("h1")?.textContent;' ) ).toMatch( /^Breathe (in|out)$/u );
+		await browser.closePage();
+		await settings( browser, 'language' );
+		for ( const [ language, tag ] of [ [ 'es-tu', 'es' ], [ 'es-vos', 'es-AR' ], [ 'pt-BR', 'pt-BR' ],
+			[ 'pt-PT', 'pt-PT' ], [ 'it', 'it' ], [ 'fr', 'fr' ], [ 'de', 'de' ], [ 'ja', 'ja' ], [ 'ru', 'ru' ], [ 'en', 'en' ] ] ) {
+			await test.step( `Save and reopen ${ language }`, async () => {
+				await visible( browser, '#language' );
+				await setSelect( browser, '#language', language );
+				await save( browser );
+				await expect.poll( async () => ( await stored( browser, preferencesKey ) )?.language ).toBe( language );
+				await reload( browser );
+				await visible( browser, '#language' );
+				await expect.poll( () => readView( browser, 'selected', 'return document.documentElement.lang;' ) ).toBe( tag );
+				expect( await readView( browser, 'selected', 'return document.querySelector("#language").value;' ) ).toBe( language );
+				const heading = await readView( browser, 'selected', 'return document.querySelector("h1").textContent;' );
+				expect( heading.length ).toBeGreaterThan( 0 );
+				if ( language === 'en' ) {
+					expect( heading ).toBe( 'Language' );
+				} else {
+					expect( heading ).not.toBe( 'Language' );
+				}
+			} );
+		}
+		await setSelect( browser, '#language', 'browser' );
+		await save( browser );
+		await expect.poll( async () => ( await stored( browser, preferencesKey ) )?.language ).toBeNull();
+	} );
+} );
+
+test( 'Statistics records a real Continue and resets totals without changing protection', async () => {
+	test.setTimeout( 90_000 );
+	await withBrowser( async ( browser, url ) => {
+		await enroll( browser, url );
+		await browser.openPage( `${ url }statistics-visit` );
+		await continuePause( browser );
+		await expect.poll( () => browser.currentUrl() ).toBe( `${ url }statistics-visit` );
+		await settings( browser, 'statistics' );
+		await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed waits': '1', 'Allowances granted': '1' } );
+		const configuration = await stored( browser, configurationKey );
+		const preferences = await stored( browser, preferencesKey );
+		const grants = await protectionState( browser );
+		for ( const range of [ 'current-week', 'current-month', 'all-time' ] ) {
+			await setSelect( browser, '.settings-statistics-period-select select', range );
+			await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed waits': '1', 'Allowances granted': '1' } );
+		}
+		await clickButton( browser, 'Reset statistics', '.settings-statistics-data' );
+		await visible( browser, '[role="dialog"]' );
+		await clickButton( browser, 'Cancel', '[role="dialog"]' );
+		await dialogClosed( browser );
+		expect( await metrics( browser ) ).toMatchObject( { 'Completed waits': '1', 'Allowances granted': '1' } );
+		await clickButton( browser, 'Reset statistics', '.settings-statistics-data' );
+		await visible( browser, '[role="dialog"]' );
+		await clickButton( browser, 'Reset statistics', '[role="dialog"]' );
+		await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed waits': '0', 'Allowances granted': '0', 'Reconsidered visits': '0' } );
+		expect( await stored( browser, configurationKey ) ).toEqual( configuration );
+		expect( await stored( browser, preferencesKey ) ).toEqual( preferences );
+		expect( await protectionState( browser ) ).toEqual( grants );
+		await reload( browser );
+		await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed waits': '0', 'Allowances granted': '0' } );
+	} );
+} );
+
+test( 'Privacy reset requires confirmation and clears real grants, settings and activity', async () => {
+	test.setTimeout( 90_000 );
+	await withBrowser( async ( browser, url ) => {
+		await enroll( browser, url );
+		await settings( browser, 'appearance' );
+		await visible( browser, '.preferences-palette-card[data-palette="purple"]' );
+		await browser.viewClick( 'selected', '.preferences-palette-card[data-palette="purple"]' );
+		await save( browser );
+		await browser.openPage( `${ url }before-reset` );
+		await continuePause( browser );
+		await expect.poll( () => browser.currentUrl() ).toBe( `${ url }before-reset` );
+		await fill( browser, 'input[aria-label="Preserved text"]', 'Keep this tab' );
+		await settings( browser, 'privacy' );
+		await visible( browser, '.settings-privacy-reset' );
+		await expect.poll( () => stored( browser, 'tocus.statistics.v1' ) ).toMatchObject( {
+			scopes: { scope_default: { totals: { completedWaitCount: 1, allowanceGrantedCount: 1 } } },
+		} );
+		const previousStatistics = await stored( browser, 'tocus.statistics.v1' );
+		const tabs = await browser.viewScript( 'selected', 'return Promise.all([browser.tabs.getCurrent(), browser.tabs.query({})]).then(([current, all]) => ({current: current.id, ids: all.map(tab => tab.id)}));' );
+		const before = await stored( browser, configurationKey );
+		await clickButton( browser, 'Reset all TOCus data', '.settings-page' );
+		await visible( browser, '[role="dialog"]' );
+		await clickButton( browser, 'Cancel', '[role="dialog"]' );
+		await dialogClosed( browser );
+		expect( await stored( browser, configurationKey ) ).toEqual( before );
+		expect( ( await protectionState( browser ) ).sites ).toEqual( [ '127.0.0.1' ] );
+		await clickButton( browser, 'Reset all TOCus data', '.settings-page' );
+		await visible( browser, '[role="dialog"]' );
+		await clickButton( browser, 'Reset all TOCus data', '[role="dialog"]' );
+		await expect.poll( () => browser.currentUrl() ).toContain( '/onboarding.html' );
+		await expect.poll( () => readView( browser, 'selected', `return Promise.all([
+			browser.tabs.getCurrent(), browser.tabs.query({active:true,currentWindow:true})
+		]).then(([current, [active]]) => current.id === active.id);` ) ).toBe( true );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Choose your language' );
+		await expect.poll( () => protectionState( browser ) )
+			.toEqual( { origins: [], navigation: false, sites: [], rules: 0 } );
+		expect( await stored( browser, preferencesKey ) ).toBeNull();
+		expectClearedStatistics( await stored( browser, 'tocus.statistics.v1' ), previousStatistics.generationId );
+		expect( await stored( browser, configurationKey ) ).toBeNull();
+		const remaining = await browser.viewScript( 'selected', 'return browser.tabs.query({}).then(tabs => tabs.map(tab => tab.id));' );
+		expect( remaining ).not.toContain( tabs.current );
+		for ( const id of tabs.ids.filter( ( id ) => id !== tabs.current ) ) {
+			expect( remaining ).toContain( id );
+		}
+		await expect.poll( () => readView( browser, 'selected', 'return document.body.innerText;' ) ).toContain( 'All TOCus data reset.' );
+		await reload( browser );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Choose your language' );
+		expect( await readView( browser, 'selected', 'return document.body.innerText;' ) ).not.toContain( 'All TOCus data reset.' );
+		expectClearedStatistics( await stored( browser, 'tocus.statistics.v1' ), previousStatistics.generationId );
+	} );
+} );
