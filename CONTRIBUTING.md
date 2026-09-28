@@ -42,4 +42,6 @@ pnpm zip:firefox
 
 ZIPs go to `apps/extension/.output/`; the website goes to `apps/website/dist/`. Build release packages from the tagged commit. See [Firefox review instructions](apps/extension/FIREFOX-REVIEW.md), [store assets](tools/store-assets/README.md), and [shared UI usage](packages/ui/README.md).
 
+Use one extension version and changelog across browsers. Label each fix with the affected browsers. Shared fixes go to all three stores; a browser-specific hotfix can go only to that store, with the others skipping that version. Mark pending versions `Unreleased`, then use the GitHub publication date in UTC (`YYYY-MM-DD`). Store approval dates can differ.
+
 Contributions are licensed under the [MIT License](LICENSE).
