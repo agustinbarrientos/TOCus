@@ -116,7 +116,7 @@ export default defineConfig( {
 					name: 'build-contract',
 					include: [ 'apps/extension/tests/build/**/*.{test,spec}.{ts,tsx,mjs}' ],
 					// Native browser journeys belong to Playwright Test, not the Node artifact-validation pool.
-					exclude: [ '**/packaged-protection/**', '**/packaged-favicons/**', '**/packaged-firefox/**', '**/packaged-toolbar/**', '**/packaged-native/**' ],
+					exclude: [ '**/packaged-protection/**', '**/packaged-favicons/**', '**/packaged-native/**' ],
 				},
 			},
 		],
