@@ -19,6 +19,7 @@ export default defineConfig( {
 	fullyParallel: false,
 	forbidOnly: Boolean( process.env.CI ),
 	retries: 0,
+	maxFailures: process.env.CI ? 1 : 0,
 	timeout: 30_000,
 	expect: { timeout: 5_000 },
 	outputDir: '../test-results/build-browser',

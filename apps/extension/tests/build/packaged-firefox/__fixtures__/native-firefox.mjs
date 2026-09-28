@@ -26,9 +26,10 @@ async function availablePort() {
 /**
  * Waits for a read-only readiness condition, preserving its last error on failure.
  * @param {() => Promise<unknown>} predicate - Readiness check without mutations.
+ * @param {string} [description] - Startup or shutdown condition reported on failure.
  * @return {Promise<void>} Resolves when the condition is truthy.
  */
-async function waitUntil( predicate ) {
+async function waitUntil( predicate, description = 'Native Firefox did not become ready.' ) {
 	const deadline = Date.now() + 15_000;
 	let lastError;
 	do {
@@ -41,7 +42,7 @@ async function waitUntil( predicate ) {
 		}
 		await delay( 100 );
 	} while ( Date.now() < deadline );
-	throw new Error( 'Native Firefox did not become ready.', { cause: lastError } );
+	throw new Error( description, { cause: lastError } );
 }
 
 /**
@@ -279,7 +280,7 @@ export async function launchNativeFirefox( directory ) {
 		driver.stderr.on( 'data', ( data ) => {
 			driverOutput = ( driverOutput + data ).slice( -8_000 );
 		} );
-		await waitUntil( async () => ( await command( '/status' ) ).ready );
+		await waitUntil( async () => ( await command( '/status' ) ).ready, 'GeckoDriver did not accept a new session.' );
 		if ( process.platform === 'darwin' ) {
 			execFileSync( '/usr/bin/open', [
 				'-n', '-a', dirname( dirname( dirname( executablePath ) ) ), '--args',
@@ -289,7 +290,7 @@ export async function launchNativeFirefox( directory ) {
 		const created = await command( '/session', { capabilities: { alwaysMatch: {
 			browserName: 'firefox',
 			...( process.platform === 'darwin' ? {} : { 'moz:firefoxOptions': {
-				binary: executablePath, args: [ '-profile', profile, '--remote-allow-system-access' ], prefs,
+				binary: executablePath, args: [ '-profile', profile ], prefs,
 			} } ),
 		} } } );
 		session = created.sessionId;
@@ -297,15 +298,16 @@ export async function launchNativeFirefox( directory ) {
 		await command( '/moz/addon/install', { path: extensionPath, temporary: true } );
 		await command( '/moz/context', { context: 'chrome' } );
 		await waitUntil( () => execute( `return Array.from(gBrowser.tabs).some(tab =>
-            tab.linkedBrowser.currentURI.spec.endsWith('/onboarding.html'));` ) );
+            tab.linkedBrowser.currentURI.spec.endsWith('/onboarding.html'));` ), 'Firefox did not open the installed extension onboarding tab.' );
 		await execute( 'CustomizableUI.addWidgetToArea(\'tocus_agustinbarrientos_com-BAP\', CustomizableUI.AREA_NAVBAR);' );
-		await waitUntil( () => execute( 'return Boolean(document.getElementById(\'tocus_agustinbarrientos_com-BAP\'));' ) );
+		await waitUntil( () => execute( 'return Boolean(document.getElementById(\'tocus_agustinbarrientos_com-BAP\'));' ), 'Firefox did not create the extension toolbar button.' );
 		return {
 			command, execute, viewScript, viewClick, viewType, close, uuid,
 			version: created.capabilities.browserVersion,
 		};
 	} catch ( error ) {
+		const tabs = session ? await execute( 'return Array.from(gBrowser.tabs, tab => tab.linkedBrowser.currentURI.spec);' ).catch( () => [] ) : [];
 		await close();
-		throw new Error( `Native Firefox setup failed: ${ error.message }\n${ driverOutput }`, { cause: error } );
+		throw new Error( `Native Firefox setup failed: ${ error.message }\nTabs: ${ JSON.stringify( tabs ) }\n${ driverOutput }`, { cause: error } );
 	}
 }
