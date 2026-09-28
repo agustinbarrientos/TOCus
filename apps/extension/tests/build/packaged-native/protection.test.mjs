@@ -1,5 +1,5 @@
 import { setTimeout as delay } from 'node:timers/promises';
-import { test, expect, withBrowser, readView, protectionState, enroll, settings, openPopup, clickButton, fill, continuePause } from './__fixtures__/journey.mjs';
+import { test, expect, withBrowser, readView, reload, protectionState, enroll, settings, openPopup, clickButton, fill, continuePause } from './__fixtures__/journey.mjs';
 
 test( 'native toolbar fits its controls and opens Settings and Statistics for the current website', async () => {
 	await withBrowser( async ( browser, url ) => {
@@ -52,11 +52,15 @@ test( 'denied native access saves nothing and retry enables a real pause and Con
 		await browser.consent( true );
 		await expect.poll( () => protectionState( browser, 'onboarding' ) ).toMatchObject( { sites: [ '127.0.0.1' ], rules: 1 } );
 		await browser.closePopup();
-		await browser.reload();
+		await reload( browser );
 		await expect.poll( () => browser.currentUrl() ).toContain( '/pause.html' );
 		await continuePause( browser );
 		await expect.poll( () => browser.currentUrl() ).toBe( url );
 		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Protected destination' );
+		await expect.poll( () => browser.viewScript( 'onboarding', `return browser.tabs.query({active:true,currentWindow:true})
+			.then(([tab]) => browser.tabs.sendMessage(tab.id, {type:'get-protected-page-presentation-status'}))
+			.catch(error => { if(error.message.includes('Receiving end does not exist')) return null; throw error; });` ) )
+			.toMatchObject( { interruptionLayerPresented: false } );
 		await openPopup( browser );
 		expect( await protectionState( browser, 'popup' ) ).toMatchObject( { sites: [ '127.0.0.1' ], rules: 0 } );
 		await expect.poll( () => browser.viewScript( 'popup', `return browser.storage.local.get('tocus.statistics.v1')
@@ -85,7 +89,7 @@ test( 'first-use onboarding preserves appearance and enrolls websites through na
 		await browser.consent( true );
 		await settings( browser, 'appearance' );
 		await expect.poll( () => protectionState( browser ) ).toMatchObject( { sites: [ '127.0.0.1' ], rules: 1 } );
-		await browser.reload();
+		await reload( browser );
 		await expect.poll( () => readView( browser, 'selected', `return {
 			blue: document.querySelector('[aria-label="Blue"]')?.getAttribute('aria-checked'),
 			dark: document.querySelector('[aria-label="Dark"]')?.getAttribute('aria-checked')
@@ -111,7 +115,7 @@ test( 'Continue makes one slow request and keeps its allowance through redirects
 		expect( network.requests( '/redirected' ) ).toBe( 1 );
 		await browser.viewClick( 'selected', '#new-tab' );
 		await expect.poll( () => browser.currentUrl() ).toBe( `${ url }new` );
-		await browser.reload();
+		await reload( browser );
 		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Protected destination' );
 		expect( network.requests( '/new' ) ).toBe( 2 );
 		expect( network.requests( '/slow' ) ).toBe( 1 );
@@ -121,7 +125,7 @@ test( 'Continue makes one slow request and keeps its allowance through redirects
 test( 'real allowance expiry pauses playing media and Continue preserves the document and unfinished work', async () => {
 	test.setTimeout( 240_000 );
 	await withBrowser( async ( browser, url, network ) => {
-		await enroll( browser, url );
+		await enroll( browser, url, '*://*.youtube.com/*' );
 		await settings( browser, 'timing' );
 		await browser.viewKey( 'selected', '#allowance', 'Home' );
 		await browser.viewKey( 'selected', '#wait-increase', 'Home' );
@@ -164,9 +168,10 @@ test( 'real allowance expiry pauses playing media and Continue preserves the doc
 		await browser.viewKey( 'selected', 'body', 'Space' );
 		await expect.poll( async () => ( await status() ).presentation.interruptionLayerPresented ).toBe( false );
 		await expect.poll( async () => ( await status() ).muted ).toBe( false );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("video")?.paused;' ) ).toBe( false );
 		expect( await browser.currentUrl() ).toBe( `${ url }media` );
 		expect( await browser.viewScript( 'selected', 'return {text: document.querySelector("input").value, identity: document.body.dataset.identity};' ) )
 			.toEqual( { text: 'Keep my unfinished work', identity: 'original-document' } );
 		expect( network.requests( '/media' ) ).toBe( 1 );
-	} );
+	}, { hostname: 'youtube.com', https: true } );
 } );

@@ -1,12 +1,31 @@
-import { mkdtemp, rm } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { createServer } from 'node:http';
+import { createServer as createSecureServer } from 'node:https';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { promisify } from 'node:util';
 import { expect, test } from '@playwright/test';
 import { launchFirefox } from './firefox.mjs';
 import { launchNativeChromium } from './chromium.mjs';
 
 export { expect, test };
+
+/**
+ * Creates short-lived TLS credentials owned by this disposable fixture directory.
+ * @param {string} directory - Temporary directory removed after the journey.
+ * @param {string} hostname - Exact locally mapped fixture hostname.
+ * @return {Promise<object>} HTTPS server credentials, never installed in the system trust store.
+ */
+async function fixtureCertificate( directory, hostname ) {
+	const key = join( directory, 'fixture-key.pem' );
+	const cert = join( directory, 'fixture-cert.pem' );
+	await promisify( execFile )( 'openssl', [
+		'req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyout', key, '-out', cert,
+		'-days', '1', '-subj', `/CN=${ hostname }`, '-addext', `subjectAltName=DNS:${ hostname }`,
+	] );
+	return { key: await readFile( key ), cert: await readFile( cert ) };
+}
 
 const transientViewErrors = new RegExp( [
 	"Actor 'MarionetteCommands' destroyed before query", 'Execution context was destroyed',
@@ -33,6 +52,18 @@ export async function readView( browser, view, script ) {
 }
 
 /**
+ * Waits for a replacement document so reload assertions cannot read the previous page.
+ * @param {object} browser - Installed browser driver.
+ * @since 1.0.1
+ */
+export async function reload( browser ) {
+	const previousTimeOrigin = await browser.viewScript( 'selected', 'return performance.timeOrigin;' );
+	await browser.reload();
+	await expect.poll( () => readView( browser, 'selected', `return performance.timeOrigin !== ${ previousTimeOrigin }
+		&& document.readyState === 'complete';` ) ).toBe( true );
+}
+
+/**
  * Reads real stored protection and native grants without changing either.
  * @param {object} browser - Installed browser driver.
  * @param {string} [view] - An extension view.
@@ -52,10 +83,14 @@ export function protectionState( browser, view = 'selected' ) {
 /**
  * Runs a journey against an unchanged build and a real local HTTP server.
  * @param {(browser: object, url: string, network: object) => Promise<void>} run - User journey.
+ * @param {object} [options] - Disposable browser network configuration.
+ * @param {string} [options.hostname] - Fixture hostname mapped to loopback inside this browser.
+ * @param {boolean} [options.https] - Serve HTTPS with temporary credentials accepted only by this browser.
  * @since 1.0.1
  */
-export async function withBrowser( run ) {
+export async function withBrowser( run, options = {} ) {
 	const product = test.info().project.name;
+	const hostname = options.hostname ?? '127.0.0.1';
 	const directory = await mkdtemp( join( tmpdir(), `tocus-installed-${ product }-` ) );
 	const requests = new Map();
 	const pending = new Set();
@@ -74,7 +109,12 @@ export async function withBrowser( run ) {
 	for ( let i = 44; i < wave.length; i += 2 ) {
 		wave.writeInt16LE( Math.round( Math.sin( i / 16 ) * 1000 ), i );
 	}
-	const server = createServer( ( request, response ) => {
+	/**
+	 * Serves only synthetic documents and media from this journey's loopback listener.
+	 * @param {import('node:http').IncomingMessage} request - Incoming fixture request.
+	 * @param {import('node:http').ServerResponse} response - Local fixture response.
+	 */
+	const handleRequest = ( request, response ) => {
 		const path = request.url;
 		requests.set( path, ( requests.get( path ) ?? 0 ) + 1 );
 		if ( path === '/redirect' ) {
@@ -92,7 +132,8 @@ export async function withBrowser( run ) {
 				response.end( html );
 			}
 		}
-	} );
+	};
+	let server = createServer( handleRequest );
 	/** Releases responses held for the pending-navigation regression. */
 	const release = () => {
 		for ( const response of pending ) {
@@ -109,10 +150,13 @@ export async function withBrowser( run ) {
 	let browser;
 	let failure;
 	try {
+		if ( options.https ) {
+			server = createSecureServer( await fixtureCertificate( directory, hostname ), handleRequest );
+		}
 		await new Promise( ( resolve ) => server.listen( 0, '127.0.0.1', resolve ) );
-		browser = product === 'firefox' ? await launchFirefox( directory ) : await launchNativeChromium( directory, product );
+		browser = product === 'firefox' ? await launchFirefox( directory, options ) : await launchNativeChromium( directory, product, options );
 		await test.info().attach( 'installed-browser', { body: `${ product }: ${ browser.version }`, contentType: 'text/plain' } );
-		await run( browser, `http://127.0.0.1:${ server.address().port }/`, { requests: countRequests, release } );
+		await run( browser, `${ options.https ? 'https' : 'http' }://${ hostname }:${ server.address().port }/`, { requests: countRequests, release } );
 	} catch ( error ) {
 		failure = error;
 	} finally {
@@ -153,11 +197,12 @@ export async function withBrowser( run ) {
 /**
  * Opens the native toolbar and waits for its real current-site result.
  * @param {object} browser - Installed browser driver.
+ * @param {string} [hostname] - Expected current website hostname.
  * @since 1.0.1
  */
-export async function openPopup( browser ) {
+export async function openPopup( browser, hostname = '127.0.0.1' ) {
 	await browser.openPopup();
-	await expect.poll( () => readView( browser, 'popup', 'return document.querySelector(".popup-site-host")?.textContent;' ) ).toBe( '127.0.0.1' );
+	await expect.poll( () => readView( browser, 'popup', 'return document.querySelector(".popup-site-host")?.textContent;' ) ).toBe( hostname );
 }
 
 /**
@@ -175,15 +220,17 @@ export async function ensurePopup( browser ) {
  * Protects the local destination through the real toolbar and native Allow decision.
  * @param {object} browser - Installed browser driver.
  * @param {string} url - Actual local destination.
+ * @param {string} [origin] - Exact host permission expected from this website's enrollment.
  * @since 1.0.1
  */
-export async function enroll( browser, url ) {
+export async function enroll( browser, url, origin = `*://${ new URL( url ).hostname }/*` ) {
+	const hostname = new URL( url ).hostname;
 	await browser.openPage( url );
 	await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Protected destination' );
-	await openPopup( browser );
+	await openPopup( browser, hostname );
 	await browser.viewClick( 'popup', 'button' );
 	await browser.consent( true );
-	await expect.poll( () => protectionState( browser, 'onboarding' ) ).toEqual( { origins: [ '*://127.0.0.1/*' ], navigation: true, sites: [ '127.0.0.1' ], rules: 1 } );
+	await expect.poll( () => protectionState( browser, 'onboarding' ) ).toEqual( { origins: [ origin ], navigation: true, sites: [ hostname ], rules: 1 } );
 	await browser.closePopup();
 }
 

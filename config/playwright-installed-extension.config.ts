@@ -12,7 +12,7 @@ export default defineConfig( {
 	forbidOnly: true,
 	retries: 0,
 	maxFailures: 0,
-	timeout: 240_000,
+	timeout: 60_000,
 	expect: { timeout: 15_000 },
 	outputDir: '../test-results/installed-extension',
 	reporter: [

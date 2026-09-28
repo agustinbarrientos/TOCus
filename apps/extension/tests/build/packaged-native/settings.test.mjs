@@ -1,5 +1,5 @@
 import {
-	clickButton, continuePause, enroll, expect, fill, protectionState, readView,
+	clickButton, continuePause, enroll, expect, fill, protectionState, readView, reload,
 	setSelect, settings, test, withBrowser,
 } from './__fixtures__/journey.mjs';
 
@@ -26,17 +26,6 @@ function stored( browser, key ) {
 async function visible( browser, selector ) {
 	await expect.poll( () => readView( browser, 'selected', `const node = document.querySelector(${ JSON.stringify( selector ) });
 		return Boolean(node && node.getBoundingClientRect().width > 0 && getComputedStyle(node).visibility === 'visible');` ) ).toBe( true );
-}
-
-/**
- * Waits for a replacement document so persistence checks cannot read the previous page.
- * @param {object} browser - Installed browser driver.
- */
-async function reload( browser ) {
-	const previousTimeOrigin = await browser.viewScript( 'selected', 'return performance.timeOrigin;' );
-	await browser.reload();
-	await expect.poll( () => readView( browser, 'selected', `return performance.timeOrigin !== ${ previousTimeOrigin }
-		&& document.readyState === 'complete';` ) ).toBe( true );
 }
 
 /**
@@ -69,13 +58,12 @@ async function unpausedVisit( browser, url ) {
 	await expect.poll( () => browser.currentUrl() ).toBe( url );
 	await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Protected destination' );
 	const presentation = await browser.viewScript( 'onboarding', `return browser.tabs.query({active:true,currentWindow:true})
-		.then(async ([tab]) => ({url: tab.url, status: await browser.tabs.sendMessage(tab.id,
+		.then(([tab]) => browser.tabs.sendMessage(tab.id,
 			{type:'get-protected-page-presentation-status'}).catch(error => {
 				if (error.message.includes('Receiving end does not exist')) return {interruptionLayerPresented:false};
 				throw error;
-			})}));` );
-	expect( presentation.url ).toBe( url );
-	expect( presentation.status.interruptionLayerPresented ).toBe( false );
+			}));` );
+	expect( presentation.interruptionLayerPresented ).toBe( false );
 	await fill( browser, 'input[aria-label="Preserved text"]', 'Schedule permits this visit' );
 	expect( await readView( browser, 'selected', 'return document.querySelector("input").value;' ) )
 		.toBe( 'Schedule permits this visit' );
@@ -140,6 +128,32 @@ test( 'Settings timing preserves discarded drafts and persists keyboard edits af
 		await expect.poll( () => readView( browser, 'selected', `return ['initial-wait','wait-increase','maximum-wait','allowance']
 			.map(id => document.getElementById(id)?.getAttribute('aria-valuenow'));` ) ).toEqual( [ '15', '1', '120', '2' ] );
 		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("input[name=completion-action]:checked")?.value;' ) ).toBe( 'open-automatically' );
+	} );
+} );
+
+test( 'Settings Save retains a denied website draft and retry enables real protection', async () => {
+	await withBrowser( async ( browser, url ) => {
+		await settings( browser, 'protected-sites' );
+		await visible( browser, '#site-address' );
+		const empty = { origins: [], navigation: false, sites: [], rules: 0 };
+		expect( await protectionState( browser ) ).toEqual( empty );
+		await fill( browser, '#site-address', '127.0.0.1' );
+		await browser.viewClick( 'selected', saveSelector );
+		await browser.consent( false );
+		await expect.poll( () => readView( browser, 'selected', 'return document.body.innerText;' ) )
+			.toContain( 'Browser access to show the pause on this website is required. Nothing was saved.' );
+		expect( await protectionState( browser ) ).toEqual( empty );
+		expect( await readView( browser, 'selected', 'return document.querySelector(".settings-site-identity p")?.textContent;' ) ).toBe( '127.0.0.1' );
+		await unpausedVisit( browser, `${ url }denied-settings-site` );
+		await expect.poll( () => readView( browser, 'selected', `return document.querySelector(${ JSON.stringify( saveSelector ) })?.disabled;` ) ).toBe( false );
+		await browser.viewClick( 'selected', saveSelector );
+		await browser.consent( true );
+		await expect.poll( () => protectionState( browser ) ).toEqual( {
+			origins: [ '*://127.0.0.1/*' ], navigation: true, sites: [ '127.0.0.1' ], rules: 1,
+		} );
+		await reload( browser );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector(".settings-site-identity p")?.textContent;' ) ).toBe( '127.0.0.1' );
+		await pausedVisit( browser, `${ url }saved-settings-site` );
 	} );
 } );
 
