@@ -38,7 +38,7 @@ jobs:
             - name: Audit high-severity vulnerabilities
               run: pnpm audit --audit-level=high --ignore-registry-errors
 
-            - name: Install pinned browsers
+            - name: Install pinned browsers for website and specialized checks
               run: pnpm --filter @tocus/extension exec playwright install --with-deps chromium firefox webkit
 
             - name: Lint scripts and styles
@@ -66,6 +66,53 @@ jobs:
                       playwright-report/build-browser/
                   retention-days: 7
                   if-no-files-found: ignore
+
+    installed-extension:
+        name: Installed extension (${{ matrix.browser }})
+        runs-on: ubuntu-24.04
+        timeout-minutes: 45
+        strategy:
+            fail-fast: false
+            max-parallel: 3
+            matrix:
+                browser: [chrome, edge, firefox]
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+              with:
+                  persist-credentials: false
+            - name: Set up Node.js and pnpm
+              uses: pnpm/setup@84cb39b217b10273981911c288cd62326dc7c6d2 # v2
+              with:
+                  runtime: node@24.20.0
+                  cache: true
+                  install: false
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+            - name: Build the selected extension artifact
+              env:
+                  EXTENSION_BROWSER: ${{ matrix.browser }}
+              run: |
+                  case "$EXTENSION_BROWSER" in
+                      chrome) pnpm --filter @tocus/extension build ;;
+                      edge) pnpm build:edge ;;
+                      firefox) pnpm build:firefox ;;
+                  esac
+            - name: Install the official browser and native accessibility dependencies
+              run: pnpm setup:installed-browsers ${{ matrix.browser }}
+            - name: Run every installed-extension journey
+              run: pnpm test:installed-extension:linux --project=${{ matrix.browser }}
+            - name: Preserve browser versions and native journey diagnostics
+              if: always()
+              uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+              with:
+                  name: installed-extension-${{ matrix.browser }}
+                  path: |
+                      test-results/installed-browser-setup/versions.txt
+                      test-results/installed-extension/
+                      playwright-report/installed-extension/
+                  retention-days: 7
+                  if-no-files-found: error
 
     ui:
         name: UI (${{ matrix.browser }})
@@ -140,7 +187,7 @@ jobs:
 
     checks:
         name: Check and build
-        needs: [quality, ui, visual]
+        needs: [quality, installed-extension, ui, visual]
         if: always()
         runs-on: ubuntu-24.04
         timeout-minutes: 1
@@ -148,10 +195,13 @@ jobs:
             - name: Require every verification job to succeed
               env:
                   QUALITY_RESULT: ${{ needs.quality.result }}
+                  INSTALLED_EXTENSION_RESULT: ${{ needs.installed-extension.result }}
                   UI_RESULT: ${{ needs.ui.result }}
                   VISUAL_RESULT: ${{ needs.visual.result }}
               run: |
                   printf 'Build/quality: %s; UI: %s; visuals: %s\n' "$QUALITY_RESULT" "$UI_RESULT" "$VISUAL_RESULT"
                   test "$QUALITY_RESULT" = success
+                  printf 'Installed Chrome/Edge/Firefox: %s\n' "$INSTALLED_EXTENSION_RESULT"
+                  test "$INSTALLED_EXTENSION_RESULT" = success
                   test "$UI_RESULT" = success
                   test "$VISUAL_RESULT" = success
