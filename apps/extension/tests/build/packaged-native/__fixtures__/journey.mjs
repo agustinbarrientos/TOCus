@@ -153,7 +153,10 @@ export async function withBrowser( run, options = {} ) {
 		if ( options.https ) {
 			server = createSecureServer( await fixtureCertificate( directory, hostname ), handleRequest );
 		}
-		await new Promise( ( resolve ) => server.listen( 0, '127.0.0.1', resolve ) );
+		await new Promise( ( resolve, reject ) => {
+			server.once( 'error', reject );
+			server.listen( 0, '127.0.0.1', resolve );
+		} );
 		browser = product === 'firefox' ? await launchFirefox( directory, options ) : await launchNativeChromium( directory, product, options );
 		await test.info().attach( 'installed-browser', { body: `${ product }: ${ browser.version }`, contentType: 'text/plain' } );
 		await run( browser, `${ options.https ? 'https' : 'http' }://${ hostname }:${ server.address().port }/`, { requests: countRequests, release } );
