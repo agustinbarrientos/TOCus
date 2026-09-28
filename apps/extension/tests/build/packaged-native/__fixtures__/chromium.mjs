@@ -376,15 +376,17 @@ export async function launchNativeChromium( directory, product, options = {} ) {
 	async function diagnostics() {
 		await Promise.all( observations.values() );
 		const pages = [];
-		for ( const page of await browser.pages() ) {
+		for ( const target of browser.targets().filter( ( candidate ) => candidate.type() === 'page' ) ) {
 			try {
+				// Reuse asPage's cached wrapper; mixing page() and asPage() loses existing execution contexts.
+				const page = configurePage( await target.asPage() );
 				pages.push( await page.evaluate( () => ( {
 					url: globalThis.location.href, visibility: globalThis.document.visibilityState,
 					focused: globalThis.document.hasFocus(), ready: globalThis.document.readyState,
 					text: globalThis.document.body?.innerText.slice( 0, 2_000 ),
 				} ) ) );
 			} catch ( error ) {
-				pages.push( { url: page.url(), error: error.message } );
+				pages.push( { url: target.url(), error: error.message } );
 			}
 		}
 		return { errors, permissionDecisions, pages,
