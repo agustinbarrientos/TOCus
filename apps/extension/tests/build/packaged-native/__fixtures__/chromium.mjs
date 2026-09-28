@@ -166,9 +166,18 @@ export async function launchNativeChromium( directory, product, options = {} ) {
 				return false;
 			}
 			// Reset can leave two onboarding documents at the same URL; compare real native tab identities.
-			const candidatePage = configurePage( await candidate.asPage() );
-			const current = await candidatePage.evaluate( () => globalThis.chrome.tabs.getCurrent() );
-			return current?.id === tab.id;
+			let candidatePage;
+			try {
+				candidatePage = configurePage( await candidate.asPage() );
+				const current = await candidatePage.evaluate( () => globalThis.chrome.tabs.getCurrent() );
+				return current?.id === tab.id;
+			} catch ( error ) {
+				// Reset can close its Settings tab while these candidate identities are being read.
+				if ( candidatePage?.isClosed() || ! browser.targets().includes( candidate ) ) {
+					return false;
+				}
+				throw error;
+			}
 		}, { timeout: 10_000 } );
 		const page = configurePage( await target.asPage() );
 		await observeTarget( target );
