@@ -299,8 +299,11 @@ export async function launchNativeFirefox( directory ) {
 		await command( '/moz/context', { context: 'chrome' } );
 		await waitUntil( () => execute( `return Array.from(gBrowser.tabs).some(tab =>
             tab.linkedBrowser.currentURI.spec.endsWith('/onboarding.html'));` ), 'Firefox did not open the installed extension onboarding tab.' );
-		await execute( 'CustomizableUI.addWidgetToArea(\'tocus_agustinbarrientos_com-BAP\', CustomizableUI.AREA_NAVBAR);' );
-		await waitUntil( () => execute( 'return Boolean(document.getElementById(\'tocus_agustinbarrientos_com-BAP\'));' ), 'Firefox did not create the extension toolbar button.' );
+		await waitUntil( () => execute( 'return CustomizableUI.getWidget(\'tocus_agustinbarrientos_com-browser-action\')?.provider === CustomizableUI.PROVIDER_API;' ),
+			'Firefox did not register the extension toolbar widget.' );
+		await execute( 'CustomizableUI.addWidgetToArea(\'tocus_agustinbarrientos_com-browser-action\', CustomizableUI.AREA_NAVBAR);' );
+		await waitUntil( () => execute( 'return document.getElementById(\'nav-bar\').contains(document.getElementById(\'tocus_agustinbarrientos_com-BAP\'));' ),
+			'Firefox did not place the extension button in the toolbar.' );
 		return {
 			command, execute, viewScript, viewClick, viewType, close, uuid,
 			version: created.capabilities.browserVersion,
