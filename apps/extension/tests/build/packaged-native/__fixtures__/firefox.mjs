@@ -1,14 +1,35 @@
 import { expect } from '@playwright/test';
-import { launchNativeFirefox } from '../../packaged-firefox/__fixtures__/native-firefox.mjs';
+import { setTimeout as delay } from 'node:timers/promises';
+import { launchNativeFirefox } from './gecko-driver.mjs';
+
+/**
+ * Retries native pointer input only when Firefox reports an obscured click target.
+ * @param {() => Promise<unknown>} click - Genuine Marionette input operation.
+ * @return {Promise<unknown>} Native input result, preserving every unrelated failure.
+ */
+async function clickWhenUnobscured( click ) {
+	const deadline = Date.now() + 15_000;
+	for ( ;; ) {
+		try {
+			return await click();
+		} catch ( error ) {
+			if ( ! /\bElementClickInterceptedError:/u.test( error.message ) || Date.now() >= deadline ) {
+				throw error;
+			}
+			await delay( 100 );
+		}
+	}
+}
 
 /**
  * Adapts the installed Firefox driver to the shared installed-browser journeys.
  * @param {string} directory - Disposable installation directory.
+ * @param {object} [options] - Isolated browser configuration for this journey.
  * @return {Promise<object>} Browser controls using native input and permission prompts.
  * @since 1.0.1
  */
-export async function launchFirefox( directory ) {
-	const driver = await launchNativeFirefox( directory );
+export async function launchFirefox( directory, options = {} ) {
+	const driver = await launchNativeFirefox( directory, options );
 	const permissionDecisions = [];
 	return {
 		...driver,
@@ -97,7 +118,7 @@ export async function launchFirefox( directory ) {
 		 * @param {string} selector - CSS selector with optional shadow separators.
 		 * @return {Promise<unknown>} Completion of native pointer input.
 		 */
-		viewClick: async ( view, selector ) => {
+		viewClick: ( view, selector ) => clickWhenUnobscured( async () => {
 			if ( ! selector.includes( '>>>' ) ) {
 				return driver.viewClick( view, selector );
 			}
@@ -122,7 +143,7 @@ export async function launchFirefox( directory ) {
 				throw new Error( `Firefox shadow click failed: ${ result?.message ?? 'No actor result.' }` );
 			}
 			return result.value;
-		},
+		} ),
 		/**
 		 * Selects a real HTML option through Marionette's native option click behavior.
 		 * @param {string} view - Selected document, popup, or onboarding view.
@@ -151,17 +172,34 @@ export async function launchFirefox( directory ) {
 		},
 		/**
 		 * Reads error diagnostics for this extension from the disposable Firefox console.
-		 * @return {Promise<object>} Production script errors and native consent evidence.
+		 * @return {Promise<object>} Production errors, unloaded extension contexts, and native consent evidence.
 		 */
-		diagnostics: async () => ( {
-			errors: await driver.execute( `return Services.console.getMessageArray().flatMap(message => {
+		diagnostics: async () => {
+			const origin = `moz-extension://${ driver.uuid }/`;
+			const entries = await driver.execute( `return Services.console.getMessageArray().flatMap(message => {
 				try {
 					const error = message.QueryInterface(Ci.nsIScriptError);
 					return error.sourceName.startsWith(arguments[0]) && !(error.flags & Ci.nsIScriptError.warningFlag)
 						? [{url: error.sourceName, message: error.errorMessage}] : [];
 				} catch { return []; }
-			});`, [ `moz-extension://${ driver.uuid }/` ] ),
-			permissionDecisions,
-		} ),
+			});`, [ origin ] );
+			const errors = [];
+			const unloadedContexts = [];
+			const inactiveContexts = [];
+			for ( const entry of entries ) {
+				const source = entry.url.slice( origin.length );
+				// ExtensionCommon.wrapPromise reports these browser lifecycle states after view replacement.
+				// Continue and navigation replace content documents; native prompts can dismiss popup views.
+				if ( entry.message === "Promise rejected after context unloaded: Actor 'Conduits' destroyed before query 'RuntimeMessage' was resolved\n"
+					&& ( /^chunks\/(?:interruption|options|popup)-[^/]+\.js$/u.test( source ) || source === 'protected-page.js' ) ) {
+					unloadedContexts.push( entry );
+				} else if ( source === 'protected-page.js' && entry.message === 'Promise resolved while context is inactive\n' ) {
+					inactiveContexts.push( entry );
+				} else {
+					errors.push( entry );
+				}
+			}
+			return { errors, unloadedContexts, inactiveContexts, permissionDecisions };
+		},
 	};
 }

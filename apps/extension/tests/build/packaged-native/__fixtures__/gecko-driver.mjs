@@ -5,7 +5,6 @@ import { createServer } from 'node:net';
 import { dirname, join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
-import { firefox } from '@playwright/test';
 import { start } from 'geckodriver';
 
 /**
@@ -135,14 +134,20 @@ try {
 /**
  * Installs the unchanged Firefox artifact into an isolated native browser with chrome automation.
  * @param {string} directory - Caller-owned temporary directory for this installation.
+ * @param {object} [options] - Disposable browser network configuration.
+ * @param {string} [options.hostname] - Fixture hostname resolved to loopback by this profile.
+ * @param {boolean} [options.https] - Accept the temporary HTTPS fixture certificate for this session.
  * @return {Promise<object>} Native commands, view interaction helpers, browser identity, and cleanup.
  */
-export async function launchNativeFirefox( directory ) {
+export async function launchNativeFirefox( directory, options = {} ) {
 	const profile = join( directory, 'profile' );
 	const extensionPath = join( directory, 'extension' );
 	const uuid = randomUUID();
 	const executablePath = process.env.FIREFOX_EXECUTABLE_PATH ?? ( process.platform === 'darwin'
-		? '/Applications/Firefox.app/Contents/MacOS/firefox' : firefox.executablePath() );
+		? '/Applications/Firefox.app/Contents/MacOS/firefox' : undefined );
+	if ( ! executablePath ) {
+		throw new Error( 'Set FIREFOX_EXECUTABLE_PATH to an installed official Firefox browser; run pnpm setup:installed-browsers on Linux.' );
+	}
 	const [ port, marionettePort ] = await Promise.all( [ availablePort(), availablePort() ] );
 	const endpoint = `http://127.0.0.1:${ port }`;
 	let driver;
@@ -154,6 +159,7 @@ export async function launchNativeFirefox( directory ) {
 		'browser.shell.checkDefaultBrowser': false,
 		'browser.startup.homepage_override.mstone': 'ignore',
 		'marionette.port': marionettePort,
+		...( options.hostname ? { 'network.dns.localDomains': options.hostname } : {} ),
 	};
 
 	/**
@@ -289,6 +295,7 @@ export async function launchNativeFirefox( directory ) {
 		}
 		const created = await command( '/session', { capabilities: { alwaysMatch: {
 			browserName: 'firefox',
+			...( options.hostname && options.https ? { acceptInsecureCerts: true } : {} ),
 			...( process.platform === 'darwin' ? {} : { 'moz:firefoxOptions': {
 				binary: executablePath, args: [ '-profile', profile ], prefs,
 			} } ),

@@ -25,7 +25,7 @@ if [[ "$(id -u)" -ne 0 ]]; then
 	sudo_command=(sudo -n)
 fi
 "${sudo_command[@]}" apt-get update
-"${sudo_command[@]}" apt-get install -y python3-gi gir1.2-atspi-2.0 at-spi2-core dbus-x11 xvfb xauth curl xz-utils libatk-adaptor libgail-common
+"${sudo_command[@]}" apt-get install -y python3-gi gir1.2-atspi-2.0 at-spi2-core dbus-x11 xvfb xauth curl xz-utils openssl libatk-adaptor libgail-common
 
 setup_directory="$repository_root/test-results/installed-browser-setup"
 mkdir -p "$setup_directory"
