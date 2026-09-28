@@ -51,7 +51,7 @@ jobs:
               run: pnpm test:unit
 
             - name: Build and verify packaged applications
-              run: pnpm test:build-contract
+              run: xvfb-run -a pnpm test:build-contract
 
             - name: Verify native media and Canvas coverage
               run: pnpm --filter @tocus/extension test:browser
