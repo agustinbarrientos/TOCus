@@ -44,7 +44,7 @@ async function openPopup( browser ) {
  * @return {Promise<object>} Actual persisted protection state.
  */
 async function protectionState( browser, view = 'popup' ) {
-	return browser.viewScript( view, `return Promise.all([
+	return readView( browser, view, `return Promise.all([
 		browser.permissions.getAll(), browser.storage.local.get('tocus.protection.configuration.v1'),
 		browser.declarativeNetRequest.getDynamicRules()
 	]).then(([permissions, stored, rules]) => ({
