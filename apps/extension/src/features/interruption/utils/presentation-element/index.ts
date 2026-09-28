@@ -27,6 +27,11 @@ export abstract class PresentationElement extends HTMLElement {
 	 */
 	constructor( css: string, mode: ShadowRootMode = 'open' ) {
 		super();
+		// Firefox content-script Xrays expose HTMLElement's prototype after subclass construction.
+		// Restore the extension-owned prototype without unwrapping the website's objects.
+		if ( Object.getPrototypeOf( this ) !== new.target.prototype ) {
+			Object.setPrototypeOf( this, new.target.prototype );
+		}
 		this.renderRoot = this.attachShadow( { mode } );
 		const sheet = createShadowStyleSheet( css );
 		this.renderRoot.adoptedStyleSheets = [ sheet ];
