@@ -20,7 +20,8 @@ test( 'native toolbar fits its controls and opens Settings and Statistics for th
 		for ( const rect of geometry.links ) {
 			expect( rect.width ).toBeGreaterThan( 50 );
 			expect( rect.right ).toBeLessThanOrEqual( geometry.width );
-			expect( rect.bottom ).toBeLessThanOrEqual( geometry.height );
+			// Native popup viewport dimensions are integers while CSS bounds can be fractional.
+			expect( Math.floor( rect.bottom ) ).toBeLessThanOrEqual( geometry.height );
 		}
 		for ( const [ route, heading ] of [ [ 'protected-sites', 'Websites' ], [ 'statistics', 'Statistics' ] ] ) {
 			await browser.viewClick( 'popup', `a[href$="#${ route }"]` );
