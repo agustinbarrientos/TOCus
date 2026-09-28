@@ -240,7 +240,17 @@ export async function launchNativeChromium( directory, product ) {
 
 	/** Closes the native action popup using focus on the selected browser tab. */
 	async function closePopup() {
-		await ( await selectedPage() ).bringToFront();
+		if ( isPopupOpen() ) {
+			await ( await selectedPage() ).bringToFront();
+		}
+	}
+
+	/**
+	 * Reports whether the genuine action popup survived the latest native prompt.
+	 * @return {boolean} Whether this browser's popup document is still open.
+	 */
+	function isPopupOpen() {
+		return Boolean( popup && ! popup.isClosed() );
 	}
 
 	/**
@@ -287,6 +297,9 @@ export async function launchNativeChromium( directory, product ) {
 		await cp( fileURLToPath( new URL( `../../../../.output/${ product }-mv3/`, import.meta.url ) ), extensionPath, { recursive: true } );
 		browser = await puppeteer.launch( {
 			executablePath, userDataDir: profile, headless: false, defaultViewport: null,
+			...( process.platform === 'linux' ? {
+				env: { ...process.env, ACCESSIBILITY_ENABLED: '1', NO_AT_BRIDGE: '0' },
+			} : {} ),
 			enableExtensions: true, pipe: true, timeout: 15_000,
 			args: [ '--enable-unsafe-extension-debugging', '--disable-crash-reporter', '--lang=en-US', '--force-renderer-accessibility',
 				...( process.env.CI ? [ '--no-sandbox' ] : [] ) ],
@@ -305,7 +318,7 @@ export async function launchNativeChromium( directory, product ) {
 		await browser.waitForTarget( ( candidate ) => candidate.url() === extensionUrl( 'onboarding.html' ), { timeout: 10_000 } );
 		return {
 			browser, extensionId, version: await browser.version(), errors, permissionDecisions, extensionUrl,
-			openPage, navigate, currentUrl, reload, closePage, openPopup, closePopup, consent,
+			openPage, navigate, currentUrl, reload, closePage, openPopup, closePopup, isPopupOpen, consent,
 			viewScript, viewClick, viewType, viewKey, close,
 		};
 	} catch ( error ) {
