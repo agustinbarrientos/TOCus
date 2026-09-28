@@ -402,7 +402,8 @@ export function createProtectionBackgroundController(
 	 */
 	function unregisterNavigationListener(): void {
 		registeredNavigationEvents.forEach( ( [ navigationEvent, listener ] ) => {
-			navigationEvent.removeListener( listener );
+			// Firefox revokes the listeners and deletes this method when access is removed.
+			navigationEvent.removeListener?.( listener );
 		} );
 		registeredNavigationEvents = [];
 	}

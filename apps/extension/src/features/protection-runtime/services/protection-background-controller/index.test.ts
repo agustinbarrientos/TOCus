@@ -263,6 +263,55 @@ describe( 'createProtectionBackgroundController', () => {
 		expect( harness.navigation.hasListener() ).toBe( false );
 	} );
 
+	it.each( [ false, true ] )( 'finishes reset refresh after Firefox revokes event APIs and accepts a later grant (permission event: %s)', async ( emitsRemoval ) => {
+		const harness = createHarness();
+		const navigationEvents = [
+			{ addListener: vi.fn(), removeListener: vi.fn() },
+			{ addListener: vi.fn(), removeListener: vi.fn() },
+		] as const;
+		harness.browser.webNavigation = {
+			onBeforeNavigate: navigationEvents[ 0 ],
+			onCommitted: navigationEvents[ 1 ],
+		};
+		harness.controller.start();
+		await harness.controller.waitUntilReady();
+
+		// Firefox removes listeners and deletes methods on the same event objects during revocation.
+		for ( const event of navigationEvents ) {
+			expect( event.addListener ).toHaveBeenCalledOnce();
+			Reflect.deleteProperty( event, 'addListener' );
+			Reflect.deleteProperty( event, 'removeListener' );
+		}
+		delete harness.browser.webNavigation;
+		harness.containsPermission.mockResolvedValue( false );
+		if ( emitsRemoval ) {
+			expect( () => {
+				harness.permissionRemoval.emit( { permissions: [ 'webNavigation' ] } );
+			} ).not.toThrow();
+			await harness.controller.waitUntilReady();
+			expect( harness.failOpen ).toHaveBeenCalledOnce();
+		}
+
+		await expect( harness.controller.refresh() ).resolves.toBeUndefined();
+		expect( harness.failOpen ).toHaveBeenCalledTimes( emitsRemoval ? 2 : 1 );
+		expect( harness.handleConfigurationChanged ).not.toHaveBeenCalled();
+
+		harness.browser.webNavigation = {
+			onBeforeNavigate: harness.navigation,
+			onCommitted: harness.committedNavigation,
+		};
+		harness.containsPermission.mockResolvedValue( true );
+		harness.permissionAddition.emit( { permissions: [ 'webNavigation' ] } );
+		await harness.controller.waitUntilReady();
+		expect( harness.start ).toHaveBeenCalledTimes( 2 );
+		expect( harness.navigation.hasListener() ).toBe( true );
+		expect( harness.committedNavigation.hasListener() ).toBe( true );
+		harness.navigation.emit( { frameId: 0, tabId: 7, url: 'https://example.com/' } );
+		await vi.waitFor( () => {
+			expect( harness.handleNavigation ).toHaveBeenCalledOnce();
+		} );
+	} );
+
 	it( 'fails open on cold startup when navigation observation is not granted', async () => {
 		const harness = createHarness( true, false );
 
