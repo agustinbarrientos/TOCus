@@ -385,6 +385,9 @@ test( 'Privacy reset requires confirmation and clears real grants, settings and 
 		await visible( browser, '[role="dialog"]' );
 		await clickButton( browser, 'Reset all TOCus data', '[role="dialog"]' );
 		await expect.poll( () => browser.currentUrl() ).toContain( '/onboarding.html' );
+		await expect.poll( () => readView( browser, 'selected', `return Promise.all([
+			browser.tabs.getCurrent(), browser.tabs.query({active:true,currentWindow:true})
+		]).then(([current, [active]]) => current.id === active.id);` ) ).toBe( true );
 		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Choose your language' );
 		await expect.poll( () => protectionState( browser ) )
 			.toEqual( { origins: [], navigation: false, sites: [], rules: 0 } );

@@ -154,8 +154,22 @@ export async function launchNativeChromium( directory, product, options = {} ) {
 		if ( ! url ) {
 			throw new Error( `The active native tab has no mapped page: ${ JSON.stringify( tab ) }` );
 		}
-		const target = await browser.waitForTarget( ( candidate ) =>
-			candidate.type() === 'page' && candidate.url() === url, { timeout: 10_000 } );
+		const extensionPage = url.startsWith( extensionUrl( '' ) );
+		const target = await browser.waitForTarget( async ( candidate ) => {
+			if ( candidate.type() !== 'page' ) {
+				return false;
+			}
+			if ( ! extensionPage ) {
+				return candidate.url() === url;
+			}
+			if ( ! candidate.url().startsWith( extensionUrl( '' ) ) ) {
+				return false;
+			}
+			// Reset can leave two onboarding documents at the same URL; compare real native tab identities.
+			const candidatePage = configurePage( await candidate.asPage() );
+			const current = await candidatePage.evaluate( () => globalThis.chrome.tabs.getCurrent() );
+			return current?.id === tab.id;
+		}, { timeout: 10_000 } );
 		const page = configurePage( await target.asPage() );
 		await observeTarget( target );
 		tabPages.set( tab.id, page );
