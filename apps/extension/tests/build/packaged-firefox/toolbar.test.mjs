@@ -10,14 +10,31 @@ const toolbarSelector = '#tocus_agustinbarrientos_com-BAP';
 const notificationSelector = '#addon-webext-permissions-notification';
 
 /**
+ * Reads a view during navigation without treating a replaced document as a product failure.
+ * @param {object} browser - Disposable Firefox driver.
+ * @param {string} view - Extension document or selected website to observe.
+ * @param {string} script - Read-only observation retried by the caller's expectation.
+ * @return {Promise<unknown>} Observed value, or undefined while the document is being replaced.
+ */
+async function readView( browser, view, script ) {
+	try {
+		return await browser.viewScript( view, script );
+	} catch ( error ) {
+		if ( error.message.includes( "AbortError: Actor 'MarionetteCommands' destroyed before query" ) ) {
+			return undefined;
+		}
+		throw error;
+	}
+}
+
+/**
  * Clicks Firefox's actual toolbar button without resizing its popup.
  * @param {object} browser - Disposable Firefox driver.
  */
 async function openPopup( browser ) {
 	const element = await browser.command( '/element', { using: 'css selector', value: toolbarSelector } );
 	await browser.command( `/element/${ element[ 'element-6066-11e4-a52e-4f735466cecf' ] }/click`, {} );
-	await expect.poll( () => browser.viewScript( 'popup',
-		'return document.querySelector(".popup-site-host")?.textContent;' ).catch( () => null ) ).toBe( '127.0.0.1' );
+	await expect.poll( () => readView( browser, 'popup', 'return document.querySelector(".popup-site-host")?.textContent;' ).catch( () => null ) ).toBe( '127.0.0.1' );
 }
 
 /**
@@ -136,7 +153,7 @@ test( 'Firefox native toolbar has usable dimensions and opens Settings and Stati
 		}
 		for ( const [ route, heading ] of [ [ 'protected-sites', 'Websites' ], [ 'statistics', 'Statistics' ] ] ) {
 			await browser.viewClick( 'popup', `a[href$="#${ route }"]` );
-			await expect.poll( () => browser.viewScript( 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( heading );
+			await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( heading );
 			await browser.execute( 'gBrowser.removeTab(gBrowser.selectedTab);' );
 			if ( route === 'protected-sites' ) {
 				await openPopup( browser );
@@ -155,7 +172,7 @@ test( 'Firefox popup handles denied access, enrolls after Allow, and continues t
 		await test.step( 'Deny new access and keep the website unprotected', async () => {
 			await browser.viewClick( 'popup', 'button' );
 			await decidePermission( browser, false );
-			await expect.poll( () => browser.viewScript( 'popup', 'return document.body.innerText;' ) )
+			await expect.poll( () => readView( browser, 'popup', 'return document.body.innerText;' ) )
 				.toContain( 'Browser access is needed to add a pause here.' );
 			expect( await protectionState( browser ) ).toEqual( empty );
 		} );
@@ -168,7 +185,7 @@ test( 'Firefox popup handles denied access, enrolls after Allow, and continues t
 			await expect.poll( () => protectionState( browser ) ).toEqual( {
 				origins: [ '*://127.0.0.1/*' ], navigation: true, sites: [ '127.0.0.1' ], rules: 1,
 			} );
-			await expect.poll( () => browser.viewScript( 'popup', 'return document.body.innerText;' ) ).toContain( 'TOCus is active' );
+			await expect.poll( () => readView( browser, 'popup', 'return document.body.innerText;' ) ).toContain( 'TOCus is active' );
 			await browser.execute( 'document.querySelector("#customizationui-widget-panel").hidePopup();' );
 			await openPopup( browser );
 			expect( await protectionState( browser ) ).toMatchObject( { sites: [ '127.0.0.1' ], rules: 1 } );
@@ -176,10 +193,10 @@ test( 'Firefox popup handles denied access, enrolls after Allow, and continues t
 		await test.step( 'Wait and Continue through the actual protection rule', async () => {
 			await browser.execute( 'document.querySelector("#customizationui-widget-panel").hidePopup();gBrowser.selectedBrowser.reload();' );
 			await expect.poll( () => browser.execute( 'return gBrowser.selectedBrowser.currentURI.spec;' ) ).toContain( '/pause.html' );
-			await expect.poll( () => browser.viewScript( 'selected', 'return document.querySelector(\'tocus-f-interruption-screen\')?.shadowRoot?.querySelector(\'button\')?.textContent;' ), { timeout: 20_000 } ).toBe( 'Continue' );
+			await expect.poll( () => readView( browser, 'selected', 'return document.querySelector(\'tocus-f-interruption-screen\')?.shadowRoot?.querySelector(\'button\')?.textContent;' ), { timeout: 20_000 } ).toBe( 'Continue' );
 			await browser.viewScript( 'selected', 'document.querySelector(\'tocus-f-interruption-screen\').shadowRoot.querySelector(\'button\').click();' );
 			await expect.poll( () => browser.execute( 'return gBrowser.selectedBrowser.currentURI.spec;' ) ).toBe( url );
-			await expect.poll( () => browser.viewScript( 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Firefox destination' );
+			await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Firefox destination' );
 			await openPopup( browser );
 			expect( await protectionState( browser ) ).toMatchObject( { sites: [ '127.0.0.1' ], rules: 0 } );
 			const totals = await browser.viewScript( 'popup', 'return browser.storage.local.get(\'tocus.statistics.v1\').then(data => data[\'tocus.statistics.v1\'].dailyTotals);' );
@@ -189,15 +206,15 @@ test( 'Firefox popup handles denied access, enrolls after Allow, and continues t
 		} );
 		await test.step( 'Remove the website and revoke its optional access', async () => {
 			await browser.viewClick( 'popup', 'a[href$="#protected-sites"]' );
-			await expect.poll( () => browser.viewScript( 'selected', 'return document.querySelector(".settings-site-remove") !== null;' ) ).toBe( true );
+			await expect.poll( () => readView( browser, 'selected', 'return document.querySelector(".settings-site-remove") !== null;' ) ).toBe( true );
 			await browser.viewClick( 'selected', '.settings-site-remove' );
-			await expect.poll( () => browser.viewScript( 'selected', 'return document.querySelector("[role=dialog]") !== null;' ) ).toBe( true );
+			await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("[role=dialog]") !== null;' ) ).toBe( true );
 			await browser.viewClick( 'selected', '[role="dialog"] .tocus-form-actions button:nth-child(2)' );
-			await expect.poll( () => browser.viewScript( 'selected', 'return document.querySelectorAll("[role=dialog]").length;' ) ).toBe( 0 );
+			await expect.poll( () => readView( browser, 'selected', 'return document.querySelectorAll("[role=dialog]").length;' ) ).toBe( 0 );
 			await browser.viewClick( 'selected', 'main .tocus-form-actions button:first-child' );
 			await expect.poll( () => protectionState( browser, 'selected' ) ).toEqual( empty );
 			await openWebsite( browser, url );
-			await expect.poll( () => browser.viewScript( 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Firefox destination' );
+			await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Firefox destination' );
 		} );
 	} );
 } );
@@ -208,20 +225,20 @@ test( 'Firefox first-use onboarding saves appearance and enrolls a website throu
 	await withFirefox( async ( browser ) => {
 		await browser.execute( `gBrowser.selectedTab = Array.from(gBrowser.tabs).find(tab =>
 			tab.linkedBrowser.currentURI.spec.endsWith('/onboarding.html'));` );
-		await expect.poll( () => browser.viewScript( 'selected', 'return document.querySelector("button[type=submit]")?.textContent;' ) ).toBe( 'Continue' );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("button[type=submit]")?.textContent;' ) ).toBe( 'Continue' );
 		await browser.viewClick( 'selected', 'button[type="submit"]' );
-		await expect.poll( () => browser.viewScript( 'selected', 'return document.querySelector("[aria-label=Blue]") !== null;' ) ).toBe( true );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("[aria-label=Blue]") !== null;' ) ).toBe( true );
 		await browser.viewClick( 'selected', '[aria-label="Blue"]' );
 		await browser.viewClick( 'selected', '[aria-label="Dark"]' );
 		await browser.viewClick( 'selected', 'button[type="submit"]' );
-		await expect.poll( () => browser.viewScript( 'selected', 'return document.querySelector("input[aria-label]")?.getAttribute("aria-label");' ) ).toBe( 'Website address' );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("input[aria-label]")?.getAttribute("aria-label");' ) ).toBe( 'Website address' );
 		await browser.viewType( 'selected', 'input[aria-label="Website address"]', '127.0.0.1' );
 		await browser.viewClick( 'selected', '.manual-form button[type="submit"]' );
-		await expect.poll( () => browser.viewScript( 'selected', 'return document.querySelector(".finish-action")?.disabled;' ) ).toBe( false );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector(".finish-action")?.disabled;' ) ).toBe( false );
 		expect( await protectionState( browser, 'selected' ) ).toEqual( { origins: [], navigation: false, sites: [], rules: 0 } );
 		await browser.viewClick( 'selected', '.finish-action' );
 		await decidePermission( browser, false );
-		await expect.poll( () => browser.viewScript( 'selected', 'return document.querySelector(".finish-action")?.disabled;' ) ).toBe( false );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector(".finish-action")?.disabled;' ) ).toBe( false );
 		expect( await protectionState( browser, 'selected' ) ).toMatchObject( { sites: [], rules: 0 } );
 		await browser.viewClick( 'selected', '.finish-action' );
 		await decidePermission( browser, true );
@@ -233,7 +250,7 @@ test( 'Firefox first-use onboarding saves appearance and enrolls a website throu
 		} );
 		await browser.execute( 'gBrowser.selectedBrowser.reload();' );
 		await expect.poll( () => browser.execute( 'return gBrowser.selectedBrowser.webProgress.isLoadingDocument;' ) ).toBe( false );
-		await expect.poll( () => browser.viewScript( 'selected', `return {
+		await expect.poll( () => readView( browser, 'selected', `return {
 			blue: document.querySelector('[aria-label="Blue"]')?.getAttribute('aria-checked'),
 			dark: document.querySelector('[aria-label="Dark"]')?.getAttribute('aria-checked')
 		};` ) ).toEqual( { blue: 'true', dark: 'true' } );
@@ -254,9 +271,8 @@ test( 'Firefox Continue reaches a slow destination without canceling and restart
 				triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal()
 			});`, [ `${ url }slow` ] );
 		await expect.poll( () => browser.execute( 'return gBrowser.selectedBrowser.currentURI.spec;' ) ).toContain( '/pause.html' );
-		await expect.poll( () => browser.viewScript( 'selected',
-			'return document.querySelector("tocus-f-interruption-screen")?.shadowRoot?.querySelector("button")?.textContent;' ),
-		{ timeout: 20_000 } ).toBe( 'Continue' );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("tocus-f-interruption-screen")?.shadowRoot?.querySelector("button")?.textContent;' ),
+			{ timeout: 20_000 } ).toBe( 'Continue' );
 		await browser.viewScript( 'selected',
 			'document.querySelector("tocus-f-interruption-screen").shadowRoot.querySelector("button").click();' );
 		await expect.poll( network.requests ).toBeGreaterThan( 0 );
@@ -268,7 +284,7 @@ test( 'Firefox Continue reaches a slow destination without canceling and restart
 		expect( pending ).toEqual( { url: `moz-extension://${ browser.uuid }/pause.html`, status: 'loading', pendingUrl: null } );
 		network.release();
 		await expect.poll( () => browser.execute( 'return gBrowser.selectedBrowser.currentURI.spec;' ) ).toBe( `${ url }slow` );
-		await expect.poll( () => browser.viewScript( 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Firefox destination' );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Firefox destination' );
 		expect( network.requests() ).toBe( 1 );
 	} );
 } );
