@@ -47,12 +47,10 @@ export default defineConfig( {
 				'apps/extension/src/domains/statistics/**/*.ts',
 				'apps/extension/src/localization/**/*.ts',
 				'apps/extension/src/shared/**/*.ts',
-				'apps/extension/src/entrypoints/background/index.ts',
-				'apps/extension/src/entrypoints/interruption/index.ts',
+				// Native installed-browser journeys cover startup-only entrypoint adapters.
 				'apps/extension/src/entrypoints/onboarding/index.ts',
 				'apps/extension/src/entrypoints/options/index.ts',
 				'apps/extension/src/entrypoints/popup/index.ts',
-				'apps/extension/src/entrypoints/protected-page/index.ts',
 				'apps/extension/src/features/preferences/services/preferences-controller/**/*.ts',
 				'apps/extension/src/features/protected-sites/services/protected-site-enrollment/**/*.ts',
 				'apps/extension/src/features/protected-sites/services/site-permission-manager/**/*.ts',
@@ -118,7 +116,7 @@ export default defineConfig( {
 					name: 'build-contract',
 					include: [ 'apps/extension/tests/build/**/*.{test,spec}.{ts,tsx,mjs}' ],
 					// Native browser journeys belong to Playwright Test, not the Node artifact-validation pool.
-					exclude: [ '**/packaged-protection/**', '**/packaged-favicons/**', '**/packaged-edge/**', '**/packaged-firefox/**', '**/packaged-toolbar/**' ],
+					exclude: [ '**/packaged-protection/**', '**/packaged-favicons/**', '**/packaged-firefox/**', '**/packaged-toolbar/**', '**/packaged-native/**' ],
 				},
 			},
 		],
