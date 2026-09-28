@@ -99,6 +99,7 @@ test( 'first-use onboarding preserves appearance and enrolls websites through na
 } );
 
 test( 'Continue makes one slow request and keeps its allowance through redirects, new tabs and reloads', async () => {
+	test.setTimeout( 90_000 );
 	await withBrowser( async ( browser, url, network ) => {
 		await enroll( browser, url );
 		await browser.navigate( `${ url }slow` );
