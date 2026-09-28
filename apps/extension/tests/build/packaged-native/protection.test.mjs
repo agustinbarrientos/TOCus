@@ -41,14 +41,16 @@ test( 'denied native access saves nothing and retry enables a real pause and Con
 		expect( await protectionState( browser, 'popup' ) ).toEqual( empty );
 		await browser.viewClick( 'popup', 'button' );
 		await browser.consent( false );
-		await expect.poll( () => readView( browser, 'popup', 'return document.body.innerText;' ) )
-			.toContain( 'Browser access is needed to add a pause here.' );
-		expect( await protectionState( browser, 'popup' ) ).toEqual( empty );
+		await expect.poll( () => protectionState( browser, 'onboarding' ) ).toEqual( empty );
+		if ( await browser.isPopupOpen() ) {
+			await expect.poll( () => readView( browser, 'popup', 'return document.body.innerText;' ) )
+				.toContain( 'Browser access is needed to add a pause here.' );
+		}
 		await browser.closePopup();
 		await openPopup( browser );
 		await browser.viewClick( 'popup', 'button' );
 		await browser.consent( true );
-		await expect.poll( () => protectionState( browser, 'popup' ) ).toMatchObject( { sites: [ '127.0.0.1' ], rules: 1 } );
+		await expect.poll( () => protectionState( browser, 'onboarding' ) ).toMatchObject( { sites: [ '127.0.0.1' ], rules: 1 } );
 		await browser.closePopup();
 		await browser.reload();
 		await expect.poll( () => browser.currentUrl() ).toContain( '/pause.html' );
@@ -63,7 +65,7 @@ test( 'denied native access saves nothing and retry enables a real pause and Con
 	} );
 } );
 
-test( 'first-use onboarding saves appearance only after native site consent succeeds', async () => {
+test( 'first-use onboarding preserves appearance and enrolls websites through native consent', async () => {
 	await withBrowser( async ( browser ) => {
 		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("button[type=submit]")?.textContent;' ) ).toBe( 'Continue' );
 		await browser.viewClick( 'selected', 'button[type="submit"]' );
@@ -130,6 +132,11 @@ test( 'real allowance expiry pauses playing media and Continue preserves the doc
 		await expect.poll( () => browser.currentUrl() ).toContain( '/pause.html' );
 		await continuePause( browser );
 		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Protected destination' );
+		const allowance = await browser.viewScript( 'onboarding', `return browser.storage.local.get('tocus.protection.durable.v1')
+			.then(data => data['tocus.protection.durable.v1']?.document.scopes.scope_default?.allowance);` );
+		expect( allowance ).toBeDefined();
+		expect( allowance.expiresAtEpochMilliseconds - allowance.startedAtEpochMilliseconds ).toBe( 120_000 );
+		await test.info().attach( 'actual-allowance', { body: JSON.stringify( allowance ), contentType: 'application/json' } );
 		await fill( browser, 'input', 'Keep my unfinished work' );
 		await browser.viewScript( 'selected', 'document.body.dataset.identity = "original-document";' );
 		await browser.viewClick( 'selected', '#play' );
@@ -148,6 +155,7 @@ test( 'real allowance expiry pauses playing media and Continue preserves the doc
 		expect( ( await status() ).muted ).toBe( false );
 		await expect.poll( async () => ( await status() ).presentation.interruptionLayerPresented,
 			{ timeout: 135_000, intervals: [ 1_000 ] } ).toBe( true );
+		expect( await browser.viewScript( 'selected', 'return Date.now();' ) ).toBeGreaterThanOrEqual( allowance.expiresAtEpochMilliseconds );
 		expect( ( await status() ).muted ).toBe( true );
 		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("video")?.paused;' ) ).toBe( true );
 		await expect.poll( () => browser.viewScript( 'onboarding', `return browser.storage.local.get('tocus.protection.durable.v1')

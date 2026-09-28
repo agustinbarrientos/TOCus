@@ -66,7 +66,14 @@ export async function launchFirefox( directory ) {
 		 * Dismisses Firefox's native extension popup panel.
 		 * @return {Promise<unknown>} Completion of panel dismissal.
 		 */
-		closePopup: () => driver.execute( 'document.querySelector("#customizationui-widget-panel").hidePopup();' ),
+		closePopup: () => driver.execute( `const panel = document.querySelector('#customizationui-widget-panel');
+			if (panel?.state === 'open') panel.hidePopup();` ),
+		/**
+		 * Reports whether Firefox still displays this extension's native action panel.
+		 * @return {Promise<boolean>} Whether the actual popup panel is open.
+		 */
+		isPopupOpen: () => driver.execute( `return document.querySelector('#customizationui-widget-panel')?.state === 'open' &&
+			Boolean(document.querySelector('browser[webextension-view-type="popup"]'));` ),
 		/**
 		 * Chooses an enabled native permission decision and records its visible labels.
 		 * @param {boolean} allow - True selects Allow; false selects Deny.
@@ -116,6 +123,15 @@ export async function launchFirefox( directory ) {
 			}
 			return result.value;
 		},
+		/**
+		 * Selects a real HTML option through Marionette's native option click behavior.
+		 * @param {string} view - Selected document, popup, or onboarding view.
+		 * @param {string} selector - Native select control's CSS selector.
+		 * @param {string} value - Exact option value to choose.
+		 * @return {Promise<unknown>} Completion of the native option interaction.
+		 */
+		viewSelect: ( view, selector, value ) =>
+			driver.viewClick( view, `${ selector } option[value=${ JSON.stringify( value ) }]` ),
 		/**
 		 * Sends genuine WebDriver keyboard input to the requested control.
 		 * @param {string} view - Selected document, popup, or onboarding view.

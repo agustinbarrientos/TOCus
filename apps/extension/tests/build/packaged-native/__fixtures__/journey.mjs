@@ -161,6 +161,17 @@ export async function openPopup( browser ) {
 }
 
 /**
+ * Reopens an action popup only when a native permission prompt dismissed it.
+ * @param {object} browser - Installed browser driver.
+ * @since 1.0.1
+ */
+export async function ensurePopup( browser ) {
+	if ( ! await browser.isPopupOpen() ) {
+		await openPopup( browser );
+	}
+}
+
+/**
  * Protects the local destination through the real toolbar and native Allow decision.
  * @param {object} browser - Installed browser driver.
  * @param {string} url - Actual local destination.
@@ -172,7 +183,7 @@ export async function enroll( browser, url ) {
 	await openPopup( browser );
 	await browser.viewClick( 'popup', 'button' );
 	await browser.consent( true );
-	await expect.poll( () => protectionState( browser, 'popup' ) ).toEqual( { origins: [ '*://127.0.0.1/*' ], navigation: true, sites: [ '127.0.0.1' ], rules: 1 } );
+	await expect.poll( () => protectionState( browser, 'onboarding' ) ).toEqual( { origins: [ '*://127.0.0.1/*' ], navigation: true, sites: [ '127.0.0.1' ], rules: 1 } );
 	await browser.closePopup();
 }
 
@@ -226,16 +237,20 @@ export async function fill( browser, selector, value ) {
  * @since 1.0.1
  */
 export async function setSelect( browser, selector, value ) {
-	const index = await browser.viewScript( 'selected', `return [...document.querySelector(arguments[0]).options]
-		.filter(option => !option.disabled).findIndex(option => option.value === arguments[1]);`, [ selector, value ] );
-	if ( index < 0 ) {
-		throw new Error( `Missing select option ${ value }` );
+	if ( browser.viewSelect ) {
+		await browser.viewSelect( 'selected', selector, value );
+	} else {
+		const index = await browser.viewScript( 'selected', `return [...document.querySelector(arguments[0]).options]
+			.filter(option => !option.disabled).findIndex(option => option.value === arguments[1]);`, [ selector, value ] );
+		if ( index < 0 ) {
+			throw new Error( `Missing select option ${ value }` );
+		}
+		await browser.viewKey( 'selected', selector, 'Home' );
+		for ( let position = 0; position < index; position += 1 ) {
+			await browser.viewKey( 'selected', selector, 'ArrowDown' );
+		}
+		await browser.viewKey( 'selected', selector, 'Enter' );
 	}
-	await browser.viewKey( 'selected', selector, 'Home' );
-	for ( let position = 0; position < index; position += 1 ) {
-		await browser.viewKey( 'selected', selector, 'ArrowDown' );
-	}
-	await browser.viewKey( 'selected', selector, 'Enter' );
 	await expect.poll( () => browser.viewScript( 'selected', 'return document.querySelector(arguments[0]).value;', [ selector ] ) ).toBe( value );
 }
 

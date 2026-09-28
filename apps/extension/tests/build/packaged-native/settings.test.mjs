@@ -57,7 +57,17 @@ async function unpausedVisit( browser, url ) {
 	await browser.openPage( url );
 	await expect.poll( () => browser.currentUrl() ).toBe( url );
 	await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Protected destination' );
-	await expect.poll( () => readView( browser, 'selected', 'return Boolean(document.querySelector("tocus-f-protected-page-layer")?.shadowRoot?.querySelector("dialog[open]"));' ) ).toBe( false );
+	const presentation = await browser.viewScript( 'onboarding', `return browser.tabs.query({active:true,currentWindow:true})
+		.then(async ([tab]) => ({url: tab.url, status: await browser.tabs.sendMessage(tab.id,
+			{type:'get-protected-page-presentation-status'}).catch(error => {
+				if (error.message.includes('Receiving end does not exist')) return {interruptionLayerPresented:false};
+				throw error;
+			})}));` );
+	expect( presentation.url ).toBe( url );
+	expect( presentation.status.interruptionLayerPresented ).toBe( false );
+	await fill( browser, 'input[aria-label="Preserved text"]', 'Schedule permits this visit' );
+	expect( await readView( browser, 'selected', 'return document.querySelector("input").value;' ) )
+		.toBe( 'Schedule permits this visit' );
 	await browser.closePage();
 }
 
@@ -69,7 +79,8 @@ async function unpausedVisit( browser, url ) {
 async function pausedVisit( browser, url ) {
 	await browser.openPage( url );
 	await expect.poll( () => browser.currentUrl() ).toContain( '/pause.html' );
-	await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("tocus-f-interruption-screen")?.getAttribute("state");' ) ).toBe( 'waiting' );
+	await expect.poll( () => readView( browser, 'selected', `return Boolean(document.querySelector('tocus-f-interruption-screen')
+		?.shadowRoot?.querySelector('#breathing-cue, .continue-button'));` ) ).toBe( true );
 	await browser.closePage();
 }
 
