@@ -2,6 +2,7 @@ import { execFile } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { cp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
+import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import puppeteer from 'puppeteer-core';
@@ -32,10 +33,13 @@ function installedExecutable( product ) {
  * Installs the untouched production artifact into the actual Chrome or Edge browser.
  * @param {string} directory - Temporary directory owned by this test.
  * @param {string} product - Required installed browser, chrome or edge.
+ * @param {object} [options] - Optional real-network fixture routing.
+ * @param {string} [options.hostname] - Exact fixture host to resolve to loopback in this browser only.
+ * @param {boolean} [options.https] - Whether the owned loopback server uses a disposable test certificate.
  * @return {Promise<object>} Real browser views, native consent, and cleanup commands.
  * @since 1.0.1
  */
-export async function launchNativeChromium( directory, product ) {
+export async function launchNativeChromium( directory, product, options = {} ) {
 	const profile = join( directory, 'profile' );
 	const extensionPath = join( directory, 'extension' );
 	let browser;
@@ -45,23 +49,71 @@ export async function launchNativeChromium( directory, product ) {
 	let closed;
 	const errors = [];
 	const permissionDecisions = [];
-	const observedPages = new WeakSet();
+	const observations = new Map();
+	const pendingExceptions = [];
 	const tabPages = new Map();
 
 	/**
-	 * Collects errors from unchanged production extension documents only.
-	 * @param {import('puppeteer-core').Page} page - Browser page to observe.
+	 * Bounds individual native commands without changing explicit real-time expiry polling.
+	 * @param {import('puppeteer-core').Page} page - Actual page whose command deadlines are configured.
+	 * @return {import('puppeteer-core').Page} The same page with bounded test waits.
 	 */
-	function observePage( page ) {
-		if ( observedPages.has( page ) ) {
+	function configurePage( page ) {
+		page.setDefaultTimeout( 15_000 );
+		page.setDefaultNavigationTimeout( 15_000 );
+		return page;
+	}
+
+	/**
+	 * Collects script locations across synchronous and asynchronous exception stacks.
+	 * @param {object | undefined} stack - Protocol stack trace, including optional parent stacks.
+	 * @return {string[]} Script URLs reported by the actual runtime.
+	 */
+	function stackSources( stack ) {
+		return stack ? [ ...stack.callFrames.map( ( frame ) => frame.url ), ...stackSources( stack.parent ) ] : [];
+	}
+
+	/**
+	 * Records only exceptions whose actual script source belongs to this installed artifact.
+	 * @param {object} details - Native Runtime.exceptionThrown exception details.
+	 * @param {string} targetUrl - Browser document or worker that reported the exception.
+	 */
+	function recordException( details, targetUrl ) {
+		if ( ! extensionId ) {
+			pendingExceptions.push( { details, targetUrl } );
 			return;
 		}
-		observedPages.add( page );
-		page.on( 'pageerror', ( error ) => {
-			if ( page.url().startsWith( `chrome-extension://${ extensionId }/` ) ) {
-				errors.push( { url: page.url(), message: error.message } );
-			}
-		} );
+		const source = [ details.url, ...stackSources( details.stackTrace ) ]
+			.find( ( url ) => url?.startsWith( extensionUrl( '' ) ) );
+		if ( source ) {
+			errors.push( { url: source, targetUrl, message: details.exception?.description ?? details.text,
+				line: details.lineNumber + 1, column: details.columnNumber + 1 } );
+		}
+	}
+
+	/**
+	 * Observes uncaught runtime errors in real pages, isolated content worlds, and workers.
+	 * @param {import('puppeteer-core').Target} target - Actual browser page or service-worker target.
+	 * @return {Promise<void>} Completion when runtime diagnostics are enabled for the target.
+	 */
+	function observeTarget( target ) {
+		if ( ! observations.has( target ) ) {
+			observations.set( target, ( async () => {
+				if ( ! [ 'page', 'service_worker' ].includes( target.type() ) ) {
+					return;
+				}
+				try {
+					const session = await target.createCDPSession();
+					session.on( 'Runtime.exceptionThrown', ( { exceptionDetails } ) => {
+						recordException( exceptionDetails, target.url() );
+					} );
+					await session.send( 'Runtime.enable' );
+				} catch ( error ) {
+					errors.push( { url: target.url(), message: `Runtime observation failed: ${ error.message }` } );
+				}
+			} )() );
+		}
+		return observations.get( target );
 	}
 
 	/**
@@ -104,7 +156,8 @@ export async function launchNativeChromium( directory, product ) {
 		}
 		const target = await browser.waitForTarget( ( candidate ) =>
 			candidate.type() === 'page' && candidate.url() === url, { timeout: 10_000 } );
-		const page = await target.asPage();
+		const page = configurePage( await target.asPage() );
+		await observeTarget( target );
 		tabPages.set( tab.id, page );
 		return page;
 	}
@@ -126,7 +179,7 @@ export async function launchNativeChromium( directory, product ) {
 		}
 		if ( view === 'onboarding' ) {
 			const target = await browser.waitForTarget( ( candidate ) => candidate.url() === extensionUrl( 'onboarding.html' ), { timeout: 10_000 } );
-			return target.asPage();
+			return configurePage( await target.asPage() );
 		}
 		throw new Error( `Unknown installed browser view: ${ view }` );
 	}
@@ -150,7 +203,57 @@ export async function launchNativeChromium( directory, product ) {
 	 * @return {Promise<void>} Completion of the input operation.
 	 */
 	async function viewClick( view, selector ) {
-		await ( await pageForView( view ) ).locator( selector ).click();
+		const page = await pageForView( view );
+		const deadline = Date.now() + 15_000;
+		let readiness;
+		do {
+			const element = await page.locator( selector )
+				.setTimeout( Math.max( 1, deadline - Date.now() ) ).waitHandle();
+			try {
+				if ( ! await element.isIntersectingViewport( { threshold: 1 } ) ) {
+					await element.scrollIntoView();
+				}
+				const point = await element.clickablePoint();
+				readiness = await element.evaluate( async ( target, coordinate ) => {
+					const before = target.getBoundingClientRect().toJSON();
+					await new Promise( ( resolve ) => {
+						globalThis.requestAnimationFrame( () => globalThis.requestAnimationFrame( resolve ) );
+					} );
+					const after = target.getBoundingClientRect().toJSON();
+					if ( ! target.isConnected || JSON.stringify( before ) !== JSON.stringify( after ) ) {
+						return { ready: false, reason: 'The control is detached or still moving.' };
+					}
+					if ( target.matches( ':disabled' ) || target.getAttribute( 'aria-disabled' ) === 'true' ) {
+						return { ready: false, reason: 'The control is disabled.' };
+					}
+					let hit = target.ownerDocument.elementFromPoint( coordinate.x, coordinate.y );
+					while ( hit?.shadowRoot ) {
+						const inner = hit.shadowRoot.elementFromPoint( coordinate.x, coordinate.y );
+						if ( ! inner || inner === hit ) {
+							break;
+						}
+						hit = inner;
+					}
+					let candidate = hit;
+					while ( candidate ) {
+						if ( candidate === target || target.contains( candidate ) ) {
+							return { ready: true };
+						}
+						candidate = candidate.getRootNode().host;
+					}
+					return { ready: false, reason: `Click center is covered by ${ hit?.tagName ?? 'no element' }.` };
+				}, point );
+				if ( readiness.ready ) {
+					// Send exactly one trusted click at the same point checked above.
+					await page.mouse.click( point.x, point.y );
+					return;
+				}
+			} finally {
+				await element.dispose();
+			}
+			await delay( 50 );
+		} while ( Date.now() < deadline );
+		throw new Error( `Native click did not become actionable: ${ selector }. ${ readiness?.reason }` );
 	}
 
 	/**
@@ -193,7 +296,8 @@ export async function launchNativeChromium( directory, product ) {
 	 * @return {Promise<void>} Completion of initial navigation.
 	 */
 	async function openPage( url ) {
-		const page = await browser.newPage();
+		const page = configurePage( await browser.newPage() );
+		await observeTarget( page.target() );
 		await page.bringToFront();
 		tabPages.set( ( await activeTab() ).id, page );
 		await page.goto( url );
@@ -239,7 +343,8 @@ export async function launchNativeChromium( directory, product ) {
 		await site.triggerExtensionAction( extension );
 		const target = await browser.waitForTarget( ( candidate ) =>
 			candidate.url() === extensionUrl( 'popup.html' ), { timeout: 10_000 } );
-		popup = await target.asPage();
+		popup = configurePage( await target.asPage() );
+		await observeTarget( target );
 		await popup.waitForSelector( '.popup-view', { visible: true } );
 		const contexts = await popup.evaluate( () => globalThis.chrome.runtime.getContexts( {
 			documentUrls: [ globalThis.location.href ],
@@ -269,6 +374,7 @@ export async function launchNativeChromium( directory, product ) {
 	 * @return {Promise<object>} Production errors, native decisions, and browser view state.
 	 */
 	async function diagnostics() {
+		await Promise.all( observations.values() );
 		const pages = [];
 		for ( const page of await browser.pages() ) {
 			try {
@@ -326,31 +432,32 @@ export async function launchNativeChromium( directory, product ) {
 	}
 
 	try {
+		if ( options.hostname && ! /^[a-z0-9.-]+$/u.test( options.hostname ) ) {
+			throw new Error( `Invalid loopback fixture hostname: ${ options.hostname }` );
+		}
 		const executablePath = installedExecutable( product );
 		await cp( fileURLToPath( new URL( `../../../../.output/${ product }-mv3/`, import.meta.url ) ), extensionPath, { recursive: true } );
 		browser = await puppeteer.launch( {
 			executablePath, userDataDir: profile, headless: false, defaultViewport: null,
+			acceptInsecureCerts: Boolean( options.hostname && options.https ),
 			...( process.platform === 'linux' ? {
 				env: { ...process.env, ACCESSIBILITY_ENABLED: '1', NO_AT_BRIDGE: '0' },
 			} : {} ),
-			enableExtensions: true, pipe: true, timeout: 15_000,
+			enableExtensions: true, pipe: true, timeout: 15_000, protocolTimeout: 15_000,
 			args: [ '--enable-unsafe-extension-debugging', '--disable-crash-reporter', '--lang=en-US', '--force-renderer-accessibility',
+				...( options.hostname ? [ `--host-resolver-rules=MAP ${ options.hostname } 127.0.0.1` ] : [] ),
 				...( process.env.CI ? [ '--no-sandbox' ] : [] ) ],
 		} );
-		browser.on( 'targetcreated', ( target ) => {
-			if ( target.type() === 'page' ) {
-				void target.asPage().then( observePage ).catch( ( error ) => {
-					if ( ! error.message.includes( 'Target closed' ) ) {
-						errors.push( { url: target.url(), message: `Page observation failed: ${ error.message }` } );
-					}
-				} );
-			}
-		} );
+		browser.on( 'targetcreated', ( target ) => void observeTarget( target ) );
 		extensionId = await browser.installExtension( extensionPath );
+		for ( const { details, targetUrl } of pendingExceptions.splice( 0 ) ) {
+			recordException( details, targetUrl );
+		}
+		await Promise.all( observations.values() );
 		extension = ( await browser.extensions() ).get( extensionId );
 		const onboardingTarget = await browser.waitForTarget( ( candidate ) =>
 			candidate.url() === extensionUrl( 'onboarding.html' ), { timeout: 10_000 } );
-		const onboarding = await onboardingTarget.asPage();
+		const onboarding = configurePage( await onboardingTarget.asPage() );
 		await onboarding.bringToFront();
 		tabPages.set( ( await activeTab() ).id, onboarding );
 		return {
