@@ -15,7 +15,7 @@
 body {
 	@include typography.apply( 'body-medium' );
 
-	width: min(22rem, 100vw);
+	width: 22rem;
 	margin: 0;
 	background: var(--tocus-color-surface-lowest);
 }

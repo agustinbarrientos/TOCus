@@ -3,6 +3,8 @@
 ## 1.0.1
 
 - Fix a Firefox navigation loop that prevented websites from opening after Continue.
+- Fix toolbar popup sizing so its controls remain visible in Firefox, Chrome, and Edge.
+- Report website access that remains after a permission removal.
 
 ## 1.0.0
 
