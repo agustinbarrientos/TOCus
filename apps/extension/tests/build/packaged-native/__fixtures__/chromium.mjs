@@ -2,7 +2,6 @@ import { execFile } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { cp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
-import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import puppeteer from 'puppeteer-core';
@@ -47,6 +46,7 @@ export async function launchNativeChromium( directory, product ) {
 	const errors = [];
 	const permissionDecisions = [];
 	const observedPages = new WeakSet();
+	const tabPages = new Map();
 
 	/**
 	 * Collects errors from unchanged production extension documents only.
@@ -74,29 +74,39 @@ export async function launchNativeChromium( directory, product ) {
 	}
 
 	/**
-	 * Resolves the visible tab without requiring optional access to website URLs.
+	 * Reads the native active tab identity without requiring permission to read its URL.
+	 * @return {Promise<object>} Actual active tab metadata.
+	 */
+	async function activeTab() {
+		const target = await browser.waitForTarget( ( candidate ) => candidate.type() === 'service_worker' &&
+			candidate.url() === extensionUrl( 'background.js' ), { timeout: 10_000 } );
+		const worker = await target.worker();
+		const [ tab ] = await worker.evaluate( () => globalThis.chrome.tabs.query( { active: true } ) );
+		if ( ! tab ) {
+			throw new Error( 'The installed browser has no native active tab.' );
+		}
+		return tab;
+	}
+
+	/**
+	 * Resolves actual tab selection without relying on desktop window visibility.
 	 * @return {Promise<import('puppeteer-core').Page>} Actual selected document.
 	 */
 	async function selectedPage() {
-		const deadline = Date.now() + 10_000;
-		do {
-			for ( const page of await browser.pages() ) {
-				if ( page.url() === extensionUrl( 'popup.html' ) || page.isClosed() ) {
-					continue;
-				}
-				try {
-					if ( await page.evaluate( () => globalThis.document.visibilityState === 'visible' ) ) {
-						return page;
-					}
-				} catch ( error ) {
-					if ( ! page.isClosed() && ! error.message.includes( 'Execution context was destroyed' ) ) {
-						throw error;
-					}
-				}
-			}
-			await delay( 50 );
-		} while ( Date.now() < deadline );
-		throw new Error( 'The installed browser has no visible selected tab.' );
+		const tab = await activeTab();
+		const known = tabPages.get( tab.id );
+		if ( known && ! known.isClosed() ) {
+			return known;
+		}
+		const url = tab.url ?? tab.pendingUrl;
+		if ( ! url ) {
+			throw new Error( `The active native tab has no mapped page: ${ JSON.stringify( tab ) }` );
+		}
+		const target = await browser.waitForTarget( ( candidate ) =>
+			candidate.type() === 'page' && candidate.url() === url, { timeout: 10_000 } );
+		const page = await target.asPage();
+		tabPages.set( tab.id, page );
+		return page;
 	}
 
 	/**
@@ -185,6 +195,7 @@ export async function launchNativeChromium( directory, product ) {
 	async function openPage( url ) {
 		const page = await browser.newPage();
 		await page.bringToFront();
+		tabPages.set( ( await activeTab() ).id, page );
 		await page.goto( url );
 	}
 
@@ -254,6 +265,28 @@ export async function launchNativeChromium( directory, product ) {
 	}
 
 	/**
+	 * Captures each actual document and native consent evidence for CI failures.
+	 * @return {Promise<object>} Production errors, native decisions, and browser view state.
+	 */
+	async function diagnostics() {
+		const pages = [];
+		for ( const page of await browser.pages() ) {
+			try {
+				pages.push( await page.evaluate( () => ( {
+					url: globalThis.location.href, visibility: globalThis.document.visibilityState,
+					focused: globalThis.document.hasFocus(), ready: globalThis.document.readyState,
+					text: globalThis.document.body?.innerText.slice( 0, 2_000 ),
+				} ) ) );
+			} catch ( error ) {
+				pages.push( { url: page.url(), error: error.message } );
+			}
+		}
+		return { errors, permissionDecisions, pages,
+			activeTab: await activeTab().catch( ( error ) => ( { error: error.message } ) ),
+			popupOpen: isPopupOpen() };
+	}
+
+	/**
 	 * Chooses an enabled native permission button belonging only to this test browser.
 	 * @param {boolean} allow - True selects Allow, false selects Cancel or Deny.
 	 * @return {Promise<object>} Native control evidence, including the selected label.
@@ -315,11 +348,15 @@ export async function launchNativeChromium( directory, product ) {
 		} );
 		extensionId = await browser.installExtension( extensionPath );
 		extension = ( await browser.extensions() ).get( extensionId );
-		await browser.waitForTarget( ( candidate ) => candidate.url() === extensionUrl( 'onboarding.html' ), { timeout: 10_000 } );
+		const onboardingTarget = await browser.waitForTarget( ( candidate ) =>
+			candidate.url() === extensionUrl( 'onboarding.html' ), { timeout: 10_000 } );
+		const onboarding = await onboardingTarget.asPage();
+		await onboarding.bringToFront();
+		tabPages.set( ( await activeTab() ).id, onboarding );
 		return {
 			browser, extensionId, version: await browser.version(), errors, permissionDecisions, extensionUrl,
 			openPage, navigate, currentUrl, reload, closePage, openPopup, closePopup, isPopupOpen, consent,
-			viewScript, viewClick, viewType, viewKey, close,
+			viewScript, viewClick, viewType, viewKey, diagnostics, close,
 		};
 	} catch ( error ) {
 		await close();
