@@ -207,7 +207,7 @@ export async function launchNativeChromium( directory, product, options = {} ) {
 		const deadline = Date.now() + 15_000;
 		let readiness;
 		do {
-			const element = await page.locator( selector )
+			const element = await page.locator( selector ).setVisibility( 'visible' )
 				.setTimeout( Math.max( 1, deadline - Date.now() ) ).waitHandle();
 			try {
 				if ( ! await element.isIntersectingViewport( { threshold: 1 } ) ) {
