@@ -19,6 +19,32 @@ function stored( browser, key ) {
 }
 
 /**
+ * Accepts deletion or a fresh empty aggregate recreated by background reconciliation.
+ * @param {object | null} statistics - Statistics read from real extension storage after reset.
+ * @param {string} previousGeneration - Identity of the document containing the recorded visit.
+ */
+function expectClearedStatistics( statistics, previousGeneration ) {
+	if ( statistics === null ) {
+		return;
+	}
+	expect( statistics ).toEqual( {
+		schemaVersion: 2,
+		generationId: expect.stringMatching( /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu ),
+		lastAppliedBatchId: null,
+		firstRecordedDate: null,
+		dailyTotals: [],
+		scopes: {
+			scope_default: {
+				currentMeasurementRevision: 'revision_initial_scope_default',
+				totals: { allowanceGrantedCount: 0, completedWaitCount: 0,
+					estimatedReclaimedMilliseconds: 0, focusedPauseMilliseconds: 0, reconsideredVisitCount: 0 },
+			},
+		},
+	} );
+	expect( statistics.generationId ).not.toBe( previousGeneration );
+}
+
+/**
  * Waits for a mounted visible control before sending one native input action.
  * @param {object} browser - Installed browser driver.
  * @param {string} selector - Product control selector.
@@ -343,6 +369,10 @@ test( 'Privacy reset requires confirmation and clears real grants, settings and 
 		await fill( browser, 'input[aria-label="Preserved text"]', 'Keep this tab' );
 		await settings( browser, 'privacy' );
 		await visible( browser, '.settings-privacy-reset' );
+		await expect.poll( () => stored( browser, 'tocus.statistics.v1' ) ).toMatchObject( {
+			scopes: { scope_default: { totals: { completedWaitCount: 1, allowanceGrantedCount: 1 } } },
+		} );
+		const previousStatistics = await stored( browser, 'tocus.statistics.v1' );
 		const tabs = await browser.viewScript( 'selected', 'return Promise.all([browser.tabs.getCurrent(), browser.tabs.query({})]).then(([current, all]) => ({current: current.id, ids: all.map(tab => tab.id)}));' );
 		const before = await stored( browser, configurationKey );
 		await clickButton( browser, 'Reset all TOCus data', '.settings-page' );
@@ -359,7 +389,7 @@ test( 'Privacy reset requires confirmation and clears real grants, settings and 
 		await expect.poll( () => protectionState( browser ) )
 			.toEqual( { origins: [], navigation: false, sites: [], rules: 0 } );
 		expect( await stored( browser, preferencesKey ) ).toBeNull();
-		expect( await stored( browser, 'tocus.statistics.v1' ) ).toBeNull();
+		expectClearedStatistics( await stored( browser, 'tocus.statistics.v1' ), previousStatistics.generationId );
 		expect( await stored( browser, configurationKey ) ).toBeNull();
 		const remaining = await browser.viewScript( 'selected', 'return browser.tabs.query({}).then(tabs => tabs.map(tab => tab.id));' );
 		expect( remaining ).not.toContain( tabs.current );
@@ -370,5 +400,6 @@ test( 'Privacy reset requires confirmation and clears real grants, settings and 
 		await reload( browser );
 		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Choose your language' );
 		expect( await readView( browser, 'selected', 'return document.body.innerText;' ) ).not.toContain( 'All TOCus data reset.' );
+		expectClearedStatistics( await stored( browser, 'tocus.statistics.v1' ), previousStatistics.generationId );
 	} );
 } );
