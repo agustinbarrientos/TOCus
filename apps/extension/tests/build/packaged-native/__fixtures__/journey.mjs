@@ -205,6 +205,8 @@ export async function withBrowser( run, options = {} ) {
  */
 export async function openPopup( browser, hostname = '127.0.0.1' ) {
 	await browser.openPopup();
+	// Firefox can render a preloaded popup before its panel finishes opening, and input fails until it does.
+	await expect.poll( () => browser.isPopupOpen() ).toBe( true );
 	await expect.poll( () => readView( browser, 'popup', 'return document.querySelector(".popup-site-host")?.textContent;' ) ).toBe( hostname );
 }
 
