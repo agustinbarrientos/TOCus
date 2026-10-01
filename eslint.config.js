@@ -253,7 +253,8 @@ export default tseslint.config(
 	},
 	{
 		files: sourceFiles,
-		ignores: testFiles,
+		// The website isn't versioned like the extension, so its code has no @since versions.
+		ignores: [ ...testFiles, 'apps/website/**' ],
 		plugins: { jsdoc },
 		rules: {
 			'jsdoc/require-tags': [

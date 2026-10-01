@@ -1,0 +1,10 @@
+---
+import { createStructuredData } from '../../services/structured-data';
+import type { StructuredDataProperties as Props } from './types';
+
+const { localization } = Astro.props;
+// Escaping "<" keeps the JSON from ever closing its own script element.
+const json = JSON.stringify( createStructuredData( localization, new URL( '/', Astro.site ) ) ).replace( /</gu, '\\u003c' );
+---
+
+<script type="application/ld+json" is:inline set:html={json} />
