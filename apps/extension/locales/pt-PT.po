@@ -436,7 +436,6 @@ msgstr "Dia"
 msgid "Deutsch"
 msgstr "Deutsch"
 
-#: apps/extension/src/localization/utils/create-about-screen-copy/index.test.ts
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "Developed by {name}"
 msgstr "Desenvolvido por {name}"
@@ -965,7 +964,6 @@ msgstr "Alguns dados diários não estão disponíveis, mas continuam incluídos
 msgid "Something went wrong while adding that site. Try again."
 msgstr "Ocorreu um problema ao adicionar esse site. Volte a tentar."
 
-#: apps/extension/src/localization/utils/create-about-screen-copy/index.test.ts
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "Source code"
 msgstr "Código-fonte"
