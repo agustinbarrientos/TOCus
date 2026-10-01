@@ -356,6 +356,29 @@ describe( 'protected-page layer controller', () => {
 		expect( scheduler.getTimeoutCallback( 50_000 ) ).toBe( warningStart );
 	} );
 
+	it( 'keeps an active warning that ends at its schedule boundary without replacing its callbacks', async () => {
+		const { clock, controller, scheduler, view } = createHarness();
+		const message = {
+			type: ProtectedPageMessageType.SYNCHRONIZE_ALLOWANCE_EXPIRY_GUARD,
+			allowanceId: 'allowance_1',
+			expiresAtEpochMilliseconds: 61_000,
+			warningStartsAtEpochMilliseconds: 51_000,
+			warningEndsAtEpochMilliseconds: 56_000,
+		} as const;
+
+		await controller.handleMessage( message );
+		const expiry = scheduler.getTimeoutCallback( 60_000 );
+		clock.now = 51_000;
+		scheduler.getTimeoutCallback( 50_000 )?.();
+		const warningEnd = scheduler.getTimeoutCallback( 5_000 );
+		await controller.handleMessage( message );
+
+		expect( scheduler.getTimeoutCallback( 60_000 ) ).toBe( expiry );
+		expect( scheduler.getTimeoutCallback( 5_000 ) ).toBe( warningEnd );
+		expect( scheduler.getTimeoutCallback( 10_000 ) ).toBeNull();
+		expect( view.warningRemainingSeconds ).toBe( 10 );
+	} );
+
 	it( 'ignores a stale expiry callback after the same allowance receives a newer expiry', async () => {
 		const { controller, reconcileAllowanceExpiry, scheduler } = createHarness();
 
