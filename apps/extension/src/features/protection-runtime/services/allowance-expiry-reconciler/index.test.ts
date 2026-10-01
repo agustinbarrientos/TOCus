@@ -542,6 +542,24 @@ describe( 'createAllowanceExpiryReconciler', () => {
 		expect( harness.createStableId ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( 'uses an inactive schedule when every website is outside its active hours at expiry', async () => {
+		const expiredAllowance = createTestAllowanceState( NOW_EPOCH_MILLISECONDS );
+		const harness = createReconcilerHarness( { [ DefaultProtectionScopeId ]: expiredAllowance } );
+		const configuration = { ...TestEmptyProtectionConfiguration, sites: [
+			{ identityHost: 'example.com', rule: { host: 'example.com', includeSubdomains: true,
+				scopeId: DefaultProtectionScopeId },
+			schedule: { mode: ScheduleMode.CUSTOM, windows: [ { weekday: Weekday.WEDNESDAY,
+				startMinute: 780, endMinute: 840 } ] } },
+		] };
+
+		await harness.reconciler.reconcile( configuration );
+
+		expect( harness.events[ 0 ] ).toMatchObject( {
+			type: ProtectionEventType.ALLOWANCE_EXPIRY,
+			schedule: { status: ScheduleEvaluationStatus.INACTIVE },
+		} );
+	} );
+
 	it( 'falls back from a different current state while preparing the expiry event', async () => {
 		const expiredAllowance = createTestAllowanceState( NOW_EPOCH_MILLISECONDS );
 		const idleState = {

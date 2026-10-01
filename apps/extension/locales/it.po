@@ -436,7 +436,6 @@ msgstr "Giorno"
 msgid "Deutsch"
 msgstr "Deutsch"
 
-#: apps/extension/src/localization/utils/create-about-screen-copy/index.test.ts
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "Developed by {name}"
 msgstr "Sviluppato da {name}"
@@ -965,7 +964,6 @@ msgstr "Alcuni dati giornalieri non sono disponibili, ma restano inclusi nei tot
 msgid "Something went wrong while adding that site. Try again."
 msgstr "Si è verificato un problema durante l'aggiunta del sito. Riprova."
 
-#: apps/extension/src/localization/utils/create-about-screen-copy/index.test.ts
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "Source code"
 msgstr "Codice sorgente"

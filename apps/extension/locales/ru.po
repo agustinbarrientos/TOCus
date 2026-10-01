@@ -436,7 +436,6 @@ msgstr "День недели"
 msgid "Deutsch"
 msgstr "Deutsch"
 
-#: apps/extension/src/localization/utils/create-about-screen-copy/index.test.ts
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "Developed by {name}"
 msgstr "Разработчик — {name}"
@@ -965,7 +964,6 @@ msgstr "Некоторые данные по дням недоступны, но
 msgid "Something went wrong while adding that site. Try again."
 msgstr "При добавлении сайта произошла ошибка. Попробуйте ещё раз."
 
-#: apps/extension/src/localization/utils/create-about-screen-copy/index.test.ts
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "Source code"
 msgstr "Исходный код"

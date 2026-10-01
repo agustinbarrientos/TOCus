@@ -190,9 +190,10 @@ export async function launchFirefox( directory, options = {} ) {
 				const source = entry.url.slice( origin.length );
 				// ExtensionCommon.wrapPromise reports these browser lifecycle states after view replacement.
 				// Continue and navigation replace content documents; native prompts can dismiss popup views.
+				// Every file under chunks/ is page code, including modules several pages share, like the statistics client.
 				if ( ( entry.message === "Promise rejected after context unloaded: Actor 'Conduits' destroyed before query 'RuntimeMessage' was resolved\n"
 					|| entry.message === 'Promise resolved after context unloaded\n' )
-					&& ( /^chunks\/(?:interruption|options|popup)-[^/]+\.js$/u.test( source ) || source === 'protected-page.js' ) ) {
+					&& ( /^chunks\/[^/]+\.js$/u.test( source ) || source === 'protected-page.js' ) ) {
 					unloadedContexts.push( entry );
 				} else if ( source === 'protected-page.js' && entry.message === 'Promise resolved while context is inactive\n' ) {
 					inactiveContexts.push( entry );

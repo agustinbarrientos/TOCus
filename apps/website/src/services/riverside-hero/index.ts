@@ -1,7 +1,7 @@
 import {
 	ACESFilmicToneMapping, AnimationMixer, BufferAttribute, BufferGeometry, DirectionalLight,
 	InterleavedBufferAttribute, Mesh,
-	type Object3D, PCFSoftShadowMap, PerspectiveCamera,
+	type Object3D, PCFShadowMap, PerspectiveCamera,
 	Plane, Raycaster, Scene, SRGBColorSpace, Vector2, Vector3, WebGLRenderer,
 } from 'three';
 import { disposeObjectResources } from './dispose';
@@ -28,7 +28,7 @@ export function createRiversideHero( canvas: HTMLCanvasElement, onStatus: HeroLi
 	renderer.toneMapping = ACESFilmicToneMapping;
 	renderer.toneMappingExposure = 1.05;
 	renderer.shadowMap.enabled = true;
-	renderer.shadowMap.type = PCFSoftShadowMap;
+	renderer.shadowMap.type = PCFShadowMap;
 	const scene = new Scene();
 	const camera = new PerspectiveCamera( HeroCamera.FOV, 1, 0.1, 1400 );
 	const environment = createEnvironment();
