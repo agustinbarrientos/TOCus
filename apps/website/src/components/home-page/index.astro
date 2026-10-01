@@ -4,6 +4,7 @@ import '../../styles/global.scss';
 import HomePage from './page';
 import Favicon from '../favicon/index.astro';
 import SocialMetadata from '../social-metadata/index.astro';
+import StructuredData from '../structured-data/index.astro';
 import { type LocalizedHomePageProperties as Props } from '../../localization';
 
 const { localization, localizations } = Astro.props;
@@ -19,6 +20,7 @@ const { catalog } = localization;
 		<meta name="description" content={catalog.metadata.description} />
 		<SocialMetadata language={localization.language} title={`TOCus - ${catalog.intro}`}
 			description={catalog.description} imageAlt={catalog.intro} />
+		<StructuredData localization={localization} />
 		<Favicon />
 		<title>{`TOCus - ${catalog.intro}`}</title>
 		<link rel="alternate" hreflang="x-default" href="/" />
