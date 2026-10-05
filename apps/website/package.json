@@ -10,7 +10,7 @@
 	},
 	"dependencies": {
 		"@astrojs/react": "7.0.0",
-		"@lingui/core": "6.8.0",
+		"@lingui/core": "6.9.0",
 		"@tocus/theme": "workspace:*",
 		"@tocus/ui": "workspace:*",
 		"astro": "7.3.5",
@@ -23,6 +23,6 @@
 		"@types/react": "19.3.0",
 		"@types/react-dom": "19.3.0",
 		"@types/three": "^0.186.0",
-		"typescript": "6.0.3"
+		"typescript": "7.0.2"
 	}
 }

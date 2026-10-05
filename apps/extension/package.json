@@ -21,7 +21,7 @@
 		"postinstall": "wxt prepare"
 	},
 	"dependencies": {
-		"@lingui/core": "6.8.0",
+		"@lingui/core": "6.9.0",
 		"@tocus/theme": "workspace:*",
 		"@tocus/ui": "workspace:*",
 		"@webcomponents/custom-elements": "1.6.0",
@@ -45,8 +45,8 @@
 		"esbuild": "0.28.2",
 		"playwright": "1.63.0",
 		"sharp": "0.35.5",
-		"typescript": "6.0.3",
-		"vite": "8.3.1",
+		"typescript": "7.0.2",
+		"vite": "8.3.2",
 		"wxt": "0.21.4"
 	}
 }
