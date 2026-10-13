@@ -21,13 +21,13 @@
 		"postinstall": "wxt prepare"
 	},
 	"dependencies": {
-		"@lingui/core": "6.8.0",
+		"@lingui/core": "6.9.1",
 		"@tocus/theme": "workspace:*",
 		"@tocus/ui": "workspace:*",
 		"@webcomponents/custom-elements": "1.6.0",
 		"react": "19.3.0",
 		"react-dom": "19.3.0",
-		"tldts": "7.4.16",
+		"tldts": "7.4.18",
 		"zod": "4.6.5"
 	},
 	"devDependencies": {
@@ -41,12 +41,12 @@
 		"@web/test-runner-playwright": "1.0.0",
 		"@wxt-dev/auto-icons": "1.1.2",
 		"@wxt-dev/module-react": "1.2.2",
-		"axe-core": "4.13.0",
+		"axe-core": "4.14.0",
 		"esbuild": "0.28.2",
-		"playwright": "1.63.0",
+		"playwright": "1.64.0",
 		"sharp": "0.35.5",
-		"typescript": "6.0.3",
-		"vite": "8.3.1",
+		"typescript": "7.0.2",
+		"vite": "8.3.4",
 		"wxt": "0.21.4"
 	}
 }
