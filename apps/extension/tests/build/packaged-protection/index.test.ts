@@ -525,7 +525,7 @@ test.describe( 'packaged Chrome protection', () => {
 			const optionsUrl = await resetWorker.evaluate( async ( seed ) => {
 				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
 				await chrome.storage.local.set( seed );
-				return chrome.runtime.getURL( '/options.html#privacy' );
+				return chrome.runtime.getURL( '/options.html#backup-reset' );
 			}, {
 				'tocus.preferences.v1': { ...DefaultPreferencesDocument, palette: 'purple', language: 'en' },
 				'tocus.protection.configuration.v1': TestEmptyProtectionConfiguration,

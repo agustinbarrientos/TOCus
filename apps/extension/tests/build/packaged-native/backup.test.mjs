@@ -83,7 +83,7 @@ test( 'Portable backup round trip preserves real settings and history across den
 			await continuePause( browser );
 			await expect.poll( () => browser.currentUrl() ).toBe( `${ url }backup-history` );
 			await browser.closePage();
-			await settings( browser, 'privacy' );
+			await settings( browser, 'backup-reset' );
 			await clickButton( browser, 'Export backup', '.settings-backup' );
 			backup = await files.readBackup();
 			// Move away from hover-paused export feedback before starting the next decision.
@@ -121,7 +121,7 @@ test( 'Portable backup round trip preserves real settings and history across den
 		} );
 		// A fresh installation has no remembered grant that could suppress the native permission decision.
 		await withBrowser( async ( browser, url ) => {
-			await settings( browser, 'privacy' );
+			await settings( browser, 'backup-reset' );
 			await preview( browser, path );
 			await clickButton( browser, 'Replace settings and statistics', '[role=dialog]' );
 			await browser.consent( false );
@@ -196,7 +196,7 @@ test( 'Imports the exact downloaded backup from a different installed browser', 
 				await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed waits': '1', 'Allowances granted': '1' } );
 				expectedMetrics[ range ] = await metrics( browser );
 			}
-			await settings( browser, 'privacy' );
+			await settings( browser, 'backup-reset' );
 			await clickButton( browser, 'Export backup', '.settings-backup' );
 			const downloaded = await files.backupPath();
 			const bytes = await readFile( downloaded );
@@ -205,7 +205,7 @@ test( 'Imports the exact downloaded backup from a different installed browser', 
 			backup = JSON.parse( bytes.toString( 'utf8' ) );
 		}, { product: sourceProduct } );
 		await withBrowser( async ( browser, url ) => {
-			await settings( browser, 'privacy' );
+			await settings( browser, 'backup-reset' );
 			await preview( browser, path );
 			await clickButton( browser, 'Replace settings and statistics', '[role=dialog]' );
 			await browser.consent( true );
