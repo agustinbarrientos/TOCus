@@ -30,6 +30,19 @@ async function save( browser ) {
 }
 
 /**
+ * Waits for the authoritative statistics projection before selecting its native period control.
+ * @param {object} browser - Disposable installed browser.
+ * @param {string} range - Exact calendar range option.
+ */
+async function selectStatisticsRange( browser, range ) {
+	const selector = '.settings-statistics-period-select select';
+	await expect.poll( () => readView( browser, 'selected', `const select = document.querySelector(${ JSON.stringify( selector ) });
+		return select instanceof HTMLSelectElement && !select.disabled && select.getClientRects().length > 0 &&
+			[...select.options].some(option => option.value === ${ JSON.stringify( range ) } && !option.disabled);` ) ).toBe( true );
+	await setSelect( browser, selector, range );
+}
+
+/**
  * Uploads actual file bytes and waits for a readable production preview.
  * @param {object} browser - Disposable installed browser.
  * @param {string} path - Local backup selected by the native file input.
@@ -66,6 +79,9 @@ test( 'Portable backup round trip preserves real settings and history across den
 		await settings( browser, 'privacy' );
 		await clickButton( browser, 'Export backup', '.settings-backup' );
 		const backup = await files.readBackup();
+		// Move away from hover-paused export feedback before starting the next decision.
+		await browser.viewClick( 'selected', 'h1' );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector(".tocus-snackbar") === null;' ) ).toBe( true );
 		expect( backup ).toMatchObject( { application: 'TOCus', dataFormatVersion: '1.1.0',
 			settings: { sites: [ { displayNameOverride: 'Backup focus site' } ] },
 			preferences: { theme: 'dark', palette: 'purple', pauseMode: 'quiet' },
@@ -113,7 +129,7 @@ test( 'Portable backup round trip preserves real settings and history across den
 		await settings( browser, 'statistics' );
 		await reload( browser );
 		for ( const range of [ 'current-week', 'current-month', 'all-time' ] ) {
-			await setSelect( browser, '.settings-statistics-period-select select', range );
+			await selectStatisticsRange( browser, range );
 			await expect.poll( () => metrics( browser ) ).toMatchObject( {
 				'Completed waits': '1', 'Allowances granted': '1', 'Reconsidered visits': '0',
 			} );
@@ -157,7 +173,7 @@ test( 'Imports the exact downloaded backup from a different installed browser', 
 			await browser.closePage();
 			await settings( browser, 'statistics' );
 			for ( const range of [ 'current-week', 'current-month', 'all-time' ] ) {
-				await setSelect( browser, '.settings-statistics-period-select select', range );
+				await selectStatisticsRange( browser, range );
 				await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed waits': '1', 'Allowances granted': '1' } );
 				expectedMetrics[ range ] = await metrics( browser );
 			}
@@ -191,7 +207,7 @@ test( 'Imports the exact downloaded backup from a different installed browser', 
 			await settings( browser, 'statistics' );
 			await reload( browser );
 			for ( const range of [ 'current-week', 'current-month', 'all-time' ] ) {
-				await setSelect( browser, '.settings-statistics-period-select select', range );
+				await selectStatisticsRange( browser, range );
 				await expect.poll( () => metrics( browser ) ).toEqual( expectedMetrics[ range ] );
 			}
 			await browser.openPage( `${ url }portable-protection` );

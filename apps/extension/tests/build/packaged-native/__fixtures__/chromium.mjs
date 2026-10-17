@@ -494,7 +494,7 @@ export async function launchNativeChromium( directory, product, options = {} ) {
 		} );
 		const downloadSession = await browser.target().createCDPSession();
 		await downloadSession.send( 'Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: downloadDirectory } );
-		await downloadSession.detach();
+		// The protocol session owns this override; browser shutdown releases it after the download journeys finish.
 		browser.on( 'targetcreated', ( target ) => void observeTarget( target ) );
 		extensionId = await browser.installExtension( extensionPath );
 		for ( const { details, targetUrl } of pendingExceptions.splice( 0 ) ) {
