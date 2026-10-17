@@ -51,6 +51,7 @@ export async function launchNativeChromium( directory, product, options = {} ) {
 	let closed;
 	const errors = [];
 	const permissionDecisions = [];
+	const downloadDismissals = [];
 	const observations = new Map();
 	const pendingExceptions = [];
 	const tabPages = new Map();
@@ -431,7 +432,7 @@ export async function launchNativeChromium( directory, product, options = {} ) {
 				pages.push( { url: target.url(), error: error.message } );
 			}
 		}
-		return { errors, permissionDecisions, pages,
+		return { errors, permissionDecisions, downloadDismissals, pages,
 			activeTab: await activeTab().catch( ( error ) => ( { error: error.message } ) ),
 			popupOpen: isPopupOpen() };
 	}
@@ -454,6 +455,22 @@ export async function launchNativeChromium( directory, product, options = {} ) {
 			fileURLToPath( new URL( './linux-consent.py', import.meta.url ) ), String( pid ), decision ], { timeout: 20_000 } );
 		const evidence = JSON.parse( result.stdout.trim() );
 		permissionDecisions.push( evidence );
+		return evidence;
+	}
+
+	/**
+	 * Closes only this browser's native download panel using its Close button or verified native keyboard focus.
+	 * @return {Promise<object>} Owned PID, dismissed controls and verified panel disappearance.
+	 */
+	async function dismissDownloads() {
+		const pid = browser.process()?.pid;
+		if ( ! pid || process.platform !== 'linux' ) {
+			throw new Error( 'Native download dismissal requires the owned Linux browser and configured AT-SPI session.' );
+		}
+		const result = await executeFile( process.env.NATIVE_BROWSER_PYTHON ?? '/usr/bin/python3', [
+			fileURLToPath( new URL( './linux-consent.py', import.meta.url ) ), String( pid ), 'dismiss-downloads' ], { timeout: 20_000 } );
+		const evidence = JSON.parse( result.stdout.trim() );
+		downloadDismissals.push( evidence );
 		return evidence;
 	}
 
@@ -510,7 +527,8 @@ export async function launchNativeChromium( directory, product, options = {} ) {
 		return {
 			browser, extensionId, version: await browser.version(), errors, permissionDecisions, extensionUrl,
 			openPage, navigate, currentUrl, reload, closePage, openPopup, closePopup, isPopupOpen, consent,
-			viewScript, viewClick, viewType, viewKey, viewUpload, downloadDirectory, diagnostics, close,
+			viewScript, viewClick, viewType, viewKey, viewUpload, downloadDirectory, dismissDownloads,
+			diagnostics, close,
 		};
 	} catch ( error ) {
 		await close();
