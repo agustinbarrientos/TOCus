@@ -1,7 +1,7 @@
 import { StatisticsProjectionStatus } from '../../../../domains/statistics/types/statistics-projection';
 import { createStatisticsClient } from '../../../statistics/services/statistics-client';
-import type { PrivacyDataActions } from '../../components/privacy-screen/types';
-import type { PrivacyDataActionsOptions } from './types';
+import type { LocalDataActions } from '../../components/backup-reset-screen/types';
+import type { LocalDataActionsOptions } from './types';
 
 /**
  * Keeps confirmed privacy actions in the background independently of the settings page lifetime.
@@ -9,7 +9,7 @@ import type { PrivacyDataActionsOptions } from './types';
  * @return Separate statistics-only and full-reset actions.
  * @since 1.0.0 Initial implementation.
  */
-export function createPrivacyDataActions( options: PrivacyDataActionsOptions ): PrivacyDataActions {
+export function createLocalDataActions( options: LocalDataActionsOptions ): LocalDataActions {
 	const statistics = createStatisticsClient( options );
 	return {
 		/**

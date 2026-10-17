@@ -57,7 +57,7 @@ function applyOnboardingLocalization(
 	options.shell.copy = localization.onboarding;
 	options.shell.notificationCopy = {
 		dismissNotification: localization.settingsShell.dismissNotification,
-		resetComplete: localization.privacyCopy.allSuccess,
+		resetComplete: localization.backupResetCopy.allSuccess,
 	};
 	options.shell.interruptionCopy = localization.interruption;
 }

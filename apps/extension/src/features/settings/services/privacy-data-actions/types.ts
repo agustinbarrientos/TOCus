@@ -36,7 +36,7 @@ export interface PrivacyDataRuntime {
  * Local messaging dependency for the privacy action client.
  * @since 1.0.0 Initial implementation.
  */
-export interface PrivacyDataActionsOptions {
+export interface LocalDataActionsOptions {
 	/** Background messaging boundary. */
 	runtime: PrivacyDataRuntime;
 }
