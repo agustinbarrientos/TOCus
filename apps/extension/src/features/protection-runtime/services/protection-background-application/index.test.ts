@@ -6,6 +6,9 @@ import { Language } from '../../../../domains/preferences/types';
 import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
 import { TestInstant } from '../../../../domains/protection/types/__fixtures__/protection-event';
 import type { StatisticsRuntimeOptions } from '../../../statistics/services/statistics-runtime';
+import type { LocalDataBackupOptions } from '../../../../domains/local-data/services/local-data-backup/types';
+import type { LocalDataBackupControllerOptions } from '../../../settings/services/local-data-backup-controller/types';
+import { createBackupSource } from '../../../../domains/local-data/utils/backup-document/__fixtures__';
 import type { LocalDataResetOptions } from '../../../../domains/local-data/services/local-data-reset/types';
 import type { LocalDataResetControllerOptions } from '../../../settings/services/local-data-reset-controller/types';
 import type { PopupEnrollmentControllerOptions } from '../../../popup/services/popup-enrollment-controller/types';
@@ -49,6 +52,9 @@ const backgroundMocks = vi.hoisted( () => ( {
 	startProtectionController: vi.fn(),
 	startPopupController: vi.fn(),
 	startToolbarLanguage: vi.fn<( refreshToolbarBadge: ToolbarBadgeRefresh ) => void>(),
+	createLocalDataBackup: vi.fn<( options: LocalDataBackupOptions ) => unknown>(),
+	createLocalDataBackupController: vi.fn<( options: LocalDataBackupControllerOptions ) => unknown>(),
+	startBackupController: vi.fn(),
 	createLocalDataReset: vi.fn<( options: LocalDataResetOptions ) => unknown>(),
 	createLocalDataResetController: vi.fn<( options: LocalDataResetControllerOptions ) => unknown>(),
 	revokeWebsiteAccess: vi.fn().mockResolvedValue( true ),
@@ -57,6 +63,13 @@ const backgroundMocks = vi.hoisted( () => ( {
 	observeMuteChange: vi.fn().mockResolvedValue( undefined ),
 	suspendForDataReset: vi.fn().mockResolvedValue( undefined ),
 	resumeAfterDataReset: vi.fn().mockResolvedValue( undefined ),
+} ) );
+
+vi.mock( '../../../../domains/local-data/services/local-data-backup', () => ( {
+	createLocalDataBackup: backgroundMocks.createLocalDataBackup,
+} ) );
+vi.mock( '../../../settings/services/local-data-backup-controller', () => ( {
+	createLocalDataBackupController: backgroundMocks.createLocalDataBackupController,
 } ) );
 
 vi.mock( '../../../../domains/local-data/services/local-data-reset', () => ( {
@@ -142,6 +155,7 @@ describe( 'startProtectionBackgroundApplication', () => {
 		fakeBrowser.reset();
 		vi.clearAllMocks();
 		vi.spyOn( Date, 'now' ).mockReturnValue( TestInstant );
+		vi.spyOn( fakeBrowser.runtime, 'getManifest' ).mockReturnValue( { manifest_version: 3, name: 'TOCus', version: '1.0.1' } );
 		vi.spyOn( fakeBrowser.i18n, 'getUILanguage' ).mockReturnValue( 'en-US' );
 	} );
 
@@ -164,9 +178,10 @@ describe( 'startProtectionBackgroundApplication', () => {
 		vi.stubEnv( 'SAFARI', browser === ExtensionBuildBrowser.SAFARI ? 'true' : '' );
 		const locks = {};
 		vi.stubGlobal( 'navigator', { locks } );
-		const preferencesStorage = { load: vi.fn(), save: vi.fn() };
+		const source = createBackupSource();
+		const preferencesStorage = { load: vi.fn().mockResolvedValue( source.preferences ), save: vi.fn() };
 		const protectionStorage = { load: vi.fn(), save: vi.fn() };
-		const configurationStorage = { load: vi.fn(), save: vi.fn() };
+		const configurationStorage = { load: vi.fn().mockResolvedValue( source.configuration ), save: vi.fn() };
 		const protectionEditor = {};
 		const enrollment = { add: vi.fn() };
 		const coordinator = { dispatch: vi.fn() };
@@ -190,6 +205,7 @@ describe( 'startProtectionBackgroundApplication', () => {
 			start: backgroundMocks.startToolbarLanguage,
 		};
 		const runtime = {
+			readBackupStatistics: vi.fn().mockResolvedValue( source.statistics ),
 			refreshToolbarBadge: backgroundMocks.refreshToolbarBadge,
 			suspendForDataReset: backgroundMocks.suspendForDataReset,
 			resumeAfterDataReset: backgroundMocks.resumeAfterDataReset,
@@ -208,9 +224,11 @@ describe( 'startProtectionBackgroundApplication', () => {
 		backgroundMocks.createProtectionConfigurationStorageService.mockReturnValue( configurationStorage );
 		backgroundMocks.createProtectionCoordinator.mockReturnValue( coordinator );
 		backgroundMocks.createBrowserProtectionAdapter.mockReturnValue( browserAdapter );
-		backgroundMocks.createSitePermissionManager.mockReturnValue( {
+		const permissionManager = {
 			filterConfiguration: backgroundMocks.filterConfiguration,
-		} );
+			releaseNewAccess: vi.fn().mockResolvedValue( 'released' ),
+		};
+		backgroundMocks.createSitePermissionManager.mockReturnValue( permissionManager );
 		backgroundMocks.createStatisticsStorageService.mockReturnValue( statisticsStorage );
 		backgroundMocks.createStatisticsSessionStorageService.mockReturnValue( statisticsSessionStorage );
 		backgroundMocks.createStatisticsRuntime.mockReturnValue( statisticsRuntime );
@@ -223,14 +241,48 @@ describe( 'startProtectionBackgroundApplication', () => {
 		} );
 		backgroundMocks.createBrowserProtectionConfigurationEditor.mockReturnValue( { editor: protectionEditor } );
 		backgroundMocks.createProtectedSiteEnrollmentService.mockReturnValue( enrollment );
+		const backup = { export: vi.fn(), import: vi.fn(), recover: vi.fn().mockResolvedValue( true ) };
+		backgroundMocks.createLocalDataBackup.mockReturnValue( backup );
+		backgroundMocks.createLocalDataBackupController.mockReturnValue( {
+			start: backgroundMocks.startBackupController,
+		} );
 		const reset = { reset: vi.fn(), recover: vi.fn() };
+		const ready = vi.fn().mockResolvedValue( false );
+		const retryRecovery = vi.fn().mockResolvedValue( true );
 		backgroundMocks.createLocalDataReset.mockReturnValue( reset );
 		backgroundMocks.createLocalDataResetController.mockReturnValue( {
 			start: backgroundMocks.startResetController,
+			waitUntilReady: ready, retryRecovery,
 		} );
 
 		startProtectionBackgroundApplication( { browser: fakeBrowser } );
 
+		const backupOptions = backgroundMocks.createLocalDataBackup.mock.calls[ 0 ]?.[ 0 ];
+		const backupControllerOptions = backgroundMocks.createLocalDataBackupController.mock.calls[ 0 ]?.[ 0 ];
+		if ( ! backupOptions || ! backupControllerOptions ) {
+			throw new Error( 'Missing backup authority composition.' );
+		}
+		expect( backgroundMocks.startBackupController ).toHaveBeenCalledOnce();
+		await expect( backupControllerOptions.ready() ).resolves.toBe( true );
+		expect( retryRecovery ).toHaveBeenCalledOnce();
+		ready.mockResolvedValue( true );
+		await expect( backupControllerOptions.ready() ).resolves.toBe( true );
+		expect( retryRecovery ).toHaveBeenCalledOnce();
+		await backupOptions.resume();
+		expect( backgroundMocks.resumeAfterDataReset ).not.toHaveBeenCalled();
+		await backupOptions.suspend();
+		await backupOptions.releaseObsoleteAccess?.( [], source.configuration );
+		const snapshot = await backupOptions.snapshot();
+		expect( snapshot.statistics ).toEqual( source.statistics );
+		expect( snapshot.configuration ).toEqual( source.configuration );
+		expect( snapshot.preferences ).toEqual( source.preferences );
+		expect( snapshot.exportedAt ).toBe( new Date( TestInstant ).toISOString() );
+		for ( const storage of [ configurationStorage, preferencesStorage, runtime.readBackupStatistics ] ) {
+			const load = 'load' in storage ? storage.load : storage;
+			load.mockResolvedValueOnce( null );
+			await expect( backupOptions.snapshot() ).rejects.toThrow();
+		}
+		expect( backupOptions.createId() ).toEqual( expect.any( String ) );
 		expect( backgroundMocks.createTabAudioController ).toHaveBeenCalledWith( {
 			runtimeId: fakeBrowser.runtime.id,
 			tabs: fakeBrowser.tabs,
@@ -267,7 +319,7 @@ describe( 'startProtectionBackgroundApplication', () => {
 			} );
 			expect( backgroundMocks.createProtectedSiteEnrollmentService ).toHaveBeenCalledWith( {
 				editor: protectionEditor,
-				permissionManager: { filterConfiguration: backgroundMocks.filterConfiguration },
+				permissionManager,
 			} );
 			expect( backgroundMocks.createPopupEnrollmentController ).toHaveBeenCalledWith( {
 				enrollment: enrollmentOptions.enrollment,
@@ -286,7 +338,7 @@ describe( 'startProtectionBackgroundApplication', () => {
 			expect( backgroundMocks.createBrowserProtectionConfigurationEditor ).toHaveBeenCalledTimes( 2 );
 			expect( backgroundMocks.createProtectedSiteEnrollmentService ).toHaveBeenLastCalledWith( {
 				editor: nextEditor.editor,
-				permissionManager: { filterConfiguration: backgroundMocks.filterConfiguration },
+				permissionManager,
 			} );
 		} else {
 			expect( backgroundMocks.createBrowserProtectionConfigurationEditor ).not.toHaveBeenCalled();
@@ -416,7 +468,8 @@ describe( 'startProtectionBackgroundApplication', () => {
 		expect( resetOptions.locks ).toBe( locks );
 		expect( resetOptions.createGeneration() ).toEqual( expect.any( String ) );
 		await resetOptions.suspend();
-		expect( backgroundMocks.suspendForDataReset ).toHaveBeenCalledOnce();
+		await expect( resetControllerOptions.recoverBackup?.() ).resolves.toBe( true );
+		expect( backgroundMocks.suspendForDataReset ).toHaveBeenCalledTimes( 2 );
 		await expect( resetOptions.revokeAccess() ).resolves.toBe( true );
 		expect( backgroundMocks.revokeWebsiteAccess ).toHaveBeenCalledExactlyOnceWith( fakeBrowser.permissions );
 		expect( resetControllerOptions.reset ).toBe( reset );
@@ -444,6 +497,7 @@ describe( 'startProtectionBackgroundApplication', () => {
 		await resumeOperation;
 		expect( backgroundMocks.refreshProtection ).toHaveBeenCalledOnce();
 		const createTab = vi.spyOn( fakeBrowser.tabs, 'create' );
+		await backupOptions.resume();
 		await resetControllerOptions.openOnboarding( 'reset/generation?one' );
 		expect( createTab ).toHaveBeenCalledExactlyOnceWith( {
 			url: `${ fakeBrowser.runtime.getURL( '/onboarding.html' ) }?reset=reset%2Fgeneration%3Fone`,

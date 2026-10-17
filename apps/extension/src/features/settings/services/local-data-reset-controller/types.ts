@@ -25,6 +25,12 @@ export interface LocalDataResetControllerOptions {
 	localArea: LocalDataResetArea;
 	/** Serialized full deletion and crash recovery. */
 	reset: LocalDataReset;
+	/**
+	 * Recovers a committed import after pending deletion has finished.
+	 * @return Whether import recovery is complete.
+	 * @since 1.1.0
+	 */
+	recoverBackup?(): Promise<boolean>;
 	/** Synchronously registered extension messaging. */
 	onMessage: LocalDataResetMessageEvent;
 	/**
@@ -65,4 +71,10 @@ export interface LocalDataResetController {
 	 * @since 1.0.0 Initial implementation.
 	 */
 	waitUntilReady(): Promise<boolean>;
+	/**
+	 * Joins or retries failed startup recovery without resetting user data.
+	 * @return Whether recovery and runtime startup completed.
+	 * @since 1.1.0
+	 */
+	retryRecovery(): Promise<boolean>;
 }

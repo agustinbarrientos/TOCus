@@ -22,6 +22,7 @@ function createFixture() {
 			remove: vi.fn().mockResolvedValue( undefined ),
 		},
 		reset: { reset: vi.fn().mockResolvedValue( true ), recover: vi.fn().mockResolvedValue( true ) },
+		recoverBackup: vi.fn().mockResolvedValue( true ),
 		onMessage: { addListener: vi.fn( ( handler: ProtectionBackgroundMessageListener ) => {
 			listener = handler;
 		} ) },
@@ -47,6 +48,28 @@ function createFixture() {
 }
 
 describe( 'local data reset controller', () => {
+	it( 'recovers deletion before import and keeps failed import recovery retryable', async () => {
+		const { controller, options } = createFixture();
+		options.recoverBackup.mockResolvedValueOnce( false );
+		controller.start();
+		await expect( controller.waitUntilReady() ).resolves.toBe( false );
+		expect( options.resume ).not.toHaveBeenCalled();
+		expect( options.reset.recover.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+			options.recoverBackup.mock.invocationCallOrder[ 0 ] ?? 0,
+		);
+		const pending = Promise.withResolvers<boolean>();
+		options.recoverBackup.mockReturnValueOnce( pending.promise );
+		const first = controller.retryRecovery();
+		const second = controller.retryRecovery();
+		pending.resolve( true );
+		await expect( first ).resolves.toBe( true );
+		await expect( second ).resolves.toBe( true );
+		expect( options.recoverBackup ).toHaveBeenCalledTimes( 2 );
+		expect( options.resume ).toHaveBeenCalledTimes( 1 );
+		await expect( controller.retryRecovery() ).resolves.toBe( true );
+		expect( options.recoverBackup ).toHaveBeenCalledTimes( 2 );
+	} );
+
 	it( 'reports not ready before listener registration', async () => {
 		const { controller, options } = createFixture();
 		await expect( controller.waitUntilReady() ).resolves.toBe( false );
