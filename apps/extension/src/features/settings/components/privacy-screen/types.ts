@@ -1,3 +1,4 @@
+import type { BackupControlsCopy } from '../backup-controls/types';
 import type { ReactNode } from 'react';
 /**
  * Destructive local data operations available from Settings.
@@ -37,7 +38,7 @@ export type PrivacyResetAction = typeof PrivacyResetAction[keyof typeof PrivacyR
  * Localized explanations, confirmation text, and operation announcements.
  * @since 1.0.0 Initial implementation.
  */
-export interface PrivacyScreenCopy {
+export interface PrivacyScreenCopy extends BackupControlsCopy {
 	title: string;
 	storedTitle: string;
 	storedSummary: string;
