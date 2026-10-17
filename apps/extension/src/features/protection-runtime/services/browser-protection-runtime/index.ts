@@ -574,6 +574,15 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	}
 
 	/**
+	 * Reads committed aggregates behind earlier runtime writes without sampling focus.
+	 * @return Detached history or null after lifecycle suspension.
+	 * @since 1.1.0
+	 */
+	function readBackupStatistics(): ReturnType<BrowserProtectionRuntime['readBackupStatistics']> {
+		return enqueue( () => options.statisticsRuntime.readBackupDocument(), null );
+	}
+
+	/**
 	 * Resets all statistics persistence through the serialized runtime authority.
 	 * @return Zero-valued local totals after success or an unavailable projection.
 	 * @since 1.0.0 Initial implementation.
@@ -759,6 +768,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 		captureStatisticsObservation,
 		failOpen,
 		readStatistics,
+		readBackupStatistics,
 		resetStatistics,
 		refreshToolbarBadge,
 		readSnapshot,

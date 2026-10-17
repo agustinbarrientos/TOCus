@@ -1,3 +1,4 @@
+import type { StatisticsDocument } from '../../../../domains/statistics/types/statistics-document';
 import type { ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
 import type {
 	ProtectionCoordinator,
@@ -88,6 +89,12 @@ export interface BrowserProtectionRuntimeOptions {
  * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionRuntime {
+	/**
+	 * Reads committed historical storage in the authoritative operation queue.
+	 * @return Detached aggregate document, or null while protection is suspended.
+	 * @since 1.1.0
+	 */
+	readBackupStatistics(): Promise<StatisticsDocument | null>;
 	/**
 	 * Stops new work synchronously, drains started writes, and releases browser effects.
 	 * Remains suspended after failure; repeated calls safely retry browser cleanup.
