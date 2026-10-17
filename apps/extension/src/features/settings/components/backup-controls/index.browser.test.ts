@@ -7,7 +7,7 @@ import { readFile } from 'node:fs/promises';
 
 test.describe( 'local backup controls', () => {
 	test( 'previews real file bytes, cancels safely, then replaces after explicit confirmation', async ( { open } ) => {
-		const page = await open( SettingsDestination.PRIVACY );
+		const page = await open( SettingsDestination.BACKUP_RESET );
 		const backup = createBackupDocument( createBackupSource() );
 		const file = { name: 'backup.json', mimeType: 'text/plain', buffer: Buffer.from( JSON.stringify( backup ) ) };
 		await page.locator( 'input[type=file]' ).setInputFiles( file );
@@ -26,7 +26,7 @@ test.describe( 'local backup controls', () => {
 	} );
 
 	test( 'downloads real portable JSON through the production download control', async ( { open } ) => {
-		const page = await open( SettingsDestination.PRIVACY );
+		const page = await open( SettingsDestination.BACKUP_RESET );
 		const downloading = page.waitForEvent( 'download' );
 		await page.getByRole( 'button', { name: 'Export backup', exact: true } ).click();
 		const download = await downloading;
@@ -40,7 +40,7 @@ test.describe( 'local backup controls', () => {
 } );
 
 test( 'keeps denied imports usable, reports missing access and preserves the native consent gesture', async ( { open, setting } ) => {
-	const page = await open( SettingsDestination.PRIVACY );
+	const page = await open( SettingsDestination.BACKUP_RESET );
 	await setting( page, 'denyAccess', true );
 	const backup = createBackupDocument( createBackupSource() );
 	await page.locator( 'input[type=file]' ).setInputFiles( {
@@ -53,7 +53,7 @@ test( 'keeps denied imports usable, reports missing access and preserves the nat
 } );
 
 test( 'rejects unsupported, malformed and oversized files without replacing populated settings', async ( { open } ) => {
-	const page = await open( SettingsDestination.PRIVACY );
+	const page = await open( SettingsDestination.BACKUP_RESET );
 	const original = await page.evaluate( () => window.settingsTest.getConfiguration() );
 	for ( const [ buffer, message ] of [
 		[ Buffer.from( '{' ), "This file isn't valid JSON" ],
@@ -67,7 +67,7 @@ test( 'rejects unsupported, malformed and oversized files without replacing popu
 } );
 
 test( 'supports Escape, readable previews and responsive contrast without losing controls', async ( { open } ) => {
-	const page = await open( SettingsDestination.PRIVACY );
+	const page = await open( SettingsDestination.BACKUP_RESET );
 	await page.emulateMedia( { reducedMotion: 'reduce', forcedColors: 'active', colorScheme: 'dark' } );
 	await page.setViewportSize( { width: 390, height: 844 } );
 	const backup = createBackupDocument( createBackupSource() );
@@ -87,7 +87,7 @@ test( 'supports Escape, readable previews and responsive contrast without losing
 } );
 
 test( 'disables conflicting reset actions throughout confirmed backup replacement', async ( { open, setting } ) => {
-	const page = await open( SettingsDestination.PRIVACY );
+	const page = await open( SettingsDestination.BACKUP_RESET );
 	await setting( page, 'holdConfigurationWrites', true );
 	const backup = createBackupDocument( createBackupSource() );
 	await page.locator( 'input[type=file]' ).setInputFiles( {
@@ -103,8 +103,33 @@ test( 'disables conflicting reset actions throughout confirmed backup replacemen
 	await expect( page.getByRole( 'button', { name: 'Reset statistics', exact: true } ) ).toBeEnabled();
 } );
 
-test( 'disables backup actions while a reset confirmation owns Privacy', async ( { open } ) => {
-	const page = await open( SettingsDestination.PRIVACY );
+test( 'keeps a pending replacement mounted across sidebar and browser history navigation', async ( { open, setting } ) => {
+	const page = await open( SettingsDestination.ABOUT );
+	await page.getByRole( 'link', { name: 'Backup and reset', exact: true } ).click();
+	await setting( page, 'holdConfigurationWrites', true );
+	const backup = createBackupDocument( createBackupSource() );
+	await page.locator( 'input[type=file]' ).setInputFiles( {
+		name: 'backup.json', mimeType: 'application/json', buffer: Buffer.from( JSON.stringify( backup ) ),
+	} );
+	await page.getByRole( 'dialog' ).getByRole( 'button', { name: 'Replace settings and statistics', exact: true } ).click();
+	await expect( page.getByRole( 'button', { name: 'Reset statistics', exact: true } ) ).toBeDisabled();
+	await page.getByRole( 'link', { name: 'Privacy', exact: true } ).click();
+	await expect( page.getByRole( 'heading', { level: 1 } ) ).toHaveText( 'Backup and reset' );
+	await page.evaluate( () => {
+		history.back();
+	} );
+	await expect.poll( () => page.evaluate( () => location.hash ) ).toBe( '#backup-reset' );
+	await expect( page.getByRole( 'button', { name: 'Reset statistics', exact: true } ) ).toBeDisabled();
+	await page.evaluate( () => {
+		window.settingsTest.releaseConfigurationWrites();
+	} );
+	await expect( page.getByRole( 'dialog' ) ).toBeHidden();
+	await page.getByRole( 'link', { name: 'Privacy', exact: true } ).click();
+	await expect( page.getByRole( 'heading', { level: 1 } ) ).toHaveText( 'Privacy' );
+} );
+
+test( 'disables backup actions while a reset confirmation owns the data page', async ( { open } ) => {
+	const page = await open( SettingsDestination.BACKUP_RESET );
 	await page.getByRole( 'button', { name: 'Reset statistics', exact: true } ).click();
 	await expect( page.getByRole( 'button', { name: 'Export backup', exact: true } ) ).toBeDisabled();
 	await expect( page.locator( 'input[type=file]' ) ).toBeDisabled();
@@ -112,8 +137,8 @@ test( 'disables backup actions while a reset confirmation owns Privacy', async (
 	await expect( page.getByRole( 'button', { name: 'Export backup', exact: true } ) ).toBeEnabled();
 } );
 
-test( 'retains exclusive Privacy ownership while selected file bytes are still being read', async ( { open } ) => {
-	const page = await open( SettingsDestination.PRIVACY );
+test( 'retains exclusive data-operation ownership while selected file bytes are still being read', async ( { open } ) => {
+	const page = await open( SettingsDestination.BACKUP_RESET );
 	await page.evaluate( () => {
 		/**
 		 * Holds the actual file read until the test releases the browser event.
@@ -140,7 +165,7 @@ test( 'retains exclusive Privacy ownership while selected file bytes are still b
 } );
 
 test( 'retains the recovery decision and shared lock until a committed import retry succeeds', async ( { open, setting } ) => {
-	const page = await open( SettingsDestination.PRIVACY );
+	const page = await open( SettingsDestination.BACKUP_RESET );
 	await setting( page, 'rejectSaves', true );
 	const backup = createBackupDocument( createBackupSource() );
 	await page.locator( 'input[type=file]' ).setInputFiles( {

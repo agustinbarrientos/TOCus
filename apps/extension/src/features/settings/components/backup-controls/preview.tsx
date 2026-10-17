@@ -10,7 +10,7 @@ import type { BackupPreviewProps } from './types';
  */
 export function BackupPreviewContent( props: BackupPreviewProps ) {
 	const { shell, backup } = props;
-	const copy = shell.privacyCopy;
+	const copy = shell.backupResetCopy;
 	const timing = backup.settings.timingConfiguration;
 	const appearance = shell.appearanceCopy;
 	const statistics = shell.statisticsCopy;

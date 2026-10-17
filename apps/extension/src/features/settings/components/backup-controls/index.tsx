@@ -16,7 +16,7 @@ import './style.scss';
  */
 export function BackupControls( props: BackupControlsProps ) {
 	const { shell } = props;
-	const copy = shell.privacyCopy;
+	const copy = shell.backupResetCopy;
 	const actions = shell.backupActions;
 	const input = useRef<HTMLInputElement>( null );
 	const importButton = useRef<HTMLButtonElement>( null );
@@ -121,7 +121,7 @@ export function BackupControls( props: BackupControlsProps ) {
 	}
 	return <section className="tocus-section settings-backup" aria-busy={ pending }>
 		<h2>{ copy.backupTitle }</h2><p>{ copy.backupDescription }</p><p>{ copy.backupPrivacy }</p>
-		<Group>
+		<Group className="settings-backup-actions">
 			<Button disabled={ props.disabled || pending || !! preview || ! actions } onClick={ () => {
 				void exportFile();
 			} }>
