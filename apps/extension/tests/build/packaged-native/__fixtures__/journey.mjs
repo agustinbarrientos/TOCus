@@ -161,7 +161,6 @@ export async function withBrowser( run, options = {} ) {
 			path = name ? join( browser.downloadDirectory, name ) : undefined;
 			return Boolean( path ) && ! names.some( ( candidate ) => /\.(part|crdownload)$/u.test( candidate ) );
 		} ).toBe( true );
-		await browser.dismissDownloads?.();
 		return path;
 	}
 	try {
