@@ -2,7 +2,7 @@
 
 ## 1.1.0 - Unreleased
 
-- Added: Local JSON backup and restore for website rules, schedules, preferences, and statistics (Chrome, Edge, Firefox).
+- Added: Local JSON backup and restore for website rules, schedules, preferences, and statistics, with a dedicated Backup and reset settings page (Chrome, Edge, Firefox).
 
 ## 1.0.1 - 2026-09-28
 

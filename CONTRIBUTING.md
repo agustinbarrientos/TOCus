@@ -31,9 +31,11 @@ Every pull request with a user-visible change must update `CHANGELOG.md` under t
 
 Run `pnpm check` for lint, types, unit coverage, builds, and browser tests. Describe the change and relevant validation in the PR; explain skipped checks and permission or storage changes. Include screenshots for visual changes.
 
+Run browser suites from an environment that permits local listening sockets and browser process registration. Restricted execution on macOS can abort Chromium during application or IPC registration before a test opens the application. For startup diagnostics, use `pnpm test:build-browser --max-failures=1` to stop after the first failure instead of repeatedly launching a blocked browser. Rerun the normal suite after correcting the execution environment; do not suppress crashes or weaken assertions.
+
 Installed Chrome, Edge, and Firefox must also pass the same native extension journeys in CI. To reproduce them on Ubuntu/Debian x86_64, run `pnpm setup:installed-browsers`, build the three extension targets, then `pnpm test:installed-extension:linux`. Setup needs root or passwordless sudo to install browser and accessibility dependencies; the tests use disposable profiles and automated native permission dialogs. Browser versions are recorded in `test-results/installed-browser-setup/versions.txt`.
 
-Visual comparisons require macOS 26 ARM64 and explicit approval before replacing baselines. See the [visual testing guide](tests/visual/README.md).
+Visual comparisons require macOS 26 ARM64. The maintainer has given standing approval to update affected baselines for intended, reviewed visual changes without asking again. Review expected, actual, and diff images; investigate unexpected differences rather than accepting every failed comparison. Preserve capture and comparison settings. See the [visual testing guide](tests/visual/README.md).
 
 ## Builds
 
