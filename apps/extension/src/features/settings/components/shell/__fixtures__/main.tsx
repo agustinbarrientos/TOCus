@@ -1,3 +1,9 @@
+import { createBackupDataActions } from '../../../services/backup-data-actions';
+import { createBackupFixture } from '../../../../../domains/local-data/services/local-data-backup/__fixtures__';
+import { createBackupSource } from '../../../../../domains/local-data/utils/backup-document/__fixtures__';
+import { PreferencesStorageKey } from '../../../../../domains/preferences/services/preferences-storage';
+import { ProtectionConfigurationStorageKey } from '../../../../../domains/protection/services/protection-configuration-storage';
+import { LocalDataGenerationStorageKey } from '../../../../../domains/local-data/services/local-data-generation';
 import { AvailableStatisticsProjectionSchema, StatisticsProjectionStatus } from '../../../../../domains/statistics/types/statistics-projection';
 import type { AvailableStatisticsProjection, StatisticsProjection } from '../../../../../domains/statistics/types/statistics-projection';
 import { SitePermissionReleaseStatus, SitePermissionGrantProvenance, SitePermissionRequestStatus } from '../../../../protected-sites/services/site-permission-manager/types';
@@ -416,6 +422,73 @@ shell.privacyActions = {
 if ( original.includes( 'privacy-screen-unavailable' ) ) {
 	shell.privacyActions = null;
 }
+
+const backupFixture = createBackupFixture();
+/**
+ * Exports the current fixture settings without changing the live view.
+ * @return Complete source documents for the production authority.
+ * @since 1.1.0
+ */
+backupFixture.options.snapshot = () => Promise.resolve( { ...createBackupSource(), configuration, preferences } );
+shell.backupActions = createBackupDataActions( {
+	runtime: {
+		/**
+		 * Dispatches production client requests to the map-backed authority.
+		 * @param request - Validated backup message.
+		 * @return Authority completion or current generation.
+		 * @since 1.1.0
+		 */
+		sendMessage( request ) {
+			if ( request.type === 'export-local-backup' ) {
+				return backupFixture.backup.export();
+			}
+			if ( request.type === 'read-local-backup-state' ) {
+				const marker = backupFixture.values[ LocalDataGenerationStorageKey ];
+				return Promise.resolve( { status: 'ready', generation: typeof marker === 'object' && marker &&
+					'generation' in marker ? marker.generation : null } );
+			}
+			return backupFixture.backup.import( request );
+		},
+	},
+	permissions: {
+		/**
+		 * Records consent inside the actual click's browser activation.
+		 * @return Current deterministic permission decision.
+		 * @since 1.1.0
+		 */
+		requestMany() {
+			controls.userActivation = navigator.userActivation.isActive;
+			controls.requests++;
+			return Promise.resolve( controls.denyAccess ? { status: SitePermissionRequestStatus.DENIED }
+				: { status: SitePermissionRequestStatus.GRANTED, previousGrant: {} } );
+		},
+		/**
+		 * Reflects actual access denial after successful rule replacement.
+		 * @return Whether browser access is available.
+		 * @since 1.1.0
+		 */
+		hasAccess: () => Promise.resolve( ! controls.denyAccess ),
+	},
+	/**
+	 * Allocates a distinct confirmed intent for each new file preview.
+	 * @return Fresh browser-local request identifier.
+	 * @since 1.1.0
+	 */
+	createId: () => crypto.randomUUID(),
+	/**
+	 * Publishes complete restored documents through the fixture's production view boundaries.
+	 * @return Completion of visible fixture refresh.
+	 * @since 1.1.0
+	 */
+	onImported() {
+		configuration = ProtectionConfigurationDocumentSchema.parse(
+			backupFixture.values[ ProtectionConfigurationStorageKey.CONFIGURATION ],
+		);
+		preferences = PreferencesDocumentSchema.parse( backupFixture.values[ PreferencesStorageKey.PREFERENCES ] );
+		notifyPreferences();
+		return Promise.resolve();
+	},
+} );
 
 const bridge: SettingsFixtureBridge = {
 	themes: ThemeMode, palettes: Palette, languages: Language,
