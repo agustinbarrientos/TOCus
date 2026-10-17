@@ -5,6 +5,7 @@ import type {
 import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import type { StoredProtectionStatisticsDeliveryStatus } from '../../../../domains/protection/types/stored-protection-statistics-delivery';
 import type { StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
+import type { StatisticsDocument } from '../../../../domains/statistics/types/statistics-document';
 import type { StatisticsSessionStorageService } from '../../../../domains/statistics/services/statistics-session-storage';
 import type { StatisticsStorageService } from '../../../../domains/statistics/services/statistics-storage';
 import type {
@@ -65,6 +66,12 @@ export interface StatisticsRuntimeSnapshot {
  * @since 1.0.0 Initial implementation.
  */
 export interface StatisticsRuntime {
+	/**
+	 * Reads detached committed aggregate storage without checkpointing a session.
+	 * @return Complete history, or null for unavailable persistence.
+	 * @since 1.1.0
+	 */
+	readBackupDocument(): Promise<StatisticsDocument | null>;
 	/**
 	 * Forgets cached statistics and focus work without persistence after all operations have drained.
 	 * @since 1.0.0 Initial implementation.
