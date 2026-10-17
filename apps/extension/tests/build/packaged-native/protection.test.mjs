@@ -24,7 +24,22 @@ test( 'native toolbar fits its controls and opens Settings and Statistics for th
 			expect( Math.floor( rect.bottom ) ).toBeLessThanOrEqual( geometry.height );
 		}
 		for ( const [ route, heading ] of [ [ 'protected-sites', 'Websites' ], [ 'statistics', 'Statistics' ] ] ) {
-			await browser.viewClick( 'popup', `a[href$="#${ route }"]` );
+			const destination = browser.extensionUrl( `options.html#${ route }` );
+			try {
+				await browser.viewClick( 'popup', `a[href$="#${ route }"]` );
+			} catch ( error ) {
+				// Opening the tab can close the popup before Chrome acknowledges mouse-up.
+				if ( error.name !== 'TargetCloseError' ||
+					! error.message.includes( 'Input.dispatchMouseEvent' ) ||
+					await browser.isPopupOpen() ) {
+					throw error;
+				}
+				await test.info().attach( 'popup-input-target-closed', {
+					body: JSON.stringify( { destination, message: error.message } ), contentType: 'application/json',
+				} );
+			}
+			await expect.poll( () => browser.isPopupOpen() ).toBe( false );
+			await expect.poll( () => browser.currentUrl() ).toBe( destination );
 			await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( heading );
 			await browser.closePage();
 			if ( route === 'protected-sites' ) {
