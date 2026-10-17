@@ -9,6 +9,7 @@ const firstContentSelectors = {
 	[ SettingsDestination.APPEARANCE ]: '.preferences-section-label',
 	[ SettingsDestination.LANGUAGE ]: '.preferences-language-field-label',
 	[ SettingsDestination.STATISTICS ]: '.settings-statistics-period',
+	[ SettingsDestination.BACKUP_RESET ]: '.tocus-section h2',
 	[ SettingsDestination.PRIVACY ]: '.tocus-section h2',
 	[ SettingsDestination.ABOUT ]: '.settings-about-brand',
 };

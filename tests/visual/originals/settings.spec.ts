@@ -32,10 +32,11 @@ async function prepareScheduleHover( page: Page ): Promise<void> {
  * Restores the original user interaction immediately before the immutable screenshot.
  * @param page - Real Settings presentation using archived deterministic inputs.
  * @param name - Exact original screenshot filename.
+ * @param destination - Current production page owning the archived interaction.
  * @return Settled original interaction state.
  * @since 1.0.0
  */
-async function prepareState( page: Page, name: string ): Promise<void> {
+async function prepareState( page: Page, name: string, destination: SettingsDestination ): Promise<void> {
 	if ( name.includes( 'operation-error' ) ) {
 		// The original browser-side fixture performs both real gestures before the first editor paint.
 		await expect( page.getByRole( 'alert' ) ).toBeVisible();
@@ -46,7 +47,7 @@ async function prepareState( page: Page, name: string ): Promise<void> {
 		await expect( page.getByRole( 'slider', { name: 'Wait increase', exact: true } ) )
 			.toHaveAttribute( 'aria-valuetext', '0 (no increase)' );
 	}
-	if ( name.includes( 'permissions' ) ) {
+	if ( destination === SettingsDestination.PRIVACY && name.includes( 'permissions' ) ) {
 		await expect( page.getByRole( 'heading', { name: 'Why TOCus needs browser access' } ) ).toBeVisible();
 	}
 	if ( name.includes( 'protected-site' ) && ( name.includes( 'editing' ) || name.includes( 'removal' ) ) ) {
@@ -105,9 +106,14 @@ for ( const original of settingsSnapshots ) {
 		const palette = name.includes( 'purple' ) ? Palette.PURPLE
 			: name.includes( 'green' ) || name.includes( 'german' )
 				? Palette.GREEN : name.includes( 'blue' ) ? Palette.BLUE : Palette.BROWN;
-		const destination = name.includes( 'protected-site' ) ? SettingsDestination.PROTECTED_SITES
-			: Object.values( SettingsDestination ).find( ( value ) => name.includes( value ) )
-				?? SettingsDestination.ABOUT;
+		// Legacy Privacy operation filenames preserve before/after identities for controls moved to Backup and reset.
+		// Disclosure-only Privacy captures and the Privacy shell continue to exercise their existing destination.
+		const movedPrivacyOperation = ! shell && name.startsWith( 'privacy-screen-' ) &&
+			/confirmation|pending|failed|success|hover|narrow|unavailable/.test( name );
+		const destination = movedPrivacyOperation ? SettingsDestination.BACKUP_RESET
+			: name.includes( 'protected-site' ) ? SettingsDestination.PROTECTED_SITES
+				: Object.values( SettingsDestination ).find( ( value ) => name.includes( value ) )
+					?? SettingsDestination.ABOUT;
 		const viewportWidth = name.includes( 'narrow' ) ? width + 16 : shell ? 1280
 			: name.includes( 'privacy' ) ? 900 : name.includes( 'about' ) || name.includes( 'protected-site' ) ? 800 : 1280;
 		// Preserve the archived browser viewport, not merely the cropped component size.
@@ -127,7 +133,7 @@ for ( const original of settingsSnapshots ) {
 		if ( destination === SettingsDestination.STATISTICS ) {
 			await waitForStatisticsState( page, name );
 		}
-		await prepareState( page, name );
+		await prepareState( page, name, destination );
 		const privacyHover = name.includes( 'privacy' ) && name.includes( 'hover' );
 		const privacySuccess = name.includes( 'privacy' ) && name.includes( 'success' );
 		if ( ! privacyHover ) {

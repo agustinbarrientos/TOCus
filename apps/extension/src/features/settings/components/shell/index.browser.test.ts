@@ -4,6 +4,28 @@ import { SettingsDestination } from '../../services/settings-navigation/types';
 import { test } from '../../utils/browser-test-harness';
 
 test.describe( 'React settings', () => {
+	test( 'finds backup and reset actions separately from Privacy and preserves history navigation', async ( { open } ) => {
+		const page = await open( SettingsDestination.PRIVACY );
+		const dataLink = page.getByRole( 'link', { name: 'Backup and reset', exact: true } );
+		await expect( dataLink ).toBeVisible();
+		await dataLink.click();
+		await expect( page.getByRole( 'heading', { level: 1 } ) ).toHaveText( 'Backup and reset' );
+		await expect( dataLink ).toHaveAttribute( 'aria-current', 'page' );
+		for ( const name of [ 'Export backup', 'Import backup', 'Reset statistics', 'Reset all TOCus data' ] ) {
+			await expect( page.getByRole( 'main' ).getByRole( 'button', { name, exact: true } ) ).toBeVisible();
+		}
+		await page.reload();
+		await expect( page.getByRole( 'heading', { level: 1 } ) ).toHaveText( 'Backup and reset' );
+		await page.getByRole( 'link', { name: 'Privacy', exact: true } ).click();
+		await expect( page.getByRole( 'heading', { level: 1 } ) ).toHaveText( 'Privacy' );
+		await expect( page.getByRole( 'heading', { name: 'Why TOCus needs browser access' } ) ).toBeVisible();
+		await expect( page.getByRole( 'main' ).getByRole( 'button' ) ).toHaveCount( 0 );
+		await page.goBack();
+		await expect( page.getByRole( 'heading', { level: 1 } ) ).toHaveText( 'Backup and reset' );
+		await page.goForward();
+		await expect( page.getByRole( 'heading', { level: 1 } ) ).toHaveText( 'Privacy' );
+	} );
+
 	test( 'keeps navigation separators as subtle as its outer border on wide and narrow screens', async ( { open } ) => {
 		const page = await open( SettingsDestination.APPEARANCE );
 		for ( const width of [ 1280, 375 ] ) {
@@ -33,7 +55,7 @@ test.describe( 'React settings', () => {
 		await expect( page.locator( '.settings-navigation nav > hr' ) ).toHaveCount( 3 );
 		expect( await page.locator( '.settings-navigation nav > hr' ).evaluateAll( ( separators ) =>
 			separators.map( ( separator ) => separator.nextElementSibling?.getAttribute( 'href' ) ) ) )
-			.toEqual( [ '#appearance', '#statistics', '#privacy' ] );
+			.toEqual( [ '#appearance', '#statistics', '#backup-reset' ] );
 	} );
 
 	test( 'saves keyboard timing, preserves rejection, and discards without writes', async ( { open, setting } ) => {
@@ -115,11 +137,11 @@ test.describe( 'React settings', () => {
 	test( 'renders every destination at one width and keeps read-only pages free of Save', async ( { open } ) => {
 		test.setTimeout( 20000 );
 		const page = await open( SettingsDestination.ABOUT );
-		for ( const destination of [ 'About', 'Privacy and local data', 'Statistics', 'Language', 'Appearance', 'Pause timing', 'Schedule', 'Websites' ] ) {
+		for ( const destination of [ 'About', 'Privacy', 'Backup and reset', 'Statistics', 'Language', 'Appearance', 'Pause timing', 'Schedule', 'Websites' ] ) {
 			await page.getByRole( 'link', { name: destination, exact: true } ).click();
 			await page.getByRole( 'heading', { level: 1 } ).waitFor();
 			expect( await page.locator( '.settings-content' ).evaluate( ( element ) => element.getBoundingClientRect().width ) ).toBeGreaterThan( 500 );
-			if ( [ 'About', 'Privacy and local data', 'Statistics' ].includes( destination ) ) {
+			if ( [ 'About', 'Privacy', 'Backup and reset', 'Statistics' ].includes( destination ) ) {
 				expect( await page.getByRole( 'button', { name: 'Save', exact: true } ).count() ).toBe( 0 );
 			}
 		}

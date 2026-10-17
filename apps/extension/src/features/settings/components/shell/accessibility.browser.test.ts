@@ -14,7 +14,8 @@ test.describe( 'Settings accessibility', () => {
 				document.documentElement.setAttribute( 'data-tocus-theme', theme );
 			}, theme );
 			for ( const destination of [
-				SettingsDestination.ABOUT, SettingsDestination.PRIVACY, SettingsDestination.STATISTICS,
+				SettingsDestination.ABOUT, SettingsDestination.BACKUP_RESET,
+				SettingsDestination.PRIVACY, SettingsDestination.STATISTICS,
 				SettingsDestination.LANGUAGE, SettingsDestination.APPEARANCE,
 				SettingsDestination.TIMING, SettingsDestination.SCHEDULE, SettingsDestination.PROTECTED_SITES ] ) {
 				await page.evaluate( ( destination ) => {
