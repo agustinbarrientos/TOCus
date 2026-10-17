@@ -101,6 +101,9 @@ class MemorySettingsPermissions {
  * @since 1.0.0 Initial implementation.
  */
 class MemorySettingsStorageChanges {
+	/** Real values backing synthetic browser storage events. */
+	readonly values: Record<string, unknown> = {};
+
 	/** Active local storage listeners. */
 	private readonly listeners = new Set<(
 		changes: Readonly<Record<string, { readonly newValue?: unknown }>>,
@@ -150,6 +153,7 @@ class MemorySettingsStorageChanges {
 	 * @since 1.0.0 Initial implementation.
 	 */
 	emitLanguage( language: Language ): void {
+		this.values[ PreferencesStorageKey.PREFERENCES ] = { ...DefaultPreferencesDocument, language };
 		for ( const listener of this.listeners ) {
 			listener( {
 				[ PreferencesStorageKey.PREFERENCES ]: {
@@ -258,6 +262,8 @@ class MemorySettingsShell implements SettingsPageShell {
  * @since 1.0.0 Initial implementation.
  */
 function createOptions( overrides: Partial<SettingsPageOptions> = {} ): SettingsPageOptions {
+	const storageChanges = overrides.storageChanges ?? new MemorySettingsStorageChanges();
+	const values = storageChanges instanceof MemorySettingsStorageChanges ? storageChanges.values : {};
 	return {
 		browserLanguage: Language.ENGLISH,
 		cryptography: { randomUUID: vi.fn().mockReturnValue( 'fixture-id' ) },
@@ -279,10 +285,12 @@ function createOptions( overrides: Partial<SettingsPageOptions> = {} ): Settings
 		runtime: { sendMessage: vi.fn() },
 		shell: new MemorySettingsShell(),
 		storageArea: {
-			get: vi.fn().mockResolvedValue( {} ),
-			set: vi.fn().mockResolvedValue( undefined ),
+			get: vi.fn( ( key: string ) => Promise.resolve( { [ key ]: values[ key ] } ) ),
+			set: vi.fn( ( update: Record<string, unknown> ) => {
+				Object.assign( values, update ); return Promise.resolve();
+			} ),
 		},
-		storageChanges: new MemorySettingsStorageChanges(),
+		storageChanges,
 		supportsCachedFavicons: true,
 		version: '2.3.4',
 		...overrides,

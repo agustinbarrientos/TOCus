@@ -15,9 +15,13 @@ export function createSettingsDataBoundary( options: SettingsDataBoundaryOptions
 	const listeners = new Set<PreferencesStorageChangeListener>();
 	let generation: string | null | undefined;
 	let revision = 0;
+	let publishing = false;
+	let queued = false;
+	let dirty: PreferencesStorageChanges = {};
+	let blocked = false;
 
 	/**
-	 * Rejects a pending reset or import without returning any partially replaced values.
+	 * Rejects a pending reset or import without exposing partial values.
 	 * @return Current complete data identity.
 	 * @since 1.1.0
 	 */
@@ -31,47 +35,69 @@ export function createSettingsDataBoundary( options: SettingsDataBoundaryOptions
 	}
 
 	/**
-	 * Publishes current stored values rather than delayed browser event payloads.
-	 * @param changes - Keys affected by the browser event.
-	 * @return Completion of the latest coherent notification.
+	 * Retains every affected key while earlier reads or editor refreshes are pending.
+	 * @return Completion of coherent publications currently queued by browser events.
 	 * @since 1.1.0
 	 */
-	async function publish( changes: PreferencesStorageChanges ): Promise<void> {
-		const requested = ++revision;
+	async function publish(): Promise<void> {
+		publishing = true;
 		try {
-			const current = await ready();
-			const next = { ...changes };
-			for ( const key of generation !== current
-				? [ PreferencesStorageKey.PREFERENCES, StatisticsStorageKey.STATISTICS ] : [] ) {
-				next[ key ] = { newValue: ( await options.area.get( key ) )[ key ] };
+			while ( queued ) {
+				queued = false;
+				const changes = dirty;
+				dirty = {};
+				const requested = revision;
+				try {
+					const current = await ready();
+					const replacement = blocked || generation !== current;
+					const next = { ...changes };
+					for ( const key of [ PreferencesStorageKey.PREFERENCES, StatisticsStorageKey.STATISTICS ] ) {
+						if ( replacement || Object.hasOwn( changes, key ) ) {
+							next[ key ] = { newValue: ( await options.area.get( key ) )[ key ] };
+						}
+					}
+					if ( requested !== revision || current !== await ready() ) {
+						dirty = { ...changes, ...dirty }; queued = true; continue;
+					}
+					if ( replacement ) {
+						await options.onReplaced();
+					}
+					if ( requested !== revision || current !== await ready() ) {
+						dirty = { ...changes, ...dirty }; queued = true; continue;
+					}
+					for ( const listener of listeners ) {
+						listener( next, 'local' );
+					}
+					generation = current;
+					blocked = false;
+				} catch {
+					blocked = true;
+					dirty = { ...changes, ...dirty };
+					if ( requested === revision ) {
+						break;
+					}
+					queued = true;
+				}
 			}
-			if ( requested !== revision || current !== await ready() ) {
-				return;
-			}
-			if ( generation !== undefined && generation !== current ) {
-				await options.onReplaced();
-			}
-			generation = current;
-			if ( requested !== revision ) {
-				return;
-			}
-			for ( const listener of listeners ) {
-				listener( next, 'local' );
-			}
-		} catch {
-			// Pending or unavailable data remains hidden until a subsequent recovery notification.
+		} finally {
+			publishing = false;
 		}
 	}
 
 	/**
-	 * Contains asynchronous storage failures while ignoring unrelated browser areas.
+	 * Coalesces storage events without dropping distinct changed keys.
 	 * @param changes - Storage keys changed by the browser.
 	 * @param areaName - Browser storage area name.
 	 * @since 1.1.0
 	 */
 	function changed( changes: PreferencesStorageChanges, areaName: string ): void {
 		if ( areaName === 'local' ) {
-			void publish( changes );
+			dirty = { ...dirty, ...changes };
+			revision++;
+			queued = true;
+			if ( ! publishing ) {
+				void publish();
+			}
 		}
 	}
 	return {
@@ -83,12 +109,17 @@ export function createSettingsDataBoundary( options: SettingsDataBoundaryOptions
 			 * @since 1.1.0
 			 */
 			async get( key ) {
-				const before = await ready();
+				let before: string | null;
+				try {
+					before = await ready();
+				} catch ( error ) {
+					blocked = true; throw error;
+				}
 				const values = await options.area.get( key );
 				if ( before !== await ready() ) {
 					throw new LocalDataResetError();
 				}
-				if ( generation === undefined ) {
+				if ( generation === undefined && ! blocked && ! publishing ) {
 					generation = before;
 				}
 				return values;

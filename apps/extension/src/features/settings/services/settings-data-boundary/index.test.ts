@@ -72,7 +72,15 @@ function createBoundaryFixture() {
 	function emit( areaName = 'local' ): void {
 		source?.( {}, areaName );
 	}
-	return { boundary, values, area, changes, onReplaced, listener, emit };
+	return { boundary, values, area, changes, onReplaced, listener, emit,
+		/**
+		 * Publishes a browser key set for overlapping-event regressions.
+		 * @param changes - Storage event payload.
+		 */
+		emitChanges: ( changes: Parameters<PreferencesStorageChangeListener>[0] ) => {
+			source?.( changes, 'local' );
+		},
+	};
 }
 
 describe( 'settings replacement races', () => {
@@ -122,5 +130,48 @@ describe( 'settings replacement races', () => {
 		await vi.waitFor( () => {
 			expect( fixture.listener ).toHaveBeenCalledTimes( 2 );
 		} );
+	} );
+} );
+
+it( 'preserves distinct preference and statistics keys from overlapping storage events', async () => {
+	const fixture = createBoundaryFixture();
+	await fixture.boundary.area.get( 'value' );
+	const { StatisticsStorageKey } = await import( '../../../../domains/statistics/services/statistics-storage' );
+	fixture.values[ PreferencesStorageKey.PREFERENCES ] = { theme: 'new' };
+	fixture.values[ StatisticsStorageKey.STATISTICS ] = { history: 'new' };
+	fixture.emitChanges( { [ PreferencesStorageKey.PREFERENCES ]: { newValue: { theme: 'new' } } } );
+	fixture.emitChanges( { [ StatisticsStorageKey.STATISTICS ]: { newValue: { history: 'new' } } } );
+	await vi.waitFor( () => {
+		expect( fixture.listener ).toHaveBeenCalledWith( expect.objectContaining( {
+			[ PreferencesStorageKey.PREFERENCES ]: { newValue: { theme: 'new' } },
+			[ StatisticsStorageKey.STATISTICS ]: { newValue: { history: 'new' } },
+		} ), 'local' );
+	} );
+} );
+
+it( 'rebinds editors whose first generation read was blocked by recovery', async () => {
+	const fixture = createBoundaryFixture();
+	fixture.values[ BackupImportJournalKey ] = {};
+	await expect( fixture.boundary.area.get( 'value' ) ).rejects.toThrow();
+	Reflect.deleteProperty( fixture.values, BackupImportJournalKey );
+	fixture.values[ LocalDataGenerationStorageKey ] = { generation: 'complete', pending: false };
+	fixture.emit();
+	await vi.waitFor( () => {
+		expect( fixture.onReplaced ).toHaveBeenCalledOnce();
+	} );
+} );
+
+it( 'retries queued completion notifications after an older storage read rejects', async () => {
+	const fixture = createBoundaryFixture();
+	await fixture.boundary.area.get( 'value' );
+	const pending = Promise.withResolvers<Record<string, unknown>>();
+	fixture.area.get.mockReturnValueOnce( pending.promise );
+	fixture.emitChanges( { [ PreferencesStorageKey.PREFERENCES ]: {} } );
+	fixture.emitChanges( { [ BackupImportJournalKey ]: {} } );
+	pending.reject( new Error( 'Old storage read failed' ) );
+	await vi.waitFor( () => {
+		expect( fixture.listener ).toHaveBeenCalledWith( expect.objectContaining( {
+			[ PreferencesStorageKey.PREFERENCES ]: {}, [ BackupImportJournalKey ]: {},
+		} ), 'local' );
 	} );
 } );
