@@ -1,8 +1,6 @@
 @use '@tocus/theme/typography' as typography;
 
 [data-tocus-ui] .settings-page {
-	.settings-privacy-reset:last-of-type { padding-bottom: 0; }
-
 	.settings-privacy-source .tocus-external-link {
 		display: inline;
 		font: inherit;
