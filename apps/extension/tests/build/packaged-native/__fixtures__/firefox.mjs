@@ -32,6 +32,15 @@ export async function launchFirefox( directory, options = {} ) {
 	const driver = await launchNativeFirefox( directory, options );
 	const permissionDecisions = [];
 	return {
+		downloadDirectory: driver.downloadDirectory,
+		/**
+		 * Selects a real local file through Marionette file input support.
+		 * @param {string} view - Extension view containing the file input.
+		 * @param {string} selector - Native file input selector.
+		 * @param {string} path - Absolute local file path.
+		 * @return {Promise<unknown>} File selection completion.
+		 */
+		viewUpload: ( view, selector, path ) => driver.viewType( view, selector, path ),
 		...driver,
 		permissionDecisions,
 		/**

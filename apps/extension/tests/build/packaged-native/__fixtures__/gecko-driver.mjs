@@ -141,6 +141,8 @@ try {
  */
 export async function launchNativeFirefox( directory, options = {} ) {
 	const profile = join( directory, 'profile' );
+	const downloadDirectory = join( directory, 'downloads' );
+	await mkdir( downloadDirectory, { recursive: true } );
 	const extensionPath = join( directory, 'extension' );
 	const uuid = randomUUID();
 	const executablePath = process.env.FIREFOX_EXECUTABLE_PATH ?? ( process.platform === 'darwin'
@@ -155,6 +157,10 @@ export async function launchNativeFirefox( directory, options = {} ) {
 	let closed;
 	let driverOutput = '';
 	const prefs = {
+		'browser.download.folderList': 2,
+		'browser.download.dir': downloadDirectory,
+		'browser.download.useDownloadDir': true,
+		'browser.helperApps.neverAsk.saveToDisk': 'application/json',
 		'extensions.webextensions.uuids': JSON.stringify( { 'tocus@agustinbarrientos.com': uuid } ),
 		'browser.shell.checkDefaultBrowser': false,
 		'browser.startup.homepage_override.mstone': 'ignore',
@@ -312,7 +318,7 @@ export async function launchNativeFirefox( directory, options = {} ) {
 		await waitUntil( () => execute( 'return document.getElementById(\'nav-bar\').contains(document.getElementById(\'tocus_agustinbarrientos_com-BAP\'));' ),
 			'Firefox did not place the extension button in the toolbar.' );
 		return {
-			command, execute, viewScript, viewClick, viewType, close, uuid,
+			command, execute, downloadDirectory, viewScript, viewClick, viewType, close, uuid,
 			version: created.capabilities.browserVersion,
 		};
 	} catch ( error ) {

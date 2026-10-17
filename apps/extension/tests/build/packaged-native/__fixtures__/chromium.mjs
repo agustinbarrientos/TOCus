@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { cp, rm } from 'node:fs/promises';
+import { cp, mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
@@ -41,6 +41,8 @@ function installedExecutable( product ) {
  */
 export async function launchNativeChromium( directory, product, options = {} ) {
 	const profile = join( directory, 'profile' );
+	const downloadDirectory = join( directory, 'downloads' );
+	await mkdir( downloadDirectory, { recursive: true } );
 	const extensionPath = join( directory, 'extension' );
 	let browser;
 	let extension;
@@ -280,11 +282,28 @@ export async function launchNativeChromium( directory, product, options = {} ) {
 	}
 
 	/**
-	 * Types actual keyboard text into a visible form control.
+	 * Selects an actual local file through the native file input boundary.
 	 * @param {string} view - Real browser view.
-	 * @param {string} selector - Input CSS selector.
-	 * @param {string} text - Characters to enter.
-	 * @return {Promise<void>} Completion of the keyboard operation.
+	 * @param {string} selector - File input CSS selector.
+	 * @param {string} path - Absolute owned file path.
+	 * @return {Promise<void>} File selection completion.
+	 */
+	async function viewUpload( view, selector, path ) {
+		const page = await pageForView( view );
+		const input = await page.$( selector );
+		if ( ! input ) {
+			throw new Error( 'Missing file input.' );
+		}
+		await input.uploadFile( path );
+		await input.dispose();
+	}
+
+	/**
+	 * Types through native keyboard input into a real view.
+	 * @param {string} view - View containing the input.
+	 * @param {string} selector - Native input selector.
+	 * @param {string} text - Text to type.
+	 * @return {Promise<void>} Input completion.
 	 */
 	async function viewType( view, selector, text ) {
 		const page = await pageForView( view );
@@ -473,6 +492,9 @@ export async function launchNativeChromium( directory, product, options = {} ) {
 				...( options.hostname ? [ `--host-resolver-rules=MAP ${ options.hostname } 127.0.0.1` ] : [] ),
 				...( process.env.CI ? [ '--no-sandbox' ] : [] ) ],
 		} );
+		const downloadSession = await browser.target().createCDPSession();
+		await downloadSession.send( 'Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: downloadDirectory } );
+		await downloadSession.detach();
 		browser.on( 'targetcreated', ( target ) => void observeTarget( target ) );
 		extensionId = await browser.installExtension( extensionPath );
 		for ( const { details, targetUrl } of pendingExceptions.splice( 0 ) ) {
@@ -488,7 +510,7 @@ export async function launchNativeChromium( directory, product, options = {} ) {
 		return {
 			browser, extensionId, version: await browser.version(), errors, permissionDecisions, extensionUrl,
 			openPage, navigate, currentUrl, reload, closePage, openPopup, closePopup, isPopupOpen, consent,
-			viewScript, viewClick, viewType, viewKey, diagnostics, close,
+			viewScript, viewClick, viewType, viewKey, viewUpload, downloadDirectory, diagnostics, close,
 		};
 	} catch ( error ) {
 		await close();
