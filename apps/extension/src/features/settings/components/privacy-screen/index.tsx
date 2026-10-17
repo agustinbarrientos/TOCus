@@ -54,6 +54,7 @@ export function Privacy( props: SettingsScreenProps ) {
 	const { privacyCopy: copy, privacyActions: actions, supportsCachedFavicons } = props.shell;
 	const [ confirmation, setConfirmation ] = useState<PrivacyResetAction | null>( null );
 	const [ pending, setPending ] = useState( false );
+	const [ backupBusy, setBackupBusy ] = useState( false );
 	const [ failed, setFailed ] = useState( false );
 	const [ completed, setCompleted ] = useState<PrivacyResetAction | null>( null );
 	const statistics = confirmation === PrivacyResetAction.STATISTICS;
@@ -65,6 +66,9 @@ export function Privacy( props: SettingsScreenProps ) {
 	 * @param operation - Data reset selected by the user.
 	 */
 	function requestReset( operation: PrivacyResetAction ): void {
+		if ( pending || backupBusy || confirmation !== null ) {
+			return;
+		}
 		setConfirmation( operation );
 		setFailed( false );
 		setCompleted( null );
@@ -148,14 +152,15 @@ export function Privacy( props: SettingsScreenProps ) {
 				<ul>{ permissions.map( ( permission ) => <li key={ permission }>{ permission }</li> ) }</ul>
 				<p>{ copy.deniedPermission }</p>
 			</section>
-			<BackupControls shell={ props.shell } />
+			<BackupControls shell={ props.shell } disabled={ pending || confirmation !== null }
+				onBusyChange={ setBackupBusy } />
 			<ResetSection title={ copy.statisticsTitle } description={ copy.statisticsDescription }
-				label={ copy.resetStatistics } disabled={ pending || actions === null }
+				label={ copy.resetStatistics } disabled={ pending || backupBusy || actions === null }
 				onRequest={ () => {
 					requestReset( PrivacyResetAction.STATISTICS );
 				} }>{ renderConfirmation( PrivacyResetAction.STATISTICS ) }</ResetSection>
 			<ResetSection title={ copy.allTitle } description={ copy.allDescription }
-				label={ copy.resetAll } disabled={ pending || actions === null }
+				label={ copy.resetAll } disabled={ pending || backupBusy || actions === null }
 				onRequest={ () => {
 					requestReset( PrivacyResetAction.ALL );
 				} }>{ renderConfirmation( PrivacyResetAction.ALL ) }</ResetSection>

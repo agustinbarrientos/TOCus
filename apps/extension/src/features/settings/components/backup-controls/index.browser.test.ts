@@ -85,3 +85,76 @@ test( 'supports Escape, readable previews and responsive contrast without losing
 	await expect( page.getByRole( 'button', { name: 'Import backup', exact: true } ) ).toBeFocused();
 	expect( await page.evaluate( () => document.documentElement.scrollWidth <= innerWidth ) ).toBe( true );
 } );
+
+test( 'disables conflicting reset actions throughout confirmed backup replacement', async ( { open, setting } ) => {
+	const page = await open( SettingsDestination.PRIVACY );
+	await setting( page, 'holdConfigurationWrites', true );
+	const backup = createBackupDocument( createBackupSource() );
+	await page.locator( 'input[type=file]' ).setInputFiles( {
+		name: 'backup.json', mimeType: 'application/json', buffer: Buffer.from( JSON.stringify( backup ) ),
+	} );
+	await page.getByRole( 'dialog' ).getByRole( 'button', { name: 'Replace settings and statistics', exact: true } ).click();
+	await expect( page.getByRole( 'button', { name: 'Reset statistics', exact: true } ) ).toBeDisabled();
+	await expect( page.getByRole( 'button', { name: 'Reset all TOCus data', exact: true } ) ).toBeDisabled();
+	await page.evaluate( () => {
+		window.settingsTest.releaseConfigurationWrites();
+	} );
+	await expect( page.getByRole( 'dialog' ) ).toBeHidden();
+	await expect( page.getByRole( 'button', { name: 'Reset statistics', exact: true } ) ).toBeEnabled();
+} );
+
+test( 'disables backup actions while a reset confirmation owns Privacy', async ( { open } ) => {
+	const page = await open( SettingsDestination.PRIVACY );
+	await page.getByRole( 'button', { name: 'Reset statistics', exact: true } ).click();
+	await expect( page.getByRole( 'button', { name: 'Export backup', exact: true } ) ).toBeDisabled();
+	await expect( page.locator( 'input[type=file]' ) ).toBeDisabled();
+	await page.getByRole( 'dialog' ).getByRole( 'button', { name: 'Cancel', exact: true } ).click();
+	await expect( page.getByRole( 'button', { name: 'Export backup', exact: true } ) ).toBeEnabled();
+} );
+
+test( 'retains exclusive Privacy ownership while selected file bytes are still being read', async ( { open } ) => {
+	const page = await open( SettingsDestination.PRIVACY );
+	await page.evaluate( () => {
+		/**
+		 * Holds the actual file read until the test releases the browser event.
+		 * @return The selected file's original text after the test releases decoding.
+		 */
+		File.prototype.text = async function() {
+			await new Promise<void>( ( resolve ) => {
+				document.addEventListener( 'backup-read-release', () => {
+					resolve();
+				}, { once: true } );
+			} );
+			return new Response( this ).text();
+		};
+	} );
+	const backup = createBackupDocument( createBackupSource() );
+	await page.locator( 'input[type=file]' ).setInputFiles( {
+		name: 'backup.json', mimeType: 'application/json', buffer: Buffer.from( JSON.stringify( backup ) ),
+	} );
+	await expect( page.getByRole( 'button', { name: 'Export backup', exact: true } ) ).toBeDisabled();
+	await expect( page.getByRole( 'button', { name: 'Import backup', exact: true } ) ).toBeDisabled();
+	await expect( page.getByRole( 'button', { name: 'Reset statistics', exact: true } ) ).toBeDisabled();
+	await page.evaluate( () => document.dispatchEvent( new Event( 'backup-read-release' ) ) );
+	await expect( page.getByRole( 'dialog' ) ).toBeVisible();
+} );
+
+test( 'retains the recovery decision and shared lock until a committed import retry succeeds', async ( { open, setting } ) => {
+	const page = await open( SettingsDestination.PRIVACY );
+	await setting( page, 'rejectSaves', true );
+	const backup = createBackupDocument( createBackupSource() );
+	await page.locator( 'input[type=file]' ).setInputFiles( {
+		name: 'backup.json', mimeType: 'application/json', buffer: Buffer.from( JSON.stringify( backup ) ),
+	} );
+	const dialog = page.getByRole( 'dialog' );
+	await dialog.getByRole( 'button', { name: 'Replace settings and statistics', exact: true } ).click();
+	await expect( dialog.getByRole( 'button', { name: 'Try again', exact: true } ) ).toBeEnabled();
+	await expect( dialog.getByRole( 'button', { name: 'Cancel', exact: true } ) ).toBeDisabled();
+	await expect( page.getByRole( 'button', { name: 'Reset statistics', exact: true } ) ).toBeDisabled();
+	await page.keyboard.press( 'Escape' );
+	await expect( dialog ).toBeVisible();
+	await setting( page, 'rejectSaves', false );
+	await dialog.getByRole( 'button', { name: 'Try again', exact: true } ).click();
+	await expect( dialog ).toBeHidden();
+	await expect( page.getByRole( 'button', { name: 'Reset statistics', exact: true } ) ).toBeEnabled();
+} );

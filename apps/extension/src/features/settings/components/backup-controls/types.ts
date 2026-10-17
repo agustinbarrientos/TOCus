@@ -1,3 +1,4 @@
+import type { SettingsScreenProps } from '../page/types';
 import type { SettingsPageShell } from '../../services/settings-page/types';
 import type { BackupDocument } from '../../../../domains/local-data/types/backup-document';
 
@@ -53,4 +54,17 @@ export interface BackupControlsCopy {
 export interface BackupPreviewProps {
 	shell: SettingsPageShell;
 	backup: BackupDocument;
+}
+
+/**
+ * Shared Privacy operation ownership and backup presentation.
+ * @since 1.1.0
+ */
+export interface BackupControlsProps extends SettingsScreenProps {
+	disabled: boolean;
+	/**
+	 * Prevents conflicting reset decisions while backup controls own the page.
+	 * @param busy - Whether a preview, export or replacement is active.
+	 */
+	onBusyChange( busy: boolean ): void;
 }

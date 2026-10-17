@@ -2,7 +2,7 @@ import { useRef, useState, type ChangeEvent } from 'react';
 import { Button, Group } from '@tocus/ui';
 import { Confirmation } from '../confirmation';
 import { Feedback } from '../feedback';
-import type { SettingsScreenProps } from '../page/types';
+import type { BackupControlsProps } from './types';
 import type { BackupPreview } from '../../services/backup-data-actions';
 import { BackupFileError, downloadBackup, readBackupFile } from '../../utils/backup-file';
 import { BackupPreviewContent } from './preview';
@@ -14,14 +14,17 @@ import './style.scss';
  * @return Accessible backup controls with a readable, text-only preview.
  * @since 1.1.0
  */
-export function BackupControls( props: SettingsScreenProps ) {
+export function BackupControls( props: BackupControlsProps ) {
 	const { shell } = props;
 	const copy = shell.privacyCopy;
 	const actions = shell.backupActions;
 	const input = useRef<HTMLInputElement>( null );
+	const importButton = useRef<HTMLButtonElement>( null );
 	const active = useRef( false );
 	const selection = useRef( 0 );
 	const [ pending, setPending ] = useState( false );
+	const [ reading, setReading ] = useState( false );
+	const [ recoveryPending, setRecoveryPending ] = useState( false );
 	const [ preview, setPreview ] = useState<BackupPreview | null>( null );
 	const [ errorKey, setError ] = useState<keyof typeof copy | null>( null );
 	const [ successKey, setSuccess ] = useState<keyof typeof copy | null>( null );
@@ -34,10 +37,13 @@ export function BackupControls( props: SettingsScreenProps ) {
 	async function selectFile( event: ChangeEvent<HTMLInputElement> ): Promise<void> {
 		const file = event.currentTarget.files?.[ 0 ];
 		event.currentTarget.value = '';
-		if ( ! file || ! actions || active.current ) {
+		if ( ! file || ! actions || active.current || props.disabled || preview ) {
 			return;
 		}
 		const current = ++selection.current;
+		active.current = true; setPending( true ); setReading( true );
+		props.onBusyChange( true );
+		setRecoveryPending( false );
 		setError( null ); setSuccess( null ); setPreview( null );
 		try {
 			const backup = await readBackupFile( file );
@@ -52,6 +58,9 @@ export function BackupControls( props: SettingsScreenProps ) {
 			const reasons = { oversize: 'backupOversizeError', read: 'backupReadError', json: 'backupJsonError',
 				application: 'backupApplicationError', unsupported: 'backupUnsupportedError', invalid: 'backupInvalidError' } as const;
 			setError( error instanceof BackupFileError ? reasons[ error.reason ] : 'backupPendingError' );
+			props.onBusyChange( false );
+		} finally {
+			active.current = false; setPending( false ); setReading( false );
 		}
 	}
 
@@ -60,7 +69,7 @@ export function BackupControls( props: SettingsScreenProps ) {
 	 * @return Completion of the background-owned replacement and coherent settings refresh.
 	 */
 	async function confirm(): Promise<void> {
-		if ( active.current || ! preview || ! actions ) {
+		if ( active.current || ! preview || ! actions || props.disabled ) {
 			return;
 		}
 		active.current = true; setPending( true ); setError( null );
@@ -68,15 +77,19 @@ export function BackupControls( props: SettingsScreenProps ) {
 			const result = await actions.confirmImport( preview );
 			if ( result.status === 'completed' ) {
 				setPreview( null );
+				setRecoveryPending( false );
+				props.onBusyChange( false );
 				setSuccess( result.missingAccess ? 'importMissingAccessSuccess' : 'importSuccess' );
 			} else {
 				const failures = { stale: 'backupStaleError', invalid: 'backupInvalidError', busy: 'backupPendingError',
 					failed: 'backupImportError', 'recovery-pending': 'backupRecoveryError',
 					'permission-error': 'backupPermissionError' } as const;
 				setError( failures[ result.status ] );
+				setRecoveryPending( result.status === 'recovery-pending' || result.status === 'busy' );
 			}
 		} catch {
 			setError( 'backupRecoveryError' );
+			setRecoveryPending( true );
 		} finally {
 			active.current = false; setPending( false );
 		}
@@ -87,10 +100,11 @@ export function BackupControls( props: SettingsScreenProps ) {
 	 * @return Completion of the local download request.
 	 */
 	async function exportFile(): Promise<void> {
-		if ( active.current || ! actions ) {
+		if ( active.current || ! actions || props.disabled || preview ) {
 			return;
 		}
 		active.current = true; setPending( true ); setError( null ); setSuccess( null );
+		props.onBusyChange( true );
 		try {
 			const result = await actions.export();
 			if ( result.status === 'available' ) {
@@ -102,30 +116,33 @@ export function BackupControls( props: SettingsScreenProps ) {
 			setError( 'exportError' );
 		} finally {
 			active.current = false; setPending( false );
+			props.onBusyChange( false );
 		}
 	}
 	return <section className="tocus-section settings-backup" aria-busy={ pending }>
 		<h2>{ copy.backupTitle }</h2><p>{ copy.backupDescription }</p><p>{ copy.backupPrivacy }</p>
 		<Group>
-			<Button disabled={ pending || !! preview || ! actions } onClick={ () => {
+			<Button disabled={ props.disabled || pending || !! preview || ! actions } onClick={ () => {
 				void exportFile();
 			} }>
-				{ pending && ! preview ? copy.exportingBackup : copy.exportBackup }</Button>
-			<Button variant="outline" disabled={ pending || ! actions } onClick={ () => {
-				input.current?.click();
-			} }>
+				{ pending && ! preview && ! reading ? copy.exportingBackup : copy.exportBackup }</Button>
+			<Button ref={ importButton } variant="outline" disabled={ props.disabled || pending || !! preview || ! actions }
+				onClick={ () => {
+					input.current?.click();
+				} }>
 				{ copy.importBackup }</Button>
 		</Group>
 		<input ref={ input } type="file" accept=".json,application/json" hidden aria-label={ copy.importBackup }
-			disabled={ pending || ! actions } onChange={ ( event ) => {
+			disabled={ props.disabled || pending || !! preview || ! actions } onChange={ ( event ) => {
 				void selectFile( event );
 			} } />
-		<Confirmation inline opened={ preview !== null } title={ copy.replaceConfirmationTitle }
+		<Confirmation inline returnFocusRef={ importButton } opened={ preview !== null }
+			title={ copy.replaceConfirmationTitle }
 			description={ copy.replaceConfirmation } cancel={ copy.cancel }
 			confirm={ pending ? copy.importingBackup : errorKey ? copy.retry : copy.replaceBackup }
-			pending={ pending } focusConfirm={ errorKey !== null }
+			pending={ pending } cancelDisabled={ recoveryPending } focusConfirm={ errorKey !== null }
 			onCancel={ () => {
-				selection.current++; setPreview( null ); setError( null );
+				selection.current++; setPreview( null ); setError( null ); props.onBusyChange( false );
 			} }
 			onConfirm={ () => {
 				void confirm();

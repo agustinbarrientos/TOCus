@@ -447,6 +447,13 @@ shell.backupActions = createBackupDataActions( {
 				return Promise.resolve( { status: 'ready', generation: typeof marker === 'object' && marker &&
 					'generation' in marker ? marker.generation : null } );
 			}
+			backupFixture.setFailure( controls.rejectSaves ? 'target' : '' );
+			if ( controls.holdConfigurationWrites ) {
+				return new Promise<void>( ( resolve ) => {
+					pendingConfigurationWrites.add( resolve );
+				} )
+					.then( () => backupFixture.backup.import( request ) );
+			}
 			return backupFixture.backup.import( request );
 		},
 	},
