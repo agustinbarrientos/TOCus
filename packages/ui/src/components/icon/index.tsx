@@ -7,6 +7,7 @@ import brush from '@tocus/theme/icons/brush.svg?raw';
 import arrowUpRightFromSquare from '@tocus/theme/icons/arrow-up-right-from-square.svg?raw';
 import language from '@tocus/theme/icons/language.svg?raw';
 import shieldHalved from '@tocus/theme/icons/shield-halved.svg?raw';
+import fileImport from '@tocus/theme/icons/file-import.svg?raw';
 import userLock from '@tocus/theme/icons/user-lock.svg?raw';
 import calendar from '@tocus/theme/icons/calendar.svg?raw';
 import sliders from '@tocus/theme/icons/sliders.svg?raw';
@@ -33,6 +34,7 @@ const icons = {
 	[ IconName.ARROW_UP_RIGHT_FROM_SQUARE ]: arrowUpRightFromSquare,
 	[ IconName.LANGUAGE ]: language,
 	[ IconName.SHIELD_HALVED ]: shieldHalved,
+	[ IconName.FILE_IMPORT ]: fileImport,
 	[ IconName.USER_LOCK ]: userLock,
 	[ IconName.CALENDAR ]: calendar,
 	[ IconName.SLIDERS ]: sliders,
