@@ -30,6 +30,8 @@ export interface ConfirmationProps {
 	cancel: string;
 	confirm: string;
 	pending?: boolean;
+	/** Retains a recovery decision after a durable replacement has already committed. */
+	cancelDisabled?: boolean;
 	save?: ConfirmationSaveAction;
 	error?: string | null;
 	onCancel: () => void;
