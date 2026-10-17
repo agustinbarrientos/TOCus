@@ -235,6 +235,8 @@ class MemorySettingsShell implements SettingsPageShell {
 
 	privacyCopy = TestEnglishLocalizationBundle.privacyCopy;
 
+	backupResetCopy = TestEnglishLocalizationBundle.backupResetCopy;
+
 	protectedSiteItemCopy = TestEnglishLocalizationBundle.protectedSiteItem;
 
 	protectedSitesCopy = TestEnglishLocalizationBundle.protectedSites;
@@ -400,6 +402,7 @@ describe( 'startSettingsPage', () => {
 		expect( shell.copy ).toBe( TestEnglishLocalizationBundle.settingsShell );
 		expect( shell.aboutCopy ).toBe( localizedBundle.aboutCopy );
 		expect( shell.privacyCopy ).toBe( localizedBundle.privacyCopy );
+		expect( shell.backupResetCopy ).toBe( localizedBundle.backupResetCopy );
 	} );
 
 	it( 'sends confirmed privacy resets through the supplied runtime only', async () => {

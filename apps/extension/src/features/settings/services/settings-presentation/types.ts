@@ -57,6 +57,9 @@ export class SettingsPresentationState implements SettingsPageShell {
 	/** Privacy copy supplied before first render. */
 	privacyCopy!: SettingsPageShell['privacyCopy'];
 
+	/** Backup and reset copy supplied before first render. */
+	backupResetCopy!: SettingsPageShell['backupResetCopy'];
+
 	/** Protected-site row copy supplied before first render. */
 	protectedSiteItemCopy!: SettingsPageShell['protectedSiteItemCopy'];
 

@@ -11,7 +11,7 @@ import {
 import { createSiteFaviconProvider } from '../../../protected-sites/services/site-favicon-provider';
 import { createSitePermissionManager } from '../../../protected-sites/services/site-permission-manager';
 import { createStatisticsClient } from '../../../statistics/services/statistics-client';
-import { createPrivacyDataActions } from '../privacy-data-actions';
+import { createLocalDataActions } from '../privacy-data-actions';
 import type {
 	SettingsPageOptions,
 	SettingsPermissionChange,
@@ -103,7 +103,7 @@ export async function startSettingsPage( options: SettingsPageOptions ): Promise
 			createId: () => options.cryptography.randomUUID(),
 			onImported: rebindEditors,
 		} );
-		options.shell.privacyActions = createPrivacyDataActions( { runtime: options.runtime } );
+		options.shell.privacyActions = createLocalDataActions( { runtime: options.runtime } );
 		options.shell.supportsCachedFavicons = options.supportsCachedFavicons;
 		options.shell.aboutVersion = options.version;
 
@@ -143,6 +143,7 @@ export async function startSettingsPage( options: SettingsPageOptions ): Promise
 			options.shell.copy = localization.settingsShell;
 			options.shell.aboutCopy = localization.aboutCopy;
 			options.shell.privacyCopy = localization.privacyCopy;
+			options.shell.backupResetCopy = localization.backupResetCopy;
 			options.shell.appearanceCopy = localization.appearance;
 			options.shell.languageCopy = localization.languageScreen;
 			options.shell.protectedSitesCopy = localization.protectedSites;
