@@ -1,0 +1,16 @@
+.settings-backup-preview {
+	max-block-size: 50vh;
+	overflow: auto;
+	overflow-wrap: anywhere;
+	padding: var(--tocus-space-2);
+
+	dl {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		gap: var(--tocus-space-2);
+	}
+
+	dd {
+		margin: 0;
+	}
+}

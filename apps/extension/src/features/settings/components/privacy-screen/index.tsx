@@ -1,3 +1,4 @@
+import { BackupControls } from '../backup-controls';
 import {
 	useState,
 } from 'react';
@@ -147,6 +148,7 @@ export function Privacy( props: SettingsScreenProps ) {
 				<ul>{ permissions.map( ( permission ) => <li key={ permission }>{ permission }</li> ) }</ul>
 				<p>{ copy.deniedPermission }</p>
 			</section>
+			<BackupControls shell={ props.shell } />
 			<ResetSection title={ copy.statisticsTitle } description={ copy.statisticsDescription }
 				label={ copy.resetStatistics } disabled={ pending || actions === null }
 				onRequest={ () => {
