@@ -7,6 +7,7 @@ import {
 } from '../../../../domains/preferences/types';
 import { PreferencesStorageKey } from '../../../../domains/preferences/services/preferences-storage';
 import { SettingsPlatform } from '../../components/shell/types';
+import type { PrivacyDataRuntime } from '../privacy-data-actions/types';
 import { startSettingsPage } from './index';
 import type {
 	SettingsPageOptions,
@@ -289,6 +290,26 @@ function createOptions( overrides: Partial<SettingsPageOptions> = {} ): Settings
 }
 
 describe( 'startSettingsPage', () => {
+	it( 'recreates generation-bound editors after a completed import and preserves later saves', async () => {
+		const { createBackupFixture } = await import( '../../../../domains/local-data/services/local-data-backup/__fixtures__' );
+		const fixture = createBackupFixture();
+		const options = createOptions( { storageArea: fixture.area,
+			runtime: { sendMessage: vi.fn<PrivacyDataRuntime['sendMessage']>( ( request ) => request.type === 'read-local-backup-state'
+				? Promise.resolve( { status: 'ready', generation: null } ) : fixture.backup.import( request ) ) } } );
+		await startSettingsPage( options );
+		const previous = options.shell.preferencesEditor;
+		const preview = await options.shell.backupActions?.preview( fixture.request.backup );
+		if ( ! preview ) {
+			throw new Error( 'Missing backup preview.' );
+		}
+		await expect( options.shell.backupActions?.confirmImport( preview ) ).resolves.toMatchObject( { status: 'completed' } );
+		expect( options.shell.preferencesEditor ).not.toBe( previous );
+		await expect( previous?.update( { palette: Palette.PINK } ) ).rejects.toThrow();
+		await expect( options.shell.preferencesEditor?.update( { palette: Palette.PINK } ) ).resolves.toMatchObject( {
+			palette: Palette.PINK,
+		} );
+	} );
+
 	it( 'wires every settings dependency before revealing localized preferences', async () => {
 		const shell = new MemorySettingsShell();
 		const removeProperty = vi.fn();

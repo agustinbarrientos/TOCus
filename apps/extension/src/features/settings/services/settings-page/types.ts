@@ -1,3 +1,4 @@
+import type { BackupDataActions } from '../backup-data-actions';
 import type {
 	BrowserPreferencesMutationLock,
 } from '../../../../domains/preferences/services/browser-preferences-editor';
@@ -109,6 +110,8 @@ export interface ProtectedSitesAccessRefresher {
  * @since 1.0.0 Initial implementation.
  */
 export interface SettingsPageShell extends ProtectedSitesAccessRefresher {
+	/** Explicit local backup operations attached by bootstrap. */
+	backupActions?: BackupDataActions | null;
 	/** Localized About destination copy. */
 	aboutCopy: Readonly<AboutScreenCopy>;
 	/** Installed extension version. */
