@@ -134,6 +134,8 @@ test( 'real allowance expiry pauses playing media and Continue preserves the doc
 		await clickButton( browser, 'Save', '.tocus-form-actions' );
 		await expect.poll( () => browser.viewScript( 'selected', `return browser.storage.local.get('tocus.protection.configuration.v1')
 			.then(data => data['tocus.protection.configuration.v1'].timingConfiguration.allowanceMilliseconds);` ) ).toBe( 120_000 );
+		await expect.poll( () => readView( browser, 'selected', `return [...document.querySelectorAll('.tocus-form-actions button')]
+			.some(button => button.textContent.trim() === 'Save' && button.disabled);` ) ).toBe( true );
 		await browser.navigate( `${ url }media` );
 		await expect.poll( () => browser.currentUrl() ).toContain( '/pause.html' );
 		await continuePause( browser );
