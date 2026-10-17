@@ -459,16 +459,51 @@ export async function launchNativeChromium( directory, product, options = {} ) {
 	}
 
 	/**
-	 * Closes only this browser's native download panel using its Close button or verified native keyboard focus.
-	 * @return {Promise<object>} Owned PID, dismissed controls and verified panel disappearance.
+	 * Dismisses this browser's download popup with a native click on its visible page heading.
+	 * @return {Promise<object>} Owned PID, validated native geometry and verified popup disappearance.
 	 */
 	async function dismissDownloads() {
 		const pid = browser.process()?.pid;
 		if ( ! pid || process.platform !== 'linux' ) {
 			throw new Error( 'Native download dismissal requires the owned Linux browser and configured AT-SPI session.' );
 		}
+		const page = await selectedPage();
+		await page.waitForSelector( 'h1', { visible: true } );
+		const point = await page.evaluate( async () => {
+			const { document, innerWidth, innerHeight, outerWidth, outerHeight,
+				screenX, screenY, devicePixelRatio, visualViewport } = globalThis;
+			const heading = document.querySelector( 'h1' );
+			if ( ! heading ) {
+				throw new Error( 'The page heading disappeared before native download dismissal.' );
+			}
+			heading.scrollIntoView( { behavior: 'instant', block: 'center', inline: 'nearest' } );
+			await new Promise( ( resolve ) => {
+				globalThis.requestAnimationFrame( () => globalThis.requestAnimationFrame( resolve ) );
+			} );
+			const bounds = heading?.getBoundingClientRect();
+			if ( ! heading || ! bounds || bounds.width <= 0 || bounds.height <= 0 ||
+				bounds.left < 0 || bounds.top < 0 || bounds.right > innerWidth || bounds.bottom > innerHeight ||
+				globalThis.getComputedStyle( heading ).visibility !== 'visible' ||
+				heading.closest( 'a,button,[role=button]' ) ) {
+				throw new Error( 'Native download dismissal requires a visible noninteractive page heading.' );
+			}
+			const x = bounds.left + Math.min( 12, bounds.width / 2 );
+			const y = bounds.top + bounds.height / 2;
+			const hit = document.elementFromPoint( x, y );
+			if ( ! heading.contains( hit ) || hit?.closest( 'a,button,[role=button]' ) || devicePixelRatio !== 1 ||
+				( visualViewport?.scale ?? 1 ) !== 1 ) {
+				throw new Error( 'The heading is covered or its native screen coordinate scale is unsupported.' );
+			}
+			const border = ( outerWidth - innerWidth ) / 2;
+			return {
+				x: Math.round( screenX + border + x ),
+				y: Math.round( screenY + outerHeight - innerHeight - border + y ),
+			};
+		} );
 		const result = await executeFile( process.env.NATIVE_BROWSER_PYTHON ?? '/usr/bin/python3', [
-			fileURLToPath( new URL( './linux-consent.py', import.meta.url ) ), String( pid ), 'dismiss-downloads' ], { timeout: 20_000 } );
+			fileURLToPath( new URL( './linux-consent.py', import.meta.url ) ), String( pid ), 'dismiss-downloads',
+			JSON.stringify( point ),
+		], { timeout: 20_000 } );
 		const evidence = JSON.parse( result.stdout.trim() );
 		downloadDismissals.push( evidence );
 		return evidence;

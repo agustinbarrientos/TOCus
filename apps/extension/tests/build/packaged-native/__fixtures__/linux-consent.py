@@ -22,27 +22,33 @@ def descendants(element, depth=0):
     return nodes
 
 
-def download_focus_nodes(element, depth=0):
-    """Inspect focus only inside an already verified native Downloads dialog, including its WebUI."""
-    if depth > 25:
-        return []
-    nodes = [element]
-    for index in range(element.get_child_count()):
-        child = element.get_child_at_index(index)
-        if child is not None:
-            nodes.extend(download_focus_nodes(child, depth + 1))
-    return nodes
+def screen_extents(element):
+    """Read native screen bounds only when both required visibility states are present."""
+    states = element.get_state_set()
+    if not all(states.contains(state) for state in (Atspi.StateType.VISIBLE, Atspi.StateType.SHOWING)):
+        return None
+    component = element.get_component_iface()
+    if component is None:
+        return None
+    bounds = component.get_extents(Atspi.CoordType.SCREEN)
+    return {"x": bounds.x, "y": bounds.y, "width": bounds.width, "height": bounds.height}
 
 
-def dismiss_downloads(pid):
-    """Close only the owned download dialog, then verify native chrome is clear."""
+def contains_point(bounds, point):
+    """Keep native screen coordinates inside the element's nonempty pixel bounds."""
+    return (bounds is not None and bounds["width"] > 0 and bounds["height"] > 0
+            and bounds["x"] <= point["x"] < bounds["x"] + bounds["width"]
+            and bounds["y"] <= point["y"] < bounds["y"] + bounds["height"])
+
+
+def dismiss_downloads(pid, point):
+    """Click a verified neutral page point outside only this browser's download popup."""
+    if not isinstance(point, dict) or any(type(point.get(axis)) is not int for axis in ("x", "y")):
+        raise ValueError("Native download dismissal requires integer heading screen coordinates")
     deadline = time.monotonic() + 15
     absent_since = None
-    dismissed = []
+    clicks = []
     observed = []
-    focused_downloads = False
-    escaped_downloads = False
-    required_states = (Atspi.StateType.ENABLED, Atspi.StateType.VISIBLE, Atspi.StateType.SHOWING)
     while time.monotonic() < deadline:
         context = GLib.MainContext.default()
         while context.pending():
@@ -51,72 +57,60 @@ def dismiss_downloads(pid):
         owned = False
         dialogs = []
         other_dialogs = []
+        frames = []
+        observed = []
         for index in range(desktop.get_child_count()):
             application = desktop.get_child_at_index(index)
             if application.get_process_id() != pid:
                 continue
+            # Refresh the owned native tree so a dismissed popup cannot retain cached SHOWING state.
+            application.clear_cache()
             owned = True
             for window_index in range(application.get_child_count()):
-                nodes = descendants(application.get_child_at_index(window_index))
-                for node in nodes:
-                    if (node.get_role() != Atspi.Role.DIALOG
-                            or not node.get_state_set().contains(Atspi.StateType.SHOWING)):
+                window = application.get_child_at_index(window_index)
+                if window.get_role() == Atspi.Role.FRAME:
+                    frames.append(screen_extents(window))
+                for node in descendants(window):
+                    if node.get_role() != Atspi.Role.DIALOG:
                         continue
+                    states = node.get_state_set()
+                    visible = states.contains(Atspi.StateType.VISIBLE)
+                    showing = states.contains(Atspi.StateType.SHOWING)
                     if node.get_name() in ("Recent download history", "Downloads"):
-                        dialogs.append(node)
-                    else:
-                        other_dialogs.append(node)
+                        bounds = screen_extents(node)
+                        observed.append({"name": node.get_name(), "visible": visible,
+                                         "showing": showing, "bounds": bounds})
+                        if visible and showing:
+                            dialogs.append(bounds)
+                    elif visible and showing:
+                        other_dialogs.append(node.get_name())
         if owned and not dialogs:
             if absent_since is None:
                 absent_since = time.monotonic()
             if time.monotonic() - absent_since >= 0.5:
-                print(json.dumps({"pid": pid, "action": "dismiss-downloads", "dismissed": dismissed}))
+                print(json.dumps({"pid": pid, "action": "dismiss-downloads", "clicks": clicks,
+                                  "remainingNativeDialogs": observed}))
                 return
         else:
             absent_since = None
-        for dialog in dialogs:
-            nodes = descendants(dialog)
-            observed = [{"role": node.get_role_name(), "name": node.get_name()} for node in nodes]
-            close = next((node for node in nodes
-                          if node.get_role() == Atspi.Role.PUSH_BUTTON and node.get_name() == "Close"
-                          and all(node.get_state_set().contains(state) for state in required_states)), None)
-            if close is None:
-                if dialog.get_name() != "Downloads" or escaped_downloads:
-                    continue
-                if other_dialogs:
-                    raise RuntimeError("Refusing download Escape while another owned native dialog is showing")
-                focus_nodes = download_focus_nodes(dialog)
-                focused = next((node for node in focus_nodes
-                                if node.get_state_set().contains(Atspi.StateType.FOCUSED)), None)
-                if not focused_downloads:
-                    if focused is None:
-                        candidates = [dialog] + [node for node in focus_nodes[1:]
-                                                 if node.get_state_set().contains(Atspi.StateType.FOCUSABLE)
-                                                 and all(node.get_state_set().contains(state)
-                                                         for state in required_states)]
-                        for candidate in candidates:
-                            component = candidate.get_component_iface()
-                            if component is not None and component.grab_focus():
-                                break
-                        else:
-                            raise RuntimeError("The owned Downloads dialog refused native keyboard focus")
-                    focused_downloads = True
-                    continue
-                if focused is None:
-                    continue
-                # Native keyboard synthesis is safe only after focus is verified inside this exact owned dialog.
-                if not Atspi.generate_keyboard_event(0xFF1B, None, Atspi.KeySynthType.SYM):
-                    raise RuntimeError("Native Escape could not be delivered to the focused Downloads dialog")
-                escaped_downloads = True
-                dismissed.append({"dialog": "Downloads", "key": "Escape", "focusedRole": focused.get_role_name()})
-                continue
-            action = close.get_action_iface()
-            if action is None or action.get_n_actions() == 0 or not action.do_action(0):
-                raise RuntimeError("The native download dialog Close button refused its AT-SPI action")
-            dismissed.append({"dialog": dialog.get_name(), "button": "Close"})
+        if dialogs and not clicks:
+            if other_dialogs:
+                raise RuntimeError("Refusing download dismissal while another native dialog is showing: "
+                                   + json.dumps(other_dialogs))
+            frame = next((bounds for bounds in frames if contains_point(bounds, point)), None)
+            if frame is None:
+                raise RuntimeError("Heading point is outside the owned visible browser frame: "
+                                   + json.dumps({"point": point, "frames": frames}))
+            if any(bounds is None or bounds["width"] <= 0 or bounds["height"] <= 0 for bounds in dialogs):
+                raise RuntimeError("A visible download popup has unavailable native screen bounds")
+            if any(contains_point(bounds, point) for bounds in dialogs):
+                raise RuntimeError("Heading point overlaps an owned native download popup")
+            if not Atspi.generate_mouse_event(point["x"], point["y"], "b1c"):
+                raise RuntimeError("Native outside click could not be delivered")
+            clicks.append({"event": "b1c", "point": point, "frame": frame, "dialogs": observed})
         time.sleep(0.1)
-    raise RuntimeError("The owned native download dialog did not close. " + json.dumps({
-        "pid": pid, "nativeControls": observed, "dismissed": dismissed
+    raise RuntimeError("The owned native download popup did not disappear. " + json.dumps({
+        "pid": pid, "point": point, "nativeDialogs": observed, "clicks": clicks
     }))
 
 
@@ -130,7 +124,7 @@ def main():
     if initialized not in (0, 1):
         raise RuntimeError("AT-SPI could not initialize; run under the configured D-Bus and Xvfb session")
     if mode == "dismiss-downloads":
-        dismiss_downloads(pid)
+        dismiss_downloads(pid, json.loads(sys.argv[3]))
         return
     allow = mode == "allow"
     deadline = time.monotonic() + 15
