@@ -115,7 +115,7 @@ describe( 'createLocalizationBundle', () => {
 		expect( bundle.popup.pauseSite ).toBe( 'Pause site' );
 		expect( bundle.settingsShell.navigationLabel ).toBe( 'Settings' );
 		expect( bundle.aboutCopy.formatVersion( '2.3.4' ) ).toBe( 'Version 2.3.4' );
-		expect( bundle.privacyCopy.title ).toBe( 'Privacy and local data' );
+		expect( bundle.privacyCopy.title ).toBe( 'Privacy' );
 		expect( bundle.languageScreen.languageLabel ).toBe( 'TOCus language' );
 		expect( bundle.appearance.themeOptions.system.label ).toBe( 'System' );
 		expect( bundle.settingsShell.timing ).toBe( 'Pause timing' );

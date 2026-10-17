@@ -3,6 +3,7 @@ import type { Language as LanguageValue } from '../../../domains/preferences/typ
 import { getLanguageTag } from '../../../domains/preferences/utils/resolve-language';
 import { createAppearanceCopy } from '../create-appearance-copy';
 import { createAboutScreenCopy } from '../create-about-screen-copy';
+import { createBackupResetScreenCopy } from '../create-backup-reset-screen-copy';
 import { createPrivacyScreenCopy } from '../create-privacy-screen-copy';
 import { createDocumentCopy } from '../create-document-copy';
 import { createInterruptionCopy } from '../create-interruption-copy';
@@ -50,6 +51,7 @@ export function createLocalizationBundle(
 		settingsShell: createSettingsShellCopy( i18n ),
 		aboutCopy: createAboutScreenCopy( i18n ),
 		privacyCopy: createPrivacyScreenCopy( i18n ),
+		backupResetCopy: createBackupResetScreenCopy( i18n ),
 		languageScreen: createLanguageScreenCopy( i18n ),
 		appearance: createAppearanceCopy( i18n ),
 		schedule: createScheduleCopy( i18n, formatters ),
