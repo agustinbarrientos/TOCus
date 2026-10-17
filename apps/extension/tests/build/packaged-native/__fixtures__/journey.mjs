@@ -89,7 +89,7 @@ export function protectionState( browser, view = 'selected' ) {
  * @since 1.0.1
  */
 export async function withBrowser( run, options = {} ) {
-	const product = test.info().project.name;
+	const product = options.product ?? test.info().project.name;
 	const hostname = options.hostname ?? '127.0.0.1';
 	const directory = await mkdtemp( join( tmpdir(), `tocus-installed-${ product }-` ) );
 	const requests = new Map();
@@ -149,6 +149,20 @@ export async function withBrowser( run, options = {} ) {
 	const countRequests = ( path ) => requests.get( path ) ?? 0;
 	let browser;
 	let failure;
+	/**
+	 * Returns the actual completed browser download without decoding or rewriting its bytes.
+	 * @return {Promise<string>} Absolute path in this journey's owned download directory.
+	 */
+	async function downloadedBackupPath() {
+		let path;
+		await expect.poll( async () => {
+			const names = await readdir( browser.downloadDirectory );
+			const name = names.find( ( candidate ) => candidate.endsWith( '.json' ) );
+			path = name ? join( browser.downloadDirectory, name ) : undefined;
+			return Boolean( path ) && ! names.some( ( candidate ) => /\.(part|crdownload)$/u.test( candidate ) );
+		} ).toBe( true );
+		return path;
+	}
 	try {
 		if ( options.https ) {
 			server = createSecureServer( await fixtureCertificate( directory, hostname ), handleRequest );
@@ -175,16 +189,9 @@ export async function withBrowser( run, options = {} ) {
 			 * @return {Promise<object>} Downloaded portable JSON.
 			 */
 			async readBackup() {
-				let path;
-				await expect.poll( async () => {
-					const names = await readdir( browser.downloadDirectory );
-					const name = names.find( ( candidate ) => candidate.endsWith( '.json' ) );
-					path = name ? join( browser.downloadDirectory, name ) : undefined;
-					return Boolean( path ) &&
-						! names.some( ( candidate ) => /\.(part|crdownload)$/u.test( candidate ) );
-				} ).toBe( true );
-				return JSON.parse( await readFile( path, 'utf8' ) );
+				return JSON.parse( await readFile( await downloadedBackupPath(), 'utf8' ) );
 			},
+			backupPath: downloadedBackupPath,
 		} );
 	} catch ( error ) {
 		failure = error;

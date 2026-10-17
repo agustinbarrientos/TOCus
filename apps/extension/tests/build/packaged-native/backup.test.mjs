@@ -1,3 +1,6 @@
+import { cp, mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
 	clickButton, continuePause, enroll, expect, fill, protectionState, readView, reload,
 	setSelect, settings, test, withBrowser,
@@ -79,7 +82,7 @@ test( 'Portable backup round trip preserves real settings and history across den
 		expect( await stored( browser, configurationKey ) ).toEqual( configuration );
 		expect( await stored( browser, preferencesKey ) ).toEqual( preferences );
 		expect( await stored( browser, statisticsKey ) ).toEqual( history );
-		const path = await files.writeBackup( backup );
+		const path = await files.backupPath();
 		await preview( browser, path );
 		await clickButton( browser, 'Cancel', '[role=dialog]' );
 		expect( await stored( browser, configurationKey ) ).toEqual( configuration );
@@ -111,9 +114,90 @@ test( 'Portable backup round trip preserves real settings and history across den
 		await reload( browser );
 		for ( const range of [ 'current-week', 'current-month', 'all-time' ] ) {
 			await setSelect( browser, '.settings-statistics-period-select select', range );
-			await expect.poll( () => readView( browser, 'selected', 'return document.querySelector(".settings-metrics")?.textContent;' ) ).toContain( '1' );
+			await expect.poll( () => metrics( browser ) ).toMatchObject( {
+				'Completed waits': '1', 'Allowances granted': '1', 'Reconsidered visits': '0',
+			} );
 		}
 		await browser.openPage( `${ url }after-restore` );
 		await expect.poll( () => browser.currentUrl() ).toContain( '/pause.html' );
 	} );
+} );
+
+
+/**
+ * Reads every visible metric by its localized label rather than matching stray digits.
+ * @param {object} browser - Disposable installed browser.
+ * @return {Promise<object>} Individual historical metrics displayed by production UI.
+ */
+function metrics( browser ) {
+	return readView( browser, 'selected', `return Object.fromEntries([...document.querySelectorAll('.settings-metrics > div')]
+		.map(row => [row.querySelector('dt').textContent, row.querySelector('dd').textContent]));` );
+}
+
+test( 'Imports the exact downloaded backup from a different installed browser', async () => {
+	test.setTimeout( 180_000 );
+	const sourceProduct = { chrome: 'firefox', edge: 'chrome', firefox: 'edge' }[ test.info().project.name ];
+	if ( ! sourceProduct ) {
+		throw new Error( 'Unknown destination browser.' );
+	}
+	const transfer = await mkdtemp( join( tmpdir(), 'tocus-backup-transfer-' ) );
+	const path = join( transfer, 'downloaded-backup.json' );
+	let backup;
+	const expectedMetrics = {};
+	try {
+		await withBrowser( async ( browser, url, files ) => {
+			await enroll( browser, url );
+			await settings( browser, 'appearance' );
+			await browser.viewClick( 'selected', '.preferences-theme-card[aria-label="Dark"]' );
+			await browser.viewClick( 'selected', '.preferences-palette-card[data-palette="purple"]' );
+			await save( browser );
+			await browser.openPage( `${ url }portable-history` );
+			await continuePause( browser );
+			await expect.poll( () => browser.currentUrl() ).toBe( `${ url }portable-history` );
+			await browser.closePage();
+			await settings( browser, 'statistics' );
+			for ( const range of [ 'current-week', 'current-month', 'all-time' ] ) {
+				await setSelect( browser, '.settings-statistics-period-select select', range );
+				await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed waits': '1', 'Allowances granted': '1' } );
+				expectedMetrics[ range ] = await metrics( browser );
+			}
+			await settings( browser, 'privacy' );
+			await clickButton( browser, 'Export backup', '.settings-backup' );
+			const downloaded = await files.backupPath();
+			const bytes = await readFile( downloaded );
+			await cp( downloaded, path, { errorOnExist: true, force: false } );
+			expect( await readFile( path ) ).toEqual( bytes );
+			backup = JSON.parse( bytes.toString( 'utf8' ) );
+		}, { product: sourceProduct } );
+		await withBrowser( async ( browser, url ) => {
+			await settings( browser, 'privacy' );
+			await preview( browser, path );
+			await clickButton( browser, 'Replace settings and statistics', '[role=dialog]' );
+			await browser.consent( true );
+			await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("[role=dialog]") === null;' ) ).toBe( true );
+			const configuration = await stored( browser, configurationKey );
+			expect( configuration.sites ).toEqual( backup.settings.sites );
+			expect( configuration.schedule ).toEqual( backup.settings.schedule );
+			expect( configuration.timingConfiguration ).toEqual( backup.settings.timingConfiguration );
+			const preferences = await stored( browser, preferencesKey );
+			const portablePreferences = Object.fromEntries( Object.entries( preferences ).filter( ( [ key ] ) => key !== 'schemaVersion' ) );
+			expect( portablePreferences ).toEqual( backup.preferences );
+			const statistics = await stored( browser, statisticsKey );
+			expect( statistics.dailyTotals ).toEqual( backup.statistics.dailyTotals );
+			for ( const [ scope, totals ] of Object.entries( backup.statistics.scopes ) ) {
+				expect( statistics.scopes[ scope ].totals ).toEqual( totals );
+				expect( statistics.scopes[ scope ] ).not.toHaveProperty( 'activeAllowance' );
+			}
+			await settings( browser, 'statistics' );
+			await reload( browser );
+			for ( const range of [ 'current-week', 'current-month', 'all-time' ] ) {
+				await setSelect( browser, '.settings-statistics-period-select select', range );
+				await expect.poll( () => metrics( browser ) ).toEqual( expectedMetrics[ range ] );
+			}
+			await browser.openPage( `${ url }portable-protection` );
+			await expect.poll( () => browser.currentUrl() ).toContain( '/pause.html' );
+		} );
+	} finally {
+		await rm( transfer, { recursive: true, force: true } );
+	}
 } );
