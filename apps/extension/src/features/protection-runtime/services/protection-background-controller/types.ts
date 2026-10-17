@@ -1,3 +1,4 @@
+import type { BackupExportResult, BackupImportResult, BackupStateResult } from '../../../../domains/local-data/types/backup-operation';
 import type { Browser } from 'wxt/browser';
 import type { InterruptionPageResponse, NavigationRedirectResponse } from '../../types/runtime-message';
 import type { BrowserProtectionRuntime } from '../browser-protection-runtime';
@@ -149,6 +150,7 @@ export interface ProtectionBackgroundMessageSender {
  * @since 1.0.0 Initial implementation.
  */
 export type ProtectionBackgroundMessageResponse =
+	BackupExportResult | BackupImportResult | BackupStateResult |
 	boolean | InterruptionPageResponse | StatisticsProjection | NavigationRedirectResponse;
 
 /**
