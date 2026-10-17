@@ -400,7 +400,8 @@ export function startProtectionBackgroundApplication(
 		 * @since 1.1.0
 		 */
 		async ready(): Promise<boolean> {
-			return await resetController.waitUntilReady() || await resetController.retryRecovery();
+			return ( await resetController.waitUntilReady() || await resetController.retryRecovery() ) &&
+				await backup.recover();
 		},
 	} );
 	backupController.start();

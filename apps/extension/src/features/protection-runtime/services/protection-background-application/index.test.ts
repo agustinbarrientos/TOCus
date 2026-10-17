@@ -268,6 +268,11 @@ describe( 'startProtectionBackgroundApplication', () => {
 		ready.mockResolvedValue( true );
 		await expect( backupControllerOptions.ready() ).resolves.toBe( true );
 		expect( retryRecovery ).toHaveBeenCalledOnce();
+		backup.recover.mockResolvedValueOnce( false );
+		await expect( backupControllerOptions.ready() ).resolves.toBe( false );
+		ready.mockResolvedValueOnce( false );
+		retryRecovery.mockResolvedValueOnce( false );
+		await expect( backupControllerOptions.ready() ).resolves.toBe( false );
 		await backupOptions.resume();
 		expect( backgroundMocks.resumeAfterDataReset ).not.toHaveBeenCalled();
 		await backupOptions.suspend();
