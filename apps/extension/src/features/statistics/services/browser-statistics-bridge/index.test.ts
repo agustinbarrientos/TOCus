@@ -820,3 +820,22 @@ describe( 'createBrowserStatisticsBridge', () => {
 		).toEqual( [ firstStates, secondStates ] );
 	} );
 } );
+
+it( 'exports committed history only after earlier statistics writes finish without starting a checkpoint', async () => {
+	const { bridge, statisticsRuntime } = createBridgeHarness();
+	const write = Promise.withResolvers<undefined>();
+	statisticsRuntime.reconcileConfiguration.mockReturnValueOnce( write.promise );
+	bridge.reconcileConfiguration( EXAMPLE_CONFIGURATION );
+	let completed = false;
+	const snapshot = bridge.readBackupDocument().then( ( value ) => {
+		completed = true; return value;
+	} );
+	await Promise.resolve();
+	await Promise.resolve();
+	expect( completed ).toBe( false );
+	write.resolve( undefined );
+	await expect( snapshot ).resolves.toBeNull();
+	expect( statisticsRuntime.checkpoint ).not.toHaveBeenCalled();
+	await bridge.suspendForDataReset();
+	await expect( bridge.readBackupDocument() ).resolves.toBeNull();
+} );

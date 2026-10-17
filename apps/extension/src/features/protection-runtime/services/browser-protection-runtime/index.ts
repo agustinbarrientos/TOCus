@@ -579,7 +579,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * @since 1.1.0
 	 */
 	function readBackupStatistics(): ReturnType<BrowserProtectionRuntime['readBackupStatistics']> {
-		return enqueue( () => options.statisticsRuntime.readBackupDocument(), null );
+		return enqueue( () => statisticsBridge.readBackupDocument(), null );
 	}
 
 	/**
