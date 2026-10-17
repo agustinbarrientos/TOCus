@@ -1,3 +1,4 @@
+import { ProtectionConfigurationDocumentSchema } from '../../../protection/types/protected-site-configuration';
 import { PreferencesStorageKey } from '../../../preferences/services/preferences-storage';
 import { ProtectionConfigurationStorageKey } from '../../../protection/services/protection-configuration-storage';
 import { ProtectionStorageKey } from '../../../protection/services/protection-storage';
@@ -87,6 +88,7 @@ export function createLocalDataBackup( options: LocalDataBackupOptions ): LocalD
 			},
 			[ BackupImportReceiptKey ]: receipt,
 		} );
+		await options.releaseObsoleteAccess?.( journal.previousRules, journal.documents.configuration );
 		await options.localArea.remove( [ BackupImportJournalKey ] );
 		await resume();
 		return { status: 'completed', requestId: journal.requestId, generation: journal.generation };
@@ -147,7 +149,11 @@ export function createLocalDataBackup( options: LocalDataBackupOptions ): LocalD
 					statisticsGeneration: StatisticsGenerationIdSchema.parse( options.createId() ),
 					measurementRevision: ProtectionMeasurementRevisionSchema.parse( options.createId() ),
 				} );
+				const previous = ProtectionConfigurationDocumentSchema.safeParse(
+					await read( ProtectionConfigurationStorageKey.CONFIGURATION ),
+				);
 				const journal = BackupImportJournalSchema.parse( {
+					previousRules: previous.success ? previous.data.sites.map( ( site ) => site.rule ) : [],
 					requestId: request.requestId, fingerprint: hash, generation, documents,
 				} );
 				await options.localArea.set( { [ BackupImportJournalKey ]: journal } );
@@ -157,8 +163,13 @@ export function createLocalDataBackup( options: LocalDataBackupOptions ): LocalD
 					if ( await read( BackupImportJournalKey ) !== undefined ) {
 						return { status: 'recovery-pending' };
 					}
+					const saved = await read( BackupImportReceiptKey );
+					const completion = BackupImportReceiptSchema.safeParse( saved );
 					await resume();
-					return { status: 'failed' };
+					return completion.success && completion.data.requestId === request.requestId &&
+						completion.data.fingerprint === hash
+						? { status: 'completed', requestId: completion.data.requestId, generation: completion.data.generation }
+						: { status: 'failed' };
 				} catch {
 					return { status: 'recovery-pending' };
 				}

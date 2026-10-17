@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { BackupDocumentSchema } from './backup-document';
+import { ProtectedSiteRuleSchema } from '../../protection/types/protected-site-rule';
 import { ProtectionConfigurationDocumentSchema } from '../../protection/types/protected-site-configuration';
 import { PreferencesDocumentSchema } from '../../preferences/types';
 import { StatisticsDocumentSchema } from '../../statistics/types/statistics-document';
@@ -41,6 +42,7 @@ export const BackupImportReceiptSchema = z.strictObject( {
  * @since 1.1.0
  */
 export const BackupImportJournalSchema = BackupImportReceiptSchema.extend( {
+	previousRules: z.array( ProtectedSiteRuleSchema ).default( [] ),
 	documents: z.strictObject( {
 		configuration: ProtectionConfigurationDocumentSchema,
 		preferences: PreferencesDocumentSchema,
@@ -85,3 +87,32 @@ export const BackupExportResultSchema = z.discriminatedUnion( 'status', [
  * @since 1.1.0
  */
 export type BackupExportResult = z.infer<typeof BackupExportResultSchema>;
+
+/**
+ * Non-mutating backup requests accepted from settings.
+ * @since 1.1.0
+ */
+export const BackupControlRequestSchema = z.strictObject( {
+	type: z.enum( [ 'export-local-backup', 'read-local-backup-state' ] ),
+} );
+
+/**
+ * Read-only backup request.
+ * @since 1.1.0
+ */
+export type BackupControlRequest = z.infer<typeof BackupControlRequestSchema>;
+
+/**
+ * Readiness and generation captured before confirming a selected file.
+ * @since 1.1.0
+ */
+export const BackupStateResultSchema = z.discriminatedUnion( 'status', [
+	z.strictObject( { status: z.literal( 'ready' ), generation: z.string().min( 1 ).nullable() } ),
+	z.strictObject( { status: z.enum( [ 'busy', 'unavailable' ] ) } ),
+] );
+
+/**
+ * Current backup authority readiness.
+ * @since 1.1.0
+ */
+export type BackupStateResult = z.infer<typeof BackupStateResultSchema>;

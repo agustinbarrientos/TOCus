@@ -173,10 +173,46 @@ describe( 'local backup replacement authority', () => {
 
 	it( 'rejects oversized valid structures before creating any durable intent', async () => {
 		const fixture = createBackupFixture();
+		const totals = fixture.request.backup.statistics.scopes.scope_default;
+		if ( ! totals ) {
+			throw new Error( 'Missing fixture history.' );
+		}
 		fixture.request.backup.statistics.scopes = Object.fromEntries( [
-			[ 'a'.repeat( 10 * 1_024 * 1_024 ), fixture.request.backup.statistics.scopes.scope_default ],
+			[ 'a'.repeat( 10 * 1_024 * 1_024 ), totals ],
 		] );
 		expect( ( await fixture.backup.import( fixture.request ) ).status ).toBe( 'invalid' );
 		expect( fixture.writeCount() ).toBe( 0 );
 	} );
+} );
+
+
+describe( 'obsolete imported permissions', () => {
+	it( 'releases obsolete rules only after committing complete targets and retries interrupted cleanup', async () => {
+		const fixture = createBackupFixture();
+		const release = vi.fn().mockRejectedValueOnce( new Error( 'Browser unavailable' ) ).mockResolvedValue( undefined );
+		fixture.options.releaseObsoleteAccess = release;
+		fixture.request.backup.settings.sites = [];
+		await expect( fixture.backup.import( fixture.request ) ).resolves.toEqual( { status: 'recovery-pending' } );
+		expect( release ).toHaveBeenCalledWith( [ expect.objectContaining( { host: 'youtube.com' } ) ],
+			expect.objectContaining( { sites: [] } ) );
+		await expect( fixture.restart().recover() ).resolves.toBe( true );
+		expect( release ).toHaveBeenCalledTimes( 2 );
+	} );
+} );
+
+
+it( 'never reports unchanged data after a committed import with a transient restart failure', async () => {
+	const fixture = createBackupFixture();
+	fixture.options.resume = vi.fn().mockRejectedValueOnce( new Error( 'Transient restart' ) ).mockResolvedValue( undefined );
+	await expect( fixture.backup.import( fixture.request ) ).resolves.toMatchObject( { status: 'completed' } );
+} );
+
+
+it( 'can replace malformed existing settings without guessing which grants they owned', async () => {
+	const fixture = createBackupFixture();
+	fixture.values[ ProtectionConfigurationStorageKey.CONFIGURATION ] = { malformed: true };
+	const release = vi.fn().mockResolvedValue( undefined );
+	fixture.options.releaseObsoleteAccess = release;
+	await expect( fixture.backup.import( fixture.request ) ).resolves.toMatchObject( { status: 'completed' } );
+	expect( release ).toHaveBeenCalledWith( [], expect.objectContaining( { sites: [ expect.anything() ] } ) );
 } );

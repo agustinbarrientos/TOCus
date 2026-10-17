@@ -75,7 +75,7 @@ describe( 'portable local backup', () => {
 
 	it( 'refuses corrupted saved values instead of exporting defaults', () => {
 		const source = createBackupSource();
-		source.preferences.schemaVersion = 99;
+		Reflect.set( source.preferences, 'schemaVersion', 99 );
 		expect( () => createBackupDocument( source ) ).toThrow();
 	} );
 

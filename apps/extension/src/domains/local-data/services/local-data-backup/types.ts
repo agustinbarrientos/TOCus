@@ -1,3 +1,5 @@
+import type { ProtectedSiteRule } from '../../../protection/types/protected-site-rule';
+import type { ProtectionConfigurationDocument } from '../../../protection/types/protected-site-configuration';
 import type { BackupExportResult, BackupImportResult } from '../../types/backup-operation';
 import type { BackupSource } from '../../utils/backup-document';
 import type { LocalDataResetArea, LocalDataResetLocks } from '../local-data-reset/types';
@@ -30,6 +32,15 @@ export interface LocalDataBackupOptions {
 	 * @return Completion of runtime restart and capability reconciliation.
 	 */
 	resume(): Promise<void>;
+	/**
+	 * Releases only obsolete website grants after replacement targets are committed.
+	 * @param previousRules - Former configured rules retained for recovery.
+	 * @param configuration - Committed replacement configuration under mutation coordination.
+	 * @return Completion of overlap-aware browser grant cleanup.
+	 */
+	releaseObsoleteAccess?(
+		previousRules: readonly ProtectedSiteRule[], configuration: ProtectionConfigurationDocument,
+	): Promise<void>;
 }
 
 /**
