@@ -63,7 +63,7 @@ export async function readBackupFile( file: BackupFile ): Promise<BackupDocument
  * @since 1.1.0
  */
 export function downloadBackup( backup: BackupDocument ): void {
-	const blob = new Blob( [ JSON.stringify( backup, null, 2 ) ], { type: 'application/json' } );
+	const blob = new Blob( [ JSON.stringify( backup ) ], { type: 'application/json' } );
 	const url = URL.createObjectURL( blob );
 	const anchor = document.createElement( 'a' );
 	try {

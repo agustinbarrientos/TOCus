@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { readBackupFile, downloadBackup } from '.';
 import { BackupMaximumBytes } from '../../../../domains/local-data/types/backup-document';
-import { createBackupDocument } from '../../../../domains/local-data/utils/backup-document';
+import { createBackupDocument, parseBackupText } from '../../../../domains/local-data/utils/backup-document';
 import { createBackupSource } from '../../../../domains/local-data/utils/backup-document/__fixtures__';
 
 describe( 'local backup files', () => {
@@ -56,4 +56,35 @@ describe( 'local backup files', () => {
 			vi.unstubAllGlobals();
 		}
 	} );
+} );
+
+
+it( 'downloads the bounded serialization so large valid backups remain importable', async () => {
+	const backup = createBackupDocument( createBackupSource() );
+	const totals = backup.statistics.scopes.scope_default;
+	if ( ! totals ) {
+		throw new Error( 'Missing history.' );
+	}
+	backup.statistics.scopes = Object.fromEntries( Array.from( { length: 50_000 },
+		( _, index ) => [ `historical_${ String( index ) }`, totals ] ) );
+	const validated = parseBackupText( JSON.stringify( backup ) );
+	let downloaded: Blob | undefined;
+	let text = '';
+	const anchor = { href: '', download: '', click: vi.fn(), remove: vi.fn() };
+	vi.stubGlobal( 'document', { createElement: vi.fn().mockReturnValue( anchor ), body: { append: vi.fn() } } );
+	vi.stubGlobal( 'URL', { createObjectURL: vi.fn( ( blob: Blob ) => {
+		downloaded = blob; return 'blob:backup';
+	} ),
+	revokeObjectURL: vi.fn() } );
+	vi.useFakeTimers();
+	try {
+		downloadBackup( validated );
+		text = await downloaded?.text() ?? '';
+		if ( ! text ) {
+			throw new Error( 'No downloaded bytes.' );
+		}
+	} finally {
+		vi.runAllTimers(); vi.useRealTimers(); vi.unstubAllGlobals();
+	}
+	expect( () => parseBackupText( text ) ).not.toThrow();
 } );
