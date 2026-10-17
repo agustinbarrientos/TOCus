@@ -1,8 +1,27 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createLocalDataMutationGuard, readLocalDataGeneration } from './index';
 import { LocalDataGenerationStorageKey } from './types';
+import { BackupImportJournalKey } from '../../types/backup-storage-key';
 
 describe( 'local data generation', () => {
+	it( 'rejects an editor while an import journal is pending', async () => {
+		const values: Record<string, unknown> = {};
+		const area = { get: vi.fn( ( key: string ) => Promise.resolve( { [ key ]: values[ key ] } ) ) };
+		const guard = createLocalDataMutationGuard( area );
+		await guard();
+		values[ BackupImportJournalKey ] = { pending: 'import' };
+		await expect( guard() ).rejects.toThrow();
+	} );
+
+	it( 'rejects an editor opened during import even when its generation has not changed yet', async () => {
+		const values: Record<string, unknown> = { [ BackupImportJournalKey ]: { pending: 'import' } };
+		const area = { get: vi.fn( ( key: string ) => Promise.resolve( { [ key ]: values[ key ] } ) ) };
+		const guard = createLocalDataMutationGuard( area );
+		await Promise.resolve();
+		await Promise.resolve();
+		Reflect.deleteProperty( values, BackupImportJournalKey );
+		await expect( guard() ).rejects.toThrow();
+	} );
 	it( 'permits an unchanged installation without creating storage', async () => {
 		const area = { get: vi.fn().mockResolvedValue( {} ) };
 		const guard = createLocalDataMutationGuard( area );

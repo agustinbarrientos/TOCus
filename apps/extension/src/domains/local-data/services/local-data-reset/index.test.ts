@@ -3,6 +3,7 @@ import { createLocalDataReset } from './index';
 import { LocalDataGenerationStorageKey } from '../local-data-generation';
 import { ReviewPromptStorageKey } from '../../../preferences/services/review-prompt-storage';
 import type { LocalDataResetOptions } from './types';
+import { BackupImportJournalKey, BackupImportReceiptKey } from '../../types/backup-storage-key';
 
 /**
  * Creates isolated storage and lifecycle boundaries for reset behavior.
@@ -60,11 +61,19 @@ function createFixture() {
 }
 
 describe( 'local data reset', () => {
+	it( 'deletes import recovery data and completion receipts with all user data', async () => {
+		const { service, values } = createFixture();
+		values[ BackupImportJournalKey ] = { staged: 'private settings' };
+		values[ BackupImportReceiptKey ] = { requestId: 'completed' };
+		await expect( service.reset() ).resolves.toBe( true );
+		expect( values[ BackupImportJournalKey ] ).toBeUndefined();
+		expect( values[ BackupImportReceiptKey ] ).toBeUndefined();
+	} );
 	it( 'releases active pauses before revoking access and deleting owned data', async () => {
 		const { service, options, values, events } = createFixture();
 		await expect( service.reset() ).resolves.toBe( true );
 		expect( events ).toEqual( [ 'tocus.protection.configuration.v1', 'tocus.preferences.v1', 'marker', 'suspend', 'revoke', 'session', 'local', 'marker' ] );
-		expect( options.localArea.remove ).toHaveBeenCalledWith( [ 'tocus.protection.configuration.v1', 'tocus.preferences.v1', ReviewPromptStorageKey, 'tocus.protection.durable.v1', 'tocus.statistics.v1' ] );
+		expect( options.localArea.remove ).toHaveBeenCalledWith( [ 'tocus.protection.configuration.v1', 'tocus.preferences.v1', ReviewPromptStorageKey, 'tocus.protection.durable.v1', 'tocus.statistics.v1', BackupImportJournalKey, BackupImportReceiptKey ] );
 		expect( options.sessionArea.remove ).toHaveBeenCalledWith( [ 'tocus.protection.session.v1', 'tocus.statistics.session.v1', 'tocus.statistics.focus-epoch.v1' ] );
 		expect( values ).toEqual( { unrelated: 'keep', [ LocalDataGenerationStorageKey ]: { generation: 'generation-1', pending: false, needsOnboarding: true } } );
 	} );
