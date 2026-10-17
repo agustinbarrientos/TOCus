@@ -14,6 +14,7 @@ export interface PrivacyCatalog {
 	statistics: string;
 	offline: string;
 	temporaryAddress: string;
+	backup: string;
 	verify: string;
 	source: string;
 	permissionsTitle: string;

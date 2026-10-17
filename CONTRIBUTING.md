@@ -17,6 +17,8 @@ On Linux, install missing browser dependencies with `pnpm exec playwright instal
 
 ## Changes
 
+Every pull request with a user-visible change must update `CHANGELOG.md` under the next version marked `Unreleased`. Describe the resulting behavior and affected browsers in that pull request; do not defer entries to a release-only pull request.
+
 - Name branches `<username>/<type>/<short-description>`; types are `enhancement`, `chore`, `fix`, and `feature`.
 - Keep business logic in its domain, screen composition in features, and reusable controls in `packages/ui/`. Colocate tests.
 - Develop behavioral changes test-first. Use shared components and tokens through `@tocus/ui`.
