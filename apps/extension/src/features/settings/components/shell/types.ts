@@ -34,6 +34,7 @@ export type SettingsPlatform = typeof SettingsPlatform[ keyof typeof SettingsPla
 export interface SettingsShellCopy {
 	navigationLabel: string;
 	about: string;
+	backupReset: string;
 	appearance: string;
 	language: string;
 	privacy: string;

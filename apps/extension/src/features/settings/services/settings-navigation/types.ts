@@ -6,6 +6,7 @@ import type { RegisterDraft } from '../../utils/draft-controller/types';
  */
 export const SettingsDestination = {
 	ABOUT: 'about',
+	BACKUP_RESET: 'backup-reset',
 	APPEARANCE: 'appearance',
 	LANGUAGE: 'language',
 	PRIVACY: 'privacy',
