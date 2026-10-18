@@ -88,6 +88,7 @@ export function createPreferencesController(
 
 		if ( options.presentation !== undefined ) {
 			options.presentation.mode = nextPreferences.pauseMode;
+			options.presentation.focusLinks = nextPreferences.focusLinks;
 		}
 
 		synchronizeReducedMotion();

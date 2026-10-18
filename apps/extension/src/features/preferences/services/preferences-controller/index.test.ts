@@ -5,6 +5,7 @@ import {
 	Palette,
 	PauseMode,
 	ThemeMode,
+	type FocusLink,
 	type PreferencesDocument,
 } from '../../../../domains/preferences/types';
 import { PreferencesStorageKey } from '../../../../domains/preferences/services/preferences-storage';
@@ -142,7 +143,7 @@ function createFixture( preferences: PreferencesDocument | null = createPreferen
 			attributes.set( name, value );
 		} ),
 	};
-	const presentation = { mode: PauseMode.BREATHING };
+	const presentation = { mode: PauseMode.BREATHING, focusLinks: [] as readonly FocusLink[] };
 	const storage = { load: vi.fn().mockResolvedValue( preferences ), save: vi.fn() };
 	const storageChanges = new MemoryPreferencesStorageChangeSource();
 	const systemMotionPreference = new MemorySystemMotionPreference();
@@ -557,4 +558,14 @@ describe( 'createPreferencesController', () => {
 		expect( fixture.storage.load ).not.toHaveBeenCalled();
 		expect( fixture.storageChanges.listenerCount ).toBe( 0 );
 	} );
+} );
+
+
+it( 'projects configured focus links into standalone and injected presentations and clears removed preferences', async () => {
+	const focusLinks = [ { id: 'focus_link_reading', label: 'Read a chapter', url: 'https://reading.test/' } ];
+	const fixture = createFixture( createPreferences( { focusLinks } ) );
+	await fixture.controller.start();
+	expect( fixture.presentation.focusLinks ).toEqual( focusLinks );
+	fixture.storageChanges.emit( undefined );
+	expect( fixture.presentation.focusLinks ).toEqual( [] );
 } );

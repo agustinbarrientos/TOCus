@@ -1,6 +1,7 @@
 import type { PreferencesStorageService } from '../../../../domains/preferences/services/preferences-storage';
 import type {
 	Language,
+	FocusLink,
 	PauseMode,
 	PreferencesDocument,
 } from '../../../../domains/preferences/types';
@@ -81,6 +82,8 @@ export interface PreferencesAppearanceTarget {
 export interface PreferencesPresentation {
 	/** User-selected breathing or pause mode. */
 	mode: PauseMode;
+	/** Locally configured alternative destinations offered by the pause. */
+	focusLinks: readonly FocusLink[];
 }
 
 /**
