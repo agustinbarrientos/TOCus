@@ -4,8 +4,6 @@
 
 .settings-focus-link-list { margin-top: 0; }
 
-[data-tocus-ui] .settings-page .settings-focus-link { margin-top: var(--tocus-space-4); }
-
 @media (width <= 38rem) {
 	.settings-site-row.settings-focus-link-row {
 		grid-template-columns: minmax(0, 1fr) auto;
