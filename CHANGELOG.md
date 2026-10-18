@@ -3,6 +3,7 @@
 ## 1.1.0 - Unreleased
 
 - Added: Local JSON backup and restore for website rules, schedules, preferences, and statistics, with a dedicated Backup and reset settings page (Chrome, Edge, Firefox).
+- Changed: Updated the Sass compiler to 1.105.2 and refreshed pinned CI setup and artifact actions (Chrome, Edge, Firefox).
 - Changed: Updated application and development dependencies with a two-day release cooldown while keeping TypeScript 6.0.3 (Chrome, Edge, Firefox).
 - Changed: Added a reviewed development-tool audit exception with an enforced review deadline and production dependency check.
 
