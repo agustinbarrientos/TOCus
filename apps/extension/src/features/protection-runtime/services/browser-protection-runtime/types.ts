@@ -1,3 +1,4 @@
+import type { PreferencesStorageService } from '../../../../domains/preferences/services/preferences-storage';
 import type { StatisticsDocument } from '../../../../domains/statistics/types/statistics-document';
 import type { ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
 import type {
@@ -45,6 +46,8 @@ export interface BrowserProtectionRuntimeOptions {
 	initiallySuspended?: boolean;
 	browser: ProtectionRuntimeBrowser;
 	configurationStorage: ProtectionConfigurationStorageService;
+	/** Local-only preferences used to resolve configured focus destinations. */
+	preferencesStorage: Pick<PreferencesStorageService, 'load'>;
 	coordinator: ProtectionCoordinator;
 	interruptionPageUrl: string;
 	/** Statistics observer serialized by this browser runtime. */
@@ -249,3 +252,12 @@ export type {
 	BrowserProtectionStatisticsFocusObservation,
 	BrowserProtectionStatisticsObservation,
 } from '../../../statistics/services/browser-statistics-bridge';
+
+/**
+ * Pending explicit choices that supersede older progress requests for one browser tab.
+ * @since 1.1.0
+ */
+export interface PendingFocusLinkChoice {
+	tabId: number;
+	count: number;
+}

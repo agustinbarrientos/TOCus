@@ -188,6 +188,7 @@ export function startProtectionBackgroundApplication(
 	const interruptionPageUrl = options.browser.runtime.getURL( InterruptionDocumentPath.CURRENT );
 	const runtime = createBrowserProtectionRuntime( {
 		browser: browserAdapter,
+		preferencesStorage,
 		configurationStorage,
 		coordinator,
 		filterConfiguration,

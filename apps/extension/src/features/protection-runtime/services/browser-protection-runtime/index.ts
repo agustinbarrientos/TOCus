@@ -23,6 +23,8 @@ import {
 import { evaluateSchedule } from '../../../../domains/protection/utils/schedule-evaluator';
 import {
 	InterruptionPageResponseSchema,
+	InterruptionPageRequestSchema,
+	InterruptionPageRequestType,
 	InterruptionPageResponseState,
 	type InterruptionPageResponse,
 } from '../../types/runtime-message';
@@ -39,6 +41,7 @@ import { createProtectionParticipantReconciler } from '../protection-participant
 import { createProtectionRuntimeRestorer } from '../protection-runtime-restorer';
 import type {
 	BrowserProtectionRuntime,
+	PendingFocusLinkChoice,
 	BrowserProtectionRuntimeOptions,
 	BrowserProtectionRuntimeSnapshot,
 	BrowserProtectionStatisticsObservation,
@@ -85,6 +88,7 @@ function createUnavailablePageResponse(): InterruptionPageResponse {
  */
 export function createBrowserProtectionRuntime( options: BrowserProtectionRuntimeOptions ): BrowserProtectionRuntime {
 	let operationQueue: Promise<void> = Promise.resolve();
+	const pendingFocusLinkChoices = new Map<number, PendingFocusLinkChoice>();
 	let suspended = options.initiallySuspended ?? false;
 	let dataResetGeneration = 0;
 	const observationGenerations = new WeakMap<Promise<BrowserProtectionStatisticsObservation>, number | null>();
@@ -146,6 +150,15 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 
 	const interruptionRequestHandler = createInterruptionRequestHandler( {
 		browser: options.browser,
+		preferencesStorage: options.preferencesStorage,
+		/**
+		 * Gives explicit choices priority over previously queued timer requests.
+		 * @param tabId - Browser tab whose queued intent is inspected.
+		 * @return Whether a configured focus choice is waiting or in progress.
+		 * @since 1.1.0
+		 */
+		isFocusLinkChoicePending: ( tabId ) => pendingFocusLinkChoices.has( tabId ),
+		interruptionPageUrl: options.interruptionPageUrl,
 		coordinator: options.coordinator,
 		applyDispatchResult,
 		createStableId: options.createStableId,
@@ -250,6 +263,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 */
 	function resumeAfterDataReset(): Promise<void> {
 		return enqueueOperation( async () => {
+			interruptionRequestHandler.forgetFocusLinkNavigation();
 			await options.coordinator.forgetForDataReset();
 			options.statisticsRuntime.forgetForDataReset();
 			available = false;
@@ -362,6 +376,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	 * @since 1.0.0 Initial implementation.
 	 */
 	async function failOpenOperation(): Promise<void> {
+		interruptionRequestHandler.forgetFocusLinkNavigation();
 		available = false;
 		latestPersistedConfiguration = null;
 		latestConfiguration = null;
@@ -604,6 +619,9 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	): Promise<string | undefined> {
 		return enqueueObserved( async () => {
 			if ( available ) {
+				if ( await interruptionRequestHandler.reconcileFocusLinkNavigation( navigation ) ) {
+					return;
+				}
 				return navigationHandler.handle( navigation );
 			}
 		}, StatisticsFocusObservationMode.BOUNDARY, undefined, navigation, statisticsObservation );
@@ -624,13 +642,31 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 		protectionEligible = false,
 		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
 	): Promise<InterruptionPageResponse> {
-		return enqueueObserved( async () => {
+		const request = InterruptionPageRequestSchema.safeParse( input );
+		const focusChoiceTabId = request.success &&
+			request.data.type === InterruptionPageRequestType.OPEN_FOCUS_LINK && protectionEligible
+			? senderTabId : null;
+		const focusChoice = focusChoiceTabId === null ? null
+			: pendingFocusLinkChoices.get( focusChoiceTabId ) ?? { tabId: focusChoiceTabId, count: 0 };
+		if ( focusChoice !== null ) {
+			focusChoice.count += 1;
+			pendingFocusLinkChoices.set( focusChoice.tabId, focusChoice );
+		}
+		const operation = enqueueObserved( async () => {
 			if ( ! available ) {
 				return createUnavailablePageResponse();
 			}
 
 			return interruptionRequestHandler.handle( input, senderTabId, protectionEligible );
 		}, StatisticsFocusObservationMode.BOUNDARY, createUnavailablePageResponse(), undefined, statisticsObservation );
+		return operation.finally( () => {
+			if ( focusChoice !== null ) {
+				focusChoice.count -= 1;
+				if ( focusChoice.count === 0 ) {
+					pendingFocusLinkChoices.delete( focusChoice.tabId );
+				}
+			}
+		} );
 	}
 
 	/**
@@ -645,6 +681,7 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 		statisticsObservation?: Promise<BrowserProtectionStatisticsObservation>,
 	): Promise<void> {
 		return enqueueObserved( async () => {
+			interruptionRequestHandler.forgetFocusLinkNavigation( tabId );
 			if ( ! available ) {
 				return;
 			}
