@@ -58,7 +58,9 @@ export function DailyStatistics( props: DailyStatisticsProps ) {
 					setMetric( DailyStatisticsMetricSchema.parse( event.currentTarget.value ) );
 				} } />
 		</div>
-		{ totals.length === 0 ? <p className="settings-statistics-empty">{ copy.dailyEmpty }</p> : <>
+		{ totals.length === 0 ? <div className="settings-statistics-empty">
+			<h3>{ copy.dailyEmpty }</h3><p>{ copy.dailyEmptyDescription }</p>
+		</div> : <>
 			<BarChart h="13rem" data={ chartData } dataKey="date"
 				classNames={ { tooltip: 'settings-statistics-chart-tooltip' } }
 				series={ [ { name: 'amount', label: metricLabels[ metric ], color: 'var(--tocus-color-action)' } ] }

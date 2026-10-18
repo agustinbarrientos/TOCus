@@ -5,6 +5,11 @@ import { createStatisticsCopy } from './index';
 import { setupI18n } from '@lingui/core';
 
 describe( 'createStatisticsCopy', () => {
+	it( 'provides the daily empty heading and explanation separately', () => {
+		const copy = createStatisticsCopy( createTestI18n(), createLocalizationFormatters( 'en' ) );
+		expect( copy.dailyEmpty ).toBe( 'No activity in this period' );
+		expect( copy.dailyEmptyDescription ).toBe( 'Your pauses and reconsidered visits will appear here.' );
+	} );
 	it( 'formats recorded calendar dates without shifting them into another day', () => {
 		const copy = createStatisticsCopy( createTestI18n(), createLocalizationFormatters( 'en' ) );
 		expect( copy.formatDate( '2026-09-14' ) ).toBe( 'Sep 14, 2026' );

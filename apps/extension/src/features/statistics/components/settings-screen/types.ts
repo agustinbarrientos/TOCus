@@ -71,6 +71,7 @@ export interface StatisticsSettingsScreenCopy {
 	dailyTitle: string;
 	dailyMetricLabel: string;
 	dailyEmpty: string;
+	dailyEmptyDescription: string;
 	dateLabel: string;
 	visitOutcomesTitle: string;
 	visitOutcomesHelpLabel: string;
