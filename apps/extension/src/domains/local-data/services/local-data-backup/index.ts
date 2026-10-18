@@ -12,6 +12,7 @@ import {
 } from '../../types/backup-operation';
 import { createBackupDocument, createBackupDocuments, parseBackupText } from '../../utils/backup-document';
 import { LocalDataGenerationStorageKey, readLocalDataGeneration } from '../local-data-generation';
+import type { BackupDocument } from '../../types/backup-document';
 import type { LocalDataBackup, LocalDataBackupOptions } from './types';
 
 /**
@@ -20,8 +21,11 @@ import type { LocalDataBackup, LocalDataBackupOptions } from './types';
  * @return Hex-encoded SHA-256 fingerprint.
  * @since 1.1.0
  */
-async function fingerprint( input: unknown ): Promise<string> {
-	const digest = await crypto.subtle.digest( 'SHA-256', new TextEncoder().encode( JSON.stringify( input ) ) );
+async function fingerprint( input: BackupDocument ): Promise<string> {
+	// Empty links use the original 1.1.0 wire shape so existing journals and receipts remain valid.
+	const canonical = input.preferences.focusLinks.length === 0
+		? { ...input, preferences: { ...input.preferences, focusLinks: undefined } } : input;
+	const digest = await crypto.subtle.digest( 'SHA-256', new TextEncoder().encode( JSON.stringify( canonical ) ) );
 	return Array.from( new Uint8Array( digest ), ( byte ) => byte.toString( 16 ).padStart( 2, '0' ) ).join( '' );
 }
 

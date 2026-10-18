@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createLocalDataReset } from './index';
 import { LocalDataGenerationStorageKey } from '../local-data-generation';
+import { DefaultPreferencesDocument } from '../../../preferences/types';
+import { PreferencesStorageKey } from '../../../preferences/services/preferences-storage';
 import { ReviewPromptStorageKey } from '../../../preferences/services/review-prompt-storage';
 import type { LocalDataResetOptions } from './types';
 import { BackupImportJournalKey, BackupImportReceiptKey } from '../../types/backup-storage-key';
@@ -65,9 +67,13 @@ describe( 'local data reset', () => {
 		const { service, values } = createFixture();
 		values[ BackupImportJournalKey ] = { staged: 'private settings' };
 		values[ BackupImportReceiptKey ] = { requestId: 'completed' };
+		values[ PreferencesStorageKey.PREFERENCES ] = { ...DefaultPreferencesDocument, focusLinks: [
+			{ id: 'focus_link_docs', label: 'Docs', url: 'https://example.com/' },
+		] };
 		await expect( service.reset() ).resolves.toBe( true );
 		expect( values[ BackupImportJournalKey ] ).toBeUndefined();
 		expect( values[ BackupImportReceiptKey ] ).toBeUndefined();
+		expect( values[ PreferencesStorageKey.PREFERENCES ] ).toBeUndefined();
 	} );
 	it( 'releases active pauses before revoking access and deleting owned data', async () => {
 		const { service, options, values, events } = createFixture();

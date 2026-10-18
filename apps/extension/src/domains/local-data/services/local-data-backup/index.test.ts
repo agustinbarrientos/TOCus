@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createBackupFixture } from './__fixtures__';
 import { Palette } from '../../../preferences/types';
+import { createBackupDocuments } from '../../utils/backup-document';
+import { StatisticsGenerationIdSchema } from '../../../statistics/types/statistics-value';
+import { ProtectionMeasurementRevisionSchema } from '../../../protection/types/protection-value';
 import { ProtectionConfigurationStorageKey } from '../../../protection/services/protection-configuration-storage';
 import { PreferencesStorageKey } from '../../../preferences/services/preferences-storage';
 import { StatisticsStorageKey } from '../../../statistics/services/statistics-storage';
@@ -215,4 +218,101 @@ it( 'can replace malformed existing settings without guessing which grants they 
 	fixture.options.releaseObsoleteAccess = release;
 	await expect( fixture.backup.import( fixture.request ) ).resolves.toMatchObject( { status: 'completed' } );
 	expect( release ).toHaveBeenCalledWith( [], expect.objectContaining( { sites: [ expect.anything() ] } ) );
+} );
+
+
+/**
+ * Hashes the pre-focus-links wire format retained in existing import metadata.
+ * @param backup - Legacy portable backup without a focus links preference.
+ * @return Existing receipt fingerprint.
+ * @since 1.1.0
+ */
+async function legacyFingerprint( backup: unknown ): Promise<string> {
+	const digest = await crypto.subtle.digest( 'SHA-256', new TextEncoder().encode( JSON.stringify( backup ) ) );
+	return Array.from( new Uint8Array( digest ), ( byte ) => byte.toString( 16 ).padStart( 2, '0' ) ).join( '' );
+}
+
+it.each( [ 'recover', 'retry' ] )( 'finishes legacy version three import journals through %s', async ( mode ) => {
+	const fixture = createBackupFixture();
+	const legacyBackup = structuredClone( fixture.request.backup );
+	Reflect.deleteProperty( legacyBackup.preferences, 'focusLinks' );
+	const documents = createBackupDocuments( fixture.request.backup, {
+		dataGeneration: 'legacy_data', statisticsGeneration: StatisticsGenerationIdSchema.parse( 'legacy_stats' ),
+		measurementRevision: ProtectionMeasurementRevisionSchema.parse( 'legacy_revision' ),
+	} );
+	Reflect.set( documents.preferences, 'schemaVersion', 3 );
+	Reflect.deleteProperty( documents.preferences, 'focusLinks' );
+	const hash = await legacyFingerprint( legacyBackup );
+	fixture.values[ BackupImportJournalKey ] = {
+		requestId: 'request_1', fingerprint: hash, generation: 'legacy_data', documents,
+	};
+	if ( mode === 'recover' ) {
+		expect( await fixture.restart().recover() ).toBe( true );
+	} else {
+		await expect( fixture.restart().import( { ...fixture.request, backup: legacyBackup } ) ).resolves.toEqual( {
+			status: 'completed', requestId: 'request_1', generation: 'legacy_data',
+		} );
+	}
+	expect( fixture.values[ PreferencesStorageKey.PREFERENCES ] ).toMatchObject( {
+		schemaVersion: 4, theme: 'dark', palette: 'green', language: 'es-vos', focusLinks: [],
+	} );
+	expect( fixture.values[ BackupImportReceiptKey ] ).toEqual( {
+		requestId: 'request_1', fingerprint: hash, generation: 'legacy_data',
+	} );
+	expect( fixture.values[ BackupImportJournalKey ] ).toBeUndefined();
+} );
+
+it( 'deduplicates legacy receipts after absent links normalize to an empty list', async () => {
+	const fixture = createBackupFixture();
+	const legacyBackup = structuredClone( fixture.request.backup );
+	Reflect.deleteProperty( legacyBackup.preferences, 'focusLinks' );
+	fixture.values[ BackupImportReceiptKey ] = {
+		requestId: 'request_1', fingerprint: await legacyFingerprint( legacyBackup ), generation: 'legacy_data',
+	};
+	fixture.values[ LocalDataGenerationStorageKey ] = { generation: 'legacy_data', pending: false };
+	fixture.values[ StatisticsStorageKey.STATISTICS ] = { newer: 'history' };
+	await expect( fixture.backup.import( { ...fixture.request, backup: legacyBackup } ) ).resolves.toEqual( {
+		status: 'completed', requestId: 'request_1', generation: 'legacy_data',
+	} );
+	await expect( fixture.backup.import( { ...fixture.request, backup: {
+		...legacyBackup, preferences: { ...legacyBackup.preferences, focusLinks: [] },
+	} } ) ).resolves.toMatchObject( { status: 'completed' } );
+	expect( fixture.values[ StatisticsStorageKey.STATISTICS ] ).toEqual( { newer: 'history' } );
+	expect( fixture.writeCount() ).toBe( 0 );
+} );
+
+it( 'includes ordered links in import receipts and rejects edited or reordered replay contents', async () => {
+	const fixture = createBackupFixture();
+	const links = [ { id: 'focus_link_tasks', label: 'Tasks', url: 'https://example.com/tasks' },
+		{ id: 'focus_link_docs', label: 'Docs', url: 'https://example.com/docs' } ];
+	const request = { ...fixture.request, backup: { ...fixture.request.backup,
+		preferences: { ...fixture.request.backup.preferences, focusLinks: links } } };
+	await expect( fixture.backup.import( request ) ).resolves.toMatchObject( { status: 'completed' } );
+	expect( fixture.values[ PreferencesStorageKey.PREFERENCES ] ).toMatchObject( { focusLinks: links } );
+	fixture.values[ StatisticsStorageKey.STATISTICS ] = { newer: 'history' };
+	await expect( fixture.restart().import( request ) ).resolves.toMatchObject( { status: 'completed' } );
+	for ( const focusLinks of [ [], [ ...links ].reverse(), [ { ...links[ 0 ], label: 'Other' }, links[ 1 ] ] ] ) {
+		await expect( fixture.restart().import( { ...request, backup: { ...request.backup,
+			preferences: { ...request.backup.preferences, focusLinks } } } ) ).resolves.toEqual( { status: 'stale' } );
+	}
+	expect( fixture.values[ StatisticsStorageKey.STATISTICS ] ).toEqual( { newer: 'history' } );
+} );
+
+
+it( 'preserves unsupported legacy journals for explicit recovery without overwriting raw documents', async () => {
+	const fixture = createBackupFixture();
+	const documents = createBackupDocuments( fixture.request.backup, {
+		dataGeneration: 'legacy_data', statisticsGeneration: StatisticsGenerationIdSchema.parse( 'legacy_stats' ),
+		measurementRevision: ProtectionMeasurementRevisionSchema.parse( 'legacy_revision' ),
+	} );
+	Reflect.set( documents.preferences, 'schemaVersion', 3 );
+	Reflect.deleteProperty( documents.preferences, 'focusLinks' );
+	Reflect.set( documents.preferences, 'unrecognized', 'preserve me' );
+	fixture.values[ BackupImportJournalKey ] = {
+		requestId: 'request_1', fingerprint: 'a'.repeat( 64 ), generation: 'legacy_data', documents,
+	};
+	const before = structuredClone( fixture.values );
+	expect( await fixture.restart().recover() ).toBe( false );
+	expect( fixture.values ).toEqual( before );
+	expect( fixture.writeCount() ).toBe( 0 );
 } );
