@@ -11,7 +11,7 @@ describe( 'createFocusLinksScreenCopy', () => {
 	it( 'keeps optional shortcuts concise and reuses website controls', () => {
 		const copy = createFocusLinksScreenCopy( createTestI18n() );
 		expect( copy.title ).toBe( 'Focus links' );
-		expect( copy.description ).toBe( 'Optionally, add up to three shortcuts to your breathing screen so you can quickly get back to what matters most.' );
+		expect( copy.description ).toBe( 'Optionally, add up to three website shortcuts to your breathing screen. Use them to quickly visit sites you\'d rather spend time on.' );
 		expect( copy ).not.toHaveProperty( 'privacyDescription' );
 		expect( copy.emptyMessage ).toBe( 'No websites yet' );
 		expect( copy.addLink ).toBe( 'Add site' );
