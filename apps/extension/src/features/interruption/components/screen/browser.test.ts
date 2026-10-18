@@ -408,6 +408,43 @@ test.describe( 'React pause', () => {
 
 
 for ( const injected of [ false, true ] ) {
+	test( `keeps the breathing artwork the same size with zero, one or three shortcuts in the ${ injected ? 'embedded' : 'standalone' } pause`, async ( { page } ) => {
+		await page.goto( `${ origin }${ injected ? '?injected=1' : '' }` );
+		await page.locator( 'html[data-ready]' ).waitFor();
+		await page.waitForFunction( () => Boolean( window.pauseFixture.screen.shadowRoot
+			?.querySelector( 'tocus-f-breathing-sphere' )?.shadowRoot?.querySelector( 'canvas' ) ) );
+		for ( const viewport of [ { width: 1280, height: 900 }, { width: 1722, height: 866 },
+			{ width: 320, height: 568 }, { width: 740, height: 320 } ] ) {
+			await page.setViewportSize( viewport );
+			const sizes = [];
+			for ( const count of [ 0, 1, 3 ] ) {
+				sizes.push( await page.evaluate( async ( count ) => {
+					const { screen } = window.pauseFixture;
+					screen.wellbeingSummary = 'About 25 hr, 4 min saved.';
+					screen.focusLinks = [
+						{ id: 'focus_link_tasks', label: 'My tasks', url: 'https://tasks.test/' },
+						{ id: 'focus_link_read', label: 'Read', url: 'https://reading.test/' },
+						{ id: 'focus_link_plan', label: 'Plan', url: 'https://planning.test/' },
+					].slice( 0, count );
+					await screen.updateComplete;
+					const root = screen.shadowRoot;
+					const shell = root?.querySelector( '.sphere-shell' )?.getBoundingClientRect();
+					const canvas = root?.querySelector( 'tocus-f-breathing-sphere' )?.shadowRoot
+						?.querySelector( 'canvas' )?.getBoundingClientRect();
+					const links = root?.querySelector( '.focus-links' )?.getBoundingClientRect();
+					if ( ! shell || ! canvas ) {
+						throw new Error( 'Expected the breathing artwork and its drawing surface.' );
+					}
+					return { shell: { width: shell.width, height: shell.height },
+						canvas: { width: canvas.width, height: canvas.height },
+						artworkBeforeLinks: ! links || canvas.bottom <= links.top };
+				}, count ) );
+			}
+			expect( sizes[ 1 ] ).toEqual( sizes[ 0 ] );
+			expect( sizes[ 2 ] ).toEqual( sizes[ 0 ] );
+		}
+	} );
+
 	test( `keeps quick-link opening silent for immediate and held navigation in the ${ injected ? 'embedded' : 'standalone' } pause`, async ( { page } ) => {
 		await page.goto( `${ origin }${ injected ? '?injected=1' : '' }` );
 		await page.locator( 'html[data-ready]' ).waitFor();

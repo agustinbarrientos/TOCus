@@ -544,17 +544,7 @@ footer {
 
 .has-focus-links main {
 	display: grid;
-	grid-template-rows: minmax(0, 1fr) auto;
-}
-
-.has-focus-links .stage {
-	min-height: sizing.size(12);
-}
-
-.has-focus-links .sphere-shell {
-	width: min(62vw, sizing.size(35));
-	height: min(42vh, sizing.size(25));
-	min-height: sizing.size(9);
+	grid-template-rows: minmax(min-content, 1fr) auto;
 }
 
 .focus-links {
@@ -564,11 +554,10 @@ footer {
 	text-align: center;
 }
 
-.focus-links-label,
 .focus-link-status {
 	@include typography.apply( 'body-medium' );
 
-	margin: 0 0 sizing.size(0.75);
+	margin: sizing.size(0.75) 0 0;
 	color: var(--tocus-color-on-stage-muted);
 	overflow-wrap: anywhere;
 }
@@ -583,8 +572,4 @@ footer {
 .focus-link-button {
 	max-width: 100%;
 	overflow-wrap: anywhere;
-}
-
-.focus-link-status {
-	margin: sizing.size(0.75) 0 0;
 }
