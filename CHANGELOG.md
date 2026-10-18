@@ -2,7 +2,7 @@
 
 ## 1.1.0 - Unreleased
 
-- Added: Up to three optional focus links on both pause screens, with local settings, keyboard reorder controls, and backup support (Chrome, Edge, Firefox).
+- Added: Up to three optional focus links on both pause screens, managed below Schedule in Settings, with keyboard reorder controls and backup support (Chrome, Edge, Firefox).
 
 - Added: Local JSON backup and restore for website rules, schedules, preferences, and statistics, with a dedicated Backup and reset settings page (Chrome, Edge, Firefox).
 - Changed: Updated the Sass compiler to 1.105.2 and refreshed pinned CI setup and artifact actions (Chrome, Edge, Firefox).
