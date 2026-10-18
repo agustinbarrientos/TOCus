@@ -3,6 +3,7 @@ import { ProtectionConfigurationDocumentSchema } from '../../protection/types/pr
 import { ProtectionScopeIdSchema } from '../../protection/types/protection-value';
 import { PreferencesDocumentSchema } from '../../preferences/types';
 import { StatisticsDocumentSchema, StatisticsDocumentVersion, StatisticsTotalsSchema } from '../../statistics/types/statistics-document';
+import { StatisticsVisitOutcomesSchema } from '../../statistics/types/statistics-visit-outcomes';
 
 /**
  * Portable backup contract introduced with the 1.1.0 release.
@@ -46,6 +47,7 @@ const BackupStatisticsSchema = z.strictObject( {
 	firstRecordedDate: StatisticsDocumentSchema.shape.firstRecordedDate,
 	dailyTotals: StatisticsDocumentSchema.shape.dailyTotals,
 	scopes: BackupScopesSchema,
+	visitOutcomes: StatisticsVisitOutcomesSchema.optional(),
 } ).refine( ( statistics ) => StatisticsDocumentSchema.safeParse( {
 	schemaVersion: StatisticsDocumentVersion, generationId: 'backup_validation', lastAppliedBatchId: null,
 	...statistics,
