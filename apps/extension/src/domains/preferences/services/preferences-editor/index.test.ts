@@ -247,3 +247,16 @@ describe( 'createPreferencesEditor', () => {
 		} );
 	} );
 } );
+
+
+it( 'persists link edits and reordered links alongside current appearance choices', async () => {
+	const storage = new MemoryPreferencesEditorStorage( { ...DefaultPreferencesDocument, palette: Palette.GREEN } );
+	const editor = createPreferencesEditor( { coordinateMutation: coordinateMutationDirectly, storage } );
+	const first = { id: 'focus_link_docs', label: 'Docs', url: 'https://example.com/docs' };
+	const second = { id: 'focus_link_tasks', label: 'Tasks', url: 'https://example.com/tasks' };
+	await editor.update( { focusLinks: [ first, second ] } );
+	await editor.update( { focusLinks: [ second, { ...first, label: 'Read docs' } ] } );
+	await expect( editor.load() ).resolves.toEqual( { ...DefaultPreferencesDocument, palette: Palette.GREEN,
+		focusLinks: [ second, { ...first, label: 'Read docs' } ] } );
+	expect( storage.writes ).toHaveLength( 2 );
+} );

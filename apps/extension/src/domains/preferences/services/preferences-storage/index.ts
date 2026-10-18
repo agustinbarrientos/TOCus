@@ -1,4 +1,5 @@
 import {
+	CompatiblePreferencesDocumentSchema,
 	DefaultPreferencesDocument,
 	PreferencesDocumentSchema,
 	type PreferencesDocument,
@@ -10,13 +11,13 @@ import {
 } from './types';
 
 /**
- * Parses only current preferences without migrating stored data.
+ * Parses current and compatible preferences without rewriting stored data.
  * @param input - Unknown stored preferences document.
  * @return Current preferences or null for malformed and unsupported data.
  * @since 1.0.0 Initial implementation.
  */
 export function parseStoredPreferences( input: unknown ): PreferencesDocument | null {
-	const currentPreferences = PreferencesDocumentSchema.safeParse( input );
+	const currentPreferences = CompatiblePreferencesDocumentSchema.safeParse( input );
 
 	return currentPreferences.success ? currentPreferences.data : null;
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DefaultPreferencesDocument, Language, PreferencesDocumentVersion } from '../../types';
+import { DefaultPreferencesDocument, Language, Palette, PauseMode, PreferencesDocumentVersion, ThemeMode } from '../../types';
 import {
 	PreferencesStorageKey,
 	createPreferencesStorageService,
@@ -151,4 +151,45 @@ describe( 'createPreferencesStorageService', () => {
 		await expect( storage.save( DefaultPreferencesDocument ) ).rejects.toBe( error );
 		expect( area.writtenValues ).toEqual( [] );
 	} );
+} );
+
+
+it( 'loads strict version three choices without writing or retaining an old storage version', async () => {
+	const legacy = { schemaVersion: 3, theme: 'dark', palette: 'orange', pauseMode: 'quiet', language: 'es-vos' };
+	const area = new MemoryPreferencesStorageArea( { [ PreferencesStorageKey.PREFERENCES ]: legacy } );
+	const storage = createPreferencesStorageService( { area } );
+	await expect( storage.load() ).resolves.toEqual( { ...legacy, schemaVersion: 4, focusLinks: [] } );
+	expect( area.writtenValues ).toEqual( [] );
+	await storage.save( await storage.load() );
+	expect( area.writtenValues ).toEqual( [ { [ PreferencesStorageKey.PREFERENCES ]: {
+		...legacy, schemaVersion: 4, focusLinks: [],
+	} } ] );
+} );
+
+it.each( [
+	{ schemaVersion: 3, theme: 'dark', palette: 'orange', pauseMode: 'quiet', language: 'es-vos', unexpected: true },
+	{ schemaVersion: 3, theme: 'dark', palette: 'orange', pauseMode: 'quiet', language: 'unknown' },
+	{ schemaVersion: 4, theme: 'dark', palette: 'orange', pauseMode: 'quiet', language: 'es-vos' },
+] )( 'preserves malformed legacy or current documents without silent repair', async ( preferences ) => {
+	const area = new MemoryPreferencesStorageArea( { [ PreferencesStorageKey.PREFERENCES ]: preferences } );
+	await expect( createPreferencesStorageService( { area } ).load() ).resolves.toBeNull();
+	expect( area.writtenValues ).toEqual( [] );
+} );
+
+
+it( 'retains every supported choice when reading existing version three preferences', async () => {
+	for ( const theme of Object.values( ThemeMode ) ) {
+		for ( const palette of Object.values( Palette ) ) {
+			for ( const pauseMode of Object.values( PauseMode ) ) {
+				for ( const language of [ null, ...Object.values( Language ) ] ) {
+					const legacy = { schemaVersion: 3, theme, palette, pauseMode, language };
+					const area = new MemoryPreferencesStorageArea( { [ PreferencesStorageKey.PREFERENCES ]: legacy } );
+					await expect( createPreferencesStorageService( { area } ).load() ).resolves.toEqual( {
+						...legacy, schemaVersion: 4, focusLinks: [],
+					} );
+					expect( area.writtenValues ).toEqual( [] );
+				}
+			}
+		}
+	}
 } );
