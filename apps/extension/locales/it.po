@@ -496,6 +496,10 @@ msgstr "Fatto"
 msgid "Each completed wait adds this amount to the next wait that day."
 msgstr "Ogni attesa completata aggiunge questo intervallo all'attesa successiva della giornata."
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Edit link"
+msgstr "Modifica link"
+
 #. Label for the end-time field of a scheduled protection window.
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "End"

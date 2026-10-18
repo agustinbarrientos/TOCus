@@ -496,6 +496,10 @@ msgstr "Terminé"
 msgid "Each completed wait adds this amount to the next wait that day."
 msgstr "Chaque attente terminée ajoute cette durée à la prochaine attente de la journée."
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Edit link"
+msgstr "Modifier le lien"
+
 #. Label for the end-time field of a scheduled protection window.
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "End"
