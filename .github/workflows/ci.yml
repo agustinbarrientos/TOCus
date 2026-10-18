@@ -35,9 +35,6 @@ jobs:
             - name: Install dependencies
               run: pnpm install --frozen-lockfile
 
-            - name: Audit high-severity vulnerabilities
-              run: pnpm audit --audit-level=high --ignore-registry-errors
-
             - name: Install pinned browsers for website and specialized checks
               run: pnpm --filter @tocus/extension exec playwright install --with-deps chromium firefox webkit
 
@@ -55,6 +52,9 @@ jobs:
 
             - name: Verify native media and Canvas coverage
               run: pnpm --filter @tocus/extension test:browser
+
+            - name: Audit high-severity vulnerabilities
+              run: pnpm audit:dependencies
 
             - name: Preserve browser failure diagnostics
               if: failure()
