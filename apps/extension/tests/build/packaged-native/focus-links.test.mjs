@@ -76,8 +76,8 @@ test( 'a focus link on the live-page expiry pause navigates away without complet
 				if(error.message.includes('Receiving end does not exist')) return false; throw error;
 			});` ), { timeout: 135_000, intervals: [ 500 ] } ).toBe( true );
 		// The modal contains focus; use native keyboard input through its closed isolation boundary.
-		await browser.viewKey( 'selected', 'body', 'Tab' );
-		await browser.viewKey( 'selected', 'body', 'Enter' );
+		await browser.viewPressKey( 'selected', 'Tab' );
+		await browser.viewPressKey( 'selected', 'Enter' );
 		await expect.poll( () => network.requests( '/slow' ) ).toBe( 1 );
 		const observationEnds = Date.now() + 2_500;
 		await expect.poll( async () => ( {

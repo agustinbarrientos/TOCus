@@ -333,6 +333,18 @@ export async function launchNativeChromium( directory, product, options = {} ) {
 	}
 
 	/**
+	 * Presses a native key without changing the selected view's current DOM focus owner.
+	 * @param {string} view - Real browser view containing the current focus owner.
+	 * @param {string} key - Puppeteer key name to press and release.
+	 * @return {Promise<void>} Completion of focus-preserving native input.
+	 * @since 1.1.0
+	 */
+	async function viewPressKey( view, key ) {
+		const page = await pageForView( view );
+		await page.keyboard.press( key );
+	}
+
+	/**
 	 * Opens and selects a real tab through the installed browser.
 	 * @param {string} url - Destination URL.
 	 * @return {Promise<void>} Completion of initial navigation.
@@ -510,7 +522,7 @@ export async function launchNativeChromium( directory, product, options = {} ) {
 		return {
 			browser, extensionId, version: await browser.version(), errors, permissionDecisions, extensionUrl,
 			openPage, navigate, currentUrl, reload, closePage, openPopup, closePopup, isPopupOpen, consent,
-			viewScript, viewClick, viewType, viewKey, viewUpload, downloadDirectory, diagnostics, close,
+			viewScript, viewClick, viewType, viewKey, viewPressKey, viewUpload, downloadDirectory, diagnostics, close,
 		};
 	} catch ( error ) {
 		await close();

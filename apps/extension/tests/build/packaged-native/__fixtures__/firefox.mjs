@@ -180,6 +180,20 @@ export async function launchFirefox( directory, options = {} ) {
 			return driver.viewType( view, selector, keys[ key ] );
 		},
 		/**
+		 * Presses a native key in the current selected view without refocusing its document body.
+		 * @param {string} view - Selected content view containing the current focus owner.
+		 * @param {string} key - Tab, Enter, or Space.
+		 * @return {Promise<void>} Completion of native keyboard actions.
+		 * @since 1.1.0
+		 */
+		viewPressKey: ( view, key ) => {
+			const keys = { Tab: '\uE004', Enter: '\uE007', Space: ' ' };
+			if ( ! keys[ key ] ) {
+				throw new Error( `Unsupported focus-preserving native key: ${ key }` );
+			}
+			return driver.viewPressKey( view, keys[ key ] );
+		},
+		/**
 		 * Reads error diagnostics for this extension from the disposable Firefox console.
 		 * @return {Promise<object>} Production errors, unloaded extension contexts, and native consent evidence.
 		 */

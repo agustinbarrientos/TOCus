@@ -248,6 +248,31 @@ export async function launchNativeFirefox( directory, options = {} ) {
 	}
 
 	/**
+	 * Sends native keyboard actions to the selected content view without focusing a DOM element.
+	 * @param {string} view - Selected content view; chrome panels retain their separate element controls.
+	 * @param {string} key - One WebDriver key value to press and release.
+	 * @return {Promise<void>} Completion of focus-preserving native input.
+	 * @since 1.1.0
+	 */
+	async function viewPressKey( view, key ) {
+		if ( view !== 'selected' ) {
+			throw new Error( `Focus-preserving keys require the selected content view: ${ view }` );
+		}
+		const handle = await execute( `const { NavigableManager } = ChromeUtils.importESModule(
+			'chrome://remote/content/shared/NavigableManager.sys.mjs');
+			return NavigableManager.getIdForBrowser(gBrowser.selectedBrowser);` );
+		await command( '/moz/context', { context: 'content' } );
+		try {
+			await command( '/window', { handle } );
+			await command( '/actions', { actions: [ { type: 'key', id: 'native-keyboard', actions: [
+				{ type: 'keyDown', value: key }, { type: 'keyUp', value: key },
+			] } ] } );
+		} finally {
+			await command( '/moz/context', { context: 'chrome' } );
+		}
+	}
+
+	/**
 	 * Closes the session and terminates only this fixture's driver and profile processes.
 	 * @return {Promise<void>} Completion of idempotent process and temporary-profile cleanup.
 	 */
@@ -318,7 +343,7 @@ export async function launchNativeFirefox( directory, options = {} ) {
 		await waitUntil( () => execute( 'return document.getElementById(\'nav-bar\').contains(document.getElementById(\'tocus_agustinbarrientos_com-BAP\'));' ),
 			'Firefox did not place the extension button in the toolbar.' );
 		return {
-			command, execute, downloadDirectory, viewScript, viewClick, viewType, close, uuid,
+			command, execute, downloadDirectory, viewScript, viewClick, viewType, viewPressKey, close, uuid,
 			version: created.capabilities.browserVersion,
 		};
 	} catch ( error ) {
