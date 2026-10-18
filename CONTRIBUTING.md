@@ -15,7 +15,7 @@ pnpm dev
 
 On Linux, install missing browser dependencies with `pnpm exec playwright install --with-deps chromium firefox webkit`.
 
-Dependency releases must be at least two days old. The workspace enforces a strict 2,880-minute cooldown for direct and transitive dependencies, and Dependabot uses the same two-day cooldown for npm version updates. TypeScript stays at 6.0.3, including transitive resolutions, until its build compatibility is verified separately. Refresh the other packages with `pnpm -r update --latest '!typescript' --depth Infinity`, then review the lockfile and run `pnpm install --frozen-lockfile` before the audit and checks. Repeat installs run workspace setup so generated extension types stay available.
+Dependency releases must be at least two days old. The workspace enforces a strict 2,880-minute cooldown for direct and transitive dependencies, and Dependabot uses the same two-day cooldown for npm version updates. TypeScript stays at 6.0.3, including transitive resolutions, until its build compatibility is verified separately. Refresh the other packages with `pnpm -r update --latest '!typescript' --depth Infinity`, then review the lockfile and run `pnpm install --frozen-lockfile` before the audit and checks. Repeat installs run workspace setup so generated extension types stay available. Run `pnpm audit:dependencies` for the required security audit; its temporary exception checks are documented in [SECURITY.md](SECURITY.md).
 
 ## Changes
 

@@ -54,7 +54,7 @@ jobs:
               run: pnpm --filter @tocus/extension test:browser
 
             - name: Audit high-severity vulnerabilities
-              run: pnpm audit --audit-level=high --ignore-registry-errors
+              run: pnpm audit:dependencies
 
             - name: Preserve browser failure diagnostics
               if: failure()

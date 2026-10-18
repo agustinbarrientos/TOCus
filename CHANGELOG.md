@@ -3,6 +3,7 @@
 ## 1.1.0 - Unreleased
 
 - Changed: Updated application and development dependencies with a two-day release cooldown while keeping TypeScript 6.0.3 (Chrome, Edge, Firefox).
+- Changed: Added a reviewed development-tool audit exception with an enforced review deadline and production dependency check.
 
 ## 1.0.1 - 2026-09-28
 
