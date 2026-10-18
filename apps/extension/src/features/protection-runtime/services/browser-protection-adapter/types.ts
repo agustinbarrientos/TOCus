@@ -96,6 +96,8 @@ export interface BrowserProtectionAdapterTab {
 	url?: string | undefined;
 	/** Accessible pending navigation URL when the extension has host access. */
 	pendingUrl?: string | undefined;
+	/** Browser loading status, independent of destination URL visibility. */
+	status?: string | undefined;
 	/** Browser window containing the tab when reported. */
 	windowId?: number | undefined;
 }

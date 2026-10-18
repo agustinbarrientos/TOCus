@@ -836,3 +836,53 @@ describe( 'createBrowserProtectionAdapter', () => {
 		} ) ).resolves.toBeUndefined();
 	} );
 } );
+
+it( 'opens an explicit focus destination from the exact current ordinary page in the same tab', async () => {
+	const browserApi = createBrowserApi();
+	browserApi.runtime = { getURL: vi.fn().mockReturnValue( 'chrome-extension://extension-id/pause.html' ) };
+	vi.mocked( browserApi.tabs.query ).mockResolvedValue( [ {
+		id: 7, incognito: false, url: 'https://example.com/watching',
+	} ] );
+	const audio = createTabAudioController();
+	const adapter = createBrowserProtectionAdapter( browserApi, audio );
+	await adapter.navigateTab( 7, 'https://reading.test/book', 'https://example.com/watching' );
+	expect( browserApi.tabs.update ).toHaveBeenCalledExactlyOnceWith( 7, { url: 'https://reading.test/book' } );
+	expect( browserApi.tabs.sendMessage ).not.toHaveBeenCalled();
+	expect( audio.restore ).not.toHaveBeenCalled();
+} );
+
+it.each( [
+	{ tabs: [] }, { tabs: [ { id: 7, incognito: true, url: 'https://example.com/watching' } ] },
+	{ tabs: [ { id: 7, incognito: false, url: 'https://elsewhere.test/' } ] },
+	{ tabs: [ { id: 7, incognito: false, url: 'https://example.com/watching', pendingUrl: 'https://elsewhere.test/' } ] },
+] )( 'rejects a focus destination when its original live source moved or became unavailable %j', async ( { tabs } ) => {
+	const browserApi = createBrowserApi();
+	browserApi.runtime = { getURL: vi.fn().mockReturnValue( 'chrome-extension://extension-id/pause.html' ) };
+	vi.mocked( browserApi.tabs.query ).mockResolvedValue( tabs );
+	const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
+	await expect( adapter.navigateTab( 7, 'https://reading.test/book', 'https://example.com/watching' ) )
+		.rejects.toThrow( 'The focus-link source is no longer current.' );
+	expect( browserApi.tabs.update ).not.toHaveBeenCalled();
+} );
+
+it( 'preserves history replacement for an explicit focus choice from the current interruption', async () => {
+	const browserApi = createBrowserApi();
+	const source = 'chrome-extension://extension-id/pause.html';
+	browserApi.runtime = { getURL: vi.fn().mockReturnValue( source ) };
+	vi.mocked( browserApi.tabs.query ).mockResolvedValue( [ { id: 7, incognito: false, url: source } ] );
+	vi.mocked( browserApi.tabs.sendMessage ).mockResolvedValue( { replaced: true } );
+	const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
+	await adapter.navigateTab( 7, 'https://reading.test/book', source );
+	expect( browserApi.tabs.sendMessage ).toHaveBeenCalledWith( 7, {
+		type: 'replace-interruption-navigation', sourceUrl: source, url: 'https://reading.test/book',
+	} );
+	expect( browserApi.tabs.update ).not.toHaveBeenCalled();
+} );
+
+
+it( 'preserves permission-independent loading status when destination URLs are redacted', async () => {
+	const browserApi = createBrowserApi();
+	vi.mocked( browserApi.tabs.query ).mockResolvedValue( [ { id: 7, incognito: false, status: 'loading' } ] );
+	const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
+	await expect( adapter.listTabs() ).resolves.toEqual( [ { id: 7, incognito: false, status: 'loading' } ] );
+} );
