@@ -8,11 +8,13 @@ import { createFocusLinksScreenCopy } from './index';
 
 
 describe( 'createFocusLinksScreenCopy', () => {
-	it( 'explains the optional local links and their navigation effect', () => {
+	it( 'keeps optional shortcuts concise and reuses website controls', () => {
 		const copy = createFocusLinksScreenCopy( createTestI18n() );
 		expect( copy.title ).toBe( 'Focus links' );
-		expect( copy.description ).toContain( 'up to three links' );
-		expect( copy.privacyDescription ).toContain( 'without granting browsing time' );
+		expect( copy.description ).toBe( 'Optionally, add up to three shortcuts to your breathing screen so you can quickly get back to what matters most.' );
+		expect( copy ).not.toHaveProperty( 'privacyDescription' );
+		expect( copy.emptyMessage ).toBe( 'No websites yet' );
+		expect( copy.addLink ).toBe( 'Add site' );
 		expect( copy.invalidLabel ).toContain( '1 to 64 characters' );
 		expect( copy.invalidUrl ).toContain( 'http://' );
 		expect( copy.malformedDataDescription ).toContain( 'focus links' );

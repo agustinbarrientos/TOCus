@@ -40,7 +40,7 @@ async function saveFocusLink( browser, destination ) {
 	await settings( browser, 'focus-links' );
 	await expect.poll( () => readView( browser, 'selected', `const control = document.querySelector('.settings-focus-links-add');
 		return control instanceof HTMLButtonElement && !control.disabled && control.getClientRects().length > 0;` ) ).toBe( true );
-	await clickButton( browser, 'Add link', '.settings-focus-links' );
+	await clickButton( browser, 'Add site', '.settings-focus-links' );
 	await fill( browser, 'input[id^="label-focus_link_"]', 'Return to my project' );
 	await fill( browser, 'input[id^="url-focus_link_"]', destination );
 	await save( browser );

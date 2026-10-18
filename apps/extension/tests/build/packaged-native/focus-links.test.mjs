@@ -12,7 +12,7 @@ import {
 async function configureFocusLink( browser, destination ) {
 	await settings( browser, 'focus-links' );
 	await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Focus links' );
-	await clickButton( browser, 'Add link', '.settings-focus-links' );
+	await clickButton( browser, 'Add site', '.settings-focus-links' );
 	await fill( browser, 'input[id^="label-focus_link_"]', 'Return to my project' );
 	await fill( browser, 'input[id^="url-focus_link_"]', destination.href );
 	await clickButton( browser, 'Save', '.tocus-form-actions' );
