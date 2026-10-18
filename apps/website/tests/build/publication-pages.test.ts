@@ -187,7 +187,11 @@ test.describe( 'generated website publication pages', () => {
 			expect( extensionPolicyText ).toMatch( /schedule/iu );
 			expect( extensionPolicyText ).toMatch( /statistics/iu );
 			expect( extensionPolicyText ).toMatch( /counts and durations/iu );
-			expect( extensionPolicyText ).toMatch( /don't save any page content or web addresses/iu );
+			expect( extensionPolicyText ).toMatch( /daily counts for each configured website/iu );
+			expect( extensionPolicyText ).toMatch( /hourly counts of reconsidered visits/iu );
+			expect( extensionPolicyText ).toMatch(
+				/do not save full web addresses, page content, or individual visit records/iu,
+			);
 			expect( extensionPolicyText ).toMatch( /works entirely offline/iu );
 			expect( extensionPolicyText ).toMatch( /address might be saved for a short time/iu );
 			expect( extensionPolicyText ).toMatch( /device|browser/iu );
