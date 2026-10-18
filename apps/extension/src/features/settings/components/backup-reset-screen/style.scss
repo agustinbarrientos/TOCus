@@ -1,3 +1,17 @@
 [data-tocus-ui] .settings-page .settings-data-reset:last-of-type {
 	padding-bottom: 0;
 }
+
+[data-tocus-ui] .settings-page .settings-data-reset > button {
+	--tocus-button-height: auto;
+
+	min-width: 0;
+	max-width: 100%;
+	min-height: var(--tocus-action-height, 2.75rem);
+	padding-block: var(--tocus-space-2);
+}
+
+[data-tocus-ui] .settings-reset-action-label {
+	white-space: normal;
+	overflow-wrap: anywhere;
+}
