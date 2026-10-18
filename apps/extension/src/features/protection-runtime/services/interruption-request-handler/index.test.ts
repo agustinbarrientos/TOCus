@@ -211,7 +211,7 @@ function createHandlerHarness(
 	const isFocusLinkChoicePending = vi.fn().mockReturnValue( false );
 	const preferencesStorage = { load: vi.fn().mockResolvedValue( DefaultPreferencesDocument ) };
 	const handler = createInterruptionRequestHandler( {
-		browser: { getFocusedTabId, listTabs, navigateTab: vi.fn().mockResolvedValue( undefined ) },
+		browser: { getFocusedTabId, listTabs, navigateTab: vi.fn().mockResolvedValue( true ) },
 		preferencesStorage,
 		interruptionPageUrl: 'chrome-extension://extension-id/interruption.html',
 		isFocusLinkChoicePending,

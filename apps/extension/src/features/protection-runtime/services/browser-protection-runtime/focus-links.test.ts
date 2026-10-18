@@ -132,6 +132,17 @@ describe( 'configured focus-link navigation', () => {
 		expect( await readReconsiderations( harness ) ).toHaveLength( 0 );
 	} );
 
+	it( 'retains a recoverable pause when the browser rejects a stale navigation source', async () => {
+		const harness = createFocusLinkHarness();
+		await startWaiting( harness );
+		vi.spyOn( harness.browser, 'navigateTab' ).mockResolvedValue( false );
+		await expect( harness.runtime.handlePageRequest( REQUEST, 7, true ) ).resolves.toMatchObject( {
+			state: InterruptionPageResponseState.WAITING, focusLinkFailed: true,
+		} );
+		expect( ( await harness.coordinator.getStates() )?.scope_default?.type ).toBe( ProtectionStateType.WAITING );
+		expect( await readReconsiderations( harness ) ).toHaveLength( 0 );
+	} );
+
 	it( 'does not trust a request without a current ordinary participant', async () => {
 		const harness = createFocusLinkHarness();
 		await startWaiting( harness );
@@ -280,7 +291,7 @@ it.each( [ 'cancel', 'cancel-redacted', 'error', 'commit', 'protected-commit', '
 			harness.browser.navigations.push( { tabId, url } );
 			harness.browser.tabs = harness.browser.tabs.map( ( tab ) => tab.id === tabId
 				? { ...tab, status: 'loading', ...( outcome === 'cancel-redacted' ? {} : { pendingUrl: url } ) } : tab );
-			return Promise.resolve();
+			return Promise.resolve( true );
 		} );
 		await expect( harness.runtime.handlePageRequest( REQUEST, 7, true ) ).resolves.toMatchObject( {
 			state: InterruptionPageResponseState.WAITING, progressing: false, focusLinkOpening: true,
