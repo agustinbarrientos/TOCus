@@ -26,7 +26,7 @@ describe( 'portable local backup', () => {
 		expect( imported.statistics.generationId ).toBe( 'stats_new' );
 		expect( imported.statistics.lastAppliedBatchId ).toBeNull();
 		expect( Object.keys( backup.settings ) ).toEqual( [ 'sites', 'timingConfiguration', 'schedule' ] );
-		expect( Object.keys( backup.preferences ) ).toEqual( [ 'theme', 'palette', 'pauseMode', 'language' ] );
+		expect( Object.keys( backup.preferences ) ).toEqual( [ 'theme', 'palette', 'pauseMode', 'language', 'focusLinks' ] );
 		expect( Object.keys( backup.statistics ) ).toEqual( [ 'firstRecordedDate', 'dailyTotals', 'scopes' ] );
 		expect( Object.keys( ( backup.statistics.scopes.scope_default ?? {} ) ) ).toEqual( [
 			'estimatedReclaimedMilliseconds', 'focusedPauseMilliseconds', 'reconsideredVisitCount',
@@ -153,3 +153,42 @@ describe( 'portable local backup', () => {
 		} } ).success ).toBe( true );
 	} );
 } );
+
+
+it( 'round-trips ordered focus destinations without changing the portable format', () => {
+	const source = createBackupSource();
+	source.preferences.focusLinks = [
+		{ id: 'focus_link_tasks', label: 'Tasks', url: 'https://example.com/tasks' },
+		{ id: 'focus_link_docs', label: 'Docs', url: 'https://example.com/docs' },
+	];
+	const backup = parseBackupText( JSON.stringify( createBackupDocument( source ) ) );
+	expect( backup.dataFormatVersion ).toBe( '1.1.0' );
+	expect( backup.preferences.focusLinks ).toEqual( source.preferences.focusLinks );
+	const imported = createBackupDocuments( backup, {
+		dataGeneration: 'new_data', statisticsGeneration: StatisticsGenerationIdSchema.parse( 'new_stats' ),
+		measurementRevision: ProtectionMeasurementRevisionSchema.parse( 'new_revision' ),
+	} );
+	expect( imported.preferences.focusLinks ).toEqual( source.preferences.focusLinks );
+} );
+
+it( 'restores backups without focus links as empty links while retaining choices and history', () => {
+	const source = createBackupSource();
+	const legacy = createBackupDocument( source );
+	Reflect.deleteProperty( legacy.preferences, 'focusLinks' );
+	const backup = parseBackupText( JSON.stringify( legacy ) );
+	const imported = createBackupDocuments( backup, {
+		dataGeneration: 'new_data', statisticsGeneration: StatisticsGenerationIdSchema.parse( 'new_stats' ),
+		measurementRevision: ProtectionMeasurementRevisionSchema.parse( 'new_revision' ),
+	} );
+	expect( imported.preferences ).toEqual( { ...source.preferences, schemaVersion: 4, focusLinks: [] } );
+	expect( imported.statistics.dailyTotals ).toEqual( source.statistics.dailyTotals );
+	expect( imported.configuration.sites ).toEqual( source.configuration.sites );
+} );
+
+it.each( [ null, {}, [ { id: 'focus_link_bad', label: 'Bad', url: 'javascript:alert(1)' } ] ] )(
+	'rejects malformed backup focus links without treating them as absent', ( focusLinks ) => {
+		const backup = createBackupDocument( createBackupSource() );
+		expect( () => parseBackupText( JSON.stringify( { ...backup,
+			preferences: { ...backup.preferences, focusLinks } } ) ) ).toThrow();
+	},
+);

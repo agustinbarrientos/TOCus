@@ -66,7 +66,9 @@ export const BackupDocumentSchema = z.strictObject( {
 		timingConfiguration: ProtectionConfigurationDocumentSchema.shape.timingConfiguration,
 		schedule: ProtectionConfigurationDocumentSchema.shape.schedule,
 	} ),
-	preferences: PreferencesDocumentSchema.omit( { schemaVersion: true } ),
+	preferences: PreferencesDocumentSchema.omit( { schemaVersion: true } ).extend( {
+		focusLinks: PreferencesDocumentSchema.shape.focusLinks.default( [] ),
+	} ),
 	statistics: BackupStatisticsSchema,
 } );
 
