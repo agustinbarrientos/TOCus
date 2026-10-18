@@ -43,7 +43,7 @@ export function ScreenView( props: ScreenViewProps ) {
 		: motion.phase === BreathingMotionPhase.INHALE ? copy.breatheIn : copy.breatheOut;
 	return <TocusProvider {...readPresentationAppearance( props.host )} reducedMotion={reducedMotion}
 		shadowRoot={props.shadowRoot}>
-		<div className="scene" tabIndex={waiting || ( unavailable && recovering ) ? 0 : undefined}
+		<div className={props.focusLinks.length > 0 && ! unavailable ? 'scene has-focus-links' : 'scene'} tabIndex={waiting || ( unavailable && recovering ) ? 0 : undefined}
 			style={sceneStyle}>
 			<div className="bloom" aria-hidden="true" />
 			<header>
@@ -58,7 +58,7 @@ export function ScreenView( props: ScreenViewProps ) {
 						{still ? copy.stillSphereAlternative : copy.sphereAlternative}</span>}</div>
 				{state === InterruptionScreenState.READY && <div className="ready-action">
 					<Button className="continue-button tocus-action-soft" classNames={{ label: 'pause-action-label' }} type="button"
-						onClick={props.onContinue}>{copy.continueLabel}</Button>
+						disabled={props.focusLinkOpening} onClick={props.onContinue}>{copy.continueLabel}</Button>
 					<p className="shortcut">{shortcutHint( copy.continueShortcut, copy.spaceKeyLabel )}</p></div>}
 				{state === InterruptionScreenState.READY_EXPIRED &&
 					<p className="status-message" tabIndex={-1}>{copy.readyExpiredMessage}</p>}
@@ -70,7 +70,20 @@ export function ScreenView( props: ScreenViewProps ) {
 					<Button className="retry-button tocus-action-soft" classNames={{ label: 'pause-action-label' }} type="button"
 						disabled={recovering} onClick={props.onRetry}>
 						{recovering ? copy.retryingLabel : copy.retryLabel}</Button></section>}
-			</section></main>
+			</section>
+			{props.focusLinks.length > 0 && ! unavailable && <section className="focus-links" role="group"
+				aria-label={copy.focusLinksLabel} aria-busy={props.focusLinkOpening || undefined}>
+				<p className="focus-links-label">{copy.focusLinksLabel}</p>
+				<div className="focus-links-actions">{props.focusLinks.map( ( link ) =>
+					<Button key={link.id} className="focus-link-button tocus-action-soft" type="button"
+						disabled={props.focusLinkOpening} onClick={() => {
+							props.onOpenFocusLink( link.id );
+						}}>{link.label}</Button>,
+				)}</div>
+				{props.focusLinkOpening && <p className="focus-link-status" role="status">{copy.openingFocusLinkLabel}</p>}
+				{props.focusLinkFailed && <p className="focus-link-status" role="alert">{copy.focusLinkFailedAnnouncement}</p>}
+			</section>}
+			</main>
 			{( props.wellbeingSummary || props.reviewPrompt ) && <footer className={props.reviewPrompt ? 'review-footer' : undefined}>
 				{props.reviewPrompt ? <ReviewPrompt copy={copy}
 					presentation={props.reviewPrompt} onDismiss={props.onDismissReview} /> : props.wellbeingSummary}

@@ -540,3 +540,51 @@ footer {
 		color: CanvasText;
 	}
 }
+
+
+.has-focus-links main {
+	display: grid;
+	grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.has-focus-links .stage {
+	min-height: sizing.size(12);
+}
+
+.has-focus-links .sphere-shell {
+	width: min(62vw, sizing.size(35));
+	height: min(42vh, sizing.size(25));
+	min-height: sizing.size(9);
+}
+
+.focus-links {
+	width: min(100%, sizing.size(42));
+	margin: 0 auto;
+	padding: sizing.size(0.5) 0 sizing.size(1.25);
+	text-align: center;
+}
+
+.focus-links-label,
+.focus-link-status {
+	@include typography.apply( 'body-medium' );
+
+	margin: 0 0 sizing.size(0.75);
+	color: var(--tocus-color-on-stage-muted);
+	overflow-wrap: anywhere;
+}
+
+.focus-links-actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: sizing.size(0.5);
+}
+
+.focus-link-button {
+	max-width: 100%;
+	overflow-wrap: anywhere;
+}
+
+.focus-link-status {
+	margin: sizing.size(0.75) 0 0;
+}

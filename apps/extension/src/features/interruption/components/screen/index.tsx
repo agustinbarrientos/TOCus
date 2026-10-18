@@ -1,3 +1,4 @@
+import type { FocusLink } from '../../../../domains/preferences/types';
 import type { ReactNode } from 'react';
 import { PresentationElement } from '../../utils/presentation-element';
 import type { PresentationChanges } from '../../utils/presentation-element/types';
@@ -15,6 +16,8 @@ import {
 import styles from './web-component-style.scss?inline';
 import {
 	InterruptionContinueRequestEventName,
+	InterruptionFocusLinkRequestEventName,
+	type InterruptionFocusLinkRequestDetail,
 	InterruptionRetryRequestEventName,
 	InterruptionScreenAnnouncementKind,
 	InterruptionScreenMode,
@@ -71,10 +74,11 @@ const DefaultInterruptionScreenEnvironment: InterruptionScreenEnvironment = {
 /**
  * Determines whether a global shortcut originated from interactive content.
  * @param event - Keyboard event considered for the global Continue shortcut.
+ * @param activeElement - Owned focus target, retained even when an outer closed shadow root retargets the event.
  * @return Whether native interaction must retain ownership of the event.
  */
-function hasInteractiveShortcutTarget( event: KeyboardEvent ): boolean {
-	return event.composedPath().some( ( target ) =>
+function hasInteractiveShortcutTarget( event: KeyboardEvent, activeElement: Element | null ): boolean {
+	return activeElement?.matches( INTERACTIVE_SHORTCUT_TARGETS ) === true || event.composedPath().some( ( target ) =>
 		target instanceof Element && target.matches( INTERACTIVE_SHORTCUT_TARGETS ),
 	);
 }
@@ -214,6 +218,72 @@ export class ComponentInterruptionScreen extends PresentationElement {
 	}
 
 	private progressingInput: boolean = false;
+
+	private focusLinksInput: readonly FocusLink[] = [];
+
+	private focusLinkOpeningInput = false;
+
+	private focusLinkFailedInput = false;
+
+	/**
+	 * Returns configured focus destinations without reflecting their URLs into host attributes.
+	 * @return Ordered locally configured choices.
+	 * @since 1.1.0
+	 */
+	get focusLinks(): readonly FocusLink[] {
+		return this.focusLinksInput;
+	}
+
+	/**
+	 * Projects a new ordered set of configured focus destinations.
+	 * @param value - Validated locally configured choices.
+	 * @since 1.1.0
+	 */
+	set focusLinks( value: readonly FocusLink[] ) {
+		const previous = this.focusLinksInput;
+		this.focusLinksInput = value;
+		this.requestUpdate( 'focusLinks', previous );
+	}
+
+	/**
+	 * Reports whether an explicit focus choice is awaiting navigation acceptance.
+	 * @return Whether the choice controls are busy.
+	 * @since 1.1.0
+	 */
+	get focusLinkOpening(): boolean {
+		return this.focusLinkOpeningInput;
+	}
+
+	/**
+	 * Stops local progress while one focus choice is being opened.
+	 * @param value - Whether navigation is currently pending.
+	 * @since 1.1.0
+	 */
+	set focusLinkOpening( value: boolean ) {
+		const previous = this.focusLinkOpeningInput;
+		this.focusLinkOpeningInput = value;
+		this.requestUpdate( 'focusLinkOpening', previous );
+	}
+
+	/**
+	 * Reports whether the latest configured focus choice failed.
+	 * @return Whether a recoverable failed-choice announcement is visible.
+	 * @since 1.1.0
+	 */
+	get focusLinkFailed(): boolean {
+		return this.focusLinkFailedInput;
+	}
+
+	/**
+	 * Projects a recoverable failure without replacing the authoritative pause state.
+	 * @param value - Whether the latest focus choice failed.
+	 * @since 1.1.0
+	 */
+	set focusLinkFailed( value: boolean ) {
+		const previous = this.focusLinkFailedInput;
+		this.focusLinkFailedInput = value;
+		this.requestUpdate( 'focusLinkFailed', previous );
+	}
 
 	/**
 	 * Current reduced motion input supplied by the presentation owner.
@@ -472,7 +542,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 			event.ctrlKey ||
 			event.metaKey ||
 			event.shiftKey ||
-			hasInteractiveShortcutTarget( event )
+			hasInteractiveShortcutTarget( event, this.renderRoot.activeElement )
 		) {
 			return;
 		}
@@ -561,6 +631,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 				changedProperties.has( 'waitDurationMilliseconds' ) ||
 				changedProperties.has( 'focusedProgressMilliseconds' ) ||
 				changedProperties.has( 'progressing' ) ||
+				changedProperties.has( 'focusLinkOpening' ) ||
 				changedProperties.has( 'reducedMotion' ) ||
 				changedProperties.has( 'preview' )
 			)
@@ -629,7 +700,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 			) {
 				this.focusElement( '.scene' );
 			} else if ( this.state === InterruptionScreenState.READY ) {
-				if ( ! this.renderRoot.activeElement?.closest( '.review-prompt' ) ) {
+				if ( ! this.renderRoot.activeElement?.closest( '.review-prompt, .focus-links' ) ) {
 					this.focusElement( '.continue-button' );
 				}
 			} else if (
@@ -665,7 +736,10 @@ export class ComponentInterruptionScreen extends PresentationElement {
 		return <ScreenView host={this} shadowRoot={this.renderRoot} copy={this.copy} state={this.state} mode={this.mode}
 			progressMilliseconds={this.progressClock.getProgressMilliseconds()}
 			waitDurationMilliseconds={this.waitDurationMilliseconds} reducedMotion={this.reducedMotion}
-			recovering={this.recovering} wellbeingSummary={this.wellbeingSummary} announcement={this.announcement}
+			recovering={this.recovering} focusLinks={this.preview ? [] : this.focusLinks}
+			focusLinkOpening={this.focusLinkOpening} focusLinkFailed={this.focusLinkFailed}
+			onOpenFocusLink={this.requestFocusLink} wellbeingSummary={this.wellbeingSummary}
+			announcement={this.announcement}
 			reviewPrompt={this.preview || (
 				this.state !== InterruptionScreenState.WAITING && this.state !== InterruptionScreenState.READY )
 				? null : this.reviewPrompt} onDismissReview={this.requestReviewDismissal}
@@ -742,7 +816,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 			documentVisible: this.environment.isDocumentVisible(),
 			durationMilliseconds: this.waitDurationMilliseconds,
 			looping: this.preview,
-			progressing: this.progressing,
+			progressing: this.progressing && ! this.focusLinkOpening,
 			waiting: this.state === InterruptionScreenState.WAITING,
 			windowFocused: this.environment.isWindowFocused(),
 		};
@@ -789,7 +863,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 	 * @since 1.0.0 Initial implementation.
 	 */
 	private readonly requestContinue = (): void => {
-		if ( this.state !== InterruptionScreenState.READY ) {
+		if ( this.state !== InterruptionScreenState.READY || this.focusLinkOpening ) {
 			return;
 		}
 
@@ -797,6 +871,20 @@ export class ComponentInterruptionScreen extends PresentationElement {
 			bubbles: true,
 			composed: true,
 		} ) );
+	};
+
+	/**
+	 * Emits the identity of a configured focus choice without exposing its destination URL.
+	 * @param focusLinkId - Stable identity chosen through one visible action.
+	 * @since 1.1.0
+	 */
+	private readonly requestFocusLink = ( focusLinkId: string ): void => {
+		if ( this.focusLinkOpening || ! this.focusLinks.some( ( link ) => link.id === focusLinkId ) ) {
+			return;
+		}
+		this.dispatchEvent( new CustomEvent<InterruptionFocusLinkRequestDetail>( InterruptionFocusLinkRequestEventName,
+			{ detail: { focusLinkId }, bubbles: true, composed: true },
+		) );
 	};
 
 	/**
@@ -817,6 +905,8 @@ export class ComponentInterruptionScreen extends PresentationElement {
 
 export {
 	InterruptionContinueRequestEventName,
+	InterruptionFocusLinkRequestEventName,
+	type InterruptionFocusLinkRequestDetail,
 	InterruptionRetryRequestEventName,
 	InterruptionScreenMode,
 	InterruptionScreenState,
