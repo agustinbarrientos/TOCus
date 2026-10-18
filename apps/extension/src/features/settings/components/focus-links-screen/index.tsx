@@ -14,6 +14,7 @@ import { Page } from '../page';
 import { Recovery } from '../recovery';
 import { LoadState } from '../recovery/types';
 import type { EditableSettingsScreenProps } from '../page/types';
+import '../../../protected-sites/components/site-list/style.scss';
 import './style.scss';
 
 /** Preference fields exclusively owned by the Focus links destination. */
@@ -120,68 +121,71 @@ export function FocusLinks( props: EditableSettingsScreenProps ) {
 			noValidate onSubmit={ ( event ) => {
 				event.preventDefault(); void save();
 			} }>
-			<Stack gap="var(--tocus-space-4)" className="settings-focus-links">
-				<div><p>{ copy.description }</p><p>{ copy.privacyDescription }</p></div>
-				{ value.focusLinks.length === 0 && <p>{ copy.emptyMessage }</p> }
-				{ value.focusLinks.map( ( link, index ) => <fieldset key={ link.id }
-					className="settings-focus-link" disabled={ disabled }>
-					<legend>{ index + 1 }</legend>
-					<Stack gap="var(--tocus-space-3)">
-						<TextInput id={ `label-${ link.id }` } label={ copy.label } value={ link.label } disabled={ disabled }
-							autoComplete="off" error={ ( submitted || touched.has( `label-${ link.id }` ) ) &&
-								! FocusLinkSchema.shape.label.safeParse( link.label ).success
-								? copy.invalidLabel : undefined }
-							onBlur={ () => {
-								setTouched( new Set( [ ...touched, `label-${ link.id }` ] ) );
-							} }
-							onChange={ ( event ) => {
-								changeLink( link.id, { label: event.currentTarget.value } );
-							} } />
-						<TextInput id={ `url-${ link.id }` } label={ copy.url } value={ link.url } disabled={ disabled }
-							type="url" autoComplete="off" autoCapitalize="none" spellCheck={ false }
-							error={ ( submitted || touched.has( `url-${ link.id }` ) ) &&
-								! FocusLinkSchema.shape.url.safeParse( link.url ).success
-								? copy.invalidUrl : undefined }
-							onBlur={ () => {
-								setTouched( new Set( [ ...touched, `url-${ link.id }` ] ) );
-							} }
-							onChange={ ( event ) => {
-								changeLink( link.id, { url: event.currentTarget.value } );
-							} } />
-						<Group gap="var(--tocus-space-2)" className="settings-focus-link-actions">
-							<Button type="button" size="xs" variant="outline" disabled={ disabled || index === 0 }
-								onClick={ () => {
-									moveLink( index, -1 );
-								} }>{ copy.moveUp }</Button>
-							<Button type="button" size="xs" variant="outline" disabled={ disabled || index === value.focusLinks.length - 1 }
-								onClick={ () => {
-									moveLink( index, 1 );
-								} }>{ copy.moveDown }</Button>
-							<Button type="button" size="xs" variant="outline" disabled={ disabled }
-								onClick={ () => {
-									if ( disabled ) {
-										return;
-									}
-									const links = value.focusLinks.filter( ( current ) => current.id !== link.id );
-									const next = links[ Math.min( index, links.length - 1 ) ];
-									pendingFocus.current = next ? `label-${ next.id }` : 'focus-links-add';
-									draft.change( { ...value, focusLinks: links } );
-								} }>{ copy.remove }</Button>
-						</Group>
-					</Stack>
-				</fieldset> ) }
-				<Button id="focus-links-add" className="settings-focus-links-add" type="button" size="xs" variant="outline"
-					disabled={ disabled || value.focusLinks.length >= FocusLinkMaximumCount } onClick={ () => {
-						if ( disabled || value.focusLinks.length >= FocusLinkMaximumCount ) {
-							return;
-						}
-						const id = `focus_link_${ crypto.randomUUID() }`;
-						pendingFocus.current = `label-${ id }`;
-						draft.change( { ...value, focusLinks: [ ...value.focusLinks, { id, label: '', url: '' } ] } );
-					} }>{ copy.addLink }</Button>
+			<Stack gap={ 0 }>
+				<Stack gap="var(--tocus-space-5)" className="settings-focus-links">
+					{ value.focusLinks.length === 0 ? <section className="settings-sites-empty">
+						<h2>{ copy.emptyMessage }</h2><p>{ copy.description }</p>
+					</section> : <p>{ copy.description }</p> }
+					{ value.focusLinks.map( ( link, index ) => <fieldset key={ link.id }
+						className="settings-focus-link" disabled={ disabled }>
+						<legend>{ index + 1 }</legend>
+						<Stack gap="var(--tocus-space-4)">
+							<TextInput id={ `label-${ link.id }` } label={ copy.label } value={ link.label } disabled={ disabled }
+								autoComplete="off" error={ ( submitted || touched.has( `label-${ link.id }` ) ) &&
+									! FocusLinkSchema.shape.label.safeParse( link.label ).success
+									? copy.invalidLabel : undefined }
+								onBlur={ () => {
+									setTouched( new Set( [ ...touched, `label-${ link.id }` ] ) );
+								} }
+								onChange={ ( event ) => {
+									changeLink( link.id, { label: event.currentTarget.value } );
+								} } />
+							<TextInput id={ `url-${ link.id }` } label={ copy.url } value={ link.url } disabled={ disabled }
+								type="url" autoComplete="off" autoCapitalize="none" spellCheck={ false }
+								error={ ( submitted || touched.has( `url-${ link.id }` ) ) &&
+									! FocusLinkSchema.shape.url.safeParse( link.url ).success
+									? copy.invalidUrl : undefined }
+								onBlur={ () => {
+									setTouched( new Set( [ ...touched, `url-${ link.id }` ] ) );
+								} }
+								onChange={ ( event ) => {
+									changeLink( link.id, { url: event.currentTarget.value } );
+								} } />
+							<Group gap="var(--tocus-space-2)" className="settings-focus-link-actions">
+								<Button type="button" size="xs" variant="outline" disabled={ disabled || index === 0 }
+									onClick={ () => {
+										moveLink( index, -1 );
+									} }>{ copy.moveUp }</Button>
+								<Button type="button" size="xs" variant="outline" disabled={ disabled || index === value.focusLinks.length - 1 }
+									onClick={ () => {
+										moveLink( index, 1 );
+									} }>{ copy.moveDown }</Button>
+								<Button type="button" size="xs" variant="outline" disabled={ disabled }
+									onClick={ () => {
+										if ( disabled ) {
+											return;
+										}
+										const links = value.focusLinks.filter( ( current ) => current.id !== link.id );
+										const next = links[ Math.min( index, links.length - 1 ) ];
+										pendingFocus.current = next ? `label-${ next.id }` : 'focus-links-add';
+										draft.change( { ...value, focusLinks: links } );
+									} }>{ copy.remove }</Button>
+							</Group>
+						</Stack>
+					</fieldset> ) }
+					{ value.focusLinks.length < FocusLinkMaximumCount && <Button id="focus-links-add"
+						className="settings-focus-links-add" type="button" variant="outline" disabled={ disabled } onClick={ () => {
+							if ( disabled || value.focusLinks.length >= FocusLinkMaximumCount ) {
+								return;
+							}
+							const id = `focus_link_${ crypto.randomUUID() }`;
+							pendingFocus.current = `label-${ id }`;
+							draft.change( { ...value, focusLinks: [ ...value.focusLinks, { id, label: '', url: '' } ] } );
+						} }>{ copy.addLink }</Button> }
+				</Stack>
+				<Feedback error={ error ? copy.saveError : null } />
+				<DraftActions draft={ draft } copy={ copy } onSave={ save } onDiscard={ discard } />
 			</Stack>
-			<Feedback error={ error ? copy.saveError : null } />
-			<DraftActions draft={ draft } copy={ copy } onSave={ save } onDiscard={ discard } />
 		</form> }
 	</Page>;
 }

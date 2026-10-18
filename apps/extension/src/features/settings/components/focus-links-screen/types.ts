@@ -9,7 +9,6 @@ export interface FocusLinksScreenCopy extends RecoveryCopy, DraftActionCopy {
 	title: string;
 	formLabel: string;
 	description: string;
-	privacyDescription: string;
 	emptyMessage: string;
 	addLink: string;
 	label: string;
