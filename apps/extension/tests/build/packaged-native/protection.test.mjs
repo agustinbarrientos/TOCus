@@ -81,6 +81,9 @@ test( 'denied native access saves nothing and retry enables a real pause and Con
 		await expect.poll( () => browser.viewScript( 'popup', `return browser.storage.local.get('tocus.statistics.v1')
 			.then(data => data['tocus.statistics.v1']?.dailyTotals.map(({completedWaitCount, allowanceGrantedCount}) => ({completedWaitCount, allowanceGrantedCount})));` ) )
 			.toEqual( [ { completedWaitCount: 1, allowanceGrantedCount: 1 } ] );
+		await expect.poll( () => browser.viewScript( 'popup', `return browser.storage.local.get('tocus.statistics.v1')
+			.then(data => data['tocus.statistics.v1']?.visitOutcomes?.dailySites.map(({siteHost, reconsideredVisitCount, visitedAfterPauseCount}) => ({siteHost, reconsideredVisitCount, visitedAfterPauseCount})));` ) )
+			.toEqual( [ { siteHost: '127.0.0.1', reconsideredVisitCount: 0, visitedAfterPauseCount: 1 } ] );
 	} );
 } );
 

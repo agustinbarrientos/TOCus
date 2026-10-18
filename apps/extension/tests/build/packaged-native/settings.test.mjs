@@ -27,7 +27,8 @@ function expectClearedStatistics( statistics, previousGeneration ) {
 	if ( statistics === null ) {
 		return;
 	}
-	expect( statistics ).toEqual( {
+	const { visitOutcomes, ...totals } = statistics;
+	expect( totals ).toEqual( {
 		schemaVersion: 2,
 		generationId: expect.stringMatching( /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu ),
 		lastAppliedBatchId: null,
@@ -41,6 +42,11 @@ function expectClearedStatistics( statistics, previousGeneration ) {
 			},
 		},
 	} );
+	if ( visitOutcomes !== undefined ) {
+		expect( visitOutcomes ).toEqual( {
+			recordedFromDate: expect.stringMatching( /^\d{4}-\d{2}-\d{2}$/u ), dailySites: [], dailyHours: [],
+		} );
+	}
 	expect( statistics.generationId ).not.toBe( previousGeneration );
 }
 
@@ -330,28 +336,28 @@ test( 'Statistics records a real Continue and resets totals without changing pro
 		await continuePause( browser );
 		await expect.poll( () => browser.currentUrl() ).toBe( `${ url }statistics-visit` );
 		await settings( browser, 'statistics' );
-		await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed waits': '1', 'Allowances granted': '1' } );
+		await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed pauses': '1' } );
 		const configuration = await stored( browser, configurationKey );
 		const preferences = await stored( browser, preferencesKey );
 		const grants = await protectionState( browser );
 		for ( const range of [ 'current-week', 'current-month', 'all-time' ] ) {
 			await setSelect( browser, '.settings-statistics-period-select select', range );
-			await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed waits': '1', 'Allowances granted': '1' } );
+			await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed pauses': '1' } );
 		}
-		await clickButton( browser, 'Reset statistics', '.settings-statistics-data' );
+		await clickButton( browser, 'Reset statistics', '.settings-data-reset' );
 		await visible( browser, '[role="dialog"]' );
 		await clickButton( browser, 'Cancel', '[role="dialog"]' );
 		await dialogClosed( browser );
-		expect( await metrics( browser ) ).toMatchObject( { 'Completed waits': '1', 'Allowances granted': '1' } );
-		await clickButton( browser, 'Reset statistics', '.settings-statistics-data' );
+		expect( await metrics( browser ) ).toMatchObject( { 'Completed pauses': '1' } );
+		await clickButton( browser, 'Reset statistics', '.settings-data-reset' );
 		await visible( browser, '[role="dialog"]' );
 		await clickButton( browser, 'Reset statistics', '[role="dialog"]' );
-		await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed waits': '0', 'Allowances granted': '0', 'Reconsidered visits': '0' } );
+		await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed pauses': '0', 'Reconsidered visits': '0' } );
 		expect( await stored( browser, configurationKey ) ).toEqual( configuration );
 		expect( await stored( browser, preferencesKey ) ).toEqual( preferences );
 		expect( await protectionState( browser ) ).toEqual( grants );
 		await reload( browser );
-		await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed waits': '0', 'Allowances granted': '0' } );
+		await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed pauses': '0' } );
 	} );
 } );
 
