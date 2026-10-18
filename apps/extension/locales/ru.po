@@ -188,6 +188,10 @@ msgstr "Добавьте строку или выберите готовый в�
 msgid "Add another site"
 msgstr "Добавить другой сайт"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Add link"
+msgstr "Добавить ссылку"
+
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Add row"
 msgstr "Добавить строку"
@@ -200,6 +204,10 @@ msgstr "Добавить сайт"
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "Add the first site you want TOCus to gently interrupt."
 msgstr "Добавьте первый сайт, который TOCus будет мягко прерывать."
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Add up to three links to help you return to what you wanted to do."
+msgstr "Добавьте до трёх ссылок, которые помогут вернуться к тому, что вы хотели сделать."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Adding {siteName}..."
@@ -470,6 +478,7 @@ msgid "Developed by {name}"
 msgstr "Разработчик — {name}"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -510,6 +519,10 @@ msgstr "English"
 msgid "Enter a domain or a full web address. TOCus includes the whole domain by default."
 msgstr "Введите домен или полный веб-адрес. По умолчанию TOCus включает весь домен."
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Enter a label with 1 to 64 characters."
+msgstr "Введите название длиной от 1 до 64 символов."
+
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Enter a valid website address, such as example.com."
 msgstr "Введите допустимый адрес сайта, например example.com."
@@ -517,6 +530,10 @@ msgstr "Введите допустимый адрес сайта, наприм�
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Enter a valid website address."
 msgstr "Введите корректный адрес сайта."
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Enter an http:// or https:// address without a username or password."
+msgstr "Введите адрес http:// или https:// без имени пользователя и пароля."
 
 #. Language autonym. Keep the language name written in Spanish.
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
@@ -561,6 +578,19 @@ msgstr "Экспорт резервной копии..."
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Finish setup"
 msgstr "Завершить настройку"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Focus link preferences"
+msgstr "Настройки ссылок для концентрации"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Focus links"
+msgstr "Ссылки для концентрации"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Focus links couldn't load"
+msgstr "Не удалось загрузить ссылки для концентрации"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
@@ -638,6 +668,10 @@ msgstr "Оставить сайт"
 msgid "Keep TOCus active all day, every day."
 msgstr "TOCus будет активен каждый день круглосуточно."
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Label"
+msgstr "Название"
+
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
@@ -670,9 +704,17 @@ msgstr "Попробуем ещё раз"
 msgid "Light"
 msgstr "Светлая"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Links stay on this device. Opening one leaves the paused website without granting browsing time."
+msgstr "Ссылки остаются на этом устройстве. Открывая ссылку, вы покидаете сайт на паузе, не получая времени на просмотр."
+
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Loading appearance settings..."
 msgstr "Загрузка настроек оформления..."
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Loading focus links..."
+msgstr "Загрузка ссылок для концентрации..."
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Loading language settings..."
@@ -738,6 +780,14 @@ msgstr "Пн - Пт, весь день"
 msgid "Monday"
 msgstr "Понедельник"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Move down"
+msgstr "Переместить вниз"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Move up"
+msgstr "Переместить вверх"
+
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Name"
@@ -746,6 +796,10 @@ msgstr "Название"
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "No activity recorded in this period."
 msgstr "За этот период активность не зарегистрирована."
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "No focus links yet."
+msgstr "Ссылок для концентрации пока нет."
 
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "No websites yet"
@@ -775,6 +829,10 @@ msgstr "Открытый код. Открыт для твоего участия
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Open the site automatically"
 msgstr "Открыть сайт автоматически"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Opening your focus link..."
+msgstr "Открываем вашу ссылку для концентрации..."
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Or press {key}"
@@ -820,11 +878,13 @@ msgid "Period"
 msgstr "Период"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Personalization defaults restored."
 msgstr "Настройки персонализации по умолчанию восстановлены."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Personalization settings need your attention"
 msgstr "Настройки персонализации требуют внимания"
@@ -888,6 +948,10 @@ msgstr "Удалить {name}?"
 msgid "Remove all TOCus data and set it up again."
 msgstr "Удалите все данные TOCus и настройте его заново."
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Remove link"
+msgstr "Удалить ссылку"
+
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Remove site"
@@ -936,9 +1000,14 @@ msgid "Resetting..."
 msgstr "Сброс..."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Restore personalization defaults"
 msgstr "Восстановить настройки персонализации по умолчанию"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Return to your focus"
+msgstr "Вернитесь к своему занятию"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Sat - Sun, all day"
@@ -949,6 +1018,7 @@ msgid "Saturday"
 msgstr "Суббота"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -970,6 +1040,7 @@ msgid "Save your changes?"
 msgstr "Сохранить изменения?"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -1351,6 +1422,10 @@ msgstr "TOCus не удалось завершить сброс. Попробу�
 msgid "TOCus couldn't load local appearance settings. Nothing was changed."
 msgstr "TOCus не удалось загрузить локальные настройки оформления. Ничего не изменилось."
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "TOCus couldn't load local focus links. Nothing was changed."
+msgstr "TOCus не удалось загрузить локальные ссылки для концентрации. Ничего не изменилось."
+
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "TOCus couldn't load local settings. Nothing was changed."
 msgstr "TOCus не удалось загрузить локальные настройки. Ничего не изменилось."
@@ -1380,6 +1455,7 @@ msgid "TOCus couldn't restore this pause."
 msgstr "TOCus не удалось восстановить эту паузу."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "TOCus couldn't restore your personalization defaults. Nothing was changed."
 msgstr "TOCus не удалось восстановить настройки персонализации по умолчанию. Ничего не изменилось."
@@ -1464,6 +1540,7 @@ msgstr "TOCus: {title}"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
@@ -1559,6 +1636,10 @@ msgstr "Хотите лучше контролировать код, котор�
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "We couldn't save your choice. Please try again."
 msgstr "Не удалось сохранить ваш выбор. Попробуйте ещё раз."
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Web address"
+msgstr "Веб-адрес"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
@@ -1672,6 +1753,14 @@ msgstr "Не удалось сохранить ваш выбор. Попробу
 msgid "Your data stays with you"
 msgstr "Твои данные остаются у тебя"
 
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Your focus link could not be opened. Try again."
+msgstr "Не удалось открыть вашу ссылку для концентрации. Попробуйте ещё раз."
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Your focus links couldn't be saved. Your changes are still shown here."
+msgstr "Не удалось сохранить ваши ссылки для концентрации. Ваши изменения по-прежнему отображаются здесь."
+
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Your language couldn't be saved. Your choice is still shown here."
 msgstr "Не удалось сохранить язык. Ваш выбор по-прежнему отображается здесь."
@@ -1681,12 +1770,10 @@ msgid "Your local data changed. Reload settings before importing this backup."
 msgstr "Локальные данные изменились. Перезагрузите настройки перед импортом этой резервной копии."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "Your local personalization data isn't valid. Restoring defaults will reset appearance, pause, and language preferences."
-msgstr "Данные персонализации недействительны. Восстановление значений по умолчанию сбросит настройки оформления, пауз и языка."
-
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
-msgid "Your local personalization data isn't valid. Restoring defaults will reset appearance, pause, motion, and language preferences."
-msgstr "Локальные данные персонализации недействительны. Восстановление значений по умолчанию сбросит настройки оформления, паузы, движения и языка."
+msgid "Your local personalization data isn't valid. Restoring defaults will reset appearance, pause, language, and focus links."
+msgstr "Локальные данные персонализации недействительны. Восстановление значений по умолчанию сбросит оформление, паузы, язык и ссылки для концентрации."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Your local settings need attention"

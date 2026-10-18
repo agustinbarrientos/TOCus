@@ -188,6 +188,10 @@ msgstr "Ajoutez une ligne ou choisissez un horaire prédéfini avant d'enregistr
 msgid "Add another site"
 msgstr "Ajouter un autre site"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Add link"
+msgstr "Ajouter un lien"
+
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Add row"
 msgstr "Ajouter une ligne"
@@ -200,6 +204,10 @@ msgstr "Ajouter un site"
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "Add the first site you want TOCus to gently interrupt."
 msgstr "Ajoutez le premier site que vous souhaitez que TOCus interrompe doucement."
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Add up to three links to help you return to what you wanted to do."
+msgstr "Ajoutez jusqu’à trois liens pour revenir à ce que vous vouliez faire."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Adding {siteName}..."
@@ -470,6 +478,7 @@ msgid "Developed by {name}"
 msgstr "Développé par {name}"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -510,6 +519,10 @@ msgstr "English"
 msgid "Enter a domain or a full web address. TOCus includes the whole domain by default."
 msgstr "Saisissez un domaine ou une adresse web complète. Par défaut, TOCus inclut l'ensemble du domaine."
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Enter a label with 1 to 64 characters."
+msgstr "Saisissez un libellé de 1 à 64 caractères."
+
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Enter a valid website address, such as example.com."
 msgstr "Saisissez une adresse valide, par exemple example.com."
@@ -517,6 +530,10 @@ msgstr "Saisissez une adresse valide, par exemple example.com."
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Enter a valid website address."
 msgstr "Saisissez une adresse de site web valide."
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Enter an http:// or https:// address without a username or password."
+msgstr "Saisissez une adresse http:// ou https:// sans nom d’utilisateur ni mot de passe."
 
 #. Language autonym. Keep the language name written in Spanish.
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
@@ -561,6 +578,19 @@ msgstr "Exportation de la sauvegarde..."
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Finish setup"
 msgstr "Terminer la configuration"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Focus link preferences"
+msgstr "Préférences des liens pour se recentrer"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Focus links"
+msgstr "Liens pour se recentrer"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Focus links couldn't load"
+msgstr "Impossible de charger les liens pour se recentrer"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
@@ -638,6 +668,10 @@ msgstr "Conserver le site"
 msgid "Keep TOCus active all day, every day."
 msgstr "Garder TOCus actif tous les jours, à toute heure."
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Label"
+msgstr "Libellé"
+
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
@@ -670,9 +704,17 @@ msgstr "Essayons à nouveau"
 msgid "Light"
 msgstr "Clair"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Links stay on this device. Opening one leaves the paused website without granting browsing time."
+msgstr "Les liens restent sur cet appareil. En ouvrant un lien, vous quittez le site en pause sans obtenir de temps de navigation."
+
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Loading appearance settings..."
 msgstr "Chargement des paramètres d'apparence..."
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Loading focus links..."
+msgstr "Chargement des liens pour se recentrer..."
 
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Loading language settings..."
@@ -738,6 +780,14 @@ msgstr "Lun - Ven, toute la journée"
 msgid "Monday"
 msgstr "Lundi"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Move down"
+msgstr "Déplacer vers le bas"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Move up"
+msgstr "Déplacer vers le haut"
+
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Name"
@@ -746,6 +796,10 @@ msgstr "Nom"
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "No activity recorded in this period."
 msgstr "Aucune activité enregistrée sur cette période."
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "No focus links yet."
+msgstr "Aucun lien pour se recentrer pour le moment."
 
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "No websites yet"
@@ -775,6 +829,10 @@ msgstr "Code ouvert. À toi de participer."
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Open the site automatically"
 msgstr "Ouvrir le site automatiquement"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Opening your focus link..."
+msgstr "Ouverture de votre lien pour vous recentrer..."
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Or press {key}"
@@ -820,11 +878,13 @@ msgid "Period"
 msgstr "Période"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Personalization defaults restored."
 msgstr "Valeurs par défaut de personnalisation restaurées."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Personalization settings need your attention"
 msgstr "Les paramètres de personnalisation nécessitent votre attention"
@@ -888,6 +948,10 @@ msgstr "Supprimer {name} ?"
 msgid "Remove all TOCus data and set it up again."
 msgstr "Supprimez toutes les données de TOCus et configurez-le à nouveau."
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Remove link"
+msgstr "Supprimer le lien"
+
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Remove site"
@@ -936,9 +1000,14 @@ msgid "Resetting..."
 msgstr "Réinitialisation..."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Restore personalization defaults"
 msgstr "Restaurer les valeurs par défaut de personnalisation"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Return to your focus"
+msgstr "Retrouvez votre concentration"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Sat - Sun, all day"
@@ -949,6 +1018,7 @@ msgid "Saturday"
 msgstr "Samedi"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -970,6 +1040,7 @@ msgid "Save your changes?"
 msgstr "Enregistrer les modifications ?"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -1351,6 +1422,10 @@ msgstr "TOCus n'a pas pu terminer la réinitialisation. Réessayez pour la termi
 msgid "TOCus couldn't load local appearance settings. Nothing was changed."
 msgstr "TOCus n'a pas pu charger les paramètres d'apparence locaux. Rien n'a été modifié."
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "TOCus couldn't load local focus links. Nothing was changed."
+msgstr "TOCus n’a pas pu charger les liens locaux pour se recentrer. Rien n’a été modifié."
+
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "TOCus couldn't load local settings. Nothing was changed."
 msgstr "TOCus n'a pas pu charger les paramètres locaux. Rien n'a été modifié."
@@ -1380,6 +1455,7 @@ msgid "TOCus couldn't restore this pause."
 msgstr "TOCus n'a pas pu rétablir cette pause."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "TOCus couldn't restore your personalization defaults. Nothing was changed."
 msgstr "TOCus n'a pas pu restaurer vos valeurs par défaut de personnalisation. Aucun changement n'a été effectué."
@@ -1464,6 +1540,7 @@ msgstr "TOCus : {title}"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
@@ -1559,6 +1636,10 @@ msgstr "Tu veux mieux contrôler le code que tu utilises ? Copie le projet, exam
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "We couldn't save your choice. Please try again."
 msgstr "Nous n'avons pas pu enregistrer votre choix. Veuillez réessayer."
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Web address"
+msgstr "Adresse web"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
@@ -1672,6 +1753,14 @@ msgstr "Votre choix n'a pas pu être enregistré. Réessayez."
 msgid "Your data stays with you"
 msgstr "Tes données restent avec toi"
 
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Your focus link could not be opened. Try again."
+msgstr "Votre lien pour vous recentrer n’a pas pu être ouvert. Réessayez."
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Your focus links couldn't be saved. Your changes are still shown here."
+msgstr "Vos liens pour vous recentrer n’ont pas pu être enregistrés. Vos modifications restent affichées ici."
+
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Your language couldn't be saved. Your choice is still shown here."
 msgstr "La langue n'a pas pu être enregistrée. Votre choix reste affiché ici."
@@ -1681,12 +1770,10 @@ msgid "Your local data changed. Reload settings before importing this backup."
 msgstr "Vos données locales ont changé. Rechargez les paramètres avant d'importer cette sauvegarde."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "Your local personalization data isn't valid. Restoring defaults will reset appearance, pause, and language preferences."
-msgstr "Vos données de personnalisation ne sont pas valides. Restaurer les valeurs par défaut réinitialisera les préférences d’apparence, de pause et de langue."
-
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
-msgid "Your local personalization data isn't valid. Restoring defaults will reset appearance, pause, motion, and language preferences."
-msgstr "Vos données locales de personnalisation ne sont pas valides. La restauration des valeurs par défaut réinitialisera vos préférences d'apparence, de pause, de mouvement et de langue."
+msgid "Your local personalization data isn't valid. Restoring defaults will reset appearance, pause, language, and focus links."
+msgstr "Vos données locales de personnalisation ne sont pas valides. La restauration des valeurs par défaut réinitialisera l’apparence, les pauses, la langue et les liens pour se recentrer."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Your local settings need attention"
