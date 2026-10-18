@@ -8,14 +8,12 @@ for ( const theme of [ ThemeMode.LIGHT, ThemeMode.DARK ] ) {
 	for ( const width of [ 1280, 390 ] ) {
 		test( `Statistics outcomes ${ String( width ) } ${ theme }`, async ( { page } ) => {
 			await page.setViewportSize( { width, height: 1100 } );
-			await page.goto( `${ ExtensionOrigin }/apps/extension/src/features/settings/components/shell/__fixtures__/#${ SettingsDestination.STATISTICS }` );
-			await page.evaluate( ( { theme, palette } ) => {
-				window.settingsTest.externalPreferences( { theme, palette } );
-			}, { theme, palette: Palette.BROWN } );
-			await expect( page.locator( 'html' ) ).toHaveAttribute( 'data-tocus-theme', theme );
+			const appearance = new URLSearchParams( { theme, palette: Palette.BROWN } );
+			await page.goto( `${ ExtensionOrigin }/apps/extension/src/features/settings/components/shell/__fixtures__/?${ appearance.toString() }#${ SettingsDestination.STATISTICS }` );
 			await expect( page.locator( '.settings-statistics-site-list li' ) ).toHaveCount( 2 );
 			await expect( page.locator( '.settings-statistics-daily .recharts-surface' ) ).toBeVisible();
 			await expect( page.locator( '.settings-statistics-hourly .recharts-surface' ) ).toBeVisible();
+			await expect( page.locator( 'html' ) ).toHaveAttribute( 'data-tocus-theme', theme );
 			await page.evaluate( () => document.fonts.ready );
 			const actual = await page.locator( '.settings-layout' ).screenshot( { caret: 'hide' } );
 			const name = `statistics-outcomes-${ String( width ) }-${ theme }`;
