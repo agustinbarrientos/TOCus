@@ -10,7 +10,7 @@ import { createFocusLinksScreenCopy } from './index';
 describe( 'createFocusLinksScreenCopy', () => {
 	it( 'keeps optional shortcuts concise and reuses website controls', () => {
 		const copy = createFocusLinksScreenCopy( createTestI18n() );
-		expect( copy.title ).toBe( 'Focus links' );
+		expect( copy.title ).toBe( 'Quick links' );
 		expect( copy.description ).toBe( 'Optionally, add up to three website shortcuts to your breathing screen.' );
 		expect( copy.descriptionDetail ).toBe( 'Use them to quickly visit sites you\'d rather spend time on.' );
 		expect( copy ).not.toHaveProperty( 'privacyDescription' );
@@ -20,7 +20,7 @@ describe( 'createFocusLinksScreenCopy', () => {
 		expect( copy.done ).toBe( 'Done' );
 		expect( copy.invalidLabel ).toContain( '1 to 64 characters' );
 		expect( copy.invalidUrl ).toContain( 'http://' );
-		expect( copy.malformedDataDescription ).toContain( 'focus links' );
+		expect( copy.malformedDataDescription ).toContain( 'quick links' );
 		expect( Object.isFrozen( copy ) ).toBe( true );
 	} );
 

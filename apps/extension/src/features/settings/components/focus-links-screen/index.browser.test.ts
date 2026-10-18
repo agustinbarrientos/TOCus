@@ -66,7 +66,7 @@ test.describe( 'Focus links settings', () => {
 					{ id: 'focus_link_read', label: 'Read', url: 'https://example.com/read' },
 				] } );
 			} );
-			await page.getByRole( 'link', { name: 'Focus links', exact: true } ).click();
+			await page.getByRole( 'link', { name: 'Quick links', exact: true } ).click();
 			await page.getByRole( 'button', { name: 'Edit link', exact: true } ).click();
 			const dialog = page.getByRole( 'dialog', { name: 'Edit link', exact: true } );
 			await dialog.getByLabel( 'Label', { exact: true } ).fill( 'Tentative edit' );
@@ -183,7 +183,7 @@ test.describe( 'Focus links settings', () => {
 				{ id: 'focus_link_read', label: 'Read', url: 'https://example.com/read' },
 			] } );
 		} );
-		await page.getByRole( 'link', { name: 'Focus links', exact: true } ).click();
+		await page.getByRole( 'link', { name: 'Quick links', exact: true } ).click();
 		const rows = page.locator( '.settings-site-list > .settings-site-item' );
 		await expect( rows ).toHaveCount( 2 );
 		await expect( rows.first().locator( '.settings-site-identity h2' ) ).toHaveText( 'Write' );
@@ -227,7 +227,7 @@ test.describe( 'Focus links settings', () => {
 				{ id: 'focus_link_read', label: 'Read', url: 'https://example.com/read' },
 			] } );
 		} );
-		await page.getByRole( 'link', { name: 'Focus links', exact: true } ).click();
+		await page.getByRole( 'link', { name: 'Quick links', exact: true } ).click();
 		await page.getByRole( 'button', { name: 'Add site', exact: true } ).focus();
 		await page.getByRole( 'button', { name: 'Edit link', exact: true } ).click();
 		const dialog = page.getByRole( 'dialog', { name: 'Edit link', exact: true } );
@@ -259,7 +259,7 @@ test.describe( 'Focus links settings', () => {
 				{ id: 'focus_link_plan', label: 'Plan', url: 'https://example.com/plan' },
 			] } );
 		} );
-		await page.getByRole( 'link', { name: 'Focus links', exact: true } ).click();
+		await page.getByRole( 'link', { name: 'Quick links', exact: true } ).click();
 		const add = page.getByRole( 'button', { name: 'Add site', exact: true } );
 		await expect( add ).toHaveCount( 0 );
 		await page.locator( '.settings-site-list > .settings-site-item' ).nth( 2 )
@@ -279,7 +279,7 @@ test.describe( 'Focus links settings', () => {
 
 	test( 'adds, edits, reorders and removes up to three persistent links', async ( { open } ) => {
 		const page = await open( SettingsDestination.FOCUS_LINKS );
-		await expect( page.getByRole( 'heading', { name: 'Focus links', exact: true } ) ).toBeVisible();
+		await expect( page.getByRole( 'heading', { name: 'Quick links', exact: true } ) ).toBeVisible();
 		await expect( page.getByText( 'No websites yet', { exact: true } ) ).toBeVisible();
 		const add = page.getByRole( 'button', { name: 'Add site', exact: true } );
 		for ( const label of [ 'Write', 'Read', 'Plan' ] ) {
@@ -309,7 +309,7 @@ test.describe( 'Focus links settings', () => {
 		await expect( page.locator( '.settings-site-list input' ) ).toHaveCount( 0 );
 		await expect( page.locator( '.settings-site-item' ).first().getByRole( 'button', { name: 'Edit link', exact: true } ) ).toBeFocused();
 		await page.getByRole( 'link', { name: 'About', exact: true } ).click();
-		await page.getByRole( 'link', { name: 'Focus links', exact: true } ).click();
+		await page.getByRole( 'link', { name: 'Quick links', exact: true } ).click();
 		await page.locator( '.settings-site-list > .settings-site-item' ).nth( 1 ).getByRole( 'button', { name: 'Edit link', exact: true } ).click();
 		await expect( page.getByRole( 'dialog', { name: 'Edit link', exact: true } ).getByLabel( 'Label', { exact: true } ) ).toHaveValue( 'Draft' );
 	} );
@@ -352,7 +352,7 @@ test.describe( 'Focus links settings', () => {
 		await dialog.getByRole( 'button', { name: 'Stay', exact: true } ).click();
 		await expect( dialog ).toBeHidden();
 		await expect( page.locator( '.settings-site-identity h2' ) ).toHaveText( 'Read' );
-		await page.getByRole( 'form', { name: 'Focus link preferences', exact: true } )
+		await page.getByRole( 'form', { name: 'Quick link preferences', exact: true } )
 			.getByRole( 'button', { name: 'Discard', exact: true } ).click();
 		await expect( page.getByText( 'No websites yet', { exact: true } ) ).toBeVisible();
 		await expect( page.getByRole( 'button', { name: 'Add site', exact: true } ) ).toBeFocused();

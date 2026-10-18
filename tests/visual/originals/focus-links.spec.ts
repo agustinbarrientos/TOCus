@@ -9,7 +9,7 @@ for ( const theme of [ ThemeMode.LIGHT, ThemeMode.DARK ] ) {
 		test( `Focus links ${ empty ? 'empty ' : '' }settings ${ theme }`, async ( { page } ) => {
 			await page.setViewportSize( { width: 1280, height: 1100 } );
 			await page.goto( `${ ExtensionOrigin }/apps/extension/src/features/settings/components/shell/__fixtures__/#${ SettingsDestination.FOCUS_LINKS }` );
-			await expect( page.getByRole( 'heading', { name: 'Focus links', exact: true } ) ).toBeVisible();
+			await expect( page.getByRole( 'heading', { name: 'Quick links', exact: true } ) ).toBeVisible();
 			await page.evaluate( ( { theme, palette, empty } ) => {
 				window.settingsTest.externalPreferences( { theme, palette, focusLinks: empty ? [] : [
 					{ id: 'focus_link_tasks', label: 'My task list', url: 'https://example.com/tasks' },
