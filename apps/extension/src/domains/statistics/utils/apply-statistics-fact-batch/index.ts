@@ -11,6 +11,7 @@ import type { ApplyStatisticsFactBatchOperation } from '../../types/statistics-o
 import { addStatisticsValues } from '../add-statistics-values';
 import { createEmptyScopeStatistics } from '../create-statistics-document';
 import { finalizeExpiredStatisticsAllowance } from '../finalize-statistics-allowance';
+import { applyStatisticsVisitOutcomes } from '../apply-statistics-visit-outcomes';
 
 /**
  * Applies one pause-time fact to scope totals.
@@ -141,6 +142,8 @@ function applyStatisticsFact(
 			return applyCompletedWaitFact( scope );
 		case ProtectionFactType.ALLOWANCE_GRANTED:
 			return applyAllowanceGrantedFact( scope, fact, measurementRevision );
+		case ProtectionFactType.CONTINUED_VISIT:
+			return scope;
 	}
 }
 
@@ -196,6 +199,7 @@ export function applyStatisticsFactBatch(
 		dailyTotals[ existingIndex ] = updatedDay;
 	}
 	dailyTotals.sort( ( left, right ) => left.date.localeCompare( right.date ) );
+	const visitOutcomes = applyStatisticsVisitOutcomes( document.visitOutcomes, batch );
 
 	return {
 		...document,
@@ -203,6 +207,7 @@ export function applyStatisticsFactBatch(
 		firstRecordedDate: document.firstRecordedDate === null || localDate < document.firstRecordedDate
 			? localDate : document.firstRecordedDate,
 		dailyTotals,
+		...( visitOutcomes === undefined ? {} : { visitOutcomes } ),
 		scopes: {
 			...document.scopes,
 			[ batch.scopeId ]: scope,

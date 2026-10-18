@@ -26,8 +26,10 @@ export function resetStatistics(
 		scopes.set( scopeId, createEmptyScopeStatistics( measurementRevision ) );
 	}
 
+	const { visitOutcomes: _visitOutcomes, ...retained } = document;
+
 	return {
-		...document,
+		...retained,
 		generationId: operation.generationId,
 		firstRecordedDate: null,
 		dailyTotals: [],
