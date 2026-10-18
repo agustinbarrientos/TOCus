@@ -121,7 +121,8 @@ try {
   const actor = target.browsingContext.currentWindowGlobal.getActor('MarionetteCommands');
   const capabilities = {toJSON: () => ({'moz:webdriverClick': true})};
   let result;
-  if (operation === 'script') result = actor.executeScript(input, extra, {});
+  if (operation === 'script' || operation === 'system-script') result = actor.executeScript(input, extra,
+    operation === 'system-script' ? {sandboxName: 'system', newSandbox: true} : {});
   else result = actor.findElement('css selector', input, {}).then(element =>
     operation === 'click' ? actor.clickElement(element, capabilities)
       : actor.sendKeysToElement(element, extra, capabilities));
@@ -224,6 +225,18 @@ export async function launchNativeFirefox( directory, options = {} ) {
 	 */
 	function viewScript( view, script, args = [] ) {
 		return viewCommand( view, 'script', script, args );
+	}
+
+	/**
+	 * Reads privileged observations in a fresh actor sandbox without changing the view's focus.
+	 * @param {string} view - Selected content view or installed extension view.
+	 * @param {string} script - Diagnostic script body, without production DOM mutations.
+	 * @param {unknown[]} [args] - Diagnostic arguments.
+	 * @return {Promise<unknown>} Diagnostic observations.
+	 * @since 1.1.0
+	 */
+	function viewSystemScript( view, script, args = [] ) {
+		return viewCommand( view, 'system-script', script, args );
 	}
 
 	/**
@@ -343,7 +356,8 @@ export async function launchNativeFirefox( directory, options = {} ) {
 		await waitUntil( () => execute( 'return document.getElementById(\'nav-bar\').contains(document.getElementById(\'tocus_agustinbarrientos_com-BAP\'));' ),
 			'Firefox did not place the extension button in the toolbar.' );
 		return {
-			command, execute, downloadDirectory, viewScript, viewClick, viewType, viewPressKey, close, uuid,
+			command, execute, downloadDirectory, viewScript, viewSystemScript,
+			viewClick, viewType, viewPressKey, close, uuid,
 			version: created.capabilities.browserVersion,
 		};
 	} catch ( error ) {

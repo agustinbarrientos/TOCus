@@ -194,6 +194,18 @@ export async function launchFirefox( directory, options = {} ) {
 			return driver.viewPressKey( view, keys[ key ] );
 		},
 		/**
+		 * Reads the actual focused element across closed shadow boundaries without changing focus.
+		 * @param {string} view - Selected content view or installed extension view.
+		 * @return {Promise<object|null>} Native element identity, label and enabled state.
+		 * @since 1.1.0
+		 */
+		viewFocusedElement: ( view ) => driver.viewSystemScript( view, `let element = document.activeElement;
+			while (element?.openOrClosedShadowRoot?.activeElement) {
+				element = element.openOrClosedShadowRoot.activeElement;
+			}
+			return element ? {tag: element.localName, classes: Array.from(element.classList),
+				label: element.textContent?.trim(), disabled: element.disabled === true} : null;` ),
+		/**
 		 * Reads error diagnostics for this extension from the disposable Firefox console.
 		 * @return {Promise<object>} Production errors, unloaded extension contexts, and native consent evidence.
 		 */

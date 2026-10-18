@@ -77,6 +77,15 @@ test( 'a focus link on the live-page expiry pause navigates away without complet
 			});` ), { timeout: 135_000, intervals: [ 500 ] } ).toBe( true );
 		// The modal contains focus; use native keyboard input through its closed isolation boundary.
 		await browser.viewPressKey( 'selected', 'Tab' );
+		if ( browser.viewFocusedElement ) {
+			let focused = await browser.viewFocusedElement( 'selected' );
+			if ( focused?.tag === 'div' && focused.classes.includes( 'scene' ) ) {
+				await browser.viewPressKey( 'selected', 'Tab' );
+				focused = await browser.viewFocusedElement( 'selected' );
+			}
+			expect( focused ).toMatchObject( { tag: 'button', classes: expect.arrayContaining( [ 'focus-link-button' ] ),
+				label: 'Return to my project', disabled: false } );
+		}
 		await browser.viewPressKey( 'selected', 'Enter' );
 		await expect.poll( () => network.requests( '/slow' ) ).toBe( 1 );
 		const observationEnds = Date.now() + 2_500;
