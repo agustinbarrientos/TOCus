@@ -9,13 +9,13 @@
 		"typecheck": "astro check"
 	},
 	"dependencies": {
-		"@astrojs/react": "7.0.0",
-		"@lingui/core": "6.8.0",
+		"@astrojs/react": "7.1.0",
+		"@lingui/core": "6.9.1",
 		"@tocus/theme": "workspace:*",
 		"@tocus/ui": "workspace:*",
-		"astro": "7.3.5",
-		"react": "19.3.0",
-		"react-dom": "19.3.0",
+		"astro": "7.4.0",
+		"react": "19.3.1",
+		"react-dom": "19.3.1",
 		"three": "^0.186.1"
 	},
 	"devDependencies": {
