@@ -12,9 +12,12 @@ export function createFocusLinksScreenCopy( i18n: I18n ): Readonly<FocusLinksScr
 	return Object.freeze( {
 		title: i18n._( msg`Focus links` ),
 		formLabel: i18n._( msg`Focus link preferences` ),
-		description: i18n._( msg`Optionally, add up to three website shortcuts to your breathing screen. Use them to quickly visit sites you'd rather spend time on.` ),
+		description: i18n._( msg`Optionally, add up to three website shortcuts to your breathing screen.` ),
+		descriptionDetail: i18n._( msg`Use them to quickly visit sites you'd rather spend time on.` ),
 		emptyMessage: i18n._( msg`No websites yet` ),
 		addLink: i18n._( msg`Add site` ),
+		cancel: i18n._( msg`Cancel` ),
+		done: i18n._( msg`Done` ),
 		label: i18n._( msg`Label` ),
 		url: i18n._( msg`Web address` ),
 		edit: i18n._( msg`Edit link` ),
