@@ -16,6 +16,7 @@ TOCus adds a short pause before the websites you choose, giving you a moment to 
 - Choose your websites and customize pause and browsing times.
 - Set active days and hours, with separate schedules for each site.
 - Automatically pause videos while you take a breath.
+- Add up to three focus links to return to your tasks directly from a pause.
 - See completed pauses, reconsidered visits, and estimated time saved.
 - Choose colors, light and dark themes, and optional breathing guidance.
 - Use TOCus in ten languages and language variants.
