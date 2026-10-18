@@ -9,12 +9,23 @@
 }
 
 [data-tocus-ui] .settings-statistics-period-select {
-	display: grid;
-	grid-template-columns: auto minmax(0, 1fr);
+	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	gap: var(--tocus-space-3);
+	min-width: 0;
 	max-width: 100%;
-	.settings-statistics-period-label { margin: 0; }
+
+	.settings-statistics-period-label {
+		max-width: 100%;
+		margin: 0;
+		overflow-wrap: anywhere;
+	}
+
+	.settings-statistics-period-input {
+		flex: 1 1 8rem;
+		min-width: 0;
+	}
 }
 
 [data-tocus-ui] .settings-page .settings-statistics-summary {
@@ -66,16 +77,23 @@
 			flex-wrap: wrap;
 			align-items: center;
 			gap: var(--tocus-space-2) var(--tocus-space-3);
+			min-width: 0;
 			margin: 0;
 		}
-		dt { color: var(--tocus-color-on-surface-muted); }
+
+		dt {
+			min-width: 0;
+			color: var(--tocus-color-on-surface-muted);
+			overflow-wrap: anywhere;
+		}
 
 		dd {
+			min-width: 0;
 			margin: 0;
 
 			@include typography.apply('title-medium');
 
-			overflow-wrap: normal;
+			overflow-wrap: anywhere;
 		}
 	}
 	.settings-statistics-daily { margin-top: var(--tocus-space-7); }

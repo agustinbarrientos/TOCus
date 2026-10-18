@@ -65,7 +65,7 @@ export function StatisticsSummary( props: StatisticsSummaryProps ) {
 				{ selected.startDate !== null && <p className="settings-statistics-dates">{ copy.formatDateRange( selected.startDate, selected.endDate ) }</p> }
 			</div>
 			<NativeSelect className="settings-statistics-period-select" label={ copy.periodLabel } value={ range }
-				classNames={ { label: 'settings-statistics-period-label' } }
+				classNames={ { label: 'settings-statistics-period-label', wrapper: 'settings-statistics-period-input' } }
 				data={ Object.entries( rangeLabels ).map( ( [ value, label ] ) => ( { value, label } ) ) }
 				onChange={ ( event ) => {
 					setRange( StatisticsRangeSchema.parse( event.currentTarget.value ) );

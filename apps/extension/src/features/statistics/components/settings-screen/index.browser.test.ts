@@ -25,11 +25,19 @@ test.describe( 'local statistics', () => {
 		await page.evaluate( () => document.fonts.ready );
 		const initialFont = await sites.locator( '[data-outcome] strong' ).first().evaluate( ( element ) =>
 			parseFloat( getComputedStyle( element ).fontSize ) );
-		for ( const [ width, fontSize ] of [ [ 1280, '100%' ], [ 320, '100%' ], [ 320, '200%' ] ] as const ) {
+		for ( const [ width, fontSize, fontFamily ] of [
+			[ 1280, '100%', '' ], [ 320, '100%', '' ], [ 320, '200%', '' ], [ 320, '200%', 'monospace' ],
+		] as const ) {
 			await page.setViewportSize( { width, height: 1000 } );
-			await page.evaluate( ( size ) => {
+			await page.evaluate( ( { size, family } ) => {
 				document.documentElement.style.fontSize = size;
-			}, fontSize );
+				const provider = document.querySelector<HTMLElement>( '[data-tocus-ui]' );
+				if ( provider === null ) {
+					throw new TypeError( 'Statistics must retain its themed provider.' );
+				}
+				// System fonts differ by platform; retain a wide generic fallback reflow case.
+				provider.style.setProperty( '--tocus-font-family-body', family );
+			}, { size: fontSize, family: fontFamily } );
 			await sites.scrollIntoViewIfNeeded();
 
 			await expect.poll( () => sites.evaluate( ( list ) => {
@@ -70,7 +78,7 @@ test.describe( 'local statistics', () => {
 						return identity.right <= counts.left || identity.bottom <= counts.top;
 					} ),
 				};
-			} ), { message: `Shared website columns at ${ String( width ) }px and ${ fontSize } text` } ).toEqual( {
+			} ), { message: `Shared website columns at ${ String( width ) }px and ${ fontSize } ${ fontFamily } text` } ).toEqual( {
 				solidSpread: 0, stripedSpread: 0, fits: true, withinViewport: true,
 				pageFits: true, valuesFit: true, disjoint: true,
 			} ).catch( async ( error: unknown ) => {
