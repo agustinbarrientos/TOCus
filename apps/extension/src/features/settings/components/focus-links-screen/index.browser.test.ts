@@ -344,8 +344,9 @@ test.describe( 'Focus links settings', () => {
 		await editor.getByLabel( 'Label', { exact: true } ).fill( 'Read' );
 		await editor.getByLabel( 'Web address', { exact: true } ).fill( 'https://example.com/read' );
 		await editor.getByRole( 'button', { name: 'Done', exact: true } ).click();
+		await expect( editor ).toBeHidden();
 		await page.getByRole( 'link', { name: 'About', exact: true } ).click();
-		const dialog = page.getByRole( 'dialog' );
+		const dialog = page.getByRole( 'dialog', { name: 'Save your changes?', exact: true } );
 		await expect( dialog.getByRole( 'button', { name: 'Save', exact: true } ) ).toBeVisible();
 		await expect( page ).toHaveURL( /#focus-links$/u );
 		expect( await page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 0 );
