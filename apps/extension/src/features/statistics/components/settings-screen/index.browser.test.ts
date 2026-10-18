@@ -482,11 +482,9 @@ test.describe( 'local statistics', () => {
 	} );
 
 	for ( const theme of [ 'light', 'dark' ] as const ) {
-		test( `keeps ${ theme } website counts and solid or striped keys aligned at desktop and narrow widths`, async ( { open } ) => {
-			const page = await open( SettingsDestination.STATISTICS );
-			await page.evaluate( ( theme ) => {
-				window.settingsTest.externalPreferences( { theme } );
-			}, theme );
+		test( `keeps ${ theme } website counts and solid or striped keys aligned at desktop and narrow widths`, async ( { page } ) => {
+			await page.goto( `/apps/extension/src/features/settings/components/shell/__fixtures__/?theme=${ theme }#${ SettingsDestination.STATISTICS }` );
+			await expect( page.locator( 'html' ) ).toHaveAttribute( 'data-tocus-theme', theme );
 			const outcomes = page.getByRole( 'region', { name: 'Visit outcomes', exact: true } );
 			const key = outcomes.getByRole( 'group', { name: 'Visit outcome key', exact: true } );
 			await expect( key ).toHaveCount( 1 );
@@ -502,7 +500,8 @@ test.describe( 'local statistics', () => {
 				.toHaveCSS( 'background-image', 'none' );
 			await expect( rows.first().locator( '.settings-statistics-site-track .settings-statistics-continued-fill' ) )
 				.toHaveCSS( 'background-image', /repeating-linear-gradient/ );
-			for ( const width of [ 1280, 320 ] ) {
+			await page.evaluate( () => document.fonts.ready );
+			for ( const width of [ 1280, 768, 600, 390, 320 ] ) {
 				await page.setViewportSize( { width, height: 1000 } );
 				await expect.poll( () => page.evaluate( () =>
 					document.documentElement.scrollWidth <= innerWidth ) ).toBe( true );
@@ -510,12 +509,67 @@ test.describe( 'local statistics', () => {
 					const ends = [ ...region.querySelectorAll( '.settings-statistics-site-counts' ) ].map( ( item ) => item.getBoundingClientRect().right );
 					const key = region.querySelector( '.settings-statistics-outcomes-legend' )?.getBoundingClientRect();
 					const track = region.querySelector( '.settings-statistics-site-track' )?.getBoundingClientRect();
-					return { spread: Math.max( ...ends ) - Math.min( ...ends ), keyEnd: key?.right,
+					const heading = region.querySelector( '.settings-statistics-sites-heading h3' )
+						?.getBoundingClientRect();
+					return { keyStart: key?.left, keyTop: key?.top,
+						headingStart: heading?.left, headingBottom: heading?.bottom,
+						spread: Math.max( ...ends ) - Math.min( ...ends ), keyEnd: key?.right,
 						countEnd: ends[ 0 ], trackHeight: track?.height };
 				} );
 				expect( alignment.spread ).toBeLessThanOrEqual( 1 );
-				expect( Math.abs( ( alignment.keyEnd ?? 0 ) - ( alignment.countEnd ?? 0 ) ) ).toBeLessThanOrEqual( 1 );
+				if ( width > 768 ) {
+					expect( Math.abs( ( alignment.keyEnd ?? 0 ) - ( alignment.countEnd ?? 0 ) ) )
+						.toBeLessThanOrEqual( 1 );
+				} else {
+					expect( alignment.keyTop ).toBeGreaterThan( alignment.headingBottom ?? Infinity );
+					expect( Math.abs( ( alignment.keyStart ?? 0 ) - ( alignment.headingStart ?? Infinity ) ) )
+						.toBeLessThanOrEqual( 1 );
+				}
 				expect( alignment.trackHeight ).toBe( 6 );
+			}
+		} );
+	}
+
+	for ( const empty of [ false, true ] ) {
+		test( `keeps the ${ empty ? 'empty' : 'populated' } activity and outcome sections free of a divider`, async ( { open } ) => {
+			const page = await open( SettingsDestination.STATISTICS );
+			if ( empty ) {
+				await page.evaluate( () => {
+					window.settingsTest.externalStatistics( { firstRecordedDate: null,
+						estimatedReclaimedMilliseconds: 0, focusedPauseMilliseconds: 0,
+						reconsideredVisitCount: 0, completedWaitCount: 0, allowanceGrantedCount: 0, dailyTotals: [],
+						visitOutcomes: { recordedFromDate: '2026-09-14', dailySites: [], dailyHours: [] },
+					} );
+				} );
+			}
+			const daily = page.getByRole( 'region', { name: 'Daily activity', exact: true } );
+			const outcomes = page.getByRole( 'region', { name: 'Visit outcomes', exact: true } );
+			await expect( daily ).toHaveCSS( 'border-bottom-width', '0px' );
+			await expect( outcomes ).toHaveCSS( 'border-top-width', '0px' );
+			if ( empty ) {
+				await expect( page.locator( '.settings-metrics dd' ) ).toHaveText( [ '0', '0' ] );
+				await expect( page.locator( '.settings-statistics-estimate dd' ) ).toHaveText( 'Not enough data yet' );
+				for ( const width of [ 1280, 390 ] ) {
+					await page.setViewportSize( { width, height: 1000 } );
+					for ( const period of [
+						StatisticsRange.CURRENT_WEEK, StatisticsRange.CURRENT_MONTH, StatisticsRange.ALL_TIME,
+					] ) {
+						await page.getByRole( 'combobox', { name: 'Period', exact: true } ).selectOption( period );
+						await expect( daily.getByRole( 'heading', { name: 'No activity in this period', exact: true } ) ).toBeVisible();
+						await expect( daily.getByText( 'Your pauses and reconsidered visits will appear here.', { exact: true } ) ).toBeVisible();
+						await expect( page.locator( '.settings-statistics-empty' ) ).toHaveCount( 3 );
+						await expect( outcomes.getByText( 'No visit outcomes recorded in this period.', { exact: true } ) ).toBeVisible();
+						await expect( outcomes.getByText( 'No reconsidered visits recorded in this period.', { exact: true } ) ).toBeVisible();
+						await expect( outcomes.getByRole( 'group', { name: 'Visit outcome key', exact: true } ) )
+							.toHaveCount( 0 );
+						await expect( page.locator( '.settings-statistics-summary .recharts-surface' ) )
+							.toHaveCount( 0 );
+						await expect( daily.getByRole( 'combobox', { name: 'Daily activity metric', exact: true } ) )
+							.toBeEnabled();
+						expect( await page.evaluate( () =>
+							document.documentElement.scrollWidth <= innerWidth ) ).toBe( true );
+					}
+				}
 			}
 		} );
 	}

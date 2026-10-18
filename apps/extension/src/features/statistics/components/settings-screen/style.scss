@@ -123,7 +123,6 @@
 	.settings-statistics-breakdowns {
 		margin-top: var(--tocus-space-7);
 		padding-top: var(--tocus-space-6);
-		border-top: 1px solid var(--tocus-color-divider);
 	}
 
 	.settings-statistics-breakdown-title {
@@ -280,6 +279,8 @@
 		min-height: 13rem;
 		padding: var(--tocus-space-6);
 		display: flex;
+		flex-direction: column;
+		gap: var(--tocus-space-2);
 		align-items: center;
 		justify-content: center;
 		text-align: center;
@@ -288,6 +289,7 @@
 
 		@include typography.apply('body-small');
 	}
+	.settings-statistics-empty h3 { @include typography.apply('title-medium'); }
 }
 
 .settings-statistics-summary + .settings-data-reset {
@@ -311,6 +313,20 @@
 	.settings-inline-confirmation p { color: inherit; }
 }
 
+
+@media (width <= 48rem) {
+	[data-tocus-ui] .settings-page .settings-statistics-summary {
+		.settings-statistics-sites-heading {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+
+		.settings-statistics-outcomes-legend {
+			justify-content: flex-start;
+			margin-inline-start: 0;
+		}
+	}
+}
 
 @media (width <= 30rem) {
 	[data-tocus-ui] .settings-page .settings-statistics-summary {
