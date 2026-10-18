@@ -146,6 +146,7 @@ export async function startSettingsPage( options: SettingsPageOptions ): Promise
 			options.shell.backupResetCopy = localization.backupResetCopy;
 			options.shell.appearanceCopy = localization.appearance;
 			options.shell.languageCopy = localization.languageScreen;
+			options.shell.focusLinksCopy = localization.focusLinksCopy;
 			options.shell.protectedSitesCopy = localization.protectedSites;
 			options.shell.protectedSiteItemCopy = localization.protectedSiteItem;
 			options.shell.scheduleCopy = localization.schedule;

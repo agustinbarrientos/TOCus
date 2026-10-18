@@ -211,6 +211,8 @@ class MemorySettingsShell implements SettingsPageShell {
 
 	appearanceCopy = TestEnglishLocalizationBundle.appearance;
 
+	focusLinksCopy = TestEnglishLocalizationBundle.focusLinksCopy;
+
 	browserLanguage = Language.ENGLISH;
 
 	copy = TestEnglishLocalizationBundle.settingsShell;
@@ -371,6 +373,7 @@ describe( 'startSettingsPage', () => {
 		expect( shell.privacyCopy ).toBe( TestEnglishLocalizationBundle.privacyCopy );
 		expect( shell.appearanceCopy ).toBe( TestEnglishLocalizationBundle.appearance );
 		expect( shell.languageCopy ).toBe( TestEnglishLocalizationBundle.languageScreen );
+		expect( shell.focusLinksCopy ).toBe( TestEnglishLocalizationBundle.focusLinksCopy );
 		expect( shell.protectedSitesCopy ).toBe( TestEnglishLocalizationBundle.protectedSites );
 		expect( shell.protectedSiteItemCopy ).toBe( TestEnglishLocalizationBundle.protectedSiteItem );
 		expect( shell.scheduleCopy ).toBe( TestEnglishLocalizationBundle.schedule );
@@ -392,6 +395,7 @@ describe( 'startSettingsPage', () => {
 			...TestEnglishLocalizationBundle,
 			aboutCopy: { ...TestEnglishLocalizationBundle.aboutCopy, eyebrow: 'About localized' },
 			privacyCopy: { ...TestEnglishLocalizationBundle.privacyCopy, title: 'Privacy localized' },
+			focusLinksCopy: { ...TestEnglishLocalizationBundle.focusLinksCopy, title: 'Focus links localized' },
 		};
 		loadLocalization.mockResolvedValue( localizedBundle );
 		storageChanges.emitLanguage( Language.JAPANESE );
@@ -403,6 +407,7 @@ describe( 'startSettingsPage', () => {
 		expect( shell.aboutCopy ).toBe( localizedBundle.aboutCopy );
 		expect( shell.privacyCopy ).toBe( localizedBundle.privacyCopy );
 		expect( shell.backupResetCopy ).toBe( localizedBundle.backupResetCopy );
+		expect( shell.focusLinksCopy ).toBe( localizedBundle.focusLinksCopy );
 	} );
 
 	it( 'sends confirmed privacy resets through the supplied runtime only', async () => {

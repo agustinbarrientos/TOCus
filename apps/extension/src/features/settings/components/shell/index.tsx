@@ -12,6 +12,7 @@ import { Confirmation } from '../confirmation';
 import { Timing } from '../timing-screen';
 import { ScheduleScreen } from '../schedule-screen';
 import { Preferences } from '../preferences-screen';
+import { FocusLinks } from '../focus-links-screen';
 import { Websites } from '../../../protected-sites/components/screen';
 import { About } from '../about-screen';
 import { BackupReset } from '../backup-reset-screen';
@@ -38,12 +39,13 @@ const Statistics = lazy( loadStatisticsScreen );
 /**
  * Creates navigation items from canonical destinations, localized labels, and shared icons.
  * @param copy - Current Settings navigation messages.
- * @return Nine destinations in their approved navigation order.
+ * @return Settings destinations in their approved navigation order.
  * @since 1.0.0
  */
 function getNavigationItems( copy: Readonly<SettingsShellCopy> ): readonly SettingsNavigationItem[] {
 	return [
 		{ id: SettingsDestination.PROTECTED_SITES, name: copy.protectedSites, icon: IconName.LINK_HORIZONTAL },
+		{ id: SettingsDestination.FOCUS_LINKS, name: copy.focusLinks, icon: IconName.ARROW_UP_RIGHT_FROM_SQUARE },
 		{ id: SettingsDestination.SCHEDULE, name: copy.schedule, icon: IconName.CALENDAR },
 		{ id: SettingsDestination.TIMING, name: copy.timing, icon: IconName.PAUSE },
 		{ id: SettingsDestination.APPEARANCE, name: copy.appearance, icon: IconName.BRUSH },
@@ -64,6 +66,8 @@ function getNavigationItems( copy: Readonly<SettingsShellCopy> ): readonly Setti
 function SettingsDestinationContent( properties: SettingsDestinationProperties ) {
 	const { destination, shell, register, accessRef } = properties;
 	switch ( destination ) {
+		case SettingsDestination.FOCUS_LINKS:
+			return <FocusLinks shell={ shell } register={ register } />;
 		case SettingsDestination.TIMING:
 			return <Timing shell={ shell } register={ register } />;
 		case SettingsDestination.SCHEDULE:

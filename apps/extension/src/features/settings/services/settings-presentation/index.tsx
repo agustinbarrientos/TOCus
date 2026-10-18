@@ -19,6 +19,7 @@ function isSettingsReady( shell: Readonly<SettingsPageShell> ): boolean {
 		shell.privacyCopy,
 		shell.appearanceCopy,
 		shell.languageCopy,
+		shell.focusLinksCopy,
 		shell.protectedSitesCopy,
 		shell.protectedSiteItemCopy,
 		shell.scheduleCopy,
