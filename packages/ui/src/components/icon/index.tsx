@@ -5,6 +5,7 @@ import heart from '@tocus/theme/icons/heart.svg?raw';
 import star from '@tocus/theme/icons/star.svg?raw';
 import brush from '@tocus/theme/icons/brush.svg?raw';
 import arrowUpRightFromSquare from '@tocus/theme/icons/arrow-up-right-from-square.svg?raw';
+import handPointer from '@tocus/theme/icons/hand-pointer.svg?raw';
 import language from '@tocus/theme/icons/language.svg?raw';
 import shieldHalved from '@tocus/theme/icons/shield-halved.svg?raw';
 import fileImport from '@tocus/theme/icons/file-import.svg?raw';
@@ -32,6 +33,7 @@ const icons = {
 	[ IconName.STAR ]: star,
 	[ IconName.BRUSH ]: brush,
 	[ IconName.ARROW_UP_RIGHT_FROM_SQUARE ]: arrowUpRightFromSquare,
+	[ IconName.HAND_POINTER ]: handPointer,
 	[ IconName.LANGUAGE ]: language,
 	[ IconName.SHIELD_HALVED ]: shieldHalved,
 	[ IconName.FILE_IMPORT ]: fileImport,

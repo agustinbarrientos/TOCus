@@ -46,7 +46,7 @@ function getNavigationItems( copy: Readonly<SettingsShellCopy> ): readonly Setti
 	return [
 		{ id: SettingsDestination.PROTECTED_SITES, name: copy.protectedSites, icon: IconName.LINK_HORIZONTAL },
 		{ id: SettingsDestination.SCHEDULE, name: copy.schedule, icon: IconName.CALENDAR },
-		{ id: SettingsDestination.FOCUS_LINKS, name: copy.focusLinks, icon: IconName.ARROW_UP_RIGHT_FROM_SQUARE },
+		{ id: SettingsDestination.FOCUS_LINKS, name: copy.focusLinks, icon: IconName.HAND_POINTER },
 		{ id: SettingsDestination.TIMING, name: copy.timing, icon: IconName.PAUSE },
 		{ id: SettingsDestination.APPEARANCE, name: copy.appearance, icon: IconName.BRUSH },
 		{ id: SettingsDestination.LANGUAGE, name: copy.language, icon: IconName.LANGUAGE },
