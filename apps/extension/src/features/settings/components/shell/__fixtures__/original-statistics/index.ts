@@ -11,13 +11,13 @@ export function stageOriginalStatisticsReset( root: HTMLElement, original: strin
 	}
 	let requested = false;
 	const observer = new MutationObserver( () => {
-		const request = root.querySelector( '.settings-statistics-data > button' );
+		const request = root.querySelector( '.settings-data-reset > button' );
 		if ( ! requested && request instanceof HTMLButtonElement ) {
 			requested = true;
 			request.click();
 			return;
 		}
-		const confirm = root.querySelector( '.settings-statistics-data .settings-inline-confirmation button:last-child' );
+		const confirm = root.querySelector( '.settings-data-reset .settings-inline-confirmation button:last-child' );
 		if ( requested && confirm instanceof HTMLButtonElement && ! confirm.disabled ) {
 			observer.disconnect();
 			confirm.click();

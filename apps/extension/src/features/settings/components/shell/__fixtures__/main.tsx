@@ -344,6 +344,22 @@ let statistics: AvailableStatisticsProjection = AvailableStatisticsProjectionSch
 		completedWaitCount: 3, allowanceGrantedCount: 4,
 	} ],
 } );
+if ( ! original ) {
+	statistics = AvailableStatisticsProjectionSchema.parse( { ...statistics,
+		firstRecordedDate: '2026-09-14',
+		visitOutcomes: {
+			recordedFromDate: '2026-09-14',
+			dailySites: [
+				{ date: '2026-09-14', siteHost: 'reddit.com', reconsideredVisitCount: 1, visitedAfterPauseCount: 1 },
+				{ date: '2026-09-14', siteHost: 'youtube.com', reconsideredVisitCount: 1, visitedAfterPauseCount: 3 },
+			],
+			dailyHours: [
+				{ date: '2026-09-14', hour: 9, reconsideredVisitCount: 1 },
+				{ date: '2026-09-14', hour: 18, reconsideredVisitCount: 1 },
+			],
+		},
+	} );
+}
 if ( original ) {
 	const totals = { estimatedReclaimedMilliseconds: ( 18 * 5 + 27 ) * 60_000,
 		focusedPauseMilliseconds: 1620000, reconsideredVisitCount: 18,
@@ -386,6 +402,9 @@ shell.statisticsSource = {
 			completedWaitCount: 0,
 			allowanceGrantedCount: 0,
 			dailyTotals: [],
+			...( original ? {} : { firstRecordedDate: null, visitOutcomes: {
+				recordedFromDate: statistics.currentDate, dailySites: [], dailyHours: [],
+			} } ),
 		};
 		return Promise.resolve( statistics );
 	},
@@ -571,6 +590,11 @@ const bridge: SettingsFixtureBridge = {
 	 * @since 1.0.0
 	 */
 	getPreferences: () => preferences,
+	/**
+	 * Reads authoritative fixture aggregates separately from rendered charts.
+	 * @return Current local counters and recorded breakdowns.
+	 */
+	getStatistics: () => statistics,
 	/**
 	 * Simulates browser revocation then refreshes production access state.
 	 * @return Access refresh completion.
