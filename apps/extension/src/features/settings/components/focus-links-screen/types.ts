@@ -13,6 +13,7 @@ export interface FocusLinksScreenCopy extends RecoveryCopy, DraftActionCopy {
 	addLink: string;
 	label: string;
 	url: string;
+	edit: string;
 	remove: string;
 	moveUp: string;
 	moveDown: string;

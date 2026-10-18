@@ -17,6 +17,7 @@ export function createFocusLinksScreenCopy( i18n: I18n ): Readonly<FocusLinksScr
 		addLink: i18n._( msg`Add site` ),
 		label: i18n._( msg`Label` ),
 		url: i18n._( msg`Web address` ),
+		edit: i18n._( msg`Edit link` ),
 		remove: i18n._( msg`Remove link` ),
 		moveUp: i18n._( msg`Move up` ),
 		moveDown: i18n._( msg`Move down` ),
