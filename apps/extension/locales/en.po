@@ -794,8 +794,8 @@ msgid "Name"
 msgstr "Name"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "No activity recorded in this period."
-msgstr "No activity recorded in this period."
+msgid "No activity in this period"
+msgstr "No activity in this period"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "No reconsidered visits recorded in this period."
@@ -1845,6 +1845,10 @@ msgstr "Your pause has started."
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Your pause is paused."
 msgstr "Your pause is paused."
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Your pauses and reconsidered visits will appear here."
+msgstr "Your pauses and reconsidered visits will appear here."
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Your quick link could not be opened. Try again."
