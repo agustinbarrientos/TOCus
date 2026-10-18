@@ -28,3 +28,16 @@ describe( 'arePreferencesEqual', () => {
 		) ).toBe( false );
 	} );
 } );
+
+
+it( 'notices link additions, removals, edits and reorders while accepting detached copies', () => {
+	const first = { id: 'focus_link_docs', label: 'Docs', url: 'https://example.com/docs' };
+	const second = { id: 'focus_link_tasks', label: 'Tasks', url: 'https://example.com/tasks' };
+	const preferences = { ...DefaultPreferencesDocument, focusLinks: [ first, second ] };
+	expect( arePreferencesEqual( preferences, structuredClone( preferences ) ) ).toBe( true );
+	for ( const focusLinks of [ [], [ first ], [ second, first ],
+		[ { ...first, id: 'focus_link_new' }, second ], [ { ...first, label: 'Read' }, second ],
+		[ { ...first, url: 'https://example.com/new' }, second ] ] ) {
+		expect( arePreferencesEqual( preferences, { ...preferences, focusLinks } ) ).toBe( false );
+	}
+} );
