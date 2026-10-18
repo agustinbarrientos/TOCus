@@ -4,6 +4,27 @@ import { SettingsDestination } from '../../services/settings-navigation/types';
 import { test } from '../../utils/browser-test-harness';
 
 test.describe( 'React settings', () => {
+	test( 'places Focus links after Schedule in keyboard navigation on wide and narrow screens', async ( { open, browserName } ) => {
+		const page = await open( SettingsDestination.SCHEDULE );
+		const tabKey = browserName === 'webkit' && process.platform === 'darwin' ? 'Alt+Tab' : 'Tab';
+		for ( const width of [ 1280, 390 ] ) {
+			await page.setViewportSize( { width, height: 900 } );
+			const schedule = page.getByRole( 'link', { name: 'Schedule', exact: true } );
+			const focusLinks = page.getByRole( 'link', { name: 'Focus links', exact: true } );
+			await schedule.focus();
+			await page.keyboard.press( tabKey );
+			await expect( focusLinks ).toBeFocused();
+			await page.keyboard.press( 'Enter' );
+			await expect( focusLinks ).toHaveAttribute( 'aria-current', 'page' );
+			await expect( page.getByRole( 'heading', { level: 1 } ) ).toHaveText( 'Focus links' );
+			await page.keyboard.press( `Shift+${ tabKey }` );
+			await expect( schedule ).toBeFocused();
+			await page.keyboard.press( 'Enter' );
+			await expect( schedule ).toHaveAttribute( 'aria-current', 'page' );
+			await expect( page.getByRole( 'heading', { level: 1 } ) ).toHaveText( 'Schedule' );
+		}
+	} );
+
 	test( 'finds backup and reset actions separately from Privacy and preserves history navigation', async ( { open } ) => {
 		const page = await open( SettingsDestination.PRIVACY );
 		const dataLink = page.getByRole( 'link', { name: 'Backup and reset', exact: true } );
