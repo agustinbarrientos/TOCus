@@ -1,0 +1,31 @@
+@use '@tocus/theme/typography' as typography;
+
+.settings-focus-links { min-width: 0; }
+
+.settings-focus-link {
+	min-width: 0;
+	margin: 0;
+	padding: var(--tocus-space-4);
+	border: 1px solid var(--tocus-color-divider);
+	border-radius: var(--tocus-radius-small);
+
+	legend {
+		@include typography.apply('label-medium');
+
+		padding-inline: var(--tocus-space-2);
+		color: var(--tocus-color-on-surface-muted);
+	}
+}
+
+.settings-focus-links-add { align-self: start; }
+
+.settings-focus-link-actions {
+	align-items: stretch;
+
+	button {
+		min-width: 0;
+		height: auto;
+		min-height: var(--tocus-space-8);
+		white-space: normal;
+	}
+}
