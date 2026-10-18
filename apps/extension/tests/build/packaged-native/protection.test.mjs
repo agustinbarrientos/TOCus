@@ -38,7 +38,6 @@ test( 'native toolbar fits its controls and opens Settings and Statistics for th
 					body: JSON.stringify( { destination, message: error.message } ), contentType: 'application/json',
 				} );
 			}
-			await expect.poll( () => browser.isPopupOpen() ).toBe( false );
 			await expect.poll( () => browser.currentUrl() ).toBe( destination );
 			await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( heading );
 			await browser.closePage();

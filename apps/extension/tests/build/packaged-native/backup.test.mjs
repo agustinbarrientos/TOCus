@@ -43,6 +43,17 @@ async function selectStatisticsRange( browser, range ) {
 }
 
 /**
+ * Waits for asynchronously loaded appearance preferences before the single trusted theme click.
+ * @param {object} browser - Disposable installed browser.
+ */
+async function waitForAppearance( browser ) {
+	await expect.poll( () => readView( browser, 'selected', `const control =
+		document.querySelector('.preferences-theme-card[aria-label="Dark"]');
+		return control !== null && control.getClientRects().length > 0 &&
+			!control.matches(':disabled, [aria-disabled="true"], [data-disabled]');` ) ).toBe( true );
+}
+
+/**
  * Uploads actual file bytes and waits for a readable production preview.
  * @param {object} browser - Disposable installed browser.
  * @param {string} path - Local backup selected by the native file input.
@@ -75,6 +86,7 @@ test( 'Portable backup round trip preserves real settings and history across den
 			await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("[role=dialog]") === null;' ) ).toBe( true );
 			await save( browser );
 			await settings( browser, 'appearance' );
+			await waitForAppearance( browser );
 			await browser.viewClick( 'selected', '.preferences-theme-card[aria-label="Dark"]' );
 			await browser.viewClick( 'selected', '.preferences-palette-card[data-palette="purple"]' );
 			await browser.viewClick( 'selected', 'input[name="pause-mode"][value="quiet"]' );
@@ -183,6 +195,7 @@ test( 'Imports the exact downloaded backup from a different installed browser', 
 		await withBrowser( async ( browser, url, files ) => {
 			await enroll( browser, url );
 			await settings( browser, 'appearance' );
+			await waitForAppearance( browser );
 			await browser.viewClick( 'selected', '.preferences-theme-card[aria-label="Dark"]' );
 			await browser.viewClick( 'selected', '.preferences-palette-card[data-palette="purple"]' );
 			await save( browser );
