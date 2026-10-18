@@ -188,14 +188,11 @@ msgstr "保存する前に、行を追加するかプリセットを選んでく
 msgid "Add another site"
 msgstr "別のサイトを追加"
 
-#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "Add link"
-msgstr "リンクを追加"
-
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Add row"
 msgstr "行を追加"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Add site"
@@ -204,10 +201,6 @@ msgstr "サイトを追加"
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "Add the first site you want TOCus to gently interrupt."
 msgstr "TOCus でやさしく中断したい最初のサイトを追加してください。"
-
-#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "Add up to three links to help you return to what you wanted to do."
-msgstr "本来やりたかったことに戻るためのリンクを3件まで追加できます。"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Adding {siteName}..."
@@ -704,10 +697,6 @@ msgstr "もう一度試しましょう"
 msgid "Light"
 msgstr "ライト"
 
-#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "Links stay on this device. Opening one leaves the paused website without granting browsing time."
-msgstr "リンクはこの端末に保存されます。リンクを開くと、一時停止中のサイトから移動します。閲覧時間は付与されません。"
-
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Loading appearance settings..."
 msgstr "外観設定を読み込んでいます..."
@@ -798,9 +787,6 @@ msgid "No activity recorded in this period."
 msgstr "この期間に記録されたアクティビティはありません。"
 
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "No focus links yet."
-msgstr "集中用リンクはまだありません。"
-
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "No websites yet"
 msgstr "ウェブサイトはまだありません"
@@ -833,6 +819,10 @@ msgstr "サイトを自動的に開く"
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Opening your focus link..."
 msgstr "集中用リンクを開いています..."
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Optionally, add up to three shortcuts to your breathing screen so you can quickly get back to what matters most."
+msgstr "必要に応じて、呼吸画面にショートカットを3つまで追加できます。大切なことにすばやく戻れます。"
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Or press {key}"
