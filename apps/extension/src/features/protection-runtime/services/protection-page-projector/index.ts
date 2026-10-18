@@ -122,18 +122,18 @@ export function createProtectionPageProjector(
 	 * @since 1.0.0 Initial implementation.
 	 */
 	async function applyPageEffect(
-		operation: Promise<void>,
+		operation: Promise<unknown>,
 		tabId: number,
 		matchesExpectedSource: ( tab: ProtectionRuntimeTab ) => boolean,
-	): Promise<void> {
+	): Promise<boolean> {
 		try {
-			await operation;
+			return await operation === true;
 		} catch ( error ) {
 			const tabs = await options.browser.listTabs();
 			const tab = tabs.find( ( candidate ) => candidate.id === tabId );
 
 			if ( tab === undefined || ! matchesExpectedSource( tab ) ) {
-				return;
+				return false;
 			}
 
 			throw error;
@@ -146,6 +146,7 @@ export function createProtectionPageProjector(
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @param statesByScope - Current authoritative protection state.
 	 * @param continuedParticipant - Optional identity whose entry was accepted by a running allowance.
+	 * @param onContinuationAccepted - Observer for the exact participant's browser-accepted navigation.
 	 * @return Promise resolved after a supported page effect or no operation.
 	 * @since 1.0.0 Initial implementation.
 	 */
@@ -154,7 +155,8 @@ export function createProtectionPageProjector(
 		configuration: Parameters<ProtectionPageProjector[ 'applyDecisions' ]>[ 1 ],
 		statesByScope: ProtectionCoordinatorStateSnapshot | null,
 		continuedParticipant?: Parameters<ProtectionPageProjector[ 'applyDecisions' ]>[ 3 ],
-	): Promise<void> {
+		onContinuationAccepted?: Parameters<ProtectionPageProjector[ 'applyDecisions' ]>[ 4 ],
+	): Promise<boolean> {
 		switch ( decision.type ) {
 			case ProtectionDecisionType.PRESENT_WAITING:
 			case ProtectionDecisionType.PRESENT_READY: {
@@ -194,11 +196,30 @@ export function createProtectionPageProjector(
 				const tab = tabs.find( ( candidate ) => candidate.id === tabId );
 
 				if ( tabId !== null && tab !== undefined && isInterruptionTab( tab ) ) {
-					await applyPageEffect(
-						options.browser.navigateTab( tabId, decision.retainedDestination ),
+					const matchesContinuation = continuedParticipant?.participantId === decision.participantId &&
+						continuedParticipant.pageId === decision.pageId;
+					let acceptanceObserved = false;
+					/**
+					 * Reports one exact accepted release before any later effect can fail.
+					 * @since 1.0.0 Initial implementation.
+					 */
+					function observeAcceptance(): void {
+						if ( matchesContinuation && ! acceptanceObserved ) {
+							acceptanceObserved = true;
+							onContinuationAccepted?.();
+						}
+					}
+					const accepted = await applyPageEffect(
+						options.browser.navigateTab(
+							tabId, decision.retainedDestination, undefined, observeAcceptance,
+						),
 						tabId,
 						isInterruptionTab,
 					);
+					if ( accepted ) {
+						observeAcceptance();
+					}
+					return accepted && matchesContinuation;
 				}
 				break;
 			}
@@ -232,6 +253,7 @@ export function createProtectionPageProjector(
 				break;
 			}
 		}
+		return false;
 	}
 
 	/**
@@ -435,6 +457,7 @@ export function createProtectionPageProjector(
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @param statesByScope - Current authoritative state snapshot or unavailable marker.
 	 * @param continuedParticipant - Optional identity whose entry was accepted by a running allowance.
+	 * @param onContinuationAccepted - Immediate observer for that participant's accepted browser navigation.
 	 * @return Promise resolved after supported page effects are applied.
 	 * @since 1.0.0 Initial implementation.
 	 */
@@ -443,10 +466,16 @@ export function createProtectionPageProjector(
 		configuration: Parameters<ProtectionPageProjector[ 'applyDecisions' ]>[ 1 ],
 		statesByScope: Parameters<ProtectionPageProjector[ 'applyDecisions' ]>[ 2 ],
 		continuedParticipant?: Parameters<ProtectionPageProjector[ 'applyDecisions' ]>[ 3 ],
-	): Promise<void> {
+		onContinuationAccepted?: Parameters<ProtectionPageProjector[ 'applyDecisions' ]>[ 4 ],
+	): Promise<boolean> {
+		let accepted = false;
 		for ( const decision of decisions ) {
-			await applyPageDecision( decision, configuration, statesByScope, continuedParticipant );
+			const decisionAccepted = await applyPageDecision(
+				decision, configuration, statesByScope, continuedParticipant, onContinuationAccepted,
+			);
+			accepted = decisionAccepted || accepted;
 		}
+		return accepted;
 	}
 
 	return {

@@ -23,6 +23,30 @@ const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/interruption.html
 const CURRENT_INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/pause.html';
 
 describe( 'createProtectionPageProjector', () => {
+	it.each( [ true, false, undefined ] )( 'returns only explicit navigation acceptance: %s', async ( accepted ) => {
+		const participant = createNavigationParticipant( 'participant-a', 'page_tab_21_live' );
+		if ( participant.origin !== ProtectionParticipantOrigin.NAVIGATION ) {
+			throw new Error( 'Expected a navigation participant.' );
+		}
+		const continuation = { participantId: participant.participantId, pageId: participant.pageId,
+			scopeId: DefaultProtectionScopeId, allowanceId: createAllowanceState().allowanceId };
+		const projector = createProtectionPageProjector( {
+			browser: {
+				dismissInterruption: vi.fn().mockResolvedValue( undefined ),
+				getProtectedPagePresentation: vi.fn().mockResolvedValue( null ),
+				listTabs: vi.fn().mockResolvedValue( [ {
+					id: 21, incognito: false, url: CURRENT_INTERRUPTION_PAGE_URL,
+				} ] ),
+				navigateTab: vi.fn().mockResolvedValue( accepted ),
+				updateProtectedPagePresentation: vi.fn().mockResolvedValue( undefined ),
+			},
+			interruptionPageUrl: CURRENT_INTERRUPTION_PAGE_URL,
+		} );
+		await expect( projector.applyDecisions( [ { type: ProtectionDecisionType.RELEASE_NAVIGATION,
+			participantId: participant.participantId, pageId: participant.pageId,
+			retainedDestination: participant.retainedDestination,
+		} ], null, null, continuation ) ).resolves.toBe( accepted === true );
+	} );
 	it.each( [
 		'chrome-extension://extension-id/pause.html',
 		'chrome-extension://extension-id/interruption.html',

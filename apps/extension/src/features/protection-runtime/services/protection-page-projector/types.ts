@@ -50,6 +50,7 @@ export interface ProtectionPageProjector {
 	 * @param configuration - Current validated configuration or unavailable marker.
 	 * @param statesByScope - Current authoritative state snapshot or unavailable marker.
 	 * @param continuedParticipant - Optional participant whose entry is authorized by a running allowance.
+	 * @param onContinuationAccepted - Observer called at the exact participant's accepted navigation.
 	 * @return Promise resolved after supported page effects are applied.
 	 * @since 1.0.0 Initial implementation.
 	 */
@@ -58,7 +59,8 @@ export interface ProtectionPageProjector {
 		configuration: ProtectionConfigurationDocument | null,
 		statesByScope: ProtectionCoordinatorStateSnapshot | null,
 		continuedParticipant?: ProtectionContinuationContext,
-	): Promise<void>;
+		onContinuationAccepted?: () => void,
+	): Promise<boolean>;
 
 	/**
 	 * Removes an injected interruption only for one authoritative allowance-expiry participant.
