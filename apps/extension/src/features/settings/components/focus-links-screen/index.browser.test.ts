@@ -140,13 +140,22 @@ test.describe( 'Focus links settings', () => {
 				const errorColor = await error.evaluate( ( paragraph ) => getComputedStyle( paragraph ).color );
 				expect( errorColor ).not.toBe( descriptionColor );
 			}
+			const fieldGap = await label.evaluate( ( input ) => {
+				const fields = input.closest( '.mantine-InputWrapper-root' )?.parentElement;
+				if ( ! fields ) {
+					throw new Error( 'Expected both fields in their shared spacing container.' );
+				}
+				return getComputedStyle( fields ).rowGap;
+			} );
+			expect( fieldGap ).toBe( '16px' );
 			await expect.poll( async () => {
 				const firstError = await errors.first().boundingBox();
 				const urlLabel = await dialog.locator( 'label' ).filter( { hasText: /^Web address$/u } ).boundingBox();
 				if ( ! firstError || ! urlLabel ) {
 					throw new Error( 'Expected inline validation and the next field label to be visible.' );
 				}
-				return urlLabel.y - firstError.y - firstError.height;
+				// Remove only floating-point residue below 0.0001px; the CSS field gap remains exactly 16px.
+				return Math.round( ( urlLabel.y - firstError.y - firstError.height ) * 10_000 ) / 10_000;
 			} ).toBeGreaterThanOrEqual( 16 );
 			expect( await page.evaluate( () => document.documentElement.scrollWidth ) ).toBe( width );
 			await page.screenshot( { path: test.info().outputPath( `focus-links-empty-validation-${ String( width ) }.png` ), fullPage: true } );
@@ -473,8 +482,12 @@ test.describe( 'Focus links settings', () => {
 		await expect( page.locator( '.settings-site-list > .settings-site-item' ).nth( 0 ).locator( '.settings-site-identity h2' ) ).toHaveText( 'Write' );
 		await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
 		await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
-		await expect.poll( () => page.getByRole( 'status' ).filter( { hasText: 'Changes saved.' } ).evaluate( ( notice ) =>
-			getComputedStyle( notice ).opacity ) ).toBe( '1' );
+		const notice = page.getByRole( 'status' ).filter( { hasText: 'Changes saved.' } );
+		await expect( notice ).toBeVisible();
+		await expect( notice ).toHaveCSS( 'opacity', '1' );
+		// Dismiss confirmed feedback before long scans can sample its timed exit animation.
+		await notice.getByRole( 'button', { name: 'Dismiss notification', exact: true } ).click();
+		await expect( page.locator( '.tocus-snackbar' ) ).toHaveCount( 0 );
 		expect( await page.evaluate( () => window.settingsTest.getPreferences().focusLinks.map( ( link ) => link.url ) ) ).toEqual( [ 'https://example.com/', 'https://example.com/' ] );
 		await page.addScriptTag( { content: axe.source } );
 		for ( const theme of [ ThemeMode.LIGHT, ThemeMode.DARK ] ) {
