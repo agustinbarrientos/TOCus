@@ -59,6 +59,8 @@ export interface ProtectionRuntimeTab {
 	pendingUrl?: string;
 	/** Browser window containing the tab when identity is available. */
 	windowId?: number;
+	/** Browser loading status, available independently of destination URL permissions. */
+	status?: string;
 }
 
 /**
@@ -131,10 +133,11 @@ export interface ProtectionRuntimeBrowser {
 	 * Navigates one tab after its scope redirect has been removed.
 	 * @param tabId - Destination tab identifier.
 	 * @param url - Validated retained HTTP(S) destination.
+	 * @param expectedSourceUrl - Exact source required for an explicit focus choice, including a live protected page.
 	 * @return Promise resolved after the browser accepts the update.
 	 * @since 1.0.0 Initial implementation.
 	 */
-	navigateTab: ( tabId: number, url: string ) => Promise<void>;
+	navigateTab: ( tabId: number, url: string, expectedSourceUrl?: string ) => Promise<void>;
 
 	/**
 	 * Applies one warning or interruption-layer command to a protected page.

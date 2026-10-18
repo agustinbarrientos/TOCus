@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { FocusLinkSchema } from '../../../domains/preferences/types';
 import {
 	AllowanceIdSchema,
 	DurationMillisecondsSchema,
@@ -73,6 +74,7 @@ export const InterruptionPageRequestType = {
 	CHECKPOINT: 'checkpoint',
 	CONNECT: 'connect',
 	CONTINUE: 'continue',
+	OPEN_FOCUS_LINK: 'open-focus-link',
 	RECOVER: 'recover',
 	SYNCHRONIZE: 'synchronize',
 } as const;
@@ -166,6 +168,22 @@ export const ContinueInterruptionPageRequestSchema = z.object( {
 export type ContinueInterruptionPageRequest = z.infer<typeof ContinueInterruptionPageRequestSchema>;
 
 /**
+ * Validates one explicit choice of a locally configured alternative destination.
+ * @since 1.1.0
+ */
+export const OpenFocusLinkInterruptionPageRequestSchema = z.object( {
+	type: z.literal( InterruptionPageRequestType.OPEN_FOCUS_LINK ),
+	focusLinkId: FocusLinkSchema.shape.id,
+	documentVisible: z.boolean(),
+} ).strict();
+
+/**
+ * Explicit choice carrying only a stable locally configured link identity.
+ * @since 1.1.0
+ */
+export type OpenFocusLinkInterruptionPageRequest = z.infer<typeof OpenFocusLinkInterruptionPageRequestSchema>;
+
+/**
  * Validates every request accepted from an interruption page.
  * @since 1.0.0 Initial implementation.
  */
@@ -175,6 +193,7 @@ export const InterruptionPageRequestSchema = z.discriminatedUnion( 'type', [
 	SynchronizeInterruptionPageRequestSchema,
 	CheckpointInterruptionPageRequestSchema,
 	ContinueInterruptionPageRequestSchema,
+	OpenFocusLinkInterruptionPageRequestSchema,
 ] );
 
 /**
@@ -247,6 +266,8 @@ export type InterruptionPageResponseState = z.infer<typeof InterruptionPageRespo
  * @since 1.0.0 Initial implementation.
  */
 export const WaitingInterruptionPageResponseSchema = z.object( {
+	focusLinkFailed: z.literal( true ).optional(),
+	focusLinkOpening: z.literal( true ).optional(),
 	state: z.enum( [ InterruptionPageResponseState.WAITING ] ),
 	capturedWaitDurationMilliseconds: DurationMillisecondsSchema,
 	focusedProgressMilliseconds: DurationMillisecondsSchema,
@@ -264,6 +285,8 @@ export type WaitingInterruptionPageResponse = z.infer<typeof WaitingInterruption
  * @since 1.0.0 Initial implementation.
  */
 export const ReadyInterruptionPageResponseSchema = z.object( {
+	focusLinkFailed: z.literal( true ).optional(),
+	focusLinkOpening: z.literal( true ).optional(),
 	state: z.enum( [ InterruptionPageResponseState.READY ] ),
 	allowanceExpiresAtEpochMilliseconds: EpochMillisecondsSchema.nullable(),
 } ).strict();
@@ -279,6 +302,8 @@ export type ReadyInterruptionPageResponse = z.infer<typeof ReadyInterruptionPage
  * @since 1.0.0 Initial implementation.
  */
 export const ReadyExpiredInterruptionPageResponseSchema = z.object( {
+	focusLinkFailed: z.literal( true ).optional(),
+	focusLinkOpening: z.literal( true ).optional(),
 	state: z.enum( [ InterruptionPageResponseState.READY_EXPIRED ] ),
 } ).strict();
 
@@ -293,6 +318,8 @@ export type ReadyExpiredInterruptionPageResponse = z.infer<typeof ReadyExpiredIn
  * @since 1.0.0 Initial implementation.
  */
 export const UnavailableInterruptionPageResponseSchema = z.object( {
+	focusLinkFailed: z.literal( true ).optional(),
+	focusLinkOpening: z.literal( true ).optional(),
 	state: z.enum( [ InterruptionPageResponseState.UNAVAILABLE ] ),
 } ).strict();
 
