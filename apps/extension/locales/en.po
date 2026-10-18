@@ -188,14 +188,11 @@ msgstr "Add a row or choose a preset before saving."
 msgid "Add another site"
 msgstr "Add another site"
 
-#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "Add link"
-msgstr "Add link"
-
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Add row"
 msgstr "Add row"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Add site"
@@ -204,10 +201,6 @@ msgstr "Add site"
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "Add the first site you want TOCus to gently interrupt."
 msgstr "Add the first site you want TOCus to gently interrupt."
-
-#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "Add up to three links to help you return to what you wanted to do."
-msgstr "Add up to three links to help you return to what you wanted to do."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Adding {siteName}..."
@@ -704,10 +697,6 @@ msgstr "Let's try that again"
 msgid "Light"
 msgstr "Light"
 
-#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "Links stay on this device. Opening one leaves the paused website without granting browsing time."
-msgstr "Links stay on this device. Opening one leaves the paused website without granting browsing time."
-
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Loading appearance settings..."
 msgstr "Loading appearance settings..."
@@ -798,9 +787,6 @@ msgid "No activity recorded in this period."
 msgstr "No activity recorded in this period."
 
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "No focus links yet."
-msgstr "No focus links yet."
-
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "No websites yet"
 msgstr "No websites yet"
@@ -833,6 +819,10 @@ msgstr "Open the site automatically"
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Opening your focus link..."
 msgstr "Opening your focus link..."
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Optionally, add up to three shortcuts to your breathing screen so you can quickly get back to what matters most."
+msgstr "Optionally, add up to three shortcuts to your breathing screen so you can quickly get back to what matters most."
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Or press {key}"

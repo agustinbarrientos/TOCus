@@ -188,14 +188,11 @@ msgstr "Agrega una fila o elige un horario predefinido antes de guardar."
 msgid "Add another site"
 msgstr "Añadir otro sitio"
 
-#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "Add link"
-msgstr "Añadir enlace"
-
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Add row"
 msgstr "Añadir fila"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Add site"
@@ -204,10 +201,6 @@ msgstr "Agregar sitio"
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "Add the first site you want TOCus to gently interrupt."
 msgstr "Añade el primer sitio en el que quieras que TOCus introduzca una pausa amable."
-
-#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "Add up to three links to help you return to what you wanted to do."
-msgstr "Añade hasta tres enlaces que te ayuden a volver a lo que querías hacer."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Adding {siteName}..."
@@ -704,10 +697,6 @@ msgstr "Vamos a intentarlo de nuevo"
 msgid "Light"
 msgstr "Claro"
 
-#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "Links stay on this device. Opening one leaves the paused website without granting browsing time."
-msgstr "Los enlaces se quedan en este dispositivo. Al abrir uno, sales del sitio web en pausa sin obtener tiempo de navegación."
-
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Loading appearance settings..."
 msgstr "Cargando la configuración de apariencia..."
@@ -798,9 +787,6 @@ msgid "No activity recorded in this period."
 msgstr "No hay actividad registrada en este período."
 
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "No focus links yet."
-msgstr "Aún no hay enlaces para concentrarte."
-
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "No websites yet"
 msgstr "Aún no hay sitios web"
@@ -833,6 +819,10 @@ msgstr "Abrir el sitio automáticamente"
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Opening your focus link..."
 msgstr "Abriendo tu enlace para concentrarte..."
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Optionally, add up to three shortcuts to your breathing screen so you can quickly get back to what matters most."
+msgstr "Si quieres, agrega hasta tres accesos directos a tu pantalla de respiración para volver rápidamente a lo que más importa."
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Or press {key}"
