@@ -3,6 +3,10 @@ version: 2
 updates:
     - package-ecosystem: npm
       directory: /
+      cooldown:
+          default-days: 2
+      ignore:
+          - dependency-name: typescript
       schedule:
           interval: weekly
           day: monday

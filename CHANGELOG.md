@@ -3,6 +3,7 @@
 ## 1.1.0 - Unreleased
 
 - Added: Local JSON backup and restore for website rules, schedules, preferences, and statistics, with a dedicated Backup and reset settings page (Chrome, Edge, Firefox).
+- Changed: Updated application and development dependencies with a two-day release cooldown while keeping TypeScript 6.0.3 (Chrome, Edge, Firefox).
 
 ## 1.0.1 - 2026-09-28
 
