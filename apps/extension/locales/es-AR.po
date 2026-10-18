@@ -349,6 +349,7 @@ msgid "Browser access to show the pause on this website is required. Nothing was
 msgstr "Se necesita acceso al navegador para mostrar la pausa en este sitio web. No se guardó nada."
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -488,6 +489,7 @@ msgstr "Cerrar notificación"
 msgid "Don't ask again"
 msgstr "No volver a preguntar"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Done"
 msgstr "Listo"
@@ -825,8 +827,8 @@ msgid "Opening your focus link..."
 msgstr "Abriendo tu enlace para concentrarte..."
 
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "Optionally, add up to three website shortcuts to your breathing screen. Use them to quickly visit sites you'd rather spend time on."
-msgstr "Si querés, agregá hasta tres accesos directos a sitios web a tu pantalla de respiración. Usalos para visitar rápidamente los sitios en los que preferís pasar tu tiempo."
+msgid "Optionally, add up to three website shortcuts to your breathing screen."
+msgstr "Si querés, agregá hasta tres accesos directos a sitios web a tu pantalla de respiración."
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Or press {key}"
@@ -1586,6 +1588,10 @@ msgstr "Usar el idioma del navegador"
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Use custom schedule"
 msgstr "Usar horario personalizado"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Use them to quickly visit sites you'd rather spend time on."
+msgstr "Usalos para visitar rápidamente los sitios en los que preferís pasar tu tiempo."
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Uses the global schedule"
