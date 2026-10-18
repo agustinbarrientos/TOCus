@@ -17,6 +17,7 @@ describe( 'projectStatistics', () => {
 		expect( projectStatistics( createMockStatisticsDocument(), '2026-09-14' ) ).toEqual( {
 			status: StatisticsProjectionStatus.AVAILABLE,
 			currentDate: '2026-09-14',
+			firstRecordedDate: null,
 			dailyTotals: [],
 			estimatedReclaimedMilliseconds: 0,
 			focusedPauseMilliseconds: 0,
@@ -69,6 +70,7 @@ describe( 'projectStatistics', () => {
 		expect( projectStatistics( document, '2026-09-14' ) ).toEqual( {
 			status: StatisticsProjectionStatus.AVAILABLE,
 			currentDate: '2026-09-14',
+			firstRecordedDate: null,
 			dailyTotals: [],
 			estimatedReclaimedMilliseconds: 33,
 			focusedPauseMilliseconds: 22,
@@ -97,6 +99,7 @@ describe( 'projectStatistics', () => {
 		expect( projectStatistics( document, '2026-09-14' ) ).toEqual( {
 			status: StatisticsProjectionStatus.AVAILABLE,
 			currentDate: '2026-09-14',
+			firstRecordedDate: null,
 			dailyTotals: [],
 			estimatedReclaimedMilliseconds: 120_000,
 			focusedPauseMilliseconds: 120_000,
