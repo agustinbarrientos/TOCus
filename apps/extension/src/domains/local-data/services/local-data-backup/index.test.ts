@@ -9,8 +9,53 @@ import { PreferencesStorageKey } from '../../../preferences/services/preferences
 import { StatisticsStorageKey } from '../../../statistics/services/statistics-storage';
 import { LocalDataGenerationStorageKey } from '../local-data-generation';
 import { BackupImportJournalKey, BackupImportReceiptKey } from '../../types/backup-operation';
+import { createBackupVisitOutcomes } from '../../utils/backup-document/__fixtures__';
 
 describe( 'local backup replacement authority', () => {
+	it( 'preserves aggregate history through import and rejects changed aggregate replay contents', async () => {
+		const fixture = createBackupFixture();
+		const outcomes = createBackupVisitOutcomes();
+		Reflect.set( fixture.request.backup.statistics, 'visitOutcomes', outcomes );
+		await expect( fixture.backup.import( fixture.request ) ).resolves.toMatchObject( { status: 'completed' } );
+		expect( fixture.values[ StatisticsStorageKey.STATISTICS ] ).toMatchObject( { visitOutcomes: outcomes } );
+		fixture.values[ StatisticsStorageKey.STATISTICS ] = { newer: 'history' };
+		const writes = fixture.writeCount();
+		await expect( fixture.restart().import( fixture.request ) ).resolves.toMatchObject( { status: 'completed' } );
+		const changed = structuredClone( fixture.request );
+		Reflect.set( changed.backup.statistics, 'visitOutcomes', { ...outcomes,
+			dailySites: outcomes.dailySites.map( ( item ) => ( { ...item, visitedAfterPauseCount: 2 } ) ),
+		} );
+		await expect( fixture.restart().import( changed ) ).resolves.toEqual( { status: 'stale' } );
+		Reflect.deleteProperty( changed.backup.statistics, 'visitOutcomes' );
+		await expect( fixture.restart().import( changed ) ).resolves.toEqual( { status: 'stale' } );
+		expect( fixture.values[ StatisticsStorageKey.STATISTICS ] ).toEqual( { newer: 'history' } );
+		expect( fixture.writeCount() ).toBe( writes );
+	} );
+
+	it( 'recovers aggregate history from a committed import journal after restart', async () => {
+		const fixture = createBackupFixture();
+		const outcomes = createBackupVisitOutcomes();
+		Reflect.set( fixture.request.backup.statistics, 'visitOutcomes', outcomes );
+		fixture.setFailure( 'target' );
+		await expect( fixture.backup.import( fixture.request ) ).resolves.toEqual( { status: 'recovery-pending' } );
+		expect( fixture.values[ BackupImportJournalKey ] ).toMatchObject( {
+			documents: { statistics: { visitOutcomes: outcomes } },
+		} );
+		fixture.setFailure( '' );
+		await expect( fixture.restart().recover() ).resolves.toBe( true );
+		expect( fixture.values[ StatisticsStorageKey.STATISTICS ] ).toMatchObject( { visitOutcomes: outcomes } );
+		expect( fixture.values[ BackupImportJournalKey ] ).toBeUndefined();
+	} );
+
+	it( 'rejects malformed aggregate history before recording replacement intent', async () => {
+		const fixture = createBackupFixture();
+		const before = structuredClone( fixture.values );
+		Reflect.set( fixture.request.backup.statistics, 'visitOutcomes', null );
+		await expect( fixture.backup.import( fixture.request ) ).resolves.toEqual( { status: 'invalid' } );
+		expect( fixture.values ).toEqual( before );
+		expect( fixture.writeCount() ).toBe( 0 );
+	} );
+
 	it( 'replaces settings and history with fresh identities while preserving unrelated data', async () => {
 		const fixture = createBackupFixture();
 		fixture.request.backup.preferences.palette = Palette.PINK;
@@ -189,6 +234,22 @@ describe( 'local backup replacement authority', () => {
 } );
 
 
+it( 'rejects cross-date outcome overflow before persisting import intent', async () => {
+	const fixture = createBackupFixture();
+	const before = structuredClone( fixture.values );
+	Reflect.set( fixture.request.backup.statistics, 'visitOutcomes', {
+		recordedFromDate: '2026-10-15', dailyHours: [],
+		dailySites: [
+			{ date: '2026-10-15', siteHost: 'youtube.com', reconsideredVisitCount: 0,
+				visitedAfterPauseCount: Number.MAX_SAFE_INTEGER },
+			{ date: '2026-10-16', siteHost: 'youtube.com', reconsideredVisitCount: 0, visitedAfterPauseCount: 1 },
+		],
+	} );
+	await expect( fixture.backup.import( fixture.request ) ).resolves.toEqual( { status: 'invalid' } );
+	expect( fixture.writeCount() ).toBe( 0 );
+	expect( fixture.values ).toEqual( before );
+} );
+
 describe( 'obsolete imported permissions', () => {
 	it( 'releases obsolete rules only after committing complete targets and retries interrupted cleanup', async () => {
 		const fixture = createBackupFixture();
@@ -260,6 +321,7 @@ it.each( [ 'recover', 'retry' ] )( 'finishes legacy version three import journal
 		requestId: 'request_1', fingerprint: hash, generation: 'legacy_data',
 	} );
 	expect( fixture.values[ BackupImportJournalKey ] ).toBeUndefined();
+	expect( fixture.values[ StatisticsStorageKey.STATISTICS ] ).not.toHaveProperty( 'visitOutcomes' );
 } );
 
 it( 'deduplicates legacy receipts after absent links normalize to an empty list', async () => {
@@ -277,6 +339,11 @@ it( 'deduplicates legacy receipts after absent links normalize to an empty list'
 	await expect( fixture.backup.import( { ...fixture.request, backup: {
 		...legacyBackup, preferences: { ...legacyBackup.preferences, focusLinks: [] },
 	} } ) ).resolves.toMatchObject( { status: 'completed' } );
+	await expect( fixture.backup.import( { ...fixture.request, backup: { ...legacyBackup,
+		statistics: { ...legacyBackup.statistics, visitOutcomes: {
+			...createBackupVisitOutcomes(), dailySites: [], dailyHours: [],
+		} },
+	} } ) ).resolves.toEqual( { status: 'stale' } );
 	expect( fixture.values[ StatisticsStorageKey.STATISTICS ] ).toEqual( { newer: 'history' } );
 	expect( fixture.writeCount() ).toBe( 0 );
 } );

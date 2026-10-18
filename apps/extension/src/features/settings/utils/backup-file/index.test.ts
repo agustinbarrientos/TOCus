@@ -2,9 +2,23 @@ import { describe, expect, it, vi } from 'vitest';
 import { readBackupFile, downloadBackup } from '.';
 import { BackupMaximumBytes } from '../../../../domains/local-data/types/backup-document';
 import { createBackupDocument, parseBackupText } from '../../../../domains/local-data/utils/backup-document';
-import { createBackupSource } from '../../../../domains/local-data/utils/backup-document/__fixtures__';
+import { createBackupSource, createBackupVisitOutcomes } from '../../../../domains/local-data/utils/backup-document/__fixtures__';
 
 describe( 'local backup files', () => {
+	it( 'accepts optional aggregate history in the existing format and rejects malformed buckets', async () => {
+		const backup = createBackupDocument( createBackupSource() );
+		const outcomes = createBackupVisitOutcomes();
+		Reflect.set( backup.statistics, 'visitOutcomes', outcomes );
+		const value = JSON.stringify( backup );
+		await expect( readBackupFile( { size: value.length, text: vi.fn().mockResolvedValue( value ) } ) )
+			.resolves.toMatchObject( { statistics: { visitOutcomes: outcomes } } );
+		const invalid = JSON.stringify( { ...backup, statistics: { ...backup.statistics,
+			visitOutcomes: { ...outcomes, dailyHours: [ { ...outcomes.dailyHours[ 0 ], hour: 24 } ] },
+		} } );
+		await expect( readBackupFile( { size: invalid.length, text: vi.fn().mockResolvedValue( invalid ) } ) )
+			.rejects.toThrow( 'invalid' );
+	} );
+
 	it( 'checks size before reading and validates actual bytes independently of the MIME label', async () => {
 		const backup = createBackupDocument( createBackupSource() );
 		const text = vi.fn().mockResolvedValue( JSON.stringify( backup ) );
