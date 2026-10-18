@@ -42,6 +42,7 @@
 		"test:ui": "playwright test --config config/playwright-ui.config.ts",
 		"test:visual": "playwright test --config config/playwright-visual.config.ts",
 		"test:visual:update": "playwright test --config config/playwright-visual.config.ts --project chromium-website --update-snapshots=all",
+		"audit:dependencies": "node config/dependency-audit/index.mjs",
 		"check": "pnpm lint && pnpm typecheck && pnpm test",
 		"test:store-assets": "node --test tools/store-assets/lib/*.test.mjs"
 	},

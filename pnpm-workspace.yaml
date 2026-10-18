@@ -8,6 +8,12 @@ minimumReleaseAge: 2880
 minimumReleaseAgeStrict: true
 minimumReleaseAgeIgnoreMissingTime: false
 
+# Approved for development tooling only; review due 2026-10-31 (America/Bogota).
+# The guarded audit command checks the deadline and production lockfile graph.
+audit:
+    ignore:
+        - GHSA-vfj7-8cjw-p6xm
+
 update:
     ignoreDeps:
         - typescript
