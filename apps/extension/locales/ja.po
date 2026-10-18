@@ -349,6 +349,7 @@ msgid "Browser access to show the pause on this website is required. Nothing was
 msgstr "このウェブサイトで一時停止画面を表示するにはブラウザーのアクセス権限が必要です。何も保存されていません。"
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -488,6 +489,7 @@ msgstr "通知を閉じる"
 msgid "Don't ask again"
 msgstr "今後表示しない"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Done"
 msgstr "完了"
@@ -825,8 +827,8 @@ msgid "Opening your focus link..."
 msgstr "集中用リンクを開いています..."
 
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "Optionally, add up to three website shortcuts to your breathing screen. Use them to quickly visit sites you'd rather spend time on."
-msgstr "必要に応じて、呼吸画面にウェブサイトへのショートカットを3つまで追加できます。自分が時間を使いたいサイトにすばやくアクセスするために活用してください。"
+msgid "Optionally, add up to three website shortcuts to your breathing screen."
+msgstr "必要に応じて、呼吸画面にウェブサイトへのショートカットを3つまで追加できます。"
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Or press {key}"
@@ -1586,6 +1588,10 @@ msgstr "ブラウザーの言語を使用"
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Use custom schedule"
 msgstr "個別のスケジュールを使う"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Use them to quickly visit sites you'd rather spend time on."
+msgstr "自分が時間を使いたいサイトにすばやくアクセスするために活用してください。"
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Uses the global schedule"

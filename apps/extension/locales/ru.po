@@ -349,6 +349,7 @@ msgid "Browser access to show the pause on this website is required. Nothing was
 msgstr "Для показа паузы на этом сайте нужен доступ браузера. Ничего не сохранено."
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -488,6 +489,7 @@ msgstr "Закрыть уведомление"
 msgid "Don't ask again"
 msgstr "Больше не спрашивать"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Done"
 msgstr "Готово"
@@ -825,8 +827,8 @@ msgid "Opening your focus link..."
 msgstr "Открываем вашу ссылку для концентрации..."
 
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "Optionally, add up to three website shortcuts to your breathing screen. Use them to quickly visit sites you'd rather spend time on."
-msgstr "При желании добавь на экран дыхательной паузы до трёх ярлыков для сайтов. Используй их, чтобы быстро переходить на сайты, на которых ты предпочитаешь проводить время."
+msgid "Optionally, add up to three website shortcuts to your breathing screen."
+msgstr "При желании добавь на экран дыхательной паузы до трёх ярлыков для сайтов."
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Or press {key}"
@@ -1586,6 +1588,10 @@ msgstr "Использовать язык браузера"
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Use custom schedule"
 msgstr "Использовать своё расписание"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Use them to quickly visit sites you'd rather spend time on."
+msgstr "Используй их, чтобы быстро переходить на сайты, на которых ты предпочитаешь проводить время."
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Uses the global schedule"
