@@ -408,11 +408,44 @@ test.describe( 'React pause', () => {
 
 
 for ( const injected of [ false, true ] ) {
+	test( `keeps quick-link opening silent for immediate and held navigation in the ${ injected ? 'embedded' : 'standalone' } pause`, async ( { page } ) => {
+		await page.goto( `${ origin }${ injected ? '?injected=1' : '' }` );
+		await page.locator( 'html[data-ready]' ).waitFor();
+		const pending = await page.evaluate( async () => {
+			const { screen, states, environment } = window.pauseFixture;
+			screen.focusLinks = [ { id: 'focus_link_reading', label: 'Read a chapter', url: 'https://reading.test/' } ];
+			screen.state = states.READY;
+			screen.focusLinkOpening = true;
+			const snapshots = [];
+			for ( const elapsed of [ 0, 100, 5000 ] ) {
+				environment.advance( elapsed );
+				await screen.updateComplete;
+				const root = screen.shadowRoot;
+				snapshots.push( {
+					busy: root?.querySelector( '.focus-links' )?.getAttribute( 'aria-busy' ),
+					disabled: [ ...root?.querySelectorAll<HTMLButtonElement>( 'button' ) ?? [] ]
+						.every( ( button ) => button.disabled ),
+					statuses: root?.querySelectorAll( '.focus-links [role="status"]' ).length,
+					feedback: root?.querySelectorAll( '.focus-link-status' ).length,
+				} );
+			}
+			return snapshots;
+		} );
+		expect( pending ).toEqual( [
+			{ busy: 'true', disabled: true, statuses: 0, feedback: 0 },
+			{ busy: 'true', disabled: true, statuses: 0, feedback: 0 },
+			{ busy: 'true', disabled: true, statuses: 0, feedback: 0 },
+		] );
+		await page.keyboard.press( 'Space' );
+		expect( await page.evaluate( () => ( { choices: window.pauseFixture.focusLinkChoices,
+			continues: window.pauseFixture.continues } ) ) ).toEqual( { choices: [], continues: 0 } );
+	} );
+
 	test( `offers configured focus choices without exposing destinations in the ${ injected ? 'embedded' : 'standalone' } pause`, async ( { page } ) => {
 		await page.setViewportSize( { width: 320, height: 568 } );
 		await page.goto( `${ origin }${ injected ? '?injected=1' : '' }` );
 		await page.locator( 'html[data-ready]' ).waitFor();
-		await expect( page.getByRole( 'group', { name: 'Return to your focus' } ) ).toHaveCount( 0 );
+		await expect( page.getByRole( 'group', { name: 'Quick links' } ) ).toHaveCount( 0 );
 		await page.evaluate( async () => {
 			window.pauseFixture.screen.focusLinks = [
 				{ id: 'focus_link_reading', label: 'Read a chapter', url: 'https://reading.test/private?token=local' },
@@ -449,15 +482,16 @@ for ( const injected of [ false, true ] ) {
 				await screen.updateComplete;
 				const disabled = [ ...screen.shadowRoot?.querySelectorAll<HTMLButtonElement>( 'button' ) ?? [] ]
 					.every( ( button ) => button.disabled );
-				const status = screen.shadowRoot?.querySelector( '[role="status"]' )?.textContent;
+				const status = screen.shadowRoot?.querySelector( '[role="status"]' )?.textContent ?? null;
+				const busy = screen.shadowRoot?.querySelector( '.focus-links' )?.getAttribute( 'aria-busy' );
 				screen.focusLinkOpening = false;
 				screen.focusLinkFailed = true;
 				await screen.updateComplete;
-				return { disabled, status, failure: screen.shadowRoot?.querySelector( '[role="alert"]' )?.textContent,
+				return { disabled, busy, status, failure: screen.shadowRoot?.querySelector( '[role="alert"]' )?.textContent,
 					exposesUrl: screen.shadowRoot?.innerHTML.includes( 'reading.test' ) };
 			} );
-			expect( result ).toEqual( { disabled: true, status: 'Opening your focus link...',
-				failure: 'Your focus link could not be opened. Try again.', exposesUrl: false } );
+			expect( result ).toEqual( { disabled: true, busy: 'true', status: null,
+				failure: 'Your quick link could not be opened. Try again.', exposesUrl: false } );
 			return;
 		}
 		const reading = page.getByRole( 'button', { name: 'Read a chapter' } );
@@ -480,18 +514,19 @@ for ( const injected of [ false, true ] ) {
 		} );
 		await expect( reading ).toBeDisabled();
 		await expect( page.getByRole( 'button', { name: 'Continue', exact: true } ) ).toBeDisabled();
-		await expect( page.getByRole( 'status' ) ).toHaveText( 'Opening your focus link...' );
+		await expect( page.getByRole( 'group', { name: 'Quick links' } ) ).toHaveAttribute( 'aria-busy', 'true' );
+		await expect( page.getByRole( 'status' ) ).toHaveCount( 0 );
 		await page.evaluate( async () => {
 			window.pauseFixture.screen.focusLinkOpening = false;
 			window.pauseFixture.screen.focusLinkFailed = true;
 			await window.pauseFixture.screen.updateComplete;
 		} );
 		await expect( reading ).toBeEnabled();
-		await expect( page.getByRole( 'alert' ) ).toHaveText( 'Your focus link could not be opened. Try again.' );
+		await expect( page.getByRole( 'alert' ) ).toHaveText( 'Your quick link could not be opened. Try again.' );
 		await page.evaluate( async () => {
 			window.pauseFixture.screen.focusLinks = [];
 			await window.pauseFixture.screen.updateComplete;
 		} );
-		await expect( page.getByRole( 'group', { name: 'Return to your focus' } ) ).toHaveCount( 0 );
+		await expect( page.getByRole( 'group', { name: 'Quick links' } ) ).toHaveCount( 0 );
 	} );
 }

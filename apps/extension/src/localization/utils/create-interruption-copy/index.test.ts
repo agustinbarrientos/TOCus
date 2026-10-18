@@ -38,7 +38,6 @@ describe( 'createInterruptionCopy', () => {
 		const englishCopy = createInterruptionCopy( createTestI18n() );
 		const reviewFields = [
 			'focusLinksLabel',
-			'openingFocusLinkLabel',
 			'focusLinkFailedAnnouncement',
 			'reviewMessage',
 			'reviewActionLabel',

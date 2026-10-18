@@ -80,7 +80,6 @@ export function ScreenView( props: ScreenViewProps ) {
 							props.onOpenFocusLink( link.id );
 						}}>{link.label}</Button>,
 				)}</div>
-				{props.focusLinkOpening && <p className="focus-link-status" role="status">{copy.openingFocusLinkLabel}</p>}
 				{props.focusLinkFailed && <p className="focus-link-status" role="alert">{copy.focusLinkFailedAnnouncement}</p>}
 			</section>}
 			</main>

@@ -113,7 +113,6 @@ export interface InterruptionScreenCopy {
 	continueLabel: string;
 	continueShortcut: string;
 	focusLinksLabel: string;
-	openingFocusLinkLabel: string;
 	focusLinkFailedAnnouncement: string;
 	/**
 	 * Formats the remaining wait for visible presentation.
