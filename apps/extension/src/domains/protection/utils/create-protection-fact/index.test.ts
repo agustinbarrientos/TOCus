@@ -7,8 +7,20 @@ import {
 } from './index';
 import { DepartureCause } from '../../types/protection-event';
 import { ProtectionFactType } from '../../types/protection-fact';
+import * as factories from './index';
 
 describe( 'protection facts', () => {
+	it( 'keeps a continued participant identity stable across acceptance retries', () => {
+		expect( factories.createContinuedVisitFact ).toBeTypeOf( 'function' );
+		const input = { scopeId: 'scope-a', allowanceId: 'allowance-a', participantId: 'participant-a',
+			pageId: 'page-a', siteHost: 'example.com', observedLocalHour: 23,
+			observedAtEpochMilliseconds: 1_800_000_000_000 };
+		const first = factories.createContinuedVisitFact( input );
+		expect( first.factId ).toBe( 'continued-visit_7-scope-a_11-allowance-a_13-participant-a_6-page-a' );
+		expect( factories.createContinuedVisitFact( { ...input,
+			observedAtEpochMilliseconds: 1_800_000_001_000 } ).factId ).toBe( first.factId );
+		expect( factories.createContinuedVisitFact( { ...input, pageId: 'page-b' } ).factId ).not.toBe( first.factId );
+	} );
 	it.each( [
 		[ 'owner epoch', { ownerEpoch: 0 } ],
 		[ 'checkpoint high-water', { checkpointHighWaterMilliseconds: 0 } ],

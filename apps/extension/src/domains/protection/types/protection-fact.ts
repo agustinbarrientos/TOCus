@@ -8,11 +8,13 @@ import {
 	LocalDateSchema,
 	OwnerEpochSchema,
 	ParticipantIdSchema,
+	PageIdSchema,
 	ProtectionScopeIdSchema,
 	WaitIdSchema,
 } from './protection-value';
 import { QualifyingDepartureCauseSchema } from './protection-event';
 import { WaitDurationMillisecondsSchema } from './wait-duration';
+import { CanonicalHostSchema } from './protected-site-rule';
 
 /**
  * Metric-bearing facts emitted by accepted state transitions.
@@ -23,6 +25,7 @@ export const ProtectionFactType = {
 	RECONSIDERED_VISIT: 'reconsidered-visit',
 	COMPLETED_WAIT: 'completed-wait',
 	ALLOWANCE_GRANTED: 'allowance-granted',
+	CONTINUED_VISIT: 'continued-visit',
 } as const;
 
 /**
@@ -107,9 +110,7 @@ export type PauseTimeFactInput = z.infer<typeof PauseTimeFactInputSchema>;
  * Validates a reconsidered-visit fact emitted for a qualifying departure.
  * @since 1.0.0 Initial implementation.
  */
-export const ReconsideredVisitFactSchema = z.object( {
-	type: z.enum( [ ProtectionFactType.RECONSIDERED_VISIT ] ),
-	factId: FactIdSchema,
+const ReconsideredVisitFactFieldsSchema = z.object( {
 	scopeId: ProtectionScopeIdSchema,
 	waitId: WaitIdSchema,
 	participantId: ParticipantIdSchema,
@@ -117,7 +118,33 @@ export const ReconsideredVisitFactSchema = z.object( {
 	allowanceDurationMilliseconds: AllowanceDurationMillisecondsSchema,
 	departureCause: QualifyingDepartureCauseSchema,
 	observedAtEpochMilliseconds: EpochMillisecondsSchema,
+	siteHost: CanonicalHostSchema.optional(),
+	observedLocalHour: z.number().int().min( 0 ).max( 23 ).optional(),
 } ).strict();
+
+/**
+ * Requires captured site and hour together without inventing legacy attribution.
+ * @param fact - Candidate reconsidered visit with optional website attribution.
+ * @param context - Validation context receiving an unpaired attribution issue.
+ * @since 1.0.0 Initial implementation.
+ */
+function refineReconsideredAttribution(
+	fact: z.infer<typeof ReconsideredVisitFactFieldsSchema>,
+	context: RefinementCtx,
+): void {
+	if ( ( fact.siteHost === undefined ) !== ( fact.observedLocalHour === undefined ) ) {
+		context.addIssue( { code: 'custom', message: 'Website attribution requires a host and local hour together.' } );
+	}
+}
+
+/**
+ * A reconsidered navigation with optional prospective website attribution.
+ * @since 1.0.0 Initial implementation.
+ */
+export const ReconsideredVisitFactSchema = ReconsideredVisitFactFieldsSchema.extend( {
+	type: z.enum( [ ProtectionFactType.RECONSIDERED_VISIT ] ),
+	factId: FactIdSchema,
+} ).superRefine( refineReconsideredAttribution );
 
 /**
  * Reconsidered-visit fact emitted for a qualifying departure.
@@ -129,13 +156,49 @@ export type ReconsideredVisitFact = z.infer<typeof ReconsideredVisitFactSchema>;
  * Validates the domain values used to build a reconsidered-visit fact.
  * @since 1.0.0 Initial implementation.
  */
-export const ReconsideredVisitFactInputSchema = ReconsideredVisitFactSchema.omit( { type: true, factId: true } );
+export const ReconsideredVisitFactInputSchema = ReconsideredVisitFactFieldsSchema.superRefine(
+	refineReconsideredAttribution,
+);
 
 /**
  * Domain values used to build a reconsidered-visit fact.
  * @since 1.0.0 Initial implementation.
  */
 export type ReconsideredVisitFactInput = z.infer<typeof ReconsideredVisitFactInputSchema>;
+
+/**
+ * One navigation participant whose completed pause was accepted by the browser.
+ * @since 1.0.0 Initial implementation.
+ */
+export const ContinuedVisitFactInputSchema = z.object( {
+	scopeId: ProtectionScopeIdSchema,
+	allowanceId: AllowanceIdSchema,
+	participantId: ParticipantIdSchema,
+	pageId: PageIdSchema,
+	siteHost: CanonicalHostSchema,
+	observedLocalHour: z.number().int().min( 0 ).max( 23 ),
+	observedAtEpochMilliseconds: EpochMillisecondsSchema,
+} ).strict();
+
+/**
+ * Durable website outcome, separate from shared wait and allowance totals.
+ * @since 1.0.0 Initial implementation.
+ */
+export const ContinuedVisitFactSchema = ContinuedVisitFactInputSchema.extend( {
+	type: z.enum( [ ProtectionFactType.CONTINUED_VISIT ] ),
+	factId: FactIdSchema,
+} );
+
+/**
+ * Browser-accepted continuation values before deterministic identity is added.
+ * @since 1.0.0 Initial implementation.
+ */
+export type ContinuedVisitFactInput = z.infer<typeof ContinuedVisitFactInputSchema>;
+/**
+ * Browser-accepted continuation of one navigation-origin paused participant.
+ * @since 1.0.0 Initial implementation.
+ */
+export type ContinuedVisitFact = z.infer<typeof ContinuedVisitFactSchema>;
 
 /**
  * Validates a completed-wait fact.
@@ -255,6 +318,7 @@ export const ProtectionFactSchema = z.discriminatedUnion( 'type', [
 	ReconsideredVisitFactSchema,
 	CompletedWaitFactSchema,
 	AllowanceGrantedFactSchema,
+	ContinuedVisitFactSchema,
 ] );
 
 /**
