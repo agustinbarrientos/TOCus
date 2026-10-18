@@ -54,9 +54,10 @@
 	}
 
 	.settings-statistics-estimate {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
+		display: grid;
+		grid-template-columns: minmax(0, max-content) max-content;
+		justify-content: start;
+		align-items: end;
 		gap: var(--tocus-space-2) var(--tocus-space-3);
 		margin-top: var(--tocus-space-4);
 

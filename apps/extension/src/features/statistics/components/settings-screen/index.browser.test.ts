@@ -73,6 +73,70 @@ test.describe( 'local statistics', () => {
 			} ), { message: `Shared website columns at ${ String( width ) }px and ${ fontSize } text` } ).toEqual( {
 				solidSpread: 0, stripedSpread: 0, fits: true, withinViewport: true,
 				pageFits: true, valuesFit: true, disjoint: true,
+			} ).catch( async ( error: unknown ) => {
+				const geometry = await page.evaluate( () => {
+					const viewport = {
+						innerWidth, innerHeight, clientWidth: document.documentElement.clientWidth,
+						clientHeight: document.documentElement.clientHeight,
+						scrollWidth: document.documentElement.scrollWidth,
+						scrollHeight: document.documentElement.scrollHeight,
+						bodyWidth: document.body.getBoundingClientRect().width, scrollX, scrollY,
+						devicePixelRatio, visualViewportWidth: visualViewport?.width,
+						rootFontSize: getComputedStyle( document.documentElement ).fontSize,
+						fonts: document.fonts.status,
+					};
+					/**
+					 * Records the exact box and clipping context of a potential overflow source.
+					 * @param element - Real rendered element from the failing fixture.
+					 * @return Geometry and computed layout values needed to identify platform differences.
+					 */
+					function describe( element: Element ) {
+						const rect = element.getBoundingClientRect();
+						const style = getComputedStyle( element );
+						return { tag: element.tagName, id: element.id, className: element.getAttribute( 'class' ),
+							left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width,
+							clientWidth: element.clientWidth, scrollWidth: element.scrollWidth,
+							position: style.position, display: style.display, visibility: style.visibility,
+							overflowX: style.overflowX, overflowY: style.overflowY, clipPath: style.clipPath,
+							whiteSpace: style.whiteSpace, minWidth: style.minWidth, maxWidth: style.maxWidth,
+							fontSize: style.fontSize, fontFamily: style.fontFamily, transform: style.transform };
+					}
+					const elements = [ ...document.querySelectorAll( 'body *' ) ].filter( ( element ) => {
+						const box = element.getBoundingClientRect();
+						return box.width > 0 && ( box.right > viewport.clientWidth ||
+							element.scrollWidth > element.clientWidth );
+					} ).slice( 0, 400 ).map( ( element ) => {
+						const ancestors = [];
+						let parent = element.parentElement;
+						while ( parent !== null ) {
+							ancestors.push( describe( parent ) );
+							parent = parent.parentElement;
+						}
+						return { element: describe( element ), ancestors };
+					} );
+					const text = [];
+					const walker = document.createTreeWalker( document.body, NodeFilter.SHOW_TEXT );
+					let node = walker.nextNode();
+					while ( node !== null ) {
+						const range = document.createRange();
+						range.selectNodeContents( node );
+						const rects = [ ...range.getClientRects() ];
+						if ( rects.some( ( rect ) => rect.width > 0 && rect.right > viewport.clientWidth ) ) {
+							text.push( { text: node.textContent?.slice( 0, 100 ),
+								rights: rects.map( ( rect ) => rect.right ),
+								parent: node.parentElement === null ? null : describe( node.parentElement ) } );
+						}
+						node = walker.nextNode();
+					}
+					return { viewport, elements, text };
+				} );
+				await test.info().attach( 'statistics-overflow-geometry', {
+					body: JSON.stringify( geometry, null, 2 ), contentType: 'application/json',
+				} );
+				await test.info().attach( 'statistics-overflow-full-page', {
+					body: await page.screenshot( { fullPage: true } ), contentType: 'image/png',
+				} );
+				throw error;
 			} );
 			await expect( sites.locator( '[data-outcome] strong' ) ).toHaveText( [
 				'1.234.567', '7', '1.200', '9.876.543', '37', '42',
@@ -179,7 +243,7 @@ test.describe( 'local statistics', () => {
 			const amount = page.locator( '.settings-statistics-estimate dd' );
 			await expect.poll( () => amount.textContent() ).toMatch( new RegExp( `^${ firstWord } ` ) );
 			await page.evaluate( () => document.fonts.ready );
-			for ( const width of [ 320, 360, 390 ] ) {
+			for ( const width of [ 320, 360, 390, 404 ] ) {
 				await page.setViewportSize( { width, height: 844 } );
 				// Chart dimensions follow the viewport through an asynchronous ResizeObserver update.
 				await expect.poll( () => amount.evaluate( ( element, firstWord ) => {
@@ -192,15 +256,25 @@ test.describe( 'local statistics', () => {
 					range.setEnd( node, firstWord.length );
 					const lines = [ ...range.getClientRects() ];
 					const bounds = element.getBoundingClientRect();
+					const completeText = document.createRange();
+					completeText.selectNodeContents( element );
+					const finalLine = [ ...completeText.getClientRects() ].at( -1 );
+					const help = element.closest( '.settings-statistics-estimate' )?.querySelector( 'button' );
+					if ( finalLine === undefined || help === null || help === undefined ) {
+						throw new TypeError( 'The estimate must retain its value and help control.' );
+					}
+					const helpBounds = help.getBoundingClientRect();
 					return {
 						wordLines: new Set( lines.map( ( line ) => line.top ) ).size,
 						wordFits: lines.every( ( line ) => line.left >= bounds.left && line.right <= bounds.right ),
+						helpBesideValue: helpBounds.left >= finalLine.right &&
+							helpBounds.top < finalLine.bottom && helpBounds.bottom > finalLine.top,
 						pageFits: document.documentElement.scrollWidth <= window.innerWidth,
 						fontSize: getComputedStyle( element ).fontSize,
 						availableWidth: bounds.width,
 					};
 				}, firstWord ), { message: `${ language } at ${ String( width ) }px` } ).toMatchObject( {
-					wordLines: 1, wordFits: true, pageFits: true,
+					wordLines: 1, wordFits: true, helpBesideValue: true, pageFits: true,
 				} );
 			}
 		} );
