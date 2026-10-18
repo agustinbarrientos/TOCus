@@ -30,6 +30,28 @@ async function save( browser ) {
 }
 
 /**
+ * Saves a real focus destination through Settings and captures its generated stable identity.
+ * @param {object} browser - Disposable installed browser.
+ * @param {string} destination - Local fixture address saved by the user.
+ * @return {Promise<object>} Persisted link with its production-generated identity.
+ * @since 1.1.0
+ */
+async function saveFocusLink( browser, destination ) {
+	await settings( browser, 'focus-links' );
+	await expect.poll( () => readView( browser, 'selected', `const control = document.querySelector('.settings-focus-links-add');
+		return control instanceof HTMLButtonElement && !control.disabled && control.getClientRects().length > 0;` ) ).toBe( true );
+	await clickButton( browser, 'Add link', '.settings-focus-links' );
+	await fill( browser, 'input[id^="label-focus_link_"]', 'Return to my project' );
+	await fill( browser, 'input[id^="url-focus_link_"]', destination );
+	await save( browser );
+	await expect.poll( async () => ( await stored( browser, preferencesKey ) )?.focusLinks ).toEqual( [ {
+		id: expect.stringMatching( /^focus_link_[A-Za-z0-9_-]+$/ ), label: 'Return to my project', url: destination,
+	} ] );
+	const preferences = await stored( browser, preferencesKey );
+	return preferences.focusLinks[ 0 ];
+}
+
+/**
  * Waits for the authoritative statistics projection before selecting its native period control.
  * @param {object} browser - Disposable installed browser.
  * @param {string} range - Exact calendar range option.
@@ -72,6 +94,7 @@ test( 'Portable backup round trip preserves real settings and history across den
 	let configuration;
 	let preferences;
 	let history;
+	let focusLink;
 	try {
 		await withBrowser( async ( browser, url, files ) => {
 			await enroll( browser, url );
@@ -91,6 +114,7 @@ test( 'Portable backup round trip preserves real settings and history across den
 			await browser.viewClick( 'selected', '.preferences-palette-card[data-palette="purple"]' );
 			await browser.viewClick( 'selected', 'input[name="pause-mode"][value="quiet"]' );
 			await save( browser );
+			focusLink = await saveFocusLink( browser, `${ url }backup-project` );
 			await browser.openPage( `${ url }backup-history` );
 			await continuePause( browser );
 			await expect.poll( () => browser.currentUrl() ).toBe( `${ url }backup-history` );
@@ -103,9 +127,10 @@ test( 'Portable backup round trip preserves real settings and history across den
 			await expect.poll( () => readView( browser, 'selected', 'return document.querySelector(".tocus-snackbar") === null;' ) ).toBe( true );
 			expect( backup ).toMatchObject( { application: 'TOCus', dataFormatVersion: '1.1.0',
 				settings: { sites: [ { displayNameOverride: 'Backup focus site' } ] },
-				preferences: { theme: 'dark', palette: 'purple', pauseMode: 'quiet' },
+				preferences: { theme: 'dark', palette: 'purple', pauseMode: 'quiet', focusLinks: [ focusLink ] },
 				statistics: { scopes: { scope_default: { completedWaitCount: 1, allowanceGrantedCount: 1 } } },
 			} );
+			expect( backup.preferences.focusLinks ).toEqual( [ focusLink ] );
 			expect( backup.statistics.scopes.scope_default ).not.toHaveProperty( 'activeAllowance' );
 			expect( backup.settings ).not.toHaveProperty( 'measurementRevisionsByScope' );
 			configuration = await stored( browser, configurationKey );
@@ -139,7 +164,9 @@ test( 'Portable backup round trip preserves real settings and history across den
 			await browser.consent( false );
 			await expect.poll( () => readView( browser, 'selected', 'return document.body.innerText;' ) ).toContain( 'Some websites still need browser access' );
 			expect( ( await stored( browser, configurationKey ) ).sites ).toEqual( configuration.sites );
-			expect( ( await stored( browser, preferencesKey ) ) ).toEqual( preferences );
+			const restoredPreferences = await stored( browser, preferencesKey );
+			expect( restoredPreferences ).toEqual( preferences );
+			expect( restoredPreferences.focusLinks ).toEqual( [ focusLink ] );
 			const restored = await stored( browser, statisticsKey );
 			expect( restored.dailyTotals ).toEqual( backup.statistics.dailyTotals );
 			expect( restored.scopes.scope_default.totals ).toEqual( backup.statistics.scopes.scope_default );
@@ -162,6 +189,16 @@ test( 'Portable backup round trip preserves real settings and history across den
 					'Completed waits': '1', 'Allowances granted': '1', 'Reconsidered visits': '0',
 				} );
 			}
+			await clickButton( browser, 'Reset statistics', '.settings-statistics-data' );
+			await expect.poll( () => readView( browser, 'selected', 'return Boolean(document.querySelector("[role=dialog]"));' ) ).toBe( true );
+			await clickButton( browser, 'Reset statistics', '[role=dialog]' );
+			await expect.poll( () => metrics( browser ) ).toMatchObject( {
+				'Completed waits': '0', 'Allowances granted': '0', 'Reconsidered visits': '0',
+			} );
+			expect( await stored( browser, preferencesKey ) ).toEqual( restoredPreferences );
+			await reload( browser );
+			await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed waits': '0', 'Allowances granted': '0' } );
+			expect( ( await stored( browser, preferencesKey ) ).focusLinks ).toEqual( [ focusLink ] );
 			await browser.openPage( `${ url }after-restore` );
 			await expect.poll( () => browser.currentUrl() ).toContain( '/pause.html' );
 		} );
@@ -190,6 +227,7 @@ test( 'Imports the exact downloaded backup from a different installed browser', 
 	const transfer = await mkdtemp( join( tmpdir(), 'tocus-backup-transfer-' ) );
 	const path = join( transfer, 'downloaded-backup.json' );
 	let backup;
+	let focusLink;
 	const expectedMetrics = {};
 	try {
 		await withBrowser( async ( browser, url, files ) => {
@@ -199,6 +237,7 @@ test( 'Imports the exact downloaded backup from a different installed browser', 
 			await browser.viewClick( 'selected', '.preferences-theme-card[aria-label="Dark"]' );
 			await browser.viewClick( 'selected', '.preferences-palette-card[data-palette="purple"]' );
 			await save( browser );
+			focusLink = await saveFocusLink( browser, `${ url }portable-project` );
 			await browser.openPage( `${ url }portable-history` );
 			await continuePause( browser );
 			await expect.poll( () => browser.currentUrl() ).toBe( `${ url }portable-history` );
@@ -216,6 +255,7 @@ test( 'Imports the exact downloaded backup from a different installed browser', 
 			await cp( downloaded, path, { errorOnExist: true, force: false } );
 			expect( await readFile( path ) ).toEqual( bytes );
 			backup = JSON.parse( bytes.toString( 'utf8' ) );
+			expect( backup.preferences.focusLinks ).toEqual( [ focusLink ] );
 		}, { product: sourceProduct } );
 		await withBrowser( async ( browser, url ) => {
 			await settings( browser, 'backup-reset' );
@@ -230,6 +270,7 @@ test( 'Imports the exact downloaded backup from a different installed browser', 
 			const preferences = await stored( browser, preferencesKey );
 			const portablePreferences = Object.fromEntries( Object.entries( preferences ).filter( ( [ key ] ) => key !== 'schemaVersion' ) );
 			expect( portablePreferences ).toEqual( backup.preferences );
+			expect( preferences.focusLinks ).toEqual( [ focusLink ] );
 			const statistics = await stored( browser, statisticsKey );
 			expect( statistics.dailyTotals ).toEqual( backup.statistics.dailyTotals );
 			for ( const [ scope, totals ] of Object.entries( backup.statistics.scopes ) ) {

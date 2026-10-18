@@ -585,3 +585,87 @@ test.describe( 'packaged Chrome protection', () => {
 		} );
 	} );
 } );
+
+for ( const protectedDestination of [ false, true ] ) {
+	test( `focus links leave the current pause and preserve protection for a ${ protectedDestination ? 'protected' : 'slow unprotected' } destination`, async ( { context, worker, page } ) => {
+		test.setTimeout( 35_000 );
+		const destination = protectedDestination ? 'https://example.test/project' : 'https://project.test/slow';
+		/**
+		 *
+		 */
+		let release: ( () => void ) | undefined;
+		let requested = false;
+		const held = new Promise<void>( ( resolve ) => {
+			release = resolve;
+		} );
+		if ( ! protectedDestination ) {
+			await context.route( destination, async ( route ) => {
+				requested = true;
+				await held;
+				await route.fulfill( { contentType: 'text/html', body: '<h1>My project</h1>' } );
+			} );
+		}
+		try {
+			await worker.evaluate( async ( { preferences, configuration } ) => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				await chrome.storage.local.set( {
+					'tocus.preferences.v1': preferences,
+					'tocus.protection.configuration.v1': configuration,
+				} );
+			}, {
+				preferences: { ...DefaultPreferencesDocument, language: Language.ENGLISH,
+					focusLinks: [ { id: 'focus_link_project', label: 'Return to my project', url: destination } ] },
+				configuration: { ...TestEmptyProtectionConfiguration,
+					sites: [ { identityHost: 'example.test', rule: { host: 'example.test', includeSubdomains: true, scopeId: DefaultProtectionScopeId } } ] },
+			} );
+			await expect.poll( () => worker.evaluate( async () => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				return ( await chrome.declarativeNetRequest.getDynamicRules() ).length;
+			} ) ).toBe( 1 );
+			await page.goto( 'https://example.test/distraction' );
+			await page.bringToFront();
+			await expect( page ).toHaveURL( /\/pause\.html$/u );
+			const count = context.pages().length;
+			await page.getByRole( 'button', { name: 'Return to my project', exact: true } ).click( { noWaitAfter: true } );
+			await expect.poll( () => worker.evaluate( async () => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				const values = await chrome.storage.local.get( 'tocus.statistics.v1' );
+				const document = values[ 'tocus.statistics.v1' ] as { scopes?: { scope_default?: { totals?: unknown } } } | undefined;
+				return document?.scopes?.scope_default?.totals;
+			} ) ).toMatchObject( { reconsideredVisitCount: 1, completedWaitCount: 0, allowanceGrantedCount: 0 } );
+			if ( protectedDestination ) {
+				await expect.poll( () => worker.evaluate( async () => {
+					const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+					const values = await chrome.storage.session.get( 'tocus.protection.session.v1' );
+					const envelope = values[ 'tocus.protection.session.v1' ] as {
+						document?: { scopes?: { scope_default?: {
+							participants?: { retainedDestination: string }[];
+						} } };
+					} | undefined;
+					return envelope?.document?.scopes?.scope_default?.participants
+						?.map( ( participant ) => participant.retainedDestination );
+				} ) ).toEqual( [ destination ] );
+				await expect( page ).toHaveURL( /\/pause\.html$/u );
+				await expect( page.getByRole( 'region', { name: /^Breathe (?:in|out)$/u } ) ).toBeVisible();
+				await expect( page.getByRole( 'button', { name: 'Return to my project', exact: true } ) ).toBeEnabled();
+			} else {
+				await expect.poll( () => requested ).toBe( true );
+				// Keep the destination pending beyond the captured pause to expose stale progress or automatic entry.
+				const observationEnds = Date.now() + 11_000;
+				await expect.poll( async () => {
+					const scope = ( await readDurableState( worker ) ).scopes.scope_default;
+					expect( scope?.ladder.completedWaits ).toBe( 0 );
+					expect( scope?.allowance ).toBeUndefined();
+					return Date.now() >= observationEnds;
+				}, { timeout: 13_000, intervals: [ 500 ] } ).toBe( true );
+				release?.();
+				await expect( page ).toHaveURL( destination );
+				await expect( page.getByRole( 'heading', { name: 'My project' } ) ).toBeVisible();
+			}
+			expect( ( await readDurableState( worker ) ).scopes.scope_default?.allowance ).toBeUndefined();
+			expect( context.pages() ).toHaveLength( count );
+		} finally {
+			release?.();
+		}
+	} );
+}
