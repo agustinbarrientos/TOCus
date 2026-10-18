@@ -306,6 +306,10 @@ msgid "You don't have to just take my word for it."
 msgstr "Vous n'avez pas à me croire sur parole."
 
 #: apps/website/src/localization/privacy/index.ts
+msgid "Your backup contains configured website addresses, settings, and statistics. TOCus creates it entirely on your device. Keep it somewhere you trust."
+msgstr "Votre sauvegarde contient les adresses des sites configurés, les paramètres et les statistiques. TOCus la crée entièrement sur votre appareil. Conservez-la dans un endroit de confiance."
+
+#: apps/website/src/localization/privacy/index.ts
 msgid "Your browser tries to use website icons from its own cache whenever it can. Sometimes this doesn't work. I set it up this way to keep TOCus completely private and avoid connecting to any icon service."
 msgstr "Votre navigateur essaie d'utiliser les icônes des sites web de son propre cache quand c'est possible. Parfois, cela ne fonctionne pas. J'ai choisi ce fonctionnement pour préserver entièrement votre confidentialité avec TOCus et éviter toute connexion à un service d'icônes."
 

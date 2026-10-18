@@ -10,6 +10,7 @@ export const IconName = {
 	ARROW_UP_RIGHT_FROM_SQUARE: 'arrow-up-right-from-square',
 	LANGUAGE: 'language',
 	SHIELD_HALVED: 'shield-halved',
+	FILE_IMPORT: 'file-import',
 	USER_LOCK: 'user-lock',
 	CALENDAR: 'calendar',
 	SLIDERS: 'sliders',

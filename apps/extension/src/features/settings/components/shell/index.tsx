@@ -14,6 +14,7 @@ import { ScheduleScreen } from '../schedule-screen';
 import { Preferences } from '../preferences-screen';
 import { Websites } from '../../../protected-sites/components/screen';
 import { About } from '../about-screen';
+import { BackupReset } from '../backup-reset-screen';
 import { Privacy } from '../privacy-screen';
 import { Page } from '../page';
 import type {
@@ -37,7 +38,7 @@ const Statistics = lazy( loadStatisticsScreen );
 /**
  * Creates navigation items from canonical destinations, localized labels, and shared icons.
  * @param copy - Current Settings navigation messages.
- * @return Eight destinations in their approved navigation order.
+ * @return Nine destinations in their approved navigation order.
  * @since 1.0.0
  */
 function getNavigationItems( copy: Readonly<SettingsShellCopy> ): readonly SettingsNavigationItem[] {
@@ -48,6 +49,7 @@ function getNavigationItems( copy: Readonly<SettingsShellCopy> ): readonly Setti
 		{ id: SettingsDestination.APPEARANCE, name: copy.appearance, icon: IconName.BRUSH },
 		{ id: SettingsDestination.LANGUAGE, name: copy.language, icon: IconName.LANGUAGE },
 		{ id: SettingsDestination.STATISTICS, name: copy.statistics, icon: IconName.CHART_COLUMN },
+		{ id: SettingsDestination.BACKUP_RESET, name: copy.backupReset, icon: IconName.FILE_IMPORT },
 		{ id: SettingsDestination.PRIVACY, name: copy.privacy, icon: IconName.SHIELD_HALVED },
 		{ id: SettingsDestination.ABOUT, name: copy.about, icon: IconName.HEART },
 	];
@@ -76,6 +78,8 @@ function SettingsDestinationContent( properties: SettingsDestinationProperties )
 			</Page> }>
 				<Statistics shell={ shell } />
 			</Suspense>;
+		case SettingsDestination.BACKUP_RESET:
+			return <BackupReset shell={ shell } register={ register } />;
 		case SettingsDestination.PRIVACY:
 			return <Privacy shell={ shell } />;
 		case SettingsDestination.ABOUT:
@@ -130,7 +134,7 @@ export function SettingsShell( properties: SettingsShellProperties ) {
 							{ items.map( ( item ) => <Fragment key={ item.id }>
 								{ ( item.id === SettingsDestination.APPEARANCE ||
 								item.id === SettingsDestination.STATISTICS ||
-								item.id === SettingsDestination.PRIVACY ) && <hr className="settings-navigation-divider" /> }
+								item.id === SettingsDestination.BACKUP_RESET ) && <hr className="settings-navigation-divider" /> }
 								<NavLink
 									component="a"
 									href={ `#${ item.id }` }

@@ -62,6 +62,16 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 	let deliveryStatus: StoredProtectionStatisticsDeliveryStatusValue | null = null;
 
 	/**
+	 * Reads committed history without changing delivery, focus, or allowance state.
+	 * @return Detached history or unavailable persistence.
+	 * @since 1.1.0
+	 */
+	async function readBackupDocument(): Promise<StatisticsDocument | null> {
+		const document = await options.storage.load();
+		return document === null ? null : structuredClone( document );
+	}
+
+	/**
 	 * Reads the current browser-session continuity identifier from protection state.
 	 * @return Current continuity identifier, or null before protection initializes.
 	 * @since 1.0.0 Initial implementation.
@@ -410,6 +420,7 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 	}
 
 	return {
+		readBackupDocument,
 		forgetForDataReset,
 		beginFocusObservation,
 		checkpoint,

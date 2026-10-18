@@ -215,7 +215,7 @@ msgstr "Adding..."
 msgid "All day"
 msgstr "All day"
 
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "All recorded counts and time totals will be deleted. This can't be undone."
 msgstr "All recorded counts and time totals will be deleted. This can't be undone."
 
@@ -227,7 +227,7 @@ msgstr "All the time"
 msgid "All time"
 msgstr "All time"
 
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "All TOCus data reset."
 msgstr "All TOCus data reset."
 
@@ -271,6 +271,27 @@ msgstr "Approximately {duration}"
 msgid "Automatic name"
 msgstr "Automatic name"
 
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Back up and restore"
+msgstr "Back up and restore"
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Backup and reset"
+msgstr "Backup and reset"
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Backup download started."
+msgstr "Backup download started."
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Backup preview"
+msgstr "Backup preview"
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Backups include configured website addresses and historical counts and durations. TOCus doesn't collect browsing history or page contents."
+msgstr "Backups include configured website addresses and historical counts and durations. TOCus doesn't collect browsing history or page contents."
+
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Blue"
@@ -305,6 +326,10 @@ msgstr "Browser access couldn't be confirmed. Try again."
 msgid "Browser access couldn't be requested. Nothing was saved."
 msgstr "Browser access couldn't be requested. Nothing was saved."
 
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Browser access couldn't be requested. Your settings and statistics weren't replaced. Try again."
+msgstr "Browser access couldn't be requested. Your settings and statistics weren't replaced. Try again."
+
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 msgid "Browser access is needed to add a pause here."
 msgstr "Browser access is needed to add a pause here."
@@ -322,7 +347,7 @@ msgstr "Browser access needed"
 msgid "Browser access to show the pause on this website is required. Nothing was saved."
 msgstr "Browser access to show the pause on this website is required. Nothing was saved."
 
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -382,7 +407,7 @@ msgstr "Clear all"
 msgid "Clear all schedule rows?"
 msgstr "Clear all schedule rows?"
 
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Clear your recorded counts and time totals. Your websites and settings stay the same."
 msgstr "Clear your recorded counts and time totals. Your websites and settings stay the same."
 
@@ -420,6 +445,10 @@ msgstr "Current week"
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Dark"
 msgstr "Dark"
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Data format version"
+msgstr "Data format version"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Date"
@@ -513,6 +542,22 @@ msgstr "Estimated time reclaimed"
 msgid "example.com"
 msgstr "example.com"
 
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Excludes subdomains"
+msgstr "Excludes subdomains"
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Export backup"
+msgstr "Export backup"
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Exported on"
+msgstr "Exported on"
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Exporting backup..."
+msgstr "Exporting backup..."
+
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Finish setup"
 msgstr "Finish setup"
@@ -537,6 +582,10 @@ msgstr "Français"
 msgid "Friday"
 msgstr "Friday"
 
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Global schedule"
+msgstr "Global schedule"
+
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Global timing"
 msgstr "Global timing"
@@ -553,6 +602,22 @@ msgstr "If TOCus doesn't have access to a website, it can't pause that site. You
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "If you pause while on a website, the address might be saved for a short time so you can go back to it."
 msgstr "If you pause while on a website, the address might be saved for a short time so you can go back to it."
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Import backup"
+msgstr "Import backup"
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Importing backup..."
+msgstr "Importing backup..."
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Importing replaces your current websites, schedules, timing, preferences, and statistics. The two sets of data will not be combined. Current temporary pauses and browsing sessions will end."
+msgstr "Importing replaces your current websites, schedules, timing, preferences, and statistics. The two sets of data will not be combined. Current temporary pauses and browsing sessions will end."
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Includes subdomains"
+msgstr "Includes subdomains"
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Initial wait"
@@ -633,9 +698,13 @@ msgstr "Loading websites..."
 msgid "Local data"
 msgstr "Local data"
 
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Local data controls are unavailable right now."
 msgstr "Local data controls are unavailable right now."
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Local data recovery is still pending. Try again to complete it before exporting or importing."
+msgstr "Local data recovery is still pending. Try again to complete it before exporting or importing."
 
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "Made for a very interesting internet"
@@ -790,8 +859,8 @@ msgstr "Português (Portugal)"
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
-msgid "Privacy and local data"
-msgstr "Privacy and local data"
+msgid "Privacy"
+msgstr "Privacy"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
@@ -802,6 +871,10 @@ msgstr "Purple"
 msgid "Reconsidered visits"
 msgstr "Reconsidered visits"
 
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Recorded date range"
+msgstr "Recorded date range"
+
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Remove"
@@ -811,7 +884,7 @@ msgstr "Remove"
 msgid "Remove {name}?"
 msgstr "Remove {name}?"
 
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Remove all TOCus data and set it up again."
 msgstr "Remove all TOCus data and set it up again."
 
@@ -828,15 +901,23 @@ msgstr "Remove time window {position}"
 msgid "Remove window"
 msgstr "Remove window"
 
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Replace settings and statistics"
+msgstr "Replace settings and statistics"
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Replace your settings and statistics?"
+msgstr "Replace your settings and statistics?"
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Reset all TOCus data"
 msgstr "Reset all TOCus data"
 
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Reset all TOCus data?"
 msgstr "Reset all TOCus data?"
 
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Reset statistics"
 msgstr "Reset statistics"
@@ -845,11 +926,11 @@ msgstr "Reset statistics"
 msgid "Reset statistics?"
 msgstr "Reset statistics?"
 
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Reset your statistics?"
 msgstr "Reset your statistics?"
 
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Resetting..."
 msgstr "Resetting..."
@@ -919,6 +1000,14 @@ msgstr "Selected websites removed. Save to apply."
 msgid "Settings"
 msgstr "Settings"
 
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Settings and statistics replaced."
+msgstr "Settings and statistics replaced."
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Settings and statistics replaced. Some websites still need browser access before TOCus can pause them."
+msgstr "Settings and statistics replaced. Some websites still need browser access before TOCus can pause them."
+
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Setup progress"
 msgstr "Setup progress"
@@ -968,6 +1057,10 @@ msgstr "Something went wrong while adding that site. Try again."
 msgid "Source code"
 msgstr "Source code"
 
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Source extension version"
+msgstr "Source extension version"
+
 #. Label printed inside the keyboard-key visual for the space bar.
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Space"
@@ -982,7 +1075,7 @@ msgstr "Start"
 msgid "Start and end time must be different."
 msgstr "Start and end time must be different."
 
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Start fresh"
 msgstr "Start fresh"
 
@@ -1000,7 +1093,7 @@ msgstr "Statistics are unavailable"
 msgid "Statistics couldn't be reset"
 msgstr "Statistics couldn't be reset"
 
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Statistics reset. Your websites and settings are unchanged."
 msgstr "Statistics reset. Your websites and settings are unchanged."
 
@@ -1085,9 +1178,29 @@ msgstr "These timing choices aren't valid. Review them before saving."
 msgid "These websites will be removed when you save your changes."
 msgstr "These websites will be removed when you save your changes."
 
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "This backup contains invalid or incomplete data. Your settings and statistics weren't replaced."
+msgstr "This backup contains invalid or incomplete data. Your settings and statistics weren't replaced."
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "This backup exceeds the 10 MiB file limit. Choose a smaller file."
+msgstr "This backup exceeds the 10 MiB file limit. Choose a smaller file."
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "This backup's data format isn't supported. Your settings and statistics weren't replaced."
+msgstr "This backup's data format isn't supported. Your settings and statistics weren't replaced."
+
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "This clears the rows you're editing. Your saved schedule stays unchanged until you save."
 msgstr "This clears the rows you're editing. Your saved schedule stays unchanged until you save."
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "This file isn't a TOCus backup."
+msgstr "This file isn't a TOCus backup."
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "This file isn't valid JSON. Choose a TOCus backup."
+msgstr "This file isn't valid JSON. Choose a TOCus backup."
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "This includes your website list, pause times, schedules, preferences, and statistics."
@@ -1218,11 +1331,19 @@ msgstr "TOCus couldn't confirm the reset. No totals are shown until your local s
 msgid "TOCus couldn't create separate timing for this site."
 msgstr "TOCus couldn't create separate timing for this site."
 
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "TOCus couldn't export the backup. Your saved data is unchanged."
+msgstr "TOCus couldn't export the backup. Your saved data is unchanged."
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "TOCus couldn't finish importing. Try again to complete the replacement."
+msgstr "TOCus couldn't finish importing. Try again to complete the replacement."
+
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "TOCus couldn't finish opening"
 msgstr "TOCus couldn't finish opening"
 
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "TOCus couldn't finish the reset. Try again to complete it."
 msgstr "TOCus couldn't finish the reset. Try again to complete it."
 
@@ -1242,9 +1363,17 @@ msgstr "TOCus couldn't load local timing settings. Nothing was changed."
 msgid "TOCus couldn't load your local language setting. Nothing was changed."
 msgstr "TOCus couldn't load your local language setting. Nothing was changed."
 
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "TOCus couldn't read this file. Choose it again."
+msgstr "TOCus couldn't read this file. Choose it again."
+
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "TOCus couldn't read your local statistics. No estimates or totals are shown."
 msgstr "TOCus couldn't read your local statistics. No estimates or totals are shown."
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "TOCus couldn't restart protection. Try again to restore it."
+msgstr "TOCus couldn't restart protection. Try again to restore it."
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "TOCus couldn't restore this pause."
@@ -1258,6 +1387,10 @@ msgstr "TOCus couldn't restore your personalization defaults. Nothing was change
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "TOCus couldn't save that site. Try again."
 msgstr "TOCus couldn't save that site. Try again."
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "TOCus couldn't start the replacement. Your saved settings and statistics are unchanged. Try again."
+msgstr "TOCus couldn't start the replacement. Your saved settings and statistics are unchanged. Try again."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "TOCus found local settings it couldn't read. They weren't replaced."
@@ -1309,6 +1442,10 @@ msgstr "TOCus settings"
 msgid "TOCus still couldn't restore this pause."
 msgstr "TOCus still couldn't restore this pause."
 
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "TOCus will ask for browser access. If you deny access, the website rules will still be imported, but websites without access will remain unprotected. You can allow access later."
+msgstr "TOCus will ask for browser access. If you deny access, the website rules will still be imported, but websites without access will remain unprotected. You can allow access later."
+
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "TOCus works directly in your browser and never connects to outside servers. There are no accounts, tracking, or cloud links. After you install it, it can even run on a private network without internet access."
 msgstr "TOCus works directly in your browser and never connects to outside servers. There are no accounts, tracking, or cloud links. After you install it, it can even run on a private network without internet access."
@@ -1326,11 +1463,11 @@ msgid "TOCus: {title}"
 msgstr "TOCus: {title}"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
@@ -1379,6 +1516,10 @@ msgstr "Use browser language"
 msgid "Use custom schedule"
 msgstr "Use custom schedule"
 
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Uses the global schedule"
+msgstr "Uses the global schedule"
+
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "Version {version}"
 msgstr "Version {version}"
@@ -1423,6 +1564,10 @@ msgstr "We couldn't save your choice. Please try again."
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Website address"
 msgstr "Website address"
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Website count"
+msgstr "Website count"
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
@@ -1494,6 +1639,10 @@ msgstr "You're all set"
 msgid "Your appearance couldn't be saved. Your choice is still shown here."
 msgstr "Your appearance couldn't be saved. Your choice is still shown here."
 
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Your backup contains configured website addresses, settings, and statistics. TOCus creates it entirely on your device. Keep it somewhere you trust."
+msgstr "Your backup contains configured website addresses, settings, and statistics. TOCus creates it entirely on your device. Keep it somewhere you trust."
+
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Your browser couldn't request access for that site. Try again."
 msgstr "Your browser couldn't request access for that site. Try again."
@@ -1526,6 +1675,10 @@ msgstr "Your data stays with you"
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Your language couldn't be saved. Your choice is still shown here."
 msgstr "Your language couldn't be saved. Your choice is still shown here."
+
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Your local data changed. Reload settings before importing this backup."
+msgstr "Your local data changed. Reload settings before importing this backup."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 msgid "Your local personalization data isn't valid. Restoring defaults will reset appearance, pause, and language preferences."
@@ -1563,6 +1716,10 @@ msgstr "Your pause has started."
 msgid "Your pause is paused."
 msgstr "Your pause is paused."
 
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+msgid "Your saved data isn't valid or uses an unsupported format. TOCus couldn't create a backup."
+msgstr "Your saved data isn't valid or uses an unsupported format. TOCus couldn't create a backup."
+
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Your statistics stay on this device."
 msgstr "Your statistics stay on this device."
@@ -1599,7 +1756,7 @@ msgstr "Your website list needs attention"
 msgid "Your websites and settings are unchanged. Try again."
 msgstr "Your websites and settings are unchanged. Try again."
 
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Your websites, schedules, pause times, preferences, active pauses, and statistics will be erased. The setup will begin again. This can't be reversed."
 msgstr "Your websites, schedules, pause times, preferences, active pauses, and statistics will be erased. The setup will begin again. This can't be reversed."
 

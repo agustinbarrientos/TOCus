@@ -13,6 +13,6 @@ Extension and website comparisons use `threshold: 0.01`; regional comparisons us
 
 Use `--project chromium-originals`, `chromium-onboarding`, `chromium-website`, or `snapshot-comparison` for focused runs. The comparison algorithm's frozen fixture images are not UI baselines.
 
-Baseline replacements require explicit design approval and review of expected, actual, and diff images. `pnpm test:visual:update` updates website references only; component helpers reject update flags. Approved component replacements must update inventory hashes. Run normal comparisons again after updates.
+The maintainer has given standing approval to update affected baselines for intended, reviewed visual changes without asking again. Review expected, actual, and diff images before replacing each reference. Investigate unexpected differences and resolve their cause; a failed comparison alone is not approval to accept a regression. Never hide differences or change thresholds to make a comparison pass. Preserve capture geometry, inputs, fonts, timing, and comparison settings when updating references. `pnpm test:visual:update` updates website references only; component helpers reject update flags. Component replacements must update inventory hashes. Run normal comparisons again after updates.
 
 Diagnostics: `test-results/visual/` and `playwright-report/visual/`. CI retains the `visual-failure-diagnostics` artifact for seven days.

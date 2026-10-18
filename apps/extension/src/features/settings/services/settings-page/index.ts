@@ -1,3 +1,5 @@
+import { createBackupDataActions } from '../backup-data-actions';
+import { createSettingsDataBoundary } from '../settings-data-boundary';
 import { createBrowserPreferencesEditor } from '../../../../domains/preferences/services/browser-preferences-editor';
 import type { Language } from '../../../../domains/preferences/types';
 import { createBrowserProtectionConfigurationEditor } from '../../../../domains/protection/services/browser-protection-configuration-editor';
@@ -9,7 +11,7 @@ import {
 import { createSiteFaviconProvider } from '../../../protected-sites/services/site-favicon-provider';
 import { createSitePermissionManager } from '../../../protected-sites/services/site-permission-manager';
 import { createStatisticsClient } from '../../../statistics/services/statistics-client';
-import { createPrivacyDataActions } from '../privacy-data-actions';
+import { createLocalDataActions } from '../privacy-data-actions';
 import type {
 	SettingsPageOptions,
 	SettingsPermissionChange,
@@ -39,12 +41,29 @@ export async function startSettingsPage( options: SettingsPageOptions ): Promise
 	let preferencesController: PreferencesController | null = null;
 
 	try {
+		/**
+		 * Recreates mutation guards after a completed data replacement.
+		 * @return Completion of editor rebinding.
+		 * @since 1.1.0
+		 */
+		function rebindEditors(): Promise<void> {
+			options.shell.editor = createBrowserProtectionConfigurationEditor( {
+				area: boundary.area, cryptography: options.cryptography, locks: options.locks,
+			} ).editor;
+			options.shell.preferencesEditor = createBrowserPreferencesEditor( {
+				area: boundary.area, locks: options.locks,
+			} ).editor;
+			return Promise.resolve();
+		}
+		const boundary = createSettingsDataBoundary( {
+			area: options.storageArea, changes: options.storageChanges, onReplaced: rebindEditors,
+		} );
 		const preferences = createBrowserPreferencesEditor( {
-			area: options.storageArea,
+			area: boundary.area,
 			locks: options.locks,
 		} );
 		const protection = createBrowserProtectionConfigurationEditor( {
-			area: options.storageArea,
+			area: boundary.area,
 			cryptography: options.cryptography,
 			locks: options.locks,
 		} );
@@ -52,7 +71,7 @@ export async function startSettingsPage( options: SettingsPageOptions ): Promise
 			appearanceTarget: options.document.documentElement,
 			browserLanguage: options.browserLanguage,
 			storage: preferences.storage,
-			storageChanges: options.storageChanges,
+			storageChanges: boundary.changes,
 			systemMotionPreference: options.pageWindow.matchMedia( '(prefers-reduced-motion: reduce)' ),
 		} );
 		const permissionManager = createSitePermissionManager( { permissions: options.permissions } );
@@ -71,10 +90,20 @@ export async function startSettingsPage( options: SettingsPageOptions ): Promise
 		options.shell.browserLanguage = options.browserLanguage;
 		options.shell.statisticsSource = createStatisticsClient( {
 			runtime: options.runtime,
-			storageChanges: options.storageChanges,
+			storageChanges: boundary.changes,
 		} );
 		options.shell.platform = options.platform;
-		options.shell.privacyActions = createPrivacyDataActions( { runtime: options.runtime } );
+		options.shell.backupActions = createBackupDataActions( {
+			runtime: options.runtime, permissions: permissionManager,
+			/**
+			 * Allocates one user-confirmed replacement identity.
+			 * @return Collision-resistant local operation identity.
+			 * @since 1.1.0
+			 */
+			createId: () => options.cryptography.randomUUID(),
+			onImported: rebindEditors,
+		} );
+		options.shell.privacyActions = createLocalDataActions( { runtime: options.runtime } );
 		options.shell.supportsCachedFavicons = options.supportsCachedFavicons;
 		options.shell.aboutVersion = options.version;
 
@@ -114,6 +143,7 @@ export async function startSettingsPage( options: SettingsPageOptions ): Promise
 			options.shell.copy = localization.settingsShell;
 			options.shell.aboutCopy = localization.aboutCopy;
 			options.shell.privacyCopy = localization.privacyCopy;
+			options.shell.backupResetCopy = localization.backupResetCopy;
 			options.shell.appearanceCopy = localization.appearance;
 			options.shell.languageCopy = localization.languageScreen;
 			options.shell.protectedSitesCopy = localization.protectedSites;

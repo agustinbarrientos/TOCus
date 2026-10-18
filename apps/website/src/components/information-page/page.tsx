@@ -31,6 +31,7 @@ function PrivacyContent( { catalog }: PrivacyContentProperties ) {
 				<p>{ catalog.statistics }</p>
 				<p>{ catalog.offline }</p>
 				<p>{ catalog.temporaryAddress }</p>
+				<p>{ catalog.backup }</p>
 				<p>{ catalog.verify }{' '}<ExternalLink href={ WebsiteLink.SOURCE }>{ catalog.source }</ExternalLink></p>
 			</section>
 			<section id="permissions" aria-labelledby="permissions-title">

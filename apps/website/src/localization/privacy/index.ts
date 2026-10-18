@@ -21,6 +21,7 @@ export function createPrivacyCatalog( i18n: I18n ): Readonly<PrivacyCatalog> {
 		statistics: i18n._( msg( { message: "The statistics only keep track of counts and durations. They don't save any page content or web addresses." } ) ),
 		offline: i18n._( msg( { message: "TOCus works entirely offline and doesn't track your data on your device." } ) ),
 		temporaryAddress: i18n._( msg( { message: 'If you pause while on a website, the address might be saved for a short time so you can go back to it.' } ) ),
+		backup: i18n._( msg( { message: 'Your backup contains configured website addresses, settings, and statistics. TOCus creates it entirely on your device. Keep it somewhere you trust.' } ) ),
 		verify: i18n._( msg( { message: "You don't have to just take my word for it." } ) ),
 		source: i18n._( msg( { message: 'The source code is available on GitHub if you want to check for yourself.' } ) ),
 		permissionsTitle: i18n._( msg( { message: 'Why TOCus needs browser access' } ) ),

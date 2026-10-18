@@ -12,7 +12,8 @@ describe( 'createSettingsShellCopy', () => {
 		expect( copy.navigationLabel ).toBe( 'Settings' );
 		expect( copy.protectedSites ).toBe( 'Websites' );
 		expect( copy.timing ).toBe( 'Pause timing' );
-		expect( copy.privacy ).toBe( 'Privacy and local data' );
+		expect( copy.privacy ).toBe( 'Privacy' );
+		expect( copy.backupReset ).toBe( 'Backup and reset' );
 		expect( copy.about ).toBe( 'About' );
 		expect( copy.unsavedChangesTitle ).toBe( 'Save your changes?' );
 		expect( copy.stay ).toBe( 'Stay' );
@@ -23,6 +24,7 @@ describe( 'createSettingsShellCopy', () => {
 		const messages = await loadLocalizationMessages( language );
 		const copy = createSettingsShellCopy( setupI18n( { locale: language, messages: { [ language ]: messages } } ) );
 		const sourceMessages = {
+			backupReset: 'Backup and reset',
 			dismissNotification: 'Dismiss notification',
 			changesSaved: 'Changes saved.',
 			changesDiscarded: 'Changes discarded.',

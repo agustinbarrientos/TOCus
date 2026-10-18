@@ -1,4 +1,6 @@
 import { createPreferencesStorageService } from '../../../../domains/preferences/services';
+import { createLocalDataBackup } from '../../../../domains/local-data/services/local-data-backup';
+import { createLocalDataBackupController } from '../../../settings/services/local-data-backup-controller';
 import { createLocalDataReset } from '../../../../domains/local-data/services/local-data-reset';
 import { createBrowserProtectionConfigurationEditor } from '../../../../domains/protection/services/browser-protection-configuration-editor';
 import { resolveLanguage } from '../../../../domains/preferences/utils';
@@ -261,6 +263,8 @@ export function startProtectionBackgroundApplication(
 		return runtime.suspendForDataReset();
 	}
 
+	let initialRecovery = true;
+
 	/**
 	 * Restarts runtime authorities before reconciling current browser capabilities.
 	 * @return Completion of clean runtime startup.
@@ -269,6 +273,7 @@ export function startProtectionBackgroundApplication(
 	async function resumeProtection(): Promise<void> {
 		await runtime.resumeAfterDataReset();
 		await protectionController.refresh();
+		initialRecovery = false;
 	}
 
 	/**
@@ -322,6 +327,49 @@ export function startProtectionBackgroundApplication(
 		}
 	}
 
+	const backup = createLocalDataBackup( {
+		localArea: options.browser.storage.local,
+		sessionArea: options.browser.storage.session,
+		locks: navigator.locks,
+		createId: createStableId,
+		/**
+		 * Removes only former rule origins that the replacement no longer needs.
+		 * @param previousRules - Pre-import rules retained by the durable journal.
+		 * @param configuration - Complete replacement under both mutation locks.
+		 * @return Completion without revoking overlapping or unrelated grants.
+		 * @since 1.1.0
+		 */
+		async releaseObsoleteAccess( previousRules, configuration ): Promise<void> {
+			await permissionManager.releaseNewAccess( previousRules, { origins: [], permissions: [] }, configuration );
+		},
+		suspend: suspendProtection,
+		/**
+		 * Leaves the initial restart to the reset-first startup pipeline.
+		 * @return Completion of the ordinary post-import restart.
+		 * @since 1.1.0
+		 */
+		async resume(): Promise<void> {
+			if ( ! initialRecovery ) {
+				await resumeProtection();
+			}
+		},
+		/**
+		 * Reads committed history through the runtime queue without a checkpoint.
+		 * @return Current complete export sources.
+		 * @since 1.1.0
+		 */
+		async snapshot() {
+			const statistics = await runtime.readBackupStatistics();
+			const configuration = await configurationStorage.load();
+			const preferences = await preferencesStorage.load();
+			if ( ! statistics || ! configuration || ! preferences ) {
+				throw new Error( 'Local data is unavailable.' );
+			}
+			return { statistics, configuration, preferences,
+				extensionVersion: options.browser.runtime.getManifest().version,
+				exportedAt: new Date( getCurrentTime() ).toISOString() };
+		},
+	} );
 	const reset = createLocalDataReset( {
 		localArea: options.browser.storage.local,
 		sessionArea: options.browser.storage.session,
@@ -335,11 +383,28 @@ export function startProtectionBackgroundApplication(
 		localArea: options.browser.storage.local,
 		onMessage: options.browser.runtime.onMessage,
 		reset,
+		recoverBackup: backup.recover.bind( backup ),
 		resume: resumeProtection,
 		openOnboarding,
 		closeSettingsTab,
 	} );
 
+	const backupController = createLocalDataBackupController( {
+		optionsPageUrl: options.browser.runtime.getURL( '/options.html' ),
+		localArea: options.browser.storage.local,
+		onMessage: options.browser.runtime.onMessage,
+		backup,
+		/**
+		 * Retries failed startup before accepting a validated backup operation.
+		 * @return Whether protection and local data are ready.
+		 * @since 1.1.0
+		 */
+		async ready(): Promise<boolean> {
+			return ( await resetController.waitUntilReady() || await resetController.retryRecovery() ) &&
+				await backup.recover();
+		},
+	} );
+	backupController.start();
 	protectionController.start();
 	popupController.start();
 	toolbarLanguageController.start( refreshToolbarBadge );

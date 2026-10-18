@@ -166,6 +166,7 @@ function createRuntime(): RuntimeHarness {
 		status: StatisticsProjectionStatus.UNAVAILABLE,
 	} );
 	const runtime: BrowserProtectionRuntime = {
+		readBackupStatistics: vi.fn().mockResolvedValue( null ),
 		captureStatisticsObservation,
 		start,
 		handleNavigation,

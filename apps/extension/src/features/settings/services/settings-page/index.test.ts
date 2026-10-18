@@ -7,6 +7,7 @@ import {
 } from '../../../../domains/preferences/types';
 import { PreferencesStorageKey } from '../../../../domains/preferences/services/preferences-storage';
 import { SettingsPlatform } from '../../components/shell/types';
+import type { PrivacyDataRuntime } from '../privacy-data-actions/types';
 import { startSettingsPage } from './index';
 import type {
 	SettingsPageOptions,
@@ -100,6 +101,9 @@ class MemorySettingsPermissions {
  * @since 1.0.0 Initial implementation.
  */
 class MemorySettingsStorageChanges {
+	/** Real values backing synthetic browser storage events. */
+	readonly values: Record<string, unknown> = {};
+
 	/** Active local storage listeners. */
 	private readonly listeners = new Set<(
 		changes: Readonly<Record<string, { readonly newValue?: unknown }>>,
@@ -149,6 +153,7 @@ class MemorySettingsStorageChanges {
 	 * @since 1.0.0 Initial implementation.
 	 */
 	emitLanguage( language: Language ): void {
+		this.values[ PreferencesStorageKey.PREFERENCES ] = { ...DefaultPreferencesDocument, language };
 		for ( const listener of this.listeners ) {
 			listener( {
 				[ PreferencesStorageKey.PREFERENCES ]: {
@@ -230,6 +235,8 @@ class MemorySettingsShell implements SettingsPageShell {
 
 	privacyCopy = TestEnglishLocalizationBundle.privacyCopy;
 
+	backupResetCopy = TestEnglishLocalizationBundle.backupResetCopy;
+
 	protectedSiteItemCopy = TestEnglishLocalizationBundle.protectedSiteItem;
 
 	protectedSitesCopy = TestEnglishLocalizationBundle.protectedSites;
@@ -257,6 +264,8 @@ class MemorySettingsShell implements SettingsPageShell {
  * @since 1.0.0 Initial implementation.
  */
 function createOptions( overrides: Partial<SettingsPageOptions> = {} ): SettingsPageOptions {
+	const storageChanges = overrides.storageChanges ?? new MemorySettingsStorageChanges();
+	const values = storageChanges instanceof MemorySettingsStorageChanges ? storageChanges.values : {};
 	return {
 		browserLanguage: Language.ENGLISH,
 		cryptography: { randomUUID: vi.fn().mockReturnValue( 'fixture-id' ) },
@@ -278,10 +287,12 @@ function createOptions( overrides: Partial<SettingsPageOptions> = {} ): Settings
 		runtime: { sendMessage: vi.fn() },
 		shell: new MemorySettingsShell(),
 		storageArea: {
-			get: vi.fn().mockResolvedValue( {} ),
-			set: vi.fn().mockResolvedValue( undefined ),
+			get: vi.fn( ( key: string ) => Promise.resolve( { [ key ]: values[ key ] } ) ),
+			set: vi.fn( ( update: Record<string, unknown> ) => {
+				Object.assign( values, update ); return Promise.resolve();
+			} ),
 		},
-		storageChanges: new MemorySettingsStorageChanges(),
+		storageChanges,
 		supportsCachedFavicons: true,
 		version: '2.3.4',
 		...overrides,
@@ -289,6 +300,26 @@ function createOptions( overrides: Partial<SettingsPageOptions> = {} ): Settings
 }
 
 describe( 'startSettingsPage', () => {
+	it( 'recreates generation-bound editors after a completed import and preserves later saves', async () => {
+		const { createBackupFixture } = await import( '../../../../domains/local-data/services/local-data-backup/__fixtures__' );
+		const fixture = createBackupFixture();
+		const options = createOptions( { storageArea: fixture.area,
+			runtime: { sendMessage: vi.fn<PrivacyDataRuntime['sendMessage']>( ( request ) => request.type === 'read-local-backup-state'
+				? Promise.resolve( { status: 'ready', generation: null } ) : fixture.backup.import( request ) ) } } );
+		await startSettingsPage( options );
+		const previous = options.shell.preferencesEditor;
+		const preview = await options.shell.backupActions?.preview( fixture.request.backup );
+		if ( ! preview ) {
+			throw new Error( 'Missing backup preview.' );
+		}
+		await expect( options.shell.backupActions?.confirmImport( preview ) ).resolves.toMatchObject( { status: 'completed' } );
+		expect( options.shell.preferencesEditor ).not.toBe( previous );
+		await expect( previous?.update( { palette: Palette.PINK } ) ).rejects.toThrow();
+		await expect( options.shell.preferencesEditor?.update( { palette: Palette.PINK } ) ).resolves.toMatchObject( {
+			palette: Palette.PINK,
+		} );
+	} );
+
 	it( 'wires every settings dependency before revealing localized preferences', async () => {
 		const shell = new MemorySettingsShell();
 		const removeProperty = vi.fn();
@@ -371,6 +402,7 @@ describe( 'startSettingsPage', () => {
 		expect( shell.copy ).toBe( TestEnglishLocalizationBundle.settingsShell );
 		expect( shell.aboutCopy ).toBe( localizedBundle.aboutCopy );
 		expect( shell.privacyCopy ).toBe( localizedBundle.privacyCopy );
+		expect( shell.backupResetCopy ).toBe( localizedBundle.backupResetCopy );
 	} );
 
 	it( 'sends confirmed privacy resets through the supplied runtime only', async () => {

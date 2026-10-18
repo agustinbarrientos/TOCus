@@ -1,164 +1,38 @@
-import {
-	useState,
-} from 'react';
-import {
-	Anchor,
-	Button,
-	Icon,
-	IconName,
-} from '@tocus/ui';
-import {
-	Confirmation,
-} from '../confirmation';
-import {
-	Feedback,
-} from '../feedback';
-import {
-	Page,
-} from '../page';
-import { PrivacyResetAction,
-	type ResetSectionProps,
-} from './types';
-import type {
-	SettingsScreenProps,
-} from '../page/types';
+import { Anchor, Icon, IconName } from '@tocus/ui';
+import { Page } from '../page';
+import type { SettingsScreenProps } from '../page/types';
 import './style.scss';
 
-
 /**
- * Groups one reset explanation with the action that requests confirmation.
- * @param props - Localized description, availability and confirmation trigger.
- * @return Consistent full-width reset section.
- * @since 1.0.0
- */
-function ResetSection( props: ResetSectionProps ) {
-	return (
-		<section className="tocus-section settings-privacy-reset">
-			<h2>{ props.title }</h2>
-			<p>{ props.description }</p>
-			<Button color="red" disabled={ props.disabled } onClick={ props.onRequest }>{ props.label }</Button>
-			{ props.children }
-		</section>
-	);
-}
-
-
-/**
- * Explains local data and runs only explicitly confirmed reset operations.
- * @param props - Canonical privacy content and background-owned reset actions.
- * @return Read-only privacy disclosures and confirmed data controls.
+ * Explains local storage, tracking boundaries and browser access without data-management actions.
+ * @param props - Canonical privacy content and browser capabilities.
+ * @return Read-only privacy disclosures and browser-permission explanations.
  * @since 1.0.0
  */
 export function Privacy( props: SettingsScreenProps ) {
-	const { privacyCopy: copy, privacyActions: actions, supportsCachedFavicons } = props.shell;
-	const [ confirmation, setConfirmation ] = useState<PrivacyResetAction | null>( null );
-	const [ pending, setPending ] = useState( false );
-	const [ failed, setFailed ] = useState( false );
-	const [ completed, setCompleted ] = useState<PrivacyResetAction | null>( null );
-	const statistics = confirmation === PrivacyResetAction.STATISTICS;
+	const { privacyCopy: copy, supportsCachedFavicons } = props.shell;
 	const permissions = [ copy.websitePermission, copy.toolbarPermission, copy.navigationPermission,
 		copy.localToolsPermission, ...( supportsCachedFavicons ? [ copy.faviconPermission ] : [] ) ];
-
-	/**
-	 * Opens confirmation and clears feedback from the previous operation.
-	 * @param operation - Data reset selected by the user.
-	 */
-	function requestReset( operation: PrivacyResetAction ): void {
-		setConfirmation( operation );
-		setFailed( false );
-		setCompleted( null );
-	}
-
-	/** Closes confirmation without changing local data. */
-	function cancelReset(): void {
-		setConfirmation( null );
-		setFailed( false );
-	}
-
-	/**
-	 * Retains failed confirmation for an explicit retry and announces success.
-	 * @return Completion of the authoritative background operation.
-	 */
-	async function confirmReset(): Promise<void> {
-		if ( pending || confirmation === null || actions === null ) {
-			return;
-		}
-		const operation = confirmation;
-		setPending( true );
-		setFailed( false );
-		try {
-			const success = operation === PrivacyResetAction.STATISTICS
-				? await actions.resetStatistics() : await actions.resetAllData();
-			if ( success ) {
-				setConfirmation( null );
-				setCompleted( operation );
-			} else {
-				setFailed( true );
-			}
-		} catch {
-			setFailed( true );
-		} finally {
-			setPending( false );
-		}
-	}
-
-	const confirmationLabel = pending ? copy.resetting : failed ? copy.retry
-		: statistics ? copy.resetStatistics : copy.resetAll;
-	const successMessage = completed === PrivacyResetAction.STATISTICS ? copy.statisticsSuccess
-		: completed === PrivacyResetAction.ALL ? copy.allSuccess : null;
-
-	/**
-	 * Keeps each confirmation mounted in its owning section so the library can return focus safely.
-	 * @param operation - Reset action whose inline confirmation is being presented.
-	 * @return Contextual confirmation with the existing guarded operation callbacks.
-	 */
-	function renderConfirmation( operation: PrivacyResetAction ) {
-		const resetStatistics = operation === PrivacyResetAction.STATISTICS;
-		return <Confirmation inline opened={ confirmation === operation } focusConfirm={ failed }
-			title={ resetStatistics ? copy.statisticsConfirmationTitle : copy.allConfirmationTitle }
-			description={ resetStatistics ? copy.statisticsConfirmation : copy.allConfirmation }
-			cancel={ copy.cancel } confirm={ confirmationLabel } pending={ pending }
-			onCancel={ cancelReset } onConfirm={ () => {
-				void confirmReset();
-			} }>
-			<Feedback error={ failed ? copy.resetError : null } />
-		</Confirmation>;
-	}
-
-	return (
-		<Page title={ copy.title }>
-			<section className="tocus-section">
-				<h2>{ copy.storedTitle }</h2>
-				<p>{ copy.storedSummary }</p>
-				<p>{ copy.storedDescription }</p>
-				<p>{ copy.statisticsPrivacy }</p>
-				<p>{ copy.offlinePrivacy }</p>
-				<p>{ copy.recoveryPrivacy }</p>
-				<p className="settings-privacy-source">
-					{ copy.trustPrivacy }{ ' ' }
-					<Anchor className="tocus-external-link" href="https://github.com/agustinbarrientos/TOCus"
-						target="_blank" rel="noopener noreferrer">
-						{ copy.sourcePrivacy }<Icon name={ IconName.ARROW_UP_RIGHT_FROM_SQUARE } />
-					</Anchor>
-				</p>
-			</section>
-			<section className="tocus-section settings-privacy-permissions">
-				<h2>{ copy.permissionsTitle }</h2>
-				<ul>{ permissions.map( ( permission ) => <li key={ permission }>{ permission }</li> ) }</ul>
-				<p>{ copy.deniedPermission }</p>
-			</section>
-			<ResetSection title={ copy.statisticsTitle } description={ copy.statisticsDescription }
-				label={ copy.resetStatistics } disabled={ pending || actions === null }
-				onRequest={ () => {
-					requestReset( PrivacyResetAction.STATISTICS );
-				} }>{ renderConfirmation( PrivacyResetAction.STATISTICS ) }</ResetSection>
-			<ResetSection title={ copy.allTitle } description={ copy.allDescription }
-				label={ copy.resetAll } disabled={ pending || actions === null }
-				onRequest={ () => {
-					requestReset( PrivacyResetAction.ALL );
-				} }>{ renderConfirmation( PrivacyResetAction.ALL ) }</ResetSection>
-			{ ( actions === null || successMessage ) && <Feedback
-				error={ actions === null ? copy.unavailable : null } success={ successMessage } /> }
-		</Page>
-	);
+	return <Page title={ copy.title }>
+		<section className="tocus-section">
+			<h2>{ copy.storedTitle }</h2>
+			<p>{ copy.storedSummary }</p>
+			<p>{ copy.storedDescription }</p>
+			<p>{ copy.statisticsPrivacy }</p>
+			<p>{ copy.offlinePrivacy }</p>
+			<p>{ copy.recoveryPrivacy }</p>
+			<p className="settings-privacy-source">
+				{ copy.trustPrivacy }{ ' ' }
+				<Anchor className="tocus-external-link" href="https://github.com/agustinbarrientos/TOCus"
+					target="_blank" rel="noopener noreferrer">
+					{ copy.sourcePrivacy }<Icon name={ IconName.ARROW_UP_RIGHT_FROM_SQUARE } />
+				</Anchor>
+			</p>
+		</section>
+		<section className="tocus-section settings-privacy-permissions">
+			<h2>{ copy.permissionsTitle }</h2>
+			<ul>{ permissions.map( ( permission ) => <li key={ permission }>{ permission }</li> ) }</ul>
+			<p>{ copy.deniedPermission }</p>
+		</section>
+	</Page>;
 }

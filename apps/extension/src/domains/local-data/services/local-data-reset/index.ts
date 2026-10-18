@@ -11,6 +11,7 @@ import {
 	type LocalDataGeneration,
 } from '../local-data-generation';
 import type { LocalDataReset, LocalDataResetOptions } from './types';
+import { BackupImportJournalKey, BackupImportReceiptKey } from '../../types/backup-storage-key';
 
 /**
  * Coordinates explicit full deletion with settings writers and recoverable browser cleanup.
@@ -41,6 +42,8 @@ export function createLocalDataReset( options: LocalDataResetOptions ): LocalDat
 			ReviewPromptStorageKey,
 			ProtectionStorageKey.DURABLE,
 			StatisticsStorageKey.STATISTICS,
+			BackupImportJournalKey,
+			BackupImportReceiptKey,
 		] );
 		await options.localArea.set( {
 			[ LocalDataGenerationStorageKey ]: { ...marker, pending: false, needsOnboarding: true },

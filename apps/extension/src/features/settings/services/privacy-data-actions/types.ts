@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { BackupControlRequest, BackupImportRequest } from '../../../../domains/local-data/types/backup-operation';
 import type { StatisticsRuntimeRequest } from '../../../statistics/types/runtime-message';
 
 /**
@@ -26,14 +27,16 @@ export interface PrivacyDataRuntime {
 	 * @return Unknown response awaiting validation.
 	 * @since 1.0.0 Initial implementation.
 	 */
-	sendMessage( request: StatisticsRuntimeRequest | ResetAllDataRequest ): Promise<unknown>;
+	sendMessage(
+		request: StatisticsRuntimeRequest | ResetAllDataRequest | BackupControlRequest | BackupImportRequest,
+	): Promise<unknown>;
 }
 
 /**
  * Local messaging dependency for the privacy action client.
  * @since 1.0.0 Initial implementation.
  */
-export interface PrivacyDataActionsOptions {
+export interface LocalDataActionsOptions {
 	/** Background messaging boundary. */
 	runtime: PrivacyDataRuntime;
 }

@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { createServer as createSecureServer } from 'node:https';
 import { tmpdir } from 'node:os';
@@ -89,7 +89,7 @@ export function protectionState( browser, view = 'selected' ) {
  * @since 1.0.1
  */
 export async function withBrowser( run, options = {} ) {
-	const product = test.info().project.name;
+	const product = options.product ?? test.info().project.name;
 	const hostname = options.hostname ?? '127.0.0.1';
 	const directory = await mkdtemp( join( tmpdir(), `tocus-installed-${ product }-` ) );
 	const requests = new Map();
@@ -149,6 +149,20 @@ export async function withBrowser( run, options = {} ) {
 	const countRequests = ( path ) => requests.get( path ) ?? 0;
 	let browser;
 	let failure;
+	/**
+	 * Returns the actual completed browser download without decoding or rewriting its bytes.
+	 * @return {Promise<string>} Absolute path in this journey's owned download directory.
+	 */
+	async function downloadedBackupPath() {
+		let path;
+		await expect.poll( async () => {
+			const names = await readdir( browser.downloadDirectory );
+			const name = names.find( ( candidate ) => candidate.endsWith( '.json' ) );
+			path = name ? join( browser.downloadDirectory, name ) : undefined;
+			return Boolean( path ) && ! names.some( ( candidate ) => /\.(part|crdownload)$/u.test( candidate ) );
+		} ).toBe( true );
+		return path;
+	}
 	try {
 		if ( options.https ) {
 			server = createSecureServer( await fixtureCertificate( directory, hostname ), handleRequest );
@@ -159,7 +173,26 @@ export async function withBrowser( run, options = {} ) {
 		} );
 		browser = product === 'firefox' ? await launchFirefox( directory, options ) : await launchNativeChromium( directory, product, options );
 		await test.info().attach( 'installed-browser', { body: `${ product }: ${ browser.version }`, contentType: 'text/plain' } );
-		await run( browser, `${ options.https ? 'https' : 'http' }://${ hostname }:${ server.address().port }/`, { requests: countRequests, release } );
+		await run( browser, `${ options.https ? 'https' : 'http' }://${ hostname }:${ server.address().port }/`, { requests: countRequests, release,
+			/**
+			 * Writes an import fixture inside the disposable browser directory.
+			 * @param {object} backup - Portable document to select through the file input.
+			 * @return {Promise<string>} Absolute owned file path.
+			 */
+			async writeBackup( backup ) {
+				const path = join( directory, 'selected-backup.json' );
+				await writeFile( path, JSON.stringify( backup ) );
+				return path;
+			},
+			/**
+			 * Waits for and parses the actual browser download, excluding partial files.
+			 * @return {Promise<object>} Downloaded portable JSON.
+			 */
+			async readBackup() {
+				return JSON.parse( await readFile( await downloadedBackupPath(), 'utf8' ) );
+			},
+			backupPath: downloadedBackupPath,
+		} );
 	} catch ( error ) {
 		failure = error;
 	} finally {

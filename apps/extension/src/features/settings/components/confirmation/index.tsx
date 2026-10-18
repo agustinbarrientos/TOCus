@@ -33,6 +33,13 @@ export function Confirmation( props: ConfirmationProps ) {
 	const restoreTimeout = useRef( 0 );
 	const focusMoved = useRef( false );
 	const [ completedExit, setCompletedExit ] = useState( 0 );
+	const previouslyOpened = useRef( props.opened );
+	useEffect( () => {
+		if ( previouslyOpened.current && ! props.opened && props.inline && props.returnFocusRef ) {
+			setCompletedExit( ( current ) => current + 1 );
+		}
+		previouslyOpened.current = props.opened;
+	}, [ props.opened, props.inline, props.returnFocusRef ] );
 	const returnFocus = useFocusReturn( { opened: props.opened, shouldReturnFocus: props.inline ?? false } );
 	useEffect( () => {
 		focusMoved.current = false;
@@ -91,7 +98,7 @@ export function Confirmation( props: ConfirmationProps ) {
 	}, [ pending, props.error ] );
 	/** Allows cancellation only before the confirmed mutation starts. */
 	function close(): void {
-		if ( ! pending ) {
+		if ( ! pending && ! props.cancelDisabled ) {
 			props.onCancel();
 		}
 	}
@@ -105,7 +112,7 @@ export function Confirmation( props: ConfirmationProps ) {
 		<Feedback error={ props.error ?? null } />
 		<Group className="tocus-form-actions" justify={ props.inline ? undefined : 'flex-end' }>
 			<Button variant="outline" data-autofocus={ ! props.focusConfirm || undefined }
-				disabled={ pending } onClick={ props.onCancel }>
+				disabled={ pending || props.cancelDisabled === true } onClick={ props.onCancel }>
 				{ props.cancel }
 			</Button>
 			<Button ref={ confirmButton } color="red" variant={ props.save ? 'outline' : 'filled' }

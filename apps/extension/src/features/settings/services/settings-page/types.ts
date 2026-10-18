@@ -1,3 +1,4 @@
+import type { BackupDataActions } from '../backup-data-actions';
 import type {
 	BrowserPreferencesMutationLock,
 } from '../../../../domains/preferences/services/browser-preferences-editor';
@@ -26,7 +27,8 @@ import type {
 } from '../../../statistics/services/statistics-client';
 import type { PrivacyDataRuntime } from '../privacy-data-actions/types';
 import type { AboutScreenCopy } from '../../components/about-screen/types';
-import type { PrivacyDataActions, PrivacyScreenCopy } from '../../components/privacy-screen/types';
+import type { PrivacyScreenCopy } from '../../components/privacy-screen/types';
+import type { LocalDataActions, BackupResetScreenCopy } from '../../components/backup-reset-screen/types';
 import type { StatisticsSource } from '../../../statistics/components/settings-screen/types';
 import type {
 	AppearanceScreenCopy,
@@ -109,6 +111,8 @@ export interface ProtectedSitesAccessRefresher {
  * @since 1.0.0 Initial implementation.
  */
 export interface SettingsPageShell extends ProtectedSitesAccessRefresher {
+	/** Explicit local backup operations attached by bootstrap. */
+	backupActions?: BackupDataActions | null;
 	/** Localized About destination copy. */
 	aboutCopy: Readonly<AboutScreenCopy>;
 	/** Installed extension version. */
@@ -136,9 +140,11 @@ export interface SettingsPageShell extends ProtectedSitesAccessRefresher {
 	/** Validated preferences source. */
 	preferencesSource: PreferencesSource | null;
 	/** Explicit background-owned data reset actions. */
-	privacyActions: PrivacyDataActions | null;
+	privacyActions: LocalDataActions | null;
 	/** Localized Privacy destination copy. */
 	privacyCopy: Readonly<PrivacyScreenCopy>;
+	/** Localized backup, restore and reset destination copy. */
+	backupResetCopy: Readonly<BackupResetScreenCopy>;
 	/** Localized protected-site item copy. */
 	protectedSiteItemCopy: Readonly<ProtectedSiteItemCopy>;
 	/** Localized Protected Sites destination copy. */

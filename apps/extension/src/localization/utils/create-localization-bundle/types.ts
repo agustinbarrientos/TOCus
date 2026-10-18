@@ -9,6 +9,7 @@ import type { ProtectedSitesScreenCopy } from '../../../features/protected-sites
 import type { ToolbarBadgeCopy } from '../../../features/protection-runtime/utils/toolbar-badge-projection/types';
 import type { AppearanceScreenCopy } from '../../../features/settings/components/appearance-screen/types';
 import type { AboutScreenCopy } from '../../../features/settings/components/about-screen/types';
+import type { BackupResetScreenCopy } from '../../../features/settings/components/backup-reset-screen/types';
 import type { PrivacyScreenCopy } from '../../../features/settings/components/privacy-screen/types';
 import type { LanguageScreenCopy } from '../../../features/settings/components/language-screen/types';
 import type { ScheduleScreenCopy } from '../../../features/settings/components/schedule-screen/types';
@@ -41,6 +42,8 @@ export interface LocalizationBundle {
 	settingsShell: Readonly<SettingsShellCopy>;
 	aboutCopy: Readonly<AboutScreenCopy>;
 	privacyCopy: Readonly<PrivacyScreenCopy>;
+	/** Localized backup, restore and reset destination copy. */
+	backupResetCopy: Readonly<BackupResetScreenCopy>;
 	languageScreen: Readonly<LanguageScreenCopy>;
 	appearance: Readonly<AppearanceScreenCopy>;
 	schedule: Readonly<ScheduleScreenCopy>;

@@ -531,7 +531,16 @@ export function createBrowserStatisticsBridge(
 		}, createUnavailableStatisticsProjection() );
 	}
 
+	/**
+	 * Serializes backup snapshots behind facts, checkpoints and statistics resets.
+	 * @return Current committed history without creating another measurement.
+	 * @since 1.1.0
+	 */
+	function readBackupDocument(): ReturnType<BrowserStatisticsBridge['readBackupDocument']> {
+		return enqueue( () => options.statisticsRuntime.readBackupDocument(), null );
+	}
 	return {
+		readBackupDocument,
 		suspendForDataReset,
 		resumeAfterDataReset,
 		captureObservation,

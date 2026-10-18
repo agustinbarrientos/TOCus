@@ -17,6 +17,21 @@ import {
 import { createInertStatisticsRuntime } from './__fixtures__/statistics-runtime';
 
 describe( 'browser protection runtime local data reset', () => {
+	it( 'serializes raw history snapshots without checkpointing and blocks them during suspension', async () => {
+		const statisticsRuntime = createInertStatisticsRuntime();
+		const { runtime } = createRuntime(
+			{ value: 200_000 },
+			new MemoryConfigurationStorage( EXAMPLE_CONFIGURATION ),
+			new MemoryRuntimeBrowser(),
+			new MemoryProtectionStorage(),
+			undefined,
+			statisticsRuntime,
+		);
+		await expect( runtime.readBackupStatistics() ).resolves.toBeNull();
+		await runtime.suspendForDataReset();
+		await expect( runtime.readBackupStatistics() ).resolves.toBeNull();
+		expect( statisticsRuntime.checkpoint ).not.toHaveBeenCalled();
+	} );
 	it( 'keeps cold startup free of observations and persistence until resumed', async () => {
 		const statisticsRuntime = createInertStatisticsRuntime();
 		const storage = new MemoryProtectionStorage();

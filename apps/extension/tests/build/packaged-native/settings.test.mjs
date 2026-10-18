@@ -355,7 +355,7 @@ test( 'Statistics records a real Continue and resets totals without changing pro
 	} );
 } );
 
-test( 'Privacy reset requires confirmation and clears real grants, settings and activity', async () => {
+test( 'Backup and reset requires confirmation and clears real grants, settings and activity', async () => {
 	test.setTimeout( 90_000 );
 	await withBrowser( async ( browser, url ) => {
 		await enroll( browser, url );
@@ -367,8 +367,8 @@ test( 'Privacy reset requires confirmation and clears real grants, settings and 
 		await continuePause( browser );
 		await expect.poll( () => browser.currentUrl() ).toBe( `${ url }before-reset` );
 		await fill( browser, 'input[aria-label="Preserved text"]', 'Keep this tab' );
-		await settings( browser, 'privacy' );
-		await visible( browser, '.settings-privacy-reset' );
+		await settings( browser, 'backup-reset' );
+		await visible( browser, '.settings-data-reset' );
 		await expect.poll( () => stored( browser, 'tocus.statistics.v1' ) ).toMatchObject( {
 			scopes: { scope_default: { totals: { completedWaitCount: 1, allowanceGrantedCount: 1 } } },
 		} );

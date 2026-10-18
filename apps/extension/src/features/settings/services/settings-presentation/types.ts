@@ -9,6 +9,9 @@ import type { SettingsPageShell } from '../settings-page/types';
  * @since 1.0.0
  */
 export class SettingsPresentationState implements SettingsPageShell {
+	/** Local backup controls attached during page bootstrap. */
+	backupActions: NonNullable<SettingsPageShell['backupActions']> | null = null;
+
 	/** About copy supplied by the controller's first complete localization snapshot. */
 	aboutCopy!: SettingsPageShell['aboutCopy'];
 
@@ -53,6 +56,9 @@ export class SettingsPresentationState implements SettingsPageShell {
 
 	/** Privacy copy supplied before first render. */
 	privacyCopy!: SettingsPageShell['privacyCopy'];
+
+	/** Backup and reset copy supplied before first render. */
+	backupResetCopy!: SettingsPageShell['backupResetCopy'];
 
 	/** Protected-site row copy supplied before first render. */
 	protectedSiteItemCopy!: SettingsPageShell['protectedSiteItemCopy'];

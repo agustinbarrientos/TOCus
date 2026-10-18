@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import type { CatalogType } from '@lingui/cli/api';
 import { formatter } from '@lingui/format-po';
 import { describe, expect, test } from 'vitest';
+import { createSourceFile, forEachChild, isCallExpression, ScriptTarget, SyntaxKind, type Node } from 'typescript';
 
 const chromeManifestUrl = new URL( '../../.output/chrome-mv3/manifest.json', import.meta.url );
 const edgeManifestUrl = new URL( '../../.output/edge-mv3/manifest.json', import.meta.url );
@@ -453,6 +454,34 @@ async function expectProtectedPageComposition( outputUrl: URL, browser: string )
 }
 
 /**
+ * Distinguishes module loading from ordinary methods named import in classic bundles.
+ * @param source - Packaged JavaScript source.
+ * @return Actual dynamic-import expressions, ignoring strings, comments and property calls.
+ * @since 1.1.0
+ */
+function dynamicImportCalls( source: string ): string[] {
+	const file = createSourceFile( 'runtime.js', source, ScriptTarget.Latest, true );
+	const imports: string[] = [];
+	/**
+	 * Visits call expressions while preserving syntax rather than matching source substrings.
+	 * @param node - Current syntax node.
+	 */
+	function visit( node: Node ): void {
+		if ( isCallExpression( node ) && node.expression.kind === SyntaxKind.ImportKeyword ) {
+			imports.push( node.getText( file ) );
+		}
+		forEachChild( node, visit );
+	}
+	visit( file );
+	return imports;
+}
+
+test( 'distinguishes backup import methods from dynamic module loading', () => {
+	expect( dynamicImportCalls( 'const backup = { import() {} }; backup.import(document); import("./runtime.js");' ) )
+		.toEqual( [ 'import("./runtime.js")' ] );
+} );
+
+/**
  * Verifies one classic runtime stays self-contained and excludes unrelated settings copy.
  * @param outputUrl - Browser output-directory URL.
  * @param filePath - Classic background or injected-script path.
@@ -466,7 +495,7 @@ async function expectClassicRuntimeLocalization(
 	const source = await readOutputFile( outputUrl, filePath );
 	const contents = await readOutputBuffer( outputUrl, filePath );
 
-	expect( source ).not.toContain( 'import(' );
+	expect( dynamicImportCalls( source ) ).toEqual( [] );
 	expect( source ).not.toContain( settingsOnlyMessage );
 	expect( contents.byteLength ).toBeLessThanOrEqual(
 		filePath === 'protected-page.js' ? maximumProtectedPageBytes : maximumClassicRuntimeBytes,

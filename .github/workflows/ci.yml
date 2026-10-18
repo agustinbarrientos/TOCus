@@ -75,7 +75,13 @@ jobs:
             fail-fast: false
             max-parallel: 3
             matrix:
-                browser: [chrome, edge, firefox]
+                include:
+                    - browser: chrome
+                      source: firefox
+                    - browser: edge
+                      source: chrome
+                    - browser: firefox
+                      source: edge
         steps:
             - name: Check out repository
               uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -89,17 +95,20 @@ jobs:
                   install: false
             - name: Install dependencies
               run: pnpm install --frozen-lockfile
-            - name: Build the selected extension artifact
+            - name: Build destination and backup source artifacts
               env:
                   EXTENSION_BROWSER: ${{ matrix.browser }}
+                  BACKUP_SOURCE_BROWSER: ${{ matrix.source }}
               run: |
-                  case "$EXTENSION_BROWSER" in
-                      chrome) pnpm --filter @tocus/extension build ;;
-                      edge) pnpm build:edge ;;
-                      firefox) pnpm build:firefox ;;
-                  esac
+                  for browser in "$EXTENSION_BROWSER" "$BACKUP_SOURCE_BROWSER"; do
+                      case "$browser" in
+                          chrome) pnpm --filter @tocus/extension build ;;
+                          edge) pnpm build:edge ;;
+                          firefox) pnpm build:firefox ;;
+                      esac
+                  done
             - name: Install the official browser and native accessibility dependencies
-              run: pnpm setup:installed-browsers ${{ matrix.browser }}
+              run: pnpm setup:installed-browsers ${{ matrix.browser }} ${{ matrix.source }}
             - name: Run every installed-extension journey
               run: pnpm test:installed-extension:linux --project=${{ matrix.browser }}
             - name: Preserve browser versions and native journey diagnostics

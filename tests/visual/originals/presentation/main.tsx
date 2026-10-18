@@ -113,7 +113,7 @@ const bundle = ! standalone && language ? await loadLocalizationBundle( language
 port.copy = bundle.onboarding;
 port.notificationCopy = {
 	dismissNotification: bundle.settingsShell.dismissNotification,
-	resetComplete: bundle.privacyCopy.allSuccess,
+	resetComplete: bundle.backupResetCopy.allSuccess,
 };
 port.interruptionCopy = bundle.interruption;
 port.language = Language.ENGLISH;

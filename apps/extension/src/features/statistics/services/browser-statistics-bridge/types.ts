@@ -1,3 +1,4 @@
+import type { StatisticsDocument } from '../../../../domains/statistics/types/statistics-document';
 import type { ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
 import type { ProtectionCoordinator } from '../../../../domains/protection/services/protection-coordinator';
 import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
@@ -67,6 +68,7 @@ export interface BrowserStatisticsBridgeOptions {
 	>;
 	statisticsRuntime: Pick<
 		StatisticsRuntime,
+		'readBackupDocument' |
 		'beginFocusObservation' |
 		'checkpoint' |
 		'discardFocusMeasurement' |
@@ -89,6 +91,12 @@ export interface BrowserStatisticsBridgeOptions {
  * @since 1.0.0 Initial implementation.
  */
 export interface BrowserStatisticsBridge {
+	/**
+	 * Reads committed history after previously queued statistics writes without checkpointing.
+	 * @return Detached historical document or an unavailable marker.
+	 * @since 1.1.0
+	 */
+	readBackupDocument(): Promise<StatisticsDocument | null>;
 	/**
 	 * Stops ingress persistence synchronously and drains started statistics and focus writes.
 	 * @return Promise resolved when storage is safe for local data removal.

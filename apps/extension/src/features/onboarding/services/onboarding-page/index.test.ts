@@ -220,7 +220,7 @@ describe( 'startOnboardingPage', () => {
 		expect( options.shell.resetComplete ).toBe( true );
 		expect( options.shell.notificationCopy ).toEqual( {
 			dismissNotification: TestEnglishLocalizationBundle.settingsShell.dismissNotification,
-			resetComplete: TestEnglishLocalizationBundle.privacyCopy.allSuccess,
+			resetComplete: TestEnglishLocalizationBundle.backupResetCopy.allSuccess,
 		} );
 	} );
 

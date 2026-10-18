@@ -66,7 +66,7 @@ function setupOnboarding( container: HTMLElement, counter: HTMLOutputElement ): 
 	port.copy = bundle.onboarding;
 	port.notificationCopy = {
 		dismissNotification: bundle.settingsShell.dismissNotification,
-		resetComplete: bundle.privacyCopy.allSuccess,
+		resetComplete: bundle.backupResetCopy.allSuccess,
 	};
 	port.interruptionCopy = bundle.interruption;
 	port.suggestions = OnboardingSiteSuggestions;
@@ -176,7 +176,7 @@ function setupOnboarding( container: HTMLElement, counter: HTMLOutputElement ): 
 		port.copy = localization.onboarding;
 		port.notificationCopy = {
 			dismissNotification: localization.settingsShell.dismissNotification,
-			resetComplete: localization.privacyCopy.allSuccess,
+			resetComplete: localization.backupResetCopy.allSuccess,
 		};
 		port.interruptionCopy = localization.interruption;
 	}

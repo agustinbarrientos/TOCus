@@ -15,6 +15,7 @@ import type { LocalDataResetController, LocalDataResetControllerOptions } from '
 export function createLocalDataResetController( options: LocalDataResetControllerOptions ): LocalDataResetController {
 	let startup: Promise<boolean> | null = null;
 	let pendingReset: Promise<boolean> | null = null;
+	let retry: Promise<boolean> | null = null;
 
 	/**
 	 * Reopens onboarding after clean startup, retaining retry intent if tab creation fails.
@@ -40,7 +41,10 @@ export function createLocalDataResetController( options: LocalDataResetControlle
 	 */
 	async function recover(): Promise<boolean> {
 		try {
-			return await options.reset.recover() ? await finish() : false;
+			if ( ! await options.reset.recover() || ( options.recoverBackup && ! await options.recoverBackup() ) ) {
+				return false;
+			}
+			return await finish();
 		} catch {
 			return false;
 		}
@@ -107,9 +111,24 @@ export function createLocalDataResetController( options: LocalDataResetControlle
 			startup = recover();
 		},
 		/**
-		 * Returns current initial reset recovery completion.
-		 * @return Whether startup succeeded, or false before registration.
-		 * @since 1.0.0 Initial implementation.
+		 * Retries failed recovery while coalescing concurrent callers.
+		 * @return Whether recovery completed.
+		 * @since 1.1.0
+		 */
+		async retryRecovery(): Promise<boolean> {
+			if ( await startup ) {
+				return true;
+			}
+			retry ??= recover().finally( () => {
+				retry = null;
+			} );
+			startup = retry;
+			return retry;
+		},
+		/**
+		 * Returns initial or retried recovery completion.
+		 * @return Whether startup succeeded.
+		 * @since 1.1.0
 		 */
 		waitUntilReady(): Promise<boolean> {
 			return startup ?? Promise.resolve( false );
