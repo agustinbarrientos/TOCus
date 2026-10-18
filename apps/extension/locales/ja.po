@@ -794,8 +794,8 @@ msgid "Name"
 msgstr "名前"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "No activity recorded in this period."
-msgstr "この期間に記録されたアクティビティはありません。"
+msgid "No activity in this period"
+msgstr "この期間のアクティビティはありません"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "No reconsidered visits recorded in this period."
@@ -1845,6 +1845,10 @@ msgstr "一時停止を始めました。"
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Your pause is paused."
 msgstr "一時停止のカウントを停止しました。"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Your pauses and reconsidered visits will appear here."
+msgstr "一時停止と再考したアクセスがここに表示されます。"
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Your quick link could not be opened. Try again."
