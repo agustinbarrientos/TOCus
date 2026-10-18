@@ -21,6 +21,7 @@ export interface SettingsFixtureControls {
 	unavailableStatistics: boolean;
 	holdPreferenceWrites: boolean;
 	holdConfigurationWrites: boolean;
+	holdBackupExports: boolean;
 	malformedPreferences: boolean;
 }
 
@@ -42,6 +43,7 @@ export interface SettingsFixtureBridge {
 	malformPreferences: () => void;
 	releasePreferenceWrites: () => void;
 	releaseConfigurationWrites: () => void;
+	releaseBackupExports: () => void;
 }
 
 /**

@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Button, Group } from '@tocus/ui';
 import { Confirmation } from '../confirmation';
 import { Feedback } from '../feedback';
@@ -22,12 +22,20 @@ export function BackupControls( props: BackupControlsProps ) {
 	const importButton = useRef<HTMLButtonElement>( null );
 	const active = useRef( false );
 	const selection = useRef( 0 );
+	const exportLabelTimer = useRef<number | null>( null );
 	const [ pending, setPending ] = useState( false );
+	const [ showExportingLabel, setShowExportingLabel ] = useState( false );
 	const [ reading, setReading ] = useState( false );
 	const [ recoveryPending, setRecoveryPending ] = useState( false );
 	const [ preview, setPreview ] = useState<BackupPreview | null>( null );
 	const [ errorKey, setError ] = useState<keyof typeof copy | null>( null );
 	const [ successKey, setSuccess ] = useState<keyof typeof copy | null>( null );
+
+	useEffect( () => () => {
+		if ( exportLabelTimer.current !== null ) {
+			window.clearTimeout( exportLabelTimer.current );
+		}
+	}, [] );
 
 	/**
 	 * Reads the actual selected file and resets the input so the same file can be retried.
@@ -105,6 +113,9 @@ export function BackupControls( props: BackupControlsProps ) {
 		}
 		active.current = true; setPending( true ); setError( null ); setSuccess( null );
 		props.onBusyChange( true );
+		exportLabelTimer.current = window.setTimeout( () => {
+			setShowExportingLabel( true );
+		}, 500 );
 		try {
 			const result = await actions.export();
 			if ( result.status === 'available' ) {
@@ -115,17 +126,21 @@ export function BackupControls( props: BackupControlsProps ) {
 		} catch {
 			setError( 'exportError' );
 		} finally {
+			window.clearTimeout( exportLabelTimer.current );
+			exportLabelTimer.current = null;
+			setShowExportingLabel( false );
 			active.current = false; setPending( false );
 			props.onBusyChange( false );
 		}
 	}
 	return <section className="tocus-section settings-backup" aria-busy={ pending }>
-		<h2>{ copy.backupTitle }</h2><p>{ copy.backupDescription }</p><p>{ copy.backupPrivacy }</p>
+		<h2>{ copy.backupTitle }</h2><p>{ copy.backupDescription }</p>
 		<Group className="settings-backup-actions">
 			<Button disabled={ props.disabled || pending || !! preview || ! actions } onClick={ () => {
 				void exportFile();
 			} }>
-				{ pending && ! preview && ! reading ? copy.exportingBackup : copy.exportBackup }</Button>
+				{ pending && showExportingLabel && ! preview && ! reading
+					? copy.exportingBackup : copy.exportBackup }</Button>
 			<Button ref={ importButton } variant="outline" disabled={ props.disabled || pending || !! preview || ! actions }
 				onClick={ () => {
 					input.current?.click();
