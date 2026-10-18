@@ -41,8 +41,10 @@ async function saveFocusLink( browser, destination ) {
 	await expect.poll( () => readView( browser, 'selected', `const control = document.querySelector('.settings-focus-links-add');
 		return control instanceof HTMLButtonElement && !control.disabled && control.getClientRects().length > 0;` ) ).toBe( true );
 	await clickButton( browser, 'Add site', '.settings-focus-links' );
-	await fill( browser, 'input[id^="label-focus_link_"]', 'Return to my project' );
-	await fill( browser, 'input[id^="url-focus_link_"]', destination );
+	await fill( browser, '[role=dialog] input[id^="label-focus_link_"]', 'Return to my project' );
+	await fill( browser, '[role=dialog] input[id^="url-focus_link_"]', destination );
+	await clickButton( browser, 'Done', '[role=dialog]' );
+	await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("[role=dialog]") === null;' ) ).toBe( true );
 	await save( browser );
 	await expect.poll( async () => ( await stored( browser, preferencesKey ) )?.focusLinks ).toEqual( [ {
 		id: expect.stringMatching( /^focus_link_[A-Za-z0-9_-]+$/ ), label: 'Return to my project', url: destination,
