@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import { FocusLinksSchema } from './focus-link.ts';
+
+export * from './focus-link.ts';
 
 /**
  * Languages available throughout TOCus.
@@ -101,7 +104,7 @@ export type PauseMode = z.infer<typeof PauseModeSchema>;
  * Current local preferences document version.
  * @since 1.0.0 Initial implementation.
  */
-export const PreferencesDocumentVersion = 3;
+export const PreferencesDocumentVersion = 4;
 
 /**
  * Validates the current local preferences document version.
@@ -122,7 +125,20 @@ export const PreferencesDocumentSchema = z.object( {
 	palette: PaletteSchema,
 	pauseMode: PauseModeSchema,
 	language: LanguageSchema.nullable(),
+	focusLinks: FocusLinksSchema,
 } ).strict();
+
+/**
+ * Normalizes only strict version three preferences at compatible read boundaries.
+ * @since 1.1.0
+ */
+export const CompatiblePreferencesDocumentSchema = z.union( [
+	PreferencesDocumentSchema,
+	PreferencesDocumentSchema.omit( { focusLinks: true } ).extend( { schemaVersion: z.literal( 3 ) } )
+		.transform( ( preferences ): PreferencesDocument => ( {
+			...preferences, schemaVersion: PreferencesDocumentVersion, focusLinks: [],
+		} ) ),
+] );
 
 /**
  * Complete locally persisted user preferences.
@@ -141,5 +157,6 @@ export const DefaultPreferencesDocument: Readonly<PreferencesDocument> = Object.
 		palette: Palette.BROWN,
 		pauseMode: PauseMode.BREATHING,
 		language: null,
+		focusLinks: [],
 	} ),
 );
