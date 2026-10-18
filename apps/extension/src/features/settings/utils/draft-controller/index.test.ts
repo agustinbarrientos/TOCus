@@ -79,6 +79,32 @@ describe( 'Settings draft', () => {
 		expect( draft.snapshot.saved ).toBe( true );
 		expect( draft.snapshot.dirty ).toBe( false );
 	} );
+	it( 'adopts external links after a saved storage echo with fresh array identities', async () => {
+		const draft = createDraft<Pick<PreferencesDocument, 'focusLinks'>>( { focusLinks: [] } );
+		draft.change( { focusLinks: [ { id: 'focus_link_read', label: 'Read', url: 'https://example.com/' } ] } );
+		await draft.save( ( value ) => {
+			draft.rebase( structuredClone( value ) );
+			return Promise.resolve( value );
+		} );
+		expect( draft.snapshot.dirty ).toBe( false );
+		const external = { focusLinks: [ { id: 'focus_link_updated', label: 'Updated elsewhere', url: 'https://example.net/' } ] };
+		draft.rebase( external );
+		expect( draft.snapshot.value ).toEqual( external );
+		expect( draft.snapshot.dirty ).toBe( false );
+	} );
+	it( 'preserves edited links while rebasing unrelated fields after a saved storage echo', async () => {
+		const draft = createDraft<Pick<PreferencesDocument, 'focusLinks' | 'theme'>>( { focusLinks: [], theme: ThemeMode.LIGHT } );
+		draft.change( { focusLinks: [ { id: 'focus_link_read', label: 'Read', url: 'https://example.com/' } ], theme: ThemeMode.LIGHT } );
+		await draft.save( ( value ) => {
+			draft.rebase( structuredClone( value ) );
+			return Promise.resolve( value );
+		} );
+		const focusLinks = [ { id: 'focus_link_read', label: 'Local draft', url: 'https://example.com/' } ];
+		draft.change( { ...draft.snapshot.value, focusLinks } );
+		draft.rebase( { focusLinks: [ { id: 'focus_link_updated', label: 'Updated elsewhere', url: 'https://example.net/' } ], theme: ThemeMode.DARK } );
+		expect( draft.snapshot.value ).toEqual( { focusLinks, theme: ThemeMode.DARK } );
+		expect( draft.snapshot.dirty ).toBe( true );
+	} );
 	it( 'keeps a newer external baseline while a save settles', async () => {
 		const draft = createDraft<Partial<PreferencesDocument>>( {
 			language: Language.ENGLISH, palette: Palette.BROWN,

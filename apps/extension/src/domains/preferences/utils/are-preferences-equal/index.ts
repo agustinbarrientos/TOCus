@@ -14,5 +14,10 @@ export function arePreferencesEqual(
 	return first.theme === second.theme &&
 		first.palette === second.palette &&
 		first.pauseMode === second.pauseMode &&
-		first.language === second.language;
+		first.language === second.language &&
+		first.focusLinks.length === second.focusLinks.length &&
+		first.focusLinks.every( ( link, index ) => {
+			const other = second.focusLinks[ index ];
+			return other !== undefined && link.id === other.id && link.label === other.label && link.url === other.url;
+		} );
 }

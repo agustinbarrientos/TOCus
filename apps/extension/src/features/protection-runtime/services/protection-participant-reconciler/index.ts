@@ -123,8 +123,9 @@ function getParticipantInvalidationCause(
 			: DepartureCause.BROWSER_ERROR_OR_RECOVERY;
 	}
 
-	return isInterruptionDocumentUrl( observedUrl, interruptionPageUrl ) ||
-		( observedUrl !== undefined && matchesParticipantScope( observedUrl, context, configuration ) )
+	const committedUrl = tab.url ?? observedUrl;
+	return isInterruptionDocumentUrl( committedUrl, interruptionPageUrl ) ||
+		( committedUrl !== undefined && matchesParticipantScope( committedUrl, context, configuration ) )
 		? null
 		: DepartureCause.BROWSER_ERROR_OR_RECOVERY;
 }

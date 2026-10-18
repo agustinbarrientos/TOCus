@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { BackupDocumentSchema } from './backup-document';
 import { ProtectedSiteRuleSchema } from '../../protection/types/protected-site-rule';
 import { ProtectionConfigurationDocumentSchema } from '../../protection/types/protected-site-configuration';
-import { PreferencesDocumentSchema } from '../../preferences/types';
+import { CompatiblePreferencesDocumentSchema } from '../../preferences/types';
 import { StatisticsDocumentSchema } from '../../statistics/types/statistics-document';
 
 export * from './backup-storage-key';
@@ -45,7 +45,7 @@ export const BackupImportJournalSchema = BackupImportReceiptSchema.extend( {
 	previousRules: z.array( ProtectedSiteRuleSchema ).default( [] ),
 	documents: z.strictObject( {
 		configuration: ProtectionConfigurationDocumentSchema,
-		preferences: PreferencesDocumentSchema,
+		preferences: CompatiblePreferencesDocumentSchema,
 		statistics: StatisticsDocumentSchema,
 	} ),
 } );

@@ -1,3 +1,7 @@
+import { ProtectionRuntimeNavigationPhase, type ProtectionRuntimeNavigation } from '../../types/browser-runtime';
+import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
+import { matchProtectedUrl } from '../../../../domains/protection/utils/protected-url-matcher';
+import { PreferencesDocumentSchema } from '../../../../domains/preferences/types';
 import {
 	DepartureCause,
 	ProtectionEventType,
@@ -32,6 +36,7 @@ import {
 import type {
 	InterruptionRequestHandler,
 	InterruptionRequestHandlerOptions,
+	PendingEmbeddedFocusLinkNavigation,
 } from './types';
 
 /**
@@ -85,6 +90,7 @@ function createContinuationContext(
 export function createInterruptionRequestHandler(
 	options: InterruptionRequestHandlerOptions,
 ): InterruptionRequestHandler {
+	const pendingEmbeddedNavigations = new Map<number, PendingEmbeddedFocusLinkNavigation>();
 	/**
 	 * Reads the current URL used to validate a participant's protection scope.
 	 * @param context - Current interruption participant and transaction.
@@ -162,7 +168,8 @@ export function createInterruptionRequestHandler(
 		const waitingState = context.state;
 		const tabId = getRuntimeTabId( context.participant.pageId );
 		const focusedTabId = await options.browser.getFocusedTabId();
-		const focusEligible = documentVisible && tabId !== null && tabId === focusedTabId;
+		const focusEligible = documentVisible && tabId !== null && tabId === focusedTabId &&
+			! pendingEmbeddedNavigations.has( tabId );
 
 		if ( context.participant.focusEligible === focusEligible ) {
 			return false;
@@ -228,6 +235,10 @@ export function createInterruptionRequestHandler(
 		const cumulativeCheckpointMilliseconds = waitingState.checkpointHighWaterMilliseconds +
 			unconfirmedDurationMilliseconds;
 		const matchingDestination = await readMatchingDestination( context );
+		const tabId = getRuntimeTabId( context.participant.pageId );
+		if ( tabId !== null && options.isFocusLinkChoicePending( tabId ) ) {
+			return null;
+		}
 		const nowEpochMilliseconds = options.now();
 		const timeZone = options.getTimeZone();
 		const allowanceId = AllowanceIdSchema.parse( `allowance_${ options.createStableId() }` );
@@ -324,6 +335,149 @@ export function createInterruptionRequestHandler(
 	}
 
 	/**
+	 * Resolves one configured choice without checkpointing or accepting Continue intent.
+	 * Navigation acceptance precedes departure so an immediate browser failure remains recoverable.
+	 * @param focusLinkId - Stable identity supplied by the authenticated interruption participant.
+	 * @param senderTabId - Browser-provided tab that owns the current participant.
+	 * @param documentVisible - Whether the requesting pause is currently visible.
+	 * @param context - Current participant retained before the choice.
+	 * @param configuration - Current validated protection configuration.
+	 * @return Released acknowledgement or a recoverable failed-choice projection.
+	 * @since 1.1.0
+	 */
+	async function openFocusLink(
+		focusLinkId: string,
+		senderTabId: number,
+		documentVisible: boolean,
+		context: ProtectionRuntimeParticipantContext,
+		configuration: Parameters<InterruptionRequestHandler[ 'synchronizeParticipantFocus' ]>[ 2 ],
+	): Promise<InterruptionPageResponse> {
+		try {
+			const focusedTabId = await options.browser.getFocusedTabId();
+			const tab = ( await options.browser.listTabs() ).find( ( candidate ) => candidate.id === senderTabId );
+			const currentUrl = tab?.pendingUrl ?? tab?.url;
+			const currentSource = isInterruptionDocumentUrl( currentUrl, options.interruptionPageUrl ) || (
+				context.participant.origin === ProtectionParticipantOrigin.ALLOWANCE_EXPIRY &&
+				currentUrl !== undefined && protectionMatchProtectsScope(
+					matchProtectedUrl( currentUrl, configuration.sites.map( ( site ) => site.rule ) ),
+					context.state.scopeId,
+				)
+			);
+			if ( ! documentVisible || focusedTabId !== senderTabId || tab?.incognito !== false || ! currentSource ) {
+				return InterruptionPageResponseSchema.parse( {
+					...await createPageResponse( senderTabId ), focusLinkFailed: true,
+				} );
+			}
+			const preferences = PreferencesDocumentSchema.safeParse( await options.preferencesStorage.load() );
+			const focusLink = preferences.success
+				? preferences.data.focusLinks.find( ( candidate ) => candidate.id === focusLinkId )
+				: undefined;
+
+			if ( focusLink !== undefined ) {
+				await synchronizeParticipantFocus( context, false, configuration );
+				await options.browser.navigateTab( senderTabId, focusLink.url, currentUrl );
+				if ( context.participant.origin === ProtectionParticipantOrigin.ALLOWANCE_EXPIRY &&
+					currentUrl !== undefined ) {
+					pendingEmbeddedNavigations.set( senderTabId, {
+						sourceUrl: currentUrl, destinationUrl: focusLink.url,
+						participantId: context.participant.participantId, failed: false,
+					} );
+					return InterruptionPageResponseSchema.parse( {
+						...await createPageResponse( senderTabId ), focusLinkOpening: true,
+					} );
+				}
+				await options.departTab(
+					senderTabId, DepartureCause.NON_EXTENSION_TOP_LEVEL_NAVIGATION_AWAY, configuration,
+				);
+				return InterruptionPageResponseSchema.parse( { state: InterruptionPageResponseState.RELEASED } );
+			}
+		} catch {
+			// Keep the participant after a rejected navigation so the same choice can be retried.
+		}
+
+		return InterruptionPageResponseSchema.parse( {
+			...await createPageResponse( senderTabId ), focusLinkFailed: true,
+		} );
+	}
+
+	/**
+	 * Observes committed departure without keeping the runtime queue waiting for a browser event.
+	 * @param navigation - Browser navigation outcome for a retained embedded choice.
+	 * @return Whether pending navigation handling consumed the event.
+	 * @since 1.1.0
+	 */
+	async function reconcileFocusLinkNavigation( navigation: ProtectionRuntimeNavigation ): Promise<boolean> {
+		const pending = pendingEmbeddedNavigations.get( navigation.tabId );
+		if ( pending === undefined || navigation.frameId !== 0 ) {
+			return false;
+		}
+		const states = await options.coordinator.getStates();
+		const context = states === null ? null : findRuntimeParticipantContext( states, navigation.tabId );
+		if ( context?.participant.participantId !== pending.participantId ) {
+			pendingEmbeddedNavigations.delete( navigation.tabId );
+			return false;
+		}
+		if ( navigation.phase === ProtectionRuntimeNavigationPhase.ERROR_OCCURRED &&
+			navigation.url === pending.destinationUrl ) {
+			pending.failed = true;
+			return true;
+		}
+		if ( navigation.phase === ProtectionRuntimeNavigationPhase.BEFORE_NAVIGATE ) {
+			return true;
+		}
+		if ( navigation.phase === ProtectionRuntimeNavigationPhase.COMMITTED && navigation.url !== pending.sourceUrl ) {
+			pendingEmbeddedNavigations.delete( navigation.tabId );
+			const configuration = await options.loadConfiguration();
+			await options.departTab(
+				navigation.tabId, DepartureCause.NON_EXTENSION_TOP_LEVEL_NAVIGATION_AWAY, configuration,
+			);
+		}
+		return false;
+	}
+
+	/**
+	 * Keeps an accepted embedded navigation blocking, or reports cancellation for fresh pause recovery.
+	 * @param tabId - Tab retaining the original protected document.
+	 * @param context - Current authoritative participant for that tab.
+	 * @return Pending or failed projection, or null when no matching choice remains.
+	 * @since 1.1.0
+	 */
+	async function readPendingFocusLinkResponse(
+		tabId: number,
+		context: ProtectionRuntimeParticipantContext,
+	): Promise<InterruptionPageResponse | null> {
+		const pending = pendingEmbeddedNavigations.get( tabId );
+		if ( pending === undefined ) {
+			return null;
+		}
+		if ( pending.participantId !== context.participant.participantId ) {
+			pendingEmbeddedNavigations.delete( tabId );
+			return null;
+		}
+		const tab = ( await options.browser.listTabs() ).find( ( candidate ) => candidate.id === tabId );
+		if ( pending.failed || ( tab?.url === pending.sourceUrl && tab.status === 'complete' ) ) {
+			pendingEmbeddedNavigations.delete( tabId );
+			return InterruptionPageResponseSchema.parse( {
+				...await createPageResponse( tabId ), focusLinkFailed: true,
+			} );
+		}
+		return InterruptionPageResponseSchema.parse( { ...await createPageResponse( tabId ), focusLinkOpening: true } );
+	}
+
+	/**
+	 * Releases in-memory pending intent when its participant lifecycle has ended.
+	 * @param tabId - One removed tab, or undefined for complete reset.
+	 * @since 1.1.0
+	 */
+	function forgetFocusLinkNavigation( tabId?: number ): void {
+		if ( tabId === undefined ) {
+			pendingEmbeddedNavigations.clear();
+		} else {
+			pendingEmbeddedNavigations.delete( tabId );
+		}
+	}
+
+	/**
 	 * Handles one interruption-page request.
 	 * @param input - Unknown runtime message payload.
 	 * @param senderTabId - Browser-provided sender tab identifier.
@@ -371,6 +525,7 @@ export function createInterruptionRequestHandler(
 		let participantReleased = false;
 
 		if ( context === null ) {
+			pendingEmbeddedNavigations.delete( senderTabId );
 			const response = await createPageResponse( senderTabId );
 
 			if (
@@ -384,6 +539,21 @@ export function createInterruptionRequestHandler(
 			}
 
 			return response;
+		}
+
+		const pendingFocusLinkResponse = await readPendingFocusLinkResponse( senderTabId, context );
+		if ( pendingFocusLinkResponse !== null ) {
+			return pendingFocusLinkResponse;
+		}
+
+		if ( request.data.type === InterruptionPageRequestType.OPEN_FOCUS_LINK ) {
+			return openFocusLink(
+				request.data.focusLinkId, senderTabId, request.data.documentVisible, context, configuration,
+			);
+		}
+
+		if ( options.isFocusLinkChoicePending( senderTabId ) ) {
+			return createPageResponse( senderTabId );
 		}
 
 		if ( request.data.type === InterruptionPageRequestType.CHECKPOINT ) {
@@ -430,7 +600,7 @@ export function createInterruptionRequestHandler(
 			: createPageResponse( senderTabId );
 	}
 
-	return { handle, synchronizeParticipantFocus };
+	return { handle, forgetFocusLinkNavigation, reconcileFocusLinkNavigation, synchronizeParticipantFocus };
 }
 
 export * from './types';

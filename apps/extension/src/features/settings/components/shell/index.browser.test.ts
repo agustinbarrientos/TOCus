@@ -4,6 +4,27 @@ import { SettingsDestination } from '../../services/settings-navigation/types';
 import { test } from '../../utils/browser-test-harness';
 
 test.describe( 'React settings', () => {
+	test( 'places Quick links after Schedule in keyboard navigation on wide and narrow screens', async ( { open, browserName } ) => {
+		const page = await open( SettingsDestination.SCHEDULE );
+		const tabKey = browserName === 'webkit' && process.platform === 'darwin' ? 'Alt+Tab' : 'Tab';
+		for ( const width of [ 1280, 390 ] ) {
+			await page.setViewportSize( { width, height: 900 } );
+			const schedule = page.getByRole( 'link', { name: 'Schedule', exact: true } );
+			const focusLinks = page.getByRole( 'link', { name: 'Quick links', exact: true } );
+			await schedule.focus();
+			await page.keyboard.press( tabKey );
+			await expect( focusLinks ).toBeFocused();
+			await page.keyboard.press( 'Enter' );
+			await expect( focusLinks ).toHaveAttribute( 'aria-current', 'page' );
+			await expect( page.getByRole( 'heading', { level: 1 } ) ).toHaveText( 'Quick links' );
+			await page.keyboard.press( `Shift+${ tabKey }` );
+			await expect( schedule ).toBeFocused();
+			await page.keyboard.press( 'Enter' );
+			await expect( schedule ).toHaveAttribute( 'aria-current', 'page' );
+			await expect( page.getByRole( 'heading', { level: 1 } ) ).toHaveText( 'Schedule' );
+		}
+	} );
+
 	test( 'finds backup and reset actions separately from Privacy and preserves history navigation', async ( { open } ) => {
 		const page = await open( SettingsDestination.PRIVACY );
 		const dataLink = page.getByRole( 'link', { name: 'Backup and reset', exact: true } );
@@ -137,7 +158,7 @@ test.describe( 'React settings', () => {
 	test( 'renders every destination at one width and keeps read-only pages free of Save', async ( { open } ) => {
 		test.setTimeout( 20000 );
 		const page = await open( SettingsDestination.ABOUT );
-		for ( const destination of [ 'About', 'Privacy', 'Backup and reset', 'Statistics', 'Language', 'Appearance', 'Pause timing', 'Schedule', 'Websites' ] ) {
+		for ( const destination of [ 'About', 'Privacy', 'Backup and reset', 'Statistics', 'Language', 'Appearance', 'Pause timing', 'Schedule', 'Quick links', 'Websites' ] ) {
 			await page.getByRole( 'link', { name: destination, exact: true } ).click();
 			await page.getByRole( 'heading', { level: 1 } ).waitFor();
 			expect( await page.locator( '.settings-content' ).evaluate( ( element ) => element.getBoundingClientRect().width ) ).toBeGreaterThan( 500 );

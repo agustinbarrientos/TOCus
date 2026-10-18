@@ -23,7 +23,7 @@ export function createBackupDocument( source: BackupSource ): BackupDocument {
 		settings: { sites: configuration.sites, timingConfiguration: configuration.timingConfiguration,
 			schedule: configuration.schedule },
 		preferences: { theme: preferences.theme, palette: preferences.palette,
-			pauseMode: preferences.pauseMode, language: preferences.language },
+			pauseMode: preferences.pauseMode, language: preferences.language, focusLinks: preferences.focusLinks },
 		statistics: { firstRecordedDate: statistics.firstRecordedDate, dailyTotals: statistics.dailyTotals,
 			scopes: Object.fromEntries( Object.entries( statistics.scopes ).map( ( [ id,
 				scope ] ) => [ id, scope.totals ] ) ) },

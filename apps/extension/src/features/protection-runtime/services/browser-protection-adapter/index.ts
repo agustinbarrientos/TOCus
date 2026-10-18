@@ -202,6 +202,7 @@ export function createBrowserProtectionAdapter(
 				...( tab.pendingUrl === undefined ? {} : { pendingUrl: tab.pendingUrl } ),
 				...( tab.url === undefined ? {} : { url: tab.url } ),
 				...( tab.windowId === undefined ? {} : { windowId: tab.windowId } ),
+				...( tab.status === undefined ? {} : { status: tab.status } ),
 			} ];
 		} );
 	}
@@ -390,10 +391,21 @@ export function createBrowserProtectionAdapter(
 	 * Navigates one live tab, replacing an owned interruption document when its listener is available.
 	 * @param tabId - Browser-assigned tab identifier.
 	 * @param url - Retained navigation destination.
+	 * @param expectedSourceUrl - Exact current source required by an explicit focus choice.
 	 * @return Promise resolved after the browser accepts the update.
 	 * @since 1.0.0 Initial implementation.
 	 */
-	async function navigateTab( tabId: number, url: string ): Promise<void> {
+	async function navigateTab( tabId: number, url: string, expectedSourceUrl?: string ): Promise<void> {
+		if ( expectedSourceUrl !== undefined ) {
+			const tab = ( await listTabs() ).find( ( candidate ) => candidate.id === tabId );
+			if ( tab?.incognito !== false || ( tab.pendingUrl ?? tab.url ) !== expectedSourceUrl ) {
+				throw new Error( 'The focus-link source is no longer current.' );
+			}
+			if ( /^https?:\/\//u.test( expectedSourceUrl ) ) {
+				await browserApi.tabs.update( tabId, { url } );
+				return;
+			}
+		}
 		if ( ! await replaceInterruptionNavigation( tabId, url ) ) {
 			await browserApi.tabs.update( tabId, { url } );
 		}

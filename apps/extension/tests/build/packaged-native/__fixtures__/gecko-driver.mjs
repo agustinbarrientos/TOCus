@@ -121,7 +121,8 @@ try {
   const actor = target.browsingContext.currentWindowGlobal.getActor('MarionetteCommands');
   const capabilities = {toJSON: () => ({'moz:webdriverClick': true})};
   let result;
-  if (operation === 'script') result = actor.executeScript(input, extra, {});
+  if (operation === 'script' || operation === 'system-script') result = actor.executeScript(input, extra,
+    operation === 'system-script' ? {sandboxName: 'system', newSandbox: true} : {});
   else result = actor.findElement('css selector', input, {}).then(element =>
     operation === 'click' ? actor.clickElement(element, capabilities)
       : actor.sendKeysToElement(element, extra, capabilities));
@@ -227,6 +228,18 @@ export async function launchNativeFirefox( directory, options = {} ) {
 	}
 
 	/**
+	 * Reads privileged observations in a fresh actor sandbox without changing the view's focus.
+	 * @param {string} view - Selected content view or installed extension view.
+	 * @param {string} script - Diagnostic script body, without production DOM mutations.
+	 * @param {unknown[]} [args] - Diagnostic arguments.
+	 * @return {Promise<unknown>} Diagnostic observations.
+	 * @since 1.1.0
+	 */
+	function viewSystemScript( view, script, args = [] ) {
+		return viewCommand( view, 'system-script', script, args );
+	}
+
+	/**
 	 * Clicks a real view element through Marionette, preserving trusted user activation.
 	 * @param {string} view - Popup, selected tab, or installed onboarding view.
 	 * @param {string} selector - CSS selector for the interactive element.
@@ -245,6 +258,31 @@ export async function launchNativeFirefox( directory, options = {} ) {
 	 */
 	function viewType( view, selector, text ) {
 		return viewCommand( view, 'type', selector, text );
+	}
+
+	/**
+	 * Sends native keyboard actions to the selected content view without focusing a DOM element.
+	 * @param {string} view - Selected content view; chrome panels retain their separate element controls.
+	 * @param {string} key - One WebDriver key value to press and release.
+	 * @return {Promise<void>} Completion of focus-preserving native input.
+	 * @since 1.1.0
+	 */
+	async function viewPressKey( view, key ) {
+		if ( view !== 'selected' ) {
+			throw new Error( `Focus-preserving keys require the selected content view: ${ view }` );
+		}
+		const handle = await execute( `const { NavigableManager } = ChromeUtils.importESModule(
+			'chrome://remote/content/shared/NavigableManager.sys.mjs');
+			return NavigableManager.getIdForBrowser(gBrowser.selectedBrowser);` );
+		await command( '/moz/context', { context: 'content' } );
+		try {
+			await command( '/window', { handle } );
+			await command( '/actions', { actions: [ { type: 'key', id: 'native-keyboard', actions: [
+				{ type: 'keyDown', value: key }, { type: 'keyUp', value: key },
+			] } ] } );
+		} finally {
+			await command( '/moz/context', { context: 'chrome' } );
+		}
 	}
 
 	/**
@@ -318,7 +356,8 @@ export async function launchNativeFirefox( directory, options = {} ) {
 		await waitUntil( () => execute( 'return document.getElementById(\'nav-bar\').contains(document.getElementById(\'tocus_agustinbarrientos_com-BAP\'));' ),
 			'Firefox did not place the extension button in the toolbar.' );
 		return {
-			command, execute, downloadDirectory, viewScript, viewClick, viewType, close, uuid,
+			command, execute, downloadDirectory, viewScript, viewSystemScript,
+			viewClick, viewType, viewPressKey, close, uuid,
 			version: created.capabilities.browserVersion,
 		};
 	} catch ( error ) {

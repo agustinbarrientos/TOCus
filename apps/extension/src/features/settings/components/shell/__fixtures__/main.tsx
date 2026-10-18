@@ -60,6 +60,7 @@ const listeners = new Set<AppearancePreferencesChangeListener>();
 const statisticsListeners = new Set<() => void>();
 const pendingPreferenceWrites = new Set<() => void>();
 const pendingConfigurationWrites = new Set<() => void>();
+const pendingBackupExports = new Set<() => void>();
 let sequence = 0;
 const controls: SettingsFixtureControls = {
 	rejectSaves: false, denyAccess: false, requests: 0, userActivation: false, writes: 0, resetCount: 0,
@@ -67,6 +68,7 @@ const controls: SettingsFixtureControls = {
 	unavailableStatistics: false,
 	holdPreferenceWrites: false,
 	holdConfigurationWrites: false,
+	holdBackupExports: false,
 	malformedPreferences: false,
 };
 const grants = new Set<string>();
@@ -118,6 +120,7 @@ Object.assign( shell, {
 	privacyCopy: copy.privacyCopy,
 	backupResetCopy: copy.backupResetCopy,
 	appearanceCopy: copy.appearance,
+	focusLinksCopy: copy.focusLinksCopy,
 	languageCopy: original.includes( 'language-screen-german' ) ? originalLanguageCopy( copy.languageScreen ) : copy.languageScreen,
 	browserLanguage: original.includes( 'language-screen-german' ) ? Language.GERMAN : Language.ENGLISH,
 	protectedSitesCopy: copy.protectedSites,
@@ -441,6 +444,11 @@ shell.backupActions = createBackupDataActions( {
 		 */
 		sendMessage( request ) {
 			if ( request.type === 'export-local-backup' ) {
+				if ( controls.holdBackupExports ) {
+					return new Promise<void>( ( resolve ) => {
+						pendingBackupExports.add( resolve );
+					} ).then( () => backupFixture.backup.export() );
+				}
 				return backupFixture.backup.export();
 			}
 			if ( request.type === 'read-local-backup-state' ) {
@@ -508,6 +516,14 @@ const bridge: SettingsFixtureBridge = {
 	 */
 	setFaviconProvider: ( provider ) => {
 		shell.faviconProvider = provider;
+	},
+	/** Completes held export requests through the actual backup authority. */
+	releaseBackupExports: () => {
+		controls.holdBackupExports = false;
+		pendingBackupExports.forEach( ( resolve ) => {
+			resolve();
+		} );
+		pendingBackupExports.clear();
 	},
 	/** Completes held configuration writes through the production editor's pending state. */
 	releaseConfigurationWrites: () => {

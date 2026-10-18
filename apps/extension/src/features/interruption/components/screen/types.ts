@@ -27,6 +27,10 @@ export interface ScreenViewProps {
 	waitDurationMilliseconds: number;
 	reducedMotion: boolean;
 	recovering: boolean;
+	focusLinks: readonly FocusLink[];
+	focusLinkOpening: boolean;
+	focusLinkFailed: boolean;
+	onOpenFocusLink: ( focusLinkId: string ) => void;
 	wellbeingSummary: string;
 	announcement: string;
 	onContinue: () => void;
@@ -43,6 +47,7 @@ declare global {
 }
 import {
 	PauseMode,
+	type FocusLink,
 	type PauseMode as PauseModeValue,
 } from '../../../../domains/preferences/types';
 
@@ -107,6 +112,8 @@ export interface InterruptionScreenCopy {
 	breatheOut: string;
 	continueLabel: string;
 	continueShortcut: string;
+	focusLinksLabel: string;
+	focusLinkFailedAnnouncement: string;
 	/**
 	 * Formats the remaining wait for visible presentation.
 	 * @param remainingSeconds - Nonnegative whole seconds remaining.
@@ -173,3 +180,17 @@ export const InterruptionContinueRequestEventName = 'tocus-continue-request';
  * @since 1.0.0 Initial implementation.
  */
 export const InterruptionRetryRequestEventName = 'tocus-retry-request';
+
+/**
+ * Name of the configured focus-destination choice event emitted by the screen.
+ * @since 1.1.0
+ */
+export const InterruptionFocusLinkRequestEventName = 'tocus-focus-link-request';
+
+/**
+ * Configured identity chosen through the pause without exposing its URL to the host document.
+ * @since 1.1.0
+ */
+export interface InterruptionFocusLinkRequestDetail {
+	focusLinkId: string;
+}

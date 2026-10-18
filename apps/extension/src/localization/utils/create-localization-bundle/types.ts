@@ -1,3 +1,4 @@
+import type { FocusLinksScreenCopy } from '../../../features/settings/components/focus-links-screen/types';
 import type { Language } from '../../../domains/preferences/types';
 import type { InterruptionScreenCopy } from '../../../features/interruption/components/screen/types';
 import type { ProtectedPageLayerCopy } from '../../../features/interruption/components/protected-page-layer/types';
@@ -46,6 +47,8 @@ export interface LocalizationBundle {
 	backupResetCopy: Readonly<BackupResetScreenCopy>;
 	languageScreen: Readonly<LanguageScreenCopy>;
 	appearance: Readonly<AppearanceScreenCopy>;
+	/** Localized optional pause-screen link controls. */
+	focusLinksCopy: Readonly<FocusLinksScreenCopy>;
 	schedule: Readonly<ScheduleScreenCopy>;
 	timing: Readonly<TimingScreenCopy>;
 	protectedSites: Readonly<ProtectedSitesScreenCopy>;

@@ -405,3 +405,165 @@ test.describe( 'React pause', () => {
 		} );
 	}
 } );
+
+
+for ( const injected of [ false, true ] ) {
+	test( `keeps the breathing artwork the same size with zero, one or three shortcuts in the ${ injected ? 'embedded' : 'standalone' } pause`, async ( { page } ) => {
+		await page.goto( `${ origin }${ injected ? '?injected=1' : '' }` );
+		await page.locator( 'html[data-ready]' ).waitFor();
+		await page.waitForFunction( () => Boolean( window.pauseFixture.screen.shadowRoot
+			?.querySelector( 'tocus-f-breathing-sphere' )?.shadowRoot?.querySelector( 'canvas' ) ) );
+		for ( const viewport of [ { width: 1280, height: 900 }, { width: 1722, height: 866 },
+			{ width: 320, height: 568 }, { width: 740, height: 320 } ] ) {
+			await page.setViewportSize( viewport );
+			const sizes = [];
+			for ( const count of [ 0, 1, 3 ] ) {
+				sizes.push( await page.evaluate( async ( count ) => {
+					const { screen } = window.pauseFixture;
+					screen.wellbeingSummary = 'About 25 hr, 4 min saved.';
+					screen.focusLinks = [
+						{ id: 'focus_link_tasks', label: 'My tasks', url: 'https://tasks.test/' },
+						{ id: 'focus_link_read', label: 'Read', url: 'https://reading.test/' },
+						{ id: 'focus_link_plan', label: 'Plan', url: 'https://planning.test/' },
+					].slice( 0, count );
+					await screen.updateComplete;
+					const root = screen.shadowRoot;
+					const shell = root?.querySelector( '.sphere-shell' )?.getBoundingClientRect();
+					const canvas = root?.querySelector( 'tocus-f-breathing-sphere' )?.shadowRoot
+						?.querySelector( 'canvas' )?.getBoundingClientRect();
+					const links = root?.querySelector( '.focus-links' )?.getBoundingClientRect();
+					if ( ! shell || ! canvas ) {
+						throw new Error( 'Expected the breathing artwork and its drawing surface.' );
+					}
+					return { shell: { width: shell.width, height: shell.height },
+						canvas: { width: canvas.width, height: canvas.height },
+						artworkBeforeLinks: ! links || canvas.bottom <= links.top };
+				}, count ) );
+			}
+			expect( sizes[ 1 ] ).toEqual( sizes[ 0 ] );
+			expect( sizes[ 2 ] ).toEqual( sizes[ 0 ] );
+		}
+	} );
+
+	test( `keeps quick-link opening silent for immediate and held navigation in the ${ injected ? 'embedded' : 'standalone' } pause`, async ( { page } ) => {
+		await page.goto( `${ origin }${ injected ? '?injected=1' : '' }` );
+		await page.locator( 'html[data-ready]' ).waitFor();
+		const pending = await page.evaluate( async () => {
+			const { screen, states, environment } = window.pauseFixture;
+			screen.focusLinks = [ { id: 'focus_link_reading', label: 'Read a chapter', url: 'https://reading.test/' } ];
+			screen.state = states.READY;
+			screen.focusLinkOpening = true;
+			const snapshots = [];
+			for ( const elapsed of [ 0, 100, 5000 ] ) {
+				environment.advance( elapsed );
+				await screen.updateComplete;
+				const root = screen.shadowRoot;
+				snapshots.push( {
+					busy: root?.querySelector( '.focus-links' )?.getAttribute( 'aria-busy' ),
+					disabled: [ ...root?.querySelectorAll<HTMLButtonElement>( 'button' ) ?? [] ]
+						.every( ( button ) => button.disabled ),
+					statuses: root?.querySelectorAll( '.focus-links [role="status"]' ).length,
+					feedback: root?.querySelectorAll( '.focus-link-status' ).length,
+				} );
+			}
+			return snapshots;
+		} );
+		expect( pending ).toEqual( [
+			{ busy: 'true', disabled: true, statuses: 0, feedback: 0 },
+			{ busy: 'true', disabled: true, statuses: 0, feedback: 0 },
+			{ busy: 'true', disabled: true, statuses: 0, feedback: 0 },
+		] );
+		await page.keyboard.press( 'Space' );
+		expect( await page.evaluate( () => ( { choices: window.pauseFixture.focusLinkChoices,
+			continues: window.pauseFixture.continues } ) ) ).toEqual( { choices: [], continues: 0 } );
+	} );
+
+	test( `offers configured focus choices without exposing destinations in the ${ injected ? 'embedded' : 'standalone' } pause`, async ( { page } ) => {
+		await page.setViewportSize( { width: 320, height: 568 } );
+		await page.goto( `${ origin }${ injected ? '?injected=1' : '' }` );
+		await page.locator( 'html[data-ready]' ).waitFor();
+		await expect( page.getByRole( 'group', { name: 'Quick links' } ) ).toHaveCount( 0 );
+		await page.evaluate( async () => {
+			window.pauseFixture.screen.focusLinks = [
+				{ id: 'focus_link_reading', label: 'Read a chapter', url: 'https://reading.test/private?token=local' },
+				{ id: 'focus_link_practice', label: 'Practice', url: 'https://practice.test/' },
+				{ id: 'focus_link_walking', label: 'Take a walk', url: 'https://walk.test/' },
+			];
+			await window.pauseFixture.screen.updateComplete;
+		} );
+		if ( injected ) {
+			const geometry = await page.evaluate( () => {
+				const root = window.pauseFixture.screen.shadowRoot;
+				const choices = [ ...root?.querySelectorAll<HTMLButtonElement>( '.focus-link-button' ) ?? [] ];
+				return choices.map( ( choice ) => {
+					const bounds = choice.getBoundingClientRect();
+					return { label: choice.textContent, visible: bounds.top >= 0 && bounds.bottom <= innerHeight };
+				} );
+			} );
+			expect( geometry ).toEqual( [ { label: 'Read a chapter', visible: true },
+				{ label: 'Practice', visible: true }, { label: 'Take a walk', visible: true } ] );
+			await page.evaluate( async () => {
+				const { screen, states } = window.pauseFixture;
+				screen.shadowRoot?.querySelector<HTMLButtonElement>( '.focus-link-button' )?.focus();
+				screen.state = states.READY;
+				await screen.updateComplete;
+			} );
+			expect( await page.evaluate( () => window.pauseFixture.screen.shadowRoot?.activeElement?.textContent ) )
+				.toBe( 'Read a chapter' );
+			await page.keyboard.press( 'Space' );
+			expect( await page.evaluate( () => window.pauseFixture.focusLinkChoices ) ).toEqual( [ 'focus_link_reading' ] );
+			expect( await page.evaluate( () => window.pauseFixture.continues ) ).toBe( 0 );
+			const result = await page.evaluate( async () => {
+				const { screen } = window.pauseFixture;
+				screen.focusLinkOpening = true;
+				await screen.updateComplete;
+				const disabled = [ ...screen.shadowRoot?.querySelectorAll<HTMLButtonElement>( 'button' ) ?? [] ]
+					.every( ( button ) => button.disabled );
+				const status = screen.shadowRoot?.querySelector( '[role="status"]' )?.textContent ?? null;
+				const busy = screen.shadowRoot?.querySelector( '.focus-links' )?.getAttribute( 'aria-busy' );
+				screen.focusLinkOpening = false;
+				screen.focusLinkFailed = true;
+				await screen.updateComplete;
+				return { disabled, busy, status, failure: screen.shadowRoot?.querySelector( '[role="alert"]' )?.textContent,
+					exposesUrl: screen.shadowRoot?.innerHTML.includes( 'reading.test' ) };
+			} );
+			expect( result ).toEqual( { disabled: true, busy: 'true', status: null,
+				failure: 'Your quick link could not be opened. Try again.', exposesUrl: false } );
+			return;
+		}
+		const reading = page.getByRole( 'button', { name: 'Read a chapter' } );
+		await expect( reading ).toBeInViewport();
+		await expect( page.getByRole( 'button', { name: 'Take a walk' } ) ).toBeInViewport();
+		await reading.focus();
+		await page.evaluate( async () => {
+			window.pauseFixture.screen.state = window.pauseFixture.states.READY;
+			await window.pauseFixture.screen.updateComplete;
+		} );
+		await expect( reading ).toBeFocused();
+		await page.keyboard.press( 'Space' );
+		expect( await page.evaluate( () => window.pauseFixture.focusLinkChoices ) ).toEqual( [ 'focus_link_reading' ] );
+		expect( await page.evaluate( () => window.pauseFixture.continues ) ).toBe( 0 );
+		expect( await reading.evaluate( ( button ) => button.getRootNode() instanceof ShadowRoot &&
+			! ( button.getRootNode() as ShadowRoot ).innerHTML.includes( 'reading.test' ) ) ).toBe( true );
+		await page.evaluate( async () => {
+			window.pauseFixture.screen.focusLinkOpening = true;
+			await window.pauseFixture.screen.updateComplete;
+		} );
+		await expect( reading ).toBeDisabled();
+		await expect( page.getByRole( 'button', { name: 'Continue', exact: true } ) ).toBeDisabled();
+		await expect( page.getByRole( 'group', { name: 'Quick links' } ) ).toHaveAttribute( 'aria-busy', 'true' );
+		await expect( page.getByRole( 'status' ) ).toHaveCount( 0 );
+		await page.evaluate( async () => {
+			window.pauseFixture.screen.focusLinkOpening = false;
+			window.pauseFixture.screen.focusLinkFailed = true;
+			await window.pauseFixture.screen.updateComplete;
+		} );
+		await expect( reading ).toBeEnabled();
+		await expect( page.getByRole( 'alert' ) ).toHaveText( 'Your quick link could not be opened. Try again.' );
+		await page.evaluate( async () => {
+			window.pauseFixture.screen.focusLinks = [];
+			await window.pauseFixture.screen.updateComplete;
+		} );
+		await expect( page.getByRole( 'group', { name: 'Quick links' } ) ).toHaveCount( 0 );
+	} );
+}

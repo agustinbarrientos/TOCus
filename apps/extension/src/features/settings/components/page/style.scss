@@ -11,7 +11,7 @@
 	h1 { @include typography.apply('headline-large'); }
 	h2 { @include typography.apply('title-large'); }
 	h1, h2, h3, p { margin: 0; }
-	p { color: var(--tocus-color-on-surface-muted); }
+	p:where(:not([class~='mantine-InputWrapper-error'])) { color: var(--tocus-color-on-surface-muted); }
 	p + p { margin-top: var(--tocus-space-3); }
 
 	.tocus-page-header {

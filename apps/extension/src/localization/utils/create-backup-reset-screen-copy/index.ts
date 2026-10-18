@@ -12,7 +12,7 @@ export function createBackupResetScreenCopy( i18n: I18n ): Readonly<BackupResetS
 	return Object.freeze( {
 		title: i18n._( msg`Backup and reset` ),
 		backupTitle: i18n._( msg`Back up and restore` ),
-		backupDescription: i18n._( msg`Your backup contains configured website addresses, settings, and statistics. TOCus creates it entirely on your device. Keep it somewhere you trust.` ),
+		backupDescription: i18n._( msg`Your backup includes your sites, settings, and stats, and it\u2019s created entirely on your device. TOCus never collects your browsing history or page contents.` ),
 		exportBackup: i18n._( msg`Export backup` ),
 		importBackup: i18n._( msg`Import backup` ),
 		exportingBackup: i18n._( msg`Exporting backup...` ),
@@ -48,7 +48,6 @@ export function createBackupResetScreenCopy( i18n: I18n ): Readonly<BackupResetS
 		backupRecoveryError: i18n._( msg`TOCus couldn't finish importing. Try again to complete the replacement.` ),
 		backupProtectionRecoveryError: i18n._( msg`TOCus couldn't restart protection. Try again to restore it.` ),
 		backupPendingError: i18n._( msg`Local data recovery is still pending. Try again to complete it before exporting or importing.` ),
-		backupPrivacy: i18n._( msg`Backups include configured website addresses and historical counts and durations. TOCus doesn't collect browsing history or page contents.` ),
 		statisticsTitle: i18n._( msg`Reset statistics` ),
 		statisticsDescription: i18n._( msg`Clear your recorded counts and time totals. Your websites and settings stay the same.` ),
 		statisticsConfirmationTitle: i18n._( msg`Reset your statistics?` ),

@@ -1,0 +1,16 @@
+.settings-focus-links { min-width: 0; }
+
+.settings-focus-links-add { align-self: start; }
+
+.settings-focus-link-list { margin-top: 0; }
+
+@media (width <= 38rem) {
+	.settings-site-row.settings-focus-link-row {
+		grid-template-columns: minmax(0, 1fr) auto;
+
+		> .settings-site-actions {
+			grid-row: 1;
+			grid-column: 2;
+		}
+	}
+}

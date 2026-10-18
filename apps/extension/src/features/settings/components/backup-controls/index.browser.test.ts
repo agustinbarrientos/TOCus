@@ -6,6 +6,42 @@ import { createBackupSource } from '../../../../domains/local-data/utils/backup-
 import { readFile } from 'node:fs/promises';
 
 test.describe( 'local backup controls', () => {
+	test( 'locks immediately and shows the export label only after 500 milliseconds without a late flash', async ( { open, setting } ) => {
+		const page = await open( SettingsDestination.BACKUP_RESET );
+		await page.clock.install( { time: new Date( '2026-10-18T12:00:00Z' ) } );
+		await page.clock.pauseAt( new Date( '2026-10-18T12:00:01Z' ) );
+		const button = page.locator( '.settings-backup-actions button' ).first();
+		await setting( page, 'holdBackupExports', true );
+		await button.click();
+		await expect( button ).toBeDisabled();
+		await expect( button ).toHaveText( 'Export backup' );
+		await expect( page.getByRole( 'button', { name: 'Import backup', exact: true } ) ).toBeDisabled();
+		await expect( page.getByRole( 'button', { name: 'Reset statistics', exact: true } ) ).toBeDisabled();
+		await page.clock.runFor( 499 );
+		await expect( button ).toHaveText( 'Export backup' );
+		await page.clock.runFor( 1 );
+		await expect( button ).toHaveText( 'Exporting backup...' );
+		const downloading = page.waitForEvent( 'download' );
+		await page.evaluate( () => {
+			window.settingsTest.releaseBackupExports();
+		} );
+		await downloading;
+		await expect( button ).toBeEnabled();
+		await expect( button ).toHaveText( 'Export backup' );
+		await setting( page, 'holdBackupExports', true );
+		await button.click();
+		await page.clock.runFor( 499 );
+		await expect( button ).toHaveText( 'Export backup' );
+		const nextDownload = page.waitForEvent( 'download' );
+		await page.evaluate( () => {
+			window.settingsTest.releaseBackupExports();
+		} );
+		await nextDownload;
+		await page.clock.runFor( 501 );
+		await expect( button ).toBeEnabled();
+		await expect( button ).toHaveText( 'Export backup' );
+	} );
+
 	test( 'previews real file bytes, cancels safely, then replaces after explicit confirmation', async ( { open } ) => {
 		const page = await open( SettingsDestination.BACKUP_RESET );
 		const backup = createBackupDocument( createBackupSource() );

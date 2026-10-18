@@ -1,8 +1,10 @@
+import type { PreferencesStorageService } from '../../../../domains/preferences/services/preferences-storage';
 import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import type { ProtectionCoordinator, ProtectionCoordinatorDispatchResult, ProtectionCoordinatorStateSnapshot } from '../../../../domains/protection/services/protection-coordinator';
 import type { DepartureCause } from '../../../../domains/protection/types/protection-event';
 import type { InterruptionPageResponse } from '../../types/runtime-message';
 import type { ProtectionRuntimeParticipantContext } from '../../utils/runtime-page-context';
+import type { ProtectionRuntimeNavigation } from '../../types/browser-runtime';
 import type { ProtectionRuntimeBrowser } from '../../types/browser-runtime';
 import type { ProtectionContinuationContext } from '../protection-page-projector/types';
 
@@ -12,8 +14,12 @@ import type { ProtectionContinuationContext } from '../protection-page-projector
  */
 export interface InterruptionRequestHandlerOptions {
 	/** Browser focus observation required for waiting ownership. */
-	browser: Pick<ProtectionRuntimeBrowser, 'getFocusedTabId' | 'listTabs'>;
+	browser: Pick<ProtectionRuntimeBrowser, 'getFocusedTabId' | 'listTabs' | 'navigateTab'>;
 	/** Serialized protection-state coordinator. */
+	/** Local-only preferences used to resolve configured destination identities. */
+	/** Exact packaged pause document used to authenticate the current live source. */
+	interruptionPageUrl: string;
+	preferencesStorage: Pick<PreferencesStorageService, 'load'>;
 	coordinator: Pick<ProtectionCoordinator, 'dispatch' | 'getStates'>;
 	/**
 	 * Applies one persisted domain result to browser projections.
@@ -53,6 +59,13 @@ export interface InterruptionRequestHandlerOptions {
 	 * @since 1.0.0 Initial implementation.
 	 */
 	getTimeZone(): string;
+	/**
+	 * Checks whether explicit focus intent supersedes older progress or Continue requests.
+	 * @param tabId - Browser-provided interruption tab.
+	 * @return Whether the tab has a queued configured focus choice.
+	 * @since 1.1.0
+	 */
+	isFocusLinkChoicePending( tabId: number ): boolean;
 	/**
 	 * Loads the current validated configuration.
 	 * @return Current configuration or null when unavailable.
@@ -104,6 +117,19 @@ export interface InterruptionRequestHandlerOptions {
  */
 export interface InterruptionRequestHandler {
 	/**
+	 * Forgets pending embedded choices after tab removal or complete runtime reset.
+	 * @param tabId - Removed tab, or undefined to forget all pending choices.
+	 * @since 1.1.0
+	 */
+	forgetFocusLinkNavigation( tabId?: number ): void;
+	/**
+	 * Retains an embedded blocker until committed departure or recoverable cancellation.
+	 * @param navigation - Fresh top-level browser navigation event.
+	 * @return Whether the pending choice consumed this event without ordinary navigation processing.
+	 * @since 1.1.0
+	 */
+	reconcileFocusLinkNavigation( navigation: ProtectionRuntimeNavigation ): Promise<boolean>;
+	/**
 	 * Handles one unknown interruption-page request.
 	 * @param input - Unknown extension message payload.
 	 * @param senderTabId - Browser-provided sender tab identifier.
@@ -129,4 +155,15 @@ export interface InterruptionRequestHandler {
 		documentVisible: boolean,
 		configuration: ProtectionConfigurationDocument,
 	) => Promise<void>;
+}
+
+/**
+ * Explicit embedded navigation whose original protected document still owns its blocking layer.
+ * @since 1.1.0
+ */
+export interface PendingEmbeddedFocusLinkNavigation {
+	sourceUrl: string;
+	destinationUrl: string;
+	participantId: string;
+	failed: boolean;
 }

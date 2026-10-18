@@ -192,6 +192,7 @@ msgstr "別のサイトを追加"
 msgid "Add row"
 msgstr "行を追加"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Add site"
@@ -288,10 +289,6 @@ msgstr "バックアップのダウンロードを開始しました。"
 msgid "Backup preview"
 msgstr "バックアップのプレビュー"
 
-#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
-msgid "Backups include configured website addresses and historical counts and durations. TOCus doesn't collect browsing history or page contents."
-msgstr "バックアップには、設定したウェブサイトのアドレスと、記録済みの回数と時間が含まれます。TOCusは閲覧履歴やページの内容を収集しません。"
-
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Blue"
@@ -348,6 +345,7 @@ msgid "Browser access to show the pause on this website is required. Nothing was
 msgstr "このウェブサイトで一時停止画面を表示するにはブラウザーのアクセス権限が必要です。何も保存されていません。"
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -470,6 +468,7 @@ msgid "Developed by {name}"
 msgstr "開発者：{name}"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -486,6 +485,7 @@ msgstr "通知を閉じる"
 msgid "Don't ask again"
 msgstr "今後表示しない"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Done"
 msgstr "完了"
@@ -493,6 +493,10 @@ msgstr "完了"
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Each completed wait adds this amount to the next wait that day."
 msgstr "待ち時間を完了するたびに、その日の次回の待ち時間へこの長さが加算されます。"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Edit link"
+msgstr "リンクを編集"
 
 #. Label for the end-time field of a scheduled protection window.
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -510,6 +514,10 @@ msgstr "English"
 msgid "Enter a domain or a full web address. TOCus includes the whole domain by default."
 msgstr "ドメインまたは完全なウェブアドレスを入力してください。TOCus では、デフォルトでドメイン全体が対象になります。"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Enter a label with 1 to 64 characters."
+msgstr "表示名を1～64文字で入力してください。"
+
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Enter a valid website address, such as example.com."
 msgstr "example.com のような有効なウェブサイトのアドレスを入力してください。"
@@ -517,6 +525,10 @@ msgstr "example.com のような有効なウェブサイトのアドレスを入
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Enter a valid website address."
 msgstr "有効なウェブサイトのアドレスを入力してください。"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Enter an http:// or https:// address without a username or password."
+msgstr "ユーザー名やパスワードを含まないhttp://またはhttps://のアドレスを入力してください。"
 
 #. Language autonym. Keep the language name written in Spanish.
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
@@ -638,6 +650,10 @@ msgstr "サイトを残す"
 msgid "Keep TOCus active all day, every day."
 msgstr "TOCus を毎日、終日有効にします。"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Label"
+msgstr "表示名"
+
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
@@ -677,6 +693,10 @@ msgstr "外観設定を読み込んでいます..."
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Loading language settings..."
 msgstr "言語設定を読み込んでいます..."
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Loading quick links..."
+msgstr "クイックリンクを読み込み中..."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Loading schedule..."
@@ -738,6 +758,14 @@ msgstr "月～金、終日"
 msgid "Monday"
 msgstr "月曜日"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Move down"
+msgstr "下に移動"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Move up"
+msgstr "上に移動"
+
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Name"
@@ -747,6 +775,7 @@ msgstr "名前"
 msgid "No activity recorded in this period."
 msgstr "この期間に記録されたアクティビティはありません。"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "No websites yet"
 msgstr "ウェブサイトはまだありません"
@@ -775,6 +804,10 @@ msgstr "コードを公開。参加も歓迎。"
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Open the site automatically"
 msgstr "サイトを自動的に開く"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Optionally, add up to three website shortcuts to your breathing screen."
+msgstr "必要に応じて、呼吸画面にウェブサイトへのショートカットを3つまで追加できます。"
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Or press {key}"
@@ -820,11 +853,13 @@ msgid "Period"
 msgstr "期間"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Personalization defaults restored."
 msgstr "カスタマイズ設定を既定値に戻しました。"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Personalization settings need your attention"
 msgstr "カスタマイズ設定を確認してください"
@@ -867,6 +902,20 @@ msgstr "プライバシー"
 msgid "Purple"
 msgstr "紫"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Quick link preferences"
+msgstr "クイックリンクの設定"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Quick links"
+msgstr "クイックリンク"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Quick links couldn't load"
+msgstr "クイックリンクを読み込めませんでした"
+
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Reconsidered visits"
 msgstr "再考したアクセス"
@@ -887,6 +936,10 @@ msgstr "{name} を削除しますか？"
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Remove all TOCus data and set it up again."
 msgstr "TOCusのすべてのデータを削除し、最初から設定します。"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Remove link"
+msgstr "リンクを削除"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
@@ -936,6 +989,7 @@ msgid "Resetting..."
 msgstr "リセットしています..."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Restore personalization defaults"
 msgstr "カスタマイズ設定を既定値に戻す"
@@ -949,6 +1003,7 @@ msgid "Saturday"
 msgstr "土曜日"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -970,6 +1025,7 @@ msgid "Save your changes?"
 msgstr "変更を保存しますか？"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
@@ -1351,6 +1407,10 @@ msgstr "TOCusのリセットを完了できませんでした。もう一度試�
 msgid "TOCus couldn't load local appearance settings. Nothing was changed."
 msgstr "TOCus はローカルの外観設定を読み込めませんでした。何も変更されていません。"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "TOCus couldn't load local quick links. Nothing was changed."
+msgstr "TOCusは端末内のクイックリンクを読み込めませんでした。何も変更されていません。"
+
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "TOCus couldn't load local settings. Nothing was changed."
 msgstr "TOCus はローカル設定を読み込めませんでした。何も変更されていません。"
@@ -1380,6 +1440,7 @@ msgid "TOCus couldn't restore this pause."
 msgstr "TOCus はこの一時停止を復元できませんでした。"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "TOCus couldn't restore your personalization defaults. Nothing was changed."
 msgstr "TOCus はカスタマイズ設定を既定値に戻せませんでした。何も変更されていません。"
@@ -1464,6 +1525,7 @@ msgstr "TOCus：{title}"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
@@ -1516,6 +1578,10 @@ msgstr "ブラウザーの言語を使用"
 msgid "Use custom schedule"
 msgstr "個別のスケジュールを使う"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Use them to quickly visit sites you'd rather spend time on."
+msgstr "自分が時間を使いたいサイトにすばやくアクセスするために活用してください。"
+
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Uses the global schedule"
 msgstr "全体のスケジュールを使用"
@@ -1559,6 +1625,10 @@ msgstr "使うコードをもっと自分で管理したい方は、プロジェ
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "We couldn't save your choice. Please try again."
 msgstr "設定を保存できませんでした。もう一度お試しください。"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Web address"
+msgstr "ウェブアドレス"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
@@ -1640,8 +1710,8 @@ msgid "Your appearance couldn't be saved. Your choice is still shown here."
 msgstr "外観を保存できませんでした。選択内容はこの画面に残っています。"
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
-msgid "Your backup contains configured website addresses, settings, and statistics. TOCus creates it entirely on your device. Keep it somewhere you trust."
-msgstr "バックアップには、設定したウェブサイトのアドレス、設定、統計が含まれます。TOCusはすべて端末内で作成します。信頼できる場所に保管してください。"
+msgid "Your backup includes your sites, settings, and stats, and it’s created entirely on your device. TOCus never collects your browsing history or page contents."
+msgstr "バックアップにはサイト、設定、統計が含まれ、すべてお使いの端末上で作成されます。TOCusが閲覧履歴やページの内容を収集することはありません。"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Your browser couldn't request access for that site. Try again."
@@ -1681,12 +1751,10 @@ msgid "Your local data changed. Reload settings before importing this backup."
 msgstr "ローカルデータが変更されました。このバックアップをインポートする前に設定を再読み込みしてください。"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
-msgid "Your local personalization data isn't valid. Restoring defaults will reset appearance, pause, and language preferences."
-msgstr "カスタマイズデータが無効です。初期設定に戻すと、表示、一時停止、言語の設定がリセットされます。"
-
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
-msgid "Your local personalization data isn't valid. Restoring defaults will reset appearance, pause, motion, and language preferences."
-msgstr "ローカルのカスタマイズデータが無効です。既定値に戻すと、外観、一時停止、動き、言語の設定がリセットされます。"
+msgid "Your local personalization data isn't valid. Restoring defaults will reset appearance, pause, language, and quick links."
+msgstr "端末内のカスタマイズデータが無効です。既定値に戻すと、外観、一時停止、言語、クイックリンクの設定がリセットされます。"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Your local settings need attention"
@@ -1715,6 +1783,14 @@ msgstr "一時停止を始めました。"
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Your pause is paused."
 msgstr "一時停止のカウントを停止しました。"
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Your quick link could not be opened. Try again."
+msgstr "クイックリンクを開けませんでした。もう一度お試しください。"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Your quick links couldn't be saved. Your changes are still shown here."
+msgstr "クイックリンクを保存できませんでした。変更内容は引き続きここに表示されています。"
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Your saved data isn't valid or uses an unsupported format. TOCus couldn't create a backup."

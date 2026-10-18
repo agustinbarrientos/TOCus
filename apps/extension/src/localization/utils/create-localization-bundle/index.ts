@@ -1,6 +1,7 @@
 import { setupI18n, type Messages } from '@lingui/core';
 import type { Language as LanguageValue } from '../../../domains/preferences/types';
 import { getLanguageTag } from '../../../domains/preferences/utils/resolve-language';
+import { createFocusLinksScreenCopy } from '../create-focus-links-screen-copy';
 import { createAppearanceCopy } from '../create-appearance-copy';
 import { createAboutScreenCopy } from '../create-about-screen-copy';
 import { createBackupResetScreenCopy } from '../create-backup-reset-screen-copy';
@@ -54,6 +55,7 @@ export function createLocalizationBundle(
 		backupResetCopy: createBackupResetScreenCopy( i18n ),
 		languageScreen: createLanguageScreenCopy( i18n ),
 		appearance: createAppearanceCopy( i18n ),
+		focusLinksCopy: createFocusLinksScreenCopy( i18n ),
 		schedule: createScheduleCopy( i18n, formatters ),
 		timing: createTimingCopy( i18n ),
 		protectedSites: createProtectedSitesCopy( i18n, formatters ),

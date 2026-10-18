@@ -36,6 +36,7 @@ export interface SettingsShellCopy {
 	about: string;
 	backupReset: string;
 	appearance: string;
+	focusLinks: string;
 	language: string;
 	privacy: string;
 	protectedSites: string;

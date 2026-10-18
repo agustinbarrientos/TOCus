@@ -4,6 +4,7 @@ import { test } from '../../utils/browser-test-harness';
 
 const firstContentSelectors = {
 	[ SettingsDestination.PROTECTED_SITES ]: '.settings-site-add',
+	[ SettingsDestination.FOCUS_LINKS ]: '.settings-focus-links > :first-child',
 	[ SettingsDestination.SCHEDULE ]: '.settings-behavior-label',
 	[ SettingsDestination.TIMING ]: '.tocus-field-header',
 	[ SettingsDestination.APPEARANCE ]: '.preferences-section-label',

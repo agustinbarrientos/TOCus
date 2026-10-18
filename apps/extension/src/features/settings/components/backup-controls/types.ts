@@ -44,7 +44,6 @@ export interface BackupControlsCopy {
 	backupRecoveryError: string;
 	backupProtectionRecoveryError: string;
 	backupPendingError: string;
-	backupPrivacy: string;
  }
 
 /**

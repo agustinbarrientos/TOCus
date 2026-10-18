@@ -1,3 +1,4 @@
+import { DefaultPreferencesDocument } from '../../../../domains/preferences/types';
 import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
 import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
 import { describe, expect, it, vi } from 'vitest';
@@ -33,6 +34,7 @@ import {
 	InterruptionPageRequestType,
 	InterruptionPageResponseState,
 } from '../../types/runtime-message';
+import { ProtectionRuntimeNavigationPhase } from '../../types/browser-runtime';
 import type { ProtectionRuntimeBrowser } from '../../types/browser-runtime';
 import { createInterruptionRequestHandler } from './index';
 import type { InterruptionRequestHandlerOptions } from './types';
@@ -206,8 +208,13 @@ function createHandlerHarness(
 	const reconcileUnavailableConfiguration = vi
 		.fn<InterruptionRequestHandlerOptions[ 'reconcileUnavailableConfiguration' ]>()
 		.mockResolvedValue( undefined );
+	const isFocusLinkChoicePending = vi.fn().mockReturnValue( false );
+	const preferencesStorage = { load: vi.fn().mockResolvedValue( DefaultPreferencesDocument ) };
 	const handler = createInterruptionRequestHandler( {
-		browser: { getFocusedTabId, listTabs },
+		browser: { getFocusedTabId, listTabs, navigateTab: vi.fn().mockResolvedValue( undefined ) },
+		preferencesStorage,
+		interruptionPageUrl: 'chrome-extension://extension-id/interruption.html',
+		isFocusLinkChoicePending,
 		coordinator: { dispatch, getStates },
 		applyDispatchResult,
 		createStableId,
@@ -222,6 +229,8 @@ function createHandlerHarness(
 	} );
 
 	return {
+		isFocusLinkChoicePending,
+		preferencesStorage,
 		applyDispatchResult,
 		departTab,
 		dispatch,
@@ -888,3 +897,48 @@ describe( 'interruption page actions', () => {
 		expect( harness.dispatch ).not.toHaveBeenCalled();
 	} );
 } );
+
+
+it( 'cancels a displayed checkpoint when explicit focus intent arrives during its fresh observation', async () => {
+	const waiting = createTestWaitingState();
+	const harness = createHandlerHarness( { [ DefaultProtectionScopeId ]: waiting } );
+	harness.isFocusLinkChoicePending.mockReturnValueOnce( false ).mockReturnValue( true );
+	await expect( harness.handler.handle( { type: InterruptionPageRequestType.CHECKPOINT,
+		documentVisible: true, displayedFocusedDurationMilliseconds: 10_000 }, 7, true ) )
+		.resolves.toMatchObject( { state: InterruptionPageResponseState.WAITING } );
+	expect( harness.events ).toEqual( [] );
+} );
+
+
+it.each( [ 'missing-context', 'changed-context', 'unrelated-phase' ] )(
+	'drops stale embedded choice ownership without consuming unrelated navigation: %s', async ( condition ) => {
+		const participant = createAllowanceExpiryParticipant( 'participant_pending', 'page_tab_7_pending', true, 0 );
+		const waiting = { ...createTestWaitingState(), participants: [ participant ],
+			ownerParticipantId: participant.participantId };
+		const harness = createHandlerHarness( { [ DefaultProtectionScopeId ]: waiting } );
+		harness.preferencesStorage.load.mockResolvedValue( { ...DefaultPreferencesDocument,
+			focusLinks: [ { id: 'focus_link_reading', label: 'Read', url: 'https://reading.test/' } ] } );
+		harness.listTabs.mockResolvedValue( [ { id: 7, incognito: false, url: 'https://example.com/' } ] );
+		await harness.handler.handle( { type: InterruptionPageRequestType.OPEN_FOCUS_LINK,
+			focusLinkId: 'focus_link_reading', documentVisible: true }, 7, true );
+		harness.listTabs.mockResolvedValue( [ { id: 7, incognito: false, url: 'https://example.com/',
+			status: 'loading' } ] );
+		if ( condition === 'missing-context' ) {
+			harness.getStates.mockResolvedValue( null );
+			await expect( harness.handler.reconcileFocusLinkNavigation( { tabId: 7, frameId: 0,
+				url: 'https://reading.test/', phase: ProtectionRuntimeNavigationPhase.BEFORE_NAVIGATE } ) ).resolves.toBe( false );
+		} else if ( condition === 'changed-context' ) {
+			const replacement = createAllowanceExpiryParticipant( 'participant_replacement', 'page_tab_7_pending', true, 0 );
+			harness.getStates.mockResolvedValue( { [ DefaultProtectionScopeId ]: { ...waiting,
+				ownerParticipantId: replacement.participantId, participants: [ replacement ] } } );
+			await expect( harness.handler.handle( { type: InterruptionPageRequestType.SYNCHRONIZE,
+				documentVisible: true }, 7, true ) ).resolves.not.toHaveProperty( 'focusLinkOpening' );
+		} else {
+			await expect( harness.handler.reconcileFocusLinkNavigation( { tabId: 7, frameId: 0,
+				url: 'https://example.com/#chapter', phase: ProtectionRuntimeNavigationPhase.REFERENCE_FRAGMENT_UPDATED } ) ).resolves.toBe( false );
+			await expect( harness.handler.handle( { type: InterruptionPageRequestType.SYNCHRONIZE,
+				documentVisible: true }, 7, true ) ).resolves.toHaveProperty( 'focusLinkOpening', true );
+		}
+		expect( harness.departTab ).not.toHaveBeenCalled();
+	},
+);

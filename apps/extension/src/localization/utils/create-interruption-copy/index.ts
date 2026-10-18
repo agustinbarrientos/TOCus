@@ -51,6 +51,8 @@ export function createInterruptionCopy( i18n: I18n ): Readonly<InterruptionScree
 		breatheOut: i18n._( msg`Breathe out` ),
 		continueLabel: i18n._( msg`Continue` ),
 		continueShortcut: i18n._( msg`Or press ${ key }` ),
+		focusLinksLabel: i18n._( msg`Quick links` ),
+		focusLinkFailedAnnouncement: i18n._( msg`Your quick link could not be opened. Try again.` ),
 		formatRemainingTime,
 		formatReviewTitle,
 		pausedAnnouncement: i18n._( msg`Your pause is paused.` ),

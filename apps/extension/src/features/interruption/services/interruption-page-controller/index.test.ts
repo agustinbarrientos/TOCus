@@ -57,6 +57,10 @@ class MemoryInterruptionPageScreen extends EventTarget implements InterruptionPa
 
 	recovering = false;
 
+	focusLinkOpening = false;
+
+	focusLinkFailed = false;
+
 	displayedFocusedProgressMilliseconds = 0;
 
 	/**
@@ -1850,4 +1854,171 @@ describe( 'createInterruptionPageController', () => {
 		expect( fixture.scheduler.getTimeoutDelaysMilliseconds() ).toEqual( [] );
 		expect( fixture.runtime.requests ).toHaveLength( 1 );
 	} );
+} );
+
+
+describe( 'focus-link choices', () => {
+	it( 'prioritizes a choice over pending synchronization and ignores a late completion response', async () => {
+		const waiting = { state: InterruptionPageResponseState.WAITING,
+			capturedWaitDurationMilliseconds: 10_000, focusedProgressMilliseconds: 0, progressing: true };
+		const checkpoint = Promise.withResolvers<unknown>();
+		const navigation = Promise.withResolvers<unknown>();
+		const fixture = createControllerFixture( [ waiting, checkpoint.promise, navigation.promise ] );
+		await fixture.controller.start();
+		fixture.screen.displayedFocusedProgressMilliseconds = 10_000;
+		fixture.scheduler.runIntervals();
+		fixture.windowTarget.dispatchEvent( new Event( 'focus' ) );
+		fixture.screen.dispatchEvent( new CustomEvent( 'tocus-focus-link-request', {
+			detail: { focusLinkId: 'focus_link_reading' },
+		} ) );
+		expect( fixture.screen.progressing ).toBe( false );
+		expect( fixture.screen.focusLinkOpening ).toBe( true );
+		expect( fixture.scheduler.getDelaysMilliseconds() ).toEqual( [] );
+		expect( fixture.runtime.requests.at( -1 ) ).toEqual( {
+			type: 'open-focus-link', focusLinkId: 'focus_link_reading', documentVisible: true,
+		} );
+		checkpoint.resolve( { state: InterruptionPageResponseState.READY, allowanceExpiresAtEpochMilliseconds: null } );
+		await vi.waitFor( () => {
+			expect( fixture.runtime.requests ).toHaveLength( 3 );
+		} );
+		expect( fixture.screen.state ).toBe( InterruptionScreenState.WAITING );
+		fixture.scheduler.runIntervals();
+		fixture.windowTarget.dispatchEvent( new Event( 'focus' ) );
+		fixture.screen.dispatchEvent( new Event( InterruptionContinueRequestEventName ) );
+		fixture.screen.dispatchEvent( new CustomEvent( 'tocus-focus-link-request', {
+			detail: { focusLinkId: 'focus_link_reading' },
+		} ) );
+		expect( fixture.runtime.requests ).toHaveLength( 3 );
+		navigation.resolve( { state: InterruptionPageResponseState.RELEASED } );
+		await vi.waitFor( () => {
+			expect( fixture.storageChanges.listeners.size ).toBe( 0 );
+		} );
+	} );
+
+	it.each( [ new Error( 'Navigation failed.' ), {
+		state: InterruptionPageResponseState.WAITING, capturedWaitDurationMilliseconds: 10_000,
+		focusedProgressMilliseconds: 0, progressing: false, focusLinkFailed: true,
+	} ] )( 'refreshes authoritative progress after a failed choice and permits retry %j', async ( failure ) => {
+		const synchronization = Promise.withResolvers<unknown>();
+		const waiting = { state: InterruptionPageResponseState.WAITING, capturedWaitDurationMilliseconds: 10_000,
+			focusedProgressMilliseconds: 0, progressing: true };
+		const fixture = createControllerFixture( [ waiting, failure, synchronization.promise,
+			{ state: InterruptionPageResponseState.RELEASED } ] );
+		await fixture.controller.start();
+		/** @return Whether the screen dispatched its configured focus choice. */
+		const choose = () => fixture.screen.dispatchEvent( new CustomEvent( 'tocus-focus-link-request', {
+			detail: { focusLinkId: 'focus_link_reading' },
+		} ) );
+		choose();
+		await vi.waitFor( () => {
+			expect( fixture.runtime.requests.at( -1 )?.type ).toBe( InterruptionPageRequestType.SYNCHRONIZE );
+		} );
+		expect( fixture.screen.focusLinkOpening ).toBe( false );
+		expect( fixture.screen.focusLinkFailed ).toBe( true );
+		expect( fixture.screen.progressing ).toBe( false );
+		expect( fixture.scheduler.getDelaysMilliseconds() ).toEqual( [] );
+		synchronization.resolve( waiting );
+		await vi.waitFor( () => {
+			expect( fixture.scheduler.getDelaysMilliseconds() ).toEqual( [ 1000 ] );
+		} );
+		expect( fixture.screen.focusLinkFailed ).toBe( true );
+		expect( fixture.screen.progressing ).toBe( true );
+		choose();
+		await vi.waitFor( () => {
+			expect( fixture.runtime.requests ).toHaveLength( 4 );
+		} );
+		expect( fixture.screen.focusLinkFailed ).toBe( false );
+	} );
+
+	it( 'restores Ready expiry from a fresh authoritative synchronization after a failed choice', async () => {
+		const fixture = createControllerFixture( [ { state: InterruptionPageResponseState.READY,
+			allowanceExpiresAtEpochMilliseconds: 1000 }, { state: InterruptionPageResponseState.READY,
+			allowanceExpiresAtEpochMilliseconds: 1000, focusLinkFailed: true }, {
+			state: InterruptionPageResponseState.READY, allowanceExpiresAtEpochMilliseconds: 2000,
+		} ] );
+		await fixture.controller.start();
+		fixture.screen.dispatchEvent( new CustomEvent( 'tocus-focus-link-request', {
+			detail: { focusLinkId: 'focus_link_reading' },
+		} ) );
+		await vi.waitFor( () => {
+			expect( fixture.scheduler.getTimeoutDelaysMilliseconds() ).toEqual( [ 2000 ] );
+		} );
+		expect( fixture.runtime.requests.map( ( request ) => request.type ) ).toEqual( [
+			InterruptionPageRequestType.CONNECT, InterruptionPageRequestType.OPEN_FOCUS_LINK,
+			InterruptionPageRequestType.SYNCHRONIZE,
+		] );
+		expect( fixture.screen.focusLinkFailed ).toBe( true );
+	} );
+
+	it( 'ignores malformed choices, stopped controllers, and late navigation failure', async () => {
+		const navigation = Promise.withResolvers<unknown>();
+		const fixture = createControllerFixture( [ { state: InterruptionPageResponseState.READY,
+			allowanceExpiresAtEpochMilliseconds: 1000 }, navigation.promise ] );
+		await fixture.controller.start();
+		fixture.screen.dispatchEvent( new Event( 'tocus-focus-link-request' ) );
+		for ( const detail of [ null, 'invalid', {} ] ) {
+			fixture.screen.dispatchEvent( new CustomEvent( 'tocus-focus-link-request', { detail } ) );
+		}
+		fixture.screen.dispatchEvent( new CustomEvent( 'tocus-focus-link-request', { detail: { focusLinkId: 1 } } ) );
+		expect( fixture.runtime.requests ).toHaveLength( 1 );
+		fixture.screen.dispatchEvent( new CustomEvent( 'tocus-focus-link-request', {
+			detail: { focusLinkId: 'focus_link_reading' },
+		} ) );
+		expect( fixture.scheduler.getTimeoutDelaysMilliseconds() ).toEqual( [] );
+		fixture.controller.stop();
+		navigation.reject( new Error( 'Late failure.' ) );
+		await Promise.resolve();
+		await Promise.resolve();
+		expect( fixture.screen.focusLinkFailed ).toBe( false );
+		fixture.screen.dispatchEvent( new CustomEvent( 'tocus-focus-link-request', {
+			detail: { focusLinkId: 'focus_link_reading' },
+		} ) );
+		expect( fixture.runtime.requests ).toHaveLength( 2 );
+	} );
+} );
+
+it( 'keeps a pending embedded choice alive and frozen until authoritative cancellation recovery', async () => {
+	const waiting = { state: InterruptionPageResponseState.WAITING, capturedWaitDurationMilliseconds: 10_000,
+		focusedProgressMilliseconds: 0, progressing: true };
+	const pending = { ...waiting, progressing: false, focusLinkOpening: true };
+	const fixture = createControllerFixture( [ waiting, pending, pending,
+		{ ...waiting, progressing: false, focusLinkFailed: true }, waiting ] );
+	await fixture.controller.start();
+	fixture.screen.dispatchEvent( new CustomEvent( 'tocus-focus-link-request', {
+		detail: { focusLinkId: 'focus_link_reading' },
+	} ) );
+	await vi.waitFor( () => {
+		expect( fixture.scheduler.getTimeoutDelaysMilliseconds() ).toEqual( [ 1000 ] );
+	} );
+	expect( fixture.screen.focusLinkOpening ).toBe( true );
+	expect( fixture.screen.progressing ).toBe( false );
+	fixture.scheduler.runTimeouts();
+	await vi.waitFor( () => {
+		expect( fixture.runtime.requests ).toHaveLength( 3 );
+		expect( fixture.scheduler.getTimeoutDelaysMilliseconds() ).toEqual( [ 1000 ] );
+	} );
+	fixture.scheduler.runTimeouts();
+	await vi.waitFor( () => {
+		expect( fixture.screen.focusLinkFailed ).toBe( true );
+		expect( fixture.screen.progressing ).toBe( true );
+	} );
+	expect( fixture.screen.focusLinkOpening ).toBe( false );
+	expect( fixture.scheduler.getDelaysMilliseconds() ).toEqual( [ 1000 ] );
+} );
+
+
+it( 'ignores a previously queued embedded-navigation poll after its controller stops', async () => {
+	const waiting = { state: InterruptionPageResponseState.WAITING, capturedWaitDurationMilliseconds: 10_000,
+		focusedProgressMilliseconds: 0, progressing: true };
+	const fixture = createControllerFixture( [ waiting, { ...waiting, progressing: false, focusLinkOpening: true } ] );
+	await fixture.controller.start();
+	fixture.screen.dispatchEvent( new CustomEvent( 'tocus-focus-link-request', {
+		detail: { focusLinkId: 'focus_link_reading' },
+	} ) );
+	await vi.waitFor( () => {
+		expect( fixture.scheduler.getTimeoutDelaysMilliseconds() ).toEqual( [ 1000 ] );
+	} );
+	fixture.controller.stop();
+	fixture.scheduler.runClearedTimeouts();
+	expect( fixture.runtime.requests ).toHaveLength( 2 );
 } );

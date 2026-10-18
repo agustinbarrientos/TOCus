@@ -8,6 +8,7 @@ describe( 'createBackupResetScreenCopy', () => {
 		expect( copy.title ).toBe( 'Backup and reset' );
 		expect( copy.exportBackup ).toBe( 'Export backup' );
 		expect( copy.importBackup ).toBe( 'Import backup' );
+		expect( copy.backupDescription ).toBe( 'Your backup includes your sites, settings, and stats, and it\u2019s created entirely on your device. TOCus never collects your browsing history or page contents.' );
 		expect( copy.statisticsDescription ).toContain( 'Your websites and settings stay the same' );
 		expect( copy.allConfirmation ).toContain( 'The setup will begin again.' );
 		expect( copy.allConfirmation ).toContain( "This can't be reversed." );

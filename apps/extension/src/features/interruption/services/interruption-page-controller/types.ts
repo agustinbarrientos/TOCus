@@ -69,6 +69,12 @@ export interface InterruptionPageScreen extends EventTarget {
 	/** Whether an explicit recovery request is currently pending. */
 	recovering: boolean;
 
+	/** Whether an explicit focus destination is being opened. */
+	focusLinkOpening: boolean;
+
+	/** Whether the latest focus destination could not be opened. */
+	focusLinkFailed: boolean;
+
 	/**
 	 * Returns the focused progress currently displayed by the local presentation clock.
 	 * @return Displayed focused progress in milliseconds.
