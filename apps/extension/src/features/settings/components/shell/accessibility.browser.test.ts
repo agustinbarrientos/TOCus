@@ -17,6 +17,7 @@ test.describe( 'Settings accessibility', () => {
 				SettingsDestination.ABOUT, SettingsDestination.BACKUP_RESET,
 				SettingsDestination.PRIVACY, SettingsDestination.STATISTICS,
 				SettingsDestination.LANGUAGE, SettingsDestination.APPEARANCE,
+				SettingsDestination.FOCUS_LINKS,
 				SettingsDestination.TIMING, SettingsDestination.SCHEDULE, SettingsDestination.PROTECTED_SITES ] ) {
 				await page.evaluate( ( destination ) => {
 					location.hash = destination;

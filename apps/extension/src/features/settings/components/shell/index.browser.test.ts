@@ -137,7 +137,7 @@ test.describe( 'React settings', () => {
 	test( 'renders every destination at one width and keeps read-only pages free of Save', async ( { open } ) => {
 		test.setTimeout( 20000 );
 		const page = await open( SettingsDestination.ABOUT );
-		for ( const destination of [ 'About', 'Privacy', 'Backup and reset', 'Statistics', 'Language', 'Appearance', 'Pause timing', 'Schedule', 'Websites' ] ) {
+		for ( const destination of [ 'About', 'Privacy', 'Backup and reset', 'Statistics', 'Language', 'Appearance', 'Pause timing', 'Schedule', 'Focus links', 'Websites' ] ) {
 			await page.getByRole( 'link', { name: destination, exact: true } ).click();
 			await page.getByRole( 'heading', { level: 1 } ).waitFor();
 			expect( await page.locator( '.settings-content' ).evaluate( ( element ) => element.getBoundingClientRect().width ) ).toBeGreaterThan( 500 );
