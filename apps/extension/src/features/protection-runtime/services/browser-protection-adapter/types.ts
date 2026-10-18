@@ -2,6 +2,23 @@ import type { Browser, WxtBrowser } from 'wxt/browser';
 import type { ExtensionTabContextRuntime } from '../../../../shared/services/extension-tab-context';
 
 /**
+ * Evidence returned by a source-checked interruption replacement attempt.
+ * @since 1.0.0 Initial implementation.
+ */
+export const InterruptionNavigationReplacementDisposition = {
+	ACCEPTED: 'accepted',
+	STALE: 'stale',
+	UNHANDLED: 'unhandled',
+} as const;
+
+/**
+ * Source-checked interruption replacement outcome.
+ * @since 1.0.0 Initial implementation.
+ */
+export type InterruptionNavigationReplacementDisposition =
+	typeof InterruptionNavigationReplacementDisposition[ keyof typeof InterruptionNavigationReplacementDisposition ];
+
+/**
  * Exact one-shot alarm deadline accepted by the browser.
  * @since 1.0.0 Initial implementation.
  */

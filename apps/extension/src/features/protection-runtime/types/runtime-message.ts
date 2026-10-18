@@ -33,7 +33,7 @@ export type InterruptionNavigationReplacementRequest = z.infer<
 >;
 
 /**
- * Validates the acknowledgement emitted before the interruption document replaces itself.
+ * Validates acknowledgement after the interruption document accepts native replacement.
  * @since 1.0.0 Initial implementation.
  */
 export const InterruptionNavigationReplacementResponseSchema = z.object( {
