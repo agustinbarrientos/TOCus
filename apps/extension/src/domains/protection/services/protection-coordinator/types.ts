@@ -263,6 +263,10 @@ export interface ProtectionCoordinatorOptions {
  * @since 1.0.0 Initial implementation.
  */
 export interface ProtectionCoordinator {
+	/** Atomically consumes one pending release and queues its accepted browser outcome once. */
+	completeContinuation( input: unknown ): Promise<boolean>;
+	/** Removes an unaccepted or stale release without recording an outcome. */
+	discardContinuation( input: unknown ): Promise<void>;
 	/**
 	 * Forgets cached state and delivery after earlier operations settle without writing storage.
 	 * @return Promise resolved when subsequent reads are unavailable until initialization.

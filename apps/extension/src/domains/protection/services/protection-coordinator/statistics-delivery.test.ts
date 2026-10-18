@@ -9,6 +9,7 @@ import {
 } from '../../types/__fixtures__/protection-event';
 import { DepartureCause } from '../../types/protection-event';
 import { ProtectionFactType } from '../../types/protection-fact';
+import { ProtectionStateType } from '../../types/protection-state';
 import {
 	StoredProtectionStatisticsDeliveryStatus,
 } from '../../types/stored-protection-statistics-delivery';
@@ -222,7 +223,138 @@ async function dispatchReconsideredVisit(
 	);
 }
 
+/**
+ * Prepares a real configured navigation participant's manual release.
+ * @param coordinator - Coordinator whose participant release will be prepared.
+ */
+async function prepareAttributedContinuation( coordinator: ProtectionCoordinator ): Promise<void> {
+	const attempt = createVisitAttempt();
+	await coordinator.dispatch( () => ( { ...attempt,
+		participant: { ...attempt.participant, siteHost: 'example.com' } } ) );
+	await coordinator.dispatch( () => createProgressCheckpoint( 10_000 ), 'revision_1' );
+	await coordinator.dispatch( () => createReadyContinuation(), 'revision_1' );
+}
+
+const acceptedContinuation = {
+	scopeId: 'scope-default', allowanceId: 'allowance-a', participantId: 'participant-a', pageId: 'page-a',
+	observedAtEpochMilliseconds: TestInstant + 2, observedLocalDate: '2026-09-01', observedLocalHour: 23,
+};
+
 describe( 'protection coordinator statistics delivery', () => {
+	it( 'rejects malformed or uninitialized acceptance without creating durable work', async () => {
+		const storage = new StatisticsDeliveryMemoryStorage();
+		const coordinator = createStatisticsDeliveryCoordinator( storage, () => 'unexpected-batch' );
+		await expect( coordinator.completeContinuation( acceptedContinuation ) ).resolves.toBe( false );
+		await initializeCoordinator( coordinator );
+		await expect( coordinator.completeContinuation( {
+			...acceptedContinuation, observedLocalHour: 24,
+		} ) ).resolves.toBe( false );
+		await expect( coordinator.discardContinuation( { ...acceptedContinuation, url: 'https://example.com/' } ) )
+			.resolves.toBeUndefined();
+		expect( storage.savedDurableAcknowledgements ).toEqual( [] );
+	} );
+	it( 'retains independent tab receipts through FIFO acknowledgement and exact acceptance', async () => {
+		const storage = new StatisticsDeliveryMemoryStorage();
+		let sequence = 0;
+		const coordinator = createStatisticsDeliveryCoordinator( storage, () => `parallel_${ String( ++sequence ) }` );
+		await initializeCoordinator( coordinator );
+		for ( const [ participantId, pageId, focusEligible ] of [ [ 'participant-a', 'page-a', true ],
+			[ 'participant-b', 'page-b', false ] ] as const ) {
+			const attempt = createVisitAttempt( participantId, pageId, focusEligible );
+			await coordinator.dispatch( () => ( { ...attempt,
+				participant: { ...attempt.participant, siteHost: 'example.com' } } ) );
+		}
+		await coordinator.dispatch( () => createProgressCheckpoint( 10_000 ), 'revision_1' );
+		await coordinator.dispatch( () => createReadyContinuation(), 'revision_1' );
+		await coordinator.dispatch( () => createReadyContinuation( createFreshObservation(
+			'participant-b', 'page-b', 'https://example.com/page-b',
+		) ), 'revision_1' );
+		const before = await coordinator.getStatisticsDelivery();
+		expect( before?.pendingContinuations ).toHaveLength( 2 );
+		await coordinator.acknowledgeStatisticsDeliveryBatch( before?.outbox[ 0 ]?.batchId );
+		expect( ( await coordinator.getStatisticsDelivery() )?.pendingContinuations )
+			.toEqual( before?.pendingContinuations );
+		await expect( coordinator.completeContinuation( {
+			...acceptedContinuation, pageId: 'stale-page',
+		} ) ).resolves.toBe( false );
+		await expect( coordinator.completeContinuation( acceptedContinuation ) ).resolves.toBe( true );
+		expect( ( await coordinator.getStatisticsDelivery() )?.pendingContinuations )
+			.toMatchObject( [ { participantId: 'participant-b' } ] );
+		await coordinator.discardContinuation( { scopeId: 'scope-default', allowanceId: 'allowance-a',
+			participantId: 'participant-b', pageId: 'page-b' } );
+		const after = await coordinator.getStatisticsDelivery();
+		expect( after?.pendingContinuations ?? [] ).toEqual( [] );
+		expect( after?.outbox.flatMap( ( batch ) => batch.facts )
+			.filter( ( fact ) => fact.type === ProtectionFactType.CONTINUED_VISIT ) ).toHaveLength( 1 );
+	} );
+	it( 'keeps acceptance observational when its durable receipt write fails', async () => {
+		const storage = new StatisticsDeliveryMemoryStorage();
+		let sequence = 0;
+		const coordinator = createStatisticsDeliveryCoordinator( storage, () => `failure_${ String( ++sequence ) }` );
+		await initializeCoordinator( coordinator );
+		await prepareAttributedContinuation( coordinator );
+		const before = await coordinator.getStatisticsDelivery();
+		storage.saveDurableFailure = new Error( 'Receipt storage unavailable.' );
+		await expect( coordinator.completeContinuation( acceptedContinuation ) ).resolves.toBe( false );
+		expect( await coordinator.getStatisticsDelivery() ).toEqual( { ...before, status: 'incomplete' } );
+		expect( storage.savedDurableAcknowledgements ).toEqual( [] );
+		expect( ( await coordinator.getStates() )?.[ 'scope-default' ]?.type ).toBe( ProtectionStateType.ALLOWANCE );
+	} );
+	it( 'persists a pending continuation and delivers its accepted outcome exactly once', async () => {
+		const storage = new StatisticsDeliveryMemoryStorage();
+		let sequence = 0;
+		const coordinator = createStatisticsDeliveryCoordinator( storage, () => `outcome_${ String( ++sequence ) }` );
+		await initializeCoordinator( coordinator );
+		await prepareAttributedContinuation( coordinator );
+		const pending = await coordinator.getStatisticsDelivery();
+		expect( pending?.status ).toBe( StoredProtectionStatisticsDeliveryStatus.COMPLETE );
+		expect( pending?.pendingContinuations ).toMatchObject( [ {
+			siteHost: 'example.com', participantId: 'participant-a', pageId: 'page-a', allowanceId: 'allowance-a',
+		} ] );
+		expect( storage.savedStates.at( -1 )?.durable.statisticsDelivery.pendingContinuations ).toHaveLength( 1 );
+		expect( pending?.outbox.flatMap( ( batch ) => batch.facts )
+			.filter( ( fact ) => fact.type === ProtectionFactType.CONTINUED_VISIT ) ).toEqual( [] );
+		await expect( coordinator.completeContinuation( acceptedContinuation ) ).resolves.toBe( true );
+		await expect( coordinator.completeContinuation( acceptedContinuation ) ).resolves.toBe( false );
+		const delivery = await coordinator.getStatisticsDelivery();
+		expect( delivery?.pendingContinuations ?? [] ).toEqual( [] );
+		expect( delivery?.outbox.at( -1 ) ).toMatchObject( { observedLocalDate: '2026-09-01', facts: [ {
+			type: 'continued-visit', siteHost: 'example.com', observedLocalHour: 23,
+			observedAtEpochMilliseconds: TestInstant + 2,
+		} ] } );
+		for ( const batch of delivery?.outbox ?? [] ) {
+			await coordinator.acknowledgeStatisticsDeliveryBatch( batch.batchId );
+		}
+		await expect( coordinator.completeContinuation( acceptedContinuation ) ).resolves.toBe( false );
+		expect( ( await coordinator.getStatisticsDelivery() )?.outbox ).toEqual( [] );
+	} );
+	it( 'clears pending receipts on reset so late browser acceptance cannot restore statistics', async () => {
+		const storage = new StatisticsDeliveryMemoryStorage();
+		let sequence = 0;
+		const coordinator = createStatisticsDeliveryCoordinator( storage, () => `reset_${ String( ++sequence ) }` );
+		await initializeCoordinator( coordinator );
+		await prepareAttributedContinuation( coordinator );
+		expect( ( await coordinator.getStatisticsDelivery() )?.pendingContinuations ).toHaveLength( 1 );
+		await coordinator.resetStatisticsDelivery();
+		await coordinator.completeStatisticsDeliveryReset();
+		await expect( coordinator.completeContinuation( acceptedContinuation ) ).resolves.toBe( false );
+		expect( await coordinator.getStatisticsDelivery() ).toEqual( { status: 'complete', outbox: [] } );
+	} );
+	it( 'marks restored unacknowledged releases incomplete without fabricating acceptance', async () => {
+		const storage = new StatisticsDeliveryMemoryStorage();
+		let sequence = 0;
+		const coordinator = createStatisticsDeliveryCoordinator( storage, () => `restore_${ String( ++sequence ) }` );
+		await initializeCoordinator( coordinator );
+		await prepareAttributedContinuation( coordinator );
+		expect( ( await coordinator.getStatisticsDelivery() )?.pendingContinuations ).toHaveLength( 1 );
+		const restored = createStatisticsDeliveryCoordinator( storage, () => 'restored' );
+		await initializeCoordinator( restored );
+		const delivery = await restored.getStatisticsDelivery();
+		expect( delivery?.status ).toBe( StoredProtectionStatisticsDeliveryStatus.INCOMPLETE );
+		expect( delivery?.pendingContinuations ?? [] ).toEqual( [] );
+		expect( delivery?.outbox.flatMap( ( batch ) => batch.facts )
+			.some( ( fact ) => fact.type === ProtectionFactType.CONTINUED_VISIT ) ).toBe( false );
+	} );
 	it( 'restores valid protection scopes while isolating malformed statistics delivery', async () => {
 		const scopes = StoredDurableProtectionStateSchema.shape.scopes.parse( {
 			'scope-default': {
