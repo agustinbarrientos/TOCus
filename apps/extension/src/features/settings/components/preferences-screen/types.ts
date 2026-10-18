@@ -15,6 +15,10 @@ import type {
  */
 export interface PreferencesScreenProps extends EditableSettingsScreenProps {
 	language?: boolean;
+	/** Preference fields owned by an additional editable destination. */
+	fields?: readonly ( keyof PreferencesDocument )[];
+	/** Rejects invalid candidates before either page or navigation persistence begins. */
+	validate?: ( value: PreferencesDocument ) => boolean;
 }
 
 

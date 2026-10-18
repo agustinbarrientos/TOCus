@@ -18,7 +18,7 @@ import type {
 	PreferencesScreenProps,
 } from '../../components/preferences-screen/types';
 import type { DraftGuard } from '../../utils/draft-controller/types';
-import type { DraftSaveResult } from '../../utils/draft-controller/types';
+import { DraftSaveResult } from '../../utils/draft-controller/types';
 
 
 /**
@@ -120,9 +120,12 @@ export function usePreferencesState( props: PreferencesScreenProps ) {
 	 * @return Whether the current draft was saved cleanly.
 	 */
 	function save(): Promise<DraftSaveResult> {
+		if ( recovery.pending || ( props.validate && ! props.validate( draft.snapshot.value ) ) ) {
+			return Promise.resolve( DraftSaveResult.FAILED );
+		}
 		return draft.save( async ( preferences ) => {
-			const fields: ( keyof PreferencesDocument )[] = language
-				? [ 'language' ] : [ 'theme', 'palette', 'pauseMode' ];
+			const fields = props.fields ?? ( language
+				? [ 'language' ] as const : [ 'theme', 'palette', 'pauseMode' ] as const );
 			const changedFields = fields.filter( ( key ) => preferences[ key ] !== draft.baseline[ key ] );
 			const update = Object.fromEntries( changedFields.map( ( key ) => [ key, preferences[ key ] ] ) );
 			const updated = await shell.preferencesEditor?.update( update );

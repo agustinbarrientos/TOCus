@@ -94,7 +94,7 @@ export function createDraft<T extends object>( initial: T, equals?: DraftEqualit
 			revision++;
 			const merged = { ...value };
 			for ( const key in value ) {
-				if ( snapshot.value[ key ] !== baseline[ key ] ) {
+				if ( JSON.stringify( snapshot.value[ key ] ) !== JSON.stringify( baseline[ key ] ) ) {
 					merged[ key ] = snapshot.value[ key ];
 				}
 			}
