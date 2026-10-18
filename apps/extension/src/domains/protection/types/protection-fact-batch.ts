@@ -39,6 +39,7 @@ function getFactObservedAtEpochMilliseconds(
 	switch ( fact.type ) {
 		case ProtectionFactType.PAUSE_TIME:
 		case ProtectionFactType.RECONSIDERED_VISIT:
+		case ProtectionFactType.CONTINUED_VISIT:
 			return fact.observedAtEpochMilliseconds;
 		case ProtectionFactType.COMPLETED_WAIT:
 			return fact.completedAtEpochMilliseconds;

@@ -26,6 +26,15 @@ const VALID_BATCH = {
 };
 
 describe( 'ProtectionFactBatchSchema', () => {
+	it( 'preserves the captured date and timestamp of a continued visit', () => {
+		const input = { ...VALID_BATCH, facts: [ { type: 'continued-visit', factId: 'continued_1',
+			scopeId: 'scope_default', allowanceId: 'allowance_1', participantId: 'participant_1', pageId: 'page_1',
+			siteHost: 'example.com', observedLocalHour: 23, observedAtEpochMilliseconds: 1_000 } ] };
+		expect( ProtectionFactBatchSchema.safeParse( input ).success ).toBe( true );
+		expect( ProtectionFactBatchSchema.safeParse( {
+			...input, observedAtEpochMilliseconds: 2_000,
+		} ).success ).toBe( false );
+	} );
 	it( 'parses one non-empty same-scope fact batch', () => {
 		expect( ProtectionFactBatchSchema.parse( VALID_BATCH ) ).toEqual( VALID_BATCH );
 	} );

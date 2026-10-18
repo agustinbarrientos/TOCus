@@ -25,6 +25,7 @@ function getProtectionFactObservationTime( fact: ProtectionFact ): number {
 	switch ( fact.type ) {
 		case ProtectionFactType.PAUSE_TIME:
 		case ProtectionFactType.RECONSIDERED_VISIT:
+		case ProtectionFactType.CONTINUED_VISIT:
 			return fact.observedAtEpochMilliseconds;
 		case ProtectionFactType.COMPLETED_WAIT:
 			return fact.completedAtEpochMilliseconds;
@@ -67,6 +68,7 @@ function markProtectionStatisticsDeliveryIncomplete(
 	delivery: StoredProtectionStatisticsDelivery,
 ): StoredProtectionStatisticsDelivery {
 	return StoredProtectionStatisticsDeliverySchema.parse( {
+		...delivery,
 		status: StoredProtectionStatisticsDeliveryStatus.INCOMPLETE,
 		outbox: delivery.outbox,
 	} );
@@ -112,6 +114,7 @@ export function prepareStatisticsDeliveryForTransition(
 		} );
 
 		return StoredProtectionStatisticsDeliverySchema.parse( {
+			...input.delivery,
 			status: StoredProtectionStatisticsDeliveryStatus.COMPLETE,
 			outbox: [ ...input.delivery.outbox, batch ],
 		} );

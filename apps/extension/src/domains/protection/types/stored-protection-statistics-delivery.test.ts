@@ -39,6 +39,16 @@ function createBatch( index: number, scopeId = 'scope_default' ) {
 }
 
 describe( 'StoredProtectionStatisticsDeliverySchema', () => {
+	it( 'rejects duplicate pending participant receipts without retaining a destination URL', () => {
+		const receipt = { scopeId: 'scope-default', allowanceId: 'allowance-a', participantId: 'participant-a',
+			pageId: 'page-a', siteHost: 'example.com', measurementRevision: 'revision-1' };
+		expect( StoredProtectionStatisticsDeliverySchema.safeParse( {
+			status: 'complete', outbox: [], pendingContinuations: [ receipt, receipt ],
+		} ).success ).toBe( false );
+		expect( StoredProtectionStatisticsDeliverySchema.safeParse( {
+			status: 'complete', outbox: [], pendingContinuations: [ { ...receipt, retainedDestination: 'https://example.com/private' } ],
+		} ).success ).toBe( false );
+	} );
 	it.each( [
 		StoredProtectionStatisticsDeliveryStatus.COMPLETE,
 		StoredProtectionStatisticsDeliveryStatus.INCOMPLETE,
