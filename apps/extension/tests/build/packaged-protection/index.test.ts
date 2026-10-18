@@ -368,7 +368,7 @@ test.describe( 'packaged Chrome protection', () => {
 		} );
 	}
 
-	test( 'keeps a redacted pause tab calm while its accepted destination remains pending', async ( { context, worker, page } ) => {
+	test( 'keeps a redacted pause tab calm while its accepted destination remains pending', async ( { context, worker, page, extensionRoot } ) => {
 		// Phase limits total 70 seconds; allow ten for worker readiness and ten for orchestration.
 		// These are failure ceilings, not sleeps: the real wait remains ten seconds plus a two-second observation.
 		test.setTimeout( 90_000 );
@@ -451,7 +451,8 @@ test.describe( 'packaged Chrome protection', () => {
 				} );
 
 				expect( pauseTab ).toBeDefined();
-				expect( pauseTab?.url ).toBeUndefined();
+				// Chromium can expose an extension's own URL without granting access to website URLs.
+				expect( [ undefined, new URL( 'pause.html', extensionRoot ).href ] ).toContain( pauseTab?.url );
 				expect( pauseTab?.pendingUrl ).toBeUndefined();
 			}, { timeout: 10_000 } );
 			const continueButton = page.getByRole( 'button', { name: 'Continue', exact: true } );
