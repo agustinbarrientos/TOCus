@@ -59,11 +59,11 @@ function createRequest( sourceUrl = CURRENT_URL, url = DESTINATION ): unknown {
 
 describe( 'registerInterruptionNavigationReplacement', () => {
 	it.each( [ CURRENT_URL, CARRIER_URL ] )(
-		'acknowledges before replacing an exact interruption document: %s',
+		'acknowledges only after replacing an exact interruption document: %s',
 		( sourceUrl ) => {
 			const harness = createHarness( sourceUrl );
 			const sendResponse = vi.fn( () => {
-				expect( harness.replace ).not.toHaveBeenCalled();
+				expect( harness.replace ).toHaveBeenCalledExactlyOnceWith( DESTINATION );
 			} );
 
 			harness.listener(
@@ -74,6 +74,19 @@ describe( 'registerInterruptionNavigationReplacement', () => {
 			expect( sendResponse ).toHaveBeenCalledExactlyOnceWith( { replaced: true } );
 			expect( harness.replace ).toHaveBeenCalledExactlyOnceWith( DESTINATION );
 		} );
+
+	it( 'does not acknowledge a rejected native replacement', () => {
+		const harness = createHarness();
+		const sendResponse = vi.fn();
+		harness.replace.mockImplementation( () => {
+			throw new Error( 'Replacement rejected' );
+		} );
+		expect( () => {
+			harness.listener( createRequest(), { id: EXTENSION_ID }, sendResponse );
+		} )
+			.toThrow( 'Replacement rejected' );
+		expect( sendResponse ).not.toHaveBeenCalled();
+	} );
 
 	it.each( [
 		{ label: 'different extension', sender: { id: 'another-extension' } },

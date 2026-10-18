@@ -1680,6 +1680,7 @@ describe( 'createInterruptionPageController', () => {
 		browser.navigateTab = async ( tabId, url ) => {
 			browser.tabs = browser.tabs.map( ( tab ) => tab.id === tabId ? { ...tab, pendingUrl: url } : tab );
 			await navigationAccepted.promise;
+			return true;
 		};
 
 		if ( automatic ) {
