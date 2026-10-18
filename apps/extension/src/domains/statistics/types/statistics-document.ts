@@ -11,6 +11,7 @@ import {
 	StatisticsGenerationIdSchema,
 	StatisticsNonNegativeSafeIntegerSchema,
 } from './statistics-value';
+import { StatisticsVisitOutcomesSchema } from './statistics-visit-outcomes';
 
 /**
  * Current local statistics document version.
@@ -285,6 +286,7 @@ export const StatisticsDocumentSchema = z.object( {
 	firstRecordedDate: LocalDateSchema.nullable(),
 	dailyTotals: z.array( DailyStatisticsTotalsSchema ),
 	scopes: StatisticsScopesSchema,
+	visitOutcomes: StatisticsVisitOutcomesSchema.optional(),
 } ).strict().refine( ( document ) => {
 	const { firstRecordedDate } = document;
 	if ( firstRecordedDate === null ) {

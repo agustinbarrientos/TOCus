@@ -4,3 +4,4 @@ export * from './statistics-operation';
 export * from './statistics-projection';
 export * from './statistics-session';
 export * from './statistics-value';
+export * from './statistics-visit-outcomes';
