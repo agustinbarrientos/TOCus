@@ -160,6 +160,10 @@ msgstr "TOCusについて"
 msgid "About {duration} saved."
 msgstr "約{duration}節約。"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "About visit outcomes"
+msgstr "アクセスの結果について"
+
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "Absolutely everything."
 msgstr "すべてのデータです。"
@@ -171,10 +175,6 @@ msgstr "アクセス権限が必要です"
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Active time windows"
 msgstr "有効な時間帯"
-
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Activity"
-msgstr "アクティビティ"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Add {siteName}"
@@ -217,8 +217,9 @@ msgid "All day"
 msgstr "終日"
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
-msgid "All recorded counts and time totals will be deleted. This can't be undone."
-msgstr "記録された回数と合計時間はすべて削除されます。この操作は取り消せません。"
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "All recorded statistics will be deleted. This can't be undone."
+msgstr "記録された統計がすべて削除されます。この操作は元に戻せません。"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "All the time"
@@ -298,6 +299,10 @@ msgstr "青"
 msgid "Brasil"
 msgstr "Brasil"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Breakdowns recorded from {recordedDate}."
+msgstr "{recordedDate}からの内訳を記録しています。"
+
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Breathe in"
 msgstr "息を吸って"
@@ -343,6 +348,10 @@ msgstr "ブラウザーのアクセス権限が必要です"
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Browser access to show the pause on this website is required. Nothing was saved."
 msgstr "このウェブサイトで一時停止画面を表示するにはブラウザーのアクセス権限が必要です。何も保存されていません。"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "By website"
+msgstr "サイト別"
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
@@ -406,6 +415,7 @@ msgid "Clear all schedule rows?"
 msgstr "スケジュールの行をすべて削除しますか？"
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Clear your recorded counts and time totals. Your websites and settings stay the same."
 msgstr "記録された回数と合計時間を削除します。サイトの一覧と設定はそのまま残ります。"
 
@@ -418,8 +428,8 @@ msgid "Color palette"
 msgstr "カラーパレット"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Completed waits"
-msgstr "待機を完了した回数"
+msgid "Completed pauses"
+msgstr "完了した一時停止"
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
@@ -438,6 +448,14 @@ msgstr "今月"
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Current week"
 msgstr "今週"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Daily activity"
+msgstr "日別のアクティビティ"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Daily activity metric"
+msgstr "日別のアクティビティの指標"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
@@ -607,6 +625,14 @@ msgstr "全体の時間設定"
 msgid "Green"
 msgstr "緑"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Hour"
+msgstr "時刻"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "How estimated time reclaimed is calculated"
+msgstr "取り戻した推定時間の計算方法"
+
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "If TOCus doesn't have access to a website, it can't pause that site. You can update these permissions in your browser's extension settings."
 msgstr "TOCusにウェブサイトへのアクセス権限がない場合、そのサイトに一時停止画面を表示できません。権限はブラウザーの拡張機能の設定で変更できます。"
@@ -714,10 +740,6 @@ msgstr "時間設定を読み込んでいます..."
 msgid "Loading websites..."
 msgstr "ウェブサイトを読み込んでいます..."
 
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Local data"
-msgstr "ローカルデータ"
-
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Local data controls are unavailable right now."
 msgstr "現在、ローカルデータの操作は利用できません。"
@@ -774,6 +796,14 @@ msgstr "名前"
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "No activity recorded in this period."
 msgstr "この期間に記録されたアクティビティはありません。"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "No reconsidered visits recorded in this period."
+msgstr "この期間に再考したアクセスは記録されていません。"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "No visit outcomes recorded in this period."
+msgstr "この期間のアクセスの結果は記録されていません。"
 
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
@@ -917,8 +947,20 @@ msgid "Quick links couldn't load"
 msgstr "クイックリンクを読み込めませんでした"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Reconsidered"
+msgstr "再考したアクセス"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Reconsidered visits"
 msgstr "再考したアクセス"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Reconsidered visits by hour"
+msgstr "時間帯別の再考したアクセス"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Reconsidered visits end before the pause finishes. Visits after a pause count when you wait and continue to the website."
+msgstr "再考したアクセスは、一時停止が終わる前に終了したアクセスです。一時停止後のアクセスは、待機後にサイトへ進んだときに数えます。"
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Recorded date range"
@@ -1149,6 +1191,10 @@ msgstr "統計を利用できません"
 msgid "Statistics couldn't be reset"
 msgstr "統計をリセットできませんでした"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Statistics keep counts and durations, plus daily counts for each configured website and hourly counts of reconsidered visits. They do not save full web addresses, page content, or individual visit records."
+msgstr "統計には、回数と時間に加え、設定したサイトごとの日別の回数と、再考したアクセスの時間帯別の回数が保存されます。完全なウェブアドレス、ページの内容、個々のアクセス記録は保存されません。"
+
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Statistics reset. Your websites and settings are unchanged."
 msgstr "統計をリセットしました。サイトの一覧と設定は変更していません。"
@@ -1209,10 +1255,6 @@ msgstr "スケジュールを保存できませんでした。設定は変更さ
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "The source code is available on GitHub if you want to check for yourself."
 msgstr "自分で確かめたい方のために、ソースコードをGitHubで公開しています。"
-
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
-msgid "The statistics only keep track of counts and durations. They don't save any page content or web addresses."
-msgstr "統計に記録されるのは回数と時間だけです。ページの内容やウェブアドレスは保存しません。"
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "The wait won't grow beyond this duration."
@@ -1512,8 +1554,8 @@ msgid "TOCus works directly in your browser and never connects to outside server
 msgstr "TOCusはブラウザー内で動作し、外部のサーバーには一切接続しません。アカウントも追跡もクラウドとの接続もありません。インストール後は、インターネットに接続されていないプライベートネットワークでも動作します。"
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
-msgid "TOCus works entirely offline and doesn't track your data on your device."
-msgstr "TOCusは完全にオフラインで動作し、端末上のデータを追跡することもありません。"
+msgid "TOCus works entirely offline. Your data stays on your device and is not sent to the developer."
+msgstr "TOCusは完全にオフラインで動作します。データはデバイス内に保存され、開発者には送信されません。"
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "TOCus works without internet. Your data stays on this device and is never sent to other computers."
@@ -1590,9 +1632,21 @@ msgstr "全体のスケジュールを使用"
 msgid "Version {version}"
 msgstr "バージョン {version}"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Visit outcome key"
+msgstr "アクセスの結果の凡例"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Visit outcomes"
+msgstr "アクセスの結果"
+
 #: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "Visit window: complete"
 msgstr "利用可能時間：終了"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Visited after pause"
+msgstr "一時停止後のアクセス"
 
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
 msgid "Vos"
@@ -1634,6 +1688,10 @@ msgstr "ウェブアドレス"
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Website address"
 msgstr "ウェブサイトのアドレス"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Website and hourly breakdowns will appear as new visits are recorded."
+msgstr "新しいアクセスが記録されると、サイト別・時間帯別の内訳が表示されます。"
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Website count"
@@ -1764,6 +1822,10 @@ msgstr "ローカル設定を確認してください"
 msgid "Your local settings weren't changed. Try loading them again."
 msgstr "ローカル設定は変更されていません。もう一度読み込んでください。"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Your local time"
+msgstr "現地時間"
+
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Your local timing data isn't valid, so it wasn't replaced."
 msgstr "ローカルの時間設定データが無効なため、置き換えませんでした。"
@@ -1795,14 +1857,6 @@ msgstr "クイックリンクを保存できませんでした。変更内容は
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Your saved data isn't valid or uses an unsupported format. TOCus couldn't create a backup."
 msgstr "保存済みのデータが無効か、対応していない形式です。TOCusはバックアップを作成できませんでした。"
-
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Your statistics stay on this device."
-msgstr "統計はこのデバイスにのみ保存されます。"
-
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Your statistics will start over from zero. Websites, schedules, timing, and appearance remain unchanged."
-msgstr "統計はゼロから再集計されます。ウェブサイト、スケジュール、時間設定、外観は変更されません。"
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Your timing data changed. Retry before saving these choices."
