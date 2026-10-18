@@ -29,6 +29,8 @@ export const test = base.extend<SettingsBrowserHarness>( {
 		): Promise<Page> {
 			const query = language === undefined ? '' : `?language=${ encodeURIComponent( language ) }`;
 			await page.goto( `/apps/extension/src/features/settings/components/shell/__fixtures__/${ query }#${ destination }` );
+			// Localized fixture bootstrap can resume after load while its catalog module is still pending.
+			await page.waitForFunction( () => Object.hasOwn( window, 'settingsTest' ) );
 			return page;
 		}
 		await use( open );
