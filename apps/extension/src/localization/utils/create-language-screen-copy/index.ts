@@ -70,7 +70,7 @@ export function createLanguageScreenCopy( i18n: I18n ): Readonly<LanguageScreenC
 		loading: i18n._( msg`Loading language settings...` ),
 		malformedDataTitle: i18n._( msg`Personalization settings need your attention` ),
 		malformedDataDescription: i18n._(
-			msg`Your local personalization data isn't valid. Restoring defaults will reset appearance, pause, language, and focus links.`,
+			msg`Your local personalization data isn't valid. Restoring defaults will reset appearance, pause, language, and quick links.`,
 		),
 		loadErrorTitle: i18n._( msg`Language settings couldn't load` ),
 		loadErrorDescription: i18n._( msg`TOCus couldn't load your local language setting. Nothing was changed.` ),

@@ -16,7 +16,7 @@ export function createSettingsShellCopy( i18n: I18n ): Readonly<SettingsShellCop
 		protectedSites: i18n._( msg`Websites` ),
 		schedule: i18n._( msg`Schedule` ),
 		timing: i18n._( msg`Pause timing` ),
-		focusLinks: i18n._( msg`Focus links` ),
+		focusLinks: i18n._( msg`Quick links` ),
 		language: i18n._( msg`Language` ),
 		privacy: i18n._( msg`Privacy` ),
 		backupReset: i18n._( msg`Backup and reset` ),

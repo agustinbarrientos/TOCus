@@ -24,7 +24,7 @@ describe( 'createSettingsShellCopy', () => {
 		const messages = await loadLocalizationMessages( language );
 		const copy = createSettingsShellCopy( setupI18n( { locale: language, messages: { [ language ]: messages } } ) );
 		const sourceMessages = {
-			focusLinks: 'Focus links',
+			focusLinks: 'Quick links',
 			backupReset: 'Backup and reset',
 			dismissNotification: 'Dismiss notification',
 			changesSaved: 'Changes saved.',
