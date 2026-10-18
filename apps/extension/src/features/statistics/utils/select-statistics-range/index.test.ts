@@ -25,6 +25,102 @@ function projection( dates: string[], currentDate = '2026-09-16' ) {
 }
 
 describe( 'selectStatisticsRange', () => {
+	it( 'selects matching website outcomes and local hours without reconstructing earlier history', () => {
+		const input = Object.assign( projection( [ '2026-09-13', '2026-09-14', '2026-09-16' ] ), {
+			firstRecordedDate: '2026-09-13',
+			visitOutcomes: {
+				recordedFromDate: '2026-09-15',
+				dailySites: [
+					{ date: '2026-09-13', siteHost: 'youtube.com', reconsideredVisitCount: 20, visitedAfterPauseCount: 30 },
+					{ date: '2026-09-15', siteHost: 'youtube.com', reconsideredVisitCount: 2, visitedAfterPauseCount: 3 },
+					{ date: '2026-09-16', siteHost: 'youtube.com', reconsideredVisitCount: 4, visitedAfterPauseCount: 1 },
+					{ date: '2026-09-16', siteHost: 'reddit.com', reconsideredVisitCount: 1, visitedAfterPauseCount: 2 },
+					{ date: '2026-09-17', siteHost: 'reddit.com', reconsideredVisitCount: 40, visitedAfterPauseCount: 50 },
+				],
+				dailyHours: [
+					{ date: '2026-09-13', hour: 9, reconsideredVisitCount: 20 },
+					{ date: '2026-09-15', hour: 9, reconsideredVisitCount: 2 },
+					{ date: '2026-09-16', hour: 9, reconsideredVisitCount: 4 },
+					{ date: '2026-09-16', hour: 18, reconsideredVisitCount: 1 },
+					{ date: '2026-09-17', hour: 9, reconsideredVisitCount: 40 },
+				],
+			},
+		} );
+		const before = JSON.stringify( input );
+		const selected = selectStatisticsRange( input, StatisticsRange.CURRENT_WEEK );
+		expect( selected ).toMatchObject( { startDate: '2026-09-14', endDate: '2026-09-16',
+			breakdowns: { recordedFromDate: '2026-09-15', partialHistory: true,
+				siteOutcomes: [
+					{ siteHost: 'youtube.com', reconsideredVisitCount: 6, visitedAfterPauseCount: 4 },
+					{ siteHost: 'reddit.com', reconsideredVisitCount: 1, visitedAfterPauseCount: 2 },
+				] } } );
+		expect( selected.breakdowns.hourlyReconsideredVisits ).toHaveLength( 24 );
+		expect( selected.breakdowns.hourlyReconsideredVisits[ 9 ] ).toEqual( { hour: 9, reconsideredVisitCount: 6 } );
+		expect( selected.breakdowns.hourlyReconsideredVisits[ 18 ] ).toEqual( { hour: 18, reconsideredVisitCount: 1 } );
+		expect( selected.breakdowns.hourlyReconsideredVisits[ 0 ] ).toEqual( { hour: 0, reconsideredVisitCount: 0 } );
+		expect( JSON.stringify( input ) ).toBe( before );
+	} );
+	it( 'distinguishes unrecorded breakdown history from a recorded period with no outcomes', () => {
+		const legacy = selectStatisticsRange( projection( [] ), StatisticsRange.CURRENT_WEEK );
+		expect( legacy ).toMatchObject( { startDate: '2026-09-14', endDate: '2026-09-16', breakdowns: {
+			recordedFromDate: null, partialHistory: true, siteOutcomes: [], hourlyReconsideredVisits: [],
+		} } );
+		const recorded = selectStatisticsRange( Object.assign( projection( [] ), {
+			firstRecordedDate: '2026-09-14',
+			visitOutcomes: { recordedFromDate: '2026-09-14', dailySites: [], dailyHours: [] },
+		} ), StatisticsRange.CURRENT_WEEK );
+		expect( recorded.breakdowns.partialHistory ).toBe( false );
+		expect( recorded.breakdowns.hourlyReconsideredVisits ).toHaveLength( 24 );
+		expect( recorded.breakdowns.hourlyReconsideredVisits
+			.every( ( hour ) => hour.reconsideredVisitCount === 0 ) ).toBe( true );
+	} );
+	it( 'retains genuine all-time coverage dates while keeping legacy totals separate from newer breakdowns', () => {
+		const input = Object.assign( projection( [ '2026-09-14' ] ), {
+			firstRecordedDate: '2025-01-01',
+			visitOutcomes: { recordedFromDate: '2026-09-14', dailySites: [], dailyHours: [] },
+		} );
+		expect( selectStatisticsRange( input ) ).toMatchObject( { startDate: '2025-01-01', endDate: '2026-09-16',
+			breakdowns: { partialHistory: true } } );
+		expect( selectStatisticsRange( projection( [] ) ).startDate ).toBeNull();
+		expect( selectStatisticsRange( input, StatisticsRange.CURRENT_MONTH ).startDate ).toBe( '2026-09-01' );
+	} );
+	it( 'preserves lifetime totals after clock rollback without displaying future coverage or an inverted date range', () => {
+		const input = Object.assign( projection( [ '2026-09-18' ] ), {
+			firstRecordedDate: '2026-09-18',
+			visitOutcomes: { recordedFromDate: '2026-09-18',
+				dailySites: [ { date: '2026-09-18', siteHost: 'youtube.com',
+					reconsideredVisitCount: 1, visitedAfterPauseCount: 2 } ],
+				dailyHours: [ { date: '2026-09-18', hour: 9, reconsideredVisitCount: 1 } ] },
+		} );
+		const selected = selectStatisticsRange( input );
+		expect( selected ).toMatchObject( { startDate: null, endDate: '2026-09-16',
+			totals: { reconsideredVisitCount: 1, estimatedReclaimedMilliseconds: 125_000 },
+			chartBuckets: [], breakdowns: { recordedFromDate: null, partialHistory: true,
+				siteOutcomes: [], hourlyReconsideredVisits: [] } } );
+		expect( selectStatisticsRange( input, StatisticsRange.CURRENT_WEEK ) ).toMatchObject( {
+			startDate: '2026-09-14', endDate: '2026-09-16', totals: { reconsideredVisitCount: 0 },
+		} );
+		expect( input.firstRecordedDate ).toBe( '2026-09-18' );
+		expect( input.visitOutcomes.recordedFromDate ).toBe( '2026-09-18' );
+	} );
+	it( 'ranks equal website outcomes consistently and ignores zero rows and observations outside the selected month', () => {
+		const input = Object.assign( projection( [] ), { visitOutcomes: {
+			recordedFromDate: '2026-08-01',
+			dailySites: [
+				{ date: '2026-08-31', siteHost: 'old.test', reconsideredVisitCount: 10, visitedAfterPauseCount: 10 },
+				{ date: '2026-09-01', siteHost: 'b.test', reconsideredVisitCount: 0, visitedAfterPauseCount: 1 },
+				{ date: '2026-09-01', siteHost: 'a.test', reconsideredVisitCount: 0, visitedAfterPauseCount: 1 },
+				{ date: '2026-09-01', siteHost: 'c.test', reconsideredVisitCount: 0, visitedAfterPauseCount: 2 },
+				{ date: '2026-09-01', siteHost: 'zero.test', reconsideredVisitCount: 0, visitedAfterPauseCount: 0 },
+			],
+			dailyHours: [],
+		} } );
+		const selected = selectStatisticsRange( input, StatisticsRange.CURRENT_MONTH );
+		expect( selected.breakdowns.siteOutcomes.map( ( site ) => site.siteHost ) ).toEqual( [ 'c.test', 'a.test', 'b.test' ] );
+		expect( selected.breakdowns.partialHistory ).toBe( false );
+		expect( selectStatisticsRange( input ).breakdowns.partialHistory ).toBe( true );
+		expect( selectStatisticsRange( input ).breakdowns.siteOutcomes[ 0 ]?.siteHost ).toBe( 'old.test' );
+	} );
 	it( 'defaults to complete lifetime totals without dropping history older than ninety days', () => {
 		const result = selectStatisticsRange( projection( [ '2025-01-01', '2026-09-16' ] ) );
 		expect( result.range ).toBe( StatisticsRange.ALL_TIME );
