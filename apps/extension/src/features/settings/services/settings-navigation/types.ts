@@ -8,6 +8,7 @@ export const SettingsDestination = {
 	ABOUT: 'about',
 	BACKUP_RESET: 'backup-reset',
 	APPEARANCE: 'appearance',
+	FOCUS_LINKS: 'focus-links',
 	LANGUAGE: 'language',
 	PRIVACY: 'privacy',
 	PROTECTED_SITES: 'protected-sites',

@@ -36,6 +36,7 @@ import type {
 	PreferencesSource,
 } from '../../components/appearance-screen/types';
 import type { LanguageScreenCopy } from '../../components/language-screen/types';
+import type { FocusLinksScreenCopy } from '../../components/focus-links-screen/types';
 import type { ScheduleScreenCopy } from '../../components/schedule-screen/types';
 import type {
 	SettingsPlatform,
@@ -127,6 +128,8 @@ export interface SettingsPageShell extends ProtectedSitesAccessRefresher {
 	editor: ProtectionConfigurationEditor | null;
 	/** Browser-capability-aware favicon provider. */
 	faviconProvider: SiteFaviconProvider | null;
+	/** Localized Focus links destination copy. */
+	focusLinksCopy: Readonly<FocusLinksScreenCopy>;
 	/** Localized Language destination copy. */
 	languageCopy: Readonly<LanguageScreenCopy>;
 	/** Protected-site browser permission manager. */

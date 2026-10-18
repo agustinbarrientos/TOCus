@@ -33,6 +33,9 @@ export class SettingsPresentationState implements SettingsPageShell {
 	/** Browser-local favicon provider attached by bootstrap. */
 	faviconProvider: SettingsPageShell['faviconProvider'] = null;
 
+	/** Focus links copy supplied before first render. */
+	focusLinksCopy!: SettingsPageShell['focusLinksCopy'];
+
 	/** Language copy supplied before first render. */
 	languageCopy!: SettingsPageShell['languageCopy'];
 
