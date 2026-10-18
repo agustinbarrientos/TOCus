@@ -25,7 +25,7 @@ The initial pause lasts 10 seconds. By default, you get 5 minutes to browse when
 
 ## Privacy
 
-Free and open source. No accounts, ads, or tracking. TOCus works offline; settings and statistics stay on your device. Statistics store counts and durations, without page content or web addresses. An active pause may temporarily keep its destination address so you can return to the website.
+Free and open source. No accounts, ads, or analytics in the extension. TOCus works offline; settings and statistics stay on your device. Statistics store counts and durations, daily counts for each configured website, and hourly counts of reconsidered visits. They do not store full web addresses, page content, or individual visit records. An active pause may temporarily keep its destination address so you can return to the website.
 
 You control website access and can delete your data in settings. Read the [privacy policy](https://tocus.uo.ar/privacy/).
 

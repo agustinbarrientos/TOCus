@@ -69,6 +69,15 @@ async function readWebsiteCatalog( locale: string ): Promise<CatalogType> {
 }
 
 describe( 'website localization', () => {
+	it( 'discloses local aggregate detail and its deletion without claiming individual visit history', () => {
+		const privacy = getPrivacyCatalog( WebsiteLanguage.ENGLISH );
+		expect( privacy.statistics ).toContain( 'daily counts for each configured website' );
+		expect( privacy.statistics ).toContain( 'hourly counts of reconsidered visits' );
+		expect( privacy.statistics ).toContain( 'individual visit records' );
+		expect( privacy.deletion ).toContain( 'website and hourly breakdowns' );
+		expect( privacy.offline ).toContain( 'not sent to the developer' );
+	} );
+
 	it( 'provides every public privacy paragraph without English fallbacks', () => {
 		const english = getPrivacyCatalog( WebsiteLanguage.ENGLISH );
 		for ( const language of WebsiteLanguages ) {
