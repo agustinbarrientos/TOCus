@@ -2,6 +2,82 @@ import { expect } from '@playwright/test';
 import { setTimeout as delay } from 'node:timers/promises';
 import { launchNativeFirefox } from './gecko-driver.mjs';
 
+const SHADOW_CLICK_READINESS_SCRIPT = `
+const [selectors, budget] = arguments;
+const find = () => {
+  let root = document;
+  let element;
+  for (const selector of selectors) {
+    element = root?.querySelector(selector);
+    if (!element) return null;
+    root = element.shadowRoot;
+  }
+  return element;
+};
+const describe = element => element ? {tag: element.localName, classes: Array.from(element.classList)} : null;
+const observe = element => {
+  const rects = Array.from(element?.getClientRects() ?? []);
+  const rect = rects.find(value => value.width > 0 && value.height > 0) ?? rects[0];
+  const viewport = [innerWidth, innerHeight];
+  const connected = element?.isConnected === true;
+  const disabled = element?.matches(':disabled') || element?.getAttribute('aria-disabled') === 'true';
+  let visible = Boolean(element);
+  for (let ancestor = element; ancestor; ancestor = ancestor.parentElement ?? ancestor.getRootNode().host) {
+    const style = getComputedStyle(ancestor);
+    if (style.display === 'none' || style.visibility !== 'visible' || Number(style.opacity) === 0) visible = false;
+  }
+  const left = Math.max(0, Math.min(rect?.x ?? 0, (rect?.x ?? 0) + (rect?.width ?? 0)));
+  const right = Math.min(innerWidth, Math.max(rect?.x ?? 0, (rect?.x ?? 0) + (rect?.width ?? 0)));
+  const top = Math.max(0, Math.min(rect?.y ?? 0, (rect?.y ?? 0) + (rect?.height ?? 0)));
+  const bottom = Math.min(innerHeight, Math.max(rect?.y ?? 0, (rect?.y ?? 0) + (rect?.height ?? 0)));
+  const intersects = right > left && bottom > top;
+  const point = {x: Math.floor((left + right) / 2), y: Math.floor((top + bottom) / 2)};
+  const root = element?.getRootNode();
+  const paint = intersects && root?.elementsFromPoint ? root.elementsFromPoint(point.x, point.y) : [];
+  const reason = !element ? 'Missing control.' : !connected ? 'Detached control.' : disabled ? 'Disabled control.'
+    : !visible ? 'Hidden control.' : document.fonts.status === 'loading' ? 'Fonts are loading.'
+    : !rect || !intersects ? 'Control has no viewport intersection.'
+    : !paint.includes(element) ? 'Control is absent from its shadow paint tree.'
+    : !element.contains(paint[0]) ? 'Control center is covered.' : null;
+  return {ready: reason === null, reason, rect: rect?.toJSON() ?? null, viewport, inView: paint.includes(element),
+    point, connected, disabled, visible, paint: paint.slice(0,4).map(describe)};
+};
+let last = observe(find());
+return new Promise((resolve, reject) => {
+  let finished = false;
+  const timer = setTimeout(() => {
+    finished = true;
+    reject(new Error('Native shadow control did not become actionable: ' + JSON.stringify(last)));
+  }, budget);
+  const frame = () => new Promise(done => requestAnimationFrame(done));
+  const scrolled = new WeakSet();
+  const attempt = async () => {
+    if (finished) return;
+    const element = find();
+    let before = observe(element);
+    if (element && before.connected && before.rect?.width > 0 && before.rect?.height > 0 &&
+        !before.inView && !scrolled.has(element)) {
+      scrolled.add(element);
+      element.scrollIntoView({behavior: 'instant', block: 'end', inline: 'nearest'});
+      before = observe(element);
+    }
+    await frame(); await frame();
+    if (finished) return;
+    last = observe(element);
+    if (JSON.stringify(before.rect) !== JSON.stringify(last.rect)) {
+      last.ready = false;
+      last.reason = 'Control geometry is still moving.';
+    }
+    if (last.ready) {
+      finished = true;
+      clearTimeout(timer);
+      resolve(element);
+    } else requestAnimationFrame(() => { void attempt().catch(fail); });
+  };
+  const fail = error => { finished = true; clearTimeout(timer); reject(error); };
+  void attempt().catch(fail);
+});`;
+
 /**
  * Retries native pointer input only when Firefox reports an obscured click target.
  * @param {() => Promise<unknown>} click - Genuine Marionette input operation.
@@ -25,6 +101,7 @@ async function clickWhenUnobscured( click ) {
  * Adapts the installed Firefox driver to the shared installed-browser journeys.
  * @param {string} directory - Disposable installation directory.
  * @param {object} [options] - Isolated browser configuration for this journey.
+ * @param {number} [options.shadowClickReadinessTimeoutMilliseconds] - Observation budget for isolated pointer probes.
  * @return {Promise<object>} Browser controls using native input and permission prompts.
  * @since 1.0.1
  */
@@ -127,32 +204,30 @@ export async function launchFirefox( directory, options = {} ) {
 		 * @param {string} selector - CSS selector with optional shadow separators.
 		 * @return {Promise<unknown>} Completion of native pointer input.
 		 */
-		viewClick: ( view, selector ) => clickWhenUnobscured( async () => {
+		viewClick: async ( view, selector ) => {
 			if ( ! selector.includes( '>>>' ) ) {
-				return driver.viewClick( view, selector );
+				return clickWhenUnobscured( () => driver.viewClick( view, selector ) );
 			}
 			const result = await driver.command( '/execute/async', {
-				script: `const [view, selectors, done] = arguments;
+				script: `const [view, selectors, readiness, budget, done] = arguments;
 				try {
 					const target = view === 'popup' ? document.querySelector('browser[webextension-view-type="popup"]')
 						: view === 'selected' ? gBrowser.selectedBrowser
 						: Array.from(gBrowser.tabs).find(tab => tab.linkedBrowser.currentURI.spec.endsWith('/onboarding.html'))?.linkedBrowser;
 					if (!target) throw new Error('Firefox view is unavailable: ' + view);
 					const actor = target.browsingContext.currentWindowGlobal.getActor('MarionetteCommands');
-					const find = 'let root = document; let element; for (const selector of arguments[0]) {' +
-						'element = root?.querySelector(selector); if (!element) throw new Error("Missing shadow element: " + selector);' +
-						'root = element.shadowRoot; } return element;';
-					actor.executeScript(find, [selectors], {}).then(element =>
+					actor.executeScript(readiness, [selectors, budget], {}).then(element =>
 						actor.clickElement(element, {toJSON: () => ({'moz:webdriverClick': true})}))
 						.then(value => done({ok: true, value}), error => done({ok: false, message: String(error)}));
 				} catch (error) { done({ok: false, message: String(error)}); }`,
-				args: [ view, selector.split( /\s*>>>\s*/u ) ],
+				args: [ view, selector.split( /\s*>>>\s*/u ), SHADOW_CLICK_READINESS_SCRIPT,
+					options.shadowClickReadinessTimeoutMilliseconds ?? 12_000 ],
 			} );
 			if ( ! result?.ok ) {
 				throw new Error( `Firefox shadow click failed: ${ result?.message ?? 'No actor result.' }` );
 			}
 			return result.value;
-		} ),
+		},
 		/**
 		 * Selects a real HTML option through Marionette's native option click behavior.
 		 * @param {string} view - Selected document, popup, or onboarding view.
