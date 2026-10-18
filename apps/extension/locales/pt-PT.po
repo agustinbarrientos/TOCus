@@ -821,8 +821,8 @@ msgid "Opening your focus link..."
 msgstr "A abrir a sua ligação para manter o foco..."
 
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "Optionally, add up to three shortcuts to your breathing screen so you can quickly get back to what matters most."
-msgstr "Se quiseres, adiciona até três atalhos ao teu ecrã de respiração para voltares rapidamente ao que mais importa."
+msgid "Optionally, add up to three website shortcuts to your breathing screen. Use them to quickly visit sites you'd rather spend time on."
+msgstr "Se quiseres, adiciona até três atalhos de sites ao teu ecrã de respiração. Usa-os para visitar rapidamente os sites onde preferes passar o teu tempo."
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Or press {key}"
