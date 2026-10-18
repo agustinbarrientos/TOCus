@@ -4,7 +4,7 @@ import { createProtectedPageLayerCopy } from '../../../../../localization/utils/
 import { ComponentProtectedPageLayer } from '../../protected-page-layer';
 import { ComponentInterruptionScreen } from '..';
 import { createManualInterruptionScreenEnvironment } from '.';
-import { InterruptionContinueRequestEventName, InterruptionRetryRequestEventName, InterruptionScreenState } from '../types';
+import { InterruptionContinueRequestEventName, InterruptionFocusLinkRequestEventName, InterruptionRetryRequestEventName, InterruptionScreenState } from '../types';
 import { ThemeMode, Palette } from '../../../../../domains/preferences/types';
 import { ReviewPromptDismissRequestEventName } from '../../../services/review-prompt-controller/types';
 import './browser-types';
@@ -55,7 +55,7 @@ if ( layer ) {
 	document.body.append( screen );
 }
 window.pauseFixture = {
-	screen, layer, environment, continues: 0, retries: 0, reviewDismissals: 0,
+	screen, layer, environment, continues: 0, retries: 0, reviewDismissals: 0, focusLinkChoices: [],
 	states: InterruptionScreenState, themes: ThemeMode, palettes: Palette,
 };
 screen.addEventListener( InterruptionContinueRequestEventName, () => {
@@ -69,3 +69,7 @@ screen.addEventListener( ReviewPromptDismissRequestEventName, () => {
 } );
 await screen.updateComplete;
 document.documentElement.dataset.ready = 'true';
+
+screen.addEventListener( InterruptionFocusLinkRequestEventName, ( event ) => {
+	window.pauseFixture.focusLinkChoices.push( ( event as CustomEvent<{ focusLinkId: string }> ).detail.focusLinkId );
+} );

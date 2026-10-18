@@ -17,6 +17,7 @@ declare global {
 			continues: number;
 			retries: number;
 			reviewDismissals: number;
+			focusLinkChoices: string[];
 		};
 	}
 }

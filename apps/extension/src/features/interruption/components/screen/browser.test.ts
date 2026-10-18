@@ -405,3 +405,93 @@ test.describe( 'React pause', () => {
 		} );
 	}
 } );
+
+
+for ( const injected of [ false, true ] ) {
+	test( `offers configured focus choices without exposing destinations in the ${ injected ? 'embedded' : 'standalone' } pause`, async ( { page } ) => {
+		await page.setViewportSize( { width: 320, height: 568 } );
+		await page.goto( `${ origin }${ injected ? '?injected=1' : '' }` );
+		await page.locator( 'html[data-ready]' ).waitFor();
+		await expect( page.getByRole( 'group', { name: 'Return to your focus' } ) ).toHaveCount( 0 );
+		await page.evaluate( async () => {
+			window.pauseFixture.screen.focusLinks = [
+				{ id: 'focus_link_reading', label: 'Read a chapter', url: 'https://reading.test/private?token=local' },
+				{ id: 'focus_link_practice', label: 'Practice', url: 'https://practice.test/' },
+				{ id: 'focus_link_walking', label: 'Take a walk', url: 'https://walk.test/' },
+			];
+			await window.pauseFixture.screen.updateComplete;
+		} );
+		if ( injected ) {
+			const geometry = await page.evaluate( () => {
+				const root = window.pauseFixture.screen.shadowRoot;
+				const choices = [ ...root?.querySelectorAll<HTMLButtonElement>( '.focus-link-button' ) ?? [] ];
+				return choices.map( ( choice ) => {
+					const bounds = choice.getBoundingClientRect();
+					return { label: choice.textContent, visible: bounds.top >= 0 && bounds.bottom <= innerHeight };
+				} );
+			} );
+			expect( geometry ).toEqual( [ { label: 'Read a chapter', visible: true },
+				{ label: 'Practice', visible: true }, { label: 'Take a walk', visible: true } ] );
+			await page.evaluate( async () => {
+				const { screen, states } = window.pauseFixture;
+				screen.shadowRoot?.querySelector<HTMLButtonElement>( '.focus-link-button' )?.focus();
+				screen.state = states.READY;
+				await screen.updateComplete;
+			} );
+			expect( await page.evaluate( () => window.pauseFixture.screen.shadowRoot?.activeElement?.textContent ) )
+				.toBe( 'Read a chapter' );
+			await page.keyboard.press( 'Space' );
+			expect( await page.evaluate( () => window.pauseFixture.focusLinkChoices ) ).toEqual( [ 'focus_link_reading' ] );
+			expect( await page.evaluate( () => window.pauseFixture.continues ) ).toBe( 0 );
+			const result = await page.evaluate( async () => {
+				const { screen } = window.pauseFixture;
+				screen.focusLinkOpening = true;
+				await screen.updateComplete;
+				const disabled = [ ...screen.shadowRoot?.querySelectorAll<HTMLButtonElement>( 'button' ) ?? [] ]
+					.every( ( button ) => button.disabled );
+				const status = screen.shadowRoot?.querySelector( '[role="status"]' )?.textContent;
+				screen.focusLinkOpening = false;
+				screen.focusLinkFailed = true;
+				await screen.updateComplete;
+				return { disabled, status, failure: screen.shadowRoot?.querySelector( '[role="alert"]' )?.textContent,
+					exposesUrl: screen.shadowRoot?.innerHTML.includes( 'reading.test' ) };
+			} );
+			expect( result ).toEqual( { disabled: true, status: 'Opening your focus link...',
+				failure: 'Your focus link could not be opened. Try again.', exposesUrl: false } );
+			return;
+		}
+		const reading = page.getByRole( 'button', { name: 'Read a chapter' } );
+		await expect( reading ).toBeInViewport();
+		await expect( page.getByRole( 'button', { name: 'Take a walk' } ) ).toBeInViewport();
+		await reading.focus();
+		await page.evaluate( async () => {
+			window.pauseFixture.screen.state = window.pauseFixture.states.READY;
+			await window.pauseFixture.screen.updateComplete;
+		} );
+		await expect( reading ).toBeFocused();
+		await page.keyboard.press( 'Space' );
+		expect( await page.evaluate( () => window.pauseFixture.focusLinkChoices ) ).toEqual( [ 'focus_link_reading' ] );
+		expect( await page.evaluate( () => window.pauseFixture.continues ) ).toBe( 0 );
+		expect( await reading.evaluate( ( button ) => button.getRootNode() instanceof ShadowRoot &&
+			! ( button.getRootNode() as ShadowRoot ).innerHTML.includes( 'reading.test' ) ) ).toBe( true );
+		await page.evaluate( async () => {
+			window.pauseFixture.screen.focusLinkOpening = true;
+			await window.pauseFixture.screen.updateComplete;
+		} );
+		await expect( reading ).toBeDisabled();
+		await expect( page.getByRole( 'button', { name: 'Continue', exact: true } ) ).toBeDisabled();
+		await expect( page.getByRole( 'status' ) ).toHaveText( 'Opening your focus link...' );
+		await page.evaluate( async () => {
+			window.pauseFixture.screen.focusLinkOpening = false;
+			window.pauseFixture.screen.focusLinkFailed = true;
+			await window.pauseFixture.screen.updateComplete;
+		} );
+		await expect( reading ).toBeEnabled();
+		await expect( page.getByRole( 'alert' ) ).toHaveText( 'Your focus link could not be opened. Try again.' );
+		await page.evaluate( async () => {
+			window.pauseFixture.screen.focusLinks = [];
+			await window.pauseFixture.screen.updateComplete;
+		} );
+		await expect( page.getByRole( 'group', { name: 'Return to your focus' } ) ).toHaveCount( 0 );
+	} );
+}
