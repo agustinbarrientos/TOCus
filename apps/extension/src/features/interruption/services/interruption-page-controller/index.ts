@@ -7,6 +7,7 @@ import {
 } from '../../../protection-runtime/types/runtime-message';
 import {
 	InterruptionContinueRequestEventName,
+	InterruptionFocusLinkRequestEventName,
 	InterruptionRetryRequestEventName,
 	InterruptionScreenState,
 } from '../../components/screen/types';
@@ -16,6 +17,7 @@ import type {
 	InterruptionPageStorageChange,
 } from './types';
 import { ProtectionStorageKey } from '../../../../domains/protection/services/protection-storage';
+import { OpenFocusLinkInterruptionPageRequestSchema } from '../../../protection-runtime/types/runtime-message';
 import { hasAllowanceIntervalChange } from '../../utils/allowance-interval-change';
 
 /**
@@ -217,6 +219,28 @@ export function createInterruptionPageController(
 			}
 		}
 
+		if ( response !== null && 'focusLinkOpening' in response && response.focusLinkOpening ) {
+			options.screen.focusLinkOpening = true;
+			options.screen.progressing = false;
+			stopCheckpointInterval();
+			stopReadyExpiryTimeout();
+			readyExpiryTimeoutHandle = options.scheduler.setTimeout(
+				handleFocusLinkPoll, CHECKPOINT_INTERVAL_MILLISECONDS,
+			);
+			return;
+		}
+		if ( request.type === InterruptionPageRequestType.OPEN_FOCUS_LINK || options.screen.focusLinkOpening ) {
+			options.screen.focusLinkOpening = false;
+			if ( response === null || ( 'focusLinkFailed' in response && response.focusLinkFailed ) ) {
+				options.screen.focusLinkFailed = true;
+				void enqueueRequest( {
+					type: InterruptionPageRequestType.SYNCHRONIZE,
+					documentVisible: options.visibility.isDocumentVisible(),
+				} );
+				return;
+			}
+		}
+
 		if ( response === null ) {
 			showUnavailable();
 			return;
@@ -233,9 +257,14 @@ export function createInterruptionPageController(
 
 	/**
 	 * Starts the next retained request after the current operation settles.
+	 * @param operation - Completed operation that still owns the active request slot.
 	 * @since 1.0.0 Initial implementation.
 	 */
-	function handleRequestCompletion(): void {
+	function handleRequestCompletion( operation: Promise<void> ): void {
+		if ( requestOperation !== operation ) {
+			return;
+		}
+
 		const nextRequest = pendingRequest;
 		const nextRequestRecoversInitialFailure = pendingRequestRecoversInitialFailure;
 
@@ -261,7 +290,9 @@ export function createInterruptionPageController(
 		const operation = sendRequest( request, lifecycleGeneration, recoverInitialFailure );
 
 		requestOperation = operation;
-		void operation.then( handleRequestCompletion );
+		void operation.then( () => {
+			handleRequestCompletion( operation );
+		} );
 
 		return operation;
 	}
@@ -335,7 +366,7 @@ export function createInterruptionPageController(
 	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleSynchronizationRequest(): void {
-		if ( options.screen.state === InterruptionScreenState.UNAVAILABLE ) {
+		if ( options.screen.state === InterruptionScreenState.UNAVAILABLE || options.screen.focusLinkOpening ) {
 			return;
 		}
 
@@ -397,6 +428,18 @@ export function createInterruptionPageController(
 	}
 
 	/**
+	 * Polls accepted embedded navigation without advancing progress or releasing its original blocker.
+	 * @since 1.1.0
+	 */
+	function handleFocusLinkPoll(): void {
+		readyExpiryTimeoutHandle = null;
+		if ( observing && options.screen.focusLinkOpening ) {
+			void enqueueRequest( { type: InterruptionPageRequestType.SYNCHRONIZE,
+				documentVisible: options.visibility.isDocumentVisible() } );
+		}
+	}
+
+	/**
 	 * Requests authoritative state when the locally scheduled Ready allowance expires.
 	 * @since 1.0.0 Initial implementation.
 	 */
@@ -439,10 +482,44 @@ export function createInterruptionPageController(
 	 * @since 1.0.0 Initial implementation.
 	 */
 	function handleContinueRequest(): void {
+		if ( options.screen.focusLinkOpening ) {
+			return;
+		}
 		void enqueueRequest( {
 			type: InterruptionPageRequestType.CONTINUE,
 			documentVisible: options.visibility.isDocumentVisible(),
 		} );
+	}
+
+	/**
+	 * Stops local progress and prioritizes one explicit configured destination over stale synchronization.
+	 * @param event - Screen event carrying only a stable focus-link identity.
+	 * @since 1.1.0
+	 */
+	function handleFocusLinkRequest( event: Event ): void {
+		if ( ! observing || options.screen.focusLinkOpening || ! ( event instanceof CustomEvent ) ) {
+			return;
+		}
+		const detail: unknown = event.detail;
+		const request = OpenFocusLinkInterruptionPageRequestSchema.safeParse( {
+			type: InterruptionPageRequestType.OPEN_FOCUS_LINK,
+			documentVisible: options.visibility.isDocumentVisible(),
+			focusLinkId: typeof detail === 'object' && detail !== null && 'focusLinkId' in detail
+				? detail.focusLinkId : undefined,
+		} );
+		if ( ! request.success ) {
+			return;
+		}
+
+		lifecycleGeneration += 1;
+		pendingRequest = null;
+		pendingRequestRecoversInitialFailure = false;
+		options.screen.progressing = false;
+		options.screen.focusLinkOpening = true;
+		options.screen.focusLinkFailed = false;
+		stopCheckpointInterval();
+		stopReadyExpiryTimeout();
+		void startRequest( request.data );
 	}
 
 	/**
@@ -476,6 +553,8 @@ export function createInterruptionPageController(
 		windowFocused = options.visibility.isWindowFocused();
 		options.screen.progressing = false;
 		options.screen.recovering = false;
+		options.screen.focusLinkOpening = false;
+		options.screen.focusLinkFailed = false;
 		options.screen.state = InterruptionScreenState.WAITING;
 		options.motionPreference.addEventListener( 'change', handleMotionPreferenceChange );
 		handleMotionPreferenceChange();
@@ -483,6 +562,7 @@ export function createInterruptionPageController(
 		options.windowTarget.addEventListener( 'blur', handleWindowBlur );
 		options.windowTarget.addEventListener( 'focus', handleWindowFocus );
 		options.screen.addEventListener( InterruptionContinueRequestEventName, handleContinueRequest );
+		options.screen.addEventListener( InterruptionFocusLinkRequestEventName, handleFocusLinkRequest );
 		options.screen.addEventListener( InterruptionRetryRequestEventName, handleRetryRequest );
 		options.storageChanges.addListener( handleStorageChange );
 		const submittedOperation = enqueueRequest( {
@@ -507,6 +587,7 @@ export function createInterruptionPageController(
 	function stop(): void {
 		lifecycleGeneration += 1;
 		observing = false;
+		options.screen.focusLinkOpening = false;
 		pendingRequest = null;
 		pendingRequestRecoversInitialFailure = false;
 		options.screen.recovering = false;
@@ -517,6 +598,7 @@ export function createInterruptionPageController(
 		options.windowTarget.removeEventListener( 'blur', handleWindowBlur );
 		options.windowTarget.removeEventListener( 'focus', handleWindowFocus );
 		options.screen.removeEventListener( InterruptionContinueRequestEventName, handleContinueRequest );
+		options.screen.removeEventListener( InterruptionFocusLinkRequestEventName, handleFocusLinkRequest );
 		options.screen.removeEventListener( InterruptionRetryRequestEventName, handleRetryRequest );
 		options.storageChanges.removeListener( handleStorageChange );
 	}
