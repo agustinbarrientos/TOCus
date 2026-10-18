@@ -345,11 +345,11 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-statistics-dark.png",
-    "sha256": "07cc6dee2948b46f1bad2bb0d42b8d22e4173c192f73d91f353be0623d0137c5"
+    "sha256": "fc44373ae3fc394bf960cdafaeec6cc3b3a31a56c95b6950444a630401f9d4bd"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-statistics-light.png",
-    "sha256": "e22faa7f457da85007c30e9807e6df1a6ff4e9211f22131527b50872ed3e49da"
+    "sha256": "7fcd3f0752f846b11c99370e180a7c0d54f1696b96ea7248a8f0c549efd35c3e"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-timing-dark.png",
@@ -369,7 +369,7 @@
   },
   {
     "path": "apps/extension/src/features/statistics/components/settings-screen/__snapshots__/chromium/statistics-settings-screen-empty-light.png",
-    "sha256": "db842ecdf4c1c680257ef5d502d2809886cfa9178a4003c019e8cd6b34953e02"
+    "sha256": "a99708d280db3c7c29c86eb8bc45235b36756ea4245ed89b28af9ff1e8ae1d82"
   },
   {
     "path": "apps/extension/src/features/statistics/components/settings-screen/__snapshots__/chromium/statistics-settings-screen-loading-light.png",
@@ -377,7 +377,7 @@
   },
   {
     "path": "apps/extension/src/features/statistics/components/settings-screen/__snapshots__/chromium/statistics-settings-screen-narrow-light.png",
-    "sha256": "1ded637a0b1bf08aca185e037ea1ab88271ee305e67b16af1f0adedf6df009b6"
+    "sha256": "5fa853089b947a04a9417b0a6b6b95f819458cf74346bcf609979daa6fc0180e"
   },
   {
     "path": "apps/extension/src/features/statistics/components/settings-screen/__snapshots__/chromium/statistics-settings-screen-populated-dark.png",
