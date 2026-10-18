@@ -12,6 +12,13 @@ describe( 'createStatisticsCopy', () => {
 		expect( copy.formatDateRange( '2026-09-14', '2026-09-14' ) ).toBe( 'Sep 14, 2026' );
 		expect( copy.formatDateRange( '2025-12-31', '2026-01-01' ) ).toContain( 'Dec 31, 2025' );
 		expect( copy.formatDateRange( '2025-12-31', '2026-01-01' ) ).toContain( 'Jan 1, 2026' );
+		expect( copy.formatBreakdownsRecordedFrom( '2026-09-14' ) ).toBe( 'Breakdowns recorded from Sep 14, 2026.' );
+	} );
+	it( 'formats recorded local hours without applying the current timezone offset', () => {
+		const copy = createStatisticsCopy( createTestI18n(), createLocalizationFormatters( 'en' ) );
+		expect( copy.formatHour( 0 ) ).toBe( '00:00' );
+		expect( copy.formatHour( 9 ) ).toBe( '09:00' );
+		expect( copy.formatHour( 23 ) ).toBe( '23:00' );
 	} );
 
 	it.each( [
