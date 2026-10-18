@@ -22,7 +22,9 @@ for ( const theme of [ ThemeMode.LIGHT, ThemeMode.DARK ] ) {
 				await expect( page.getByRole( 'heading', { name: 'No websites yet', exact: true } ) ).toBeVisible();
 				await expect( page.getByRole( 'button', { name: 'Add site', exact: true } ) ).toBeVisible();
 			} else {
-				await expect( page.getByLabel( 'Label', { exact: true } ).nth( 2 ) ).toHaveValue( 'Read a chapter' );
+				await expect( page.locator( '.settings-focus-links .settings-site-identity h2' ) )
+					.toHaveText( [ 'My task list', 'Current project', 'Read a chapter' ] );
+				await expect( page.getByLabel( 'Label', { exact: true } ) ).toHaveCount( 0 );
 				await expect( page.getByRole( 'button', { name: 'Add site', exact: true } ) ).toHaveCount( 0 );
 			}
 			await page.evaluate( () => document.fonts.ready );
