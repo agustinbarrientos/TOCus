@@ -289,10 +289,6 @@ msgstr "Le téléchargement de la sauvegarde a commencé."
 msgid "Backup preview"
 msgstr "Aperçu de la sauvegarde"
 
-#: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
-msgid "Backups include configured website addresses and historical counts and durations. TOCus doesn't collect browsing history or page contents."
-msgstr "Les sauvegardes incluent les adresses des sites configurés ainsi que les décomptes et durées enregistrés. TOCus ne collecte ni l'historique de navigation ni le contenu des pages."
-
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Blue"
@@ -578,19 +574,6 @@ msgstr "Exportation de la sauvegarde..."
 msgid "Finish setup"
 msgstr "Terminer la configuration"
 
-#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "Focus link preferences"
-msgstr "Préférences des liens pour se recentrer"
-
-#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
-msgid "Focus links"
-msgstr "Liens pour se recentrer"
-
-#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "Focus links couldn't load"
-msgstr "Impossible de charger les liens pour se recentrer"
-
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
 msgid "Follow your device appearance."
@@ -707,13 +690,13 @@ msgstr "Clair"
 msgid "Loading appearance settings..."
 msgstr "Chargement des paramètres d'apparence..."
 
-#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "Loading focus links..."
-msgstr "Chargement des liens pour se recentrer..."
-
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Loading language settings..."
 msgstr "Chargement des paramètres de langue..."
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Loading quick links..."
+msgstr "Chargement des liens rapides..."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Loading schedule..."
@@ -822,10 +805,6 @@ msgstr "Code ouvert. À toi de participer."
 msgid "Open the site automatically"
 msgstr "Ouvrir le site automatiquement"
 
-#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
-msgid "Opening your focus link..."
-msgstr "Ouverture de votre lien pour vous recentrer..."
-
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 msgid "Optionally, add up to three website shortcuts to your breathing screen."
 msgstr "Si tu le souhaites, ajoute jusqu'à trois raccourcis vers des sites web à ton écran de respiration."
@@ -923,6 +902,20 @@ msgstr "Confidentialité"
 msgid "Purple"
 msgstr "Violet"
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Quick link preferences"
+msgstr "Préférences des liens rapides"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+#: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
+msgid "Quick links"
+msgstr "Liens rapides"
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Quick links couldn't load"
+msgstr "Impossible de charger les liens rapides"
+
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Reconsidered visits"
 msgstr "Visites reconsidérées"
@@ -1000,10 +993,6 @@ msgstr "Réinitialisation..."
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Restore personalization defaults"
 msgstr "Restaurer les valeurs par défaut de personnalisation"
-
-#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
-msgid "Return to your focus"
-msgstr "Retrouvez votre concentration"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Sat - Sun, all day"
@@ -1419,8 +1408,8 @@ msgid "TOCus couldn't load local appearance settings. Nothing was changed."
 msgstr "TOCus n'a pas pu charger les paramètres d'apparence locaux. Rien n'a été modifié."
 
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "TOCus couldn't load local focus links. Nothing was changed."
-msgstr "TOCus n’a pas pu charger les liens locaux pour se recentrer. Rien n’a été modifié."
+msgid "TOCus couldn't load local quick links. Nothing was changed."
+msgstr "TOCus n’a pas pu charger les liens rapides locaux. Rien n’a été modifié."
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "TOCus couldn't load local settings. Nothing was changed."
@@ -1721,8 +1710,8 @@ msgid "Your appearance couldn't be saved. Your choice is still shown here."
 msgstr "Votre apparence n'a pas pu être enregistrée. Votre choix reste affiché ici."
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
-msgid "Your backup contains configured website addresses, settings, and statistics. TOCus creates it entirely on your device. Keep it somewhere you trust."
-msgstr "Votre sauvegarde contient les adresses des sites configurés, les paramètres et les statistiques. TOCus la crée entièrement sur votre appareil. Conservez-la dans un endroit de confiance."
+msgid "Your backup includes your sites, settings, and stats, and it’s created entirely on your device. TOCus never collects your browsing history or page contents."
+msgstr "Votre sauvegarde inclut vos sites, paramètres et statistiques et est créée entièrement sur votre appareil. TOCus ne collecte jamais votre historique de navigation ni le contenu des pages."
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Your browser couldn't request access for that site. Try again."
@@ -1753,14 +1742,6 @@ msgstr "Votre choix n'a pas pu être enregistré. Réessayez."
 msgid "Your data stays with you"
 msgstr "Tes données restent avec toi"
 
-#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
-msgid "Your focus link could not be opened. Try again."
-msgstr "Votre lien pour vous recentrer n’a pas pu être ouvert. Réessayez."
-
-#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "Your focus links couldn't be saved. Your changes are still shown here."
-msgstr "Vos liens pour vous recentrer n’ont pas pu être enregistrés. Vos modifications restent affichées ici."
-
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Your language couldn't be saved. Your choice is still shown here."
 msgstr "La langue n'a pas pu être enregistrée. Votre choix reste affiché ici."
@@ -1772,8 +1753,8 @@ msgstr "Vos données locales ont changé. Rechargez les paramètres avant d'impo
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
-msgid "Your local personalization data isn't valid. Restoring defaults will reset appearance, pause, language, and focus links."
-msgstr "Vos données locales de personnalisation ne sont pas valides. La restauration des valeurs par défaut réinitialisera l’apparence, les pauses, la langue et les liens pour se recentrer."
+msgid "Your local personalization data isn't valid. Restoring defaults will reset appearance, pause, language, and quick links."
+msgstr "Vos données locales de personnalisation ne sont pas valides. La restauration des valeurs par défaut réinitialisera l’apparence, les pauses, la langue et les liens rapides."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Your local settings need attention"
@@ -1802,6 +1783,14 @@ msgstr "Votre pause a commencé."
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Your pause is paused."
 msgstr "Votre pause est suspendue."
+
+#: apps/extension/src/localization/utils/create-interruption-copy/index.ts
+msgid "Your quick link could not be opened. Try again."
+msgstr "Votre lien rapide n’a pas pu être ouvert. Réessayez."
+
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Your quick links couldn't be saved. Your changes are still shown here."
+msgstr "Vos liens rapides n’ont pas pu être enregistrés. Vos modifications restent affichées ici."
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Your saved data isn't valid or uses an unsupported format. TOCus couldn't create a backup."
