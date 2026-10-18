@@ -15,10 +15,10 @@
 		"./notifications.scss": "./src/components/snackbar/style.scss"
 	},
 	"dependencies": {
-		"@mantine/charts": "9.6.3",
-		"@mantine/core": "9.6.3",
-		"@mantine/hooks": "9.6.3",
-		"@mantine/notifications": "9.6.3",
+		"@mantine/charts": "9.7.2",
+		"@mantine/core": "9.7.2",
+		"@mantine/hooks": "9.7.2",
+		"@mantine/notifications": "9.7.2",
 		"@tocus/theme": "workspace:*",
 		"recharts": "^3.10.1"
 	},
@@ -29,12 +29,12 @@
 	"devDependencies": {
 		"@types/react": "19.3.0",
 		"@types/react-dom": "19.3.0",
-		"playwright": "1.63.0",
-		"react": "19.3.0",
-		"react-dom": "19.3.0",
-		"sass": "1.105.0",
+		"playwright": "1.64.1",
+		"react": "19.3.1",
+		"react-dom": "19.3.1",
+		"sass": "1.105.1",
 		"typescript": "6.0.3",
-		"vite": "8.3.1",
-		"vitest": "5.0.2"
+		"vite": "8.3.4",
+		"vitest": "5.0.5"
 	}
 }
