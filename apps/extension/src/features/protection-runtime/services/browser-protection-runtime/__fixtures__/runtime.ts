@@ -1,3 +1,5 @@
+import { DefaultPreferencesDocument } from '../../../../../domains/preferences/types';
+import type { PreferencesStorageService } from '../../../../../domains/preferences/services/preferences-storage';
 import type { Browser } from 'wxt/browser';
 import {
 	createProtectionCoordinator,
@@ -489,6 +491,7 @@ export class MemoryRuntimeBrowser implements ProtectionRuntimeBrowser {
  * @param toolbarBadgeCopy - Localized toolbar badge copy.
  * @param statisticsRuntime - Optional statistics observer under test.
  * @param initiallySuspended - Whether startup waits for local data recovery.
+ * @param preferencesStorage - Local preference storage used to resolve focus links.
  * @return Initialized browser protection runtime and its coordinator.
  * @since 1.0.0 Initial implementation.
  */
@@ -500,6 +503,10 @@ export function createRuntime(
 	toolbarBadgeCopy: ToolbarBadgeCopy = TestEnglishLocalizationBundle.toolbar,
 	statisticsRuntime: StatisticsRuntime = createInertStatisticsRuntime(),
 	initiallySuspended?: boolean,
+	preferencesStorage: Pick<PreferencesStorageService, 'load'> = {
+		/** @return Default local preferences for tests without configured focus choices. */
+		load: () => Promise.resolve( DefaultPreferencesDocument ),
+	},
 ): RuntimeTestHarness {
 	/**
 	 * Creates the deterministic test session identifier.
@@ -559,6 +566,7 @@ export function createRuntime(
 
 	const runtime = createBrowserProtectionRuntime( {
 		browser,
+		preferencesStorage,
 		configurationStorage,
 		filterConfiguration: configurationStorage.filterForRuntime,
 		coordinator,
