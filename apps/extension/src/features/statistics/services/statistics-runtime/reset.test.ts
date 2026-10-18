@@ -78,6 +78,8 @@ describe( 'statistics runtime reset', () => {
 			projection: {
 				status: StatisticsProjectionStatus.AVAILABLE,
 				currentDate: '2027-01-15',
+				firstRecordedDate: null,
+				visitOutcomes: { recordedFromDate: '2027-01-15', dailySites: [], dailyHours: [] },
 				dailyTotals: [],
 				estimatedReclaimedMilliseconds: 0,
 				focusedPauseMilliseconds: 0,

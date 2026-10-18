@@ -12,8 +12,9 @@ import {
 import {
 	StatisticsOperationType,
 } from '../../../../domains/statistics/types/statistics-operation';
-import type {
-	StatisticsDocument,
+import {
+	StatisticsDocumentSchema,
+	type StatisticsDocument,
 } from '../../../../domains/statistics/types/statistics-document';
 import { createStatisticsDocument } from '../../../../domains/statistics/utils/create-statistics-document';
 import { projectStatistics } from '../../../../domains/statistics/utils/project-statistics';
@@ -60,6 +61,29 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 	let configuration: ProtectionConfigurationDocument | null = null;
 	let statisticsDocument: StatisticsDocument | null = null;
 	let deliveryStatus: StoredProtectionStatisticsDeliveryStatusValue | null = null;
+
+	/**
+	 * Establishes prospective breakdown coverage while preserving existing history.
+	 * @param document - Healthy statistics document being initialized or reset.
+	 * @return Validated document with existing or fresh empty aggregate marginals.
+	 * @since 1.1.0
+	 */
+	function initializeVisitOutcomes( document: StatisticsDocument ): StatisticsDocument {
+		if ( document.visitOutcomes !== undefined ) {
+			return document;
+		}
+		try {
+			return StatisticsDocumentSchema.parse( {
+				...document,
+				visitOutcomes: {
+					recordedFromDate: options.getLocalDate(), dailySites: [], dailyHours: [],
+				},
+			} );
+		} catch {
+			// A broken clock must not prevent existing focus work from being reconciled.
+			return document;
+		}
+	}
 
 	/**
 	 * Reads committed history without changing delivery, focus, or allowance state.
@@ -175,6 +199,17 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 		) {
 			configuration = parsedConfiguration.data;
 
+			const initializedDocument = initializeVisitOutcomes( statisticsDocument );
+			if ( initializedDocument !== statisticsDocument ) {
+				try {
+					await options.storage.save( initializedDocument );
+					statisticsDocument = initializedDocument;
+				} catch {
+					markStatisticsUnavailable();
+					return;
+				}
+			}
+
 			if ( ! focusSession.isStateKnown() ) {
 				statisticsDocument = await focusSession.initialize( statisticsDocument );
 			}
@@ -201,10 +236,10 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 		let reconciledDocument: StatisticsDocument;
 
 		try {
-			reconciledDocument = reduceStatistics( loadedDocument, {
+			reconciledDocument = initializeVisitOutcomes( reduceStatistics( loadedDocument, {
 				type: StatisticsOperationType.RECONCILE_MEASUREMENT_REVISIONS,
 				measurementRevisionsByScope: parsedConfiguration.data.measurementRevisionsByScope,
-			} );
+			} ) );
 			await options.storage.save( reconciledDocument );
 		} catch {
 			markStatisticsUnavailable();
@@ -360,6 +395,7 @@ export function createStatisticsRuntime( options: StatisticsRuntimeOptions ): St
 					generationId,
 					measurementRevisionsByScope,
 				} );
+			resetDocument = initializeVisitOutcomes( resetDocument );
 		} catch {
 			return false;
 		}
