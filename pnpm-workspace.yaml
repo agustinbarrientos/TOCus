@@ -2,6 +2,19 @@ packages:
     - apps/*
     - packages/*
 
+optimisticRepeatInstall: false
+
+minimumReleaseAge: 2880
+minimumReleaseAgeStrict: true
+minimumReleaseAgeIgnoreMissingTime: false
+
+update:
+    ignoreDeps:
+        - typescript
+
+overrides:
+    typescript: 6.0.3
+
 allowBuilds:
     '@parcel/watcher': true
     esbuild@0.28.2: true
