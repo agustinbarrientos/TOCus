@@ -496,6 +496,10 @@ msgstr "Готово"
 msgid "Each completed wait adds this amount to the next wait that day."
 msgstr "Каждое завершённое ожидание увеличивает следующее ожидание этого дня на указанное время."
 
+#: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
+msgid "Edit link"
+msgstr "Изменить ссылку"
+
 #. Label for the end-time field of a scheduled protection window.
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "End"
