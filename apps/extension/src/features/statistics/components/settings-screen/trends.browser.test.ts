@@ -43,8 +43,11 @@ test.describe( 'statistics period comparisons', () => {
 		await expect( trigger ).toContainText( 'vs previous period' );
 		await expect( tags ).toHaveText( [ '20% more than last week', '20% fewer than last week' ] );
 		await expect( summaryRows ).toHaveCount( 2 );
-		await tags.last().focus();
-		const tooltip = page.getByRole( 'tooltip' );
+		await page.keyboard.press( 'Tab' );
+		await expect( tags.first() ).toBeFocused();
+		await page.keyboard.press( 'Tab' );
+		await expect( tags.last() ).toBeFocused();
+		const tooltip = page.getByRole( 'tooltip' ).filter( { hasText: 'Oct 12\u2009\u2013\u200918, 2026: 28' } );
 		await expect( tooltip ).toHaveText( 'Oct 12\u2009\u2013\u200918, 2026: 28\nOct 5\u2009\u2013\u200911, 2026: 35' );
 		await expect( tooltip ).toHaveCSS( 'white-space', 'pre-line' );
 		await trigger.click();
