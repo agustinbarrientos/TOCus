@@ -12,16 +12,25 @@ describe( 'Settings bootstrap presentation state', () => {
 		expect( state.browserLanguage ).toBe( Language.ENGLISH );
 		expect( state.platform ).toBe( SettingsPlatform.CHROME );
 		expect( state.copy ).toBeUndefined();
+		expect( Object.hasOwn( state, 'pausePreviewCopy' ) ).toBe( true );
 		expect( state.editor ).toBeNull();
 		expect( state.supportsCachedFavicons ).toBe( false );
 		const render = vi.fn();
 		const port = createPresentationPort( state, render );
 		port.copy = TestEnglishLocalizationBundle.settingsShell;
 		port.aboutCopy = TestEnglishLocalizationBundle.aboutCopy;
+		port.pausePreviewCopy = {
+			title: TestEnglishLocalizationBundle.onboarding.appearance.previewTitle,
+			screen: TestEnglishLocalizationBundle.interruption,
+		};
 		await Promise.resolve();
 		expect( render ).toHaveBeenCalledWith( expect.objectContaining( {
 			copy: TestEnglishLocalizationBundle.settingsShell,
 			aboutCopy: TestEnglishLocalizationBundle.aboutCopy,
+			pausePreviewCopy: {
+				title: TestEnglishLocalizationBundle.onboarding.appearance.previewTitle,
+				screen: TestEnglishLocalizationBundle.interruption,
+			},
 		} ) );
 		await expect( port.refreshAccessState() ).resolves.toBeNull();
 		expect( refresh ).toHaveBeenCalledOnce();
