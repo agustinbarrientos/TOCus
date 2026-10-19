@@ -574,7 +574,7 @@ test.describe( 'local statistics', () => {
 		} );
 	}
 
-	test( 'keeps legacy totals without fabricated breakdowns and explains partial recording coverage', async ( { open } ) => {
+	test( 'keeps legacy totals without fabricated breakdowns or a recording-date note', async ( { open } ) => {
 		const page = await open( SettingsDestination.STATISTICS );
 		await page.evaluate( () => {
 			window.settingsTest.externalStatistics( { firstRecordedDate: '2026-09-01', visitOutcomes: undefined } );
@@ -592,11 +592,37 @@ test.describe( 'local statistics', () => {
 		} );
 		const period = page.getByRole( 'combobox', { name: 'Period', exact: true } );
 		await period.selectOption( StatisticsRange.ALL_TIME );
-		await expect( outcomes.getByText( 'Breakdowns recorded from Sep 14, 2026.', { exact: true } ) ).toBeVisible();
+		await expect( outcomes.locator( '.settings-statistics-coverage' ) ).toHaveCount( 0 );
 		await expect( page.locator( '.settings-statistics-dates' ) ).toContainText( 'Sep 1' );
 		await period.selectOption( StatisticsRange.CURRENT_WEEK );
 		await expect( outcomes.locator( '.settings-statistics-coverage' ) ).toHaveCount( 0 );
 		await expect( outcomes.locator( '[data-outcome] strong' ) ).toHaveText( [ '2', '4' ] );
+	} );
+
+	test( 'labels hourly tooltips as times for keyboard and pointer users', async ( { open } ) => {
+		const page = await open( SettingsDestination.STATISTICS );
+		await page.evaluate( () => {
+			window.settingsTest.externalStatistics( { visitOutcomes: {
+				recordedFromDate: '2026-09-14', dailySites: [ {
+					date: '2026-09-14', siteHost: 'youtube.com', reconsideredVisitCount: 3, visitedAfterPauseCount: 0,
+				} ], dailyHours: [
+					{ date: '2026-09-14', hour: 0, reconsideredVisitCount: 2 },
+					{ date: '2026-09-14', hour: 19, reconsideredVisitCount: 1 },
+				],
+			} } );
+		} );
+		const hourly = page.getByRole( 'region', { name: 'Reconsidered visits by hour', exact: true } );
+		const tooltip = hourly.locator( '.recharts-tooltip-wrapper' );
+		const surface = hourly.getByRole( 'application' );
+		await surface.focus();
+		await surface.press( 'ArrowLeft' );
+		await expect( tooltip ).toBeVisible();
+		await expect( tooltip ).toContainText( '00:00' );
+		await expect( tooltip ).toContainText( 'Reconsidered visits' );
+		await hourly.locator( '.recharts-bar-rectangle' ).nth( 19 ).hover();
+		await expect( tooltip ).toBeVisible();
+		await expect( tooltip ).toContainText( '19:00' );
+		await expect( tooltip.getByText( '1', { exact: true } ) ).toBeVisible();
 	} );
 
 	test( 'shows continued-only website outcomes without inventing hourly reconsiderations', async ( { open } ) => {

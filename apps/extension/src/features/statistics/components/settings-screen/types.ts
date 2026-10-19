@@ -86,8 +86,6 @@ export interface StatisticsSettingsScreenCopy {
 	noVisitOutcomes: string;
 	noReconsideredVisits: string;
 	breakdownsUnavailable: string;
-	/** Formats the date from which website and hourly details were actually recorded. */
-	formatBreakdownsRecordedFrom( date: string ): string;
 	/** Formats one already-recorded local hour without timezone conversion. */
 	formatHour: ( hour: number ) => string;
 	/**

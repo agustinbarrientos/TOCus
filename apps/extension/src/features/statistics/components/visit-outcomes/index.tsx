@@ -8,7 +8,7 @@ import type { VisitOutcomesProps } from './types';
 import type { DailyStatisticsChartAccessibility } from '../daily-statistics/types';
 
 /**
- * Presents local aggregate outcomes with exact counts and independent recording coverage.
+ * Presents local aggregate outcomes with exact counts and readable local-hour labels.
  * @param props - Selected website outcomes, local-hour counts and localized labels.
  * @return Stacked website list and hourly reconsidered-visit chart.
  * @since 1.1.0
@@ -21,6 +21,9 @@ export function VisitOutcomes( props: VisitOutcomesProps ) {
 	const methodId = useId();
 	const chartAccessibility: DailyStatisticsChartAccessibility = { 'aria-labelledby': hoursId };
 	const hasHours = breakdowns.hourlyReconsideredVisits.some( ( hour ) => hour.reconsideredVisitCount > 0 );
+	const hourlyData = breakdowns.hourlyReconsideredVisits.map( ( hour ) => ( {
+		hour: copy.formatHour( hour.hour ), reconsideredVisitCount: hour.reconsideredVisitCount,
+	} ) );
 	return <section className="settings-statistics-breakdowns" aria-labelledby={ headingId }>
 		<div className="settings-statistics-breakdown-title">
 			<h2 id={ headingId }>{ copy.visitOutcomesTitle }</h2>
@@ -73,10 +76,10 @@ export function VisitOutcomes( props: VisitOutcomesProps ) {
 				<section className="settings-statistics-hourly" aria-labelledby={ hoursId }>
 					<h3 id={ hoursId }>{ copy.hourlyTitle }</h3>
 					{ ! hasHours ? <p className="settings-statistics-empty">{ copy.noReconsideredVisits }</p> : <>
-						<BarChart h="15rem" data={ breakdowns.hourlyReconsideredVisits } dataKey="hour" maxBarWidth={ 20 }
+						<BarChart h="15rem" data={ hourlyData } dataKey="hour" maxBarWidth={ 20 }
 							classNames={ { tooltip: 'settings-statistics-chart-tooltip' } }
 							series={ [ { name: 'reconsideredVisitCount', label: copy.reconsideredVisitsLabel, color: 'var(--tocus-color-action)' } ] }
-							xAxisProps={ { interval: 5, tickFormatter: copy.formatHour } }
+							xAxisProps={ { interval: 5 } }
 							yAxisProps={ { width: 40, allowDecimals: false, tickFormatter: copy.formatCount } }
 							valueFormatter={ copy.formatCount }
 							barProps={ { isAnimationActive: false, radius: [ 2, 2, 0, 0 ] } }
@@ -91,7 +94,6 @@ export function VisitOutcomes( props: VisitOutcomesProps ) {
 					</> }
 				</section>
 			</div>
-			{ breakdowns.partialHistory && <p className="settings-statistics-coverage">{ copy.formatBreakdownsRecordedFrom( breakdowns.recordedFromDate ) }</p> }
 		</> }
 	</section>;
 }

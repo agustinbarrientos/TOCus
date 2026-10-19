@@ -73,15 +73,6 @@ export function createStatisticsCopy(
 		return hourFormatter.format( new Date( Date.UTC( 2026, 0, 1, hour ) ) );
 	}
 	/**
-	 * Explains the real coverage boundary without implying older breakdowns exist.
-	 * @param date - First recorded local date for visit outcomes.
-	 * @return Localized coverage note.
-	 */
-	function formatBreakdownsRecordedFrom( date: string ): string {
-		const recordedDate = formatDate( date );
-		return i18n._( msg`Breakdowns recorded from ${ { recordedDate } }.` );
-	}
-	/**
 	 * Formats one rounded focused-pause duration.
 	 * @param milliseconds - Nonnegative duration in milliseconds.
 	 * @return Localized duration.
@@ -165,7 +156,6 @@ export function createStatisticsCopy(
 		noVisitOutcomes: i18n._( msg`No visit outcomes recorded in this period.` ),
 		noReconsideredVisits: i18n._( msg`No reconsidered visits recorded in this period.` ),
 		breakdownsUnavailable: i18n._( msg`Website and hourly breakdowns will appear as new visits are recorded.` ),
-		formatBreakdownsRecordedFrom,
 		formatHour,
 		formatDate,
 		formatDateRange,
