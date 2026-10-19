@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { StatisticsNonNegativeSafeIntegerSchema } from './statistics-value';
 import { DailyStatisticsTotalsSchema } from './statistics-document';
 import { LocalDateSchema } from '../../protection/types/protection-value';
+import { StatisticsVisitOutcomesSchema } from './statistics-visit-outcomes';
 
 /**
  * Availability states for the global all-time statistics projection.
@@ -40,6 +41,8 @@ export const AvailableStatisticsProjectionSchema = z.object( {
 	completedWaitCount: StatisticsNonNegativeSafeIntegerSchema,
 	allowanceGrantedCount: StatisticsNonNegativeSafeIntegerSchema,
 	dailyTotals: z.array( DailyStatisticsTotalsSchema ),
+	firstRecordedDate: LocalDateSchema.nullable().optional(),
+	visitOutcomes: StatisticsVisitOutcomesSchema.optional(),
 } ).strict();
 
 /**

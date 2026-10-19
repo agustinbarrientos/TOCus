@@ -34,7 +34,7 @@ for ( const name of [
 			] );
 		} else {
 			expect( await page.locator( '.settings-metrics dd' ).allTextContents() ).toEqual(
-				name.includes( 'empty' ) ? [ '0 minutes', '0', '0', '0' ] : [ '27 minutes', '18', '24', '11' ],
+				name.includes( 'empty' ) ? [ '0', '0' ] : [ '18', '24' ],
 			);
 		}
 	} );

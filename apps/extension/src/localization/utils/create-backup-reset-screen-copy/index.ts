@@ -51,7 +51,7 @@ export function createBackupResetScreenCopy( i18n: I18n ): Readonly<BackupResetS
 		statisticsTitle: i18n._( msg`Reset statistics` ),
 		statisticsDescription: i18n._( msg`Clear your recorded counts and time totals. Your websites and settings stay the same.` ),
 		statisticsConfirmationTitle: i18n._( msg`Reset your statistics?` ),
-		statisticsConfirmation: i18n._( msg`All recorded counts and time totals will be deleted. This can't be undone.` ),
+		statisticsConfirmation: i18n._( msg`All recorded statistics will be deleted. This can't be undone.` ),
 		resetStatistics: i18n._( msg`Reset statistics` ),
 		allTitle: i18n._( msg`Start fresh` ),
 		allDescription: i18n._( msg`Remove all TOCus data and set it up again.` ),

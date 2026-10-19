@@ -171,6 +171,7 @@ test( 'Portable backup round trip preserves real settings and history across den
 			expect( restoredPreferences.focusLinks ).toEqual( [ focusLink ] );
 			const restored = await stored( browser, statisticsKey );
 			expect( restored.dailyTotals ).toEqual( backup.statistics.dailyTotals );
+			expect( restored.visitOutcomes ).toEqual( backup.statistics.visitOutcomes );
 			expect( restored.scopes.scope_default.totals ).toEqual( backup.statistics.scopes.scope_default );
 			expect( restored.generationId ).not.toBe( history.generationId );
 			expect( await protectionState( browser ) ).toMatchObject( { navigation: false, rules: 0 } );
@@ -188,18 +189,18 @@ test( 'Portable backup round trip preserves real settings and history across den
 			for ( const range of [ 'current-week', 'current-month', 'all-time' ] ) {
 				await selectStatisticsRange( browser, range );
 				await expect.poll( () => metrics( browser ) ).toMatchObject( {
-					'Completed waits': '1', 'Allowances granted': '1', 'Reconsidered visits': '0',
+					'Completed pauses': '1', 'Reconsidered visits': '0',
 				} );
 			}
-			await clickButton( browser, 'Reset statistics', '.settings-statistics-data' );
+			await clickButton( browser, 'Reset statistics', '.settings-data-reset' );
 			await expect.poll( () => readView( browser, 'selected', 'return Boolean(document.querySelector("[role=dialog]"));' ) ).toBe( true );
 			await clickButton( browser, 'Reset statistics', '[role=dialog]' );
 			await expect.poll( () => metrics( browser ) ).toMatchObject( {
-				'Completed waits': '0', 'Allowances granted': '0', 'Reconsidered visits': '0',
+				'Completed pauses': '0', 'Reconsidered visits': '0',
 			} );
 			expect( await stored( browser, preferencesKey ) ).toEqual( restoredPreferences );
 			await reload( browser );
-			await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed waits': '0', 'Allowances granted': '0' } );
+			await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed pauses': '0' } );
 			expect( ( await stored( browser, preferencesKey ) ).focusLinks ).toEqual( [ focusLink ] );
 			await browser.openPage( `${ url }after-restore` );
 			await expect.poll( () => browser.currentUrl() ).toContain( '/pause.html' );
@@ -247,7 +248,7 @@ test( 'Imports the exact downloaded backup from a different installed browser', 
 			await settings( browser, 'statistics' );
 			for ( const range of [ 'current-week', 'current-month', 'all-time' ] ) {
 				await selectStatisticsRange( browser, range );
-				await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed waits': '1', 'Allowances granted': '1' } );
+				await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed pauses': '1' } );
 				expectedMetrics[ range ] = await metrics( browser );
 			}
 			await settings( browser, 'backup-reset' );
@@ -275,6 +276,7 @@ test( 'Imports the exact downloaded backup from a different installed browser', 
 			expect( preferences.focusLinks ).toEqual( [ focusLink ] );
 			const statistics = await stored( browser, statisticsKey );
 			expect( statistics.dailyTotals ).toEqual( backup.statistics.dailyTotals );
+			expect( statistics.visitOutcomes ).toEqual( backup.statistics.visitOutcomes );
 			for ( const [ scope, totals ] of Object.entries( backup.statistics.scopes ) ) {
 				expect( statistics.scopes[ scope ].totals ).toEqual( totals );
 				expect( statistics.scopes[ scope ] ).not.toHaveProperty( 'activeAllowance' );

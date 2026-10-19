@@ -375,7 +375,10 @@ export function createInterruptionRequestHandler(
 
 			if ( focusLink !== undefined ) {
 				await synchronizeParticipantFocus( context, false, configuration );
-				await options.browser.navigateTab( senderTabId, focusLink.url, currentUrl );
+				const navigationAccepted = await options.browser.navigateTab( senderTabId, focusLink.url, currentUrl );
+				if ( ! navigationAccepted ) {
+					throw new Error( 'The focus-link navigation source is no longer current.' );
+				}
 				if ( context.participant.origin === ProtectionParticipantOrigin.ALLOWANCE_EXPIRY &&
 					currentUrl !== undefined ) {
 					pendingEmbeddedNavigations.set( senderTabId, {

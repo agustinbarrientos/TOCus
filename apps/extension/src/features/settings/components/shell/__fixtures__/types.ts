@@ -36,6 +36,7 @@ export interface SettingsFixtureBridge {
 	controls: SettingsFixtureControls;
 	getConfiguration: () => ProtectionConfigurationDocument;
 	getPreferences: () => PreferencesDocument;
+	getStatistics: () => SettingsFixtureStatistics;
 	setFaviconProvider: ( provider: SiteFaviconProvider ) => void;
 	revoke: () => Promise<void>;
 	externalPreferences: ( update: Partial<PreferencesDocument> ) => void;

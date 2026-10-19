@@ -187,6 +187,7 @@ export function Websites( props: WebsitesScreenProps ) {
 				? {} : { details: value.detailsByHost[ site.identityHost ] } ) }
 			validate={ state.validate }
 			favicon={ shell.faviconProvider?.getSource( site.identityHost ) ?? null }
+			faviconProvider={ shell.faviconProvider }
 			editing={ editing === site.identityHost && removing?.identityHost !== site.identityHost }
 			disabled={ saving }
 			accessRequired={ savedIdentities.has( site.identityHost ) && access.get( site.identityHost ) !== true }

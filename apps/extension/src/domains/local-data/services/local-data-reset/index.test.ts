@@ -6,6 +6,8 @@ import { PreferencesStorageKey } from '../../../preferences/services/preferences
 import { ReviewPromptStorageKey } from '../../../preferences/services/review-prompt-storage';
 import type { LocalDataResetOptions } from './types';
 import { BackupImportJournalKey, BackupImportReceiptKey } from '../../types/backup-storage-key';
+import { createBackupSource, createBackupVisitOutcomes } from '../../utils/backup-document/__fixtures__';
+import { StatisticsStorageKey } from '../../../statistics/services/statistics-storage';
 
 /**
  * Creates isolated storage and lifecycle boundaries for reset behavior.
@@ -67,6 +69,8 @@ describe( 'local data reset', () => {
 		const { service, values } = createFixture();
 		values[ BackupImportJournalKey ] = { staged: 'private settings' };
 		values[ BackupImportReceiptKey ] = { requestId: 'completed' };
+		values[ StatisticsStorageKey.STATISTICS ] = { ...createBackupSource().statistics,
+			visitOutcomes: createBackupVisitOutcomes() };
 		values[ PreferencesStorageKey.PREFERENCES ] = { ...DefaultPreferencesDocument, focusLinks: [
 			{ id: 'focus_link_docs', label: 'Docs', url: 'https://example.com/' },
 		] };
@@ -74,6 +78,7 @@ describe( 'local data reset', () => {
 		expect( values[ BackupImportJournalKey ] ).toBeUndefined();
 		expect( values[ BackupImportReceiptKey ] ).toBeUndefined();
 		expect( values[ PreferencesStorageKey.PREFERENCES ] ).toBeUndefined();
+		expect( values[ StatisticsStorageKey.STATISTICS ] ).toBeUndefined();
 	} );
 	it( 'releases active pauses before revoking access and deleting owned data', async () => {
 		const { service, options, values, events } = createFixture();

@@ -1,31 +1,13 @@
 import { useLayoutEffect, useState } from 'react';
-import { Button } from '@tocus/ui';
 import { BackupControls } from '../backup-controls';
 import { Confirmation } from '../confirmation';
 import { Feedback } from '../feedback';
 import { Page } from '../page';
-import { DataResetAction, type ResetSectionProps } from './types';
+import { DataResetAction } from './types';
 import type { EditableSettingsScreenProps } from '../page/types';
 import { DraftSaveResult } from '../../utils/draft-controller/types';
 import './style.scss';
-
-/**
- * Groups one reset explanation with the action that requests confirmation.
- * @param props - Localized description, availability and confirmation trigger.
- * @return Consistent full-width reset section.
- * @since 1.0.0
- */
-function ResetSection( props: ResetSectionProps ) {
-	return (
-		<section className="tocus-section settings-data-reset">
-			<h2>{ props.title }</h2>
-			<p>{ props.description }</p>
-			<Button color="red" disabled={ props.disabled } onClick={ props.onRequest }>{ props.label }</Button>
-			{ props.children }
-		</section>
-	);
-}
-
+import { ResetSection } from '../reset-section';
 
 /**
  * Groups explicit local backup and reset operations behind their existing confirmation controls.

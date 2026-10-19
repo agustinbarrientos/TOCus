@@ -3,6 +3,25 @@ import { LocalDateSchema, type LocalDate } from '../../../../domains/protection/
 const LOCAL_DATE_FORMAT_LOCALE = 'en-US';
 
 /**
+ * Captures the outcome's wall-clock hour before queued delivery or timezone changes.
+ * @param epochMilliseconds - Outcome observation time.
+ * @param timeZone - IANA time zone observed with the outcome.
+ * @return Local wall-clock hour from zero through twenty-three.
+ * @throws {RangeError} When the time zone or formatted hour is invalid.
+ * @since 1.0.0 Initial implementation.
+ */
+export function createRuntimeLocalHour( epochMilliseconds: number, timeZone: string ): number {
+	const hour = new Intl.DateTimeFormat( LOCAL_DATE_FORMAT_LOCALE, {
+		hour: '2-digit', hourCycle: 'h23', timeZone,
+	} ).formatToParts( new Date( epochMilliseconds ) ).find( ( part ) => part.type === 'hour' )?.value;
+	const value = hour === undefined ? NaN : Number( hour );
+	if ( ! Number.isInteger( value ) || value < 0 || value > 23 ) {
+		throw new RangeError( 'The local calendar hour could not be formatted.' );
+	}
+	return value;
+}
+
+/**
  * Formats one epoch instant as a validated local calendar date.
  * @param epochMilliseconds - Current epoch time.
  * @param timeZone - Current IANA time zone.

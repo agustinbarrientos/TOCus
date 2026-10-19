@@ -10,7 +10,8 @@ test( 'keeps short daily pause ticks distinct while preserving full accessible d
 			reconsideredVisitCount: 0, completedWaitCount: 0, allowanceGrantedCount: 0,
 		} ] } );
 	} );
-	const chart = page.getByRole( 'region', { name: 'Activity', exact: true } );
+	const chart = page.getByRole( 'region', { name: 'Daily activity', exact: true } );
+	await chart.getByRole( 'combobox', { name: 'Daily activity metric', exact: true } ).selectOption( 'estimatedReclaimedMilliseconds' );
 	const labels = chart.locator( '.recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value' );
 	await expect( labels.first() ).toHaveText( '0s' );
 	const ticks = await labels.allTextContents();
@@ -29,7 +30,8 @@ for ( const [ milliseconds, formattedDuration ] of [ [ 660_000, '11 minutes' ], 
 				reconsideredVisitCount: 0, completedWaitCount: 0, allowanceGrantedCount: 0,
 			} ] } );
 		}, milliseconds );
-		const chart = page.getByRole( 'region', { name: 'Activity', exact: true } );
+		const chart = page.getByRole( 'region', { name: 'Daily activity', exact: true } );
+		await chart.getByRole( 'combobox', { name: 'Daily activity metric', exact: true } ).selectOption( 'estimatedReclaimedMilliseconds' );
 		const labels = chart.locator( '.recharts-yAxis-tick-labels .recharts-cartesian-axis-tick-value' );
 		await expect( labels.first() ).toHaveText( '0s' );
 		const ticks = await labels.allTextContents();
@@ -42,7 +44,7 @@ for ( const [ milliseconds, formattedDuration ] of [ [ 660_000, '11 minutes' ], 
 test( 'lets keyboard users inspect the same daily values as pointer users', async ( { open } ) => {
 	const page = await open( SettingsDestination.STATISTICS );
 	await page.evaluate( () => {
-		window.settingsTest.externalStatistics( { dailyTotals: [ {
+		window.settingsTest.externalStatistics( { firstRecordedDate: '2026-09-13', dailyTotals: [ {
 			date: '2026-09-13', estimatedReclaimedMilliseconds: 120_000, focusedPauseMilliseconds: 120_000,
 			reconsideredVisitCount: 0, completedWaitCount: 0, allowanceGrantedCount: 0,
 		}, {
@@ -50,8 +52,10 @@ test( 'lets keyboard users inspect the same daily values as pointer users', asyn
 			reconsideredVisitCount: 0, completedWaitCount: 0, allowanceGrantedCount: 0,
 		} ] } );
 	} );
-	const chart = page.getByRole( 'region', { name: 'Activity', exact: true } );
-	const keyboardSurface = chart.getByRole( 'application', { name: 'Activity Estimated time reclaimed', exact: true } );
+	await page.getByRole( 'combobox', { name: 'Period', exact: true } ).selectOption( 'all-time' );
+	const chart = page.getByRole( 'region', { name: 'Daily activity', exact: true } );
+	await chart.getByRole( 'combobox', { name: 'Daily activity metric', exact: true } ).selectOption( 'estimatedReclaimedMilliseconds' );
+	const keyboardSurface = chart.getByRole( 'application', { name: 'Daily activity Estimated time reclaimed', exact: true } );
 	await expect( chart.getByRole( 'application' ) ).toHaveCount( 1 );
 	await expect( keyboardSurface ).toHaveCount( 1 );
 	await expect( keyboardSurface ).toHaveAttribute( 'tabindex', '0' );
@@ -72,4 +76,29 @@ test( 'lets keyboard users inspect the same daily values as pointer users', asyn
 	await expect( tooltip ).toContainText( '5 minutes' );
 	await expect( chart.getByRole( 'table' ) ).toContainText( '2 minutes' );
 	await expect( chart.getByRole( 'table' ) ).toContainText( '5 minutes' );
+} );
+
+test( 'defaults daily activity to reconsidered counts and gives every selected metric the same accessible data', async ( { open } ) => {
+	const page = await open( SettingsDestination.STATISTICS );
+	await page.evaluate( () => {
+		window.settingsTest.externalStatistics( { dailyTotals: [ {
+			date: '2026-09-14', estimatedReclaimedMilliseconds: 120_000, focusedPauseMilliseconds: 60_000,
+			reconsideredVisitCount: 3, completedWaitCount: 7, allowanceGrantedCount: 4,
+		} ] } );
+	} );
+	const chart = page.getByRole( 'region', { name: 'Daily activity', exact: true } );
+	const selector = chart.getByRole( 'combobox', { name: 'Daily activity metric', exact: true } );
+	const values = chart.locator( 'tbody td' );
+	await expect( selector ).toHaveValue( 'reconsideredVisitCount' );
+	await expect( values ).toHaveText( [ '3' ] );
+	await expect( chart.getByRole( 'columnheader', { name: 'Reconsidered visits', exact: true } ) ).toHaveCount( 1 );
+	await expect( chart.getByRole( 'application', { name: 'Daily activity Reconsidered visits', exact: true } ) ).toHaveAttribute( 'tabindex', '0' );
+	await selector.selectOption( 'completedWaitCount' );
+	await expect( values ).toHaveText( [ '7' ] );
+	await expect( chart.getByRole( 'columnheader', { name: 'Completed pauses', exact: true } ) ).toHaveCount( 1 );
+	await selector.selectOption( 'estimatedReclaimedMilliseconds' );
+	await expect( values ).toHaveText( [ '2 minutes' ] );
+	await expect( chart.getByRole( 'columnheader', { name: 'Estimated time reclaimed', exact: true } ) ).toHaveCount( 1 );
+	await selector.selectOption( 'reconsideredVisitCount' );
+	await expect( values ).toHaveText( [ '3' ] );
 } );

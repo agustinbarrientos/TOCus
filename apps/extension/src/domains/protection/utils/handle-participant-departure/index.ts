@@ -62,6 +62,9 @@ export function handleParticipantDeparture(
 				allowanceDurationMilliseconds: event.allowanceDurationMilliseconds,
 				departureCause: qualifyingCause.data,
 				observedAtEpochMilliseconds: event.observedAtEpochMilliseconds,
+				...( departingParticipant.siteHost !== undefined && event.observedLocalHour !== undefined
+					? { siteHost: departingParticipant.siteHost, observedLocalHour: event.observedLocalHour }
+					: {} ),
 			} ) );
 		}
 

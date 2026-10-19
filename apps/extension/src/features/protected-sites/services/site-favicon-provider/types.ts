@@ -7,6 +7,8 @@ import { z } from 'zod';
 export interface SiteFaviconProviderOptions {
 	supportsCachedFavicons: boolean;
 	extensionRootUrl: string;
+	/** Reads PNG bytes from a provider-created extension-local cache resource. */
+	readLocalImage?: ( source: string ) => Promise<Uint8Array | null>;
 }
 
 /**
@@ -36,4 +38,11 @@ export interface SiteFaviconProvider {
 	 * @since 1.0.0 Initial implementation.
 	 */
 	getSource( identityHost: unknown ): SiteFaviconSource;
+	/**
+	 * Tries cached scheme and www variants, ignoring the browser's default placeholder.
+	 * @param identityHost - Unknown canonical identity host input.
+	 * @return First available local icon or null when no cached variant exists.
+	 * @since 1.1.0
+	 */
+	resolveSource?( identityHost: unknown ): Promise<SiteFaviconSource>;
 }

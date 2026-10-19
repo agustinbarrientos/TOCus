@@ -54,8 +54,8 @@ export function registerInterruptionNavigationReplacement(
 			return undefined;
 		}
 
-		sendResponse( { replaced: true } );
 		options.location.replace( request.data.url );
+		sendResponse( { replaced: true } );
 
 		return undefined;
 	} );

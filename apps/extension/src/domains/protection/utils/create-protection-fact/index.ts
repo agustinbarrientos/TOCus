@@ -4,6 +4,8 @@ import {
 	AllowanceGrantedFactSchema,
 	CompletedWaitFactInputSchema,
 	CompletedWaitFactSchema,
+	ContinuedVisitFactInputSchema,
+	ContinuedVisitFactSchema,
 	PauseTimeFactInputSchema,
 	PauseTimeFactSchema,
 	ProtectionFactType,
@@ -11,10 +13,27 @@ import {
 	ReconsideredVisitFactSchema,
 	type AllowanceGrantedFact,
 	type CompletedWaitFact,
+	type ContinuedVisitFact,
 	type PauseTimeFact,
 	type ProtectionFactType as ProtectionFactTypeValue,
 	type ReconsideredVisitFact,
 } from '../../types/protection-fact';
+
+/**
+ * Creates one stable participant outcome independently of shared allowance totals.
+ * @param input - Browser-accepted navigation participant and captured observation.
+ * @return Validated outcome with a deterministic participant identity.
+ * @since 1.0.0 Initial implementation.
+ */
+export function createContinuedVisitFact( input: unknown ): ContinuedVisitFact {
+	const parsedInput = ContinuedVisitFactInputSchema.parse( input );
+	return ContinuedVisitFactSchema.parse( {
+		type: ProtectionFactType.CONTINUED_VISIT,
+		factId: createFactId( ProtectionFactType.CONTINUED_VISIT, [ parsedInput.scopeId,
+			parsedInput.allowanceId, parsedInput.participantId, parsedInput.pageId ] ),
+		...parsedInput,
+	} );
+}
 
 /**
  * Encodes one fact-identity component without delimiter ambiguity.

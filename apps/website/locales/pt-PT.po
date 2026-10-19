@@ -22,8 +22,8 @@ msgid "\"Navigation access\" lets TOCus see changes to websites as they happen, 
 msgstr "O acesso à navegação permite ao TOCus ver as alterações nos sites quando ocorrem, mas não consulta o seu histórico de navegação guardado."
 
 #: apps/website/src/localization/privacy/index.ts
-msgid "“Reset statistics” deletes recorded counts and total time while keeping your sites and settings. “Reset all TOCus data” deletes sites, schedules, timing, preferences, active pauses, and statistics, removes allowed website access, and restarts setup."
-msgstr "“Repor as estatísticas” elimina as contagens e o tempo total registados, mas mantém os teus sites e definições. “Repor todos os dados do TOCus” elimina sites, horários, tempos, preferências, pausas ativas e estatísticas, remove o acesso permitido aos sites e reinicia a configuração inicial."
+msgid "“Reset statistics” deletes recorded totals and website and hourly breakdowns while keeping your sites and settings. “Reset all TOCus data” deletes sites, schedules, timing, preferences, active pauses, and statistics, removes allowed website access, and restarts setup."
+msgstr "“Repor as estatísticas” elimina os totais registados e os detalhes por site e hora, mas mantém os teus sites e definições. “Repor todos os dados do TOCus” elimina sites, horários, tempos, preferências, pausas ativas e estatísticas, remove o acesso permitido aos sites e reinicia a configuração inicial."
 
 #: apps/website/src/localization/index.ts
 msgid "10s pause"
@@ -140,8 +140,8 @@ msgid "Italiano"
 msgstr "Italiano"
 
 #: apps/website/src/localization/privacy/index.ts
-msgid "Last reviewed September 23, 2026."
-msgstr "Última revisão: 23 de setembro de 2026."
+msgid "Last reviewed October 18, 2026."
+msgstr "Última revisão em 18 de outubro de 2026."
 
 #: apps/website/src/localization/privacy/index.ts
 msgid "Links to GitHub, browser rules, extension stores, and the author's website open other sites that have their own privacy rules. Installing or updating TOCus can also connect with your browser or store provider. These connections are separate from the extension sending data to the developer."
@@ -197,6 +197,10 @@ msgstr "Saltar para o conteúdo"
 msgid "Source code"
 msgstr "Código-fonte"
 
+#: apps/website/src/localization/privacy/index.ts
+msgid "Statistics keep counts and durations, plus daily counts for each configured website and hourly counts of reconsidered visits. They do not save full web addresses, page content, or individual visit records."
+msgstr "As estatísticas guardam contagens e durações, além de contagens diárias de cada site configurado e contagens por hora das visitas reconsideradas. Não guardam endereços web completos, conteúdo de páginas nem registos de visitas individuais."
+
 #: apps/website/src/localization/index.ts
 msgid "Take a moment to pause."
 msgstr "Tira um momento para fazer uma pausa."
@@ -212,10 +216,6 @@ msgstr "A extensão usa as funcionalidades do Chrome no teu dispositivo para mos
 #: apps/website/src/localization/privacy/index.ts
 msgid "The source code is available on GitHub if you want to check for yourself."
 msgstr "O código-fonte está disponível no GitHub se quiser verificar por si."
-
-#: apps/website/src/localization/privacy/index.ts
-msgid "The statistics only keep track of counts and durations. They don't save any page content or web addresses."
-msgstr "As estatísticas apenas registam contagens e durações. Não guardam conteúdo de páginas nem endereços web."
 
 #: apps/website/src/localization/privacy/index.ts
 msgid "The TOCus extension has no analytics or tracking. Website analytics can't read your extension's site list, settings, or statistics."
@@ -254,8 +254,8 @@ msgid "TOCus saves your choices using local storage. It uses scripts and browser
 msgstr "O TOCus guarda as suas escolhas no armazenamento local. Usa scripts e regras do navegador para mostrar a pausa, e alarmes para manter os tempos corretos."
 
 #: apps/website/src/localization/privacy/index.ts
-msgid "TOCus works entirely offline and doesn't track your data on your device."
-msgstr "O TOCus funciona inteiramente offline e não rastreia os seus dados no seu dispositivo."
+msgid "TOCus works entirely offline. Your data stays on your device and is not sent to the developer."
+msgstr "O TOCus funciona totalmente offline. Os teus dados ficam no teu dispositivo e não são enviados ao programador."
 
 #: apps/website/src/localization/index.ts
 msgid "Use it only when you want to"

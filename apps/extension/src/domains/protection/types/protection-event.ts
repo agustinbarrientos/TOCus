@@ -293,6 +293,8 @@ export const ParticipantDepartureEventSchema = z.object( {
 	allowanceDurationMilliseconds: z.union( [ AllowanceDurationMillisecondsSchema, z.null() ] ),
 	observedAtEpochMilliseconds: EpochMillisecondsSchema,
 	observedLocalDate: LocalDateSchema,
+	/** Optional for legacy event producers without prospective time-of-day attribution. */
+	observedLocalHour: z.number().int().min( 0 ).max( 23 ).optional(),
 } ).strict();
 
 /**

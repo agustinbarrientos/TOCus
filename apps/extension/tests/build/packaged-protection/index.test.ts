@@ -46,6 +46,9 @@ async function readDurableState( worker: Worker ): Promise<StoredDurableProtecti
 test.describe( 'packaged Settings loading', () => {
 	test.use( { pregrantSite: false } );
 	test.beforeEach( async ( { worker } ) => {
+		const today = await worker.evaluate( () => new Intl.DateTimeFormat( 'en-CA', {
+			year: 'numeric', month: '2-digit', day: '2-digit',
+		} ).format( new Date() ) );
 		const totals = {
 			estimatedReclaimedMilliseconds: 120_000,
 			focusedPauseMilliseconds: 60_000,
@@ -61,8 +64,8 @@ test.describe( 'packaged Settings loading', () => {
 			'tocus.protection.configuration.v1': TestEmptyProtectionConfiguration,
 			'tocus.statistics.v1': {
 				...createMockStatisticsDocument(),
-				firstRecordedDate: '2026-09-16',
-				dailyTotals: [ { date: '2026-09-16', ...totals } ],
+				firstRecordedDate: today,
+				dailyTotals: [ { date: today, ...totals } ],
 				scopes: { [ DefaultProtectionScopeId ]: { totals } },
 			},
 		} );

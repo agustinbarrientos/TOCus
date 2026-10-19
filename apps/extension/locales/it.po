@@ -160,6 +160,10 @@ msgstr "Informazioni"
 msgid "About {duration} saved."
 msgstr "Hai risparmiato circa {duration}."
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "About visit outcomes"
+msgstr "Informazioni sugli esiti delle visite"
+
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "Absolutely everything."
 msgstr "Assolutamente tutto."
@@ -171,10 +175,6 @@ msgstr "Accesso necessario"
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Active time windows"
 msgstr "Fasce orarie attive"
-
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Activity"
-msgstr "Attività"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Add {siteName}"
@@ -217,8 +217,9 @@ msgid "All day"
 msgstr "Tutto il giorno"
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
-msgid "All recorded counts and time totals will be deleted. This can't be undone."
-msgstr "Tutti i conteggi e i tempi registrati verranno eliminati. Questa azione non può essere annullata."
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "All recorded statistics will be deleted. This can't be undone."
+msgstr "Tutte le statistiche registrate saranno eliminate. Questa azione non può essere annullata."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "All the time"
@@ -344,6 +345,10 @@ msgstr "Accesso del browser necessario"
 msgid "Browser access to show the pause on this website is required. Nothing was saved."
 msgstr "Per mostrare la pausa su questo sito web è necessario l'accesso del browser. Non è stato salvato nulla."
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "By website"
+msgstr "Per sito web"
+
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
@@ -406,6 +411,7 @@ msgid "Clear all schedule rows?"
 msgstr "Eliminare tutte le righe della programmazione?"
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Clear your recorded counts and time totals. Your websites and settings stay the same."
 msgstr "Elimina i conteggi e i tempi registrati. I tuoi siti e le impostazioni restano invariati."
 
@@ -418,8 +424,8 @@ msgid "Color palette"
 msgstr "Palette di colori"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Completed waits"
-msgstr "Attese completate"
+msgid "Completed pauses"
+msgstr "Pause completate"
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
@@ -438,6 +444,14 @@ msgstr "Mese corrente"
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Current week"
 msgstr "Settimana corrente"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Daily activity"
+msgstr "Attività giornaliera"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Daily activity metric"
+msgstr "Metrica dell’attività giornaliera"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-onboarding-appearance-step-copy/index.ts
@@ -607,6 +621,14 @@ msgstr "Tempi globali"
 msgid "Green"
 msgstr "Verde"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Hour"
+msgstr "Ora"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "How estimated time reclaimed is calculated"
+msgstr "Come viene calcolato il tempo stimato recuperato"
+
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "If TOCus doesn't have access to a website, it can't pause that site. You can update these permissions in your browser's extension settings."
 msgstr "Se TOCus non ha accesso a un sito web, non può metterlo in pausa. Puoi modificare queste autorizzazioni nelle impostazioni delle estensioni del browser."
@@ -714,10 +736,6 @@ msgstr "Caricamento delle impostazioni dei tempi..."
 msgid "Loading websites..."
 msgstr "Caricamento dei siti web..."
 
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Local data"
-msgstr "Dati locali"
-
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Local data controls are unavailable right now."
 msgstr "I controlli dei dati locali non sono disponibili al momento."
@@ -772,8 +790,16 @@ msgid "Name"
 msgstr "Nome"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "No activity recorded in this period."
-msgstr "Nessuna attività registrata in questo periodo."
+msgid "No activity in this period"
+msgstr "Nessuna attività in questo periodo"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "No reconsidered visits recorded in this period."
+msgstr "Nessuna visita riconsiderata registrata in questo periodo."
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "No visit outcomes recorded in this period."
+msgstr "Nessun esito delle visite registrato in questo periodo."
 
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
@@ -917,8 +943,20 @@ msgid "Quick links couldn't load"
 msgstr "Impossibile caricare i link rapidi"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Reconsidered"
+msgstr "Riconsiderate"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Reconsidered visits"
 msgstr "Visite riconsiderate"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Reconsidered visits by hour"
+msgstr "Visite riconsiderate per ora"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Reconsidered visits end before the pause finishes. Visits after a pause count when you wait and continue to the website."
+msgstr "Le visite riconsiderate terminano prima che finisca la pausa. Le visite dopo una pausa vengono conteggiate quando aspetti e prosegui al sito web."
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Recorded date range"
@@ -1149,6 +1187,10 @@ msgstr "Le statistiche non sono disponibili"
 msgid "Statistics couldn't be reset"
 msgstr "Impossibile reimpostare le statistiche"
 
+#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
+msgid "Statistics keep counts and durations, plus daily counts for each configured website and hourly counts of reconsidered visits. They do not save full web addresses, page content, or individual visit records."
+msgstr "Le statistiche conservano conteggi e durate, oltre ai conteggi giornalieri per ogni sito web configurato e ai conteggi orari delle visite riconsiderate. Non salvano indirizzi web completi, contenuti delle pagine o registrazioni delle singole visite."
+
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Statistics reset. Your websites and settings are unchanged."
 msgstr "Statistiche reimpostate. I tuoi siti e le impostazioni non sono cambiati."
@@ -1209,10 +1251,6 @@ msgstr "Non è stato possibile salvare la programmazione. Le impostazioni non so
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "The source code is available on GitHub if you want to check for yourself."
 msgstr "Il codice sorgente è disponibile su GitHub se vuoi verificarlo di persona."
-
-#: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
-msgid "The statistics only keep track of counts and durations. They don't save any page content or web addresses."
-msgstr "Le statistiche registrano solo conteggi e durate. Non salvano il contenuto delle pagine né gli indirizzi web."
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "The wait won't grow beyond this duration."
@@ -1512,8 +1550,8 @@ msgid "TOCus works directly in your browser and never connects to outside server
 msgstr "TOCus funziona direttamente nel browser e non si collega mai a server esterni. Non ci sono account, tracciamenti o collegamenti al cloud. Dopo l'installazione, può funzionare anche su una rete privata senza accesso a internet."
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
-msgid "TOCus works entirely offline and doesn't track your data on your device."
-msgstr "TOCus funziona interamente offline e non traccia i tuoi dati sul dispositivo."
+msgid "TOCus works entirely offline. Your data stays on your device and is not sent to the developer."
+msgstr "TOCus funziona interamente offline. I tuoi dati rimangono sul tuo dispositivo e non vengono inviati allo sviluppatore."
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "TOCus works without internet. Your data stays on this device and is never sent to other computers."
@@ -1590,9 +1628,21 @@ msgstr "Usa l'orario globale"
 msgid "Version {version}"
 msgstr "Versione {version}"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Visit outcome key"
+msgstr "Legenda degli esiti delle visite"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Visit outcomes"
+msgstr "Esiti delle visite"
+
 #: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "Visit window: complete"
 msgstr "Finestra di visita: completata"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Visited after pause"
+msgstr "Visitate dopo la pausa"
 
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
 msgid "Vos"
@@ -1634,6 +1684,10 @@ msgstr "Indirizzo web"
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Website address"
 msgstr "Indirizzo del sito web"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Website and hourly breakdowns will appear as new visits are recorded."
+msgstr "I dettagli per sito web e ora appariranno man mano che vengono registrate nuove visite."
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Website count"
@@ -1764,6 +1818,10 @@ msgstr "Le impostazioni locali richiedono attenzione"
 msgid "Your local settings weren't changed. Try loading them again."
 msgstr "Le impostazioni locali non sono state modificate. Prova a caricarle di nuovo."
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Your local time"
+msgstr "La tua ora locale"
+
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Your local timing data isn't valid, so it wasn't replaced."
 msgstr "I dati locali dei tempi non sono validi, quindi non sono stati sostituiti."
@@ -1784,6 +1842,10 @@ msgstr "La pausa è iniziata."
 msgid "Your pause is paused."
 msgstr "La pausa è sospesa."
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Your pauses and reconsidered visits will appear here."
+msgstr "Le tue pause e le visite riconsiderate appariranno qui."
+
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Your quick link could not be opened. Try again."
 msgstr "Non è stato possibile aprire il tuo link rapido. Riprova."
@@ -1795,14 +1857,6 @@ msgstr "Non è stato possibile salvare i tuoi link rapidi. Le modifiche sono anc
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Your saved data isn't valid or uses an unsupported format. TOCus couldn't create a backup."
 msgstr "I dati salvati non sono validi o usano un formato non supportato. TOCus non è riuscito a creare un backup."
-
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Your statistics stay on this device."
-msgstr "Le statistiche restano su questo dispositivo."
-
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Your statistics will start over from zero. Websites, schedules, timing, and appearance remain unchanged."
-msgstr "Le tue statistiche ripartiranno da zero. Siti web, programmazioni, tempi e aspetto rimarranno invariati."
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Your timing data changed. Retry before saving these choices."

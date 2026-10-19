@@ -88,11 +88,19 @@ export function projectStatistics( input: unknown, today: unknown ): StatisticsP
 	return {
 		status: StatisticsProjectionStatus.AVAILABLE,
 		currentDate: currentDate.data,
+		firstRecordedDate: result.data.firstRecordedDate,
 		estimatedReclaimedMilliseconds,
 		focusedPauseMilliseconds,
 		reconsideredVisitCount,
 		completedWaitCount,
 		allowanceGrantedCount,
 		dailyTotals,
+		...( result.data.visitOutcomes === undefined ? {} : {
+			visitOutcomes: {
+				...result.data.visitOutcomes,
+				dailySites: result.data.visitOutcomes.dailySites.filter( ( day ) => day.date <= currentDate.data ),
+				dailyHours: result.data.visitOutcomes.dailyHours.filter( ( day ) => day.date <= currentDate.data ),
+			},
+		} ),
 	};
 }

@@ -13,7 +13,7 @@ import {
 	type ProtectionRuntimeParticipantContext,
 } from '../../utils/runtime-page-context';
 import type { ProtectionRuntimeTab } from '../../types/browser-runtime';
-import { createRuntimeLocalDate } from '../../utils/runtime-local-date';
+import { createRuntimeLocalDate, createRuntimeLocalHour } from '../../utils/runtime-local-date';
 import type {
 	ProtectionParticipantReconciler,
 	ProtectionParticipantReconcilerOptions,
@@ -164,6 +164,7 @@ export function createProtectionParticipantReconciler(
 			: undefined;
 		const result = await options.coordinator.dispatch( () => {
 			const observedAtEpochMilliseconds = options.now();
+			const timeZone = options.getTimeZone();
 
 			return {
 				type: ProtectionEventType.PARTICIPANT_DEPARTURE,
@@ -174,7 +175,8 @@ export function createProtectionParticipantReconciler(
 				cause,
 				allowanceDurationMilliseconds: configuration?.timingConfiguration.allowanceMilliseconds ?? null,
 				observedAtEpochMilliseconds,
-				observedLocalDate: createRuntimeLocalDate( observedAtEpochMilliseconds, options.getTimeZone() ),
+				observedLocalDate: createRuntimeLocalDate( observedAtEpochMilliseconds, timeZone ),
+				observedLocalHour: createRuntimeLocalHour( observedAtEpochMilliseconds, timeZone ),
 			};
 		}, measurementRevision );
 

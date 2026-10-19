@@ -38,7 +38,40 @@ export interface StatisticsChartBucket extends DailyStatisticsTotals {
  */
 export interface StatisticsRangeView {
 	range: StatisticsRange;
+	startDate: LocalDate | null;
+	endDate: LocalDate;
 	totals: StatisticsTotals;
 	chartBuckets: StatisticsChartBucket[];
 	incompleteHistory: boolean;
+	breakdowns: StatisticsBreakdownsView;
+}
+
+/**
+ * Recorded outcomes for one exact website without retaining URLs or page contents.
+ * @since 1.1.0
+ */
+export interface StatisticsSiteOutcomes {
+	siteHost: string;
+	reconsideredVisitCount: number;
+	visitedAfterPauseCount: number;
+}
+
+/**
+ * One local hour's recorded reconsidered visits.
+ * @since 1.1.0
+ */
+export interface StatisticsHourlyVisits {
+	hour: number;
+	reconsideredVisitCount: number;
+}
+
+/**
+ * Selected breakdowns with explicit coverage independent of older aggregate totals.
+ * @since 1.1.0
+ */
+export interface StatisticsBreakdownsView {
+	recordedFromDate: LocalDate | null;
+	partialHistory: boolean;
+	siteOutcomes: StatisticsSiteOutcomes[];
+	hourlyReconsideredVisits: StatisticsHourlyVisits[];
 }

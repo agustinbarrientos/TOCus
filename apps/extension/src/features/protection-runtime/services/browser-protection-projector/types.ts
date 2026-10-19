@@ -8,9 +8,21 @@ import type { AllowanceExpiryProtectionParticipant } from '../../../../domains/p
 import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import type { RetainedNavigationDestination } from '../../../../domains/protection/types/protection-value';
 import type { StoredProtectionParticipant } from '../../../../domains/protection/types/stored-protection-participant';
+import type { ProtectionContinuationAcceptance } from '../../../../domains/protection/types/stored-protection-statistics-delivery';
 import type { ToolbarBadgeCopy } from '../../utils/toolbar-badge-projection';
 import type { ProtectionRuntimeBrowser } from '../../types/browser-runtime';
 import type { ProtectionContinuationContext } from '../protection-page-projector/types';
+
+/**
+ * Browser acceptance captured synchronously and settled after page projection completes or fails.
+ * @since 1.0.0 Initial implementation.
+ */
+export interface BrowserProtectionContinuationObservation {
+	/** Whether the exact participant navigation was accepted, even if calendar formatting failed. */
+	accepted: boolean;
+	/** Calendar metadata captured at acceptance, or null when unavailable. */
+	observation: ProtectionContinuationAcceptance | null;
+}
 
 /**
  * Dependencies used to project authoritative protection state into browser effects.
@@ -21,7 +33,8 @@ export interface BrowserProtectionProjectorOptions {
 	browser: ProtectionRuntimeBrowser;
 
 	/** Authoritative state reader used after persisted transitions. */
-	coordinator: Pick<ProtectionCoordinator, 'getStates'>;
+	coordinator: Pick<ProtectionCoordinator, 'getStates'> &
+		Partial<Pick<ProtectionCoordinator, 'completeContinuation' | 'discardContinuation'>>;
 
 	/** Extension-owned interruption page URL. */
 	interruptionPageUrl: string;

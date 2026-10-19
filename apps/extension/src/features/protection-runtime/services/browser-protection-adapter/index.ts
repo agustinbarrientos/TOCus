@@ -25,9 +25,11 @@ import type {
 	ProtectionRuntimeBrowser,
 	ProtectionRuntimeTab,
 } from '../../types/browser-runtime';
-import type {
-	BrowserProtectionAdapterApi,
-	BrowserProtectionToolbarAction,
+import {
+	InterruptionNavigationReplacementDisposition,
+	type BrowserProtectionAdapterApi,
+	type BrowserProtectionToolbarAction,
+	type InterruptionNavigationReplacementDisposition as InterruptionNavigationReplacementDispositionValue,
 } from './types';
 
 /**
@@ -351,11 +353,14 @@ export function createBrowserProtectionAdapter(
 	 * @return Whether the page handled navigation or its source became stale during delivery.
 	 * @since 1.0.0 Initial implementation.
 	 */
-	async function replaceInterruptionNavigation( tabId: number, url: string ): Promise<boolean> {
+	async function replaceInterruptionNavigation(
+		tabId: number,
+		url: string,
+	): Promise<InterruptionNavigationReplacementDispositionValue> {
 		const currentUrl = browserApi.runtime?.getURL( InterruptionDocumentPath.CURRENT );
 
 		if ( currentUrl === undefined || ! /^https?:\/\//u.test( url ) ) {
-			return false;
+			return InterruptionNavigationReplacementDisposition.UNHANDLED;
 		}
 
 		const tab = ( await listTabs() ).find( ( candidate ) => candidate.id === tabId );
@@ -366,7 +371,7 @@ export function createBrowserProtectionAdapter(
 			( ! isInterruptionDocumentUrl( sourceUrl, currentUrl ) &&
 				readInterruptionNavigationDestination( sourceUrl, currentUrl ) === null )
 		) {
-			return true;
+			return InterruptionNavigationReplacementDisposition.STALE;
 		}
 
 		try {
@@ -376,7 +381,7 @@ export function createBrowserProtectionAdapter(
 				url,
 			} );
 			if ( InterruptionNavigationReplacementResponseSchema.safeParse( response ).success ) {
-				return true;
+				return InterruptionNavigationReplacementDisposition.ACCEPTED;
 			}
 		} catch {
 			// A loading or failed page may not have a listener; preserve fail-open browser navigation.
@@ -384,7 +389,9 @@ export function createBrowserProtectionAdapter(
 
 		const freshTab = ( await listTabs() ).find( ( candidate ) => candidate.id === tabId );
 
-		return freshTab?.incognito !== false || ( freshTab.pendingUrl ?? freshTab.url ) !== sourceUrl;
+		return freshTab?.incognito !== false || ( freshTab.pendingUrl ?? freshTab.url ) !== sourceUrl
+			? InterruptionNavigationReplacementDisposition.STALE
+			: InterruptionNavigationReplacementDisposition.UNHANDLED;
 	}
 
 	/**
@@ -392,10 +399,16 @@ export function createBrowserProtectionAdapter(
 	 * @param tabId - Browser-assigned tab identifier.
 	 * @param url - Retained navigation destination.
 	 * @param expectedSourceUrl - Exact current source required by an explicit focus choice.
+	 * @param onAccepted - Immediate browser-acceptance observer before audio restoration.
 	 * @return Promise resolved after the browser accepts the update.
 	 * @since 1.0.0 Initial implementation.
 	 */
-	async function navigateTab( tabId: number, url: string, expectedSourceUrl?: string ): Promise<void> {
+	async function navigateTab(
+		tabId: number,
+		url: string,
+		expectedSourceUrl?: string,
+		onAccepted?: () => void,
+	): Promise<boolean> {
 		if ( expectedSourceUrl !== undefined ) {
 			const tab = ( await listTabs() ).find( ( candidate ) => candidate.id === tabId );
 			if ( tab?.incognito !== false || ( tab.pendingUrl ?? tab.url ) !== expectedSourceUrl ) {
@@ -403,13 +416,19 @@ export function createBrowserProtectionAdapter(
 			}
 			if ( /^https?:\/\//u.test( expectedSourceUrl ) ) {
 				await browserApi.tabs.update( tabId, { url } );
-				return;
+				onAccepted?.();
+				return true;
 			}
 		}
-		if ( ! await replaceInterruptionNavigation( tabId, url ) ) {
+		const replacement = await replaceInterruptionNavigation( tabId, url );
+		if ( replacement === InterruptionNavigationReplacementDisposition.UNHANDLED ) {
 			await browserApi.tabs.update( tabId, { url } );
 		}
+		if ( replacement !== InterruptionNavigationReplacementDisposition.STALE ) {
+			onAccepted?.();
+		}
 		await tabAudio.restore( tabId );
+		return replacement !== InterruptionNavigationReplacementDisposition.STALE;
 	}
 
 	/**

@@ -21,6 +21,9 @@ export function createStatisticsCopy(
 	formatters: LocalizationFormatters,
 ): Readonly<StatisticsSettingsScreenCopy> {
 	const dateFormatter = new Intl.DateTimeFormat( i18n.locale, { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' } );
+	const hourFormatter = new Intl.DateTimeFormat( i18n.locale, {
+		hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'UTC',
+	} );
 	const axisOptions: Intl.NumberFormatOptions = {
 		style: 'unit', unitDisplay: 'narrow', maximumSignificantDigits: 3, notation: 'compact',
 	};
@@ -60,6 +63,14 @@ export function createStatisticsCopy(
 		return startDate === endDate ? formatDate( startDate ) : dateFormatter.formatRange(
 			new Date( `${ startDate }T12:00:00Z` ), new Date( `${ endDate }T12:00:00Z` ),
 		);
+	}
+	/**
+	 * Labels an aggregate local hour without shifting it into the viewer's timezone.
+	 * @param hour - Recorded hour from zero through twenty-three.
+	 * @return Localized hour label.
+	 */
+	function formatHour( hour: number ): string {
+		return hourFormatter.format( new Date( Date.UTC( 2026, 0, 1, hour ) ) );
 	}
 	/**
 	 * Formats one rounded focused-pause duration.
@@ -123,12 +134,29 @@ export function createStatisticsCopy(
 		estimatedReclaimedLabel: i18n._( msg`Estimated time reclaimed` ),
 		focusedPauseLabel: i18n._( msg`Time you took to pause` ),
 		reconsideredVisitsLabel: i18n._( msg`Reconsidered visits` ),
-		completedWaitsLabel: i18n._( msg`Completed waits` ),
+		completedWaitsLabel: i18n._( msg`Completed pauses` ),
 		allowancesGrantedLabel: i18n._( msg`Allowances granted` ),
 		estimationDescription: i18n._( msg`Time spent pausing plus estimated browsing time avoided, based on your configured visit time.` ),
-		dailyTitle: i18n._( msg`Activity` ),
-		dailyEmpty: i18n._( msg`No activity recorded in this period.` ),
+		estimationHelpLabel: i18n._( msg`How estimated time reclaimed is calculated` ),
+		dailyTitle: i18n._( msg`Daily activity` ),
+		dailyMetricLabel: i18n._( msg`Daily activity metric` ),
+		dailyEmpty: i18n._( msg`No activity in this period` ),
+		dailyEmptyDescription: i18n._( msg`Your pauses and reconsidered visits will appear here.` ),
 		dateLabel: i18n._( msg`Date` ),
+		visitOutcomesTitle: i18n._( msg`Visit outcomes` ),
+		visitOutcomesHelpLabel: i18n._( msg`About visit outcomes` ),
+		visitOutcomesDescription: i18n._( msg`Reconsidered visits end before the pause finishes. Visits after a pause count when you wait and continue to the website.` ),
+		websiteOutcomesTitle: i18n._( msg`By website` ),
+		visitOutcomesLegendLabel: i18n._( msg`Visit outcome key` ),
+		reconsideredOutcomeLabel: i18n._( msg`Reconsidered` ),
+		visitedAfterPauseLabel: i18n._( msg`Visited after pause` ),
+		hourlyTitle: i18n._( msg`Reconsidered visits by hour` ),
+		hourLabel: i18n._( msg`Hour` ),
+		localTimeLabel: i18n._( msg`Your local time` ),
+		noVisitOutcomes: i18n._( msg`No visit outcomes recorded in this period.` ),
+		noReconsideredVisits: i18n._( msg`No reconsidered visits recorded in this period.` ),
+		breakdownsUnavailable: i18n._( msg`Website and hourly breakdowns will appear as new visits are recorded.` ),
+		formatHour,
 		formatDate,
 		formatDateRange,
 		loading: i18n._( msg`Loading statistics...` ),
@@ -137,12 +165,12 @@ export function createStatisticsCopy(
 			msg`TOCus couldn't read your local statistics. No estimates or totals are shown.`,
 		),
 		retry: i18n._( msg`Try again` ),
-		localDataTitle: i18n._( msg`Local data` ),
-		localDataDescription: i18n._( msg`Your statistics stay on this device.` ),
+		localDataTitle: i18n._( msg`Reset statistics` ),
+		localDataDescription: i18n._( msg`Clear your recorded counts and time totals. Your websites and settings stay the same.` ),
 		resetAction: i18n._( msg`Reset statistics` ),
 		resetConfirmationTitle: i18n._( msg`Reset statistics?` ),
 		resetConfirmationDescription: i18n._(
-			msg`Your statistics will start over from zero. Websites, schedules, timing, and appearance remain unchanged.`,
+			msg`All recorded statistics will be deleted. This can't be undone.`,
 		),
 		cancelReset: i18n._( msg`Cancel` ),
 		confirmReset: i18n._( msg`Reset statistics` ),

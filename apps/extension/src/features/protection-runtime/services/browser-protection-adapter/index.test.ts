@@ -97,6 +97,29 @@ function createTabAudioController(): TabAudioController {
 }
 
 describe( 'createBrowserProtectionAdapter', () => {
+	it( 'reports acceptance only after the browser accepts a navigation update', async () => {
+		const browserApi = createBrowserApi();
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
+		const onAccepted = vi.fn();
+		await expect( adapter.navigateTab( 7, 'https://example.com/', undefined, onAccepted ) ).resolves.toBe( true );
+		expect( onAccepted ).toHaveBeenCalledOnce();
+		vi.mocked( browserApi.tabs.update ).mockRejectedValueOnce( new Error( 'Navigation failed' ) );
+		await expect( adapter.navigateTab( 7, 'https://example.com/', undefined, onAccepted ) )
+			.rejects.toThrow( 'Navigation failed' );
+		expect( onAccepted ).toHaveBeenCalledOnce();
+	} );
+	it.each( [ { tabs: [] }, { tabs: [ { id: 7, incognito: false, url: 'https://elsewhere.test/' } ] } ] )(
+		'reports a stale source rather than an accepted release for %j', async ( { tabs } ) => {
+			const browserApi = createBrowserApi();
+			browserApi.runtime = { getURL: vi.fn().mockReturnValue( 'chrome-extension://extension-id/pause.html' ) };
+			vi.mocked( browserApi.tabs.query ).mockResolvedValue( tabs );
+			const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
+			const onAccepted = vi.fn();
+			await expect( adapter.navigateTab( 7, 'https://example.com/', undefined, onAccepted ) ).resolves.toBe( false );
+			expect( onAccepted ).not.toHaveBeenCalled();
+			expect( browserApi.tabs.update ).not.toHaveBeenCalled();
+		},
+	);
 	it( 'mutes before showing an interruption and restores after accepted removal', async () => {
 		const browserApi = createBrowserApi();
 		const audio = createTabAudioController();
@@ -845,7 +868,9 @@ it( 'opens an explicit focus destination from the exact current ordinary page in
 	} ] );
 	const audio = createTabAudioController();
 	const adapter = createBrowserProtectionAdapter( browserApi, audio );
-	await adapter.navigateTab( 7, 'https://reading.test/book', 'https://example.com/watching' );
+	const onAccepted = vi.fn();
+	await adapter.navigateTab( 7, 'https://reading.test/book', 'https://example.com/watching', onAccepted );
+	expect( onAccepted ).toHaveBeenCalledOnce();
 	expect( browserApi.tabs.update ).toHaveBeenCalledExactlyOnceWith( 7, { url: 'https://reading.test/book' } );
 	expect( browserApi.tabs.sendMessage ).not.toHaveBeenCalled();
 	expect( audio.restore ).not.toHaveBeenCalled();

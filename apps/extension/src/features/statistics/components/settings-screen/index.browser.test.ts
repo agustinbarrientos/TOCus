@@ -5,11 +5,161 @@ import { Language } from '../../../../domains/preferences/types';
 import { StatisticsRange } from '../../utils/select-statistics-range/types';
 
 test.describe( 'local statistics', () => {
-	test( 'defaults to all time and updates the chart and every metric together for calendar periods', async ( { open } ) => {
+	test( 'aligns unequal website count columns without losing full values in narrow or enlarged text', async ( { open } ) => {
+		const page = await open( SettingsDestination.STATISTICS, Language.GERMAN );
+		await page.evaluate( () => {
+			window.settingsTest.externalStatistics( { visitOutcomes: {
+				recordedFromDate: '2026-09-14',
+				dailySites: [
+					{ date: '2026-09-14', siteHost: 'a.example', reconsideredVisitCount: 1_234_567, visitedAfterPauseCount: 7 },
+					{ date: '2026-09-14', siteHost: 'b.example', reconsideredVisitCount: 1_200, visitedAfterPauseCount: 9_876_543 },
+					{ date: '2026-09-14', siteHost: 'long-project-reference.example', reconsideredVisitCount: 37, visitedAfterPauseCount: 42 },
+				],
+				dailyHours: [ { date: '2026-09-14', hour: 9, reconsideredVisitCount: 1_235_804 } ],
+			} } );
+		} );
+		const sites = page.locator( '.settings-statistics-site-list' );
+		await expect( sites.locator( '[data-outcome] strong' ) ).toHaveText( [
+			'1.234.567', '7', '1.200', '9.876.543', '37', '42',
+		] );
+		await page.evaluate( () => document.fonts.ready );
+		const initialFont = await sites.locator( '[data-outcome] strong' ).first().evaluate( ( element ) =>
+			parseFloat( getComputedStyle( element ).fontSize ) );
+		for ( const [ width, fontSize, fontFamily ] of [
+			[ 1280, '100%', '' ], [ 320, '100%', '' ], [ 320, '200%', '' ], [ 320, '200%', 'monospace' ],
+		] as const ) {
+			await page.setViewportSize( { width, height: 1000 } );
+			await page.evaluate( ( { size, family } ) => {
+				document.documentElement.style.fontSize = size;
+				const provider = document.querySelector<HTMLElement>( '[data-tocus-ui]' );
+				if ( provider === null ) {
+					throw new TypeError( 'Statistics must retain its themed provider.' );
+				}
+				// System fonts differ by platform; retain a wide generic fallback reflow case.
+				provider.style.setProperty( '--tocus-font-family-body', family );
+			}, { size: fontSize, family: fontFamily } );
+			await sites.scrollIntoViewIfNeeded();
+
+			await expect.poll( () => sites.evaluate( ( list ) => {
+				const rows = [ ...list.querySelectorAll( '.settings-statistics-site-header' ) ];
+				/**
+				 * Measures a required rendered child rather than ignoring absent outcome marks.
+				 * @param row - Website header containing the identity and both outcomes.
+				 * @param selector - Child whose visible bounds are required.
+				 * @return Browser layout bounds of the real rendered child.
+				 */
+				function bounds( row: Element, selector: string ): DOMRect {
+					const child = row.querySelector( selector );
+					if ( child === null ) {
+						throw new TypeError( 'Each website must retain its identity, both full counts and outcome marks.' );
+					}
+					return child.getBoundingClientRect();
+				}
+				const solid = rows.map( ( row ) =>
+					bounds( row, '[data-outcome="reconsidered"] .settings-statistics-outcome-key' ).right );
+				const striped = rows.map( ( row ) =>
+					bounds( row, '[data-outcome="continued"] .settings-statistics-outcome-key' ).right );
+				const listBounds = list.getBoundingClientRect();
+				return {
+					solidSpread: Math.max( ...solid ) - Math.min( ...solid ),
+					stripedSpread: Math.max( ...striped ) - Math.min( ...striped ),
+					fits: list.scrollWidth <= list.clientWidth,
+					withinViewport: listBounds.left >= 0 && listBounds.right <= innerWidth,
+					pageFits: document.documentElement.scrollWidth <= innerWidth,
+					valuesFit: [ ...list.querySelectorAll( '[data-outcome] strong' ) ].every( ( number ) => {
+						const text = document.createRange();
+						text.selectNodeContents( number );
+						return [ ...text.getClientRects() ].every( ( rect ) =>
+							rect.left >= listBounds.left && rect.right <= listBounds.right );
+					} ),
+					disjoint: rows.every( ( row ) => {
+						const identity = bounds( row, '.settings-statistics-site-identity-row' );
+						const counts = bounds( row, '.settings-statistics-site-counts' );
+						return identity.right <= counts.left || identity.bottom <= counts.top;
+					} ),
+				};
+			} ), { message: `Shared website columns at ${ String( width ) }px and ${ fontSize } ${ fontFamily } text` } ).toEqual( {
+				solidSpread: 0, stripedSpread: 0, fits: true, withinViewport: true,
+				pageFits: true, valuesFit: true, disjoint: true,
+			} ).catch( async ( error: unknown ) => {
+				const geometry = await page.evaluate( () => {
+					const viewport = {
+						innerWidth, innerHeight, clientWidth: document.documentElement.clientWidth,
+						clientHeight: document.documentElement.clientHeight,
+						scrollWidth: document.documentElement.scrollWidth,
+						scrollHeight: document.documentElement.scrollHeight,
+						bodyWidth: document.body.getBoundingClientRect().width, scrollX, scrollY,
+						devicePixelRatio, visualViewportWidth: visualViewport?.width,
+						rootFontSize: getComputedStyle( document.documentElement ).fontSize,
+						fonts: document.fonts.status,
+					};
+					/**
+					 * Records the exact box and clipping context of a potential overflow source.
+					 * @param element - Real rendered element from the failing fixture.
+					 * @return Geometry and computed layout values needed to identify platform differences.
+					 */
+					function describe( element: Element ) {
+						const rect = element.getBoundingClientRect();
+						const style = getComputedStyle( element );
+						return { tag: element.tagName, id: element.id, className: element.getAttribute( 'class' ),
+							left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width,
+							clientWidth: element.clientWidth, scrollWidth: element.scrollWidth,
+							position: style.position, display: style.display, visibility: style.visibility,
+							overflowX: style.overflowX, overflowY: style.overflowY, clipPath: style.clipPath,
+							whiteSpace: style.whiteSpace, minWidth: style.minWidth, maxWidth: style.maxWidth,
+							fontSize: style.fontSize, fontFamily: style.fontFamily, transform: style.transform };
+					}
+					const elements = [ ...document.querySelectorAll( 'body *' ) ].filter( ( element ) => {
+						const box = element.getBoundingClientRect();
+						return box.width > 0 && ( box.right > viewport.clientWidth ||
+							element.scrollWidth > element.clientWidth );
+					} ).slice( 0, 400 ).map( ( element ) => {
+						const ancestors = [];
+						let parent = element.parentElement;
+						while ( parent !== null ) {
+							ancestors.push( describe( parent ) );
+							parent = parent.parentElement;
+						}
+						return { element: describe( element ), ancestors };
+					} );
+					const text = [];
+					const walker = document.createTreeWalker( document.body, NodeFilter.SHOW_TEXT );
+					let node = walker.nextNode();
+					while ( node !== null ) {
+						const range = document.createRange();
+						range.selectNodeContents( node );
+						const rects = [ ...range.getClientRects() ];
+						if ( rects.some( ( rect ) => rect.width > 0 && rect.right > viewport.clientWidth ) ) {
+							text.push( { text: node.textContent?.slice( 0, 100 ),
+								rights: rects.map( ( rect ) => rect.right ),
+								parent: node.parentElement === null ? null : describe( node.parentElement ) } );
+						}
+						node = walker.nextNode();
+					}
+					return { viewport, elements, text };
+				} );
+				await test.info().attach( 'statistics-overflow-geometry', {
+					body: JSON.stringify( geometry, null, 2 ), contentType: 'application/json',
+				} );
+				await test.info().attach( 'statistics-overflow-full-page', {
+					body: await page.screenshot( { fullPage: true } ), contentType: 'image/png',
+				} );
+				throw error;
+			} );
+			await expect( sites.locator( '[data-outcome] strong' ) ).toHaveText( [
+				'1.234.567', '7', '1.200', '9.876.543', '37', '42',
+			] );
+		}
+		const enlargedFont = await sites.locator( '[data-outcome] strong' ).first().evaluate( ( element ) =>
+			parseFloat( getComputedStyle( element ).fontSize ) );
+		expect( enlargedFont ).toBeGreaterThan( initialFont * 1.8 );
+	} );
+	test( 'defaults to current week and updates counts, estimate, websites and hours together for calendar periods', async ( { open } ) => {
 		const page = await open( SettingsDestination.STATISTICS );
 		await page.evaluate( () => {
 			window.settingsTest.externalStatistics( {
-				currentDate: '2026-09-16', estimatedReclaimedMilliseconds: 720_000, focusedPauseMilliseconds: 360_000,
+				currentDate: '2026-09-16', firstRecordedDate: '2026-08-31',
+				estimatedReclaimedMilliseconds: 720_000, focusedPauseMilliseconds: 360_000,
 				reconsideredVisitCount: 6, completedWaitCount: 12, allowanceGrantedCount: 18,
 				dailyTotals: [
 					{ date: '2026-08-31', estimatedReclaimedMilliseconds: 120_000, focusedPauseMilliseconds: 60_000,
@@ -19,27 +169,47 @@ test.describe( 'local statistics', () => {
 					{ date: '2026-09-14', estimatedReclaimedMilliseconds: 360_000, focusedPauseMilliseconds: 180_000,
 						reconsideredVisitCount: 3, completedWaitCount: 6, allowanceGrantedCount: 9 },
 				],
+				visitOutcomes: {
+					recordedFromDate: '2026-08-31',
+					dailySites: [
+						{ date: '2026-08-31', siteHost: 'youtube.com', reconsideredVisitCount: 1, visitedAfterPauseCount: 3 },
+						{ date: '2026-09-13', siteHost: 'youtube.com', reconsideredVisitCount: 2, visitedAfterPauseCount: 6 },
+						{ date: '2026-09-14', siteHost: 'youtube.com', reconsideredVisitCount: 3, visitedAfterPauseCount: 9 },
+					],
+					dailyHours: [
+						{ date: '2026-08-31', hour: 8, reconsideredVisitCount: 1 },
+						{ date: '2026-09-13', hour: 12, reconsideredVisitCount: 2 },
+						{ date: '2026-09-14', hour: 23, reconsideredVisitCount: 3 },
+					],
+				},
 			} );
 		} );
 		const selector = page.getByRole( 'combobox', { name: 'Period', exact: true } );
-		await expect( selector ).toHaveValue( StatisticsRange.ALL_TIME );
+		await expect( selector ).toHaveValue( StatisticsRange.CURRENT_WEEK );
 		const totals = page.locator( '.settings-statistics-estimate dd, .settings-metrics dd' );
-		const rows = page.getByRole( 'region', { name: 'Activity', exact: true } ).locator( 'tbody tr' );
-		await expect( totals ).toHaveText( [ 'Approximately 12 minutes', '6 minutes', '6', '12', '18' ] );
-		await expect( rows ).toHaveCount( 3 );
-		await selector.selectOption( StatisticsRange.CURRENT_WEEK );
-		await expect( totals ).toHaveText( [ 'Approximately 6 minutes', '3 minutes', '3', '6', '9' ] );
+		const rows = page.getByRole( 'region', { name: 'Daily activity', exact: true } ).locator( 'tbody tr' );
+		const website = page.locator( '.settings-statistics-site-list [data-site="youtube.com"]' );
+		const hours = page.getByRole( 'region', { name: 'Reconsidered visits by hour', exact: true } ).getByRole( 'table' );
+		await expect( totals ).toHaveText( [ '3', '6', 'Approximately 6 minutes' ] );
 		await expect( rows ).toHaveCount( 1 );
 		await expect( rows ).toContainText( 'Sep 14, 2026' );
+		await expect( website.locator( '[data-outcome] strong' ) ).toHaveText( [ '3', '9' ] );
+		await expect( hours.getByRole( 'row', { name: '23:00 3', exact: true } ) ).toHaveCount( 1 );
 		await selector.selectOption( StatisticsRange.CURRENT_MONTH );
-		await expect( totals ).toHaveText( [ 'Approximately 10 minutes', '5 minutes', '5', '10', '15' ] );
+		await expect( totals ).toHaveText( [ '5', '10', 'Approximately 10 minutes' ] );
 		await expect( rows ).toHaveCount( 2 );
+		await expect( website.locator( '[data-outcome] strong' ) ).toHaveText( [ '5', '15' ] );
+		await expect( hours.getByRole( 'row', { name: '08:00 0', exact: true } ) ).toHaveCount( 1 );
+		await expect( hours.getByRole( 'row', { name: '12:00 2', exact: true } ) ).toHaveCount( 1 );
 		await selector.selectOption( StatisticsRange.ALL_TIME );
-		await expect( totals ).toHaveText( [ 'Approximately 12 minutes', '6 minutes', '6', '12', '18' ] );
+		await expect( totals ).toHaveText( [ '6', '12', 'Approximately 12 minutes' ] );
 		await expect( rows ).toHaveCount( 3 );
+		await expect( website.locator( '[data-outcome] strong' ) ).toHaveText( [ '6', '18' ] );
+		await expect( hours.locator( 'tbody tr' ) ).toHaveCount( 24 );
+		await expect( hours.getByRole( 'row', { name: '08:00 1', exact: true } ) ).toHaveCount( 1 );
 	} );
 
-	test( 'places recorded daily totals between the estimate and supporting lifetime metrics', async ( { open } ) => {
+	test( 'places primary counts above the estimate and daily activity before visit outcomes', async ( { open } ) => {
 		const page = await open( SettingsDestination.STATISTICS );
 		await page.evaluate( () => {
 			window.settingsTest.externalStatistics( { dailyTotals: [ {
@@ -47,14 +217,16 @@ test.describe( 'local statistics', () => {
 				reconsideredVisitCount: 1, completedWaitCount: 1, allowanceGrantedCount: 1,
 			} ] } );
 		} );
-		const chart = page.getByRole( 'region', { name: 'Activity', exact: true } );
+		const chart = page.getByRole( 'region', { name: 'Daily activity', exact: true } );
 		await expect( chart ).toBeVisible();
-		await expect( chart.getByRole( 'table' ) ).toContainText( '6 minutes' );
+		await expect( chart.getByRole( 'table' ) ).toContainText( '1' );
 		const estimate = await page.locator( '.settings-statistics-estimate' ).boundingBox();
 		const chartBox = await chart.boundingBox();
-		const supporting = await page.locator( '.settings-metrics' ).boundingBox();
+		const primary = await page.locator( '.settings-metrics' ).boundingBox();
+		const outcomes = await page.getByRole( 'region', { name: 'Visit outcomes', exact: true } ).boundingBox();
+		expect( estimate?.y ).toBeGreaterThan( primary?.y ?? 0 );
 		expect( chartBox?.y ).toBeGreaterThan( estimate?.y ?? 0 );
-		expect( supporting?.y ).toBeGreaterThan( chartBox?.y ?? 0 );
+		expect( outcomes?.y ).toBeGreaterThan( chartBox?.y ?? 0 );
 	} );
 	test( 'preserves readable estimate text when the user enlarges the base font', async ( { open } ) => {
 		const page = await open( SettingsDestination.STATISTICS );
@@ -79,7 +251,7 @@ test.describe( 'local statistics', () => {
 			const amount = page.locator( '.settings-statistics-estimate dd' );
 			await expect.poll( () => amount.textContent() ).toMatch( new RegExp( `^${ firstWord } ` ) );
 			await page.evaluate( () => document.fonts.ready );
-			for ( const width of [ 320, 360, 390 ] ) {
+			for ( const width of [ 320, 360, 390, 404 ] ) {
 				await page.setViewportSize( { width, height: 844 } );
 				// Chart dimensions follow the viewport through an asynchronous ResizeObserver update.
 				await expect.poll( () => amount.evaluate( ( element, firstWord ) => {
@@ -92,27 +264,38 @@ test.describe( 'local statistics', () => {
 					range.setEnd( node, firstWord.length );
 					const lines = [ ...range.getClientRects() ];
 					const bounds = element.getBoundingClientRect();
+					const completeText = document.createRange();
+					completeText.selectNodeContents( element );
+					const finalLine = [ ...completeText.getClientRects() ].at( -1 );
+					const help = element.closest( '.settings-statistics-estimate' )?.querySelector( 'button' );
+					if ( finalLine === undefined || help === null || help === undefined ) {
+						throw new TypeError( 'The estimate must retain its value and help control.' );
+					}
+					const helpBounds = help.getBoundingClientRect();
 					return {
 						wordLines: new Set( lines.map( ( line ) => line.top ) ).size,
 						wordFits: lines.every( ( line ) => line.left >= bounds.left && line.right <= bounds.right ),
+						helpBesideValue: helpBounds.left >= finalLine.right &&
+							helpBounds.top < finalLine.bottom && helpBounds.bottom > finalLine.top,
 						pageFits: document.documentElement.scrollWidth <= window.innerWidth,
 						fontSize: getComputedStyle( element ).fontSize,
 						availableWidth: bounds.width,
 					};
 				}, firstWord ), { message: `${ language } at ${ String( width ) }px` } ).toMatchObject( {
-					wordLines: 1, wordFits: true, pageFits: true,
+					wordLines: 1, wordFits: true, helpBesideValue: true, pageFits: true,
 				} );
 			}
 		} );
 	}
 
-	test( 'emphasizes reclaimed time above four supporting metric cards', async ( { open } ) => {
+	test( 'emphasizes the two count cards above the secondary estimate', async ( { open } ) => {
 		const page = await open( SettingsDestination.STATISTICS );
 		const metrics = page.locator( '.settings-metrics' );
 		await metrics.waitFor();
-		const featured = await page.locator( '.settings-statistics-estimate' ).boundingBox();
-		const supporting = await metrics.locator( ':scope > div' ).first().boundingBox();
-		expect( featured?.width ).toBeGreaterThan( ( supporting?.width ?? 0 ) * 1.9 );
+		await expect( metrics.locator( ':scope > div' ) ).toHaveCount( 2 );
+		const primarySize = await metrics.locator( 'dd' ).first().evaluate( ( element ) => parseFloat( getComputedStyle( element ).fontSize ) );
+		const estimateSize = await page.locator( '.settings-statistics-estimate dd' ).evaluate( ( element ) => parseFloat( getComputedStyle( element ).fontSize ) );
+		expect( primarySize ).toBeGreaterThan( estimateSize );
 		const reset = await page.getByRole( 'button', { name: 'Reset statistics', exact: true } ).boundingBox();
 		expect( reset?.width ).toBeLessThan( 250 );
 	} );
@@ -136,12 +319,15 @@ test.describe( 'local statistics', () => {
 			await page.evaluate( () => {
 				window.settingsTest.externalStatistics( {
 					estimatedReclaimedMilliseconds: 0, focusedPauseMilliseconds: 0,
+					dailyTotals: [ { date: '2026-09-14', estimatedReclaimedMilliseconds: 0,
+						focusedPauseMilliseconds: 0, reconsideredVisitCount: 2,
+						completedWaitCount: 3, allowanceGrantedCount: 4 } ],
 				} );
 			} );
 			const amount = page.locator( '.settings-statistics-estimate dd' );
 			await expect.poll( () => amount.textContent() ).toBe( expected );
-			expect( await metrics.locator( 'dd' ).nth( 1 ).textContent() ).toBe( '2' );
-			expect( await page.locator( '.settings-statistics-empty' ).count() ).toBe( 0 );
+			expect( await metrics.locator( 'dd' ).first().textContent() ).toBe( '2' );
+			expect( await page.locator( '.settings-statistics-daily .settings-statistics-empty' ).count() ).toBe( 0 );
 			await page.evaluate( () => document.fonts.ready );
 			for ( const width of [ 320, 390 ] ) {
 				await page.setViewportSize( { width, height: 844 } );
@@ -164,7 +350,11 @@ test.describe( 'local statistics', () => {
 			[ 60_000, 'Approximately 1 minute' ],
 		] as const ) {
 			await page.evaluate( ( milliseconds ) => {
-				window.settingsTest.externalStatistics( { estimatedReclaimedMilliseconds: milliseconds } );
+				window.settingsTest.externalStatistics( { estimatedReclaimedMilliseconds: milliseconds,
+					dailyTotals: [ { date: '2026-09-14', estimatedReclaimedMilliseconds: milliseconds,
+						focusedPauseMilliseconds: 0, reconsideredVisitCount: 2,
+						completedWaitCount: 3, allowanceGrantedCount: 4 } ],
+				} );
 			}, milliseconds );
 			await expect.poll( () => amount.textContent() ).toBe( expected );
 		}
@@ -176,36 +366,39 @@ test.describe( 'local statistics', () => {
 		await button.click();
 		const dialog = page.getByRole( 'dialog' );
 		await dialog.waitFor();
-		expect( await dialog.evaluate( ( element ) => element.closest( '.settings-statistics-data' ) !== null ) ).toBe( true );
+		expect( await dialog.evaluate( ( element ) => element.closest( '.settings-data-reset' ) !== null ) ).toBe( true );
 		await page.keyboard.press( 'Escape' );
 		await dialog.waitFor( { state: 'hidden' } );
 		await expect.poll( () => button.evaluate( ( element ) =>
 			document.activeElement === element ) ).toBe( true );
 	} );
 
-	test( 'renders exactly five metrics, refreshes live and confirms reset', async ( { open } ) => {
+	test( 'refreshes primary counts and secondary estimate live, then clears all aggregates after confirmed reset', async ( { open } ) => {
 		test.setTimeout( 20000 );
 		const page = await open( SettingsDestination.STATISTICS );
 		const metrics = page.locator( '.settings-metrics' );
 		await metrics.waitFor();
 		const totals = page.locator( '.settings-statistics-estimate, .settings-metrics' );
 		expect( await totals.locator( 'dt' ).allTextContents() ).toEqual( [
-			'Estimated time reclaimed', 'Time you took to pause', 'Reconsidered visits',
-			'Completed waits', 'Allowances granted',
+			'Reconsidered visits', 'Completed pauses', 'Estimated time reclaimed',
 		] );
 		expect( await totals.locator( 'dd' ).allTextContents() ).toEqual( [
-			'Approximately 11 minutes', '1 minute', '2', '3', '4',
+			'2', '3', 'Approximately 11 minutes',
 		] );
 		await page.setViewportSize( { width: 390, height: 844 } );
 		expect( await metrics.evaluate( ( element ) =>
-			getComputedStyle( element ).gridTemplateColumns.split( ' ' ).length ) ).toBe( 1 );
+			getComputedStyle( element ).gridTemplateColumns.split( ' ' ).length ) ).toBe( 2 );
 		// The responsive chart updates its measured width after the viewport resize.
 		await expect.poll( () => page.evaluate( () =>
 			document.documentElement.scrollWidth - innerWidth ) ).toBeLessThanOrEqual( 0 );
 		await page.evaluate( () => {
-			window.settingsTest.externalStatistics( { reconsideredVisitCount: 8 } );
+			window.settingsTest.externalStatistics( { reconsideredVisitCount: 8,
+				dailyTotals: [ { date: '2026-09-14', estimatedReclaimedMilliseconds: 660_000,
+					focusedPauseMilliseconds: 60_000, reconsideredVisitCount: 8,
+					completedWaitCount: 3, allowanceGrantedCount: 4 } ],
+			} );
 		} );
-		await expect.poll( () => metrics.locator( 'dd' ).nth( 1 ).textContent() ).toBe( '8' );
+		await expect( metrics.locator( 'dd' ).first() ).toHaveText( '8' );
 		await page.getByRole( 'button', { name: 'Reset statistics', exact: true } ).click();
 		const dialog = page.getByRole( 'dialog' );
 		await dialog.getByRole( 'button', { name: 'Cancel', exact: true } ).click();
@@ -215,9 +408,17 @@ test.describe( 'local statistics', () => {
 		await dialog.getByRole( 'button', { name: 'Reset statistics', exact: true } ).click();
 		await page.locator( '.mantine-Notification-root[role="status"]' ).waitFor();
 		expect( await totals.locator( 'dd' ).allTextContents() ).toEqual( [
-			'Not enough data yet', '0 minutes', '0', '0', '0',
+			'0', '0', 'Not enough data yet',
 		] );
 		await expect( page.locator( '.settings-statistics-estimate' ) ).toBeVisible();
+		await expect( page.getByText( 'No visit outcomes recorded in this period.', { exact: true } ) ).toBeVisible();
+		await expect( page.getByText( 'No reconsidered visits recorded in this period.', { exact: true } ) ).toBeVisible();
+		expect( await page.evaluate( () => window.settingsTest.getStatistics() ) ).toMatchObject( {
+			firstRecordedDate: null, dailyTotals: [], visitOutcomes: {
+				recordedFromDate: '2026-09-14', dailySites: [], dailyHours: [],
+			},
+		} );
+		await expect( page.locator( '.settings-statistics-site-list' ) ).toHaveCount( 0 );
 	} );
 
 	test( 'hides stale totals after read or reset failure and recovers explicitly', async ( { open, setting } ) => {
@@ -242,6 +443,202 @@ test.describe( 'local statistics', () => {
 		await page.getByRole( 'button', { name: 'Try again', exact: true } ).click();
 		await page.locator( '.settings-metrics' ).waitFor();
 		expect( await page.getByRole( 'button', { name: 'Save', exact: true } ).count() ).toBe( 0 );
+	} );
+
+	test( 'uses current editable website names, cached icons and local monogram fallbacks without requesting access', async ( { open } ) => {
+		const page = await open( SettingsDestination.PROTECTED_SITES );
+		await page.locator( '#site-address' ).fill( 'youtube.com' );
+		await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
+		await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
+		await page.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } ).click();
+		const dialog = page.getByRole( 'dialog' );
+		await dialog.getByLabel( 'Name', { exact: true } ).fill( 'Evening videos' );
+		await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
+		await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
+		await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 2 );
+		await page.evaluate( () => {
+			window.settingsTest.setFaviconProvider( {
+				/**
+				 * Supplies one local icon and one unreadable local source to exercise fallback.
+				 * @param host - Canonical configured host requested by the production screen.
+				 * @return Embedded fixture icon or invalid local image, without a network request.
+				 */
+				getSource: ( host ) => host === 'youtube.com'
+					? 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="8" height="8"%3E%3Crect width="8" height="8" fill="red"/%3E%3C/svg%3E'
+					: 'data:image/png;base64,AA==',
+			} );
+		} );
+		const requests = await page.evaluate( () => window.settingsTest.controls.requests );
+		await page.getByRole( 'link', { name: 'Statistics', exact: true } ).click();
+		const youtube = page.locator( '.settings-statistics-site-list [data-site="youtube.com"]' );
+		const reddit = page.locator( '.settings-statistics-site-list [data-site="reddit.com"]' );
+		await expect( youtube.locator( '.settings-statistics-site-name' ) ).toHaveText( 'Evening videos' );
+		await expect( youtube.locator( '.settings-site-identity p' ) ).toHaveText( 'youtube.com' );
+		await expect( youtube.locator( 'img' ) ).toBeVisible();
+		await expect( reddit.locator( '.settings-statistics-site-name' ) ).toHaveText( 'Reddit' );
+		await expect( reddit.locator( '.settings-site-monogram' ) ).toBeVisible();
+		await expect( reddit.locator( '.settings-site-monogram' ) ).toHaveText( 'R' );
+		expect( await page.evaluate( () => window.settingsTest.controls.requests ) ).toBe( requests );
+	} );
+
+	for ( const theme of [ 'light', 'dark' ] as const ) {
+		test( `keeps ${ theme } website counts and solid or striped keys aligned at desktop and narrow widths`, async ( { page } ) => {
+			await page.goto( `/apps/extension/src/features/settings/components/shell/__fixtures__/?theme=${ theme }#${ SettingsDestination.STATISTICS }` );
+			await expect( page.locator( 'html' ) ).toHaveAttribute( 'data-tocus-theme', theme );
+			const outcomes = page.getByRole( 'region', { name: 'Visit outcomes', exact: true } );
+			const key = outcomes.getByRole( 'group', { name: 'Visit outcome key', exact: true } );
+			await expect( key ).toHaveCount( 1 );
+			await expect( key ).toContainText( 'Reconsidered' );
+			await expect( key ).toContainText( 'Visited after pause' );
+			const rows = outcomes.locator( '.settings-statistics-site-list > li' );
+			await expect( rows.locator( '.settings-statistics-site-name' ) ).toHaveText( [ 'YouTube', 'Reddit' ] );
+			await expect( rows.first().locator( '[data-outcome] strong' ) ).toHaveText( [ '1', '3' ] );
+			await expect( rows.last().locator( '[data-outcome] strong' ) ).toHaveText( [ '1', '1' ] );
+			await expect( rows.first().locator( '[data-outcome="reconsidered"]' ) ).toContainText( 'Reconsidered visits' );
+			await expect( rows.first().locator( '[data-outcome="continued"]' ) ).toContainText( 'Visited after pause' );
+			await expect( rows.first().locator( '.settings-statistics-site-track .settings-statistics-reconsidered-fill' ) )
+				.toHaveCSS( 'background-image', 'none' );
+			await expect( rows.first().locator( '.settings-statistics-site-track .settings-statistics-continued-fill' ) )
+				.toHaveCSS( 'background-image', /repeating-linear-gradient/ );
+			await page.evaluate( () => document.fonts.ready );
+			for ( const width of [ 1280, 768, 600, 390, 320 ] ) {
+				await page.setViewportSize( { width, height: 1000 } );
+				await expect.poll( () => page.evaluate( () =>
+					document.documentElement.scrollWidth <= innerWidth ) ).toBe( true );
+				const alignment = await outcomes.evaluate( ( region ) => {
+					const ends = [ ...region.querySelectorAll( '.settings-statistics-site-counts' ) ].map( ( item ) => item.getBoundingClientRect().right );
+					const key = region.querySelector( '.settings-statistics-outcomes-legend' )?.getBoundingClientRect();
+					const track = region.querySelector( '.settings-statistics-site-track' )?.getBoundingClientRect();
+					const heading = region.querySelector( '.settings-statistics-sites-heading h3' )
+						?.getBoundingClientRect();
+					return { keyStart: key?.left, keyTop: key?.top,
+						headingStart: heading?.left, headingBottom: heading?.bottom,
+						spread: Math.max( ...ends ) - Math.min( ...ends ), keyEnd: key?.right,
+						countEnd: ends[ 0 ], trackHeight: track?.height };
+				} );
+				expect( alignment.spread ).toBeLessThanOrEqual( 1 );
+				if ( width > 768 ) {
+					expect( Math.abs( ( alignment.keyEnd ?? 0 ) - ( alignment.countEnd ?? 0 ) ) )
+						.toBeLessThanOrEqual( 1 );
+				} else {
+					expect( alignment.keyTop ).toBeGreaterThan( alignment.headingBottom ?? Infinity );
+					expect( Math.abs( ( alignment.keyStart ?? 0 ) - ( alignment.headingStart ?? Infinity ) ) )
+						.toBeLessThanOrEqual( 1 );
+				}
+				expect( alignment.trackHeight ).toBe( 6 );
+			}
+		} );
+	}
+
+	for ( const empty of [ false, true ] ) {
+		test( `keeps the ${ empty ? 'empty' : 'populated' } activity and outcome sections free of a divider`, async ( { open } ) => {
+			const page = await open( SettingsDestination.STATISTICS );
+			if ( empty ) {
+				await page.evaluate( () => {
+					window.settingsTest.externalStatistics( { firstRecordedDate: null,
+						estimatedReclaimedMilliseconds: 0, focusedPauseMilliseconds: 0,
+						reconsideredVisitCount: 0, completedWaitCount: 0, allowanceGrantedCount: 0, dailyTotals: [],
+						visitOutcomes: { recordedFromDate: '2026-09-14', dailySites: [], dailyHours: [] },
+					} );
+				} );
+			}
+			const daily = page.getByRole( 'region', { name: 'Daily activity', exact: true } );
+			const outcomes = page.getByRole( 'region', { name: 'Visit outcomes', exact: true } );
+			await expect( daily ).toHaveCSS( 'border-bottom-width', '0px' );
+			await expect( outcomes ).toHaveCSS( 'border-top-width', '0px' );
+			if ( empty ) {
+				await expect( page.locator( '.settings-metrics dd' ) ).toHaveText( [ '0', '0' ] );
+				await expect( page.locator( '.settings-statistics-estimate dd' ) ).toHaveText( 'Not enough data yet' );
+				for ( const width of [ 1280, 390 ] ) {
+					await page.setViewportSize( { width, height: 1000 } );
+					for ( const period of [
+						StatisticsRange.CURRENT_WEEK, StatisticsRange.CURRENT_MONTH, StatisticsRange.ALL_TIME,
+					] ) {
+						await page.getByRole( 'combobox', { name: 'Period', exact: true } ).selectOption( period );
+						await expect( daily.getByRole( 'heading', { name: 'No activity in this period', exact: true } ) ).toBeVisible();
+						await expect( daily.getByText( 'Your pauses and reconsidered visits will appear here.', { exact: true } ) ).toBeVisible();
+						await expect( page.locator( '.settings-statistics-empty' ) ).toHaveCount( 3 );
+						await expect( outcomes.getByText( 'No visit outcomes recorded in this period.', { exact: true } ) ).toBeVisible();
+						await expect( outcomes.getByText( 'No reconsidered visits recorded in this period.', { exact: true } ) ).toBeVisible();
+						await expect( outcomes.getByRole( 'group', { name: 'Visit outcome key', exact: true } ) )
+							.toHaveCount( 0 );
+						await expect( page.locator( '.settings-statistics-summary .recharts-surface' ) )
+							.toHaveCount( 0 );
+						await expect( daily.getByRole( 'combobox', { name: 'Daily activity metric', exact: true } ) )
+							.toBeEnabled();
+						expect( await page.evaluate( () =>
+							document.documentElement.scrollWidth <= innerWidth ) ).toBe( true );
+					}
+				}
+			}
+		} );
+	}
+
+	test( 'keeps legacy totals without fabricated breakdowns or a recording-date note', async ( { open } ) => {
+		const page = await open( SettingsDestination.STATISTICS );
+		await page.evaluate( () => {
+			window.settingsTest.externalStatistics( { firstRecordedDate: '2026-09-01', visitOutcomes: undefined } );
+		} );
+		const outcomes = page.getByRole( 'region', { name: 'Visit outcomes', exact: true } );
+		await expect( outcomes.getByText( 'Website and hourly breakdowns will appear as new visits are recorded.', { exact: true } ) ).toBeVisible();
+		await expect( outcomes.locator( '.settings-statistics-site-list, .settings-statistics-hourly' ) ).toHaveCount( 0 );
+		await expect( page.locator( '.settings-metrics dd' ) ).toHaveText( [ '2', '3' ] );
+		await page.evaluate( () => {
+			window.settingsTest.externalStatistics( { visitOutcomes: {
+				recordedFromDate: '2026-09-14', dailySites: [ {
+					date: '2026-09-14', siteHost: 'youtube.com', reconsideredVisitCount: 2, visitedAfterPauseCount: 4,
+				} ], dailyHours: [ { date: '2026-09-14', hour: 9, reconsideredVisitCount: 2 } ],
+			} } );
+		} );
+		const period = page.getByRole( 'combobox', { name: 'Period', exact: true } );
+		await period.selectOption( StatisticsRange.ALL_TIME );
+		await expect( outcomes.locator( '.settings-statistics-coverage' ) ).toHaveCount( 0 );
+		await expect( page.locator( '.settings-statistics-dates' ) ).toContainText( 'Sep 1' );
+		await period.selectOption( StatisticsRange.CURRENT_WEEK );
+		await expect( outcomes.locator( '.settings-statistics-coverage' ) ).toHaveCount( 0 );
+		await expect( outcomes.locator( '[data-outcome] strong' ) ).toHaveText( [ '2', '4' ] );
+	} );
+
+	test( 'labels hourly tooltips as times for keyboard and pointer users', async ( { open } ) => {
+		const page = await open( SettingsDestination.STATISTICS );
+		await page.evaluate( () => {
+			window.settingsTest.externalStatistics( { visitOutcomes: {
+				recordedFromDate: '2026-09-14', dailySites: [ {
+					date: '2026-09-14', siteHost: 'youtube.com', reconsideredVisitCount: 3, visitedAfterPauseCount: 0,
+				} ], dailyHours: [
+					{ date: '2026-09-14', hour: 0, reconsideredVisitCount: 2 },
+					{ date: '2026-09-14', hour: 19, reconsideredVisitCount: 1 },
+				],
+			} } );
+		} );
+		const hourly = page.getByRole( 'region', { name: 'Reconsidered visits by hour', exact: true } );
+		const tooltip = hourly.locator( '.recharts-tooltip-wrapper' );
+		const surface = hourly.getByRole( 'application' );
+		await surface.focus();
+		await surface.press( 'ArrowLeft' );
+		await expect( tooltip ).toBeVisible();
+		await expect( tooltip ).toContainText( '00:00' );
+		await expect( tooltip ).toContainText( 'Reconsidered visits' );
+		await hourly.locator( '.recharts-bar-rectangle' ).nth( 19 ).hover();
+		await expect( tooltip ).toBeVisible();
+		await expect( tooltip ).toContainText( '19:00' );
+		await expect( tooltip.getByText( '1', { exact: true } ) ).toBeVisible();
+	} );
+
+	test( 'shows continued-only website outcomes without inventing hourly reconsiderations', async ( { open } ) => {
+		const page = await open( SettingsDestination.STATISTICS );
+		await page.evaluate( () => {
+			window.settingsTest.externalStatistics( { visitOutcomes: {
+				recordedFromDate: '2026-09-14', dailySites: [ {
+					date: '2026-09-14', siteHost: 'youtube.com', reconsideredVisitCount: 0, visitedAfterPauseCount: 1,
+				} ], dailyHours: [],
+			} } );
+		} );
+		await expect( page.locator( '.settings-statistics-site-list [data-outcome] strong' ) ).toHaveText( [ '0', '1' ] );
+		const hourly = page.getByRole( 'region', { name: 'Reconsidered visits by hour', exact: true } );
+		await expect( hourly.getByText( 'No reconsidered visits recorded in this period.', { exact: true } ) ).toBeVisible();
+		await expect( hourly.getByRole( 'application' ) ).toHaveCount( 0 );
+		await expect( hourly.getByRole( 'table' ) ).toHaveCount( 0 );
 	} );
 
 	for ( const [ language, unavailableTitle, retryLabel, resetLabel ] of [

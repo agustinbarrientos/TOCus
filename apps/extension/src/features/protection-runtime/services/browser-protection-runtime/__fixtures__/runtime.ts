@@ -421,10 +421,10 @@ export class MemoryRuntimeBrowser implements ProtectionRuntimeBrowser {
 	 * @return Resolved browser operation.
 	 * @since 1.0.0 Initial implementation.
 	 */
-	navigateTab = ( tabId: number, url: string ): Promise<void> => {
+	navigateTab = ( tabId: number, url: string ): Promise<boolean> => {
 		this.navigations.push( { tabId, url } );
 		this.tabs = this.tabs.map( ( tab ) => tab.id === tabId ? { ...tab, url } : tab );
-		return Promise.resolve();
+		return Promise.resolve( true );
 	};
 
 	/**

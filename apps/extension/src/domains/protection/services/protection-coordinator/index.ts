@@ -17,6 +17,8 @@ import {
 import {
 	StoredProtectionStatisticsDeliverySchema,
 	StoredProtectionStatisticsDeliveryStatus,
+	ProtectionContinuationAcceptanceSchema,
+	ProtectionContinuationIdentitySchema,
 	type StoredProtectionStatisticsDelivery,
 } from '../../types/stored-protection-statistics-delivery';
 import {
@@ -53,6 +55,8 @@ import {
 	createEmptyProtectionStatisticsDelivery,
 	prepareStatisticsDeliveryForTransition,
 } from '../../utils/prepare-protection-statistics-delivery';
+import { prepareProtectionContinuation } from '../../utils/prepare-protection-continuation';
+import { createContinuedVisitFact } from '../../utils/create-protection-fact';
 
 /**
  * Reads the captured calendar attribution without consulting a clock during delivery.
@@ -240,10 +244,15 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 			return createInitializationFailure( ProtectionCoordinatorFailureReason.INVALID_DURABLE_STATE );
 		}
 
-		const nextStatisticsDelivery =
+		const restoredStatisticsDelivery =
 			parsedState.durable.status === StoredProtectionStateParseStatus.CURRENT
 				? parsedState.durable.state.statisticsDelivery
 				: createEmptyProtectionStatisticsDelivery();
+		// A previous worker may have stopped on either side of the browser-effect boundary.
+		// Preserve known aggregates and queued facts without guessing that a release succeeded.
+		const nextStatisticsDelivery = ( restoredStatisticsDelivery.pendingContinuations?.length ?? 0 ) > 0
+			? { status: StoredProtectionStatisticsDeliveryStatus.INCOMPLETE, outbox: restoredStatisticsDelivery.outbox }
+			: restoredStatisticsDelivery;
 
 		const preparedState = prepareStoredProtectionState( {
 			statesByScope: restoredState.statesByScope,
@@ -329,7 +338,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 			...currentStatesByScope,
 			[ parsedEvent.scopeId ]: transition.state,
 		};
-		const nextStatisticsDelivery = transition.facts.length === 0
+		const factDelivery = transition.facts.length === 0
 			? currentStatisticsDelivery
 			: prepareStatisticsDeliveryForTransition( {
 				delivery: currentStatisticsDelivery,
@@ -339,6 +348,9 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 				measurementRevision,
 				createProtectionFactBatchId,
 			} );
+		const nextStatisticsDelivery = prepareProtectionContinuation(
+			factDelivery, currentState, parsedEvent, transition.decisions, measurementRevision,
+		);
 		const preparedState = prepareStoredProtectionState( {
 			statesByScope: nextStatesByScope,
 			sessionContinuityId: currentSessionContinuityId,
@@ -463,6 +475,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 		}
 
 		const nextStatisticsDelivery = StoredProtectionStatisticsDeliverySchema.parse( {
+			...currentStatisticsDelivery,
 			status: currentStatisticsDelivery.status,
 			outbox: currentStatisticsDelivery.outbox.slice( 1 ),
 		} );
@@ -487,6 +500,81 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	 */
 	function acknowledgeStatisticsDeliveryBatch( batchId: unknown ): Promise<boolean> {
 		return enqueue( () => acknowledgeStatisticsDeliveryBatchOperation( batchId ) );
+	}
+
+	/**
+	 * Settles one exact browser release without changing protection or reusing a shared grant.
+	 * @param input - Unknown release identity and optional acceptance observation.
+	 * @param accepted - Whether the browser explicitly accepted the navigation.
+	 * @return Whether the exact receipt was durably settled with complete delivery.
+	 * @since 1.0.0 Initial implementation.
+	 */
+	async function settleContinuation( input: unknown, accepted: boolean ): Promise<boolean> {
+		const parsed = accepted ? ProtectionContinuationAcceptanceSchema.safeParse( input )
+			: ProtectionContinuationIdentitySchema.safeParse( input );
+		const currentDelivery = statisticsDelivery;
+		if ( ! parsed.success || currentDelivery === null || statesByScope === null || sessionContinuityId === null ) {
+			return false;
+		}
+		const identity = parsed.data;
+		const pendingContinuations = currentDelivery.pendingContinuations ?? [];
+		const pending = pendingContinuations.find( ( candidate ) =>
+			candidate.scopeId === identity.scopeId &&
+			candidate.allowanceId === identity.allowanceId && candidate.participantId === identity.participantId &&
+			candidate.pageId === identity.pageId );
+		if ( pending === undefined ) {
+			return false;
+		}
+		const remaining = pendingContinuations.filter( ( candidate ) => candidate !== pending );
+		const { pendingContinuations: _pending, ...withoutPending } = currentDelivery;
+		let nextDelivery: StoredProtectionStatisticsDelivery = {
+			...withoutPending, ...( remaining.length === 0 ? {} : { pendingContinuations: remaining } ),
+		};
+		if ( accepted ) {
+			const observation = ProtectionContinuationAcceptanceSchema.parse( input );
+			nextDelivery = prepareStatisticsDeliveryForTransition( {
+				delivery: nextDelivery, facts: [ createContinuedVisitFact( {
+					scopeId: pending.scopeId, allowanceId: pending.allowanceId,
+					participantId: pending.participantId, pageId: pending.pageId, siteHost: pending.siteHost,
+					observedLocalHour: observation.observedLocalHour,
+					observedAtEpochMilliseconds: observation.observedAtEpochMilliseconds,
+				} ) ], scopeId: pending.scopeId, observedLocalDate: observation.observedLocalDate,
+				measurementRevision: pending.measurementRevision, createProtectionFactBatchId,
+			} );
+		}
+		const prepared = prepareStoredProtectionState( {
+			statesByScope, sessionContinuityId, statisticsDelivery: nextDelivery,
+		} );
+		try {
+			await options.storage.saveDurableStatisticsDelivery( prepared.durable );
+		} catch {
+			statisticsDelivery = { ...currentDelivery, status: StoredProtectionStatisticsDeliveryStatus.INCOMPLETE };
+			return false;
+		}
+		statisticsDelivery = nextDelivery;
+		return ! accepted || nextDelivery.status === StoredProtectionStatisticsDeliveryStatus.COMPLETE;
+	}
+
+	/**
+	 * Queues acceptance so reset and duplicate acknowledgements share the same durable fence.
+	 * @param input - Unknown release identity and captured acceptance observation.
+	 * @return Whether the accepted visit was durably queued once.
+	 * @since 1.0.0 Initial implementation.
+	 */
+	function completeContinuation( input: unknown ): Promise<boolean> {
+		return enqueue( () => settleContinuation( input, true ) );
+	}
+
+	/**
+	 * Drops only the exact prepared participant after a browser no-op or failure.
+	 * @param input - Unknown release identity without an accepted observation.
+	 * @return Promise resolved after the exact receipt is discarded or unavailable.
+	 * @since 1.0.0 Initial implementation.
+	 */
+	function discardContinuation( input: unknown ): Promise<void> {
+		return enqueue( async () => {
+			await settleContinuation( input, false );
+		} );
 	}
 
 	/**
@@ -577,6 +665,8 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 	}
 
 	return {
+		completeContinuation,
+		discardContinuation,
 		forgetForDataReset,
 		readParticipantsForDataReset,
 		acknowledgeStatisticsDeliveryBatch,

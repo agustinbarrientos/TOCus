@@ -48,3 +48,25 @@ export function createBackupSource(): BackupSource {
 		extensionVersion: '1.1.0', exportedAt: '2026-10-17T12:00:00.000Z',
 	};
 }
+
+/**
+ * Builds coarse historical outcomes, including a website no longer configured.
+ * @return Independent aggregate-only values without an event log or destination URL.
+ * @since 1.1.0
+ */
+export function createBackupVisitOutcomes() {
+	return {
+		recordedFromDate: LocalDateSchema.parse( '2026-10-15' ),
+		dailySites: [ {
+			date: LocalDateSchema.parse( '2026-10-15' ), siteHost: 'archived.example',
+			reconsideredVisitCount: 1, visitedAfterPauseCount: 1,
+		}, {
+			date: LocalDateSchema.parse( '2026-10-16' ), siteHost: 'youtube.com',
+			reconsideredVisitCount: 2, visitedAfterPauseCount: 3,
+		} ],
+		dailyHours: [
+			{ date: LocalDateSchema.parse( '2026-10-15' ), hour: 0, reconsideredVisitCount: 1 },
+			{ date: LocalDateSchema.parse( '2026-10-16' ), hour: 23, reconsideredVisitCount: 2 },
+		],
+	};
+}

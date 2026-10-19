@@ -256,7 +256,7 @@ class ProjectorBrowserFixture implements ProtectionRuntimeBrowser {
 	 * @return Resolved browser operation.
 	 * @since 1.0.0 Initial implementation.
 	 */
-	navigateTab = ( tabId: number, url: string ): Promise<void> => {
+	navigateTab = ( tabId: number, url: string ): Promise<boolean> => {
 		if ( this.rejectNavigation ) {
 			if ( this.navigationFailureMovesTabToUrl !== null ) {
 				const movedUrl = this.navigationFailureMovesTabToUrl;
@@ -271,7 +271,7 @@ class ProjectorBrowserFixture implements ProtectionRuntimeBrowser {
 
 		this.navigations.push( { tabId, url } );
 		this.tabs = this.tabs.map( ( tab ) => tab.id === tabId ? { ...tab, url } : tab );
-		return Promise.resolve();
+		return Promise.resolve( true );
 	};
 
 	/**
@@ -466,6 +466,62 @@ function createProjector(
 }
 
 describe( 'createBrowserProtectionProjector', () => {
+	it.each( [ 'calendar', 'delivery' ] )( 'keeps an accepted navigation independent of %s failure', async ( failure ) => {
+		const browser = new ProjectorBrowserFixture();
+		browser.tabs = [ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ];
+		const participant = createNavigationParticipant( 'participant-a', 'page_tab_7_live' );
+		const allowance = createAllowanceState( DefaultProtectionScopeId, NOW_EPOCH_MILLISECONDS + 300_000 );
+		const coordinator = {
+			getStates: vi.fn().mockResolvedValue( { scope_default: allowance } ),
+			completeContinuation: vi.fn().mockRejectedValue( new Error( 'Statistics storage unavailable.' ) ),
+			discardContinuation: vi.fn(),
+		};
+		const getTimeZone = vi.fn().mockReturnValue( 'UTC' );
+		if ( failure === 'calendar' ) {
+			getTimeZone.mockImplementationOnce( () => {
+				throw new Error( 'Calendar unavailable.' );
+			} );
+		}
+		const projector = createBrowserProtectionProjector( {
+			browser, coordinator, interruptionPageUrl: INTERRUPTION_PAGE_URL,
+			toolbarBadgeCopy: TestEnglishLocalizationBundle.toolbar,
+			now: vi.fn().mockReturnValue( NOW_EPOCH_MILLISECONDS ), getTimeZone,
+		} );
+		await expect( projector.applyDecisions( [ createDecision( {
+			type: ProtectionDecisionType.RELEASE_NAVIGATION,
+			participantId: participant.participantId, pageId: participant.pageId,
+			retainedDestination: 'https://example.com/entry',
+		} ) ], CONFIGURATION, { participantId: participant.participantId, pageId: participant.pageId,
+			scopeId: allowance.scopeId, allowanceId: allowance.allowanceId } ) ).resolves.toBeUndefined();
+		expect( browser.tabs[ 0 ]?.url ).toBe( 'https://example.com/entry' );
+		expect( coordinator.completeContinuation ).toHaveBeenCalledTimes( failure === 'delivery' ? 1 : 0 );
+		expect( coordinator.discardContinuation ).not.toHaveBeenCalled();
+	} );
+	it( 'retains the real navigation rejection when discarding its statistics receipt also fails', async () => {
+		const browser = new ProjectorBrowserFixture();
+		browser.tabs = [ { id: 7, incognito: false, url: INTERRUPTION_PAGE_URL } ];
+		browser.rejectNavigation = true;
+		const participant = createNavigationParticipant( 'participant-a', 'page_tab_7_live' );
+		const allowance = createAllowanceState( DefaultProtectionScopeId, NOW_EPOCH_MILLISECONDS + 300_000 );
+		const coordinator = {
+			getStates: vi.fn().mockResolvedValue( { scope_default: allowance } ),
+			completeContinuation: vi.fn(),
+			discardContinuation: vi.fn().mockRejectedValue( new Error( 'Statistics storage unavailable.' ) ),
+		};
+		const projector = createBrowserProtectionProjector( {
+			browser, coordinator, interruptionPageUrl: INTERRUPTION_PAGE_URL,
+			toolbarBadgeCopy: TestEnglishLocalizationBundle.toolbar,
+			now: vi.fn().mockReturnValue( NOW_EPOCH_MILLISECONDS ), getTimeZone: vi.fn().mockReturnValue( 'UTC' ),
+		} );
+		await expect( projector.applyDecisions( [ createDecision( {
+			type: ProtectionDecisionType.RELEASE_NAVIGATION,
+			participantId: participant.participantId, pageId: participant.pageId,
+			retainedDestination: 'https://example.com/entry',
+		} ) ], CONFIGURATION, { participantId: participant.participantId, pageId: participant.pageId,
+			scopeId: allowance.scopeId, allowanceId: allowance.allowanceId } ) ).rejects.toThrow( 'Navigation failed.' );
+		expect( coordinator.completeContinuation ).not.toHaveBeenCalled();
+		expect( coordinator.discardContinuation ).toHaveBeenCalledOnce();
+	} );
 	it( 'preserves audio holds only for retained injected Waiting and Ready participants', async () => {
 		const browser = new ProjectorBrowserFixture();
 		const coordinator = new ProjectorCoordinatorFixture( {

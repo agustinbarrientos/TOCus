@@ -134,10 +134,16 @@ export interface ProtectionRuntimeBrowser {
 	 * @param tabId - Destination tab identifier.
 	 * @param url - Validated retained HTTP(S) destination.
 	 * @param expectedSourceUrl - Exact source required for an explicit focus choice, including a live protected page.
+	 * @param onAccepted - Synchronous observer invoked at browser acceptance before ancillary cleanup.
 	 * @return Promise resolved after the browser accepts the update.
 	 * @since 1.0.0 Initial implementation.
 	 */
-	navigateTab: ( tabId: number, url: string, expectedSourceUrl?: string ) => Promise<void>;
+	navigateTab: (
+		tabId: number,
+		url: string,
+		expectedSourceUrl?: string,
+		onAccepted?: () => void,
+	) => Promise<boolean>;
 
 	/**
 	 * Applies one warning or interruption-layer command to a protected page.

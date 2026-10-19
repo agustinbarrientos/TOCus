@@ -67,9 +67,27 @@ export interface StatisticsSettingsScreenCopy {
 	completedWaitsLabel: string;
 	allowancesGrantedLabel: string;
 	estimationDescription: string;
+	estimationHelpLabel: string;
 	dailyTitle: string;
+	dailyMetricLabel: string;
 	dailyEmpty: string;
+	dailyEmptyDescription: string;
 	dateLabel: string;
+	visitOutcomesTitle: string;
+	visitOutcomesHelpLabel: string;
+	visitOutcomesDescription: string;
+	websiteOutcomesTitle: string;
+	visitOutcomesLegendLabel: string;
+	reconsideredOutcomeLabel: string;
+	visitedAfterPauseLabel: string;
+	hourlyTitle: string;
+	hourLabel: string;
+	localTimeLabel: string;
+	noVisitOutcomes: string;
+	noReconsideredVisits: string;
+	breakdownsUnavailable: string;
+	/** Formats one already-recorded local hour without timezone conversion. */
+	formatHour: ( hour: number ) => string;
 	/**
 	 * Formats a recorded local calendar date without shifting its day.
 	 * @since 1.0.0
@@ -119,7 +137,7 @@ export interface StatisticsSettingsScreenCopy {
 	 * @return Human-readable count.
 	 * @since 1.0.0 Initial implementation.
 	 */
-	formatCount( count: number ): string;
+	formatCount: ( count: number ) => string;
 }
 
 
@@ -130,4 +148,15 @@ export interface StatisticsSettingsScreenCopy {
 export interface StatisticsSummaryProps {
 	copy: StatisticsSettingsScreenCopy;
 	projection: AvailableStatisticsProjection;
+	siteIdentities?: ReadonlyMap<string, StatisticsSiteIdentity>;
+}
+
+/**
+ * Read-only site presentation prepared from current configuration and local cached icons.
+ * @since 1.1.0
+ */
+export interface StatisticsSiteIdentity {
+	name: string;
+	monogram: string;
+	favicon: string | null;
 }

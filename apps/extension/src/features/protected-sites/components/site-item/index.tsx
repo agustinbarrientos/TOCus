@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import {
 	Avatar,
 	Alert,
@@ -18,6 +19,7 @@ import {
 } from '../website-editor';
 import type {
 	WebsiteItemProps,
+	WebsiteFaviconResolution,
 } from './types';
 import './style.scss';
 import { ProtectedSiteItemOperationErrorReason } from './types';
@@ -34,6 +36,26 @@ import { ScheduleMode } from '../../../../domains/protection/types/protection-sc
  */
 export function WebsiteItem( props: WebsiteItemProps ) {
 	const { site, copy, disabled } = props;
+	const faviconProvider = props.faviconProvider;
+	const [ resolvedFavicon, setResolvedFavicon ] = useState<WebsiteFaviconResolution | null>( null );
+	useEffect( () => {
+		if ( faviconProvider?.resolveSource === undefined ) {
+			return;
+		}
+		let active = true;
+		void Promise.resolve().then( () => faviconProvider.resolveSource?.( site.identityHost ) ?? null )
+			.catch( () => null ).then( ( source ) => {
+				if ( active ) {
+					setResolvedFavicon( { host: site.identityHost, provider: faviconProvider, source } );
+				}
+			} );
+		return () => {
+			active = false;
+		};
+	}, [ faviconProvider, site.identityHost ] );
+	const favicon = faviconProvider?.resolveSource === undefined ? props.favicon :
+		resolvedFavicon?.host === site.identityHost && resolvedFavicon.provider === faviconProvider
+			? resolvedFavicon.source : null;
 	const details = props.persistedEditing?.state.details ?? props.details ?? createWebsiteDetails( site );
 	const identity = resolveSiteDisplayIdentity( { ...site,
 		displayNameOverride: details.displayName.trim() || undefined } );
@@ -54,7 +76,7 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 			</Checkbox.Card> }
 			<Stack gap={ 0 }>
 				<Group className="settings-site-row" wrap="nowrap" gap="var(--tocus-space-3)">
-					<Avatar className="tocus-native-avatar" src={ props.favicon }
+					<Avatar className="tocus-native-avatar" src={ favicon }
 						size="2.25rem" radius="var(--tocus-radius-small)" aria-hidden="true">
 						<span className="settings-site-monogram">{ identity.monogram }</span>
 					</Avatar>

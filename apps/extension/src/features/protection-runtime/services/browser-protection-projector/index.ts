@@ -14,13 +14,16 @@ import {
 import type { ProtectionClockDeadlines } from '../../types/browser-runtime';
 import { ProtectedPageMessageType } from '../../types/protected-page-message';
 import { getRuntimeTabId } from '../../utils/runtime-page-context';
+import { createRuntimeLocalDate, createRuntimeLocalHour } from '../../utils/runtime-local-date';
 import { createAllowanceWarningReconciler } from '../allowance-warning-reconciler';
 import { createNavigationRuleReconciler } from '../navigation-rule-reconciler';
 import { createProtectionPageProjector } from '../protection-page-projector';
+import type { ProtectionContinuationContext } from '../protection-page-projector/types';
 import { createToolbarBadgeCoordinator } from '../toolbar-badge-coordinator';
 import type {
 	BrowserProtectionProjector,
 	BrowserProtectionProjectorOptions,
+	BrowserProtectionContinuationObservation,
 } from './types';
 
 const MILLISECONDS_PER_SECOND = 1_000;
@@ -297,8 +300,47 @@ export function createBrowserProtectionProjector(
 			? continuedParticipant
 			: undefined;
 
-		await navigationRuleReconciler.reconcile( configuration, statesByScope );
-		await pageProjector.applyDecisions( decisions, configuration, statesByScope, acceptedContinuation );
+		const acceptance: BrowserProtectionContinuationObservation = { accepted: false, observation: null };
+		/**
+		 * Captures the accepted outcome before audio cleanup or another participant's effect can fail.
+		 * @param continuation - Exact participant identity authorized by the running allowance.
+		 * @since 1.0.0 Initial implementation.
+		 */
+		function observeAcceptedContinuation( continuation: ProtectionContinuationContext ): void {
+			acceptance.accepted = true;
+			try {
+				const observedAtEpochMilliseconds = options.now();
+				const timeZone = options.getTimeZone();
+				acceptance.observation = { ...continuation, observedAtEpochMilliseconds,
+					observedLocalDate: createRuntimeLocalDate( observedAtEpochMilliseconds, timeZone ),
+					observedLocalHour: createRuntimeLocalHour( observedAtEpochMilliseconds, timeZone ) };
+			} catch {
+				// Retain the unknown receipt for conservative recovery if calendar attribution is unavailable.
+			}
+		}
+		const onContinuationAccepted = acceptedContinuation === undefined ? undefined : () => {
+			observeAcceptedContinuation( acceptedContinuation );
+		};
+		try {
+			await navigationRuleReconciler.reconcile( configuration, statesByScope );
+			await pageProjector.applyDecisions(
+				decisions, configuration, statesByScope, acceptedContinuation, onContinuationAccepted,
+			);
+		} finally {
+			if ( acceptance.observation !== null ) {
+				try {
+					await options.coordinator.completeContinuation?.( acceptance.observation );
+				} catch {
+					// Accepted protection effects must not fail because observational statistics cannot persist.
+				}
+			} else if ( ! acceptance.accepted && continuedParticipant !== undefined ) {
+				try {
+					await options.coordinator.discardContinuation?.( continuedParticipant );
+				} catch {
+					// A retained receipt remains conservatively unknown on subsequent recovery.
+				}
+			}
+		}
 		await refreshAncillaryEffects( configuration, statesByScope );
 	}
 

@@ -1,5 +1,4 @@
 import type { BackupControlsCopy } from '../backup-controls/types';
-import type { ReactNode } from 'react';
 
 /**
  * Destructive local data operations available from Settings.
@@ -60,15 +59,4 @@ export interface BackupResetScreenCopy extends BackupControlsCopy {
 	unavailable: string;
 }
 
-/**
- * Localized description and trigger for one destructive data operation.
- * @since 1.0.0
- */
-export interface ResetSectionProps {
-	title: string;
-	description: string;
-	label: string;
-	disabled: boolean;
-	onRequest: () => void;
-	children?: ReactNode;
-}
+export type { ResetSectionProps } from '../reset-section/types';

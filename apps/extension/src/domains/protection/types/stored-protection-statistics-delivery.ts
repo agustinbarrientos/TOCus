@@ -1,5 +1,43 @@
 import { z, type RefinementCtx } from 'zod';
 import { ProtectionFactBatchSchema } from './protection-fact-batch';
+import { ContinuedVisitFactInputSchema } from './protection-fact';
+import { CanonicalHostSchema } from './protected-site-rule';
+import { EpochMillisecondsSchema, LocalDateSchema, ProtectionMeasurementRevisionSchema } from './protection-value';
+
+/**
+ * Exact paused navigation participant whose browser release may be acknowledged once.
+ * @since 1.0.0 Initial implementation.
+ */
+export const ProtectionContinuationIdentitySchema = ContinuedVisitFactInputSchema.pick( {
+	scopeId: true, allowanceId: true, participantId: true, pageId: true,
+} );
+/**
+ * Bounded delivery work contains a configured host, never a retained destination URL.
+ * @since 1.0.0 Initial implementation.
+ */
+export const PendingProtectionContinuationSchema = ProtectionContinuationIdentitySchema.extend( {
+	siteHost: CanonicalHostSchema,
+	measurementRevision: ProtectionMeasurementRevisionSchema,
+} );
+/**
+ * Browser acceptance observed before asynchronous statistics delivery.
+ * @since 1.0.0 Initial implementation.
+ */
+export const ProtectionContinuationAcceptanceSchema = ProtectionContinuationIdentitySchema.extend( {
+	observedAtEpochMilliseconds: EpochMillisecondsSchema,
+	observedLocalDate: LocalDateSchema,
+	observedLocalHour: z.number().int().min( 0 ).max( 23 ),
+} );
+/**
+ * Captured browser acceptance metadata before ancillary cleanup or asynchronous delivery.
+ * @since 1.0.0 Initial implementation.
+ */
+export type ProtectionContinuationAcceptance = z.infer<typeof ProtectionContinuationAcceptanceSchema>;
+/**
+ * Current bounded release work, removed atomically when its accepted fact is queued.
+ * @since 1.0.0 Initial implementation.
+ */
+export type PendingProtectionContinuation = z.infer<typeof PendingProtectionContinuationSchema>;
 
 /**
  * Maximum protection-fact batches retained for durable statistics delivery.
@@ -40,6 +78,9 @@ const StoredProtectionStatisticsDeliveryFieldsSchema = z.object( {
 	status: StoredProtectionStatisticsDeliveryStatusSchema,
 	outbox: z.array( ProtectionFactBatchSchema )
 		.max( MaximumStoredProtectionStatisticsDeliveryBatchCount ),
+	/** Absent in older valid documents and whenever no browser release is pending. */
+	pendingContinuations: z.array( PendingProtectionContinuationSchema )
+		.max( MaximumStoredProtectionStatisticsDeliveryBatchCount ).optional(),
 } ).strict();
 
 /**
@@ -61,6 +102,16 @@ function refineStoredProtectionStatisticsDelivery(
 	context: RefinementCtx,
 ): void {
 	const batchIds = new Set<string>();
+	const continuations = new Set<string>();
+	for ( const pending of delivery.pendingContinuations ?? [] ) {
+		const identity = JSON.stringify( [
+			pending.scopeId, pending.allowanceId, pending.participantId, pending.pageId,
+		] );
+		if ( continuations.has( identity ) ) {
+			context.addIssue( { code: 'custom', message: 'Pending continuation identities must be unique.' } );
+		}
+		continuations.add( identity );
+	}
 
 	delivery.outbox.forEach( ( batch, index ) => {
 		if ( batchIds.has( batch.batchId ) ) {

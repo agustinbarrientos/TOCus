@@ -1,11 +1,49 @@
 import { describe, expect, it } from 'vitest';
 import { StatisticsGenerationIdSchema } from '../../../statistics/types/statistics-value';
 import { ProtectionMeasurementRevisionSchema } from '../../../protection/types/protection-value';
-import { createBackupSource } from './__fixtures__';
+import { createBackupSource, createBackupVisitOutcomes } from './__fixtures__';
 import { createBackupDocument, createBackupDocuments, parseBackupText } from '.';
 import { BackupDocumentSchema } from '../../types/backup-document';
 
 describe( 'portable local backup', () => {
+	it( 'round-trips website and hourly aggregates without requiring websites to remain configured', () => {
+		const source = createBackupSource();
+		const outcomes = createBackupVisitOutcomes();
+		Reflect.set( source.statistics, 'visitOutcomes', outcomes );
+		const backup = parseBackupText( JSON.stringify( createBackupDocument( source ) ) );
+		const imported = createBackupDocuments( backup, {
+			dataGeneration: 'data_new', statisticsGeneration: StatisticsGenerationIdSchema.parse( 'stats_new' ),
+			measurementRevision: ProtectionMeasurementRevisionSchema.parse( 'revision_new' ),
+		} );
+		expect( backup.dataFormatVersion ).toBe( '1.1.0' );
+		expect( backup.statistics.visitOutcomes ).toEqual( outcomes );
+		expect( imported.statistics.visitOutcomes ).toEqual( outcomes );
+		expect( imported.statistics.dailyTotals ).toEqual( source.statistics.dailyTotals );
+		expect( imported.statistics.lastAppliedBatchId ).toBeNull();
+		expect( imported.statistics.scopes.scope_default ).not.toHaveProperty( 'activeAllowance' );
+		expect( backup.statistics.visitOutcomes ).not.toBe( outcomes );
+	} );
+
+	it( 'keeps legacy statistics fields absent through export parsing and import', () => {
+		const source = createBackupSource();
+		const backup = parseBackupText( JSON.stringify( createBackupDocument( source ) ) );
+		const imported = createBackupDocuments( backup, {
+			dataGeneration: 'data_new', statisticsGeneration: StatisticsGenerationIdSchema.parse( 'stats_new' ),
+			measurementRevision: ProtectionMeasurementRevisionSchema.parse( 'revision_new' ),
+		} );
+		expect( Object.hasOwn( backup.statistics, 'visitOutcomes' ) ).toBe( false );
+		expect( Object.hasOwn( imported.statistics, 'visitOutcomes' ) ).toBe( false );
+		expect( imported.statistics.dailyTotals ).toEqual( source.statistics.dailyTotals );
+	} );
+
+	it( 'preserves empty aggregate coverage instead of treating it as legacy missing history', () => {
+		const source = createBackupSource();
+		const outcomes = { ...createBackupVisitOutcomes(), dailySites: [], dailyHours: [] };
+		Reflect.set( source.statistics, 'visitOutcomes', outcomes );
+		const backup = parseBackupText( JSON.stringify( createBackupDocument( source ) ) );
+		expect( backup.statistics.visitOutcomes ).toEqual( outcomes );
+	} );
+
 	it( 'round-trips settings and historical totals without restoring live state', () => {
 		const source = createBackupSource();
 		const backup = createBackupDocument( source );
@@ -152,6 +190,34 @@ describe( 'portable local backup', () => {
 			...backup.statistics, scopes: emptyPrototype,
 		} } ).success ).toBe( true );
 	} );
+} );
+
+it.each( [
+	null,
+	{},
+	{ ...createBackupVisitOutcomes(), recordedFromDate: '2026-02-30' },
+	{ ...createBackupVisitOutcomes(), eventLog: [] },
+	{ ...createBackupVisitOutcomes(), dailySites: [ {
+		...createBackupVisitOutcomes().dailySites[ 0 ], siteHost: 'https://archived.example/private',
+	} ] },
+	{ ...createBackupVisitOutcomes(), dailySites: [ {
+		...createBackupVisitOutcomes().dailySites[ 0 ], visitedAfterPauseCount: -1,
+	} ] },
+	{ ...createBackupVisitOutcomes(), dailySites: [ {
+		...createBackupVisitOutcomes().dailySites[ 0 ], reconsideredVisitCount: Number.MAX_SAFE_INTEGER + 1,
+	} ] },
+	{ ...createBackupVisitOutcomes(), dailySites: [ ...createBackupVisitOutcomes().dailySites ].reverse() },
+	{ ...createBackupVisitOutcomes(), dailySites: Array( 2 ).fill( createBackupVisitOutcomes().dailySites[ 0 ] ) },
+	{ ...createBackupVisitOutcomes(), dailyHours: [ {
+		...createBackupVisitOutcomes().dailyHours[ 0 ], hour: 24,
+	} ] },
+	{ ...createBackupVisitOutcomes(), dailyHours: [ ...createBackupVisitOutcomes().dailyHours ].reverse() },
+	{ ...createBackupVisitOutcomes(), dailyHours: Array( 2 ).fill( createBackupVisitOutcomes().dailyHours[ 0 ] ) },
+] )( 'rejects malformed aggregate history without repairing or dropping it', ( visitOutcomes ) => {
+	const backup = createBackupDocument( createBackupSource() );
+	expect( () => parseBackupText( JSON.stringify( { ...backup,
+		statistics: { ...backup.statistics, visitOutcomes },
+	} ) ) ).toThrow();
 } );
 
 

@@ -8,6 +8,7 @@ import {
 import { createDeparture } from '../../types/__fixtures__/protection-event';
 import { ProtectionFactType } from '../../types/protection-fact';
 import { ProtectionStateType } from '../../types/protection-state';
+import { ProtectionParticipantOrigin } from '../../types/protection-participant';
 import {
 	createAllowanceExpiryParticipant,
 	createAllowanceState,
@@ -18,6 +19,7 @@ import {
 	createReadyState,
 } from '../../types/__fixtures__/protection-state';
 import { handleParticipantDeparture } from './index';
+import { CanonicalHostSchema } from '../../types/protected-site-rule';
 
 /**
  * Departure causes that must not count as a reconsidered visit.
@@ -43,6 +45,20 @@ const ExcludedDepartureCauses = [
 const AllDepartureCauses = Object.values( DepartureCause );
 
 describe( 'participant-departure transition', () => {
+	it( 'attributes a qualifying departure to the configured rule and captured local hour', () => {
+		const state = createWaitingState();
+		const participant = createNavigationParticipant();
+		if ( participant.origin !== ProtectionParticipantOrigin.NAVIGATION ) {
+			throw new Error( 'Expected a navigation participant.' );
+		}
+		state.participants = [ { ...participant, siteHost: CanonicalHostSchema.parse( 'example.com' ) } ];
+		const result = handleParticipantDeparture( state, {
+			...createDeparture( DepartureCause.BACK ), observedLocalHour: 23,
+		} );
+		expect( result.facts ).toMatchObject( [ { siteHost: 'example.com', observedLocalHour: 23 } ] );
+		expect( handleParticipantDeparture( state, createDeparture( DepartureCause.BACK ) ).facts[ 0 ] )
+			.not.toHaveProperty( 'siteHost' );
+	} );
 	it.each( [ 120_000, 300_000, 1_200_000 ] )( 'captures the configured %i ms visit allowance when a pause is reconsidered', ( allowanceDurationMilliseconds ) => {
 		const result = handleParticipantDeparture( createWaitingState(), {
 			...createDeparture( DepartureCause.ACTIVE_SESSION_TAB_CLOSE ),

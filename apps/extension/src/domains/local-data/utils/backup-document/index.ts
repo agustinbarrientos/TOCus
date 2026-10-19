@@ -26,7 +26,8 @@ export function createBackupDocument( source: BackupSource ): BackupDocument {
 			pauseMode: preferences.pauseMode, language: preferences.language, focusLinks: preferences.focusLinks },
 		statistics: { firstRecordedDate: statistics.firstRecordedDate, dailyTotals: statistics.dailyTotals,
 			scopes: Object.fromEntries( Object.entries( statistics.scopes ).map( ( [ id,
-				scope ] ) => [ id, scope.totals ] ) ) },
+				scope ] ) => [ id, scope.totals ] ) ),
+			...( statistics.visitOutcomes === undefined ? {} : { visitOutcomes: statistics.visitOutcomes } ) },
 	} );
 }
 
