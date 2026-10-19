@@ -1,9 +1,10 @@
 import type { AvailableStatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
 import type { DailyStatisticsTotals, StatisticsTotals } from '../../../../domains/statistics/types/statistics-document';
-import { LocalDateSchema, type LocalDate } from '../../../../domains/protection/types/protection-value';
+import type { LocalDate } from '../../../../domains/protection/types/protection-value';
 import { createEmptyStatisticsTotals } from '../../../../domains/statistics/utils/create-statistics-document';
-import { addStatisticsValues } from '../../../../domains/statistics/utils/add-statistics-values';
 import { shiftStatisticsDate } from '../../../../domains/statistics/utils/statistics-calendar-date';
+import { addStatisticsTotals } from './add-statistics-totals';
+import { statisticsPeriodStart } from './statistics-period-start';
 import { StatisticsRange, type StatisticsChartBucket, type StatisticsRangeView, type StatisticsBreakdownsView,
 	type StatisticsSiteOutcomes } from './types';
 
@@ -41,17 +42,18 @@ function selectBreakdowns(
 		}
 		const previous = sites.get( day.siteHost );
 		sites.set( day.siteHost, { siteHost: day.siteHost,
-			reconsideredVisitCount: addStatisticsValues(
-				previous?.reconsideredVisitCount ?? 0, day.reconsideredVisitCount,
+			reconsideredVisitCount: Math.min( Number.MAX_SAFE_INTEGER,
+				( previous?.reconsideredVisitCount ?? 0 ) + day.reconsideredVisitCount,
 			),
-			visitedAfterPauseCount: addStatisticsValues(
-				previous?.visitedAfterPauseCount ?? 0, day.visitedAfterPauseCount,
+			visitedAfterPauseCount: Math.min( Number.MAX_SAFE_INTEGER,
+				( previous?.visitedAfterPauseCount ?? 0 ) + day.visitedAfterPauseCount,
 			) } );
 	}
 	const hours = new Map<number, number>();
 	for ( const day of recorded.dailyHours ) {
 		if ( includes( day.date ) ) {
-			hours.set( day.hour, addStatisticsValues( hours.get( day.hour ) ?? 0, day.reconsideredVisitCount ) );
+			hours.set( day.hour, Math.min( Number.MAX_SAFE_INTEGER,
+				( hours.get( day.hour ) ?? 0 ) + day.reconsideredVisitCount ) );
 		}
 	}
 	return { recordedFromDate: recorded.recordedFromDate,
@@ -63,24 +65,6 @@ function selectBreakdowns(
 				first.siteHost.localeCompare( second.siteHost ) ),
 		hourlyReconsideredVisits: Array.from( { length: 24 }, ( _, hour ) =>
 			( { hour, reconsideredVisitCount: hours.get( hour ) ?? 0 } ) ) };
-}
-
-/**
- * Adds already-projected values without counting their included pause time again.
- * @param left - Accumulated values.
- * @param right - Contribution to include.
- * @return Safely summed metric values.
- */
-function addTotals( left: StatisticsTotals, right: StatisticsTotals ): StatisticsTotals {
-	return {
-		estimatedReclaimedMilliseconds: addStatisticsValues(
-			left.estimatedReclaimedMilliseconds, right.estimatedReclaimedMilliseconds,
-		),
-		focusedPauseMilliseconds: addStatisticsValues( left.focusedPauseMilliseconds, right.focusedPauseMilliseconds ),
-		reconsideredVisitCount: addStatisticsValues( left.reconsideredVisitCount, right.reconsideredVisitCount ),
-		completedWaitCount: addStatisticsValues( left.completedWaitCount, right.completedWaitCount ),
-		allowanceGrantedCount: addStatisticsValues( left.allowanceGrantedCount, right.allowanceGrantedCount ),
-	};
 }
 
 /**
@@ -106,7 +90,7 @@ function createChartBuckets( days: DailyStatisticsTotals[] ): StatisticsChartBuc
 		);
 		const endDate = shiftStatisticsDate( date, Math.min( intervalDays - 1, remainingDays ) );
 		buckets.set( index, {
-			date, endDate, ...addTotals( buckets.get( index ) ?? createEmptyStatisticsTotals(), day ),
+			date, endDate, ...addStatisticsTotals( buckets.get( index ) ?? createEmptyStatisticsTotals(), day ),
 		} );
 	}
 	return [ ...buckets.values() ];
@@ -127,17 +111,14 @@ export function selectStatisticsRange(
 	if ( startDate !== null && startDate > projection.currentDate ) {
 		startDate = null;
 	}
-	if ( range === StatisticsRange.CURRENT_MONTH ) {
-		startDate = LocalDateSchema.parse( `${ projection.currentDate.slice( 0, 7 ) }-01` );
-	} else if ( range === StatisticsRange.CURRENT_WEEK ) {
-		const weekday = new Date( `${ projection.currentDate }T00:00:00Z` ).getUTCDay();
-		startDate = shiftStatisticsDate( projection.currentDate, -( ( weekday + 6 ) % 7 ) );
+	if ( range !== StatisticsRange.ALL_TIME ) {
+		startDate = statisticsPeriodStart( projection.currentDate, range );
 	}
 	const days = projection.dailyTotals.filter( ( day ) =>
 		( range === StatisticsRange.ALL_TIME || startDate === null || day.date >= startDate ) &&
 		day.date <= projection.currentDate );
-	const recordedTotals = days.reduce<StatisticsTotals>( addTotals, createEmptyStatisticsTotals() );
-	const lifetime = addTotals( createEmptyStatisticsTotals(), projection );
+	const recordedTotals = days.reduce<StatisticsTotals>( addStatisticsTotals, createEmptyStatisticsTotals() );
+	const lifetime = addStatisticsTotals( createEmptyStatisticsTotals(), projection );
 	const totals = range === StatisticsRange.ALL_TIME ? lifetime : recordedTotals;
 	return {
 		range, startDate, endDate: projection.currentDate, totals, chartBuckets: createChartBuckets( days ),

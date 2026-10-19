@@ -9,6 +9,7 @@ import type { LocalDate } from '../../../../domains/protection/types/protection-
 export const StatisticsRange = {
 	CURRENT_WEEK: 'current-week',
 	CURRENT_MONTH: 'current-month',
+	CURRENT_YEAR: 'current-year',
 	ALL_TIME: 'all-time',
 } as const;
 
@@ -23,6 +24,12 @@ export const StatisticsRangeSchema = z.enum( StatisticsRange );
  * @since 1.0.0
  */
 export type StatisticsRange = z.infer<typeof StatisticsRangeSchema>;
+
+/**
+ * Finite calendar periods that can have an equivalent previous interval.
+ * @since 1.1.0
+ */
+export type ComparableStatisticsRange = Exclude<StatisticsRange, typeof StatisticsRange.ALL_TIME>;
 
 /**
  * One chart interval containing the complete sum of its recorded days.
