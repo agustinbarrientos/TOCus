@@ -355,7 +355,11 @@ export async function selectStatisticsRange( browser, range ) {
 		return select instanceof HTMLSelectElement && !select.disabled && select.getClientRects().length > 0 &&
 			[...select.options].some(option => option.value === ${ JSON.stringify( range ) } && !option.disabled);` ) ).toBe( true );
 	await setSelect( browser, selector, range );
+	// Chromium can consume the first Escape in its native option popup before the page receives it.
 	await browser.viewKey( 'selected', selector, 'Escape' );
+	if ( ! browser.viewSelect ) {
+		await browser.viewPressKey( 'selected', 'Escape' );
+	}
 	await expect.poll( () => readView( browser, 'selected', `return document.querySelector(${ JSON.stringify( trigger ) })
 		?.getAttribute('aria-expanded');` ) ).toBe( 'false' );
 }
