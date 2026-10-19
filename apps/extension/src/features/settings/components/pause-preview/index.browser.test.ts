@@ -186,12 +186,13 @@ test.describe( 'Settings breathing preview', () => {
 					if ( ! surface || ! drawing || ! canvas || ! viewport || ! cue ) {
 						throw new Error( 'Expected a contained preview drawing surface.' );
 					}
+					const layout = getComputedStyle( surface );
 					const pixels = drawing.getImageData( 0, 0, surface.width, surface.height ).data;
 					let firstPaintedRow = surface.height;
 					let lastPaintedRow = -1;
 					for ( let row = 0; row < surface.height; row++ ) {
 						for ( let column = 0; column < surface.width; column++ ) {
-							// Check the sphere and contours separately from their translucent shadow.
+							// Check the solid artwork separately from its translucent shadow.
 							if ( ( pixels[ ( row * surface.width + column ) * 4 + 3 ] ?? 0 ) > 128 ) {
 								firstPaintedRow = Math.min( firstPaintedRow, row );
 								lastPaintedRow = row;
@@ -200,6 +201,8 @@ test.describe( 'Settings breathing preview', () => {
 						}
 					}
 					return { width: canvas.width, height: canvas.height,
+						layoutWidth: Number.parseFloat( layout.width ),
+						layoutHeight: Number.parseFloat( layout.height ),
 						artworkTop: canvas.top + firstPaintedRow / surface.height * canvas.height,
 						artworkBottom: canvas.top + ( lastPaintedRow + 1 ) / surface.height * canvas.height,
 						paintedRows: lastPaintedRow - firstPaintedRow,
@@ -234,7 +237,8 @@ test.describe( 'Settings breathing preview', () => {
 					expect( button.label.scrollHeight ).toBeLessThanOrEqual( button.label.clientHeight );
 					expect( button.label.scrollWidth ).toBeLessThanOrEqual( button.label.clientWidth );
 				}
-				sizes.push( { width: geometry.width, height: geometry.height } );
+				// Used dimensions avoid viewport-coordinate subtraction rounding as the artwork moves.
+				sizes.push( { width: geometry.layoutWidth, height: geometry.layoutHeight } );
 			}
 			expect( sizes[ 1 ] ).toEqual( sizes[ 0 ] );
 			expect( sizes[ 2 ] ).toEqual( sizes[ 0 ] );
