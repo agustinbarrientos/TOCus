@@ -1,6 +1,6 @@
 import {
 	clickButton, continuePause, enroll, expect, fill, protectionState, readView, reload,
-	setSelect, settings, test, withBrowser,
+	selectStatisticsRange, setSelect, settings, test, withBrowser,
 } from './__fixtures__/journey.mjs';
 
 const configurationKey = 'tocus.protection.configuration.v1';
@@ -340,8 +340,8 @@ test( 'Statistics records a real Continue and resets totals without changing pro
 		const configuration = await stored( browser, configurationKey );
 		const preferences = await stored( browser, preferencesKey );
 		const grants = await protectionState( browser );
-		for ( const range of [ 'current-week', 'current-month', 'all-time' ] ) {
-			await setSelect( browser, '.settings-statistics-period-select select', range );
+		for ( const range of [ 'current-week', 'current-month', 'current-year', 'all-time' ] ) {
+			await selectStatisticsRange( browser, range );
 			await expect.poll( () => metrics( browser ) ).toMatchObject( { 'Completed pauses': '1' } );
 		}
 		await clickButton( browser, 'Reset statistics', '.settings-data-reset' );

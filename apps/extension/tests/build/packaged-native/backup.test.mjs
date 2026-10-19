@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
 	clickButton, continuePause, enroll, expect, fill, protectionState, readView, reload,
-	setSelect, settings, test, withBrowser,
+	selectStatisticsRange, settings, test, withBrowser,
 } from './__fixtures__/journey.mjs';
 
 const configurationKey = 'tocus.protection.configuration.v1';
@@ -51,19 +51,6 @@ async function saveFocusLink( browser, destination ) {
 	} ] );
 	const preferences = await stored( browser, preferencesKey );
 	return preferences.focusLinks[ 0 ];
-}
-
-/**
- * Waits for the authoritative statistics projection before selecting its native period control.
- * @param {object} browser - Disposable installed browser.
- * @param {string} range - Exact calendar range option.
- */
-async function selectStatisticsRange( browser, range ) {
-	const selector = '.settings-statistics-period-select select';
-	await expect.poll( () => readView( browser, 'selected', `const select = document.querySelector(${ JSON.stringify( selector ) });
-		return select instanceof HTMLSelectElement && !select.disabled && select.getClientRects().length > 0 &&
-			[...select.options].some(option => option.value === ${ JSON.stringify( range ) } && !option.disabled);` ) ).toBe( true );
-	await setSelect( browser, selector, range );
 }
 
 /**
