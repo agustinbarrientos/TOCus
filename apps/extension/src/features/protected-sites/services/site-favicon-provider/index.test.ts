@@ -242,31 +242,33 @@ describe( 'local cached favicon resolution', () => {
 		},
 	);
 
-	it( 'fetches only extension-local PNG resources without following redirects', async () => {
-		const fetcher = vi.fn( ( source: string ) => Promise.resolve( new Response(
-			new URL( source ).searchParams.get( 'pageUrl' ) === 'about:blank' ? DEFAULT_ICON : CACHED_ICON,
-			{ headers: { 'Content-Type': 'image/png; charset=binary' } },
-		) ) );
-		vi.stubGlobal( 'fetch', fetcher );
-		const provider = createSiteFaviconProvider( {
-			supportsCachedFavicons: true, extensionRootUrl: 'chrome-extension://test-extension-id/',
-		} );
-		expect( await provider.resolveSource?.( 'infobae.com' ) ).toBe(
-			'chrome-extension://test-extension-id/_favicon/?pageUrl=https%3A%2F%2Finfobae.com%2F&size=32',
-		);
-		expect( fetcher ).toHaveBeenCalledTimes( 2 );
-		expect( fetcher ).toHaveBeenNthCalledWith( 1,
-			'chrome-extension://test-extension-id/_favicon/?pageUrl=about%3Ablank&size=32',
-			{ redirect: 'error' } );
-		expect( fetcher ).toHaveBeenNthCalledWith( 2,
-			'chrome-extension://test-extension-id/_favicon/?pageUrl=https%3A%2F%2Finfobae.com%2F&size=32',
-			{ redirect: 'error' } );
-	} );
+	it.each( [ 'image/png; charset=binary', null ] )(
+		'fetches extension-local PNG resources with Content-Type %s without following redirects', async ( contentType ) => {
+			const fetcher = vi.fn( ( source: string ) => Promise.resolve( new Response(
+				new URL( source ).searchParams.get( 'pageUrl' ) === 'about:blank' ? DEFAULT_ICON : CACHED_ICON,
+				{ headers: contentType === null ? {} : { 'Content-Type': contentType } },
+			) ) );
+			vi.stubGlobal( 'fetch', fetcher );
+			const provider = createSiteFaviconProvider( {
+				supportsCachedFavicons: true, extensionRootUrl: 'chrome-extension://test-extension-id/',
+			} );
+			expect( await provider.resolveSource?.( 'infobae.com' ) ).toBe(
+				'chrome-extension://test-extension-id/_favicon/?pageUrl=https%3A%2F%2Finfobae.com%2F&size=32',
+			);
+			expect( fetcher ).toHaveBeenCalledTimes( 2 );
+			expect( fetcher ).toHaveBeenNthCalledWith( 1,
+				'chrome-extension://test-extension-id/_favicon/?pageUrl=about%3Ablank&size=32',
+				{ redirect: 'error' } );
+			expect( fetcher ).toHaveBeenNthCalledWith( 2,
+				'chrome-extension://test-extension-id/_favicon/?pageUrl=https%3A%2F%2Finfobae.com%2F&size=32',
+				{ redirect: 'error' } );
+		},
+	);
 
 	it.each( [
 		{ status: 404, type: 'image/png', body: DEFAULT_ICON },
 		{ status: 200, type: 'text/html', body: DEFAULT_ICON },
-		{ status: 200, type: null, body: DEFAULT_ICON },
+		{ status: 200, type: null, body: new Uint8Array( 40 ) },
 		{ status: 200, type: 'image/png', body: new Uint8Array() },
 		{ status: 200, type: 'image/png', body: new Uint8Array( 40 ) },
 	] )( 'does not present invalid cache responses as website icons', async ( { status, type, body } ) => {
