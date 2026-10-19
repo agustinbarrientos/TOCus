@@ -3,6 +3,8 @@ import type {
 } from '../../../../domains/statistics/types/statistics-projection';
 import type { StatisticsChangeSource } from '../../services/statistics-client/types';
 import type { StatisticsProjection } from '../../../../domains/statistics/types/statistics-projection';
+import type { StatisticsChange } from '../../utils/calculate-statistics-change/types';
+import type { StatisticsRange } from '../../utils/select-statistics-range/types';
 
 /**
  * Stable loading states rendered by the Statistics settings screen.
@@ -59,7 +61,12 @@ export interface StatisticsSettingsScreenCopy {
 	allTimeTitle: string;
 	currentWeekTitle: string;
 	currentMonthTitle: string;
+	currentYearTitle: string;
 	periodLabel: string;
+	comparePreviousLabel: string;
+	comparisonDetail: string;
+	currentPeriodLabel: string;
+	previousPeriodLabel: string;
 	incompleteHistory: string;
 	estimatedReclaimedLabel: string;
 	focusedPauseLabel: string;
@@ -77,12 +84,14 @@ export interface StatisticsSettingsScreenCopy {
 	visitOutcomesHelpLabel: string;
 	visitOutcomesDescription: string;
 	websiteOutcomesTitle: string;
+	allWebsitesTitle: string;
+	allWebsitesLabel: string;
 	visitOutcomesLegendLabel: string;
 	reconsideredOutcomeLabel: string;
 	visitedAfterPauseLabel: string;
 	hourlyTitle: string;
 	hourLabel: string;
-	localTimeLabel: string;
+	noRecordedOutcomes: string;
 	noVisitOutcomes: string;
 	noReconsideredVisits: string;
 	breakdownsUnavailable: string;
@@ -95,6 +104,14 @@ export interface StatisticsSettingsScreenCopy {
 	formatDate( date: string ): string;
 	/** Formats the inclusive local date interval represented by one chart bucket. */
 	formatDateRange( startDate: string, endDate: string ): string;
+	/**
+	 * Describes a count change relative to the selected previous calendar period.
+	 * @param change - Finite change with an absolute difference and optional percentage.
+	 * @param range - Current calendar period whose previous period is being compared.
+	 * @return Complete localized trend phrase, or an empty string for all time.
+	 * @since 1.1.0
+	 */
+	formatTrend( change: StatisticsChange, range: StatisticsRange ): string;
 	loading: string;
 	unavailableTitle: string;
 	unavailableDescription: string;
