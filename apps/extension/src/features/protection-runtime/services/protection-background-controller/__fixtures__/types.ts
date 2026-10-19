@@ -1,4 +1,5 @@
 import type { Mock } from 'vitest';
+import type { ProtectionBackgroundMessageSender } from '../types';
 import type {
 	BrowserProtectionRuntime,
 	BrowserProtectionStatisticsObservation,
@@ -8,19 +9,7 @@ import type {
  * Browser message sender fixture.
  * @since 1.0.0 Initial implementation.
  */
-export interface TestMessageSender {
-	/** Sending frame identifier when the message came from a tab. */
-	frameId?: number | undefined;
-	/** Sending tab fixture. */
-	tab?: {
-		/** Whether the sender tab belongs to a private browsing context. */
-		incognito?: boolean | undefined;
-		/** Browser tab identifier. */
-		id?: number | undefined;
-	} | undefined;
-	/** URL of the page or frame hosting the sending script. */
-	url?: string | undefined;
-}
+export type TestMessageSender = ProtectionBackgroundMessageSender;
 
 /**
  * Browser permission-change fixture.

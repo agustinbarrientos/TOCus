@@ -130,6 +130,8 @@ export interface ProtectionBackgroundMessageSenderTab {
 	id?: number | undefined;
 	/** Whether the sender belongs to a private browser context when reported. */
 	incognito?: boolean | undefined;
+	/** Complete browser-reported tab URL, including document-hidden fragment directives. */
+	url?: string | undefined;
 }
 
 /**
