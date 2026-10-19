@@ -33,8 +33,9 @@
 	position: relative;
 	aspect-ratio: 4 / 3;
 	width: 100%;
+
 	// Keep the cue, artwork and three fully wrapped shortcut labels visible together.
-	min-height: 21rem;
+	min-height: 22rem;
 	border: 1px solid var(--tocus-color-outline);
 	border-radius: var(--tocus-radius-medium);
 	overflow: hidden;

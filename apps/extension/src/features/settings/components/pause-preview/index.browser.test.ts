@@ -139,7 +139,7 @@ test.describe( 'Settings breathing preview', () => {
 								throw new Error( 'Expected the complete preview shortcut label.' );
 							}
 							const labelBounds = label.getBoundingClientRect();
-							return { top: bounds.top, bottom: bounds.bottom,
+							return { top: bounds.top, bottom: bounds.bottom, width: bounds.width, height: bounds.height,
 								clientHeight: button.clientHeight, scrollHeight: button.scrollHeight,
 								label: { top: labelBounds.top, bottom: labelBounds.bottom,
 									clientHeight: label.clientHeight, scrollHeight: label.scrollHeight,
@@ -149,6 +149,7 @@ test.describe( 'Settings breathing preview', () => {
 				expect( geometry.height ).toBeGreaterThan( 0 );
 				expect( geometry.cueBottom ).toBeLessThanOrEqual( geometry.artworkTop );
 				for ( const button of geometry.buttons ) {
+					expect( button.width ).toBeGreaterThan( button.height );
 					expect( button.top ).toBeGreaterThanOrEqual( geometry.artworkBottom );
 					expect( button.bottom ).toBeLessThanOrEqual( geometry.viewportBottom );
 					expect( button.scrollHeight ).toBeLessThanOrEqual( button.clientHeight );
