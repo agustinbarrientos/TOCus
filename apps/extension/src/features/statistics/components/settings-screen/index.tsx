@@ -105,14 +105,17 @@ export function Statistics( props: SettingsScreenProps ) {
 		async function prepareIdentities(): Promise<void> {
 			const configuration = await props.shell.editor?.load().catch( () => null );
 			const hosts = new Set( projection?.visitOutcomes?.dailySites.map( ( site ) => site.siteHost ) ?? [] );
-			const identities = new Map<string, StatisticsSiteIdentity>();
-			for ( const siteHost of hosts ) {
+			const entries = await Promise.all( [ ...hosts ].map( async ( siteHost ) => {
 				const configured = configuration?.sites.find( ( site ) => site.rule.host === siteHost );
 				const identity = resolveSiteDisplayIdentity( configured ?? { identityHost: siteHost,
 					rule: { host: siteHost, includeSubdomains: false, scopeId: DefaultProtectionScopeId } } );
-				identities.set( siteHost, { name: identity.name, monogram: identity.monogram,
-					favicon: props.shell.faviconProvider?.getSource( configured?.identityHost ?? siteHost ) ?? null } );
-			}
+				const host = configured?.identityHost ?? siteHost;
+				const provider = props.shell.faviconProvider;
+				const favicon = await Promise.resolve().then( () => provider?.resolveSource === undefined
+					? provider?.getSource( host ) ?? null : provider.resolveSource( host ) ).catch( () => null );
+				return [ siteHost, { name: identity.name, monogram: identity.monogram, favicon } ] as const;
+			} ) );
+			const identities = new Map<string, StatisticsSiteIdentity>( entries );
 			if ( active ) {
 				setSiteIdentities( identities );
 			}

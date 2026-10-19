@@ -10,6 +10,17 @@ import type {
 import type { CanonicalHost } from '../../../../domains/protection/types/protected-site-rule';
 import type { SitePermissionReleaseStatus } from '../../services/site-permission-manager';
 import type { SiteItemEditorSnapshot } from '../../services/site-item-editor/types';
+import type { SiteFaviconProvider } from '../../services/site-favicon-provider';
+
+/**
+ * Cached icon result associated with the exact provider and website which requested it.
+ * @since 1.1.0
+ */
+export interface WebsiteFaviconResolution {
+	host: string;
+	provider: SiteFaviconProvider;
+	source: string | null;
+}
 
 /**
  * Stable event name emitted after one protected-site configuration change is persisted.
@@ -179,6 +190,8 @@ export interface WebsiteItemProps {
 	details?: WebsiteDetailsDraft;
 	validate?: boolean;
 	favicon: string | null;
+	/** Optional asynchronous browser-cache resolver shared with Statistics. */
+	faviconProvider?: SiteFaviconProvider | null;
 	editing: boolean;
 	disabled: boolean;
 	accessRequired: boolean;
