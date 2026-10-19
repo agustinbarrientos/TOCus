@@ -3,6 +3,7 @@
 ## 1.1.0 - Unreleased
 
 - Added: Optional Statistics comparisons for the current week, month and year, with matched elapsed dates, neutral trend tags, dashed previous-period charts and an all-websites outcome summary. Comparisons use existing local history and stay hidden when recording coverage is insufficient (Chrome, Edge, Firefox).
+- Fixed: The website hero keeps a stable height when mobile browser controls expand or collapse, preserving the shoreline transition (mobile Chrome, Edge, Firefox, Safari).
 - Changed: Redesigned Statistics around the current week, with selectable daily activity, website visit outcomes, consistent saved website icons and names, readable hourly tooltip times, explicit empty states, and left-aligned mobile outcome legends. New breakdowns stay on the device, are included in backups, and start from the upgrade without reconstructing earlier history (Chrome, Edge, Firefox).
 - Fixed: Enlarging Settings text no longer doubles the page's minimum width on narrow screens (Chrome, Edge, Firefox).
 - Fixed: Websites and Statistics try cached HTTP, HTTPS, www and non-www icon variants before showing the local monogram (Chrome, Edge).
