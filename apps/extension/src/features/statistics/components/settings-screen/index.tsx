@@ -7,7 +7,6 @@ import {
 	Icon, IconName,
 	Paper,
 	Group,
-	NativeSelect,
 	FieldHelp,
 } from '@tocus/ui';
 import {
@@ -36,7 +35,10 @@ import { resolveSiteDisplayIdentity } from '../../../protected-sites/utils/site-
 import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
 import { useId } from 'react';
 import { selectStatisticsRange } from '../../utils/select-statistics-range';
-import { StatisticsRange, StatisticsRangeSchema } from '../../utils/select-statistics-range/types';
+import { StatisticsRange } from '../../utils/select-statistics-range/types';
+import { selectStatisticsComparison } from '../../utils/select-statistics-comparison';
+import { StatisticsPeriodControl } from '../period-control';
+import { StatisticsTrendTag } from '../trend-tag';
 
 
 /**
@@ -49,39 +51,46 @@ export function StatisticsSummary( props: StatisticsSummaryProps ) {
 	const { copy, projection } = props;
 	const methodId = useId();
 	const [ range, setRange ] = useState<StatisticsRange>( StatisticsRange.CURRENT_WEEK );
+	const [ compare, setCompare ] = useState( false );
 	const selected = selectStatisticsRange( projection, range );
+	const comparison = selectStatisticsComparison( projection, range );
+	const activeComparison = compare ? comparison : null;
 	const rangeLabels = {
 		[ StatisticsRange.CURRENT_WEEK ]: copy.currentWeekTitle,
 		[ StatisticsRange.CURRENT_MONTH ]: copy.currentMonthTitle,
+		[ StatisticsRange.CURRENT_YEAR ]: copy.currentYearTitle,
 		[ StatisticsRange.ALL_TIME ]: copy.allTimeTitle,
 	};
 	const metrics = [
-		[ copy.reconsideredVisitsLabel, copy.formatCount( selected.totals.reconsideredVisitCount ) ],
-		[ copy.completedWaitsLabel, copy.formatCount( selected.totals.completedWaitCount ) ],
-	];
+		{ label: copy.reconsideredVisitsLabel, key: 'reconsideredVisitCount' },
+		{ label: copy.completedWaitsLabel, key: 'completedWaitCount' },
+	] as const;
 	return <section className="settings-statistics-summary">
 		<div className="settings-statistics-period">
 			<div><h2>{ rangeLabels[ range ] }</h2>
 				{ selected.startDate !== null && <p className="settings-statistics-dates">{ copy.formatDateRange( selected.startDate, selected.endDate ) }</p> }
 			</div>
-			<NativeSelect className="settings-statistics-period-select" label={ copy.periodLabel } value={ range }
-				classNames={ { label: 'settings-statistics-period-label', wrapper: 'settings-statistics-period-input' } }
-				data={ Object.entries( rangeLabels ).map( ( [ value, label ] ) => ( { value, label } ) ) }
-				onChange={ ( event ) => {
-					setRange( StatisticsRangeSchema.parse( event.currentTarget.value ) );
-				} } />
+			<StatisticsPeriodControl copy={ copy } range={ range }
+				comparison={ compare } canCompare={ comparison !== null }
+				onRangeChange={ setRange } onComparisonChange={ setCompare } />
 		</div>
-		<dl className="settings-metrics">{ metrics.map( ( [ label, amount ] ) =>
-			<div key={ label }><dt>{ label }</dt><dd>{ amount }</dd></div> ) }</dl>
+		<dl className="settings-metrics">{ metrics.map( ( { label, key } ) =>
+			<div key={ key }><dt>{ label }</dt><dd><span>{ copy.formatCount( selected.totals[ key ] ) }</span>
+				{ activeComparison !== null && <StatisticsTrendTag copy={ copy } metric={ label }
+					current={ selected.totals[ key ] } previous={ activeComparison.previous.totals[ key ] }
+					currentRange={ selected } previousRange={ activeComparison.previous } /> }
+			</dd></div> ) }</dl>
 		<div className="settings-statistics-estimate">
 			<dl><dt>{ copy.estimatedReclaimedLabel }</dt>
 				<dd>{ copy.formatEstimatedDuration( selected.totals.estimatedReclaimedMilliseconds ) }</dd></dl>
 			<FieldHelp label={ copy.estimationHelpLabel } descriptionId={ methodId }
 				description={ copy.estimationDescription } />
 		</div>
-		<DailyStatistics copy={ copy } totals={ selected.chartBuckets } />
+		<DailyStatistics copy={ copy } totals={ selected.chartBuckets }
+			{ ...( activeComparison !== null ? { comparison: activeComparison } : {} ) } />
 		{ selected.incompleteHistory && <p className="settings-statistics-coverage">{ copy.incompleteHistory }</p> }
-		<VisitOutcomes copy={ copy } breakdowns={ selected.breakdowns }
+		<VisitOutcomes copy={ copy } breakdowns={ selected.breakdowns } currentRange={ selected }
+			{ ...( activeComparison !== null ? { previousRange: activeComparison.previous } : {} ) }
 			{ ...( props.siteIdentities ? { siteIdentities: props.siteIdentities } : {} ) } />
 	</section>;
 }

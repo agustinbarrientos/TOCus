@@ -8,26 +8,6 @@
 	gap: var(--tocus-space-4);
 }
 
-[data-tocus-ui] .settings-statistics-period-select {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: var(--tocus-space-3);
-	min-width: 0;
-	max-width: 100%;
-
-	.settings-statistics-period-label {
-		max-width: 100%;
-		margin: 0;
-		overflow-wrap: anywhere;
-	}
-
-	.settings-statistics-period-input {
-		flex: 1 1 8rem;
-		min-width: 0;
-	}
-}
-
 [data-tocus-ui] .settings-page .settings-statistics-summary {
 	.settings-statistics-dates {
 		margin-top: var(--tocus-space-2);
@@ -59,6 +39,10 @@
 			@include typography.apply('headline-large');
 
 			font-variant-numeric: tabular-nums;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: var(--tocus-space-2);
 			color: var(--tocus-color-action);
 			margin: var(--tocus-space-2) 0 0;
 		}
@@ -68,9 +52,11 @@
 		display: grid;
 		grid-template-columns: minmax(0, max-content) max-content;
 		justify-content: start;
-		align-items: end;
-		gap: var(--tocus-space-2) var(--tocus-space-3);
+		align-items: center;
+		gap: var(--tocus-space-2) var(--tocus-space-1);
 		margin-top: var(--tocus-space-4);
+
+		.tocus-field-help { transform: translate(-.125rem, 0); }
 
 		dl {
 			display: flex;
@@ -128,8 +114,10 @@
 	.settings-statistics-breakdown-title {
 		display: flex;
 		align-items: center;
-		gap: var(--tocus-space-2);
+		gap: var(--tocus-space-3);
 		margin-bottom: var(--tocus-space-5);
+
+		.tocus-field-help { transform: translate(-.5rem, .125rem); }
 	}
 
 	.settings-statistics-breakdown-title h2 {
@@ -262,13 +250,6 @@
 		background-image: repeating-linear-gradient(135deg, transparent 0, transparent 5px, var(--tocus-color-action) 5px, var(--tocus-color-action) 6px);
 	}
 
-	.settings-statistics-hour-caption {
-		@include typography.apply('body-small');
-
-		text-align: center;
-		margin-top: var(--tocus-space-2);
-	}
-
 	.settings-statistics-coverage {
 		@include typography.apply('body-small');
 
@@ -316,6 +297,8 @@
 
 @media (width <= 48rem) {
 	[data-tocus-ui] .settings-page .settings-statistics-summary {
+		.settings-statistics-estimate { align-items: end; }
+
 		.settings-statistics-sites-heading {
 			flex-direction: column;
 			align-items: flex-start;

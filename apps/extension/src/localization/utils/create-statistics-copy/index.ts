@@ -1,6 +1,8 @@
 import type { I18n } from '@lingui/core';
-import { msg } from '@lingui/core/macro';
+import { msg, plural } from '@lingui/core/macro';
 import type { StatisticsSettingsScreenCopy } from '../../../features/statistics/components/settings-screen/types';
+import { StatisticsChangeDirection, type StatisticsChange } from '../../../features/statistics/utils/calculate-statistics-change/types';
+import { StatisticsRange } from '../../../features/statistics/utils/select-statistics-range/types';
 import type { LocalizationFormatters } from '../create-localization-formatters';
 import {
 	formatMinuteDuration,
@@ -30,6 +32,70 @@ export function createStatisticsCopy(
 	const axisSeconds = new Intl.NumberFormat( i18n.locale, { ...axisOptions, unit: DurationUnit.SECOND } );
 	const axisMinutes = new Intl.NumberFormat( i18n.locale, { ...axisOptions, unit: DurationUnit.MINUTE } );
 	const axisHours = new Intl.NumberFormat( i18n.locale, { ...axisOptions, unit: DurationUnit.HOUR } );
+	const percentFormatter = new Intl.NumberFormat( i18n.locale, { style: 'percent', maximumFractionDigits: 3 } );
+	/**
+	 * Keeps each trend phrase independently translatable for its period and direction.
+	 * @param change - Finite count change, with null percentages using the absolute difference.
+	 * @param range - Selected calendar period.
+	 * @return Localized trend, or no text for an all-time period without a comparison.
+	 * @since 1.1.0
+	 */
+	function formatTrend( change: StatisticsChange, range: StatisticsRange ): string {
+		const count = change.difference;
+		const percentage = change.percentage === null ? '' : percentFormatter.format( change.percentage / 100 );
+		switch ( range ) {
+			case StatisticsRange.CURRENT_WEEK:
+				if ( change.direction === StatisticsChangeDirection.SAME ) {
+					return i18n._( msg`Same as last week` );
+				}
+				if ( change.percentage !== null ) {
+					return change.direction === StatisticsChangeDirection.UP
+						? i18n._( msg`${ percentage } more than last week` )
+						: i18n._( msg`${ percentage } fewer than last week` );
+				}
+				return change.direction === StatisticsChangeDirection.UP
+					? i18n._( msg( { message: plural( { count }, {
+						one: '# more than last week', other: '# more than last week',
+					} ) } ) )
+					: i18n._( msg( { message: plural( { count }, {
+						one: '# fewer than last week', other: '# fewer than last week',
+					} ) } ) );
+			case StatisticsRange.CURRENT_MONTH:
+				if ( change.direction === StatisticsChangeDirection.SAME ) {
+					return i18n._( msg`Same as last month` );
+				}
+				if ( change.percentage !== null ) {
+					return change.direction === StatisticsChangeDirection.UP
+						? i18n._( msg`${ percentage } more than last month` )
+						: i18n._( msg`${ percentage } fewer than last month` );
+				}
+				return change.direction === StatisticsChangeDirection.UP
+					? i18n._( msg( { message: plural( { count }, {
+						one: '# more than last month', other: '# more than last month',
+					} ) } ) )
+					: i18n._( msg( { message: plural( { count }, {
+						one: '# fewer than last month', other: '# fewer than last month',
+					} ) } ) );
+			case StatisticsRange.CURRENT_YEAR:
+				if ( change.direction === StatisticsChangeDirection.SAME ) {
+					return i18n._( msg`Same as last year` );
+				}
+				if ( change.percentage !== null ) {
+					return change.direction === StatisticsChangeDirection.UP
+						? i18n._( msg`${ percentage } more than last year` )
+						: i18n._( msg`${ percentage } fewer than last year` );
+				}
+				return change.direction === StatisticsChangeDirection.UP
+					? i18n._( msg( { message: plural( { count }, {
+						one: '# more than last year', other: '# more than last year',
+					} ) } ) )
+					: i18n._( msg( { message: plural( { count }, {
+						one: '# fewer than last year', other: '# fewer than last year',
+					} ) } ) );
+			case StatisticsRange.ALL_TIME:
+				return '';
+		}
+	}
 	/**
 	 * Keeps numeric axis ticks distinct without fitting full prose into a narrow chart margin.
 	 * @param milliseconds - Nonnegative numeric axis tick.
@@ -129,14 +195,19 @@ export function createStatisticsCopy(
 		allTimeTitle: i18n._( msg`All time` ),
 		currentWeekTitle: i18n._( msg`Current week` ),
 		currentMonthTitle: i18n._( msg`Current month` ),
+		currentYearTitle: i18n._( msg`Current year` ),
 		periodLabel: i18n._( msg`Period` ),
+		comparePreviousLabel: i18n._( msg`Compare with previous period` ),
+		comparisonDetail: i18n._( msg`vs previous period` ),
+		currentPeriodLabel: i18n._( msg`This period` ),
+		previousPeriodLabel: i18n._( msg`Previous period` ),
 		incompleteHistory: i18n._( msg`Some daily details are unavailable. All-time totals still include them.` ),
 		estimatedReclaimedLabel: i18n._( msg`Estimated time reclaimed` ),
 		focusedPauseLabel: i18n._( msg`Time you took to pause` ),
 		reconsideredVisitsLabel: i18n._( msg`Reconsidered visits` ),
 		completedWaitsLabel: i18n._( msg`Completed pauses` ),
 		allowancesGrantedLabel: i18n._( msg`Allowances granted` ),
-		estimationDescription: i18n._( msg`Time spent pausing plus estimated browsing time avoided, based on your configured visit time.` ),
+		estimationDescription: i18n._( msg`Time spent pausing plus estimated browsing time avoided.` ),
 		estimationHelpLabel: i18n._( msg`How estimated time reclaimed is calculated` ),
 		dailyTitle: i18n._( msg`Daily activity` ),
 		dailyMetricLabel: i18n._( msg`Daily activity metric` ),
@@ -147,18 +218,21 @@ export function createStatisticsCopy(
 		visitOutcomesHelpLabel: i18n._( msg`About visit outcomes` ),
 		visitOutcomesDescription: i18n._( msg`Reconsidered visits end before the pause finishes. Visits after a pause count when you wait and continue to the website.` ),
 		websiteOutcomesTitle: i18n._( msg`By website` ),
+		allWebsitesTitle: i18n._( msg`All websites` ),
+		allWebsitesLabel: i18n._( msg`Visit outcomes across all websites` ),
 		visitOutcomesLegendLabel: i18n._( msg`Visit outcome key` ),
 		reconsideredOutcomeLabel: i18n._( msg`Reconsidered` ),
 		visitedAfterPauseLabel: i18n._( msg`Visited after pause` ),
 		hourlyTitle: i18n._( msg`Reconsidered visits by hour` ),
 		hourLabel: i18n._( msg`Hour` ),
-		localTimeLabel: i18n._( msg`Your local time` ),
+		noRecordedOutcomes: i18n._( msg`No recorded outcomes` ),
 		noVisitOutcomes: i18n._( msg`No visit outcomes recorded in this period.` ),
 		noReconsideredVisits: i18n._( msg`No reconsidered visits recorded in this period.` ),
 		breakdownsUnavailable: i18n._( msg`Website and hourly breakdowns will appear as new visits are recorded.` ),
 		formatHour,
 		formatDate,
 		formatDateRange,
+		formatTrend,
 		loading: i18n._( msg`Loading statistics...` ),
 		unavailableTitle: i18n._( msg`Statistics are unavailable` ),
 		unavailableDescription: i18n._(

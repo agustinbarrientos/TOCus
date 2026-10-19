@@ -2,6 +2,7 @@
 
 ## 1.1.0 - Unreleased
 
+- Added: Optional Statistics comparisons for the current week, month and year, with matched elapsed dates, neutral trend tags, dashed previous-period charts and an all-websites outcome summary. Comparisons use existing local history and stay hidden when recording coverage is insufficient (Chrome, Edge, Firefox).
 - Fixed: Websites and Statistics display cached favicons when the browser's local image response omits its content type (Chrome, Edge).
 - Fixed: Switch labels stay vertically centered beside their toggles, including the Statistics comparison control (Chrome, Edge, Firefox).
 - Fixed: The website hero keeps a stable height when mobile browser controls expand or collapse, preserving the shoreline transition (mobile Chrome, Edge, Firefox, Safari).

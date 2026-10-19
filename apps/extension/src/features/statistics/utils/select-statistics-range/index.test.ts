@@ -153,6 +153,43 @@ describe( 'selectStatisticsRange', () => {
 		expect( result.totals.reconsideredVisitCount ).toBe( 0 );
 		expect( result.chartBuckets ).toEqual( [] );
 	} );
+	it( 'selects January through today for the current year and excludes future observations', () => {
+		const input = projection( [ '2025-12-31', '2026-01-01', '2026-09-16', '2026-09-17' ] );
+		const result = selectStatisticsRange( input, StatisticsRange.CURRENT_YEAR );
+		expect( result ).toMatchObject( { startDate: '2026-01-01', endDate: '2026-09-16',
+			totals: { reconsideredVisitCount: 2, completedWaitCount: 4 } } );
+		expect( result.chartBuckets.map( ( day ) => day.date ) ).toEqual( [ '2026-01-01', '2026-09-13' ] );
+	} );
+	it( 'saturates chart and metric sums at the maximum safe integer', () => {
+		const input = projection( [ '2026-09-14', '2026-09-15' ] );
+		const maximumTotals = { estimatedReclaimedMilliseconds: Number.MAX_SAFE_INTEGER,
+			focusedPauseMilliseconds: Number.MAX_SAFE_INTEGER, reconsideredVisitCount: Number.MAX_SAFE_INTEGER,
+			completedWaitCount: Number.MAX_SAFE_INTEGER, allowanceGrantedCount: Number.MAX_SAFE_INTEGER };
+		for ( const day of input.dailyTotals ) {
+			Object.assign( day, maximumTotals );
+		}
+		const result = selectStatisticsRange( input, StatisticsRange.CURRENT_WEEK );
+		expect( result.totals ).toEqual( maximumTotals );
+		expect( result.chartBuckets.every( ( day ) =>
+			Number.isSafeInteger( day.reconsideredVisitCount ) ) ).toBe( true );
+	} );
+	it( 'saturates website and hour sums while retaining their exact selected coverage', () => {
+		const input = Object.assign( projection( [] ), { visitOutcomes: {
+			recordedFromDate: '2026-09-01', dailySites: [
+				{ date: '2026-09-14', siteHost: 'example.test',
+					reconsideredVisitCount: Number.MAX_SAFE_INTEGER, visitedAfterPauseCount: Number.MAX_SAFE_INTEGER },
+				{ date: '2026-09-15', siteHost: 'example.test', reconsideredVisitCount: 1, visitedAfterPauseCount: 1 },
+			], dailyHours: [
+				{ date: '2026-09-14', hour: 9, reconsideredVisitCount: Number.MAX_SAFE_INTEGER },
+				{ date: '2026-09-15', hour: 9, reconsideredVisitCount: 1 },
+			],
+		} } );
+		const result = selectStatisticsRange( input, StatisticsRange.CURRENT_WEEK );
+		expect( result.breakdowns.siteOutcomes ).toEqual( [ { siteHost: 'example.test',
+			reconsideredVisitCount: Number.MAX_SAFE_INTEGER, visitedAfterPauseCount: Number.MAX_SAFE_INTEGER } ] );
+		expect( result.breakdowns.hourlyReconsideredVisits[ 9 ]?.reconsideredVisitCount )
+			.toBe( Number.MAX_SAFE_INTEGER );
+	} );
 	it( 'bounds a century of sparse history while preserving every contribution and date labels', () => {
 		const input = projection( Array.from( { length: 120 }, ( _, year ) => `${ String( 1900 + year ) }-01-01` ) );
 		const before = JSON.stringify( input );

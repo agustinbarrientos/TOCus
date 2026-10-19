@@ -1,0 +1,40 @@
+@use '@tocus/theme/typography' as typography;
+
+[data-tocus-ui] .tocus-button-summary {
+	--tocus-button-height: auto;
+
+	min-width: 0;
+	max-width: 100%;
+	min-height: 3rem;
+	padding-block: var(--tocus-space-2);
+
+	.tocus-button-summary-inner {
+		min-width: 0;
+		height: auto;
+	}
+
+	.tocus-button-summary-label {
+		--tocus-typography-label-large-line-height: 1.15;
+
+		@include typography.apply('label-large');
+
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		justify-content: center;
+		min-width: 0;
+		height: auto;
+		gap: 0;
+		white-space: normal;
+		overflow: visible;
+		overflow-wrap: anywhere;
+	}
+
+	.tocus-button-summary-detail {
+		--tocus-typography-body-small-line-height: 1.15;
+
+		@include typography.apply('body-small');
+
+		color: var(--tocus-color-on-surface-muted);
+	}
+}

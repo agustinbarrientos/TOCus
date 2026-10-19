@@ -340,6 +340,31 @@ export async function setSelect( browser, selector, value ) {
 }
 
 /**
+ * Selects a Statistics range through the visible period menu and closes it with the keyboard.
+ * @param {object} browser - Disposable installed browser.
+ * @param {string} range - Exact calendar range option.
+ * @since 1.1.0
+ */
+export async function selectStatisticsRange( browser, range ) {
+	const trigger = '.settings-statistics-period-trigger';
+	const selector = '.settings-statistics-period-menu select';
+	await expect.poll( () => readView( browser, 'selected', `const button = document.querySelector(${ JSON.stringify( trigger ) });
+		return button instanceof HTMLButtonElement && !button.disabled && button.getClientRects().length > 0;` ) ).toBe( true );
+	await browser.viewClick( 'selected', trigger );
+	await expect.poll( () => readView( browser, 'selected', `const select = document.querySelector(${ JSON.stringify( selector ) });
+		return select instanceof HTMLSelectElement && !select.disabled && select.getClientRects().length > 0 &&
+			[...select.options].some(option => option.value === ${ JSON.stringify( range ) } && !option.disabled);` ) ).toBe( true );
+	await setSelect( browser, selector, range );
+	// Chromium can consume the first Escape in its native option popup before the page receives it.
+	await browser.viewKey( 'selected', selector, 'Escape' );
+	if ( ! browser.viewSelect ) {
+		await browser.viewPressKey( 'selected', 'Escape' );
+	}
+	await expect.poll( () => readView( browser, 'selected', `return document.querySelector(${ JSON.stringify( trigger ) })
+		?.getAttribute('aria-expanded');` ) ).toBe( 'false' );
+}
+
+/**
  * Waits for and activates Continue on the real interruption document.
  * @param {object} browser - Installed browser driver.
  * @since 1.0.1
