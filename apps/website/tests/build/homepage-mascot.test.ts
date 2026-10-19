@@ -332,6 +332,54 @@ test.describe( 'homepage riverside hero', () => {
 		}
 	}
 
+	test.describe( 'mobile browser controls', () => {
+		test.use( { contextOptions: { isMobile: true, hasTouch: true } } );
+
+		for ( const viewport of [
+			{ width: 390, smallHeight: 744, largeHeight: 844 },
+			{ width: 844, smallHeight: 340, largeHeight: 390 },
+		] ) {
+			test( `${ String( viewport.width ) }: expanding and collapsing browser controls keeps the hero and shoreline stable`, async ( { page } ) => {
+				await page.emulateMedia( { reducedMotion: MotionPreference.REDUCE } );
+				await page.setViewportSize( { width: viewport.width, height: viewport.smallHeight } );
+				const session = await page.context().newCDPSession( page );
+				await session.send( 'Emulation.setSmallViewportHeightDifferenceOverride', { difference: 0 } );
+				await page.route( '**/*', serveAsset );
+				await page.goto( 'http://website.test/' );
+				await page.evaluate( () => document.fonts.ready );
+				const hero = page.locator( '.hero' );
+				const before = await hero.boundingBox();
+				if ( before === null ) {
+					throw new Error( 'The hero must have layout before the browser controls collapse.' );
+				}
+				for ( const height of [ viewport.largeHeight, viewport.smallHeight ] ) {
+					await page.setViewportSize( { width: viewport.width, height } );
+					// Keep the small viewport fixed while the visible viewport follows the browser controls.
+					await session.send( 'Emulation.setSmallViewportHeightDifferenceOverride', {
+						difference: height - viewport.smallHeight,
+					} );
+					await expect.poll( async () => ( await hero.boundingBox() )?.height ).toBe( before.height );
+					const shoreline = await page.locator( '.hero-shore-transition' ).boundingBox();
+					expect( shoreline?.y ).toBeCloseTo( viewport.smallHeight, 0 );
+					for ( const layer of [ '.riverside-hero img', '.riverside-hero canvas' ] ) {
+						const bounds = await page.locator( layer ).boundingBox();
+						expect( bounds?.height ).toBe( before.height );
+						expect( bounds?.width ).toBe( before.width );
+					}
+					for ( const control of [ page.getByRole( 'heading', { level: 1 } ),
+						page.locator( '.hero [data-download-primary]' ) ] ) {
+						await expect( control ).toBeInViewport();
+						const bounds = await control.boundingBox();
+						expect( bounds !== null && bounds.y + bounds.height <= viewport.smallHeight ).toBe( true );
+					}
+					expect( await page.evaluate(
+						() => document.documentElement.scrollWidth <= innerWidth,
+					) ).toBe( true );
+				}
+			} );
+		}
+	} );
+
 	test( 'a failed model request keeps the poster and a keyboard-accessible download', async ( { page } ) => {
 		await page.route( '**/*', async ( route ) => {
 			if ( /\.(?:glb|gltf)(?:\?|$)/u.test( route.request().url() ) ) {
