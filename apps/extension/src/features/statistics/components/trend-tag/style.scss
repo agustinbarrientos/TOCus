@@ -1,0 +1,31 @@
+@use '@tocus/theme/typography' as typography;
+
+[data-tocus-ui] .settings-statistics-trend-tag {
+	--tocus-typography-label-medium-line-height: 1.45;
+
+	display: inline-flex;
+	align-items: center;
+	max-width: 100%;
+	gap: .4rem;
+	padding: .25rem .5rem;
+	border-radius: .25rem;
+	color: var(--tocus-color-on-surface);
+	background: color-mix(in srgb, var(--tocus-color-action) 20%, var(--tocus-color-surface));
+	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tocus-color-action) 14%, transparent);
+
+	@include typography.apply('label-medium');
+
+	text-align: start;
+	cursor: default;
+
+	&:focus-visible {
+		outline: 2px solid var(--tocus-color-action);
+		outline-offset: 3px;
+	}
+
+	.tocus-icon {
+		width: 1rem;
+		height: 1rem;
+		flex: 0 0 auto;
+	}
+}
