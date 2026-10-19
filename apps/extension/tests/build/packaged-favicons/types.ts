@@ -30,6 +30,8 @@ export interface FaviconTestFixture {
  * @since 1.0.0 Initial implementation.
  */
 export interface PackagedFaviconFixtures {
+	/** Whether legacy bookmark regressions receive their test-only permission. */
+	legacyBookmarks: boolean;
 	/** Disposable packaged installation with a real native favicon cache. */
 	favicon: FaviconTestFixture;
 }

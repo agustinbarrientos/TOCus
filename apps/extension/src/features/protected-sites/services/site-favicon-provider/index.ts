@@ -28,7 +28,9 @@ function isPng( image: Uint8Array | null ): image is Uint8Array {
  */
 async function readLocalImage( source: string ): Promise<Uint8Array | null> {
 	const response = await fetch( source, { redirect: 'error' } );
-	if ( ! response.ok || ! response.headers.get( 'Content-Type' )?.startsWith( 'image/png' ) ) {
+	const contentType = response.headers.get( 'Content-Type' );
+	// Chromium can omit this header for native favicons; readImage still validates the PNG bytes.
+	if ( ! response.ok || ( contentType !== null && ! contentType.startsWith( 'image/png' ) ) ) {
 		return null;
 	}
 	return new Uint8Array( await response.arrayBuffer() );

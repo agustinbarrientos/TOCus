@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Alert, Avatar, Brand, Button, Checkbox, Icon, IconName, Loader, Modal, NativeSelect, NavLink, Portal, Radio, Select, Slider, Stack, Stepper, TextInput, Title, TocusProvider, TocusAppearance, TocusPalette } from '../../src';
+import { Alert, Avatar, Brand, Button, Checkbox, Icon, IconName, Loader, Modal, NativeSelect, NavLink, Portal, Radio, Select, Slider, Stack, Stepper, Switch, TextInput, Title, TocusProvider, TocusAppearance, TocusPalette } from '../../src';
 import avatarImage from '../../../theme/assets/icon.svg?url';
 import '../../src/components/provider/style.scss';
 import { FixtureChoice, FixtureFrequency, FixtureMediaMode } from './types';
@@ -72,6 +72,10 @@ function Fixture() {
 				</div>
 			</form>
 			<output role="status">{result}</output>
+			<Switch size="sm" label="Compare with previous period" styles={ { label: {
+				fontSize: 'var(--tocus-typography-body-small-font-size)',
+				lineHeight: 'var(--tocus-typography-body-small-line-height)',
+			} } } />
 			<Stack className="tocus-section" align="flex-start">
 				<Button className="tocus-native-button" onClick={ () => {
 					setActivations( ( count ) => count + 1 );

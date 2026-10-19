@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 import { PNG } from 'pngjs';
 import { expect, test as base, type Page } from '@playwright/test';
 import type { ExtensionManifest, ExtensionWorkerGlobal, FaviconTestFixture, PackagedFaviconFixtures } from './types';
+import { DefaultPreferencesDocument, Language } from '../../../src/domains/preferences/types';
+import { createMockStatisticsDocument } from '../../../src/domains/statistics/types/__fixtures__/statistics-document';
 
 /**
  * Creates a distinctive website icon unrelated to any TOCus artwork.
@@ -63,13 +65,15 @@ async function readCachedFavicon( fixture: FaviconTestFixture, pageUrl: string )
 }
 
 const test = base.extend<PackagedFaviconFixtures>( {
+	legacyBookmarks: [ true, { option: true } ],
 	/**
 	 * Owns the packaged browser, profile, and loopback server through acquisition and teardown.
 	 * @param root0 - Browser runner dependencies.
 	 * @param root0.playwright - Instrumented browser APIs retaining configured diagnostics.
+	 * @param root0.legacyBookmarks - Whether the legacy scenarios need bookmark access.
 	 * @param use - Runs one scenario with its disposable installation.
 	 */
-	favicon: async ( { playwright }, use ) => {
+	favicon: async ( { playwright, legacyBookmarks }, use ) => {
 		const server = createServer( ( request, response ) => {
 			if ( request.url === '/favicon.png' ) {
 				response.writeHead( 200, { 'Content-Type': 'image/png' } );
@@ -94,7 +98,8 @@ const test = base.extend<PackagedFaviconFixtures>( {
 			expect( manifest.permissions ).not.toContain( 'bookmarks' );
 			// Retain every production icon: manifest fallback must participate in this regression.
 			// Bookmarks and synthetic host access belong only to this disposable installation.
-			manifest.permissions = [ ...manifest.permissions ?? [], ...manifest.optional_permissions ?? [], 'bookmarks' ];
+			manifest.permissions = [ ...manifest.permissions ?? [], ...manifest.optional_permissions ?? [],
+				...legacyBookmarks ? [ 'bookmarks' as const ] : [] ];
 			manifest.host_permissions = [ '*://*.example.test/*' ];
 			delete manifest.optional_permissions;
 			await writeFile( manifestPath, JSON.stringify( manifest ) );
@@ -110,7 +115,8 @@ const test = base.extend<PackagedFaviconFixtures>( {
 			if ( address === null || typeof address === 'string' ) {
 				throw new Error( 'The synthetic favicon server is unavailable.' );
 			}
-			const siteUrl = `http://example.test:${ String( address.port ) }/`;
+			const port = address.port;
+			const siteUrl = 'http://example.test/';
 
 			/**
 			 * Opens the same test-owned profile and reinstalls its loopback-only network boundary.
@@ -124,7 +130,7 @@ const test = base.extend<PackagedFaviconFixtures>( {
 					timeout: 10_000,
 					args: [
 						`--disable-extensions-except=${ extensionPath }`, `--load-extension=${ extensionPath }`,
-						'--host-resolver-rules=MAP example.test 127.0.0.1', '--no-proxy-server',
+						`--host-resolver-rules=MAP example.test 127.0.0.1:${ String( port ) }`, '--no-proxy-server',
 					],
 				} );
 				await context.route( /^https?:\/\//u, ( route ) => {
@@ -289,6 +295,60 @@ async function openReadyPause( fixture: FaviconTestFixture ): Promise<Page> {
 	await pause.getByRole( 'button', { name: 'Continue', exact: true } ).waitFor( { state: 'visible', timeout: 15_000 } );
 	return pause;
 }
+
+test.describe( 'packaged Chrome Settings favicons', () => {
+	test.use( { legacyBookmarks: false } );
+
+	test( 'renders a native cached website icon in Websites and Statistics', async ( { favicon: fixture } ) => {
+		const websiteHash = createHash( 'sha256' ).update( createWebsiteIcon().data ).digest( 'hex' );
+		const website = await fixture.context.newPage();
+
+		await website.goto( fixture.siteUrl );
+		await expect.poll( () => readCachedFavicon( fixture, fixture.siteUrl ) ).toBe( websiteHash );
+		await website.close();
+		await enableProtection( fixture );
+		const today = await fixture.worker.evaluate( () => new Intl.DateTimeFormat( 'en-CA', {
+			year: 'numeric', month: '2-digit', day: '2-digit',
+		} ).format( new Date() ) );
+		const totals = { reconsideredVisitCount: 1, completedWaitCount: 0, allowanceGrantedCount: 0,
+			estimatedReclaimedMilliseconds: 0, focusedPauseMilliseconds: 0 };
+		await fixture.worker.evaluate( async ( seed ) => {
+			const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+			await chrome.storage.local.set( seed );
+		}, {
+			'tocus.preferences.v1': { ...DefaultPreferencesDocument, language: Language.ENGLISH },
+			'tocus.statistics.v1': {
+				...createMockStatisticsDocument(), firstRecordedDate: today,
+				dailyTotals: [ { date: today, ...totals } ],
+				scopes: { scope_default: { totals } },
+				visitOutcomes: {
+					recordedFromDate: today,
+					dailySites: [ { date: today, siteHost: 'example.test', reconsideredVisitCount: 1, visitedAfterPauseCount: 0 } ],
+					dailyHours: [ { date: today, hour: 12, reconsideredVisitCount: 1 } ],
+				},
+			},
+		} );
+		// Restart the runtime so its in-memory statistics read the stored fixture.
+		await fixture.restartBrowser();
+		await fixture.reader.getByRole( 'link', { name: 'Websites', exact: true } ).click();
+		const websiteIcon = fixture.reader.locator( '.settings-site-item img' );
+		await expect( websiteIcon ).toBeVisible();
+		await expect.poll( () => websiteIcon.evaluate( ( image: HTMLImageElement ) =>
+			image.complete && image.naturalWidth === 32 ) ).toBe( true );
+		const websiteSource = await websiteIcon.evaluate( ( image: HTMLImageElement ) => image.src );
+		expect( websiteSource ).toContain( `${ fixture.extensionRoot }_favicon/` );
+		expect( await readImageHash( fixture.reader, websiteSource ) ).toBe( websiteHash );
+
+		await fixture.reader.getByRole( 'link', { name: 'Statistics', exact: true } ).click();
+		const statisticsIcon = fixture.reader.locator( '.settings-statistics-site-list [data-site="example.test"] img' );
+		await expect( statisticsIcon ).toBeVisible();
+		await expect.poll( () => statisticsIcon.evaluate( ( image: HTMLImageElement ) =>
+			image.complete && image.naturalWidth === 32 ) ).toBe( true );
+		const statisticsSource = await statisticsIcon.evaluate( ( image: HTMLImageElement ) => image.src );
+		expect( statisticsSource ).toBe( websiteSource );
+		expect( await readImageHash( fixture.reader, statisticsSource ) ).toBe( websiteHash );
+	} );
+} );
 
 test.describe( 'packaged Chrome favicon preservation', () => {
 	for ( const legacyState of [ false, true ] ) {
