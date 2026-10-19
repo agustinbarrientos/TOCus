@@ -337,6 +337,13 @@ test.describe( 'React pause', () => {
 						throw new Error( 'Expected the preview breathing cue and artwork.' );
 					}
 					return { artwork: { width: canvas.width, height: canvas.height }, count: buttons.length,
+						measurements: buttons.map( ( button ) => {
+							const box = button.getBoundingClientRect();
+							return { left: box.left, right: box.right, top: box.top, bottom: box.bottom,
+								clientWidth: button.clientWidth, scrollWidth: button.scrollWidth };
+						} ),
+						bounds: { left: bounds.left, right: bounds.right, bottom: bounds.bottom },
+						artworkBottom: canvas.bottom,
 						contained: buttons.every( ( button ) => {
 							const box = button.getBoundingClientRect();
 							return box.left >= bounds.left && box.right <= bounds.right &&
@@ -345,7 +352,7 @@ test.describe( 'React pause', () => {
 						} ), cueBeforeArtwork: cue.bottom <= canvas.top };
 				}, { viewport, count } );
 				expect( result.count ).toBe( count );
-				expect( result.contained ).toBe( true );
+				expect( result.contained, JSON.stringify( result ) ).toBe( true );
 				expect( result.cueBeforeArtwork ).toBe( true );
 				expect( result.artwork.height ).toBeGreaterThan( 0 );
 				sizes.push( result.artwork );

@@ -606,6 +606,9 @@ footer {
 
 		.focus-link-label {
 			height: auto;
+
+			// Reserve glyph ink around fractional wrapped line boxes in every browser.
+			padding: sizing.size(0.0625);
 			white-space: normal;
 		}
 	}
