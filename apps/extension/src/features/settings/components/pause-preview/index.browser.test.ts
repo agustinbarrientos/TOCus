@@ -125,20 +125,37 @@ test.describe( 'Settings breathing preview', () => {
 					const canvas = root?.querySelector( 'tocus-f-breathing-sphere' )?.shadowRoot
 						?.querySelector( 'canvas' )?.getBoundingClientRect();
 					const viewport = element.querySelector( '.settings-pause-preview-viewport' )?.getBoundingClientRect();
-					if ( ! canvas || ! viewport ) {
+					const cue = root?.querySelector( '.cue' )?.getBoundingClientRect();
+					if ( ! canvas || ! viewport || ! cue ) {
 						throw new Error( 'Expected a contained preview drawing surface.' );
 					}
 					return { width: canvas.width, height: canvas.height,
-						artworkBottom: canvas.bottom, viewportBottom: viewport.bottom,
+						artworkTop: canvas.top, artworkBottom: canvas.bottom, cueBottom: cue.bottom,
+						viewportBottom: viewport.bottom,
 						buttons: [ ...root?.querySelectorAll( '.focus-link-button' ) ?? [] ].map( ( button ) => {
 							const bounds = button.getBoundingClientRect();
-							return { top: bounds.top, bottom: bounds.bottom };
+							const label = button.querySelector<HTMLElement>( '.focus-link-label' );
+							if ( ! label ) {
+								throw new Error( 'Expected the complete preview shortcut label.' );
+							}
+							const labelBounds = label.getBoundingClientRect();
+							return { top: bounds.top, bottom: bounds.bottom,
+								clientHeight: button.clientHeight, scrollHeight: button.scrollHeight,
+								label: { top: labelBounds.top, bottom: labelBounds.bottom,
+									clientHeight: label.clientHeight, scrollHeight: label.scrollHeight,
+									clientWidth: label.clientWidth, scrollWidth: label.scrollWidth } };
 						} ) };
 				} );
 				expect( geometry.height ).toBeGreaterThan( 0 );
+				expect( geometry.cueBottom ).toBeLessThanOrEqual( geometry.artworkTop );
 				for ( const button of geometry.buttons ) {
 					expect( button.top ).toBeGreaterThanOrEqual( geometry.artworkBottom );
 					expect( button.bottom ).toBeLessThanOrEqual( geometry.viewportBottom );
+					expect( button.scrollHeight ).toBeLessThanOrEqual( button.clientHeight );
+					expect( button.label.top ).toBeGreaterThanOrEqual( button.top );
+					expect( button.label.bottom ).toBeLessThanOrEqual( button.bottom );
+					expect( button.label.scrollHeight ).toBeLessThanOrEqual( button.label.clientHeight );
+					expect( button.label.scrollWidth ).toBeLessThanOrEqual( button.label.clientWidth );
 				}
 				sizes.push( { width: geometry.width, height: geometry.height } );
 			}

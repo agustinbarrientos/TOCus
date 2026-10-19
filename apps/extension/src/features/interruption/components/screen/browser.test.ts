@@ -309,7 +309,7 @@ test.describe( 'React pause', () => {
 			container.append( screen );
 			await screen.updateComplete;
 		} );
-		for ( const viewport of [ { width: 320, height: 240 }, { width: 384, height: 288 } ] ) {
+		for ( const viewport of [ { width: 288, height: 336 }, { width: 384, height: 336 } ] ) {
 			const sizes = [];
 			for ( const count of [ 0, 1, 3 ] ) {
 				const result = await page.evaluate( async ( { viewport, count } ) => {

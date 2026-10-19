@@ -580,7 +580,9 @@ footer {
 	}
 
 	.focus-links {
-		--tocus-typography-label-large-font-size: clamp(#{sizing.size(0.5625)}, 3.75cqh, #{sizing.size(0.6875)});
+		--tocus-button-height: auto;
+		--tocus-focus-link-padding-inline: #{sizing.size(0.5)};
+		--tocus-typography-label-large-font-size: clamp(#{sizing.size(0.5625)}, 2.5cqw, #{sizing.size(0.6875)});
 		--tocus-typography-label-large-line-height: 1.2;
 
 		padding: sizing.size(0.25) 0 sizing.size(0.5);
@@ -598,6 +600,10 @@ footer {
 		flex: 0 1 auto;
 		padding: sizing.size(0.25) sizing.size(0.5);
 		white-space: normal;
+
+		.focus-link-inner {
+			height: auto;
+		}
 
 		.focus-link-label {
 			height: auto;
