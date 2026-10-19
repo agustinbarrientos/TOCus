@@ -2,7 +2,7 @@
 
 ## 1.1.0 - Unreleased
 
-- Changed: Redesigned Statistics around the current week, with selectable daily activity, website visit outcomes, local-hour reconsideration counts, explicit empty states, and left-aligned mobile outcome legends. New breakdowns stay on the device, are included in backups, and start from the upgrade without reconstructing earlier history (Chrome, Edge, Firefox).
+- Changed: Redesigned Statistics around the current week, with selectable daily activity, website visit outcomes, consistent saved website icons and names, readable hourly tooltip times, explicit empty states, and left-aligned mobile outcome legends. New breakdowns stay on the device, are included in backups, and start from the upgrade without reconstructing earlier history (Chrome, Edge, Firefox).
 - Fixed: Enlarging Settings text no longer doubles the page's minimum width on narrow screens (Chrome, Edge, Firefox).
 
 - Added: Up to three optional quick links on both pause screens, managed in Quick links below Schedule in Settings using compact website rows and add/edit dialogs, with keyboard reorder controls and backup support. Shortcuts preserve the breathing artwork's original size and appear without an extra heading (Chrome, Edge, Firefox).

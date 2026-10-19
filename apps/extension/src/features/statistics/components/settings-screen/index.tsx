@@ -107,11 +107,11 @@ export function Statistics( props: SettingsScreenProps ) {
 			const hosts = new Set( projection?.visitOutcomes?.dailySites.map( ( site ) => site.siteHost ) ?? [] );
 			const identities = new Map<string, StatisticsSiteIdentity>();
 			for ( const siteHost of hosts ) {
-				const configured = configuration?.sites.find( ( site ) => site.identityHost === siteHost );
+				const configured = configuration?.sites.find( ( site ) => site.rule.host === siteHost );
 				const identity = resolveSiteDisplayIdentity( configured ?? { identityHost: siteHost,
 					rule: { host: siteHost, includeSubdomains: false, scopeId: DefaultProtectionScopeId } } );
 				identities.set( siteHost, { name: identity.name, monogram: identity.monogram,
-					favicon: props.shell.faviconProvider?.getSource( siteHost ) ?? null } );
+					favicon: props.shell.faviconProvider?.getSource( configured?.identityHost ?? siteHost ) ?? null } );
 			}
 			if ( active ) {
 				setSiteIdentities( identities );
