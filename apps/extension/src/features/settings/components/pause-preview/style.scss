@@ -46,7 +46,7 @@
 	@container settings-preview (width >= 54rem) {
 		.settings-preview-layout {
 			grid-template-columns: minmax(0, 1fr) 20rem;
-			min-height: calc(100dvh - 12rem);
+			min-height: calc(100dvh - 2 * var(--tocus-settings-content-padding) - var(--tocus-typography-headline-large-line-height) - var(--tocus-space-6));
 		}
 
 		.settings-pause-preview {

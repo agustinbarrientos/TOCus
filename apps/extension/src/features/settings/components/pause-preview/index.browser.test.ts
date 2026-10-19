@@ -73,8 +73,8 @@ test.describe( 'Settings breathing preview', () => {
 			const page = await open( destination );
 			const preview = page.locator( '.settings-pause-preview' );
 			const form = page.locator( 'main form' );
-			for ( const viewport of [ { width: 1280, height: 900 }, { width: 320, height: 900 },
-				{ width: 1280, height: 400 } ] ) {
+			for ( const viewport of [ { width: 1280, height: 900 }, { width: 1440, height: 900 },
+				{ width: 320, height: 900 }, { width: 1280, height: 400 } ] ) {
 				await page.setViewportSize( viewport );
 				await expect( preview ).toBeVisible();
 				const bounds = await preview.boundingBox();
@@ -83,9 +83,11 @@ test.describe( 'Settings breathing preview', () => {
 					throw new Error( 'Expected the preference form and its contained preview.' );
 				}
 				if ( viewport.width >= 1280 && viewport.height >= 900 ) {
+					const documentHeight = await page.evaluate( () => document.documentElement.scrollHeight );
+					expect( documentHeight ).toBe( viewport.height );
 					expect( bounds.x ).toBeGreaterThanOrEqual( controls.x + controls.width + 24 );
 					expect( bounds.y + bounds.height ).toBeLessThanOrEqual( viewport.height );
-					expect( bounds.y ).toBeGreaterThan( viewport.height / 2 );
+					expect( bounds.y + bounds.height ).toBeGreaterThan( viewport.height - 100 );
 				} else {
 					expect( bounds.y ).toBeGreaterThanOrEqual( controls.y + controls.height + 24 );
 				}
