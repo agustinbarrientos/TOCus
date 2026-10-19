@@ -299,10 +299,6 @@ msgstr "青"
 msgid "Brasil"
 msgstr "Brasil"
 
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Breakdowns recorded from {recordedDate}."
-msgstr "{recordedDate}からの内訳を記録しています。"
-
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Breathe in"
 msgstr "息を吸って"
