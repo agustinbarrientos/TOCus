@@ -299,10 +299,6 @@ msgstr "Blau"
 msgid "Brasil"
 msgstr "Brasil"
 
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Breakdowns recorded from {recordedDate}."
-msgstr "Aufschlüsselungen werden seit dem {recordedDate} erfasst."
-
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Breathe in"
 msgstr "Einatmen"
