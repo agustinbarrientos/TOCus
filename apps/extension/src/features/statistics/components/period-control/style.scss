@@ -1,0 +1,20 @@
+@use '@tocus/theme/typography' as typography;
+
+[data-tocus-ui] .settings-statistics-period-menu {
+	display: grid;
+	gap: var(--tocus-space-4);
+	max-width: calc(100vw - var(--tocus-space-6));
+	padding: var(--tocus-space-5);
+	border-radius: var(--tocus-radius-small);
+	border: 1px solid var(--tocus-color-outline);
+	background: var(--tocus-color-surface);
+	color: var(--tocus-color-on-surface);
+	box-shadow: 0 .25rem .65rem color-mix(in srgb, var(--tocus-color-shadow-depth) 8%, transparent),
+		0 1rem 2.25rem color-mix(in srgb, var(--tocus-color-shadow-depth) 16%, transparent);
+
+	.settings-statistics-comparison-switch-label {
+		@include typography.apply('body-small');
+
+		color: var(--tocus-color-on-surface);
+	}
+}
