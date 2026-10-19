@@ -1,5 +1,6 @@
 @use 'sass:meta';
 @use 'shared';
+@use 'summary-button';
 @use '@tocus/theme/font';
 
 @include shared.styles {
