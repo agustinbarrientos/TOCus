@@ -225,6 +225,8 @@ class MemorySettingsShell implements SettingsPageShell {
 
 	permissionManager: SettingsPageShell[ 'permissionManager' ] = null;
 
+	pausePreviewCopy!: SettingsPageShell['pausePreviewCopy'];
+
 	platform: SettingsPageShell[ 'platform' ] = SettingsPlatform.CHROME;
 
 	preferencesEditor: SettingsPageShell[ 'preferencesEditor' ] = null;
@@ -374,6 +376,10 @@ describe( 'startSettingsPage', () => {
 		expect( shell.appearanceCopy ).toBe( TestEnglishLocalizationBundle.appearance );
 		expect( shell.languageCopy ).toBe( TestEnglishLocalizationBundle.languageScreen );
 		expect( shell.focusLinksCopy ).toBe( TestEnglishLocalizationBundle.focusLinksCopy );
+		expect( shell.pausePreviewCopy ).toEqual( {
+			title: TestEnglishLocalizationBundle.onboarding.appearance.previewTitle,
+			screen: TestEnglishLocalizationBundle.interruption,
+		} );
 		expect( shell.protectedSitesCopy ).toBe( TestEnglishLocalizationBundle.protectedSites );
 		expect( shell.protectedSiteItemCopy ).toBe( TestEnglishLocalizationBundle.protectedSiteItem );
 		expect( shell.scheduleCopy ).toBe( TestEnglishLocalizationBundle.schedule );
@@ -393,6 +399,11 @@ describe( 'startSettingsPage', () => {
 		loadLocalization.mockClear();
 		const localizedBundle = {
 			...TestEnglishLocalizationBundle,
+			onboarding: {
+				...TestEnglishLocalizationBundle.onboarding,
+				appearance: { ...TestEnglishLocalizationBundle.onboarding.appearance, previewTitle: 'Localized preview' },
+			},
+			interruption: { ...TestEnglishLocalizationBundle.interruption, breatheIn: 'Localized breathing cue' },
 			aboutCopy: { ...TestEnglishLocalizationBundle.aboutCopy, eyebrow: 'About localized' },
 			privacyCopy: { ...TestEnglishLocalizationBundle.privacyCopy, title: 'Privacy localized' },
 			focusLinksCopy: { ...TestEnglishLocalizationBundle.focusLinksCopy, title: 'Focus links localized' },
@@ -408,6 +419,10 @@ describe( 'startSettingsPage', () => {
 		expect( shell.privacyCopy ).toBe( localizedBundle.privacyCopy );
 		expect( shell.backupResetCopy ).toBe( localizedBundle.backupResetCopy );
 		expect( shell.focusLinksCopy ).toBe( localizedBundle.focusLinksCopy );
+		expect( shell.pausePreviewCopy ).toEqual( {
+			title: localizedBundle.onboarding.appearance.previewTitle,
+			screen: localizedBundle.interruption,
+		} );
 	} );
 
 	it( 'sends confirmed privacy resets through the supplied runtime only', async () => {

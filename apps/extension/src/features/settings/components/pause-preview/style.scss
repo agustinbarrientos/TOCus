@@ -1,0 +1,35 @@
+.settings-preview-container {
+	padding-bottom: 19rem;
+}
+
+:root:has(.settings-preview-container) {
+	scroll-padding-top: 5rem;
+	scroll-padding-bottom: 19rem;
+}
+
+.settings-pause-preview {
+	--tocus-preview-sphere-height: 58cqh;
+	--tocus-preview-sphere-max-height: 58cqh;
+	--tocus-preview-link-bottom-space: 6cqh;
+	--tocus-preview-link-wrap: nowrap;
+
+	right: 1rem;
+
+	// Fit the complete, inert screen inside the shared landscape browser frame.
+	.pause-preview-screen {
+		width: 200%;
+		height: 200%;
+		transform: scale(0.5);
+		transform-origin: top left;
+	}
+}
+
+@media (width <= 60rem) {
+	.settings-preview-container { padding-bottom: 17rem; }
+	:root:has(.settings-preview-container) { scroll-padding-bottom: 17rem; }
+}
+
+@media (width >= 106rem) {
+	.settings-preview-container { padding-bottom: 0; }
+	:root:has(.settings-preview-container) { scroll-padding-bottom: 0; }
+}

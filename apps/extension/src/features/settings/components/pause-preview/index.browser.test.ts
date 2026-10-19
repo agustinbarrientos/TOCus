@@ -1,0 +1,266 @@
+import { expect } from '@playwright/test';
+import { Language, Palette, PauseMode, ThemeMode } from '../../../../domains/preferences/types';
+import { SettingsDestination } from '../../services/settings-navigation/types';
+import { test } from '../../utils/browser-test-harness';
+
+test.describe( 'Settings breathing preview', () => {
+	test( 'renders applied shortcut drafts in order and reverses them on Discard without saving', async ( { open } ) => {
+		const page = await open( SettingsDestination.FOCUS_LINKS );
+		const preview = page.locator( '.settings-pause-preview' );
+		await expect( preview ).toBeVisible();
+		const links = preview.locator( '.focus-link-button' );
+		const initial = await page.evaluate( () => window.settingsTest.getStatistics() );
+		for ( const label of [ 'Read', 'Write' ] ) {
+			await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
+			const dialog = page.getByRole( 'dialog', { name: 'Add site', exact: true } );
+			await dialog.getByLabel( 'Label', { exact: true } ).fill( label );
+			await dialog.getByLabel( 'Web address', { exact: true } ).fill( 'https://example.com/' );
+			await expect( links ).toHaveCount( label === 'Read' ? 0 : 1 );
+			await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
+		}
+		await expect( links ).toHaveText( [ 'Read', 'Write' ] );
+		await page.locator( '.settings-site-item' ).nth( 1 ).getByRole( 'button', { name: 'Move up', exact: true } ).click();
+		await expect( links ).toHaveText( [ 'Write', 'Read' ] );
+		await page.locator( '.settings-site-item' ).first().getByRole( 'button', { name: 'Edit link', exact: true } ).click();
+		const editor = page.getByRole( 'dialog', { name: 'Edit link', exact: true } );
+		await editor.getByLabel( 'Label', { exact: true } ).fill( 'Cancelled edit' );
+		await editor.getByRole( 'button', { name: 'Cancel', exact: true } ).click();
+		await expect( links ).toHaveText( [ 'Write', 'Read' ] );
+		await page.locator( '.settings-site-item' ).first().getByRole( 'button', { name: 'Edit link', exact: true } ).click();
+		await editor.getByLabel( 'Label', { exact: true } ).fill( 'Plan' );
+		await editor.getByRole( 'button', { name: 'Done', exact: true } ).click();
+		await expect( links ).toHaveText( [ 'Plan', 'Read' ] );
+		await page.locator( '.settings-site-item' ).first().getByRole( 'button', { name: 'Remove link', exact: true } ).click();
+		await expect( links ).toHaveText( [ 'Read' ] );
+		await page.getByRole( 'button', { name: 'Discard', exact: true } ).click();
+		await expect( links ).toHaveCount( 0 );
+		expect( await page.evaluate( () => window.settingsTest.getPreferences().focusLinks ) ).toEqual( [] );
+		expect( await page.evaluate( () => window.settingsTest.getStatistics() ) ).toEqual( initial );
+		expect( await page.evaluate( () =>
+			[ window.settingsTest.controls.writes, window.settingsTest.controls.requests ] ) ).toEqual( [ 0, 0 ] );
+	} );
+
+	test( 'shows unsaved appearance, pause mode, external shortcuts and reduced motion in the real renderer', async ( { page, open } ) => {
+		await page.emulateMedia( { reducedMotion: 'reduce' } );
+		await open( SettingsDestination.APPEARANCE );
+		const preview = page.locator( '.settings-pause-preview' );
+		await expect( preview.locator( 'canvas' ) ).toBeVisible();
+		await page.getByRole( 'radio', { name: 'Dark', exact: true } ).click();
+		await page.getByRole( 'radio', { name: 'Purple', exact: true } ).click();
+		await expect( preview ).toHaveAttribute( 'data-tocus-theme', 'dark' );
+		await expect( preview ).toHaveAttribute( 'data-tocus-palette', 'purple' );
+		await expect.poll( () => preview.locator( 'tocus-f-interruption-screen' ).evaluate( ( screen ) =>
+			( screen as HTMLElementTagNameMap['tocus-f-interruption-screen'] ).reducedMotion ) ).toBe( true );
+		await page.locator( 'input[value="quiet"]' ).check();
+		await expect( preview.locator( '.cue' ) ).toHaveText( 'Take a moment' );
+		await expect.poll( () => preview.locator( 'tocus-f-interruption-screen' ).evaluate( ( screen ) =>
+			( screen as HTMLElementTagNameMap['tocus-f-interruption-screen'] ).mode ) ).toBe( 'quiet' );
+		await page.evaluate( () => {
+			window.settingsTest.externalPreferences( { focusLinks: [
+				{ id: 'focus_link_read', label: 'Read', url: 'https://example.com/' },
+			] } );
+		} );
+		await expect( preview.locator( '.focus-link-button' ) ).toHaveText( [ 'Read' ] );
+		await page.getByRole( 'button', { name: 'Discard', exact: true } ).click();
+		await expect( preview ).toHaveAttribute( 'data-tocus-theme', 'light' );
+		await expect( preview ).toHaveAttribute( 'data-tocus-palette', 'brown' );
+		await expect( preview.locator( 'canvas' ) ).toBeVisible();
+		expect( await page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 0 );
+	} );
+
+	for ( const destination of [ SettingsDestination.APPEARANCE, SettingsDestination.FOCUS_LINKS ] ) {
+		test( `keeps ${ destination } controls clear of the preview across screen sizes`, async ( { open } ) => {
+			const page = await open( destination );
+			const preview = page.locator( '.settings-pause-preview' );
+			const form = page.locator( 'main form' );
+			if ( destination === SettingsDestination.FOCUS_LINKS ) {
+				await page.evaluate( () => {
+					window.settingsTest.externalPreferences( { focusLinks: [
+						{ id: 'focus_link_read', label: 'Read a chapter', url: 'https://example.com/read' },
+						{ id: 'focus_link_tasks', label: 'My tasks', url: 'https://example.com/tasks' },
+						{ id: 'focus_link_project', label: 'Current project', url: 'https://example.com/project' },
+					] } );
+				} );
+			}
+			for ( const viewport of [ { width: 1280, height: 900 }, { width: 1440, height: 900 },
+				{ width: 320, height: 900 }, { width: 812, height: 375 }, { width: 320, height: 400 } ] ) {
+				await page.setViewportSize( viewport );
+				await expect( preview ).toBeVisible();
+				await expect( preview ).toHaveCSS( 'position', 'fixed' );
+				const browser = preview.locator( '.pause-preview-browser' );
+				await expect( browser ).toBeVisible();
+				const bounds = await preview.boundingBox();
+				const frame = await browser.boundingBox();
+				const controls = await form.boundingBox();
+				const content = await page.locator( '.settings-page' ).boundingBox();
+				if ( ! bounds || ! frame || ! controls || ! content ) {
+					throw new Error( 'Expected full-width controls and a floating browser preview.' );
+				}
+				expect( controls.width ).toBeCloseTo( content.width, 2 );
+				expect( frame.width / frame.height ).toBeCloseTo( 16 / 10, 2 );
+				expect( viewport.width - bounds.x - bounds.width ).toBeCloseTo( 16, 2 );
+				expect( viewport.height - bounds.y - bounds.height ).toBeCloseTo( 16, 2 );
+				await page.evaluate( () => {
+					window.scrollTo( 0, document.documentElement.scrollHeight );
+				} );
+				const afterScroll = await preview.boundingBox();
+				expect( afterScroll?.x ).toBeCloseTo( bounds.x, 2 );
+				expect( afterScroll?.y ).toBeCloseTo( bounds.y, 2 );
+				const targets = [ page.getByRole( 'button', { name: 'Save', exact: true } ),
+					page.getByRole( 'button', { name: 'Discard', exact: true } ),
+					...await page.locator( '.settings-site-actions button, input[value="quiet"]' ).all() ];
+				for ( const action of targets ) {
+					await action.evaluate( ( element ) => {
+						element.scrollIntoView( { block: 'center' } );
+					} );
+					const box = await action.boundingBox();
+					if ( ! box ) {
+						throw new Error( 'Expected the draft action to remain reachable.' );
+					}
+					expect( box.y + box.height <= bounds.y || box.x + box.width <= bounds.x ).toBe( true );
+					const navigation = await page.locator( '.settings-navigation' ).boundingBox();
+					if ( ! navigation ) {
+						throw new Error( 'Expected the Settings navigation.' );
+					}
+					const clearOfNavigation = box.y >= navigation.y + navigation.height ||
+							box.x >= navigation.x + navigation.width;
+					expect( clearOfNavigation ).toBe( true );
+					expect( box.y ).toBeGreaterThanOrEqual( 0 );
+					expect( box.y + box.height ).toBeLessThanOrEqual( viewport.height );
+				}
+				expect( await page.evaluate( () => document.documentElement.scrollWidth ) ).toBe( viewport.width );
+				await page.screenshot( { path: test.info().outputPath(
+					`${ destination }-${ String( viewport.width ) }-${ String( viewport.height ) }.png`,
+				), fullPage: true } );
+			}
+			await expect( preview.locator( '[aria-hidden="true"][inert]' ) ).toHaveCount( 1 );
+			await page.getByRole( 'heading', { level: 1 } ).focus();
+			for ( let step = 0; step < 14; step++ ) {
+				await page.keyboard.press( 'Tab' );
+				expect( await preview.evaluate( ( element ) =>
+					element.contains( document.activeElement ) ) ).toBe( false );
+			}
+		} );
+	}
+
+	test( 'keeps real pause proportions and spacing with zero, one or three long shortcuts', async ( { open, context } ) => {
+		const reference = await context.newPage();
+		await reference.setViewportSize( { width: 1280, height: 800 } );
+		await reference.goto( '/apps/extension/src/features/interruption/components/screen/__fixtures__/browser.html' );
+		await expect( reference.locator( 'canvas' ) ).toBeVisible();
+		const referenceCanvas = await reference.locator( 'canvas' ).boundingBox();
+		if ( ! referenceCanvas ) {
+			throw new Error( 'Expected the production pause drawing surface.' );
+		}
+		const referenceRatio = referenceCanvas.height / 800;
+		await reference.close();
+		const page = await open( SettingsDestination.FOCUS_LINKS );
+		await page.emulateMedia( { reducedMotion: 'reduce' } );
+		const preview = page.locator( '.settings-pause-preview' );
+		for ( const width of [ 1280, 320 ] ) {
+			await page.setViewportSize( { width, height: 900 } );
+			const sizes = [];
+			for ( const count of [ 0, 1, 3 ] ) {
+				await page.evaluate( ( count ) => {
+					window.settingsTest.externalPreferences( { focusLinks: [
+						{ id: 'focus_link_read', label: 'R'.repeat( 64 ), url: 'https://example.com/read' },
+						{ id: 'focus_link_write', label: 'W'.repeat( 64 ), url: 'https://example.com/write' },
+						{ id: 'focus_link_plan', label: 'P'.repeat( 64 ), url: 'https://example.com/plan' },
+					].slice( 0, count ) } );
+				}, count );
+				await expect( preview.locator( '.focus-link-button' ) ).toHaveCount( count );
+				const geometry = await preview.evaluate( async ( element ) => {
+					await new Promise( requestAnimationFrame );
+					const root = element.querySelector( 'tocus-f-interruption-screen' )?.shadowRoot;
+					const sphere = root?.querySelector( 'tocus-f-breathing-sphere' );
+					if ( sphere ) {
+						sphere.still = false;
+						sphere.breathProgress = 1;
+						await sphere.updateComplete;
+					}
+					const surface = sphere?.shadowRoot?.querySelector( 'canvas' );
+					const canvas = surface?.getBoundingClientRect();
+					const drawing = surface?.getContext( '2d' );
+					const viewport = element.querySelector( '.pause-preview-viewport' )?.getBoundingClientRect();
+					const cue = root?.querySelector( '.cue' )?.getBoundingClientRect();
+					if ( ! surface || ! drawing || ! canvas || ! viewport || ! cue ) {
+						throw new Error( 'Expected a contained preview drawing surface.' );
+					}
+					const layout = getComputedStyle( surface );
+					const pixels = drawing.getImageData( 0, 0, surface.width, surface.height ).data;
+					let firstPaintedRow = surface.height;
+					let lastPaintedRow = -1;
+					for ( let row = 0; row < surface.height; row++ ) {
+						for ( let column = 0; column < surface.width; column++ ) {
+							// Check the solid artwork separately from its translucent shadow.
+							if ( ( pixels[ ( row * surface.width + column ) * 4 + 3 ] ?? 0 ) > 128 ) {
+								firstPaintedRow = Math.min( firstPaintedRow, row );
+								lastPaintedRow = row;
+								break;
+							}
+						}
+					}
+					return { width: canvas.width, height: canvas.height,
+						layoutWidth: Number.parseFloat( layout.width ),
+						layoutHeight: Number.parseFloat( layout.height ),
+						artworkTop: canvas.top + firstPaintedRow / surface.height * canvas.height,
+						artworkBottom: canvas.top + ( lastPaintedRow + 1 ) / surface.height * canvas.height,
+						paintedRows: lastPaintedRow - firstPaintedRow,
+						cueBottom: cue.bottom, viewportHeight: viewport.height, viewportBottom: viewport.bottom,
+						buttons: [ ...root?.querySelectorAll( '.focus-link-button' ) ?? [] ].map( ( button ) => {
+							const bounds = button.getBoundingClientRect();
+							const label = button.querySelector<HTMLElement>( '.focus-link-label' );
+							if ( ! label ) {
+								throw new Error( 'Expected the complete preview shortcut label.' );
+							}
+							const labelBounds = label.getBoundingClientRect();
+							return { top: bounds.top, bottom: bounds.bottom, width: bounds.width, height: bounds.height,
+								clientHeight: button.clientHeight, scrollHeight: button.scrollHeight,
+								label: { top: labelBounds.top, bottom: labelBounds.bottom,
+									clientHeight: label.clientHeight, scrollHeight: label.scrollHeight,
+									clientWidth: label.clientWidth, scrollWidth: label.scrollWidth } };
+						} ) };
+				} );
+				expect( geometry.height ).toBeGreaterThan( 0 );
+				expect( geometry.height / geometry.viewportHeight ).toBeCloseTo( referenceRatio, 2 );
+				expect( geometry.paintedRows ).toBeGreaterThan( 0 );
+				expect( geometry.cueBottom ).toBeLessThanOrEqual( geometry.artworkTop );
+				for ( const button of geometry.buttons ) {
+					expect( button.width ).toBeGreaterThan( button.height );
+					expect( button.top ).toBeGreaterThanOrEqual( geometry.artworkBottom );
+					expect( button.bottom ).toBeLessThanOrEqual( geometry.viewportBottom );
+					expect( geometry.viewportBottom - button.bottom )
+						.toBeGreaterThanOrEqual( geometry.viewportHeight * 0.04 );
+					expect( button.scrollHeight ).toBeLessThanOrEqual( button.clientHeight );
+					expect( button.label.top ).toBeGreaterThanOrEqual( button.top );
+					expect( button.label.bottom ).toBeLessThanOrEqual( button.bottom );
+					expect( button.label.scrollHeight ).toBeLessThanOrEqual( button.label.clientHeight );
+					expect( button.label.scrollWidth ).toBeLessThanOrEqual( button.label.clientWidth );
+				}
+				// Used dimensions avoid viewport-coordinate subtraction rounding as the artwork moves.
+				sizes.push( { width: geometry.layoutWidth, height: geometry.layoutHeight } );
+			}
+			expect( sizes[ 1 ] ).toEqual( sizes[ 0 ] );
+			expect( sizes[ 2 ] ).toEqual( sizes[ 0 ] );
+		}
+	} );
+
+	test( 'removes the preview on recovery and other destinations and keeps localized pause copy', async ( { open } ) => {
+		const page = await open( SettingsDestination.FOCUS_LINKS, Language.GERMAN );
+		const preview = page.locator( '.settings-pause-preview' );
+		await expect( preview ).toBeVisible();
+		await expect( preview.locator( '.cue' ) ).not.toHaveText( /Breathe/u );
+		await page.evaluate( ( update ) => {
+			window.settingsTest.externalPreferences( update );
+		}, { theme: ThemeMode.DARK, palette: Palette.GREEN, pauseMode: PauseMode.QUIET } );
+		await expect( preview ).toHaveAttribute( 'data-tocus-theme', 'dark' );
+		await expect.poll( () => preview.locator( 'tocus-f-interruption-screen' ).evaluate( ( screen ) =>
+			( screen as HTMLElementTagNameMap['tocus-f-interruption-screen'] ).mode ) ).toBe( 'quiet' );
+		await page.evaluate( () => {
+			window.settingsTest.malformPreferences();
+		} );
+		await expect( preview ).toHaveCount( 0 );
+		await page.locator( 'a[href="#language"]' ).click();
+		await expect( preview ).toHaveCount( 0 );
+	} );
+} );

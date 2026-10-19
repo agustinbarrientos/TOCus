@@ -39,6 +39,9 @@ export class SettingsPresentationState implements SettingsPageShell {
 	/** Language copy supplied before first render. */
 	languageCopy!: SettingsPageShell['languageCopy'];
 
+	/** Localized breathing-screen preview copy supplied before first render. */
+	pausePreviewCopy!: SettingsPageShell['pausePreviewCopy'];
+
 	/** Browser host-access service attached by bootstrap. */
 	permissionManager: SettingsPageShell['permissionManager'] = null;
 

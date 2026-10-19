@@ -37,6 +37,7 @@ import type {
 } from '../../components/appearance-screen/types';
 import type { LanguageScreenCopy } from '../../components/language-screen/types';
 import type { FocusLinksScreenCopy } from '../../components/focus-links-screen/types';
+import type { SettingsPausePreviewCopy } from '../../components/pause-preview/types';
 import type { ScheduleScreenCopy } from '../../components/schedule-screen/types';
 import type {
 	SettingsPlatform,
@@ -132,6 +133,8 @@ export interface SettingsPageShell extends ProtectedSitesAccessRefresher {
 	focusLinksCopy: Readonly<FocusLinksScreenCopy>;
 	/** Localized Language destination copy. */
 	languageCopy: Readonly<LanguageScreenCopy>;
+	/** Localized caption and real pause-screen copy used by draft previews. */
+	pausePreviewCopy: Readonly<SettingsPausePreviewCopy>;
 	/** Protected-site browser permission manager. */
 	permissionManager: SitePermissionManager | null;
 	/** Browser family rendered by the settings shell. */

@@ -123,8 +123,10 @@ test.describe( 'shared appearance controls', () => {
 		expect( await preview.evaluate( ( element ) => {
 			const brand = element.querySelector( '.tocus-brand' )?.getBoundingClientRect();
 			const line = element.querySelector( '.preferences-preview-lines span' )?.getBoundingClientRect();
-			return brand !== undefined && line !== undefined
-						&& line.top - brand.bottom > element.clientHeight / 2;
+			const lastLine = element.querySelector( '.preferences-preview-lines span:last-child' )?.getBoundingClientRect();
+			const bottomInset = lastLine ? element.getBoundingClientRect().bottom - lastLine.bottom : -1;
+			return brand !== undefined && line !== undefined && lastLine !== undefined
+				&& line.top > brand.bottom && bottomInset >= 0 && bottomInset <= 16;
 		} ) ).toBe( true );
 		expect( await page.locator( '.preferences-theme-preview[data-preview-theme="system"] .preferences-preview-lines' ).count() ).toBe( 2 );
 		await page.getByRole( 'radio', { name: BrowserThemeLabels[ ThemeMode.DARK ], exact: true } ).click();

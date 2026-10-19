@@ -74,7 +74,9 @@ export function ScreenView( props: ScreenViewProps ) {
 			{props.focusLinks.length > 0 && ! unavailable && <section className="focus-links" role="group"
 				aria-label={copy.focusLinksLabel} aria-busy={props.focusLinkOpening || undefined}>
 				<div className="focus-links-actions">{props.focusLinks.map( ( link ) =>
-					<Button key={link.id} className="focus-link-button tocus-action-soft" type="button"
+					<Button key={link.id} className="focus-link-button tocus-action-soft"
+						classNames={{ inner: 'focus-link-inner', label: 'focus-link-label' }}
+						styles={{ root: { paddingInline: 'var(--tocus-focus-link-padding-inline, calc(1.5 * var(--tocus-size-unit)))' } }} type="button"
 						disabled={props.focusLinkOpening} onClick={() => {
 							props.onOpenFocusLink( link.id );
 						}}>{link.label}</Button>,

@@ -122,6 +122,10 @@ Object.assign( shell, {
 	backupResetCopy: copy.backupResetCopy,
 	appearanceCopy: copy.appearance,
 	focusLinksCopy: copy.focusLinksCopy,
+	pausePreviewCopy: {
+		title: copy.onboarding.appearance.previewTitle,
+		screen: copy.interruption,
+	},
 	languageCopy: original.includes( 'language-screen-german' ) ? originalLanguageCopy( copy.languageScreen ) : copy.languageScreen,
 	browserLanguage: original.includes( 'language-screen-german' ) ? Language.GERMAN : Language.ENGLISH,
 	protectedSitesCopy: copy.protectedSites,

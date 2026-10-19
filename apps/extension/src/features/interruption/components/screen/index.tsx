@@ -736,7 +736,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 		return <ScreenView host={this} shadowRoot={this.renderRoot} copy={this.copy} state={this.state} mode={this.mode}
 			progressMilliseconds={this.progressClock.getProgressMilliseconds()}
 			waitDurationMilliseconds={this.waitDurationMilliseconds} reducedMotion={this.reducedMotion}
-			recovering={this.recovering} focusLinks={this.preview ? [] : this.focusLinks}
+			recovering={this.recovering} focusLinks={this.focusLinks}
 			focusLinkOpening={this.focusLinkOpening} focusLinkFailed={this.focusLinkFailed}
 			onOpenFocusLink={this.requestFocusLink} wellbeingSummary={this.wellbeingSummary}
 			announcement={this.announcement}
@@ -863,7 +863,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 	 * @since 1.0.0 Initial implementation.
 	 */
 	private readonly requestContinue = (): void => {
-		if ( this.state !== InterruptionScreenState.READY || this.focusLinkOpening ) {
+		if ( this.preview || this.state !== InterruptionScreenState.READY || this.focusLinkOpening ) {
 			return;
 		}
 
@@ -879,7 +879,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 	 * @since 1.1.0
 	 */
 	private readonly requestFocusLink = ( focusLinkId: string ): void => {
-		if ( this.focusLinkOpening || ! this.focusLinks.some( ( link ) => link.id === focusLinkId ) ) {
+		if ( this.preview || this.focusLinkOpening || ! this.focusLinks.some( ( link ) => link.id === focusLinkId ) ) {
 			return;
 		}
 		this.dispatchEvent( new CustomEvent<InterruptionFocusLinkRequestDetail>( InterruptionFocusLinkRequestEventName,
@@ -892,7 +892,7 @@ export class ComponentInterruptionScreen extends PresentationElement {
 	 * @since 1.0.0 Initial implementation.
 	 */
 	private readonly requestRetry = (): void => {
-		if ( this.state !== InterruptionScreenState.UNAVAILABLE || this.recovering ) {
+		if ( this.preview || this.state !== InterruptionScreenState.UNAVAILABLE || this.recovering ) {
 			return;
 		}
 

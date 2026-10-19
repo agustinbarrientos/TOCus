@@ -256,6 +256,111 @@ test.describe( 'React pause', () => {
 		expect( await page.evaluate( () => [ window.pauseFixture.environment.getFrameCount(),
 			window.pauseFixture.environment.getTimerCount() ] ) ).toEqual( [ 0, 0 ] );
 	} );
+	test( 'shows configured preview shortcuts in order without emitting pause actions', async ( { page } ) => {
+		await page.goto( origin );
+		await page.locator( 'html[data-ready]' ).waitFor();
+		await page.evaluate( async () => {
+			const { screen } = window.pauseFixture;
+			screen.preview = true;
+			screen.focusLinks = [
+				{ id: 'focus_link_read', label: 'Read a chapter', url: 'https://reading.test/' },
+				{ id: 'focus_link_tasks', label: 'My tasks', url: 'https://tasks.test/' },
+			];
+			await screen.updateComplete;
+		} );
+		await expect( page.locator( '.focus-link-button' ) ).toHaveText( [ 'Read a chapter', 'My tasks' ] );
+		const requests = await page.evaluate( async () => {
+			const { screen, states } = window.pauseFixture;
+			const link = screen.shadowRoot?.querySelector<HTMLButtonElement>( '.focus-link-button' );
+			if ( ! link ) {
+				throw new Error( 'Expected the preview shortcut action.' );
+			}
+			link.click();
+			screen.state = states.READY;
+			await screen.updateComplete;
+			const continueButton = screen.shadowRoot?.querySelector<HTMLButtonElement>( '.continue-button' );
+			if ( ! continueButton ) {
+				throw new Error( 'Expected the preview Continue action.' );
+			}
+			continueButton.click();
+			screen.state = states.UNAVAILABLE;
+			await screen.updateComplete;
+			const retryButton = screen.shadowRoot?.querySelector<HTMLButtonElement>( '.retry-button' );
+			if ( ! retryButton ) {
+				throw new Error( 'Expected the preview recovery action.' );
+			}
+			retryButton.click();
+			return { choices: window.pauseFixture.focusLinkChoices, continues: window.pauseFixture.continues,
+				retries: window.pauseFixture.retries };
+		} );
+		expect( requests ).toEqual( { choices: [], continues: 0, retries: 0 } );
+	} );
+	test( 'fits three long preview shortcuts without changing the breathing artwork size', async ( { page } ) => {
+		await page.goto( origin );
+		await page.locator( 'html[data-ready]' ).waitFor();
+		await page.evaluate( async () => {
+			const { screen } = window.pauseFixture;
+			const container = document.createElement( 'div' );
+			container.id = 'preview-container';
+			container.style.position = 'relative';
+			container.style.setProperty( '--tocus-preview-sphere-height', 'min(44cqh, 8rem)' );
+			document.body.append( container );
+			screen.preview = true;
+			container.append( screen );
+			await screen.updateComplete;
+		} );
+		for ( const viewport of [ { width: 288, height: 352 }, { width: 384, height: 352 } ] ) {
+			const sizes = [];
+			for ( const count of [ 0, 1, 3 ] ) {
+				const result = await page.evaluate( async ( { viewport, count } ) => {
+					const container = document.querySelector<HTMLElement>( '#preview-container' );
+					if ( ! container ) {
+						throw new Error( 'Expected the contained preview viewport.' );
+					}
+					container.style.width = `${ String( viewport.width ) }px`;
+					container.style.height = `${ String( viewport.height ) }px`;
+					const { screen } = window.pauseFixture;
+					screen.focusLinks = [
+						{ id: 'focus_link_read', label: 'R'.repeat( 64 ), url: 'https://reading.test/' },
+						{ id: 'focus_link_tasks', label: 'T'.repeat( 64 ), url: 'https://tasks.test/' },
+						{ id: 'focus_link_plan', label: 'P'.repeat( 64 ), url: 'https://planning.test/' },
+					].slice( 0, count );
+					await screen.updateComplete;
+					await new Promise( requestAnimationFrame );
+					const root = screen.shadowRoot;
+					const bounds = container.getBoundingClientRect();
+					const canvas = root?.querySelector( 'tocus-f-breathing-sphere' )?.shadowRoot
+						?.querySelector( 'canvas' )?.getBoundingClientRect();
+					const cue = root?.querySelector( '.cue' )?.getBoundingClientRect();
+					const buttons = [ ...root?.querySelectorAll<HTMLButtonElement>( '.focus-link-button' ) ?? [] ];
+					if ( ! canvas || ! cue ) {
+						throw new Error( 'Expected the preview breathing cue and artwork.' );
+					}
+					return { artwork: { width: canvas.width, height: canvas.height }, count: buttons.length,
+						measurements: buttons.map( ( button ) => {
+							const box = button.getBoundingClientRect();
+							return { left: box.left, right: box.right, top: box.top, bottom: box.bottom,
+								clientWidth: button.clientWidth, scrollWidth: button.scrollWidth };
+						} ),
+						bounds: { left: bounds.left, right: bounds.right, bottom: bounds.bottom },
+						artworkBottom: canvas.bottom,
+						contained: buttons.every( ( button ) => {
+							const box = button.getBoundingClientRect();
+							return box.left >= bounds.left && box.right <= bounds.right &&
+								box.top >= canvas.bottom && box.bottom <= bounds.bottom &&
+								button.scrollWidth <= button.clientWidth;
+						} ), cueBeforeArtwork: cue.bottom <= canvas.top };
+				}, { viewport, count } );
+				expect( result.count ).toBe( count );
+				expect( result.contained, JSON.stringify( result ) ).toBe( true );
+				expect( result.cueBeforeArtwork ).toBe( true );
+				expect( result.artwork.height ).toBeGreaterThan( 0 );
+				sizes.push( result.artwork );
+			}
+			expect( sizes[ 1 ] ).toEqual( sizes[ 0 ] );
+			expect( sizes[ 2 ] ).toEqual( sizes[ 0 ] );
+		}
+	} );
 	test( 'keeps long localized recovery labels reachable in a short narrow viewport', async ( { page } ) => {
 		await page.setViewportSize( { width: 320, height: 320 } );
 

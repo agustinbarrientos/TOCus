@@ -450,9 +450,9 @@ footer {
 
 	.sphere-shell {
 		width: min(86cqw, sizing.size(16));
-		height: 100%;
+		height: var(--tocus-preview-sphere-height, 100%);
 		min-height: 0;
-		max-height: min(58cqh, sizing.size(10));
+		max-height: var(--tocus-preview-sphere-max-height, min(58cqh, #{sizing.size(10)}));
 	}
 
 	footer {
@@ -572,4 +572,48 @@ footer {
 .focus-link-button {
 	max-width: 100%;
 	overflow-wrap: anywhere;
+}
+
+:host([preview]) {
+	.has-focus-links main {
+		grid-template-rows: minmax(0, 1fr) auto;
+	}
+
+	.focus-links {
+		--tocus-button-height: auto;
+		--tocus-focus-link-padding-inline: #{sizing.size(0.5)};
+		--tocus-typography-label-large-font-size: clamp(#{sizing.size(0.5625)}, 2.5cqw, #{sizing.size(0.6875)});
+		--tocus-typography-label-large-line-height: 1.2;
+
+		padding: sizing.size(0.25) 0 var(--tocus-preview-link-bottom-space, #{sizing.size(0.5)});
+	}
+
+	.focus-links-actions {
+		flex-wrap: var(--tocus-preview-link-wrap, wrap);
+		gap: sizing.size(0.25);
+	}
+
+	.focus-link-button {
+		min-width: 0;
+		min-height: sizing.size(1.5);
+		height: auto;
+		flex: 0 1 auto;
+		padding: sizing.size(0.25) sizing.size(0.5);
+		white-space: normal;
+
+		// Inert previews cannot load; the unused overlay extends Firefox's scroll bounds.
+		&::before { display: none; }
+
+		.focus-link-inner {
+			height: auto;
+		}
+
+		.focus-link-label {
+			height: auto;
+
+			// Reserve glyph ink around fractional wrapped line boxes in every browser.
+			padding: sizing.size(0.0625);
+			white-space: normal;
+		}
+	}
 }
