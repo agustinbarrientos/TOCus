@@ -15,10 +15,10 @@
 		"./notifications.scss": "./src/components/snackbar/style.scss"
 	},
 	"dependencies": {
-		"@mantine/charts": "9.7.2",
-		"@mantine/core": "9.7.2",
-		"@mantine/hooks": "9.7.2",
-		"@mantine/notifications": "9.7.2",
+		"@mantine/charts": "9.7.3",
+		"@mantine/core": "9.7.3",
+		"@mantine/hooks": "9.7.3",
+		"@mantine/notifications": "9.7.3",
 		"@tocus/theme": "workspace:*",
 		"recharts": "^3.10.1"
 	},

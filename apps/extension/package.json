@@ -21,7 +21,7 @@
 		"postinstall": "wxt prepare"
 	},
 	"dependencies": {
-		"@lingui/core": "6.9.1",
+		"@lingui/core": "6.10.0",
 		"@tocus/theme": "workspace:*",
 		"@tocus/ui": "workspace:*",
 		"@webcomponents/custom-elements": "1.6.0",
