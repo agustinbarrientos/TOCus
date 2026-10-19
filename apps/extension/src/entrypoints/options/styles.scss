@@ -46,11 +46,9 @@ body {
 }
 
 .settings-content {
-	--tocus-settings-content-padding: clamp(2rem, 5vw, 4.5rem);
-
 	width: 100%;
 	min-width: 0;
-	padding: var(--tocus-settings-content-padding);
+	padding: clamp(2rem, 5vw, 4.5rem);
 }
 
 

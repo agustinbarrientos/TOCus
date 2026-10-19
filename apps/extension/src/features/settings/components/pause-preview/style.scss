@@ -1,59 +1,32 @@
-@use '@tocus/theme/typography' as typography;
-
 .settings-preview-container {
-	container: settings-preview / inline-size;
+	padding-bottom: 19rem;
 }
 
-.settings-preview-layout {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr);
-	gap: var(--tocus-space-6);
-
-	> form { min-width: 0; }
+:root:has(.settings-preview-container) {
+	scroll-padding-top: 5rem;
+	scroll-padding-bottom: 19rem;
 }
 
 .settings-pause-preview {
-	justify-self: end;
-	min-width: 0;
-	width: min(100%, 24rem);
-	margin: 0;
-	pointer-events: none;
+	--tocus-preview-sphere-height: min(36cqh, 5.75rem);
 
-	figcaption {
-		@include typography.apply('body-small');
+	right: 1rem;
 
-		margin-bottom: var(--tocus-space-3);
-		color: var(--tocus-color-on-surface-muted);
+	// Fit the complete, inert screen inside the shared landscape browser frame.
+	.pause-preview-screen {
+		width: 200%;
+		height: 200%;
+		transform: scale(0.5);
+		transform-origin: top left;
 	}
 }
 
-.settings-pause-preview-viewport {
-	--tocus-preview-sphere-height: min(44cqh, 8rem);
-
-	position: relative;
-	aspect-ratio: 4 / 3;
-	width: 100%;
-
-	// Keep the cue, artwork and three fully wrapped shortcut labels visible together.
-	min-height: 22rem;
-	border: 1px solid var(--tocus-color-outline);
-	border-radius: var(--tocus-radius-medium);
-	overflow: hidden;
-	box-shadow: 0 0.5rem 1.5rem color-mix(in srgb, var(--tocus-color-on-surface) 12%, transparent);
+@media (width <= 60rem) {
+	.settings-preview-container { padding-bottom: 17rem; }
+	:root:has(.settings-preview-container) { scroll-padding-bottom: 17rem; }
 }
 
-@media (height >= 40rem) {
-	@container settings-preview (width >= 54rem) {
-		.settings-preview-layout {
-			grid-template-columns: minmax(0, 1fr) 20rem;
-			min-height: calc(100dvh - 2 * var(--tocus-settings-content-padding) - var(--tocus-typography-headline-large-line-height) - var(--tocus-space-6));
-		}
-
-		.settings-pause-preview {
-			position: sticky;
-			bottom: var(--tocus-space-5);
-			align-self: end;
-			width: 100%;
-		}
-	}
+@media (width >= 106rem) {
+	.settings-preview-container { padding-bottom: 0; }
+	:root:has(.settings-preview-container) { scroll-padding-bottom: 0; }
 }

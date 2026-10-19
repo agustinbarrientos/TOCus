@@ -73,23 +73,60 @@ test.describe( 'Settings breathing preview', () => {
 			const page = await open( destination );
 			const preview = page.locator( '.settings-pause-preview' );
 			const form = page.locator( 'main form' );
+			if ( destination === SettingsDestination.FOCUS_LINKS ) {
+				await page.evaluate( () => {
+					window.settingsTest.externalPreferences( { focusLinks: [
+						{ id: 'focus_link_read', label: 'Read a chapter', url: 'https://example.com/read' },
+						{ id: 'focus_link_tasks', label: 'My tasks', url: 'https://example.com/tasks' },
+						{ id: 'focus_link_project', label: 'Current project', url: 'https://example.com/project' },
+					] } );
+				} );
+			}
 			for ( const viewport of [ { width: 1280, height: 900 }, { width: 1440, height: 900 },
-				{ width: 320, height: 900 }, { width: 1280, height: 400 } ] ) {
+				{ width: 320, height: 900 }, { width: 812, height: 375 }, { width: 320, height: 400 } ] ) {
 				await page.setViewportSize( viewport );
 				await expect( preview ).toBeVisible();
+				await expect( preview ).toHaveCSS( 'position', 'fixed' );
+				const browser = preview.locator( '.pause-preview-browser' );
+				await expect( browser ).toBeVisible();
 				const bounds = await preview.boundingBox();
+				const frame = await browser.boundingBox();
 				const controls = await form.boundingBox();
-				if ( ! bounds || ! controls ) {
-					throw new Error( 'Expected the preference form and its contained preview.' );
+				const content = await page.locator( '.settings-page' ).boundingBox();
+				if ( ! bounds || ! frame || ! controls || ! content ) {
+					throw new Error( 'Expected full-width controls and a floating browser preview.' );
 				}
-				if ( viewport.width >= 1280 && viewport.height >= 900 ) {
-					const documentHeight = await page.evaluate( () => document.documentElement.scrollHeight );
-					expect( documentHeight ).toBe( viewport.height );
-					expect( bounds.x ).toBeGreaterThanOrEqual( controls.x + controls.width + 24 );
-					expect( bounds.y + bounds.height ).toBeLessThanOrEqual( viewport.height );
-					expect( bounds.y + bounds.height ).toBeGreaterThan( viewport.height - 100 );
-				} else {
-					expect( bounds.y ).toBeGreaterThanOrEqual( controls.y + controls.height + 24 );
+				expect( controls.width ).toBeCloseTo( content.width, 2 );
+				expect( frame.width / frame.height ).toBeCloseTo( 16 / 10, 2 );
+				expect( viewport.width - bounds.x - bounds.width ).toBeCloseTo( 16, 2 );
+				expect( viewport.height - bounds.y - bounds.height ).toBeCloseTo( 16, 2 );
+				await page.evaluate( () => {
+					window.scrollTo( 0, document.documentElement.scrollHeight );
+				} );
+				const afterScroll = await preview.boundingBox();
+				expect( afterScroll?.x ).toBeCloseTo( bounds.x, 2 );
+				expect( afterScroll?.y ).toBeCloseTo( bounds.y, 2 );
+				const targets = [ page.getByRole( 'button', { name: 'Save', exact: true } ),
+					page.getByRole( 'button', { name: 'Discard', exact: true } ),
+					...await page.locator( '.settings-site-actions button, input[value="quiet"]' ).all() ];
+				for ( const action of targets ) {
+					await action.evaluate( ( element ) => {
+						element.scrollIntoView( { block: 'center' } );
+					} );
+					const box = await action.boundingBox();
+					if ( ! box ) {
+						throw new Error( 'Expected the draft action to remain reachable.' );
+					}
+					expect( box.y + box.height <= bounds.y || box.x + box.width <= bounds.x ).toBe( true );
+					const navigation = await page.locator( '.settings-navigation' ).boundingBox();
+					if ( ! navigation ) {
+						throw new Error( 'Expected the Settings navigation.' );
+					}
+					const clearOfNavigation = box.y >= navigation.y + navigation.height ||
+							box.x >= navigation.x + navigation.width;
+					expect( clearOfNavigation ).toBe( true );
+					expect( box.y ).toBeGreaterThanOrEqual( 0 );
+					expect( box.y + box.height ).toBeLessThanOrEqual( viewport.height );
 				}
 				expect( await page.evaluate( () => document.documentElement.scrollWidth ) ).toBe( viewport.width );
 				await page.screenshot( { path: test.info().outputPath(
@@ -126,7 +163,7 @@ test.describe( 'Settings breathing preview', () => {
 					const root = element.querySelector( 'tocus-f-interruption-screen' )?.shadowRoot;
 					const canvas = root?.querySelector( 'tocus-f-breathing-sphere' )?.shadowRoot
 						?.querySelector( 'canvas' )?.getBoundingClientRect();
-					const viewport = element.querySelector( '.settings-pause-preview-viewport' )?.getBoundingClientRect();
+					const viewport = element.querySelector( '.pause-preview-viewport' )?.getBoundingClientRect();
 					const cue = root?.querySelector( '.cue' )?.getBoundingClientRect();
 					if ( ! canvas || ! viewport || ! cue ) {
 						throw new Error( 'Expected a contained preview drawing surface.' );
