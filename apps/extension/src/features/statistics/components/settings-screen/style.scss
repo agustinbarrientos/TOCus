@@ -49,8 +49,9 @@
 	}
 
 	.settings-statistics-estimate {
-		display: flex;
-		flex-wrap: wrap;
+		display: grid;
+		grid-template-columns: minmax(0, max-content) max-content;
+		justify-content: start;
 		align-items: center;
 		gap: var(--tocus-space-2) var(--tocus-space-1);
 		margin-top: var(--tocus-space-4);
@@ -296,6 +297,8 @@
 
 @media (width <= 48rem) {
 	[data-tocus-ui] .settings-page .settings-statistics-summary {
+		.settings-statistics-estimate { align-items: end; }
+
 		.settings-statistics-sites-heading {
 			flex-direction: column;
 			align-items: flex-start;

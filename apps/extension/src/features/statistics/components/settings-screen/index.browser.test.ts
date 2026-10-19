@@ -13,8 +13,10 @@ import { StatisticsRange } from '../../utils/select-statistics-range/types';
  */
 async function selectStatisticsPeriod( page: Page, range: StatisticsRange ): Promise<void> {
 	await page.getByRole( 'button', { name: /^Period:/ } ).click();
-	await page.getByRole( 'combobox', { name: 'Period', exact: true } ).selectOption( range );
-	await page.keyboard.press( 'Escape' );
+	const selector = page.getByRole( 'combobox', { name: 'Period', exact: true } );
+	await selector.selectOption( range );
+	await selector.press( 'Escape' );
+	await expect( selector ).toBeHidden();
 }
 
 test.describe( 'local statistics', () => {
