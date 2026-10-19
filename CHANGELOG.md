@@ -2,6 +2,7 @@
 
 ## 1.1.0 - Unreleased
 
+- Fixed: Switch labels stay vertically centered beside their toggles, including the Statistics comparison control (Chrome, Edge, Firefox).
 - Fixed: The website hero keeps a stable height when mobile browser controls expand or collapse, preserving the shoreline transition (mobile Chrome, Edge, Firefox, Safari).
 - Changed: Redesigned Statistics around the current week, with selectable daily activity, website visit outcomes, consistent saved website icons and names, readable hourly tooltip times, explicit empty states, and left-aligned mobile outcome legends. New breakdowns stay on the device, are included in backups, and start from the upgrade without reconstructing earlier history (Chrome, Edge, Firefox).
 - Fixed: Enlarging Settings text no longer doubles the page's minimum width on narrow screens (Chrome, Edge, Firefox).

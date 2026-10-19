@@ -6,6 +6,30 @@ import { measureContrast } from './utils/measure-contrast';
 const url = '/packages/ui/tests/fixture/';
 
 test.describe( 'shared controls', () => {
+	test( 'centers switch labels beside the track with small and wrapped text', async ( { page } ) => {
+		await page.goto( url );
+		const control = page.getByRole( 'switch', { name: 'Compare with previous period', exact: true } );
+		const root = control.locator( '..' );
+		for ( const [ width, fontSize ] of [ [ 1280, '100%' ], [ 320, '100%' ], [ 320, '200%' ] ] as const ) {
+			await page.setViewportSize( { width, height: 1000 } );
+			await page.evaluate( ( size ) => {
+				document.documentElement.style.fontSize = size;
+			}, fontSize );
+			const alignment = await root.evaluate( ( element ) => {
+				const track = element.querySelector( '.mantine-Switch-track' )?.getBoundingClientRect();
+				const label = element.querySelector( '.mantine-Switch-label' )?.getBoundingClientRect();
+				if ( track === undefined || label === undefined ) {
+					throw new Error( 'The switch track and label must both have layout.' );
+				}
+				return Math.abs( track.y + track.height / 2 - label.y - label.height / 2 );
+			} );
+			expect( alignment ).toBeLessThan( 1 );
+			await control.check();
+			await expect( control ).toBeChecked();
+			await control.uncheck();
+		}
+	} );
+
 	test( 'keeps labels and notices at body size with a clear field gap', async ( { page } ) => {
 		await page.goto( url );
 		const input = page.getByRole( 'textbox', { name: 'Title', exact: true } );
