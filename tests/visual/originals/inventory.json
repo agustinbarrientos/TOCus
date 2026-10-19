@@ -185,15 +185,15 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/appearance-screen/__snapshots__/chromium/appearance-screen-brown-light.png",
-    "sha256": "524ea9c2edaeae33e9a2b3ccb0911104e172d459150b192ec71d2d2d1c0934c0"
+    "sha256": "7246e64c627419642fbaab97f3a8b3734ef6ef69f9306093f9b1cdff087bef3c"
   },
   {
     "path": "apps/extension/src/features/settings/components/appearance-screen/__snapshots__/chromium/appearance-screen-green-narrow.png",
-    "sha256": "e1a77d2fb73ae83f5a964b7733c362c49b0ba35c24047658be9f85e34ed0b782"
+    "sha256": "55f80a38a6ba4da1ac250f89aa5151b5fcce21002cd27049d9f54d3ac3d0a6cc"
   },
   {
     "path": "apps/extension/src/features/settings/components/appearance-screen/__snapshots__/chromium/appearance-screen-purple-dark.png",
-    "sha256": "3fa8067a70fe2eebbad1b69f093783e041a2c41bf52a1511014c277b68f36d88"
+    "sha256": "8aedcb3525f08ad9b2aa818c3d286a98fef3707dbda89da525f1cbf719cc3bef"
   },
   {
     "path": "apps/extension/src/features/settings/components/language-screen/__snapshots__/chromium/language-screen-brown-light.png",
