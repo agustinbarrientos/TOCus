@@ -600,6 +600,9 @@ footer {
 		padding: sizing.size(0.25) sizing.size(0.5);
 		white-space: normal;
 
+		// Inert previews cannot load; the unused overlay extends Firefox's scroll bounds.
+		&::before { display: none; }
+
 		.focus-link-inner {
 			height: auto;
 		}
