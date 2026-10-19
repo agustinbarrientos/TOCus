@@ -17,6 +17,18 @@ msgstr ""
 msgid "\"Navigation access\" lets TOCus see changes to websites as they happen, but it doesn't look at your saved browsing history."
 msgstr "\"Accesso alla navigazione\" permette a TOCus di rilevare i cambiamenti dei siti web mentre avvengono, senza consultare la cronologia di navigazione salvata."
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "{count, plural, one {# fewer than last month} other {# fewer than last month}}"
+msgstr "{count, plural, one {# in meno rispetto al mese scorso} other {# in meno rispetto al mese scorso}}"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "{count, plural, one {# fewer than last week} other {# fewer than last week}}"
+msgstr "{count, plural, one {# in meno rispetto alla settimana scorsa} other {# in meno rispetto alla settimana scorsa}}"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "{count, plural, one {# fewer than last year} other {# fewer than last year}}"
+msgstr "{count, plural, one {# in meno rispetto all'anno scorso} other {# in meno rispetto all'anno scorso}}"
+
 #. Standalone duration displayed as a whole number of hours.
 #: apps/extension/src/localization/utils/format-localized-duration/index.ts
 msgid "{count, plural, one {# hour} other {# hours}}"
@@ -26,6 +38,18 @@ msgstr "{count, plural, zero {# ore} one {# ora} two {# ore} few {# ore} many {#
 #: apps/extension/src/localization/utils/format-localized-duration/index.ts
 msgid "{count, plural, one {# minute} other {# minutes}}"
 msgstr "{count, plural, zero {# minuti} one {# minuto} two {# minuti} few {# minuti} many {# minuti} other {# minuti}}"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "{count, plural, one {# more than last month} other {# more than last month}}"
+msgstr "{count, plural, one {# in più rispetto al mese scorso} other {# in più rispetto al mese scorso}}"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "{count, plural, one {# more than last week} other {# more than last week}}"
+msgstr "{count, plural, one {# in più rispetto alla settimana scorsa} other {# in più rispetto alla settimana scorsa}}"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "{count, plural, one {# more than last year} other {# more than last year}}"
+msgstr "{count, plural, one {# in più rispetto all'anno scorso} other {# in più rispetto all'anno scorso}}"
 
 #. Standalone duration displayed as a whole number of seconds.
 #: apps/extension/src/localization/utils/format-localized-duration/index.ts
@@ -118,6 +142,30 @@ msgstr "{name} è stato rimosso, ma non è stato possibile rimuovere automaticam
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "{name} was updated."
 msgstr "{name} è stato aggiornato."
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "{percentage} fewer than last month"
+msgstr "{percentage} in meno rispetto al mese scorso"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "{percentage} fewer than last week"
+msgstr "{percentage} in meno rispetto alla settimana scorsa"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "{percentage} fewer than last year"
+msgstr "{percentage} in meno rispetto all'anno scorso"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "{percentage} more than last month"
+msgstr "{percentage} in più rispetto al mese scorso"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "{percentage} more than last week"
+msgstr "{percentage} in più rispetto alla settimana scorsa"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "{percentage} more than last year"
+msgstr "{percentage} in più rispetto all'anno scorso"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "{siteName} added"
@@ -232,6 +280,10 @@ msgstr "Da sempre"
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "All TOCus data reset."
 msgstr "Tutti i dati di TOCus sono stati reimpostati."
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "All websites"
+msgstr "Tutti i siti web"
 
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Allow access"
@@ -424,6 +476,10 @@ msgid "Color palette"
 msgstr "Palette di colori"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Compare with previous period"
+msgstr "Confronta con il periodo precedente"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Completed pauses"
 msgstr "Pause completate"
 
@@ -444,6 +500,10 @@ msgstr "Mese corrente"
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Current week"
 msgstr "Settimana corrente"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Current year"
+msgstr "Anno corrente"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Daily activity"
@@ -798,6 +858,10 @@ msgid "No reconsidered visits recorded in this period."
 msgstr "Nessuna visita riconsiderata registrata in questo periodo."
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "No recorded outcomes"
+msgstr "Nessun esito registrato"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "No visit outcomes recorded in this period."
 msgstr "Nessun esito delle visite registrato in questo periodo."
 
@@ -918,6 +982,10 @@ msgstr "Português (Brasil)"
 msgid "Português (Portugal)"
 msgstr "Português (Portugal)"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Previous period"
+msgstr "Periodo precedente"
+
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 msgid "Privacy"
@@ -1031,6 +1099,18 @@ msgstr "Reimpostazione..."
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Restore personalization defaults"
 msgstr "Ripristina impostazioni predefinite di personalizzazione"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Same as last month"
+msgstr "Come il mese scorso"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Same as last week"
+msgstr "Come la settimana scorsa"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Same as last year"
+msgstr "Come l'anno scorso"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Sat - Sun, all day"
@@ -1308,6 +1388,10 @@ msgstr "Questo momento è solo per te."
 msgid "This is what you'll see"
 msgstr "Ecco cosa vedrai"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "This period"
+msgstr "Questo periodo"
+
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "This site changed elsewhere. Reload settings and try again."
 msgstr "Questo sito è stato modificato altrove. Ricarica le impostazioni e riprova."
@@ -1363,8 +1447,8 @@ msgid "Time left"
 msgstr "Tempo rimanente"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Time spent pausing plus estimated browsing time avoided, based on your configured visit time."
-msgstr "Tempo dedicato alle pause più una stima del tempo di navigazione evitato, basata sulla durata della visita che hai configurato."
+msgid "Time spent pausing plus estimated browsing time avoided."
+msgstr "Tempo dedicato alle pause più una stima del tempo di navigazione evitato."
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Time window {position}"
@@ -1636,6 +1720,10 @@ msgstr "Legenda degli esiti delle visite"
 msgid "Visit outcomes"
 msgstr "Esiti delle visite"
 
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "Visit outcomes across all websites"
+msgstr "Esiti delle visite su tutti i siti web"
+
 #: apps/extension/src/localization/utils/create-toolbar-copy/index.ts
 msgid "Visit window: complete"
 msgstr "Finestra di visita: completata"
@@ -1647,6 +1735,10 @@ msgstr "Visitate dopo la pausa"
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts
 msgid "Vos"
 msgstr "Vos"
+
+#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
+msgid "vs previous period"
+msgstr "rispetto al periodo precedente"
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Wait increase"
@@ -1817,10 +1909,6 @@ msgstr "Le impostazioni locali richiedono attenzione"
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Your local settings weren't changed. Try loading them again."
 msgstr "Le impostazioni locali non sono state modificate. Prova a caricarle di nuovo."
-
-#: apps/extension/src/localization/utils/create-statistics-copy/index.ts
-msgid "Your local time"
-msgstr "La tua ora locale"
 
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Your local timing data isn't valid, so it wasn't replaced."
