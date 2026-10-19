@@ -1,4 +1,4 @@
-import type { StatisticsBreakdownsView } from '../../utils/select-statistics-range/types';
+import type { StatisticsBreakdownsView, StatisticsRangeView } from '../../utils/select-statistics-range/types';
 import type { StatisticsSettingsScreenCopy, StatisticsSiteIdentity } from '../settings-screen/types';
 
 /**
@@ -8,5 +8,7 @@ import type { StatisticsSettingsScreenCopy, StatisticsSiteIdentity } from '../se
 export interface VisitOutcomesProps {
 	copy: StatisticsSettingsScreenCopy;
 	breakdowns: StatisticsBreakdownsView;
+	currentRange?: StatisticsRangeView;
+	previousRange?: StatisticsRangeView | undefined;
 	siteIdentities?: ReadonlyMap<string, StatisticsSiteIdentity>;
 }

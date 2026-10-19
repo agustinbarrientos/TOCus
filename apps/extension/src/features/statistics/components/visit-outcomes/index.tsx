@@ -6,6 +6,9 @@ import { resolveSiteDisplayIdentity } from '../../../protected-sites/utils/site-
 import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
 import type { VisitOutcomesProps } from './types';
 import type { DailyStatisticsChartAccessibility } from '../daily-statistics/types';
+import { ChartComparisonLegend, ChartComparisonTooltip } from '../chart-comparison';
+import type { ChartComparisonRow } from '../chart-comparison/types';
+import { AllWebsites } from './all-websites';
 
 /**
  * Presents local aggregate outcomes with exact counts and readable local-hour labels.
@@ -20,9 +23,20 @@ export function VisitOutcomes( props: VisitOutcomesProps ) {
 	const hoursId = useId();
 	const methodId = useId();
 	const chartAccessibility: DailyStatisticsChartAccessibility = { 'aria-labelledby': hoursId };
-	const hasHours = breakdowns.hourlyReconsideredVisits.some( ( hour ) => hour.reconsideredVisitCount > 0 );
+	const { currentRange } = props;
+	const previousRange = currentRange !== undefined && ! breakdowns.partialHistory &&
+		! currentRange.breakdowns.partialHistory && props.previousRange?.breakdowns.partialHistory === false ?
+		props.previousRange : undefined;
+	const currentDates = currentRange?.startDate === null || currentRange === undefined ? copy.allTimeTitle :
+		copy.formatDateRange( currentRange.startDate, currentRange.endDate );
+	const previousDates = previousRange === undefined || previousRange.startDate === null ? '' :
+		copy.formatDateRange( previousRange.startDate, previousRange.endDate );
+	const hasHours = breakdowns.hourlyReconsideredVisits.some( ( hour ) => hour.reconsideredVisitCount > 0 ) ||
+		previousRange?.breakdowns.hourlyReconsideredVisits.some( ( hour ) => hour.reconsideredVisitCount > 0 );
 	const hourlyData = breakdowns.hourlyReconsideredVisits.map( ( hour ) => ( {
 		hour: copy.formatHour( hour.hour ), reconsideredVisitCount: hour.reconsideredVisitCount,
+		previousCount: previousRange?.breakdowns.hourlyReconsideredVisits.find( ( previous ) =>
+			previous.hour === hour.hour )?.reconsideredVisitCount ?? null,
 	} ) );
 	return <section className="settings-statistics-breakdowns" aria-labelledby={ headingId }>
 		<div className="settings-statistics-breakdown-title">
@@ -31,13 +45,10 @@ export function VisitOutcomes( props: VisitOutcomesProps ) {
 				description={ copy.visitOutcomesDescription } />
 		</div>
 		{ breakdowns.recordedFromDate === null ? <p>{ copy.breakdownsUnavailable }</p> : <>
+			<AllWebsites { ...props } previousRange={ previousRange } />
 			<div className="settings-statistics-breakdown-grid">
 				<section className="settings-statistics-sites" aria-labelledby={ sitesId }>
 					<div className="settings-statistics-sites-heading"><h3 id={ sitesId }>{ copy.websiteOutcomesTitle }</h3>
-						{ breakdowns.siteOutcomes.length > 0 && <div className="settings-statistics-outcomes-legend" role="group" aria-label={ copy.visitOutcomesLegendLabel }>
-							<span>{ copy.reconsideredOutcomeLabel }<span className="settings-statistics-outcome-key settings-statistics-reconsidered-fill" aria-hidden="true" /></span>
-							<span>{ copy.visitedAfterPauseLabel }<span className="settings-statistics-outcome-key settings-statistics-continued-fill" aria-hidden="true" /></span>
-						</div> }
 					</div>
 					{ breakdowns.siteOutcomes.length === 0 ? <p className="settings-statistics-empty">{ copy.noVisitOutcomes }</p> :
 						<ul className="settings-statistics-site-list" aria-labelledby={ sitesId }>
@@ -76,19 +87,55 @@ export function VisitOutcomes( props: VisitOutcomesProps ) {
 				<section className="settings-statistics-hourly" aria-labelledby={ hoursId }>
 					<h3 id={ hoursId }>{ copy.hourlyTitle }</h3>
 					{ ! hasHours ? <p className="settings-statistics-empty">{ copy.noReconsideredVisits }</p> : <>
+						{ previousRange !== undefined && <ChartComparisonLegend currentLabel={ copy.currentPeriodLabel }
+							previousLabel={ copy.previousPeriodLabel } currentDates={ currentDates }
+							previousDates={ previousDates } /> }
 						<BarChart h="15rem" data={ hourlyData } dataKey="hour" maxBarWidth={ 20 }
 							classNames={ { tooltip: 'settings-statistics-chart-tooltip' } }
-							series={ [ { name: 'reconsideredVisitCount', label: copy.reconsideredVisitsLabel, color: 'var(--tocus-color-action)' } ] }
+							series={ [ { name: 'reconsideredVisitCount',
+								label: previousRange === undefined ?
+									copy.reconsideredVisitsLabel : copy.currentPeriodLabel,
+								color: 'var(--tocus-color-action)' },
+							...( previousRange === undefined ? [] : [ { name: 'previousCount', label: copy.previousPeriodLabel,
+								color: 'var(--tocus-color-action)' } ] ) ] }
 							xAxisProps={ { interval: 5 } }
 							yAxisProps={ { width: 40, allowDecimals: false, tickFormatter: copy.formatCount } }
 							valueFormatter={ copy.formatCount }
-							barProps={ { isAnimationActive: false, radius: [ 2, 2, 0, 0 ] } }
+							tooltipProps={ previousRange === undefined ? {} : {
+								/**
+								 * Resolves the selected local hour with both exact calendar periods.
+								 * @param props - Active keyboard or pointer chart selection.
+								 * @param props.active - Whether a value is selected.
+								 * @param props.label - Recorded local hour label.
+								 * @return Matched recorded hourly values.
+								 */
+								content: ( { active, label } ) => {
+									const hour = hourlyData.find( ( item ) => item.hour === label );
+									const rows: ChartComparisonRow[] = hour === undefined ? [] : [ {
+										period: 'current', label: copy.currentPeriodLabel, dates: currentDates,
+										value: copy.formatCount( hour.reconsideredVisitCount ),
+									}, {
+										period: 'previous', label: copy.previousPeriodLabel, dates: previousDates,
+										value: hour.previousCount === null ? '-' : copy.formatCount( hour.previousCount ),
+									} ];
+									return <ChartComparisonTooltip active={ active }
+										heading={ hour?.hour } rows={ rows } />;
+								},
+							} }
+							barProps={ ( series ) => ( { isAnimationActive: false, radius: [ 2, 2, 0, 0 ],
+								...( series.name === 'previousCount' ? {
+									fill: 'none', stroke: 'var(--tocus-color-action)', strokeOpacity: 1, strokeWidth: 1.5,
+									strokeDasharray: '4 3', pointerEvents: 'all',
+								} : {} ),
+							} ) }
 							barChartProps={ { ...chartAccessibility, accessibilityLayer: true } } />
-						<p className="settings-statistics-hour-caption">{ copy.localTimeLabel }</p>
 						<VisuallyHidden><table><caption>{ copy.hourlyTitle }</caption>
-							<thead><tr><th scope="col">{ copy.hourLabel }</th><th scope="col">{ copy.reconsideredVisitsLabel }</th></tr></thead>
-							<tbody>{ breakdowns.hourlyReconsideredVisits.map( ( hour ) => <tr key={ hour.hour }>
-								<th scope="row">{ copy.formatHour( hour.hour ) }</th><td>{ copy.formatCount( hour.reconsideredVisitCount ) }</td>
+							<thead><tr><th scope="col">{ copy.hourLabel }</th>
+								<th scope="col">{ previousRange === undefined ? copy.reconsideredVisitsLabel : `${ copy.currentPeriodLabel } - ${ currentDates }` }</th>
+								{ previousRange !== undefined && <th scope="col">{ copy.previousPeriodLabel } - { previousDates }</th> }</tr></thead>
+							<tbody>{ hourlyData.map( ( hour ) => <tr key={ hour.hour }>
+								<th scope="row">{ hour.hour }</th><td>{ copy.formatCount( hour.reconsideredVisitCount ) }</td>
+								{ previousRange !== undefined && <td>{ hour.previousCount === null ? '-' : copy.formatCount( hour.previousCount ) }</td> }
 							</tr> ) }</tbody>
 						</table></VisuallyHidden>
 					</> }
