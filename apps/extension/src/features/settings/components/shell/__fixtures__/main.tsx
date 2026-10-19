@@ -42,6 +42,7 @@ import { originalConfiguration } from './original-settings';
 import { originalLanguageCopy } from './original-language';
 import { stageOriginalScheduleChange } from './original-schedule';
 import { stageOriginalStatisticsReset } from './original-statistics';
+import { createStatisticsComparisonFixture } from '../../../../statistics/components/settings-screen/__fixtures__/comparison';
 import './original-settings.scss';
 
 const params = new URLSearchParams( location.search );
@@ -371,6 +372,9 @@ if ( original ) {
 	}
 	controls.unavailableStatistics = original.includes( 'statistics' ) && original.includes( 'unavailable' );
 	controls.rejectResets = original.includes( 'failed' ) || original.includes( 'failure' );
+}
+if ( params.has( 'trends' ) && ! original ) {
+	statistics = createStatisticsComparisonFixture();
 }
 shell.statisticsSource = {
 	/**
