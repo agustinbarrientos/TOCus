@@ -8,7 +8,10 @@
 }
 
 .settings-pause-preview {
-	--tocus-preview-sphere-height: min(36cqh, 5.75rem);
+	--tocus-preview-sphere-height: 58cqh;
+	--tocus-preview-sphere-max-height: 58cqh;
+	--tocus-preview-link-bottom-space: 6cqh;
+	--tocus-preview-link-wrap: nowrap;
 
 	right: 1rem;
 

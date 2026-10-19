@@ -143,8 +143,19 @@ test.describe( 'Settings breathing preview', () => {
 		} );
 	}
 
-	test( 'keeps the preview artwork unchanged with zero, one or three long shortcuts', async ( { open } ) => {
+	test( 'keeps real pause proportions and spacing with zero, one or three long shortcuts', async ( { open, context } ) => {
+		const reference = await context.newPage();
+		await reference.setViewportSize( { width: 1280, height: 800 } );
+		await reference.goto( '/apps/extension/src/features/interruption/components/screen/__fixtures__/browser.html' );
+		await expect( reference.locator( 'canvas' ) ).toBeVisible();
+		const referenceCanvas = await reference.locator( 'canvas' ).boundingBox();
+		if ( ! referenceCanvas ) {
+			throw new Error( 'Expected the production pause drawing surface.' );
+		}
+		const referenceRatio = referenceCanvas.height / 800;
+		await reference.close();
 		const page = await open( SettingsDestination.FOCUS_LINKS );
+		await page.emulateMedia( { reducedMotion: 'reduce' } );
 		const preview = page.locator( '.settings-pause-preview' );
 		for ( const width of [ 1280, 320 ] ) {
 			await page.setViewportSize( { width, height: 900 } );
@@ -161,16 +172,38 @@ test.describe( 'Settings breathing preview', () => {
 				const geometry = await preview.evaluate( async ( element ) => {
 					await new Promise( requestAnimationFrame );
 					const root = element.querySelector( 'tocus-f-interruption-screen' )?.shadowRoot;
-					const canvas = root?.querySelector( 'tocus-f-breathing-sphere' )?.shadowRoot
-						?.querySelector( 'canvas' )?.getBoundingClientRect();
+					const sphere = root?.querySelector( 'tocus-f-breathing-sphere' );
+					if ( sphere ) {
+						sphere.still = false;
+						sphere.breathProgress = 1;
+						await sphere.updateComplete;
+					}
+					const surface = sphere?.shadowRoot?.querySelector( 'canvas' );
+					const canvas = surface?.getBoundingClientRect();
+					const drawing = surface?.getContext( '2d' );
 					const viewport = element.querySelector( '.pause-preview-viewport' )?.getBoundingClientRect();
 					const cue = root?.querySelector( '.cue' )?.getBoundingClientRect();
-					if ( ! canvas || ! viewport || ! cue ) {
+					if ( ! surface || ! drawing || ! canvas || ! viewport || ! cue ) {
 						throw new Error( 'Expected a contained preview drawing surface.' );
 					}
+					const pixels = drawing.getImageData( 0, 0, surface.width, surface.height ).data;
+					let firstPaintedRow = surface.height;
+					let lastPaintedRow = -1;
+					for ( let row = 0; row < surface.height; row++ ) {
+						for ( let column = 0; column < surface.width; column++ ) {
+							// Check the sphere and contours separately from their translucent shadow.
+							if ( ( pixels[ ( row * surface.width + column ) * 4 + 3 ] ?? 0 ) > 128 ) {
+								firstPaintedRow = Math.min( firstPaintedRow, row );
+								lastPaintedRow = row;
+								break;
+							}
+						}
+					}
 					return { width: canvas.width, height: canvas.height,
-						artworkTop: canvas.top, artworkBottom: canvas.bottom, cueBottom: cue.bottom,
-						viewportBottom: viewport.bottom,
+						artworkTop: canvas.top + firstPaintedRow / surface.height * canvas.height,
+						artworkBottom: canvas.top + ( lastPaintedRow + 1 ) / surface.height * canvas.height,
+						paintedRows: lastPaintedRow - firstPaintedRow,
+						cueBottom: cue.bottom, viewportHeight: viewport.height, viewportBottom: viewport.bottom,
 						buttons: [ ...root?.querySelectorAll( '.focus-link-button' ) ?? [] ].map( ( button ) => {
 							const bounds = button.getBoundingClientRect();
 							const label = button.querySelector<HTMLElement>( '.focus-link-label' );
@@ -186,11 +219,15 @@ test.describe( 'Settings breathing preview', () => {
 						} ) };
 				} );
 				expect( geometry.height ).toBeGreaterThan( 0 );
+				expect( geometry.height / geometry.viewportHeight ).toBeCloseTo( referenceRatio, 2 );
+				expect( geometry.paintedRows ).toBeGreaterThan( 0 );
 				expect( geometry.cueBottom ).toBeLessThanOrEqual( geometry.artworkTop );
 				for ( const button of geometry.buttons ) {
 					expect( button.width ).toBeGreaterThan( button.height );
 					expect( button.top ).toBeGreaterThanOrEqual( geometry.artworkBottom );
 					expect( button.bottom ).toBeLessThanOrEqual( geometry.viewportBottom );
+					expect( geometry.viewportBottom - button.bottom )
+						.toBeGreaterThanOrEqual( geometry.viewportHeight * 0.04 );
 					expect( button.scrollHeight ).toBeLessThanOrEqual( button.clientHeight );
 					expect( button.label.top ).toBeGreaterThanOrEqual( button.top );
 					expect( button.label.bottom ).toBeLessThanOrEqual( button.bottom );
