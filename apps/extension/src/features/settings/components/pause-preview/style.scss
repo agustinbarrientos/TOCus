@@ -1,0 +1,57 @@
+@use '@tocus/theme/typography' as typography;
+
+.settings-preview-container {
+	container: settings-preview / inline-size;
+}
+
+.settings-preview-layout {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--tocus-space-6);
+
+	> form { min-width: 0; }
+}
+
+.settings-pause-preview {
+	justify-self: end;
+	min-width: 0;
+	width: min(100%, 24rem);
+	margin: 0;
+	pointer-events: none;
+
+	figcaption {
+		@include typography.apply('body-small');
+
+		margin-bottom: var(--tocus-space-3);
+		color: var(--tocus-color-on-surface-muted);
+	}
+}
+
+.settings-pause-preview-viewport {
+	--tocus-preview-sphere-height: min(44cqh, 8rem);
+
+	position: relative;
+	aspect-ratio: 4 / 3;
+	width: 100%;
+	min-height: 15rem;
+	border: 1px solid var(--tocus-color-outline);
+	border-radius: var(--tocus-radius-medium);
+	overflow: hidden;
+	box-shadow: 0 0.5rem 1.5rem color-mix(in srgb, var(--tocus-color-on-surface) 12%, transparent);
+}
+
+@media (height >= 40rem) {
+	@container settings-preview (width >= 54rem) {
+		.settings-preview-layout {
+			grid-template-columns: minmax(0, 1fr) 20rem;
+			min-height: calc(100dvh - 12rem);
+		}
+
+		.settings-pause-preview {
+			position: sticky;
+			bottom: var(--tocus-space-5);
+			align-self: end;
+			width: 100%;
+		}
+	}
+}

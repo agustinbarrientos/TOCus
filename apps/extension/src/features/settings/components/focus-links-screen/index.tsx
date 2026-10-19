@@ -9,6 +9,7 @@ import { DraftActions } from '../draft-actions';
 import { FocusLinkEditor } from '../focus-link-editor';
 import { Feedback } from '../feedback';
 import { Page } from '../page';
+import { SettingsPausePreview } from '../pause-preview';
 import { Recovery } from '../recovery';
 import { LoadState } from '../recovery/types';
 import { DraftSaveResult } from '../../utils/draft-controller/types';
@@ -160,71 +161,74 @@ export function FocusLinks( props: EditableSettingsScreenProps ) {
 			} } />
 		<Feedback error={ recovery.failed ? copy.restoreDefaultsError : null }
 			success={ recovery.restored ? copy.restoredAnnouncement : null } />
-		{ status === LoadState.READY && <form ref={ form } aria-label={ copy.formLabel } aria-busy={ disabled }
-			noValidate onSubmit={ ( event ) => {
-				event.preventDefault(); void save();
-			} }>
-			<Stack gap={ 0 }>
-				<Stack gap="var(--tocus-space-5)" className="settings-focus-links">
-					{ value.focusLinks.length === 0 ? <section className="settings-sites-empty">
-						<h2>{ copy.emptyMessage }</h2><p>{ copy.description }<br />{ copy.descriptionDetail }</p>
-					</section> : <p>{ copy.description }<br />{ copy.descriptionDetail }</p> }
-					{ value.focusLinks.length > 0 && <ul className="settings-site-list settings-focus-link-list">
-						{ value.focusLinks.map( ( link, index ) => <li key={ link.id } className="settings-site-item">
-							<Group className="settings-site-row settings-focus-link-row" wrap="nowrap" gap="var(--tocus-space-3)">
-								<div className="settings-site-identity">
-									<h2>{ link.label.trim() || copy.addLink }</h2>
-									{ link.url !== '' && <p>{ link.url.replace( /^https?:\/\//iu, '' ) }</p> }
-								</div>
-								<Group className="settings-site-actions" wrap="nowrap" gap="var(--tocus-space-1)">
-									<Tooltip label={ copy.moveUp }
-										events={ { hover: true, focus: true, touch: true } } withArrow>
-										<ActionIcon variant="subtle" aria-label={ copy.moveUp }
-											disabled={ disabled || index === 0 }
-											onClick={ () => {
-												moveLink( index, -1 );
-											} }><Icon name={ IconName.ANGLE_UP } /></ActionIcon>
-									</Tooltip>
-									<Tooltip label={ copy.moveDown }
-										events={ { hover: true, focus: true, touch: true } } withArrow>
-										<ActionIcon variant="subtle" aria-label={ copy.moveDown }
-											disabled={ disabled || index === value.focusLinks.length - 1 }
-											onClick={ () => {
-												moveLink( index, 1 );
-											} }><Icon name={ IconName.ANGLE_DOWN } /></ActionIcon>
-									</Tooltip>
-									<Tooltip label={ copy.remove }
-										events={ { hover: true, focus: true, touch: true } } withArrow>
-										<ActionIcon className="settings-site-remove" color="red" variant="subtle"
-											aria-label={ copy.remove }
-											disabled={ disabled } onClick={ () => {
-												removeLink( link.id, index );
-											} }><Icon name={ IconName.TRASH } /></ActionIcon>
-									</Tooltip>
-									<Tooltip label={ editLabel } multiline maw="calc(100vw - var(--tocus-space-8))"
-										events={ { hover: true, focus: true, touch: true } } withArrow>
-										<ActionIcon id={ `focus-link-edit-${ link.id }` }
-											className="settings-site-manage" variant="subtle"
-											aria-label={ editLabel } aria-haspopup="dialog" disabled={ disabled } onClick={ () => {
-												setEditor( { value: link, original: link } );
-											} }><Icon name={ IconName.SLIDERS } /></ActionIcon>
-									</Tooltip>
+		{ status === LoadState.READY && <SettingsPausePreview preferences={ value }
+			copy={ props.shell.pausePreviewCopy }>
+			<form ref={ form } aria-label={ copy.formLabel } aria-busy={ disabled }
+				noValidate onSubmit={ ( event ) => {
+					event.preventDefault(); void save();
+				} }>
+				<Stack gap={ 0 }>
+					<Stack gap="var(--tocus-space-5)" className="settings-focus-links">
+						{ value.focusLinks.length === 0 ? <section className="settings-sites-empty">
+							<h2>{ copy.emptyMessage }</h2><p>{ copy.description }<br />{ copy.descriptionDetail }</p>
+						</section> : <p>{ copy.description }<br />{ copy.descriptionDetail }</p> }
+						{ value.focusLinks.length > 0 && <ul className="settings-site-list settings-focus-link-list">
+							{ value.focusLinks.map( ( link, index ) => <li key={ link.id } className="settings-site-item">
+								<Group className="settings-site-row settings-focus-link-row" wrap="nowrap" gap="var(--tocus-space-3)">
+									<div className="settings-site-identity">
+										<h2>{ link.label.trim() || copy.addLink }</h2>
+										{ link.url !== '' && <p>{ link.url.replace( /^https?:\/\//iu, '' ) }</p> }
+									</div>
+									<Group className="settings-site-actions" wrap="nowrap" gap="var(--tocus-space-1)">
+										<Tooltip label={ copy.moveUp }
+											events={ { hover: true, focus: true, touch: true } } withArrow>
+											<ActionIcon variant="subtle" aria-label={ copy.moveUp }
+												disabled={ disabled || index === 0 }
+												onClick={ () => {
+													moveLink( index, -1 );
+												} }><Icon name={ IconName.ANGLE_UP } /></ActionIcon>
+										</Tooltip>
+										<Tooltip label={ copy.moveDown }
+											events={ { hover: true, focus: true, touch: true } } withArrow>
+											<ActionIcon variant="subtle" aria-label={ copy.moveDown }
+												disabled={ disabled || index === value.focusLinks.length - 1 }
+												onClick={ () => {
+													moveLink( index, 1 );
+												} }><Icon name={ IconName.ANGLE_DOWN } /></ActionIcon>
+										</Tooltip>
+										<Tooltip label={ copy.remove }
+											events={ { hover: true, focus: true, touch: true } } withArrow>
+											<ActionIcon className="settings-site-remove" color="red" variant="subtle"
+												aria-label={ copy.remove }
+												disabled={ disabled } onClick={ () => {
+													removeLink( link.id, index );
+												} }><Icon name={ IconName.TRASH } /></ActionIcon>
+										</Tooltip>
+										<Tooltip label={ editLabel } multiline maw="calc(100vw - var(--tocus-space-8))"
+											events={ { hover: true, focus: true, touch: true } } withArrow>
+											<ActionIcon id={ `focus-link-edit-${ link.id }` }
+												className="settings-site-manage" variant="subtle"
+												aria-label={ editLabel } aria-haspopup="dialog" disabled={ disabled } onClick={ () => {
+													setEditor( { value: link, original: link } );
+												} }><Icon name={ IconName.SLIDERS } /></ActionIcon>
+										</Tooltip>
+									</Group>
 								</Group>
-							</Group>
-						</li> ) }
-					</ul> }
-					{ value.focusLinks.length < FocusLinkMaximumCount && <Button id="focus-links-add"
-						className="settings-focus-links-add" type="button" aria-haspopup="dialog" variant="outline" disabled={ disabled } onClick={ () => {
-							if ( disabled || value.focusLinks.length >= FocusLinkMaximumCount ) {
-								return;
-							}
-							setEditor( { value: { id: `focus_link_${ crypto.randomUUID() }`, label: '', url: '' }, original: null } );
-						} }>{ copy.addLink }</Button> }
+							</li> ) }
+						</ul> }
+						{ value.focusLinks.length < FocusLinkMaximumCount && <Button id="focus-links-add"
+							className="settings-focus-links-add" type="button" aria-haspopup="dialog" variant="outline" disabled={ disabled } onClick={ () => {
+								if ( disabled || value.focusLinks.length >= FocusLinkMaximumCount ) {
+									return;
+								}
+								setEditor( { value: { id: `focus_link_${ crypto.randomUUID() }`, label: '', url: '' }, original: null } );
+							} }>{ copy.addLink }</Button> }
+					</Stack>
+					<Feedback error={ error ? copy.saveError : null } />
+					<DraftActions draft={ draft } copy={ copy } onSave={ save } onDiscard={ discard } />
 				</Stack>
-				<Feedback error={ error ? copy.saveError : null } />
-				<DraftActions draft={ draft } copy={ copy } onSave={ save } onDiscard={ discard } />
-			</Stack>
-		</form> }
+			</form>
+		</SettingsPausePreview> }
 		<FocusLinkEditor value={ status === LoadState.READY ? editor?.value ?? null : null }
 			title={ editor?.original ? editLabel : copy.addLink } copy={ copy } disabled={ disabled }
 			error={ editorChanged( value.focusLinks )

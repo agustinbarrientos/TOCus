@@ -31,6 +31,7 @@ import type {
 	PreferencesScreenProps,
 } from './types';
 import { BehaviorChoices } from '../behavior-choices';
+import { SettingsPausePreview } from '../pause-preview';
 import './style.scss';
 
 
@@ -72,6 +73,23 @@ export function Preferences( props: PreferencesScreenProps ) {
 	const copy = language ? shell.languageCopy : shell.appearanceCopy;
 	const { draft, value, saving, error, status, recovery, load, save, discard, restore } =
 		usePreferencesState( props );
+	const form = <form aria-label={ copy.formLabel } aria-busy={ saving }
+		onSubmit={ ( event ) => {
+			event.preventDefault(); void save();
+		} }>
+		<Stack gap={ 0 }>
+			{ language
+				? <LanguageControls copy={ shell.languageCopy } value={ value.language }
+					browserLanguage={ shell.browserLanguage } disabled={ saving }
+					onChange={ ( next ) => {
+						draft.change( { ...value, language: next } );
+					} } />
+				: <AppearanceSettingsControls copy={ shell.appearanceCopy } value={ value }
+					disabled={ saving } onChange={ draft.change } /> }
+			<Feedback error={ error ? copy.saveError : null } />
+			<DraftActions draft={ draft } copy={ copy } onSave={ save } onDiscard={ discard } />
+		</Stack>
+	</form>;
 
 	return (
 		<Page title={ copy.title }>
@@ -83,23 +101,10 @@ export function Preferences( props: PreferencesScreenProps ) {
 				} } />
 			<Feedback error={ recovery.failed ? copy.restoreDefaultsError : null }
 				success={ recovery.restored ? copy.restoredAnnouncement : null } />
-			{ status === LoadState.READY && <form aria-label={ copy.formLabel } aria-busy={ saving }
-				onSubmit={ ( event ) => {
-					event.preventDefault(); void save();
-				} }>
-				<Stack gap={ 0 }>
-					{ language
-						? <LanguageControls copy={ shell.languageCopy } value={ value.language }
-							browserLanguage={ shell.browserLanguage } disabled={ saving }
-							onChange={ ( next ) => {
-								draft.change( { ...value, language: next } );
-							} } />
-						: <AppearanceSettingsControls copy={ shell.appearanceCopy } value={ value }
-							disabled={ saving } onChange={ draft.change } /> }
-					<Feedback error={ error ? copy.saveError : null } />
-					<DraftActions draft={ draft } copy={ copy } onSave={ save } onDiscard={ discard } />
-				</Stack>
-			</form> }
+			{ status === LoadState.READY && ( language ? form
+				: <SettingsPausePreview preferences={ value } copy={ shell.pausePreviewCopy }>
+					{ form }
+				</SettingsPausePreview> ) }
 		</Page>
 	);
 }
