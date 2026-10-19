@@ -87,6 +87,25 @@ test( 'denied native access saves nothing and retry enables a real pause and Con
 	} );
 } );
 
+test( 'a protected text-fragment destination survives the native breathing pause and Continue', async () => {
+	await withBrowser( async ( browser, url ) => {
+		const destination = `${ url }article#next:~:text=Protected%20destination`;
+		await enroll( browser, url );
+		await browser.navigate( destination );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("tocus-f-interruption-screen")?.shadowRoot?.querySelector("h1")?.textContent;' ) )
+			.toMatch( /^Breathe (in|out)$/u );
+		await expect.poll( () => browser.currentUrl() ).toBe( browser.extensionUrl( 'pause.html' ) );
+		await expect.poll( () => browser.viewScript( 'onboarding', `return browser.storage.session.get('tocus.protection.session.v1')
+			.then(data => data['tocus.protection.session.v1']?.document.scopes.scope_default?.participants
+				?.map(({retainedDestination}) => retainedDestination));` ) ).toEqual( [ destination ] );
+		await continuePause( browser );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Protected destination' );
+		// Browser tab metadata retains the directive even when document URL APIs omit it.
+		await expect.poll( () => browser.viewScript( 'onboarding', `return browser.tabs.query({active:true,currentWindow:true})
+			.then(([tab]) => tab?.url);` ) ).toBe( destination );
+	} );
+} );
+
 test( 'first-use onboarding preserves appearance and enrolls websites through native consent', async () => {
 	await withBrowser( async ( browser ) => {
 		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("button[type=submit]")?.textContent;' ) ).toBe( 'Continue' );

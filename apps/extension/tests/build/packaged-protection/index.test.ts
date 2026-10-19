@@ -302,6 +302,47 @@ test.describe( 'packaged Chrome protection', () => {
 	}
 
 	for ( const targetBlank of [ false, true ] ) {
+		test( `restores a protected text-fragment search result in ${ targetBlank ? 'a new tab' : 'the same tab' }`, async ( { context, worker, page } ) => {
+			const searchUrl = 'https://allowed.test/search';
+			const destination = 'https://example.test/article#:~:text=Destination%20loaded';
+			await context.route( searchUrl, ( route ) => route.fulfill( {
+				contentType: 'text/html',
+				body: `<!doctype html><html lang="en"><title>Search results</title><body><h1>Search results</h1><a href="${ destination }"${ targetBlank ? ' target="_blank" rel="noopener"' : '' }>Read more</a></body></html>`,
+			} ) );
+			await worker.evaluate( async ( configuration ) => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				await chrome.storage.local.set( { 'tocus.protection.configuration.v1': configuration } );
+			}, {
+				...TestEmptyProtectionConfiguration,
+				sites: [ { identityHost: 'example.test', rule: {
+					host: 'example.test', includeSubdomains: true, scopeId: DefaultProtectionScopeId,
+				} } ],
+			} );
+			await expect.poll( () => worker.evaluate( async () => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				return ( await chrome.declarativeNetRequest.getDynamicRules() ).length;
+			} ) ).toBeGreaterThan( 0 );
+			await page.goto( searchUrl );
+			const openedPage = targetBlank ? context.waitForEvent( 'page' ) : null;
+			await page.getByRole( 'link', { name: 'Read more', exact: true } ).click( { noWaitAfter: true } );
+			const protectedPage = openedPage === null ? page : await openedPage;
+			await protectedPage.bringToFront();
+			await expect( protectedPage.getByRole( 'region', { name: /^Breathe (?:in|out)$/u } ) ).toBeVisible();
+			await expect( protectedPage ).toHaveURL( /\/pause\.html$/u );
+			await protectedPage.reload();
+			await expect( protectedPage.getByRole( 'region', { name: /^Breathe (?:in|out)$/u } ) ).toBeVisible();
+			const continueButton = protectedPage.getByRole( 'button', { name: 'Continue', exact: true } );
+			await expect( continueButton ).toBeVisible( { timeout: 15_000 } );
+			await continueButton.click();
+			await expect( protectedPage.getByRole( 'heading', { name: 'Destination loaded', exact: true } ) ).toBeVisible();
+			await expect.poll( () => worker.evaluate( async ( expected ) => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				return ( await chrome.tabs.query( {} ) ).some( ( tab ) => tab.url === expected );
+			}, destination ) ).toBe( true );
+		} );
+	}
+
+	for ( const targetBlank of [ false, true ] ) {
 		test( `continues to the protected destination after a server redirect in ${ targetBlank ? 'a new tab' : 'the same tab' }`, async ( { context, worker, page } ) => {
 			const searchUrl = 'https://allowed.test/search';
 			const redirectUrl = 'https://allowed.test/redirect';

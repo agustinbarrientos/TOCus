@@ -1,6 +1,7 @@
 import { ProtectionConfigurationStorageKey } from '../../../../domains/protection/services/protection-configuration-storage';
 import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
 import { readInterruptionNavigationDestination } from '../../../../shared/utils/interruption-navigation-destination';
+import { isMatchingBrowserDocumentUrl } from '../../../../shared/utils/browser-document-url';
 import {
 	InterruptionPageRequestSchema,
 	InterruptionPageRequestType,
@@ -415,6 +416,7 @@ export function createProtectionBackgroundController(
 	 * @param sender.frameId - Sending frame identifier when supplied for a tab sender.
 	 * @param sender.tab - Sending tab when the message came from a tab page.
 	 * @param sender.tab.id - Browser-assigned sender tab identifier when available.
+	 * @param sender.tab.url - Complete browser-reported tab URL when available.
 	 * @param sender.url - URL of the page or frame hosting the sending script.
 	 * @param sendResponse - Browser callback for the asynchronous response.
 	 * @return True for one claimed interruption request, otherwise undefined.
@@ -427,12 +429,20 @@ export function createProtectionBackgroundController(
 	): true | undefined {
 		if ( NavigationRedirectRequestSchema.safeParse( input ).success ) {
 			const tabId = sender.tab?.id;
-			const url = sender.url;
 
 			if (
 				sender.frameId !== 0 || sender.tab?.incognito !== false ||
 				tabId === undefined || ! Number.isSafeInteger( tabId ) || tabId < 0 ||
-				url === undefined || readInterruptionNavigationDestination( url, options.interruptionPageUrl ) === null
+				sender.url === undefined
+			) {
+				return undefined;
+			}
+
+			const url = sender.tab.url ?? sender.url;
+
+			if (
+				! isMatchingBrowserDocumentUrl( sender.url, url ) ||
+				readInterruptionNavigationDestination( url, options.interruptionPageUrl ) === null
 			) {
 				return undefined;
 			}

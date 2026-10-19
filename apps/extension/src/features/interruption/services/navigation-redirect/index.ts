@@ -1,5 +1,6 @@
 import { readInterruptionNavigationDestination } from '../../../../shared/utils/interruption-navigation-destination';
 import { InterruptionDocumentPath } from '../../../../shared/utils/interruption-document-url';
+import { isMatchingBrowserDocumentUrl } from '../../../../shared/utils/browser-document-url';
 import type { NavigationRedirectOptions } from './types';
 
 /**
@@ -28,7 +29,9 @@ export async function resolveNavigationRedirect( options: NavigationRedirectOpti
 
 	const url = 'url' in response ? response.url : undefined;
 
-	if ( url !== currentUrl && url !== destination ) {
+	if ( typeof url !== 'string' || ( url !== currentUrl && ! isMatchingBrowserDocumentUrl(
+		carrierUrl, `${ currentUrl }#destination=${ url }`,
+	) ) ) {
 		throw new TypeError( 'Expected an authorized navigation redirect URL.' );
 	}
 	options.location.replace( url );

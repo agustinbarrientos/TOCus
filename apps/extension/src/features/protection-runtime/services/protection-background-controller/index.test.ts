@@ -35,9 +35,48 @@ describe( 'createProtectionBackgroundController', () => {
 		expect( harness.handlePageRequest ).not.toHaveBeenCalled();
 	} );
 
+	it.each( [ '', 'section-2' ] )( 'retains the browser URL when its text directive is hidden from the sender (anchor: %s)', async ( anchor ) => {
+		const harness = createHarness();
+		const sendResponse = vi.fn();
+		const documentUrl = `${ INTERRUPTION_PAGE_URL }#destination=https://example.test/article#${ anchor }`;
+		const browserUrl = `${ documentUrl }:~:text=Example%20highlight`;
+		harness.handleNavigation.mockResolvedValue( INTERRUPTION_PAGE_URL );
+		harness.controller.start();
+		await harness.controller.waitUntilReady();
+
+		expect( harness.message.emit( { type: 'resolve-navigation-redirect' }, {
+			frameId: 0, tab: { id: 7, incognito: false, url: browserUrl }, url: documentUrl,
+		}, sendResponse ) ).toBe( true );
+		await vi.waitFor( () => {
+			expect( sendResponse ).toHaveBeenCalledExactlyOnceWith( { url: INTERRUPTION_PAGE_URL } );
+		} );
+		expect( harness.handleNavigation ).toHaveBeenCalledExactlyOnceWith( {
+			frameId: 0, tabId: 7, phase: ProtectionRuntimeNavigationPhase.COMMITTED, url: browserUrl,
+		} );
+	} );
+
+	it.each( [
+		'https://example.test/other#section-2:~:text=Example',
+		'https://example.test/article?changed=1#section-2:~:text=Example',
+		'https://example.test/article#section-3:~:text=Example',
+		'javascript:alert(1)',
+	] )( 'rejects a browser tab URL that changes the sending document: %s', ( destination ) => {
+		const harness = createHarness();
+		const sendResponse = vi.fn();
+		harness.controller.start();
+
+		expect( harness.message.emit( { type: 'resolve-navigation-redirect' }, {
+			frameId: 0, tab: { id: 7, incognito: false, url: `${ INTERRUPTION_PAGE_URL }#destination=${ destination }` },
+			url: `${ INTERRUPTION_PAGE_URL }#destination=https://example.test/article#section-2`,
+		}, sendResponse ) ).toBeUndefined();
+		expect( harness.handleNavigation ).not.toHaveBeenCalled();
+		expect( sendResponse ).not.toHaveBeenCalled();
+	} );
+
 	it.each( [
 		{ frameId: 1 }, { tab: undefined }, { tab: { id: -1, incognito: false } },
 		{ tab: { id: 7, incognito: true } }, { tab: { id: 7 } },
+		{ url: undefined },
 		{ url: INTERRUPTION_PAGE_URL }, { url: 'https://example.com/' },
 		{ url: `${ INTERRUPTION_PAGE_URL }#destination=javascript:alert(1)` },
 	] )( 'rejects redirect-resolution requests from invalid senders %j', ( changes ) => {
