@@ -265,11 +265,11 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-appearance-dark.png",
-    "sha256": "598ae5719a4f283225e3ece20b3dbac0a3df56fd988ce255b3be89280fffbaef"
+    "sha256": "4968a7135696ef675445e7448ff617824df6b92d00d6f28caad0f4334b9c9ac0"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-appearance-light.png",
-    "sha256": "3b7491735bafb0867de7ecc76ec6feb30f5e8bdd0b0391318981d282dfde833b"
+    "sha256": "f1576f72861334c49215436d77912114e3429daee58df59b5de201575194f0ba"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-language-dark.png",
