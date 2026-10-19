@@ -52,7 +52,9 @@ test( 'lets keyboard users inspect the same daily values as pointer users', asyn
 			reconsideredVisitCount: 0, completedWaitCount: 0, allowanceGrantedCount: 0,
 		} ] } );
 	} );
+	await page.getByRole( 'button', { name: 'Period: Current week', exact: true } ).click();
 	await page.getByRole( 'combobox', { name: 'Period', exact: true } ).selectOption( 'all-time' );
+	await page.keyboard.press( 'Escape' );
 	const chart = page.getByRole( 'region', { name: 'Daily activity', exact: true } );
 	await chart.getByRole( 'combobox', { name: 'Daily activity metric', exact: true } ).selectOption( 'estimatedReclaimedMilliseconds' );
 	const keyboardSurface = chart.getByRole( 'application', { name: 'Daily activity Estimated time reclaimed', exact: true } );

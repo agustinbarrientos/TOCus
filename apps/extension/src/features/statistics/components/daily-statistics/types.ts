@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { SVGProps } from 'react';
 import type { StatisticsChartBucket } from '../../utils/select-statistics-range/types';
+import type { StatisticsComparisonView } from '../../utils/select-statistics-comparison/types';
 import type { StatisticsSettingsScreenCopy } from '../settings-screen/types';
 
 /**
@@ -10,6 +11,7 @@ import type { StatisticsSettingsScreenCopy } from '../settings-screen/types';
 export interface DailyStatisticsProps {
 	totals: readonly StatisticsChartBucket[];
 	copy: StatisticsSettingsScreenCopy;
+	comparison?: StatisticsComparisonView;
 }
 
 /**
