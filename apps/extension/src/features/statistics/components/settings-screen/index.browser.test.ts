@@ -1,8 +1,21 @@
 import { expect } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { SettingsDestination } from '../../../settings/services/settings-navigation/types';
 import { test } from '../../../settings/utils/browser-test-harness';
 import { Language } from '../../../../domains/preferences/types';
 import { StatisticsRange } from '../../utils/select-statistics-range/types';
+
+/**
+ * Selects a calendar period through the same popover used by keyboard and pointer users.
+ * @param page - Open Statistics settings fixture.
+ * @param range - Calendar interval to display.
+ * @return Completion with the period menu dismissed.
+ */
+async function selectStatisticsPeriod( page: Page, range: StatisticsRange ): Promise<void> {
+	await page.getByRole( 'button', { name: /^Period:/ } ).click();
+	await page.getByRole( 'combobox', { name: 'Period', exact: true } ).selectOption( range );
+	await page.keyboard.press( 'Escape' );
+}
 
 test.describe( 'local statistics', () => {
 	test( 'aligns unequal website count columns without losing full values in narrow or enlarged text', async ( { open } ) => {
@@ -184,8 +197,10 @@ test.describe( 'local statistics', () => {
 				},
 			} );
 		} );
+		await page.getByRole( 'button', { name: 'Period: Current week', exact: true } ).click();
 		const selector = page.getByRole( 'combobox', { name: 'Period', exact: true } );
 		await expect( selector ).toHaveValue( StatisticsRange.CURRENT_WEEK );
+		await page.keyboard.press( 'Escape' );
 		const totals = page.locator( '.settings-statistics-estimate dd, .settings-metrics dd' );
 		const rows = page.getByRole( 'region', { name: 'Daily activity', exact: true } ).locator( 'tbody tr' );
 		const website = page.locator( '.settings-statistics-site-list [data-site="youtube.com"]' );
@@ -195,13 +210,13 @@ test.describe( 'local statistics', () => {
 		await expect( rows ).toContainText( 'Sep 14, 2026' );
 		await expect( website.locator( '[data-outcome] strong' ) ).toHaveText( [ '3', '9' ] );
 		await expect( hours.getByRole( 'row', { name: '23:00 3', exact: true } ) ).toHaveCount( 1 );
-		await selector.selectOption( StatisticsRange.CURRENT_MONTH );
+		await selectStatisticsPeriod( page, StatisticsRange.CURRENT_MONTH );
 		await expect( totals ).toHaveText( [ '5', '10', 'Approximately 10 minutes' ] );
 		await expect( rows ).toHaveCount( 2 );
 		await expect( website.locator( '[data-outcome] strong' ) ).toHaveText( [ '5', '15' ] );
 		await expect( hours.getByRole( 'row', { name: '08:00 0', exact: true } ) ).toHaveCount( 1 );
 		await expect( hours.getByRole( 'row', { name: '12:00 2', exact: true } ) ).toHaveCount( 1 );
-		await selector.selectOption( StatisticsRange.ALL_TIME );
+		await selectStatisticsPeriod( page, StatisticsRange.ALL_TIME );
 		await expect( totals ).toHaveText( [ '6', '12', 'Approximately 12 minutes' ] );
 		await expect( rows ).toHaveCount( 3 );
 		await expect( website.locator( '[data-outcome] strong' ) ).toHaveText( [ '6', '18' ] );
@@ -509,7 +524,7 @@ test.describe( 'local statistics', () => {
 					const ends = [ ...region.querySelectorAll( '.settings-statistics-site-counts' ) ].map( ( item ) => item.getBoundingClientRect().right );
 					const key = region.querySelector( '.settings-statistics-outcomes-legend' )?.getBoundingClientRect();
 					const track = region.querySelector( '.settings-statistics-site-track' )?.getBoundingClientRect();
-					const heading = region.querySelector( '.settings-statistics-sites-heading h3' )
+					const heading = region.querySelector( '.settings-statistics-all-websites-heading h3' )
 						?.getBoundingClientRect();
 					return { keyStart: key?.left, keyTop: key?.top,
 						headingStart: heading?.left, headingBottom: heading?.bottom,
@@ -554,7 +569,7 @@ test.describe( 'local statistics', () => {
 					for ( const period of [
 						StatisticsRange.CURRENT_WEEK, StatisticsRange.CURRENT_MONTH, StatisticsRange.ALL_TIME,
 					] ) {
-						await page.getByRole( 'combobox', { name: 'Period', exact: true } ).selectOption( period );
+						await selectStatisticsPeriod( page, period );
 						await expect( daily.getByRole( 'heading', { name: 'No activity in this period', exact: true } ) ).toBeVisible();
 						await expect( daily.getByText( 'Your pauses and reconsidered visits will appear here.', { exact: true } ) ).toBeVisible();
 						await expect( page.locator( '.settings-statistics-empty' ) ).toHaveCount( 3 );
@@ -590,13 +605,12 @@ test.describe( 'local statistics', () => {
 				} ], dailyHours: [ { date: '2026-09-14', hour: 9, reconsideredVisitCount: 2 } ],
 			} } );
 		} );
-		const period = page.getByRole( 'combobox', { name: 'Period', exact: true } );
-		await period.selectOption( StatisticsRange.ALL_TIME );
+		await selectStatisticsPeriod( page, StatisticsRange.ALL_TIME );
 		await expect( outcomes.locator( '.settings-statistics-coverage' ) ).toHaveCount( 0 );
 		await expect( page.locator( '.settings-statistics-dates' ) ).toContainText( 'Sep 1' );
-		await period.selectOption( StatisticsRange.CURRENT_WEEK );
+		await selectStatisticsPeriod( page, StatisticsRange.CURRENT_WEEK );
 		await expect( outcomes.locator( '.settings-statistics-coverage' ) ).toHaveCount( 0 );
-		await expect( outcomes.locator( '[data-outcome] strong' ) ).toHaveText( [ '2', '4' ] );
+		await expect( outcomes.locator( '.settings-statistics-site-list [data-outcome] strong' ) ).toHaveText( [ '2', '4' ] );
 	} );
 
 	test( 'labels hourly tooltips as times for keyboard and pointer users', async ( { open } ) => {
