@@ -9,13 +9,22 @@ describe( 'shape-named icon catalog', () => {
 	it( 'keeps theme color inheritance and the secondary layer in the supplied duotone artwork', () => {
 		for ( const name of Object.values( contracts.IconName ) ) {
 			if ( name === contracts.IconName.CAPYBARA || name === contracts.IconName.CIRCLE_CHECK
-				|| name === contracts.IconName.CIRCLE_QUESTION ) {
+				|| name === contracts.IconName.CIRCLE_QUESTION || name.startsWith( 'arrow-trend-' ) ) {
 				continue;
 			}
 			const rendered = renderToStaticMarkup( createElement( Icon, { name } ) );
 			expect( rendered, name ).toContain( 'fill="currentColor"' );
 			expect( rendered, name ).toContain( 'opacity=".4"' );
 		}
+	} );
+	it.each( [ 'ARROW_TREND_UP', 'ARROW_TREND_DOWN' ] )( 'uses the supplied single-path %s artwork', ( key ) => {
+		expect( contracts.IconName ).toHaveProperty( key );
+		const name = contracts.IconName[ key as keyof typeof contracts.IconName ];
+		const rendered = renderToStaticMarkup( createElement( Icon, { name } ) );
+		expect( rendered.match( /<path\b/g ) ).toHaveLength( 1 );
+		expect( rendered ).toContain( 'Font Awesome Pro v7.3.1' );
+		expect( rendered ).not.toContain( 'opacity=".4"' );
+		expect( rendered ).toContain( 'fill="currentColor"' );
 	} );
 	it( 'keeps the supplied single-path question circle separate from informational feedback', () => {
 		expect( contracts.IconName ).toHaveProperty( 'CIRCLE_QUESTION' );

@@ -8,6 +8,8 @@ export const IconName = {
 	STAR: 'star',
 	BRUSH: 'brush',
 	ARROW_UP_RIGHT_FROM_SQUARE: 'arrow-up-right-from-square',
+	ARROW_TREND_UP: 'arrow-trend-up',
+	ARROW_TREND_DOWN: 'arrow-trend-down',
 	HAND_POINTER: 'hand-pointer',
 	LANGUAGE: 'language',
 	SHIELD_HALVED: 'shield-halved',
