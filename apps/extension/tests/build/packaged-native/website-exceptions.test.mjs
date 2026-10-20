@@ -7,7 +7,8 @@ import { test, expect, withBrowser, readView, enroll, continuePause, reload } fr
  * @since 1.1.0
  */
 async function configureExceptions( browser, entries ) {
-	await browser.navigate( browser.extensionUrl( 'options.html#about' ) );
+	await browser.viewScript( 'onboarding', `return browser.tabs.query({active:true,currentWindow:true})
+		.then(([tab]) => browser.tabs.update(tab.id, {url:browser.runtime.getURL('options.html') + '#about'}));` );
 	await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'About' );
 	await browser.viewScript( 'onboarding', `return browser.storage.local.get('tocus.protection.configuration.v1').then(async data => {
 		const configuration = data['tocus.protection.configuration.v1'];
