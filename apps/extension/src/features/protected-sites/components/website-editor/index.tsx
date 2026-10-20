@@ -36,7 +36,8 @@ function WebsiteEditorForm( props: WebsiteEditorProps ) {
 	return <form className="settings-site-editor" onSubmit={ submit }>
 		<Stack gap="var(--tocus-space-5)">
 			<WebsiteDetails idPrefix={ props.idPrefix } copy={ props.copy } scheduleCopy={ props.scheduleCopy }
-				value={ value } disabled={ props.disabled } validate={ validate } showName
+				value={ value } disabled={ props.disabled } validate={ validate } showName={ ! props.exception }
+				exception={ props.exception } timingCopy={ props.timingCopy } inheritedTiming={ props.inheritedTiming }
 				namePlaceholder={ props.automaticName } onChange={ setValue } />
 			<Feedback nativeError error={ props.error } />
 			<Group className="tocus-form-actions" justify="flex-end" gap="var(--tocus-space-2)">

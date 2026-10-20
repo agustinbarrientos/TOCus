@@ -1,3 +1,5 @@
+import type { TimingConfiguration } from '../../../../domains/protection/types/timing-configuration';
+import type { TimingScreenCopy } from '../../../settings/components/timing-screen/types';
 import type { WebsiteDetailsDraft } from '../../utils/website-draft/types';
 import type { ProtectedSiteItemCopy } from '../site-item/types';
 import type { ScheduleScreenCopy } from '../../../settings/components/schedule-screen/types';
@@ -8,6 +10,9 @@ import type { ScheduleScreenCopy } from '../../../settings/components/schedule-s
  */
 export interface WebsiteEditorProps {
 	opened: boolean;
+	exception?: boolean | undefined;
+	timingCopy?: TimingScreenCopy | undefined;
+	inheritedTiming?: TimingConfiguration | undefined;
 	idPrefix: string;
 	name: string;
 	automaticName: string;
