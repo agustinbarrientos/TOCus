@@ -416,6 +416,7 @@ async function expectProtectedPageComposition( outputUrl: URL, browser: string )
 	const fontStyles = await readOutputFile( outputUrl, 'assets/protected-page-font.css' );
 	const fontResourceUrls = fontStyles.match( /\/assets\/protected-page-font\d*\.woff2/gu ) ?? [];
 
+	expect( moduleCode.includes( 'Protected-site targets must be distinct.' ) ).toBe( false );
 	expect( moduleCode ).toContain( 'tocus-f-protected-page-layer' );
 	expect( moduleCode ).toContain( 'get-protected-page-presentation-status' );
 	expect( moduleCode.includes( '--chart-' ), 'The injected renderer must not carry chart CSS.' ).toBe( false );

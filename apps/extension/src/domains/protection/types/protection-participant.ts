@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CanonicalHostSchema } from './protected-site-rule';
+import { CanonicalHostSchema } from './canonical-host';
 import {
 	JoinSequenceSchema,
 	PageIdSchema,
