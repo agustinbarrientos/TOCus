@@ -2,6 +2,8 @@
 
 ## 1.1.0 - Unreleased
 
+- Fixed: Paths beneath a No pause website use global timing and schedules unless they have their own overrides. Paused paths prefer their own host's parent settings, including product subdomains, and switching the parent back to Pause restores its saved overrides (Chrome, Edge, Firefox).
+
 - Added: Adding a website path before its domain creates an editable No pause domain entry while keeping the path paused, using the same behavior across Settings, popup and onboarding. Onboarding preserves full paths and keeps sibling entries independent (Chrome, Edge, Firefox).
 
 - Added: Main websites can use No pause while selected paths or subdomains keep their own pauses (Chrome, Edge, Firefox).

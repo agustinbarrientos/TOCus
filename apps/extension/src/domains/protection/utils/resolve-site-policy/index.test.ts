@@ -207,3 +207,92 @@ describe( 'main website coverage inheritance', () => {
 		} );
 	} );
 } );
+
+
+describe( 'no-pause parent inheritance', () => {
+	it.each( [
+		{ ownTiming: false, ownSchedule: false },
+		{ ownTiming: true, ownSchedule: false },
+		{ ownTiming: false, ownSchedule: true },
+		{ ownTiming: true, ownSchedule: true },
+	] )( 'uses globals beyond only the child overrides: timing $ownTiming, schedule $ownSchedule', ( {
+		ownTiming, ownSchedule,
+	} ) => {
+		const parent = { ...root, rule: { ...root.rule, behavior: 'allow' as const },
+			schedule: monday, timingConfiguration: customTiming };
+		const childTiming = { ...customTiming, initialWaitMilliseconds: 30_000 };
+		const child = { ...shorts, ...( ownTiming ? { timingConfiguration: childTiming } : {} ),
+			...( ownSchedule ? { schedule: weekdays } : {} ) };
+		const configuration = { ...TestEmptyProtectionConfiguration, sites: [ parent, child ] };
+		expect( resolveSitePolicy( configuration, child.rule ) ).toEqual( {
+			site: child,
+			schedule: ownSchedule ? weekdays : configuration.schedule,
+			timingConfiguration: ownTiming ? childTiming : configuration.timingConfiguration,
+		} );
+		expect( resolveSitePolicy( configuration, parent.rule ) ).toEqual( {
+			site: parent, schedule: monday, timingConfiguration: customTiming,
+		} );
+		expect( parent.rule.behavior ).toBe( 'allow' );
+	} );
+
+	it.each( [ false, true ] )( 'does not fall through an allowed exact parent to a paused broad peer, reversed: %s', ( reverse ) => {
+		const broad = { ...root, schedule: weekdays, timingConfiguration: customTiming };
+		const exact = { ...root, identityHost: 'youtube.com', rule: { ...root.rule, includeSubdomains: false, behavior: 'allow' as const },
+			schedule: monday, timingConfiguration: { ...customTiming, initialWaitMilliseconds: 30_000 } };
+		const exactChild = { ...shorts, rule: { ...shorts.rule, includeSubdomains: false } };
+		const parents = reverse ? [ exact, broad ] : [ broad, exact ];
+		const configuration = { ...TestEmptyProtectionConfiguration, sites: [ ...parents, exactChild, shorts ] };
+		expect( resolveSitePolicy( configuration, exactChild.rule ) ).toEqual( {
+			site: exactChild, schedule: configuration.schedule, timingConfiguration: configuration.timingConfiguration,
+		} );
+		expect( resolveSitePolicy( configuration, shorts.rule ) ).toEqual( {
+			site: shorts, schedule: weekdays, timingConfiguration: customTiming,
+		} );
+	} );
+
+	it.each( [ false, true ] )( 'preserves an active exact parent beside an allowed broad peer, reversed: %s', ( reverse ) => {
+		const broad = { ...root, rule: { ...root.rule, behavior: 'allow' as const },
+			schedule: weekdays, timingConfiguration: customTiming };
+		const exact = { ...root, identityHost: 'youtube.com', rule: { ...root.rule, includeSubdomains: false },
+			schedule: monday, timingConfiguration: { ...customTiming, initialWaitMilliseconds: 30_000 } };
+		const exactChild = { ...shorts, rule: { ...shorts.rule, includeSubdomains: false } };
+		const parents = reverse ? [ exact, broad ] : [ broad, exact ];
+		const configuration = { ...TestEmptyProtectionConfiguration, sites: [ ...parents, exactChild, shorts ] };
+		expect( resolveSitePolicy( configuration, exactChild.rule ) ).toEqual( {
+			site: exactChild, schedule: monday, timingConfiguration: exact.timingConfiguration,
+		} );
+		expect( resolveSitePolicy( configuration, shorts.rule ) ).toEqual( {
+			site: shorts, schedule: configuration.schedule, timingConfiguration: configuration.timingConfiguration,
+		} );
+	} );
+
+	it.each( [ 'allow', 'pause' ] as const )( 'resolves a product path through its own %s parent before the company root', ( behavior ) => {
+		const company = { identityHost: 'google.com', rule: { host: 'google.com', includeSubdomains: true,
+			scopeId: DefaultProtectionScopeId }, schedule: weekdays, timingConfiguration: customTiming };
+		const parent = { identityHost: 'mail.google.com', rule: { host: 'mail.google.com', includeSubdomains: false,
+			scopeId: DefaultProtectionScopeId, behavior }, schedule: monday,
+		timingConfiguration: { ...customTiming, initialWaitMilliseconds: 30_000 } };
+		const child = { identityHost: parent.identityHost, rule: { host: parent.rule.host, includeSubdomains: false,
+			scopeId: DefaultProtectionScopeId, pathPrefix: '/inbox' } };
+		for ( const parents of [ [ company, parent ], [ parent, company ] ] ) {
+			const configuration = { ...TestEmptyProtectionConfiguration, sites: [ ...parents, child ] };
+			expect( resolveSitePolicy( configuration, child.rule ) ).toEqual( {
+				site: child, schedule: behavior === 'allow' ? configuration.schedule : monday,
+				timingConfiguration: behavior === 'allow' ? configuration.timingConfiguration : parent.timingConfiguration,
+			} );
+		}
+	} );
+
+	it( 'keeps company inheritance when an exact product root cannot cover a broad path', () => {
+		const company = { identityHost: 'google.com', rule: { host: 'google.com', includeSubdomains: true,
+			scopeId: DefaultProtectionScopeId }, schedule: monday, timingConfiguration: customTiming };
+		const parent = { identityHost: 'mail.google.com', rule: { host: 'mail.google.com', includeSubdomains: false,
+			scopeId: DefaultProtectionScopeId, behavior: 'allow' as const } };
+		const child = { identityHost: parent.identityHost, rule: { host: parent.rule.host, includeSubdomains: true,
+			scopeId: DefaultProtectionScopeId, pathPrefix: '/inbox' } };
+		const configuration = { ...TestEmptyProtectionConfiguration, sites: [ company, parent, child ] };
+		expect( resolveSitePolicy( configuration, child.rule ) ).toEqual( {
+			site: child, schedule: monday, timingConfiguration: customTiming,
+		} );
+	} );
+} );

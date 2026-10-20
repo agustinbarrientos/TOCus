@@ -200,3 +200,125 @@ test( 'retains browser access for a main website when only its exception is remo
 	expect( await page.evaluate( () => window.settingsTest.controls.requests ) ).toBe( requests );
 	expect( await page.evaluate( () => window.settingsTest.getConfiguration().sites.map( ( site ) => site.rule.host ) ) ).toEqual( [ 'youtube.com', 'studio.youtube.com' ] );
 } );
+
+
+test( 'excludes retained No pause parent preferences from child inheritance while preserving child overrides', async ( { open } ) => {
+	const page = await open( SettingsDestination.PROTECTED_SITES );
+	for ( const address of [ 'a.com', 'a.com/inherited', 'a.com/custom' ] ) {
+		await page.getByLabel( 'Website address', { exact: true } ).fill( address );
+		await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
+	}
+	const main = page.locator( '.settings-site-item:not(.settings-site-exception)' );
+	const inherited = page.locator( '.settings-site-exception' ).filter( { hasText: 'a.com/inherited' } );
+	const custom = page.locator( '.settings-site-exception' ).filter( { hasText: 'a.com/custom' } );
+	const editMain = main.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } );
+	const dialog = page.getByRole( 'dialog' );
+	const behavior = dialog.getByLabel( 'When visited', { exact: true } );
+	const timing = dialog.getByRole( 'switch', { name: 'Use custom pause timing', exact: true } );
+	const schedule = dialog.getByRole( 'switch', { name: 'Use custom schedule', exact: true } );
+	const wait = dialog.getByRole( 'slider', { name: 'Initial wait', exact: true } );
+
+	/**
+	 * Reads the production editor's inherited timing without creating a child override.
+	 * @param seconds - Effective wait displayed when the child first opts into custom timing.
+	 * @return Completion of the cancel-safe timing check.
+	 */
+	async function checkInheritedWait( seconds: string ): Promise<void> {
+		await inherited.getByRole( 'button', { name: 'Edit exception', exact: true } ).click();
+		await expect( behavior ).toHaveValue( 'pause' );
+		await expect( timing ).not.toBeChecked();
+		await expect( schedule ).not.toBeChecked();
+		await timing.click();
+		await expect( wait ).toHaveAttribute( 'aria-valuenow', seconds );
+		await dialog.getByRole( 'button', { name: 'Cancel', exact: true } ).click();
+		await expect( inherited ).not.toContainText( 'Custom pause timing' );
+	}
+
+	/**
+	 * Confirms the child's own timing and schedule survive main website behavior changes.
+	 * @return Completion of the unchanged child policy check.
+	 */
+	async function checkCustomChild(): Promise<void> {
+		await custom.getByRole( 'button', { name: 'Edit exception', exact: true } ).click();
+		await expect( behavior ).toHaveValue( 'pause' );
+		await expect( timing ).toBeChecked();
+		await expect( wait ).toHaveAttribute( 'aria-valuenow', '25' );
+		await expect( schedule ).toBeChecked();
+		await expect( dialog.getByLabel( 'Day', { exact: true } ) ).toHaveValue( 'Wednesday' );
+		await expect( dialog.getByLabel( 'Start', { exact: true } ) ).toHaveValue( '11:00' );
+		await expect( dialog.getByLabel( 'End', { exact: true } ) ).toHaveValue( '13:00' );
+		await dialog.getByRole( 'button', { name: 'Cancel', exact: true } ).click();
+	}
+
+	await editMain.click();
+	await timing.click();
+	await expect( wait ).toHaveAttribute( 'aria-valuenow', '10' );
+	await wait.focus();
+	await page.keyboard.press( 'ArrowRight' );
+	await page.keyboard.press( 'ArrowRight' );
+	await expect( wait ).toHaveAttribute( 'aria-valuenow', '20' );
+	await schedule.click();
+	await dialog.getByLabel( 'Day', { exact: true } ).selectOption( 'Monday' );
+	await dialog.getByLabel( 'Start', { exact: true } ).fill( '09:00' );
+	await dialog.getByLabel( 'End', { exact: true } ).fill( '17:00' );
+	await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
+	await custom.getByRole( 'button', { name: 'Edit exception', exact: true } ).click();
+	await timing.click();
+	await expect( wait ).toHaveAttribute( 'aria-valuenow', '20' );
+	await wait.focus();
+	await page.keyboard.press( 'ArrowRight' );
+	await schedule.click();
+	await dialog.getByLabel( 'Day', { exact: true } ).selectOption( 'Wednesday' );
+	await dialog.getByLabel( 'Start', { exact: true } ).fill( '11:00' );
+	await dialog.getByLabel( 'End', { exact: true } ).fill( '13:00' );
+	await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
+	await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
+	await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
+	const pausedSites = await page.evaluate( () => window.settingsTest.getConfiguration().sites );
+	expect( pausedSites[ 0 ]?.timingConfiguration?.initialWaitMilliseconds ).toBe( 20000 );
+	expect( pausedSites[ 0 ]?.schedule ).toEqual( {
+		mode: 'custom', windows: [ { weekday: 'Monday', startMinute: 540, endMinute: 1020 } ],
+	} );
+	await checkInheritedWait( '20' );
+
+	for ( const state of [ { behavior: 'allow', wait: '10' }, { behavior: 'pause', wait: '20' }, { behavior: 'allow', wait: '10' } ] ) {
+		await editMain.click();
+		await behavior.selectOption( state.behavior );
+		if ( state.behavior === 'allow' ) {
+			await expect( dialog.getByRole( 'switch' ) ).toHaveCount( 0 );
+		} else {
+			await expect( wait ).toHaveAttribute( 'aria-valuenow', '20' );
+			await expect( dialog.getByLabel( 'Day', { exact: true } ) ).toHaveValue( 'Monday' );
+		}
+		await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
+		await checkInheritedWait( state.wait );
+		await checkCustomChild();
+	}
+	await expect( main ).toContainText( 'No pause' );
+	await expect( main ).not.toContainText( 'Custom pause timing' );
+	await expect( main ).not.toContainText( 'Custom schedule' );
+	await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
+	await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 2 );
+	const allowedSites = await page.evaluate( () => window.settingsTest.getConfiguration().sites );
+	expect( allowedSites ).toEqual( pausedSites.map( ( site ) => site.rule.pathPrefix === undefined
+		? { ...site, rule: { ...site.rule, behavior: 'allow' } } : site ) );
+	await page.getByRole( 'link', { name: 'About', exact: true } ).click();
+	await page.getByRole( 'link', { name: 'Websites', exact: true } ).click();
+	await checkInheritedWait( '10' );
+	await checkCustomChild();
+	await editMain.click();
+	await behavior.selectOption( 'pause' );
+	await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
+	await checkInheritedWait( '20' );
+	await page.getByRole( 'button', { name: 'Discard', exact: true } ).click();
+	await expect( main ).toContainText( 'No pause' );
+	await checkInheritedWait( '10' );
+	await editMain.click();
+	await behavior.selectOption( 'pause' );
+	await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
+	await checkInheritedWait( '20' );
+	await checkCustomChild();
+	await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
+	await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 3 );
+	expect( await page.evaluate( () => window.settingsTest.getConfiguration().sites ) ).toEqual( pausedSites );
+} );
