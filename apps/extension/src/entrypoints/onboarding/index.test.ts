@@ -105,6 +105,7 @@ describe( 'onboarding entrypoint', () => {
 		expect( options.cryptography ).toBe( crypto );
 		expect( options.document ).toBe( documentTarget );
 		expect( options.pageWindow ).toBe( window );
+		expect( options.runtime ).toBe( entrypointMocks.runtime );
 		await options.openSettings();
 		expect( entrypointMocks.openOptionsPage ).toHaveBeenCalledOnce();
 		expect( removeProperty ).not.toHaveBeenCalled();

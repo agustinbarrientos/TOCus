@@ -27,6 +27,11 @@ import {
 } from '../../components/shell/types';
 import { OnboardingLanguageSelectEventName } from '../../components/language-step/types';
 import { TestEnglishLocalizationBundle } from '../../../../localization/__fixtures__';
+import { createBackupFixture } from '../../../../domains/local-data/services/local-data-backup/__fixtures__';
+import { LocalDataGenerationStorageKey, readLocalDataGeneration } from '../../../../domains/local-data/services/local-data-generation';
+import * as LocalDataGeneration from '../../../../domains/local-data/services/local-data-generation';
+import { BackupImportJournalKey } from '../../../../domains/local-data/types/backup-storage-key';
+import type { PrivacyDataRuntime } from '../../../settings/services/privacy-data-actions/types';
 import { bootstrapOnboardingPage, startOnboardingPage } from './index';
 import type {
 	OnboardingPageOptions,
@@ -70,6 +75,17 @@ class MemoryStorageChanges {
 		) => void,
 	): void {
 		this.listeners.delete( listener );
+	}
+
+	/**
+	 * Emits arbitrary replacement metadata and documents from local storage.
+	 * @param changes - Browser storage changes.
+	 * @since 1.1.0
+	 */
+	emit( changes: Readonly<Record<string, { readonly newValue?: unknown }>> ): void {
+		for ( const listener of this.listeners ) {
+			listener( changes, 'local' );
+		}
 	}
 
 	/**
@@ -130,6 +146,8 @@ class ImmediateMutationLock {
  * @since 1.0.0 Initial implementation.
  */
 class MemoryOnboardingShell extends EventTarget implements OnboardingPageShell {
+	backupActions: Exclude<OnboardingPageShell[ 'backupActions' ], undefined> = null;
+
 	copy: OnboardingPageShell[ 'copy' ];
 
 	notificationCopy: OnboardingPageShell[ 'notificationCopy' ];
@@ -158,6 +176,166 @@ class MemoryOnboardingShell extends EventTarget implements OnboardingPageShell {
 
 	synchronizeLanguage: OnboardingPageShell[ 'synchronizeLanguage' ] = null;
 }
+
+/**
+ * Connects onboarding to real local backup persistence and observable browser updates.
+ * @return Service options, import authority and controllable storage events.
+ * @since 1.1.0
+ */
+function createRestoreFixture() {
+	const fixture = createBackupFixture();
+	fixture.values[ PreferencesStorageKey.PREFERENCES ] = DefaultPreferencesDocument;
+	fixture.values[ ProtectionConfigurationStorageKey.CONFIGURATION ] = TestEmptyProtectionConfiguration;
+	const storageChanges = new MemoryStorageChanges();
+	const shell = new MemoryOnboardingShell();
+	const runtime = { sendMessage: vi.fn<PrivacyDataRuntime[ 'sendMessage' ]>( async ( request ) => {
+		if ( request.type === 'read-local-backup-state' ) {
+			const marker = await readLocalDataGeneration( fixture.area );
+			return { status: 'ready', generation: marker?.generation ?? null };
+		}
+		const result = await fixture.backup.import( request );
+		storageChanges.emit( {
+			[ LocalDataGenerationStorageKey ]: { newValue: fixture.values[ LocalDataGenerationStorageKey ] },
+		} );
+		return result;
+	} ) };
+	const options = createOptions( { shell, storageArea: fixture.area, storageChanges, runtime,
+		loadLocalization: loadLocalizationBundle } );
+	return { ...fixture, options, shell, storageChanges, runtime };
+}
+
+describe( 'onboarding backup projection', () => {
+	it( 'retries a coherent refresh when another complete generation replaces the imported snapshot', async () => {
+		const fixture = createRestoreFixture();
+		await startOnboardingPage( fixture.options );
+		const actions = fixture.shell.backupActions;
+		if ( ! actions ) {
+			throw new Error( 'Expected onboarding backup actions.' );
+		}
+		const preview = await actions.preview( fixture.request.backup );
+		const read = LocalDataGeneration.readLocalDataGeneration;
+		let replaced = false;
+		const generationRead = vi.spyOn( LocalDataGeneration, 'readLocalDataGeneration' )
+			.mockImplementation( async ( area ) => {
+				const marker = await read( area );
+				if ( area !== fixture.area && marker !== null && ! replaced ) {
+					replaced = true;
+					fixture.values[ LocalDataGenerationStorageKey ] = {
+						generation: 'newer-replacement', pending: false, needsOnboarding: false,
+					};
+					fixture.values[ PreferencesStorageKey.PREFERENCES ] = {
+						...DefaultPreferencesDocument, theme: ThemeMode.LIGHT, palette: Palette.PURPLE,
+					};
+				}
+				return marker;
+			} );
+		try {
+			await expect( actions.confirmImport( preview ) ).resolves.toMatchObject( { status: 'completed' } );
+			expect( replaced ).toBe( true );
+			expect( fixture.shell.theme ).toBe( ThemeMode.LIGHT );
+			expect( fixture.shell.palette ).toBe( Palette.PURPLE );
+			await expect( fixture.shell.editor?.update( { palette: Palette.GREEN } ) )
+				.resolves.toMatchObject( { palette: Palette.GREEN } );
+		} finally {
+			generationRead.mockRestore();
+		}
+	} );
+
+	it.each( [ PreferencesStorageKey.PREFERENCES, ProtectionConfigurationStorageKey.CONFIGURATION ] )(
+		'keeps restoration recoverable when a completed response has unreadable %s data', async ( key ) => {
+			const fixture = createRestoreFixture();
+			await startOnboardingPage( fixture.options );
+			const actions = fixture.shell.backupActions;
+			if ( ! actions ) {
+				throw new Error( 'Expected onboarding backup actions.' );
+			}
+			const preview = await actions.preview( fixture.request.backup );
+			fixture.runtime.sendMessage.mockImplementationOnce( async ( request ) => {
+				const result = await fixture.backup.import( request );
+				fixture.values[ key ] = { malformed: true };
+				return result;
+			} );
+			await expect( actions.confirmImport( preview ) ).resolves.toEqual( { status: 'recovery-pending' } );
+			expect( fixture.shell.theme ).toBe( ThemeMode.SYSTEM );
+			expect( fixture.shell.language ).toBe( Language.ENGLISH );
+			expect( fixture.shell.protectedSites ).toEqual( [] );
+		},
+	);
+
+	it( 'restores all persisted settings with denied access and replaces stale editors before completion', async () => {
+		const fixture = createRestoreFixture();
+		await startOnboardingPage( fixture.options );
+		const previousEditor = fixture.shell.editor;
+		const previousEnrollment = fixture.shell.enrollment;
+		const actions = fixture.shell.backupActions;
+		expect( actions ).toBeDefined();
+		if ( ! actions ) {
+			throw new Error( 'Expected onboarding backup actions.' );
+		}
+		const preview = await actions.preview( fixture.request.backup );
+		expect( fixture.writeCount() ).toBe( 0 );
+		vi.mocked( fixture.options.permissions.request ).mockResolvedValue( false );
+		vi.mocked( fixture.options.permissions.contains ).mockResolvedValue( false );
+		const restored = actions.confirmImport( preview );
+		expect( fixture.options.permissions.request ).toHaveBeenCalledOnce();
+		await expect( restored ).resolves.toMatchObject( { status: 'completed', missingAccess: true } );
+		expect( fixture.shell.theme ).toBe( ThemeMode.DARK );
+		expect( fixture.shell.palette ).toBe( Palette.GREEN );
+		expect( fixture.shell.language ).toBe( Language.SPANISH_VOS );
+		expect( fixture.shell.copy?.language.title ).toBe( 'Eleg\u00ed tu idioma' );
+		expect( fixture.shell.protectedSites ).toMatchObject( [ { identityHost: 'youtube.com', rule: { host: 'youtube.com' } } ] );
+		expect( fixture.shell.editor ).not.toBe( previousEditor );
+		expect( fixture.shell.enrollment ).not.toBe( previousEnrollment );
+		await expect( previousEditor?.update( { theme: ThemeMode.LIGHT } ) ).rejects.toThrow( 'Local data was reset' );
+		await expect( fixture.shell.editor?.update( { theme: ThemeMode.LIGHT } ) )
+			.resolves.toMatchObject( { theme: ThemeMode.LIGHT } );
+		expect( fixture.values[ LocalDataGenerationStorageKey ] ).toMatchObject( { needsOnboarding: false } );
+		await expect( actions.requestAccess() ).resolves.toBe( false );
+	} );
+
+	it( 'withholds partial journal preferences and sites until a complete generation rebinds them', async () => {
+		const fixture = createRestoreFixture();
+		await startOnboardingPage( fixture.options );
+		const previousEditor = fixture.shell.editor;
+		fixture.values[ BackupImportJournalKey ] = {};
+		fixture.values[ PreferencesStorageKey.PREFERENCES ] = {
+			...DefaultPreferencesDocument, language: Language.JAPANESE, theme: ThemeMode.DARK,
+		};
+		fixture.values[ ProtectionConfigurationStorageKey.CONFIGURATION ] = {
+			...TestEmptyProtectionConfiguration, sites: fixture.request.backup.settings.sites,
+		};
+		fixture.storageChanges.emit( {
+			[ PreferencesStorageKey.PREFERENCES ]: { newValue: fixture.values[ PreferencesStorageKey.PREFERENCES ] },
+			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: {
+				newValue: fixture.values[ ProtectionConfigurationStorageKey.CONFIGURATION ],
+			},
+		} );
+		await new Promise( ( resolve ) => setTimeout( resolve, 0 ) );
+		expect( fixture.shell.theme ).toBe( ThemeMode.SYSTEM );
+		expect( fixture.shell.language ).toBe( Language.ENGLISH );
+		expect( fixture.shell.protectedSites ).toEqual( [] );
+		Reflect.deleteProperty( fixture.values, BackupImportJournalKey );
+		fixture.values[ LocalDataGenerationStorageKey ] = { generation: 'external', pending: false };
+		fixture.storageChanges.emit( { [ BackupImportJournalKey ]: {} } );
+		await vi.waitFor( () => {
+			expect( fixture.shell.language ).toBe( Language.JAPANESE );
+			expect( fixture.shell.theme ).toBe( ThemeMode.DARK );
+			expect( fixture.shell.protectedSites ).toHaveLength( 1 );
+		} );
+		expect( fixture.shell.editor ).not.toBe( previousEditor );
+		await expect( fixture.shell.editor?.update( { palette: Palette.PURPLE } ) )
+			.resolves.toMatchObject( { palette: Palette.PURPLE } );
+	} );
+
+	it( 'removes the coherent browser subscription and import actions after startup failure', async () => {
+		const fixture = createRestoreFixture();
+		const remove = vi.spyOn( fixture.storageChanges, 'removeListener' );
+		fixture.options.loadLocalization = vi.fn().mockRejectedValue( new Error( 'Catalog failed.' ) );
+		await expect( startOnboardingPage( fixture.options ) ).rejects.toThrow( 'Catalog failed.' );
+		expect( remove ).toHaveBeenCalledOnce();
+		expect( fixture.shell.backupActions ).toBeNull();
+	} );
+} );
 
 /**
  * Creates complete page dependencies with immediate local defaults.

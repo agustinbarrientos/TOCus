@@ -1,6 +1,7 @@
 import { LocalDataResetError, readLocalDataGeneration } from '../../../../domains/local-data/services/local-data-generation';
 import { BackupImportJournalKey } from '../../../../domains/local-data/types/backup-storage-key';
 import { PreferencesStorageKey } from '../../../../domains/preferences/services/preferences-storage';
+import { ProtectionConfigurationStorageKey } from '../../../../domains/protection/services/protection-configuration-storage';
 import { StatisticsStorageKey } from '../../../../domains/statistics/services/statistics-storage';
 import type { PreferencesStorageChangeListener, PreferencesStorageChanges } from '../../../preferences/services/preferences-controller';
 import type { SettingsDataBoundary, SettingsDataBoundaryOptions } from './types';
@@ -51,7 +52,8 @@ export function createSettingsDataBoundary( options: SettingsDataBoundaryOptions
 					const current = await ready();
 					const replacement = blocked || generation !== current;
 					const next = { ...changes };
-					for ( const key of [ PreferencesStorageKey.PREFERENCES, StatisticsStorageKey.STATISTICS ] ) {
+					for ( const key of [ PreferencesStorageKey.PREFERENCES, StatisticsStorageKey.STATISTICS,
+						ProtectionConfigurationStorageKey.CONFIGURATION ] ) {
 						if ( replacement || Object.hasOwn( changes, key ) ) {
 							next[ key ] = { newValue: ( await options.area.get( key ) )[ key ] };
 						}

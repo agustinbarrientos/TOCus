@@ -2,6 +2,7 @@ import type { Language } from '../../../../domains/preferences/types';
 import type { OnboardingAppearanceStepCopy } from '../appearance-step/types';
 import type { OnboardingLanguageStepCopy } from '../language-step/types';
 import type { OnboardingSitesStepCopy } from '../sites-step/types';
+import type { OnboardingBackupCopy } from '../backup-import/types';
 
 /**
  * Stable steps shown by onboarding in approved product order.
@@ -47,6 +48,7 @@ export interface OnboardingShellCopy {
 	language: Readonly<OnboardingLanguageStepCopy>;
 	appearance: Readonly<OnboardingAppearanceStepCopy>;
 	sites: Readonly<OnboardingSitesStepCopy>;
+	readonly backup: Readonly<OnboardingBackupCopy>;
 	/**
 	 * Formats accessible progress for the current onboarding step.
 	 * @param currentStep - One-based current step.

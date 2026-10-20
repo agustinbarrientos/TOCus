@@ -71,7 +71,8 @@ function controllerFixture() {
 	const fixture = createBackupFixture();
 	let handler: ProtectionBackgroundMessageListener | undefined;
 	const options = { backup: fixture.backup, localArea: fixture.area,
-		optionsPageUrl: 'extension://test/options.html', ready: vi.fn().mockResolvedValue( true ),
+		optionsPageUrl: 'extension://test/options.html', onboardingPageUrl: 'extension://test/onboarding.html',
+		ready: vi.fn().mockResolvedValue( true ),
 		onMessage: { addListener: vi.fn( ( listener: ProtectionBackgroundMessageListener ) => {
 			handler = listener;
 		} ) } };
@@ -96,6 +97,43 @@ function controllerFixture() {
 }
 
 describe( 'backup messaging recovery and validation', () => {
+	it.each( [ '', '?reset=reset-generation', '#backup', '?reset=reset-generation#backup' ] )(
+		'permits top-level onboarding readiness and import with %s while rejecting export and reset', async ( suffix ) => {
+			const fixture = controllerFixture();
+			const handler = fixture.handler();
+			const sender = { url: `${ fixture.options.onboardingPageUrl }${ suffix }`, frameId: 0,
+				tab: { incognito: false } };
+			const readResponse = vi.fn();
+			expect( handler?.( { type: 'read-local-backup-state' }, sender, readResponse ) ).toBe( true );
+			await vi.waitFor( () => {
+				expect( readResponse ).toHaveBeenCalledWith( { status: 'ready', generation: null } );
+			} );
+			expect( fixture.writeCount() ).toBe( 0 );
+			const importResponse = vi.fn();
+			expect( handler?.( fixture.request, sender, importResponse ) ).toBe( true );
+			await vi.waitFor( () => {
+				expect( importResponse ).toHaveBeenCalledWith( expect.objectContaining( { status: 'completed' } ) );
+			} );
+			expect( handler?.( { type: 'export-local-backup' }, sender, vi.fn() ) ).toBeUndefined();
+			expect( handler?.( { type: 'reset-all-data' }, sender, vi.fn() ) ).toBeUndefined();
+		},
+	);
+
+	it( 'rejects onboarding subframes, private tabs, sibling pages and foreign extension origins', () => {
+		const fixture = controllerFixture();
+		for ( const sender of [
+			{ url: fixture.options.onboardingPageUrl, frameId: 1, tab: { incognito: false } },
+			{ url: fixture.options.onboardingPageUrl, frameId: 0, tab: { incognito: true } },
+			{ url: 'extension://foreign/onboarding.html', frameId: 0, tab: { incognito: false } },
+			{ url: 'extension://test/popup.html', frameId: 0, tab: { incognito: false } },
+			{ url: 'extension://test/onboarding.html.evil', frameId: 0, tab: { incognito: false } },
+		] ) {
+			expect( fixture.handler()?.( fixture.request, sender, vi.fn() ) ).toBeUndefined();
+		}
+		expect( fixture.writeCount() ).toBe( 0 );
+		expect( fixture.options.ready ).not.toHaveBeenCalled();
+	} );
+
 	it( 'validates before invoking recovery that could mutate records', async () => {
 		const fixture = controllerFixture();
 		await expect( fixture.send( { type: 'import-local-backup' } ) ).resolves.toEqual( { status: 'invalid' } );

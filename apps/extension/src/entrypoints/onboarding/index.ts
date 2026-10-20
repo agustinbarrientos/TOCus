@@ -43,6 +43,7 @@ void bootstrapOnboardingPage( {
 	openSettings,
 	pageWindow: window,
 	permissions: browser.permissions,
+	runtime: browser.runtime,
 	shell: onboardingShell,
 	storageArea: browser.storage.local,
 	storageChanges: browser.storage.onChanged,

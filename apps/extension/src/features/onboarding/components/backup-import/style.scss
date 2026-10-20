@@ -1,0 +1,55 @@
+@use '@tocus/theme/typography' as typography;
+
+.onboarding-header .onboarding-import-entry {
+	@include typography.apply('body-small');
+
+	height: auto;
+	flex-shrink: 0;
+	min-height: 2.75rem;
+	padding: var(--tocus-space-2) var(--tocus-space-3);
+	margin-inline: auto calc(-1 * (var(--tocus-space-3) + 1px));
+}
+
+.onboarding-import-dialog {
+	overflow-wrap: anywhere;
+}
+
+.onboarding-import-file > .tocus-icon {
+	flex: 0 0 auto;
+	width: 1.5rem;
+	height: 1.5rem;
+	color: var(--tocus-color-action);
+}
+
+.onboarding-import-summary {
+	margin: 0;
+	padding: 0;
+
+	> div {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: var(--tocus-space-4);
+		padding-block: var(--tocus-space-3);
+		border-bottom: 1px solid var(--tocus-color-divider);
+	}
+
+	dd {
+		@include typography.apply('body-medium');
+
+		--tocus-typography-body-medium-font-weight: 600;
+
+		margin: 0;
+		text-align: right;
+	}
+}
+
+.onboarding-import-another {
+	@include typography.apply('body-small');
+
+	align-self: flex-start;
+	height: auto;
+	padding: 0;
+	text-align: start;
+	white-space: normal;
+}

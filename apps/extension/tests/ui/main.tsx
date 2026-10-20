@@ -1,3 +1,4 @@
+import { setupOnboardingBackupFixture } from './onboarding-backup-fixture';
 import { PopupCurrentSiteStatus, PopupProjectionStatus } from '../../src/features/popup/types/popup-projection';
 import { SitePermissionReleaseStatus } from '../../src/features/protected-sites/services/site-permission-manager/types';
 import { ProtectedSiteEnrollmentStatus } from '../../src/features/protected-sites/services/protected-site-enrollment/types';
@@ -61,6 +62,7 @@ function unexpectedEnrollment(): Promise<never> {
 function setupOnboarding( container: HTMLElement, counter: HTMLOutputElement ): void {
 	const query = new URLSearchParams( location.search );
 	const port = mountOnboarding( container );
+	setupOnboardingBackupFixture( port );
 	const bundle = createEnglishLocalizationBundle();
 	let preferences = { ...DefaultPreferencesDocument };
 	let requests = 0;

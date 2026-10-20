@@ -3,6 +3,7 @@ import { createSettingsDataBoundary } from '.';
 import { BackupImportJournalKey } from '../../../../domains/local-data/types/backup-storage-key';
 import { PreferencesStorageKey } from '../../../../domains/preferences/services/preferences-storage';
 import { LocalDataGenerationStorageKey } from '../../../../domains/local-data/services/local-data-generation';
+import { ProtectionConfigurationStorageKey } from '../../../../domains/protection/services/protection-configuration-storage';
 import type { PreferencesStorageChangeListener } from '../../../preferences/services/preferences-controller';
 
 describe( 'coherent settings data', () => {
@@ -158,6 +159,19 @@ it( 'rebinds editors whose first generation read was blocked by recovery', async
 	fixture.emit();
 	await vi.waitFor( () => {
 		expect( fixture.onReplaced ).toHaveBeenCalledOnce();
+	} );
+} );
+
+it( 'rereads the complete protected-site configuration after replacement notifications', async () => {
+	const fixture = createBoundaryFixture();
+	await fixture.boundary.area.get( 'value' );
+	fixture.values[ ProtectionConfigurationStorageKey.CONFIGURATION ] = { sites: [ { identityHost: 'restored.example' } ] };
+	fixture.values[ LocalDataGenerationStorageKey ] = { generation: 'complete', pending: false };
+	fixture.emit();
+	await vi.waitFor( () => {
+		expect( fixture.listener ).toHaveBeenCalledWith( expect.objectContaining( {
+			[ ProtectionConfigurationStorageKey.CONFIGURATION ]: { newValue: { sites: [ { identityHost: 'restored.example' } ] } },
+		} ), 'local' );
 	} );
 } );
 

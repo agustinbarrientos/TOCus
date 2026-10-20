@@ -10,5 +10,5 @@
 		"resolveJsonModule": true,
 		"types": [ "node" ]
 	},
-	"include": ["lingui.config.ts", "config/**/*.ts", "apps/**/tests/**/*.ts", "packages/**/*.ts", "packages/**/*.tsx"]
+	"include": ["lingui.config.ts", "apps/extension/src/types/lingui.d.ts", "config/**/*.ts", "apps/**/tests/**/*.ts", "packages/**/*.ts", "packages/**/*.tsx"]
 }

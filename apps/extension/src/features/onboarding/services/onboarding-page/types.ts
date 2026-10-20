@@ -29,6 +29,8 @@ import type {
 import type { OnboardingSiteSuggestion } from '../../utils/site-suggestion-catalog';
 import type { OnboardingLocalizationLoader } from '../localization-coordinator';
 import type { OnboardingNotificationCopy } from '../reset-completion';
+import type { PrivacyDataRuntime } from '../../../settings/services/privacy-data-actions/types';
+import type { OnboardingBackupActions } from '../onboarding-backup/types';
 
 /**
  * Opens the extension Settings surface from onboarding.
@@ -41,6 +43,8 @@ export type OnboardingSettingsOpener = () => Promise<void>;
  * @since 1.0.0 Initial implementation.
  */
 export interface OnboardingPageShell extends EventTarget {
+	/** Read-only backup previews, confirmed restoration and browser access recovery. */
+	backupActions?: OnboardingBackupActions | null;
 	/** Complete localized onboarding copy. */
 	copy: Readonly<OnboardingShellCopy> | undefined;
 	/** Localized dismiss label and reset-completion message. */
@@ -112,6 +116,8 @@ export interface OnboardingPageWindow {
  * @since 1.0.0 Initial implementation.
  */
 export interface OnboardingPageOptions {
+	/** Background-owned backup operations, omitted by older page fixtures. */
+	runtime?: PrivacyDataRuntime;
 	/** Supported language derived from the browser UI locale. */
 	browserLanguage: Language;
 	/** Collision-resistant browser identifier source. */

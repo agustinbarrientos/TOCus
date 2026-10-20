@@ -17,6 +17,8 @@ The provider defaults to system appearance, brown, and 115% scale; `compact` use
 
 Use shared theme variants and layout classes from `src/components/provider/shared.scss`. Application styles must not duplicate control states. Icons use `IconName` constants and retain their [asset notices](../theme/README.md#icon-assets-and-licenses).
 
+For labeled buttons, pass `Icon` through `leftSection` or `rightSection`. The Button theme automatically adds the shared `tocus-button-icon` class to its sections: icons use `1.25em` squares relative to the button font and an 8px spacing token between icon and label. This also applies to buttons rendered as links. Do not add local icon sizes or spacing; image artwork, loaders, navigation links, and icon-only actions keep their own geometry.
+
 For injected UI, compile styles with `?inline`, adopt them with `createShadowStyleSheet`, and pass the owned `shadowRoot` to the provider. Keep styles and portals inside that root. Shadow styles already resolve rem units against 16px; do not adjust scale for the host page. Avoid nested Mantine dialogs inside the pause's closed shadow root.
 
 In Astro, providers and consumers must share one React island. Run `pnpm --filter @tocus/ui test:browser` to check shared controls.

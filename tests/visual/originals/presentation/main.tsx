@@ -1,5 +1,6 @@
 import '../../../../packages/ui/src/components/provider/style.scss';
 import { createRoot } from 'react-dom/client';
+import { setupOnboardingBackupFixture } from '../../../../apps/extension/tests/ui/onboarding-backup-fixture';
 import { Title, TocusProvider } from '../../../../packages/ui/src';
 import {
 	DefaultPreferencesDocument, Language, Palette, PreferencesDocumentSchema, ThemeMode,
@@ -104,6 +105,9 @@ const port = reactRoot ? createPresentationPort<OnboardingState>( {
 }, ( state ) => {
 	reactRoot.render( <StandaloneSites state={ state } port={ port } /> );
 } ) : mountOnboarding( root );
+if ( ! standalone ) {
+	setupOnboardingBackupFixture( port );
+}
 if ( standalone ) {
 	root.style.width = query.get( 'width' ) ?? '100%';
 }

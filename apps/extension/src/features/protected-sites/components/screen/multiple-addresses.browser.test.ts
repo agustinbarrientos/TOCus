@@ -32,7 +32,15 @@ async function save( page: Page, writes: number ): Promise<void> {
  * @return Completion of the custom schedule controls.
  */
 async function setSchedule( page: Page, start: string, end: string ): Promise<void> {
-	await page.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ).click();
+	const schedule = page.getByRole( 'switch', { name: 'Use custom schedule', exact: true } );
+	await expect( schedule ).toBeVisible();
+	// Let the address-dependent layout paint before Firefox's next native pointer action.
+	await page.evaluate( () => new Promise<void>( ( resolve ) => {
+		requestAnimationFrame( () => requestAnimationFrame( () => {
+			resolve();
+		} ) );
+	} ) );
+	await schedule.click();
 	await page.getByLabel( 'Start', { exact: true } ).fill( start );
 	await page.getByLabel( 'End', { exact: true } ).fill( end );
 }

@@ -465,6 +465,13 @@ test.describe( 'local statistics', () => {
 	test( 'uses current editable website names, cached icons and local monogram fallbacks without requesting access', async ( { open } ) => {
 		const page = await open( SettingsDestination.PROTECTED_SITES );
 		await page.locator( '#site-address' ).fill( 'youtube.com' );
+		await expect( page.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ) ).toBeVisible();
+		// Let the address-dependent layout paint before Firefox's next native pointer action.
+		await page.evaluate( () => new Promise<void>( ( resolve ) => {
+			requestAnimationFrame( () => requestAnimationFrame( () => {
+				resolve();
+			} ) );
+		} ) );
 		await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
 		await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
 		await page.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } ).click();

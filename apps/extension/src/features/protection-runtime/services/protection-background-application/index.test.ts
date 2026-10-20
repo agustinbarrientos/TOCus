@@ -262,6 +262,7 @@ describe( 'startProtectionBackgroundApplication', () => {
 		if ( ! backupOptions || ! backupControllerOptions ) {
 			throw new Error( 'Missing backup authority composition.' );
 		}
+		expect( backupControllerOptions.onboardingPageUrl ).toBe( fakeBrowser.runtime.getURL( '/onboarding.html' ) );
 		expect( backgroundMocks.startBackupController ).toHaveBeenCalledOnce();
 		await expect( backupControllerOptions.ready() ).resolves.toBe( true );
 		expect( retryRecovery ).toHaveBeenCalledOnce();
