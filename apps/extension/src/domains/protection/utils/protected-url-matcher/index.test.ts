@@ -436,6 +436,19 @@ describe( 'website exception targets', () => {
 		expect( matchProtectedUrl( 'https://studio.youtube.com/upload', rules ) ).toEqual( { status: ProtectedUrlMatchStatus.UNPROTECTED, rule: studio } );
 	} );
 
+	it.each( [ false, true ] )( 'keeps a specific Shorts pause above a broad no-pause root with reversed order %s', ( reverse ) => {
+		const allowedRoot = { ...root, behavior: 'allow' };
+		const rules = reverse ? [ shorts, allowedRoot ] : [ allowedRoot, shorts ];
+		for ( const path of [ '/', '/feed', '/shorts-other' ] ) {
+			expect( matchProtectedUrl( `https://youtube.com${ path }`, rules ) )
+				.toEqual( { status: ProtectedUrlMatchStatus.UNPROTECTED, rule: allowedRoot } );
+		}
+		for ( const path of [ '/shorts', '/shorts/item' ] ) {
+			expect( matchProtectedUrl( `https://youtube.com${ path }`, rules ) )
+				.toEqual( { status: ProtectedUrlMatchStatus.PROTECTED, rule: shorts } );
+		}
+	} );
+
 	it( 'selects the longest path after host and exact coverage specificity', () => {
 		const nested = { ...shorts, pathPrefix: '/shorts/saved' };
 		const exactRoot = { ...root, includeSubdomains: false };
