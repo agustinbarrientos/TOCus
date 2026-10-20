@@ -72,7 +72,7 @@ test( 'aligns the custom schedule tag and keeps row actions consistently sized a
 			color: getComputedStyle( remove ).color,
 		};
 	} );
-	expect( parseFloat( metrics.margin ) ).toBe( 8 );
+	expect( parseFloat( metrics.margin ) ).toBe( 0 );
 	expect( metrics.alignment ).toBeLessThanOrEqual( 1 );
 	for ( const icon of metrics.icons ) {
 		expect( icon.width ).toBeCloseTo( 1.2 * icon.em, 1 );

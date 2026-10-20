@@ -97,12 +97,14 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 					<div className="settings-site-identity">
 						{ ! exception && ! rootPeer && <h2>{ identity.name }</h2> }
 						{ rootPeer && details.displayName.trim() && <p className="settings-site-root-name">{ details.displayName }</p> }
-						<p>{ presentationOnly ? faviconHost : address }{ coverageLabel && ` (${ coverageLabel })` }</p>
-						{ ! presentationOnly && <div className="settings-site-tags">
-							{ details.schedule !== null && <span className="settings-site-schedule"><Icon name={ IconName.CALENDAR } />{ copy.customScheduleTag }</span> }
-							{ details.timingConfiguration !== null && details.behavior !== 'allow' && <span><Icon name={ IconName.PAUSE } />{ copy.customTimingTag }</span> }
-							{ details.behavior === 'allow' && <span><Icon name={ IconName.CHEVRONS_RIGHT } />{ copy.noPauseLabel }</span> }
-						</div> }
+						<Group className="settings-site-tags" wrap="wrap" gap="var(--tocus-space-1)">
+							<p>{ presentationOnly ? faviconHost : address }{ coverageLabel && ` (${ coverageLabel })` }</p>
+							{ ! presentationOnly && <>
+								{ details.schedule !== null && <span className="settings-site-schedule"><Icon name={ IconName.CALENDAR } />{ copy.customScheduleTag }</span> }
+								{ details.timingConfiguration !== null && details.behavior !== 'allow' && <span><Icon name={ IconName.PAUSE } />{ copy.customTimingTag }</span> }
+								{ details.behavior === 'allow' && <span><Icon name={ IconName.CHEVRONS_RIGHT } />{ copy.noPauseLabel }</span> }
+							</> }
+						</Group>
 					</div>
 					<Group className="settings-site-actions" wrap="nowrap" gap="var(--tocus-space-1)">
 						<Tooltip label={ copy.removeSite }

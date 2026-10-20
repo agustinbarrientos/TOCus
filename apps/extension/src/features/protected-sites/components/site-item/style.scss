@@ -68,12 +68,6 @@
 }
 
 [data-tocus-ui] .settings-page .settings-site-tags {
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--tocus-space-1);
-
-	&:not(:empty) { margin-top: var(--tocus-space-2); }
-
 	> span {
 		@include typography.apply('body-small');
 
