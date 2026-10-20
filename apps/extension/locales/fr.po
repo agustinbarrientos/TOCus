@@ -246,6 +246,10 @@ msgstr "Ajouter une ligne"
 msgid "Add site"
 msgstr "Ajouter un site"
 
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Add sites"
+msgstr "Ajouter des sites"
+
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "Add the first site you want TOCus to gently interrupt."
 msgstr "Ajoutez le premier site que vous souhaitez que TOCus interrompe doucement."
@@ -429,6 +433,10 @@ msgstr "Modifications enregistrées."
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Check the schedule and try again."
 msgstr "Vérifiez le planning et réessayez."
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Check these addresses: {addresses}"
+msgstr "Vérifiez ces adresses : {addresses}"
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Choose a day and valid start and end times."
