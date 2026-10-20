@@ -149,8 +149,17 @@ export function handleAllowanceExpiry(
 		.sort( ( left, right ) => left.pageId < right.pageId ? -1 : 1 )
 		.map( ( participant, joinSequence ) => ( { ...participant, joinSequence } ) );
 	const ladder = synchronizeDailyLadder( state.ladder, event.observedLocalDate );
-	const capturedWaitDurationMilliseconds = getNextWaitDuration( event.timingConfiguration, ladder );
 	const owner = selectOwner( participants );
+	const initiator = owner ?? participants[ 0 ];
+	const eligibleCandidates = [ ...candidates.readyCandidates, ...candidates.liveCandidates ].filter(
+		( candidate ) => participants.some( ( participant ) => participant.participantId === candidate.participantId ),
+	);
+	const initiatingTiming = eligibleCandidates.find(
+		( candidate ) => candidate.participantId === initiator?.participantId,
+	)?.timingConfiguration ?? event.timingConfiguration;
+	const capturedWaitDurationMilliseconds = Math.max( ...eligibleCandidates.map(
+		( candidate ) => getNextWaitDuration( candidate.timingConfiguration ?? event.timingConfiguration, ladder ),
+	) );
 	const decisions = [ ...ready.decisions ];
 
 	if ( owner !== null ) {
@@ -166,6 +175,8 @@ export function handleAllowanceExpiry(
 		scopeId: state.scopeId,
 		waitId: event.newWaitId,
 		capturedWaitDurationMilliseconds,
+		capturedAllowanceDurationMilliseconds: initiatingTiming.allowanceMilliseconds,
+		capturedCompletionAction: initiatingTiming.completionAction,
 		confirmedFocusedDurationMilliseconds: 0,
 		participants,
 		ownerParticipantId: owner?.participantId ?? null,

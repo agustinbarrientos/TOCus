@@ -200,6 +200,7 @@ export const LivePageAllowanceExpiryCandidateSchema = z.object( {
 	focusEligible: z.boolean(),
 	statisticsEligible: z.boolean().default( false ),
 	match: ProtectedUrlMatchResultSchema,
+	timingConfiguration: TimingConfigurationSchema.optional(),
 } ).strict();
 
 /**
@@ -219,6 +220,7 @@ export const ReadyAllowanceExpiryCandidateSchema = z.object( {
 	observedDestination: NullableRetainedNavigationDestinationSchema,
 	focusEligible: z.boolean(),
 	match: ProtectedUrlMatchResultSchema,
+	timingConfiguration: TimingConfigurationSchema.optional(),
 } ).strict();
 
 /**
@@ -308,6 +310,8 @@ export type ParticipantDepartureEvent = z.infer<typeof ParticipantDepartureEvent
  * @since 1.0.0 Initial implementation.
  */
 export const ScheduleReevaluationEventSchema = z.object( {
+	/** Present only for an observed navigation into a newly effective policy. */
+	timingConfiguration: TimingConfigurationSchema.optional(),
 	type: z.enum( [ ProtectionEventType.SCHEDULE_REEVALUATION ] ),
 	scopeId: ProtectionScopeIdSchema,
 	target: ProtectionStateTargetSchema,
