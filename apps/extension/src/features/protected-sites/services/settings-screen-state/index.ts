@@ -1,6 +1,6 @@
 import { getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
 import { DraftSaveResult } from '../../../settings/utils/draft-controller/types';
-import { createWebsiteDetails, createWebsiteDraft, serializeWebsiteDraft } from '../../utils/website-draft';
+import { createWebsiteDetails, createWebsiteDraft, serializeWebsiteDraft, stageWebsiteDraftSite } from '../../utils/website-draft';
 import { useSettingsFeedback } from '../../../settings/services/settings-feedback';
 import { SettingsFeedbackAction } from '../../../settings/services/settings-feedback/types';
 import type { DuplicateSiteNotice } from './types';
@@ -162,16 +162,13 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 			notify( SettingsFeedbackAction.DUPLICATE_SITE );
 			return null;
 		}
-		const sites = ProtectedSiteConfigurationSetSchema.safeParse( [
-			...value.sites, { identityHost: canonical.identityHost, rule: canonical.rule },
-		] );
+		const staged = stageWebsiteDraftSite( value, { identityHost: canonical.identityHost, rule: canonical.rule } );
+		const sites = ProtectedSiteConfigurationSetSchema.safeParse( staged.sites );
 		if ( ! sites.success ) {
 			setInputError( 'already-protected' );
 			return null;
 		}
-		const next: WebsitesDraft = { ...value, sites: sites.data, address: '',
-			detailsByRuleKey: { ...value.detailsByRuleKey, [ canonicalKey ]: value.newSite },
-			newSite: { displayName: '', schedule: null, behavior: 'pause', timingConfiguration: null } };
+		const next: WebsitesDraft = { ...staged, sites: sites.data };
 		try {
 			serializeWebsiteDraft( next );
 		} catch {

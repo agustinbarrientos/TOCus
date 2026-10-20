@@ -1,3 +1,4 @@
+import { expandProtectedSiteAdditions } from '../../../../domains/protection/utils/default-protected-site-exceptions';
 import { getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
 import { ProtectedSiteConfigurationSetSchema, ProtectedSiteDisplayNameInputSchema,
 	type ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
@@ -26,6 +27,23 @@ export function createWebsiteDraft( sites: ProtectedSiteConfiguration[] ): Websi
 	return { sites, address: '', newSite: { displayName: '', schedule: null, behavior: 'pause', timingConfiguration: null },
 		detailsByRuleKey: Object.fromEntries( sites.map( ( site ) => [ getProtectedSiteRuleKey( site.rule ),
 			createWebsiteDetails( site ) ] ) ) };
+}
+
+/**
+ * Stages one new website and its editable catalog exceptions as one discardable change.
+ * @param draft - Current website draft before the addition.
+ * @param site - Canonical new target whose details are held in the address editor.
+ * @return Independent draft containing the new target and any default exceptions.
+ * @since 1.1.0
+ */
+export function stageWebsiteDraftSite( draft: WebsitesDraft, site: ProtectedSiteConfiguration ): WebsitesDraft {
+	const additions = expandProtectedSiteAdditions( draft.sites, [ site ] );
+	return { ...draft, sites: [ ...draft.sites, ...additions ], address: '',
+		detailsByRuleKey: { ...draft.detailsByRuleKey,
+			...Object.fromEntries( additions.map( ( addition ) => [ getProtectedSiteRuleKey( addition.rule ),
+				createWebsiteDetails( addition ) ] ) ),
+			[ getProtectedSiteRuleKey( site.rule ) ]: draft.newSite },
+		newSite: { displayName: '', schedule: null, behavior: 'pause', timingConfiguration: null } };
 }
 
 /**

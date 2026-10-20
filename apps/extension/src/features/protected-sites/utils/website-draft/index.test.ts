@@ -3,7 +3,8 @@ import { DefaultProtectionScopeId } from '../../../../domains/protection/types/p
 import { ScheduleMode, Weekday } from '../../../../domains/protection/types/protection-schedule';
 import { getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
 import { DefaultTimingConfiguration } from '../../../../domains/protection/types/timing-configuration';
-import { createWebsiteDraft, serializeWebsiteDraft } from './index';
+import { createWebsiteDraft, serializeWebsiteDraft, stageWebsiteDraftSite } from './index';
+import { createDraft } from '../../../settings/utils/draft-controller';
 
 describe( 'website details draft', () => {
 	it( 'keeps sibling policy details separate and retains timing and no-pause during unrelated edits', () => {
@@ -70,5 +71,56 @@ describe( 'complete website policies', () => {
 		const draft = createWebsiteDraft( [ site ] );
 		draft.detailsByRuleKey = {};
 		expect( serializeWebsiteDraft( draft ) ).toEqual( [ site ] );
+	} );
+} );
+
+
+describe( 'new website default exception drafts', () => {
+	const root = { identityHost: 'youtube.com', rule: { host: 'youtube.com', includeSubdomains: true,
+		scopeId: DefaultProtectionScopeId } };
+	const studio = { identityHost: 'studio.youtube.com', rule: { host: 'studio.youtube.com', includeSubdomains: false,
+		scopeId: DefaultProtectionScopeId, behavior: 'allow' as const } };
+
+	it( 'shows Studio immediately while keeping staged root details and the saved baseline separate', () => {
+		const baseline = createWebsiteDraft( [] );
+		const details = { ...baseline.newSite, displayName: 'Videos', timingConfiguration: DefaultTimingConfiguration };
+		const input = { ...baseline, address: 'www.youtube.com', newSite: details };
+		const draft = stageWebsiteDraftSite( input, root );
+		expect( draft.sites ).toEqual( [ root, studio ] );
+		expect( draft.detailsByRuleKey[ getProtectedSiteRuleKey( root.rule ) ] ).toEqual( details );
+		expect( draft.detailsByRuleKey[ getProtectedSiteRuleKey( studio.rule ) ] ).toEqual( {
+			displayName: '', schedule: null, timingConfiguration: null, behavior: 'allow',
+		} );
+		expect( serializeWebsiteDraft( draft ) ).toEqual( [
+			{ ...root, displayNameOverride: 'Videos', timingConfiguration: DefaultTimingConfiguration }, studio,
+		] );
+		expect( draft.address ).toBe( '' );
+		expect( draft.newSite ).toEqual( baseline.newSite );
+		expect( baseline.sites ).toEqual( [] );
+		expect( input.address ).toBe( 'www.youtube.com' );
+	} );
+
+	it( 'discards the root and its seeded exception together without changing saved rules', () => {
+		const baseline = createWebsiteDraft( [] );
+		const controller = createDraft( baseline );
+		controller.change( stageWebsiteDraftSite( controller.snapshot.value, root ) );
+		expect( controller.snapshot.value.sites ).toEqual( [ root, studio ] );
+		expect( controller.snapshot.dirty ).toBe( true );
+		controller.discard();
+		expect( controller.snapshot.value ).toEqual( baseline );
+		expect( controller.snapshot.dirty ).toBe( false );
+	} );
+
+	it( 'persists later Studio edits or removal exactly instead of reseeding during serialization', () => {
+		const draft = stageWebsiteDraftSite( createWebsiteDraft( [] ), root );
+		const key = getProtectedSiteRuleKey( studio.rule );
+		draft.detailsByRuleKey[ key ] = { displayName: 'Work', behavior: 'pause', schedule: null,
+			timingConfiguration: DefaultTimingConfiguration };
+		expect( serializeWebsiteDraft( draft )[ 1 ] ).toEqual( { ...studio, displayNameOverride: 'Work',
+			rule: { host: 'studio.youtube.com', includeSubdomains: false, scopeId: DefaultProtectionScopeId },
+			timingConfiguration: DefaultTimingConfiguration } );
+		draft.sites = [ root ];
+		expect( serializeWebsiteDraft( draft ) ).toEqual( [ root ] );
+		expect( createWebsiteDraft( [ root ] ).sites ).toEqual( [ root ] );
 	} );
 } );
