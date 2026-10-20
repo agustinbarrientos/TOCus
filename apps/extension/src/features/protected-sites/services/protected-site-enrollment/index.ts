@@ -441,7 +441,11 @@ export function createProtectedSiteEnrollmentService(
 		}
 		const additions = next.data.filter( ( site ) => ! expected.data.some( ( previous ) =>
 			previous.rule.host === site.rule.host && previous.rule.includeSubdomains === site.rule.includeSubdomains,
-		) ).map( ( site ) => site.rule );
+		) ).map( ( site ) => site.rule ).filter( ( rule, _index, rules ) => ! rules.some( ( other ) =>
+			other.host !== rule.host && createSitePermissionOrigins( rule ).every( ( origin ) =>
+				isSitePermissionOriginCovered( origin, createSitePermissionOrigins( other ) ),
+			),
+		) );
 		const removals = expected.data.filter( ( site ) => ! next.data.some( ( candidate ) =>
 			candidate.rule.host === site.rule.host && candidate.rule.includeSubdomains === site.rule.includeSubdomains,
 		) ).map( ( site ) => site.rule );

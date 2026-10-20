@@ -43,6 +43,7 @@ import {
 	type ProtectedSiteEnrollmentService,
 } from './types';
 import { createBrowserProtectionConfigurationEditor } from '../../../../domains/protection/services/browser-protection-configuration-editor';
+import { OnboardingSiteSuggestionId, OnboardingSiteSuggestions } from '../../../onboarding/utils/site-suggestion-catalog';
 import { LocalDataGenerationStorageKey } from '../../../../domains/local-data/services/local-data-generation';
 
 /**
@@ -493,6 +494,135 @@ function createService(
 }
 
 describe( 'createProtectedSiteEnrollmentService', () => {
+	it( 'seeds Studio when onboarding enrolls its selected YouTube catalog suggestion', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		const manager = new MemoryEnrollmentPermissionManager();
+		const selectedInputs = OnboardingSiteSuggestions.filter( ( suggestion ) =>
+			suggestion.id === OnboardingSiteSuggestionId.YOUTUBE )
+			.map( ( suggestion ) => suggestion.siteInput );
+		expect( selectedInputs ).toEqual( [ 'www.youtube.com' ] );
+		const result = await createService( storage, manager ).addMany( selectedInputs );
+		expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.ADDED );
+		expect( storage.configuration.sites ).toEqual( [
+			{ identityHost: 'www.youtube.com', rule: { host: 'youtube.com', includeSubdomains: true,
+				scopeId: DefaultProtectionScopeId } },
+			{ identityHost: 'studio.youtube.com', rule: { host: 'studio.youtube.com', includeSubdomains: false,
+				scopeId: DefaultProtectionScopeId, behavior: 'allow' } },
+		] );
+		expect( manager.requestedRules ).toEqual( [ { host: 'youtube.com', includeSubdomains: true,
+			scopeId: DefaultProtectionScopeId } ] );
+		expect( storage.writes ).toBe( 1 );
+	} );
+
+	it.each( [ 'direct', 'batch', 'draft' ] )( 'retains no partial YouTube rules when %s permission is denied', async ( operation ) => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		const manager = new MemoryEnrollmentPermissionManager();
+		manager.requestResult = { status: SitePermissionRequestStatus.DENIED };
+		const service = createService( storage, manager );
+		const root = { identityHost: 'youtube.com', rule: { host: 'youtube.com', includeSubdomains: true,
+			scopeId: DefaultProtectionScopeId } };
+		const studio = { identityHost: 'studio.youtube.com', rule: { host: 'studio.youtube.com', includeSubdomains: false,
+			scopeId: DefaultProtectionScopeId, behavior: 'allow' as const } };
+		const result = await ( operation === 'direct' ? service.add( 'youtube.com' )
+			: operation === 'batch' ? service.addMany( [ 'youtube.com' ] ) : service.saveDraft( [], [ root, studio ] ) );
+		expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.PERMISSION_DENIED );
+		expect( storage.configuration.sites ).toEqual( [] );
+		expect( storage.writes ).toBe( 0 );
+		expect( manager.requestedRules ).toEqual( [ root.rule ] );
+	} );
+
+	it( 'rolls back the complete seeded draft and its new broad grant when persistence fails', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		storage.rejectSaves = true;
+		const permissions = new SharedPermissionStateApi();
+		const initial = await permissions.getAll();
+		const root = { identityHost: 'youtube.com', rule: { host: 'youtube.com', includeSubdomains: true,
+			scopeId: DefaultProtectionScopeId } };
+		const studio = { identityHost: 'studio.youtube.com', rule: { host: 'studio.youtube.com', includeSubdomains: false,
+			scopeId: DefaultProtectionScopeId, behavior: 'allow' as const } };
+		const service = createService( storage, createSitePermissionManager( { permissions } ) );
+		const result = await service.saveDraft( [], [ root, studio ] );
+		expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.SAVE_ERROR );
+		expect( storage.configuration.sites ).toEqual( [] );
+		expect( await permissions.getAll() ).toEqual( initial );
+	} );
+
+	it( 'keeps both exact origins when neither draft target covers the other', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		const permissions = new SharedPermissionStateApi();
+		const request = vi.spyOn( permissions, 'request' );
+		const root = { identityHost: 'youtube.com', rule: { host: 'youtube.com', includeSubdomains: false,
+			scopeId: DefaultProtectionScopeId } };
+		const studio = { identityHost: 'studio.youtube.com', rule: { host: 'studio.youtube.com', includeSubdomains: false,
+			scopeId: DefaultProtectionScopeId, behavior: 'allow' as const } };
+		const service = createService( storage, createSitePermissionManager( { permissions } ) );
+		const result = await service.saveDraft( [], [ studio, root ] );
+		expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.SAVED );
+		expect( request ).toHaveBeenCalledExactlyOnceWith( { permissions: [ 'webNavigation' ],
+			origins: [ '*://studio.youtube.com/*', '*://youtube.com/*' ] } );
+	} );
+
+	it( 'uses the broad permission regardless of draft row order and retains a removed default on later saves', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		const permissions = new SharedPermissionStateApi();
+		const request = vi.spyOn( permissions, 'request' );
+		const root = { identityHost: 'youtube.com', rule: { host: 'youtube.com', includeSubdomains: true,
+			scopeId: DefaultProtectionScopeId } };
+		const studio = { identityHost: 'studio.youtube.com', rule: { host: 'studio.youtube.com', includeSubdomains: false,
+			scopeId: DefaultProtectionScopeId, behavior: 'allow' as const } };
+		let revision = 0;
+		const service = createService(
+			storage,
+			createSitePermissionManager( { permissions } ),
+			coordinateMutationDirectly,
+			() => `revision_draft_${ String( ++revision ) }`,
+		);
+		const result = await service.saveDraft( [], [ studio, root ] );
+		expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.SAVED );
+		expect( request ).toHaveBeenCalledExactlyOnceWith( { permissions: [ 'webNavigation' ],
+			origins: [ '*://*.youtube.com/*' ] } );
+		const removal = await service.saveDraft( [ studio, root ], [ root ] );
+		expect( removal.status ).toBe( ProtectedSiteEnrollmentStatus.SAVED );
+		expect( ( await service.saveDraft( [ root ], [ { ...root, displayNameOverride: 'Videos' } ] ) ).status )
+			.toBe( ProtectedSiteEnrollmentStatus.SAVED );
+		expect( storage.configuration.sites ).toEqual( [ { ...root, displayNameOverride: 'Videos' } ] );
+		expect( request ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'enrolls the YouTube root and Studio through one unchanged broad permission request', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		const permissions = new SharedPermissionStateApi();
+		const request = vi.spyOn( permissions, 'request' );
+		const result = await createService( storage, createSitePermissionManager( { permissions } ) ).add( 'www.youtube.com' );
+		expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.ADDED );
+		expect( request ).toHaveBeenCalledExactlyOnceWith( { permissions: [ 'webNavigation' ],
+			origins: [ '*://*.youtube.com/*' ] } );
+		expect( storage.configuration.sites ).toEqual( [
+			{ identityHost: 'www.youtube.com', rule: { host: 'youtube.com', includeSubdomains: true,
+				scopeId: DefaultProtectionScopeId } },
+			{ identityHost: 'studio.youtube.com', rule: { host: 'studio.youtube.com', includeSubdomains: false,
+				scopeId: DefaultProtectionScopeId, behavior: 'allow' } },
+		] );
+		expect( storage.writes ).toBe( 1 );
+	} );
+
+	it( 'requests only the covering root access when saving a draft with its seeded exact exception', async () => {
+		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+		const permissions = new SharedPermissionStateApi();
+		const request = vi.spyOn( permissions, 'request' );
+		const root = { identityHost: 'youtube.com', rule: { host: 'youtube.com', includeSubdomains: true,
+			scopeId: DefaultProtectionScopeId } };
+		const studio = { identityHost: 'studio.youtube.com', rule: { host: 'studio.youtube.com', includeSubdomains: false,
+			scopeId: DefaultProtectionScopeId, behavior: 'allow' as const } };
+		const service = createService( storage, createSitePermissionManager( { permissions } ) );
+		const result = await service.saveDraft( [], [ root, studio ] );
+		expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.SAVED );
+		expect( request ).toHaveBeenCalledExactlyOnceWith( { permissions: [ 'webNavigation' ],
+			origins: [ '*://*.youtube.com/*' ] } );
+		expect( storage.configuration.sites ).toEqual( [ root, studio ] );
+		expect( storage.writes ).toBe( 1 );
+	} );
+
 	it.each( [
 		{ baseline: null, draft: [ EXAMPLE_SITE ] },
 		{ baseline: [], draft: null },
@@ -917,7 +1047,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		const result = await resultPromise;
 		expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.ADDED );
 		expect( storage.configuration.sites.map( ( site ) => site.identityHost ) ).toEqual( [
-			'www.youtube.com', 'reddit.com',
+			'www.youtube.com', 'reddit.com', 'studio.youtube.com',
 		] );
 		expect( storage.writes ).toBe( 1 );
 	} );
