@@ -12,7 +12,7 @@ from gi.repository import Atspi, GLib  # noqa: E402
 
 def descendants(element, depth=0):
     """Read native chrome only; extension HTML must never impersonate consent."""
-    if depth > 25 or element.get_role() == Atspi.Role.DOCUMENT_WEB:
+    if element is None or depth > 25 or element.get_role() == Atspi.Role.DOCUMENT_WEB:
         return []
     nodes = [element]
     for index in range(element.get_child_count()):

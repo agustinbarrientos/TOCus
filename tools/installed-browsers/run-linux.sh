@@ -17,5 +17,6 @@ source "$environment_file"
 
 export NO_AT_BRIDGE=0
 export GTK_MODULES="${GTK_MODULES:+$GTK_MODULES:}gail:atk-bridge"
+/usr/bin/python3 -B apps/extension/tests/build/packaged-native/__fixtures__/test_linux_consent.py
 /usr/bin/python3 -c 'import gi; gi.require_version("Atspi", "2.0"); from gi.repository import Atspi'
 exec dbus-run-session -- xvfb-run -a pnpm test:installed-extension "$@"
