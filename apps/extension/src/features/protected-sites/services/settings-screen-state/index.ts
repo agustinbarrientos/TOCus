@@ -1,3 +1,4 @@
+import { getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
 import { DraftSaveResult } from '../../../settings/utils/draft-controller/types';
 import { createWebsiteDetails, createWebsiteDraft, serializeWebsiteDraft } from '../../utils/website-draft';
 import { useSettingsFeedback } from '../../../settings/services/settings-feedback';
@@ -77,9 +78,9 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 		if ( request !== generation.current ) {
 			return null;
 		}
-		const identities = new Set( accessible?.sites.map( ( site ) => site.identityHost ) ?? [] );
+		const identities = new Set( accessible?.sites.map( ( site ) => getProtectedSiteRuleKey( site.rule ) ) ?? [] );
 		const snapshot = new Map( config.sites.map( ( site ) =>
-			[ site.identityHost, identities.has( site.identityHost ) ] ) );
+			[ getProtectedSiteRuleKey( site.rule ), identities.has( getProtectedSiteRuleKey( site.rule ) ) ] ) );
 		setAccess( snapshot );
 		return snapshot;
 	}
@@ -126,7 +127,7 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 	 */
 	function change( next: WebsitesDraft ): void {
 		draft.change( { ...next,
-			newSite: next.address.trim() ? next.newSite : { displayName: '', schedule: null },
+			newSite: next.address.trim() ? next.newSite : { displayName: '', schedule: null, behavior: 'pause', timingConfiguration: null },
 		} );
 		setInputError( null );
 		setAccessMessage( null );
@@ -147,8 +148,8 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 			setInputError( 'invalid-site' );
 			return null;
 		}
-		const alreadyListed = value.sites.find( ( site ) => site.rule.host === canonical.rule.host
-			&& site.rule.includeSubdomains === canonical.rule.includeSubdomains );
+		const canonicalKey = getProtectedSiteRuleKey( canonical.rule );
+		const alreadyListed = value.sites.find( ( site ) => getProtectedSiteRuleKey( site.rule ) === canonicalKey );
 		if ( savingDraft && alreadyListed && ! value.newSite.displayName.trim() && value.newSite.schedule === null ) {
 			// Repeating an address must not block other edits or overwrite the existing site's details.
 			const next = { ...value, address: '' };
@@ -157,7 +158,7 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 		}
 		if ( alreadyListed ) {
 			setInputError( null );
-			setDuplicate( { identityHost: alreadyListed.identityHost } );
+			setDuplicate( { ruleKey: getProtectedSiteRuleKey( alreadyListed.rule ) } );
 			notify( SettingsFeedbackAction.DUPLICATE_SITE );
 			return null;
 		}
@@ -169,8 +170,8 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 			return null;
 		}
 		const next: WebsitesDraft = { ...value, sites: sites.data, address: '',
-			detailsByHost: { ...value.detailsByHost, [ canonical.identityHost ]: value.newSite },
-			newSite: { displayName: '', schedule: null } };
+			detailsByRuleKey: { ...value.detailsByRuleKey, [ canonicalKey ]: value.newSite },
+			newSite: { displayName: '', schedule: null, behavior: 'pause', timingConfiguration: null } };
 		try {
 			serializeWebsiteDraft( next );
 		} catch {
@@ -232,7 +233,7 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 	 * @param details - Complete controlled details, including incomplete schedule fields.
 	 */
 	function updateSite( site: ProtectedSiteConfiguration, details: WebsiteDetailsDraft ): void {
-		const previous = value.detailsByHost[ site.identityHost ] ?? createWebsiteDetails( site );
+		const previous = value.detailsByRuleKey[ getProtectedSiteRuleKey( site.rule ) ] ?? createWebsiteDetails( site );
 		if ( JSON.stringify( previous ) === JSON.stringify( details ) ) {
 			return;
 		}
@@ -240,8 +241,9 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 		const replacement = { ...withoutName,
 			...( details.displayName.trim() ? { displayNameOverride: details.displayName } : {} ) };
 		change( { ...value,
-			sites: value.sites.map( ( other ) => other.identityHost === site.identityHost ? replacement : other ),
-			detailsByHost: { ...value.detailsByHost, [ site.identityHost ]: details },
+			sites: value.sites.map( ( other ) =>
+				getProtectedSiteRuleKey( other.rule ) === getProtectedSiteRuleKey( site.rule ) ? replacement : other ),
+			detailsByRuleKey: { ...value.detailsByRuleKey, [ getProtectedSiteRuleKey( site.rule ) ]: details },
 		} );
 		notify( SettingsFeedbackAction.SITE_UPDATED );
 	}
@@ -255,7 +257,7 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 			return;
 		}
 		const request = shell.permissionManager.request( site.rule );
-		setPendingAccess( site.identityHost );
+		setPendingAccess( getProtectedSiteRuleKey( site.rule ) );
 		setInputError( null );
 		void request.then( async ( result ) => {
 			if ( result.status !== SitePermissionRequestStatus.GRANTED ) {
@@ -263,7 +265,7 @@ export function useWebsitesState( props: WebsitesScreenProps ) {
 				return;
 			}
 			const refreshed = await refresh();
-			if ( refreshed?.get( site.identityHost ) ) {
+			if ( refreshed?.get( getProtectedSiteRuleKey( site.rule ) ) ) {
 				setAccessMessage( copy.formatAccessRestoredAnnouncement( resolveSiteDisplayIdentity( site ).name ) );
 			} else {
 				setInputError( 'access-request' );

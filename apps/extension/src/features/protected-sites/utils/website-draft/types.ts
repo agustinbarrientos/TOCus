@@ -1,4 +1,6 @@
+import type { ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
 import type { ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
+import type { TimingConfiguration } from '../../../../domains/protection/types/timing-configuration';
 import type { ScheduleDraft } from '../../../settings/utils/schedule-draft/types';
 
 /**
@@ -8,6 +10,8 @@ import type { ScheduleDraft } from '../../../settings/utils/schedule-draft/types
 export interface WebsiteDetailsDraft {
 	displayName: string;
 	schedule: ScheduleDraft | null;
+	behavior: NonNullable<ProtectedSiteRule['behavior']>;
+	timingConfiguration: TimingConfiguration | null;
 }
 
 /**
@@ -18,5 +22,5 @@ export interface WebsitesDraft {
 	sites: ProtectedSiteConfiguration[];
 	address: string;
 	newSite: WebsiteDetailsDraft;
-	detailsByHost: Record<string, WebsiteDetailsDraft>;
+	detailsByRuleKey: Record<string, WebsiteDetailsDraft>;
 }

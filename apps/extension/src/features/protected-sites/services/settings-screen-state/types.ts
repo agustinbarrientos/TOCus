@@ -4,5 +4,5 @@
  */
 export interface DuplicateSiteNotice {
 	/** Canonical identity of the row that already owns this website. */
-	identityHost: string;
+	ruleKey: string;
 }
