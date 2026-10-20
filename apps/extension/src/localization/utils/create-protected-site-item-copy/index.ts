@@ -33,6 +33,8 @@ export function createProtectedSiteItemCopy( i18n: I18n ): Readonly<ProtectedSit
 		customTimingLabel: i18n._( msg`Use custom pause timing` ),
 		customScheduleTag: i18n._( msg`Custom schedule` ),
 		customTimingTag: i18n._( msg`Custom pause timing` ),
+		includingSubdomains: i18n._( msg`Includes subdomains` ),
+		thisDomainOnly: i18n._( msg`This domain only` ),
 		exceptionsLabel: i18n._( msg`Exceptions` ),
 		whenVisitedLabel: i18n._( msg`When visited` ),
 		pauseLabel: i18n._( msg`Pause` ),

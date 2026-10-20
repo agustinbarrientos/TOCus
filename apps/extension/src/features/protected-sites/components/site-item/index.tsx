@@ -35,7 +35,8 @@ import { createWebsiteDetails } from '../../utils/website-draft';
  */
 export function WebsiteItem( props: WebsiteItemProps ) {
 	const { site, copy, disabled } = props;
-	const faviconProvider = props.presentation?.exception ? null : props.faviconProvider;
+	const rootPeer = props.presentation?.rootPeer ?? false;
+	const faviconProvider = props.presentation?.exception || rootPeer ? null : props.faviconProvider;
 	const faviconHost = props.presentation?.groupHost ?? site.identityHost;
 	const [ resolvedFavicon, setResolvedFavicon ] = useState<WebsiteFaviconResolution | null>( null );
 	useEffect( () => {
@@ -66,27 +67,32 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 	const exception = props.presentation?.exception ?? false;
 	const address = `${ site.rule.host }${ site.rule.pathPrefix ?? '' }`;
 	const editLabel = exception ? copy.exceptionEdit : copy.edit;
+	const coverageLabel = props.presentation?.rootPeers
+		? site.rule.includeSubdomains ? copy.includingSubdomains : copy.thisDomainOnly : null;
 	const error = props.persistedEditing?.state.error;
 	return (
-		<li ref={ props.itemRef } className={ `settings-site-item${ exception ? ' settings-site-exception' : '' }` }
+		<li ref={ props.itemRef } className={ `settings-site-item${ exception ? ' settings-site-exception' : '' }${ rootPeer ? ' settings-site-root-peer' : '' }` }
+			data-root-coverage={ props.presentation?.rootPeers ? site.rule.includeSubdomains ? 'broad' : 'exact' : undefined }
 			data-highlighted={ props.highlighted || undefined }
 			data-selectable={ props.selection !== undefined || undefined }
 			data-selection-active={ props.selection?.active || undefined }>
 			{ props.selection && <Checkbox.Card className="settings-site-select" withBorder={ false }
-				aria-label={ copy.formatSelectSite( exception ? address : identity.name ) }
+				aria-label={ copy.formatSelectSite( exception ? address : rootPeer
+					? `${ identity.name } (${ coverageLabel ?? copy.thisDomainOnly })` : identity.name ) }
 				checked={ props.selection.checked }
 				onChange={ props.selection.onChange } disabled={ disabled }>
 				<Checkbox.Indicator size="sm" disabled={ disabled } aria-hidden="true" />
 			</Checkbox.Card> }
 			<Stack gap={ 0 }>
 				<Group className="settings-site-row" wrap="nowrap" gap="var(--tocus-space-3)">
-					{ exception ? <Icon className="settings-site-exception-arrow" name={ IconName.ARROW_TURN_DOWN_RIGHT } /> : <Avatar className="tocus-native-avatar" src={ favicon }
+					{ rootPeer ? <span className="settings-site-root-indent" aria-hidden="true" /> : exception ? <Icon className="settings-site-exception-arrow" name={ IconName.ARROW_TURN_DOWN_RIGHT } /> : <Avatar className="tocus-native-avatar" src={ favicon }
 						size="2.25rem" radius="var(--tocus-radius-small)" aria-hidden="true">
 						<span className="settings-site-monogram">{ identity.monogram }</span>
 					</Avatar> }
 					<div className="settings-site-identity">
-						{ ! exception && <h2>{ identity.name }</h2> }
-						<p>{ presentationOnly ? faviconHost : address }</p>
+						{ ! exception && ! rootPeer && <h2>{ identity.name }</h2> }
+						{ rootPeer && details.displayName.trim() && <p className="settings-site-root-name">{ details.displayName }</p> }
+						<p>{ presentationOnly ? faviconHost : address }{ coverageLabel && ` (${ coverageLabel })` }</p>
 						{ ! presentationOnly && <div className="settings-site-tags">
 							{ details.schedule !== null && <span className="settings-site-schedule"><Icon name={ IconName.CALENDAR } />{ copy.customScheduleTag }</span> }
 							{ details.timingConfiguration !== null && details.behavior !== 'allow' && <span><Icon name={ IconName.PAUSE } />{ copy.customTimingTag }</span> }

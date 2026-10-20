@@ -27,15 +27,24 @@ export function WebsiteList( props: WebsiteListProps ) {
 		{ sites.length === 0 ? <section className="settings-sites-empty">
 			<h2>{ copy.emptyTitle }</h2><p>{ copy.emptyDescription }</p>
 		</section> : <ul className="settings-site-list">{ [ ...groups ].map( ( [ groupHost, members ] ) => {
-			const main = members.find( ( site ) => site.rule.host === groupHost && site.rule.pathPrefix === undefined );
+			const roots = members.filter( ( site ) =>
+				site.rule.host === groupHost && site.rule.pathPrefix === undefined )
+				.sort( ( first, second ) =>
+					Number( second.rule.includeSubdomains ) - Number( first.rule.includeSubdomains ) );
+			const main = roots[ 0 ];
 			const representative = main ?? members[ 0 ];
 			if ( representative === undefined ) {
 				return null;
 			}
-			const exceptions = members.filter( ( site ) => site !== main );
+			const exceptions = members.filter( ( site ) =>
+				site.rule.host !== groupHost || site.rule.pathPrefix !== undefined );
 			return <Fragment key={ groupHost }>
 				{ props.renderItem( representative, { groupHost, members, exception: false,
-					presentationOnly: main === undefined } ) }
+					presentationOnly: main === undefined, rootPeers: roots.length > 1 } ) }
+				{ roots.slice( 1 ).map( ( site ) => <Fragment key={ getProtectedSiteRuleKey( site.rule ) }>
+					{ props.renderItem( site, { groupHost, members, exception: false,
+						presentationOnly: false, rootPeer: true, rootPeers: true } ) }
+				</Fragment> ) }
 				{ exceptions.length > 0 && <li className="settings-site-exceptions">
 					<div className="settings-site-exceptions-label">{ props.exceptionsLabel }</div>
 					<ul>{ exceptions.map( ( site ) => <Fragment key={ getProtectedSiteRuleKey( site.rule ) }>

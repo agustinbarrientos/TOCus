@@ -54,6 +54,10 @@ export interface ProtectedSiteListCopy {
  */
 export interface WebsiteListPresentation {
 	exception: boolean;
+	/** Compact additional main policy; never an exception or group action owner. */
+	rootPeer?: boolean;
+	/** Coverage descriptions appear only for otherwise ambiguous root policies. */
+	rootPeers?: boolean;
 	presentationOnly: boolean;
 	groupHost: string;
 	members: ReadonlyArray<ProtectedSiteConfiguration>;

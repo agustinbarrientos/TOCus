@@ -135,6 +135,8 @@ export interface ProtectedSiteItemCopy {
 	customScheduleTag: string;
 	customTimingTag: string;
 	exceptionsLabel: string;
+	includingSubdomains: string;
+	thisDomainOnly: string;
 	whenVisitedLabel: string;
 	pauseLabel: string;
 	noPauseLabel: string;
