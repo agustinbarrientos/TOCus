@@ -45,7 +45,7 @@ test( 'edits a website in a focus-contained dialog without changing the page dra
 	await expect( row.getByRole( 'heading', { name: 'Chess.com', exact: true } ) ).toBeVisible();
 } );
 
-test( 'aligns the schedule summary and keeps row actions consistently sized and semantic', async ( { open } ) => {
+test( 'aligns the custom schedule tag and keeps row actions consistently sized and semantic', async ( { open } ) => {
 	const page = await open( SettingsDestination.PROTECTED_SITES );
 	await page.getByLabel( 'Website address', { exact: true } ).fill( 'chess.com' );
 	await page.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ).click();
@@ -57,13 +57,13 @@ test( 'aligns the schedule summary and keeps row actions consistently sized and 
 	const metrics = await row.evaluate( ( element ) => {
 		const schedule = element.querySelector( '.settings-site-schedule' );
 		const icon = schedule?.querySelector( 'svg' )?.getBoundingClientRect();
-		const text = schedule?.querySelector( 'span:last-child' )?.getBoundingClientRect();
+		const text = schedule?.getBoundingClientRect();
 		const remove = element.querySelector( '.settings-site-remove' );
 		if ( ! schedule || ! icon || ! text || ! remove ) {
 			throw new TypeError( 'The website row must retain its schedule, calendar icon and removal action.' );
 		}
 		return {
-			margin: getComputedStyle( schedule ).marginTop,
+			margin: getComputedStyle( schedule.parentElement ?? schedule ).marginTop,
 			alignment: Math.abs( icon.y + icon.height / 2 - text.y - text.height / 2 ),
 			icons: Array.from( element.querySelectorAll( '.settings-site-actions svg' ), ( item ) => ( {
 				width: item.getBoundingClientRect().width,
@@ -115,6 +115,9 @@ test( 'contains keyboard focus and keeps custom schedule rows usable in a narrow
 	expect( await page.evaluate( () => document.documentElement.scrollWidth <= innerWidth ) ).toBe( true );
 	await done.press( 'Enter' );
 	await expect( dialog ).toHaveCount( 0 );
-	await expect( page.locator( '.settings-site-schedule' ) ).toContainText( '09:00' );
+	await expect( page.locator( '.settings-site-schedule' ) ).toContainText( 'Custom schedule' );
+	await page.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } ).click();
+	await expect( page.getByRole( 'dialog' ).getByLabel( 'Start', { exact: true } ).first() ).toHaveValue( '09:00' );
+	await page.keyboard.press( 'Escape' );
 	expect( await page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 0 );
 } );
