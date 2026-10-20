@@ -1,5 +1,6 @@
 import { ProtectedSiteCanonicalizationStatus } from './types';
 import { describe, expect, it } from 'vitest';
+import { ProtectedSiteRuleSchema } from '../../types/protected-site-rule';
 import {
 	ProtectedSiteCanonicalizationResultSchema,
 	canonicalizeProtectedSite,
@@ -441,5 +442,61 @@ describe( 'conventional website aliases', () => {
 			alias.status === ProtectedSiteCanonicalizationStatus.ACCEPTED ) {
 			expect( canonicalizeProtectedSiteRules( [ root.rule, alias.rule ] ) ).toBeNull();
 		}
+	} );
+} );
+
+
+describe( 'canonical path validation boundaries', () => {
+	const rule = { host: 'youtube.com', includeSubdomains: true, scopeId: DEFAULT_SCOPE_ID };
+
+	it.each( [
+		'', '/', 'shorts', '/shorts/', '/shorts?cursor=next', '/shorts#saved',
+		'/shorts\\saved', '/shorts saved', '/caf\u00e9', '/shorts%2', '/shorts%GG', '/saved/../shorts',
+	] )( 'rejects noncanonical or malformed paths at the persisted rule boundary: %j', ( pathPrefix ) => {
+		expect( ProtectedSiteRuleSchema.safeParse( { ...rule, pathPrefix } ).success ).toBe( false );
+	} );
+
+	it.each( [ '/shorts', '/Shorts', '/shorts%2F123', '/caf%C3%A9' ] )(
+		'preserves case and encoded path components at the persisted rule boundary: %s', ( pathPrefix ) => {
+			expect( ProtectedSiteRuleSchema.parse( { ...rule, pathPrefix } ) ).toEqual( { ...rule, pathPrefix } );
+		},
+	);
+
+	it.each( [
+		'', 'shorts', '/shorts?cursor=next', '/shorts#saved', '/shorts\\saved',
+		'/shorts saved', '/shorts\n', '/caf\u00e9', '/shorts%2', '/shorts%GG',
+	] )( 'rejects unsafe stored path input instead of broadening its rule: %j', ( pathPrefix ) => {
+		expect( canonicalizeProtectedSiteRules( [ { ...rule, pathPrefix } ] ) ).toBeNull();
+	} );
+
+	it.each( [
+		{ input: '/shorts/', canonical: '/shorts' },
+		{ input: '/saved/../shorts', canonical: '/shorts' },
+		{ input: '/shorts%2F123', canonical: '/shorts%2F123' },
+		{ input: '/caf%C3%A9', canonical: '/caf%C3%A9' },
+	] )( 'normalizes valid stored path $input without decoding its components', ( { input, canonical } ) => {
+		expect( canonicalizeProtectedSiteRules( [ { ...rule, pathPrefix: input } ] ) )
+			.toEqual( [ { ...rule, pathPrefix: canonical } ] );
+	} );
+
+	it( 'normalizes an explicit root path into its original whole-host range', () => {
+		expect( canonicalizeProtectedSiteRules( [ { ...rule, pathPrefix: '/' } ] ) ).toEqual( [ rule ] );
+	} );
+
+	it.each( [ 'https://youtube.com/shorts%', 'https://youtube.com/shorts%2', 'https://youtube.com/shorts%GG' ] )(
+		'rejects malformed percent escapes preserved by URL parsing: %s', ( input ) => {
+			expect( canonicalizeProtectedSite( input, DEFAULT_SCOPE_ID ) ).toEqual( {
+				status: ProtectedSiteCanonicalizationStatus.REJECTED,
+				reason: 'malformed-input',
+			} );
+		},
+	);
+
+	it( 'accepts Unicode URL paths after URL parsing encodes them for canonical storage', () => {
+		expect( canonicalizeProtectedSite( 'https://youtube.com/caf\u00e9', DEFAULT_SCOPE_ID ) ).toEqual( {
+			status: ProtectedSiteCanonicalizationStatus.ACCEPTED,
+			identityHost: 'youtube.com',
+			rule: { ...rule, pathPrefix: '/caf%C3%A9' },
+		} );
 	} );
 } );
