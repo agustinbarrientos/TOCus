@@ -1,3 +1,4 @@
+import { getProtectedSiteGroupHost, getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
 import { Fragment } from 'react';
 import { ScheduleMode, type NormalizedSchedule } from '../../../../domains/protection/types/protection-schedule';
 import type { BackupPreviewProps } from './types';
@@ -36,6 +37,9 @@ export function BackupPreviewContent( props: BackupPreviewProps ) {
 	function time( minute: number ): string {
 		return `${ String( Math.floor( minute / 60 ) ).padStart( 2, '0' ) }:${ String( minute % 60 ).padStart( 2, '0' ) }`;
 	}
+	const websiteCount = new Set( backup.settings.sites.map( ( site ) =>
+		getProtectedSiteGroupHost( site.rule.host ),
+	) ).size;
 	const totals = Object.values( backup.statistics.scopes );
 	const values = [
 		[ statistics.completedWaitsLabel,
@@ -58,12 +62,12 @@ export function BackupPreviewContent( props: BackupPreviewProps ) {
 			<dd>{ new Date( backup.exportedAt ).toLocaleString( document.documentElement.lang ) }</dd>
 			<dt>{ copy.extensionVersionLabel }</dt><dd>{ backup.extensionVersion }</dd>
 			<dt>{ copy.dataFormatVersionLabel }</dt><dd>{ backup.dataFormatVersion }</dd>
-			<dt>{ copy.websiteCountLabel }</dt><dd>{ statistics.formatCount( backup.settings.sites.length ) }</dd>
+			<dt>{ copy.websiteCountLabel }</dt><dd>{ statistics.formatCount( websiteCount ) }</dd>
 		</dl>
 		<h4>{ shell.copy.protectedSites }</h4>
-		<ul>{ backup.settings.sites.map( ( site ) => <li key={ site.identityHost }>
+		<ul>{ backup.settings.sites.map( ( site ) => <li key={ getProtectedSiteRuleKey( site.rule ) }>
 			<strong>{ site.displayNameOverride ?? site.identityHost }</strong>{ ' ' }({ site.identityHost })
-			<p>{ site.rule.host } - { site.rule.includeSubdomains
+			<p>{ site.rule.host }{ site.rule.pathPrefix ?? '' } - { site.rule.includeSubdomains
 				? copy.includesSubdomainsLabel : copy.excludesSubdomainsLabel }</p>
 			<p>{ site.schedule ? scheduleText( site.schedule ) : copy.inheritedScheduleLabel }</p>
 		</li> ) }</ul>
