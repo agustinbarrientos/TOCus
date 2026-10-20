@@ -175,7 +175,7 @@ test( 'updates cached member candidates without applying stale lookups after mem
 			},
 		} );
 	} );
-	for ( const host of [ 'youtube.com', 'studio.youtube.com' ] ) {
+	for ( const host of [ 'youtube.com' ] ) {
 		await page.getByLabel( 'Website address', { exact: true } ).fill( host );
 		await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
 	}

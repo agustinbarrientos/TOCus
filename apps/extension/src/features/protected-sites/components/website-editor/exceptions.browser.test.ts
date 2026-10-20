@@ -35,7 +35,7 @@ test( 'starts child timing from the staged main policy and retains tentative tog
 		await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
 	}
 	const main = page.locator( '.settings-site-item:not(.settings-site-exception)' );
-	const child = page.locator( '.settings-site-exception' );
+	const child = page.locator( '.settings-site-exception' ).filter( { hasText: 'youtube.com/shorts' } );
 	const edit = 'Change when TOCus pauses this site, or rename it';
 	await main.getByRole( 'button', { name: edit, exact: true } ).click();
 	let dialog = page.getByRole( 'dialog' );
@@ -74,7 +74,7 @@ test( 'starts child timing from the staged main policy and retains tentative tog
 	await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
 	await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
 	expect( await page.evaluate( () => window.settingsTest.getConfiguration().sites.map( ( site ) =>
-		site.timingConfiguration?.initialWaitMilliseconds ) ) ).toEqual( [ 20000, undefined ] );
+		site.timingConfiguration?.initialWaitMilliseconds ) ) ).toEqual( [ 20000, undefined, undefined ] );
 } );
 
 test( 'keeps no-pause behavior isolated through Escape, Done, Save and Discard', async ( { open } ) => {
@@ -116,19 +116,19 @@ test( 'rejects exact duplicates and selects or removes only captured group membe
 	await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
 	const shorts = page.locator( '.settings-site-exception' ).filter( { hasText: 'youtube.com/shorts' } );
 	await expect( shorts ).toHaveAttribute( 'data-highlighted', 'true' );
-	await expect( page.locator( '.settings-site-item' ) ).toHaveCount( 3 );
+	await expect( page.locator( '.settings-site-item' ) ).toHaveCount( 4 );
 	await page.getByLabel( 'Website address', { exact: true } ).fill( '' );
 	await shorts.getByRole( 'button', { name: 'Remove site', exact: true } ).click();
 	await page.getByRole( 'dialog' ).getByRole( 'button', { name: 'Remove', exact: true } ).click();
-	await expect( page.locator( '.settings-site-exception' ) ).toHaveCount( 1 );
+	await expect( page.locator( '.settings-site-exception' ) ).toHaveCount( 2 );
 	await page.getByRole( 'button', { name: 'Discard', exact: true } ).click();
 	await page.getByRole( 'checkbox', { name: 'Select YouTube', exact: true } ).focus();
 	await page.keyboard.press( 'Space' );
-	await expect( page.getByRole( 'button', { name: 'Remove selected (3)', exact: true } ) ).toBeVisible();
+	await expect( page.getByRole( 'button', { name: 'Remove selected (4)', exact: true } ) ).toBeVisible();
 	for ( const checkbox of await page.getByRole( 'checkbox' ).all() ) {
 		await expect( checkbox ).toBeChecked();
 	}
-	await page.getByRole( 'button', { name: 'Remove selected (3)', exact: true } ).click();
+	await page.getByRole( 'button', { name: 'Remove selected (4)', exact: true } ).click();
 	await page.getByRole( 'dialog' ).getByRole( 'button', { name: 'Remove', exact: true } ).click();
 	await expect( page.locator( '.settings-site-item' ) ).toHaveCount( 0 );
 	await page.getByRole( 'button', { name: 'Discard', exact: true } ).click();
@@ -184,11 +184,12 @@ test( 'retains browser access for a main website when only its exception is remo
 	await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
 	expect( await page.evaluate( () => window.settingsTest.controls.userActivation ) ).toBe( true );
 	const requests = await page.evaluate( () => window.settingsTest.controls.requests );
-	await page.locator( '.settings-site-exception' ).getByRole( 'button', { name: 'Remove site', exact: true } ).click();
+	await page.locator( '.settings-site-exception' ).filter( { hasText: 'youtube.com/shorts' } )
+		.getByRole( 'button', { name: 'Remove site', exact: true } ).click();
 	await page.getByRole( 'dialog' ).getByRole( 'button', { name: 'Remove', exact: true } ).click();
 	await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
 	await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 2 );
 	await expect( page.getByText( 'Access required', { exact: true } ) ).toHaveCount( 0 );
 	expect( await page.evaluate( () => window.settingsTest.controls.requests ) ).toBe( requests );
-	expect( await page.evaluate( () => window.settingsTest.getConfiguration().sites.map( ( site ) => site.rule.host ) ) ).toEqual( [ 'youtube.com' ] );
+	expect( await page.evaluate( () => window.settingsTest.getConfiguration().sites.map( ( site ) => site.rule.host ) ) ).toEqual( [ 'youtube.com', 'studio.youtube.com' ] );
 } );

@@ -2,7 +2,7 @@
 
 ## 1.1.0 - Unreleased
 
-- Added: Grouped website path and subdomain exceptions, with independent schedules, complete custom pause timing for websites and exceptions, and an explicit no-pause option. Shared pauses keep elapsed progress when a longer rule joins, and backups preserve all overrides (Chrome, Edge, Firefox).
+- Added: Grouped website path and subdomain exceptions, with independent schedules, complete custom pause timing for websites and exceptions, and an explicit no-pause option. Select individual exceptions or their whole website group, and newly added YouTube rules include an editable no-pause exception for YouTube Studio. Shared pauses keep elapsed progress when a longer rule joins, and backups preserve all overrides (Chrome, Edge, Firefox).
 
 - Fixed: Search-result links containing text fragments restore their breathing pause and keep the complete destination when continuing, including after retrying a temporary restoration failure (Chrome, Edge, Firefox).
 - Added: Live breathing-screen previews in Quick links and Appearance that share onboarding's browser frame, float at the bottom right, reflect unsaved changes, respect reduced motion, and stay separate from real pause activity (Chrome, Edge, Firefox).
