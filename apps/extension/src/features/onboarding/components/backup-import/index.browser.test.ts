@@ -3,6 +3,7 @@ import { createBackupDocument } from '../../../../domains/local-data/utils/backu
 import { createBackupSource } from '../../../../domains/local-data/utils/backup-document/__fixtures__';
 import type { OnboardingPageShell } from '../../services/onboarding-page/types';
 import type { BackupActionResult, BackupPreview } from '../../../settings/services/backup-data-actions/types';
+import { Language } from '../../../../domains/preferences/types';
 
 /** Test-only browser boundary exposing the mounted production page port. */
 type ImportTestWindow = Window & { presentationTest: { port: OnboardingPageShell } };
@@ -68,6 +69,50 @@ async function chooseBackup( page: Page ) {
 		buffer: Buffer.from( JSON.stringify( createBackupDocument( createBackupSource() ) ) ),
 	} );
 	await expect( page.getByRole( 'dialog', { name: 'Restore this backup?', exact: true } ) ).toBeVisible();
+}
+
+for ( const language of Object.values( Language ) ) {
+	test( `keeps the ${ language } header action readable at narrow and desktop widths`, async ( { page }, testInfo ) => {
+		await page.goto( `/tests/visual/originals/presentation/?language=${ language }` );
+		await expect( page.locator( '.onboarding-import-entry' ) ).toBeVisible();
+		await page.evaluate( () => document.fonts.ready );
+		for ( const width of [ 360, 1280 ] ) {
+			await page.setViewportSize( { width, height: 800 } );
+			const geometry = await page.locator( '.onboarding-header' ).evaluate( ( header ) => {
+				const brand = header.querySelector( '.tocus-brand' );
+				const button = header.querySelector( '.onboarding-import-entry' );
+				const label = button?.querySelector( '.mantine-Button-label' );
+				const icon = button?.querySelector( '.tocus-icon' );
+				if ( ! brand || ! button || ! label || ! icon ) {
+					throw new Error( 'Expected the localized header brand and shared import button.' );
+				}
+				const brandBox = brand.getBoundingClientRect();
+				const buttonBox = button.getBoundingClientRect();
+				const labelBox = label.getBoundingClientRect();
+				const iconBox = icon.getBoundingClientRect();
+				const range = document.createRange();
+				range.selectNodeContents( label );
+				return { documentWidth: document.documentElement.scrollWidth, viewportWidth: innerWidth,
+					textWidth: range.getBoundingClientRect().width, labelWidth: labelBox.width,
+					labelClientWidth: label.clientWidth, labelScrollWidth: label.scrollWidth,
+					separation: Math.max( buttonBox.left - brandBox.right, buttonBox.top - brandBox.bottom ),
+					labelRight: labelBox.right, gridRight: header.getBoundingClientRect().right,
+					iconGap: labelBox.left - iconBox.right, iconWidth: iconBox.width, iconHeight: iconBox.height,
+					font: parseFloat( getComputedStyle( button ).fontSize ) };
+			} );
+			expect( geometry.documentWidth ).toBeLessThanOrEqual( geometry.viewportWidth );
+			expect( geometry.labelScrollWidth ).toBeLessThanOrEqual( geometry.labelClientWidth );
+			expect( geometry.textWidth ).toBeLessThanOrEqual( geometry.labelWidth + 1 );
+			expect( geometry.separation ).toBeGreaterThanOrEqual( 8 );
+			expect( geometry.labelRight ).toBeCloseTo( geometry.gridRight, 1 );
+			expect( geometry.iconGap ).toBe( 8 );
+			expect( geometry.iconWidth ).toBeCloseTo( geometry.font * 1.25, 1 );
+			expect( geometry.iconHeight ).toBeCloseTo( geometry.iconWidth, 1 );
+			if ( width === 360 ) {
+				await page.locator( '.onboarding-header' ).screenshot( { path: testInfo.outputPath( `${ language }-header.png` ) } );
+			}
+		}
+	} );
 }
 
 test( 'keeps the header entry aligned and reviews a local file before restoring', async ( { page } ) => {

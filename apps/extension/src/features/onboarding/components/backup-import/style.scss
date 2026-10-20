@@ -4,9 +4,10 @@
 	@include typography.apply('body-small');
 
 	height: auto;
+	flex-shrink: 0;
 	min-height: 2.75rem;
 	padding: var(--tocus-space-2) var(--tocus-space-3);
-	margin-inline-end: calc(-1 * (var(--tocus-space-3) + 1px));
+	margin-inline: auto calc(-1 * (var(--tocus-space-3) + 1px));
 }
 
 .onboarding-import-dialog {
