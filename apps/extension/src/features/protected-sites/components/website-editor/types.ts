@@ -11,6 +11,8 @@ import type { ScheduleScreenCopy } from '../../../settings/components/schedule-s
 export interface WebsiteEditorProps {
 	opened: boolean;
 	exception?: boolean | undefined;
+	/** Allows an independently presented product to retain its editable name. */
+	showName?: boolean;
 	timingCopy?: TimingScreenCopy | undefined;
 	inheritedTiming?: TimingConfiguration | undefined;
 	idPrefix: string;
