@@ -4,12 +4,26 @@ import { getProtectedSiteGroupHost, getProtectedSiteRuleKey } from '../protected
 import type { ResolvedSitePolicy } from './types';
 
 /**
+ * Checks whether a root rule contains the complete host range of an exception.
+ * @param parent - Candidate no-path main website rule.
+ * @param child - Exception rule whose exact or descendant host range must fit.
+ * @return Whether every host covered by the child is also covered by the root.
+ * @since 1.1.0
+ */
+function coversHostRange( parent: ProtectedSiteRule, child: ProtectedSiteRule ): boolean {
+	if ( parent.host === child.host ) {
+		return parent.includeSubdomains || ! child.includeSubdomains;
+	}
+	return parent.includeSubdomains && child.host.endsWith( `.${ parent.host }` );
+}
+
+/**
  * Resolves entry overrides, then main website overrides, then global settings.
  * Intermediate paths never participate in inheritance and removed rules have no policy.
  * @param configuration - Current stored or staged shared configuration.
  * @param rule - Canonical target to resolve; behavior and scope do not identify a target.
  * @return Effective policy, or undefined for a removed target.
- * @since 1.0.1
+ * @since 1.1.0
  */
 export function resolveSitePolicy(
 	configuration: ProtectionConfigurationDocument,
@@ -22,8 +36,10 @@ export function resolveSitePolicy(
 	}
 
 	const groupHost = getProtectedSiteGroupHost( site.rule.host );
-	const mainTargets = configuration.sites.filter( ( candidate ) => candidate.rule.host === groupHost &&
-		candidate.rule.pathPrefix === undefined );
+	const isMainWebsite = site.rule.host === groupHost && site.rule.pathPrefix === undefined;
+	const mainTargets = isMainWebsite ? [] : configuration.sites.filter( ( candidate ) =>
+		candidate.rule.host === groupHost && candidate.rule.pathPrefix === undefined &&
+		coversHostRange( candidate.rule, site.rule ) );
 	const main = mainTargets.find( ( candidate ) => ! candidate.rule.includeSubdomains ) ?? mainTargets[ 0 ];
 
 	return {

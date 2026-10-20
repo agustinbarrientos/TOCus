@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { TestEmptyProtectionConfiguration } from '../../types/__fixtures__';
-import type { ProtectedSiteConfiguration } from '../../types/protected-site-configuration';
+import { ProtectionConfigurationDocumentSchema,
+	type ProtectedSiteConfiguration } from '../../types/protected-site-configuration';
 import { ProtectedUrlMatchStatus } from '../../types/protected-url-match';
 import { ScheduleEvaluationStatus } from '../../types/schedule-evaluation';
 import { DefaultProtectionScopeId } from '../../types/protection-value';
@@ -95,4 +96,114 @@ it( 'inherits a main website with legacy exact host coverage', () => {
 	const child = { ...shorts, rule: { ...shorts.rule, includeSubdomains: false } };
 	const configuration = { ...TestEmptyProtectionConfiguration, sites: [ main, child ] };
 	expect( resolveSitePolicy( configuration, child.rule )?.timingConfiguration ).toEqual( customTiming );
+} );
+
+
+describe( 'main website coverage inheritance', () => {
+	const broad: ProtectedSiteConfiguration = { identityHost: 'youtube.com', rule: root.rule };
+	const exact: ProtectedSiteConfiguration = { ...broad, rule: { ...broad.rule, includeSubdomains: false },
+		schedule: monday, timingConfiguration: customTiming };
+	const broadTiming = { ...customTiming, initialWaitMilliseconds: 25_000 };
+	const childTiming = { ...customTiming, initialWaitMilliseconds: 30_000 };
+	const exactPath: ProtectedSiteConfiguration = { ...shorts,
+		rule: { ...shorts.rule, includeSubdomains: false } };
+	const studio: ProtectedSiteConfiguration = { identityHost: 'studio.youtube.com', rule: {
+		...root.rule, host: 'studio.youtube.com', includeSubdomains: false,
+	} };
+
+	it.each( [ false, true ] )( 'keeps root policies independent with reversed storage order %s', ( reverse ) => {
+		const roots = [ broad, exact ];
+		if ( reverse ) {
+			roots.reverse();
+		}
+		const configuration = ProtectionConfigurationDocumentSchema.parse( {
+			...TestEmptyProtectionConfiguration, sites: roots,
+		} );
+		expect( resolveSitePolicy( configuration, broad.rule ) ).toEqual( {
+			site: broad, schedule: configuration.schedule, timingConfiguration: configuration.timingConfiguration,
+		} );
+		expect( resolveSitePolicy( configuration, exact.rule ) ).toEqual( {
+			site: exact, schedule: monday, timingConfiguration: customTiming,
+		} );
+		const match = matchProtectedUrl( 'https://www.youtube.com/', configuration.sites.map( ( site ) => site.rule ) );
+		expect( match ).toEqual( { status: ProtectedUrlMatchStatus.PROTECTED, rule: broad.rule } );
+		if ( match.status !== ProtectedUrlMatchStatus.PROTECTED ) {
+			throw new Error( 'Expected descendant navigation to select the broad root.' );
+		}
+		expect( resolveSitePolicy( configuration, match.rule ) ).toEqual( {
+			site: broad, schedule: configuration.schedule, timingConfiguration: configuration.timingConfiguration,
+		} );
+	} );
+
+	it.each( [ false, true ] )( 'chooses the most specific covering root with reversed storage order %s', ( reverse ) => {
+		const main = { ...broad, schedule: weekdays, timingConfiguration: broadTiming };
+		const roots = [ main, exact ];
+		if ( reverse ) {
+			roots.reverse();
+		}
+		const configuration = ProtectionConfigurationDocumentSchema.parse( {
+			...TestEmptyProtectionConfiguration, sites: [ ...roots, exactPath, shorts, studio ],
+		} );
+		expect( resolveSitePolicy( configuration, exactPath.rule ) ).toEqual( {
+			site: exactPath, schedule: monday, timingConfiguration: customTiming,
+		} );
+		for ( const child of [ shorts, studio ] ) {
+			expect( resolveSitePolicy( configuration, child.rule ) ).toEqual( {
+				site: child, schedule: weekdays, timingConfiguration: broadTiming,
+			} );
+		}
+	} );
+
+	it( 'uses globals outside exact-root coverage when no broad main website exists', () => {
+		const configuration = ProtectionConfigurationDocumentSchema.parse( {
+			...TestEmptyProtectionConfiguration, sites: [ exact, exactPath, shorts, studio ],
+		} );
+		expect( resolveSitePolicy( configuration, exactPath.rule ) ).toEqual( {
+			site: exactPath, schedule: monday, timingConfiguration: customTiming,
+		} );
+		for ( const child of [ shorts, studio ] ) {
+			expect( resolveSitePolicy( configuration, child.rule ) ).toEqual( {
+				site: child, schedule: configuration.schedule, timingConfiguration: configuration.timingConfiguration,
+			} );
+		}
+	} );
+
+	it( 'keeps explicit child fields independent from all root overrides', () => {
+		const child = { ...shorts, schedule: weekdays, timingConfiguration: childTiming };
+		const configuration = ProtectionConfigurationDocumentSchema.parse( {
+			...TestEmptyProtectionConfiguration,
+			sites: [ { ...broad, schedule: monday, timingConfiguration: broadTiming }, exact, child ],
+		} );
+		expect( resolveSitePolicy( configuration, child.rule ) ).toEqual( {
+			site: child, schedule: weekdays, timingConfiguration: childTiming,
+		} );
+	} );
+
+	it( 'resolves each field through only the selected covering root and then globals', () => {
+		const exactMain = { ...broad, rule: exact.rule, schedule: monday };
+		const broadMain = { ...broad, timingConfiguration: broadTiming };
+		const explicitSchedule = { ...studio, schedule: weekdays };
+		const explicitTiming = { ...shorts, rule: { ...shorts.rule, pathPrefix: '/feed' },
+			timingConfiguration: childTiming };
+		const configuration = ProtectionConfigurationDocumentSchema.parse( {
+			...TestEmptyProtectionConfiguration,
+			sites: [ exactMain, broadMain, exactPath, shorts, explicitSchedule, explicitTiming ],
+		} );
+		for ( const child of [ exactMain, exactPath ] ) {
+			expect( resolveSitePolicy( configuration, child.rule ) ).toEqual( {
+				site: child, schedule: monday, timingConfiguration: configuration.timingConfiguration,
+			} );
+		}
+		for ( const child of [ broadMain, shorts ] ) {
+			expect( resolveSitePolicy( configuration, child.rule ) ).toEqual( {
+				site: child, schedule: configuration.schedule, timingConfiguration: broadTiming,
+			} );
+		}
+		expect( resolveSitePolicy( configuration, explicitSchedule.rule ) ).toEqual( {
+			site: explicitSchedule, schedule: weekdays, timingConfiguration: broadTiming,
+		} );
+		expect( resolveSitePolicy( configuration, explicitTiming.rule ) ).toEqual( {
+			site: explicitTiming, schedule: configuration.schedule, timingConfiguration: childTiming,
+		} );
+	} );
 } );
