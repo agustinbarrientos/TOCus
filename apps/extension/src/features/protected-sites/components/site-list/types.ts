@@ -59,6 +59,8 @@ export interface WebsiteListPresentation {
 	/** Coverage descriptions appear only for otherwise ambiguous root policies. */
 	rootPeers?: boolean;
 	presentationOnly: boolean;
+	/** Whether the unconfigured group root has no matching pause rule. */
+	groupUnprotected?: boolean;
 	groupHost: string;
 	members: ReadonlyArray<ProtectedSiteConfiguration>;
 }

@@ -267,7 +267,8 @@ export function Websites( props: WebsitesScreenProps ) {
 								getProtectedSiteRuleKey( site.rule ) ) ) );
 						} }>{ copy.formatRemoveSelected( selectedSites.length ) }</Button>
 				</Group> }
-				<WebsiteList sites={ value.sites } copy={ copy } exceptionsLabel={ itemCopy.exceptionsLabel }
+				<WebsiteList sites={ serializeWebsiteDraft( value ) } copy={ copy }
+					exceptionsLabel={ itemCopy.exceptionsLabel }
 					renderItem={ renderSite }
 					hasCustomSchedule={ ( site ) =>
 						value.detailsByRuleKey[ getProtectedSiteRuleKey( site.rule ) ]?.schedule !== null } />

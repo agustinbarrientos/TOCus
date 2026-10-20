@@ -1,6 +1,8 @@
 import { Fragment } from 'react';
-import { getProtectedSiteGroupHost, getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
-import { resolveSiteDisplayIdentity } from '../../utils/site-display-name-resolver';
+import { matchProtectedUrl } from '../../../../domains/protection/utils/protected-url-matcher';
+import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
+import { getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
+import { getWebsitePresentationGroupHost, resolveSiteDisplayIdentity } from '../../utils/site-display-name-resolver';
 import type { WebsiteListProps } from './types';
 import './style.scss';
 
@@ -20,7 +22,7 @@ export function WebsiteList( props: WebsiteListProps ) {
 	} );
 	const groups = new Map<string, typeof sites>();
 	for ( const site of sites ) {
-		const host = getProtectedSiteGroupHost( site.rule.host );
+		const host = getWebsitePresentationGroupHost( site.rule.host );
 		groups.set( host, [ ...groups.get( host ) ?? [], site ] );
 	}
 	return <div className="settings-site-groups">
@@ -40,7 +42,9 @@ export function WebsiteList( props: WebsiteListProps ) {
 				site.rule.host !== groupHost || site.rule.pathPrefix !== undefined );
 			return <Fragment key={ groupHost }>
 				{ props.renderItem( representative, { groupHost, members, exception: false,
-					presentationOnly: main === undefined, rootPeers: roots.length > 1 } ) }
+					presentationOnly: main === undefined, rootPeers: roots.length > 1,
+					groupUnprotected: main === undefined && matchProtectedUrl( `https://${ groupHost }/`,
+						sites.map( ( site ) => site.rule ) ).status === ProtectedUrlMatchStatus.UNPROTECTED } ) }
 				{ roots.slice( 1 ).map( ( site ) => <Fragment key={ getProtectedSiteRuleKey( site.rule ) }>
 					{ props.renderItem( site, { groupHost, members, exception: false,
 						presentationOnly: false, rootPeer: true, rootPeers: true } ) }

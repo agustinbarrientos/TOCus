@@ -1,5 +1,5 @@
 import { getGroupFaviconHosts, resolveGroupFavicon } from '../../utils/resolve-group-favicon';
-import { getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
+import { getProtectedSiteGroupHost, getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
 import { useEffect, useState } from 'react';
 import {
 	Avatar,
@@ -14,7 +14,7 @@ import {
 	IconName,
 } from '@tocus/ui';
 import {
-	resolveSiteDisplayIdentity,
+	getWebsitePresentationGroupHost, resolveSiteDisplayIdentity,
 } from '../../utils/site-display-name-resolver';
 import {
 	WebsiteEditor,
@@ -37,6 +37,7 @@ import { createWebsiteDetails } from '../../utils/website-draft';
 export function WebsiteItem( props: WebsiteItemProps ) {
 	const { site, copy, disabled } = props;
 	const rootPeer = props.presentation?.rootPeer ?? false;
+	const exception = props.presentation?.exception ?? false;
 	const faviconProvider = props.presentation?.exception || rootPeer ? null : props.faviconProvider;
 	const faviconHost = props.presentation?.groupHost ?? site.identityHost;
 	const faviconHostsKey = getGroupFaviconHosts( faviconHost,
@@ -63,13 +64,14 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 	const favicon = currentResolution ? currentResolution.source
 		: faviconProvider?.resolveSource === undefined ? props.favicon : null;
 	const presentationOnly = props.presentation?.presentationOnly ?? false;
+	const identityHost = props.presentation && ! exception &&
+		getWebsitePresentationGroupHost( site.identityHost ) !== faviconHost ? faviconHost : site.identityHost;
 	const displaySite = presentationOnly ? { identityHost: faviconHost,
-		rule: { ...site.rule, host: faviconHost }, displayNameOverride: undefined } : site;
+		rule: { ...site.rule, host: faviconHost }, displayNameOverride: undefined } : { ...site, identityHost };
 	const details = props.persistedEditing?.state.details ?? props.details ?? createWebsiteDetails( site );
 	const identity = resolveSiteDisplayIdentity( { ...displaySite,
 		displayNameOverride: presentationOnly ? undefined : details.displayName.trim() || undefined } );
-	const automaticIdentity = resolveSiteDisplayIdentity( { ...site, displayNameOverride: undefined } );
-	const exception = props.presentation?.exception ?? false;
+	const automaticIdentity = resolveSiteDisplayIdentity( { ...displaySite, displayNameOverride: undefined } );
 	const address = `${ site.rule.host }${ site.rule.pathPrefix ?? '' }`;
 	const editLabel = exception ? copy.exceptionEdit : copy.edit;
 	const coverageLabel = props.presentation?.rootPeers
@@ -99,6 +101,8 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 						{ rootPeer && details.displayName.trim() && <p className="settings-site-root-name">{ details.displayName }</p> }
 						<Group className="settings-site-tags" wrap="wrap" gap="var(--tocus-space-1)">
 							<p>{ presentationOnly ? faviconHost : address }{ coverageLabel && ` (${ coverageLabel })` }</p>
+							{ presentationOnly && props.presentation?.groupUnprotected &&
+								<span><Icon name={ IconName.CHEVRONS_RIGHT } />{ copy.noPauseLabel }</span> }
 							{ ! presentationOnly && <>
 								{ details.schedule !== null && <span className="settings-site-schedule"><Icon name={ IconName.CALENDAR } />{ copy.customScheduleTag }</span> }
 								{ details.timingConfiguration !== null && details.behavior !== 'allow' && <span><Icon name={ IconName.PAUSE } />{ copy.customTimingTag }</span> }
@@ -135,7 +139,8 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 					</div>
 				</Alert> }
 				<WebsiteEditor opened={ props.editing } idPrefix={ `site-${ getProtectedSiteRuleKey( site.rule ) }` } name={ exception ? address : identity.name }
-					exception={ exception } timingCopy={ props.timingCopy } inheritedTiming={ props.inheritedTiming }
+					exception={ exception || getProtectedSiteGroupHost( site.rule.host ) !== site.rule.host }
+					showName={ ! exception } timingCopy={ props.timingCopy } inheritedTiming={ props.inheritedTiming }
 					automaticName={ automaticIdentity.name }
 					value={ details } copy={ copy } scheduleCopy={ props.scheduleCopy } disabled={ disabled }
 					error={ error ? error === ProtectedSiteItemOperationErrorReason.CONFIGURATION_CHANGED
