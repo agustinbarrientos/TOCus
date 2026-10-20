@@ -1,6 +1,9 @@
 import { parse } from 'tldts';
+import { CanonicalHostSchema } from '../../../../domains/protection/types/protected-site-rule';
+import { getProtectedSiteGroupHost } from '../../../../domains/protection/utils/protected-site-rule-key';
 import siteDisplayNameCatalogSource from '../site-display-name-catalog/catalog.json';
 import { compileSiteDisplayNameCatalog } from '../site-display-name-catalog';
+import productHostsSource from './product-hosts.json';
 import {
 	SiteDisplayIdentitySchema,
 	SiteDisplayNameResolutionInputSchema,
@@ -9,6 +12,39 @@ import {
 } from './types';
 
 const SITE_DISPLAY_NAME_CATALOG = compileSiteDisplayNameCatalog( siteDisplayNameCatalogSource );
+const PRODUCT_HOSTS = new Set( productHostsSource.map( ( host ) => CanonicalHostSchema.parse( host ) ) );
+
+/**
+ * Finds the most specific curated product boundary containing a canonical host.
+ * @param host - Exact canonical site identity host.
+ * @return Exact product host, or undefined when no product boundary contains it.
+ * @since 1.1.0
+ */
+function getProductHost( host: string ): string | undefined {
+	let candidateHost = host;
+	let separatorIndex = candidateHost.indexOf( '.' );
+
+	while ( separatorIndex >= 0 ) {
+		if ( PRODUCT_HOSTS.has( candidateHost ) ) {
+			return candidateHost;
+		}
+
+		candidateHost = candidateHost.slice( separatorIndex + 1 );
+		separatorIndex = candidateHost.indexOf( '.' );
+	}
+
+	return undefined;
+}
+
+/**
+ * Groups one canonical host at its curated product boundary for website presentation.
+ * @param host - Exact canonical site identity host without URL navigation details.
+ * @return Most specific product host, or the ordinary protected-site group host.
+ * @since 1.1.0
+ */
+export function getWebsitePresentationGroupHost( host: string ): string {
+	return getProductHost( host ) ?? getProtectedSiteGroupHost( host );
+}
 
 /**
  * Converts one canonical site identity into a readable local fallback name.
@@ -81,7 +117,8 @@ export function resolveSiteDisplayIdentity(
 	input: SiteDisplayNameResolutionInput,
 ): SiteDisplayIdentity {
 	const parsedInput = SiteDisplayNameResolutionInputSchema.parse( input );
-	const catalogName = SITE_DISPLAY_NAME_CATALOG.resolve( parsedInput.identityHost );
+	const catalogHost = getProductHost( parsedInput.identityHost ) ?? parsedInput.identityHost;
+	const catalogName = SITE_DISPLAY_NAME_CATALOG.resolve( catalogHost );
 	const name = parsedInput.displayNameOverride || catalogName || deriveDisplayName(
 		parsedInput.identityHost,
 		parsedInput.rule.host,

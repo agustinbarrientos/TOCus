@@ -5449,5 +5449,246 @@
 		"domains": [
 			"www.xn--42cf7cgd7gxbd4m7c.cc"
 		]
+	},
+	{
+		"name": "Google Sheets",
+		"domains": [
+			"sheets.google.com"
+		]
+	},
+	{
+		"name": "Google Slides",
+		"domains": [
+			"slides.google.com"
+		]
+	},
+	{
+		"name": "Google Chat",
+		"domains": [
+			"chat.google.com"
+		]
+	},
+	{
+		"name": "Google Forms",
+		"domains": [
+			"forms.google.com"
+		]
+	},
+	{
+		"name": "Google Keep",
+		"domains": [
+			"keep.google.com"
+		]
+	},
+	{
+		"name": "Google Maps",
+		"domains": [
+			"maps.google.com"
+		]
+	},
+	{
+		"name": "Google AI Studio",
+		"domains": [
+			"aistudio.google.com"
+		]
+	},
+	{
+		"name": "Gemini Notebook",
+		"domains": [
+			"notebook.google.com",
+			"notebooklm.google.com"
+		]
+	},
+	{
+		"name": "Apple Maps",
+		"domains": [
+			"maps.apple.com"
+		]
+	},
+	{
+		"name": "Apple Podcasts",
+		"domains": [
+			"podcasts.apple.com"
+		]
+	},
+	{
+		"name": "Apple Books",
+		"domains": [
+			"books.apple.com"
+		]
+	},
+	{
+		"name": "Microsoft Teams",
+		"domains": [
+			"teams.microsoft.com"
+		]
+	},
+	{
+		"name": "Microsoft Designer",
+		"domains": [
+			"designer.microsoft.com"
+		]
+	},
+	{
+		"name": "Azure Portal",
+		"domains": [
+			"portal.azure.com"
+		]
+	},
+	{
+		"name": "Adobe Express",
+		"domains": [
+			"express.adobe.com"
+		]
+	},
+	{
+		"name": "Adobe Firefly",
+		"domains": [
+			"firefly.adobe.com"
+		]
+	},
+	{
+		"name": "Adobe Stock",
+		"domains": [
+			"stock.adobe.com"
+		]
+	},
+	{
+		"name": "Adobe Fonts",
+		"domains": [
+			"fonts.adobe.com"
+		]
+	},
+	{
+		"name": "Amazon Music",
+		"domains": [
+			"music.amazon.com"
+		]
+	},
+	{
+		"name": "Amazon Pharmacy",
+		"domains": [
+			"pharmacy.amazon.com"
+		]
+	},
+	{
+		"name": "Amazon Luna",
+		"domains": [
+			"luna.amazon.com"
+		]
+	},
+	{
+		"name": "Spotify for Artists",
+		"domains": [
+			"artists.spotify.com"
+		]
+	},
+	{
+		"name": "Spotify for Creators",
+		"domains": [
+			"creators.spotify.com"
+		]
+	},
+	{
+		"name": "GitHub Gist",
+		"domains": [
+			"gist.github.com"
+		]
+	},
+	{
+		"name": "GitHub Pages",
+		"domains": [
+			"pages.github.com"
+		]
+	},
+	{
+		"name": "Cloudflare Radar",
+		"domains": [
+			"radar.cloudflare.com"
+		]
+	},
+	{
+		"name": "YouTube Music",
+		"domains": [
+			"music.youtube.com"
+		]
+	},
+	{
+		"name": "YouTube TV",
+		"domains": [
+			"tv.youtube.com"
+		]
+	},
+	{
+		"name": "GeForce NOW",
+		"domains": [
+			"play.geforcenow.com"
+		]
+	},
+	{
+		"name": "Epic Games Store",
+		"domains": [
+			"store.epicgames.com"
+		]
+	},
+	{
+		"name": "Play Nintendo",
+		"domains": [
+			"play.nintendo.com"
+		]
+	},
+	{
+		"name": "My Nintendo",
+		"domains": [
+			"my.nintendo.com"
+		]
+	},
+	{
+		"name": "Disney Games",
+		"domains": [
+			"games.disney.com"
+		]
+	},
+	{
+		"name": "Disney Movies",
+		"domains": [
+			"movies.disney.com"
+		]
+	},
+	{
+		"name": "Pokemon UNITE",
+		"domains": [
+			"unite.pokemon.com"
+		]
+	},
+	{
+		"name": "Google Books",
+		"domains": [
+			"books.google.com"
+		]
+	},
+	{
+		"name": "Disney Video",
+		"domains": [
+			"video.disney.com"
+		]
+	},
+	{
+		"name": "Disney Shows",
+		"domains": [
+			"shows.disney.com"
+		]
+	},
+	{
+		"name": "Disney Music",
+		"domains": [
+			"disneymusic.disney.com"
+		]
+	},
+	{
+		"name": "Disney Live Shows",
+		"domains": [
+			"liveshows.disney.com"
+		]
 	}
 ]

@@ -4,9 +4,70 @@ import {
 	ProtectedSiteRuleSchema,
 	type ProtectedSiteRule,
 } from '../../../../domains/protection/types/protected-site-rule';
-import { resolveSiteDisplayIdentity } from './index';
+import { getProtectedSiteGroupHost } from '../../../../domains/protection/utils/protected-site-rule-key';
+import siteDisplayNameCatalogSource from '../site-display-name-catalog/catalog.json';
+import productHostsSource from './product-hosts.json';
+import { getWebsitePresentationGroupHost, resolveSiteDisplayIdentity } from './index';
 
 const DEFAULT_SCOPE_ID = 'scope_default';
+const PRODUCT_IDENTITIES = [
+	[ 'mail.google.com', 'Gmail' ],
+	[ 'drive.google.com', 'Google Drive' ],
+	[ 'docs.google.com', 'Google Docs' ],
+	[ 'sheets.google.com', 'Google Sheets' ],
+	[ 'slides.google.com', 'Google Slides' ],
+	[ 'calendar.google.com', 'Google Calendar' ],
+	[ 'meet.google.com', 'Google Meet' ],
+	[ 'chat.google.com', 'Google Chat' ],
+	[ 'forms.google.com', 'Google Forms' ],
+	[ 'keep.google.com', 'Google Keep' ],
+	[ 'photos.google.com', 'Google Photos' ],
+	[ 'maps.google.com', 'Google Maps' ],
+	[ 'accounts.google.com', 'Google Account' ],
+	[ 'gemini.google.com', 'Gemini' ],
+	[ 'aistudio.google.com', 'Google AI Studio' ],
+	[ 'notebook.google.com', 'Gemini Notebook' ],
+	[ 'notebooklm.google.com', 'Gemini Notebook' ],
+	[ 'music.apple.com', 'Apple Music' ],
+	[ 'tv.apple.com', 'Apple TV' ],
+	[ 'maps.apple.com', 'Apple Maps' ],
+	[ 'podcasts.apple.com', 'Apple Podcasts' ],
+	[ 'books.apple.com', 'Apple Books' ],
+	[ 'teams.microsoft.com', 'Microsoft Teams' ],
+	[ 'designer.microsoft.com', 'Microsoft Designer' ],
+	[ 'portal.azure.com', 'Azure Portal' ],
+	[ 'outlook.live.com', 'Outlook' ],
+	[ 'express.adobe.com', 'Adobe Express' ],
+	[ 'firefly.adobe.com', 'Adobe Firefly' ],
+	[ 'stock.adobe.com', 'Adobe Stock' ],
+	[ 'fonts.adobe.com', 'Adobe Fonts' ],
+	[ 'music.amazon.com', 'Amazon Music' ],
+	[ 'pharmacy.amazon.com', 'Amazon Pharmacy' ],
+	[ 'luna.amazon.com', 'Amazon Luna' ],
+	[ 'artists.spotify.com', 'Spotify for Artists' ],
+	[ 'creators.spotify.com', 'Spotify for Creators' ],
+	[ 'business.facebook.com', 'Meta Business Suite' ],
+	[ 'adsmanager.facebook.com', 'Meta Ads Manager' ],
+	[ 'gist.github.com', 'GitHub Gist' ],
+	[ 'pages.github.com', 'GitHub Pages' ],
+	[ 'radar.cloudflare.com', 'Cloudflare Radar' ],
+	[ 'music.youtube.com', 'YouTube Music' ],
+	[ 'tv.youtube.com', 'YouTube TV' ],
+	[ 'play.geforcenow.com', 'GeForce NOW' ],
+	[ 'store.epicgames.com', 'Epic Games Store' ],
+	[ 'watch.plex.tv', 'Plex' ],
+	[ 'play.nintendo.com', 'Play Nintendo' ],
+	[ 'my.nintendo.com', 'My Nintendo' ],
+	[ 'games.disney.com', 'Disney Games' ],
+	[ 'movies.disney.com', 'Disney Movies' ],
+	[ 'unite.pokemon.com', 'Pokemon UNITE' ],
+	[ 'books.google.com', 'Google Books' ],
+	[ 'play.google.com', 'Google Play' ],
+	[ 'video.disney.com', 'Disney Video' ],
+	[ 'shows.disney.com', 'Disney Shows' ],
+	[ 'disneymusic.disney.com', 'Disney Music' ],
+	[ 'liveshows.disney.com', 'Disney Live Shows' ],
+] as const;
 
 /**
  * Creates one protected-site rule for display-name resolver tests.
@@ -24,6 +85,44 @@ function createRule( host: string, includeSubdomains = true ): ProtectedSiteRule
 }
 
 describe( 'resolveSiteDisplayIdentity', () => {
+	it.each( PRODUCT_IDENTITIES )( 'uses an explicit product name for %s', ( host, name ) => {
+		const exactCatalogEntry = siteDisplayNameCatalogSource.find( ( entry ) => entry.domains.includes( host ) );
+
+		expect( exactCatalogEntry?.name ).toBe( name );
+		expect( resolveSiteDisplayIdentity( {
+			identityHost: host,
+			rule: createRule( getProtectedSiteGroupHost( host ) ),
+		} ).name ).toBe( name );
+	} );
+
+	it.each( PRODUCT_IDENTITIES )( 'inherits the product name for descendants of %s', ( host, name ) => {
+		expect( resolveSiteDisplayIdentity( {
+			identityHost: `editor.${ host }`,
+			rule: createRule( getProtectedSiteGroupHost( host ) ),
+		} ).name ).toBe( name );
+	} );
+
+	it.each( [ 'mail.google.com', 'editor.docs.google.com', 'notebooklm.google.com' ] )(
+		'prefers a custom name over the product boundary for %s',
+		( identityHost ) => {
+			expect( resolveSiteDisplayIdentity( {
+				identityHost,
+				rule: createRule( 'google.com' ),
+				displayNameOverride: '  My research  ',
+			} ).name ).toBe( 'My research' );
+		},
+	);
+
+	it( 'names a shared editor host independently of its protected path', () => {
+		const rule = { ...createRule( 'docs.google.com' ), pathPrefix: '/spreadsheets/d/example' };
+
+		expect( resolveSiteDisplayIdentity( {
+			identityHost: 'docs.google.com',
+			rule,
+		} ).name ).toBe( 'Google Docs' );
+		expect( rule.pathPrefix ).toBe( '/spreadsheets/d/example' );
+	} );
+
 	it( 'accepts complete timed sites without treating policy fields as display metadata', () => {
 		const site = { identityHost: 'youtube.com', rule: createRule( 'youtube.com' ),
 			timingConfiguration: DefaultTimingConfiguration };
@@ -216,5 +315,54 @@ describe( 'resolveSiteDisplayIdentity', () => {
 			identityHost: 'sub.localhost',
 			rule: createRule( 'localhost', false ),
 		} ) ).toThrow();
+	} );
+} );
+
+describe( 'getWebsitePresentationGroupHost', () => {
+	it( 'limits the product boundaries to the documented hosts and legacy alias', () => {
+		expect( productHostsSource.toSorted() ).toEqual( PRODUCT_IDENTITIES.map( ( [ host ] ) => host ).toSorted() );
+	} );
+
+	it( 'keeps every curated product host as its own presentation group', () => {
+		for ( const [ host ] of PRODUCT_IDENTITIES ) {
+			expect( getWebsitePresentationGroupHost( host ) ).toBe( host );
+		}
+	} );
+
+	it( 'groups descendants at the most specific curated product host', () => {
+		for ( const [ host ] of PRODUCT_IDENTITIES ) {
+			expect( getWebsitePresentationGroupHost( `editor.preview.${ host }` ) ).toBe( host );
+		}
+	} );
+
+	it( 'keeps legacy aliases as distinct host groups despite their shared name', () => {
+		expect( getWebsitePresentationGroupHost( 'notebook.google.com' ) ).toBe( 'notebook.google.com' );
+		expect( getWebsitePresentationGroupHost( 'notebooklm.google.com' ) ).toBe( 'notebooklm.google.com' );
+	} );
+
+	it.each( [
+		[ 'google.com', 'google.com' ],
+		[ 'www.google.com', 'google.com' ],
+		[ 'unknown.google.com', 'google.com' ],
+		[ 'notmail.google.com', 'google.com' ],
+		[ 'mail.google.com.evil.com', 'evil.com' ],
+		[ 'mail.google.com.evil.co.uk', 'evil.co.uk' ],
+		[ 'studio.youtube.com', 'youtube.com' ],
+		[ 'drive.usercontent.google.com', 'google.com' ],
+		[ 'remotedesktop.google.com', 'google.com' ],
+		[ 'www.apple.com', 'apple.com' ],
+		[ 'chat.openai.com', 'openai.com' ],
+		[ 'blog.example.com', 'example.com' ],
+		[ 'tenant.github.io', 'tenant.github.io' ],
+		[ 'localhost', 'localhost' ],
+		[ 'sub.localhost', 'sub.localhost' ],
+		[ '127.0.0.1', '127.0.0.1' ],
+	] )( 'uses ordinary domain grouping for %s', ( host, groupHost ) => {
+		expect( getWebsitePresentationGroupHost( host ) ).toBe( groupHost );
+	} );
+
+	it( 'does not change protection grouping for product hosts', () => {
+		expect( getProtectedSiteGroupHost( 'docs.google.com' ) ).toBe( 'google.com' );
+		expect( getProtectedSiteGroupHost( 'music.youtube.com' ) ).toBe( 'youtube.com' );
 	} );
 } );

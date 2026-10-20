@@ -12,7 +12,7 @@ describe( 'bundled site display-name catalog', () => {
 		[ 'youtube.com', 'YouTube' ],
 		[ 'www.youtube.com', 'YouTube' ],
 		[ 'm.youtube.com', 'YouTube' ],
-		[ 'music.youtube.com', 'YouTube' ],
+		[ 'music.youtube.com', 'YouTube Music' ],
 		[ 'youtu.be', 'YouTube' ],
 		[ 'studio.youtube.com', 'YouTube Studio' ],
 		[ 'netflix.com', 'Netflix' ],
