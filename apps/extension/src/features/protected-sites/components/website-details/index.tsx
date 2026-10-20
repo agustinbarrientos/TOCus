@@ -7,7 +7,7 @@ import { WeeklyScheduleEditor } from '../../../settings/components/weekly-schedu
 import type { WebsiteDetailsProps } from './types';
 
 /**
- * Presents optional naming and immediately editable custom active hours.
+ * Presents optional naming, pause behavior and immediately editable custom active hours.
  * @param props - Complete controlled website details owned by the surrounding form.
  * @return Shared inline fields without persistence side effects.
  * @since 1.0.0
@@ -28,7 +28,7 @@ export function WebsiteDetails( props: WebsiteDetailsProps ) {
 			disabled={ props.disabled } onChange={ ( event ) => {
 				props.onChange( { ...value, displayName: event.currentTarget.value } );
 			} } /> }
-		{ props.exception && <NativeSelect id={ `${ props.idPrefix }-behavior` } label={ copy.whenVisitedLabel }
+		{ props.showBehavior && <NativeSelect id={ `${ props.idPrefix }-behavior` } label={ copy.whenVisitedLabel }
 			value={ value.behavior } disabled={ props.disabled } data={ [
 				{ value: 'pause', label: copy.pauseLabel ?? '' }, { value: 'allow', label: copy.noPauseLabel ?? '' },
 			] } onChange={ ( event ) => {

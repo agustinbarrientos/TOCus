@@ -2,6 +2,8 @@
 
 ## 1.1.0 - Unreleased
 
+- Added: Main websites can use No pause while selected paths or subdomains keep their own pauses (Chrome, Edge, Firefox).
+
 - Fixed: No-pause website rules hide custom schedule controls and tags, retain valid schedule preferences, and save successfully when hidden schedule fields are unfinished (Chrome, Edge, Firefox).
 
 - Fixed: Unprotected grouping headings show No pause, and recognized product subdomains have independent website rows, product names and isolated cached icons while preserving custom names and saved protection rules (Chrome, Edge, Firefox).

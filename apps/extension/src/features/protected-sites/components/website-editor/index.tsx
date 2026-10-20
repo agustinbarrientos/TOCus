@@ -42,7 +42,7 @@ function WebsiteEditorForm( props: WebsiteEditorProps ) {
 			<WebsiteDetails idPrefix={ props.idPrefix } copy={ props.copy } scheduleCopy={ props.scheduleCopy }
 				value={ value } disabled={ props.disabled } validate={ validate }
 				showName={ props.showName ?? ! props.exception }
-				exception={ props.exception } timingCopy={ props.timingCopy } inheritedTiming={ props.inheritedTiming }
+				showBehavior timingCopy={ props.timingCopy } inheritedTiming={ props.inheritedTiming }
 				namePlaceholder={ props.automaticName } onChange={ setValue } />
 			<Feedback nativeError error={ props.error } />
 			<Group className="tocus-form-actions" justify="flex-end" gap="var(--tocus-space-2)">

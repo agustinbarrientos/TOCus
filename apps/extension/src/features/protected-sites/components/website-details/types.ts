@@ -18,7 +18,8 @@ export interface WebsiteDetailsProps {
 	disabled: boolean;
 	validate: boolean;
 	showName?: boolean;
-	exception?: boolean | undefined;
+	/** Shows editable pause behavior independently of naming and exception presentation. */
+	showBehavior?: boolean;
 	timingCopy?: TimingScreenCopy | undefined;
 	inheritedTiming?: TimingConfiguration | undefined;
 	namePlaceholder?: string;
