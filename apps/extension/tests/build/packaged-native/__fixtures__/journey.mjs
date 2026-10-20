@@ -259,16 +259,20 @@ export async function ensurePopup( browser ) {
  * @param {object} browser - Installed browser driver.
  * @param {string} url - Actual local destination.
  * @param {string} [origin] - Exact host permission expected from this website's enrollment.
+ * @param {{sites: string[], rules: number}} [expected] - Complete enrolled site identities and native redirect count.
  * @since 1.0.1
  */
-export async function enroll( browser, url, origin = `*://${ new URL( url ).hostname }/*` ) {
+export async function enroll( browser, url, origin = `*://${ new URL( url ).hostname }/*`,
+	expected = { sites: [ new URL( url ).hostname ], rules: 1 } ) {
 	const hostname = new URL( url ).hostname;
 	await browser.openPage( url );
 	await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Protected destination' );
 	await openPopup( browser, hostname );
 	await browser.viewClick( 'popup', 'button' );
 	await browser.consent( true );
-	await expect.poll( () => protectionState( browser, 'onboarding' ) ).toEqual( { origins: [ origin ], navigation: true, sites: [ hostname ], rules: 1 } );
+	await expect.poll( () => protectionState( browser, 'onboarding' ) ).toEqual( {
+		origins: [ origin ], navigation: true, sites: expected.sites, rules: expected.rules,
+	} );
 	await browser.closePopup();
 }
 

@@ -163,7 +163,11 @@ test( 'Continue makes one slow request and keeps its allowance through redirects
 test( 'real allowance expiry pauses playing media and Continue preserves the document and unfinished work', async () => {
 	test.setTimeout( 240_000 );
 	await withBrowser( async ( browser, url, network ) => {
-		await enroll( browser, url, '*://*.youtube.com/*' );
+		await enroll( browser, url, '*://*.youtube.com/*', { sites: [ 'youtube.com', 'studio.youtube.com' ], rules: 2 } );
+		expect( await browser.viewScript( 'onboarding', `return browser.storage.local.get('tocus.protection.configuration.v1')
+			.then(data => data['tocus.protection.configuration.v1'].sites.find(site => site.identityHost === 'studio.youtube.com'));` ) )
+			.toEqual( { identityHost: 'studio.youtube.com', rule: { host: 'studio.youtube.com', includeSubdomains: false,
+				scopeId: 'scope_default', behavior: 'allow' } } );
 		await settings( browser, 'timing' );
 		await browser.viewKey( 'selected', '#allowance', 'Home' );
 		await browser.viewKey( 'selected', '#wait-increase', 'Home' );
