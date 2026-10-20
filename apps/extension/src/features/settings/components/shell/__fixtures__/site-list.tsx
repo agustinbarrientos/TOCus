@@ -1,3 +1,6 @@
+import { getProtectedSiteRuleKey } from '../../../../../domains/protection/utils/protected-site-rule-key';
+import { resolveSitePolicy } from '../../../../../domains/protection/utils/resolve-site-policy';
+import type { WebsiteListPresentation } from '../../../../protected-sites/components/site-list/types';
 import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { TocusAppearance, TocusPalette, TocusProvider } from '@tocus/ui';
@@ -24,29 +27,38 @@ const copy = createEnglishLocalizationBundle();
  */
 function OriginalWebsiteList() {
 	const [ configuration, setConfiguration ] = useState( originalConfiguration( name ) );
-	const [ granted, setGranted ] = useState( new Set( configuration.sites.map( ( site ) => site.identityHost ) ) );
+	const [ granted, setGranted ] = useState( new Set( configuration.sites.map( ( site ) =>
+		getProtectedSiteRuleKey( site.rule ) ) ) );
 	/**
 	 * Connects a standalone item to the fixture's observable configuration and access owners.
 	 * @param site - Current grouped website identity.
+	 * @param presentation - Exact membership and exception presentation.
 	 * @return Actual item presentation with its missing-editor failure behavior preserved.
 	 */
-	function renderSite( site: ProtectedSiteConfiguration ) {
-		return <PersistedWebsiteItem key={ site.identityHost } site={ site } editor={ null }
+	function renderSite( site: ProtectedSiteConfiguration, presentation?: WebsiteListPresentation ) {
+		const key = getProtectedSiteRuleKey( site.rule );
+		const groupMembers = presentation && ! presentation.exception ? presentation.members : [ site ];
+		return <PersistedWebsiteItem key={ key } site={ site } editor={ null }
+			presentation={ presentation } timingCopy={ copy.timing }
+			inheritedTiming={ resolveSitePolicy( configuration, site.rule )?.timingConfiguration }
 			scheduleCopy={ copy.schedule } globalSchedule={ configuration.schedule }
 			onSaved={ setConfiguration } copy={ copy.protectedSiteItem } favicon={ null } disabled={ false }
-			accessRequired={ ! granted.has( site.identityHost ) } accessPending={ false } accessDisabled={ false }
+			accessRequired={ ! granted.has( key ) } accessPending={ false } accessDisabled={ false }
 			onGrant={ () => {
-				setGranted( new Set( granted ).add( site.identityHost ) );
+				setGranted( new Set( granted ).add( getProtectedSiteRuleKey( site.rule ) ) );
 			} }
 			onRemove={ () => {
 				setConfiguration( { ...configuration,
-					sites: configuration.sites.filter( ( candidate ) => candidate.identityHost !== site.identityHost ),
+					sites: configuration.sites.filter( ( candidate ) => ! groupMembers.some( ( member ) =>
+						getProtectedSiteRuleKey( member.rule ) === getProtectedSiteRuleKey( candidate.rule ) ) ),
 				} );
 			} } />;
 	}
 	return <TocusProvider transparent appearance={ appearance } palette={ TocusPalette.BROWN }>
 		<main className="settings-page" style={ { width: Number( params.get( 'width' ) ?? 736 ) } }>
-			<WebsiteList sites={ configuration.sites } copy={ copy.protectedSites } renderItem={ renderSite } />
+			<WebsiteList sites={ configuration.sites } copy={ copy.protectedSites }
+				exceptionsLabel={ copy.protectedSiteItem.exceptionsLabel }
+				renderItem={ renderSite } />
 		</main>
 	</TocusProvider>;
 }
