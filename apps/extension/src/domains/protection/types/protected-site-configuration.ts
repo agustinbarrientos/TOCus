@@ -51,8 +51,9 @@ export const ProtectedSiteConfigurationSchema = z.object( {
 	identityHost: CanonicalHostSchema,
 	rule: ProtectedSiteRuleSchema,
 	displayNameOverride: ProtectedSiteDisplayNameSchema.optional(),
-	/** Optional active-time override; countdown and browsing allowance remain shared. */
+	/** Optional explicit active-time override. */
 	schedule: NormalizedScheduleSchema.optional(),
+	timingConfiguration: TimingConfigurationSchema.optional(),
 } ).strict().superRefine( ( configuration, context ) => {
 	if ( configuration.rule.scopeId !== DefaultProtectionScopeId ) {
 		context.addIssue( { code: 'custom', message: 'All websites share one countdown.', path: [ 'rule', 'scopeId' ] } );
@@ -77,7 +78,7 @@ export const ProtectedSiteConfigurationSchema = z.object( {
 export type ProtectedSiteConfiguration = z.infer<typeof ProtectedSiteConfigurationSchema>;
 
 /**
- * Validates protected-site configurations with non-overlapping matching ranges.
+ * Validates protected-site configurations with distinct canonical targets.
  * @since 1.0.0 Initial implementation.
  */
 export const ProtectedSiteConfigurationSetSchema = z.array( ProtectedSiteConfigurationSchema ).superRefine(
@@ -89,14 +90,14 @@ export const ProtectedSiteConfigurationSetSchema = z.array( ProtectedSiteConfigu
 		if ( ! ruleSet.success ) {
 			context.addIssue( {
 				code: 'custom',
-				message: 'Protected-site configuration match ranges must not overlap.',
+				message: 'Protected-site configuration targets must be distinct.',
 			} );
 		}
 	},
 );
 
 /**
- * Protected-site configurations with non-overlapping matching ranges.
+ * Protected-site configurations with distinct canonical targets.
  * @since 1.0.0 Initial implementation.
  */
 export type ProtectedSiteConfigurationSet = z.infer<typeof ProtectedSiteConfigurationSetSchema>;

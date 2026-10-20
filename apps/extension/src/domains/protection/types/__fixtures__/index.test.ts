@@ -144,7 +144,7 @@ describe( 'protection type fixtures', () => {
 } );
 
 describe( 'protection contract custom rules', () => {
-	it( 'requires canonical hosts and non-overlapping protected-site ranges', () => {
+	it( 'requires canonical hosts and rejects duplicate targets while allowing intentional overlap', () => {
 		expect( CanonicalHostSchema.safeParse( 'Example.com' ).success ).toBe( false );
 		expect( ProtectedSiteRuleSchema.safeParse( {
 			host: '127.0.0.1',
@@ -154,6 +154,10 @@ describe( 'protection contract custom rules', () => {
 		expect( ProtectedSiteRuleSetSchema.safeParse( [
 			{ host: 'example.com', includeSubdomains: true, scopeId: 'scope-a' },
 			{ host: 'www.example.com', includeSubdomains: false, scopeId: 'scope-a' },
+		] ).success ).toBe( true );
+		expect( ProtectedSiteRuleSetSchema.safeParse( [
+			{ host: 'example.com', includeSubdomains: true, scopeId: 'scope-a' },
+			{ host: 'example.com', includeSubdomains: true, scopeId: 'scope-b', behavior: 'allow' },
 		] ).success ).toBe( false );
 	} );
 
