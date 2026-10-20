@@ -1,3 +1,4 @@
+import type { ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
 import type { ProtectionCoordinator, ProtectionCoordinatorDispatchResult } from '../../../../domains/protection/services/protection-coordinator';
 import type { ProtectionConfigurationDocument } from '../../../../domains/protection/types/protected-site-configuration';
 import type { DepartureCause } from '../../../../domains/protection/types/protection-event';
@@ -52,7 +53,7 @@ export interface ProtectionNavigationHandlerOptions {
 	/**
 	 * Evaluates the current schedule for one protection scope.
 	 * @param configuration - Current validated configuration.
-	 * @param ruleHost - Canonical matching-rule host.
+	 * @param rule - Canonical matching-rule host.
 	 * @param nowEpochMilliseconds - Current wall-clock time.
 	 * @param timeZone - Current IANA time-zone identifier.
 	 * @return Current schedule evaluation.
@@ -60,7 +61,7 @@ export interface ProtectionNavigationHandlerOptions {
 	 */
 	evaluateSiteSchedule(
 		configuration: ProtectionConfigurationDocument,
-		ruleHost: string,
+		rule: ProtectedSiteRule,
 		nowEpochMilliseconds: number,
 		timeZone: string,
 	): ScheduleEvaluationResult;

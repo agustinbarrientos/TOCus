@@ -3,7 +3,9 @@ import { ProtectionParticipantOrigin } from '../../../../domains/protection/type
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
 import { ParticipantIdSchema, WaitIdSchema } from '../../../../domains/protection/types/protection-value';
 import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
-import type { CanonicalHost } from '../../../../domains/protection/types/protected-site-rule';
+import type { ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
+import { requireSitePolicy } from '../../../../domains/protection/utils/require-site-policy';
+import { getProtectedSiteGroupHost } from '../../../../domains/protection/utils/protected-site-rule-key';
 import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
 import { matchProtectedUrl } from '../../../../domains/protection/utils/protected-url-matcher';
 import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
@@ -11,6 +13,7 @@ import { readInterruptionNavigationDestination } from '../../../../shared/utils/
 import { createRuntimeLocalDate } from '../../utils/runtime-local-date';
 import {
 	createRuntimePageId,
+	createRuntimeStateTarget,
 	findRuntimeParticipantContext,
 } from '../../utils/runtime-page-context';
 import type {
@@ -150,7 +153,7 @@ export function createProtectionNavigationHandler(
 	 * @param destination - Exact retained HTTP(S) navigation destination.
 	 * @param configuration - Current validated local configuration.
 	 * @param scopeId - Matched protection scope.
-	 * @param siteHost - Matched protected rule host used for site-specific attribution.
+	 * @param rule - Matched protected rule host used for site-specific attribution.
 	 * @return Promise resolved after the visit transaction and browser effects.
 	 * @since 1.0.0 Initial implementation.
 	 */
@@ -159,7 +162,7 @@ export function createProtectionNavigationHandler(
 		destination: string,
 		configuration: Parameters<ProtectionNavigationHandlerOptions[ 'reconcileSchedules' ]>[ 0 ],
 		scopeId: string,
-		siteHost: CanonicalHost,
+		rule: ProtectedSiteRule,
 	): Promise<void> {
 		const focusedTabId = await options.browser.getFocusedTabId();
 		const nowEpochMilliseconds = options.now();
@@ -172,18 +175,18 @@ export function createProtectionNavigationHandler(
 				participantId: ParticipantIdSchema.parse( `participant_${ options.createStableId() }` ),
 				pageId: createRuntimePageId( tabId, options.createStableId() ),
 				retainedDestination: destination,
-				siteHost,
+				siteHost: getProtectedSiteGroupHost( rule.host ),
 				focusEligible: focusedTabId === tabId,
 				statisticsEligible: true,
 			},
 			schedule: options.evaluateSiteSchedule(
 				configuration,
-				siteHost,
+				rule,
 				nowEpochMilliseconds,
 				timeZone,
 			),
 			observedLocalDate: createRuntimeLocalDate( nowEpochMilliseconds, timeZone ),
-			timingConfiguration: configuration.timingConfiguration,
+			timingConfiguration: requireSitePolicy( configuration, rule ).timingConfiguration,
 			waitId: WaitIdSchema.parse( `wait_${ options.createStableId() }` ),
 			nowEpochMilliseconds,
 		} ) );
@@ -291,9 +294,22 @@ export function createProtectionNavigationHandler(
 			match.status === ProtectedUrlMatchStatus.PROTECTED &&
 			existingContext.state.scopeId === match.rule.scopeId;
 
-		if ( isSameScopeExpiryParticipant ) {
-			await options.reconcileBrowserState( configuration );
-			return options.interruptionPageUrl;
+		if ( isSameScopeExpiryParticipant && existingContext !== null ) {
+			const expiryContext = existingContext;
+			const schedule = options.evaluateSiteSchedule(
+				configuration, match.rule, options.now(), options.getTimeZone(),
+			);
+			const result = await options.coordinator.dispatch( () => ( {
+				type: ProtectionEventType.SCHEDULE_REEVALUATION,
+				scopeId: expiryContext.state.scopeId,
+				target: createRuntimeStateTarget( expiryContext.state ),
+				participantId: expiryContext.participant.participantId,
+				pageId: expiryContext.participant.pageId,
+				schedule,
+				timingConfiguration: requireSitePolicy( configuration, match.rule ).timingConfiguration,
+			} ) );
+			await options.applyDispatchResult( result, configuration );
+			return schedule.status === ScheduleEvaluationStatus.ACTIVE ? options.interruptionPageUrl : destination;
 		}
 
 		if ( navigation.phase === ProtectionRuntimeNavigationPhase.BEFORE_NAVIGATE ) {
@@ -355,7 +371,7 @@ export function createProtectionNavigationHandler(
 
 		const schedule = options.evaluateSiteSchedule(
 			configuration,
-			match.rule.host,
+			match.rule,
 			options.now(),
 			options.getTimeZone(),
 		);
@@ -380,7 +396,7 @@ export function createProtectionNavigationHandler(
 			return options.interruptionPageUrl;
 		}
 
-		await dispatchVisitAttempt( navigation.tabId, destination, configuration, match.rule.scopeId, match.rule.host );
+		await dispatchVisitAttempt( navigation.tabId, destination, configuration, match.rule.scopeId, match.rule );
 
 		if ( redirectDestination !== null ) {
 			const states = await options.coordinator.getStates();

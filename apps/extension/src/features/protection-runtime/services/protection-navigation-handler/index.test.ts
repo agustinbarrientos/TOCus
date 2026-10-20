@@ -1026,8 +1026,11 @@ describe( 'createProtectionNavigationHandler', () => {
 		} );
 
 		expect( harness.departTab ).not.toHaveBeenCalled();
-		expect( harness.coordinator.events ).toEqual( [] );
-		expect( harness.reconcileBrowserState ).toHaveBeenCalledWith( CONFIGURATION );
+		expect( harness.coordinator.events ).toMatchObject( [ {
+			type: ProtectionEventType.SCHEDULE_REEVALUATION,
+			timingConfiguration: CONFIGURATION.timingConfiguration,
+		} ] );
+		expect( harness.releaseNavigationIfInterrupted ).not.toHaveBeenCalled();
 	} );
 
 	it( 'departs an allowance-expiry wait when the page leaves protection', async () => {
