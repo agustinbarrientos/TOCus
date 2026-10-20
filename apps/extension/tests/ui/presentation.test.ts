@@ -183,7 +183,7 @@ test.describe( 'migrated presentation', () => {
 			PresentationFixtureEvent.SETTLE_SAVE );
 		await page.getByRole( 'heading', { name: 'Make TOCus yours' } ).waitFor();
 	} );
-	test( 'validates draft addresses, retains overlap errors and restores removed-row focus', async ( { page } ) => {
+	test( 'validates draft addresses, retains independent exceptions and restores removed-row focus', async ( { page } ) => {
 		page.setDefaultTimeout( 5000 );
 		await openSites( page );
 		const address = page.getByRole( 'textbox' );
@@ -214,21 +214,25 @@ test.describe( 'migrated presentation', () => {
 		expect( await page.getByRole( 'listitem' ).count() ).toBe( 2 );
 		await address.fill( 'sub.example.com' );
 		await add.click();
-		await page.getByRole( 'alert' ).waitFor();
-		expect( await address.getAttribute( 'aria-invalid' ) ).toBe( 'true' );
-		expect( await address.inputValue() ).toBe( 'sub.example.com' );
-		expect( await page.getByRole( 'listitem' ).count() ).toBe( 2 );
+		await expect( address ).toHaveValue( '' );
+		await expect( address ).toHaveAttribute( 'aria-invalid', 'false' );
+		await expect( add ).toBeFocused();
+		await expect( page.locator( '.onboarding-sites-step [role="alert"]' ) ).toHaveCount( 0 );
+		await expect( page.getByRole( 'listitem' ) ).toHaveCount( 3 );
+		await expect( page.locator( '.added-sites .site-identity span' ) )
+			.toHaveText( [ 'example.com', 'github.com', 'sub.example.com' ] );
 		const remove = page.locator( '.onboarding-remove' );
 		await remove.first().focus();
-		await page.keyboard.press( 'Enter' );
-		await expect.poll( () => remove.count() ).toBe( 1 );
-		await expect.poll( () => remove.first().evaluate(
-			( element ) => element === document.activeElement,
-		) ).toBe( true );
-		await page.keyboard.press( 'Enter' );
-		await expect.poll( () => address.evaluate(
-			( element ) => element === document.activeElement,
-		) ).toBe( true );
+		for ( const remaining of [ 2, 1, 0 ] ) {
+			await page.keyboard.press( 'Enter' );
+			await expect.poll( () => remove.count() ).toBe( remaining );
+			if ( remaining > 0 ) {
+				await expect( remove.first() ).toBeFocused();
+				await expect( page.locator( '.added-sites .site-identity span' ).last() ).toHaveText( 'sub.example.com' );
+			} else {
+				await expect( address ).toBeFocused();
+			}
+		}
 		expect( await page.getByTestId( 'requests' ).textContent() ).toBe( '0' );
 	} );
 	test( 'updates a pre-existing live region for successive website additions without moving focus', async ( { page } ) => {

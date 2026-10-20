@@ -6,6 +6,7 @@ test.describe( 'Statistics website identities', () => {
 	test( 'reuses the configured website icon and name for rule-host aggregates while retaining removed hosts', async ( { open } ) => {
 		const page = await open( SettingsDestination.PROTECTED_SITES );
 		await page.evaluate( () => {
+			const cachedIcon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="8" height="8"%3E%3Crect width="8" height="8" fill="orange"/%3E%3C/svg%3E';
 			window.settingsTest.setFaviconProvider( {
 				/**
 				 * Simulates an existing browser cache entry for the exact configured identity.
@@ -13,8 +14,14 @@ test.describe( 'Statistics website identities', () => {
 				 * @return Readable embedded icon only for cached hosts, without network access.
 				 */
 				getSource: ( host ) => host === 'www.infobae.com' || host === 'removed.example'
-					? 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="8" height="8"%3E%3Crect width="8" height="8" fill="orange"/%3E%3C/svg%3E'
-					: 'data:image/png;base64,AA==',
+					? cachedIcon : 'data:image/png;base64,AA==',
+				/**
+				 * Distinguishes cached site icons from the placeholder, as the real provider does.
+				 * @param host - Canonical identity checked in the browser-local cache.
+				 * @return Valid cached icon or a cache miss, without visiting the website.
+				 */
+				resolveSource: ( host ) => Promise.resolve( host === 'www.infobae.com' || host === 'removed.example'
+					? cachedIcon : null ),
 			} );
 		} );
 		await page.locator( '#site-address' ).fill( 'www.infobae.com' );
