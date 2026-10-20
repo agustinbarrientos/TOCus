@@ -1,3 +1,4 @@
+import { expandProtectedSiteAdditions } from '../../utils/default-protected-site-exceptions';
 import { getProtectedSiteRuleKey } from '../../utils/protected-site-rule-key';
 import {
 	ProtectedSiteDisplayNameInputSchema,
@@ -318,7 +319,7 @@ export function createProtectionConfigurationEditor(
 
 		const updatedSites = ProtectedSiteConfigurationSetSchema.safeParse( [
 			...configuration.sites,
-			...additions.values(),
+			...expandProtectedSiteAdditions( configuration.sites, [ ...additions.values() ] ),
 		] );
 
 		if ( ! updatedSites.success ) {

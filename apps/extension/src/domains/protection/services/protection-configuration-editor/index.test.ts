@@ -347,6 +347,91 @@ function createEditor(
 }
 
 describe( 'createProtectionConfigurationEditor', () => {
+	it.each( [ 'youtube.com', 'www.youtube.com', 'https://www.youtube.com/?view=home#top' ] )(
+		'adds the exact Studio no-pause exception atomically for a new broad root: %s', async ( input ) => {
+			const { editor, storage } = createEditor( { ...TestEmptyProtectionConfiguration } );
+			await editor.add( input );
+			expect( ( await editor.load() )?.sites ).toEqual( [
+				{ identityHost: input.includes( 'www.' ) ? 'www.youtube.com' : 'youtube.com',
+					rule: { host: 'youtube.com', includeSubdomains: true, scopeId: DefaultProtectionScopeId } },
+				{ identityHost: 'studio.youtube.com', rule: { host: 'studio.youtube.com',
+					includeSubdomains: false, scopeId: DefaultProtectionScopeId, behavior: 'allow' } },
+			] );
+			expect( storage.writes ).toHaveLength( 1 );
+		},
+	);
+
+	it( 'preserves an existing explicit Studio policy and descendant when the root is enrolled', async () => {
+		const studio: ProtectedSiteConfiguration = { identityHost: 'studio.youtube.com',
+			displayNameOverride: 'Work studio', rule: { host: 'studio.youtube.com', includeSubdomains: false,
+				scopeId: DefaultProtectionScopeId, behavior: 'pause' }, timingConfiguration: TestEmptyProtectionConfiguration.timingConfiguration };
+		const descendant: ProtectedSiteConfiguration = { identityHost: 'studio.youtube.com',
+			rule: { ...studio.rule, pathPrefix: '/channel', behavior: 'allow' } };
+		const { editor } = createEditor( { ...TestEmptyProtectionConfiguration, sites: [ studio, descendant ] } );
+		await editor.add( 'youtube.com' );
+		expect( ( await editor.load() )?.sites ).toEqual( [ studio, descendant,
+			{ identityHost: 'youtube.com', rule: { host: 'youtube.com', includeSubdomains: true,
+				scopeId: DefaultProtectionScopeId } } ] );
+	} );
+
+	it( 'retains a same-batch explicit Studio target instead of creating its default', async () => {
+		const { editor } = createEditor( { ...TestEmptyProtectionConfiguration } );
+		await editor.addMany( [ 'youtube.com', 'studio.youtube.com' ] );
+		expect( ( await editor.load() )?.sites ).toEqual( [
+			{ identityHost: 'youtube.com', rule: { host: 'youtube.com', includeSubdomains: true,
+				scopeId: DefaultProtectionScopeId } },
+			{ identityHost: 'studio.youtube.com', rule: { host: 'studio.youtube.com', includeSubdomains: false,
+				scopeId: DefaultProtectionScopeId } },
+		] );
+	} );
+
+	it( 'keeps root and default unsaved when coordinated permission verification fails', async () => {
+		const { editor, storage } = createEditor( { ...TestEmptyProtectionConfiguration } );
+		let verifiedSites: ProtectionConfigurationDocument[ 'sites' ] = [];
+		await expect( editor.add( 'youtube.com', ( configuration ) => {
+			verifiedSites = configuration.sites;
+			return Promise.reject( new Error( 'Access revoked' ) );
+		} ) ).rejects.toThrow( 'Access revoked' );
+		expect( verifiedSites.map( ( site ) => site.rule.host ) ).toEqual( [ 'youtube.com', 'studio.youtube.com' ] );
+		expect( storage.writes ).toHaveLength( 0 );
+		expect( ( await editor.load() )?.sites ).toEqual( [] );
+	} );
+
+	it( 'allows removal of the seeded default without reseeding on duplicate enrollment or later edits', async () => {
+		let revision = 0;
+		const { editor, storage } = createEditor( { ...TestEmptyProtectionConfiguration }, () => `revision_edit_${ String( ++revision ) }` );
+		await editor.add( 'youtube.com' );
+		const initial = await editor.load();
+		const studio = initial?.sites.find( ( site ) => site.rule.host === 'studio.youtube.com' );
+		expect( studio ).toBeDefined();
+		await editor.remove( studio?.rule );
+		const root = ( await editor.load() )?.sites[ 0 ];
+		await expect( editor.add( 'www.youtube.com' ) ).resolves.toEqual( {
+			status: ProtectionConfigurationEditStatus.REJECTED,
+			reason: ProtectionConfigurationEditRejectionReason.ALREADY_PROTECTED,
+		} );
+		await editor.update( root?.rule, 'Videos' );
+		expect( ( await editor.load() )?.sites ).toEqual( [ { ...root, displayNameOverride: 'Videos' } ] );
+		expect( storage.writes ).toHaveLength( 3 );
+	} );
+
+	it.each( [ 'youtube.com/shorts', 'www.youtube.com/feed', 'studio.youtube.com', 'm.youtube.com', 'example.com' ] )(
+		'adds no default for a non-root target: %s', async ( input ) => {
+			const { editor } = createEditor( { ...TestEmptyProtectionConfiguration } );
+			await editor.add( input );
+			expect( ( await editor.load() )?.sites ).toHaveLength( 1 );
+		},
+	);
+
+	it( 'does not seed defaults while loading or replacing a complete saved root', async () => {
+		const { editor, storage } = createEditor( { ...TestEmptyProtectionConfiguration,
+			sites: [ CONFIGURED_SECOND_SITE ] } );
+		expect( ( await editor.load() )?.sites ).toEqual( [ CONFIGURED_SECOND_SITE ] );
+		await editor.replaceSites( [ CONFIGURED_SECOND_SITE ], [ { ...CONFIGURED_SECOND_SITE, displayNameOverride: 'Videos' } ] );
+		expect( ( await editor.load() )?.sites ).toEqual( [ { ...CONFIGURED_SECOND_SITE, displayNameOverride: 'Videos' } ] );
+		expect( storage.writes ).toHaveLength( 1 );
+	} );
+
 	it( 'rejects incomplete custom site hours without changing the saved name or site', async () => {
 		const { editor, storage } = createEditor( CONFIGURATION_WITH_SITE );
 		await expect( editor.update( CONFIGURED_SITE.identityHost, 'New name', {
@@ -450,7 +535,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 		expect( ProtectionConfigurationDocumentSchema.parse( storage.writes[ 0 ] ).sites.map(
 			( site ) => site.identityHost,
 		) ).toEqual( [
-			'www.youtube.com', 'reddit.com',
+			'www.youtube.com', 'reddit.com', 'studio.youtube.com',
 		] );
 		expect( revisionFactory ).toHaveBeenCalledOnce();
 	} );
@@ -664,6 +749,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 		expect( storage.configuration.sites.map( ( site ) => site.rule.host ) ).toEqual( [
 			'instagram.com',
 			'youtube.com',
+			'studio.youtube.com',
 		] );
 		expect( storage.loads ).toBe( 2 );
 		expect( storage.writes ).toHaveLength( 2 );
@@ -694,6 +780,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 		expect( storage.configuration.sites.map( ( site ) => site.rule.host ) ).toEqual( [
 			'instagram.com',
 			'youtube.com',
+			'studio.youtube.com',
 		] );
 		expect( storage.loads ).toBe( 2 );
 		expect( storage.writes ).toHaveLength( 2 );
@@ -716,7 +803,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 		await expect( secondEdit ).resolves.toMatchObject( {
 			status: ProtectionConfigurationEditStatus.UPDATED,
 			configuration: {
-				sites: [ { rule: { host: 'youtube.com' } } ],
+				sites: [ { rule: { host: 'youtube.com' } }, { rule: { host: 'studio.youtube.com', behavior: 'allow' } } ],
 			},
 		} );
 		expect( storage.writes ).toBe( 2 );
@@ -1044,7 +1131,7 @@ it( 'adds sibling paths and updates or removes only the canonical target', async
 		() => `revision_path_${ String( ++revision ) }` );
 	await editor.addMany( [ 'youtube.com', 'youtube.com/shorts', 'youtube.com/feed' ] );
 	const added = await editor.load();
-	expect( added?.sites ).toHaveLength( 3 );
+	expect( added?.sites ).toHaveLength( 4 );
 	const shorts = added?.sites.find( ( site ) => site.rule.pathPrefix === '/shorts' );
 	if ( ! shorts ) {
 		throw new Error( 'Missing shorts target.' );
@@ -1062,7 +1149,7 @@ it( 'adds sibling paths and updates or removes only the canonical target', async
 	await expect( editor.remove( 'youtube.com' ) ).resolves.toMatchObject( { status: 'rejected' } );
 	expect( storage.writes ).toHaveLength( count );
 	await editor.remove( shorts.rule );
-	expect( ( await editor.load() )?.sites.map( ( site ) => site.rule.pathPrefix ) ).toEqual( [ undefined, '/feed' ] );
+	expect( ( await editor.load() )?.sites.map( ( site ) => site.rule.pathPrefix ) ).toEqual( [ undefined, '/feed', undefined ] );
 } );
 
 it( 'preserves child timing when the main override changes and clears only explicit policy fields', async () => {
