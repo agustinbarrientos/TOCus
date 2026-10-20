@@ -443,7 +443,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 	it( 'deduplicates a shared batch and rotates its measurement revision once for the atomic write', async () => {
 		const revisionFactory = vi.fn().mockReturnValue( 'revision_batch' );
 		const { editor, storage } = createEditor( { ...TestEmptyProtectionConfiguration }, revisionFactory );
-		const result = await editor.addMany( [ 'www.youtube.com', 'reddit.com', 'm.youtube.com' ] );
+		const result = await editor.addMany( [ 'www.youtube.com', 'reddit.com', 'youtube.com' ] );
 
 		expect( result.status ).toBe( ProtectionConfigurationEditStatus.UPDATED );
 		expect( storage.writes ).toHaveLength( 1 );
@@ -599,10 +599,10 @@ describe( 'createProtectionConfigurationEditor', () => {
 		expect( storage.writes ).toEqual( [] );
 	} );
 
-	it( 'adds a URL as one whole-domain site in the default shared scope', async () => {
+	it( 'adds a root URL as one whole-domain site in the default shared scope', async () => {
 		const { editor, storage } = createEditor( { ...TestEmptyProtectionConfiguration } );
 
-		await expect( editor.add( 'https://www.instagram.com/reels' ) ).resolves.toEqual( {
+		await expect( editor.add( 'https://www.instagram.com/' ) ).resolves.toEqual( {
 			status: ProtectionConfigurationEditStatus.UPDATED,
 			configuration: CONFIGURATION_WITH_SITE_AFTER_MEMBERSHIP_CHANGE,
 		} );
@@ -621,7 +621,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 		);
 
 		await expect(
-			editor.add( 'https://www.instagram.com/reels', beforePersist ),
+			editor.add( 'https://www.instagram.com/', beforePersist ),
 		).resolves.toMatchObject( { status: ProtectionConfigurationEditStatus.UPDATED } );
 		expect( beforePersist ).toHaveBeenCalledOnce();
 		expect( storage.writes ).toEqual( [ CONFIGURATION_WITH_SITE_AFTER_MEMBERSHIP_CHANGE ] );
@@ -725,7 +725,7 @@ describe( 'createProtectionConfigurationEditor', () => {
 	it( 'rejects another identity whose whole-domain rule is already protected', async () => {
 		const { editor, storage } = createEditor();
 
-		await expect( editor.add( 'https://business.instagram.com/' ) ).resolves.toEqual( {
+		await expect( editor.add( 'https://instagram.com/' ) ).resolves.toEqual( {
 			status: ProtectionConfigurationEditStatus.REJECTED,
 			reason: ProtectionConfigurationEditRejectionReason.ALREADY_PROTECTED,
 		} );
@@ -1036,3 +1036,56 @@ describe( 'createProtectionConfigurationEditor', () => {
 		expect( storage.writes ).toEqual( [] );
 	} );
 } );
+
+
+it( 'adds sibling paths and updates or removes only the canonical target', async () => {
+	let revision = 0;
+	const { editor, storage } = createEditor( TestEmptyProtectionConfiguration,
+		() => `revision_path_${ String( ++revision ) }` );
+	await editor.addMany( [ 'youtube.com', 'youtube.com/shorts', 'youtube.com/feed' ] );
+	const added = await editor.load();
+	expect( added?.sites ).toHaveLength( 3 );
+	const shorts = added?.sites.find( ( site ) => site.rule.pathPrefix === '/shorts' );
+	if ( ! shorts ) {
+		throw new Error( 'Missing shorts target.' );
+	}
+	await editor.update( shorts.rule, 'Short videos', undefined, {
+		behavior: 'allow', timingConfiguration: { ...TestEmptyProtectionConfiguration.timingConfiguration,
+			initialWaitMilliseconds: 20_000 },
+	} );
+	await editor.update( shorts.rule, 'Videos' );
+	const edited = ( await editor.load() )?.sites.find( ( site ) => site.rule.pathPrefix === '/shorts' );
+	expect( edited ).toMatchObject( { displayNameOverride: 'Videos', rule: { behavior: 'allow' },
+		timingConfiguration: { initialWaitMilliseconds: 20_000 } } );
+	const count = storage.writes.length;
+	await expect( editor.update( 'youtube.com', 'Ambiguous' ) ).resolves.toMatchObject( { status: 'rejected' } );
+	await expect( editor.remove( 'youtube.com' ) ).resolves.toMatchObject( { status: 'rejected' } );
+	expect( storage.writes ).toHaveLength( count );
+	await editor.remove( shorts.rule );
+	expect( ( await editor.load() )?.sites.map( ( site ) => site.rule.pathPrefix ) ).toEqual( [ undefined, '/feed' ] );
+} );
+
+it( 'preserves child timing when the main override changes and clears only explicit policy fields', async () => {
+	const child = { ...CONFIGURED_SITE,
+		rule: { ...CONFIGURED_SITE.rule, pathPrefix: '/feed', behavior: 'allow' as const },
+		timingConfiguration: { ...TestEmptyProtectionConfiguration.timingConfiguration,
+			initialWaitMilliseconds: 20_000 } };
+	const { editor } = createEditor( { ...CONFIGURATION_WITH_SITE, sites: [ CONFIGURED_SITE, child ] } );
+	await editor.update( CONFIGURED_SITE.rule, '', undefined, {
+		timingConfiguration: { ...TestEmptyProtectionConfiguration.timingConfiguration,
+			initialWaitMilliseconds: 30_000 },
+	} );
+	expect( ( await editor.load() )?.sites[ 1 ] ).toEqual( child );
+	await editor.update( child.rule, '', undefined, { timingConfiguration: null, behavior: 'pause' } );
+	expect( ( await editor.load() )?.sites[ 1 ]?.timingConfiguration ).toBeUndefined();
+	expect( ( await editor.load() )?.sites[ 1 ]?.rule.behavior ).not.toBe( 'allow' );
+} );
+
+it.each( [ null, [], { behavior: 'invalid' }, { timingConfiguration: {} }, { unexpected: true } ] )(
+	'rejects malformed policy overrides without writes: %j', async ( overrides ) => {
+		const { editor, storage } = createEditor();
+		await expect( editor.update( CONFIGURED_SITE.rule, 'Name', undefined, overrides ) )
+			.resolves.toMatchObject( { status: 'rejected' } );
+		expect( storage.writes ).toEqual( [] );
+	},
+);
