@@ -74,7 +74,7 @@ export function createOnboardingSitesStepCopy( i18n: I18n ): Readonly<Onboarding
 		suggestionsLegend: i18n._( msg`Popular choices` ),
 		manualLegend: i18n._( msg`Add another site` ),
 		addressLabel: i18n._( msg`Website address` ),
-		addressPlaceholder: i18n._( msg`example.com` ),
+		addressPlaceholder: i18n._( msg`sub.example.com/path` ),
 		addressHelp: i18n._( msg`Enter a domain or a full web address. TOCus includes the whole domain by default.` ),
 		addSiteLabel: i18n._( msg`Add site` ),
 		addingSiteLabel: i18n._( msg`Adding...` ),

@@ -105,7 +105,7 @@ export function createProtectedSitesCopy(
 		configurationChangedError: i18n._( msg`Your website list changed elsewhere. Discard your draft and reopen Websites before trying again.` ),
 		title: i18n._( msg`Websites` ),
 		addressLabel: i18n._( msg`Website address` ),
-		addressPlaceholder: i18n._( msg`example.com` ),
+		addressPlaceholder: i18n._( msg`sub.example.com/path` ),
 		addSite: i18n._( msg`Add site` ),
 		addingSite: i18n._( msg`Adding...` ),
 		customScheduleLabel: i18n._( msg`Use custom schedule` ),
