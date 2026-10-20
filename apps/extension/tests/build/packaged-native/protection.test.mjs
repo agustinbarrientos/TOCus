@@ -214,10 +214,18 @@ test( 'real allowance expiry pauses playing media and Continue preserves the doc
 		await expect.poll( () => browser.viewScript( 'onboarding', `return browser.storage.local.get('tocus.protection.durable.v1')
 			.then(data => Boolean(data['tocus.protection.durable.v1']?.document.scopes.scope_default?.ready));` ), { timeout: 20_000 } ).toBe( true );
 		expect( ( await status() ).muted ).toBe( true );
-		if ( browser.viewFocusedElement ) {
-			await expect.poll( () => browser.viewFocusedElement( 'selected' ) )
-				.toMatchObject( { tag: 'button', classes: expect.arrayContaining( [ 'continue-button' ] ),
-					label: 'Continue', disabled: false } );
+		if ( browser.viewSystemScript ) {
+			await expect.poll( () => browser.viewSystemScript( 'selected', `
+				const layer = document.querySelector('tocus-f-protected-page-layer');
+				const root = layer?.openOrClosedShadowRoot;
+				const dialog = root?.querySelector('dialog');
+				const screen = root?.querySelector('tocus-f-interruption-screen');
+				const button = screen?.openOrClosedShadowRoot?.querySelector('.continue-button');
+				const rect = button?.getBoundingClientRect();
+				return {state: screen?.getAttribute('state') ?? null, dialogOpen: dialog?.open === true,
+					continueVisible: Boolean(rect?.width > 0 && rect?.height > 0 &&
+						getComputedStyle(button).visibility === 'visible'), continueEnabled: button?.disabled === false};
+			` ) ).toEqual( { state: 'ready', dialogOpen: true, continueVisible: true, continueEnabled: true } );
 		}
 		await browser.viewPressKey( 'selected', 'Space' );
 		await expect.poll( async () => ( await status() ).presentation.interruptionLayerPresented ).toBe( false );
