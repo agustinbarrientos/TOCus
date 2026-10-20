@@ -63,7 +63,7 @@ export type CanonicalHost = z.infer<typeof CanonicalHostSchema>;
 /**
  * Validates a canonical case-sensitive path prefix without a trailing separator.
  * Encoded separators remain encoded and query strings never belong to a target.
- * @since 1.0.1
+ * @since 1.1.0
  */
 export const ProtectedSitePathPrefixSchema = z.string().min( 1 ).refine( ( value ) => {
 	if ( ! value.startsWith( '/' ) || value.endsWith( '/' ) || /[\\?#\s]|[^\x21-\x7e]|%(?![0-9a-fA-F]{2})/u.test( value ) ) {

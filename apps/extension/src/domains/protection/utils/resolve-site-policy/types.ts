@@ -4,7 +4,7 @@ import type { TimingConfiguration } from '../../types/timing-configuration';
 
 /**
  * Effective policy for one existing target, with its explicit configuration intact.
- * @since 1.0.1
+ * @since 1.1.0
  */
 export interface ResolvedSitePolicy {
 	site: ProtectedSiteConfiguration;

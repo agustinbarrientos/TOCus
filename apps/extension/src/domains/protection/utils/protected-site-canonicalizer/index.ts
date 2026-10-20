@@ -65,7 +65,7 @@ function canonicalizeStoredHost( input: string ): CanonicalHost | null {
  * Normalizes a target path without decoding encoded separators or changing case.
  * @param input - Raw path prefix without navigation search or fragment.
  * @return Canonical prefix, undefined for the whole host, or null for malformed input.
- * @since 1.0.1
+ * @since 1.1.0
  */
 function canonicalizePathPrefix( input: string ): string | null | undefined {
 	if ( ! input.startsWith( '/' ) || /[\\?#]|[^\x21-\x7e]|%(?![0-9a-fA-F]{2})/u.test( input ) ) {

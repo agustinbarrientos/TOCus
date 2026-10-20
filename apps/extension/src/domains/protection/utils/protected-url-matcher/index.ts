@@ -15,7 +15,7 @@ import {
  * @param candidate - Matching candidate rule.
  * @param current - Current most specific match.
  * @return Whether the candidate must replace the current match.
- * @since 1.0.1
+ * @since 1.1.0
  */
 function isMoreSpecific( candidate: ProtectedSiteRule, current: ProtectedSiteRule ): boolean {
 	if ( candidate.host.length !== current.host.length ) {
