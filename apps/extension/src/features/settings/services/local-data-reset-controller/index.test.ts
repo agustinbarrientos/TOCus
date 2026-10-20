@@ -120,6 +120,9 @@ describe( 'local data reset controller', () => {
 		const { controller, send, options } = createFixture();
 		controller.start();
 		expect( send( { url: 'https://example.com/options.html', frameId: 0 } ).claimed ).toBeUndefined();
+		expect( send( {
+			url: 'chrome-extension://test/onboarding.html', frameId: 0, tab: { incognito: false },
+		} ).claimed ).toBeUndefined();
 		expect( send( { url: options.optionsPageUrl, frameId: 1 } ).claimed ).toBeUndefined();
 		expect( send( { url: `${ options.optionsPageUrl }?from=site`, frameId: 0 } ).claimed ).toBeUndefined();
 		expect( send( undefined, { type: 'reset-all-data', extra: true } ).claimed ).toBeUndefined();
