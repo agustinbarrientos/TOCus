@@ -2,6 +2,8 @@
 
 ## 1.1.0 - Unreleased
 
+- Fixed: Destructive outline buttons use a red border matching their label, including Remove selected, Clear all and Discard (Chrome, Edge, Firefox).
+
 - Added: Grouped website path and subdomain exceptions, with independent schedules, complete custom pause timing for websites and exceptions, inline override tags beside website addresses, and an explicit no-pause option. Select individual exceptions or their whole website group, and newly added YouTube rules include an editable no-pause exception for YouTube Studio. Shared pauses keep elapsed progress when a longer rule joins, and backups preserve all overrides (Chrome, Edge, Firefox).
 
 - Fixed: Search-result links containing text fragments restore their breathing pause and keep the complete destination when continuing, including after retrying a temporary restoration failure (Chrome, Edge, Firefox).
