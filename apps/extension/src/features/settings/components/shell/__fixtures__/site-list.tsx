@@ -37,7 +37,8 @@ function OriginalWebsiteList() {
 	 */
 	function renderSite( site: ProtectedSiteConfiguration, presentation?: WebsiteListPresentation ) {
 		const key = getProtectedSiteRuleKey( site.rule );
-		const groupMembers = presentation && ! presentation.exception ? presentation.members : [ site ];
+		const groupMembers = presentation && ! presentation.exception && ! presentation.rootPeer
+			? presentation.members : [ site ];
 		return <PersistedWebsiteItem key={ key } site={ site } editor={ null }
 			presentation={ presentation } timingCopy={ copy.timing }
 			inheritedTiming={ resolveSitePolicy( configuration, site.rule )?.timingConfiguration }

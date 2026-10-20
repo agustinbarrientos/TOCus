@@ -119,3 +119,17 @@
 	.settings-site-item:hover .settings-site-actions,
 	.settings-site-item:focus-within .settings-site-actions { opacity: 1; }
 }
+
+.settings-site-root-peer {
+	padding-block: var(--tocus-space-1);
+
+	.settings-site-root-indent {
+		width: 2.25rem;
+		flex-shrink: 0;
+	}
+
+	.settings-site-select {
+		top: var(--tocus-space-1);
+		min-height: 2.25rem;
+	}
+}

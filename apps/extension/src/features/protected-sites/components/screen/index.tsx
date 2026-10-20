@@ -163,7 +163,8 @@ export function Websites( props: WebsitesScreenProps ) {
 			return null;
 		}
 		const key = getProtectedSiteRuleKey( site.rule );
-		const groupMembers = presentation && ! presentation.exception ? presentation.members : [ site ];
+		const groupMembers = presentation && ! presentation.exception && ! presentation.rootPeer
+			? presentation.members : [ site ];
 		const groupKeys = groupMembers.map( ( member ) => getProtectedSiteRuleKey( member.rule ) );
 		const effective = resolveSitePolicy( { ...configuration, sites: serializeWebsiteDraft( value ) }, site.rule );
 		return <WebsiteItem presentation={ presentation } timingCopy={ shell.timingCopy }
