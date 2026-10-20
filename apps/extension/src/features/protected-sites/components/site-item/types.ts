@@ -20,7 +20,7 @@ import type { SiteFaviconProvider } from '../../services/site-favicon-provider';
  * @since 1.1.0
  */
 export interface WebsiteFaviconResolution {
-	host: string;
+	hostsKey: string;
 	provider: SiteFaviconProvider;
 	source: string | null;
 }

@@ -1,3 +1,4 @@
+import { getGroupFaviconHosts, resolveGroupFavicon } from '../../utils/resolve-group-favicon';
 import { getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
 import { useEffect, useState } from 'react';
 import {
@@ -38,25 +39,29 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 	const rootPeer = props.presentation?.rootPeer ?? false;
 	const faviconProvider = props.presentation?.exception || rootPeer ? null : props.faviconProvider;
 	const faviconHost = props.presentation?.groupHost ?? site.identityHost;
+	const faviconHostsKey = getGroupFaviconHosts( faviconHost,
+		props.presentation?.members.map( ( member ) => member.identityHost ) ?? [ site.identityHost ] ).join( '\n' );
 	const [ resolvedFavicon, setResolvedFavicon ] = useState<WebsiteFaviconResolution | null>( null );
 	useEffect( () => {
-		if ( faviconProvider?.resolveSource === undefined ) {
+		if ( ! faviconProvider ) {
 			return;
 		}
 		let active = true;
-		void Promise.resolve().then( () => faviconProvider.resolveSource?.( faviconHost ) ?? null )
+		void resolveGroupFavicon( faviconProvider, faviconHostsKey.split( '\n' ) )
 			.catch( () => null ).then( ( source ) => {
 				if ( active ) {
-					setResolvedFavicon( { host: faviconHost, provider: faviconProvider, source } );
+					setResolvedFavicon( { hostsKey: faviconHostsKey, provider: faviconProvider, source } );
 				}
 			} );
 		return () => {
 			active = false;
 		};
-	}, [ faviconProvider, faviconHost ] );
-	const favicon = faviconProvider?.resolveSource === undefined ? props.favicon :
-		resolvedFavicon?.host === faviconHost && resolvedFavicon.provider === faviconProvider
-			? resolvedFavicon.source : null;
+	}, [ faviconProvider, faviconHostsKey ] );
+	const currentResolution = resolvedFavicon?.hostsKey === faviconHostsKey &&
+		resolvedFavicon.provider === faviconProvider
+		? resolvedFavicon : null;
+	const favicon = currentResolution ? currentResolution.source
+		: faviconProvider?.resolveSource === undefined ? props.favicon : null;
 	const presentationOnly = props.presentation?.presentationOnly ?? false;
 	const displaySite = presentationOnly ? { identityHost: faviconHost,
 		rule: { ...site.rule, host: faviconHost }, displayNameOverride: undefined } : site;
