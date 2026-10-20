@@ -3,7 +3,7 @@ import { DefaultProtectionScopeId } from '../../../../domains/protection/types/p
 import { ScheduleMode, Weekday } from '../../../../domains/protection/types/protection-schedule';
 import { getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
 import { DefaultTimingConfiguration } from '../../../../domains/protection/types/timing-configuration';
-import { createWebsiteDraft, serializeWebsiteDraft, stageWebsiteDraftSite } from './index';
+import { createWebsiteDraft, serializeWebsiteDraft, stageWebsiteDraftSite, stageWebsiteDraftSites } from './index';
 import { createDraft } from '../../../settings/utils/draft-controller';
 
 describe( 'website details draft', () => {
@@ -185,5 +185,66 @@ describe( 'path-first website drafts', () => {
 		const draft = createWebsiteDraft( [ ancestor ] );
 		draft.detailsByRuleKey = {};
 		expect( stageWebsiteDraftSite( draft, path ).sites ).toEqual( [ ancestor, path ] );
+	} );
+} );
+
+
+describe( 'batch website drafts', () => {
+	const root = { identityHost: 'youtube.com', rule: { host: 'youtube.com', includeSubdomains: true,
+		scopeId: DefaultProtectionScopeId } };
+	const shorts = { ...root, rule: { ...root.rule, pathPrefix: '/shorts' } };
+	const studio = { identityHost: 'studio.youtube.com', rule: { host: 'studio.youtube.com', includeSubdomains: false,
+		scopeId: DefaultProtectionScopeId } };
+
+	it.each( [ [ shorts, root, studio ], [ studio, root, shorts ] ] )( 'keeps every explicit policy ahead of inferred parents or default exceptions: %j', ( first, second, third ) => {
+		const draft = stageWebsiteDraftSites( createWebsiteDraft( [] ), [ first, second, third ] );
+		expect( draft.sites ).toEqual( [ first, second, third ] );
+		expect( serializeWebsiteDraft( draft ).map( ( site ) => site.rule.behavior ) )
+			.toEqual( [ undefined, undefined, undefined ] );
+	} );
+
+	it( 'applies shared pending details only to new explicit rules while leaving defaults independent', () => {
+		const baseline = createWebsiteDraft( [] );
+		const input = { ...baseline, address: 'youtube.com/shorts, example.com/path', newSite: {
+			...baseline.newSite, displayName: 'Reading', timingConfiguration: DefaultTimingConfiguration,
+		} };
+		const example = { identityHost: 'example.com', rule: { host: 'example.com', includeSubdomains: true,
+			scopeId: DefaultProtectionScopeId, pathPrefix: '/path' } };
+		const draft = stageWebsiteDraftSites( input, [ shorts, example ] );
+		const saved = serializeWebsiteDraft( draft );
+		expect( saved.slice( 0, 2 ) ).toEqual( [ shorts, example ].map( ( site ) => ( {
+			...site, displayNameOverride: 'Reading', timingConfiguration: DefaultTimingConfiguration,
+		} ) ) );
+		expect( saved.slice( 2 ) ).toEqual( [
+			{ ...root, rule: { ...root.rule, behavior: 'allow' } },
+			{ identityHost: 'example.com', rule: { host: 'example.com', includeSubdomains: true, scopeId: DefaultProtectionScopeId, behavior: 'allow' } },
+			{ ...studio, rule: { ...studio.rule, behavior: 'allow' } },
+		] );
+		expect( draft.address ).toBe( '' );
+		expect( draft.newSite ).toEqual( baseline.newSite );
+		expect( input.address ).toBe( 'youtube.com/shorts, example.com/path' );
+		expect( baseline.sites ).toEqual( [] );
+	} );
+
+	it( 'preserves existing and pending overrides when duplicate rules are submitted again', () => {
+		const baseline = createWebsiteDraft( [ { ...root, displayNameOverride: 'Videos', timingConfiguration: DefaultTimingConfiguration } ] );
+		const rootKey = getProtectedSiteRuleKey( root.rule );
+		const retained = { ...baseline.newSite, displayName: 'Pending rename', behavior: 'allow' as const };
+		baseline.detailsByRuleKey[ rootKey ] = retained;
+		const input = { ...baseline, newSite: { ...baseline.newSite, displayName: 'New paths' } };
+		const draft = stageWebsiteDraftSites( input, [ root, shorts, shorts ] );
+		expect( draft.sites ).toEqual( [ baseline.sites[ 0 ], shorts ] );
+		expect( draft.detailsByRuleKey[ rootKey ] ).toBe( retained );
+		expect( draft.detailsByRuleKey[ getProtectedSiteRuleKey( shorts.rule ) ]?.displayName ).toBe( 'New paths' );
+		expect( serializeWebsiteDraft( draft )[ 0 ] ).toEqual( { ...root, rule: { ...root.rule, behavior: 'allow' }, displayNameOverride: 'Pending rename' } );
+	} );
+
+	it( 'leaves saved and pending website policies unchanged for a duplicate-only batch', () => {
+		const baseline = createWebsiteDraft( [ studio ] );
+		const input = { ...baseline, address: 'studio.youtube.com,studio.youtube.com' };
+		const draft = stageWebsiteDraftSites( input, [ studio, studio ] );
+		expect( draft.sites ).toEqual( baseline.sites );
+		expect( draft.detailsByRuleKey ).toEqual( baseline.detailsByRuleKey );
+		expect( draft.address ).toBe( '' );
 	} );
 } );
