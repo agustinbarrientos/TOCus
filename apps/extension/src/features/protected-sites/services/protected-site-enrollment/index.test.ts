@@ -1236,13 +1236,13 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		expect( storage.writes ).toBe( 0 );
 	} );
 
-	it( 'reports a denied browser permission without persisting the site', async () => {
+	it.each( [ 'example.com', 'example.com/path' ] )( 'reports a denied browser permission without persisting the site or its parent: %s', async ( input ) => {
 		const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
 		const permissionManager = new MemoryEnrollmentPermissionManager();
 		permissionManager.requestResult = { status: SitePermissionRequestStatus.DENIED };
 		const service = createService( storage, permissionManager );
 
-		await expect( service.add( 'example.com' ) ).resolves.toEqual( {
+		await expect( service.add( input ) ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.PERMISSION_DENIED,
 		} );
 		expect( storage.writes ).toBe( 0 );
@@ -1279,6 +1279,10 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 						scopeId: DefaultProtectionScopeId,
 						pathPrefix: '/path',
 					},
+				}, {
+					identityHost: 'example.com',
+					rule: { host: 'example.com', includeSubdomains: true,
+						scopeId: DefaultProtectionScopeId, behavior: 'allow' },
 				} ],
 				measurementRevisionsByScope: UPDATED_EMPTY_CONFIGURATION.measurementRevisionsByScope,
 			},
@@ -1653,7 +1657,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 } );
 
 
-it( 'enrolls sibling paths with one origin request and retains access until the last path is removed', async () => {
+it( 'enrolls sibling paths with one origin request and retains their editable parent until explicitly removed', async () => {
 	const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
 	const permissions = new SharedPermissionStateApi();
 	const request = vi.spyOn( permissions, 'request' );
@@ -1663,16 +1667,28 @@ it( 'enrolls sibling paths with one origin request and retains access until the 
 	const result = await service.addMany( [ 'youtube.com/shorts', 'youtube.com/feed', 'www.youtube.com/shorts' ] );
 	expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.ADDED );
 	expect( request ).toHaveBeenCalledExactlyOnceWith( { permissions: [ 'webNavigation' ], origins: [ '*://*.youtube.com/*' ] } );
-	expect( storage.configuration.sites.map( ( site ) => site.rule.pathPrefix ) ).toEqual( [ '/shorts', '/feed' ] );
+	expect( storage.configuration.sites.map( ( site ) => site.rule.pathPrefix ) ).toEqual( [ '/shorts', '/feed', undefined, undefined ] );
+	const parents = storage.configuration.sites.slice( 2 );
+	expect( parents.map( ( site ) => ( { host: site.rule.host, behavior: site.rule.behavior } ) ) ).toEqual( [
+		{ host: 'youtube.com', behavior: 'allow' }, { host: 'studio.youtube.com', behavior: 'allow' },
+	] );
 	const first = storage.configuration.sites[ 0 ];
 	const last = storage.configuration.sites[ 1 ];
 	if ( ! first || ! last ) {
 		throw new Error( 'Missing path fixtures.' );
 	}
 	await expect( service.remove( first ) ).resolves.toMatchObject( { status: ProtectedSiteEnrollmentStatus.REMOVED } );
-	expect( storage.configuration.sites ).toEqual( [ last ] );
+	expect( storage.configuration.sites ).toEqual( [ last, ...parents ] );
 	await expect( manager.hasAccess( last.rule ) ).resolves.toBe( true );
 	await expect( service.remove( last ) ).resolves.toMatchObject( { status: ProtectedSiteEnrollmentStatus.REMOVED } );
+	expect( storage.configuration.sites ).toEqual( parents );
+	await expect( manager.hasAccess( last.rule ) ).resolves.toBe( true );
+	for ( const parent of parents ) {
+		await expect( service.remove( parent ) ).resolves.toMatchObject( {
+			status: ProtectedSiteEnrollmentStatus.REMOVED,
+		} );
+	}
+	expect( storage.configuration.sites ).toEqual( [] );
 	await expect( manager.hasAccess( last.rule ) ).resolves.toBe( false );
 } );
 

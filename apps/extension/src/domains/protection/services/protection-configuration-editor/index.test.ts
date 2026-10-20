@@ -415,11 +415,38 @@ describe( 'createProtectionConfigurationEditor', () => {
 		expect( storage.writes ).toHaveLength( 3 );
 	} );
 
-	it.each( [ 'youtube.com/shorts', 'www.youtube.com/feed', 'studio.youtube.com', 'm.youtube.com', 'example.com' ] )(
+	it.each( [ 'studio.youtube.com', 'm.youtube.com', 'example.com' ] )(
 		'adds no default for a non-root target: %s', async ( input ) => {
 			const { editor } = createEditor( { ...TestEmptyProtectionConfiguration } );
 			await editor.add( input );
 			expect( ( await editor.load() )?.sites ).toHaveLength( 1 );
+		},
+	);
+
+	it.each( [ 'a.com/x', 'https://www.example.com/articles', 'mail.google.com/inbox', 'youtube.com/shorts' ] )(
+		'creates an editable no-pause parent without changing the added path: %s', async ( input ) => {
+			const { editor } = createEditor( { ...TestEmptyProtectionConfiguration } );
+			await expect( editor.add( input ) ).resolves.toMatchObject( {
+				status: ProtectionConfigurationEditStatus.UPDATED,
+			} );
+			const sites = ( await editor.load() )?.sites ?? [];
+			const path = sites.find( ( site ) => site.rule.pathPrefix !== undefined );
+			const parent = sites.find( ( site ) =>
+				site.rule.host === path?.rule.host && site.rule.pathPrefix === undefined );
+			if ( ! path || ! parent ) {
+				throw new Error( 'The added path must have an editable parent.' );
+			}
+			expect( path.rule.behavior ).toBeUndefined();
+			expect( parent.rule ).toEqual( { host: path.rule.host, includeSubdomains: path.rule.includeSubdomains,
+				scopeId: path.rule.scopeId, behavior: 'allow' } );
+			await expect( editor.update( parent.rule, 'Parent website', undefined, { behavior: 'pause' } ) )
+				.resolves.toMatchObject( { status: ProtectionConfigurationEditStatus.UPDATED } );
+			const saved = ( await editor.load() )?.sites ?? [];
+			expect( saved.find( ( site ) => site.rule.pathPrefix !== undefined ) ).toEqual( path );
+			const savedParent = saved.find( ( site ) =>
+				site.rule.host === parent.rule.host && site.rule.pathPrefix === undefined );
+			expect( savedParent ).toMatchObject( { displayNameOverride: 'Parent website', rule: { host: path.rule.host } } );
+			expect( savedParent?.rule.behavior ).not.toBe( 'allow' );
 		},
 	);
 

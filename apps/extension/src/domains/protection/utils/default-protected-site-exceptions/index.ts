@@ -9,11 +9,11 @@ const DefaultProtectedSiteExceptionCatalog = [
 ] as const;
 
 /**
- * Adds catalog exceptions for newly enrolled broad roots while preserving explicit user targets.
+ * Adds editable no-pause path parents and catalog exceptions while preserving explicit targets.
  * Reads, replacements and ordinary policy updates must retain their exact existing site set.
  * @param existingSites - Saved or staged targets that must not be enrolled again.
  * @param additions - Complete explicit additions, including all targets in a batch.
- * @return Explicit additions followed by any missing default exceptions.
+ * @return Explicit additions followed by missing path parents and default exceptions.
  * @since 1.1.0
  */
 export function expandProtectedSiteAdditions(
@@ -21,8 +21,30 @@ export function expandProtectedSiteAdditions(
 	additions: readonly ProtectedSiteConfiguration[],
 ): ProtectedSiteConfiguration[] {
 	const expanded = [ ...additions ];
-	const existingKeys = new Set( existingSites.map( ( site ) => getProtectedSiteRuleKey( site.rule ) ) );
+	const explicitSites = [ ...existingSites, ...additions ];
+	const explicitRules = explicitSites.map( ( site ) => site.rule );
+	const rootHosts = new Set( explicitSites.filter( ( site ) => site.rule.pathPrefix === undefined )
+		.map( ( site ) => site.rule.host ) );
 	for ( const site of additions ) {
+		if ( site.rule.pathPrefix === undefined || rootHosts.has( site.rule.host ) ) {
+			continue;
+		}
+		// A more-specific allowed host must not bypass any paused path on a covering ancestor.
+		if ( explicitRules.some( ( rule ) => rule.behavior !== 'allow' && rule.includeSubdomains &&
+			site.rule.host.endsWith( `.${ rule.host }` ) ) ) {
+			continue;
+		}
+		expanded.push( { identityHost: site.rule.host, rule: {
+			host: site.rule.host,
+			includeSubdomains: explicitSites.some( ( candidate ) => candidate.rule.host === site.rule.host &&
+				candidate.rule.pathPrefix !== undefined && candidate.rule.includeSubdomains ),
+			scopeId: site.rule.scopeId,
+			behavior: 'allow',
+		} } );
+		rootHosts.add( site.rule.host );
+	}
+	const existingKeys = new Set( existingSites.map( ( site ) => getProtectedSiteRuleKey( site.rule ) ) );
+	for ( const site of expanded ) {
 		if ( existingKeys.has( getProtectedSiteRuleKey( site.rule ) ) ||
 			! site.rule.includeSubdomains || site.rule.pathPrefix !== undefined ) {
 			continue;
