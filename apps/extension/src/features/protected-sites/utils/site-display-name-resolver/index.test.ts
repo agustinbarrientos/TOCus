@@ -1,3 +1,4 @@
+import { DefaultTimingConfiguration } from '../../../../domains/protection/types/timing-configuration';
 import { describe, expect, it } from 'vitest';
 import {
 	ProtectedSiteRuleSchema,
@@ -23,6 +24,12 @@ function createRule( host: string, includeSubdomains = true ): ProtectedSiteRule
 }
 
 describe( 'resolveSiteDisplayIdentity', () => {
+	it( 'accepts complete timed sites without treating policy fields as display metadata', () => {
+		const site = { identityHost: 'youtube.com', rule: createRule( 'youtube.com' ),
+			timingConfiguration: DefaultTimingConfiguration };
+		expect( resolveSiteDisplayIdentity( site ).name ).toBe( 'YouTube' );
+	} );
+
 	it.each( [
 		[ 'x.com', 'X' ],
 		[ 'twitter.com', 'X' ],
