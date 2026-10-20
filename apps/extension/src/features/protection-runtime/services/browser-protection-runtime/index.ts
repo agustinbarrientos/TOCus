@@ -1,3 +1,4 @@
+import type { ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
 import { resolveSiteSchedule } from '../../../../domains/protection/utils/resolve-site-schedule';
 import { ProtectionParticipantOrigin } from '../../../../domains/protection/types/protection-participant';
 import { createFreshRuntimeObservation } from '../../utils/runtime-participant-observation';
@@ -54,7 +55,7 @@ import {
 /**
  * Evaluates the current schedule for one freshly matched configured website.
  * @param configuration - Current validated protection configuration.
- * @param ruleHost - Rule host freshly matched against the same validated configuration.
+ * @param rule - Rule host freshly matched against the same validated configuration.
  * @param nowEpochMilliseconds - Current wall-clock time.
  * @param timeZone - Current IANA time-zone identifier.
  * @return Active, inactive, or failed current schedule evaluation.
@@ -62,11 +63,11 @@ import {
  */
 function evaluateSiteSchedule(
 	configuration: ProtectionConfigurationDocument,
-	ruleHost: string,
+	rule: ProtectedSiteRule,
 	nowEpochMilliseconds: number,
 	timeZone: string,
 ): ScheduleEvaluationResult {
-	const schedule = resolveSiteSchedule( configuration, ruleHost );
+	const schedule = resolveSiteSchedule( configuration, rule );
 
 	return evaluateSchedule( schedule, nowEpochMilliseconds, timeZone );
 }

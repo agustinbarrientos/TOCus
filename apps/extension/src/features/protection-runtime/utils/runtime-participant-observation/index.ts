@@ -40,7 +40,7 @@ export function createFreshRuntimeObservation(
 			configuration.sites.map( ( site ) => site.rule ),
 		);
 	const schedule = match.status === ProtectedUrlMatchStatus.PROTECTED
-		? resolveSiteSchedule( configuration, match.rule.host )
+		? resolveSiteSchedule( configuration, match.rule )
 		: undefined;
 
 	return {

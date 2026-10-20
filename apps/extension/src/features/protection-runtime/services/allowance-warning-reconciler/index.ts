@@ -183,7 +183,7 @@ export function createAllowanceWarningReconciler(
 		}
 
 		const state = statesByScope[ match.rule.scopeId ];
-		const schedule = resolveSiteSchedule( configuration, match.rule.host );
+		const schedule = resolveSiteSchedule( configuration, match.rule );
 
 		if (
 			state?.type !== ProtectionStateType.ALLOWANCE ||
