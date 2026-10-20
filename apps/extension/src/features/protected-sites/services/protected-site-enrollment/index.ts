@@ -405,6 +405,11 @@ export function createProtectedSiteEnrollmentService(
 				authoritativeRemovedSite.rule,
 				settlement.result.configuration.sites.length > 0,
 			);
+			if ( permissionReleaseStatus === SitePermissionReleaseStatus.RETAINED ) {
+				permissionReleaseStatus = await options.permissionManager.releaseNewAccess(
+					[ authoritativeRemovedSite.rule ], {}, settlement.result.configuration,
+				);
+			}
 		};
 		const editResult = await options.editor.remove( site.rule, finalizeEdit );
 

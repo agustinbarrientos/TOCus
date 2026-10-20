@@ -1565,3 +1565,59 @@ it( 'keeps broad browser access when a remaining exact subdomain depends on it',
 	await service.remove( EXAMPLE_SITE );
 	await expect( manager.filterConfiguration( storage.configuration ) ).resolves.toMatchObject( { sites: [ child ] } );
 } );
+
+
+it.each( [ 'remove', 'draft' ] )( 'releases retained parent grants after the last child through %s across service recreation', async ( operation ) => {
+	const child = { identityHost: 'studio.example.com', rule: { ...EXAMPLE_SITE.rule,
+		host: 'studio.example.com', includeSubdomains: false } };
+	const unrelated = { identityHost: 'unrelated.test', rule: { ...EXAMPLE_SITE.rule, host: 'unrelated.test' } };
+	const storage = new MemoryEnrollmentStorage( { ...POPULATED_CONFIGURATION,
+		sites: [ EXAMPLE_SITE, child, unrelated ] } );
+	const permissions = new SharedPermissionStateApi();
+	permissions.origins.add( '*://*.unrelated.test/*' );
+	permissions.origins.add( 'https://unconfigured.test/*' );
+	let revision = 0;
+	const service = createService(
+		storage,
+		createSitePermissionManager( { permissions } ),
+		coordinateMutationDirectly,
+		() => `revision_cleanup_${ String( ++revision ) }`,
+	);
+	const first = operation === 'remove' ? await service.remove( EXAMPLE_SITE )
+		: await service.saveDraft( storage.configuration.sites, [ child, unrelated ] );
+	expect( first.status ).toBe( operation === 'remove' ? ProtectedSiteEnrollmentStatus.REMOVED : ProtectedSiteEnrollmentStatus.SAVED );
+	await expect( createSitePermissionManager( { permissions } ).filterConfiguration( storage.configuration ) )
+		.resolves.toMatchObject( { sites: [ child, unrelated ] } );
+	expect( permissions.origins.has( '*://*.example.com/*' ) ).toBe( true );
+	const restarted = createService(
+		storage,
+		createSitePermissionManager( { permissions } ),
+		coordinateMutationDirectly,
+		() => `revision_cleanup_${ String( ++revision ) }`,
+	);
+	const last = operation === 'remove' ? await restarted.remove( child )
+		: await restarted.saveDraft( storage.configuration.sites, [ unrelated ] );
+	expect( last.status ).toBe( operation === 'remove' ? ProtectedSiteEnrollmentStatus.REMOVED : ProtectedSiteEnrollmentStatus.SAVED );
+	expect( storage.configuration.sites ).toEqual( [ unrelated ] );
+	expect( [ ...permissions.origins ] ).toEqual( [ '*://*.unrelated.test/*', 'https://unconfigured.test/*' ] );
+	expect( [ ...permissions.permissions ] ).toEqual( [ 'webNavigation' ] );
+} );
+
+it( 'releases the retained wildcard and navigation grant after removing the final exact child', async () => {
+	const child = { identityHost: 'studio.example.com', rule: { ...EXAMPLE_SITE.rule,
+		host: 'studio.example.com', includeSubdomains: false } };
+	const storage = new MemoryEnrollmentStorage( { ...POPULATED_CONFIGURATION, sites: [ EXAMPLE_SITE, child ] } );
+	const permissions = new SharedPermissionStateApi();
+	let revision = 0;
+	const service = createService(
+		storage,
+		createSitePermissionManager( { permissions } ),
+		coordinateMutationDirectly,
+		() => `revision_final_${ String( ++revision ) }`,
+	);
+	await service.remove( EXAMPLE_SITE );
+	await service.remove( child );
+	expect( storage.configuration.sites ).toEqual( [] );
+	expect( [ ...permissions.origins ] ).toEqual( [] );
+	expect( [ ...permissions.permissions ] ).toEqual( [] );
+} );
