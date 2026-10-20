@@ -105,6 +105,7 @@ export const tocusTheme = createTheme( {
 		Anchor: { defaultProps: { underline: 'always' } },
 		NavLink: { defaultProps: { variant: 'filled' }, styles: { root: { minHeight: '3rem' } } },
 		Button: { ...Button.extend( {
+			classNames: { section: 'tocus-button-icon' },
 			/**
 			 * Retains original default geometry without changing explicit packaged size requests.
 			 * @param _theme - Active packaged theme.

@@ -54,6 +54,37 @@ test.describe( 'shared controls', () => {
 			}
 		}
 	} );
+	test( 'scales button icons with their labels and keeps an eight-pixel gap on either side', async ( { page } ) => {
+		await page.goto( url );
+		for ( const [ role, name, side ] of [
+			[ 'button', 'Adorned action', 'left' ],
+			[ 'link', 'Documentation', 'right' ],
+		] as const ) {
+			const button = page.getByRole( role, { name, exact: true } );
+			for ( const fontSize of [ 14, 20 ] ) {
+				await button.evaluate( ( element, size ) => {
+					( element as HTMLElement ).style.fontSize = `${ String( size ) }px`;
+				}, fontSize );
+				const metrics = await button.evaluate( ( element, position ) => {
+					const label = element.querySelector( '.mantine-Button-label' )?.getBoundingClientRect();
+					const icon = element.querySelector( '.mantine-Button-section > .tocus-icon' )?.getBoundingClientRect();
+					if ( ! label || ! icon ) {
+						throw new Error( 'Expected a labeled button with an icon section.' );
+					}
+					return {
+						width: icon.width, height: icon.height,
+						gap: position === 'left' ? label.left - icon.right : icon.left - label.right,
+						alignment: Math.abs( label.y + label.height / 2 - icon.y - icon.height / 2 ),
+					};
+				}, side );
+				expect.soft( metrics.width ).toBeCloseTo( fontSize * 1.25, 1 );
+				expect.soft( metrics.height ).toBeCloseTo( fontSize * 1.25, 1 );
+				expect.soft( metrics.gap ).toBeCloseTo( 8, 1 );
+				expect.soft( metrics.alignment ).toBeLessThan( 1 );
+			}
+		}
+	} );
+
 	test( 'honors small actions without shrinking normal actions or slider hit targets', async ( { page } ) => {
 		await page.goto( url );
 		const small = page.getByRole( 'button', { name: 'Small action', exact: true } );

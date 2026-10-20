@@ -254,6 +254,18 @@
 			@include typography.apply('label-large');
 		}
 
+		.tocus-button-icon:has(> .tocus-icon) {
+			flex-shrink: 0;
+
+			> .tocus-icon {
+				width: 1.25em;
+				height: 1.25em;
+			}
+
+			&[data-position='left'] { margin-inline-end: var(--tocus-space-2); }
+			&[data-position='right'] { margin-inline-start: var(--tocus-space-2); }
+		}
+
 		.mantine-Button-root[data-variant='filled']:hover:not(:disabled, [data-disabled]) {
 			border-color: var(--tocus-button-hover-border);
 		}
