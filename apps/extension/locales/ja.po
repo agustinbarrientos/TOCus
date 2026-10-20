@@ -246,6 +246,10 @@ msgstr "行を追加"
 msgid "Add site"
 msgstr "サイトを追加"
 
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Add sites"
+msgstr "サイトを追加"
+
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "Add the first site you want TOCus to gently interrupt."
 msgstr "TOCus でやさしく中断したい最初のサイトを追加してください。"
@@ -429,6 +433,10 @@ msgstr "変更を保存しました。"
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Check the schedule and try again."
 msgstr "スケジュールを確認して、もう一度試してください。"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Check these addresses: {addresses}"
+msgstr "次のアドレスを確認してください: {addresses}"
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Choose a day and valid start and end times."
