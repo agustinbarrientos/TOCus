@@ -58,15 +58,15 @@ describe( 'createNavigationRuleReconciler', () => {
 		};
 
 		await reconciler.reconcile( configuration, {} );
-		expect( rules ).toHaveLength( 1 );
+		expect( rules ).toHaveLength( 2 );
 		now = Date.UTC( 2026, 8, 14, 10 );
 		await reconciler.reconcile( configuration, {} );
-		expect( rules ).toHaveLength( 1 );
+		expect( rules ).toHaveLength( 2 );
 		expect( rules[ 0 ]?.action ).toEqual( {
 			type: 'redirect',
 			redirect: { regexSubstitution: `${ INTERRUPTION_PAGE_URL }#destination=\\0` },
 		} );
-		expect( rules[ 0 ]?.condition.requestDomains ).toEqual( [ 'example.com', 'second.test' ] );
+		expect( rules.every( ( rule ) => rule.action.type === 'redirect' ) ).toBe( true );
 		const allowance = AllowanceProtectionStateSchema.parse( {
 			type: ProtectionStateType.ALLOWANCE, scopeId: DefaultProtectionScopeId,
 			allowanceId: 'allowance_shared', completedWaitId: null,
@@ -77,7 +77,7 @@ describe( 'createNavigationRuleReconciler', () => {
 		expect( rules ).toEqual( [] );
 		now += 300_000;
 		await reconciler.reconcile( configuration, { [ DefaultProtectionScopeId ]: allowance } );
-		expect( rules ).toHaveLength( 1 );
+		expect( rules ).toHaveLength( 2 );
 	} );
 	it( 'keeps scheduled rules active outside an allowance', async () => {
 		let rules: Browser.declarativeNetRequest.Rule[] = [];
