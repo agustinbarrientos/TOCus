@@ -1,3 +1,5 @@
+import { Fragment } from 'react';
+import { getProtectedSiteGroupHost, getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
 import { resolveSiteDisplayIdentity } from '../../utils/site-display-name-resolver';
 import type { WebsiteListProps } from './types';
 import './style.scss';
@@ -16,9 +18,31 @@ export function WebsiteList( props: WebsiteListProps ) {
 		return Number( secondCustom ) - Number( firstCustom ) ||
 			copy.compareNames( resolveSiteDisplayIdentity( first ).name, resolveSiteDisplayIdentity( second ).name );
 	} );
+	const groups = new Map<string, typeof sites>();
+	for ( const site of sites ) {
+		const host = getProtectedSiteGroupHost( site.rule.host );
+		groups.set( host, [ ...groups.get( host ) ?? [], site ] );
+	}
 	return <div className="settings-site-groups">
 		{ sites.length === 0 ? <section className="settings-sites-empty">
 			<h2>{ copy.emptyTitle }</h2><p>{ copy.emptyDescription }</p>
-		</section> : <ul className="settings-site-list">{ sites.map( ( site ) => props.renderItem( site ) ) }</ul> }
+		</section> : <ul className="settings-site-list">{ [ ...groups ].map( ( [ groupHost, members ] ) => {
+			const main = members.find( ( site ) => site.rule.host === groupHost && site.rule.pathPrefix === undefined );
+			const representative = main ?? members[ 0 ];
+			if ( representative === undefined ) {
+				return null;
+			}
+			const exceptions = members.filter( ( site ) => site !== main );
+			return <Fragment key={ groupHost }>
+				{ props.renderItem( representative, { groupHost, members, exception: false,
+					presentationOnly: main === undefined } ) }
+				{ exceptions.length > 0 && <li className="settings-site-exceptions">
+					<div className="settings-site-exceptions-label">{ props.exceptionsLabel }</div>
+					<ul>{ exceptions.map( ( site ) => <Fragment key={ getProtectedSiteRuleKey( site.rule ) }>
+						{ props.renderItem( site, { groupHost, members, exception: true, presentationOnly: false } ) }
+					</Fragment> ) }</ul>
+				</li> }
+			</Fragment>;
+		} ) }</ul> }
 	</div>;
 }

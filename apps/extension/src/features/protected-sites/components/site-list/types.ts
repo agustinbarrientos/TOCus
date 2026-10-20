@@ -16,7 +16,8 @@ export interface WebsiteListProps {
 	 * @param site - Configuration belonging to the current shared or independent group.
 	 * @return Keyed website row.
 	 */
-	renderItem( site: ProtectedSiteConfiguration ): ReactNode;
+	renderItem( site: ProtectedSiteConfiguration, presentation?: WebsiteListPresentation ): ReactNode;
+	exceptionsLabel?: string;
 }
 
 /**
@@ -45,4 +46,15 @@ export interface ProtectedSiteListCopy {
 	 * @since 1.0.0 Initial implementation.
 	 */
 	compareNames( firstName: string, secondName: string ): number;
+}
+
+/**
+ * Presentation group membership, without synthesizing a protection rule.
+ * @since 1.1.0
+ */
+export interface WebsiteListPresentation {
+	exception: boolean;
+	presentationOnly: boolean;
+	groupHost: string;
+	members: ReadonlyArray<ProtectedSiteConfiguration>;
 }
