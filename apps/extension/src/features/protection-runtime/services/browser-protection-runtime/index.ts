@@ -1,3 +1,4 @@
+import { requireSitePolicy } from '../../../../domains/protection/utils/require-site-policy';
 import type { ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
 import { resolveSiteSchedule } from '../../../../domains/protection/utils/resolve-site-schedule';
 import { ProtectionParticipantOrigin } from '../../../../domains/protection/types/protection-participant';
@@ -363,7 +364,14 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 			const filteredConfiguration = await options.filterConfiguration( configuration );
 			const filteredResult = ProtectionConfigurationDocumentSchema.safeParse( filteredConfiguration );
 
-			latestConfiguration = filteredResult.success ? filteredResult.data : null;
+			// Permissions limit interception targets, but inheritance still uses the complete stored policy.
+			latestConfiguration = filteredResult.success ? {
+				...filteredResult.data,
+				sites: filteredResult.data.sites.map( ( site ) => {
+					const policy = requireSitePolicy( configuration, site.rule );
+					return { ...site, schedule: policy.schedule, timingConfiguration: policy.timingConfiguration };
+				} ),
+			} : null;
 			return latestConfiguration;
 		} catch {
 			latestConfiguration = null;

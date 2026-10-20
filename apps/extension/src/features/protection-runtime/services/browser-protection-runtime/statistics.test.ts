@@ -111,7 +111,14 @@ describe( 'createBrowserProtectionRuntime statistics integration', () => {
 		await runtime.handleNavigation( navigation );
 		await vi.waitFor( () => {
 			expect( statisticsRuntime.checkpoint.mock.lastCall?.[ 0 ] )
-				.toStrictEqual( EXAMPLE_CONFIGURATION );
+				.toStrictEqual( {
+					...EXAMPLE_CONFIGURATION,
+					sites: EXAMPLE_CONFIGURATION.sites.map( ( site ) => ( {
+						...site,
+						schedule: EXAMPLE_CONFIGURATION.schedule,
+						timingConfiguration: EXAMPLE_CONFIGURATION.timingConfiguration,
+					} ) ),
+				} );
 			expect( statisticsRuntime.checkpoint.mock.lastCall?.[ 1 ] ).toMatchObject( {
 				observedAtEpochMilliseconds: now.value,
 				focusObservation: { navigation },
@@ -276,7 +283,14 @@ describe( 'createBrowserProtectionRuntime statistics integration', () => {
 
 			expect( statisticsRuntime.drainProtectionFacts ).toHaveBeenCalledOnce();
 			expect( statisticsRuntime.checkpoint.mock.lastCall?.[ 0 ] )
-				.toStrictEqual( EXAMPLE_CONFIGURATION );
+				.toStrictEqual( {
+					...EXAMPLE_CONFIGURATION,
+					sites: EXAMPLE_CONFIGURATION.sites.map( ( site ) => ( {
+						...site,
+						schedule: EXAMPLE_CONFIGURATION.schedule,
+						timingConfiguration: EXAMPLE_CONFIGURATION.timingConfiguration,
+					} ) ),
+				} );
 			expect( statisticsRuntime.checkpoint.mock.lastCall?.[ 1 ] ).toMatchObject( {
 				observedAtEpochMilliseconds: now.value,
 				focusObservation: { focusedTabId: 7 },
