@@ -481,10 +481,25 @@ export function createBrowserProtectionAdapter(
 		] );
 	}
 
+	const isRegexSupported = browserApi.declarativeNetRequest.isRegexSupported;
 	return {
 		restoreTabAudioExcept: tabAudio.restoreExcept,
 		synchronizeProtectionClock,
 		replaceNavigationRules,
+		...( isRegexSupported === undefined ? {} : {
+			/**
+			 * Preflights the exact options used by full-destination redirects.
+			 * @param regex - Complete navigation selector.
+			 * @return Whether the browser can compile the selector within its memory limit.
+			 * @since 1.1.0
+			 */
+			isNavigationRegexSupported: async ( regex: string ): Promise<boolean> => {
+				const result = await isRegexSupported( {
+					regex, isCaseSensitive: true, requireCapturing: true,
+				} );
+				return result.isSupported;
+			},
+		} ),
 		getFocusedTabId,
 		listTabs,
 		getProtectedPagePresentation,

@@ -84,6 +84,10 @@ export interface BrowserProtectionDynamicRuleUpdate {
  * @since 1.0.0 Initial implementation.
  */
 export interface BrowserProtectionDynamicRulesApi {
+	/** Checks the compiled regex limit without changing installed rules. */
+	isRegexSupported?: ( options: Browser.declarativeNetRequest.RegexOptions ) =>
+		Promise<Browser.declarativeNetRequest.IsRegexSupportedResult>;
+
 	/**
 	 * Lists every dynamic rule currently owned by the extension.
 	 * @return Current extension-owned dynamic rules.
