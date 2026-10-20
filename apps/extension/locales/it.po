@@ -51,6 +51,10 @@ msgstr "{count, plural, one {# in più rispetto alla settimana scorsa} other {# 
 msgid "{count, plural, one {# more than last year} other {# more than last year}}"
 msgstr "{count, plural, one {# in più rispetto all'anno scorso} other {# in più rispetto all'anno scorso}}"
 
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "{count, plural, one {# reconsidered visit} other {# reconsidered visits}}"
+msgstr "{count, plural, one {# visita riconsiderata} other {# visite riconsiderate}}"
+
 #. Standalone duration displayed as a whole number of seconds.
 #: apps/extension/src/localization/utils/format-localized-duration/index.ts
 msgid "{count, plural, one {# second} other {# seconds}}"
@@ -293,6 +297,10 @@ msgstr "Tutti i siti web"
 msgid "Allow access"
 msgstr "Consenti accesso"
 
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "Allow website access"
+msgstr "Consenti l’accesso ai siti web"
+
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Allowance"
 msgstr "Finestra di visita"
@@ -442,6 +450,14 @@ msgstr "Controlla questi indirizzi: {addresses}"
 msgid "Choose a day and valid start and end times."
 msgstr "Scegli un giorno e orari di inizio e fine validi."
 
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "Choose a different file"
+msgstr "Scegli un altro file"
+
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "Choose a JSON backup exported from TOCus on this or another browser."
+msgstr "Scegli un backup JSON esportato da TOCus in questo o in un altro browser."
+
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Choose a start time."
 msgstr "Scegli un orario di inizio."
@@ -449,6 +465,10 @@ msgstr "Scegli un orario di inizio."
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Choose an end time."
 msgstr "Scegli un orario di fine."
+
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "Choose backup file"
+msgstr "Scegli il file di backup"
 
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Choose the days and times when TOCus should be active."
@@ -500,6 +520,10 @@ msgstr "Continua"
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "Contribute"
 msgstr "Contribuisci"
+
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "Created {date}"
+msgstr "Creato il {date}"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Current month"
@@ -570,6 +594,10 @@ msgstr "Scarta"
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 msgid "Dismiss notification"
 msgstr "Chiudi notifica"
+
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "Do this later"
+msgstr "Fallo più tardi"
 
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "Don't ask again"
@@ -708,6 +736,10 @@ msgstr "Tempi globali"
 msgid "Green"
 msgstr "Verde"
 
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "Have a backup?"
+msgstr "Hai un backup?"
+
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Hour"
 msgstr "Ora"
@@ -724,6 +756,10 @@ msgstr "Se TOCus non ha accesso a un sito web, non può metterlo in pausa. Puoi 
 msgid "If you pause while on a website, the address might be saved for a short time so you can go back to it."
 msgstr "Se fai una pausa su un sito web, l'indirizzo potrebbe essere salvato per un breve periodo per permetterti di tornarci."
 
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "Import a backup"
+msgstr "Importa un backup"
+
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Import backup"
 msgstr "Importa backup"
@@ -735,6 +771,10 @@ msgstr "Importazione del backup..."
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Importing replaces your current websites, schedules, timing, preferences, and statistics. The two sets of data will not be combined. Current temporary pauses and browsing sessions will end."
 msgstr "L'importazione sostituisce i siti, gli orari, i tempi di pausa, le preferenze e le statistiche attuali. I due insiemi di dati non verranno uniti. Le pause temporanee e le sessioni di navigazione attuali termineranno."
+
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "Included"
+msgstr "Incluse"
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
@@ -914,6 +954,10 @@ msgstr "Non attivo al momento"
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "On a weekly schedule"
 msgstr "Con programmazione settimanale"
+
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "One more step for your websites"
+msgstr "Ancora un passaggio per i tuoi siti web"
 
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Open Settings"
@@ -1127,11 +1171,19 @@ msgstr "Reimpostare le tue statistiche?"
 msgid "Resetting..."
 msgstr "Reimpostazione..."
 
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "Restore backup"
+msgstr "Ripristina backup"
+
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-language-screen-copy/index.ts
 msgid "Restore personalization defaults"
 msgstr "Ripristina impostazioni predefinite di personalizzazione"
+
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "Restore this backup?"
+msgstr "Ripristinare questo backup?"
 
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Same as last month"
@@ -1202,6 +1254,7 @@ msgstr "Seleziona {name}"
 msgid "Selected websites removed. Save to apply."
 msgstr "Siti selezionati rimossi. Salva per applicare."
 
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 msgid "Settings"
@@ -1286,6 +1339,7 @@ msgstr "Gli orari di inizio e fine devono essere diversi."
 msgid "Start fresh"
 msgstr "Ricomincia da zero"
 
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
@@ -1428,6 +1482,10 @@ msgstr "Ecco cosa vedrai"
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "This period"
 msgstr "Questo periodo"
+
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "This replaces your current TOCus data."
+msgstr "Questa operazione sostituisce i tuoi dati attuali di TOCus."
 
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "This site changed elsewhere. Reload settings and try again."
@@ -1745,6 +1803,10 @@ msgstr "Usa orari personalizzati"
 msgid "Use them to quickly visit sites you'd rather spend time on."
 msgstr "Usale per visitare rapidamente i siti su cui preferisci trascorrere il tuo tempo."
 
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "Use this backup to finish setting up TOCus."
+msgstr "Usa questo backup per completare la configurazione di TOCus."
+
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Uses the global schedule"
 msgstr "Usa l'orario globale"
@@ -1813,6 +1875,10 @@ msgstr "Non siamo riusciti a salvare la tua scelta. Riprova."
 msgid "Web address"
 msgstr "Indirizzo web"
 
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "Website access wasn't granted. Try again, or continue in Settings."
+msgstr "L’accesso ai siti web non è stato concesso. Riprova o continua in Impostazioni."
+
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Website address"
@@ -1831,6 +1897,10 @@ msgstr "Numero di siti"
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 msgid "Websites"
 msgstr "Siti web"
+
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "Websites and exceptions"
+msgstr "Siti web ed eccezioni"
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Websites couldn't load"
@@ -1904,6 +1974,10 @@ msgstr "Non è stato possibile salvare l'aspetto. La scelta resta visualizzata q
 msgid "Your backup includes your sites, settings, and stats, and it’s created entirely on your device. TOCus never collects your browsing history or page contents."
 msgstr "Il backup include i tuoi siti, le impostazioni e le statistiche ed è creato interamente sul tuo dispositivo. TOCus non raccoglie mai la tua cronologia di navigazione né i contenuti delle pagine."
 
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "Your backup is restored"
+msgstr "Il tuo backup è stato ripristinato"
+
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 msgid "Your browser couldn't request access for that site. Try again."
 msgstr "Il browser non è riuscito a richiedere l'accesso al sito. Riprova."
@@ -1940,6 +2014,10 @@ msgstr "Non è stato possibile salvare la lingua. La tua scelta è ancora visibi
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Your local data changed. Reload settings before importing this backup."
 msgstr "I dati locali sono cambiati. Ricarica le impostazioni prima di importare questo backup."
+
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "Your local data changed. Review the backup again before restoring it."
+msgstr "I tuoi dati locali sono cambiati. Controlla di nuovo il backup prima di ripristinarlo."
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
@@ -1991,6 +2069,10 @@ msgstr "Non è stato possibile salvare i tuoi link rapidi. Le modifiche sono anc
 msgid "Your saved data isn't valid or uses an unsupported format. TOCus couldn't create a backup."
 msgstr "I dati salvati non sono validi o usano un formato non supportato. TOCus non è riuscito a creare un backup."
 
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "Your settings and statistics are restored. Allow website access so TOCus can pause the sites in your backup."
+msgstr "Le tue impostazioni e statistiche sono state ripristinate. Consenti l’accesso ai siti web in modo che TOCus possa mettere in pausa i siti del tuo backup."
+
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "Your timing data changed. Retry before saving these choices."
 msgstr "I dati dei tempi sono cambiati. Riprova prima di salvare queste scelte."
@@ -2022,6 +2104,10 @@ msgstr "I tuoi siti web e le impostazioni non sono stati modificati. Riprova."
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Your websites, schedules, pause times, preferences, active pauses, and statistics will be erased. The setup will begin again. This can't be reversed."
 msgstr "I tuoi siti, gli orari, i tempi di pausa, le preferenze, le pause attive e le statistiche verranno cancellati. La configurazione iniziale ricomincerà. Questa azione non può essere annullata."
+
+#: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
+msgid "Your websites, settings and statistics are ready. You can make changes in Settings."
+msgstr "I tuoi siti web, le impostazioni e le statistiche sono pronti. Puoi apportare modifiche in Impostazioni."
 
 #. Language autonym. Keep the language name written in Russian.
 #. Language-menu autonym. Keep this language name written in Russian.
