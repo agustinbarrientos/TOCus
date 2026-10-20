@@ -635,6 +635,11 @@ msgstr "Español (vos)"
 msgid "Estimated time reclaimed"
 msgstr "取り戻した時間の推定値"
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "example.com or sub.example.com or example.com/path"
+msgstr "example.com または sub.example.com または example.com/path"
+
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Exceptions"
 msgstr "例外"
@@ -1307,11 +1312,6 @@ msgstr "このページに留まる"
 #: apps/extension/src/localization/utils/create-onboarding-copy/index.ts
 msgid "Step {currentStep} of {totalSteps}: {stepName}"
 msgstr "ステップ {currentStep}/{totalSteps}: {stepName}"
-
-#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
-#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
-msgid "sub.example.com/path"
-msgstr "sub.example.com/path"
 
 #: apps/extension/src/localization/utils/create-about-screen-copy/index.ts
 msgid "Suggest improvements"
