@@ -15,7 +15,7 @@ describe( 'portable local backup', () => {
 			dataGeneration: 'data_new', statisticsGeneration: StatisticsGenerationIdSchema.parse( 'stats_new' ),
 			measurementRevision: ProtectionMeasurementRevisionSchema.parse( 'revision_new' ),
 		} );
-		expect( backup.dataFormatVersion ).toBe( '1.1.0' );
+		expect( backup.dataFormatVersion ).toBe( '1.2.0' );
 		expect( backup.statistics.visitOutcomes ).toEqual( outcomes );
 		expect( imported.statistics.visitOutcomes ).toEqual( outcomes );
 		expect( imported.statistics.dailyTotals ).toEqual( source.statistics.dailyTotals );
@@ -228,7 +228,7 @@ it( 'round-trips ordered focus destinations without changing the portable format
 		{ id: 'focus_link_docs', label: 'Docs', url: 'https://example.com/docs' },
 	];
 	const backup = parseBackupText( JSON.stringify( createBackupDocument( source ) ) );
-	expect( backup.dataFormatVersion ).toBe( '1.1.0' );
+	expect( backup.dataFormatVersion ).toBe( '1.2.0' );
 	expect( backup.preferences.focusLinks ).toEqual( source.preferences.focusLinks );
 	const imported = createBackupDocuments( backup, {
 		dataGeneration: 'new_data', statisticsGeneration: StatisticsGenerationIdSchema.parse( 'new_stats' ),
@@ -258,3 +258,57 @@ it.each( [ null, {}, [ { id: 'focus_link_bad', label: 'Bad', url: 'javascript:al
 			preferences: { ...backup.preferences, focusLinks } } ) ) ).toThrow();
 	},
 );
+
+
+it( 'upgrades a strict legacy backup preserving saved coverage and all portable values', () => {
+	const source = createBackupSource();
+	const legacy = { ...createBackupDocument( source ), dataFormatVersion: '1.1.0' };
+	const first = legacy.settings.sites[ 0 ];
+	if ( ! first ) {
+		throw new Error( 'Missing fixture site.' );
+	}
+	first.identityHost = `studio.${ first.rule.host }`;
+	const current = parseBackupText( JSON.stringify( legacy ) );
+	expect( current ).toEqual( { ...legacy, dataFormatVersion: '1.2.0' } );
+} );
+
+it.each( [ 'path', 'timing', 'behavior', 'overlap' ] )( 'rejects legacy backup with disguised %s', ( field ) => {
+	const backup = { ...createBackupDocument( createBackupSource() ), dataFormatVersion: '1.1.0' };
+	const first = backup.settings.sites[ 0 ];
+	if ( ! first ) {
+		throw new Error( 'Missing fixture site.' );
+	}
+	if ( field === 'path' ) {
+		first.rule.pathPrefix = '/feed';
+	}
+	if ( field === 'behavior' ) {
+		first.rule.behavior = 'allow';
+	}
+	if ( field === 'timing' ) {
+		first.timingConfiguration = backup.settings.timingConfiguration;
+	}
+	if ( field === 'overlap' ) {
+		backup.settings.sites.push( { identityHost: `studio.${ first.rule.host }`,
+			rule: { ...first.rule, host: `studio.${ first.rule.host }`, includeSubdomains: false } } );
+	}
+	expect( () => parseBackupText( JSON.stringify( backup ) ) ).toThrow();
+} );
+
+it( 'round-trips sibling paths with behavior, schedules and full independent timing', () => {
+	const source = createBackupSource();
+	const main = source.configuration.sites[ 0 ];
+	if ( ! main ) {
+		throw new Error( 'Missing fixture site.' );
+	}
+	source.configuration.sites.push( { ...main, rule: { ...main.rule, pathPrefix: '/shorts', behavior: 'allow' },
+		timingConfiguration: { ...source.configuration.timingConfiguration, initialWaitMilliseconds: 10_000 } } );
+	const backup = parseBackupText( JSON.stringify( createBackupDocument( source ) ) );
+	expect( backup.dataFormatVersion ).toBe( '1.2.0' );
+	const imported = createBackupDocuments( backup, {
+		dataGeneration: 'new_data', statisticsGeneration: StatisticsGenerationIdSchema.parse( 'new_stats' ),
+		measurementRevision: ProtectionMeasurementRevisionSchema.parse( 'new_revision' ),
+	} );
+	expect( imported.configuration.sites ).toEqual( source.configuration.sites );
+	expect( imported.preferences ).toEqual( source.preferences );
+	expect( imported.statistics.dailyTotals ).toEqual( source.statistics.dailyTotals );
+} );

@@ -5,7 +5,7 @@ import { DefaultProtectionScopeId } from '../../../protection/types/protection-v
 import { PreferencesDocumentSchema, PreferencesDocumentVersion } from '../../../preferences/types';
 import { StatisticsDocumentSchema, StatisticsDocumentVersion } from '../../../statistics/types/statistics-document';
 import type { BackupDocuments, BackupIdentifiers, BackupSource } from './types';
-import { BackupDataFormatVersion, BackupDocumentSchema, BackupMaximumBytes, type BackupDocument } from '../../types/backup-document';
+import { BackupDataFormatVersion, BackupDocumentSchema, CompatibleBackupDocumentSchema, BackupMaximumBytes, type BackupDocument } from '../../types/backup-document';
 
 /**
  * Exports user choices and history without live sessions or internal versions.
@@ -42,7 +42,7 @@ export function parseBackupText( text: string ): BackupDocument {
 	if ( new TextEncoder().encode( text ).byteLength > BackupMaximumBytes ) {
 		throw new Error( 'Backup size exceeds ten MiB.' );
 	}
-	return BackupDocumentSchema.parse( JSON.parse( text ) );
+	return CompatibleBackupDocumentSchema.parse( JSON.parse( text ) );
 }
 
 /**
@@ -53,7 +53,7 @@ export function parseBackupText( text: string ): BackupDocument {
  * @since 1.1.0
  */
 export function createBackupDocuments( input: BackupDocument, ids: BackupIdentifiers ): BackupDocuments {
-	const backup = BackupDocumentSchema.parse( input );
+	const backup = CompatibleBackupDocumentSchema.parse( input );
 	return {
 		configuration: ProtectionConfigurationDocumentSchema.parse( {
 			schemaVersion: ProtectionConfigurationDocumentVersion, ...backup.settings,
