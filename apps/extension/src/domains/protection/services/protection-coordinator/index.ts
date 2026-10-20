@@ -232,6 +232,7 @@ export function createProtectionCoordinator( options: ProtectionCoordinatorOptio
 					nowEpochMilliseconds: parsedInput.nowEpochMilliseconds,
 					sessionContinuityId: nextSessionContinuityId,
 					readyObservations: parsedInput.readyObservations,
+					configuration: parsedInput.configuration,
 				}
 				: {
 					mode: ProtectionStateRestoreMode.NEW_SESSION,
