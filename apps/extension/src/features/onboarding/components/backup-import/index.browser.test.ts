@@ -83,7 +83,8 @@ for ( const language of Object.values( Language ) ) {
 				const button = header.querySelector( '.onboarding-import-entry' );
 				const label = button?.querySelector( '.mantine-Button-label' );
 				const icon = button?.querySelector( '.tocus-icon' );
-				if ( ! brand || ! button || ! label || ! icon ) {
+				const section = button?.querySelector( '.tocus-button-icon[data-position="left"]' );
+				if ( ! brand || ! button || ! label || ! icon || ! section ) {
 					throw new Error( 'Expected the localized header brand and shared import button.' );
 				}
 				const brandBox = brand.getBoundingClientRect();
@@ -98,6 +99,7 @@ for ( const language of Object.values( Language ) ) {
 					separation: Math.max( buttonBox.left - brandBox.right, buttonBox.top - brandBox.bottom ),
 					labelRight: labelBox.right, gridRight: header.getBoundingClientRect().right,
 					iconGap: labelBox.left - iconBox.right, iconWidth: iconBox.width, iconHeight: iconBox.height,
+					declaredIconGap: parseFloat( getComputedStyle( section ).marginInlineEnd ),
 					font: parseFloat( getComputedStyle( button ).fontSize ) };
 			} );
 			expect( geometry.documentWidth ).toBeLessThanOrEqual( geometry.viewportWidth );
@@ -105,7 +107,9 @@ for ( const language of Object.values( Language ) ) {
 			expect( geometry.textWidth ).toBeLessThanOrEqual( geometry.labelWidth + 1 );
 			expect( geometry.separation ).toBeGreaterThanOrEqual( 8 );
 			expect( geometry.labelRight ).toBeCloseTo( geometry.gridRight, 1 );
-			expect( geometry.iconGap ).toBe( 8 );
+			expect( geometry.declaredIconGap ).toBe( 8 );
+			// DOMRect subtraction can introduce fractional rounding despite exact declared spacing.
+			expect( geometry.iconGap ).toBeCloseTo( 8, 3 );
 			expect( geometry.iconWidth ).toBeCloseTo( geometry.font * 1.25, 1 );
 			expect( geometry.iconHeight ).toBeCloseTo( geometry.iconWidth, 1 );
 			if ( width === 360 ) {
