@@ -62,6 +62,7 @@ const ProtectedUrlMatchedSchema = z.object( {
  */
 const ProtectedUrlUnmatchedSchema = z.object( {
 	status: z.enum( [ ProtectedUrlMatchStatus.UNPROTECTED ] ),
+	rule: ProtectedSiteRuleSchema.optional(),
 } ).strict();
 
 /**

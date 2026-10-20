@@ -82,7 +82,7 @@ test.describe( 'Unsaved navigation Save', () => {
 		expect( await page.evaluate( () => window.settingsTest.controls.userActivation ) ).toBe( true );
 	} );
 
-	for ( const address of [ 'example.com', 'https://www.example.com/news', 'https://news.example.com/' ] ) {
+	for ( const address of [ 'example.com', 'https://www.example.com/', 'https://example.com/?source=repeat#section' ] ) {
 		test( `saves staged websites from the departure dialog despite the repeated address ${ address }`, async ( { open } ) => {
 			const page = await open( SettingsDestination.PROTECTED_SITES );
 			const input = page.getByLabel( 'Website address', { exact: true } );
@@ -105,6 +105,35 @@ test.describe( 'Unsaved navigation Save', () => {
 			expect( sites[ 0 ]?.identityHost ).toBe( 'example.com' );
 			expect( sites[ 0 ]?.schedule ).toEqual( { mode: ScheduleMode.CUSTOM,
 				windows: [ { weekday: Weekday.MONDAY, startMinute: 540, endMinute: 1020 } ] } );
+			expect( await page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
+		} );
+	}
+
+	for ( const [ address, host, includeSubdomains, pathPrefix ] of [
+		[ 'https://www.example.com/news', 'example.com', true, '/news' ],
+		[ 'https://news.example.com/', 'news.example.com', false, undefined ],
+	] as const ) {
+		test( `saves independent exceptions from the departure dialog for ${ address }`, async ( { open } ) => {
+			const page = await open( SettingsDestination.PROTECTED_SITES );
+			const input = page.getByLabel( 'Website address', { exact: true } );
+			await input.fill( 'example.com' );
+			await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
+			await input.fill( address );
+			await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
+			await expect( page.locator( '.settings-site-exception' ) ).toHaveCount( 1 );
+			await expect( input ).toHaveValue( '' );
+			await expect( input ).not.toHaveAttribute( 'aria-invalid', 'true' );
+			await page.getByRole( 'link', { name: 'About', exact: true } ).click();
+			await page.getByRole( 'dialog' ).getByRole( 'button', { name: 'Save', exact: true } ).click();
+			await expect( page ).toHaveURL( /#about$/u );
+			const sites = await page.evaluate( () => window.settingsTest.getConfiguration().sites );
+			expect( sites ).toHaveLength( 2 );
+			expect( sites[ 0 ]?.rule ).toMatchObject( { host: 'example.com', includeSubdomains: true } );
+			expect( sites[ 0 ]?.rule.pathPrefix ).toBeUndefined();
+			expect( sites[ 1 ]?.rule ).toMatchObject( { host, includeSubdomains } );
+			expect( sites[ 1 ]?.rule.pathPrefix ).toBe( pathPrefix );
+			expect( await page.evaluate( () => window.settingsTest.controls.requests ) ).toBe( 1 );
+			expect( await page.evaluate( () => window.settingsTest.controls.userActivation ) ).toBe( true );
 			expect( await page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
 		} );
 	}

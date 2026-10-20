@@ -27,6 +27,8 @@ function protectedUrlMatchesAreEqual(
 		return right.status === ProtectedUrlMatchStatus.PROTECTED &&
 			left.rule.host === right.rule.host &&
 			left.rule.includeSubdomains === right.rule.includeSubdomains &&
+			left.rule.pathPrefix === right.rule.pathPrefix &&
+			left.rule.behavior === right.rule.behavior &&
 			left.rule.scopeId === right.rule.scopeId;
 	}
 
@@ -50,6 +52,13 @@ function candidateObservationsAreEqual(
 ): boolean {
 	return left.observedDestination === right.observedDestination &&
 		left.focusEligible === right.focusEligible &&
+		left.timingConfiguration?.initialWaitMilliseconds === right.timingConfiguration?.initialWaitMilliseconds &&
+		left.timingConfiguration?.ladderIncreaseMilliseconds ===
+			right.timingConfiguration?.ladderIncreaseMilliseconds &&
+		left.timingConfiguration?.maximumWaitMilliseconds ===
+			right.timingConfiguration?.maximumWaitMilliseconds &&
+		left.timingConfiguration?.allowanceMilliseconds === right.timingConfiguration?.allowanceMilliseconds &&
+		left.timingConfiguration?.completionAction === right.timingConfiguration?.completionAction &&
 		protectedUrlMatchesAreEqual( left.match, right.match );
 }
 

@@ -29,3 +29,21 @@
 	h2 { @include typography.apply('title-medium'); }
 	p { @include typography.apply('body-small'); margin-top: var(--tocus-space-2); }
 }
+
+.settings-site-exceptions {
+	list-style: none;
+
+	ul {
+		padding: 0;
+		margin: 0;
+		list-style: none;
+	}
+}
+
+[data-tocus-ui] .settings-page .settings-site-exceptions-label {
+	@include typography.apply('label-small');
+
+	padding: var(--tocus-space-1) var(--tocus-space-2);
+	background: var(--tocus-color-surface-container);
+	color: var(--tocus-color-on-surface-muted);
+}

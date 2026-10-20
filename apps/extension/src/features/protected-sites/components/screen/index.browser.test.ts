@@ -30,7 +30,7 @@ test.describe( 'website draft controls', () => {
 		expect( site?.schedule ).toMatchObject( { mode: ScheduleMode.CUSTOM,
 			windows: [ { weekday: Weekday.MONDAY, startMinute: 540, endMinute: 1020 } ] } );
 		expect( site?.displayNameOverride ).toBeUndefined();
-		await expect( page.locator( '.settings-site-schedule' ) ).toContainText( '09:00' );
+		await expect( page.locator( '.settings-site-schedule' ) ).toContainText( 'Custom schedule' );
 	} );
 	test( 'clears a pending custom schedule with a blank address so other website edits can save', async ( { open } ) => {
 		const page = await open( SettingsDestination.PROTECTED_SITES );

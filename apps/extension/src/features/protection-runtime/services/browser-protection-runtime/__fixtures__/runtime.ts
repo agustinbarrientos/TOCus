@@ -637,7 +637,8 @@ export async function presentAllowanceExpiryInterruption(
 	await runtime.handleNavigation( { tabId, frameId: 0, url: 'https://example.com/' } );
 	const ready = await completeFocusedPause( runtime, tabId );
 
-	if ( ready.state !== InterruptionPageResponseState.READY ) {
+	if ( ready.state !== InterruptionPageResponseState.READY &&
+		ready.state !== InterruptionPageResponseState.RELEASED ) {
 		throw new Error( 'Expected the first pause to complete.' );
 	}
 

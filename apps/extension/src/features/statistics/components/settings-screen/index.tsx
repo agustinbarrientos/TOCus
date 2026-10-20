@@ -1,3 +1,4 @@
+import { getGroupFaviconHosts, resolveGroupFavicon } from '../../../protected-sites/utils/resolve-group-favicon';
 import { StatisticsLoadState } from '../../services/settings-screen-state/types';
 import { useEffect, useRef, useState } from 'react';
 import { resolveStatisticsFeedback } from '../../utils/resolve-statistics-feedback';
@@ -31,7 +32,7 @@ import './style.scss';
 import { DailyStatistics } from '../daily-statistics';
 import { VisitOutcomes } from '../visit-outcomes';
 import { ResetSection } from '../../../settings/components/reset-section';
-import { resolveSiteDisplayIdentity } from '../../../protected-sites/utils/site-display-name-resolver';
+import { getWebsitePresentationGroupHost, resolveSiteDisplayIdentity } from '../../../protected-sites/utils/site-display-name-resolver';
 import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
 import { useId } from 'react';
 import { selectStatisticsRange } from '../../utils/select-statistics-range';
@@ -115,13 +116,18 @@ export function Statistics( props: SettingsScreenProps ) {
 			const configuration = await props.shell.editor?.load().catch( () => null );
 			const hosts = new Set( projection?.visitOutcomes?.dailySites.map( ( site ) => site.siteHost ) ?? [] );
 			const entries = await Promise.all( [ ...hosts ].map( async ( siteHost ) => {
-				const configured = configuration?.sites.find( ( site ) => site.rule.host === siteHost );
-				const identity = resolveSiteDisplayIdentity( configured ?? { identityHost: siteHost,
+				const groupHost = getWebsitePresentationGroupHost( siteHost );
+				const members = configuration?.sites.filter( ( site ) =>
+					getWebsitePresentationGroupHost( site.rule.host ) === groupHost ) ?? [];
+				const configured = members.find( ( site ) => site.rule.host === siteHost );
+				const displaySite = configured &&
+					getWebsitePresentationGroupHost( configured.identityHost ) !== groupHost
+					? { ...configured, identityHost: siteHost } : configured;
+				const identity = resolveSiteDisplayIdentity( displaySite ?? { identityHost: siteHost,
 					rule: { host: siteHost, includeSubdomains: false, scopeId: DefaultProtectionScopeId } } );
-				const host = configured?.identityHost ?? siteHost;
-				const provider = props.shell.faviconProvider;
-				const favicon = await Promise.resolve().then( () => provider?.resolveSource === undefined
-					? provider?.getSource( host ) ?? null : provider.resolveSource( host ) ).catch( () => null );
+				const favicon = await resolveGroupFavicon( props.shell.faviconProvider,
+					getGroupFaviconHosts( groupHost,
+						[ siteHost, ...members.map( ( member ) => member.identityHost ) ] ) );
 				return [ siteHost, { name: identity.name, monogram: identity.monogram, favicon } ] as const;
 			} ) );
 			const identities = new Map<string, StatisticsSiteIdentity>( entries );

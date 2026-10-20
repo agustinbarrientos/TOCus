@@ -71,7 +71,7 @@ test.describe( 'local backup controls', () => {
 			throw new Error( 'Missing backup download.' );
 		}
 		const backup: unknown = JSON.parse( await readFile( path, 'utf8' ) );
-		expect( backup ).toMatchObject( { application: 'TOCus', dataFormatVersion: '1.1.0' } );
+		expect( backup ).toMatchObject( { application: 'TOCus', dataFormatVersion: '1.2.0' } );
 	} );
 } );
 

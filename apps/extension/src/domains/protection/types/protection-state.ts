@@ -1,3 +1,4 @@
+import { CompletionActionSchema } from './completion-action';
 import { z, type RefinementCtx } from 'zod';
 import { AllowanceDurationMillisecondsSchema } from './allowance-duration';
 import {
@@ -164,6 +165,8 @@ export const WaitingProtectionStateSchema = z.object( {
 	scopeId: ProtectionScopeIdSchema,
 	waitId: WaitIdSchema,
 	capturedWaitDurationMilliseconds: WaitDurationMillisecondsSchema,
+	capturedAllowanceDurationMilliseconds: AllowanceDurationMillisecondsSchema.optional(),
+	capturedCompletionAction: CompletionActionSchema.optional(),
 	confirmedFocusedDurationMilliseconds: DurationMillisecondsSchema,
 	participants: z.array( ProtectionParticipantSchema ).min( 1 ),
 	ownerParticipantId: z.union( [ ParticipantIdSchema, z.null() ] ),

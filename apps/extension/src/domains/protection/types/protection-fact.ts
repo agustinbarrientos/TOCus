@@ -12,9 +12,9 @@ import {
 	ProtectionScopeIdSchema,
 	WaitIdSchema,
 } from './protection-value';
-import { QualifyingDepartureCauseSchema } from './protection-event';
+import { QualifyingDepartureCauseSchema } from './departure-cause';
 import { WaitDurationMillisecondsSchema } from './wait-duration';
-import { CanonicalHostSchema } from './protected-site-rule';
+import { CanonicalHostSchema } from './canonical-host';
 
 /**
  * Metric-bearing facts emitted by accepted state transitions.

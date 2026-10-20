@@ -1,8 +1,9 @@
+import type { ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
+import { requireSitePolicy } from '../../../../domains/protection/utils/require-site-policy';
 import { resolveSiteSchedule } from '../../../../domains/protection/utils/resolve-site-schedule';
 import { isInterruptionDocumentUrl } from '../../../../shared/utils/interruption-document-url';
-import {
-	ProtectedSiteConfigurationSchema,
-	type ProtectionConfigurationDocument,
+import type {
+	ProtectionConfigurationDocument,
 } from '../../../../domains/protection/types/protected-site-configuration';
 import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
 import { ProtectionStateType, type ProtectionState } from '../../../../domains/protection/types/protection-state';
@@ -58,11 +59,7 @@ function findMatchingSite(
 		return null;
 	}
 
-	return ProtectedSiteConfigurationSchema.parse( configuration.sites.find( ( site ) => (
-		site.rule.host === result.rule.host &&
-		site.rule.includeSubdomains === result.rule.includeSubdomains &&
-		site.rule.scopeId === result.rule.scopeId
-	) ) );
+	return requireSitePolicy( configuration, result.rule ).site;
 }
 
 /**
@@ -84,7 +81,7 @@ function resolveCurrentUrl( options: CreatePopupProjectionCurrentTabOptions ): s
 /**
  * Converts one schedule evaluation into its popup presentation state.
  * @param configuration - Current active protection configuration.
- * @param ruleHost - Matching host whose active hours apply.
+ * @param rule - Matching host whose active hours apply.
  * @param capturedAtEpochMilliseconds - Snapshot wall-clock instant.
  * @param timeZone - Snapshot IANA time zone.
  * @return Current schedule state for presentation.
@@ -92,11 +89,11 @@ function resolveCurrentUrl( options: CreatePopupProjectionCurrentTabOptions ): s
  */
 function resolveScheduleStatus(
 	configuration: ProtectionConfigurationDocument,
-	ruleHost: string,
+	rule: ProtectedSiteRule,
 	capturedAtEpochMilliseconds: number,
 	timeZone: string,
 ): PopupScheduleStatus {
-	const schedule = resolveSiteSchedule( configuration, ruleHost );
+	const schedule = resolveSiteSchedule( configuration, rule );
 	const result = evaluateSchedule( schedule, capturedAtEpochMilliseconds, timeZone );
 
 	if ( result.status === ScheduleEvaluationStatus.ACTIVE ) {
@@ -141,12 +138,14 @@ function getRemainingMilliseconds(
  * Calculates the next daily-ladder wait at the snapshot's local date.
  * @param options - Popup projection inputs with an available runtime snapshot.
  * @param state - Current scope state, or undefined before the scope creates state.
+ * @param rule - Complete winning website target.
  * @return Next wait duration for the current local date.
  * @since 1.0.0 Initial implementation.
  */
 function resolveNextWaitMilliseconds(
 	options: CreatePopupProjectionAvailableOptions,
 	state: ProtectionState | undefined,
+	rule: ProtectedSiteRule,
 ): number {
 	const localDate = createRuntimeLocalDate(
 		options.snapshot.capturedAtEpochMilliseconds,
@@ -156,7 +155,8 @@ function resolveNextWaitMilliseconds(
 		? { completedWaits: 0, greatestObservedLocalDate: localDate }
 		: synchronizeDailyLadder( state.ladder, localDate );
 
-	return getNextWaitDuration( options.snapshot.configuration.timingConfiguration, ladder );
+	const timing = requireSitePolicy( options.snapshot.configuration, rule ).timingConfiguration;
+	return getNextWaitDuration( timing, ladder );
 }
 
 /**
@@ -231,7 +231,7 @@ function createCurrentSite(
 		? PopupScheduleStatus.UNAVAILABLE
 		: resolveScheduleStatus(
 			activeConfiguration,
-			configuredSite.rule.host,
+			activeSite.rule,
 			options.snapshot.capturedAtEpochMilliseconds,
 			options.snapshot.timeZone,
 		);
@@ -240,7 +240,7 @@ function createCurrentSite(
 		schedule === PopupScheduleStatus.ACTIVE &&
 		state?.type !== ProtectionStateType.READY &&
 		( state === undefined || ! hasActiveTimer( state, options.snapshot.capturedAtEpochMilliseconds ) )
-		? resolveNextWaitMilliseconds( options, state )
+		? resolveNextWaitMilliseconds( options, state, configuredSite.rule )
 		: null;
 
 	return {

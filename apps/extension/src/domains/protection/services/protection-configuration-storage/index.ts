@@ -1,3 +1,4 @@
+import { CompatibleProtectionConfigurationDocumentSchema } from '../../types/legacy-protected-site-configuration';
 import {
 	ProtectionConfigurationDocumentSchema,
 	ProtectionConfigurationDocumentVersion,
@@ -41,7 +42,7 @@ export function createProtectionConfigurationStorageService(
 		}
 
 		const storedConfiguration = values[ ProtectionConfigurationStorageKey.CONFIGURATION ];
-		const configuration = ProtectionConfigurationDocumentSchema.safeParse( storedConfiguration );
+		const configuration = CompatibleProtectionConfigurationDocumentSchema.safeParse( storedConfiguration );
 
 		return configuration.success ? configuration.data : null;
 	}

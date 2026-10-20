@@ -189,8 +189,8 @@ export interface SitePermissionManager {
 	requestMany( rules: readonly ProtectedSiteRule[] ): Promise<SitePermissionBatchRequestResult>;
 
 	/**
-	 * Releases newly acquired batch access that no persisted site currently requires.
-	 * @param rules - Requested canonical protected-site rules.
+	 * Releases unowned requested and retained ancestor access while preserving prior grants and active sites.
+	 * @param rules - Requested or removed canonical protected-site rules.
 	 * @param previousGrant - Access snapshot captured before the batch request.
 	 * @param configuration - Authoritative configuration inside mutation coordination.
 	 * @return Whether unused newly acquired access was released or retained.

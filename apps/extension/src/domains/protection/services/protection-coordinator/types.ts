@@ -1,3 +1,4 @@
+import { ProtectionConfigurationDocumentSchema } from '../../types/protected-site-configuration';
 import { z } from 'zod';
 import { ProtectionDecisionSchema } from '../../types/protection-decision';
 import { ProtectionFactSchema } from '../../types/protection-fact';
@@ -91,6 +92,7 @@ export type ProtectionCoordinatorFailureReason = z.infer<typeof ProtectionCoordi
  * @since 1.0.0 Initial implementation.
  */
 export const ProtectionCoordinatorInitializationInputSchema = z.object( {
+	configuration: ProtectionConfigurationDocumentSchema.optional(),
 	nowEpochMilliseconds: EpochMillisecondsSchema,
 	readyObservations: z.array( ReadyProtectionStateRestoreObservationSchema ),
 } ).strict();

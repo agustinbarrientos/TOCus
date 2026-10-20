@@ -116,7 +116,8 @@ describe( 'createBrowserProtectionRuntime', () => {
 		}
 		expect( after.waitId ).toBe( before.waitId );
 		expect( browser.navigations.at( -1 ) ).toEqual( { tabId: 7, url: 'https://example.com/' } );
-		expect( browser.rules ).toHaveLength( 1 );
+		expect( browser.rules.filter( ( rule ) => rule.action.type === 'redirect' ) ).toHaveLength( 1 );
+		expect( browser.rules.filter( ( rule ) => rule.action.type === 'allow' ) ).toHaveLength( 1 );
 	} );
 
 	it( 'releases an expiry participant when its live tab disappears during schedule observation', async () => {

@@ -292,8 +292,9 @@ describe( 'createProtectionRuntimeRestorer', () => {
 		expect( harness.initialize ).toHaveBeenCalledWith( {
 			nowEpochMilliseconds: NOW_EPOCH_MILLISECONDS,
 			readyObservations: [],
+			configuration: CONFIGURATION,
 		} );
-		expect( harness.loadConfiguration ).not.toHaveBeenCalled();
+		expect( harness.loadConfiguration ).toHaveBeenCalledOnce();
 		expect( harness.applyDecisions ).not.toHaveBeenCalled();
 		expect( harness.dispatch ).not.toHaveBeenCalled();
 	} );

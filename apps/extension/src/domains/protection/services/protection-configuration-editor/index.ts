@@ -1,3 +1,5 @@
+import { expandProtectedSiteAdditions } from '../../utils/default-protected-site-exceptions';
+import { getProtectedSiteRuleKey } from '../../utils/protected-site-rule-key';
 import {
 	ProtectedSiteDisplayNameInputSchema,
 	ProtectedSiteConfigurationSetSchema,
@@ -6,7 +8,7 @@ import {
 	type ProtectionConfigurationDocument,
 } from '../../types/protected-site-configuration';
 import { ScheduleSchema } from '../../types/protection-schedule';
-import { CanonicalHostSchema } from '../../types/protected-site-rule';
+import { CanonicalHostSchema, ProtectedSiteRuleSchema } from '../../types/protected-site-rule';
 import {
 	DefaultProtectionScopeId,
 	type ProtectionScopeId,
@@ -20,6 +22,7 @@ import { reconcileProtectionScopeMeasurementRevisions } from '../../utils/reconc
 import { normalizeSchedule } from '../../utils/schedule-normalizer';
 import {
 	ProtectionConfigurationEditRejectionReason,
+	ProtectionConfigurationPolicyOverridesSchema,
 	ProtectionConfigurationEditStatus,
 	type ProtectionConfigurationEditRejectionReason as ProtectionConfigurationEditRejectionReasonValue,
 	type ProtectionConfigurationEditFinalizer,
@@ -63,23 +66,24 @@ function createUpdatedResult( configurationInput: unknown ): UpdatedProtectionCo
 /**
  * Finds one exact site identity within a validated configuration.
  * @param configuration - Current validated configuration.
- * @param identityHostInput - Unknown exact canonical identity.
+ * @param targetInput - Canonical rule target or unambiguous legacy identity host.
  * @return Matching site or undefined when absent or invalid.
  * @since 1.0.0 Initial implementation.
  */
 function findSite(
 	configuration: ProtectionConfigurationDocument,
-	identityHostInput: unknown,
+	targetInput: unknown,
 ): ProtectedSiteConfiguration | undefined {
-	const identityHostResult = CanonicalHostSchema.safeParse( identityHostInput );
-
-	if ( ! identityHostResult.success ) {
-		return undefined;
+	if ( typeof targetInput === 'string' ) {
+		const identity = CanonicalHostSchema.safeParse( targetInput );
+		const matches = identity.success
+			? configuration.sites.filter( ( site ) => site.identityHost === identity.data ) : [];
+		return matches.length === 1 ? matches[ 0 ] : undefined;
 	}
-
-	return configuration.sites.find(
-		( site ) => site.identityHost === identityHostResult.data,
-	);
+	const target = ProtectedSiteRuleSchema.safeParse( targetInput );
+	return target.success ? configuration.sites.find( ( site ) =>
+		getProtectedSiteRuleKey( site.rule ) === getProtectedSiteRuleKey( target.data ),
+	) : undefined;
 }
 
 /**
@@ -94,7 +98,7 @@ function replaceSite(
 	site: ProtectedSiteConfiguration,
 ): ProtectionConfigurationDocument[ 'sites' ] {
 	return configuration.sites.map( ( currentSite ) =>
-		currentSite.identityHost === site.identityHost ? site : currentSite,
+		getProtectedSiteRuleKey( currentSite.rule ) === getProtectedSiteRuleKey( site.rule ) ? site : currentSite,
 	);
 }
 
@@ -301,8 +305,8 @@ export function createProtectionConfigurationEditor(
 				);
 			}
 
-			if ( ! additions.has( canonicalSite.rule.host ) ) {
-				additions.set( canonicalSite.rule.host, {
+			if ( ! additions.has( getProtectedSiteRuleKey( canonicalSite.rule ) ) ) {
+				additions.set( getProtectedSiteRuleKey( canonicalSite.rule ), {
 					identityHost: canonicalSite.identityHost,
 					rule: canonicalSite.rule,
 				} );
@@ -315,7 +319,7 @@ export function createProtectionConfigurationEditor(
 
 		const updatedSites = ProtectedSiteConfigurationSetSchema.safeParse( [
 			...configuration.sites,
-			...additions.values(),
+			...expandProtectedSiteAdditions( configuration.sites, [ ...additions.values() ] ),
 		] );
 
 		if ( ! updatedSites.success ) {
@@ -389,16 +393,18 @@ export function createProtectionConfigurationEditor(
 
 	/**
 	 * Updates one exact site's editable display name and active hours atomically.
-	 * @param identityHostInput - Unknown exact canonical identity.
+	 * @param targetInput - Canonical rule target or unambiguous legacy identity host.
 	 * @param displayNameInput - Unknown editable name input.
 	 * @param scheduleInput - Optional site-specific active hours; omitted to use the global schedule.
+	 * @param policyOverridesInput - Optional explicit policy changes; absent fields preserve current values.
 	 * @return Updated configuration or a stable rejection.
 	 * @since 1.0.0 Initial implementation.
 	 */
 	async function performUpdate(
-		identityHostInput: unknown,
+		targetInput: unknown,
 		displayNameInput: unknown,
 		scheduleInput: unknown,
+		policyOverridesInput: unknown,
 	): Promise<ProtectionConfigurationEditResult> {
 		const configuration = await options.storage.load();
 
@@ -406,7 +412,7 @@ export function createProtectionConfigurationEditor(
 			return createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION );
 		}
 
-		const currentSite = findSite( configuration, identityHostInput );
+		const currentSite = findSite( configuration, targetInput );
 
 		if ( currentSite === undefined ) {
 			return createRejectedResult( ProtectionConfigurationEditRejectionReason.SITE_NOT_FOUND );
@@ -422,9 +428,17 @@ export function createProtectionConfigurationEditor(
 		if ( schedule !== undefined && ! schedule.success ) {
 			return createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_SCHEDULE );
 		}
+		const policy = ProtectionConfigurationPolicyOverridesSchema.safeParse( policyOverridesInput ?? {} );
+		if ( policyOverridesInput === null || ! policy.success ) {
+			return createRejectedResult( ProtectionConfigurationEditRejectionReason.INVALID_CONFIGURATION );
+		}
+		const timingConfiguration = policy.data.timingConfiguration === undefined
+			? currentSite.timingConfiguration : policy.data.timingConfiguration;
 		const replacementSite: ProtectedSiteConfiguration = {
 			identityHost: currentSite.identityHost,
-			rule: currentSite.rule,
+			rule: { ...currentSite.rule,
+				...( policy.data.behavior === undefined ? {} : { behavior: policy.data.behavior } ) },
+			...( timingConfiguration == null ? {} : { timingConfiguration } ),
 			...( displayNameResult.data === '' ? {} : { displayNameOverride: displayNameResult.data } ),
 			...( schedule === undefined ? {} : { schedule: normalizeSchedule( schedule.data ) } ),
 		};
@@ -435,33 +449,36 @@ export function createProtectionConfigurationEditor(
 
 	/**
 	 * Queues one exact site's editable name and active hours update.
-	 * @param identityHostInput - Unknown exact canonical identity.
+	 * @param targetInput - Canonical rule target or unambiguous legacy identity host.
 	 * @param displayNameInput - Unknown editable name input.
 	 * @param scheduleInput - Optional site-specific active hours; omitted to use the global schedule.
+	 * @param policyOverridesInput - Optional explicit policy changes; absent fields preserve current values.
 	 * @return Serialized updated configuration or a stable rejection.
 	 * @since 1.0.0 Initial implementation.
 	 */
 	function update(
-		identityHostInput: unknown,
+		targetInput: unknown,
 		displayNameInput: unknown,
 		scheduleInput?: unknown,
+		policyOverridesInput?: unknown,
 	): Promise<ProtectionConfigurationEditResult> {
 		return serializeMutation( () => performUpdate(
-			identityHostInput,
+			targetInput,
 			displayNameInput,
 			scheduleInput,
+			policyOverridesInput,
 		) );
 	}
 
 	/**
 	 * Removes one exact protected-site identity.
-	 * @param identityHostInput - Unknown exact canonical identity.
+	 * @param targetInput - Canonical rule target or unambiguous legacy identity host.
 	 * @param finalize - Optional effect completed before mutation coordination is released.
 	 * @return Updated configuration or a stable rejection.
 	 * @since 1.0.0 Initial implementation.
 	 */
 	async function performRemove(
-		identityHostInput: unknown,
+		targetInput: unknown,
 		finalize: ProtectionConfigurationRemovalFinalizer | undefined,
 	): Promise<ProtectionConfigurationEditResult> {
 		const configuration = await options.storage.load();
@@ -475,7 +492,7 @@ export function createProtectionConfigurationEditor(
 			);
 		}
 
-		const currentSite = findSite( configuration, identityHostInput );
+		const currentSite = findSite( configuration, targetInput );
 
 		if ( currentSite === undefined ) {
 			return finalizeRemovalResult(
@@ -486,7 +503,9 @@ export function createProtectionConfigurationEditor(
 			);
 		}
 
-		const sites = configuration.sites.filter( ( site ) => site.identityHost !== currentSite.identityHost );
+		const sites = configuration.sites.filter( ( site ) =>
+			getProtectedSiteRuleKey( site.rule ) !== getProtectedSiteRuleKey( currentSite.rule ),
+		);
 
 		const result = createMembershipUpdatedResult(
 			configuration,
@@ -519,17 +538,17 @@ export function createProtectionConfigurationEditor(
 
 	/**
 	 * Queues removal of one exact protected-site identity.
-	 * @param identityHostInput - Unknown exact canonical identity.
+	 * @param targetInput - Canonical rule target or unambiguous legacy identity host.
 	 * @param finalize - Optional effect completed before mutation coordination is released.
 	 * @return Serialized updated configuration or a stable rejection.
 	 * @since 1.0.0 Initial implementation.
 	 */
 	function remove(
-		identityHostInput: unknown,
+		targetInput: unknown,
 		finalize?: ProtectionConfigurationRemovalFinalizer,
 	): Promise<ProtectionConfigurationEditResult> {
 		return serializeMutation( () => performRemove(
-			identityHostInput,
+			targetInput,
 			finalize,
 		) );
 	}
@@ -681,9 +700,11 @@ export function createProtectionConfigurationEditor(
 			const rotatedScopeIds = new Set<ProtectionScopeId>();
 			for ( const site of [ ...configuration.sites, ...next.data ] ) {
 				const previous = configuration.sites.find(
-					( candidate ) => candidate.identityHost === site.identityHost,
+					( candidate ) => getProtectedSiteRuleKey( candidate.rule ) === getProtectedSiteRuleKey( site.rule ),
 				);
-				const replacement = next.data.find( ( candidate ) => candidate.identityHost === site.identityHost );
+				const replacement = next.data.find( ( candidate ) =>
+					getProtectedSiteRuleKey( candidate.rule ) === getProtectedSiteRuleKey( site.rule ),
+				);
 				if ( JSON.stringify( previous?.rule ) !== JSON.stringify( replacement?.rule ) ) {
 					rotatedScopeIds.add( site.rule.scopeId );
 				}

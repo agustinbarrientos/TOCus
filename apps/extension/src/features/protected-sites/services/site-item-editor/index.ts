@@ -41,9 +41,10 @@ export function createSiteItemEditor( options: SiteItemEditorOptions ): SiteItem
 		}
 		publish( { saving: true, error: null } );
 		try {
-			const result = await options.editor.update( options.site.identityHost,
+			const result = await options.editor.update( options.site.rule,
 				snapshot.details.displayName,
-				snapshot.details.schedule === null ? undefined : toSchedule( snapshot.details.schedule ) );
+				snapshot.details.schedule === null ? undefined : toSchedule( snapshot.details.schedule ),
+				{ behavior: snapshot.details.behavior, timingConfiguration: snapshot.details.timingConfiguration } );
 			if ( result.status === ProtectionConfigurationEditStatus.REJECTED ) {
 				publish( { error: ProtectedSiteItemOperationErrorReason.CONFIGURATION_CHANGED } );
 			} else {

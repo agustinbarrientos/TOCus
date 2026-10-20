@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+	TestTimingConfiguration,
 	createAllowanceExpiry,
 	createLiveExpiryCandidate,
 	createReadyExpiryCandidate,
@@ -11,6 +12,18 @@ import { ProtectedUrlMatchStatus } from '../../types/protected-url-match';
 import { canonicalizeAllowanceExpiryCandidates } from './index';
 
 describe( 'allowance-expiry candidate canonicalization', () => {
+	it.each( [ 'path', 'timing' ] )( 'rejects duplicate observations with conflicting %s policy', ( conflict ) => {
+		const candidate = createLiveExpiryCandidate();
+		if ( candidate.match.status !== ProtectedUrlMatchStatus.PROTECTED ) {
+			throw new Error( 'Expected protected fixture.' );
+		}
+		const duplicate = conflict === 'path' ? { ...candidate, match: { ...candidate.match, rule: { ...candidate.match.rule, pathPrefix: '/feed' } } }
+			: { ...candidate, timingConfiguration: { ...TestTimingConfiguration, allowanceMilliseconds: 120_000 } };
+		expect( canonicalizeAllowanceExpiryCandidates(
+			[], createAllowanceExpiry( [ candidate, duplicate ] ),
+		) ).toBeNull();
+	} );
+
 	it( 'partitions one complete Ready observation and one live observation by source', () => {
 		const readyCandidate = createReadyExpiryCandidate();
 		const liveCandidate = createLiveExpiryCandidate();

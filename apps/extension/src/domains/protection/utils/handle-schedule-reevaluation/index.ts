@@ -1,3 +1,4 @@
+import { getNextWaitDuration } from '../wait-duration-calculator';
 import { DepartureCause, ProtectionEventType, type ScheduleReevaluationEvent } from '../../types/protection-event';
 import {
 	ProtectionStateType,
@@ -22,8 +23,7 @@ export function handleScheduleReevaluation(
 	event: ScheduleReevaluationEvent,
 ): ProtectionTransitionResult {
 	if (
-		! protectionStateMatchesTarget( state, event.target ) ||
-		event.schedule.status === ScheduleEvaluationStatus.ACTIVE
+		! protectionStateMatchesTarget( state, event.target )
 	) {
 		return createTransitionResult( state );
 	}
@@ -36,6 +36,14 @@ export function handleScheduleReevaluation(
 
 	if ( participant === undefined ) {
 		return createTransitionResult( state );
+	}
+
+	if ( event.schedule.status === ScheduleEvaluationStatus.ACTIVE ) {
+		return createTransitionResult(
+			state.type === ProtectionStateType.WAITING && event.timingConfiguration !== undefined
+				? { ...state, capturedWaitDurationMilliseconds: Math.max( state.capturedWaitDurationMilliseconds,
+					getNextWaitDuration( event.timingConfiguration, state.ladder ) ) }
+				: state );
 	}
 
 	const result = handleParticipantDeparture( state, {

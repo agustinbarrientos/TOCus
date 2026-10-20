@@ -114,6 +114,8 @@ export interface ProtectionRuntimeBrowser {
 	 * @since 1.0.0 Initial implementation.
 	 */
 	replaceNavigationRules: ( rules: Browser.declarativeNetRequest.Rule[] ) => Promise<void>;
+	/** Reports native compiled-regex support when the browser exposes preflight. */
+	isNavigationRegexSupported?: ( regex: string ) => Promise<boolean>;
 
 	/**
 	 * Returns the active tab in the focused browser window.

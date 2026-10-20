@@ -42,7 +42,7 @@ export const resolveTocusVariant: VariantColorsResolver = ( { color, variant } )
 			color: danger ? 'var(--tocus-color-danger)' : variant === 'outline'
 				? 'var(--tocus-color-action)' : 'var(--tocus-color-on-surface)',
 			border: transparent ? '1px solid transparent' : variant === 'outline'
-				? '1px solid var(--tocus-color-action)' : '1px solid var(--tocus-color-divider)',
+				? `1px solid var(--tocus-color-${ danger ? 'danger' : 'action' })` : '1px solid var(--tocus-color-divider)',
 		};
 	}
 	return {

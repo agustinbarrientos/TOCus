@@ -110,7 +110,7 @@ describe( 'createPopupEnrollmentController', () => {
 		expect( harness.set ).not.toHaveBeenCalled();
 	} );
 
-	it( 'saves GitHub once after consent even when the popup response channel is destroyed', async () => {
+	it( 'saves the GitHub path and editable no-pause parent once after consent even when the popup response channel is destroyed', async () => {
 		const harness = createHarness();
 		const respond = vi.fn( () => {
 			throw new Error( 'Popup closed.' );
@@ -121,8 +121,11 @@ describe( 'createPopupEnrollmentController', () => {
 			expect( respond ).toHaveBeenCalledOnce();
 		} );
 		const configuration = await harness.protection.storage.load();
-		expect( configuration?.sites ).toHaveLength( 1 );
-		expect( configuration?.sites[ 0 ]?.rule.host ).toBe( 'github.com' );
+		expect( configuration?.sites ).toMatchObject( [
+			{ rule: { host: 'github.com', pathPrefix: '/agustinbarrientos/TOCus' } },
+			{ identityHost: 'github.com', rule: { host: 'github.com', behavior: 'allow' } },
+		] );
+		expect( configuration?.sites[ 0 ]?.rule.behavior ).not.toBe( 'allow' );
 		expect( harness.set ).toHaveBeenCalledOnce();
 		expect( respond ).toHaveBeenCalledWith( { status: ProtectedSiteEnrollmentStatus.ADDED } );
 	} );

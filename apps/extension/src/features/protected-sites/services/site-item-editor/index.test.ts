@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { createProtectionConfigurationEditor } from '../../../../domains/protection/services/protection-configuration-editor';
 import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
 import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__';
-import type { ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
+import { ProtectionConfigurationDocumentSchema, type ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
 import { ProtectedSiteItemOperationErrorReason } from '../../components/site-item/types';
 import { createSiteItemEditor } from './index';
 import type { ProtectionConfigurationStorageService } from '../../../../domains/protection/services/protection-configuration-storage';
@@ -55,13 +55,13 @@ describe( 'item-owned editor compatibility', () => {
 			load: () => Promise.resolve( { ...TestEmptyProtectionConfiguration, sites: [ site ] } ), save,
 		} ) } );
 		editor.open();
-		editor.change( { displayName: 'My Instagram', schedule: { mode: ScheduleMode.CUSTOM, windows: [ {
+		editor.change( { behavior: 'pause', timingConfiguration: null, displayName: 'My Instagram', schedule: { mode: ScheduleMode.CUSTOM, windows: [ {
 			id: 0, weekday: Weekday.MONDAY, start: '09:00', end: '10:00', fullDay: false,
 		} ] } } );
 		await editor.save();
 		expect( save ).toHaveBeenCalledOnce();
 		expect( onSaved ).toHaveBeenCalledWith( expect.objectContaining( {
-			sites: [ { ...site, displayNameOverride: 'My Instagram', schedule: { mode: ScheduleMode.CUSTOM,
+			sites: [ { ...site, rule: { ...site.rule, behavior: 'pause' }, displayNameOverride: 'My Instagram', schedule: { mode: ScheduleMode.CUSTOM,
 				windows: [ { weekday: Weekday.MONDAY, startMinute: 540, endMinute: 600 } ],
 			} } ],
 			timingConfiguration: TestEmptyProtectionConfiguration.timingConfiguration,
@@ -96,11 +96,11 @@ describe( 'item-owned editor compatibility', () => {
 		const listener = vi.fn();
 		const unsubscribe = editor.subscribe( listener );
 		editor.open();
-		editor.change( { displayName: 'Unsaved name', schedule: { mode: ScheduleMode.ALWAYS, windows: [] } } );
+		editor.change( { behavior: 'pause', timingConfiguration: null, displayName: 'Unsaved name', schedule: { mode: ScheduleMode.ALWAYS, windows: [] } } );
 		await editor.save();
 		expect( editor.getSnapshot().error ).toBe( ProtectedSiteItemOperationErrorReason.OPERATION );
 		expect( editor.getSnapshot().details ).toEqual( {
-			displayName: 'Unsaved name', schedule: { mode: ScheduleMode.ALWAYS, windows: [] },
+			behavior: 'pause', timingConfiguration: null, displayName: 'Unsaved name', schedule: { mode: ScheduleMode.ALWAYS, windows: [] },
 		} );
 		editor.cancel();
 		editor.open();
@@ -130,5 +130,34 @@ describe( 'item-owned editor compatibility', () => {
 		pending.resolve( undefined );
 		await first;
 		expect( save ).toHaveBeenCalledOnce();
+	} );
+} );
+
+describe( 'standalone exception editor', () => {
+	it( 'updates only its canonical sibling target and preserves explicit no-pause timing', async () => {
+		const main = { ...site };
+		const exception = { ...site, rule: { ...site.rule, pathPrefix: '/reels', behavior: 'allow' as const },
+			timingConfiguration: TestEmptyProtectionConfiguration.timingConfiguration };
+		let saved = { ...TestEmptyProtectionConfiguration, sites: [ main, exception ] };
+		const editor = createSiteItemEditor( { site: exception, onSaved: vi.fn(), editor: domainEditor( {
+			/**
+			 * Supplies both targets sharing one legacy display identity.
+			 * @return Authoritative configuration before the exact exception edit.
+			 */
+			load: () => Promise.resolve( saved ),
+			/**
+			 * Captures the complete authoritative write from the production editor.
+			 * @param configuration - Atomic domain result.
+			 * @return Completed in-memory persistence.
+			 */
+			save: ( configuration ) => {
+				saved = ProtectionConfigurationDocumentSchema.parse( configuration );
+				return Promise.resolve();
+			},
+		} ) } );
+		editor.open();
+		editor.change( { ...editor.getSnapshot().details, displayName: 'Short videos' } );
+		await editor.save();
+		expect( saved.sites ).toEqual( [ main, { ...exception, displayNameOverride: 'Short videos' } ] );
 	} );
 } );

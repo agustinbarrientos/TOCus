@@ -97,6 +97,15 @@ function createTabAudioController(): TabAudioController {
 }
 
 describe( 'createBrowserProtectionAdapter', () => {
+	it( 'checks compiled selector support using the exact redirect regex options', async () => {
+		const browserApi = createBrowserApi();
+		const check = vi.fn().mockResolvedValue( { isSupported: false, reason: 'memoryLimitExceeded' } );
+		Object.assign( browserApi.declarativeNetRequest, { isRegexSupported: check } );
+		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
+		await expect( adapter.isNavigationRegexSupported?.( '^https?://example.test/.*$' ) ).resolves.toBe( false );
+		expect( check ).toHaveBeenCalledWith( { regex: '^https?://example.test/.*$', isCaseSensitive: true, requireCapturing: true } );
+	} );
+
 	it( 'reports acceptance only after the browser accepts a navigation update', async () => {
 		const browserApi = createBrowserApi();
 		const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );

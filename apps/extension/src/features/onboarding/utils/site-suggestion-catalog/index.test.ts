@@ -19,10 +19,10 @@ const ExpectedSuggestions = [
 	{ id: OnboardingSiteSuggestionId.NETFLIX, displayName: 'Netflix', siteInput: 'www.netflix.com', ruleHost: 'netflix.com' },
 	{ id: OnboardingSiteSuggestionId.TWITCH, displayName: 'Twitch', siteInput: 'www.twitch.tv', ruleHost: 'twitch.tv' },
 	{ id: OnboardingSiteSuggestionId.DISCORD, displayName: 'Discord', siteInput: 'discord.com', ruleHost: 'discord.com' },
-	{ id: OnboardingSiteSuggestionId.WHATSAPP, displayName: 'WhatsApp', siteInput: 'web.whatsapp.com', ruleHost: 'whatsapp.com' },
+	{ id: OnboardingSiteSuggestionId.WHATSAPP, displayName: 'WhatsApp', siteInput: 'whatsapp.com', ruleHost: 'whatsapp.com' },
 	{ id: OnboardingSiteSuggestionId.PINTEREST, displayName: 'Pinterest', siteInput: 'www.pinterest.com', ruleHost: 'pinterest.com' },
 	{ id: OnboardingSiteSuggestionId.LINKEDIN, displayName: 'LinkedIn', siteInput: 'www.linkedin.com', ruleHost: 'linkedin.com' },
-	{ id: OnboardingSiteSuggestionId.SPOTIFY, displayName: 'Spotify', siteInput: 'open.spotify.com', ruleHost: 'spotify.com' },
+	{ id: OnboardingSiteSuggestionId.SPOTIFY, displayName: 'Spotify', siteInput: 'spotify.com', ruleHost: 'spotify.com' },
 	{ id: OnboardingSiteSuggestionId.CHESS, displayName: 'Chess.com', siteInput: 'www.chess.com', ruleHost: 'chess.com' },
 	{ id: OnboardingSiteSuggestionId.THREADS, displayName: 'Threads', siteInput: 'www.threads.com', ruleHost: 'threads.com' },
 ] as const;
@@ -85,5 +85,12 @@ describe( 'OnboardingSiteSuggestions', () => {
 			expect( source ).not.toMatch( /(?:href|src)=["'](?:https?:|\/\/)/iu );
 			expect( source ).not.toMatch( /url\(["']?(?:https?:|\/\/)/iu );
 		}
+	} );
+} );
+
+
+it.each( [ 'web.whatsapp.com', 'open.spotify.com' ] )( 'keeps explicitly typed %s exact independently of catalog defaults', ( host ) => {
+	expect( canonicalizeProtectedSite( host, DefaultProtectionScopeId ) ).toMatchObject( {
+		status: ProtectedSiteCanonicalizationStatus.ACCEPTED, rule: { host, includeSubdomains: false },
 	} );
 } );

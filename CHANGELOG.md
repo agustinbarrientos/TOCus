@@ -2,6 +2,22 @@
 
 ## 1.1.0 - Unreleased
 
+- Fixed: Paths beneath a No pause website use global timing and schedules unless they have their own overrides. Paused paths prefer their own host's parent settings, including product subdomains, and switching the parent back to Pause restores its saved overrides (Chrome, Edge, Firefox).
+
+- Added: Adding a website path before its domain creates an editable No pause domain entry while keeping the path paused, using the same behavior across Settings, popup and onboarding. Onboarding preserves full paths and keeps sibling entries independent (Chrome, Edge, Firefox).
+
+- Added: Main websites can use No pause while selected paths or subdomains keep their own pauses (Chrome, Edge, Firefox).
+
+- Fixed: No-pause website rules hide custom schedule controls and tags, retain valid schedule preferences, and save successfully when hidden schedule fields are unfinished (Chrome, Edge, Firefox).
+
+- Fixed: Unprotected grouping headings show No pause, and recognized product subdomains have independent website rows, product names and isolated cached icons while preserving custom names and saved protection rules (Chrome, Edge, Firefox).
+
+- Changed: Website address placeholders show separate domain, subdomain and path examples in Settings and onboarding (Chrome, Edge, Firefox).
+
+- Fixed: Destructive outline buttons use a red border matching their label, including Remove selected, Clear all and Discard (Chrome, Edge, Firefox).
+
+- Added: Grouped website path and subdomain exceptions, with independent schedules, complete custom pause timing for websites and exceptions, inline override tags beside website addresses, and an explicit no-pause option. Select individual exceptions or their whole website group, and newly added YouTube rules include an editable no-pause exception for YouTube Studio. Shared pauses keep elapsed progress when a longer rule joins, and backups preserve all overrides (Chrome, Edge, Firefox).
+
 - Fixed: Search-result links containing text fragments restore their breathing pause and keep the complete destination when continuing, including after retrying a temporary restoration failure (Chrome, Edge, Firefox).
 - Added: Live breathing-screen previews in Quick links and Appearance that share onboarding's browser frame, float at the bottom right, reflect unsaved changes, respect reduced motion, and stay separate from real pause activity (Chrome, Edge, Firefox).
 - Added: Optional Statistics comparisons for the current week, month and year, with matched elapsed dates, neutral trend tags, dashed previous-period charts and an all-websites outcome summary. Comparisons use existing local history and stay hidden when recording coverage is insufficient (Chrome, Edge, Firefox).

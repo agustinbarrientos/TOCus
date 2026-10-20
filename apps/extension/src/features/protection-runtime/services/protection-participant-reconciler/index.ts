@@ -173,7 +173,11 @@ export function createProtectionParticipantReconciler(
 				participantId: context.participant.participantId,
 				pageId: context.participant.pageId,
 				cause,
-				allowanceDurationMilliseconds: configuration?.timingConfiguration.allowanceMilliseconds ?? null,
+				allowanceDurationMilliseconds: context.state.type === ProtectionStateType.WAITING ||
+					context.state.type === ProtectionStateType.READY
+					? context.state.capturedAllowanceDurationMilliseconds
+						?? configuration?.timingConfiguration.allowanceMilliseconds ?? null
+					: context.state.expiresAtEpochMilliseconds - context.state.startedAtEpochMilliseconds,
 				observedAtEpochMilliseconds,
 				observedLocalDate: createRuntimeLocalDate( observedAtEpochMilliseconds, timeZone ),
 				observedLocalHour: createRuntimeLocalHour( observedAtEpochMilliseconds, timeZone ),

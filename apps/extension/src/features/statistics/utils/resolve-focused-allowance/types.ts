@@ -18,4 +18,6 @@ export interface ResolveFocusedAllowanceInput {
 	nowEpochMilliseconds: number;
 	tabs: ReadonlyArray<ProtectionRuntimeTab>;
 	navigation?: ProtectionRuntimeNavigation;
+	/** Current local time zone, with the browser time zone used when omitted. */
+	timeZone?: string;
 }

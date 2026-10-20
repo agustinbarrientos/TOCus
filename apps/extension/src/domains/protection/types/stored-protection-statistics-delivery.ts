@@ -1,7 +1,7 @@
 import { z, type RefinementCtx } from 'zod';
 import { ProtectionFactBatchSchema } from './protection-fact-batch';
 import { ContinuedVisitFactInputSchema } from './protection-fact';
-import { CanonicalHostSchema } from './protected-site-rule';
+import { CanonicalHostSchema } from './canonical-host';
 import { EpochMillisecondsSchema, LocalDateSchema, ProtectionMeasurementRevisionSchema } from './protection-value';
 
 /**

@@ -270,7 +270,9 @@ export function createInterruptionRequestHandler(
 			automaticCompletionObservation,
 		} ), measurementRevision );
 
-		if ( configuration.timingConfiguration.completionAction === CompletionAction.OPEN_AUTOMATICALLY ) {
+		const completionAction = waitingState.capturedCompletionAction
+			?? configuration.timingConfiguration.completionAction;
+		if ( completionAction === CompletionAction.OPEN_AUTOMATICALLY ) {
 			await options.applyDispatchResult(
 				result,
 				configuration,

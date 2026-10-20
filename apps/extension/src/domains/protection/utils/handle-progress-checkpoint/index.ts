@@ -43,10 +43,13 @@ function completeWait(
 	const decisions: ProtectionDecision[] = [];
 	const readyParticipants: ProtectionParticipant[] = [];
 	const automaticObservation = event.automaticCompletionObservation;
+	const completionAction = state.capturedCompletionAction ?? event.timingConfiguration.completionAction;
+	const allowanceDuration = state.capturedAllowanceDurationMilliseconds
+		?? event.timingConfiguration.allowanceMilliseconds;
 
 	for ( const participant of state.participants ) {
 		const automaticObservationIsFresh =
-			event.timingConfiguration.completionAction === CompletionAction.OPEN_AUTOMATICALLY &&
+			completionAction === CompletionAction.OPEN_AUTOMATICALLY &&
 			participant.participantId === state.ownerParticipantId &&
 			automaticObservation !== null &&
 			automaticObservation.participantId === participant.participantId &&
@@ -94,7 +97,7 @@ function completeWait(
 			scopeId: state.scopeId,
 			allowanceId: event.allowanceId,
 			completedWaitId: state.waitId,
-			capturedAllowanceDurationMilliseconds: event.timingConfiguration.allowanceMilliseconds,
+			capturedAllowanceDurationMilliseconds: allowanceDuration,
 			completionStatisticsEligible,
 			readyParticipants,
 			ladder,
@@ -103,7 +106,7 @@ function completeWait(
 
 	const startedAtEpochMilliseconds = event.observedAtEpochMilliseconds;
 	const expiresAtEpochMilliseconds = EpochMillisecondsSchema.parse(
-		startedAtEpochMilliseconds + event.timingConfiguration.allowanceMilliseconds,
+		startedAtEpochMilliseconds + allowanceDuration,
 	);
 
 	if ( completionStatisticsEligible ) {
@@ -112,7 +115,7 @@ function completeWait(
 			allowanceId: event.allowanceId,
 			startedAtEpochMilliseconds,
 			expiresAtEpochMilliseconds,
-			allowanceDurationMilliseconds: event.timingConfiguration.allowanceMilliseconds,
+			allowanceDurationMilliseconds: allowanceDuration,
 		} ) );
 	}
 

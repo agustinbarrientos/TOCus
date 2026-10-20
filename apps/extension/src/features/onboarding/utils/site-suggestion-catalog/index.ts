@@ -86,7 +86,7 @@ export const OnboardingSiteSuggestions: readonly Readonly<OnboardingSiteSuggesti
 	Object.freeze( {
 		id: OnboardingSiteSuggestionId.WHATSAPP,
 		displayName: 'WhatsApp',
-		siteInput: 'web.whatsapp.com',
+		siteInput: 'whatsapp.com',
 		ruleHost: 'whatsapp.com',
 		iconUrl: whatsappIcon,
 	} ),
@@ -107,7 +107,7 @@ export const OnboardingSiteSuggestions: readonly Readonly<OnboardingSiteSuggesti
 	Object.freeze( {
 		id: OnboardingSiteSuggestionId.SPOTIFY,
 		displayName: 'Spotify',
-		siteInput: 'open.spotify.com',
+		siteInput: 'spotify.com',
 		ruleHost: 'spotify.com',
 		iconUrl: spotifyIcon,
 	} ),

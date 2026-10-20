@@ -1,3 +1,5 @@
+import { requireSitePolicy } from '../../../../domains/protection/utils/require-site-policy';
+import type { ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
 import { resolveSiteSchedule } from '../../../../domains/protection/utils/resolve-site-schedule';
 import { ProtectionParticipantOrigin } from '../../../../domains/protection/types/protection-participant';
 import { createFreshRuntimeObservation } from '../../utils/runtime-participant-observation';
@@ -54,7 +56,7 @@ import {
 /**
  * Evaluates the current schedule for one freshly matched configured website.
  * @param configuration - Current validated protection configuration.
- * @param ruleHost - Rule host freshly matched against the same validated configuration.
+ * @param rule - Rule host freshly matched against the same validated configuration.
  * @param nowEpochMilliseconds - Current wall-clock time.
  * @param timeZone - Current IANA time-zone identifier.
  * @return Active, inactive, or failed current schedule evaluation.
@@ -62,11 +64,11 @@ import {
  */
 function evaluateSiteSchedule(
 	configuration: ProtectionConfigurationDocument,
-	ruleHost: string,
+	rule: ProtectedSiteRule,
 	nowEpochMilliseconds: number,
 	timeZone: string,
 ): ScheduleEvaluationResult {
-	const schedule = resolveSiteSchedule( configuration, ruleHost );
+	const schedule = resolveSiteSchedule( configuration, rule );
 
 	return evaluateSchedule( schedule, nowEpochMilliseconds, timeZone );
 }
@@ -362,7 +364,14 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 			const filteredConfiguration = await options.filterConfiguration( configuration );
 			const filteredResult = ProtectionConfigurationDocumentSchema.safeParse( filteredConfiguration );
 
-			latestConfiguration = filteredResult.success ? filteredResult.data : null;
+			// Permissions limit interception targets, but inheritance still uses the complete stored policy.
+			latestConfiguration = filteredResult.success ? {
+				...filteredResult.data,
+				sites: filteredResult.data.sites.map( ( site ) => {
+					const policy = requireSitePolicy( configuration, site.rule );
+					return { ...site, schedule: policy.schedule, timingConfiguration: policy.timingConfiguration };
+				} ),
+			} : null;
 			return latestConfiguration;
 		} catch {
 			latestConfiguration = null;

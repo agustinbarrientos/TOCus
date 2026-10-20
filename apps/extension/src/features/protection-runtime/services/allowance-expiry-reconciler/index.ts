@@ -1,4 +1,4 @@
-import { resolveSiteSchedule } from '../../../../domains/protection/utils/resolve-site-schedule';
+import { resolveSitePolicy } from '../../../../domains/protection/utils/resolve-site-policy';
 import {
 	ProtectionEventType,
 	AllowanceExpiryCandidateSource,
@@ -147,7 +147,7 @@ export function createAllowanceExpiryReconciler(
 				const nowEpochMilliseconds = options.now();
 				const timeZone = options.getTimeZone();
 				const schedules = configuration.sites.filter( ( site ) => site.rule.scopeId === observedState.scopeId )
-					.map( ( site ) => evaluateSchedule( site.schedule ?? configuration.schedule,
+					.map( ( site ) => evaluateSchedule( resolveSitePolicy( configuration, site.rule )?.schedule,
 						nowEpochMilliseconds,
 						timeZone ) );
 				const schedule = schedules.find( ( result ) => result.status === ScheduleEvaluationStatus.ACTIVE )
@@ -176,11 +176,11 @@ export function createAllowanceExpiryReconciler(
 						if ( candidate.match.status !== ProtectedUrlMatchStatus.PROTECTED ) {
 							return candidate;
 						}
-						const siteSchedule = resolveSiteSchedule( configuration, candidate.match.rule.host );
-						const active = siteSchedule !== undefined && evaluateSchedule(
-							siteSchedule, nowEpochMilliseconds, timeZone,
+						const policy = resolveSitePolicy( configuration, candidate.match.rule );
+						const active = policy !== undefined && evaluateSchedule(
+							policy.schedule, nowEpochMilliseconds, timeZone,
 						).status === ScheduleEvaluationStatus.ACTIVE;
-						return active ? candidate
+						return active ? { ...candidate, timingConfiguration: policy.timingConfiguration }
 							: { ...candidate, match: { status: ProtectedUrlMatchStatus.UNPROTECTED } as const };
 					} ),
 				};

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CanonicalHostSchema } from '../../protection/types/protected-site-rule';
+import { CanonicalHostSchema } from '../../protection/types/canonical-host';
 import { LocalDateSchema } from '../../protection/types/protection-value';
 import { StatisticsNonNegativeSafeIntegerSchema } from './statistics-value';
 

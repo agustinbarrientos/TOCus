@@ -1,20 +1,27 @@
+import type { TimingConfiguration } from '../../../../domains/protection/types/timing-configuration';
+import type { TimingScreenCopy } from '../../../settings/components/timing-screen/types';
 import type { WebsiteDetailsDraft } from '../../utils/website-draft/types';
 import type { ProtectedSiteItemCopy } from '../site-item/types';
 import type { ScheduleScreenCopy } from '../../../settings/components/schedule-screen/types';
 
 /**
- * Shared add/edit details with schedule-only override semantics.
+ * Shared add/edit details with explicit schedule, timing and pause behavior.
  * @since 1.0.0
  */
 export interface WebsiteDetailsProps {
 	idPrefix: string;
 	copy: Pick<ProtectedSiteItemCopy,
-		'customScheduleLabel' | 'automaticNamePlaceholder' | 'displayNameLabel'>;
+		'customScheduleLabel' | 'automaticNamePlaceholder' | 'displayNameLabel'> & Partial<Pick<ProtectedSiteItemCopy,
+		'customTimingLabel' | 'whenVisitedLabel' | 'pauseLabel' | 'noPauseLabel'>>;
 	scheduleCopy: ScheduleScreenCopy;
 	value: WebsiteDetailsDraft;
 	disabled: boolean;
 	validate: boolean;
 	showName?: boolean;
+	/** Shows editable pause behavior independently of naming and exception presentation. */
+	showBehavior?: boolean;
+	timingCopy?: TimingScreenCopy | undefined;
+	inheritedTiming?: TimingConfiguration | undefined;
 	namePlaceholder?: string;
 	onChange: ( details: WebsiteDetailsDraft ) => void;
 }

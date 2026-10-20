@@ -1,6 +1,7 @@
 import { OnboardingAnnouncementKind, OnboardingFailure } from '../../types/flow';
 import { Alert, Button, Icon, IconName, TextInput, Title, UnstyledButton, VisuallyHidden } from '@tocus/ui';
 import { resolveSiteDisplayIdentity } from '../../../protected-sites/utils/site-display-name-resolver';
+import { getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
 import type { OnboardingSiteRowProps, OnboardingStepProps, OnboardingSuggestionProps } from '../../types/presentation';
 import './styles.scss';
 
@@ -36,6 +37,7 @@ function Suggestion( props: OnboardingSuggestionProps ) {
 function ChosenSite( props: OnboardingSiteRowProps ) {
 	const { site, suggestion, copy, controller } = props;
 	const identity = resolveSiteDisplayIdentity( site );
+	const address = `${ site.rule.host }${ site.rule.pathPrefix ?? '' }`;
 	return (
 		<li className="added-site">
 			<span className="site-icon" aria-hidden="true">
@@ -43,11 +45,12 @@ function ChosenSite( props: OnboardingSiteRowProps ) {
 			</span>
 			<div className="site-identity">
 				<strong>{ identity.name }</strong>
-				<span>{ site.rule.host }</span>
+				<span>{ address }</span>
 			</div>
 			<Button className="onboarding-remove remove-action" variant="outline"
 				px="var(--tocus-space-3)"
-				disabled={ controller.pending } aria-label={ `${ copy.removeSiteLabel }: ${ identity.name }` }
+				disabled={ controller.pending }
+				aria-label={ `${ copy.removeSiteLabel }: ${ site.rule.pathPrefix === undefined ? identity.name : address }` }
 				onClick={ ( event ) => {
 					void controller.removeSite( site, event.currentTarget );
 				} }>
@@ -93,7 +96,7 @@ function SiteFeedback( props: OnboardingStepProps ) {
 }
 
 /**
- * Collects a local website draft and submits all new domains through one Finish gesture.
+ * Collects a local website draft and submits all new targets through one Finish gesture.
  * @param props - Authoritative sites, local draft controller and packaged localized copy.
  * @return The suggestion picker, address form, selected list and final action.
  * @since 1.0.0
@@ -113,7 +116,8 @@ export function SitesStep( props: OnboardingStepProps ) {
 				<div className="suggestion-grid">
 					{ state.suggestions.map( ( suggestion ) => (
 						<Suggestion key={ suggestion.id } suggestion={ suggestion } controller={ controller }
-							selected={ controller.sites.find( ( site ) => site.rule.host === suggestion.ruleHost ) } />
+							selected={ controller.sites.find( ( site ) => site.rule.host === suggestion.ruleHost &&
+								site.rule.pathPrefix === undefined ) } />
 					) ) }
 				</div>
 			</section>
@@ -149,7 +153,7 @@ export function SitesStep( props: OnboardingStepProps ) {
 			{ controller.sites.length > 0 && (
 				<ul className="added-sites">
 					{ controller.sites.map( ( site ) => (
-						<ChosenSite key={ site.identityHost } site={ site } copy={ copy.sites }
+						<ChosenSite key={ getProtectedSiteRuleKey( site.rule ) } site={ site } copy={ copy.sites }
 							controller={ controller } suggestion={ state.suggestions.find(
 								( candidate ) => candidate.ruleHost === site.rule.host,
 							) } />

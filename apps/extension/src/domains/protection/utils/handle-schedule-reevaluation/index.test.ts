@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import { ProtectionDecisionType } from '../../types/protection-decision';
 import type { ScheduleReevaluationEvent } from '../../types/protection-event';
-import { createScheduleReevaluation } from '../../types/__fixtures__/protection-event';
+import { createScheduleReevaluation, TestTimingConfiguration } from '../../types/__fixtures__/protection-event';
 import { ProtectionStateType } from '../../types/protection-state';
 import { ScheduleEvaluationStatus } from '../../types/schedule-evaluation';
 import {
@@ -16,6 +16,16 @@ import {
 import { handleScheduleReevaluation } from './index';
 
 describe( 'schedule-reevaluation transition', () => {
+	it( 'extends a current participant navigation requirement without resetting confirmed progress', () => {
+		const state = { ...createWaitingState(),
+			confirmedFocusedDurationMilliseconds: 3_000, checkpointHighWaterMilliseconds: 3_000 };
+		const event = { ...createScheduleReevaluation( { status: ScheduleEvaluationStatus.ACTIVE } ),
+			timingConfiguration: { ...TestTimingConfiguration, initialWaitMilliseconds: 20_000 } };
+		expect( handleScheduleReevaluation( state, event ).state ).toEqual( {
+			...state, capturedWaitDurationMilliseconds: 20_000,
+		} );
+	} );
+
 	it( 'removes only the participant whose website schedule deactivates', () => {
 		const state = createWaitingState();
 		state.participants.push( createNavigationParticipant( 'participant-b', 'page-b', false, 1 ) );

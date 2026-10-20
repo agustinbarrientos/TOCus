@@ -31,8 +31,8 @@
 @media (hover: hover) and (pointer: fine) and (width > 48rem) {
 	.settings-site-select { opacity: 0; }
 
-	.settings-site-item:hover .settings-site-select,
-	.settings-site-item:focus-within .settings-site-select,
+	.settings-site-list:hover .settings-site-select,
+	.settings-site-list:focus-within .settings-site-select,
 	.settings-site-item[data-selection-active] .settings-site-select { opacity: 1; }
 }
 
@@ -67,18 +67,44 @@
 	}
 }
 
-[data-tocus-ui] .settings-page .settings-site-identity .settings-site-schedule {
-	display: flex;
-	align-items: center;
-	gap: var(--tocus-space-2);
-	margin-top: var(--tocus-space-2);
+[data-tocus-ui] .settings-page .settings-site-tags {
+	> span {
+		@include typography.apply('body-small');
+
+		display: inline-flex;
+		align-items: center;
+		gap: var(--tocus-space-1);
+		padding: 0 var(--tocus-space-1);
+		border-radius: 4px;
+		background: var(--tocus-color-surface-container);
+	}
 
 	.tocus-icon {
-		width: 1rem;
-		height: 1rem;
+		width: 1em;
+		height: 1em;
 		flex-shrink: 0;
-		align-self: center;
 	}
+}
+
+.settings-site-exception {
+	padding-block: var(--tocus-space-1);
+
+	.settings-site-exception-arrow {
+		width: 2.25rem;
+		height: 1em;
+		padding-inline: var(--tocus-space-2);
+		color: var(--tocus-color-on-surface-muted);
+	}
+
+	.settings-site-select {
+		top: var(--tocus-space-1);
+		min-height: 2.25rem;
+	}
+}
+
+[data-tocus-ui] .settings-site-exception .settings-site-actions .tocus-icon {
+	width: 1.1em;
+	height: 1.1em;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -86,4 +112,30 @@
 
 	.settings-site-item:hover .settings-site-actions,
 	.settings-site-item:focus-within .settings-site-actions { opacity: 1; }
+}
+
+.settings-site-root-peer {
+	padding-block: var(--tocus-space-1);
+
+	.settings-site-root-indent {
+		width: 2.25rem;
+		flex-shrink: 0;
+	}
+
+	.settings-site-select {
+		top: var(--tocus-space-1);
+		min-height: 2.25rem;
+	}
+}
+
+@media (hover: none), (pointer: coarse), (width <= 48rem) {
+	.settings-site-exception[data-selectable],
+	.settings-site-root-peer[data-selectable] {
+		min-height: calc(var(--tocus-space-6) + var(--tocus-space-3) + 1px);
+
+		.settings-site-select {
+			top: 0;
+			min-height: calc(var(--tocus-space-6) + var(--tocus-space-3));
+		}
+	}
 }

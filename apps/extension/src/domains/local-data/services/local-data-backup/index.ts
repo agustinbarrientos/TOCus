@@ -1,4 +1,4 @@
-import { ProtectionConfigurationDocumentSchema } from '../../../protection/types/protected-site-configuration';
+import { CompatibleProtectionConfigurationDocumentSchema } from '../../../protection/types/legacy-protected-site-configuration';
 import { PreferencesStorageKey } from '../../../preferences/services/preferences-storage';
 import { ProtectionConfigurationStorageKey } from '../../../protection/services/protection-configuration-storage';
 import { ProtectionStorageKey } from '../../../protection/services/protection-storage';
@@ -12,19 +12,22 @@ import {
 } from '../../types/backup-operation';
 import { createBackupDocument, createBackupDocuments, parseBackupText } from '../../utils/backup-document';
 import { LocalDataGenerationStorageKey, readLocalDataGeneration } from '../local-data-generation';
-import type { BackupDocument } from '../../types/backup-document';
+import { LegacyBackupDocumentSchema, type BackupDocument } from '../../types/backup-document';
 import type { LocalDataBackup, LocalDataBackupOptions } from './types';
 
 /**
  * Hashes validated contents so durable receipts contain no backup data.
  * @param input - Detached validated backup contents.
+ * @param historical - Whether to reproduce a compatible historical portable version.
  * @return Hex-encoded SHA-256 fingerprint.
  * @since 1.1.0
  */
-async function fingerprint( input: BackupDocument ): Promise<string> {
+async function fingerprint( input: BackupDocument, historical = false ): Promise<string> {
 	// Empty links use the original 1.1.0 wire shape so existing journals and receipts remain valid.
-	const canonical = input.preferences.focusLinks.length === 0
-		? { ...input, preferences: { ...input.preferences, focusLinks: undefined } } : input;
+	const legacy = LegacyBackupDocumentSchema.safeParse( { ...input, dataFormatVersion: '1.1.0' } );
+	const compatible = historical && legacy.success ? legacy.data : input;
+	const canonical = compatible.preferences.focusLinks.length === 0
+		? { ...compatible, preferences: { ...compatible.preferences, focusLinks: undefined } } : compatible;
 	const digest = await crypto.subtle.digest( 'SHA-256', new TextEncoder().encode( JSON.stringify( canonical ) ) );
 	return Array.from( new Uint8Array( digest ), ( byte ) => byte.toString( 16 ).padStart( 2, '0' ) ).join( '' );
 }
@@ -111,9 +114,11 @@ export function createLocalDataBackup( options: LocalDataBackupOptions ): LocalD
 		}
 		const request = parsed.data;
 		let hash: string;
+		let compatibleHashes: string[];
 		try {
 			parseBackupText( JSON.stringify( request.backup ) );
 			hash = await fingerprint( request.backup );
+			compatibleHashes = [ hash, await fingerprint( request.backup, true ) ];
 		} catch {
 			return { status: 'invalid' };
 		}
@@ -126,7 +131,8 @@ export function createLocalDataBackup( options: LocalDataBackupOptions ): LocalD
 				const pending = await read( BackupImportJournalKey );
 				if ( pending !== undefined ) {
 					const journal = BackupImportJournalSchema.parse( pending );
-					if ( journal.requestId !== request.requestId || journal.fingerprint !== hash ) {
+					if ( journal.requestId !== request.requestId ||
+						! compatibleHashes.includes( journal.fingerprint ) ) {
 						return { status: 'busy' };
 					}
 					suspended = true;
@@ -136,7 +142,8 @@ export function createLocalDataBackup( options: LocalDataBackupOptions ): LocalD
 				const saved = await read( BackupImportReceiptKey );
 				const receipt = saved === undefined ? null : BackupImportReceiptSchema.parse( saved );
 				if ( receipt?.requestId === request.requestId ) {
-					if ( receipt.fingerprint !== hash || receipt.generation !== current?.generation ) {
+					if ( ! compatibleHashes.includes( receipt.fingerprint ) ||
+						receipt.generation !== current?.generation ) {
 						return { status: 'stale' };
 					}
 					await resume();
@@ -153,7 +160,7 @@ export function createLocalDataBackup( options: LocalDataBackupOptions ): LocalD
 					statisticsGeneration: StatisticsGenerationIdSchema.parse( options.createId() ),
 					measurementRevision: ProtectionMeasurementRevisionSchema.parse( options.createId() ),
 				} );
-				const previous = ProtectionConfigurationDocumentSchema.safeParse(
+				const previous = CompatibleProtectionConfigurationDocumentSchema.safeParse(
 					await read( ProtectionConfigurationStorageKey.CONFIGURATION ),
 				);
 				const journal = BackupImportJournalSchema.parse( {
@@ -171,7 +178,7 @@ export function createLocalDataBackup( options: LocalDataBackupOptions ): LocalD
 					const completion = BackupImportReceiptSchema.safeParse( saved );
 					await resume();
 					return completion.success && completion.data.requestId === request.requestId &&
-						completion.data.fingerprint === hash
+						compatibleHashes.includes( completion.data.fingerprint )
 						? { status: 'completed', requestId: completion.data.requestId, generation: completion.data.generation }
 						: { status: 'failed' };
 				} catch {

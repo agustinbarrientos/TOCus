@@ -1,3 +1,4 @@
+import { LegacyProtectedSiteConfigurationSetSchema } from '../../protection/types/legacy-protected-site-configuration';
 import { z } from 'zod';
 import { ProtectionConfigurationDocumentSchema } from '../../protection/types/protected-site-configuration';
 import { ProtectionScopeIdSchema } from '../../protection/types/protection-value';
@@ -9,7 +10,7 @@ import { StatisticsVisitOutcomesSchema } from '../../statistics/types/statistics
  * Portable backup contract introduced with the 1.1.0 release.
  * @since 1.1.0
  */
-export const BackupDataFormatVersion = '1.1.0';
+export const BackupDataFormatVersion = '1.2.0';
 
 /**
  * Maximum UTF-8 backup size accepted by both the UI and authority.
@@ -79,3 +80,24 @@ export const BackupDocumentSchema = z.strictObject( {
  * @since 1.1.0
  */
 export type BackupDocument = z.infer<typeof BackupDocumentSchema>;
+
+
+/**
+ * Strict historical portable layout, including its original non-overlap restriction.
+ * @since 1.1.0
+ */
+export const LegacyBackupDocumentSchema = BackupDocumentSchema.extend( {
+	dataFormatVersion: z.literal( '1.1.0' ),
+	settings: BackupDocumentSchema.shape.settings.extend( { sites: LegacyProtectedSiteConfigurationSetSchema } ),
+} );
+
+/**
+ * Normalizes supported portable formats while preserving saved site ranges and user choices.
+ * @since 1.1.0
+ */
+export const CompatibleBackupDocumentSchema = z.union( [
+	BackupDocumentSchema,
+	LegacyBackupDocumentSchema.transform( ( backup ): BackupDocument => ( {
+		...backup, dataFormatVersion: BackupDataFormatVersion,
+	} ) ),
+] );

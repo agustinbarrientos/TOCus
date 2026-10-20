@@ -1,3 +1,5 @@
+import { getGroupFaviconHosts, resolveGroupFavicon } from '../../utils/resolve-group-favicon';
+import { getProtectedSiteGroupHost, getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
 import { useEffect, useState } from 'react';
 import {
 	Avatar,
@@ -12,7 +14,7 @@ import {
 	IconName,
 } from '@tocus/ui';
 import {
-	resolveSiteDisplayIdentity,
+	getWebsitePresentationGroupHost, resolveSiteDisplayIdentity,
 } from '../../utils/site-display-name-resolver';
 import {
 	WebsiteEditor,
@@ -24,8 +26,6 @@ import type {
 import './style.scss';
 import { ProtectedSiteItemOperationErrorReason } from './types';
 import { createWebsiteDetails } from '../../utils/website-draft';
-import { fromSchedule } from '../../../settings/utils/schedule-draft';
-import { ScheduleMode } from '../../../../domains/protection/types/protection-schedule';
 
 
 /**
@@ -36,54 +36,79 @@ import { ScheduleMode } from '../../../../domains/protection/types/protection-sc
  */
 export function WebsiteItem( props: WebsiteItemProps ) {
 	const { site, copy, disabled } = props;
-	const faviconProvider = props.faviconProvider;
+	const rootPeer = props.presentation?.rootPeer ?? false;
+	const exception = props.presentation?.exception ?? false;
+	const faviconProvider = props.presentation?.exception || rootPeer ? null : props.faviconProvider;
+	const faviconHost = props.presentation?.groupHost ?? site.identityHost;
+	const faviconHostsKey = getGroupFaviconHosts( faviconHost,
+		props.presentation?.members.map( ( member ) => member.identityHost ) ?? [ site.identityHost ] ).join( '\n' );
 	const [ resolvedFavicon, setResolvedFavicon ] = useState<WebsiteFaviconResolution | null>( null );
 	useEffect( () => {
-		if ( faviconProvider?.resolveSource === undefined ) {
+		if ( ! faviconProvider ) {
 			return;
 		}
 		let active = true;
-		void Promise.resolve().then( () => faviconProvider.resolveSource?.( site.identityHost ) ?? null )
+		void resolveGroupFavicon( faviconProvider, faviconHostsKey.split( '\n' ) )
 			.catch( () => null ).then( ( source ) => {
 				if ( active ) {
-					setResolvedFavicon( { host: site.identityHost, provider: faviconProvider, source } );
+					setResolvedFavicon( { hostsKey: faviconHostsKey, provider: faviconProvider, source } );
 				}
 			} );
 		return () => {
 			active = false;
 		};
-	}, [ faviconProvider, site.identityHost ] );
-	const favicon = faviconProvider?.resolveSource === undefined ? props.favicon :
-		resolvedFavicon?.host === site.identityHost && resolvedFavicon.provider === faviconProvider
-			? resolvedFavicon.source : null;
+	}, [ faviconProvider, faviconHostsKey ] );
+	const currentResolution = resolvedFavicon?.hostsKey === faviconHostsKey &&
+		resolvedFavicon.provider === faviconProvider
+		? resolvedFavicon : null;
+	const favicon = currentResolution ? currentResolution.source
+		: faviconProvider?.resolveSource === undefined ? props.favicon : null;
+	const presentationOnly = props.presentation?.presentationOnly ?? false;
+	const identityHost = props.presentation && ! exception &&
+		getWebsitePresentationGroupHost( site.identityHost ) !== faviconHost ? faviconHost : site.identityHost;
+	const displaySite = presentationOnly ? { identityHost: faviconHost,
+		rule: { ...site.rule, host: faviconHost }, displayNameOverride: undefined } : { ...site, identityHost };
 	const details = props.persistedEditing?.state.details ?? props.details ?? createWebsiteDetails( site );
-	const identity = resolveSiteDisplayIdentity( { ...site,
-		displayNameOverride: details.displayName.trim() || undefined } );
-	const automaticIdentity = resolveSiteDisplayIdentity( { ...site, displayNameOverride: undefined } );
-	const activeSchedule = details.schedule ?? fromSchedule( props.globalSchedule );
-	const summary = activeSchedule.mode === ScheduleMode.ALWAYS ? props.scheduleCopy.alwaysLabel
-		: activeSchedule.windows.map( ( window ) =>
-			`${ props.scheduleCopy.formatWeekday( window.weekday ) } ${ window.start } - ${ window.fullDay ? '24:00' : window.end }` ).join( ' / ' );
+	const identity = resolveSiteDisplayIdentity( { ...displaySite,
+		displayNameOverride: presentationOnly ? undefined : details.displayName.trim() || undefined } );
+	const automaticIdentity = resolveSiteDisplayIdentity( { ...displaySite, displayNameOverride: undefined } );
+	const address = `${ site.rule.host }${ site.rule.pathPrefix ?? '' }`;
+	const editLabel = exception ? copy.exceptionEdit : copy.edit;
+	const coverageLabel = props.presentation?.rootPeers
+		? site.rule.includeSubdomains ? copy.includingSubdomains : copy.thisDomainOnly : null;
 	const error = props.persistedEditing?.state.error;
 	return (
-		<li ref={ props.itemRef } className="settings-site-item" data-highlighted={ props.highlighted || undefined }
+		<li ref={ props.itemRef } className={ `settings-site-item${ exception ? ' settings-site-exception' : '' }${ rootPeer ? ' settings-site-root-peer' : '' }` }
+			data-root-coverage={ props.presentation?.rootPeers ? site.rule.includeSubdomains ? 'broad' : 'exact' : undefined }
+			data-highlighted={ props.highlighted || undefined }
 			data-selectable={ props.selection !== undefined || undefined }
 			data-selection-active={ props.selection?.active || undefined }>
 			{ props.selection && <Checkbox.Card className="settings-site-select" withBorder={ false }
-				aria-label={ copy.formatSelectSite( identity.name ) } checked={ props.selection.checked }
+				aria-label={ copy.formatSelectSite( exception ? address : rootPeer
+					? `${ identity.name } (${ coverageLabel ?? copy.thisDomainOnly })` : identity.name ) }
+				checked={ props.selection.checked } indeterminate={ props.selection.indeterminate ?? false }
 				onChange={ props.selection.onChange } disabled={ disabled }>
 				<Checkbox.Indicator size="sm" disabled={ disabled } aria-hidden="true" />
 			</Checkbox.Card> }
 			<Stack gap={ 0 }>
 				<Group className="settings-site-row" wrap="nowrap" gap="var(--tocus-space-3)">
-					<Avatar className="tocus-native-avatar" src={ favicon }
+					{ rootPeer ? <span className="settings-site-root-indent" aria-hidden="true" /> : exception ? <Icon className="settings-site-exception-arrow" name={ IconName.ARROW_TURN_DOWN_RIGHT } /> : <Avatar className="tocus-native-avatar" src={ favicon }
 						size="2.25rem" radius="var(--tocus-radius-small)" aria-hidden="true">
 						<span className="settings-site-monogram">{ identity.monogram }</span>
-					</Avatar>
+					</Avatar> }
 					<div className="settings-site-identity">
-						<h2>{ identity.name }</h2>
-						<p>{ site.rule.host }</p>
-						{ details.schedule !== null && <p className="settings-site-schedule"><Icon name={ IconName.CALENDAR } /><span>{ summary }</span></p> }
+						{ ! exception && ! rootPeer && <h2>{ identity.name }</h2> }
+						{ rootPeer && details.displayName.trim() && <p className="settings-site-root-name">{ details.displayName }</p> }
+						<Group className="settings-site-tags" wrap="wrap" gap="var(--tocus-space-1)">
+							<p>{ presentationOnly ? faviconHost : address }{ coverageLabel && ` (${ coverageLabel })` }</p>
+							{ presentationOnly && props.presentation?.groupUnprotected &&
+								<span><Icon name={ IconName.CHEVRONS_RIGHT } />{ copy.noPauseLabel }</span> }
+							{ ! presentationOnly && <>
+								{ details.schedule !== null && details.behavior !== 'allow' && <span className="settings-site-schedule"><Icon name={ IconName.CALENDAR } />{ copy.customScheduleTag }</span> }
+								{ details.timingConfiguration !== null && details.behavior !== 'allow' && <span><Icon name={ IconName.PAUSE } />{ copy.customTimingTag }</span> }
+								{ details.behavior === 'allow' && <span><Icon name={ IconName.CHEVRONS_RIGHT } />{ copy.noPauseLabel }</span> }
+							</> }
+						</Group>
 					</div>
 					<Group className="settings-site-actions" wrap="nowrap" gap="var(--tocus-space-1)">
 						<Tooltip label={ copy.removeSite }
@@ -93,12 +118,13 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 								<Icon name={ IconName.TRASH } />
 							</ActionIcon>
 						</Tooltip>
-						<Tooltip label={ copy.edit } events={ { hover: true, focus: true, touch: true } } withArrow>
-							<ActionIcon className="settings-site-manage" variant="subtle" aria-label={ copy.edit }
+						{ ! presentationOnly && <Tooltip label={ editLabel }
+							events={ { hover: true, focus: true, touch: true } } withArrow>
+							<ActionIcon className="settings-site-manage" variant="subtle" aria-label={ editLabel }
 								disabled={ disabled } onClick={ props.onEdit }>
 								<Icon name={ IconName.SLIDERS } />
 							</ActionIcon>
-						</Tooltip>
+						</Tooltip> }
 					</Group>
 				</Group>
 				{ props.accessRequired && <Alert role="status" color="yellow" className="settings-site-access tocus-alert-actionable"
@@ -112,7 +138,9 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 						</Group>
 					</div>
 				</Alert> }
-				<WebsiteEditor opened={ props.editing } idPrefix={ `site-${ site.identityHost }` } name={ identity.name }
+				<WebsiteEditor opened={ props.editing } idPrefix={ `site-${ getProtectedSiteRuleKey( site.rule ) }` } name={ exception ? address : identity.name }
+					exception={ exception || getProtectedSiteGroupHost( site.rule.host ) !== site.rule.host }
+					showName={ ! exception } timingCopy={ props.timingCopy } inheritedTiming={ props.inheritedTiming }
 					automaticName={ automaticIdentity.name }
 					value={ details } copy={ copy } scheduleCopy={ props.scheduleCopy } disabled={ disabled }
 					error={ error ? error === ProtectedSiteItemOperationErrorReason.CONFIGURATION_CHANGED

@@ -1,5 +1,5 @@
 import { z, type RefinementCtx } from 'zod';
-import { CanonicalHostSchema } from '../../protection/types/protected-site-rule';
+import { CanonicalHostSchema } from '../../protection/types/canonical-host';
 import { ProtectionFactBatchSchema } from '../../protection/types/protection-fact-batch';
 import {
 	AllowanceIdSchema,

@@ -1,3 +1,4 @@
+import { TimingConfigurationSchema } from '../../types/timing-configuration';
 import { z } from 'zod';
 import type {
 	ProtectedSiteConfiguration,
@@ -163,6 +164,21 @@ export interface ProtectionConfigurationEditorOptions {
 }
 
 /**
+ * Optional explicit policy edits; absent fields retain the current policy and null clears timing.
+ * @since 1.1.0
+ */
+export const ProtectionConfigurationPolicyOverridesSchema = z.strictObject( {
+	timingConfiguration: TimingConfigurationSchema.nullable().optional(),
+	behavior: z.enum( [ 'pause', 'allow' ] ).optional(),
+} );
+
+/**
+ * Explicit timing and behavior fields accepted by one target update.
+ * @since 1.1.0
+ */
+export type ProtectionConfigurationPolicyOverrides = z.infer<typeof ProtectionConfigurationPolicyOverridesSchema>;
+
+/**
  * Validated protected-site configuration editing operations.
  * @since 1.0.0 Initial implementation.
  */
@@ -211,26 +227,27 @@ export interface ProtectionConfigurationEditor {
 
 	/**
 	 * Updates one exact site's editable display name and active hours atomically.
-	 * @param identityHost - Exact canonical site identity.
+	 * @param targetInput - Canonical rule target or unambiguous legacy identity host.
 	 * @param displayNameInput - Unknown editable name input; an empty value restores automatic naming.
 	 * @return Updated configuration or a stable rejection.
 	 * @since 1.0.0 Initial implementation.
 	 */
 	update(
-		identityHost: unknown,
+		targetInput: unknown,
 		displayNameInput: unknown,
 		scheduleInput?: unknown,
+		policyOverridesInput?: unknown,
 	): Promise<ProtectionConfigurationEditResult>;
 
 	/**
 	 * Removes one exact protected-site identity.
-	 * @param identityHost - Exact canonical site identity.
+	 * @param targetInput - Canonical rule target or unambiguous legacy identity host.
 	 * @param finalize - Optional side effect completed before mutation coordination is released.
 	 * @return Updated configuration or a stable rejection.
 	 * @since 1.0.0 Initial implementation.
 	 */
 	remove(
-		identityHost: unknown,
+		targetInput: unknown,
 		finalize?: ProtectionConfigurationRemovalFinalizer,
 	): Promise<ProtectionConfigurationEditResult>;
 

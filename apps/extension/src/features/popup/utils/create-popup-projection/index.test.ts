@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
 	ProtectionConfigurationDocumentSchema,
+	ProtectionConfigurationDocumentVersion,
 	type ProtectionConfigurationDocument,
 } from '../../../../domains/protection/types/protected-site-configuration';
 import { ScheduleMode } from '../../../../domains/protection/types/protection-schedule';
@@ -53,7 +54,7 @@ function createSite( identityHost: string, host: string, scopeId: string ) {
  */
 function createConfiguration( inactiveDefaultSchedule = false ): ProtectionConfigurationDocument {
 	return ProtectionConfigurationDocumentSchema.parse( {
-		schemaVersion: 5,
+		schemaVersion: ProtectionConfigurationDocumentVersion,
 		sites: [
 			createSite( 'www.instagram.com', 'instagram.com', DefaultProtectionScopeId ),
 			createSite( 'youtube.com', 'youtube.com', DefaultProtectionScopeId ),
@@ -182,6 +183,16 @@ function createSnapshot(
 }
 
 describe( 'createPopupProjection', () => {
+	it( 'projects the complete winning path policy and its effective next wait', () => {
+		const base = createConfiguration();
+		const main = base.sites[ 1 ];
+		if ( main === undefined ) {
+			throw new Error( 'Expected main website fixture.' );
+		}
+		const configuration = ProtectionConfigurationDocumentSchema.parse( { ...base, sites: [ ...base.sites, { ...main, rule: { ...main.rule, pathPrefix: '/shorts' }, timingConfiguration: { ...base.timingConfiguration, initialWaitMilliseconds: 20_000 } } ] } );
+		expect( createPopupProjection( { currentTab: { id: 7, incognito: false, url: 'https://youtube.com/shorts/one' }, interruptionPageUrl: INTERRUPTION_PAGE_URL, snapshot: createSnapshot( {}, configuration ) } ) ).toMatchObject( { currentSite: { site: { rule: { pathPrefix: '/shorts' } }, nextWaitMilliseconds: 20_000 } } );
+	} );
+
 	it( 'returns an unavailable marker when runtime state is unavailable', () => {
 		expect( createPopupProjection( {
 			currentTab: { id: 4, incognito: false, url: 'https://instagram.com/' },

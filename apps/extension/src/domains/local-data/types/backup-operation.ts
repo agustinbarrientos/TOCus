@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { BackupDocumentSchema } from './backup-document';
+import { BackupDocumentSchema, CompatibleBackupDocumentSchema } from './backup-document';
 import { ProtectedSiteRuleSchema } from '../../protection/types/protected-site-rule';
-import { ProtectionConfigurationDocumentSchema } from '../../protection/types/protected-site-configuration';
+import { CompatibleProtectionConfigurationDocumentSchema } from '../../protection/types/legacy-protected-site-configuration';
 import { CompatiblePreferencesDocumentSchema } from '../../preferences/types';
 import { StatisticsDocumentSchema } from '../../statistics/types/statistics-document';
 
@@ -19,7 +19,7 @@ const BackupRequestIdSchema = z.string().regex( /^[A-Za-z0-9_-]+$/ ).max( 128 );
  */
 export const BackupImportRequestSchema = z.strictObject( {
 	type: z.literal( 'import-local-backup' ), requestId: BackupRequestIdSchema,
-	expectedGeneration: z.string().min( 1 ).nullable(), backup: BackupDocumentSchema,
+	expectedGeneration: z.string().min( 1 ).nullable(), backup: CompatibleBackupDocumentSchema,
 } );
 
 /**
@@ -44,7 +44,7 @@ export const BackupImportReceiptSchema = z.strictObject( {
 export const BackupImportJournalSchema = BackupImportReceiptSchema.extend( {
 	previousRules: z.array( ProtectedSiteRuleSchema ).default( [] ),
 	documents: z.strictObject( {
-		configuration: ProtectionConfigurationDocumentSchema,
+		configuration: CompatibleProtectionConfigurationDocumentSchema,
 		preferences: CompatiblePreferencesDocumentSchema,
 		statistics: StatisticsDocumentSchema,
 	} ),

@@ -11,7 +11,7 @@ test.describe( 'Website action snackbars', () => {
 			await address.fill( `reading-${ String( index ) }.com` );
 			await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
 		}
-		await address.fill( 'https://www.reading-7.com/article' );
+		await address.fill( 'https://www.reading-7.com/' );
 		await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
 		await expect( page.getByRole( 'status' ).filter( { hasText: 'This site is already in your list.' } ) ).toBeVisible();
 		await expect( address ).not.toHaveAttribute( 'aria-invalid', 'true' );

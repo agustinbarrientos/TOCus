@@ -1,3 +1,6 @@
+import { matchProtectedUrl } from '../protected-url-matcher';
+import { requireSitePolicy } from '../require-site-policy';
+import { ProtectedUrlMatchStatus } from '../../types/protected-url-match';
 import { AllowanceIdSchema, ProtectionScopeIdSchema } from '../../types/protection-value';
 import {
 	ProtectionDecisionType,
@@ -93,6 +96,8 @@ function restoreParticipant( participant: StoredProtectionParticipant ): Protect
  */
 export function restoreProtectionState( input: unknown ): RestoreProtectionStateResult {
 	const parsedInput = RestoreProtectionStateInputSchema.parse( input );
+	const configuration = parsedInput.mode === ProtectionStateRestoreMode.CONTINUED_SESSION
+		? parsedInput.configuration : undefined;
 
 	if ( parsedInput.parsedState.durable.status === StoredProtectionStateParseStatus.FAILED ) {
 		return RestoreProtectionStateResultSchema.parse( {
@@ -157,11 +162,26 @@ export function restoreProtectionState( input: unknown ): RestoreProtectionState
 					continue;
 				}
 
+				const initiator = sessionScope.participants.find( ( participant ) => participant.joinSequence === 0 );
+				const match = configuration === undefined || initiator?.retainedDestination == null ? null
+					: matchProtectedUrl( initiator.retainedDestination,
+						configuration.sites.map( ( site ) => site.rule ) );
+				const timing = configuration === undefined ? undefined
+					: match?.status === ProtectedUrlMatchStatus.PROTECTED
+						? requireSitePolicy( configuration, match.rule ).timingConfiguration
+						: configuration.timingConfiguration;
+				const capturedAllowanceDurationMilliseconds = sessionScope.capturedAllowanceDurationMilliseconds
+					?? timing?.allowanceMilliseconds;
+				const capturedCompletionAction = sessionScope.capturedCompletionAction ?? timing?.completionAction;
 				const restoredWaiting = ProtectionStateSchema.parse( {
 					type: ProtectionStateType.WAITING,
 					scopeId,
 					waitId: sessionScope.waitId,
 					capturedWaitDurationMilliseconds: sessionScope.capturedWaitDurationMilliseconds,
+					...( capturedAllowanceDurationMilliseconds === undefined ? {} : {
+						capturedAllowanceDurationMilliseconds,
+					} ),
+					...( capturedCompletionAction === undefined ? {} : { capturedCompletionAction } ),
 					confirmedFocusedDurationMilliseconds: sessionScope.confirmedFocusedDurationMilliseconds,
 					participants: sessionScope.participants
 						.slice()

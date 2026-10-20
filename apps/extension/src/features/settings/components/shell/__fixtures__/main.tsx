@@ -7,6 +7,8 @@ import { LocalDataGenerationStorageKey } from '../../../../../domains/local-data
 import { AvailableStatisticsProjectionSchema, StatisticsProjectionStatus } from '../../../../../domains/statistics/types/statistics-projection';
 import type { AvailableStatisticsProjection, StatisticsProjection } from '../../../../../domains/statistics/types/statistics-projection';
 import { SitePermissionReleaseStatus, SitePermissionGrantProvenance, SitePermissionRequestStatus } from '../../../../protected-sites/services/site-permission-manager/types';
+import { createSitePermissionOrigins, isSitePermissionOriginCovered } from '../../../../protected-sites/utils/site-permission-origins';
+import type { ProtectedSiteRule } from '../../../../../domains/protection/types/protected-site-rule';
 import '@tocus/ui/styles.scss';
 import '../../../../../entrypoints/options/styles.scss';
 import {
@@ -73,6 +75,15 @@ const controls: SettingsFixtureControls = {
 	malformedPreferences: false,
 };
 const grants = new Set<string>();
+/**
+ * Models browser wildcard grants without requiring a redundant exact child permission.
+ * @param rule - Complete target whose HTTP and HTTPS access is being checked.
+ * @return Whether the simulated browser origins cover the target.
+ */
+function hasSiteAccess( rule: ProtectedSiteRule ): boolean {
+	return createSitePermissionOrigins( rule ).every( ( origin ) =>
+		isSitePermissionOriginCovered( origin, [ ...grants ] ) );
+}
 const root = document.getElementById( 'settings-root' );
 if ( root === null ) {
 	throw new TypeError( 'The Settings fixture requires its mount container.' );
@@ -82,7 +93,8 @@ stageOriginalStatisticsReset( root, original );
 const shell = mountSettings( root );
 if ( original ) {
 	configuration = originalConfiguration( original );
-	configuration.sites.forEach( ( site ) => grants.add( site.identityHost ) );
+	configuration.sites.flatMap( ( site ) => createSitePermissionOrigins( site.rule ) )
+		.forEach( ( origin ) => grants.add( origin ) );
 	if ( original.includes( 'access-required' ) ) {
 		grants.clear();
 	}
@@ -282,7 +294,7 @@ shell.permissionManager = {
 	 */
 	filterConfiguration: ( value ) => Promise.resolve( {
 		...value,
-		sites: value.sites.filter( ( site ) => grants.has( site.identityHost ) ),
+		sites: value.sites.filter( ( site ) => hasSiteAccess( site.rule ) ),
 	} ),
 	/**
 	 * Reads the separate simulated browser grant store.
@@ -290,7 +302,7 @@ shell.permissionManager = {
 	 * @return Whether browser access is granted.
 	 * @since 1.0.0
 	 */
-	hasAccess: ( rule ) => Promise.resolve( grants.has( rule.host ) ),
+	hasAccess: ( rule ) => Promise.resolve( hasSiteAccess( rule ) ),
 	/**
 	 * Simulates the browser decision inside a user-initiated save.
 	 * @param rule - Requested website rule.
@@ -302,7 +314,7 @@ shell.permissionManager = {
 		if ( controls.denyAccess ) {
 			return Promise.resolve( { status: SitePermissionRequestStatus.DENIED } );
 		}
-		grants.add( rule.host );
+		createSitePermissionOrigins( rule ).forEach( ( origin ) => grants.add( origin ) );
 		return Promise.resolve( {
 			status: SitePermissionRequestStatus.GRANTED, provenance: SitePermissionGrantProvenance.NEW,
 		} );
@@ -318,7 +330,7 @@ shell.permissionManager = {
 		if ( controls.denyAccess ) {
 			return Promise.resolve( { status: SitePermissionRequestStatus.DENIED } );
 		}
-		rules.forEach( ( rule ) => grants.add( rule.host ) );
+		rules.flatMap( createSitePermissionOrigins ).forEach( ( origin ) => grants.add( origin ) );
 		return Promise.resolve( { status: SitePermissionRequestStatus.GRANTED, previousGrant: null } );
 	},
 	/**

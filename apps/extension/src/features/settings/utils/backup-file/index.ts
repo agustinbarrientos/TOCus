@@ -46,7 +46,8 @@ export async function readBackupFile( file: BackupFile ): Promise<BackupDocument
 		if ( input.application !== 'TOCus' ) {
 			throw new BackupFileError( BackupFileFailure.APPLICATION );
 		}
-		if ( 'dataFormatVersion' in input && input.dataFormatVersion !== BackupDataFormatVersion ) {
+		if ( 'dataFormatVersion' in input && input.dataFormatVersion !== BackupDataFormatVersion &&
+			input.dataFormatVersion !== '1.1.0' ) {
 			throw new BackupFileError( BackupFileFailure.UNSUPPORTED );
 		}
 	}

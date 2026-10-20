@@ -14,6 +14,8 @@ export const ProtectedSiteRuleInputSchema = z.object( {
 	host: z.string().min( 1 ),
 	includeSubdomains: z.boolean(),
 	scopeId: ProtectionScopeIdSchema,
+	pathPrefix: z.string().optional(),
+	behavior: z.enum( [ 'pause', 'allow' ] ).optional(),
 } ).strict();
 
 /**

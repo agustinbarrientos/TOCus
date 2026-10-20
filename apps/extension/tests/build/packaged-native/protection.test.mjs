@@ -163,8 +163,17 @@ test( 'Continue makes one slow request and keeps its allowance through redirects
 test( 'real allowance expiry pauses playing media and Continue preserves the document and unfinished work', async () => {
 	test.setTimeout( 240_000 );
 	await withBrowser( async ( browser, url, network ) => {
-		await enroll( browser, url, '*://*.youtube.com/*' );
+		await enroll( browser, url, '*://*.youtube.com/*', { sites: [ 'youtube.com', 'studio.youtube.com' ], rules: 2 } );
+		expect( await browser.viewScript( 'onboarding', `return browser.storage.local.get('tocus.protection.configuration.v1')
+			.then(data => data['tocus.protection.configuration.v1'].sites.find(site => site.identityHost === 'studio.youtube.com'));` ) )
+			.toEqual( { identityHost: 'studio.youtube.com', rule: { host: 'studio.youtube.com', includeSubdomains: false,
+				scopeId: 'scope_default', behavior: 'allow' } } );
 		await settings( browser, 'timing' );
+		await expect.poll( () => readView( browser, 'selected', `return ['#allowance', '#wait-increase'].every(selector => {
+			const node = document.querySelector(selector);
+			return node && node.getBoundingClientRect().width > 0 && getComputedStyle(node).visibility === 'visible'
+				&& !node.matches(':disabled, [aria-disabled="true"]');
+		});` ) ).toBe( true );
 		await browser.viewKey( 'selected', '#allowance', 'Home' );
 		await browser.viewKey( 'selected', '#wait-increase', 'Home' );
 		await clickButton( browser, 'Save', '.tocus-form-actions' );
@@ -205,7 +214,20 @@ test( 'real allowance expiry pauses playing media and Continue preserves the doc
 		await expect.poll( () => browser.viewScript( 'onboarding', `return browser.storage.local.get('tocus.protection.durable.v1')
 			.then(data => Boolean(data['tocus.protection.durable.v1']?.document.scopes.scope_default?.ready));` ), { timeout: 20_000 } ).toBe( true );
 		expect( ( await status() ).muted ).toBe( true );
-		await browser.viewKey( 'selected', 'body', 'Space' );
+		if ( browser.viewSystemScript ) {
+			await expect.poll( () => browser.viewSystemScript( 'selected', `
+				const layer = document.querySelector('tocus-f-protected-page-layer');
+				const root = layer?.openOrClosedShadowRoot;
+				const dialog = root?.querySelector('dialog');
+				const screen = root?.querySelector('tocus-f-interruption-screen');
+				const button = screen?.openOrClosedShadowRoot?.querySelector('.continue-button');
+				const rect = button?.getBoundingClientRect();
+				return {state: screen?.getAttribute('state') ?? null, dialogOpen: dialog?.open === true,
+					continueVisible: Boolean(rect?.width > 0 && rect?.height > 0 &&
+						getComputedStyle(button).visibility === 'visible'), continueEnabled: button?.disabled === false};
+			` ) ).toEqual( { state: 'ready', dialogOpen: true, continueVisible: true, continueEnabled: true } );
+		}
+		await browser.viewPressKey( 'selected', 'Space' );
 		await expect.poll( async () => ( await status() ).presentation.interruptionLayerPresented ).toBe( false );
 		await expect.poll( async () => ( await status() ).muted ).toBe( false );
 		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("video")?.paused;' ) ).toBe( false );

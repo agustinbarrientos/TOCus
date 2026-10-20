@@ -11,6 +11,8 @@ export interface NavigationRuleReconcilerOptions {
 	interruptionPageUrl: string;
 	/** Replaces every extension-owned dynamic navigation rule. */
 	replaceNavigationRules: ( rules: Browser.declarativeNetRequest.Rule[] ) => Promise<void>;
+	/** Reports native compiled-regex support when the browser exposes preflight. */
+	isNavigationRegexSupported?: ( ( regex: string ) => Promise<boolean> ) | undefined;
 	/** Returns the current local IANA time zone. */
 	getTimeZone: () => string;
 	/** Returns the current wall-clock epoch time. */

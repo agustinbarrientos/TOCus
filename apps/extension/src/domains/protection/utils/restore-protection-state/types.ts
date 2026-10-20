@@ -1,3 +1,4 @@
+import { ProtectionConfigurationDocumentSchema } from '../../types/protected-site-configuration';
 import { z } from 'zod';
 import {
 	AllowanceIdSchema,
@@ -176,6 +177,7 @@ const NewSessionProtectionStateRestoreInputSchema = z.object( {
  * @since 1.0.0 Initial implementation.
  */
 const ContinuedSessionProtectionStateRestoreInputSchema = z.object( {
+	configuration: ProtectionConfigurationDocumentSchema.optional(),
 	mode: z.enum( [ ProtectionStateRestoreMode.CONTINUED_SESSION ] ),
 	parsedState: ParsedStoredProtectionStateSchema,
 	nowEpochMilliseconds: EpochMillisecondsSchema,

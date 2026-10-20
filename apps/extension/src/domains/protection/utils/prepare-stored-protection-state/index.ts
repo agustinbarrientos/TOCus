@@ -114,6 +114,12 @@ export function prepareStoredProtectionState( input: unknown ): StoredProtection
 				type: StoredProtectionScopeStateType.WAITING,
 				waitId: state.waitId,
 				capturedWaitDurationMilliseconds: state.capturedWaitDurationMilliseconds,
+				...( state.capturedAllowanceDurationMilliseconds === undefined ? {} : {
+					capturedAllowanceDurationMilliseconds: state.capturedAllowanceDurationMilliseconds,
+				} ),
+				...( state.capturedCompletionAction === undefined ? {} : {
+					capturedCompletionAction: state.capturedCompletionAction,
+				} ),
 				confirmedFocusedDurationMilliseconds: state.confirmedFocusedDurationMilliseconds,
 				participants: state.participants.map( prepareStoredParticipant ).sort( compareStoredParticipants ),
 				ownerParticipantId: state.ownerParticipantId,

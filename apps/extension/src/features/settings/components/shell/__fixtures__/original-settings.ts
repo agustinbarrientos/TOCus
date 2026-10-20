@@ -10,6 +10,26 @@ import { TestEmptyProtectionConfiguration } from '../../../../../domains/protect
  * @since 1.0.0
  */
 export function originalConfiguration( name: string ) {
+	if ( name === 'favicon-legacy-studio' ) {
+		return ProtectionConfigurationDocumentSchema.parse( { ...TestEmptyProtectionConfiguration,
+			sites: [ { identityHost: 'studio.youtube.com', rule: { host: 'youtube.com', includeSubdomains: true,
+				scopeId: DefaultProtectionScopeId } } ] } );
+	}
+
+	if ( name.startsWith( 'root-peers-' ) ) {
+		const broad = { identityHost: 'youtube.com',
+			rule: { host: 'youtube.com', includeSubdomains: true, scopeId: DefaultProtectionScopeId },
+			timingConfiguration: { ...TestEmptyProtectionConfiguration.timingConfiguration,
+				initialWaitMilliseconds: 15000 } };
+		const exact = { identityHost: 'youtube.com',
+			rule: { host: 'youtube.com', includeSubdomains: false, scopeId: DefaultProtectionScopeId },
+			schedule: { mode: ScheduleMode.CUSTOM, windows: [ {
+				weekday: Weekday.MONDAY, startMinute: 540, endMinute: 1020,
+			} ] } };
+		return ProtectionConfigurationDocumentSchema.parse( { ...TestEmptyProtectionConfiguration,
+			sites: name.includes( 'exact-first' ) ? [ exact, broad ] : [ broad, exact ] } );
+	}
+
 	const populated = name.includes( 'protected-site' ) && ! name.includes( 'empty' ) || name.includes( 'schedule' );
 	const list = name.startsWith( 'protected-site-list-' );
 	const item = name.startsWith( 'protected-site-item-' );
@@ -25,6 +45,18 @@ export function originalConfiguration( name: string ) {
 				rule: { host: independentHost, includeSubdomains: true, scopeId: DefaultProtectionScopeId },
 				schedule: { mode: ScheduleMode.CUSTOM,
 					windows: [ { weekday: Weekday.MONDAY, startMinute: 540, endMinute: 1020 } ] } } ] ),
+			...( name.includes( 'exceptions' ) ? [
+				{ identityHost: 'youtube.com', rule: { host: 'youtube.com', includeSubdomains: true,
+					scopeId: DefaultProtectionScopeId, pathPrefix: '/shorts' },
+				schedule: { mode: ScheduleMode.CUSTOM,
+					windows: [ { weekday: Weekday.MONDAY, startMinute: 540, endMinute: 1020 } ] } },
+				{ identityHost: 'youtube.com', rule: { host: 'youtube.com', includeSubdomains: true,
+					scopeId: DefaultProtectionScopeId, pathPrefix: '/feed' },
+				timingConfiguration: { ...TestEmptyProtectionConfiguration.timingConfiguration,
+					initialWaitMilliseconds: 20000 } },
+				{ identityHost: 'studio.youtube.com', rule: { host: 'studio.youtube.com', includeSubdomains: false,
+					scopeId: DefaultProtectionScopeId, behavior: 'allow' } },
+			] : [] ),
 		] : [],
 		schedule: name.includes( 'schedule' ) ? { mode: ScheduleMode.CUSTOM,
 			windows: [ { weekday: Weekday.MONDAY, startMinute: 540, endMinute: 1020 },

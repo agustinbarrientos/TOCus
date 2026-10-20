@@ -539,3 +539,57 @@ describe( 'createSitePermissionManager', () => {
 		).resolves.toBe( SitePermissionReleaseStatus.ERROR );
 	} );
 } );
+
+
+it.each( [ '*://*.example.com/*', 'https://*.example.com/*', 'http://*.example.com/*' ] )(
+	'settles a retained ancestor %s against the actual grants and authoritative replacement', async ( ancestor ) => {
+		const permissions = createExactRemovalPermissionsApi( {
+			origins: [ ancestor, '*://independent.test/*', '*://*.unrelated.test/*' ], permissions: [ 'webNavigation' ],
+		} );
+		const child = { ...DOMAIN_RULE, host: 'studio.example.com', includeSubdomains: false };
+		const configuration = { ...TestEmptyProtectionConfiguration,
+			sites: [ { identityHost: 'independent.test', rule: INDEPENDENT_RULE } ] };
+		await expect( createSitePermissionManager( { permissions } ).releaseNewAccess( [ child ], {}, configuration ) )
+			.resolves.toBe( SitePermissionReleaseStatus.RELEASED );
+		await expect( permissions.getAll() ).resolves.toEqual( {
+			origins: [ '*://independent.test/*', '*://*.unrelated.test/*' ], permissions: [ 'webNavigation' ],
+		} );
+	},
+);
+
+it.each( [ '*://*.example.com/*', 'https://*.example.com/*', 'http://*.example.com/*' ] )(
+	'preserves %s for a remaining sibling or the original grant snapshot', async ( ancestor ) => {
+		const permissions = createExactRemovalPermissionsApi( { origins: [ ancestor ], permissions: [ 'webNavigation' ] } );
+		const child = { ...DOMAIN_RULE, host: 'studio.example.com', includeSubdomains: false };
+		const sibling = { ...DOMAIN_RULE, host: 'mail.example.com', includeSubdomains: false };
+		const manager = createSitePermissionManager( { permissions } );
+		await manager.releaseNewAccess( [ child ], {}, { ...TestEmptyProtectionConfiguration,
+			sites: [ { identityHost: sibling.host, rule: sibling } ] } );
+		await expect( permissions.getAll() ).resolves.toEqual( { origins: [ ancestor ], permissions: [ 'webNavigation' ] } );
+		await manager.releaseNewAccess(
+			[ child ],
+			{ origins: [ ancestor ], permissions: [ 'webNavigation' ] },
+			TestEmptyProtectionConfiguration,
+		);
+		await expect( permissions.getAll() ).resolves.toEqual( { origins: [ ancestor ], permissions: [ 'webNavigation' ] } );
+	} );
+
+it( 'does not claim broad global or shared private-suffix grants as a removed tenant origin', async () => {
+	const retained = [ '<all_urls>', '*://*/*', '*://*.github.io/*', '*://*.other.github.io/*' ];
+	const permissions = createExactRemovalPermissionsApi( { origins: [ '*://*.alice.github.io/*', ...retained ],
+		permissions: [ 'webNavigation' ] } );
+	const child = { ...DOMAIN_RULE, host: 'studio.alice.github.io', includeSubdomains: false };
+	await createSitePermissionManager( { permissions } ).releaseNewAccess(
+		[ child ], {}, TestEmptyProtectionConfiguration,
+	);
+	await expect( permissions.getAll() ).resolves.toEqual( { origins: retained, permissions: [] } );
+} );
+
+
+it( 'releases unused navigation access when the browser omits an empty origin list', async () => {
+	const permissions = createExactRemovalPermissionsApi( { permissions: [ 'webNavigation', 'tabs' ] } );
+	await expect( createSitePermissionManager( { permissions } ).releaseNewAccess(
+		[ DOMAIN_RULE ], {}, TestEmptyProtectionConfiguration,
+	) ).resolves.toBe( SitePermissionReleaseStatus.RELEASED );
+	await expect( permissions.getAll() ).resolves.toEqual( { origins: [], permissions: [ 'tabs' ] } );
+} );

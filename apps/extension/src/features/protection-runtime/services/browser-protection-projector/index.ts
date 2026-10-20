@@ -1,3 +1,4 @@
+import { requireSitePolicy } from '../../../../domains/protection/utils/require-site-policy';
 import {
 	ProtectionCoordinatorDispatchStatus,
 	type ProtectionCoordinatorStateSnapshot,
@@ -116,6 +117,7 @@ export function createBrowserProtectionProjector(
 	const navigationRuleReconciler = createNavigationRuleReconciler( {
 		interruptionPageUrl: options.interruptionPageUrl,
 		replaceNavigationRules: options.browser.replaceNavigationRules,
+		isNavigationRegexSupported: options.browser.isNavigationRegexSupported,
 		getTimeZone: options.getTimeZone,
 		now: options.now,
 	} );
@@ -160,7 +162,9 @@ export function createBrowserProtectionProjector(
 			return null;
 		}
 
-		const schedules = configuration.sites.map( ( site ) => site.schedule ?? configuration.schedule );
+		const schedules = configuration.sites.map(
+			( site ) => requireSitePolicy( configuration, site.rule ).schedule,
+		);
 		const cacheKey = JSON.stringify( [ schedules, timeZone ] );
 		const cacheRemainsCurrent =
 			cacheKey === cachedScheduleTransitionKey &&

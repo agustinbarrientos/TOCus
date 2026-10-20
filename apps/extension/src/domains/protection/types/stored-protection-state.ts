@@ -1,3 +1,4 @@
+import { CompletionActionSchema } from './completion-action';
 import { z } from 'zod';
 import { AllowanceDurationMillisecondsSchema } from './allowance-duration';
 import {
@@ -126,6 +127,8 @@ export const StoredWaitingProtectionScopeStateSchema = z.object( {
 	type: z.enum( [ StoredProtectionScopeStateType.WAITING ] ),
 	waitId: WaitIdSchema,
 	capturedWaitDurationMilliseconds: WaitDurationMillisecondsSchema,
+	capturedAllowanceDurationMilliseconds: AllowanceDurationMillisecondsSchema.optional(),
+	capturedCompletionAction: CompletionActionSchema.optional(),
 	confirmedFocusedDurationMilliseconds: DurationMillisecondsSchema,
 	participants: StoredProtectionParticipantsSchema,
 	ownerParticipantId: z.union( [ ParticipantIdSchema, z.null() ] ),

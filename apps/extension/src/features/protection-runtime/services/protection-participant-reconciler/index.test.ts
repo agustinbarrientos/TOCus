@@ -205,6 +205,21 @@ describe( 'createProtectionParticipantReconciler', () => {
 		},
 	);
 
+	it( 'uses the captured interval when an allowance participant departs after timing edits', async () => {
+		const allowance = createAllowanceState();
+		allowance.readyParticipants = [ createNavigationParticipant(
+			'participant-a', 'page_tab_7_alpha', true, 0, 'https://example.com/',
+		) ];
+		const harness = createHarness( { 'scope-default': allowance }, [] );
+		await harness.reconciler.departTab( 7, DepartureCause.ACTIVE_SESSION_TAB_CLOSE, {
+			...CONFIGURATION,
+			timingConfiguration: { ...CONFIGURATION.timingConfiguration, allowanceMilliseconds: 120_000 },
+		} );
+		expect( harness.coordinator.events ).toEqual( [ expect.objectContaining( {
+			allowanceDurationMilliseconds: 300_000,
+		} ) ] );
+	} );
+
 	it.each( [ 120_000, 300_000, 1_200_000 ] )( 'uses the current %i ms configured visit time on departure', async ( allowanceMilliseconds ) => {
 		const waiting = createWaitingState();
 		waiting.participants = [ createNavigationParticipant(

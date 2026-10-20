@@ -1,3 +1,7 @@
+import { getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
+import { resolveSitePolicy } from '../../../../domains/protection/utils/resolve-site-policy';
+import { serializeWebsiteDraft } from '../../utils/website-draft';
+import type { WebsiteListPresentation } from '../site-list/types';
 import { LoadState } from '../../../settings/components/recovery/types';
 import {
 	useEffect,
@@ -69,17 +73,20 @@ export function Websites( props: WebsitesScreenProps ) {
 	const { draft, value, status, saving, configuration, pendingAccess, access } = state;
 	const [ editing, setEditing ] = useState<string | null>( null );
 	const [ removing, setRemoving ] = useState<ProtectedSiteConfiguration | null>( null );
+	const [ removingKeys, setRemovingKeys ] = useState<ReadonlySet<string>>( new Set() );
 	const [ selected, setSelected ] = useState<ReadonlySet<string>>( new Set() );
 	const [ removingSelected, setRemovingSelected ] = useState<ReadonlySet<string> | null>( null );
 	const addressInput = useRef<HTMLInputElement>( null );
 	const rows = useRef( new Map<string, HTMLLIElement>() );
 	const [ highlighted, setHighlighted ] = useState<string | null>( null );
 	const disabled = saving || shell.permissionManager === null;
-	const savedIdentities = new Set( configuration?.sites.map( ( site ) => site.identityHost ) ?? [] );
-	const selectedSites = value.sites.filter( ( site ) => selected.has( site.identityHost ) );
+	const savedIdentities = new Set( configuration?.sites.map( ( site ) =>
+		getProtectedSiteRuleKey( site.rule ) ) ?? [] );
+	const selectedSites = value.sites.filter( ( site ) =>
+		selected.has( getProtectedSiteRuleKey( site.rule ) ) );
 
 	useEffect( () => {
-		const hosts = new Set<string>( value.sites.map( ( site ) => site.identityHost ) );
+		const hosts = new Set<string>( value.sites.map( ( site ) => getProtectedSiteRuleKey( site.rule ) ) );
 		setSelected( ( previous ) => {
 			const remaining = new Set( [ ...previous ].filter( ( host ) => hosts.has( host ) ) );
 			return remaining.size === previous.size ? previous : remaining;
@@ -90,7 +97,7 @@ export function Websites( props: WebsitesScreenProps ) {
 		if ( state.duplicate === null ) {
 			return;
 		}
-		const host = state.duplicate.identityHost;
+		const host = state.duplicate.ruleKey;
 		const row = rows.current.get( host );
 		if ( ! row ) {
 			return;
@@ -113,8 +120,8 @@ export function Websites( props: WebsitesScreenProps ) {
 	 */
 	function removeFromDraft( hosts: ReadonlySet<string> ): void {
 		state.change( { ...value,
-			sites: value.sites.filter( ( site ) => ! hosts.has( site.identityHost ) ),
-			detailsByHost: Object.fromEntries( Object.entries( value.detailsByHost )
+			sites: value.sites.filter( ( site ) => ! hosts.has( getProtectedSiteRuleKey( site.rule ) ) ),
+			detailsByRuleKey: Object.fromEntries( Object.entries( value.detailsByRuleKey )
 				.filter( ( [ host ] ) => ! hosts.has( host ) ) ),
 		} );
 		setSelected( ( previous ) => new Set( [ ...previous ].filter( ( host ) => ! hosts.has( host ) ) ) );
@@ -130,7 +137,7 @@ export function Websites( props: WebsitesScreenProps ) {
 		if ( removing === null || saving ) {
 			return;
 		}
-		removeFromDraft( new Set( [ removing.identityHost ] ) );
+		removeFromDraft( removingKeys );
 		notify( SettingsFeedbackAction.SITE_REMOVED );
 		setRemoving( null );
 	}
@@ -148,15 +155,24 @@ export function Websites( props: WebsitesScreenProps ) {
 	/**
 	 * Binds one grouped row to the page's unchanged Save/Discard transaction.
 	 * @param site - Website configuration currently staged in the page draft.
+	 * @param presentation - Exact group membership and exception presentation.
 	 * @return Keyed row with permission and dialog editor callbacks.
 	 */
-	function renderSite( site: ProtectedSiteConfiguration ) {
+	function renderSite( site: ProtectedSiteConfiguration, presentation?: WebsiteListPresentation ) {
 		if ( configuration === null ) {
 			return null;
 		}
-		return <WebsiteItem key={ site.identityHost } site={ site } copy={ itemCopy }
-			highlighted={ highlighted === site.identityHost }
-			selection={ { checked: selected.has( site.identityHost ), active: selectedSites.length > 0,
+		const key = getProtectedSiteRuleKey( site.rule );
+		const groupMembers = presentation && ! presentation.exception && ! presentation.rootPeer
+			? presentation.members : [ site ];
+		const groupKeys = groupMembers.map( ( member ) => getProtectedSiteRuleKey( member.rule ) );
+		const effective = resolveSitePolicy( { ...configuration, sites: serializeWebsiteDraft( value ) }, site.rule );
+		return <WebsiteItem presentation={ presentation } timingCopy={ shell.timingCopy }
+			inheritedTiming={ effective?.timingConfiguration } key={ key } site={ site } copy={ itemCopy }
+			highlighted={ ! presentation?.presentationOnly && highlighted === key }
+			selection={ { checked: groupKeys.every( ( key ) => selected.has( key ) ),
+				indeterminate: groupKeys.some( ( key ) => selected.has( key ) ) &&
+					! groupKeys.every( ( key ) => selected.has( key ) ), active: selectedSites.length > 0,
 				/**
 				 * Changes only this row's page-local selection.
 				 * @param checked - Whether the row belongs to the next bulk action.
@@ -168,33 +184,35 @@ export function Websites( props: WebsitesScreenProps ) {
 					setSelected( ( previous ) => {
 						const next = new Set( previous );
 						if ( checked ) {
-							next.add( site.identityHost );
+							groupKeys.forEach( ( key ) => next.add( key ) );
 						} else {
-							next.delete( site.identityHost );
+							groupKeys.forEach( ( key ) => next.delete( key ) );
 						}
 						return next;
 					} );
 				} } }
-			itemRef={ ( element ) => {
+			itemRef={ presentation?.presentationOnly ? null : ( element ) => {
 				if ( element ) {
-					rows.current.set( site.identityHost, element );
+					rows.current.set( key, element );
 				} else {
-					rows.current.delete( site.identityHost );
+					rows.current.delete( key );
 				}
 			} }
 			scheduleCopy={ shell.scheduleCopy } globalSchedule={ configuration.schedule }
-			{ ...( value.detailsByHost[ site.identityHost ] === undefined
-				? {} : { details: value.detailsByHost[ site.identityHost ] } ) }
+			{ ...( value.detailsByRuleKey[ key ] === undefined
+				? {} : { details: value.detailsByRuleKey[ key ] } ) }
 			validate={ state.validate }
-			favicon={ shell.faviconProvider?.getSource( site.identityHost ) ?? null }
+			favicon={ shell.faviconProvider?.getSource( presentation?.groupHost ?? site.identityHost ) ?? null }
 			faviconProvider={ shell.faviconProvider }
-			editing={ editing === site.identityHost && removing?.identityHost !== site.identityHost }
+			editing={ ! presentation?.presentationOnly && editing === key &&
+				( removing === null || getProtectedSiteRuleKey( removing.rule ) !== key ) }
 			disabled={ saving }
-			accessRequired={ savedIdentities.has( site.identityHost ) && access.get( site.identityHost ) !== true }
-			accessPending={ pendingAccess === site.identityHost }
+			accessRequired={ ! presentation?.presentationOnly &&
+				savedIdentities.has( key ) && access.get( key ) !== true }
+			accessPending={ pendingAccess === key }
 			accessDisabled={ disabled || pendingAccess !== null }
 			onEdit={ () => {
-				setEditing( site.identityHost );
+				setEditing( key );
 			} }
 			onDone={ () => {
 				setEditing( null );
@@ -203,6 +221,7 @@ export function Websites( props: WebsitesScreenProps ) {
 				state.grant( site );
 			} }
 			onRemove={ () => {
+				setRemovingKeys( new Set( groupKeys ) );
 				setRemoving( site );
 			} }
 			onChange={ ( details ) => {
@@ -244,11 +263,15 @@ export function Websites( props: WebsitesScreenProps ) {
 				{ selectedSites.length > 0 && <Group className="settings-site-selection-actions">
 					<Button type="button" size="sm" variant="outline" color="red" disabled={ saving }
 						leftSection={ <Icon name={ IconName.TRASH } /> } onClick={ () => {
-							setRemovingSelected( new Set( selectedSites.map( ( site ) => site.identityHost ) ) );
+							setRemovingSelected( new Set( selectedSites.map( ( site ) =>
+								getProtectedSiteRuleKey( site.rule ) ) ) );
 						} }>{ copy.formatRemoveSelected( selectedSites.length ) }</Button>
 				</Group> }
-				<WebsiteList sites={ value.sites } copy={ copy } renderItem={ renderSite }
-					hasCustomSchedule={ ( site ) => value.detailsByHost[ site.identityHost ]?.schedule !== null } />
+				<WebsiteList sites={ serializeWebsiteDraft( value ) } copy={ copy }
+					exceptionsLabel={ itemCopy.exceptionsLabel }
+					renderItem={ renderSite }
+					hasCustomSchedule={ ( site ) =>
+						value.detailsByRuleKey[ getProtectedSiteRuleKey( site.rule ) ]?.schedule !== null } />
 				<DraftActions draft={ draft } copy={ { ...copy, saving: itemCopy.saving } }
 					onSave={ state.save } onDiscard={ () => {
 						state.discard();

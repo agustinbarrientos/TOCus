@@ -1,3 +1,5 @@
+import type { ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
+import { getProtectedSiteGroupHost } from '../../../../domains/protection/utils/protected-site-rule-key';
 import { retainActiveProtectionScopeMeasurementRevisions } from '../../../../domains/protection/utils/reconcile-protection-scope-measurement-revisions';
 import {
 	createSitePermissionOrigins,
@@ -31,6 +33,26 @@ function createRequestDescriptor( origins: string[] ): SitePermissionDescriptor 
 		permissions: [ NAVIGATION_PERMISSION ],
 		origins,
 	};
+}
+
+/**
+ * Recognizes a granted wildcard ancestor retained by a removed target in the same website group.
+ * @param origin - Actual grant returned by the browser.
+ * @param rule - Removed target whose former parent grant may still exist.
+ * @return Whether the grant covers this target without spanning unrelated website groups.
+ * @since 1.1.0
+ */
+function isRelatedParentOrigin( origin: string, rule: ProtectedSiteRule ): boolean {
+	const pattern = /^(\*|https?):\/\/\*\.([^/]+)\/\*$/.exec( origin );
+	const scheme = pattern?.[ 1 ];
+	const host = pattern?.[ 2 ];
+	if ( scheme === undefined || host === undefined ||
+		getProtectedSiteGroupHost( host ) !== getProtectedSiteGroupHost( rule.host ) ) {
+		return false;
+	}
+	return createSitePermissionOrigins( rule ).some( ( required ) =>
+		isSitePermissionOriginCovered( required.replace( '*://', `${ scheme }://` ), [ origin ] ),
+	);
 }
 
 /**
@@ -207,7 +229,7 @@ export function createSitePermissionManager( options: SitePermissionManagerOptio
 	}
 
 	/**
-	 * Removes only new batch permissions unowned by the authoritative configuration.
+	 * Settles requested and retained ancestor grants against prior access and authoritative configuration.
 	 * @param rules - Canonical rules included in the batch request.
 	 * @param previousGrant - Original access snapshot, or null when unavailable.
 	 * @param configuration - Current configuration held inside mutation coordination.
@@ -223,15 +245,27 @@ export function createSitePermissionManager( options: SitePermissionManagerOptio
 			return SitePermissionReleaseStatus.RETAINED;
 		}
 
+		let granted: SitePermissionGrantSnapshot;
+		try {
+			granted = await options.permissions.getAll();
+		} catch {
+			return SitePermissionReleaseStatus.ERROR;
+		}
+		const retainedParents = ( granted.origins ?? [] ).filter( ( origin ) =>
+			rules.some( ( rule ) => isRelatedParentOrigin( origin, rule ) ),
+		);
 		const retainedOrigins = [
 			...( previousGrant.origins ?? [] ),
 			...configuration.sites.flatMap( ( site ) => createSitePermissionOrigins( site.rule ) ),
 		];
-		const newOrigins = [ ...new Set( rules.flatMap( createSitePermissionOrigins ) ) ].filter(
+		const candidates = [ ...new Set( [ ...rules.flatMap( createSitePermissionOrigins ), ...retainedParents ] ) ];
+		const newOrigins = candidates.filter(
 			( origin ) => ! isSitePermissionOriginCovered( origin, retainedOrigins ),
 		);
 		const origins = newOrigins.filter( ( origin ) => ! retainedOrigins.some(
-			( retainedOrigin ) => isSitePermissionOriginCovered( retainedOrigin, [ origin ] ),
+			( retainedOrigin ) => [ 'http', 'https' ].some( ( scheme ) =>
+				isSitePermissionOriginCovered( retainedOrigin.replace( '*://', `${ scheme }://` ), [ origin ] ),
+			),
 		) );
 		const hasOverlappingGrants = origins.length !== newOrigins.length;
 		const removeNavigation = configuration.sites.length === 0 &&

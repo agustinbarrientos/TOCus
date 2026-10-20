@@ -15,6 +15,7 @@ import { PopupAddSiteRequestEventName } from '../../src/features/popup/component
 import { OnboardingSiteSuggestions } from '../../src/features/onboarding/utils/site-suggestion-catalog';
 import { TestEmptyProtectionConfiguration } from '../../src/domains/protection/types/__fixtures__';
 import { canonicalizeProtectedSite } from '../../src/domains/protection/utils/protected-site-canonicalizer';
+import { getProtectedSiteRuleKey } from '../../src/domains/protection/utils/protected-site-rule-key';
 import { DefaultProtectionScopeId } from '../../src/domains/protection/types/protection-value';
 import type { ProtectedSiteConfiguration } from '../../src/domains/protection/types/protected-site-configuration';
 
@@ -126,8 +127,9 @@ function setupOnboarding( container: HTMLElement, counter: HTMLOutputElement ): 
 		 * @return Existing enrollment result after the test releases the asynchronous boundary.
 		 */
 		async remove( site ) {
+			const ruleKey = getProtectedSiteRuleKey( site.rule );
 			const remaining = port.protectedSites.filter(
-				( candidate ) => candidate.identityHost !== site.identityHost,
+				( candidate ) => getProtectedSiteRuleKey( candidate.rule ) !== ruleKey,
 			);
 			if ( query.get( 'remove' ) === SiteRemovalScenario.PENDING ) {
 				port.protectedSites = remaining;
@@ -144,13 +146,14 @@ function setupOnboarding( container: HTMLElement, counter: HTMLOutputElement ): 
 		},
 		saveDraft: unexpectedEnrollment,
 		/**
-		 * Counts an actual Finish call and models a user denying browser consent.
+		 * Records targets forwarded by the real Finish action and counts its consent request.
 		 * @param inputs - Canonical draft addresses collected before the consent gesture.
 		 * @return Denial, requiring the UI to retain its unsaved sites.
 		 */
 		async addMany( inputs ) {
 			counter.textContent = String( ++requests );
 			counter.dataset.activation = String( navigator.userActivation.isActive );
+			counter.dataset.inputs = JSON.stringify( inputs );
 			if ( query.get( 'batch' ) === SiteBatchScenario.PENDING ) {
 				await awaitFixtureSignal( PresentationFixtureEvent.SETTLE_BATCH );
 			}

@@ -383,3 +383,43 @@ it( 'preserves unsupported legacy journals for explicit recovery without overwri
 	expect( fixture.values ).toEqual( before );
 	expect( fixture.writeCount() ).toBe( 0 );
 } );
+
+
+it( 'imports legacy portable data through the authority into current storage', async () => {
+	const fixture = createBackupFixture();
+	const request = { ...fixture.request, backup: { ...fixture.request.backup, dataFormatVersion: '1.1.0' } };
+	await expect( fixture.backup.import( request ) ).resolves.toMatchObject( { status: 'completed' } );
+	expect( fixture.values[ ProtectionConfigurationStorageKey.CONFIGURATION ] ).toMatchObject( { schemaVersion: 6 } );
+} );
+
+it( 'recovers a strict legacy configuration journal without narrowing its stored rule', async () => {
+	const fixture = createBackupFixture();
+	fixture.setFailure( 'target' );
+	await fixture.backup.import( fixture.request );
+	const journal = fixture.values[ BackupImportJournalKey ] as { documents: { configuration: {
+		schemaVersion: number; sites: Array<{ identityHost: string; rule: { host: string } }>;
+	} } };
+	journal.documents.configuration.schemaVersion = 5;
+	const first = journal.documents.configuration.sites[ 0 ];
+	if ( ! first ) {
+		throw new Error( 'Missing journal site.' );
+	}
+	first.identityHost = `studio.${ first.rule.host }`;
+	fixture.setFailure( '' );
+	await expect( fixture.restart().recover() ).resolves.toBe( true );
+	expect( fixture.values[ ProtectionConfigurationStorageKey.CONFIGURATION ] ).toMatchObject( {
+		schemaVersion: 6, sites: journal.documents.configuration.sites,
+	} );
+} );
+
+it( 'keeps historical receipt fingerprints valid after legacy backup normalization', async () => {
+	const fixture = createBackupFixture();
+	const legacy = { ...fixture.request.backup, dataFormatVersion: '1.1.0',
+		preferences: { ...fixture.request.backup.preferences, focusLinks: undefined } };
+	const digest = await crypto.subtle.digest( 'SHA-256', new TextEncoder().encode( JSON.stringify( legacy ) ) );
+	const fingerprint = Array.from( new Uint8Array( digest ), ( byte ) => byte.toString( 16 ).padStart( 2, '0' ) ).join( '' );
+	fixture.values[ BackupImportReceiptKey ] = { requestId: fixture.request.requestId, fingerprint, generation: 'data_old' };
+	fixture.values[ LocalDataGenerationStorageKey ] = { generation: 'data_old', pending: false, needsOnboarding: false };
+	await expect( fixture.backup.import( fixture.request ) ).resolves.toMatchObject( { status: 'completed' } );
+	expect( fixture.writeCount() ).toBe( 0 );
+} );

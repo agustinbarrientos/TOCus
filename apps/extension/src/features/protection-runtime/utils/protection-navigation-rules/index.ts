@@ -1,9 +1,7 @@
 import type { Browser } from 'wxt/browser';
 import type { ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
 
-const NAVIGATION_RULE_PRIORITY = 1;
 const PROTECTION_NAVIGATION_RULE_CAPACITY = 100_000;
-const PROTECTABLE_URL_REGEX_FILTER = '^https?://.*';
 const REGEX_SPECIAL_CHARACTERS = /[.*+?^${}()|[\]\\]/gu;
 
 /**
@@ -34,78 +32,49 @@ function escapeRegexHost( host: string ): string {
 }
 
 /**
- * Creates one full-URL regex restricted to an exact canonical host.
- * @param host - Canonical host selected by the user.
- * @return Anchored HTTP(S) URL regex preserving credentials, ports, paths, queries, and fragments.
- * @since 1.0.0 Initial implementation.
+ * Creates the full-URL selector used for both browser preflight and interception.
+ * @param rule - Canonical website target.
+ * @return Case-sensitive regex preserving the entire destination for substitution.
+ * @since 1.1.0
  */
-function createExactHostRegexFilter( host: string ): string {
-	return `^https?://([^/?#@]*@)?${ escapeRegexHost( host ) }(:[0-9]+)?([/?#].*)?$`;
+export function createProtectionNavigationRegex( rule: ProtectedSiteRule ): string {
+	const host = `${ rule.includeSubdomains ? '([^/?#@:.]+\\.)*' : '' }${ escapeRegexHost( rule.host ) }${ rule.host.startsWith( '[' ) ? '' : '\\.?' }`;
+	const path = rule.pathPrefix === undefined ? '([/?#].*)?' : `${ escapeRegexHost( rule.pathPrefix ) }([/?#].*)?`;
+	return `^https?://([^/?#@]*@)?${ host }(:[0-9]+)?${ path }$`;
 }
 
 /**
- * Creates one deterministic browser navigation redirect.
- * @param id - Positive identifier unique within the projected rule set.
- * @param condition - Browser navigation condition for the protected match range.
+ * Creates deterministic selectors ranked in the same order as URL matching.
+ * @param rules - Complete winning-policy ranges, including allowed ranges.
  * @param interruptionPageUrl - Trusted packaged interruption-page URL.
- * @return Main-frame redirect to the interruption page.
- * @since 1.0.0 Initial implementation.
- */
-function createNavigationRule(
-	id: number,
-	condition: Browser.declarativeNetRequest.RuleCondition,
-	interruptionPageUrl: string,
-): Browser.declarativeNetRequest.Rule {
-	return {
-		id,
-		priority: NAVIGATION_RULE_PRIORITY,
-		action: {
-			type: 'redirect',
-			redirect: {
-				regexSubstitution: `${ interruptionPageUrl }#destination=\\0`,
-			},
-		},
-		condition: {
-			...condition,
-			resourceTypes: [ 'main_frame' ],
-		},
-	};
-}
-
-/**
- * Creates browser navigation redirects for the protected sites selected by the user.
- * @param rules - Canonical protected-site rules selected by the user.
- * @param interruptionPageUrl - Trusted packaged interruption-page URL.
- * @return Deterministic main-frame redirect rules.
- * @since 1.0.0 Initial implementation.
+ * @return Full-URL main-frame redirect and allow rules.
+ * @since 1.1.0 Website exceptions.
  */
 export function createProtectionNavigationRules(
 	rules: readonly ProtectedSiteRule[],
 	interruptionPageUrl: string,
 ): Browser.declarativeNetRequest.Rule[] {
-	const orderedRules = [ ...rules ].sort( ( left, right ) => {
-		const leftSortKey = `${ left.host }\0${ left.includeSubdomains ? '1' : '0' }\0${ left.scopeId }`;
-		const rightSortKey = `${ right.host }\0${ right.includeSubdomains ? '1' : '0' }\0${ right.scopeId }`;
-
-		return leftSortKey.localeCompare( rightSortKey, 'en' );
+	if ( rules.every( ( rule ) => rule.behavior === 'allow' ) ) {
+		return [];
+	}
+	const orderedRules = [ ...rules ].sort( ( left, right ) =>
+		left.host.length - right.host.length ||
+		Number( ! left.includeSubdomains ) - Number( ! right.includeSubdomains ) ||
+		( left.pathPrefix?.length ?? 0 ) - ( right.pathPrefix?.length ?? 0 ) ||
+		JSON.stringify( left ).localeCompare( JSON.stringify( right ), 'en' ),
+	);
+	return orderedRules.map( ( rule, index ) => {
+		return {
+			id: ProtectionNavigationRuleIdStart + index,
+			priority: index + 1,
+			action: rule.behavior === 'allow' ? { type: 'allow' } : {
+				type: 'redirect', redirect: { regexSubstitution: `${ interruptionPageUrl }#destination=\\0` },
+			},
+			condition: {
+				regexFilter: createProtectionNavigationRegex( rule ),
+				isUrlFilterCaseSensitive: true,
+				resourceTypes: [ 'main_frame' ],
+			},
+		};
 	} );
-	const subdomainHosts = orderedRules
-		.filter( ( rule ) => rule.includeSubdomains )
-		.map( ( rule ) => rule.host );
-	const exactHostRules = orderedRules.filter( ( rule ) => ! rule.includeSubdomains );
-	const conditions: Browser.declarativeNetRequest.RuleCondition[] = [
-		...( subdomainHosts.length === 0 ? [] : [ {
-			regexFilter: PROTECTABLE_URL_REGEX_FILTER,
-			requestDomains: subdomainHosts,
-		} ] ),
-		...exactHostRules.map( ( rule ) => ( {
-			regexFilter: createExactHostRegexFilter( rule.host ),
-		} ) ),
-	];
-
-	return conditions.map( ( condition, index ) => createNavigationRule(
-		ProtectionNavigationRuleIdStart + index,
-		condition,
-		interruptionPageUrl,
-	) );
 }

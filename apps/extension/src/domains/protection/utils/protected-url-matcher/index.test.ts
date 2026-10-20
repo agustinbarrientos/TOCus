@@ -1,6 +1,7 @@
 import { ProtectedUrlMatchStatus } from '../../types/protected-url-match';
 import { describe, expect, it } from 'vitest';
 import { ProtectedSiteRuleSetSchema } from '../../types/protected-site-rule';
+import { normalizeProtectableUrl, ProtectableUrlNormalizationStatus } from '../protectable-url-normalizer';
 import { matchProtectedUrl } from './index';
 
 const DEFAULT_SCOPE_ID = 'scope_default';
@@ -391,10 +392,10 @@ describe( 'matchProtectedUrl', () => {
 					{ host: 'example.com', includeSubdomains: true, scopeId: DEFAULT_SCOPE_ID },
 				],
 			},
-		] )( 'rejects overlapping protected ranges for $label', ( { rules } ) => {
+		] )( 'selects the most specific overlapping protected range for $label', ( { rules } ) => {
 			expect( matchProtectedUrl( 'https://child.example.com', rules ) ).toEqual( {
-				status: ProtectedUrlMatchStatus.UNSUPPORTED,
-				reason: 'invalid-rule-set',
+				status: ProtectedUrlMatchStatus.PROTECTED,
+				rule: rules.find( ( rule ) => rule.host === 'child.example.com' ),
 			} );
 		} );
 	} );
@@ -416,4 +417,69 @@ describe( 'matchProtectedUrl', () => {
 			} );
 		} );
 	} );
+} );
+
+
+describe( 'website exception targets', () => {
+	const root = { host: 'youtube.com', includeSubdomains: true, scopeId: DEFAULT_SCOPE_ID };
+	const feed = { ...root, pathPrefix: '/feed' };
+	const shorts = { ...root, pathPrefix: '/shorts' };
+	const studio = { ...root, host: 'studio.youtube.com', includeSubdomains: false, behavior: 'allow' };
+
+	it.each( [ false, true ] )( 'selects specific paths and explicit allow regardless of reversed order %s', ( reverse ) => {
+		const rules = [ root, feed, shorts, studio ];
+		if ( reverse ) {
+			rules.reverse();
+		}
+		expect( matchProtectedUrl( 'https://youtube.com/feed/subscriptions', rules ) ).toEqual( { status: ProtectedUrlMatchStatus.PROTECTED, rule: feed } );
+		expect( matchProtectedUrl( 'https://youtube.com/shorts/123', rules ) ).toEqual( { status: ProtectedUrlMatchStatus.PROTECTED, rule: shorts } );
+		expect( matchProtectedUrl( 'https://studio.youtube.com/upload', rules ) ).toEqual( { status: ProtectedUrlMatchStatus.UNPROTECTED, rule: studio } );
+	} );
+
+	it.each( [ false, true ] )( 'keeps a specific Shorts pause above a broad no-pause root with reversed order %s', ( reverse ) => {
+		const allowedRoot = { ...root, behavior: 'allow' };
+		const rules = reverse ? [ shorts, allowedRoot ] : [ allowedRoot, shorts ];
+		for ( const path of [ '/', '/feed', '/shorts-other' ] ) {
+			expect( matchProtectedUrl( `https://youtube.com${ path }`, rules ) )
+				.toEqual( { status: ProtectedUrlMatchStatus.UNPROTECTED, rule: allowedRoot } );
+		}
+		for ( const path of [ '/shorts', '/shorts/item' ] ) {
+			expect( matchProtectedUrl( `https://youtube.com${ path }`, rules ) )
+				.toEqual( { status: ProtectedUrlMatchStatus.PROTECTED, rule: shorts } );
+		}
+	} );
+
+	it( 'selects the longest path after host and exact coverage specificity', () => {
+		const nested = { ...shorts, pathPrefix: '/shorts/saved' };
+		const exactRoot = { ...root, includeSubdomains: false };
+		expect( matchProtectedUrl( 'https://youtube.com/shorts/saved/123', [ root, shorts, nested ] ) )
+			.toEqual( { status: ProtectedUrlMatchStatus.PROTECTED, rule: nested } );
+		expect( matchProtectedUrl( 'https://youtube.com/shorts/saved', [ shorts, exactRoot ] ) )
+			.toEqual( { status: ProtectedUrlMatchStatus.PROTECTED, rule: exactRoot } );
+	} );
+
+	it.each( [ '/shortstory', '/Shorts', '/shorts%2F123', '/', '/feed', '/shorts%252F123' ] )(
+		'keeps a path-only group from protecting unrelated path %s', ( path ) => {
+			expect( matchProtectedUrl( `https://youtube.com${ path }`, [ shorts ] ) ).toEqual( { status: ProtectedUrlMatchStatus.UNPROTECTED } );
+		},
+	);
+
+	it( 'keeps encoded separators significant and ignores search and text fragments for selection', () => {
+		const encoded = { ...shorts, pathPrefix: '/shorts%2F123' };
+		const destination = 'https://youtube.com/shorts%2F123?mode=full#section:~:text=some%20text';
+		expect( matchProtectedUrl( destination, [ shorts, encoded ] ) )
+			.toEqual( { status: ProtectedUrlMatchStatus.PROTECTED, rule: encoded } );
+		const normalized = normalizeProtectableUrl( destination );
+		if ( normalized.status !== ProtectableUrlNormalizationStatus.NORMALIZED ) {
+			throw new Error( 'Expected full destination.' );
+		}
+		expect( normalized.url.href ).toBe( 'https://youtube.com/shorts%2F123?mode=full#section:~:text=some%20text' );
+	} );
+
+	it.each( [ 'https://youtube.com.evil.test/shorts', 'https://notyoutube.com/shorts' ] )(
+		'rejects host boundary attacks with paths for %s', ( destination ) => {
+			expect( matchProtectedUrl( destination, [ shorts ] ) )
+				.toEqual( { status: ProtectedUrlMatchStatus.UNPROTECTED } );
+		},
+	);
 } );

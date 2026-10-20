@@ -1,3 +1,5 @@
+import { expandProtectedSiteAdditions } from '../../../../domains/protection/utils/default-protected-site-exceptions';
+import { getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
 import { ProtectedSiteConfigurationSetSchema, ProtectedSiteDisplayNameInputSchema,
 	type ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
 import { fromSchedule, toSchedule } from '../../../settings/utils/schedule-draft';
@@ -11,6 +13,7 @@ import type { WebsiteDetailsDraft, WebsitesDraft } from './types';
  */
 export function createWebsiteDetails( site: ProtectedSiteConfiguration ): WebsiteDetailsDraft {
 	return { displayName: site.displayNameOverride ?? '',
+		behavior: site.rule.behavior ?? 'pause', timingConfiguration: site.timingConfiguration ?? null,
 		schedule: site.schedule ? fromSchedule( site.schedule ) : null };
 }
 
@@ -21,9 +24,31 @@ export function createWebsiteDetails( site: ProtectedSiteConfiguration ): Websit
  * @since 1.0.0
  */
 export function createWebsiteDraft( sites: ProtectedSiteConfiguration[] ): WebsitesDraft {
-	return { sites, address: '', newSite: { displayName: '', schedule: null },
-		detailsByHost: Object.fromEntries( sites.map( ( site ) => [ site.identityHost,
+	return { sites, address: '', newSite: { displayName: '', schedule: null, behavior: 'pause', timingConfiguration: null },
+		detailsByRuleKey: Object.fromEntries( sites.map( ( site ) => [ getProtectedSiteRuleKey( site.rule ),
 			createWebsiteDetails( site ) ] ) ) };
+}
+
+/**
+ * Stages editable additions against pending pause behavior while retaining incomplete draft fields.
+ * @param draft - Current website draft before the addition.
+ * @param site - Canonical new target whose details are held in the address editor.
+ * @return Independent draft containing the new target and any default exceptions.
+ * @since 1.1.0
+ */
+export function stageWebsiteDraftSite( draft: WebsitesDraft, site: ProtectedSiteConfiguration ): WebsitesDraft {
+	const pendingSites = draft.sites.map( ( existing ) => {
+		const details = draft.detailsByRuleKey[ getProtectedSiteRuleKey( existing.rule ) ];
+		return details === undefined ? existing : { ...existing,
+			rule: { ...existing.rule, behavior: details.behavior } };
+	} );
+	const additions = expandProtectedSiteAdditions( pendingSites, [ site ] );
+	return { ...draft, sites: [ ...draft.sites, ...additions ], address: '',
+		detailsByRuleKey: { ...draft.detailsByRuleKey,
+			...Object.fromEntries( additions.map( ( addition ) => [ getProtectedSiteRuleKey( addition.rule ),
+				createWebsiteDetails( addition ) ] ) ),
+			[ getProtectedSiteRuleKey( site.rule ) ]: draft.newSite },
+		newSite: { displayName: '', schedule: null, behavior: 'pause', timingConfiguration: null } };
 }
 
 /**
@@ -34,11 +59,15 @@ export function createWebsiteDraft( sites: ProtectedSiteConfiguration[] ): Websi
  */
 export function serializeWebsiteDraft( draft: WebsitesDraft ): ProtectedSiteConfiguration[] {
 	return ProtectedSiteConfigurationSetSchema.parse( draft.sites.map( ( site ) => {
-		const details = draft.detailsByHost[ site.identityHost ] ?? createWebsiteDetails( site );
+		const details = draft.detailsByRuleKey[ getProtectedSiteRuleKey( site.rule ) ] ?? createWebsiteDetails( site );
 		const displayName = ProtectedSiteDisplayNameInputSchema.parse( details.displayName );
-		return { identityHost: site.identityHost, rule: site.rule,
-			...( displayName ? { displayNameOverride: displayName } : {} ),
-			...( details.schedule === null ? {} : { schedule: toSchedule( details.schedule ) } ),
+		const rule = { ...site.rule };
+		delete rule.behavior;
+		return { identityHost: site.identityHost, rule: { ...rule,
+			...( details.behavior === 'allow' ? { behavior: 'allow' as const } : {} ) },
+		...( details.timingConfiguration === null ? {} : { timingConfiguration: details.timingConfiguration } ),
+		...( displayName ? { displayNameOverride: displayName } : {} ),
+		...( details.schedule === null ? {} : { schedule: toSchedule( details.schedule ) } ),
 		};
 	} ) );
 }

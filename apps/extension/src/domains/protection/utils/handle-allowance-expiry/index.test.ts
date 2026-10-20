@@ -41,6 +41,22 @@ function freezeDeeply<Value>( value: Value ): Value {
 }
 
 describe( 'handleAllowanceExpiry', () => {
+	it.each( [ true, false ] )( 'captures focused or deterministic initiator timing and the greatest eligible target with focus %s', ( focused ) => {
+		const state = { ...createAllowanceState(), readyParticipants: [] };
+		const candidates = [
+			{ ...createLiveExpiryCandidate( 'participant-b', 'page-b', undefined, focused ), timingConfiguration: { ...TestTimingConfiguration, initialWaitMilliseconds: 20_000, allowanceMilliseconds: 120_000 } },
+			{ ...createLiveExpiryCandidate( 'participant-a', 'page-a', undefined, false ), timingConfiguration: { ...TestTimingConfiguration, initialWaitMilliseconds: 30_000, allowanceMilliseconds: 600_000 } },
+		];
+		const event = createAllowanceExpiry();
+		const result = handleAllowanceExpiry( state, { ...event, candidates } );
+		expect( result.state ).toMatchObject( {
+			type: ProtectionStateType.WAITING,
+			capturedWaitDurationMilliseconds: 30_000,
+			capturedAllowanceDurationMilliseconds: focused ? 120_000 : 600_000,
+			capturedCompletionAction: TestTimingConfiguration.completionAction,
+		} );
+	} );
+
 	it( 'accepts the exact parsed allowance-expiry event', () => {
 		expectTypeOf( handleAllowanceExpiry ).parameter( 1 ).toEqualTypeOf<AllowanceExpiryEvent>();
 	} );
@@ -141,6 +157,8 @@ describe( 'handleAllowanceExpiry', () => {
 				scopeId: 'scope-default',
 				waitId: 'wait-expiry',
 				capturedWaitDurationMilliseconds: 20_000,
+				capturedAllowanceDurationMilliseconds: 300_000,
+				capturedCompletionAction: TestTimingConfiguration.completionAction,
 				confirmedFocusedDurationMilliseconds: 0,
 				participants: [ {
 					origin: ProtectionParticipantOrigin.ALLOWANCE_EXPIRY,
@@ -475,6 +493,8 @@ describe( 'handleAllowanceExpiry', () => {
 				scopeId: 'scope-default',
 				waitId: 'wait-expiry',
 				capturedWaitDurationMilliseconds: 10_000,
+				capturedAllowanceDurationMilliseconds: 300_000,
+				capturedCompletionAction: TestTimingConfiguration.completionAction,
 				confirmedFocusedDurationMilliseconds: 0,
 				participants: [ {
 					origin: ProtectionParticipantOrigin.NAVIGATION,

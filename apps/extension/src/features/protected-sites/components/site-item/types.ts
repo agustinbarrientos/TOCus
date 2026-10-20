@@ -1,3 +1,6 @@
+import type { WebsiteListPresentation } from '../site-list/types';
+import type { TimingConfiguration } from '../../../../domains/protection/types/timing-configuration';
+import type { TimingScreenCopy } from '../../../settings/components/timing-screen/types';
 import type { WebsiteDetailsDraft } from '../../utils/website-draft/types';
 import type { Ref } from 'react';
 import type { ScheduleScreenCopy } from '../../../settings/components/schedule-screen/types';
@@ -17,7 +20,7 @@ import type { SiteFaviconProvider } from '../../services/site-favicon-provider';
  * @since 1.1.0
  */
 export interface WebsiteFaviconResolution {
-	host: string;
+	hostsKey: string;
 	provider: SiteFaviconProvider;
 	source: string | null;
 }
@@ -128,11 +131,21 @@ export interface ProtectedSiteEditInputEvent extends Event {
  */
 export interface ProtectedSiteItemCopy {
 	done: string;
+	customTimingLabel: string;
+	customScheduleTag: string;
+	customTimingTag: string;
+	exceptionsLabel: string;
+	includingSubdomains: string;
+	thisDomainOnly: string;
+	whenVisitedLabel: string;
+	pauseLabel: string;
+	noPauseLabel: string;
 	accessRequired: string;
 	allowAccess: string;
 	allowingAccess: string;
 	accessRequestError: string;
 	edit: string;
+	exceptionEdit: string;
 	displayNameLabel: string;
 	customScheduleLabel: string;
 	automaticNamePlaceholder: string;
@@ -178,6 +191,10 @@ export interface ProtectedSiteDraftChangedEventDetail {
 export interface WebsiteItemProps {
 	/** Optional selection owned by the settings page, outside the row's identity grid. */
 	selection?: WebsiteItemSelection;
+	/** Group presentation never adds a target. */
+	presentation?: WebsiteListPresentation | undefined;
+	timingCopy?: TimingScreenCopy | undefined;
+	inheritedTiming?: TimingConfiguration | undefined;
 	/** Allows the owner to reveal this row after an already-listed address is submitted. */
 	itemRef?: Ref<HTMLLIElement>;
 	/** Brief, non-animated emphasis after a duplicate-add attempt. */
@@ -210,6 +227,8 @@ export interface WebsiteItemProps {
  */
 export interface WebsiteItemSelection {
 	checked: boolean;
+	/** Some members of a grouped selection are checked. */
+	indeterminate?: boolean;
 	active: boolean;
 	onChange: ( checked: boolean ) => void;
 }

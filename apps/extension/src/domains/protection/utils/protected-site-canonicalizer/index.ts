@@ -1,6 +1,5 @@
 import { parse } from 'tldts';
 import {
-	CanonicalHostSchema,
 	ProtectedSiteRuleSetSchema,
 	type CanonicalHost,
 	type ProtectedSiteRule,
@@ -63,6 +62,20 @@ function canonicalizeStoredHost( input: string ): CanonicalHost | null {
 }
 
 /**
+ * Normalizes a target path without decoding encoded separators or changing case.
+ * @param input - Raw path prefix without navigation search or fragment.
+ * @return Canonical prefix, undefined for the whole host, or null for malformed input.
+ * @since 1.1.0
+ */
+function canonicalizePathPrefix( input: string ): string | null | undefined {
+	if ( ! input.startsWith( '/' ) || /[\\?#]|[^\x21-\x7e]|%(?![0-9a-fA-F]{2})/u.test( input ) ) {
+		return null;
+	}
+	const pathname = new URL( `https://target.invalid${ input }` ).pathname.replace( /\/+$/u, '' );
+	return pathname.length === 0 ? undefined : pathname;
+}
+
+/**
  * Canonicalizes an unknown stored rule set without mutating it.
  * @param input - Unknown stored rule-set input.
  * @return Canonical rules, or null when any rule or match range is invalid.
@@ -84,10 +97,19 @@ export function canonicalizeProtectedSiteRules( input: unknown ): ProtectedSiteR
 			return null;
 		}
 
+		const pathPrefix = rule.pathPrefix === undefined
+			? undefined
+			: canonicalizePathPrefix( rule.pathPrefix );
+		if ( pathPrefix === null ) {
+			return null;
+		}
+
 		canonicalRules.push( {
 			host,
 			includeSubdomains: rule.includeSubdomains,
 			scopeId: rule.scopeId,
+			...( rule.behavior === undefined ? {} : { behavior: rule.behavior } ),
+			...( pathPrefix === undefined ? {} : { pathPrefix } ),
 		} );
 	}
 
@@ -130,6 +152,14 @@ export function canonicalizeProtectedSite( input: unknown, scopeId: unknown ): P
 		};
 	}
 
+	const pathPrefix = canonicalizePathPrefix( urlResult.url.pathname );
+	if ( pathPrefix === null ) {
+		return {
+			status: ProtectedSiteCanonicalizationStatus.REJECTED,
+			reason: ProtectedSiteCanonicalizationRejectionReason.MALFORMED_INPUT,
+		};
+	}
+	const pathTarget = pathPrefix === undefined ? {} : { pathPrefix };
 	const hostnameDetails = parse( urlResult.host, {
 		allowPrivateDomains: true,
 		extractHostname: false,
@@ -147,6 +177,7 @@ export function canonicalizeProtectedSite( input: unknown, scopeId: unknown ): P
 				host: urlResult.host,
 				includeSubdomains: false,
 				scopeId: scopeIdResult.data,
+				...pathTarget,
 			},
 		};
 	}
@@ -156,9 +187,10 @@ export function canonicalizeProtectedSite( input: unknown, scopeId: unknown ): P
 			status: ProtectedSiteCanonicalizationStatus.ACCEPTED,
 			identityHost: urlResult.host,
 			rule: {
-				host: CanonicalHostSchema.parse( hostnameDetails.domain ),
-				includeSubdomains: true,
+				host: urlResult.host === `www.${ hostnameDetails.domain }` ? hostnameDetails.domain : urlResult.host,
+				includeSubdomains: urlResult.host === hostnameDetails.domain || urlResult.host === `www.${ hostnameDetails.domain }`,
 				scopeId: scopeIdResult.data,
+				...pathTarget,
 			},
 		};
 	}
@@ -177,6 +209,7 @@ export function canonicalizeProtectedSite( input: unknown, scopeId: unknown ): P
 			host: urlResult.host,
 			includeSubdomains: false,
 			scopeId: scopeIdResult.data,
+			...pathTarget,
 		},
 	};
 }

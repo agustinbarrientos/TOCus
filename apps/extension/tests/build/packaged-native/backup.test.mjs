@@ -114,7 +114,7 @@ test( 'Portable backup round trip preserves real settings and history across den
 			// Move away from hover-paused export feedback before starting the next decision.
 			await browser.viewClick( 'selected', 'h1' );
 			await expect.poll( () => readView( browser, 'selected', 'return document.querySelector(".tocus-snackbar") === null;' ) ).toBe( true );
-			expect( backup ).toMatchObject( { application: 'TOCus', dataFormatVersion: '1.1.0',
+			expect( backup ).toMatchObject( { application: 'TOCus', dataFormatVersion: '1.2.0',
 				settings: { sites: [ { displayNameOverride: 'Backup focus site' } ] },
 				preferences: { theme: 'dark', palette: 'purple', pauseMode: 'quiet', focusLinks: [ focusLink ] },
 				statistics: { scopes: { scope_default: { completedWaitCount: 1, allowanceGrantedCount: 1 } } },
