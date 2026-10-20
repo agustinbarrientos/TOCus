@@ -908,7 +908,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		const permissions = new SharedPermissionStateApi();
 		const request = vi.spyOn( permissions, 'request' );
 		const service = createService( storage, createSitePermissionManager( { permissions } ) );
-		const resultPromise = service.addMany( [ 'www.youtube.com', 'reddit.com', 'm.youtube.com' ] );
+		const resultPromise = service.addMany( [ 'www.youtube.com', 'reddit.com', 'youtube.com' ] );
 
 		expect( request ).toHaveBeenCalledExactlyOnceWith( {
 			permissions: [ 'webNavigation' ],
@@ -1147,6 +1147,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 						host: 'example.com',
 						includeSubdomains: true,
 						scopeId: DefaultProtectionScopeId,
+						pathPrefix: '/path',
 					},
 				} ],
 				measurementRevisionsByScope: UPDATED_EMPTY_CONFIGURATION.measurementRevisionsByScope,
@@ -1157,6 +1158,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 					host: 'example.com',
 					includeSubdomains: true,
 					scopeId: DefaultProtectionScopeId,
+					pathPrefix: '/path',
 				},
 			},
 		} );
@@ -1164,6 +1166,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 			host: 'example.com',
 			includeSubdomains: true,
 			scopeId: DefaultProtectionScopeId,
+			pathPrefix: '/path',
 		} ] );
 		expect( storage.writes ).toBe( 1 );
 	} );
@@ -1177,7 +1180,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		};
 		const service = createService( storage, permissionManager );
 
-		await expect( service.add( 'shop.example.com' ) ).resolves.toEqual( {
+		await expect( service.add( 'www.example.com' ) ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.REJECTED,
 			reason: ProtectionConfigurationEditRejectionReason.ALREADY_PROTECTED,
 		} );
@@ -1334,7 +1337,7 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		const permissionManager = new MemoryEnrollmentPermissionManager();
 		const service = createService( storage, permissionManager );
 
-		await expect( service.add( 'shop.example.com' ) ).resolves.toEqual( {
+		await expect( service.add( 'www.example.com' ) ).resolves.toEqual( {
 			status: ProtectedSiteEnrollmentStatus.REJECTED,
 			reason: ProtectionConfigurationEditRejectionReason.ALREADY_PROTECTED,
 		} );
@@ -1517,4 +1520,48 @@ describe( 'createProtectedSiteEnrollmentService', () => {
 		expect( permissions.origins ).toEqual( new Set( [ '*://*.youtube.com/*' ] ) );
 		expect( permissions.permissions.size ).toBe( 0 );
 	} );
+} );
+
+
+it( 'enrolls sibling paths with one origin request and retains access until the last path is removed', async () => {
+	const storage = new MemoryEnrollmentStorage( EMPTY_CONFIGURATION );
+	const permissions = new SharedPermissionStateApi();
+	const request = vi.spyOn( permissions, 'request' );
+	const manager = createSitePermissionManager( { permissions } );
+	let revision = 0;
+	const service = createService( storage, manager, coordinateMutationDirectly, () => `revision_path_${ String( ++revision ) }` );
+	const result = await service.addMany( [ 'youtube.com/shorts', 'youtube.com/feed', 'www.youtube.com/shorts' ] );
+	expect( result.status ).toBe( ProtectedSiteEnrollmentStatus.ADDED );
+	expect( request ).toHaveBeenCalledExactlyOnceWith( { permissions: [ 'webNavigation' ], origins: [ '*://*.youtube.com/*' ] } );
+	expect( storage.configuration.sites.map( ( site ) => site.rule.pathPrefix ) ).toEqual( [ '/shorts', '/feed' ] );
+	const first = storage.configuration.sites[ 0 ];
+	const last = storage.configuration.sites[ 1 ];
+	if ( ! first || ! last ) {
+		throw new Error( 'Missing path fixtures.' );
+	}
+	await expect( service.remove( first ) ).resolves.toMatchObject( { status: ProtectedSiteEnrollmentStatus.REMOVED } );
+	expect( storage.configuration.sites ).toEqual( [ last ] );
+	await expect( manager.hasAccess( last.rule ) ).resolves.toBe( true );
+	await expect( service.remove( last ) ).resolves.toMatchObject( { status: ProtectedSiteEnrollmentStatus.REMOVED } );
+	await expect( manager.hasAccess( last.rule ) ).resolves.toBe( false );
+} );
+
+it( 'returns the newly enrolled path when another entry has the same identity host', async () => {
+	const storage = new MemoryEnrollmentStorage( POPULATED_CONFIGURATION );
+	const service = createService( storage, new MemoryEnrollmentPermissionManager() );
+	await expect( service.add( 'example.com/feed' ) ).resolves.toMatchObject( {
+		status: ProtectedSiteEnrollmentStatus.ADDED, site: { rule: { pathPrefix: '/feed' } },
+	} );
+} );
+
+it( 'keeps broad browser access when a remaining exact subdomain depends on it', async () => {
+	const child = { identityHost: 'studio.example.com', rule: { ...EXAMPLE_SITE.rule,
+		host: 'studio.example.com', includeSubdomains: false } };
+	const storage = new MemoryEnrollmentStorage( { ...POPULATED_CONFIGURATION, sites: [ EXAMPLE_SITE, child ] } );
+	const permissions = new SharedPermissionStateApi();
+	const manager = createSitePermissionManager( { permissions } );
+	await manager.request( EXAMPLE_SITE.rule );
+	const service = createService( storage, manager );
+	await service.remove( EXAMPLE_SITE );
+	await expect( manager.filterConfiguration( storage.configuration ) ).resolves.toMatchObject( { sites: [ child ] } );
 } );

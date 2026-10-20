@@ -1,3 +1,5 @@
+import { getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
+import { createSitePermissionOrigins, isSitePermissionOriginCovered } from '../../utils/site-permission-origins';
 import {
 	ProtectionConfigurationEditRejectionReason,
 	ProtectionConfigurationEditStatus,
@@ -47,8 +49,12 @@ function requiresRulePermission(
 	rule: ProtectedSiteRule,
 ): boolean {
 	return configuration.sites.some( ( site ) =>
-		site.rule.host === rule.host &&
-		site.rule.includeSubdomains === rule.includeSubdomains,
+		createSitePermissionOrigins( site.rule ).some( ( origin ) =>
+			createSitePermissionOrigins( rule ).some( ( candidate ) =>
+				isSitePermissionOriginCovered( origin, [ candidate ] ) ||
+				isSitePermissionOriginCovered( candidate, [ origin ] ),
+			),
+		),
 	);
 }
 
@@ -240,7 +246,7 @@ export function createProtectedSiteEnrollmentService(
 			configuration: editResult.configuration,
 			site: ProtectedSiteConfigurationSchema.parse(
 				editResult.configuration.sites.find(
-					( site ) => site.identityHost === canonicalSite.identityHost,
+					( site ) => getProtectedSiteRuleKey( site.rule ) === getProtectedSiteRuleKey( canonicalSite.rule ),
 				),
 			),
 		};
@@ -274,8 +280,10 @@ export function createProtectedSiteEnrollmentService(
 				};
 			}
 
-			if ( ! canonicalSites.has( site.rule.host ) ) {
-				canonicalSites.set( site.rule.host, { identityHost: site.identityHost, rule: site.rule } );
+			if ( ! canonicalSites.has( getProtectedSiteRuleKey( site.rule ) ) ) {
+				canonicalSites.set( getProtectedSiteRuleKey( site.rule ), {
+					identityHost: site.identityHost, rule: site.rule,
+				} );
 			}
 		}
 
@@ -336,7 +344,7 @@ export function createProtectedSiteEnrollmentService(
 
 		try {
 			const result = await options.editor.addMany(
-				sites.map( ( site ) => site.identityHost ), verifyPermissions, finalize,
+				inputs.data, verifyPermissions, finalize,
 			);
 
 			if ( settlementState.permissionRetained ) {
@@ -389,12 +397,16 @@ export function createProtectedSiteEnrollmentService(
 				settlement.removedSite,
 			);
 
+			if ( requiresRulePermission( settlement.result.configuration, authoritativeRemovedSite.rule ) ) {
+				return;
+			}
+
 			permissionReleaseStatus = await options.permissionManager.release(
 				authoritativeRemovedSite.rule,
 				settlement.result.configuration.sites.length > 0,
 			);
 		};
-		const editResult = await options.editor.remove( site.identityHost, finalizeEdit );
+		const editResult = await options.editor.remove( site.rule, finalizeEdit );
 
 		return editResult.status === ProtectionConfigurationEditStatus.REJECTED
 			? editResult
