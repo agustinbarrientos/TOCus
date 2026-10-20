@@ -34,19 +34,21 @@ export function WebsiteDetails( props: WebsiteDetailsProps ) {
 			] } onChange={ ( event ) => {
 				props.onChange( { ...value, behavior: event.currentTarget.value === 'allow' ? 'allow' : 'pause' } );
 			} } /> }
-		<Switch label={ copy.customScheduleLabel } checked={ value.schedule !== null }
-			disabled={ props.disabled }
-			onChange={ ( event ) => {
-				props.onChange( { ...value, schedule: event.currentTarget.checked
-					? retainedSchedule.current ?? { mode: ScheduleMode.CUSTOM, windows: [ blankWindow( 0 ) ] }
-					: null } );
-			} } />
-		{ value.schedule !== null && <WeeklyScheduleEditor idPrefix={ props.idPrefix }
-			copy={ props.scheduleCopy }
-			windows={ value.schedule.windows } disabled={ props.disabled } validate={ props.validate }
-			onChange={ ( windows ) => {
-				props.onChange( { ...value, schedule: { mode: ScheduleMode.CUSTOM, windows } } );
-			} } /> }
+		{ value.behavior !== 'allow' && <>
+			<Switch label={ copy.customScheduleLabel } checked={ value.schedule !== null }
+				disabled={ props.disabled }
+				onChange={ ( event ) => {
+					props.onChange( { ...value, schedule: event.currentTarget.checked
+						? retainedSchedule.current ?? { mode: ScheduleMode.CUSTOM, windows: [ blankWindow( 0 ) ] }
+						: null } );
+				} } />
+			{ value.schedule !== null && <WeeklyScheduleEditor idPrefix={ props.idPrefix }
+				copy={ props.scheduleCopy }
+				windows={ value.schedule.windows } disabled={ props.disabled } validate={ props.validate }
+				onChange={ ( windows ) => {
+					props.onChange( { ...value, schedule: { mode: ScheduleMode.CUSTOM, windows } } );
+				} } /> }
+		</> }
 		{ props.timingCopy && inheritedTiming && value.behavior !== 'allow' && <>
 			<Switch label={ copy.customTimingLabel } checked={ value.timingConfiguration !== null }
 				disabled={ props.disabled }

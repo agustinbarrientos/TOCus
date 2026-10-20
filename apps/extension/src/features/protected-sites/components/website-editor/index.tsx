@@ -15,7 +15,7 @@ function WebsiteEditorForm( props: WebsiteEditorProps ) {
 	const [ value, setValue ] = useState( props.value );
 	const [ validate, setValidate ] = useState( false );
 	/**
-	 * Applies valid fields to the existing owner without adding another persistence path.
+	 * Applies valid fields while omitting only an invalid schedule hidden by no-pause behavior.
 	 * @param event - Native form submission from the primary button or Enter.
 	 */
 	function submit( event: SubmitEvent<HTMLFormElement> ): void {
@@ -24,14 +24,18 @@ function WebsiteEditorForm( props: WebsiteEditorProps ) {
 			return;
 		}
 		setValidate( true );
+		let submittedValue = value;
 		try {
 			if ( value.schedule !== null ) {
 				toSchedule( value.schedule );
 			}
 		} catch {
-			return;
+			if ( value.behavior !== 'allow' ) {
+				return;
+			}
+			submittedValue = { ...value, schedule: null };
 		}
-		props.onSubmit( value );
+		props.onSubmit( submittedValue );
 	}
 	return <form className="settings-site-editor" onSubmit={ submit }>
 		<Stack gap="var(--tocus-space-5)">

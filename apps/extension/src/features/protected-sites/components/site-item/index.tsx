@@ -104,7 +104,7 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 							{ presentationOnly && props.presentation?.groupUnprotected &&
 								<span><Icon name={ IconName.CHEVRONS_RIGHT } />{ copy.noPauseLabel }</span> }
 							{ ! presentationOnly && <>
-								{ details.schedule !== null && <span className="settings-site-schedule"><Icon name={ IconName.CALENDAR } />{ copy.customScheduleTag }</span> }
+								{ details.schedule !== null && details.behavior !== 'allow' && <span className="settings-site-schedule"><Icon name={ IconName.CALENDAR } />{ copy.customScheduleTag }</span> }
 								{ details.timingConfiguration !== null && details.behavior !== 'allow' && <span><Icon name={ IconName.PAUSE } />{ copy.customTimingTag }</span> }
 								{ details.behavior === 'allow' && <span><Icon name={ IconName.CHEVRONS_RIGHT } />{ copy.noPauseLabel }</span> }
 							</> }

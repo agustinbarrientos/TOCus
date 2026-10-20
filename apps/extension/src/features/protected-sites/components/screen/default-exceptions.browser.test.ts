@@ -84,6 +84,95 @@ test( 'preserves a Studio policy edited before the first Save and after duplicat
 	expect( await page.evaluate( () => window.settingsTest.getConfiguration().sites.slice( 0, 2 ) ) ).toEqual( saved );
 } );
 
+test( 'hides Studio scheduling for No pause and retains valid overrides when Pause returns', async ( { open } ) => {
+	const page = await open( SettingsDestination.PROTECTED_SITES );
+	await addSite( page, 'youtube.com' );
+	const studio = page.locator( '.settings-site-exception' ).filter( { hasText: 'studio.youtube.com' } );
+	const edit = studio.getByRole( 'button', { name: 'Edit exception', exact: true } );
+	await edit.click();
+	const dialog = page.getByRole( 'dialog' );
+	const behavior = dialog.getByLabel( 'When visited', { exact: true } );
+	const schedule = dialog.getByRole( 'switch', { name: 'Use custom schedule', exact: true } );
+	await expect( behavior ).toHaveValue( 'allow' );
+	await expect( schedule ).toHaveCount( 0 );
+	await behavior.selectOption( 'pause' );
+	await expect( schedule ).toBeVisible();
+	await schedule.click();
+	await dialog.getByLabel( 'Day', { exact: true } ).selectOption( 'Wednesday' );
+	await dialog.getByLabel( 'Start', { exact: true } ).fill( '09:30' );
+	await dialog.getByLabel( 'End', { exact: true } ).fill( '17:45' );
+	await dialog.getByRole( 'switch', { name: 'Use custom pause timing', exact: true } ).click();
+	await dialog.getByRole( 'slider', { name: 'Initial wait', exact: true } ).focus();
+	await page.keyboard.press( 'ArrowRight' );
+	await behavior.selectOption( 'allow' );
+	await expect( schedule ).toHaveCount( 0 );
+	await expect( dialog.locator( '.settings-weekly-editor' ) ).toHaveCount( 0 );
+	await expect( dialog.getByLabel( 'Day', { exact: true } ) ).toHaveCount( 0 );
+	await expect( dialog.getByLabel( 'Start', { exact: true } ) ).toHaveCount( 0 );
+	await expect( dialog.getByLabel( 'End', { exact: true } ) ).toHaveCount( 0 );
+	await behavior.selectOption( 'pause' );
+	await expect( schedule ).toBeChecked();
+	await expect( dialog.getByLabel( 'Day', { exact: true } ) ).toHaveValue( 'Wednesday' );
+	await expect( dialog.getByLabel( 'Start', { exact: true } ) ).toHaveValue( '09:30' );
+	await expect( dialog.getByLabel( 'End', { exact: true } ) ).toHaveValue( '17:45' );
+	await expect( dialog.getByRole( 'slider', { name: 'Initial wait', exact: true } ) ).toHaveAttribute( 'aria-valuenow', '15' );
+	await behavior.selectOption( 'allow' );
+	await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
+	await expect( dialog ).toHaveCount( 0 );
+	await expect( studio ).toContainText( 'No pause' );
+	await expect( studio ).not.toContainText( 'Custom schedule' );
+	await save( page, 1 );
+	const saved = await page.evaluate( () => window.settingsTest.getConfiguration().sites.find(
+		( site ) => site.rule.host === 'studio.youtube.com' ) );
+	expect( saved?.rule.behavior ).toBe( 'allow' );
+	expect( saved?.schedule ).toEqual( {
+		mode: 'custom', windows: [ { weekday: 'Wednesday', startMinute: 570, endMinute: 1065 } ],
+	} );
+	expect( saved?.timingConfiguration?.initialWaitMilliseconds ).toBe( 15000 );
+	await edit.click();
+	await expect( schedule ).toHaveCount( 0 );
+	await behavior.selectOption( 'pause' );
+	await expect( schedule ).toBeChecked();
+	await expect( dialog.getByLabel( 'Day', { exact: true } ) ).toHaveValue( 'Wednesday' );
+	await expect( dialog.getByLabel( 'Start', { exact: true } ) ).toHaveValue( '09:30' );
+	await expect( dialog.getByLabel( 'End', { exact: true } ) ).toHaveValue( '17:45' );
+	await expect( dialog.getByRole( 'slider', { name: 'Initial wait', exact: true } ) ).toHaveAttribute( 'aria-valuenow', '15' );
+	await dialog.getByRole( 'button', { name: 'Cancel', exact: true } ).click();
+} );
+
+test( 'applies No pause after an unfinished custom schedule without blocking Done or Save', async ( { open } ) => {
+	const page = await open( SettingsDestination.PROTECTED_SITES );
+	await addSite( page, 'youtube.com' );
+	const studio = page.locator( '.settings-site-exception' ).filter( { hasText: 'studio.youtube.com' } );
+	await studio.getByRole( 'button', { name: 'Edit exception', exact: true } ).click();
+	const dialog = page.getByRole( 'dialog' );
+	const behavior = dialog.getByLabel( 'When visited', { exact: true } );
+	await behavior.selectOption( 'pause' );
+	await dialog.getByRole( 'switch', { name: 'Use custom pause timing', exact: true } ).click();
+	await dialog.getByRole( 'slider', { name: 'Initial wait', exact: true } ).focus();
+	await page.keyboard.press( 'ArrowRight' );
+	await dialog.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ).click();
+	await dialog.getByLabel( 'Start', { exact: true } ).fill( '09:00' );
+	await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
+	await expect( dialog ).toBeVisible();
+	await expect( dialog.getByLabel( 'End', { exact: true } ) ).toHaveAttribute( 'aria-invalid', 'true' );
+	await behavior.selectOption( 'allow' );
+	await behavior.selectOption( 'pause' );
+	await expect( dialog.getByLabel( 'Start', { exact: true } ) ).toHaveValue( '09:00' );
+	await expect( dialog.getByLabel( 'End', { exact: true } ) ).toHaveValue( '' );
+	await behavior.selectOption( 'allow' );
+	await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
+	await expect( dialog ).toHaveCount( 0 );
+	await expect( studio ).toContainText( 'No pause' );
+	await expect( studio ).not.toContainText( 'Custom schedule' );
+	await save( page, 1 );
+	const saved = await page.evaluate( () => window.settingsTest.getConfiguration().sites.find(
+		( site ) => site.rule.host === 'studio.youtube.com' ) );
+	expect( saved?.rule.behavior ).toBe( 'allow' );
+	expect( saved?.schedule ).toBeUndefined();
+	expect( saved?.timingConfiguration?.initialWaitMilliseconds ).toBe( 15000 );
+} );
+
 test( 'does not recreate a default exception removed before saving YouTube', async ( { open } ) => {
 	const page = await open( SettingsDestination.PROTECTED_SITES );
 	await addSite( page, 'youtube.com' );
