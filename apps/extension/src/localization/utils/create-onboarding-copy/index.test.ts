@@ -20,5 +20,6 @@ describe( 'createOnboardingCopy', () => {
 		expect( copy.appearance.title ).toBe( 'Make TOCus yours' );
 		expect( copy.stepNames.sites ).toBe( 'Websites' );
 		expect( copy.sites.title ).toBe( 'Choose websites' );
+		expect( copy.backup.entryLabel ).toBe( 'Have a backup?' );
 	} );
 } );
