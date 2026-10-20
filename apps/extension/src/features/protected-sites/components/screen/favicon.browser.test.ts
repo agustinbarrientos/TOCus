@@ -170,7 +170,7 @@ test( 'updates cached member candidates without applying stale lookups after mem
 				}
 				return host === 'studio.youtube.com'
 					? 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="8" height="8"%3E%3Crect width="8" height="8" fill="orange"/%3E%3C/svg%3E'
-					: host === 'music.youtube.com'
+					: host === 'm.youtube.com'
 						? 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="8" height="8"%3E%3Crect width="8" height="8" fill="blue"/%3E%3C/svg%3E' : null;
 			},
 		} );
@@ -181,7 +181,7 @@ test( 'updates cached member candidates without applying stale lookups after mem
 	}
 	const row = page.locator( '.settings-site-item:not(.settings-site-exception)' );
 	await expect( row.locator( 'img' ) ).toHaveCount( 0 );
-	await page.getByLabel( 'Website address', { exact: true } ).fill( 'music.youtube.com' );
+	await page.getByLabel( 'Website address', { exact: true } ).fill( 'm.youtube.com' );
 	await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
 	await expect( row.locator( 'img' ) ).toHaveAttribute( 'src', /fill="blue"/ );
 	await page.evaluate( () => window.dispatchEvent( new Event( 'release-member-favicon' ) ) );
@@ -191,11 +191,11 @@ test( 'updates cached member candidates without applying stale lookups after mem
 		} ) );
 	} ) );
 	await expect( row.locator( 'img' ) ).toHaveAttribute( 'src', /fill="blue"/ );
-	for ( const host of [ 'music.youtube.com', 'studio.youtube.com' ] ) {
+	for ( const host of [ 'm.youtube.com', 'studio.youtube.com' ] ) {
 		await page.locator( '.settings-site-exception' ).filter( { hasText: host } )
 			.getByRole( 'button', { name: 'Remove site', exact: true } ).click();
 		await page.getByRole( 'dialog' ).getByRole( 'button', { name: 'Remove', exact: true } ).click();
-		if ( host === 'music.youtube.com' ) {
+		if ( host === 'm.youtube.com' ) {
 			await expect( row.locator( 'img' ) ).toHaveAttribute( 'src', /fill="orange"/ );
 		}
 	}

@@ -2,6 +2,8 @@
 
 ## 1.1.0 - Unreleased
 
+- Fixed: Unprotected grouping headings show No pause, and recognized product subdomains have independent website rows, product names and isolated cached icons without changing their saved protection rules (Chrome, Edge, Firefox).
+
 - Changed: Website address placeholders illustrate paths and subdomains in Settings and onboarding (Chrome, Edge, Firefox).
 
 - Fixed: Destructive outline buttons use a red border matching their label, including Remove selected, Clear all and Discard (Chrome, Edge, Firefox).
