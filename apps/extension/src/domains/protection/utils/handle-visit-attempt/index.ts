@@ -180,6 +180,8 @@ export function handleVisitAttempt(
 			} ] );
 		}
 
+		const capturedWaitDurationMilliseconds = Math.max( state.capturedWaitDurationMilliseconds,
+			getNextWaitDuration( event.timingConfiguration, state.ladder ) );
 		const owner = selectOwner( participants );
 		const ownerParticipantId = owner?.participantId ?? null;
 		const ownershipChanged = ownerParticipantId !== state.ownerParticipantId;
@@ -189,6 +191,7 @@ export function handleVisitAttempt(
 
 		return createTransitionResult( {
 			...state,
+			capturedWaitDurationMilliseconds,
 			participants,
 			ownerParticipantId,
 			ownerEpoch: ownershipChanged ? state.ownerEpoch + 1 : state.ownerEpoch,
@@ -216,6 +219,8 @@ export function handleVisitAttempt(
 		scopeId: state.scopeId,
 		waitId: event.waitId,
 		capturedWaitDurationMilliseconds,
+		capturedAllowanceDurationMilliseconds: event.timingConfiguration.allowanceMilliseconds,
+		capturedCompletionAction: event.timingConfiguration.completionAction,
 		confirmedFocusedDurationMilliseconds: 0,
 		participants: [ participant ],
 		ownerParticipantId,
