@@ -119,9 +119,11 @@ export function Statistics( props: SettingsScreenProps ) {
 				const groupHost = getWebsitePresentationGroupHost( siteHost );
 				const members = configuration?.sites.filter( ( site ) =>
 					getWebsitePresentationGroupHost( site.rule.host ) === groupHost ) ?? [];
-				const configured = members.find( ( site ) => site.rule.host === siteHost &&
-					getWebsitePresentationGroupHost( site.identityHost ) === groupHost );
-				const identity = resolveSiteDisplayIdentity( configured ?? { identityHost: siteHost,
+				const configured = members.find( ( site ) => site.rule.host === siteHost );
+				const displaySite = configured &&
+					getWebsitePresentationGroupHost( configured.identityHost ) !== groupHost
+					? { ...configured, identityHost: siteHost } : configured;
+				const identity = resolveSiteDisplayIdentity( displaySite ?? { identityHost: siteHost,
 					rule: { host: siteHost, includeSubdomains: false, scopeId: DefaultProtectionScopeId } } );
 				const favicon = await resolveGroupFavicon( props.shell.faviconProvider,
 					getGroupFaviconHosts( groupHost,
