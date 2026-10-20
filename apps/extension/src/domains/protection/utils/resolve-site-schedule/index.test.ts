@@ -23,3 +23,16 @@ describe( 'resolveSiteSchedule', () => {
 		expect( resolveSiteSchedule( TestEmptyProtectionConfiguration, 'example.com' ) ).toBeUndefined();
 	} );
 } );
+
+
+it( 'resolves distinct path schedules by target and never mistakes a path for a legacy whole-host lookup', () => {
+	const rule = { host: 'example.com', includeSubdomains: true, scopeId: DefaultProtectionScopeId, pathPrefix: '/feed' };
+	const schedule = {
+		mode: ScheduleMode.CUSTOM, windows: [ { weekday: Weekday.MONDAY, startMinute: 540, endMinute: 600 } ],
+	};
+	const configuration = {
+		...TestEmptyProtectionConfiguration, sites: [ { identityHost: 'example.com', rule, schedule } ],
+	};
+	expect( resolveSiteSchedule( configuration, rule ) ).toEqual( schedule );
+	expect( resolveSiteSchedule( configuration, 'example.com' ) ).toBeUndefined();
+} );
