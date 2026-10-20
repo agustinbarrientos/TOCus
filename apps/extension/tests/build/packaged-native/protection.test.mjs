@@ -214,7 +214,12 @@ test( 'real allowance expiry pauses playing media and Continue preserves the doc
 		await expect.poll( () => browser.viewScript( 'onboarding', `return browser.storage.local.get('tocus.protection.durable.v1')
 			.then(data => Boolean(data['tocus.protection.durable.v1']?.document.scopes.scope_default?.ready));` ), { timeout: 20_000 } ).toBe( true );
 		expect( ( await status() ).muted ).toBe( true );
-		await browser.viewKey( 'selected', 'body', 'Space' );
+		if ( browser.viewFocusedElement ) {
+			await expect.poll( () => browser.viewFocusedElement( 'selected' ) )
+				.toMatchObject( { tag: 'button', classes: expect.arrayContaining( [ 'continue-button' ] ),
+					label: 'Continue', disabled: false } );
+		}
+		await browser.viewPressKey( 'selected', 'Space' );
 		await expect.poll( async () => ( await status() ).presentation.interruptionLayerPresented ).toBe( false );
 		await expect.poll( async () => ( await status() ).muted ).toBe( false );
 		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("video")?.paused;' ) ).toBe( false );
