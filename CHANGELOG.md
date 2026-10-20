@@ -2,6 +2,8 @@
 
 ## 1.1.0 - Unreleased
 
+- Added: Grouped website path and subdomain exceptions, with independent schedules, complete custom pause timing for websites and exceptions, and an explicit no-pause option. Shared pauses keep elapsed progress when a longer rule joins, and backups preserve all overrides (Chrome, Edge, Firefox).
+
 - Fixed: Search-result links containing text fragments restore their breathing pause and keep the complete destination when continuing, including after retrying a temporary restoration failure (Chrome, Edge, Firefox).
 - Added: Live breathing-screen previews in Quick links and Appearance that share onboarding's browser frame, float at the bottom right, reflect unsaved changes, respect reduced motion, and stay separate from real pause activity (Chrome, Edge, Firefox).
 - Added: Optional Statistics comparisons for the current week, month and year, with matched elapsed dates, neutral trend tags, dashed previous-period charts and an all-websites outcome summary. Comparisons use existing local history and stay hidden when recording coverage is insufficient (Chrome, Edge, Firefox).

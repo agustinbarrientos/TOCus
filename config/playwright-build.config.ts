@@ -8,7 +8,7 @@ export default defineConfig( {
 	testDir: '../apps',
 	testMatch: [
 		'website/tests/build/**/*.test.ts',
-		'extension/tests/build/packaged-protection/index.test.ts',
+		'extension/tests/build/packaged-protection/*.test.ts',
 		'extension/tests/build/packaged-favicons/index.test.ts',
 	],
 	// Keep specialized packaged checks serial; installed-product journeys run in their own CI matrix.

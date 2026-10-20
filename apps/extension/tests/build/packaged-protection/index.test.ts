@@ -177,6 +177,8 @@ test.describe( 'packaged Chrome protection', () => {
 		expect( stored ).toMatchObject( {
 			sites: [ { identityHost: 'example.test', rule: {
 				host: 'example.test', includeSubdomains: false, scopeId: DefaultProtectionScopeId,
+			} }, { identityHost: 'example.test', rule: {
+				host: 'example.test', includeSubdomains: false, scopeId: DefaultProtectionScopeId, pathPrefix: '/again',
 			} } ],
 		} );
 	} );
@@ -276,8 +278,8 @@ test.describe( 'packaged Chrome protection', () => {
 						regexSubstitution: expect.stringMatching( /pause\.html#destination=\\0$/u ),
 					} },
 					condition: {
-						regexFilter: '^https?://.*',
-						requestDomains: [ 'example.test' ],
+						regexFilter: expect.any( String ),
+						isUrlFilterCaseSensitive: true,
 						resourceTypes: [ 'main_frame' ],
 					},
 				} ) ] ) );
@@ -371,8 +373,8 @@ test.describe( 'packaged Chrome protection', () => {
 					regexSubstitution: expect.stringMatching( /pause\.html#destination=\\0$/u ),
 				} },
 				condition: {
-					regexFilter: '^https?://.*',
-					requestDomains: [ 'example.test' ],
+					regexFilter: expect.any( String ),
+					isUrlFilterCaseSensitive: true,
 					resourceTypes: [ 'main_frame' ],
 				},
 			} ) ] ) );
@@ -466,8 +468,8 @@ test.describe( 'packaged Chrome protection', () => {
 						regexSubstitution: expect.stringMatching( /pause\.html#destination=\\0$/u ),
 					} },
 					condition: {
-						regexFilter: '^https?://.*',
-						requestDomains: [ 'example.test' ],
+						regexFilter: expect.any( String ),
+						isUrlFilterCaseSensitive: true,
 						resourceTypes: [ 'main_frame' ],
 					},
 				} ) ] ) );
