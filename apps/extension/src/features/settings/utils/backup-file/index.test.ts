@@ -102,3 +102,12 @@ it( 'downloads the bounded serialization so large valid backups remain importabl
 	}
 	expect( () => parseBackupText( text ) ).not.toThrow();
 } );
+
+
+it( 'accepts strict legacy file contents and returns the upgraded portable version', async () => {
+	const legacy = { ...createBackupDocument( createBackupSource() ), dataFormatVersion: '1.1.0' };
+	const text = JSON.stringify( legacy );
+	await expect( readBackupFile( { size: text.length, text: vi.fn().mockResolvedValue( text ) } ) ).resolves.toEqual( {
+		...legacy, dataFormatVersion: '1.2.0',
+	} );
+} );
