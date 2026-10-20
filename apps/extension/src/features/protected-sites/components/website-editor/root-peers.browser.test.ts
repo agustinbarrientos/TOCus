@@ -17,7 +17,9 @@ for ( const order of [ 'exact-first', 'broad-first' ] ) {
 			await row.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } ).click();
 			const dialog = page.getByRole( 'dialog' );
 			await expect( dialog.getByLabel( 'Name', { exact: true } ) ).toBeVisible();
-			await expect( dialog.getByLabel( 'When visited', { exact: true } ) ).toHaveCount( 0 );
+			const behavior = dialog.getByLabel( 'When visited', { exact: true } );
+			await expect( behavior ).toBeVisible();
+			await expect( behavior ).toHaveValue( 'pause' );
 			await dialog.getByLabel( 'Name', { exact: true } ).fill( name );
 			const schedule = dialog.getByRole( 'switch', { name: 'Use custom schedule', exact: true } );
 			if ( ! await schedule.isChecked() ) {
