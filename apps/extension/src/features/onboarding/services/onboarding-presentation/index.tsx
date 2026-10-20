@@ -17,6 +17,7 @@ export function mountOnboarding( container: HTMLElement ): OnboardingPageShell {
 	const root = createRoot( container );
 	let disposed = false;
 	const port = createPresentationPort<OnboardingState>( {
+		backupActions: null,
 		copy: undefined,
 		notificationCopy: undefined,
 		resetComplete: false,

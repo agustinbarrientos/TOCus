@@ -28,6 +28,9 @@ import {
 } from '../../components/shell/types';
 import { OnboardingSiteSuggestions } from '../../utils/site-suggestion-catalog';
 import { createOnboardingLocalizationCoordinator } from '../localization-coordinator';
+import { createSettingsDataBoundary } from '../../../settings/services/settings-data-boundary';
+import { createOnboardingBackupActions } from '../onboarding-backup';
+import { readLocalDataGeneration } from '../../../../domains/local-data/services/local-data-generation';
 import type { OnboardingPageOptions } from './types';
 
 /**
@@ -78,12 +81,17 @@ function applyEnglishFallbackLocalization( options: OnboardingPageOptions ): voi
  * @since 1.0.0 Initial implementation.
  */
 export async function startOnboardingPage( options: OnboardingPageOptions ): Promise<void> {
+	const permissionManager = createSitePermissionManager( { permissions: options.permissions } );
+	const boundary = options.runtime === undefined ? { area: options.storageArea, changes: options.storageChanges }
+		: createSettingsDataBoundary( {
+			area: options.storageArea, changes: options.storageChanges, onReplaced: rebindEditors,
+		} );
 	const preferences = createBrowserPreferencesEditor( {
-		area: options.storageArea,
+		area: boundary.area,
 		locks: options.locks,
 	} );
 	const protection = createBrowserProtectionConfigurationEditor( {
-		area: options.storageArea,
+		area: boundary.area,
 		cryptography: options.cryptography,
 		locks: options.locks,
 	} );
@@ -91,15 +99,59 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 		appearanceTarget: options.document.documentElement,
 		browserLanguage: options.browserLanguage,
 		storage: preferences.storage,
-		storageChanges: options.storageChanges,
+		storageChanges: boundary.changes,
 		systemMotionPreference: options.pageWindow.matchMedia( '(prefers-reduced-motion: reduce)' ),
 	} );
 	const enrollment = createProtectedSiteEnrollmentService( {
 		editor: protection.editor,
-		permissionManager: createSitePermissionManager( { permissions: options.permissions } ),
+		permissionManager,
 	} );
 	let localizationLanguage = options.browserLanguage;
 	const protectionProjection = { changedDuringStartup: false };
+
+	/**
+	 * Recreates both mutation guards before projecting a completed replacement.
+	 * @return Completion of editor rebinding.
+	 * @since 1.1.0
+	 */
+	function rebindEditors(): Promise<void> {
+		options.shell.editor = createBrowserPreferencesEditor( { area: boundary.area, locks: options.locks } ).editor;
+		options.shell.enrollment = createProtectedSiteEnrollmentService( {
+			editor: createBrowserProtectionConfigurationEditor( {
+				area: boundary.area, cryptography: options.cryptography, locks: options.locks,
+			} ).editor,
+			permissionManager,
+		} );
+		return Promise.resolve();
+	}
+
+	/**
+	 * Refreshes a complete imported preference, configuration and language snapshot.
+	 * @return Completion after the authoritative projection and localization settle.
+	 * @since 1.1.0
+	 */
+	async function refreshImportedData(): Promise<void> {
+		await rebindEditors();
+		const current = await readLocalDataGeneration( boundary.area );
+		const [ importedPreferences, importedProtection ] = await Promise.all( [
+			preferences.storage.load(),
+			createBrowserProtectionConfigurationEditor( {
+				area: boundary.area, cryptography: options.cryptography, locks: options.locks,
+			} ).editor.load(),
+		] );
+		const latest = await readLocalDataGeneration( boundary.area );
+		if ( current?.generation !== latest?.generation ) {
+			return refreshImportedData();
+		}
+		if ( importedPreferences === null || importedProtection === null ) {
+			throw new Error( 'Imported onboarding data is unavailable.' );
+		}
+		preferencesController.apply( importedPreferences );
+		applyPreferences( importedPreferences );
+		applyProtectedSites( importedProtection );
+		await requestLocalization( preferencesController.language );
+		await synchronizeLocalization();
+	}
 
 	/**
 	 * Projects one complete onboarding localization snapshot.
@@ -130,6 +182,22 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 	options.shell.enrollment = enrollment;
 	options.shell.suggestions = OnboardingSiteSuggestions;
 	options.shell.synchronizeLanguage = synchronizeLanguage;
+	options.shell.backupActions = options.runtime === undefined ? null : createOnboardingBackupActions( {
+		runtime: options.runtime, permissions: permissionManager,
+		/**
+		 * Allocates one stable identity for an explicitly confirmed import.
+		 * @return Collision-resistant local operation identity.
+		 * @since 1.1.0
+		 */
+		createId: () => options.cryptography.randomUUID(),
+		onImported: refreshImportedData,
+		/**
+		 * Reads current restored rules before opening the browser permission prompt.
+		 * @return Latest complete website projection.
+		 * @since 1.1.0
+		 */
+		getProtectedSites: () => options.shell.protectedSites,
+	} );
 
 	/**
 	 * Projects one validated preference snapshot into onboarding controls.
@@ -297,7 +365,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 	}
 
 	try {
-		options.storageChanges.addListener( handleProtectionChange );
+		boundary.changes.addListener( handleProtectionChange );
 		preferencesController.addLanguageChangeListener( handleLanguageChange );
 		preferencesController.addPreferencesChangeListener( applyPreferences );
 		preferencesController.addEventListener( 'change', applyReducedMotion );
@@ -322,7 +390,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 		options.shell.startupUnavailable = false;
 		revealOnboardingPage( options );
 	} catch ( error ) {
-		options.storageChanges.removeListener( handleProtectionChange );
+		boundary.changes.removeListener( handleProtectionChange );
 		preferencesController.removeLanguageChangeListener( handleLanguageChange );
 		preferencesController.removePreferencesChangeListener( applyPreferences );
 		preferencesController.removeEventListener( 'change', applyReducedMotion );
@@ -334,6 +402,7 @@ export async function startOnboardingPage( options: OnboardingPageOptions ): Pro
 		options.shell.removeEventListener( OnboardingCompleteEventName, handleOnboardingComplete );
 		options.shell.removeEventListener( OnboardingOpenSettingsEventName, handleOpenSettings );
 		options.shell.synchronizeLanguage = null;
+		options.shell.backupActions = null;
 		throw error;
 	}
 }
