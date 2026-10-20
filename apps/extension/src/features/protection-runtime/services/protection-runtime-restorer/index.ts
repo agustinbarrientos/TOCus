@@ -128,7 +128,7 @@ function createRestoredReadyObservation(
 		configuration.sites.map( ( site ) => site.rule ),
 	);
 	const schedule = match.status === ProtectedUrlMatchStatus.PROTECTED
-		? resolveSiteSchedule( configuration, match.rule.host )
+		? resolveSiteSchedule( configuration, match.rule )
 		: undefined;
 
 	return {
@@ -208,18 +208,19 @@ export function createProtectionRuntimeRestorer(
 	async function restore(
 		preloadedConfiguration?: Parameters<ProtectionRuntimeRestorer[ 'restore' ]>[ 0 ],
 	): Promise<boolean> {
+		const configuration = preloadedConfiguration === undefined
+			? await options.loadConfiguration()
+			: preloadedConfiguration;
 		const initialization = await options.coordinator.initialize( {
 			nowEpochMilliseconds: options.now(),
 			readyObservations: [],
+			...( configuration === null ? {} : { configuration } ),
 		} );
 
 		if ( initialization.status === ProtectionCoordinatorInitializationStatus.FAILED ) {
 			return false;
 		}
 
-		const configuration = preloadedConfiguration === undefined
-			? await options.loadConfiguration()
-			: preloadedConfiguration;
 
 		await options.applyDecisions( initialization.decisions, configuration );
 

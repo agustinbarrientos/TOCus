@@ -205,6 +205,8 @@ describe( 'visit-attempt transition', () => {
 				scopeId: 'scope-default',
 				waitId: 'wait-a',
 				capturedWaitDurationMilliseconds: 10_000,
+				capturedAllowanceDurationMilliseconds: 300_000,
+				capturedCompletionAction: TestTimingConfiguration.completionAction,
 				confirmedFocusedDurationMilliseconds: 0,
 				participants: [ { ...event.participant, joinSequence: 0 } ],
 				ownerParticipantId: 'participant-a',
@@ -241,7 +243,7 @@ describe( 'visit-attempt transition', () => {
 		} );
 	} );
 
-	it( 'joins a new participant without recapturing timing and assigns the next sequence', () => {
+	it( 'extends the wait target for a new participant and assigns the next sequence', () => {
 		const state = createWaitingState();
 		const event = createVisitAttempt( 'participant-b', 'page-b', false, {
 			waitId: 'ignored-wait',
@@ -254,6 +256,7 @@ describe( 'visit-attempt transition', () => {
 
 		expect( result.state ).toEqual( {
 			...state,
+			capturedWaitDurationMilliseconds: 30_000,
 			participants: [
 				...state.participants,
 				{ ...event.participant, joinSequence: 1 },

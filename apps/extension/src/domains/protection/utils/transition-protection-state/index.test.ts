@@ -54,6 +54,8 @@ describe( 'transitionProtectionState', () => {
 				scopeId: 'scope-default',
 				waitId: 'wait-a',
 				capturedWaitDurationMilliseconds: 10_000,
+				capturedAllowanceDurationMilliseconds: 300_000,
+				capturedCompletionAction: 'show-continue',
 				confirmedFocusedDurationMilliseconds: 0,
 				participants: [ {
 					origin: ProtectionParticipantOrigin.NAVIGATION,
@@ -261,6 +263,8 @@ describe( 'transitionProtectionState', () => {
 				scopeId: 'scope-default',
 				waitId: 'wait-expiry',
 				capturedWaitDurationMilliseconds: 10_000,
+				capturedAllowanceDurationMilliseconds: 300_000,
+				capturedCompletionAction: 'show-continue',
 				confirmedFocusedDurationMilliseconds: 0,
 				participants: [ {
 					origin: ProtectionParticipantOrigin.NAVIGATION,
