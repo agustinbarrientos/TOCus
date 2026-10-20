@@ -165,7 +165,7 @@ export interface ProtectionConfigurationEditorOptions {
 
 /**
  * Optional explicit policy edits; absent fields retain the current policy and null clears timing.
- * @since 1.2.0
+ * @since 1.1.0
  */
 export const ProtectionConfigurationPolicyOverridesSchema = z.strictObject( {
 	timingConfiguration: TimingConfigurationSchema.nullable().optional(),
@@ -174,7 +174,7 @@ export const ProtectionConfigurationPolicyOverridesSchema = z.strictObject( {
 
 /**
  * Explicit timing and behavior fields accepted by one target update.
- * @since 1.2.0
+ * @since 1.1.0
  */
 export type ProtectionConfigurationPolicyOverrides = z.infer<typeof ProtectionConfigurationPolicyOverridesSchema>;
 

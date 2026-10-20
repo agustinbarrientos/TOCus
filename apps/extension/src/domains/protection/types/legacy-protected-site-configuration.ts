@@ -23,7 +23,7 @@ const LegacyProtectedSiteConfigurationSchema = z.strictObject( {
 
 /**
  * Preserves version-five non-overlapping host ownership during legacy decoding.
- * @since 1.2.0
+ * @since 1.1.0
  */
 export const LegacyProtectedSiteConfigurationSetSchema = z.array( LegacyProtectedSiteConfigurationSchema )
 	.superRefine( ( sites, context ) => {
@@ -41,7 +41,7 @@ export const LegacyProtectedSiteConfigurationSetSchema = z.array( LegacyProtecte
 
 /**
  * Strictly validates the saved version-five layout, retaining scope-revision checks.
- * @since 1.2.0
+ * @since 1.1.0
  */
 export const LegacyProtectionConfigurationDocumentSchema = z.strictObject( {
 	...ProtectionConfigurationDocumentSchema.shape,
@@ -53,7 +53,7 @@ export const LegacyProtectionConfigurationDocumentSchema = z.strictObject( {
 
 /**
  * Reads supported storage versions into the current shape without reinterpreting saved coverage.
- * @since 1.2.0
+ * @since 1.1.0
  */
 export const CompatibleProtectionConfigurationDocumentSchema = z.union( [
 	ProtectionConfigurationDocumentSchema,

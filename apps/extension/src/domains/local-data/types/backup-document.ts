@@ -84,7 +84,7 @@ export type BackupDocument = z.infer<typeof BackupDocumentSchema>;
 
 /**
  * Strict historical portable layout, including its original non-overlap restriction.
- * @since 1.2.0
+ * @since 1.1.0
  */
 export const LegacyBackupDocumentSchema = BackupDocumentSchema.extend( {
 	dataFormatVersion: z.literal( '1.1.0' ),
@@ -93,7 +93,7 @@ export const LegacyBackupDocumentSchema = BackupDocumentSchema.extend( {
 
 /**
  * Normalizes supported portable formats while preserving saved site ranges and user choices.
- * @since 1.2.0
+ * @since 1.1.0
  */
 export const CompatibleBackupDocumentSchema = z.union( [
 	BackupDocumentSchema,
