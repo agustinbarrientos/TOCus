@@ -505,6 +505,14 @@ msgstr "今週"
 msgid "Current year"
 msgstr "今年"
 
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Custom pause timing"
+msgstr "カスタムの一時停止時間"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Custom schedule"
+msgstr "カスタムスケジュール"
+
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Daily activity"
 msgstr "日別のアクティビティ"
@@ -568,6 +576,10 @@ msgstr "完了"
 msgid "Each completed wait adds this amount to the next wait that day."
 msgstr "待ち時間を完了するたびに、その日の次回の待ち時間へこの長さが加算されます。"
 
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Edit exception"
+msgstr "例外を編集"
+
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 msgid "Edit link"
 msgstr "リンクを編集"
@@ -627,6 +639,10 @@ msgstr "取り戻した時間の推定値"
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "example.com"
 msgstr "example.com"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Exceptions"
+msgstr "例外"
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Excludes subdomains"
@@ -853,6 +869,10 @@ msgstr "名前"
 msgid "No activity in this period"
 msgstr "この期間のアクティビティはありません"
 
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "No pause"
+msgstr "一時停止しない"
+
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "No reconsidered visits recorded in this period."
 msgstr "この期間に再考したアクセスは記録されていません。"
@@ -909,6 +929,7 @@ msgid "Orange"
 msgstr "オレンジ"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Pause"
 msgstr "一時停止"
 
@@ -1696,6 +1717,10 @@ msgid "Use browser language"
 msgstr "ブラウザーの言語を使用"
 
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Use custom pause timing"
+msgstr "カスタムの一時停止時間を使用"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Use custom schedule"
 msgstr "個別のスケジュールを使う"
@@ -1814,6 +1839,10 @@ msgstr "TOCus をいつ有効にしますか？"
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "When the wait finishes"
 msgstr "待ち時間が終了したとき"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "When visited"
+msgstr "アクセス時"
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "When you click the toolbar icon, TOCus gets access to the website you're currently visiting, but only for a short time, and doesn't send that data anywhere."

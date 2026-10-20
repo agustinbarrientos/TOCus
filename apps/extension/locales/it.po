@@ -505,6 +505,14 @@ msgstr "Settimana corrente"
 msgid "Current year"
 msgstr "Anno corrente"
 
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Custom pause timing"
+msgstr "Tempi di pausa personalizzati"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Custom schedule"
+msgstr "Programma personalizzato"
+
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "Daily activity"
 msgstr "Attività giornaliera"
@@ -568,6 +576,10 @@ msgstr "Fatto"
 msgid "Each completed wait adds this amount to the next wait that day."
 msgstr "Ogni attesa completata aggiunge questo intervallo all'attesa successiva della giornata."
 
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Edit exception"
+msgstr "Modifica eccezione"
+
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 msgid "Edit link"
 msgstr "Modifica link"
@@ -627,6 +639,10 @@ msgstr "Tempo recuperato stimato"
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "example.com"
 msgstr "example.com"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Exceptions"
+msgstr "Eccezioni"
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Excludes subdomains"
@@ -853,6 +869,10 @@ msgstr "Nome"
 msgid "No activity in this period"
 msgstr "Nessuna attività in questo periodo"
 
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "No pause"
+msgstr "Nessuna pausa"
+
 #: apps/extension/src/localization/utils/create-statistics-copy/index.ts
 msgid "No reconsidered visits recorded in this period."
 msgstr "Nessuna visita riconsiderata registrata in questo periodo."
@@ -909,6 +929,7 @@ msgid "Orange"
 msgstr "Arancione"
 
 #: apps/extension/src/localization/utils/create-appearance-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Pause"
 msgstr "Pausa"
 
@@ -1696,6 +1717,10 @@ msgid "Use browser language"
 msgstr "Usa la lingua del browser"
 
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "Use custom pause timing"
+msgstr "Usa tempi di pausa personalizzati"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Use custom schedule"
 msgstr "Usa orari personalizzati"
@@ -1814,6 +1839,10 @@ msgstr "Quando deve essere attivo TOCus?"
 #: apps/extension/src/localization/utils/create-timing-copy/index.ts
 msgid "When the wait finishes"
 msgstr "Al termine dell'attesa"
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "When visited"
+msgstr "Alla visita"
 
 #: apps/extension/src/localization/utils/create-privacy-screen-copy/index.ts
 msgid "When you click the toolbar icon, TOCus gets access to the website you're currently visiting, but only for a short time, and doesn't send that data anywhere."
