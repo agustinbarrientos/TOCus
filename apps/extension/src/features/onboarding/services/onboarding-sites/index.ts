@@ -7,10 +7,11 @@ import {
 	type ProtectedSiteConfiguration,
 } from '../../../../domains/protection/types/protected-site-configuration';
 import { canonicalizeProtectedSite } from '../../../../domains/protection/utils/protected-site-canonicalizer';
+import { getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
 import { SitePermissionReleaseStatus } from '../../../protected-sites/services/site-permission-manager';
 import { resolveSiteDisplayIdentity } from '../../../protected-sites/utils/site-display-name-resolver';
 import type { OnboardingPageShell } from '../onboarding-page/types';
-import { enrollmentFailureKey, mergeOnboardingSites, pendingSiteDrafts } from '../../utils/site-drafts';
+import { enrollmentFailureKey, getSiteDraftInput, mergeOnboardingSites, pendingSiteDrafts } from '../../utils/site-drafts';
 import { OnboardingAnnouncementKind,
 	type OnboardingAnnouncement, OnboardingFailure, type OnboardingOperationGate,
 	type OnboardingSitesController, type OnboardingState,
@@ -38,7 +39,8 @@ export function useOnboardingSites(
 	const [ pendingRemoval, setPendingRemoval ] = useState<OnboardingPendingRemoval | null>( null );
 	const addressInputRef = useRef<HTMLInputElement>( null );
 	const sites = mergeOnboardingSites( state.protectedSites, drafts );
-	if ( pendingRemoval && ! sites.some( ( site ) => site.identityHost === pendingRemoval.site.identityHost ) ) {
+	if ( pendingRemoval && ! sites.some( ( site ) =>
+		getProtectedSiteRuleKey( site.rule ) === getProtectedSiteRuleKey( pendingRemoval.site.rule ) ) ) {
 		sites.splice( pendingRemoval.index, 0, pendingRemoval.site );
 	}
 
@@ -53,10 +55,11 @@ export function useOnboardingSites(
 
 	/**
 	 * Drops any local draft for a removed saved site or unsaved addition.
-	 * @param identityHost - Canonical site identity to remove from local drafts.
+	 * @param site - Canonical target to remove from local drafts.
 	 */
-	function removeDraft( identityHost: string ): void {
-		replaceDrafts( draftRef.current.filter( ( candidate ) => candidate.identityHost !== identityHost ) );
+	function removeDraft( site: ProtectedSiteConfiguration ): void {
+		const key = getProtectedSiteRuleKey( site.rule );
+		replaceDrafts( draftRef.current.filter( ( candidate ) => getProtectedSiteRuleKey( candidate.rule ) !== key ) );
 	}
 
 	/**
@@ -133,13 +136,15 @@ export function useOnboardingSites(
 			return;
 		}
 		const current = mergeOnboardingSites( port.protectedSites, draftRef.current );
-		const index = current.findIndex( ( candidate ) => candidate.identityHost === site.identityHost );
+		const key = getProtectedSiteRuleKey( site.rule );
+		const index = current.findIndex( ( candidate ) => getProtectedSiteRuleKey( candidate.rule ) === key );
 		const restoreFocus = source !== undefined && source === source.ownerDocument.activeElement;
 		const name = resolveSiteDisplayIdentity( site ).name;
-		const persisted = port.protectedSites.some( ( candidate ) => candidate.identityHost === site.identityHost );
+		const persisted = port.protectedSites.some( ( candidate ) =>
+			getProtectedSiteRuleKey( candidate.rule ) === key );
 		setFailure( null );
 		if ( ! persisted ) {
-			removeDraft( site.identityHost );
+			removeDraft( site );
 			announce( OnboardingAnnouncementKind.REMOVED, name );
 		} else {
 			if ( ! port.enrollment || ! operation.begin() ) {
@@ -153,7 +158,7 @@ export function useOnboardingSites(
 					return;
 				}
 				port.protectedSites = result.configuration.sites;
-				removeDraft( site.identityHost );
+				removeDraft( site );
 				const kind = result.permissionReleaseStatus === SitePermissionReleaseStatus.RELEASED
 					? OnboardingAnnouncementKind.REMOVED : OnboardingAnnouncementKind.RETAINED;
 				announce( kind, name );
@@ -191,7 +196,7 @@ export function useOnboardingSites(
 		setFailure( null );
 		try {
 			// addMany must begin synchronously here, before the first await, to retain browser user activation.
-			const result = await port.enrollment.addMany( additions.map( ( site ) => site.identityHost ) );
+			const result = await port.enrollment.addMany( additions.map( getSiteDraftInput ) );
 			if ( result.status === ProtectedSiteEnrollmentStatus.ADDED ) {
 				port.protectedSites = result.configuration.sites;
 				replaceDrafts( [] );

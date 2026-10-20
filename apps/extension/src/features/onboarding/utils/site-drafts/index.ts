@@ -3,6 +3,17 @@ import { ProtectedSiteEnrollmentStatus } from '../../../protected-sites/services
 import type { ProtectedSiteConfiguration } from '../../../../domains/protection/types/protected-site-configuration';
 import type { UnsuccessfulProtectedSiteEnrollmentResult } from '../../../protected-sites/services/protected-site-enrollment';
 import { OnboardingFailure } from '../../types/flow';
+import { getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
+
+/**
+ * Formats one canonical onboarding draft for the existing enrollment input boundary.
+ * @since 1.1.0
+ * @param site - Canonical staged website.
+ * @return Address accepted by protected-site enrollment.
+ */
+export function getSiteDraftInput( site: ProtectedSiteConfiguration ): string {
+	return `${ site.identityHost }${ site.rule.pathPrefix ?? '' }`;
+}
 
 /**
  * Filters drafts against the latest persisted collection before enrollment.
@@ -14,8 +25,8 @@ import { OnboardingFailure } from '../../types/flow';
 export function pendingSiteDrafts(
 	persisted: readonly ProtectedSiteConfiguration[], drafts: readonly ProtectedSiteConfiguration[],
 ): ProtectedSiteConfiguration[] {
-	const savedHosts = new Set( persisted.map( ( site ) => site.identityHost ) );
-	return drafts.filter( ( draft ) => ! savedHosts.has( draft.identityHost ) );
+	const savedTargets = new Set( persisted.map( ( site ) => getProtectedSiteRuleKey( site.rule ) ) );
+	return drafts.filter( ( draft ) => ! savedTargets.has( getProtectedSiteRuleKey( draft.rule ) ) );
 }
 
 /**

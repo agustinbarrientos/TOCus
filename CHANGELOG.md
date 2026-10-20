@@ -2,6 +2,8 @@
 
 ## 1.1.0 - Unreleased
 
+- Added: Adding a website path before its domain creates an editable No pause domain entry while keeping the path paused, using the same behavior across Settings, popup and onboarding. Onboarding preserves full paths and keeps sibling entries independent (Chrome, Edge, Firefox).
+
 - Added: Main websites can use No pause while selected paths or subdomains keep their own pauses (Chrome, Edge, Firefox).
 
 - Fixed: No-pause website rules hide custom schedule controls and tags, retain valid schedule preferences, and save successfully when hidden schedule fields are unfinished (Chrome, Edge, Firefox).
