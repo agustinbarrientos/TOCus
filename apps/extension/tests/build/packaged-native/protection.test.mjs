@@ -114,7 +114,9 @@ test( 'first-use onboarding preserves appearance and enrolls websites through na
 		await browser.viewClick( 'selected', '[aria-label="Blue"]' );
 		await browser.viewClick( 'selected', '[aria-label="Dark"]' );
 		await browser.viewClick( 'selected', 'button[type="submit"]' );
-		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("input[aria-label]")?.getAttribute("aria-label");' ) ).toBe( 'Website address' );
+		await expect.poll( () => readView( browser, 'selected', `const input = document.querySelector('.manual-form input[aria-label="Website address"]');
+			return input instanceof HTMLInputElement && !input.disabled && input.getClientRects().length > 0
+				&& getComputedStyle(input).visibility === 'visible';` ) ).toBe( true );
 		await browser.viewType( 'selected', 'input[aria-label="Website address"]', '127.0.0.1' );
 		await browser.viewClick( 'selected', '.manual-form button[type="submit"]' );
 		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector(".finish-action")?.disabled;' ) ).toBe( false );
