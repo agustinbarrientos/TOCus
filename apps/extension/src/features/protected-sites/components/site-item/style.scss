@@ -31,8 +31,8 @@
 @media (hover: hover) and (pointer: fine) and (width > 48rem) {
 	.settings-site-select { opacity: 0; }
 
-	.settings-site-item:hover .settings-site-select,
-	.settings-site-item:focus-within .settings-site-select,
+	.settings-site-list:hover .settings-site-select,
+	.settings-site-list:focus-within .settings-site-select,
 	.settings-site-item[data-selection-active] .settings-site-select { opacity: 1; }
 }
 
@@ -131,5 +131,17 @@
 	.settings-site-select {
 		top: var(--tocus-space-1);
 		min-height: 2.25rem;
+	}
+}
+
+@media (hover: none), (pointer: coarse), (width <= 48rem) {
+	.settings-site-exception[data-selectable],
+	.settings-site-root-peer[data-selectable] {
+		min-height: calc(var(--tocus-space-6) + var(--tocus-space-3) + 1px);
+
+		.settings-site-select {
+			top: 0;
+			min-height: calc(var(--tocus-space-6) + var(--tocus-space-3));
+		}
 	}
 }

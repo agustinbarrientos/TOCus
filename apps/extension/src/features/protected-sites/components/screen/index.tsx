@@ -170,7 +170,9 @@ export function Websites( props: WebsitesScreenProps ) {
 		return <WebsiteItem presentation={ presentation } timingCopy={ shell.timingCopy }
 			inheritedTiming={ effective?.timingConfiguration } key={ key } site={ site } copy={ itemCopy }
 			highlighted={ ! presentation?.presentationOnly && highlighted === key }
-			selection={ { checked: groupKeys.every( ( key ) => selected.has( key ) ), active: selectedSites.length > 0,
+			selection={ { checked: groupKeys.every( ( key ) => selected.has( key ) ),
+				indeterminate: groupKeys.some( ( key ) => selected.has( key ) ) &&
+					! groupKeys.every( ( key ) => selected.has( key ) ), active: selectedSites.length > 0,
 				/**
 				 * Changes only this row's page-local selection.
 				 * @param checked - Whether the row belongs to the next bulk action.
@@ -189,11 +191,9 @@ export function Websites( props: WebsitesScreenProps ) {
 						return next;
 					} );
 				} } }
-			itemRef={ ( element ) => {
+			itemRef={ presentation?.presentationOnly ? null : ( element ) => {
 				if ( element ) {
-					if ( ! presentation?.presentationOnly ) {
-						rows.current.set( key, element );
-					}
+					rows.current.set( key, element );
 				} else {
 					rows.current.delete( key );
 				}

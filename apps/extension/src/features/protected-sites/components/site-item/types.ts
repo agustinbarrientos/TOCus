@@ -227,6 +227,8 @@ export interface WebsiteItemProps {
  */
 export interface WebsiteItemSelection {
 	checked: boolean;
+	/** Some members of a grouped selection are checked. */
+	indeterminate?: boolean;
 	active: boolean;
 	onChange: ( checked: boolean ) => void;
 }

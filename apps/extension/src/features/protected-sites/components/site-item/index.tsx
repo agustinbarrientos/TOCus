@@ -84,7 +84,7 @@ export function WebsiteItem( props: WebsiteItemProps ) {
 			{ props.selection && <Checkbox.Card className="settings-site-select" withBorder={ false }
 				aria-label={ copy.formatSelectSite( exception ? address : rootPeer
 					? `${ identity.name } (${ coverageLabel ?? copy.thisDomainOnly })` : identity.name ) }
-				checked={ props.selection.checked }
+				checked={ props.selection.checked } indeterminate={ props.selection.indeterminate ?? false }
 				onChange={ props.selection.onChange } disabled={ disabled }>
 				<Checkbox.Indicator size="sm" disabled={ disabled } aria-hidden="true" />
 			</Checkbox.Card> }
