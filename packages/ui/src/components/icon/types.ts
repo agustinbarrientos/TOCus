@@ -28,6 +28,8 @@ export const IconName = {
 	CIRCLE_INFO: 'circle-info',
 	CIRCLE_QUESTION: 'circle-question',
 	TRASH: 'trash',
+	ARROW_TURN_DOWN_RIGHT: 'arrow-turn-down-right',
+	CHEVRONS_RIGHT: 'chevrons-right',
 } as const;
 
 /**

@@ -23,6 +23,8 @@ import circleExclamation from '@tocus/theme/icons/circle-exclamation.svg?raw';
 import circleInfo from '@tocus/theme/icons/circle-info.svg?raw';
 import circleQuestion from '@tocus/theme/icons/circle-question.svg?raw';
 import trash from '@tocus/theme/icons/trash.svg?raw';
+import arrowTurnDownRight from '@tocus/theme/icons/arrow-turn-down-right.svg?raw';
+import chevronsRight from '@tocus/theme/icons/chevrons-right.svg?raw';
 import { IconName, type IconProps } from './types';
 
 /** Complete trusted artwork registry keyed by the public shape catalog. */
@@ -52,6 +54,8 @@ const icons = {
 	[ IconName.CIRCLE_INFO ]: circleInfo,
 	[ IconName.CIRCLE_QUESTION ]: circleQuestion,
 	[ IconName.TRASH ]: trash,
+	[ IconName.ARROW_TURN_DOWN_RIGHT ]: arrowTurnDownRight,
+	[ IconName.CHEVRONS_RIGHT ]: chevronsRight,
 } satisfies Record<IconName, string>;
 
 /**
