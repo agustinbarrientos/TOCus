@@ -30,6 +30,13 @@ export function createProtectedSiteItemCopy( i18n: I18n ): Readonly<ProtectedSit
 	}
 
 	return Object.freeze( {
+		customTimingLabel: i18n._( msg`Use custom pause timing` ),
+		customScheduleTag: i18n._( msg`Custom schedule` ),
+		customTimingTag: i18n._( msg`Custom pause timing` ),
+		exceptionsLabel: i18n._( msg`Exceptions` ),
+		whenVisitedLabel: i18n._( msg`When visited` ),
+		pauseLabel: i18n._( msg`Pause` ),
+		noPauseLabel: i18n._( msg`No pause` ),
 		customScheduleLabel: i18n._( msg`Use custom schedule` ),
 		automaticNamePlaceholder: i18n._( msg`Automatic name` ),
 		done: i18n._( msg`Done` ),
@@ -37,6 +44,7 @@ export function createProtectedSiteItemCopy( i18n: I18n ): Readonly<ProtectedSit
 		allowAccess: i18n._( msg`Allow access` ),
 		allowingAccess: i18n._( msg`Allowing...` ),
 		accessRequestError: i18n._( msg`Browser access is still required to show the pause on this website.` ),
+		exceptionEdit: i18n._( msg`Edit exception` ),
 		edit: i18n._( msg`Change when TOCus pauses this site, or rename it` ),
 		displayNameLabel: i18n._( msg`Name` ),
 		saveChanges: i18n._( msg`Save changes` ),
