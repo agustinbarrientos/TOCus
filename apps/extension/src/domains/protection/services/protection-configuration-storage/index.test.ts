@@ -175,3 +175,30 @@ it.each( [
 	await expect( storage.save( input ) ).rejects.toThrow();
 	expect( area.writtenValues ).toEqual( [] );
 } );
+
+
+it.each( [
+	[ { host: 'studio.example.com', includeSubdomains: false }, { host: 'example.com', includeSubdomains: true } ],
+	[ { host: 'example.com', includeSubdomains: false }, { host: 'example.com', includeSubdomains: true } ],
+] )( 'rejects legacy overlapping host ownership regardless of insertion order: %j', async ( first, second ) => {
+	const legacy = { ...CURRENT_CONFIGURATION, schemaVersion: 5,
+		sites: [ first, second ].map( ( rule ) => ( { identityHost: rule.host,
+			rule: { ...rule, scopeId: DefaultProtectionScopeId } } ) ) };
+	const area = new MemoryProtectionConfigurationStorageArea( {
+		[ ProtectionConfigurationStorageKey.CONFIGURATION ]: legacy,
+	} );
+	await expect( createProtectionConfigurationStorageService( { area } ).load() ).resolves.toBeNull();
+	expect( area.writtenValues ).toEqual( [] );
+} );
+
+it( 'preserves distinct legacy exact parent and child host ranges without broadening either', async () => {
+	const legacy = { ...CURRENT_CONFIGURATION, schemaVersion: 5,
+		sites: [ 'example.com', 'studio.example.com' ].map( ( host ) => ( { identityHost: host,
+			rule: { host, includeSubdomains: false, scopeId: DefaultProtectionScopeId } } ) ) };
+	const area = new MemoryProtectionConfigurationStorageArea( {
+		[ ProtectionConfigurationStorageKey.CONFIGURATION ]: legacy,
+	} );
+	await expect( createProtectionConfigurationStorageService( { area } ).load() )
+		.resolves.toEqual( { ...legacy, schemaVersion: 6 } );
+	expect( area.writtenValues ).toEqual( [] );
+} );

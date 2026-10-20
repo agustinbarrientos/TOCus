@@ -1089,3 +1089,21 @@ it.each( [ null, [], { behavior: 'invalid' }, { timingConfiguration: {} }, { une
 		expect( storage.writes ).toEqual( [] );
 	},
 );
+
+
+it.each( [ null, {}, { ...CONFIGURED_SITE.rule, behavior: 'skip' },
+	{ ...CONFIGURED_SITE.rule, scopeId: 'invalid scope' } ] )(
+	'rejects malformed rule targets without updating or removing a matching host: %j', async ( target ) => {
+		const { editor, storage } = createEditor();
+		await expect( editor.update( target, 'Unwanted change' ) ).resolves.toEqual( {
+			status: ProtectionConfigurationEditStatus.REJECTED,
+			reason: ProtectionConfigurationEditRejectionReason.SITE_NOT_FOUND,
+		} );
+		await expect( editor.remove( target ) ).resolves.toEqual( {
+			status: ProtectionConfigurationEditStatus.REJECTED,
+			reason: ProtectionConfigurationEditRejectionReason.SITE_NOT_FOUND,
+		} );
+		expect( storage.writes ).toEqual( [] );
+		await expect( editor.load() ).resolves.toEqual( CONFIGURATION_WITH_SITE );
+	},
+);

@@ -584,3 +584,12 @@ it( 'does not claim broad global or shared private-suffix grants as a removed te
 	);
 	await expect( permissions.getAll() ).resolves.toEqual( { origins: retained, permissions: [] } );
 } );
+
+
+it( 'releases unused navigation access when the browser omits an empty origin list', async () => {
+	const permissions = createExactRemovalPermissionsApi( { permissions: [ 'webNavigation', 'tabs' ] } );
+	await expect( createSitePermissionManager( { permissions } ).releaseNewAccess(
+		[ DOMAIN_RULE ], {}, TestEmptyProtectionConfiguration,
+	) ).resolves.toBe( SitePermissionReleaseStatus.RELEASED );
+	await expect( permissions.getAll() ).resolves.toEqual( { origins: [], permissions: [ 'tabs' ] } );
+} );
