@@ -135,3 +135,43 @@ describe( 'createProtectionConfigurationStorageService', () => {
 		await expect( storage.save( CURRENT_CONFIGURATION ) ).rejects.toThrow( 'write failed' );
 	} );
 } );
+
+
+it( 'upgrades version five without reinterpreting a broad rule with a subdomain identity', async () => {
+	const legacy = { ...CURRENT_CONFIGURATION, schemaVersion: 5, sites: [ {
+		...CURRENT_CONFIGURATION.sites[ 0 ], identityHost: 'studio.youtube.com',
+		rule: { host: 'youtube.com', includeSubdomains: true, scopeId: DefaultProtectionScopeId },
+	} ] };
+	const area = new MemoryProtectionConfigurationStorageArea( {
+		[ ProtectionConfigurationStorageKey.CONFIGURATION ]: legacy,
+	} );
+	const storage = createProtectionConfigurationStorageService( { area } );
+	await expect( storage.load() ).resolves.toEqual( { ...legacy, schemaVersion: 6 } );
+	expect( area.writtenValues ).toEqual( [] );
+	await storage.save( await storage.load() );
+	expect( area.writtenValues[ 0 ] ).toEqual( {
+		[ ProtectionConfigurationStorageKey.CONFIGURATION ]: { ...legacy, schemaVersion: 6 },
+	} );
+} );
+
+it.each( [
+	{ ...CURRENT_CONFIGURATION, schemaVersion: 99 },
+	{ ...CURRENT_CONFIGURATION, schemaVersion: 5, sites: [ { ...CURRENT_CONFIGURATION.sites[ 0 ],
+		timingConfiguration: CURRENT_CONFIGURATION.timingConfiguration } ] },
+	{ ...CURRENT_CONFIGURATION, schemaVersion: 5, sites: [ { ...CURRENT_CONFIGURATION.sites[ 0 ],
+		rule: { ...CURRENT_CONFIGURATION.sites[ 0 ]?.rule, pathPrefix: '/feed' } } ] },
+	{ ...CURRENT_CONFIGURATION, schemaVersion: 5, sites: [ { ...CURRENT_CONFIGURATION.sites[ 0 ],
+		rule: { ...CURRENT_CONFIGURATION.sites[ 0 ]?.rule, behavior: 'allow' } } ] },
+	{ ...CURRENT_CONFIGURATION, schemaVersion: 5, sites: [ ...CURRENT_CONFIGURATION.sites, {
+		identityHost: 'studio.example.com',
+		rule: { host: 'studio.example.com', includeSubdomains: false, scopeId: DefaultProtectionScopeId },
+	} ] },
+] )( 'rejects disguised new fields and historical overlaps without writes: %j', async ( input ) => {
+	const area = new MemoryProtectionConfigurationStorageArea( {
+		[ ProtectionConfigurationStorageKey.CONFIGURATION ]: input,
+	} );
+	const storage = createProtectionConfigurationStorageService( { area } );
+	await expect( storage.load() ).resolves.toBeNull();
+	await expect( storage.save( input ) ).rejects.toThrow();
+	expect( area.writtenValues ).toEqual( [] );
+} );

@@ -122,13 +122,13 @@ describe( 'protection type fixtures', () => {
 	it( 'round-trips the current protection configuration fixture', () => {
 		expect( ProtectionConfigurationDocumentSchema.parse( {
 			...TestEmptyProtectionConfiguration,
-			schemaVersion: 5,
+			schemaVersion: 6,
 			measurementRevisionsByScope: {
 				scope_default: 'revision_initial_scope_default',
 			},
 		} ) ).toStrictEqual( {
 			...TestEmptyProtectionConfiguration,
-			schemaVersion: 5,
+			schemaVersion: 6,
 			measurementRevisionsByScope: {
 				scope_default: 'revision_initial_scope_default',
 			},
@@ -164,7 +164,7 @@ describe( 'protection contract custom rules', () => {
 	it( 'requires one measurement revision for every active protection scope', () => {
 		const currentConfiguration = {
 			...TestEmptyProtectionConfiguration,
-			schemaVersion: 5,
+			schemaVersion: 6,
 			measurementRevisionsByScope: {
 				scope_default: 'revision_initial_scope_default',
 			},
