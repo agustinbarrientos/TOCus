@@ -169,6 +169,11 @@ test( 'real allowance expiry pauses playing media and Continue preserves the doc
 			.toEqual( { identityHost: 'studio.youtube.com', rule: { host: 'studio.youtube.com', includeSubdomains: false,
 				scopeId: 'scope_default', behavior: 'allow' } } );
 		await settings( browser, 'timing' );
+		await expect.poll( () => readView( browser, 'selected', `return ['#allowance', '#wait-increase'].every(selector => {
+			const node = document.querySelector(selector);
+			return node && node.getBoundingClientRect().width > 0 && getComputedStyle(node).visibility === 'visible'
+				&& !node.matches(':disabled, [aria-disabled="true"]');
+		});` ) ).toBe( true );
 		await browser.viewKey( 'selected', '#allowance', 'Home' );
 		await browser.viewKey( 'selected', '#wait-increase', 'Home' );
 		await clickButton( browser, 'Save', '.tocus-form-actions' );
