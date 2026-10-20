@@ -1,3 +1,4 @@
+import { ScheduleMode, Weekday } from '../../../../domains/protection/types/protection-schedule';
 import { describe, expect, it } from 'vitest';
 import { TestEmptyProtectionConfiguration } from '../../../../domains/protection/types/__fixtures__/protection-configuration';
 import {
@@ -108,6 +109,20 @@ function createInput(
 }
 
 describe( 'resolveFocusedAllowance', () => {
+	it( 'excludes an inactive winning path without falling back to its active parent', () => {
+		const main = TEST_CONFIGURATION.sites[ 0 ];
+		if ( main === undefined ) {
+			throw new Error( 'Expected main website fixture.' );
+		}
+		const configuration = ProtectionConfigurationDocumentSchema.parse( { ...TEST_CONFIGURATION, sites: [ main, { ...main, rule: { ...main.rule, pathPrefix: '/feed' }, schedule: { mode: ScheduleMode.CUSTOM, windows: [ { weekday: Weekday.MONDAY, startMinute: 0, endMinute: 1 } ] } } ] } );
+		expect( resolveFocusedAllowance( createInput( { configuration, tabs: [ { id: 7, incognito: false, url: 'https://example.com/feed' } ], focusedTabId: 7 } ) ) ).toBeNull();
+	} );
+
+	it( 'attributes exact subdomains to their website group', () => {
+		const configuration = ProtectionConfigurationDocumentSchema.parse( { ...TEST_CONFIGURATION, sites: [ { identityHost: 'studio.example.com', rule: { ...TEST_CONFIGURATION.sites[ 0 ]?.rule, host: 'studio.example.com', includeSubdomains: false } } ] } );
+		expect( resolveFocusedAllowance( createInput( { configuration, tabs: [ { id: 7, incognito: false, url: 'https://studio.example.com/feed' } ], focusedTabId: 7 } ) ) ).toMatchObject( { siteHost: 'example.com' } );
+	} );
+
 	it( 'returns only the current allowance measurement identity', () => {
 		expect( resolveFocusedAllowance( createInput() ) ).toEqual( {
 			scopeId: 'scope_default',

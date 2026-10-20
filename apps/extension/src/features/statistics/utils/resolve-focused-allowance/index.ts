@@ -1,3 +1,7 @@
+import { resolveSitePolicy } from '../../../../domains/protection/utils/resolve-site-policy';
+import { evaluateSchedule } from '../../../../domains/protection/utils/schedule-evaluator';
+import { ScheduleEvaluationStatus } from '../../../../domains/protection/types/schedule-evaluation';
+import { getProtectedSiteGroupHost } from '../../../../domains/protection/utils/protected-site-rule-key';
 import { ProtectionStateType } from '../../../../domains/protection/types/protection-state';
 import { ProtectedUrlMatchStatus } from '../../../../domains/protection/types/protected-url-match';
 import { matchProtectedUrl } from '../../../../domains/protection/utils/protected-url-matcher';
@@ -59,6 +63,12 @@ export function resolveFocusedAllowance(
 		return null;
 	}
 
+	const policy = resolveSitePolicy( input.configuration, match.rule );
+	if ( policy === undefined || evaluateSchedule(
+		policy.schedule, input.nowEpochMilliseconds, input.timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
+	).status !== ScheduleEvaluationStatus.ACTIVE ) {
+		return null;
+	}
 	const scopeId = match.rule.scopeId;
 	const state = Object.hasOwn( input.statesByScope, scopeId )
 		? input.statesByScope[ scopeId ]
@@ -95,7 +105,7 @@ export function resolveFocusedAllowance(
 		scopeId,
 		measurementRevision,
 		allowanceId: state.allowanceId,
-		siteHost: match.rule.host,
+		siteHost: getProtectedSiteGroupHost( match.rule.host ),
 	};
 }
 
