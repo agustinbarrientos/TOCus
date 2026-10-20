@@ -1,4 +1,5 @@
 import { getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
+import { splitProtectedSiteInputs } from '../../../../domains/protection/utils/protected-site-input-list';
 import { resolveSitePolicy } from '../../../../domains/protection/utils/resolve-site-policy';
 import { serializeWebsiteDraft } from '../../utils/website-draft';
 import type { WebsiteListPresentation } from '../site-list/types';
@@ -80,6 +81,7 @@ export function Websites( props: WebsitesScreenProps ) {
 	const rows = useRef( new Map<string, HTMLLIElement>() );
 	const [ highlighted, setHighlighted ] = useState<string | null>( null );
 	const disabled = saving || shell.permissionManager === null;
+	const addressCount = splitProtectedSiteInputs( value.address ).length;
 	const savedIdentities = new Set( configuration?.sites.map( ( site ) =>
 		getProtectedSiteRuleKey( site.rule ) ) ?? [] );
 	const selectedSites = value.sites.filter( ( site ) =>
@@ -249,11 +251,11 @@ export function Websites( props: WebsitesScreenProps ) {
 									state.change( { ...value, address: event.currentTarget.value } );
 								} } />
 							<Button className="tocus-native-button" h="auto" type="submit" variant="outline"
-								disabled={ disabled }>{ copy.addSite }</Button>
+								disabled={ disabled }>{ addressCount > 1 ? copy.addSites : copy.addSite }</Button>
 						</Group>
 						<p id="site-address-error" className="settings-site-address-error"
 							role={ state.addressError ? 'alert' : undefined }>{ state.addressError }</p>
-						{ value.address.trim() !== '' && <WebsiteDetails idPrefix="new-site" copy={ copy } scheduleCopy={ shell.scheduleCopy }
+						{ addressCount > 0 && <WebsiteDetails idPrefix="new-site" copy={ copy } scheduleCopy={ shell.scheduleCopy }
 							value={ value.newSite } disabled={ disabled } validate={ state.validate }
 							onChange={ ( newSite ) => {
 								state.change( { ...value, newSite } );

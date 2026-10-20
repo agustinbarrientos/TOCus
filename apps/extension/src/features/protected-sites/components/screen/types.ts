@@ -80,6 +80,11 @@ export interface ProtectedSitesScreenCopy extends ProtectedSiteListCopy {
 	addressLabel: string;
 	addressPlaceholder: string;
 	addSite: string;
+	/**
+	 * Labels the action that adds multiple website entries.
+	 * @since 1.1.0
+	 */
+	addSites: string;
 	addingSite: string;
 	customScheduleLabel: string;
 	automaticNamePlaceholder: string;
@@ -104,6 +109,13 @@ export interface ProtectedSitesScreenCopy extends ProtectedSiteListCopy {
 	removeSelectedDescription: string;
 	cancelRemoveSelected: string;
 	confirmRemoveSelected: string;
+	/**
+	 * Identifies website addresses that could not be added.
+	 * @param addresses - Invalid entries retained in the address input.
+	 * @return Human-readable validation message containing each invalid entry.
+	 * @since 1.1.0
+	 */
+	formatInvalidAddresses( addresses: string[] ): string;
 	/**
 	 * Formats the bulk-removal action label for the selected website count.
 	 * @param count - Number of selected websites.

@@ -37,17 +37,40 @@ export function createWebsiteDraft( sites: ProtectedSiteConfiguration[] ): Websi
  * @since 1.1.0
  */
 export function stageWebsiteDraftSite( draft: WebsitesDraft, site: ProtectedSiteConfiguration ): WebsitesDraft {
+	return stageWebsiteDraftSites( draft, [ site ] );
+}
+
+/**
+ * Stages a complete batch before expanding defaults, retaining every existing site's pending details.
+ * @param draft - Current website draft including pending parent behavior.
+ * @param sites - Canonical explicit additions whose new details apply uniformly.
+ * @return Independent complete draft without duplicate rules or inferred policies overriding explicit additions.
+ * @since 1.1.0
+ */
+export function stageWebsiteDraftSites(
+	draft: WebsitesDraft, sites: readonly ProtectedSiteConfiguration[],
+): WebsitesDraft {
+	const keys = new Set( draft.sites.map( ( site ) => getProtectedSiteRuleKey( site.rule ) ) );
+	const explicitSites = sites.filter( ( site ) => {
+		const key = getProtectedSiteRuleKey( site.rule );
+		if ( keys.has( key ) ) {
+			return false;
+		}
+		keys.add( key );
+		return true;
+	} );
 	const pendingSites = draft.sites.map( ( existing ) => {
 		const details = draft.detailsByRuleKey[ getProtectedSiteRuleKey( existing.rule ) ];
 		return details === undefined ? existing : { ...existing,
 			rule: { ...existing.rule, behavior: details.behavior } };
 	} );
-	const additions = expandProtectedSiteAdditions( pendingSites, [ site ] );
+	const additions = expandProtectedSiteAdditions( pendingSites, explicitSites );
 	return { ...draft, sites: [ ...draft.sites, ...additions ], address: '',
 		detailsByRuleKey: { ...draft.detailsByRuleKey,
 			...Object.fromEntries( additions.map( ( addition ) => [ getProtectedSiteRuleKey( addition.rule ),
 				createWebsiteDetails( addition ) ] ) ),
-			[ getProtectedSiteRuleKey( site.rule ) ]: draft.newSite },
+			...Object.fromEntries( explicitSites.map( ( site ) =>
+				[ getProtectedSiteRuleKey( site.rule ), draft.newSite ] ) ) },
 		newSite: { displayName: '', schedule: null, behavior: 'pause', timingConfiguration: null } };
 }
 

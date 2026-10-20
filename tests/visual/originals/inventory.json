@@ -289,43 +289,43 @@
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-protected-sites-editing-dark.png",
-    "sha256": "d62583ebd0bfc5b3a9651463d8c3d5e0508196cb1238be37b3379e74ea8e7f7f"
+    "sha256": "7acfa2c668043fd1481c4a1d1e565d6acccefaf5d473abc5dbf0b5a81566c122"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-protected-sites-editing-light.png",
-    "sha256": "a3d911cdab39367c439aec802a8dc82536b207128bd4f875ec84e784c2f5d55d"
+    "sha256": "3b0841e694c335356a16bb735f9c6772e94fed2bf6468c487f8099811092886d"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-protected-sites-empty-dark.png",
-    "sha256": "77668772032e92564f1b756266e28274f54be8c48bc330ae3ae746581380517c"
+    "sha256": "be0d9c4bc34e27147468d252a6ce032624d1e567848c41671245f8cc921f8783"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-protected-sites-empty-light.png",
-    "sha256": "dbfa44150778beb20282c53dd7aaa4f420fdbeb917d3be6677d78ee9761f3d12"
+    "sha256": "abbabdcc62a480a5d207379d57c5cd0f9cc6f79c7395f157acb2eda293775726"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-protected-sites-independent-removal-confirmation-dark.png",
-    "sha256": "fb1c00dfb8fe815335e18f5083fcaa787fe2dca26607a19298a221aa94a62f60"
+    "sha256": "f3a5ba0e198629a89fd91e59124d9df2899bd1f02d504275464e1ce72946c832"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-protected-sites-independent-removal-confirmation-light.png",
-    "sha256": "c7e6fa373dcf2ea720ebf80d68911787473fecd4e9ea65163b9df2a9dacead15"
+    "sha256": "35d2cf7bd5b0628dee04821ed623a01c8344a23d56a4d93eeab90ce54ba78884"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-protected-sites-populated-dark.png",
-    "sha256": "9a205ae541d6ed77462b5596bd26e2ac040efdbd05f041fbf941fbd46fcf92a9"
+    "sha256": "7dec9aec9e99611b7eb6832c1dc883dce283b716ccb73565f5f9291462d3210e"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-protected-sites-populated-light.png",
-    "sha256": "238c06b4aaf0b60e9a8529e4fe82b010bf7d37b826a91da929d87cc2de1373ef"
+    "sha256": "6258d50125a2cf2c216b249de51eaafe0bbcd3ed2909f4c5c2c9ad1a3986dbd7"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-protected-sites-removal-confirmation-dark.png",
-    "sha256": "39455bbc646999425a7deb6e4a714491398d42a0239ad7f482dcc9dc9573e723"
+    "sha256": "5b0485e2b100f6f8cf401d71bf1f5e9fa39f007699c64cbdd0ab39014549ed8e"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-protected-sites-removal-confirmation-light.png",
-    "sha256": "01b6068481c8e0b9aa9060eb5442d39d682f7d08569662c6ef51929343f5ed8c"
+    "sha256": "3cacf06046ac78a9f3c4b65294acf5648eca10b7e7fae90fe2ba1378e6237c4a"
   },
   {
     "path": "apps/extension/src/features/settings/components/shell/__snapshots__/chromium/settings-schedule-dark.png",

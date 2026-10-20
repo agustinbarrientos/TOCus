@@ -20,6 +20,25 @@ describe( 'createProtectedSitesCopy', () => {
 		expect( copy.formatAccessRestoredAnnouncement( 'Reddit' ) ).toBe( 'Reddit access was restored.' );
 	} );
 
+	it( 'keeps every invalid address in the formatted validation message', () => {
+		const copy = createProtectedSitesCopy( createTestI18n(), createLocalizationFormatters( 'en' ) );
+
+		expect( copy.formatInvalidAddresses( [ 'not a site', '<invalid.example>' ] ) )
+			.toBe( 'Check these addresses: not a site, <invalid.example>' );
+	} );
+
+	it( 'uses the active locale for multiple-site additions and invalid addresses', async () => {
+		const messages = await loadLocalizationMessages( Language.GERMAN );
+		const copy = createProtectedSitesCopy(
+			setupI18n( { locale: Language.GERMAN, messages: { [ Language.GERMAN ]: messages } } ),
+			createLocalizationFormatters( Language.GERMAN ),
+		);
+
+		expect( copy.addSites ).toBe( 'Websites hinzuf\u00fcgen' );
+		expect( copy.formatInvalidAddresses( [ 'not a site', '<invalid.example>' ] ) )
+			.toBe( 'Pr\u00fcfe diese Adressen: not a site, <invalid.example>' );
+	} );
+
 	it( 'formats singular and plural bulk-removal copy', () => {
 		const copy = createProtectedSitesCopy( createTestI18n(), createLocalizationFormatters( 'en' ) );
 

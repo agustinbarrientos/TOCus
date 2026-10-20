@@ -246,6 +246,10 @@ msgstr "Agregar fila"
 msgid "Add site"
 msgstr "Agregar sitio"
 
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Add sites"
+msgstr "Agregar sitios"
+
 #: apps/extension/src/localization/utils/create-protected-site-list-copy/index.ts
 msgid "Add the first site you want TOCus to gently interrupt."
 msgstr "Agregá el primer sitio en el que quieras que TOCus te proponga una pausa amable."
@@ -429,6 +433,10 @@ msgstr "Cambios guardados."
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "Check the schedule and try again."
 msgstr "Revisá el horario y probá de nuevo."
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "Check these addresses: {addresses}"
+msgstr "Revisá estas direcciones: {addresses}"
 
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Choose a day and valid start and end times."
@@ -636,9 +644,12 @@ msgid "Estimated time reclaimed"
 msgstr "Tiempo recuperado estimado"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
-#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "example.com or sub.example.com or example.com/path"
 msgstr "example.com o sub.example.com o example.com/path"
+
+#: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
+msgid "example.com, sub.example.com, example.com/path"
+msgstr "example.com, sub.example.com, example.com/path"
 
 #: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Exceptions"

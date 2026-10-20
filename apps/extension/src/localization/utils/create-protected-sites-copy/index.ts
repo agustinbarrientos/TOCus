@@ -18,6 +18,18 @@ export function createProtectedSitesCopy(
 	const listCopy = createProtectedSiteListCopy( i18n, formatters );
 
 	/**
+	 * Formats a validation message containing every invalid website address.
+	 * @param addresses - Invalid entries retained in the address input.
+	 * @return Complete localized validation message.
+	 * @since 1.1.0
+	 */
+	function formatInvalidAddresses( addresses: string[] ): string {
+		const addressList = addresses.join( ', ' );
+
+		return i18n._( msg`Check these addresses: ${ { addresses: addressList } }` );
+	}
+
+	/**
 	 * Formats the bulk-removal action for the selected website count.
 	 * @param count - Number of selected websites.
 	 * @return Complete localized action label.
@@ -105,8 +117,9 @@ export function createProtectedSitesCopy(
 		configurationChangedError: i18n._( msg`Your website list changed elsewhere. Discard your draft and reopen Websites before trying again.` ),
 		title: i18n._( msg`Websites` ),
 		addressLabel: i18n._( msg`Website address` ),
-		addressPlaceholder: i18n._( msg`example.com or sub.example.com or example.com/path` ),
+		addressPlaceholder: i18n._( msg`example.com, sub.example.com, example.com/path` ),
 		addSite: i18n._( msg`Add site` ),
+		addSites: i18n._( msg`Add sites` ),
 		addingSite: i18n._( msg`Adding...` ),
 		customScheduleLabel: i18n._( msg`Use custom schedule` ),
 		automaticNamePlaceholder: i18n._( msg`Automatic name` ),
@@ -131,6 +144,7 @@ export function createProtectedSitesCopy(
 		removeSelectedDescription: i18n._( msg`These websites will be removed when you save your changes.` ),
 		cancelRemoveSelected: i18n._( msg`Cancel` ),
 		confirmRemoveSelected: i18n._( msg`Remove` ),
+		formatInvalidAddresses,
 		formatRemoveSelected,
 		formatRemoveSelectedQuestion,
 		formatAddedAnnouncement,
