@@ -10,6 +10,12 @@ import { TestEmptyProtectionConfiguration } from '../../../../../domains/protect
  * @since 1.0.0
  */
 export function originalConfiguration( name: string ) {
+	if ( name === 'favicon-legacy-studio' ) {
+		return ProtectionConfigurationDocumentSchema.parse( { ...TestEmptyProtectionConfiguration,
+			sites: [ { identityHost: 'studio.youtube.com', rule: { host: 'youtube.com', includeSubdomains: true,
+				scopeId: DefaultProtectionScopeId } } ] } );
+	}
+
 	if ( name.startsWith( 'root-peers-' ) ) {
 		const broad = { identityHost: 'youtube.com',
 			rule: { host: 'youtube.com', includeSubdomains: true, scopeId: DefaultProtectionScopeId },
