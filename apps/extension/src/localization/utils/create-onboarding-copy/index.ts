@@ -5,6 +5,7 @@ import {
 	type OnboardingShellCopy,
 } from '../../../features/onboarding/components/shell/types';
 import { createOnboardingAppearanceStepCopy } from '../create-onboarding-appearance-step-copy';
+import { createOnboardingBackupCopy } from '../create-onboarding-backup-copy';
 import { createOnboardingLanguageStepCopy } from '../create-onboarding-language-step-copy';
 import { createOnboardingSitesStepCopy } from '../create-onboarding-sites-step-copy';
 
@@ -51,6 +52,7 @@ export function createOnboardingCopy( i18n: I18n ): Readonly<OnboardingShellCopy
 		language: createOnboardingLanguageStepCopy( i18n ),
 		appearance: createOnboardingAppearanceStepCopy( i18n ),
 		sites: createOnboardingSitesStepCopy( i18n ),
+		backup: createOnboardingBackupCopy( i18n ),
 		formatStepProgress,
 	} );
 }
