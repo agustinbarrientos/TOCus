@@ -1,14 +1,17 @@
 import type { SiteFaviconProvider, SiteFaviconSource } from '../../services/site-favicon-provider';
+import { getWebsitePresentationGroupHost } from '../site-display-name-resolver';
 
 /**
- * Orders the shared website identity before stable, unique configured member identities.
+ * Orders the shared identity before stable, unique cache candidates from the same website.
  * @param groupHost - Canonical group host or the standalone item's existing identity.
  * @param identityHosts - Configured member identities whose cached icons remain eligible.
  * @return Stable cache candidates independent of member order or duplicate paths.
  * @since 1.1.0
  */
 export function getGroupFaviconHosts( groupHost: string, identityHosts: Iterable<string> ): string[] {
-	return [ groupHost, ...[ ...new Set( identityHosts ) ].filter( ( host ) => host !== groupHost ).sort() ];
+	const presentationHost = getWebsitePresentationGroupHost( groupHost );
+	return [ groupHost, ...[ ...new Set( identityHosts ) ].filter( ( host ) => host !== groupHost &&
+		getWebsitePresentationGroupHost( host ) === presentationHost ).sort() ];
 }
 
 /**

@@ -4,7 +4,34 @@ import { getGroupFaviconHosts, resolveGroupFavicon } from './index';
 describe( 'grouped cached favicon fallback', () => {
 	it( 'tries the group first and sorts deduplicated configured identities independently of storage order', () => {
 		expect( getGroupFaviconHosts( 'youtube.com', [ 'studio.youtube.com', 'youtube.com', 'music.youtube.com',
-			'studio.youtube.com' ] ) ).toEqual( [ 'youtube.com', 'music.youtube.com', 'studio.youtube.com' ] );
+			'studio.youtube.com' ] ) ).toEqual( [ 'youtube.com', 'studio.youtube.com' ] );
+	} );
+
+	it.each( [
+		{ group: 'mail.google.com', members: [ 'google.com', 'drive.google.com', 'mail.google.com' ],
+			expected: [ 'mail.google.com' ] },
+		{ group: 'drive.google.com', members: [ 'mail.google.com', 'google.com', 'drive.google.com' ],
+			expected: [ 'drive.google.com' ] },
+		{ group: 'google.com', members: [ 'www.google.com', 'mail.google.com', 'drive.google.com' ],
+			expected: [ 'google.com', 'www.google.com' ] },
+		{ group: 'music.youtube.com', members: [ 'youtube.com', 'studio.youtube.com', 'music.youtube.com' ],
+			expected: [ 'music.youtube.com' ] },
+		{ group: 'example.com', members: [ 'www.example.com', 'news.example.com', 'www.example.com' ],
+			expected: [ 'example.com', 'news.example.com', 'www.example.com' ] },
+	] )( 'keeps $group cached candidates within the same website presentation', ( { group, members, expected } ) => {
+		expect( getGroupFaviconHosts( group, members ) ).toEqual( expected );
+	} );
+
+	it( 'keeps a product monogram when only parent or sibling product icons are cached', async () => {
+		const source = await resolveGroupFavicon( {
+			/**
+			 * Exposes cached parent and sibling icons while the requested product has no icon.
+			 * @param host - Requested canonical cache identity.
+			 * @return Existing foreign icon, or the requested product cache miss.
+			 */
+			getSource: ( host ) => host === 'mail.google.com' ? null : `chrome-extension://fixture/${ String( host ) }`,
+		}, getGroupFaviconHosts( 'mail.google.com', [ 'google.com', 'drive.google.com' ] ) );
+		expect( source ).toBeNull();
 	} );
 
 	it( 'prefers an available root icon over member icons', async () => {
