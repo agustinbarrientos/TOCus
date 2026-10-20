@@ -726,6 +726,7 @@ msgid "Importing replaces your current websites, schedules, timing, preferences,
 msgstr "A importação substitui os seus sites, horários, tempos de pausa, preferências e estatísticas atuais. Os dois conjuntos de dados não serão combinados. As pausas temporárias e as sessões de navegação atuais serão terminadas."
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
 msgid "Includes subdomains"
 msgstr "Inclui subdomínios"
 
@@ -1388,6 +1389,10 @@ msgstr "O formato dos dados desta cópia de segurança não é suportado. As sua
 #: apps/extension/src/localization/utils/create-schedule-copy/index.ts
 msgid "This clears the rows you're editing. Your saved schedule stays unchanged until you save."
 msgstr "Esta ação limpa as linhas que está a editar. O horário guardado só muda quando guardar."
+
+#: apps/extension/src/localization/utils/create-protected-site-item-copy/index.ts
+msgid "This domain only"
+msgstr "Apenas este domínio"
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "This file isn't a TOCus backup."
