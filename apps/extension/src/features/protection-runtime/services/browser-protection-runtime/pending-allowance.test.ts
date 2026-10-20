@@ -31,13 +31,6 @@ describe( 'pending completed pause', () => {
 		const configurationStorage = new MemoryConfigurationStorage( EXAMPLE_CONFIGURATION );
 		const { coordinator, runtime } = createRuntime( now, configurationStorage, browser );
 
-		if ( overlay ) {
-			await presentAllowanceExpiryInterruption( runtime, now );
-		} else {
-			await runtime.start();
-			await runtime.handleNavigation( { tabId: 7, frameId: 0, url: 'https://example.com/' } );
-		}
-
 		configurationStorage.configuration = {
 			...EXAMPLE_CONFIGURATION,
 			timingConfiguration: {
@@ -45,6 +38,14 @@ describe( 'pending completed pause', () => {
 				completionAction: automatic ? CompletionAction.OPEN_AUTOMATICALLY : CompletionAction.SHOW_CONTINUE,
 			},
 		};
+
+		if ( overlay ) {
+			await presentAllowanceExpiryInterruption( runtime, now );
+		} else {
+			await runtime.start();
+			await runtime.handleNavigation( { tabId: 7, frameId: 0, url: 'https://example.com/' } );
+		}
+
 		const checkpointResponse = await completeFocusedPause( runtime, 7, overlay ? 15_000 : 10_000 );
 		const response = automatic ? checkpointResponse : await runtime.handlePageRequest( {
 			type: InterruptionPageRequestType.CONTINUE,
@@ -320,7 +321,6 @@ describe( 'pending completed pause', () => {
 		const configurationStorage = new MemoryConfigurationStorage( EXAMPLE_CONFIGURATION );
 		const { coordinator, runtime } = createRuntime( now, configurationStorage, browser );
 
-		await presentAllowanceExpiryInterruption( runtime, now );
 		configurationStorage.configuration = {
 			...EXAMPLE_CONFIGURATION,
 			timingConfiguration: {
@@ -328,6 +328,7 @@ describe( 'pending completed pause', () => {
 				completionAction: CompletionAction.OPEN_AUTOMATICALLY,
 			},
 		};
+		await presentAllowanceExpiryInterruption( runtime, now );
 		now.value += 15_000;
 		await completeFocusedPause( runtime, 7, 15_000 );
 
