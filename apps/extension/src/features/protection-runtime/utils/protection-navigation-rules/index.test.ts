@@ -25,35 +25,15 @@ const SCOPE_Z_ID = ProtectionScopeIdSchema.parse( 'scope_z' );
 const INTERRUPTION_PAGE_URL = 'chrome-extension://extension-id/pause.html';
 
 describe( 'createProtectionNavigationRules', () => {
-	it( 'groups protected domains and their subdomains into one main-frame redirect', () => {
-		expect( createProtectionNavigationRules( [
-			{
-				host: 'second.test',
-				includeSubdomains: true,
-				scopeId: DEFAULT_SCOPE_ID,
-			},
-			{
-				host: 'example.com',
-				includeSubdomains: true,
-				scopeId: DEFAULT_SCOPE_ID,
-			},
-		], INTERRUPTION_PAGE_URL ) ).toEqual( [
-			{
-				id: ProtectionNavigationRuleIdStart,
-				priority: 1,
-				action: {
-					type: 'redirect',
-					redirect: {
-						regexSubstitution: `${ INTERRUPTION_PAGE_URL }#destination=\\0`,
-					},
-				},
-				condition: {
-					regexFilter: '^https?://.*',
-					requestDomains: [ 'example.com', 'second.test' ],
-					resourceTypes: [ 'main_frame' ],
-				},
-			},
-		] );
+	it( 'projects distinct full-URL domain selectors preserving subdomains', () => {
+		const rules = createProtectionNavigationRules( [ { host: 'example.com', includeSubdomains: true, scopeId: DEFAULT_SCOPE_ID }, { host: 'second.test', includeSubdomains: true, scopeId: DEFAULT_SCOPE_ID } ], INTERRUPTION_PAGE_URL );
+		expect( rules ).toHaveLength( 2 );
+		for ( const url of [ 'https://example.com/feed', 'https://www.second.test/feed?query=1#fragment' ] ) {
+			const matching = rules.filter( ( rule ) => new RegExp( rule.condition.regexFilter ?? '' ).test( url ) );
+			expect( matching ).toHaveLength( 1 );
+			expect( matching[ 0 ]?.action ).toEqual( { type: 'redirect', redirect: { regexSubstitution: `${ INTERRUPTION_PAGE_URL }#destination=\\0` } } );
+			expect( matching[ 0 ]?.condition.resourceTypes ).toEqual( [ 'main_frame' ] );
+		}
 	} );
 
 	it( 'anchors one exact host across HTTP and HTTPS navigation', () => {
@@ -74,7 +54,8 @@ describe( 'createProtectionNavigationRules', () => {
 					},
 				},
 				condition: {
-					regexFilter: '^https?://([^/?#@]*@)?news\\.example\\.com(:[0-9]+)?([/?#].*)?$',
+					isUrlFilterCaseSensitive: true,
+					regexFilter: '^https?://([^/?#@]*@)?news\\.example\\.com\\.?(:[0-9]+)?([/?#].*)?$',
 					resourceTypes: [ 'main_frame' ],
 				},
 			},
@@ -84,11 +65,11 @@ describe( 'createProtectionNavigationRules', () => {
 	it.each( [
 		{
 			host: 'localhost',
-			expectedFilters: [ '^https?://([^/?#@]*@)?localhost(:[0-9]+)?([/?#].*)?$' ],
+			expectedFilters: [ '^https?://([^/?#@]*@)?localhost\\.?(:[0-9]+)?([/?#].*)?$' ],
 		},
 		{
 			host: '127.0.0.1',
-			expectedFilters: [ '^https?://([^/?#@]*@)?127\\.0\\.0\\.1(:[0-9]+)?([/?#].*)?$' ],
+			expectedFilters: [ '^https?://([^/?#@]*@)?127\\.0\\.0\\.1\\.?(:[0-9]+)?([/?#].*)?$' ],
 		},
 		{
 			host: '[::1]',
@@ -172,7 +153,7 @@ describe( 'createProtectionNavigationRules', () => {
 		const identifiers = forward.map( ( rule ) => rule.id );
 
 		expect( reversed ).toEqual( forward );
-		expect( forward[ 0 ]?.condition.requestDomains ).toEqual( [ 'example.com' ] );
+		expect( forward.some( ( rule ) => new RegExp( rule.condition.regexFilter ?? '' ).test( 'https://www.example.com/' ) ) ).toBe( true );
 		expect( identifiers ).toEqual( [
 			ProtectionNavigationRuleIdStart,
 			ProtectionNavigationRuleIdStart + 1,
