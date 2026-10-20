@@ -1,13 +1,15 @@
 import { OnboardingStepIndex } from '../../types/flow';
 import { OnboardingStep } from './types';
-import { useEffect, useRef } from 'react';
-import { Brand, BrandSize, Button, Group, Icon, IconName, Stack, Stepper, Text, Title, TocusProvider } from '@tocus/ui';
+import { useEffect, useRef, useState } from 'react';
+import { Alert, Brand, BrandSize, Button, Group, Icon, IconName, Stack, Stepper, Text, Title, TocusProvider } from '@tocus/ui';
 import { SnackbarProvider, SnackbarTone, useSnackbar } from '@tocus/ui';
 import '@tocus/ui/notifications.scss';
 import { useOnboardingController } from '../../services/onboarding-flow';
 import { PausePreview } from '../pause-preview';
 import { PreferencesStep } from '../preferences-step';
 import { SitesStep } from '../sites-step';
+import { BackupImport } from '../backup-import';
+import type { OnboardingBackupOutcomeProps } from '../backup-import/types';
 import type { OnboardingContentProps, OnboardingStepProps, OnboardingViewProps } from '../../types/presentation';
 
 const stepNames = [ OnboardingStep.LANGUAGE, OnboardingStep.APPEARANCE, OnboardingStep.SITES ] as const;
@@ -110,6 +112,76 @@ function Content( props: OnboardingContentProps ) {
 }
 
 /**
+ * Keeps the restored outcome visible while website access can be retried explicitly.
+ * @param props - Current restored copy, page actions and heading focus destination.
+ * @return Verified completion or a clear permission recovery outcome.
+ */
+function RestoredOutcome( props: OnboardingBackupOutcomeProps ) {
+	const { state, copy, controller, heading, missingAccess } = props;
+	const [ pending, setPending ] = useState( false );
+	const [ failed, setFailed ] = useState( false );
+	const active = useRef( false );
+	const mounted = useRef( true );
+	useEffect( () => () => {
+		mounted.current = false;
+	}, [] );
+
+	/**
+	 * Requests browser access in the original click and reports only verified grants.
+	 * @return Completion of the restored-rule access check.
+	 */
+	async function requestAccess(): Promise<void> {
+		if ( active.current || ! state.backupActions ) {
+			return;
+		}
+		active.current = true;
+		setPending( true );
+		setFailed( false );
+		try {
+			const granted = await state.backupActions.requestAccess();
+			if ( mounted.current ) {
+				if ( granted ) {
+					props.onAccessGranted();
+				} else {
+					setFailed( true );
+				}
+			}
+		} catch {
+			if ( mounted.current ) {
+				setFailed( true );
+			}
+		} finally {
+			if ( mounted.current ) {
+				active.current = false;
+				setPending( false );
+			}
+		}
+	}
+	return <section className="onboarding-outcome" aria-busy={ pending }>
+		<span className="onboarding-status-mark onboarding-completion-mark">
+			<Icon name={ missingAccess ? IconName.SHIELD_HALVED : IconName.CIRCLE_CHECK } />
+		</span>
+		<Title ref={ heading } tabIndex={ -1 } order={ 1 }>
+			{ missingAccess ? copy.backup.accessTitle : copy.backup.successTitle }</Title>
+		<Text c="dimmed">{ missingAccess ? copy.backup.accessDescription : copy.backup.successDescription }</Text>
+		{ missingAccess && failed && <Alert color="red" role="alert" icon={ <Icon name={ IconName.CIRCLE_EXCLAMATION } /> }>
+			{ copy.backup.accessError }
+		</Alert> }
+		<div className="onboarding-outcome-actions">
+			<Button className="tocus-action-raised" disabled={ pending || ( missingAccess && ! state.backupActions ) }
+				onClick={ missingAccess ? () => {
+					void requestAccess();
+				} : controller.openSettings }>
+				{ missingAccess ? copy.backup.allowAccess : copy.openSettingsLabel }
+			</Button>
+			{ missingAccess && <Button variant="outline" disabled={ pending } onClick={ controller.openSettings }>
+				{ copy.backup.later }
+			</Button> }
+		</div>
+	</section>;
+}
+
+/**
  * Composes onboarding layout while the controller owns draft and persistence transitions.
  * @param props - Immutable service projection and synchronous user-event port.
  * @return The branded onboarding surface, or nothing before localization is ready.
@@ -119,18 +191,23 @@ export function OnboardingView( props: OnboardingViewProps ) {
 	const { state, port } = props;
 	const controller = useOnboardingController( state, port );
 	const heading = useRef<HTMLHeadingElement>( null );
+	const [ restoredMissingAccess, setRestoredMissingAccess ] = useState<boolean | null>( null );
 	useEffect( () => {
 		heading.current?.focus( { preventScroll: true } );
-	}, [ controller.step, controller.completed, state.startupUnavailable ] );
+	}, [ controller.step, controller.completed, state.startupUnavailable, restoredMissingAccess ] );
 	if ( ! state.copy ) {
 		return null;
 	}
 	const showPreview = controller.step === OnboardingStepIndex.APPEARANCE &&
-		! controller.completed && ! state.startupUnavailable;
+		! controller.completed && ! state.startupUnavailable && restoredMissingAccess === null;
+	const showImport = restoredMissingAccess === null && ! controller.completed && ! state.startupUnavailable;
 	return (
 		<TocusProvider appearance={ state.theme } palette={ state.palette } reducedMotion={ state.reducedMotion }>
 			<div className={ `onboarding-view${ showPreview ? ' onboarding-with-preview' : '' }` }>
-				<header className="onboarding-header"><Brand size={ BrandSize.LARGE } /></header>
+				<header className="onboarding-header"><Brand size={ BrandSize.LARGE } />
+					{ showImport && <BackupImport
+						state={ state } disabled={ controller.pending } onImported={ setRestoredMissingAccess } /> }
+				</header>
 				<div className="onboarding-layout">
 					<aside className="onboarding-introduction">
 						<Title order={ 2 }>{ state.copy.introduction }</Title>
@@ -145,8 +222,12 @@ export function OnboardingView( props: OnboardingViewProps ) {
 						</section>
 					</aside>
 					<main className="tocus-page onboarding-form" aria-busy={ controller.pending }>
-						<Content state={ state } copy={ state.copy }
+						{ restoredMissingAccess === null ? <Content state={ state } copy={ state.copy }
 							controller={ controller } heading={ heading } />
+							: <RestoredOutcome state={ state } copy={ state.copy } controller={ controller }
+								heading={ heading } missingAccess={ restoredMissingAccess } onAccessGranted={ () => {
+									setRestoredMissingAccess( false );
+								} } /> }
 					</main>
 				</div>
 				{ showPreview && <PausePreview state={ state } /> }
