@@ -2,7 +2,7 @@
 
 ## 1.1.0 - Unreleased
 
-- Added: Add comma-separated website addresses together, with a localized Add sites action, complete input validation, and duplicate-safe staging that preserves existing policies and default exceptions (Chrome, Edge, Firefox).
+- Added: Add comma-separated website addresses together, with comma-separated placeholder examples, a localized Add sites action, complete input validation, and duplicate-safe staging that preserves existing policies and default exceptions (Chrome, Edge, Firefox).
 
 - Fixed: Paths beneath a No pause website use global timing and schedules unless they have their own overrides. Paused paths prefer their own host's parent settings, including product subdomains, and switching the parent back to Pause restores its saved overrides (Chrome, Edge, Firefox).
 
