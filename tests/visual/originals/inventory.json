@@ -53,19 +53,19 @@
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-appearance-brown-light-landscape-scrolled.png",
-    "sha256": "2a674f600ec5d8addf1ed77842d0ad17a8d4e204f010bfeb1084c37f257f03c0"
+    "sha256": "37e794b3d320272e97fc98168253795abf388264fe53aeb67275b7e3ad35220f"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-appearance-brown-light.png",
-    "sha256": "3f4d8c337fdc1d17984adefc150420020b01cb50099f94ca1017be372be34417"
+    "sha256": "5eef85af2914bd765dbef0808abd5297f51861f42687b2bb5c909028855957a9"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-appearance-purple-dark-narrow.png",
-    "sha256": "10ae3ae716e52e7cd5e709aec6327773ec042877e829c90e6c5f6c1000fbb171"
+    "sha256": "acf31dfbfbe45cd9ee72ae16076968e5ceebf76419833c925336eea357844f5c"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-appearance-purple-dark-phone-scrolled.png",
-    "sha256": "d0b9a675b17d220565388ec615ae22ce30a38d62d117eae9071c1aa3118225fc"
+    "sha256": "548bdd756e52899b9a1217034c0bd5dc97edc80e815da9f22b45fd9b067bbd21"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-brown-light.png",
