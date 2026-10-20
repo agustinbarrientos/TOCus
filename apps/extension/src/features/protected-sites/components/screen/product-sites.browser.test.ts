@@ -56,18 +56,105 @@ test( 'groups product paths under their own identity and selects only that produ
 		.toEqual( [ 'drive.google.com' ] );
 } );
 
-test( 'checks broad ancestor coverage before marking a path-only product No pause', async ( { open } ) => {
+test( 'retains an editable path-first product parent when a broader website is added later', async ( { open } ) => {
 	const page = await open( SettingsDestination.PROTECTED_SITES );
 	await add( page, 'mail.google.com/inbox' );
 	const parent = page.locator( '.settings-site-item' ).filter( { has: page.getByRole( 'heading', { name: 'Gmail', exact: true } ) } );
 	await expect( parent ).toContainText( 'No pause' );
+	await expect( parent.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } ) ).toBeVisible();
 	await add( page, 'google.com' );
-	await expect( parent ).not.toContainText( 'No pause' );
+	await expect( parent ).toContainText( 'No pause' );
 	await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
 	await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
 	expect( await page.evaluate( () => window.settingsTest.getConfiguration().sites.map( ( site ) =>
-		[ site.rule.host, site.rule.pathPrefix ] ) ) ).toEqual( [ [ 'mail.google.com', '/inbox' ], [ 'google.com', undefined ] ] );
+		[ site.rule.host, site.rule.pathPrefix, site.rule.behavior ] ) ) ).toEqual( [
+		[ 'mail.google.com', '/inbox', undefined ], [ 'mail.google.com', undefined, 'allow' ],
+		[ 'google.com', undefined, undefined ],
+	] );
 } );
+
+test( 'creates an editable No pause parent for an ordinary path-first website', async ( { open } ) => {
+	const page = await open( SettingsDestination.PROTECTED_SITES );
+	await add( page, 'a.com/x' );
+	const parent = page.locator( '.settings-site-item:not(.settings-site-exception)' );
+	const child = page.locator( '.settings-site-exception' );
+	const edit = parent.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } );
+	await expect( parent ).toContainText( 'No pause' );
+	await expect( edit ).toBeVisible();
+	await expect( child ).toContainText( 'a.com/x' );
+	await expect( child ).not.toContainText( 'No pause' );
+	await page.getByRole( 'button', { name: 'Discard', exact: true } ).click();
+	await expect( page.locator( '.settings-site-item' ) ).toHaveCount( 0 );
+	expect( await page.evaluate( () => window.settingsTest.getConfiguration().sites ) ).toEqual( [] );
+	await add( page, 'a.com/x' );
+	await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
+	await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
+	const baseline = await page.evaluate( () => window.settingsTest.getConfiguration().sites );
+	expect( baseline.map( ( site ) => [ site.rule.host, site.rule.pathPrefix, site.rule.behavior ] ) ).toEqual( [
+		[ 'a.com', '/x', undefined ], [ 'a.com', undefined, 'allow' ],
+	] );
+	await edit.click();
+	const dialog = page.getByRole( 'dialog' );
+	const behavior = dialog.getByLabel( 'When visited', { exact: true } );
+	await expect( dialog.getByLabel( 'Name', { exact: true } ) ).toBeVisible();
+	await expect( behavior ).toHaveValue( 'allow' );
+	await behavior.selectOption( 'pause' );
+	await dialog.getByRole( 'button', { name: 'Cancel', exact: true } ).click();
+	await expect( parent ).toContainText( 'No pause' );
+	await edit.click();
+	await behavior.selectOption( 'pause' );
+	await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
+	await expect( parent ).not.toContainText( 'No pause' );
+	await expect( child ).not.toContainText( 'No pause' );
+	expect( await page.evaluate( () => window.settingsTest.getConfiguration().sites ) ).toEqual( baseline );
+	await page.getByRole( 'button', { name: 'Discard', exact: true } ).click();
+	await expect( parent ).toContainText( 'No pause' );
+	await edit.click();
+	await expect( behavior ).toHaveValue( 'allow' );
+	await behavior.selectOption( 'pause' );
+	await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
+	await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
+	await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 2 );
+	expect( await page.evaluate( () => window.settingsTest.getConfiguration().sites.map( ( site ) =>
+		[ site.rule.host, site.rule.pathPrefix, site.rule.behavior ] ) ) ).toEqual( [
+		[ 'a.com', '/x', undefined ], [ 'a.com', undefined, undefined ],
+	] );
+	await child.getByRole( 'button', { name: 'Edit exception', exact: true } ).click();
+	await expect( behavior ).toHaveValue( 'pause' );
+	await dialog.getByRole( 'button', { name: 'Cancel', exact: true } ).click();
+} );
+
+for ( const [ savedBehavior, pendingBehavior, createsParent ] of [
+	[ 'allow', 'pause', false ], [ 'pause', 'allow', true ],
+] as const ) {
+	test( `uses the pending ${ pendingBehavior } ancestor instead of saved ${ savedBehavior } when adding a path`, async ( { open } ) => {
+		const page = await open( SettingsDestination.PROTECTED_SITES );
+		await add( page, 'example.com' );
+		const parent = page.locator( '.settings-site-item:not(.settings-site-exception)' );
+		const edit = parent.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } );
+		await edit.click();
+		const dialog = page.getByRole( 'dialog' );
+		await dialog.getByLabel( 'When visited', { exact: true } ).selectOption( savedBehavior );
+		await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
+		await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
+		await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
+		await edit.click();
+		await dialog.getByLabel( 'When visited', { exact: true } ).selectOption( pendingBehavior );
+		await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
+		await add( page, 'work.example.com/x' );
+		await expect( page.locator( '.settings-site-item' ) ).toHaveCount( createsParent ? 3 : 2 );
+		await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
+		await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 2 );
+		const sites = await page.evaluate( () => window.settingsTest.getConfiguration().sites );
+		expect( sites.find( ( site ) => site.rule.host === 'example.com' )?.rule.behavior ).toBe(
+			pendingBehavior === 'allow' ? 'allow' : undefined,
+		);
+		expect( sites.find( ( site ) => site.rule.pathPrefix === '/x' )?.rule.behavior ).toBeUndefined();
+		const childRoot = sites.find( ( site ) => site.rule.host === 'work.example.com' && ! site.rule.pathPrefix );
+		expect( childRoot?.rule.behavior ).toBe( createsParent ? 'allow' : undefined );
+		expect( sites ).toHaveLength( createsParent ? 3 : 2 );
+	} );
+}
 
 test( 'retains product names and editable pause behavior in a top-level product editor', async ( { open } ) => {
 	const page = await open( SettingsDestination.PROTECTED_SITES );

@@ -30,14 +30,19 @@ export function createWebsiteDraft( sites: ProtectedSiteConfiguration[] ): Websi
 }
 
 /**
- * Stages one new website and its editable catalog exceptions as one discardable change.
+ * Stages editable additions against pending pause behavior while retaining incomplete draft fields.
  * @param draft - Current website draft before the addition.
  * @param site - Canonical new target whose details are held in the address editor.
  * @return Independent draft containing the new target and any default exceptions.
  * @since 1.1.0
  */
 export function stageWebsiteDraftSite( draft: WebsitesDraft, site: ProtectedSiteConfiguration ): WebsitesDraft {
-	const additions = expandProtectedSiteAdditions( draft.sites, [ site ] );
+	const pendingSites = draft.sites.map( ( existing ) => {
+		const details = draft.detailsByRuleKey[ getProtectedSiteRuleKey( existing.rule ) ];
+		return details === undefined ? existing : { ...existing,
+			rule: { ...existing.rule, behavior: details.behavior } };
+	} );
+	const additions = expandProtectedSiteAdditions( pendingSites, [ site ] );
 	return { ...draft, sites: [ ...draft.sites, ...additions ], address: '',
 		detailsByRuleKey: { ...draft.detailsByRuleKey,
 			...Object.fromEntries( additions.map( ( addition ) => [ getProtectedSiteRuleKey( addition.rule ),

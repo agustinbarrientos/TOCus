@@ -263,7 +263,7 @@ test( 'removes only a selected exception after confirmation and persists its sib
 		.toEqual( saved.filter( ( site ) => site.rule.pathPrefix === undefined ) );
 } );
 
-test( 'selects every path-only group member without treating its presentation header as another rule', async ( { open } ) => {
+test( 'selects the editable parent and every path-first group member as real rules', async ( { open } ) => {
 	const page = await open( SettingsDestination.PROTECTED_SITES );
 	await saveExceptionSites( page, [ 'youtube.com/shorts', 'youtube.com/feed' ] );
 	const saved = await page.evaluate( () => window.settingsTest.getConfiguration().sites );
@@ -277,20 +277,24 @@ test( 'selects every path-only group member without treating its presentation he
 	await expect( page.getByRole( 'button', { name: 'Remove selected (1)', exact: true } ) ).toBeVisible();
 	await main.check();
 	await expect( feed ).toBeChecked();
-	await expect( page.getByRole( 'button', { name: 'Remove selected (2)', exact: true } ) ).toBeVisible();
-	await page.getByRole( 'button', { name: 'Remove selected (2)', exact: true } ).click();
-	await page.getByRole( 'dialog', { name: 'Remove 2 websites?', exact: true } )
+	await expect( page.getByRole( 'checkbox', { name: 'Select studio.youtube.com', exact: true } ) ).toBeChecked();
+	await expect( page.getByRole( 'button', { name: 'Remove selected (4)', exact: true } ) ).toBeVisible();
+	await page.getByRole( 'button', { name: 'Remove selected (4)', exact: true } ).click();
+	await page.getByRole( 'dialog', { name: 'Remove 4 websites?', exact: true } )
 		.getByRole( 'button', { name: 'Remove', exact: true } ).click();
 	await expect( page.locator( '.settings-site-item' ) ).toHaveCount( 0 );
 	expect( await page.evaluate( () => window.settingsTest.getConfiguration().sites ) ).toEqual( saved );
 	await page.getByRole( 'button', { name: 'Discard', exact: true } ).click();
-	await expect( page.locator( '.settings-site-item' ) ).toHaveCount( 3 );
+	await expect( page.locator( '.settings-site-item' ) ).toHaveCount( 4 );
 	for ( const checkbox of await page.getByRole( 'checkbox' ).all() ) {
 		await expect( checkbox ).not.toBeChecked();
 		await expect( checkbox ).toHaveAttribute( 'aria-checked', 'false' );
 	}
 	expect( await page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
-	expect( saved.map( ( site ) => site.rule.pathPrefix ).sort() ).toEqual( [ '/feed', '/shorts' ] );
+	expect( saved.map( ( site ) => [ site.rule.host, site.rule.pathPrefix, site.rule.behavior ] ) ).toEqual( [
+		[ 'youtube.com', '/shorts', undefined ], [ 'youtube.com', undefined, 'allow' ],
+		[ 'studio.youtube.com', undefined, 'allow' ], [ 'youtube.com', '/feed', undefined ],
+	] );
 } );
 
 test( 'keeps a compact peer root independently selectable within the main group', async ( { open } ) => {

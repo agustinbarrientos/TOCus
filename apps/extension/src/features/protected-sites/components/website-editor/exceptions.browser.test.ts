@@ -2,14 +2,17 @@ import { expect } from '@playwright/test';
 import { SettingsDestination } from '../../../settings/services/settings-navigation/types';
 import { test } from '../../../settings/utils/browser-test-harness';
 
-test( 'groups sibling paths without adding a root and edits complete exception policies tentatively', async ( { open } ) => {
+test( 'groups sibling paths under an editable no-pause parent and edits complete child policies tentatively', async ( { open } ) => {
 	const page = await open( SettingsDestination.PROTECTED_SITES );
 	for ( const address of [ 'youtube.com/shorts', 'youtube.com/feed' ] ) {
 		await page.getByLabel( 'Website address', { exact: true } ).fill( address );
 		await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
 	}
-	await expect( page.locator( '.settings-site-exception' ) ).toHaveCount( 2 );
+	await expect( page.locator( '.settings-site-exception' ) ).toHaveCount( 3 );
 	await expect( page.getByText( 'Exceptions', { exact: true } ) ).toHaveCount( 1 );
+	const parent = page.locator( '.settings-site-item:not(.settings-site-exception)' );
+	await expect( parent ).toContainText( 'No pause' );
+	await expect( parent.getByRole( 'button', { name: 'Change when TOCus pauses this site, or rename it', exact: true } ) ).toBeVisible();
 	const child = page.locator( '.settings-site-exception' ).filter( { hasText: 'youtube.com/shorts' } );
 	await child.getByRole( 'button', { name: 'Edit exception', exact: true } ).click();
 	const dialog = page.getByRole( 'dialog', { name: 'youtube.com/shorts', exact: true } );
@@ -25,7 +28,11 @@ test( 'groups sibling paths without adding a root and edits complete exception p
 	await expect( child ).toContainText( 'Custom schedule' );
 	await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
 	await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
-	expect( await page.evaluate( () => window.settingsTest.getConfiguration().sites.map( ( site ) => site.rule.pathPrefix ) ) ).toEqual( [ '/shorts', '/feed' ] );
+	expect( await page.evaluate( () => window.settingsTest.getConfiguration().sites.map( ( site ) =>
+		[ site.rule.host, site.rule.pathPrefix, site.rule.behavior ] ) ) ).toEqual( [
+		[ 'youtube.com', '/shorts', undefined ], [ 'youtube.com', undefined, 'allow' ],
+		[ 'studio.youtube.com', undefined, 'allow' ], [ 'youtube.com', '/feed', undefined ],
+	] );
 } );
 
 test( 'starts child timing from the staged main policy and retains tentative toggles until Done', async ( { open } ) => {
@@ -150,7 +157,7 @@ test( 'keeps exception fields usable with narrow enlarged text and reduced motio
 	await page.addStyleTag( { content: 'html { font-size: 125%; }' } );
 	await page.getByLabel( 'Website address', { exact: true } ).fill( 'youtube.com/shorts' );
 	await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
-	const child = page.locator( '.settings-site-exception' );
+	const child = page.locator( '.settings-site-exception' ).filter( { hasText: 'youtube.com/shorts' } );
 	await child.getByRole( 'button', { name: 'Edit exception', exact: true } ).click();
 	const dialog = page.getByRole( 'dialog', { name: 'youtube.com/shorts', exact: true } );
 	await dialog.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ).click();

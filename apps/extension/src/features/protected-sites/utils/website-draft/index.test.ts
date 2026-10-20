@@ -124,3 +124,66 @@ describe( 'new website default exception drafts', () => {
 		expect( createWebsiteDraft( [ root ] ).sites ).toEqual( [ root ] );
 	} );
 } );
+
+describe( 'path-first website drafts', () => {
+	it( 'stages an editable no-pause parent beside an ordinary paused path and discards both together', () => {
+		const path = { identityHost: 'a.com', rule: { host: 'a.com', includeSubdomains: true,
+			scopeId: DefaultProtectionScopeId, pathPrefix: '/x' } };
+		const parent = { identityHost: 'a.com', rule: { host: 'a.com', includeSubdomains: true,
+			scopeId: DefaultProtectionScopeId, behavior: 'allow' as const } };
+		const baseline = createWebsiteDraft( [] );
+		const controller = createDraft( baseline );
+		const staged = stageWebsiteDraftSite( baseline, path );
+		expect( staged.sites ).toEqual( [ path, parent ] );
+		expect( staged.detailsByRuleKey[ getProtectedSiteRuleKey( path.rule ) ]?.behavior ).toBe( 'pause' );
+		expect( staged.detailsByRuleKey[ getProtectedSiteRuleKey( parent.rule ) ]?.behavior ).toBe( 'allow' );
+		expect( serializeWebsiteDraft( staged ) ).toEqual( [ path, parent ] );
+		controller.change( staged );
+		controller.discard();
+		expect( controller.snapshot.value ).toEqual( baseline );
+		expect( baseline.sites ).toEqual( [] );
+	} );
+
+	it.each( [
+		{ originalBehavior: 'allow', pendingBehavior: 'pause', pathPrefix: undefined, createsParent: false },
+		{ originalBehavior: 'pause', pendingBehavior: 'allow', pathPrefix: undefined, createsParent: true },
+		{ originalBehavior: 'allow', pendingBehavior: 'pause', pathPrefix: '/inbox', createsParent: false },
+		{ originalBehavior: 'pause', pendingBehavior: 'allow', pathPrefix: '/inbox', createsParent: true },
+	] as const )( 'uses pending $pendingBehavior over stored $originalBehavior for ancestor $pathPrefix', ( {
+		originalBehavior, pendingBehavior, pathPrefix, createsParent,
+	} ) => {
+		const ancestor = { identityHost: 'example.com', rule: { host: 'example.com', includeSubdomains: true,
+			scopeId: DefaultProtectionScopeId, behavior: originalBehavior,
+			...( pathPrefix === undefined ? {} : { pathPrefix } ) } };
+		const path = { identityHost: 'work.example.com', rule: { host: 'work.example.com', includeSubdomains: false,
+			scopeId: DefaultProtectionScopeId, pathPrefix: '/x' } };
+		const draft = createWebsiteDraft( [ ancestor ] );
+		const key = getProtectedSiteRuleKey( ancestor.rule );
+		const incompleteSchedule = { mode: ScheduleMode.CUSTOM,
+			windows: [ { id: 0, weekday: Weekday.MONDAY, start: '', end: '', fullDay: false } ] };
+		const details = { displayName: 'Pending policy', schedule: incompleteSchedule,
+			timingConfiguration: DefaultTimingConfiguration, behavior: pendingBehavior };
+		draft.detailsByRuleKey[ key ] = details;
+		draft.newSite = { ...draft.newSite, schedule: incompleteSchedule };
+		const staged = stageWebsiteDraftSite( draft, path );
+		expect( staged.sites ).toEqual( createsParent ? [ ancestor, path, {
+			identityHost: 'work.example.com', rule: { host: 'work.example.com', includeSubdomains: false,
+				scopeId: DefaultProtectionScopeId, behavior: 'allow' },
+		} ] : [ ancestor, path ] );
+		expect( staged.sites[ 0 ] ).toBe( ancestor );
+		expect( staged.detailsByRuleKey[ key ] ).toBe( details );
+		expect( staged.detailsByRuleKey[ getProtectedSiteRuleKey( path.rule ) ]?.schedule ).toBe( incompleteSchedule );
+		expect( draft.sites ).toEqual( [ ancestor ] );
+		expect( ancestor.rule.behavior ).toBe( originalBehavior );
+	} );
+
+	it( 'uses the saved ancestor policy when pending details are absent', () => {
+		const ancestor = { identityHost: 'example.com', rule: { host: 'example.com', includeSubdomains: true,
+			scopeId: DefaultProtectionScopeId } };
+		const path = { identityHost: 'work.example.com', rule: { host: 'work.example.com', includeSubdomains: false,
+			scopeId: DefaultProtectionScopeId, pathPrefix: '/x' } };
+		const draft = createWebsiteDraft( [ ancestor ] );
+		draft.detailsByRuleKey = {};
+		expect( stageWebsiteDraftSite( draft, path ).sites ).toEqual( [ ancestor, path ] );
+	} );
+} );
