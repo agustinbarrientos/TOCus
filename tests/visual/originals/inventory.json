@@ -157,19 +157,19 @@
   },
   {
     "path": "apps/extension/src/features/protected-sites/components/site-item/__snapshots__/chromium/protected-site-item-operation-error-dark.png",
-    "sha256": "4d3fcf0bb43b2827fa3e91b5955718c528b6a626a3ff45402699ebc15c0407ed"
+    "sha256": "68db8fa5605e0eb8c7932e4062d5eb019065032b95570f513d9c9d0b65d95362"
   },
   {
     "path": "apps/extension/src/features/protected-sites/components/site-item/__snapshots__/chromium/protected-site-item-operation-error-light.png",
-    "sha256": "8a210a2f96b17249dbd1da9d0986ecdf0005e11ab6fc18c20e6a51ee4059b9d0"
+    "sha256": "195c66f4977564c5c28a867e19cd0f3641679d4702730b93c8b5300e1a690295"
   },
   {
     "path": "apps/extension/src/features/protected-sites/components/site-list/__snapshots__/chromium/protected-site-list-dark.png",
-    "sha256": "15131ad962a0023c57634394988ecfb8b0b90615aeffb31d304645c377728738"
+    "sha256": "c6c7ee27444f922724c235e7cbbb7de441f8442ff5a66f27d69c71b7e9cedc7e"
   },
   {
     "path": "apps/extension/src/features/protected-sites/components/site-list/__snapshots__/chromium/protected-site-list-light.png",
-    "sha256": "a0642b669c00dcc76d3705eee891aab84f897d417dbf4b3ae42a047c974b4bb6"
+    "sha256": "5e32e8a13ed93a28c44a0ca9e02565137bae70d1dd975d28711aeb23e3fa6040"
   },
   {
     "path": "apps/extension/src/features/settings/components/about-screen/__snapshots__/chromium/about-screen-brown-light.png",
