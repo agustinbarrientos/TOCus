@@ -8,6 +8,8 @@ import type { LocalDataResetMessageEvent } from '../local-data-reset-controller/
  */
 export interface LocalDataBackupControllerOptions {
 	optionsPageUrl: string;
+	/** Exact trusted onboarding document before query or fragment, limited to readiness and import. */
+	onboardingPageUrl?: string;
 	localArea: LocalDataGenerationArea;
 	backup: LocalDataBackup;
 	onMessage: LocalDataResetMessageEvent;

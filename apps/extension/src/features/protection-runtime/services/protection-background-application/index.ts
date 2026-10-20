@@ -392,6 +392,7 @@ export function startProtectionBackgroundApplication(
 
 	const backupController = createLocalDataBackupController( {
 		optionsPageUrl: options.browser.runtime.getURL( '/options.html' ),
+		onboardingPageUrl: options.browser.runtime.getURL( '/onboarding.html' ),
 		localArea: options.browser.storage.local,
 		onMessage: options.browser.runtime.onMessage,
 		backup,

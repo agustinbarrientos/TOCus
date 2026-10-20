@@ -14,7 +14,7 @@ const RequestTypeSchema = z.looseObject( {
 } );
 
 /**
- * Registers backup operations exclusively for the top-level settings document.
+ * Registers backup operations for trusted top-level extension documents.
  * @param options - Browser-authenticated sender and lifecycle dependencies.
  * @return One-shot message registration.
  * @since 1.1.0
@@ -58,7 +58,7 @@ export function createLocalDataBackupController(
 	}
 
 	/**
-	 * Owns only authenticated top-level settings operations outside private browsing.
+	 * Limits onboarding to readiness and imports while Settings retains all backup actions.
 	 * @param input - Unknown browser message.
 	 * @param sender - Browser-authenticated sending context.
 	 * @param sendResponse - Response channel, possibly closed after tab departure.
@@ -67,15 +67,21 @@ export function createLocalDataBackupController(
 	 */
 	const listener: ProtectionBackgroundMessageListener = ( input, sender, sendResponse ) => {
 		const message = RequestTypeSchema.safeParse( input );
-		if ( ! message.success || sender.frameId !== 0 || sender.tab?.incognito !== false ||
-			sender.url?.split( '#' )[ 0 ] !== options.optionsPageUrl ) {
+		if ( ! message.success || sender.frameId !== 0 || sender.tab?.incognito !== false ) {
+			return undefined;
+		}
+		const fromSettings = sender.url?.split( '#' )[ 0 ] === options.optionsPageUrl;
+		const fromOnboarding = options.onboardingPageUrl !== undefined &&
+			sender.url?.split( /[?#]/ )[ 0 ] === options.onboardingPageUrl &&
+			message.data.type !== 'export-local-backup';
+		if ( ! fromSettings && ! fromOnboarding ) {
 			return undefined;
 		}
 		void run( input, message.data.type ).then( ( result ) => {
 			try {
 				sendResponse( result );
 			} catch {
-				// The background operation survives closing its requesting settings tab.
+				// The background operation survives closing its requesting extension tab.
 			}
 		} );
 		return true;
