@@ -2,6 +2,7 @@ import { OnboardingAnnouncementKind, OnboardingFailure } from '../../types/flow'
 import { Alert, Button, Icon, IconName, TextInput, Title, UnstyledButton, VisuallyHidden } from '@tocus/ui';
 import { resolveSiteDisplayIdentity } from '../../../protected-sites/utils/site-display-name-resolver';
 import { getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
+import { splitProtectedSiteInputs } from '../../../../domains/protection/utils/protected-site-input-list';
 import type { OnboardingSiteRowProps, OnboardingStepProps, OnboardingSuggestionProps } from '../../types/presentation';
 import './styles.scss';
 
@@ -103,10 +104,13 @@ function SiteFeedback( props: OnboardingStepProps ) {
  */
 export function SitesStep( props: OnboardingStepProps ) {
 	const { state, copy, controller } = props;
-	const hasAddress = controller.address.trim() !== '';
-	const manualFailure = controller.failure === OnboardingFailure.INVALID_SITE ||
-		controller.failure === OnboardingFailure.ALREADY_PROTECTED
-		? copy.sites[ controller.failure ] : '';
+	const addressCount = splitProtectedSiteInputs( controller.address ).length;
+	const hasAddress = addressCount > 0;
+	const manualFailure = controller.failure === OnboardingFailure.INVALID_SITE && controller.invalidInputs.length > 0
+		? copy.sites.formatInvalidAddresses( controller.invalidInputs )
+		: controller.failure === OnboardingFailure.INVALID_SITE ||
+			controller.failure === OnboardingFailure.ALREADY_PROTECTED
+			? copy.sites[ controller.failure ] : '';
 	return (
 		<div className="onboarding-sites-step">
 			<section className="suggestions" aria-labelledby="onboarding-suggestions-title">
@@ -142,7 +146,7 @@ export function SitesStep( props: OnboardingStepProps ) {
 						disabled={ controller.pending } autoComplete="off" />
 					<Button className="tocus-native-button" type="submit" variant={ hasAddress ? 'filled' : 'outline' }
 						aria-disabled={ controller.pending || ! hasAddress } disabled={ controller.pending }>
-						{ copy.sites.addSiteLabel }
+						{ addressCount > 1 ? copy.sites.addSitesLabel : copy.sites.addSiteLabel }
 					</Button>
 				</div>
 				<p className="field-help" id="onboarding-site-help">{ copy.sites.addressHelp }</p>
@@ -174,7 +178,9 @@ export function SitesStep( props: OnboardingStepProps ) {
 			<VisuallyHidden component="p" role="status" aria-live="polite">
 				{ controller.announcement?.kind === OnboardingAnnouncementKind.ADDED && (
 					<span key={ controller.announcement.sequence }>
-						{ copy.sites.formatAddedAnnouncement( controller.announcement.name ) }
+						{ ( controller.announcement.count ?? 1 ) > 1
+							? copy.sites.formatAddedSitesAnnouncement( controller.announcement.count ?? 1 )
+							: copy.sites.formatAddedAnnouncement( controller.announcement.name ) }
 					</span>
 				) }
 			</VisuallyHidden>

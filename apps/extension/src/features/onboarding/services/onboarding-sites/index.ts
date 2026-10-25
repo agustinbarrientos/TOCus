@@ -1,4 +1,3 @@
-import { ProtectedSiteCanonicalizationStatus } from '../../../../domains/protection/utils/protected-site-canonicalizer/types';
 import { ProtectedSiteEnrollmentStatus } from '../../../protected-sites/services/protected-site-enrollment/types';
 import { useRef, useState } from 'react';
 import { DefaultProtectionScopeId } from '../../../../domains/protection/types/protection-value';
@@ -6,7 +5,7 @@ import {
 	ProtectedSiteConfigurationSetSchema,
 	type ProtectedSiteConfiguration,
 } from '../../../../domains/protection/types/protected-site-configuration';
-import { canonicalizeProtectedSite } from '../../../../domains/protection/utils/protected-site-canonicalizer';
+import { canonicalizeProtectedSiteInputs, splitProtectedSiteInputs } from '../../../../domains/protection/utils/protected-site-input-list';
 import { getProtectedSiteRuleKey } from '../../../../domains/protection/utils/protected-site-rule-key';
 import { SitePermissionReleaseStatus } from '../../../protected-sites/services/site-permission-manager';
 import { resolveSiteDisplayIdentity } from '../../../protected-sites/utils/site-display-name-resolver';
@@ -35,6 +34,7 @@ export function useOnboardingSites(
 	const draftRef = useRef<ProtectedSiteConfiguration[]>( [] );
 	const [ address, setAddressValue ] = useState( '' );
 	const [ failure, setFailure ] = useState<OnboardingFailure | null>( null );
+	const [ invalidInputs, setInvalidInputs ] = useState<string[]>( [] );
 	const [ announcement, setAnnouncement ] = useState<OnboardingAnnouncement | null>( null );
 	const [ pendingRemoval, setPendingRemoval ] = useState<OnboardingPendingRemoval | null>( null );
 	const addressInputRef = useRef<HTMLInputElement>( null );
@@ -66,9 +66,10 @@ export function useOnboardingSites(
 	 * Produces replayable, language-independent status feedback.
 	 * @param kind - Semantic result of the site action.
 	 * @param name - Existing display identity for the affected site.
+	 * @param count - Number of newly added sites for an optional batch announcement.
 	 */
-	function announce( kind: OnboardingAnnouncement['kind'], name: string ): void {
-		setAnnouncement( ( previous ) => ( { kind, name, sequence: ( previous?.sequence ?? 0 ) + 1 } ) );
+	function announce( kind: OnboardingAnnouncement['kind'], name: string, count = 1 ): void {
+		setAnnouncement( ( previous ) => ( { kind, name, count, sequence: ( previous?.sequence ?? 0 ) + 1 } ) );
 	}
 
 	/**
@@ -82,29 +83,32 @@ export function useOnboardingSites(
 	}
 
 	/**
-	 * Canonicalizes and validates an addition without requesting any browser permission.
-	 * @param input - Hostname or URL entered manually or selected from suggestions.
+	 * Validates a complete address batch before adding unique local drafts without browser permission.
+	 * @param input - Comma-separated addresses entered manually, or one selected suggestion.
 	 */
 	function addSite( input: string ): void {
 		if ( operation.isPending() ) {
 			return;
 		}
 		setFailure( null );
+		setInvalidInputs( [] );
 		setAnnouncement( null );
-		const result = canonicalizeProtectedSite( input, DefaultProtectionScopeId );
-		if ( result.status === ProtectedSiteCanonicalizationStatus.REJECTED ) {
+		const result = canonicalizeProtectedSiteInputs( input, DefaultProtectionScopeId );
+		if ( result.invalidInputs.length > 0 || result.sites.length === 0 ) {
 			setFailure( OnboardingFailure.INVALID_SITE );
+			setInvalidInputs( splitProtectedSiteInputs( input ).length > 1 ? result.invalidInputs : [] );
 			return;
 		}
-		const site = { identityHost: result.identityHost, rule: result.rule };
 		const current = mergeOnboardingSites( port.protectedSites, draftRef.current );
-		if ( ! ProtectedSiteConfigurationSetSchema.safeParse( [ ...current, site ] ).success ) {
+		const additions = pendingSiteDrafts( current, result.sites );
+		const firstSite = additions[ 0 ];
+		if ( ! firstSite || ! ProtectedSiteConfigurationSetSchema.safeParse( [ ...current, ...additions ] ).success ) {
 			setFailure( OnboardingFailure.ALREADY_PROTECTED );
 			return;
 		}
-		replaceDrafts( [ ...draftRef.current, site ] );
+		replaceDrafts( [ ...draftRef.current, ...additions ] );
 		setAddressValue( '' );
-		announce( OnboardingAnnouncementKind.ADDED, resolveSiteDisplayIdentity( site ).name );
+		announce( OnboardingAnnouncementKind.ADDED, resolveSiteDisplayIdentity( firstSite ).name, additions.length );
 	}
 
 	/**
@@ -211,5 +215,6 @@ export function useOnboardingSites(
 		}
 	}
 
-	return { sites, drafts, address, failure, announcement, addressInputRef, setAddress, addSite, removeSite, finish };
+	return { sites, drafts, address, failure, invalidInputs, announcement, addressInputRef,
+		setAddress, addSite, removeSite, finish };
 }
