@@ -2,6 +2,8 @@
 
 ## 1.1.0 - Unreleased
 
+- Fixed: Pauses open and resume reliably when the extension background process restarts, preserving the countdown while local recovery finishes (Chrome, Edge, Firefox).
+
 - Added: Restore a local backup during onboarding from the Have a backup? header action, with file review and recovery for missing website access (Chrome, Edge, Firefox).
 
 - Changed: Labeled buttons share proportional icon sizing and consistent spacing in the extension and website (Chrome, Edge, Firefox).

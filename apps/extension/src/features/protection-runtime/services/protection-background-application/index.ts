@@ -200,11 +200,22 @@ export function startProtectionBackgroundApplication(
 		statisticsRuntime,
 		toolbarBadgeCopy: toolbarLanguageController.copy,
 	} );
+
+	/**
+	 * Holds cold pause requests until reset and backup recovery have restored the runtime.
+	 * @return Initial recovery completion, or null for ordinary running requests.
+	 * @since 1.1.0
+	 */
+	function waitForStartupRecovery(): Promise<boolean> | null {
+		return initialRecovery ? resetController.waitUntilReady() : null;
+	}
+
 	const protectionController = createProtectionBackgroundController( {
 		browser: options.browser,
 		interruptionPageUrl,
 		optionsPageUrl: options.browser.runtime.getURL( '/options.html' ),
 		runtime,
+		waitForStartupRecovery,
 	} );
 
 	/**
