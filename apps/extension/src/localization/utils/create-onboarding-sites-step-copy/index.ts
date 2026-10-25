@@ -1,5 +1,5 @@
 import type { I18n } from '@lingui/core';
-import { msg } from '@lingui/core/macro';
+import { msg, plural } from '@lingui/core/macro';
 import type { OnboardingSitesStepCopy } from '../../../features/onboarding/components/sites-step/types';
 
 /**
@@ -50,6 +50,32 @@ export function createOnboardingSitesStepCopy( i18n: I18n ): Readonly<Onboarding
 	}
 
 	/**
+	 * Formats every invalid entry without changing the retained address draft.
+	 * @param addresses - Invalid addresses in their entered order.
+	 * @return Localized validation feedback.
+	 * @since 1.1.0
+	 */
+	function formatInvalidAddresses( addresses: readonly string[] ): string {
+		const addressList = addresses.join( ', ' );
+		return i18n._( msg`Check these addresses: ${ { addresses: addressList } }` );
+	}
+
+	/**
+	 * Announces a batch using its number of newly added website drafts.
+	 * @param count - Number of unique additions.
+	 * @return Localized singular or plural addition status.
+	 * @since 1.1.0
+	 */
+	function formatAddedSitesAnnouncement( count: number ): string {
+		return i18n._( msg( {
+			message: plural( { count }, {
+				one: '# website was added to your list.',
+				other: '# websites were added to your list.',
+			} ),
+		} ) );
+	}
+
+	/**
 	 * Formats one removed-site announcement.
 	 * @param name - Local site display name.
 	 * @return Localized removal status.
@@ -74,9 +100,10 @@ export function createOnboardingSitesStepCopy( i18n: I18n ): Readonly<Onboarding
 		suggestionsLegend: i18n._( msg`Popular choices` ),
 		manualLegend: i18n._( msg`Add another site` ),
 		addressLabel: i18n._( msg`Website address` ),
-		addressPlaceholder: i18n._( msg`example.com or sub.example.com or example.com/path` ),
-		addressHelp: i18n._( msg`Enter a domain or a full web address. TOCus includes the whole domain by default.` ),
+		addressPlaceholder: i18n._( msg`example.com, sub.example.com, example.com/path` ),
+		addressHelp: i18n._( msg`Separate websites with commas. Include a path to pause only that section.` ),
 		addSiteLabel: i18n._( msg`Add site` ),
+		addSitesLabel: i18n._( msg`Add sites` ),
 		addingSiteLabel: i18n._( msg`Adding...` ),
 		invalidSiteError: i18n._( msg`Enter a valid website address.` ),
 		alreadyProtectedError: i18n._( msg`That website is already on your list.` ),
@@ -95,6 +122,8 @@ export function createOnboardingSitesStepCopy( i18n: I18n ): Readonly<Onboarding
 		formatAddingSuggestionLabel,
 		formatAddedSuggestionLabel,
 		formatAddedAnnouncement,
+		formatInvalidAddresses,
+		formatAddedSitesAnnouncement,
 		formatRemovedAnnouncement,
 		formatPermissionRetainedAnnouncement,
 	} );

@@ -42,6 +42,7 @@ export interface OnboardingSitesStepCopy {
 	addressPlaceholder: string;
 	addressHelp: string;
 	addSiteLabel: string;
+	addSitesLabel: string;
 	addingSiteLabel: string;
 	invalidSiteError: string;
 	alreadyProtectedError: string;
@@ -99,6 +100,20 @@ export interface OnboardingSitesStepCopy {
 	 * @since 1.0.0 Initial implementation.
 	 */
 	formatAddedAnnouncement( siteName: string ): string;
+	/**
+	 * Formats invalid entries retained in a comma-separated address draft.
+	 * @param addresses - Invalid addresses in their entered order.
+	 * @return Localized validation feedback.
+	 * @since 1.1.0
+	 */
+	formatInvalidAddresses( addresses: readonly string[] ): string;
+	/**
+	 * Announces the number of unique website drafts added together.
+	 * @param count - Number of newly added websites.
+	 * @return Localized addition status.
+	 * @since 1.1.0
+	 */
+	formatAddedSitesAnnouncement( count: number ): string;
 }
 
 /**
