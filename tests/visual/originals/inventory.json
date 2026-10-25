@@ -85,7 +85,7 @@
   },
   {
     "path": "apps/extension/src/features/onboarding/components/shell/__snapshots__/chromium/onboarding-shell-sites-brown-light.png",
-    "sha256": "a95d2db301786b73eedd3b463d180714c3090dcf5dd2efcd5553374b531e42d8"
+    "sha256": "9070bed77337da9a7b8e706dfde226bffd0a1bc33ad2e5afdabd00a425a940cc"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/sites-step/__snapshots__/chromium/onboarding-sites-step-add-focus-green-light.png",
@@ -97,11 +97,11 @@
   },
   {
     "path": "apps/extension/src/features/onboarding/components/sites-step/__snapshots__/chromium/onboarding-sites-step-brown-light.png",
-    "sha256": "1cd3fad18bf22475505c16cc91050779bb4db473b8e0d76ed29e2e36c719ce4d"
+    "sha256": "d0aed683e4336b84feb9e9f77e93a23bbe2583a7ab5960f6750f5ade5e408502"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/sites-step/__snapshots__/chromium/onboarding-sites-step-purple-dark-narrow.png",
-    "sha256": "5d1824a5709abc7147f6353c4810588486bf4f9298e7460e55de0925117ae6ff"
+    "sha256": "93bcbdf49727db338142f200f5a24405384e6464632fe22e20e1f2414778d08b"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/sites-step/__snapshots__/chromium/onboarding-sites-step-spanish-tu-denied.png",
@@ -109,7 +109,7 @@
   },
   {
     "path": "apps/extension/src/features/onboarding/components/sites-step/__snapshots__/chromium/onboarding-sites-step-spanish-vos-filled.png",
-    "sha256": "db55071e0ee8395f0a2ef0d87ec66d8f945ff74078c504cd1fc93a8dcf3b65dd"
+    "sha256": "1cb734f8ba01387a20e391f4b00c242539202fbf4cd6c674c5f873994b00b936"
   },
   {
     "path": "apps/extension/src/features/popup/components/shell/__snapshots__/chromium/popup-shell-dark.png",
