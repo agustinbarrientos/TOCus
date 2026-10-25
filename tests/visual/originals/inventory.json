@@ -89,11 +89,11 @@
   },
   {
     "path": "apps/extension/src/features/onboarding/components/sites-step/__snapshots__/chromium/onboarding-sites-step-add-focus-green-light.png",
-    "sha256": "80fc5de2c9e395950dd3dc585c2bb852e8a7fa2a363fe0addc5912548f53e088"
+    "sha256": "d7220e8dad6341b86c51eac3b9a3109c70347f55bf763e9432d9f72de7c87ad0"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/sites-step/__snapshots__/chromium/onboarding-sites-step-add-hover-green-light.png",
-    "sha256": "72de584f2fd43d2fa1a85560401ded29f38295408e8375ed06e3321f9e54ab92"
+    "sha256": "af8a12875830d14e8753c447bac1e5336819ce938460a9dd855b79d196d46b57"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/sites-step/__snapshots__/chromium/onboarding-sites-step-brown-light.png",
@@ -105,7 +105,7 @@
   },
   {
     "path": "apps/extension/src/features/onboarding/components/sites-step/__snapshots__/chromium/onboarding-sites-step-spanish-tu-denied.png",
-    "sha256": "c347e09d78b5f4e36f15fa0efa0a5d647f3b12fad128b70886777c1cc25a46a9"
+    "sha256": "ce1554443d4d85afb3fa86e9ee653fce236c263fef406307b2bf5f5c1331fbc7"
   },
   {
     "path": "apps/extension/src/features/onboarding/components/sites-step/__snapshots__/chromium/onboarding-sites-step-spanish-vos-filled.png",
