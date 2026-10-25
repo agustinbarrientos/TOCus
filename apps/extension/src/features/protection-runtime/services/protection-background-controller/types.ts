@@ -338,6 +338,12 @@ export interface ProtectionBackgroundControllerOptions {
 	optionsPageUrl: string;
 	/** Authoritative browser protection runtime. */
 	runtime: BrowserProtectionRuntime;
+	/**
+	 * Joins initial local-data recovery without delaying messages after its first successful completion.
+	 * @return Recovery completion, or null once initial recovery has succeeded.
+	 * @since 1.1.0
+	 */
+	waitForStartupRecovery?(): Promise<boolean> | null;
 }
 
 /**

@@ -31,7 +31,7 @@ describe( 'createProtectionBackgroundController', () => {
 		} );
 		expect( harness.handleNavigation ).toHaveBeenCalledWith( {
 			frameId: 0, tabId: 7, phase: ProtectionRuntimeNavigationPhase.COMMITTED, url,
-		} );
+		}, harness.capturedStatisticsObservations.at( -1 ) );
 		expect( harness.handlePageRequest ).not.toHaveBeenCalled();
 	} );
 
@@ -52,7 +52,7 @@ describe( 'createProtectionBackgroundController', () => {
 		} );
 		expect( harness.handleNavigation ).toHaveBeenCalledExactlyOnceWith( {
 			frameId: 0, tabId: 7, phase: ProtectionRuntimeNavigationPhase.COMMITTED, url: browserUrl,
-		} );
+		}, harness.capturedStatisticsObservations.at( -1 ) );
 	} );
 
 	it.each( [

@@ -548,7 +548,8 @@ export function createBrowserProtectionRuntime( options: BrowserProtectionRuntim
 	): ReturnType<BrowserProtectionRuntime[ 'captureStatisticsObservation' ]> {
 		const observation = statisticsBridge.captureObservation( mode, navigation, focusEvent );
 
-		observationGenerations.set( observation, suspended ? null : dataResetGeneration );
+		// Initial startup retains generation zero; explicit reset/import suspension invalidates its intake.
+		observationGenerations.set( observation, suspended && dataResetGeneration > 0 ? null : dataResetGeneration );
 		return observation;
 	}
 
