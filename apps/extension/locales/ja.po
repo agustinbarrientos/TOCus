@@ -65,6 +65,10 @@ msgstr "{count, plural, zero {# 秒} one {# 秒} two {# 秒} few {# 秒} many {#
 msgid "{count, plural, one {# timer active} other {# timers active}}"
 msgstr "{count, plural, zero {# 件のタイマーが作動中} one {# 件のタイマーが作動中} two {# 件のタイマーが作動中} few {# 件のタイマーが作動中} many {# 件のタイマーが作動中} other {# 件のタイマーが作動中}}"
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "{count, plural, one {# website was added to your list.} other {# websites were added to your list.}}"
+msgstr "{count, plural, other {#件のウェブサイトをリストに追加しました。}}"
+
 #. Compact countdown shown during a focused pause. The letter s means seconds.
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "{count, plural, one {#s} other {#s}}"
@@ -250,6 +254,7 @@ msgstr "行を追加"
 msgid "Add site"
 msgstr "サイトを追加"
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Add sites"
 msgstr "サイトを追加"
@@ -442,6 +447,7 @@ msgstr "変更を保存しました。"
 msgid "Check the schedule and try again."
 msgstr "スケジュールを確認して、もう一度試してください。"
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Check these addresses: {addresses}"
 msgstr "次のアドレスを確認してください: {addresses}"
@@ -632,10 +638,6 @@ msgstr "終了"
 msgid "English"
 msgstr "English"
 
-#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
-msgid "Enter a domain or a full web address. TOCus includes the whole domain by default."
-msgstr "ドメインまたは完全なウェブアドレスを入力してください。TOCus では、デフォルトでドメイン全体が対象になります。"
-
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 msgid "Enter a label with 1 to 64 characters."
 msgstr "表示名を1～64文字で入力してください。"
@@ -672,9 +674,6 @@ msgid "Estimated time reclaimed"
 msgstr "取り戻した時間の推定値"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
-msgid "example.com or sub.example.com or example.com/path"
-msgstr "example.com または sub.example.com または example.com/path"
-
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "example.com, sub.example.com, example.com/path"
 msgstr "example.com, sub.example.com, example.com/path"
@@ -1253,6 +1252,10 @@ msgstr "{name}を選択"
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 msgid "Selected websites removed. Save to apply."
 msgstr "選択したウェブサイトを削除しました。保存すると適用されます。"
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Separate websites with commas. Include a path to pause only that section."
+msgstr "ウェブサイトをカンマで区切って入力してください。パスを含めると、その部分だけを一時停止します。"
 
 #: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts
