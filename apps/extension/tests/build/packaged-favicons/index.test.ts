@@ -619,6 +619,18 @@ test.describe( 'packaged Chrome quick-link favicon preservation', () => {
 				[ fixture.protectedLinkUrl ],
 			);
 		} ).toPass( { timeout: 5_000 } );
+		// The background retains the destination before its canonical document has finished reloading.
+		await pause.waitForFunction( ( destination ) => {
+			const state: unknown = history.state;
+			if ( typeof state !== 'object' || state === null || ! ( 'tocusInterruptionNavigation' in state ) ) {
+				return false;
+			}
+			const retained = state.tocusInterruptionNavigation;
+			return typeof retained === 'object' && retained !== null &&
+				'destination' in retained && retained.destination === destination &&
+				'pendingBootstrap' in retained && retained.pendingBootstrap === false;
+		}, fixture.protectedLinkUrl );
+		await expect( pause.getByRole( 'region', { name: /^Breathe (?:in|out)$/u } ) ).toBeVisible();
 		await pause.goBack();
 		await expect( pause ).toHaveURL( `${ fixture.extensionRoot }pause.html` );
 		await expect( pause.getByRole( 'region', { name: /^Breathe (?:in|out)$/u } ) ).toBeVisible();
@@ -628,6 +640,14 @@ test.describe( 'packaged Chrome quick-link favicon preservation', () => {
 				[ fixture.siteUrl ],
 			);
 		} ).toPass( { timeout: 5_000 } );
+		await expect.poll( async () => {
+			const records = await fixture.worker.evaluate( async () => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				return chrome.storage.local.get( 'tocus.statistics.v1' );
+			} );
+			const statistics = StatisticsDocumentSchema.parse( records[ 'tocus.statistics.v1' ] );
+			return statistics.scopes.scope_default?.totals.reconsideredVisitCount;
+		}, { message: 'The quick-link choice and Back from its protected target each reconsider one visit.' } ).toBe( 2 );
 		await expect( pause.getByRole( 'button', { name: 'Continue', exact: true } ) ).toBeEnabled( { timeout: 15_000 } );
 		await pause.getByRole( 'button', { name: 'Continue', exact: true } ).click();
 		await expect( pause ).toHaveURL( fixture.siteUrl );

@@ -216,11 +216,27 @@ export function createProtectionNavigationHandler(
 			pendingDestination !== undefined &&
 			isInterruptionNavigation;
 
-		if (
-			navigation.frameId !== 0 ||
-			navigation.tabId < 0 ||
-			( isInterruptionNavigation && ! resolvesPendingInterruption )
-		) {
+		if ( navigation.frameId !== 0 || navigation.tabId < 0 ) {
+			return;
+		}
+
+		if ( isInterruptionNavigation && ! resolvesPendingInterruption ) {
+			if ( navigation.url === options.interruptionPageUrl &&
+				classifyNavigationDeparture( navigation ) === DepartureCause.BACK ) {
+				const tabs = await options.browser.listTabs();
+				const tab = tabs.find( ( candidate ) => candidate.id === navigation.tabId );
+				const sourceUrl = tab?.pendingUrl ?? tab?.url;
+				if ( tab?.incognito === false && ( sourceUrl === navigation.url ||
+					readInterruptionNavigationDestination( sourceUrl, options.interruptionPageUrl ) !== null ) ) {
+					const configuration = await options.loadConfiguration();
+					if ( configuration === null ) {
+						await options.reconcileUnavailableConfiguration();
+					} else {
+						// Attribute the browser's history departure before carrier recovery replaces it with a reload.
+						await options.departTab( navigation.tabId, DepartureCause.BACK, configuration );
+					}
+				}
+			}
 			return;
 		}
 
