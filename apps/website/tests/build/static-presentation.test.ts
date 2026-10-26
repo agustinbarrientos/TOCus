@@ -25,7 +25,7 @@ for ( const browserName of [ 'chromium', 'firefox', 'webkit' ] as const ) {
 					document.documentElement.style.fontSize = `${ String( size ) }px`;
 				}, fontSize );
 				await expect( page.locator( '.how-steps > li' ) ).toHaveCount( 4 );
-				await expect( page.locator( '.feature-grid > li' ) ).toHaveCount( 6 );
+				await expect( page.locator( '.feature-grid > li' ) ).toHaveCount( 8 );
 				for ( const selector of [ '.how-steps > li', '.feature-grid > li' ] ) {
 					const problems = await page.locator( selector ).evaluateAll( ( items ) => {
 						const failures: string[] = [];
