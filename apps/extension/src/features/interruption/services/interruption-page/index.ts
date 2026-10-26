@@ -32,7 +32,7 @@ import {
 	type InterruptionPageRuntime,
 	type InterruptionPageVisibility,
 } from '../interruption-page-controller';
-import { resolveNavigationRedirect } from '../navigation-redirect';
+import { resolveNavigationRedirect, type NavigationRedirectTiming } from '../navigation-redirect';
 import { registerInterruptionNavigationReplacement } from '../navigation-replacement';
 
 /**
@@ -43,6 +43,28 @@ function revealInterruptionPage(): void {
 	document.documentElement.style.removeProperty( 'color-scheme' );
 	document.documentElement.style.removeProperty( 'background' );
 	document.documentElement.style.removeProperty( 'visibility' );
+}
+
+/**
+ * Reads the browser's navigation kind with compatibility for the earlier timing API.
+ * @param performance - Optional modern and legacy browser timing boundary.
+ * @return Navigation kind, or undefined when the browser exposes neither timing API.
+ * @since 1.1.0
+ */
+function readNavigationType( performance?: NavigationRedirectTiming ): string | undefined {
+	const timing = performance?.getEntriesByType?.( 'navigation' )[ 0 ];
+	if ( timing !== undefined && 'type' in timing && typeof timing.type === 'string' ) {
+		return timing.type;
+	}
+
+	const legacyType = performance?.navigation?.type;
+	if ( legacyType === 0 ) {
+		return 'navigate';
+	}
+	if ( legacyType === 1 ) {
+		return 'reload';
+	}
+	return legacyType === 2 ? 'back_forward' : undefined;
 }
 
 /**
@@ -79,6 +101,8 @@ export async function startInterruptionPage(): Promise<void> {
 		function sendInterruptionPageRequest( request: InterruptionPageRequest ): Promise<unknown> {
 			if ( request.type === InterruptionPageRequestType.RECOVER ) {
 				return resolveNavigationRedirect( {
+					history: window.history,
+					recoverRetainedHistory: true,
 					location: window.location,
 					runtime: browser.runtime,
 				} ).then( ( handled ) => handled
@@ -284,6 +308,8 @@ export async function bootstrapInterruptionPage(): Promise<void> {
 
 	try {
 		if ( await resolveNavigationRedirect( {
+			history: window.history,
+			navigationType: readNavigationType( window.performance ),
 			location: window.location,
 			runtime: browser.runtime,
 		} ) ) {

@@ -249,7 +249,9 @@ describe( 'interruption page service', () => {
 		const appearanceTarget = {
 			style: { removeProperty: pageMocks.removeDocumentVisibility },
 		};
+		const history = { state: null, replaceState: vi.fn() };
 		const windowTarget = Object.assign( new EventTarget(), {
+			history,
 			clearInterval: vi.fn(),
 			clearTimeout: vi.fn(),
 			location,
@@ -404,7 +406,9 @@ describe( 'interruption page service', () => {
 			documentVisible: true,
 		} ) ).resolves.toEqual( { state: InterruptionPageResponseState.UNAVAILABLE } );
 		expect( pageMocks.resolveNavigationRedirect ).toHaveBeenCalledWith( {
+			history,
 			location,
+			recoverRetainedHistory: true,
 			runtime: pageMocks.runtime,
 		} );
 		expect( pageMocks.sendMessage ).not.toHaveBeenCalled();
@@ -614,7 +618,14 @@ describe( 'interruption page service', () => {
 		expect( pageMocks.removeDocumentVisibility ).toHaveBeenCalledWith( 'visibility' );
 	} );
 
-	it( 'waits for carrier reconciliation and never mounts ordinary interruption UI when handled', async () => {
+	it.each( [
+		{ performance: { getEntriesByType: vi.fn().mockReturnValue( [ { type: 'reload' } ] ) }, navigationType: 'reload' },
+		{ performance: { getEntriesByType: vi.fn().mockReturnValue( [] ), navigation: { type: 2 } },
+			navigationType: 'back_forward' },
+		{ performance: { navigation: { type: 0 } }, navigationType: 'navigate' },
+		{ performance: { navigation: { type: 1 } }, navigationType: 'reload' },
+		{ performance: undefined, navigationType: undefined },
+	] )( 'waits for carrier reconciliation using browser navigation timing: %j', async ( { performance, navigationType } ) => {
 		const resolution = Promise.withResolvers<boolean>();
 		const querySelector = vi.fn();
 		const location = {
@@ -628,7 +639,8 @@ describe( 'interruption page service', () => {
 			querySelector,
 			visibilityState: 'visible',
 		} ) );
-		vi.stubGlobal( 'window', Object.assign( new EventTarget(), { location } ) );
+		const history = { state: null, replaceState: vi.fn() };
+		vi.stubGlobal( 'window', Object.assign( new EventTarget(), { history, location, performance } ) );
 		pageMocks.resolveNavigationRedirect.mockReturnValueOnce( resolution.promise );
 		const { bootstrapInterruptionPage } = await import( './index' );
 
@@ -639,7 +651,9 @@ describe( 'interruption page service', () => {
 		} );
 		await vi.waitFor( () => {
 			expect( pageMocks.resolveNavigationRedirect ).toHaveBeenCalledWith( {
+				history,
 				location,
+				navigationType,
 				runtime: pageMocks.runtime,
 			} );
 		} );
