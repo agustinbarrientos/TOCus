@@ -2,6 +2,8 @@
 
 ## 1.1.0 - 2026-10-26
 
+- Fixed: The Spanish (vos) Backup and reset page and navigation label use the same reset terminology as Spanish (tu) (Chrome, Edge, Firefox).
+
 - Added: The website explains path and subdomain exceptions and local backup transfers with matching illustrations in every supported language.
 
 - Fixed: Onboarding accepts comma-separated website addresses with the same validation and duplicate handling as Settings, while requesting browser access only when setup is finished (Chrome, Edge, Firefox).
