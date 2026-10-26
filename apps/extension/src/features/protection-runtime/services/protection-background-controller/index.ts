@@ -236,6 +236,20 @@ export function createProtectionBackgroundController(
 	}
 
 	/**
+	 * Waits for initial recovery without blocking the capability refresh that completes it.
+	 * @template Result Authoritative request result.
+	 * @param operation - Request retaining its original ingress observation.
+	 * @param unavailable - Response when recovery cannot complete safely.
+	 * @return Request result after recovery, or the unavailable response.
+	 * @since 1.1.0
+	 */
+	function runAfterStartupRecovery<Result>( operation: () => Promise<Result>, unavailable: Result ): Promise<Result> {
+		const startupRecovery = options.waitForStartupRecovery?.() ?? null;
+		return startupRecovery === null
+			? operation() : startupRecovery.then( ( ready ) => ready ? operation() : unavailable );
+	}
+
+	/**
 	 * Starts restoration only when the optional navigation capability is currently granted.
 	 * @param statisticsObservation - Browser inputs captured before permission lookup.
 	 * @return Promise resolved after restoration or fail-open cleanup.
@@ -447,9 +461,15 @@ export function createProtectionBackgroundController(
 				return undefined;
 			}
 
-			void runAfterCapability( () => options.runtime.handleNavigation( {
+			const navigation = {
 				frameId: 0, tabId, url, phase: ProtectionRuntimeNavigationPhase.COMMITTED,
-			} ) )
+			};
+			const statisticsObservation = options.runtime.captureStatisticsObservation(
+				StatisticsFocusObservationMode.BOUNDARY, navigation,
+			);
+			void runAfterStartupRecovery( () => runAfterCapability(
+				() => options.runtime.handleNavigation( navigation, statisticsObservation ),
+			), undefined )
 				.then( ( replacement ) => {
 					sendResponse( { url: replacement ?? null } );
 				} )
@@ -524,22 +544,34 @@ export function createProtectionBackgroundController(
 			return undefined;
 		}
 
+		const request = pageRequest.data;
 		const statisticsObservation = options.runtime.captureStatisticsObservation(
 			StatisticsFocusObservationMode.BOUNDARY,
 		);
 
-		if ( pageRequest.data.type === InterruptionPageRequestType.RECOVER ) {
-			enqueueCapabilityOperation( () => initializeRuntime( statisticsObservation ) );
+		/**
+		 * Routes the retained request only after initial recovery, preserving capability-event ordering.
+		 * @return Authoritative response for the request's original runtime generation.
+		 * @since 1.1.0
+		 */
+		function dispatchPageRequest() {
+			if ( request.type === InterruptionPageRequestType.RECOVER ) {
+				enqueueCapabilityOperation( () => initializeRuntime( statisticsObservation ) );
+			}
+
+			return runAfterCapability(
+				() => options.runtime.handlePageRequest(
+					request,
+					sender.tab?.id ?? null,
+					sender.tab?.incognito === false,
+					statisticsObservation,
+				),
+			);
 		}
 
-		void runAfterCapability(
-			() => options.runtime.handlePageRequest(
-				pageRequest.data,
-				sender.tab?.id ?? null,
-				sender.tab?.incognito === false,
-				statisticsObservation,
-			),
-		)
+		void runAfterStartupRecovery( dispatchPageRequest, InterruptionPageResponseSchema.parse( {
+			state: InterruptionPageResponseState.UNAVAILABLE,
+		} ) )
 			.then( sendResponse )
 			.catch( () => {
 				sendResponse( InterruptionPageResponseSchema.parse( {
