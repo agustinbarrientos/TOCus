@@ -65,6 +65,10 @@ msgstr "{count, plural, zero {# секунд} one {# секунда} two {# се
 msgid "{count, plural, one {# timer active} other {# timers active}}"
 msgstr "{count, plural, zero {Активно # таймеров} one {Активен # таймер} two {Активно # таймера} few {Активно # таймера} many {Активно # таймеров} other {Активно # таймера}}"
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "{count, plural, one {# website was added to your list.} other {# websites were added to your list.}}"
+msgstr "{count, plural, one {В ваш список добавлен # сайт.} few {В ваш список добавлено # сайта.} many {В ваш список добавлено # сайтов.} other {В ваш список добавлено # сайта.}}"
+
 #. Compact countdown shown during a focused pause. The letter s means seconds.
 #: apps/extension/src/localization/utils/create-interruption-copy/index.ts
 msgid "{count, plural, one {#s} other {#s}}"
@@ -250,6 +254,7 @@ msgstr "Добавить строку"
 msgid "Add site"
 msgstr "Добавить сайт"
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Add sites"
 msgstr "Добавить сайты"
@@ -442,6 +447,7 @@ msgstr "Изменения сохранены."
 msgid "Check the schedule and try again."
 msgstr "Проверьте расписание и повторите попытку."
 
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "Check these addresses: {addresses}"
 msgstr "Проверьте эти адреса: {addresses}"
@@ -632,10 +638,6 @@ msgstr "Окончание"
 msgid "English"
 msgstr "English"
 
-#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
-msgid "Enter a domain or a full web address. TOCus includes the whole domain by default."
-msgstr "Введите домен или полный веб-адрес. По умолчанию TOCus включает весь домен."
-
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
 msgid "Enter a label with 1 to 64 characters."
 msgstr "Введите название длиной от 1 до 64 символов."
@@ -672,9 +674,6 @@ msgid "Estimated time reclaimed"
 msgstr "Оценка возвращённого времени"
 
 #: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
-msgid "example.com or sub.example.com or example.com/path"
-msgstr "example.com или sub.example.com или example.com/path"
-
 #: apps/extension/src/localization/utils/create-protected-sites-copy/index.ts
 msgid "example.com, sub.example.com, example.com/path"
 msgstr "example.com, sub.example.com, example.com/path"
@@ -1253,6 +1252,10 @@ msgstr "Выбрать {name}"
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 msgid "Selected websites removed. Save to apply."
 msgstr "Выбранные сайты удалены. Сохраните, чтобы применить."
+
+#: apps/extension/src/localization/utils/create-onboarding-sites-step-copy/index.ts
+msgid "Separate websites with commas. Include a path to pause only that section."
+msgstr "Разделяйте сайты запятыми. Укажите путь, чтобы включить паузу только для этого раздела."
 
 #: apps/extension/src/localization/utils/create-onboarding-backup-copy/index.ts
 #: apps/extension/src/localization/utils/create-popup-copy/index.ts

@@ -72,6 +72,8 @@ export type OnboardingAnnouncementKind =
 export interface OnboardingAnnouncement {
 	kind: OnboardingAnnouncementKind;
 	name: string;
+	/** Number of newly added sites, when the announcement describes a batch. */
+	count?: number;
 	sequence: number;
 }
 
@@ -114,6 +116,7 @@ export interface OnboardingSitesController {
 	drafts: readonly ProtectedSiteConfiguration[];
 	address: string;
 	failure: OnboardingFailure | null;
+	invalidInputs: readonly string[];
 	announcement: OnboardingAnnouncement | null;
 	addressInputRef: RefObject<HTMLInputElement | null>;
 	/** Updates the unsaved address unless an operation is pending. */
