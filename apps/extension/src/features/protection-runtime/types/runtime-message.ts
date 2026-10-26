@@ -64,6 +64,8 @@ export const NavigationRedirectRequestSchema = z.object( {
 export interface NavigationRedirectResponse {
 	/** Exact replacement document; the page also checks it against its own original destination. */
 	url: string | null;
+	/** Full browser-observed destination retained by a canonical pause, including hidden text directives. */
+	retainedDestination?: string;
 }
 
 /**

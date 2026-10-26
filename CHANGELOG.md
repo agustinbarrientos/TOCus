@@ -2,6 +2,8 @@
 
 ## 1.1.0 - Unreleased
 
+- Fixed: Quick links preserve the blocked website's cached favicon (Chrome, Edge), and browser Back and Forward restore valid pauses while retaining their original destinations and text fragments (Chrome, Edge, Firefox).
+
 - Fixed: Onboarding accepts comma-separated website addresses with the same validation and duplicate handling as Settings, while requesting browser access only when setup is finished (Chrome, Edge, Firefox).
 
 - Fixed: Pauses open and resume reliably when the extension background process restarts, preserving the countdown while local recovery finishes (Chrome, Edge, Firefox).

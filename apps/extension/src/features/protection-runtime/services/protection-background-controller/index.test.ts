@@ -27,7 +27,9 @@ describe( 'createProtectionBackgroundController', () => {
 			frameId: 0, tab: { id: 7, incognito: false }, url,
 		}, sendResponse ) ).toBe( true );
 		await vi.waitFor( () => {
-			expect( sendResponse ).toHaveBeenCalledExactlyOnceWith( { url: INTERRUPTION_PAGE_URL } );
+			expect( sendResponse ).toHaveBeenCalledExactlyOnceWith( {
+				url: INTERRUPTION_PAGE_URL, retainedDestination: 'https://example.com/watch?v=private',
+			} );
 		} );
 		expect( harness.handleNavigation ).toHaveBeenCalledWith( {
 			frameId: 0, tabId: 7, phase: ProtectionRuntimeNavigationPhase.COMMITTED, url,
@@ -48,7 +50,9 @@ describe( 'createProtectionBackgroundController', () => {
 			frameId: 0, tab: { id: 7, incognito: false, url: browserUrl }, url: documentUrl,
 		}, sendResponse ) ).toBe( true );
 		await vi.waitFor( () => {
-			expect( sendResponse ).toHaveBeenCalledExactlyOnceWith( { url: INTERRUPTION_PAGE_URL } );
+			expect( sendResponse ).toHaveBeenCalledExactlyOnceWith( {
+				url: INTERRUPTION_PAGE_URL, retainedDestination: `https://example.test/article#${ anchor }:~:text=Example%20highlight`,
+			} );
 		} );
 		expect( harness.handleNavigation ).toHaveBeenCalledExactlyOnceWith( {
 			frameId: 0, tabId: 7, phase: ProtectionRuntimeNavigationPhase.COMMITTED, url: browserUrl,

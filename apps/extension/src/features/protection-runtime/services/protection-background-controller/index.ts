@@ -453,11 +453,9 @@ export function createProtectionBackgroundController(
 			}
 
 			const url = sender.tab.url ?? sender.url;
+			const retainedDestination = readInterruptionNavigationDestination( url, options.interruptionPageUrl );
 
-			if (
-				! isMatchingBrowserDocumentUrl( sender.url, url ) ||
-				readInterruptionNavigationDestination( url, options.interruptionPageUrl ) === null
-			) {
+			if ( ! isMatchingBrowserDocumentUrl( sender.url, url ) || retainedDestination === null ) {
 				return undefined;
 			}
 
@@ -471,7 +469,9 @@ export function createProtectionBackgroundController(
 				() => options.runtime.handleNavigation( navigation, statisticsObservation ),
 			), undefined )
 				.then( ( replacement ) => {
-					sendResponse( { url: replacement ?? null } );
+					sendResponse( replacement === options.interruptionPageUrl
+						? { url: replacement, retainedDestination }
+						: { url: replacement ?? null } );
 				} )
 				.catch( () => {
 					sendResponse( { url: null } );

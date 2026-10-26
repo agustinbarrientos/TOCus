@@ -222,8 +222,9 @@ it( 'waits for startup before creating a pause from a fresh navigation carrier',
 	const result = await response;
 	await settleBrowserWork();
 	expect( respondedBeforeRecovery ).toBe( false );
-	expect( result ).toEqual( { url: fixture.interruptionUrl } );
-	await expect( fixture.requestRedirect() ).resolves.toEqual( { url: fixture.interruptionUrl } );
+	const expectedRedirect = { url: fixture.interruptionUrl, retainedDestination: 'https://example.com/new-visit' };
+	expect( result ).toEqual( expectedRedirect );
+	await expect( fixture.requestRedirect() ).resolves.toEqual( expectedRedirect );
 	await fakeBrowser.tabs.update( fixture.tab.id, { url: fixture.interruptionUrl } );
 	fixture.sender.url = fixture.interruptionUrl;
 	fixture.sender.tab = { ...fixture.tab, url: fixture.interruptionUrl };
