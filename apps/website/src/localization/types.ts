@@ -48,11 +48,15 @@ export interface WebsiteCatalog {
 	scheduleDescription: string;
 	sitesTitle: string;
 	sitesDescription: string;
+	exceptionsTitle: string;
+	exceptionsDescription: string;
 	mediaTitle: string;
 	mediaDescription: string;
 	mediaServices: string;
 	statisticsTitle: string;
 	statisticsDescription: string;
+	backupTitle: string;
+	backupDescription: string;
 	privacyLocal: string;
 	openSourceTitle: string;
 	openSourceDescription: string;

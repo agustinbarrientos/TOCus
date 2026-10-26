@@ -75,6 +75,11 @@ export default function HomePage( props: LocalizedHomePageProperties ) {
 								<h3>{ catalog.sitesTitle }</h3><p>{ catalog.sitesDescription }</p>
 							</li>
 							<li>
+								<img className="feature-art" src="/images/homepage/icon-exceptions.webp"
+									width="500" height="500" alt="" loading="lazy" />
+								<h3>{ catalog.exceptionsTitle }</h3><p>{ catalog.exceptionsDescription }</p>
+							</li>
+							<li>
 								<img className="feature-art" src="/images/homepage/icon-video-pause.webp"
 									width="500" height="500" alt="" loading="lazy" />
 								<h3>{ catalog.mediaTitle }</h3><p>{ catalog.mediaDescription }</p>
@@ -91,6 +96,11 @@ export default function HomePage( props: LocalizedHomePageProperties ) {
 								<img className="feature-art" src="/images/homepage/icon-stats.webp"
 									width="500" height="500" alt="" loading="lazy" />
 								<h3>{ catalog.statisticsTitle }</h3><p>{ catalog.statisticsDescription }</p>
+							</li>
+							<li>
+								<img className="feature-art" src="/images/homepage/icon-backup.webp"
+									width="500" height="500" alt="" loading="lazy" />
+								<h3>{ catalog.backupTitle }</h3><p>{ catalog.backupDescription }</p>
 							</li>
 							<li>
 								<img className="feature-art" src="/images/homepage/icon-computer.webp"
