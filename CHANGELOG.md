@@ -4,6 +4,8 @@
 
 - Fixed: Onboarding accepts comma-separated website addresses with the same validation and duplicate handling as Settings, while requesting browser access only when setup is finished (Chrome, Edge, Firefox).
 
+- Fixed: Pauses open and resume reliably when the extension background process restarts, preserving the countdown while local recovery finishes (Chrome, Edge, Firefox).
+
 - Added: Restore a local backup during onboarding from the Have a backup? header action, with file review and recovery for missing website access (Chrome, Edge, Firefox).
 
 - Changed: Labeled buttons share proportional icon sizing and consistent spacing in the extension and website (Chrome, Edge, Firefox).
