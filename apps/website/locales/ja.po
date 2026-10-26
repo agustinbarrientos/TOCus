@@ -57,6 +57,10 @@ msgstr "どれだけ時間を節約できたか確認"
 msgid "Choose the days and hours TOCus is active."
 msgstr "TOCusを有効にする曜日と時間を選べます。"
 
+#: apps/website/src/localization/index.ts
+msgid "Choose which parts of a site pause"
+msgstr "サイト内で一時停止する範囲を選択"
+
 #: apps/website/src/localization/privacy/index.ts
 msgid "Chrome Limited Use disclosure"
 msgstr "Chromeの限定的な使用に関する開示"
@@ -101,6 +105,10 @@ msgstr "Español (vos)"
 #: apps/website/src/localization/index.ts
 msgid "Français"
 msgstr "Français"
+
+#: apps/website/src/localization/index.ts
+msgid "Give specific paths or subdomains their own pause times and schedules, or let them open without a pause."
+msgstr "特定のパスやサブドメインごとに一時停止の長さとスケジュールを設定したり、一時停止せずに開くようにしたりできます。"
 
 #: apps/website/src/localization/privacy/index.ts
 msgid "Google Analytics on this website"
@@ -186,6 +194,10 @@ msgid "Reset and deletion controls"
 msgstr "リセットと削除の操作"
 
 #: apps/website/src/localization/index.ts
+msgid "Save your sites, settings, and stats to a local backup. Restore them whenever you need, even in another browser."
+msgstr "登録したサイト、設定、統計を端末内にバックアップできます。必要なときに、別のブラウザでも復元できます。"
+
+#: apps/website/src/localization/index.ts
 msgid "Set a schedule for each site"
 msgstr "サイトごとにスケジュールを設定"
 
@@ -204,6 +216,10 @@ msgstr "統計には、回数と時間に加え、設定したサイトごとの
 #: apps/website/src/localization/index.ts
 msgid "Take a moment to pause."
 msgstr "少し立ち止まって、ひと呼吸。"
+
+#: apps/website/src/localization/index.ts
+msgid "Take your setup with you"
+msgstr "設定を持ち運べる"
 
 #: apps/website/src/localization/privacy/index.ts
 msgid "The extension"
@@ -314,8 +330,8 @@ msgid "Your browser tries to use website icons from its own cache whenever it ca
 msgstr "ブラウザーはできる限り、自分のキャッシュからウェブサイトのアイコンを表示しようとします。うまくいかないこともあります。TOCusのプライバシーを徹底して守り、アイコン提供サービスに接続しないよう、この仕組みにしています。"
 
 #: apps/website/src/localization/index.ts
-msgid "Your settings and stats stay in your browser. It even works offline and needs no account."
-msgstr "設定と統計はブラウザ内に保存されます。オフラインでも使えて、アカウントも不要です。"
+msgid "Your settings and stats stay local. TOCus works offline and needs no account."
+msgstr "設定と統計は端末内に保存されます。TOCusはオフラインで使え、アカウントも不要です。"
 
 #: apps/website/src/localization/index.ts
 msgid "Your videos will pause automatically"
