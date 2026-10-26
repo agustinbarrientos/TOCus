@@ -4,8 +4,9 @@ import { expect, test, type Route } from '@playwright/test';
 const WebsiteOutput = new URL( '../../dist/', import.meta.url );
 const PublicRoutes = [ '/', '/de/', '/es/', '/es-ar/', '/fr/', '/it/', '/ja/', '/pt-br/', '/pt-pt/', '/ru/' ];
 const FeatureTitles = [
-	'Use it only when you want to', 'Set a schedule for each site', 'Your videos will pause automatically',
-	'Check how much time you\u2019ve saved', 'It\'s 100% private', 'It\u2019s free and open source',
+	'Use it only when you want to', 'Set a schedule for each site', 'Choose which parts of a site pause',
+	'Your videos will pause automatically', 'Check how much time you\u2019ve saved', 'Take your setup with you',
+	'It\'s 100% private', 'It\u2019s free and open source',
 ];
 
 /**
@@ -21,7 +22,7 @@ async function serveAsset( route: Route ): Promise<void> {
 test.describe( 'static illustrated product presentation', () => {
 	test.use( { reducedMotion: 'reduce' } );
 
-	test( 'explains four steps and six features with local artwork and direct downloads', async ( { page } ) => {
+	test( 'explains four steps and eight features with local artwork and direct downloads', async ( { page } ) => {
 		await page.context().route( 'http://website.test/**', serveAsset );
 		await page.goto( 'http://website.test/' );
 		await expect( page.locator( '#how-it-works h2, #how-it-works h3' ) ).toHaveCount( 0 );
@@ -31,16 +32,34 @@ test.describe( 'static illustrated product presentation', () => {
 			.toHaveText( [ 'Open a site', '10s pause', 'Continue', '5m browsing' ] );
 		await expect( page.locator( '#features h2' ) ).toHaveText( 'A calmer way to browse' );
 		const features = page.locator( '#features ul.feature-grid > li' );
-		await expect( features ).toHaveCount( 6 );
+		await expect( features ).toHaveCount( 8 );
 		await expect( features.locator( 'h3' ) ).toHaveText( FeatureTitles );
 		for ( const feature of await features.all() ) {
 			const art = feature.locator( '.feature-art' );
 			await expect( art ).toHaveCount( 1 );
 			await expect( art ).toHaveAttribute( 'src', /^\/(?!\/)/u );
+			await expect( art ).toHaveAttribute( 'alt', '' );
+			await expect( art ).toHaveAttribute( 'loading', 'lazy' );
+			await expect( art ).toHaveAttribute( 'width', '500' );
+			await expect( art ).toHaveAttribute( 'height', '500' );
 			await art.scrollIntoViewIfNeeded();
 			await art.evaluate( ( image: HTMLImageElement ) => image.decode() );
 			await expect( art ).toBeVisible();
 		}
+		const exceptions = features.filter( {
+			has: page.getByRole( 'heading', { name: 'Choose which parts of a site pause', exact: true } ),
+		} );
+		await expect( exceptions.locator( '.feature-art' ) ).toHaveAttribute( 'src', '/images/homepage/icon-exceptions.webp' );
+		await expect( exceptions.locator( 'p' ) ).toHaveText(
+			'Give specific paths or subdomains their own pause times and schedules, or let them open without a pause.',
+		);
+		const backup = features.filter( {
+			has: page.getByRole( 'heading', { name: 'Take your setup with you', exact: true } ),
+		} );
+		await expect( backup.locator( '.feature-art' ) ).toHaveAttribute( 'src', '/images/homepage/icon-backup.webp' );
+		await expect( backup.locator( 'p' ) ).toHaveText(
+			'Save your sites, settings, and stats to a local backup. Restore them whenever you need, even in another browser.',
+		);
 		const media = features.filter( {
 			has: page.getByRole( 'heading', { name: 'Your videos will pause automatically', exact: true } ),
 		} );
@@ -75,7 +94,7 @@ test.describe( 'static illustrated product presentation', () => {
 						style.lineHeight, style.letterSpacing ];
 				} ),
 			);
-			expect( typography ).toHaveLength( 10 );
+			expect( typography ).toHaveLength( 12 );
 			expect( new Set( typography.map( ( values ) => JSON.stringify( values ) ) ).size ).toBe( 1 );
 			for ( const text of await features.locator( 'h3, p' ).all() ) {
 				await expect( text ).toHaveCSS( 'text-align', /^(?:start|left)$/u );
@@ -138,10 +157,10 @@ test.describe( 'static illustrated product presentation', () => {
 						await expect( page.locator( '.hero [data-download-primary]' ) ).toBeVisible();
 						await expect( page.locator( '#how-it-works ol.how-steps > li' ) ).toHaveCount( 4 );
 						await expect( page.locator( '#how-it-works h2, #how-it-works h3' ) ).toHaveCount( 0 );
-						await expect( page.locator( '#features ul.feature-grid > li' ) ).toHaveCount( 6 );
-						await expect( page.locator( '#features ul.feature-grid > li .feature-art' ) ).toHaveCount( 6 );
+						await expect( page.locator( '#features ul.feature-grid > li' ) ).toHaveCount( 8 );
+						await expect( page.locator( '#features ul.feature-grid > li .feature-art' ) ).toHaveCount( 8 );
 						const copy = page.locator( '.how-step-label, #features h2, #features h3, #downloads h2' );
-						await expect( copy ).toHaveCount( 12 );
+						await expect( copy ).toHaveCount( 14 );
 						for ( const heading of await copy.all() ) {
 							await expect( heading ).toBeVisible();
 							await expect( heading ).not.toHaveText( /^\s*$/u );

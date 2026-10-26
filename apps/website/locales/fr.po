@@ -57,6 +57,10 @@ msgstr "Voyez combien de temps vous avez gagné"
 msgid "Choose the days and hours TOCus is active."
 msgstr "Choisissez les jours et les heures où TOCus est actif."
 
+#: apps/website/src/localization/index.ts
+msgid "Choose which parts of a site pause"
+msgstr "Choisissez où faire une pause sur un site"
+
 #: apps/website/src/localization/privacy/index.ts
 msgid "Chrome Limited Use disclosure"
 msgstr "Déclaration d'utilisation limitée de Chrome"
@@ -101,6 +105,10 @@ msgstr "Español (vos)"
 #: apps/website/src/localization/index.ts
 msgid "Français"
 msgstr "Français"
+
+#: apps/website/src/localization/index.ts
+msgid "Give specific paths or subdomains their own pause times and schedules, or let them open without a pause."
+msgstr "Définissez des durées de pause et des horaires propres à certains chemins ou sous-domaines, ou laissez-les s’ouvrir sans pause."
 
 #: apps/website/src/localization/privacy/index.ts
 msgid "Google Analytics on this website"
@@ -186,6 +194,10 @@ msgid "Reset and deletion controls"
 msgstr "Options de réinitialisation et de suppression"
 
 #: apps/website/src/localization/index.ts
+msgid "Save your sites, settings, and stats to a local backup. Restore them whenever you need, even in another browser."
+msgstr "Enregistrez vos sites, réglages et statistiques dans une sauvegarde locale. Restaurez-les quand vous en avez besoin, même dans un autre navigateur."
+
+#: apps/website/src/localization/index.ts
 msgid "Set a schedule for each site"
 msgstr "Définissez un horaire pour chaque site"
 
@@ -204,6 +216,10 @@ msgstr "Les statistiques conservent des compteurs et des durées, ainsi que les 
 #: apps/website/src/localization/index.ts
 msgid "Take a moment to pause."
 msgstr "Prenez un moment pour faire une pause."
+
+#: apps/website/src/localization/index.ts
+msgid "Take your setup with you"
+msgstr "Emportez vos réglages"
 
 #: apps/website/src/localization/privacy/index.ts
 msgid "The extension"
@@ -314,8 +330,8 @@ msgid "Your browser tries to use website icons from its own cache whenever it ca
 msgstr "Votre navigateur essaie d'utiliser les icônes des sites web de son propre cache quand c'est possible. Parfois, cela ne fonctionne pas. J'ai choisi ce fonctionnement pour préserver entièrement votre confidentialité avec TOCus et éviter toute connexion à un service d'icônes."
 
 #: apps/website/src/localization/index.ts
-msgid "Your settings and stats stay in your browser. It even works offline and needs no account."
-msgstr "Vos réglages et statistiques restent dans votre navigateur. L’extension fonctionne même hors ligne et ne nécessite aucun compte."
+msgid "Your settings and stats stay local. TOCus works offline and needs no account."
+msgstr "Vos réglages et statistiques restent en local. TOCus fonctionne hors ligne et ne nécessite aucun compte."
 
 #: apps/website/src/localization/index.ts
 msgid "Your videos will pause automatically"

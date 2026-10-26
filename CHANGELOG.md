@@ -2,6 +2,8 @@
 
 ## 1.1.0 - Unreleased
 
+- Added: The website explains path and subdomain exceptions and local backup transfers with matching illustrations in every supported language.
+
 - Fixed: Onboarding accepts comma-separated website addresses with the same validation and duplicate handling as Settings, while requesting browser access only when setup is finished (Chrome, Edge, Firefox).
 
 - Fixed: Pauses open and resume reliably when the extension background process restarts, preserving the countdown while local recovery finishes (Chrome, Edge, Firefox).

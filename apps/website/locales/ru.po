@@ -57,6 +57,10 @@ msgstr "Узнайте, сколько времени вы сэкономили"
 msgid "Choose the days and hours TOCus is active."
 msgstr "Выберите дни и часы, когда TOCus будет активен."
 
+#: apps/website/src/localization/index.ts
+msgid "Choose which parts of a site pause"
+msgstr "Выберите, где на сайте делать паузу"
+
 #: apps/website/src/localization/privacy/index.ts
 msgid "Chrome Limited Use disclosure"
 msgstr "Заявление об ограниченном использовании данных Chrome"
@@ -101,6 +105,10 @@ msgstr "Español (vos)"
 #: apps/website/src/localization/index.ts
 msgid "Français"
 msgstr "Français"
+
+#: apps/website/src/localization/index.ts
+msgid "Give specific paths or subdomains their own pause times and schedules, or let them open without a pause."
+msgstr "Задайте длительность пауз и расписания для отдельных путей или поддоменов либо открывайте их без паузы."
 
 #: apps/website/src/localization/privacy/index.ts
 msgid "Google Analytics on this website"
@@ -186,6 +194,10 @@ msgid "Reset and deletion controls"
 msgstr "Сброс и удаление данных"
 
 #: apps/website/src/localization/index.ts
+msgid "Save your sites, settings, and stats to a local backup. Restore them whenever you need, even in another browser."
+msgstr "Сохраните сайты, настройки и статистику в локальной резервной копии. Восстановите их, когда понадобится, даже в другом браузере."
+
+#: apps/website/src/localization/index.ts
 msgid "Set a schedule for each site"
 msgstr "Настройте расписание для каждого сайта"
 
@@ -204,6 +216,10 @@ msgstr "Статистика хранит счётчики и длительно
 #: apps/website/src/localization/index.ts
 msgid "Take a moment to pause."
 msgstr "Найдите минутку для паузы."
+
+#: apps/website/src/localization/index.ts
+msgid "Take your setup with you"
+msgstr "Возьмите настройки с собой"
 
 #: apps/website/src/localization/privacy/index.ts
 msgid "The extension"
@@ -314,8 +330,8 @@ msgid "Your browser tries to use website icons from its own cache whenever it ca
 msgstr "Браузер по возможности использует значки сайтов из собственного кеша. Иногда это не получается. Я выбрал такой подход, чтобы сохранить полную конфиденциальность TOCus и не подключаться к сервисам значков."
 
 #: apps/website/src/localization/index.ts
-msgid "Your settings and stats stay in your browser. It even works offline and needs no account."
-msgstr "Ваши настройки и статистика остаются в браузере. Расширение работает даже офлайн и не требует аккаунта."
+msgid "Your settings and stats stay local. TOCus works offline and needs no account."
+msgstr "Ваши настройки и статистика хранятся локально. TOCus работает офлайн и не требует аккаунта."
 
 #: apps/website/src/localization/index.ts
 msgid "Your videos will pause automatically"

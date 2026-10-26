@@ -35,8 +35,9 @@ const WebsiteCatalogLocales = Object.freeze( [
 const WebsiteHomepageFields = Object.freeze( [
 	'stepOpen', 'stepPause', 'stepContinue', 'stepBrowse',
 	'featuresTitle', 'scheduleTitle', 'scheduleDescription',
-	'sitesTitle', 'sitesDescription', 'mediaTitle', 'mediaDescription', 'mediaServices',
-	'statisticsTitle', 'statisticsDescription',
+	'sitesTitle', 'sitesDescription', 'exceptionsTitle', 'exceptionsDescription',
+	'mediaTitle', 'mediaDescription', 'mediaServices',
+	'statisticsTitle', 'statisticsDescription', 'backupTitle', 'backupDescription',
 	'privacyLocal', 'privacy', 'readPrivacy',
 	'openSourceTitle', 'openSourceDescription', 'sourceShort',
 	'alsoAvailable', 'comingSoon', 'downloadTitle', 'downloadFor',
@@ -191,6 +192,13 @@ describe( 'website localization', () => {
 		expect( catalog.intro ).toBe( 'Pause before visiting addictive websites' );
 		expect( catalog.description.length ).toBeLessThanOrEqual( 64 );
 		expect( catalog.statisticsDescription ).not.toMatch( /\b(?:actual|estimated|reclaimed|saved)\b/iu );
+		expect( catalog ).toMatchObject( {
+			exceptionsTitle: 'Choose which parts of a site pause',
+			exceptionsDescription: 'Give specific paths or subdomains their own pause times and schedules, or let them open without a pause.',
+			backupTitle: 'Take your setup with you',
+			backupDescription: 'Save your sites, settings, and stats to a local backup. Restore them whenever you need, even in another browser.',
+			privacy: 'Your settings and stats stay local. TOCus works offline and needs no account.',
+		} );
 		expect( catalog.privacy ).toMatch( /\boffline\b/iu );
 		expect( catalog.privacy ).toContain( 'needs no account' );
 		expect( catalog.openSourceDescription ).toContain( 'no advertising.' );
@@ -219,6 +227,7 @@ describe( 'website localization', () => {
 		const english = getWebsiteLocalization( WebsiteLanguage.ENGLISH ).catalog;
 		const fields = [
 			'featuresTitle', 'mediaDescription', 'mediaServices',
+			'exceptionsTitle', 'exceptionsDescription', 'backupTitle', 'backupDescription',
 			'statisticsDescription', 'privacy',
 			'openSourceDescription', 'downloadTitle', 'readPrivacy', 'sourceLink',
 		] as const;

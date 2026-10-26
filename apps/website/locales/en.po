@@ -57,6 +57,10 @@ msgstr "Check how much time you’ve saved"
 msgid "Choose the days and hours TOCus is active."
 msgstr "Choose the days and hours TOCus is active."
 
+#: apps/website/src/localization/index.ts
+msgid "Choose which parts of a site pause"
+msgstr "Choose which parts of a site pause"
+
 #: apps/website/src/localization/privacy/index.ts
 msgid "Chrome Limited Use disclosure"
 msgstr "Chrome Limited Use disclosure"
@@ -101,6 +105,10 @@ msgstr "Español (vos)"
 #: apps/website/src/localization/index.ts
 msgid "Français"
 msgstr "Français"
+
+#: apps/website/src/localization/index.ts
+msgid "Give specific paths or subdomains their own pause times and schedules, or let them open without a pause."
+msgstr "Give specific paths or subdomains their own pause times and schedules, or let them open without a pause."
 
 #: apps/website/src/localization/privacy/index.ts
 msgid "Google Analytics on this website"
@@ -186,6 +194,10 @@ msgid "Reset and deletion controls"
 msgstr "Reset and deletion controls"
 
 #: apps/website/src/localization/index.ts
+msgid "Save your sites, settings, and stats to a local backup. Restore them whenever you need, even in another browser."
+msgstr "Save your sites, settings, and stats to a local backup. Restore them whenever you need, even in another browser."
+
+#: apps/website/src/localization/index.ts
 msgid "Set a schedule for each site"
 msgstr "Set a schedule for each site"
 
@@ -204,6 +216,10 @@ msgstr "Statistics keep counts and durations, plus daily counts for each configu
 #: apps/website/src/localization/index.ts
 msgid "Take a moment to pause."
 msgstr "Take a moment to pause."
+
+#: apps/website/src/localization/index.ts
+msgid "Take your setup with you"
+msgstr "Take your setup with you"
 
 #: apps/website/src/localization/privacy/index.ts
 msgid "The extension"
@@ -314,8 +330,8 @@ msgid "Your browser tries to use website icons from its own cache whenever it ca
 msgstr "Your browser tries to use website icons from its own cache whenever it can. Sometimes this doesn't work. I set it up this way to keep TOCus completely private and avoid connecting to any icon service."
 
 #: apps/website/src/localization/index.ts
-msgid "Your settings and stats stay in your browser. It even works offline and needs no account."
-msgstr "Your settings and stats stay in your browser. It even works offline and needs no account."
+msgid "Your settings and stats stay local. TOCus works offline and needs no account."
+msgstr "Your settings and stats stay local. TOCus works offline and needs no account."
 
 #: apps/website/src/localization/index.ts
 msgid "Your videos will pause automatically"
