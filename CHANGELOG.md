@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.1.0 - Unreleased
+## 1.1.0 - 2026-10-26
 
 - Added: The website explains path and subdomain exceptions and local backup transfers with matching illustrations in every supported language.
 
