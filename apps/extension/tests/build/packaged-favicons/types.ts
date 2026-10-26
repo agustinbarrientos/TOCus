@@ -15,6 +15,10 @@ export interface FaviconTestFixture {
 	extensionRoot: string;
 	/** Synthetic website served without external network access. */
 	siteUrl: string;
+	/** Unprotected quick-link destination with a different locally served favicon. */
+	focusLinkUrl: string;
+	/** Quick-link target protected by the original website's existing subdomain permission. */
+	protectedLinkUrl: string;
 	/** Actual packaged background service worker. */
 	worker: Worker;
 	/**

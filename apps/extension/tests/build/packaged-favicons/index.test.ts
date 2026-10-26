@@ -9,17 +9,26 @@ import { expect, test as base, type Page } from '@playwright/test';
 import type { ExtensionManifest, ExtensionWorkerGlobal, FaviconTestFixture, PackagedFaviconFixtures } from './types';
 import { DefaultPreferencesDocument, Language } from '../../../src/domains/preferences/types';
 import { createMockStatisticsDocument } from '../../../src/domains/statistics/types/__fixtures__/statistics-document';
+import { StatisticsDocumentSchema } from '../../../src/domains/statistics/types/statistics-document';
+import { ProtectionStorageEnvelopeSchema } from '../../../src/domains/protection/services/protection-storage/types';
+import {
+	StoredDurableProtectionStateSchema,
+	StoredSessionProtectionStateSchema,
+	StoredWaitingProtectionScopeStateSchema,
+	type StoredWaitingProtectionScopeState,
+} from '../../../src/domains/protection/types/stored-protection-state';
 
 /**
  * Creates a distinctive website icon unrelated to any TOCus artwork.
- * @return Opaque blue pixels with dimensions matching Chrome's requested favicon.
+ * @param focusLink - Whether to create the distinct icon for the unprotected quick-link destination.
+ * @return Opaque pixels with dimensions matching Chrome's requested favicon.
  * @since 1.0.0 Initial implementation.
  */
-function createWebsiteIcon(): PNG {
+function createWebsiteIcon( focusLink = false ): PNG {
 	const icon = new PNG( { width: 32, height: 32 } );
 
 	for ( let offset = 0; offset < icon.data.length; offset += 4 ) {
-		icon.data.set( [ 17, 119, 211, 255 ], offset );
+		icon.data.set( focusLink ? [ 211, 51, 68, 255 ] : [ 17, 119, 211, 255 ], offset );
 	}
 	return icon;
 }
@@ -64,6 +73,23 @@ async function readCachedFavicon( fixture: FaviconTestFixture, pageUrl: string )
 	return readImageHash( fixture.reader, source.href );
 }
 
+/**
+ * Reads the actual shared wait so reload cannot silently create another attempt.
+ * @param fixture - Disposable extension with one actively protected tab.
+ * @return Validated waiting scope retained by the packaged background.
+ * @since 1.1.0
+ */
+async function readWaitingState( fixture: FaviconTestFixture ): Promise<StoredWaitingProtectionScopeState> {
+	const records = await fixture.worker.evaluate( async () => {
+		const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+		return chrome.storage.session.get( 'tocus.protection.session.v1' );
+	} );
+	const state = StoredSessionProtectionStateSchema.parse(
+		ProtectionStorageEnvelopeSchema.parse( records[ 'tocus.protection.session.v1' ] ).document,
+	);
+	return StoredWaitingProtectionScopeStateSchema.parse( state.scopes.scope_default );
+}
+
 const test = base.extend<PackagedFaviconFixtures>( {
 	legacyBookmarks: [ true, { option: true } ],
 	/**
@@ -75,13 +101,14 @@ const test = base.extend<PackagedFaviconFixtures>( {
 	 */
 	favicon: async ( { playwright, legacyBookmarks }, use ) => {
 		const server = createServer( ( request, response ) => {
+			const focusLink = request.headers.host === 'project.test';
 			if ( request.url === '/favicon.png' ) {
 				response.writeHead( 200, { 'Content-Type': 'image/png' } );
-				response.end( PNG.sync.write( createWebsiteIcon() ) );
+				response.end( PNG.sync.write( createWebsiteIcon( focusLink ) ) );
 				return;
 			}
 			response.writeHead( 200, { 'Content-Type': 'text/html' } );
-			response.end( '<!doctype html><html lang="en"><title>Independent website</title><link rel="icon" type="image/png" sizes="32x32" href="/favicon.png"><body><h1>Original website</h1></body></html>' );
+			response.end( `<!doctype html><html lang="en"><title>Independent website</title><link rel="icon" type="image/png" sizes="32x32" href="/favicon.png"><body><h1>${ focusLink ? 'My project' : 'Original website' }</h1></body></html>` );
 		} );
 		let directory: string | undefined;
 		let context: FaviconTestFixture[ 'context' ] | undefined;
@@ -117,6 +144,8 @@ const test = base.extend<PackagedFaviconFixtures>( {
 			}
 			const port = address.port;
 			const siteUrl = 'http://example.test/';
+			const focusLinkUrl = 'http://project.test/';
+			const protectedLinkUrl = 'http://other.example.test/';
 
 			/**
 			 * Opens the same test-owned profile and reinstalls its loopback-only network boundary.
@@ -130,11 +159,14 @@ const test = base.extend<PackagedFaviconFixtures>( {
 					timeout: 10_000,
 					args: [
 						`--disable-extensions-except=${ extensionPath }`, `--load-extension=${ extensionPath }`,
-						`--host-resolver-rules=MAP example.test 127.0.0.1:${ String( port ) }`, '--no-proxy-server',
+						`--host-resolver-rules=MAP example.test 127.0.0.1:${ String( port ) },MAP project.test 127.0.0.1:${ String( port ) },MAP other.example.test 127.0.0.1:${ String( port ) }`, '--no-proxy-server',
 					],
 				} );
 				await context.route( /^https?:\/\//u, ( route ) => {
-					return new URL( route.request().url() ).origin === new URL( siteUrl ).origin
+					const origin = new URL( route.request().url() ).origin;
+					return [ siteUrl, focusLinkUrl, protectedLinkUrl ].some(
+						( site ) => origin === new URL( site ).origin,
+					)
 						? route.continue()
 						: route.abort();
 				} );
@@ -152,6 +184,8 @@ const test = base.extend<PackagedFaviconFixtures>( {
 			const fixture: FaviconTestFixture = {
 				...await launchBrowser(),
 				siteUrl,
+				focusLinkUrl,
+				protectedLinkUrl,
 				/**
 				 * Reopens the same browser profile so native favicon history survives a fresh runtime.
 				 * @return Ready replacement handles after the old context closes completely.
@@ -429,4 +463,175 @@ test.describe( 'packaged Chrome favicon preservation', () => {
 			expect( await readCachedFavicon( fixture, fixture.siteUrl ) ).toBe( websiteHash );
 		} );
 	} );
+} );
+
+test.describe( 'packaged Chrome quick-link favicon preservation', () => {
+	test.use( { legacyBookmarks: false } );
+
+	test( 'keeps separate website icons after quick-link choices and browser restart', async ( { favicon: fixture } ) => {
+		test.setTimeout( 45_000 );
+		const websiteHash = createHash( 'sha256' ).update( createWebsiteIcon().data ).digest( 'hex' );
+		const focusLinkHash = createHash( 'sha256' ).update( createWebsiteIcon( true ).data ).digest( 'hex' );
+		const website = await fixture.context.newPage();
+
+		await website.goto( fixture.siteUrl );
+		await expect.poll( () => readCachedFavicon( fixture, fixture.siteUrl ) ).toBe( websiteHash );
+		await website.close();
+		await fixture.worker.evaluate( async ( preferences ) => {
+			const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+			await chrome.storage.local.set( { 'tocus.preferences.v1': preferences } );
+		}, { ...DefaultPreferencesDocument, language: Language.ENGLISH,
+			focusLinks: [ { id: 'focus_link_project', label: 'Return to my project', url: fixture.focusLinkUrl } ] } );
+		await enableProtection( fixture );
+		const pause = await fixture.context.newPage();
+		const tabCount = fixture.context.pages().length;
+		await pause.goto( `${ fixture.focusLinkUrl }before-pause` );
+
+		for ( const visit of [ 1, 2 ] ) {
+			await test.step( `Keep both native favicons after quick-link visit ${ String( visit ) }`, async () => {
+				await pause.goto( fixture.siteUrl );
+				await pause.bringToFront();
+				await expect( pause ).toHaveURL( `${ fixture.extensionRoot }pause.html` );
+				await pause.getByRole( 'button', { name: 'Return to my project', exact: true } ).click();
+				await expect( pause ).toHaveURL( fixture.focusLinkUrl );
+				await expect( pause.getByRole( 'heading', { name: 'My project' } ) ).toBeVisible();
+				await expect.poll( () => readCachedFavicon( fixture, fixture.focusLinkUrl ) ).toBe( focusLinkHash );
+				await expect.poll( () => readCachedFavicon( fixture, fixture.siteUrl ), {
+					message: 'The blocked website must retain its own native favicon after a quick-link choice.',
+				} ).toBe( websiteHash );
+				expect( fixture.context.pages() ).toHaveLength( tabCount );
+
+				await expect.poll( async () => {
+					const records = await fixture.worker.evaluate( async () => {
+						const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+						return chrome.storage.local.get( [ 'tocus.statistics.v1', 'tocus.protection.durable.v1' ] );
+					} );
+					const statistics = StatisticsDocumentSchema.parse( records[ 'tocus.statistics.v1' ] );
+					const state = StoredDurableProtectionStateSchema.parse(
+						ProtectionStorageEnvelopeSchema.parse( records[ 'tocus.protection.durable.v1' ] ).document,
+					);
+					return {
+						totals: statistics.scopes.scope_default?.totals,
+						sites: statistics.visitOutcomes?.dailySites.map( ( site ) => site.siteHost ),
+						allowance: state.scopes.scope_default?.allowance,
+					};
+				} ).toMatchObject( {
+					totals: { reconsideredVisitCount: visit, completedWaitCount: 0, allowanceGrantedCount: 0 },
+					sites: [ 'example.test' ], allowance: undefined,
+				} );
+			} );
+		}
+		for ( const cycle of [ 1, 2 ] ) {
+			await test.step( `Restore protection and Forward navigation on history cycle ${ String( cycle ) }`, async () => {
+				await pause.goBack();
+				await pause.bringToFront();
+				await expect( pause ).toHaveURL( `${ fixture.extensionRoot }pause.html` );
+				await expect( pause.getByRole( 'button', { name: 'Return to my project', exact: true } ) ).toBeEnabled();
+				await expect( pause.getByRole( 'region', { name: /^Breathe (?:in|out)$/u } ) ).toBeVisible();
+				if ( cycle === 1 ) {
+					const waiting = await readWaitingState( fixture );
+					await pause.reload();
+					await expect( pause.getByRole( 'region', { name: /^Breathe (?:in|out)$/u } ) ).toBeVisible();
+					const restored = await readWaitingState( fixture );
+					expect( restored.waitId ).toBe( waiting.waitId );
+					expect( restored.capturedWaitDurationMilliseconds ).toBe(
+						waiting.capturedWaitDurationMilliseconds,
+					);
+					expect( restored.confirmedFocusedDurationMilliseconds ).toBeGreaterThanOrEqual(
+						waiting.confirmedFocusedDurationMilliseconds,
+					);
+					expect( restored.participants.map( ( participant ) => participant.participantId ) ).toEqual(
+						waiting.participants.map( ( participant ) => participant.participantId ),
+					);
+				}
+				await pause.goForward();
+				await expect( pause ).toHaveURL( fixture.focusLinkUrl );
+				await expect( pause.getByRole( 'heading', { name: 'My project' } ) ).toBeVisible();
+				expect( await readCachedFavicon( fixture, fixture.siteUrl ) ).toBe( websiteHash );
+				expect( await readCachedFavicon( fixture, fixture.focusLinkUrl ) ).toBe( focusLinkHash );
+			} );
+		}
+		await expect.poll( async () => {
+			const records = await fixture.worker.evaluate( async () => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				return chrome.storage.local.get( [ 'tocus.statistics.v1', 'tocus.protection.durable.v1' ] );
+			} );
+			const statistics = StatisticsDocumentSchema.parse( records[ 'tocus.statistics.v1' ] );
+			const state = StoredDurableProtectionStateSchema.parse(
+				ProtectionStorageEnvelopeSchema.parse( records[ 'tocus.protection.durable.v1' ] ).document,
+			);
+			return {
+				totals: statistics.scopes.scope_default?.totals,
+				sites: statistics.visitOutcomes?.dailySites.map( ( site ) => site.siteHost ),
+				allowance: state.scopes.scope_default?.allowance,
+			};
+		} ).toMatchObject( {
+			totals: { completedWaitCount: 0, allowanceGrantedCount: 0 },
+			sites: [ 'example.test' ], allowance: undefined,
+		} );
+		await pause.close();
+		await fixture.restartBrowser();
+		expect( await readCachedFavicon( fixture, fixture.siteUrl ) ).toBe( websiteHash );
+		expect( await readCachedFavicon( fixture, fixture.focusLinkUrl ) ).toBe( focusLinkHash );
+		const nextVisit = await fixture.context.newPage();
+		await nextVisit.goto( fixture.siteUrl );
+		await nextVisit.bringToFront();
+		await expect( nextVisit ).toHaveURL( `${ fixture.extensionRoot }pause.html` );
+		await expect( nextVisit.getByRole( 'button', { name: 'Return to my project', exact: true } ) ).toBeEnabled();
+		await expect( nextVisit.getByRole( 'region', { name: /^Breathe (?:in|out)$/u } ) ).toBeVisible();
+		expect( await readCachedFavicon( fixture, fixture.siteUrl ) ).toBe( websiteHash );
+		await test.step( 'Recheck current protection before restoring a historical pause', async () => {
+			await nextVisit.getByRole( 'button', { name: 'Return to my project', exact: true } ).click();
+			await expect( nextVisit ).toHaveURL( fixture.focusLinkUrl );
+			await fixture.worker.evaluate( async () => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				const key = 'tocus.protection.configuration.v1';
+				const records = await chrome.storage.local.get( key );
+				const configuration = records[ key ] as Record<string, unknown>;
+				await chrome.storage.local.set( { [ key ]: { ...configuration, sites: [] } } );
+			} );
+			await expect.poll( () => fixture.worker.evaluate( async () => {
+				const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+				return ( await chrome.declarativeNetRequest.getDynamicRules() ).length;
+			} ) ).toBe( 0 );
+			await nextVisit.goBack();
+			await expect( nextVisit ).toHaveURL( fixture.siteUrl );
+			await expect( nextVisit.getByRole( 'heading', { name: 'Original website' } ) ).toBeVisible();
+			expect( await readCachedFavicon( fixture, fixture.siteUrl ) ).toBe( websiteHash );
+		} );
+	} );
+	test( 'restores the originating destination after Back leaves a protected quick-link target', async ( { favicon: fixture } ) => {
+		test.setTimeout( 30_000 );
+		await fixture.worker.evaluate( async ( preferences ) => {
+			const { chrome } = globalThis as unknown as ExtensionWorkerGlobal;
+			await chrome.storage.local.set( { 'tocus.preferences.v1': preferences } );
+		}, { ...DefaultPreferencesDocument, language: Language.ENGLISH,
+			focusLinks: [ { id: 'focus_link_protected', label: 'Another protected website', url: fixture.protectedLinkUrl } ] } );
+		await enableProtection( fixture );
+		const pause = await fixture.context.newPage();
+
+		await pause.goto( fixture.siteUrl );
+		await pause.bringToFront();
+		await pause.getByRole( 'button', { name: 'Another protected website', exact: true } ).click();
+		await expect( async () => {
+			const state = await readWaitingState( fixture );
+			expect( state.participants.map( ( participant ) => participant.retainedDestination ) ).toEqual(
+				[ fixture.protectedLinkUrl ],
+			);
+		} ).toPass( { timeout: 5_000 } );
+		await pause.goBack();
+		await expect( pause ).toHaveURL( `${ fixture.extensionRoot }pause.html` );
+		await expect( pause.getByRole( 'region', { name: /^Breathe (?:in|out)$/u } ) ).toBeVisible();
+		await expect( async () => {
+			const state = await readWaitingState( fixture );
+			expect( state.participants.map( ( participant ) => participant.retainedDestination ) ).toEqual(
+				[ fixture.siteUrl ],
+			);
+		} ).toPass( { timeout: 5_000 } );
+		await expect( pause.getByRole( 'button', { name: 'Continue', exact: true } ) ).toBeEnabled( { timeout: 15_000 } );
+		await pause.getByRole( 'button', { name: 'Continue', exact: true } ).click();
+		await expect( pause ).toHaveURL( fixture.siteUrl );
+		await expect( pause.getByRole( 'heading', { name: 'Original website' } ) ).toBeVisible();
+	} );
+
 } );

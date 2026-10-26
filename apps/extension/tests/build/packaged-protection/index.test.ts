@@ -484,6 +484,7 @@ test.describe( 'packaged Chrome protection', () => {
 				await page.goto( destination );
 				await page.waitForURL( '**/pause.html' );
 				await page.bringToFront();
+				await expect( page.getByRole( 'region', { name: /^Breathe (?:in|out)$/u } ) ).toBeVisible();
 				await expect.poll( () => page.evaluate( () =>
 					document.hasFocus() && document.visibilityState === 'visible' ) )
 					.toBe( true );

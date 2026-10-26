@@ -395,7 +395,7 @@ export function createBrowserProtectionAdapter(
 	}
 
 	/**
-	 * Navigates one live tab, replacing an owned interruption document when its listener is available.
+	 * Navigates explicit quick-link choices independently, retaining history replacement for pause releases.
 	 * @param tabId - Browser-assigned tab identifier.
 	 * @param url - Retained navigation destination.
 	 * @param expectedSourceUrl - Exact current source required by an explicit focus choice.
@@ -414,11 +414,13 @@ export function createBrowserProtectionAdapter(
 			if ( tab?.incognito !== false || ( tab.pendingUrl ?? tab.url ) !== expectedSourceUrl ) {
 				throw new Error( 'The focus-link source is no longer current.' );
 			}
-			if ( /^https?:\/\//u.test( expectedSourceUrl ) ) {
-				await browserApi.tabs.update( tabId, { url } );
-				onAccepted?.();
-				return true;
+			// A user-selected website must not inherit the pause's redirect chain and overwrite its cached favicon.
+			await browserApi.tabs.update( tabId, { url } );
+			onAccepted?.();
+			if ( ! /^https?:\/\//u.test( expectedSourceUrl ) ) {
+				await tabAudio.restore( tabId );
 			}
+			return true;
 		}
 		const replacement = await replaceInterruptionNavigation( tabId, url );
 		if ( replacement === InterruptionNavigationReplacementDisposition.UNHANDLED ) {
