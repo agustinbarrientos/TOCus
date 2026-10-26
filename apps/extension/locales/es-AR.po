@@ -349,7 +349,7 @@ msgstr "Copia de seguridad y restauración"
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 #: apps/extension/src/localization/utils/create-settings-shell-copy/index.ts
 msgid "Backup and reset"
-msgstr "Copia de seguridad y reinicio"
+msgstr "Copia de seguridad y restablecimiento"
 
 #: apps/extension/src/localization/utils/create-backup-reset-screen-copy/index.ts
 msgid "Backup download started."
