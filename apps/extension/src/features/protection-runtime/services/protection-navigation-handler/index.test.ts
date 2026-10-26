@@ -1169,6 +1169,86 @@ describe( 'createProtectionNavigationHandler', () => {
 		},
 	);
 
+	it.each( [ false, true ] )( 'keeps Back as the departure cause when a historical pause replays its destination (carrier already current: %s)', async ( carrierAlreadyCurrent ) => {
+		const currentUrl = 'chrome-extension://extension-id/pause.html';
+		const destination = 'https://example.com/earlier';
+		const redirectUrl = `${ currentUrl }#destination=${ destination }`;
+		const harness = createHarness( createNavigationWaitingSnapshot(), currentUrl );
+		harness.listTabs.mockResolvedValue( [ {
+			id: 7, incognito: false, url: carrierAlreadyCurrent ? redirectUrl : currentUrl,
+		} ] );
+
+		await harness.handler.handle( {
+			frameId: 0, tabId: 7, url: currentUrl,
+			phase: ProtectionRuntimeNavigationPhase.COMMITTED,
+			transitionQualifiers: [ 'forward_back' ], transitionType: 'link',
+		} );
+		harness.listTabs.mockResolvedValue( [ { id: 7, incognito: false, url: redirectUrl } ] );
+		await harness.handler.handle( {
+			frameId: 0, tabId: 7, url: redirectUrl,
+			phase: ProtectionRuntimeNavigationPhase.COMMITTED,
+			transitionQualifiers: [], transitionType: 'reload',
+		} );
+
+		expect( harness.departTab ).toHaveBeenCalledExactlyOnceWith( 7, DepartureCause.BACK, CONFIGURATION );
+		expect( harness.coordinator.events ).toMatchObject( [ {
+			type: ProtectionEventType.VISIT_ATTEMPT, participant: { retainedDestination: destination },
+		} ] );
+	} );
+
+	it.each( [
+		{ label: 'private tab', tab: { id: 7, incognito: true, url: 'chrome-extension://extension-id/pause.html' } },
+		{ label: 'missing privacy', tab: { id: 7, url: 'chrome-extension://extension-id/pause.html' } },
+		{ label: 'closed tab', tab: { id: 8, incognito: false, url: 'chrome-extension://extension-id/pause.html' } },
+		{ label: 'redacted URL', tab: { id: 7, incognito: false } },
+		{ label: 'new navigation', tab: { id: 7, incognito: false, url: 'chrome-extension://extension-id/pause.html', pendingUrl: 'https://elsewhere.test/' } },
+		{ label: 'unrelated document', tab: { id: 7, incognito: false, url: 'chrome-extension://extension-id/options.html' } },
+	] )( 'does not attribute a historical pause departure after a $label observation', async ( { tab } ) => {
+		const currentUrl = 'chrome-extension://extension-id/pause.html';
+		const harness = createHarness( createNavigationWaitingSnapshot(), currentUrl );
+		harness.listTabs.mockResolvedValue( [ tab ] );
+
+		await harness.handler.handle( {
+			frameId: 0, tabId: 7, url: currentUrl,
+			phase: ProtectionRuntimeNavigationPhase.COMMITTED,
+			transitionQualifiers: [ 'forward_back' ], transitionType: 'link',
+		} );
+
+		expect( harness.departTab ).not.toHaveBeenCalled();
+		expect( harness.coordinator.events ).toEqual( [] );
+	} );
+
+	it.each( [
+		{ phase: ProtectionRuntimeNavigationPhase.BEFORE_NAVIGATE, transitionQualifiers: [ 'forward_back' ] },
+		{ phase: ProtectionRuntimeNavigationPhase.COMMITTED, transitionQualifiers: [] },
+		{ phase: ProtectionRuntimeNavigationPhase.COMMITTED, transitionQualifiers: [ 'client_redirect', 'forward_back' ] },
+		{ phase: ProtectionRuntimeNavigationPhase.COMMITTED, transitionQualifiers: [ 'forward_back', 'unrecognized' ] },
+	] )( 'does not infer a Back departure from a canonical event without qualifying history provenance: %j', async ( event ) => {
+		const currentUrl = 'chrome-extension://extension-id/pause.html';
+		const harness = createHarness( createNavigationWaitingSnapshot(), currentUrl );
+		harness.listTabs.mockResolvedValue( [ { id: 7, incognito: false, url: currentUrl } ] );
+
+		await harness.handler.handle( { frameId: 0, tabId: 7, url: currentUrl, ...event } );
+
+		expect( harness.departTab ).not.toHaveBeenCalled();
+		expect( harness.coordinator.events ).toEqual( [] );
+	} );
+
+	it( 'keeps unavailable configuration fail-open when Back reaches a historical pause', async () => {
+		const currentUrl = 'chrome-extension://extension-id/pause.html';
+		const harness = createHarness( createNavigationWaitingSnapshot(), currentUrl );
+		harness.listTabs.mockResolvedValue( [ { id: 7, incognito: false, url: currentUrl } ] );
+		harness.loadConfiguration.mockResolvedValue( null );
+
+		await harness.handler.handle( {
+			frameId: 0, tabId: 7, url: currentUrl,
+			phase: ProtectionRuntimeNavigationPhase.COMMITTED, transitionQualifiers: [ 'forward_back' ],
+		} );
+
+		expect( harness.departTab ).not.toHaveBeenCalled();
+		expect( harness.reconcileUnavailableConfiguration ).toHaveBeenCalledOnce();
+	} );
+
 	it.each( [ INTERRUPTION_PAGE_URL, 'chrome-extension://extension-id/pause.html' ] )(
 		'ignores an independent interruption page commit to %s', async ( url ) => {
 			const harness = createHarness( createNavigationWaitingSnapshot(), 'chrome-extension://extension-id/pause.html' );

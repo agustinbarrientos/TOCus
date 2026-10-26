@@ -899,18 +899,98 @@ it.each( [
 	expect( browserApi.tabs.update ).not.toHaveBeenCalled();
 } );
 
-it( 'preserves history replacement for an explicit focus choice from the current interruption', async () => {
+it.each( [
+	'chrome-extension://extension-id/pause.html',
+	'chrome-extension://extension-id/pause.html#destination=https://example.com/',
+	'chrome-extension://extension-id/interruption.html',
+	'moz-extension://extension-id/pause.html',
+] )( 'opens an explicit focus choice independently of the interruption redirect: %s', async ( source ) => {
+	const browserApi = createBrowserApi();
+	browserApi.runtime = { getURL: vi.fn().mockReturnValue( source.split( '#' )[ 0 ] ) };
+	vi.mocked( browserApi.tabs.query ).mockResolvedValue( [ { id: 7, incognito: false, url: source } ] );
+	vi.mocked( browserApi.tabs.sendMessage ).mockResolvedValue( { replaced: true } );
+	const audio = createTabAudioController();
+	const adapter = createBrowserProtectionAdapter( browserApi, audio );
+
+	await expect( adapter.navigateTab( 7, 'https://reading.test/book', source ) ).resolves.toBe( true );
+
+	expect( browserApi.tabs.update ).toHaveBeenCalledExactlyOnceWith( 7, { url: 'https://reading.test/book' } );
+	expect( browserApi.tabs.sendMessage ).not.toHaveBeenCalled();
+	expect( audio.restore ).toHaveBeenCalledExactlyOnceWith( 7 );
+} );
+
+it( 'reports an accepted standalone quick link before audio cleanup finishes', async () => {
 	const browserApi = createBrowserApi();
 	const source = 'chrome-extension://extension-id/pause.html';
 	browserApi.runtime = { getURL: vi.fn().mockReturnValue( source ) };
 	vi.mocked( browserApi.tabs.query ).mockResolvedValue( [ { id: 7, incognito: false, url: source } ] );
-	vi.mocked( browserApi.tabs.sendMessage ).mockResolvedValue( { replaced: true } );
-	const adapter = createBrowserProtectionAdapter( browserApi, createTabAudioController() );
-	await adapter.navigateTab( 7, 'https://reading.test/book', source );
-	expect( browserApi.tabs.sendMessage ).toHaveBeenCalledWith( 7, {
-		type: 'replace-interruption-navigation', sourceUrl: source, url: 'https://reading.test/book',
+	const navigation = Promise.withResolvers<undefined>();
+	vi.mocked( browserApi.tabs.update ).mockReturnValue( navigation.promise );
+	const audio = createTabAudioController();
+	const restoration = Promise.withResolvers<undefined>();
+	vi.mocked( audio.restore ).mockReturnValue( restoration.promise );
+	const adapter = createBrowserProtectionAdapter( browserApi, audio );
+	const onAccepted = vi.fn();
+	const result = adapter.navigateTab( 7, 'https://reading.test/book', source, onAccepted );
+
+	await vi.waitFor( () => {
+		expect( browserApi.tabs.update ).toHaveBeenCalledOnce();
 	} );
+	expect( onAccepted ).not.toHaveBeenCalled();
+	expect( audio.restore ).not.toHaveBeenCalled();
+	navigation.resolve( undefined );
+	await vi.waitFor( () => {
+		expect( audio.restore ).toHaveBeenCalledExactlyOnceWith( 7 );
+	} );
+	expect( onAccepted ).toHaveBeenCalledOnce();
+	expect( vi.mocked( onAccepted ).mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+		vi.mocked( audio.restore ).mock.invocationCallOrder[ 0 ] ?? 0,
+	);
+	restoration.resolve( undefined );
+	await expect( result ).resolves.toBe( true );
+	expect( browserApi.tabs.sendMessage ).not.toHaveBeenCalled();
+} );
+
+it.each( [ 'https://example.com/watching', 'chrome-extension://extension-id/pause.html' ] )(
+	'keeps a rejected quick-link navigation retryable without accepting or unmuting it: %s', async ( source ) => {
+		const browserApi = createBrowserApi();
+		browserApi.runtime = { getURL: vi.fn().mockReturnValue( 'chrome-extension://extension-id/pause.html' ) };
+		vi.mocked( browserApi.tabs.query ).mockResolvedValue( [ { id: 7, incognito: false, url: source } ] );
+		vi.mocked( browserApi.tabs.update ).mockRejectedValueOnce( new Error( 'Navigation failed' ) );
+		const audio = createTabAudioController();
+		const adapter = createBrowserProtectionAdapter( browserApi, audio );
+		const onAccepted = vi.fn();
+
+		await expect( adapter.navigateTab( 7, 'https://reading.test/book', source, onAccepted ) )
+			.rejects.toThrow( 'Navigation failed' );
+
+		expect( onAccepted ).not.toHaveBeenCalled();
+		expect( audio.restore ).not.toHaveBeenCalled();
+		expect( browserApi.tabs.sendMessage ).not.toHaveBeenCalled();
+	},
+);
+
+it.each( [
+	{}, { incognito: false }, { incognito: true, url: 'chrome-extension://extension-id/pause.html' },
+	{ url: 'chrome-extension://extension-id/pause.html' },
+	{ incognito: false, url: 'https://elsewhere.test/' },
+	{ incognito: false, url: 'chrome-extension://extension-id/pause.html', pendingUrl: 'https://elsewhere.test/' },
+] )( 'rejects a standalone quick link with unavailable or changed source metadata: %j', async ( tab ) => {
+	const browserApi = createBrowserApi();
+	const source = 'chrome-extension://extension-id/pause.html';
+	browserApi.runtime = { getURL: vi.fn().mockReturnValue( source ) };
+	vi.mocked( browserApi.tabs.query ).mockResolvedValue( [ { id: 7, ...tab } ] );
+	const audio = createTabAudioController();
+	const adapter = createBrowserProtectionAdapter( browserApi, audio );
+	const onAccepted = vi.fn();
+
+	await expect( adapter.navigateTab( 7, 'https://reading.test/book', source, onAccepted ) )
+		.rejects.toThrow( 'The focus-link source is no longer current.' );
+
 	expect( browserApi.tabs.update ).not.toHaveBeenCalled();
+	expect( browserApi.tabs.sendMessage ).not.toHaveBeenCalled();
+	expect( onAccepted ).not.toHaveBeenCalled();
+	expect( audio.restore ).not.toHaveBeenCalled();
 } );
 
 
