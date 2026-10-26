@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.1.0 - Unreleased
+## 1.1.0 - 2026-10-26
 
 - Added: Restore a local backup during onboarding from the Have a backup? header action, with file review and recovery for missing website access (Chrome, Edge, Firefox).
 
