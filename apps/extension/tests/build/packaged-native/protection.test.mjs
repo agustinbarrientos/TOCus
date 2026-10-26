@@ -112,11 +112,21 @@ test( 'first-use onboarding preserves appearance and enrolls websites through na
 		await browser.viewClick( 'selected', 'button[type="submit"]' );
 		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("[aria-label=Blue]") !== null;' ) ).toBe( true );
 		await browser.viewClick( 'selected', '[aria-label="Blue"]' );
+		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("[aria-label=Blue]")?.getAttribute("aria-checked");' ),
+			{ message: 'Blue is selected after its native click' } ).toBe( 'true' );
 		await browser.viewClick( 'selected', '[aria-label="Dark"]' );
+		await expect.poll( () => readView( browser, 'selected', `return {
+			blue: document.querySelector('[aria-label="Blue"]')?.getAttribute('aria-checked'),
+			dark: document.querySelector('[aria-label="Dark"]')?.getAttribute('aria-checked')
+		};` ), { message: 'Both appearance choices remain selected before Continue' } )
+			.toEqual( { blue: 'true', dark: 'true' } );
 		await browser.viewClick( 'selected', 'button[type="submit"]' );
 		await expect.poll( () => readView( browser, 'selected', `const input = document.querySelector('.manual-form input[aria-label="Website address"]');
 			return input instanceof HTMLInputElement && !input.disabled && input.getClientRects().length > 0
 				&& getComputedStyle(input).visibility === 'visible';` ) ).toBe( true );
+		await expect.poll( () => readView( browser, 'selected', `return browser.storage.local.get('tocus.preferences.v1')
+			.then(data => ({palette: data['tocus.preferences.v1']?.palette, theme: data['tocus.preferences.v1']?.theme}));` ),
+		{ message: 'Continue persists appearance before website enrollment' } ).toEqual( { palette: 'blue', theme: 'dark' } );
 		await browser.viewType( 'selected', 'input[aria-label="Website address"]', '127.0.0.1' );
 		await browser.viewClick( 'selected', '.manual-form button[type="submit"]' );
 		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector(".finish-action")?.disabled;' ) ).toBe( false );

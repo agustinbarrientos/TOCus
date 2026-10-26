@@ -1,8 +1,26 @@
-import { expect } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 import { ThemeMode } from '../../../../domains/preferences/types';
 import { ScheduleMode, Weekday } from '../../../../domains/protection/types/protection-schedule';
 import { SettingsDestination } from '../../services/settings-navigation/types';
 import { test } from '../../utils/browser-test-harness';
+
+/**
+ * Enables the address-dependent schedule after the newly mounted control can paint.
+ * @param page - Isolated Settings page with a pending website address.
+ * @return Completion of the native switch interaction and checked-state assertion.
+ */
+async function enableCustomSchedule( page: Page ): Promise<void> {
+	const schedule = page.getByRole( 'switch', { name: 'Use custom schedule', exact: true } );
+	await expect( schedule ).toBeVisible();
+	// Let the address-dependent layout paint before Firefox's next native pointer action.
+	await page.evaluate( () => new Promise<void>( ( resolve ) => {
+		requestAnimationFrame( () => requestAnimationFrame( () => {
+			resolve();
+		} ) );
+	} ) );
+	await schedule.click();
+	await expect( schedule ).toBeChecked();
+}
 
 test.describe( 'Unsaved navigation Save', () => {
 	test( 'saves timing before leaving and locks duplicate decisions during persistence', async ( { open, setting } ) => {
@@ -87,7 +105,7 @@ test.describe( 'Unsaved navigation Save', () => {
 			const page = await open( SettingsDestination.PROTECTED_SITES );
 			const input = page.getByLabel( 'Website address', { exact: true } );
 			await input.fill( 'example.com' );
-			await page.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ).click();
+			await enableCustomSchedule( page );
 			await page.getByLabel( 'Start', { exact: true } ).fill( '09:00' );
 			await page.getByLabel( 'End', { exact: true } ).fill( '17:00' );
 			await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
@@ -166,7 +184,7 @@ test.describe( 'Unsaved navigation Save', () => {
 		await page.locator( '#site-address' ).fill( 'example.com' );
 		await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
 		await page.locator( '#site-address' ).fill( 'example.com' );
-		await page.getByRole( 'switch', { name: 'Use custom schedule', exact: true } ).click();
+		await enableCustomSchedule( page );
 		await page.getByLabel( 'Start', { exact: true } ).fill( '10:00' );
 		await page.getByRole( 'link', { name: 'About', exact: true } ).click();
 		const dialog = page.getByRole( 'dialog' );
