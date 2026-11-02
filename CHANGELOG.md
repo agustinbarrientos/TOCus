@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1 - Unreleased
+
+- Fixed: Google authentication through accounts.youtube.com bypasses website pauses automatically, including for existing configurations, while other YouTube pages remain protected (Chrome, Edge, Firefox).
+
 ## 1.1.0 - 2026-10-26
 
 - Fixed: The Spanish (vos) Backup and reset page and navigation label use the same reset terminology as Spanish (tu) (Chrome, Edge, Firefox).
