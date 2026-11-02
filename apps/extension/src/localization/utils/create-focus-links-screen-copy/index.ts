@@ -25,7 +25,7 @@ export function createFocusLinksScreenCopy( i18n: I18n ): Readonly<FocusLinksScr
 		moveUp: i18n._( msg`Move up` ),
 		moveDown: i18n._( msg`Move down` ),
 		invalidLabel: i18n._( msg`Enter a label with 1 to 64 characters.` ),
-		invalidUrl: i18n._( msg`Enter an http:// or https:// address without a username or password.` ),
+		invalidUrl: i18n._( msg`Enter a website address, such as example.com, without a username or password.` ),
 		loading: i18n._( msg`Loading quick links...` ),
 		malformedDataTitle: i18n._( msg`Personalization settings need your attention` ),
 		malformedDataDescription: i18n._( msg`Your local personalization data isn't valid. Restoring defaults will reset appearance, pause, language, and quick links.` ),
