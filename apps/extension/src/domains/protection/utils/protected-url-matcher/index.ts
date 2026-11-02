@@ -4,6 +4,7 @@ import {
 	type ProtectedUrlMatchResult,
 } from '../../types/protected-url-match';
 import type { ProtectedSiteRule } from '../../types/protected-site-rule';
+import { ProtectionBypassHosts } from '../protection-bypass-hosts';
 import { canonicalizeProtectedSiteRules } from '../protected-site-canonicalizer';
 import {
 	normalizeProtectableUrl,
@@ -51,6 +52,10 @@ export function matchProtectedUrl( input: unknown, rules: unknown ): ProtectedUr
 			status: ProtectedUrlMatchStatus.UNSUPPORTED,
 			reason: urlResult.reason,
 		};
+	}
+
+	if ( ProtectionBypassHosts.includes( urlResult.host ) ) {
+		return { status: ProtectedUrlMatchStatus.UNPROTECTED };
 	}
 
 	let winner: ProtectedSiteRule | undefined;
