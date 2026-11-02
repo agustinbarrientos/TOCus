@@ -1,4 +1,5 @@
 import type { Browser } from 'wxt/browser';
+import { ProtectionBypassHosts } from '../../../../domains/protection/utils/protection-bypass-hosts';
 import type { ProtectedSiteRule } from '../../../../domains/protection/types/protected-site-rule';
 
 const PROTECTION_NAVIGATION_RULE_CAPACITY = 100_000;
@@ -63,7 +64,7 @@ export function createProtectionNavigationRules(
 		( left.pathPrefix?.length ?? 0 ) - ( right.pathPrefix?.length ?? 0 ) ||
 		JSON.stringify( left ).localeCompare( JSON.stringify( right ), 'en' ),
 	);
-	return orderedRules.map( ( rule, index ) => {
+	const navigationRules: Browser.declarativeNetRequest.Rule[] = orderedRules.map( ( rule, index ) => {
 		return {
 			id: ProtectionNavigationRuleIdStart + index,
 			priority: index + 1,
@@ -77,4 +78,25 @@ export function createProtectionNavigationRules(
 			},
 		};
 	} );
+	for ( const host of ProtectionBypassHosts ) {
+		const coveringRule = orderedRules.find( ( rule ) => rule.behavior !== 'allow' &&
+			( rule.host === host || ( rule.includeSubdomains && host.endsWith( `.${ rule.host }` ) ) ) );
+		if ( coveringRule === undefined ) {
+			continue;
+		}
+		// Higher priority than every user range, without bypassing other subdomains or granting an allowance.
+		navigationRules.push( {
+			id: ProtectionNavigationRuleIdStart + navigationRules.length,
+			priority: navigationRules.length + 1,
+			action: { type: 'allow' },
+			condition: {
+				regexFilter: createProtectionNavigationRegex( {
+					host, includeSubdomains: false, scopeId: coveringRule.scopeId,
+				} ),
+				isUrlFilterCaseSensitive: true,
+				resourceTypes: [ 'main_frame' ],
+			},
+		} );
+	}
+	return navigationRules;
 }
