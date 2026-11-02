@@ -19,7 +19,7 @@ describe( 'createFocusLinksScreenCopy', () => {
 		expect( copy.cancel ).toBe( 'Cancel' );
 		expect( copy.done ).toBe( 'Done' );
 		expect( copy.invalidLabel ).toContain( '1 to 64 characters' );
-		expect( copy.invalidUrl ).toContain( 'http://' );
+		expect( copy.invalidUrl ).toContain( 'example.com' );
 		expect( copy.malformedDataDescription ).toContain( 'quick links' );
 		expect( Object.isFrozen( copy ) ).toBe( true );
 	} );

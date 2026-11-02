@@ -651,8 +651,8 @@ msgid "Enter a valid website address."
 msgstr "Introduce una dirección web válida."
 
 #: apps/extension/src/localization/utils/create-focus-links-screen-copy/index.ts
-msgid "Enter an http:// or https:// address without a username or password."
-msgstr "Introduce una dirección http:// o https:// sin nombre de usuario ni contraseña."
+msgid "Enter a website address, such as example.com, without a username or password."
+msgstr "Introduce una dirección web, como example.com, sin nombre de usuario ni contraseña."
 
 #. Language autonym. Keep the language name written in Spanish.
 #: apps/extension/src/localization/utils/create-onboarding-language-step-copy/index.ts

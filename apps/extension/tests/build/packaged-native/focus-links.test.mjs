@@ -1,5 +1,5 @@
 import {
-	clickButton, continuePause, enroll, expect, fill, readView, settings, test, withBrowser,
+	clickButton, continuePause, enroll, expect, fill, readView, reload, settings, test, withBrowser,
 } from './__fixtures__/journey.mjs';
 
 
@@ -7,16 +7,17 @@ import {
  * Configures a focus destination through the production Settings form.
  * @param {object} browser - Disposable installed browser.
  * @param {URL} destination - User-selected alternative address.
+ * @param {string} [address] - Typed address, which may omit its scheme.
  * @since 1.1.0
  */
-async function configureFocusLink( browser, destination ) {
+async function configureFocusLink( browser, destination, address = destination.href ) {
 	await settings( browser, 'focus-links' );
 	await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Quick links' );
 	await expect.poll( () => readView( browser, 'selected', `const control = document.querySelector('.settings-focus-links-add');
 		return control instanceof HTMLButtonElement && !control.disabled && control.getClientRects().length > 0;` ) ).toBe( true );
 	await clickButton( browser, 'Add site', '.settings-focus-links' );
 	await fill( browser, '[role=dialog] input[id^="label-focus_link_"]', 'Return to my project' );
-	await fill( browser, '[role=dialog] input[id^="url-focus_link_"]', destination.href );
+	await fill( browser, '[role=dialog] input[id^="url-focus_link_"]', address );
 	await clickButton( browser, 'Done', '[role=dialog]' );
 	await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("[role=dialog]") === null;' ) ).toBe( true );
 	await clickButton( browser, 'Save', '.settings-page' );
@@ -27,12 +28,21 @@ async function configureFocusLink( browser, destination ) {
 
 
 
-test( 'a saved focus link leaves an unfinished pause without granting browsing time or additional access', async () => {
+test( 'a saved scheme-free focus link leaves an unfinished pause without granting browsing time or additional access', async () => {
 	await withBrowser( async ( browser, url, network ) => {
 		await enroll( browser, url );
 		const destination = new URL( 'slow', url );
 		destination.hostname = 'localhost';
-		await configureFocusLink( browser, destination );
+		destination.hash = 'today';
+		await configureFocusLink( browser, destination, `${ destination.host }/slow#today` );
+		await reload( browser );
+		await expect.poll( () => readView( browser, 'selected', `const control = document
+			.querySelector('.settings-focus-links button[id^=focus-link-edit-]');
+			return control instanceof HTMLButtonElement && !control.disabled && control.getClientRects().length > 0;` ) ).toBe( true );
+		await browser.viewClick( 'selected', '.settings-focus-links button[id^=focus-link-edit-]' );
+		await expect.poll( () => readView( browser, 'selected', `return document
+			.querySelector('[role=dialog] input[id^=url-focus_link_]')?.value;` ) ).toBe( destination.href );
+		await clickButton( browser, 'Cancel', '[role=dialog]' );
 		const permissions = await browser.viewScript( 'onboarding', 'return browser.permissions.getAll();' );
 		await browser.navigate( `${ url }focus-link-test` );
 		await expect.poll( () => browser.currentUrl() ).toContain( '/pause.html' );
@@ -54,7 +64,7 @@ test( 'a saved focus link leaves an unfinished pause without granting browsing t
 		await expect.poll( () => browser.currentUrl() ).toBe( destination.href );
 		await expect.poll( () => readView( browser, 'selected', 'return document.querySelector("h1")?.textContent;' ) ).toBe( 'Protected destination' );
 		expect( network.requests( '/focus-link-test' ) ).toBe( 0 );
-	} );
+	}, { hostname: 'example.test', https: true } );
 } );
 
 

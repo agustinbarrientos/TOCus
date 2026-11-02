@@ -5,6 +5,32 @@ import { test } from '../../utils/browser-test-harness';
 import axe from 'axe-core';
 
 test.describe( 'Focus links settings', () => {
+	for ( const [ address, destination ] of [
+		[ 'example.com', 'https://example.com/' ],
+		[ ' www.example.com/docs?lang=en#start ', 'https://www.example.com/docs?lang=en#start' ],
+		[ 'example.com/a b?query=one%20two#today', 'https://example.com/a%20b?query=one%20two#today' ],
+	] as const ) {
+		test( `saves and reopens a scheme-free quick link: ${ address.trim() }`, async ( { open } ) => {
+			const page = await open( SettingsDestination.FOCUS_LINKS );
+			await page.getByRole( 'button', { name: 'Add site', exact: true } ).click();
+			const dialog = page.getByRole( 'dialog', { name: 'Add site', exact: true } );
+			await dialog.getByLabel( 'Label', { exact: true } ).fill( 'Read' );
+			await dialog.getByLabel( 'Web address', { exact: true } ).fill( address );
+			await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
+			await expect( dialog ).toBeHidden();
+			expect( await page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 0 );
+			await page.getByRole( 'button', { name: 'Save', exact: true } ).click();
+			await expect.poll( () => page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 1 );
+			expect( await page.evaluate( () => window.settingsTest.getPreferences().focusLinks[ 0 ]?.url ) )
+				.toBe( destination );
+			await page.getByRole( 'link', { name: 'About', exact: true } ).click();
+			await page.getByRole( 'link', { name: 'Quick links', exact: true } ).click();
+			await page.getByRole( 'button', { name: 'Edit link', exact: true } ).click();
+			await expect( page.getByRole( 'dialog', { name: 'Edit link', exact: true } )
+				.getByLabel( 'Web address', { exact: true } ) ).toHaveValue( destination );
+		} );
+	}
+
 	test( 'keeps add and edit drafts inside dialogs until Done without saving preferences', async ( { open } ) => {
 		const page = await open( SettingsDestination.FOCUS_LINKS );
 		const add = page.getByRole( 'button', { name: 'Add site', exact: true } );
@@ -332,9 +358,18 @@ test.describe( 'Focus links settings', () => {
 		await expect( url ).toHaveValue( 'javascript:alert(1)' );
 		await expect( url ).toHaveAttribute( 'aria-invalid', 'true' );
 		expect( await page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 0 );
-		await url.fill( 'https://user:secret@example.com/' );
-		await label.focus();
-		await expect( url ).toHaveAttribute( 'aria-invalid', 'true' );
+		for ( const invalid of [
+			'https://user:secret@example.com/', 'user:secret@example.com/', 'ftp://example.com/', 'not a website',
+			'./docs', '../docs', 'not%20a%20website', 'https://not a website',
+		] ) {
+			await url.fill( invalid );
+			await expect( url ).toHaveValue( invalid );
+			await dialog.getByRole( 'button', { name: 'Done', exact: true } ).click();
+			await expect( dialog ).toBeVisible();
+			await expect( url ).toBeFocused();
+			await expect( url ).toHaveAttribute( 'aria-invalid', 'true' );
+			expect( await page.evaluate( () => window.settingsTest.controls.writes ) ).toBe( 0 );
+		}
 	} );
 
 	test( 'guards applied shortcut drafts during navigation and discards explicitly', async ( { open } ) => {
