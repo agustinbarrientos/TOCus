@@ -2,6 +2,8 @@
 
 ## 1.1.1 - Unreleased
 
+- Fixed: Quick links accept website addresses without a scheme, default to HTTPS, and preserve paths, query parameters and fragments while rejecting unsafe addresses (Chrome, Edge, Firefox).
+
 - Fixed: Google authentication through accounts.youtube.com bypasses website pauses automatically, including for existing configurations, while other YouTube pages remain protected (Chrome, Edge, Firefox).
 
 ## 1.1.0 - 2026-10-26

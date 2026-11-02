@@ -24,15 +24,26 @@ export const FocusLinkMaximumLabelLength = 64;
  */
 export const FocusLinkMaximumUrlLength = 2_048;
 
+const EXPLICIT_SCHEME_PATTERN = /^[a-z][a-z0-9+.-]*:/i;
+const SCHEMELESS_HOST_PORT_PATTERN = /^(?:\[[^\]]+\]|localhost|[^/?#:@]+\.[^/?#:@]+):\d+(?:[/?#]|$)/i;
+
 /**
- * Validates and normalizes credential-free absolute web destinations.
+ * Defaults scheme-free website addresses to HTTPS and validates credential-free web destinations.
  * @since 1.1.0
  */
 const FocusLinkUrlSchema = z.string().regex( /^[^\p{Cc}]*$/u ).trim().max( FocusLinkMaximumUrlLength )
 	.transform( ( value, context ) => {
 		try {
-			const url = new URL( value );
-			if ( ! /^https?:\/\//i.test( value ) || url.username !== '' || url.password !== '' ) {
+			const hasScheme = EXPLICIT_SCHEME_PATTERN.test( value ) && ! SCHEMELESS_HOST_PORT_PATTERN.test( value );
+			const address = hasScheme ? value : `https://${ value }`;
+			const authority = /^https?:\/\/([^/?#\\]*)/i.exec( address )?.[ 1 ];
+			// Reject host whitespace consistently across browser parsers while allowing spaces in paths.
+			if ( /^[./?#\\]/u.test( value ) || authority === undefined ||
+				/\s/u.test( decodeURIComponent( authority ) ) ) {
+				throw new Error( 'Focus destinations must be web addresses with a valid host.' );
+			}
+			const url = new URL( address );
+			if ( url.username !== '' || url.password !== '' ) {
 				throw new Error( 'Focus destinations must be credential-free web URLs.' );
 			}
 			return url.href;
