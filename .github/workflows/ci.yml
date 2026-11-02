@@ -28,7 +28,7 @@ jobs:
             - name: Set up Node.js and pnpm
               uses: pnpm/setup@a0881977cd8ea73b1ed212236c99ca10dcc80cf4 # v3
               with:
-                  runtime: node@24.20.0
+                  runtime: node@26.13.0
                   cache: true
                   install: false
 
@@ -90,7 +90,7 @@ jobs:
             - name: Set up Node.js and pnpm
               uses: pnpm/setup@a0881977cd8ea73b1ed212236c99ca10dcc80cf4 # v3
               with:
-                  runtime: node@24.20.0
+                  runtime: node@26.13.0
                   cache: true
                   install: false
             - name: Install dependencies
@@ -139,7 +139,7 @@ jobs:
             - name: Set up Node.js and pnpm
               uses: pnpm/setup@a0881977cd8ea73b1ed212236c99ca10dcc80cf4 # v3
               with:
-                  runtime: node@24.20.0
+                  runtime: node@26.13.0
                   cache: true
                   install: false
             - name: Install dependencies
@@ -172,7 +172,7 @@ jobs:
             - name: Set up Node.js and pnpm
               uses: pnpm/setup@a0881977cd8ea73b1ed212236c99ca10dcc80cf4 # v3
               with:
-                  runtime: node@24.20.0
+                  runtime: node@26.13.0
                   cache: true
                   install: false
             - name: Install dependencies
